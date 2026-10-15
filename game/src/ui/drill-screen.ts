@@ -10,8 +10,8 @@
 // formation label, and above all the ENGINE'S OWN refusal reason — is authored prose from a corpus this app
 // does not own, and AGENTS.md §6 requires it to be impossible for any of it to become markup. The one place
 // markup is built is static, with no interpolation.
-import type { Board } from 'dancing-squared-engine';
 import type { DrillController, DrillView } from '../game/drill.ts';
+import type { SequenceMotion } from '../puzzle/types.ts';
 
 /** The elements this screen owns, resolved once and named, so a missing id fails at the first read. */
 interface El {
@@ -37,9 +37,8 @@ export class DrillScreen {
   private controller: DrillController | null = null;
   private busy = false;
 
-  /** The option a replay is currently showing, so the drawing loop knows what to interpolate. */
-  private replayFrom: Board | null = null;
-  private replayTo: Board | null = null;
+  /** The motion a replay is currently drawing, or null when nothing is replaying. */
+  private replay: SequenceMotion | null = null;
 
   constructor(
     /** Called when an option or the illegal choice is clicked. */
@@ -70,9 +69,9 @@ export class DrillScreen {
     return this.els.canvas;
   }
 
-  /** The board pair a replay should interpolate, or null when nothing is replaying. */
-  replayPair(): { from: Board; to: Board } | null {
-    return this.replayFrom && this.replayTo ? { from: this.replayFrom, to: this.replayTo } : null;
+  /** The motion a replay should draw, or null when nothing is replaying. */
+  replayMotion(): SequenceMotion | null {
+    return this.replay;
   }
 
   /** Show or hide the loading notice. */
@@ -93,8 +92,7 @@ export class DrillScreen {
   /** Point the screen at a puzzle. */
   show(controller: DrillController, position: number): void {
     this.controller = controller;
-    this.replayFrom = null;
-    this.replayTo = null;
+    this.replay = null;
     this.busy = false;
     this.els.regime.textContent = `Drill ${position + 1} — level ${controller.puzzleRef.level.index}, ${controller.view().stepCount} call${controller.view().stepCount === 1 ? '' : 's'} to find`;
     this.els.verdict.textContent = '';
@@ -159,26 +157,24 @@ export class DrillScreen {
     this.els.verdict.dataset['kind'] = kind;
   }
 
-  /** Start drawing a motion from `from` to `to`; the loop calls `replayPair` while it runs. */
-  beginReplay(from: Board, to: Board): void {
-    this.replayFrom = from;
-    this.replayTo = to;
+  /** Start drawing `motion`; the loop calls `replayMotion` while it runs. */
+  beginReplay(motion: SequenceMotion): void {
+    this.replay = motion;
   }
 
   /**
    * STOP drawing the motion, so that the next `draw()` shows the controller's own board.
    *
-   * The pair is dropped rather than left in place, because a stale pair is what would let the drawing loop
-   * keep interpolating after the motion has been reported — the picture would keep moving after the verdict
-   * was announced.
+   * The motion is dropped rather than left in place, because a stale one is what would let the drawing loop
+   * keep sampling after the motion has been reported — the picture would keep moving after the verdict was
+   * announced.
    *
-   * IT TAKES NO BOARD, and the earlier version took one and ignored it (`void board`): what is on screen is
+   * IT TAKES NO BOARD, and an earlier version took one and ignored it (`void board`): what is on screen is
    * `main.ts`'s business, not this object's. A dropped parameter reads as a contract the screen does not
-   * have, which is why the call sites now pass nothing.
+   * have, which is why the call sites pass nothing.
    */
   endReplay(): void {
-    this.replayFrom = null;
-    this.replayTo = null;
+    this.replay = null;
   }
 
   /** The label on the 2D/3D button, which names what pressing it will DO rather than the current mode. */

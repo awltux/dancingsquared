@@ -11,15 +11,18 @@ import { MAIN_POOL } from './puzzle/pool.ts';
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
-import { DrillStage, type ViewMode } from './render/stage-view.ts';
+import { GameStage, type ViewMode } from './render/stage-view.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
 import { Replay } from './ui/playhead.ts';
 import type { Board } from 'dancing-squared-engine';
+import type { GameApplier } from './puzzle/types.ts';
 
 const PLAYHEAD = new Replay();
-const stageRef: { stage: DrillStage | null } = { stage: null };
+const stageRef: { stage: GameStage | null } = { stage: null };
 let screen: DrillScreen;
 let controller: DrillController | null = null;
+/** The level's engine seam, which the replay's motion is asked of. One per level, rebuilt with the puzzle. */
+let applier: GameApplier | null = null;
 let position = 0;
 /** Whether the replay now running finishes a CORRECT answer, so the loop knows to advance. */
 let advances: boolean = false;
@@ -33,8 +36,9 @@ function startDrill(next: number): void {
   if (!level) throw new Error(`the fixture names level ${entry.levelIndex}, which is not a level`);
 
   screen.setLoading(true, `Generating drill ${position + 1} of ${scheduleLength()}…`);
-  const { applier, registered } = createLevelRuntime(level, MAIN_POOL);
-  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level), entry.seed, level, applier);
+  const runtime = createLevelRuntime(level, MAIN_POOL);
+  applier = runtime.applier;
+  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level), entry.seed, level, runtime.applier);
   screen.setLoading(false);
 
   if (!result.ok) {
@@ -44,10 +48,10 @@ function startDrill(next: number): void {
     screen.render();
     return;
   }
-  if (registered < level.poolSize) {
+  if (runtime.registered < level.poolSize) {
     // NOT FATAL, AND NOT SILENT: a title in the level that the corpus does not carry is a data question the
     // ladder census reports, and saying so here is what stops it being discovered as a mysterious difficulty.
-    console.warn(`level ${level.index} asks for ${level.poolSize} calls and the corpus carries ${registered}`);
+    console.warn(`level ${level.index} asks for ${level.poolSize} calls and the corpus carries ${runtime.registered}`);
   }
 
   controller = new DrillController(result.puzzle);
@@ -62,24 +66,24 @@ function draw(): void {
   const stage = stageRef.stage;
   if (!stage || !controller) return;
   const goal: Board = controller.puzzleRef.goal;
-  const pair = screen.replayPair();
-  if (pair && PLAYHEAD.isRunning) {
-    stage.drawReplay(pair.from, pair.to, goal, PLAYHEAD.fraction);
-    return;
-  }
-  if (pair) {
-    // A FINISHED REPLAY KEEPS ITS LANDING BOARD ON SCREEN, because that is the whole teaching content of a
-    // wrong answer: where the call you chose actually leaves the set. `fraction 1` is exactly the ending
-    // board — `tween.ts` clamps it there so the picture and the verdict cannot disagree.
-    stage.drawReplay(pair.from, pair.to, goal, 1);
+  const replay = screen.replayMotion();
+  if (replay) {
+    // A REPLAY IS DRAWN FROM THE ENGINE'S OWN WALK, sampled at the playhead's beat — and a FINISHED one keeps
+    // its landing board on screen, because that is the whole teaching content of a wrong answer: where the
+    // call you chose actually leaves the set. The playhead reports exactly the walk's total once it has
+    // finished, so the picture and the verdict cannot disagree about the ending.
+    stage.drawMotion(replay, goal, PLAYHEAD.beat);
     return;
   }
   const view = controller.view();
-  stage.draw(view.from, view.goal);
+  stage.drawStill(view.from, view.goal);
 }
 
 function choose(choice: number | 'unknown'): void {
-  if (!controller || PLAYHEAD.isRunning) return;
+  // `applier` IS ALWAYS SET BY THE TIME A BUTTON EXISTS — it is assigned with the puzzle the controller was
+  // built from — but it is typed as nullable because a click cannot be the thing that proves it, so the guard
+  // is here rather than a non-null assertion.
+  if (!controller || !applier || PLAYHEAD.isRunning) return;
   let result;
   try {
     result = controller.answer(choice);
@@ -98,32 +102,34 @@ function choose(choice: number | 'unknown'): void {
     return;
   }
 
-  const from = result.replayFrom as Board;
-  const to = result.ending as Board;
+  // THE MOTION IS THE ENGINE'S OWN WALK OF THIS ONE CALL, and its length is the walk's beats rather than a
+  // duration chosen here: a Swing takes longer to dance than a Touch a Quarter, and a fixed 700 ms made every
+  // call the same length. `motion.at(0)` is the board it starts from, so the first frame is where the player
+  // is standing.
+  const motion = applier.motion([result.call], result.replayFrom as Board);
   advances = result.kind === 'correct';
-  screen.beginReplay(from, to);
+  screen.beginReplay(motion);
   screen.setBusy(true);
   if (result.kind === 'correct') {
     screen.say(`${result.call} — correct.`, 'ok');
-    PLAYHEAD.start({ label: result.call, done: () => undefined }, 700);
   } else {
     // A WRONG ANSWER STATES WHERE IT WENT, not just that it was wrong. The ending board is on screen by the
     // time this is read, so the sentence and the picture say the same thing.
     screen.say(`${result.call} is legal, but it does not leave the set on the goal board.`, 'bad');
-    PLAYHEAD.start({ label: result.call, done: () => undefined }, 700);
   }
+  PLAYHEAD.start({ label: result.call, done: () => undefined }, motion.beats);
 }
 
 /** The answer, on request — DESIGN.md §8's review. */
 function review(): void {
-  if (!controller || PLAYHEAD.isRunning || controller.atEnd) return;
+  if (!controller || !applier || PLAYHEAD.isRunning || controller.atEnd) return;
   const option = controller.review();
-  const from = controller.view().from;
+  const motion = applier.motion([option.call], controller.view().from);
   advances = true;
-  screen.beginReplay(from, option.board);
+  screen.beginReplay(motion);
   screen.setBusy(true);
   screen.say(`The answer is ${option.call}.`, 'info');
-  PLAYHEAD.start({ label: option.call, done: () => undefined }, 700);
+  PLAYHEAD.start({ label: option.call, done: () => undefined }, motion.beats);
 }
 
 function toggleView(): void {
@@ -170,7 +176,7 @@ function frame(nowMs: number): void {
 
 function main(): void {
   screen = new DrillScreen(choose, review, () => startDrill(position + 1), toggleView);
-  const stage = new DrillStage(screen.canvas);
+  const stage = new GameStage(screen.canvas);
   stageRef.stage = stage;
   stage.setMode(mode);
   screen.setViewButton('3d');

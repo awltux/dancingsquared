@@ -6,6 +6,10 @@
 // the side-by-side comparison for free, and — the reason that actually matters — the 2D/3D toggle then
 // applies to BOTH boards at once, which is what DESIGN.md §13's "on both the 2D and 3D views" asks for.
 //
+// IT SERVES BOTH MODES, which is why the class is `GameStage` and not `DrillStage` any more: the Drill shows
+// a question's board beside the goal, and the Daily shows the player's board beside the same goal, and those
+// are the same picture.
+//
 // DANCER VIEWS ARE KEYED BY IDENTITY, never by array position. `DancerView` bakes its avatar at construction
 // — the boy/girl shape, the couple colour, the number label — so a view paired with the wrong dancer shows
 // the wrong person at a correct position, which is the shape `reorderLike`'s comment in the engine records
@@ -18,8 +22,9 @@
 // (`v.group.visible = on && !flat`); this module makes it once for two boards.
 import * as THREE from 'three';
 import { DancerView, buildFlatMarker, createStage, type Stage } from 'dancing-squared-stage';
-import type { Board } from 'dancing-squared-engine';
-import { stillBoard, tweenBoards, type TweenPose } from '../game/tween.ts';
+import { computeHandholds, type Board, type Pose } from 'dancing-squared-engine';
+import { stillBoard } from '../game/poses.ts';
+import type { SequenceMotion } from '../puzzle/types.ts';
 
 /**
  * HOW THE TWO BOARDS ARE SIZED AND PLACED — and the arithmetic is the geometry, not a pair of numbers that
@@ -55,6 +60,29 @@ const BOARD_CENTRE = 5 * BOARD_SCALE + GUTTER / 2;
  * point is that both boards are on screen at once.
  */
 const BOARD_SCALE_3D = 0.68;
+
+/**
+ * Where two dancers' hands meet, in board units above the floor.
+ *
+ * The POC's own number (`poc/src/sequencer-ui.ts` aims every hold at `y = 1.0`), reused rather than
+ * re-chosen: a dancer's avatar is 2 units tall, so a hand at 1.0 is at its own mid-height, and a hold drawn
+ * anywhere else either floats above the pair or hides inside the floor.
+ */
+const HOLD_HEIGHT = 1.0;
+
+/** A board at rest: the walk cycle held still, because nothing is travelling. */
+const WALK_STILL = { phase: 0 };
+
+/**
+ * The walk phase at `beat`.
+ *
+ * THE POC'S EXACT EXPRESSION, including the `+ 1000`: it makes beat 0 and beat 2 land on the same phase, so
+ * a two-beat call does not end its walk mid-stride, and it is the tempo the panel that authors these calls
+ * uses. Re-deriving it here would make the same call look like two different dances in one app.
+ */
+function walkAt(beat: number): { phase: number } {
+  return { phase: ((beat + 1000) % 2) / 2 };
+}
 
 export type ViewMode = '2d' | '3d';
 
@@ -96,17 +124,31 @@ class BoardView {
    * A board change WITHIN a puzzle never changes the set (identity is carried through), so this rebuilds on
    * the first draw and on a genuinely different set, and nothing else.
    *
-   * THE WALK CYCLE IS HELD AT A FIXED PHASE. The POC advances `phase` from the beat so the legs swing as the
-   * dancer travels; a tween has no beat, and a phase driven by `fraction` would speed the legs up and down
-   * mid-move. A constant phase leaves the legs neutral and lets the TRANSLATION carry the motion, which is
-   * honest about this being a chord and not the authored path (see `game/tween.ts`).
+   * THE WALK PHASE FOLLOWS THE BEAT, which is why this takes one: the POC advances `phase` from the beat so
+   * the legs swing as the dancer travels, and the engine's walk now supplies a real beat for every frame. A
+   * constant phase — the version this replaced — left the legs neutral, which was honest when the motion was
+   * a chord and the pose came from nowhere; it is not honest now that the frame IS the dance.
+   *
+   * THE ARMS ARE POSED FROM THE HOLDS, which is what makes a ring or a line read as joined up: the hold
+   * graph is derived from the poses (`computeHandholds(poses, 'static')`, the POC's own choice for an
+   * evaluated board), and each edge aims two hands at the point between the dancers. See `poses.ts` for why a
+   * board cannot carry an authored grip.
    */
-  draw(board: Board, poses: readonly TweenPose[]): void {
+  draw(board: Board, poses: readonly Pose[], walk: { phase: number }): void {
     const ids = board.dancers.map((d) => d.id);
     if (!sameIds(this.ids, ids)) this.rebuild(board);
+    const holds = computeHandholds([...poses], 'static');
+    const targets: { left?: THREE.Vector3; right?: THREE.Vector3 }[] = poses.map(() => ({}));
+    for (const h of holds) {
+      const hold = new THREE.Vector3((poses[h.i].x + poses[h.j].x) / 2, HOLD_HEIGHT, -(poses[h.i].y + poses[h.j].y) / 2);
+      if (h.hi === 'left') targets[h.i].left = hold.clone();
+      else targets[h.i].right = hold.clone();
+      if (h.hj === 'left') targets[h.j].left = hold.clone();
+      else targets[h.j].right = hold.clone();
+    }
     for (let i = 0; i < this.views.length; i++) {
-      const pose = poses[i] ?? { x: board.dancers[i].x, y: board.dancers[i].y, heading: board.dancers[i].heading };
-      this.views[i].update(pose, {}, { phase: 0 });
+      const pose = poses[i] ?? { x: board.dancers[i].x, y: board.dancers[i].y, heading: board.dancers[i].heading, hands: 'both' as const };
+      this.views[i].update(pose, targets[i], walk);
       const marker = this.markers[i];
       if (marker) {
         // Board (x, y) -> 3D (x, 0, -y), and a heading of 0 faces +x, so the marker's y-rotation IS the
@@ -152,8 +194,8 @@ function sameIds(a: readonly number[], b: readonly number[]): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
-/** The whole drill's view: the stage, the two boards, and the 2D/3D switch. */
-export class DrillStage {
+/** The whole game's view: the stage, the two boards, and the 2D/3D switch — shared by both modes. */
+export class GameStage {
   private readonly stage: Stage;
   private readonly start: BoardView;
   private readonly goal: BoardView;
@@ -188,15 +230,23 @@ export class DrillStage {
   }
 
   /** Draw both boards at rest. */
-  draw(startBoard: Board, goalBoard: Board): void {
-    this.start.draw(startBoard, stillBoard(startBoard));
-    this.goal.draw(goalBoard, stillBoard(goalBoard));
+  drawStill(startBoard: Board, goalBoard: Board): void {
+    this.start.draw(startBoard, stillBoard(startBoard), WALK_STILL);
+    this.goal.draw(goalBoard, stillBoard(goalBoard), WALK_STILL);
   }
 
-  /** Draw the left board mid-replay, with the goal board still. */
-  drawReplay(from: Board, to: Board, goalBoard: Board, fraction: number): void {
-    this.start.draw(from, tweenBoards(from, to, fraction));
-    this.goal.draw(goalBoard, stillBoard(goalBoard));
+  /**
+   * Draw the left board MID-MOTION at `beat`, with the goal board still.
+   *
+   * THE FRAME COMES FROM THE ENGINE, not from an interpolation here: `motion.at(beat)` is the engine's own
+   * walk of the calls, so the picture and the verdict are computed from the same evaluation (DESIGN.md 4.3).
+   * At `beat = motion.beats` this draws the board the whole list ends on, which is what a finished replay
+   * must settle on; at `beat = 0` it draws the board the list starts from.
+   */
+  drawMotion(motion: SequenceMotion, goalBoard: Board, beat: number): void {
+    const frame = motion.at(beat);
+    this.start.draw(frame, stillBoard(frame), walkAt(beat));
+    this.goal.draw(goalBoard, stillBoard(goalBoard), WALK_STILL);
   }
 
   resize(): void {

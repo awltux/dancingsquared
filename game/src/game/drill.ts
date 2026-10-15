@@ -32,8 +32,9 @@ export interface AnswerResult {
   ending?: Board;
   /**
    * The board the option was played FROM. Carried beside `ending` so a replay needs nothing but this
-   * result: the view can tween the pair without asking the machine which step is current — which matters,
-   * because after a CORRECT answer the machine has already advanced past it.
+   * result: the view can ask the applier for the motion of the ONE call that was played, without asking the
+   * machine which step is current — which matters, because after a CORRECT answer the machine has already
+   * advanced past it.
    */
   replayFrom?: Board;
   /** The call that was played, for a caption. */

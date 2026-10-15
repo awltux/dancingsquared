@@ -882,8 +882,9 @@ The mode is playable in a browser on locally generated puzzles, on both views. N
 `game/vite.config.ts` (with the POC's engine alias, for one engine instance), `src/data/` (the corpus and the
 level runtime), `src/game/` (`schedule-fixture.ts`, `drill.ts`, `tween.ts` — all engine-free and
 probe-loadable), `src/render/stage-view.ts`, `src/ui/` (`drill-screen.ts`, `playhead.ts`), `src/main.ts`, and
-three new probes (`drill-controller`, `tween`, `schedule-fixture`). Four findings, each with the measurement
-that produced it:
+three new probes (`drill-controller`, `tween`, `schedule-fixture`). **`tween.ts` and its probe were REPLACED
+in Phase 3** by the engine's own walk (`game/poses.ts` plus `motion-probe.mjs`) — see that phase below. Four
+findings, each with the measurement that produced it:
 
 1. **`import.meta.glob` CANNOT REACH OUTSIDE VITE'S ROOT** — and this is the finding that changed the design.
    `server.fs.allow` governs what may be SERVED, not what may be GLOBBED. With the game's root at `game/` and

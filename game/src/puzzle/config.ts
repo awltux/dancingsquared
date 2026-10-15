@@ -119,3 +119,13 @@ export const ATTEMPT_PENALTY = 0.25;
  * floor of 1 keeps "solved" and "unsolved" distinguishable on a leaderboard that only stores a number.
  */
 export const MIN_RUN_SCORE = 1;
+
+/**
+ * How long one beat of a dance takes on screen, in milliseconds.
+ *
+ * The POC's `MS_PER_BEAT` (500, i.e. 120 beats a minute), reused rather than re-chosen: the panel that
+ * authors these calls plays them at this tempo, and an animation that ran at a different one would make the
+ * same call look like two different dances in one app. It is the ONLY place a beat is related to a
+ * millisecond — `ui/playhead.ts` reads it and nothing else does.
+ */
+export const MS_PER_BEAT = 500;

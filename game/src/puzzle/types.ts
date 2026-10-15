@@ -1,9 +1,15 @@
-// The game's data model. Pure types only — no engine import beyond the board type, and no runtime
-// value from the engine anywhere in `src/puzzle/`. THE CORE TAKES THE ENGINE AS AN ARGUMENT
-// (`GameApplier` below), which is what makes a probe able to drive a whole puzzle with a stub and
-// what makes the generator's determinism a property of this package rather than of how it was wired.
+// The game's data model. THE CORE TAKES THE ENGINE AS AN ARGUMENT — the `GameApplier` seam below is the
+// whole of its engine surface, and that is what lets a probe drive a whole puzzle with a stub and what
+// makes the generator's determinism a property of this package rather than of how it was wired.
+//
+// WHAT THAT SEAM DOES AND DOES NOT COVER, stated because a comment claiming "no engine value anywhere in
+// `src/puzzle/`" used to sit here and was simply untrue: the PURE RULES the engine owns are imported
+// directly (`sameBoardById`, `boardSig`, `makeSquaredSet`), because a probe imports the same functions and
+// re-deriving them would be the second implementation AGENTS.md 5 forbids. What the seam covers is
+// everything MUTABLE or ENVIRONMENTAL — the sequencer, legality, naming, refusals — so that no probe and no
+// screen needs one, and so the whole core stays loadable by bare Node.
 
-import type { Board } from 'dancing-squared-engine';
+import type { Board, SequenceStop } from 'dancing-squared-engine';
 
 /** The two modes. They differ in WHO decides the puzzle: the Drill's order is authored and served, the
  * Daily is derived from the date (DESIGN.md 1). */
@@ -49,6 +55,34 @@ export interface Refusal {
 }
 
 /**
+ * A list of calls as a MOVING board: what the engine's own walk makes of it, sampled by beat.
+ *
+ * WHY THIS IS AN APPLIER METHOD AND NOT A MODULE. Drawing a call means walking the authored path — the
+ * engine's `evaluateSequence`, driven per animation frame exactly as the POC drives it (DESIGN.md 4.3) — and
+ * that needs the sequencer, which is the one thing the pure core does not hold. So the motion is asked of
+ * the same seam that answers legality and naming, and both sides of the wire sample the same walk.
+ *
+ * THE ENDPOINT IS THE POINT. `at(beats)` is the board the engine reaches by walking the whole list, and that
+ * board is what every verdict is computed against — so a replay that lands anywhere else would show one
+ * board and score another. `game/test/motion-probe.mjs` pins the equality rather than trusting it.
+ */
+export interface SequenceMotion {
+  /** How many beats the walk charges for the whole list. Zero when it cannot be walked at all. */
+  beats: number;
+  /**
+   * Where the walk stops, in the ENGINE's own shape (index, call, reason, board), or null when the whole
+   * list walks. The reason is engine-owned prose and is shown verbatim — for the Drill's illegal option
+   * this is the point of the option rather than an error path (DESIGN.md 4.3).
+   */
+  stop: SequenceStop | null;
+  /**
+   * The board at `beat`, clamped into `[0, beats]`. At `0` it is the board the list starts from; at `beats`
+   * it is the board the whole list ends on, exactly.
+   */
+  at(beat: number): Board;
+}
+
+/**
  * What the core asks of the engine. Every method is a pure function of the board it is given, so the
  * core never holds a mutable sequencer and a probe can substitute a stub.
  *
@@ -88,6 +122,14 @@ export interface GameApplier {
   /** Whether the engine NAMES this board (`recognize`). An unnamed board is legal but unteachable
    * (DESIGN.md 7's quality gates), so the generator refuses it as a puzzle state. */
   nameOf(board: Board): string | null;
+  /**
+   * The engine's own motion for `calls` played from `board`.
+   *
+   * ONE CALL AND A WHOLE LINE ARE THE SAME CALL (DESIGN.md 4.3): the Drill passes a one-call list for each
+   * option and the Daily passes the player's line, so the two modes share this path instead of each having
+   * its own way of drawing a dance.
+   */
+  motion(calls: readonly string[], from: Board): SequenceMotion;
 }
 
 // ---------------------------------------------------------------------------- a puzzle

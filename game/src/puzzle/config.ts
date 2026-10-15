@@ -129,3 +129,40 @@ export const MIN_RUN_SCORE = 1;
  * millisecond — `ui/playhead.ts` reads it and nothing else does.
  */
 export const MS_PER_BEAT = 500;
+
+// -------------------------------------------------------------------------------------------- persistence
+//
+// DESIGN.md 13's Phase 4: the anonymous player's regime, tips and runs survive a reload. The shape of what
+// is stored is `game/store.ts`'s; these are the three numbers that shape it, and each is CHOSEN with the
+// measurement that justifies it recorded where it is used.
+
+/**
+ * The localStorage key. The `dsq.` prefix is the one this origin already uses for the book's own
+ * preferences, so a reader can tell this app's keys from anyone else's.
+ *
+ * THE SCHEMA VERSION IS IN THE PAYLOAD AND NOT THE KEY, deliberately: a version bump must be able to READ
+ * the older record to decide what survives it (a pool change keeps the hints), and a key that moved would
+ * leave the old record behind instead of migrating from it.
+ */
+export const SAVE_KEY = 'dsq.game.save';
+
+/**
+ * How many completed runs the local ledger keeps.
+ *
+ * CHOSEN, and bounded by measurement: `game/test/save-probe.mjs` prints the serialised size of a full ledger
+ * so the number is checked against localStorage's few megabytes rather than assumed to fit. The newest are
+ * kept, because the ledger is a QUEUE for Phase 5's `POST /me/runs:bulk` — a claim submits what has not been
+ * claimed, in order — and a best-of keeps nothing claimable.
+ */
+export const MAX_SAVED_RUNS = 50;
+
+/**
+ * WHICH WEIGHTS a stored score was computed with.
+ *
+ * DESIGN.md 6 says every scoring weight is proposed and "must be calibrated from playtest data before
+ * launch", so the weights WILL move — and a score computed with the old ones is not comparable with a score
+ * computed with the new ones. This is bumped in the same commit as any weight, and the local ledger keeps
+ * the old runs (they are the player's history) while the best-score readout counts only the current version.
+ * It is the same staleness rule `poolVersion` carries for a puzzle, one level up.
+ */
+export const SCORE_VERSION = 1;

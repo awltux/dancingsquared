@@ -20,10 +20,11 @@
 // one ledger, and a function that mutated it would make "what the balance was BEFORE this answer" — which
 // the UI needs to announce a grant exactly once — unanswerable.
 //
-// WHAT THIS MODULE DOES NOT DO. It does not clamp a record it is given: a ledger read back from storage or
-// from the server (Phase 4/5) is validated where it is read, and the transitions below are total for any
-// sane record — a `successes` of 15 grants one hint and resets, and a negative balance simply spends
-// nothing. Adding a defensive branch here would be a branch nothing tests.
+// A RECORD READ BACK FROM STORAGE IS CLAMPED FIRST, and the reader is named: `sanitiseLedger` below is what
+// Phase 4's save calls, because `localStorage` is text the player can edit and an older build of this app
+// wrote it. The TRANSITIONS stay total and unguarded — a `successes` of 15 grants one hint and resets, a
+// negative balance spends nothing — so the defensive branch lives in the loader rather than being repeated
+// in every rule that reads a ledger.
 
 import { HINT_CAP, HINT_SUCCESS_STEP } from './config.ts';
 
@@ -88,4 +89,30 @@ export function spendHint(ledger: HintLedger): SpendResult {
  */
 export function earningProgress(ledger: HintLedger): { successes: number; needed: number; full: boolean } {
   return { successes: ledger.successes, needed: HINT_SUCCESS_STEP, full: ledger.hints >= HINT_CAP };
+}
+
+/**
+ * A ledger read back from storage, clamped into range — or a fresh one when the record is not a ledger.
+ *
+ * WHY THIS EXISTS NOW AND DID NOT BEFORE. The module header has always said the transitions below assume a
+ * sane record and that "a ledger read back from storage or the server (Phase 4/5) is validated where it is
+ * read". Phase 4 IS that reader: `localStorage` is a text file the player can edit, a browser extension can
+ * rewrite, and an older build of this app wrote. Without the clamp a hand-edited `hints: 99` would let the
+ * Daily's hint button mint minutes, and a `successes: 40` would grant a hint on the next drill.
+ *
+ * IT CLAMPS RATHER THAN REJECTING, and the difference matters: a record with one bad field still carries a
+ * real balance and a real earning count, so throwing all of it away would punish the player for a corrupt
+ * byte. A record that is not an object at all has nothing to keep and becomes the empty ledger.
+ */
+export function sanitiseLedger(raw: unknown): HintLedger {
+  if (typeof raw !== 'object' || raw === null) return { ...EMPTY_LEDGER };
+  const record = raw as { hints?: unknown; successes?: unknown };
+  const clamp = (value: unknown, max: number): number => {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
+    return Math.min(max, Math.max(0, Math.floor(value)));
+  };
+  // `successes` is clamped to one BELOW the step, because `HINT_SUCCESS_STEP` of them would already have
+  // been a grant: a stored count at the threshold is a grant that never paid out, and paying it out on the
+  // next success would be a hint the player did not earn twice.
+  return { hints: clamp(record.hints, HINT_CAP), successes: clamp(record.successes, HINT_SUCCESS_STEP - 1) };
 }

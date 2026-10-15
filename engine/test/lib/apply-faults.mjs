@@ -15,21 +15,27 @@
 // THE END BOARD IS THE DISCRIMINATOR, and `1.9` is the formation spacing with a little slack. A pair
 // whose end board is healthy but whose animation passes through itself is a routing fault an animator
 // can fix; a pair whose END BOARD is already broken cannot be repaired by any interpolation, which is
-// why the two are counted apart. MEASURED (2026-10-14): 64 coincident pairs, of which 14 are animation
-// faults and 50 are apply faults.
+// why the two are counted apart. MEASURED AT `8750274`: 51 coincident pairs, of which 14 are animation
+// faults and 37 are apply faults. The 2026-10-14 reading was 64 / 14 / 50, and the fall is `a476a4f`'s
+// rewrite of `lead_right.xml` (`Lead Right` alone 15 -> 2) - which is why the gate's ceiling had to come
+// down with it, a ceiling being unable to report a fall.
 //
-// THE 50 ARE NOT A WRONG-SEPARATION FAULT, WHICH WAS MEASURED RATHER THAN ASSUMED - see `matchQuality`
-// and `classifyApplyFault`. All 50 are PARALLEL (or whole-board) applications whose admitted match is
-// GEOMETRICALLY CONGRUENT with the setup it was applied through: 45 at the tightest tolerance tested,
-// 0.01 (29 of them a direct, unreflected, gender-exact match with mean error 0.0000) and 5 only at the
-// loosest, 1.5, and NOT ONE is non-congruent even at 1.5. So "refuse a wrong separation" - the fix
-// proposed for them - refuses ZERO. The refusals that would bite are the ones that withdraw a permission
-// the engine grants on purpose (mirrored readings, gender-blind admission, the interactive tolerance);
-// the call's own BODY is what puts the dancers together.
+// THE 37 ARE NOT A WRONG-SEPARATION FAULT, WHICH WAS MEASURED RATHER THAN ASSUMED - see `matchQuality`
+// and `classifyApplyFault`. Every one is a PARALLEL (or whole-board) application whose admitted match is
+// GEOMETRICALLY CONGRUENT with the setup it was applied through: all 37 at the tightest tolerance tested,
+// 0.01 (23 of them a direct, unreflected, gender-exact match with mean error 0.0000), and NOT ONE is
+// non-congruent even at 1.5. So "refuse a wrong separation" - the fix proposed for them - refuses ZERO. The
+// refusals that would bite are the ones that withdraw a permission the engine grants on purpose (mirrored
+// readings, gender-blind admission, the interactive tolerance); the call's own BODY is what puts the
+// dancers together.
 //
-// MEASURED SPLIT (2026-10-14): 29 body / 11 genderMiss / 5 mirrored / 5 loose / 0 non-congruent. The
-// split is REPORTED by `apply-fault-gate.mjs` rather than pinned, because a corpus fix moves it and must
-// not turn a gate red; the one thing pinned is that no fault is `noncongruent`.
+// MEASURED SPLIT AT `8750274`: 23 body / 9 genderMiss / 5 mirrored / 0 loose / 0 non-congruent. The split is
+// REPORTED by `apply-fault-gate.mjs` rather than pinned, because a corpus fix moves it and must not turn a
+// gate red; the one thing pinned is that no fault is `noncongruent`.
+//
+// AND THAT IS THE BARE TITLES ONLY. `SURVEY_CALLS` names `Lead Right`, not the authoring titles the corpus
+// also publishes for it - which is where most of that family's faults now sit. The gate's header carries the
+// measurement (86 apply faults over 47 boards for the seven-title family, 83 of them the variants).
 
 import { matchFormations } from '../../dist/index.js';
 

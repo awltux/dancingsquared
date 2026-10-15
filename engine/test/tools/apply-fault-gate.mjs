@@ -11,10 +11,24 @@
 // deliberately NO floor on the count and no pin on the body/permission split: a corpus improvement must
 // not turn this red.
 //
-// THE WORK LIST IS PRINTED, because a count is not a work list. The by-call tally is what says where the
-// next hour goes: MEASURED, `Lead Right` 15, `Touch a Quarter` 7, `Box the Gnat` 5, `Square Thru 3` 4,
-// `Chain Down the Line` 4, `Turn Thru` 4, `Square Thru 4` 3, then eight calls at one each - and 49 of the
-// 50 are catalogue (authored) bodies, `Swing Thru` being the only coded move among them.
+// THE WORK LIST IS PRINTED, because a count is not a work list. The by-call tally says where the next hour
+// goes: RE-MEASURED at `8750274`, `Touch a Quarter` 7, `Box the Gnat` 5, `Square Thru 3` 4, `Chain Down the
+// Line` 4, `Turn Thru` 4, `Square Thru 4` 3, `Lead Right` 2, then eight calls at one each - and 23 of the 37
+// are catalogue (authored) bodies, `Swing Thru` being the only coded move among them.
+//
+// THE CEILING TRACKS THE TREE, and that is why it is 37 rather than the 50 it was pinned at in 2026-10-14:
+// the count fell BY 13 and a ceiling cannot report a fall. `Lead Right` alone fell 15 -> 2 when `a476a4f`
+// rewrote `lead_right.xml`, and nothing here said so. Lowering it is the gate's own instruction above, and
+// it is what makes the next fall visible instead of silent.
+//
+// WHAT THIS SWEEP CANNOT SEE, measured rather than assumed. `SURVEY_CALLS` names the BARE `Lead Right`, so
+// the authoring titles the corpus ALSO publishes (`Lead Right - Close` / `- Normal` / `- Far`, and
+// `Lead Left - Normal` / `- Far`) are never applied here. They carry most of the family's faults: sweeping
+// all seven titles over the same 138 formations measured 450 of 966 applications legal, 92 coincident and
+// **86 apply faults over 47 boards** - the five variants 83 (25 / 16 / 15 / 12 / 11), the two bare names 7.
+// They are also UNGOVERNED by `PERMISSION_RULES`: each is offered on all 138 formations x 45 group names,
+// against 20 of 6,210 for the bare names. Widening this sweep is a separate change; the number is recorded
+// here so that it is not re-derived.
 //
 // Run: node engine/test/tools/apply-fault-gate.mjs
 import { readFileSync } from 'node:fs';
@@ -46,7 +60,7 @@ const check = (cond, msg) => {
  * The apply-fault count as last measured. A CEILING, not an equality: fewer faults is a fix and must not
  * fail here. Lower it in the same commit that fixes faults, so the pin keeps tracking the tree.
  */
-const APPLY_FAULT_CEILING = 50;
+const APPLY_FAULT_CEILING = 37;
 
 const formations = seq.listFormations().filter((n) => {
   const b = seq.boardForFormation(n);

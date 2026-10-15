@@ -102,7 +102,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 20:00Z -->
-  <tam title="Lead Left Far"from="Adjacent Dancers" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+  <tam title="Lead Left Far" from="Adjacent Dancers" formation="Adjacent Dancers Close" parts="" asymmetric="true">
     <path>
       <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="1.4798" cy2="0.9582" x2="1.7517" y2="1.1777"/>
       <movement hands="gripright" beats="2" cx1="0.7705" cy1="-0.0444" cx2="1.8768" cy2="-0.4589" x2="2.2657" y2="-0.773" cx3="0.3005" cx4="1.3088" cy4="0.5844" x4="2.3112" y4="1.8964"/>

@@ -300,4 +300,44 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '
       + 'the picker applies it as one.',
   },
+  {
+    call: 'Lead Left',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD LEFT',
+  },
+  {
+    call: 'Lead Left',
+    group: [...COUPLES_GROUP_NAMES],
+    board: 'Static Square',
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Left is danced by one couple - the heads or the sides - so the whole square cannot lead '
+      + 'right. `Heads Lead Left` and `Sides Lead Left` are the scoped forms, and choosing a group in '
+      + 'the picker applies it as one.',
+  },
+  {
+    call: 'Lead Left',
+    group: ['All 8', ...COUPLES_GROUP_NAMES],
+    board: 'Eight Chain Thru',
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Left is danced by one couple - the heads or the sides - so the whole square cannot lead '
+      + 'right. `Heads Lead Left` and `Sides Lead Left` are the scoped forms, and choosing a group in '
+      + 'the picker applies it as one.',
+  },
+  {
+    call: 'Lead Left',
+    group: ['All 8', ...COUPLES_GROUP_NAMES],
+    board: 'Normal Lines',
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Left is danced by one couple - the heads or the sides - so the whole square cannot lead '
+      + 'right. `Heads Lead Left` and `Sides Lead Left` are the scoped forms, and choosing a group in '
+      + 'the picker applies it as one.',
+  },
 ];

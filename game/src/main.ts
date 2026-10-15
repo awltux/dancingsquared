@@ -721,7 +721,7 @@ function startReplay(motion: SequenceMotion, outcome: ReplayOutcome): void {
   replay = motion;
   replayOutcome = outcome;
   setBusy(true);
-  PLAYHEAD.start({ label: '', done: () => undefined }, motion.beats);
+  PLAYHEAD.start(motion.beats);
 }
 
 function setBusy(busy: boolean): void {

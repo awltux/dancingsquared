@@ -26,7 +26,7 @@
 import { Sequencer, sameBoardById, type Board } from 'dancing-squared-engine';
 import type { GameApplier, Move, Refusal, SequenceMotion } from '../puzzle/types.ts';
 
-export interface ApplierOptions {
+interface ApplierOptions {
   movesXml: string;
   formationsXml: string;
   /** The calls this level registers, by TITLE. */

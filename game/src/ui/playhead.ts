@@ -16,19 +16,13 @@
 // disagreeing about what frame it is.
 import { MS_PER_BEAT } from '../puzzle/config.ts';
 
-export interface ReplaySpec {
-  /** Shown while the motion runs and once it lands. */
-  label: string;
-  /** The verdict the playhead's completion reports, so the caller does not keep a parallel copy. */
-  done: () => void;
-}
-
 export class Replay {
   private running = false;
+  /** Whether a motion has ever been asked for. See `beat`: it is not the same as "running". */
+  private asked = false;
   private elapsedMs = 0;
   private totalMs = 0;
   private beats = 0;
-  private spec: ReplaySpec | null = null;
 
   /** Whether a motion is in flight. The UI uses this to disable the buttons while one plays. */
   get isRunning(): boolean {
@@ -44,7 +38,7 @@ export class Replay {
    * the end for both drew the ending board before any option had been chosen.
    */
   get beat(): number {
-    if (this.spec === null) return 0;
+    if (!this.asked) return 0;
     if (!this.running) return this.beats;
     return Math.min(this.beats, this.elapsedMs / MS_PER_BEAT);
   }
@@ -54,19 +48,20 @@ export class Replay {
     return this.beats;
   }
 
-  get label(): string {
-    return this.spec?.label ?? '';
-  }
-
   /**
    * Start a replay of `totalBeats` beats.
    *
    * A ZERO-BEAT MOTION IS NOT AN ERROR — it completes immediately on the next `advance`, which is what a
    * caller gets for a list the engine cannot walk at all (a refused call has no motion to show) and what it
    * wants: the end state is drawn with no motion rather than a special case at every call site.
+   *
+   * IT TAKES NOTHING BUT A LENGTH. It used to take a `{ label, done }` spec, and by Phase 4 nothing read
+   * either: the caption is the SCREEN's (it says the call in the verdict line, where it stays visible after
+   * the motion), and the completion is a return value from `advance` rather than a callback — which is what
+   * keeps one verdict per motion rather than one per frame.
    */
-  start(spec: ReplaySpec, totalBeats: number): void {
-    this.spec = spec;
+  start(totalBeats: number): void {
+    this.asked = true;
     this.beats = totalBeats;
     this.totalMs = totalBeats * MS_PER_BEAT;
     this.elapsedMs = 0;
@@ -92,7 +87,7 @@ export class Replay {
   /** Stop without reporting, for a replay abandoned by a mode change or a new puzzle. */
   cancel(): void {
     this.running = false;
-    this.spec = null;
+    this.asked = false;
     this.elapsedMs = 0;
     this.beats = 0;
   }

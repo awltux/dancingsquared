@@ -17,7 +17,7 @@ function allCalls(): { name: string; xml: string }[] {
   return cachedCalls;
 }
 
-export interface LevelRuntime {
+interface LevelRuntime {
   /** The applier the generator and the UI share. One sequencer per level, holding only that level's calls. */
   applier: ReturnType<typeof createEngineApplier>;
   /** How many of the level's titles the corpus actually carries — it can be fewer, if a title is missing. */

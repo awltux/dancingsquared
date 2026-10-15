@@ -236,12 +236,6 @@ export interface ScheduleFinding {
   reason: string;
 }
 
-// ---------------------------------------------------------------------------- play
-
-/** A `PlaySession`'s state, small enough to serialize and to compare field by field. */
-export interface PlayState {
-  /** The calls played so far, in order. */
-  moves: string[];
-  /** Calls undone and available to redo, most recent last. A new move truncates this. */
-  redo: string[];
-}
+// WHAT A SESSION LOOKS LIKE WHEN IT IS STOPPED lives in `DailySaved` (`game/store.ts`), not here: the record
+// a reload reads carries the moves AND the clock AND the hints, so a shape holding only the move stack was a
+// second answer to the same question. It was declared in Phase 1 and read by nobody; deleted in Phase 4.5.

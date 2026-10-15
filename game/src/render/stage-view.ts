@@ -41,7 +41,7 @@ import type { SequenceMotion } from '../puzzle/types.ts';
  * floor grids and both sets of dancers overlapped in the middle of the canvas, which is exactly what "you are
  * here" and "get here" must never do.
  */
-export const BOARD_SCALE = 0.42;
+const BOARD_SCALE = 0.42;
 const GUTTER = 1.6;
 const BOARD_CENTRE = 5 * BOARD_SCALE + GUTTER / 2;
 
@@ -263,9 +263,6 @@ export class GameStage {
     this.resize();
   }
 
-  getMode(): ViewMode {
-    return this.mode;
-  }
 
   /** Draw both boards at rest. */
   drawStill(startBoard: Board, goalBoard: Board): void {

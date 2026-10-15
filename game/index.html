@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dancing Squared — the Drill</title>
+    <title>Dancing Squared</title>
     <link rel="stylesheet" href="/src/style.css" />
     <!-- THE APP IS OFFLINE BY DESIGN (AGENTS.md §6): no font CDN, no analytics, no stylesheet from a
          network. Every asset here is bundled, so the game works from a file:// build and adds no
@@ -16,7 +16,9 @@
       <!-- THE BOARD CAPTIONS SIT OVER THE CANVAS, centred on each board's half of the frame. Without them
            the two floor grids read as ONE board with dancers scattered across it — the two-board framing is
            invisible until you say which side is which. They are `pointer-events: none` so a drag on the
-           board still reaches the camera controls underneath. -->
+           board still reaches the camera controls underneath. Their TEXT is written by the app, because the
+           engine can name the board a player is standing on and naming it is a teaching aid (DESIGN.md 15,
+           Q10) — never the correctness test, which is the board itself. -->
       <p class="board-label" id="labelHere">You are here</p>
       <p class="board-label" id="labelGoal">Get here</p>
 
@@ -24,16 +26,45 @@
         <header id="head">
           <h1>Dancing Squared</h1>
           <p id="regime"></p>
+          <!-- THE TWO MODES ARE A CHOICE, NOT A SETTING: the Drill is the regime in order and the Daily is
+               one issued challenge, and each has its own panel below. Switching keeps a Daily already in
+               progress rather than restarting its clock — see `setMode` in `main.ts`. -->
+          <nav id="modes">
+            <button id="modeDrill" type="button" aria-pressed="true">The Drill</button>
+            <button id="modeDaily" type="button" aria-pressed="false">Today's Daily</button>
+          </nav>
         </header>
 
-        <section id="question" aria-live="polite">
+        <section id="drill" aria-live="polite">
           <p id="prompt"></p>
           <div id="answers"></div>
           <div id="verdict" role="status"></div>
         </section>
 
+        <section id="daily" aria-live="polite" hidden>
+          <p id="dailyPrompt"></p>
+          <p id="dailyReadout"></p>
+          <!-- THE OFFERING LIST IS WHAT IS LEGAL NOW (DESIGN.md 9, decision 9) — not what is still solvable.
+               Dead ends are the player's to discover, and the score is what makes discovering them cost. -->
+          <div id="offer"></div>
+          <p id="line"></p>
+          <div id="dailyVerdict" role="status"></div>
+          <div id="dailyResult" hidden></div>
+        </section>
+
         <footer id="foot">
+          <!-- THE HINT ROW IS SHARED: the balance is earned on the drill line and spent on the Daily
+               (DESIGN.md 10), so a player in either mode needs to see what they hold and how close the next
+               one is. The progress is "silent" and the GRANT is announced once, which is the design's own
+               pair of rules. -->
+          <p id="balance"></p>
+          <button id="hint" type="button" hidden>Hint (+1 min)</button>
           <button id="review" type="button" hidden>Show me the answer</button>
+          <button id="undo" type="button" hidden>Undo</button>
+          <button id="redo" type="button" hidden>Redo</button>
+          <button id="giveUp" type="button" hidden>Give up</button>
+          <button id="replayMine" type="button" hidden>Replay my line</button>
+          <button id="replayShortest" type="button" hidden>Replay the shortest</button>
           <button id="view" type="button">Switch to 2D</button>
           <button id="next" type="button" hidden>Next drill</button>
         </footer>

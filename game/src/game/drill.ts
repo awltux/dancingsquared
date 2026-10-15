@@ -58,11 +58,18 @@ export interface DrillView {
   unknown?: { call: string; reason: string };
   /** Whether the puzzle is solved. */
   atEnd: boolean;
+  /**
+   * How many answers this puzzle has taken that were NOT correct — the Drill's `attempts`, which is the one
+   * factor of the score that only this mode has (DESIGN.md 6). Counted here because it is a rule of the
+   * machine rather than of a screen.
+   */
+  attempts: number;
 }
 
 export class DrillController {
   private readonly puzzle: Puzzle;
   private index = 0;
+  private attemptsCount = 0;
 
   constructor(puzzle: Puzzle) {
     if (puzzle.steps.length === 0) throw new Error('a puzzle with no steps cannot be played');
@@ -101,7 +108,13 @@ export class DrillController {
       optionCount: this.puzzle.level.optionCount,
       ...(step.unknown ? { unknown: step.unknown } : {}),
       atEnd,
+      attempts: this.attemptsCount,
     };
+  }
+
+  /** The answers that were not correct. The Drill's own score factor (DESIGN.md 6). */
+  get attempts(): number {
+    return this.attemptsCount;
   }
 
   /**
@@ -110,12 +123,17 @@ export class DrillController {
    * AN OUT-OF-RANGE INDEX IS A BUG IN THE UI, NOT A WRONG ANSWER, so it throws rather than reporting
    * `wrong`: silently scoring a rendering mistake as a player mistake would tell the player they chose
    * something they were never shown.
+   *
+   * EVERY ANSWER THAT IS NOT CORRECT COUNTED AS AN ATTEMPT, and the ILLEGAL one counts too: the player
+   * committed to it, and DESIGN.md 6's `attemptFactor` prices "a wrong option" as a discrete event. What it
+   * does not price is a click the UI should have prevented, which is why an out-of-range index throws above.
    */
   answer(choice: Answer): AnswerResult {
     const step = this.step;
     if (choice === 'unknown') {
       const unknown = step.unknown;
       if (!unknown) throw new Error('this step has no illegal option to answer with');
+      this.attemptsCount++;
       return { kind: 'illegal', reason: unknown.reason, call: unknown.call };
     }
     if (!Number.isInteger(choice) || choice < 0 || choice >= step.moves.length) {
@@ -129,6 +147,7 @@ export class DrillController {
       this.index++;
       return { kind: 'correct', ending: option.board, replayFrom: step.from, call: option.call };
     }
+    this.attemptsCount++;
     return { kind: 'wrong', ending: option.board, replayFrom: step.from, call: option.call };
   }
 

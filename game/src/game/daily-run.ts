@@ -94,6 +94,11 @@ export class DailyRun {
     return this.session.board;
   }
 
+  /** The board the challenge was issued on, which is what a review of a whole line starts from. */
+  get start(): Board {
+    return this.puzzle.start;
+  }
+
   /**
    * Add a call.
    *

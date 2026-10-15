@@ -282,7 +282,10 @@ with its measurement, in the same commit that found it.
    endings (`readFileSync(...).replace(/\r\n/g, '\n')`) or it silently matches nothing.
 3. **Under the file sandbox a Node child spawned with piped stdio fails with `EPERM`** — which is why
    `verify-suite.mjs` and `verify-probes.mjs` run children with `stdio: 'inherit'` and run probes
-   in-process. It is also why the Vite app cannot be started here.
+   in-process. **THE VITE APP IS NOT AFFECTED BY THIS and a later sentence here claiming "the app cannot be
+   started here" was WRONG — MEASURED in Phase 3: `npm run dev:game` binds port 8089 and a real browser
+   drives the page, which is how the Daily's UI and the 3D view were checked. What the sandbox constrains is
+   a Node child whose output is PIPED, not a dev server started as a background job.**
 4. **PowerShell truncation looks like a failure**: `... | Select-Object -First N` can make a successful
    command report `[exit code: 1]`.
 5. **`write`/`edit` intermittently fail** with `ReplaceFileW EIO (Win32 32)`; retrying the identical edit
@@ -317,6 +320,13 @@ with its measurement, in the same commit that found it.
     in `poc/tools/mirror-moves-probe.mjs` leaves **222 of 222** diagonal facings unrepresentable, where the
     local +X mirror (`cy1` stays exactly 0) leaves none. Mirror the TURN, which is the only thing `poseFor`
     reads from a facing curve, rather than the curve itself.
+19. **A Vite dev server watching `game/src` fights the editor's atomic write.** The editor writes
+    `game/src/.main.ts.<pid>.<guid>.tmpdir/main.ts.tmp` and renames it over the target; Vite's file watcher
+    picks the temporary file up and, MEASURED, crashed with `EBUSY: resource busy or locked, watch '…main.ts.tmp'`
+    (exit 1, dev server dead) while the next three edits to the same file failed with `ReplaceFileW EIO` — the
+    same `EIO` this file's trap 5 records, which here is the watcher holding the file rather than a disk
+    hiccup. Retrying does not clear it: stop the dev server (`job_kill`, then confirm the port is free) before
+    editing under a watched tree, and restart it after.
 
 ---
 

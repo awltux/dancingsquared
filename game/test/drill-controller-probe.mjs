@@ -130,5 +130,28 @@ console.log('== the review names the answer, and an out-of-range click is a bug 
   check(drill.view().stepIndex === 0, 'and the machine is untouched by the throw');
 }
 
+console.log('== the ATTEMPT count prices every answer that was not correct ==');
+{
+  // THE DRILL'S ONE SCORE FACTOR, and it is a rule of the machine rather than of a screen (DESIGN.md 6: a
+  // wrong option is a discrete event). It is also what the earning rule must NOT count: a drill is one
+  // success however many tries it took (DESIGN.md 10), which is why this counts answers and not puzzles.
+  const drill = new DrillController(puzzle);
+  check(drill.attempts === 0, 'a fresh puzzle has taken no attempts');
+  check(drill.view().attempts === 0, 'and the view says so');
+  drill.answer(0);
+  check(drill.attempts === 1, `a wrong answer is one attempt (${drill.attempts})`);
+  drill.answer('unknown');
+  // THE ILLEGAL ANSWER COUNTS TOO: the player committed to it. Excluding it would let a player price a guess
+  // at nothing by always pressing the option that cannot be called.
+  check(drill.attempts === 2, `and an illegal one counts as well (${drill.attempts})`);
+  drill.answer(1);
+  check(drill.attempts === 2, 'while the correct answer is not an attempt of its own');
+  check(drill.atEnd && drill.view().attempts === 2, 'so a solved puzzle reports the two wrong answers it took');
+  // NEGATIVE CONTROLS, BOTH MEASURED: counting EVERY answer once (the increment moved to the top of
+  // `answer`) reddens exactly the two checks here that say a correct answer is not an attempt; counting only
+  // `wrong` — the illegal branch's increment removed — reddens THREE, because the two later checks then read
+  // a total that is one short as well. The discriminating check for the illegal case is the first of them.
+}
+
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

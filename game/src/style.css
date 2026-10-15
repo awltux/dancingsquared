@@ -72,10 +72,141 @@ body {
   font-size: 0.95rem;
 }
 
-#prompt {
+/* THE MODE SWITCH. Two buttons rather than a select: the choice is the game's top-level one, and a native
+   select on a phone opens a picker that hides the board behind it. `aria-pressed` carries the state, so the
+   pressed look is not the only signal. */
+#modes {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+#modes button {
+  flex: 1;
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: #16222e;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#modes button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: #22303d;
+  font-weight: 600;
+}
+
+#prompt,
+#dailyPrompt {
   font-size: 1.15rem;
   line-height: 1.35;
   margin: 0 0 14px;
+}
+
+/* THE READOUT IS A FACT, NOT A VERDICT: which of the allowed calls are used, and the clock the run is being
+   judged on. Tabular figures so the seconds do not make the line twitch as they tick. */
+#dailyReadout {
+  margin: 0 0 14px;
+  color: var(--dim);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* THE OFFERING LIST AND THE ANSWER BUTTONS SHARE A LOOK — both are "press the call you want" — but the
+   offering list is a list of many, so it wraps into a grid rather than stacking full width. */
+#offer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.offer {
+  min-height: 48px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: #16222e;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.offer:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.offer:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* THE HINTED CALL IS MARKED BY A BORDER AND A LABEL, never by colour alone, so it survives a colour-vision
+   difference. It is the "one call name, marked in the offering list" of DESIGN.md 10. */
+.offer.hinted {
+  border-color: var(--accent);
+  border-style: double;
+  border-width: 4px;
+}
+
+#line {
+  margin: 0 0 12px;
+  color: var(--dim);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+#dailyResult {
+  margin-top: 12px;
+  padding: 12px 14px;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--ink);
+  background: #16222e;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+}
+
+#dailyResult[hidden] {
+  display: none;
+}
+
+/* THE HINT BALANCE IS IN THE FOOTER IN BOTH MODES, because a hint is earned in one and spent in the other
+   (DESIGN.md 10) — a player needs to see what they hold while they are earning it. */
+#balance {
+  margin: 0 0 4px;
+  color: var(--dim);
+  font-size: 0.9rem;
+}
+
+#verdict,
+#dailyVerdict {
+  margin-top: 16px;
+  min-height: 3.2em;
+  line-height: 1.4;
+  font-size: 1rem;
+}
+
+#verdict[data-kind="ok"],
+#dailyVerdict[data-kind="ok"] {
+  color: var(--ok);
+}
+
+#verdict[data-kind="bad"],
+#dailyVerdict[data-kind="bad"] {
+  color: var(--bad);
+}
+
+#verdict[data-kind="info"],
+#dailyVerdict[data-kind="info"] {
+  color: var(--accent);
 }
 
 #answers {
@@ -114,25 +245,6 @@ body {
 .answer.illegal {
   border-style: dashed;
   border-color: rgba(255, 143, 143, 0.7);
-}
-
-#verdict {
-  margin-top: 16px;
-  min-height: 3.2em;
-  line-height: 1.4;
-  font-size: 1rem;
-}
-
-#verdict[data-kind="ok"] {
-  color: var(--ok);
-}
-
-#verdict[data-kind="bad"] {
-  color: var(--bad);
-}
-
-#verdict[data-kind="info"] {
-  color: var(--accent);
 }
 
 #foot {

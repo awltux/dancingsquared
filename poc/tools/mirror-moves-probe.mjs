@@ -1,81 +1,67 @@
-// MIRRORING A DANCER'S MOVES ACROSS A BOARD AXIS: the rule behind the Call editor's X and Y buttons.
+// MIRRORING A DANCER'S MOVES ACROSS ONE OF THE DANCER'S OWN AXES: the rule behind the Call editor's X and Y
+// buttons.
 //
-// Asked for: "Add a mirror feature. Add an X and Y button that mirrors the selected dancers Moves across the
-// axis indicated by the button. Dont move the dancers start position or rotation, just their Moves. When
+// Asked for as: "Add a mirror feature. Add an X and Y button that mirrors the selected dancers Moves across
+// the axis indicated by the button. Dont move the dancers start position or rotation, just their Moves. When
 // multiple dancers are selected, the mirror must use the translation around the board centre to ensure the
-// board maintains its balance. put the buttons below the Edit: line"
+// board maintains its balance. put the buttons below the Edit: line" - and then, after trying what that first
+// sentence produced, as: "Currently the mirror is allong the boards X and Y, but after some experimentation I
+// realise that it should be along the dancers local X and Y axis."
 //
-// SETTLED WHILE PLANNING, and both are the caller's decisions rather than the arithmetic's:
-//   - the buttons name the BOARD'S OWN axes - X the horizontal line through the board's centre, Y the
-//     vertical one - and not the dancer's own frame;
-//   - the hand state swaps left for right, which is what the corpus means by a mirror.
+// THE AXES ARE THE DANCER'S OWN, which is the frame the moves are authored in (`engine/src/types.ts`: the
+// origin is the dancer's spot when the move begins, +X is the facing at that instant and +Y is to the
+// dancer's LEFT). So the rule is one quarter-turn reflection per move, and a quarter turn is one sign:
 //
-// THE RULE IS ONE REFLECTION PER MOVE, ABOUT A FIXED DIRECTION IN THE DANCER'S OWN FRAME:
+//     X:  (x, y) -> (x, -y)      reflect about the local X axis - the line the dancer faces along
+//     Y:  (x, y) -> (-x, y)      reflect about the local Y axis - the line across the facing
 //
-//     beta       = phi - h0          the board axis (phi: 0 for X, a quarter turn for Y) in the DANCER's frame
-//     local point -> R(2*beta) * diag(1, -1) * local point
+// `X` is therefore the left-for-right mirror and `Y` the forward-for-back one. The rule is
+// `mirrorDancerMoves` in `engine/src/editor.ts`, exported by the package; this probe measures THAT function,
+// and section 5 reads the panel's source to pin that the panel calls it rather than restating it. The hand
+// swap is the engine's own `swapLR` - the definition `reflect="-1"` uses - imported for the same reason. The
+// ONLY place the arithmetic is written out in this file is section 6, and only ever as a rule to be refuted.
 //
-// A path is authored in dancer-LOCAL coordinates (`engine/src/types.ts`: the origin is the dancer's spot when
-// the move begins and +X is the facing at that instant), so `phi - h0` is the only reading of "the board's
-// axis" that exists in this data - and it is the reading asked for, because a dancer already facing along the
-// axis gets `beta = 0`, a plain left-for-right mirror. Every local curve of the track takes it: the travel
-// curve as above, and the facing curve about the LOCAL +X axis (below).
+// TWO THINGS ARE EXACT, and section 1 measures both over the shipped corpus at every joint and mid-move
+// instant of every move:
 //
-// AND THE RESULT IS EXACT IN BOARD TERMS, which is the whole content of the requirement and what section 1
-// measures over the shipped corpus, at every joint and mid-move instant of every move:
+//   - POSITIONS. The mirrored world position is the original's mirror about the chosen axis through the
+//     DANCER'S OWN START - for X the line they face along, for Y the line across it.
+//   - HEADINGS. The mirrored heading is the original's mirror about the DANCER'S OWN START FACING, whichever
+//     axis is chosen - because `poseFor` reads a facing curve as a TURN and a reflection negates every turn,
+//     whichever line it is about.
 //
-//   - POSITIONS. The mirrored world position is the original's mirror about the chosen board axis through
-//     the DANCER'S OWN START: `p' = M * (p - S) + S`.
-//   - HEADINGS. The mirrored heading is the original's mirror about the DANCER'S OWN FACING: `h' = 2*h0 - h`.
+// SO `X` IS A RIGID MIRROR OF THE WHOLE TRACK AND `Y` IS NOT, and the reason is the pinned start pose rather
+// than the arithmetic: a reflection about a line at angle `theta` maps the start heading `h0` to
+// `2*theta - h0`, which is `h0` itself only when that line IS the facing. `X` is that line - so for `X` the
+// positions and the headings reflect about one axis - while for `Y` the positions reflect about the left-hand
+// line and the facing profile stays mirrored about the facing. Section 6's last control measures the
+// alternative: a true rigid mirror about the local Y axis, which has to TURN THE DANCER 180 degrees, and is
+// refused because the start pose must not move.
 //
-// READ THE FIRST ONE THE OTHER WAY ROUND AND IT IS THE REQUIREMENT. The axis is the board's, through the
-// BOARD CENTRE, and the reflected track is then TRANSLATED back so it still begins at its own start - which
-// is exactly what moves the axis onto `S`, so the centre cancels and the rule needs no centre argument. That
-// is also why selecting several dancers mirrors the set about ONE line (the board's) rather than about each
-// dancer's own centre, which is what "the board maintains its balance" asks for.
+// THE BOARD-AXIS READING WAS SHIPPED FIRST AND IS NOW REJECTED, and section 6 measures why it could not be the
+// answer. That version reflected about the BOARD's axis as the dancer's frame sees it (`beta = phi - h0`),
+// which is a quarter turn only for a dancer facing along the board's axis; for anyone else it writes a facing
+// curve with `cy1 = sin(2*beta)*cx1`, and the format has no `cy3` to put it in (`bezRotAttr` writes
+// `cx3 cx4 cy4 x4 y4`; `taminations.md` §7.3), so the reflected facing loses its first span the moment the
+// file is re-read (AGENTS.md §8 trap 18). Its control here leaves **222 of 222** diagonal facings
+// unrepresentable. THE LOCAL AXES CANNOT DO THAT: both are quarter turns, so `cy1` stays exactly 0 for every
+// facing of every dancer, whatever way they face, and section 1f counts that where it is hardest - dancers
+// re-headed 45 degrees off anything the corpus ships.
 //
-// A RIGID MIRROR OF THE WHOLE TRACK IS NOT AVAILABLE, and the pair above is the exact price of it - so this
-// is a property of the requirement and not a shortcut. A reflection about the board axis maps the start
-// heading `h0` to `2*phi - h0`; a track that both mirrored AND still began facing `h0` would have to be the
-// reflection about `h0`'s OWN line, which is the dancer's axis and not the board's, and would make the two
-// buttons the same edit. Pinning the start pose - which is what was asked for - splits the two channels as
-// above, and sections 1a and 1b pin each of them separately.
-//
-// WHY THE FACING CHANNEL IS MIRRORED ABOUT THE LOCAL +X AXIS WHATEVER `beta` IS. `poseFor` reads a facing
-// curve as `bezierAngle(f, t) - bezierAngle(f, 0)`, so only its TURN means anything, and a reflection
-// negates the turn whichever line it is about - the board axis adds nothing to it. What DOES matter is that
-// the format has no `cy3` (`bezRotAttr` writes `cx3 cx4 cy4 x4 y4`; `taminations.md` §7.3), so a facing
-// reflected about a `beta` that is not a multiple of a quarter turn comes back with a non-zero `cy1` and
-// loses its first span the moment the file is re-read. Section 1f is where that case is reachable at all and
-// section 6 measures the control that gets it wrong.
-//
-// THE SHIPPED CORPUS BARELY REACHES THAT CASE: MEASURED, only 8 of its 3228 sampled dancer-tracks start off
-// the board's axes at all, so a reflected facing curve stays representable by accident across almost all of
-// it. That is a coverage gap and not a result, so section 1f BUILDS the case with the panel's own
-// `setDancerStart`, re-heading sampled dancers 45 degrees off the axis.
-//
-// THE RULE IS IMPORTED, NOT MIRRORED: it is `mirrorDancerMoves` in `engine/src/editor.ts`, exported by the
-// package, so this probe measures the function the panel calls - and section 5 reads the panel's source to
-// pin that the panel calls it rather than restating the arithmetic. The hand swap is imported for the same
-// reason: `swapLR` is the engine's own definition, the one `reflect="-1"` uses. The ONLY place the
-// arithmetic is written out in this file is section 6, and only ever as a rule to be refuted.
-//
-// EVERY REJECTED RULE IS MEASURED (section 6), each as the control for the check that rules it out, and each
+// THE REJECTED RULES ARE MEASURED (section 6), each as the control for the check that rules it out, and each
 // with the check it must NOT trip named too:
-//   - `beta = phi` (the board angle read as a local one) breaks the POSITION property and leaves headings
-//     perfect, because a heading comes only from the negated turns;
-//   - `beta` taken from each MOVE's own heading instead of the track's start heading breaks it the same way;
-//   - the hand state left alone breaks section 2's count and nothing else;
-//   - the facing mirrored about `beta` - instead of the local +X axis - breaks section 1f's representability
-//     count and nothing else;
-//   - the facing turn left alone breaks section 1b's headings and the positions with them, because the
-//     frames ARE the accumulated turns;
-//   - the axis argument ignored makes X and Y the same edit and breaks section 1e.
+//   - the BOARD-axis reading (the rule this replaced) breaks the POSITION property on every dancer not facing
+//     along the board axis and writes unrepresentable facings, while leaving the headings perfect;
+//   - the axis argument ignored makes X and Y the same edit;
+//   - the hand state left alone is geometrically identical and caught only by section 2;
+//   - the facing turn left alone breaks the headings and the positions with them, because the frames ARE the
+//     accumulated turns;
+//   - a RIGID mirror about the local Y axis, which turns the dancer 180 degrees to do it, breaks only the
+//     promise that the start pose does not move.
 //
-// COST: MEASURED at 10 s standalone and 15 s inside `verify-probes.mjs`, and all of it is loading the XML
-// (`loadCallFromXml` + `normalizeInstance` of every call) - the mirror and pose arithmetic is under a tenth of
-// a second. The controls reuse the calls the sweep already parsed rather than reading the corpus again, which
-// is what keeps this in the fast tier.
+// COST: one pass over the corpus, and all of it is loading the XML (`loadCallFromXml` + `normalizeInstance` of
+// every call); the mirror and pose arithmetic is a fraction of a second. The controls reuse the calls the
+// sweep already parsed rather than reading the corpus again, which keeps this in the fast tier.
 //
 // Run: node tools/mirror-moves-probe.mjs   (from poc/)
 
@@ -101,8 +87,9 @@ const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 const sci = (n) => n.toExponential(3);
 
 const DEG = Math.PI / 180;
-/** Each board axis as an angle in the BOARD's frame - the `phi` the rule is written with. */
-const AXIS_ANGLE = { x: 0, y: Math.PI / 2 };
+/** The BOARD's own axes, kept for section 6's rejected reading only: the board frame is where the first
+ *  version took its angles from, and that is exactly what went wrong. */
+const BOARD_AXIS_ANGLE = { x: 0, y: Math.PI / 2 };
 /** The shortest signed angle equal to `a`, in (-PI, PI]. Mirrored from `editor-ui.ts`. */
 const normAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
@@ -128,18 +115,21 @@ function* calls() {
 
 // ------------------------------------------------------------------ the reference reading
 //
-// WRITTEN OUT HERE, NOT TAKEN FROM THE ENGINE, or section 1 would be measuring the rule against itself: this
-// is the requirement's own sentence - reflect about the board's axis through the CENTRE, then carry the track
-// back to its start - composed into one map, where the centre visibly cancels.
+// WRITTEN OUT HERE, NOT TAKEN FROM THE ENGINE, or section 1 would be measuring the rule against itself. This
+// is the requirement's own sentence: "the dancer's own X axis" is the line they face along and "their own Y
+// axis" the line across it, and the mirror is taken about that line THROUGH THE DANCER'S OWN START - which is
+// what keeps the start pose where it is.
 
-/** The board's own reflection of a world point: X keeps y and flips x's sign, Y keeps x and flips y's. */
-const reflectAboutBoard = (p, axis) => (axis === 'x' ? { x: p.x, y: -p.y } : { x: -p.x, y: p.y });
+/** The world angle of the dancer's own axis: local +X is the facing, local +Y is a quarter turn from it. */
+const axisAngle = (h0, axis) => (axis === 'x' ? h0 : h0 + Math.PI / 2);
 
-/** Where the reflected point ends up once the track is carried back to the start `S`. */
-const expectedPosition = (p, axis, S) => {
-  const m = reflectAboutBoard(p, axis);
-  const ms = reflectAboutBoard(S, axis);
-  return { x: m.x - ms.x + S.x, y: m.y - ms.y + S.y };
+/** A world point reflected about the line through `S` at angle `theta`. */
+const reflectWorld = (p, theta, S) => {
+  const cos = Math.cos(2 * theta);
+  const sin = Math.sin(2 * theta);
+  const dx = p.x - S.x;
+  const dy = p.y - S.y;
+  return { x: S.x + cos * dx + sin * dy, y: S.y + sin * dx - cos * dy };
 };
 
 /** The selection the panel would use: the even-numbered dancers, or all of them if that leaves fewer than two. */
@@ -152,9 +142,9 @@ const selectionOf = (call) => {
  * THE INSTANTS A TRACK IS COMPARED AT: every joint the move chain defines, plus the middle of every move.
  *
  * The joints are where the frames are re-based, so an error in the frame algebra shows up there first; the
- * midpoints are where a curve's own control points are read rather than only its endpoint. A denser grid
- * buys nothing here - the map is affine on each local curve, so two tracks that agree at a joint and at
- * mid-curve agree everywhere between - and it would cost the sweep its place in the fast tier.
+ * midpoints are where a curve's own control points are read rather than only its endpoint. A denser grid buys
+ * nothing here - the map is affine on each local curve, so two tracks that agree at a joint and at mid-curve
+ * agree everywhere between - and it would cost the sweep its place in the fast tier.
  */
 function* instants(path_) {
   let acc = 0;
@@ -173,18 +163,22 @@ const mirrorDancer = (call, i, axis) => engine.mirrorDancerMoves(call, i, axis);
 const poses = (d) => [...instants(d.path)].map((t) => engine.poseFor(d, t));
 
 /**
- * HOW THE TWO PROPERTIES ARE READ OFF ONE MIRROR, and the one place a section's numbers come from so that
- * the corpus sweep, the diagonal sweep and section 6's controls cannot drift apart.
+ * HOW THE TWO PROPERTIES ARE READ OFF ONE MIRROR, and the one place a section's numbers come from so that the
+ * corpus sweep, the diagonal witnesses and section 6's controls cannot drift apart.
  */
-function compare(before, after, axis, swapHands = true) {
+function compare(before, after, axis) {
   const out = { pos: 0, heading: 0, samples: 0, handsWrong: 0, cy1: 0, curves: 0 };
   const h0 = before.angleDeg * DEG;
+  const theta = axisAngle(h0, axis);
+  const S = { x: before.x, y: before.y };
   const a = poses(before);
   const b = poses(after);
   for (let s = 0; s < a.length; s++) {
     out.samples++;
-    const want = expectedPosition(a[s], axis, before);
+    const want = reflectWorld(a[s], theta, S);
     out.pos = Math.max(out.pos, Math.hypot(b[s].x - want.x, b[s].y - want.y));
+    // THE HEADING IS MIRRORED ABOUT THE DANCER'S OWN FACING, whichever of the two axes was asked for - see the
+    // header; the axis enters the POSITION reference above and not this one.
     out.heading = Math.max(out.heading, Math.abs(normAngle(b[s].heading - (2 * h0 - a[s].heading))));
   }
   for (let k = 0; k < before.path.length && k < after.path.length; k++) {
@@ -197,8 +191,8 @@ function compare(before, after, axis, swapHands = true) {
   return out;
 }
 
-// ------------------------------------------------------------------ 1-4. one pass over the corpus
-console.log('== 1. the mirrored track is the board mirror of the original, start pose untouched ==');
+// ------------------------------------------------------------------ 1. the rule, over the corpus
+console.log('== 1. the mirrored track is the mirror about the dancer\'s OWN axis, start pose untouched ==');
 
 let nCalls = 0;
 let nDancers = 0;
@@ -210,10 +204,11 @@ let worstBeats = 0;
 let worstUnselected = 0;
 let nDancersWithMoves = 0;
 let nMoves = 0;
+let nPairDistances = 0;
+let worstDistance = 0;
 let nAxisDiffers = 0;
-let nAlong = 0;
-let nCorpusTwist = 0;
-let worstLocalX = 0;
+let worstHalfTurn = 0;
+let worstHeadingAgrees = 0;
 let nHanded = 0;
 let nHandWrong = 0;
 let nHandChanged = 0;
@@ -225,7 +220,8 @@ let nRotateBadCy1 = 0;
 /** THE CALLS AND DANCERS THE CONTROLS RUN OVER, taken from the sweep's own parsing rather than read again -
  *  every seventh call, so the sample is spread across the levels instead of being one level's first files. */
 const pool = [];
-/** THE DIAGONAL WITNESSES: one entry per selected dancer, its bundle RE-HEADED 45 degrees off the axis. */
+/** THE DIAGONAL WITNESSES: one entry per selected dancer, its bundle RE-HEADED 45 degrees off the corpus's own
+ *  axis-aligned starts, so the representability claim is measured where it is hardest. */
 const diagonal = [];
 
 for (const { where, call } of calls()) {
@@ -248,7 +244,7 @@ for (const { where, call } of calls()) {
       worstStart = Math.max(worstStart, Math.abs(d2.x - d.x), Math.abs(d2.y - d.y), Math.abs(d2.angleDeg - d.angleDeg));
       if (d2.path.length !== d.path.length) worstBeats = Infinity;
       for (let k = 0; k < d.path.length; k++) worstBeats = Math.max(worstBeats, Math.abs(d2.path[k].beats - d.path[k].beats));
-      // 1a/1b/4. THE TWO PROPERTIES, instant by instant, against the requirement's own reading.
+      // 1a/1b/1f. THE TWO PROPERTIES, instant by instant, against the requirement's own reading.
       const r = compare(d, d2, axis);
       nSamples += r.samples;
       nMoves += d.path.length;
@@ -256,27 +252,33 @@ for (const { where, call } of calls()) {
       worstHeading = Math.max(worstHeading, r.heading);
       nRotateCurves += r.curves;
       nRotateBadCy1 += r.cy1;
-      // 1d. THE `beta = 0` CASE - up to a half turn, which is the same reflection - is the plain
-      // left-for-right mirror, and it is checked on the CURVE rather than through the poses, so it is an
-      // independent reading of "the board axis in the dancer's own frame" and not a restatement of 1a.
-      // The count kept beside it is the coverage gap section 1f exists to fill: how many of the corpus's own
-      // starts land on a `beta` that is NOT a multiple of a quarter turn, which is where a reflected facing
-      // curve stops being representable at all.
-      const beta = AXIS_ANGLE[axis] - d.angleDeg * DEG;
-      if (Math.abs(Math.sin(beta)) < 1e-12) {
-        nAlong++;
-        for (let k = 0; k < d.path.length; k++) {
-          const a = d.path[k].translate;
-          const b = d2.path[k].translate;
-          worstLocalX = Math.max(worstLocalX,
-            Math.abs(b.cx1 - a.cx1), Math.abs(b.cy1 + a.cy1), Math.abs(b.cy2 + a.cy2), Math.abs(b.y2 + a.y2));
+      const a = poses(d);
+      const b = poses(d2);
+      // 1d. THE MIRROR IS AN ISOMETRY OF THE TRACK: every pair of sampled poses keeps its distance. Measured
+      // without the reflection reference, so it is an independent reading of "the shape is not stretched" - and
+      // it holds for BOTH axes, each of which reflects the floor path (about the facing for X, about the
+      // left-hand line for Y).
+      for (let s = 0; s < a.length; s++) {
+        for (let t = s + 1; t < a.length; t++) {
+          nPairDistances++;
+          const was = Math.hypot(a[s].x - a[t].x, a[s].y - a[t].y);
+          const now = Math.hypot(b[s].x - b[t].x, b[s].y - b[t].y);
+          worstDistance = Math.max(worstDistance, Math.abs(now - was));
         }
-      } else if (Math.abs(Math.sin(2 * beta)) > 1e-12) {
-        nCorpusTwist++;
       }
-      // 1e. THE TWO BUTTONS ARE DIFFERENT EDITS. A rule that ignored its axis argument would pass every
-      // geometric check in this file - both readings are self-consistent - and fail this one.
-      if (JSON.stringify(d2) !== JSON.stringify(other.dancers[i])) nAxisDiffers++;
+      // 1e. THE TWO BUTTONS ARE DIFFERENT EDITS, AND THEY DIFFER IN ONE WAY: Y is X with every local curve
+      // turned a half turn (each is a single sign flip), so the headings come out IDENTICAL while the floor
+      // paths do not. A rule that ignored its axis would pass every other check in this file.
+      const alt = other.dancers[i];
+      if (JSON.stringify(d2) !== JSON.stringify(alt)) nAxisDiffers++;
+      for (const p of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) {
+        // `d2` is the X (or Y) mirror and `alt` the other; they are negatives of each other either way.
+        worstHalfTurn = Math.max(worstHalfTurn, Math.abs(alt.path[0].translate[p] + d2.path[0].translate[p]));
+      }
+      const altPoses = poses(alt);
+      for (let s = 0; s < altPoses.length; s++) {
+        worstHeadingAgrees = Math.max(worstHeadingAgrees, Math.abs(normAngle(altPoses[s].heading - b[s].heading)));
+      }
       // 2. HANDS.
       for (let k = 0; k < d.path.length; k++) {
         const h = d.path[k].hands;
@@ -287,13 +289,13 @@ for (const { where, call } of calls()) {
       // 3. MIRRORING TWICE.
       const back = mirrorDancer(after, i, axis);
       for (let k = 0; k < d.path.length; k++) {
-        const a = d.path[k];
-        const b = back.dancers[i].path[k];
+        const was = d.path[k];
+        const now = back.dancers[i].path[k];
         for (const p of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) {
-          worstDouble = Math.max(worstDouble, Math.abs(b.translate[p] - a.translate[p]));
-          if (a.rotate) worstDouble = Math.max(worstDouble, Math.abs(b.rotate[p] - a.rotate[p]));
+          worstDouble = Math.max(worstDouble, Math.abs(now.translate[p] - was.translate[p]));
+          if (was.rotate) worstDouble = Math.max(worstDouble, Math.abs(now.rotate[p] - was.rotate[p]));
         }
-        if (b.hands !== a.hands) nDoubleHands++;
+        if (now.hands !== was.hands) nDoubleHands++;
       }
     }
     // 1c. AN UNSELECTED DANCER IS NOT TOUCHED AT ALL.
@@ -301,11 +303,10 @@ for (const { where, call } of calls()) {
       if (JSON.stringify(after.dancers[i]) !== JSON.stringify(call.dancers[i])) worstUnselected = Infinity;
     }
   }
-  // THE DIAGONAL WITNESSES for section 1f and section 6's fourth control: the POOL's calls, with every
-  // selected dancer re-headed 45 degrees off the board's axes, so `beta` is not a multiple of a quarter turn.
-  // A state the panel reaches from the formation table's `head` column and the corpus reaches 8 times in
-  // 3288 dancer-tracks (the count section 1f prints) - so it is BUILT with the panel's own `setDancerStart`
-  // rather than looked for.
+  // THE DIAGONAL WITNESSES for section 1f and section 6's first control: the POOL's calls, with every selected
+  // dancer re-headed 45 degrees off the corpus's own axis-aligned starts - a state the panel reaches from the
+  // formation table's `head` column, and the case where the board-axis reading wrote facings the format cannot
+  // carry. Built with the panel's own `setDancerStart` rather than looked for.
   if (inPool) {
     for (const i of sel) {
       if (call.dancers[i].path.length === 0) continue;
@@ -325,31 +326,34 @@ console.log(`    swept ${nCalls} calls, ${nDancers} selected dancers (${nDancers
 check(nCalls > 200, `the sweep is big enough to mean something (${nCalls} calls)`);
 check(nDancersWithMoves > 500, `and enough dancers with tracks to test (${nDancersWithMoves})`);
 check(nSamples > 5000, `and enough instants to test curves rather than endpoints (${nSamples})`);
-check(nAlong > 20, `the corpus's own starts face along an axis, so the common case is covered (${nAlong} dancers)`);
 check(worstPos < 1e-9,
-  `1a every mirrored POSITION is the original reflected about that board axis through the dancer's own start ` +
-  `(worst ${sci(worstPos)} over ${nSamples} instants) - the requirement's "about the board centre, then translated back"`);
+  `1a every mirrored POSITION is the original's mirror about the DANCER'S OWN axis through their own start ` +
+  `(worst ${sci(worstPos)} over ${nSamples} instants) - the facing line for X, the line across it for Y`);
 check(worstHeading < 1e-9,
-  `1b and every mirrored HEADING is the original reflected about the dancer's own facing (worst ${sci(worstHeading)} rad)`);
+  `1b and every mirrored HEADING is the original's mirror about the dancer's own START FACING, for both axes ` +
+  `(worst ${sci(worstHeading)} rad)`);
 check(worstStart === 0, `1c the start pose does not move: x, y and the heading come back bit-identical (worst ${fmt(worstStart)})`);
 check(worstBeats === 0, `1c and no move is re-timed, added or dropped (worst ${fmt(worstBeats)})`);
 check(worstUnselected === 0, `1c an UNSELECTED dancer is not touched at all (worst ${fmt(worstUnselected)})`);
-check(worstLocalX < 1e-12,
-  `1d a dancer facing ALONG the axis is mirrored about its own forward axis - local x kept, y negated ` +
-  `(worst ${sci(worstLocalX)} over ${nAlong} such dancers)`);
-check(nAxisDiffers > 100,
-  `1e and the two buttons are DIFFERENT edits: ${nAxisDiffers} selected dancers come out differently under X and Y`);
+check(nPairDistances > 5000 && worstDistance < 1e-9,
+  `1d the mirror is an ISOMETRY of the track: every one of ${nPairDistances} sampled pair distances is kept ` +
+  `(worst ${sci(worstDistance)})`);
+check(nAxisDiffers > 100, `1e and the two buttons are DIFFERENT edits: X and Y differ on ${nAxisDiffers} selected dancers`);
+check(worstHalfTurn < 1e-12,
+  `1e with Y exactly the half turn of X in each local curve - every control of one is the negation of the other ` +
+  `(worst ${sci(worstHalfTurn)})`);
+check(worstHeadingAgrees < 1e-9,
+  `1e and the two axes give the SAME heading profile, so they differ in where the dancer goes and not in how ` +
+  `they face (worst ${sci(worstHeadingAgrees)} rad)`);
 check(nHandWrong === 0 && nHandChanged === nHanded && nHanded > 500,
   `2  every one of the ${nHanded} named hand states is the engine's own swapLR of the authored one and did change ` +
   `(${nHandWrong} wrong, ${nHandChanged} changed)`);
 check(worstDouble < 1e-12,
   `3  mirroring twice restores every curve to where it started (worst ${sci(worstDouble)} over ${nMoves} moves)`);
 check(nDoubleHands === 0, `3  and every hand comes back (${nDoubleHands} left swapped)`);
-check(nRotateCurves > 1000 && nRotateBadCy1 === 0,
-  `4  every mirrored facing curve is still something the format can write - cy1 stays 0 (${nRotateBadCy1} of ${nRotateCurves} are not)`);
 
-// ------------------------------------------------------------------ 1f. the case the corpus barely reaches
-console.log('\n== 1f. the non-quarter-turn beta, which the corpus almost never reaches and the panel can ==');
+// ------------------------------------------------------------------ 1f. the facing the format can carry
+console.log('\n== 1f. every mirrored facing is representable, including on a diagonal dancer ==');
 
 let nDiag = 0;
 let nDiagSamples = 0;
@@ -357,14 +361,11 @@ let worstDiagPos = 0;
 let worstDiagHeading = 0;
 let nDiagCurves = 0;
 let nDiagCy1 = 0;
-let diagStraight = 0;
 let witness = null;
 
 for (const { where, call, i, moves } of diagonal) {
   for (const axis of ['x', 'y']) {
     const d = call.dancers[i];
-    const beta = AXIS_ANGLE[axis] - d.angleDeg * DEG;
-    if (Math.abs(Math.sin(2 * beta)) < 0.5) { diagStraight++; continue; }
     const after = mirrorDancer(call, i, axis);
     const r = compare(d, after.dancers[i], axis);
     nDiag++;
@@ -379,25 +380,23 @@ for (const { where, call, i, moves } of diagonal) {
     if (witness === null || (witness.moves < 4 && moves >= 4)) witness = { where, i, axis, call, moves };
   }
 }
-console.log(`    re-headed ${diagonal.length} dancers from ${pool.length} calls 45 degrees off the axis, and mirrored ` +
-  `${nDiag} tracks of them: of the corpus's own ${nDancers} dancer-tracks only ${nCorpusTwist} land on a ` +
-  `non-quarter-turn beta, so the case is built here rather than looked for.`);
-check(nDiag > 200, `the diagonal sweep is big enough to mean something (${nDiag} mirrored tracks)`);
-check(nDiagSamples > 2000, `and reaches every instant of them (${nDiagSamples})`);
-check(diagStraight === 0, `and every one of them is a genuine non-quarter turn (${diagStraight} were not)`);
-check(worstDiagPos < 1e-9,
-  `1a HOLDS in the general case too: the mirrored position is the board mirror (worst ${sci(worstDiagPos)})`);
-check(worstDiagHeading < 1e-9,
-  `1b holds in the general case too: the mirrored heading is the facing mirror (worst ${sci(worstDiagHeading)} rad)`);
-check(nDiagCurves > 100 && nDiagCy1 === 0,
-  `4  and the local +X facing mirror leaves ${nDiagCy1} of ${nDiagCurves} diagonal facings unrepresentable (cy1 stays 0)`);
+console.log(`    re-headed ${diagonal.length} dancers from ${pool.length} calls 45 degrees off the corpus's own starts, ` +
+  `and mirrored ${nDiag} tracks of them.`);
+check(nDiag > 100, `the diagonal sweep is big enough to mean something (${nDiag} mirrored tracks)`);
+check(nDiagSamples > 1000, `and reaches every instant of them (${nDiagSamples})`);
+check(worstDiagPos < 1e-9, `1a HOLDS on a diagonal dancer: the position is still the mirror about their own axis (worst ${sci(worstDiagPos)})`);
+check(worstDiagHeading < 1e-9, `1b holds there too (worst ${sci(worstDiagHeading)} rad)`);
+check(nRotateCurves > 1000 && nRotateBadCy1 === 0 && nDiagCy1 === 0,
+  `1f and EVERY mirrored facing curve is representable - cy1 stays 0 for all ${nRotateCurves} corpus curves and ` +
+  `all ${nDiagCurves} diagonal ones (${nRotateBadCy1 + nDiagCy1} are not), which is what the local axes buy: ` +
+  `both of them are quarter turns`);
 
-console.log('\n== 4b. a mirrored track survives an export and a re-read ==');
+console.log('\n== 4. a mirrored track survives an export and a re-read ==');
 check(witness !== null, 'a diagonal witness exists, because section 1f built one with the panel\'s own `setDancerStart`');
 if (witness) {
   const { where, i, axis, call, moves } = witness;
   const after = mirrorDancer(call, i, axis);
-  console.log(`    witness: ${where} dancer ${i + 1} (facing ${fmt(call.dancers[i].angleDeg)} deg, ${moves} moves), mirrored about ${axis.toUpperCase()}`);
+  console.log(`    witness: ${where} dancer ${i + 1} (facing ${fmt(call.dancers[i].angleDeg)} deg, ${moves} moves), mirrored about local ${axis.toUpperCase()}`);
   const back = engine.normalizeInstance(
     engine.loadCallFromXml(`<calls>\n${engine.callToXml(after, after.from)}\n</calls>`, movesXml, formationsXml, 0),
   );
@@ -443,12 +442,21 @@ check(htmlSrc.indexOf('id="edMirrorX"') > htmlSrc.indexOf('id="edAxisHead"') &&
   'and their row sits BELOW the Edit row - after its axis pair and above the next row - which is where it was asked for');
 check(/<label[^>]*>Mirror<\/label>/.test(htmlSrc.slice(htmlSrc.indexOf('id="edMirrorRow"') - 40, htmlSrc.indexOf('id="edMirrorX"'))),
   'the row is labelled Mirror, so the two letters are not two anonymous buttons');
-// THE TOOLTIPS STATE THE RULE, so they are part of it: a control that did not say the axis is the BOARD'S, or
-// that the start pose does not move, would be describing an edit it does not make.
-check(/the BOARD's horizontal axis/.test(buttonAt('edMirrorX')) && /the BOARD's vertical axis/.test(buttonAt('edMirrorY')),
-  'the tooltips name the BOARD axis each button takes');
-check(/START POSITION or START ROTATION/.test(buttonAt('edMirrorX')) && /hand swaps left for right/.test(buttonAt('edMirrorX')),
+// THE TOOLTIPS STATE THE RULE, so they are part of it: a control still offering the BOARD's axes, or not
+// promising that the start pose stays, would be describing an edit it does not make.
+check(/the DANCER'S OWN X axis/.test(buttonAt('edMirrorX')) && /the DANCER'S OWN Y axis/.test(buttonAt('edMirrorY')),
+  'the tooltips name the DANCER\'S OWN axis each button takes, which is the reading that replaced the board\'s');
+check(/START POSITION and ROTATION/.test(buttonAt('edMirrorX')) && /hand swaps left for right/.test(buttonAt('edMirrorX')),
   'and say that the start pose does not move and that the hands swap');
+check(!/BOARD's (horizontal|vertical) axis/.test(htmlSrc), 'and nothing in the markup still offers the board\'s axes');
+// THE STATUS LINE THE PRESS WRITES IS PART OF THE RULE TOO, and TWO faults in it were found by pressing the
+// buttons in a real browser rather than by any check here: the string still announced "the board's X axis" after
+// the axes had moved to the dancer, and its possessive read "1 dancer' moves" for a single dancer. Both are
+// pinned now.
+check(/across the dancer's own \$\{axis\.toUpperCase\(\)\} axis/.test(uiSrc) && !/across the board's/.test(uiSrc),
+  'the status line the press reports names the DANCER\'S OWN axis, so the report and the tooltip agree');
+check(/dancer\$\{done === 1 \? "'s" : "s'"} moves/.test(uiSrc),
+  'and its possessive is right for both counts - "1 dancer\'s moves", "4 dancers\' moves"');
 
 check(/private mirrorXBtn = el<HTMLButtonElement>\('edMirrorX'\)/.test(uiSrc) &&
   /private mirrorYBtn = el<HTMLButtonElement>\('edMirrorY'\)/.test(uiSrc),
@@ -466,7 +474,7 @@ check(/no dancers selected — pick dancers above the table, or the mirror has n
   'and an empty selection is refused out loud rather than committing nothing');
 // THE ARITHMETIC IS NOT HERE. This is the check that stops the reflection drifting back into the panel, where
 // no probe could measure it - the same reason `board-transform.ts` exists.
-check(!/Math\.cos\(2 \*|Math\.sin\(2 \*|beta/.test(uiSrc),
+check(!/Math\.cos\(2 \*|Math\.sin\(2 \*|beta|BOARD_CENTRE/.test(uiSrc),
   'the reflection arithmetic lives in the engine and is not restated in the panel');
 
 {
@@ -476,74 +484,64 @@ check(!/Math\.cos\(2 \*|Math\.sin\(2 \*|beta/.test(uiSrc),
   check(renamed !== htmlSrc && !/id="edMirrorX"/.test(renamed), 'renaming the X button fails the button check');
   const noRow = htmlSrc.replace(/<div class="row" id="edMirrorRow">[\s\S]*?<\/div>/, '');
   check(noRow !== htmlSrc && noRow.indexOf('id="edMirrorX"') < 0, 'deleting the row fails the placement check');
-  const staleTip = htmlSrc.replace(/the BOARD's horizontal axis/, "the dancer's own axis");
-  check(staleTip !== htmlSrc && !/the BOARD's horizontal axis/.test(staleTip),
-    'a tooltip that stops naming the board axis fails the wording check');
+  const staleTip = htmlSrc.replace(/the DANCER'S OWN X axis/, "the BOARD's horizontal axis");
+  check(staleTip !== htmlSrc && !/the DANCER'S OWN X axis/.test(staleTip),
+    'restoring the board-axis wording fails the tooltip check');
+  const staleStatus = uiSrc.replace("across the dancer's own ${axis.toUpperCase()} axis", "across the board's ${axis.toUpperCase()} axis");
+  check(staleStatus !== uiSrc && !/across the dancer's own/.test(staleStatus),
+    'and putting the old status wording back fails the check that the press reports what the tooltip promised');
+  const staleCount = uiSrc.replace('${done === 1 ? "\'s" : "s\'"}', "${done === 1 ? '' : 's'}");
+  check(staleCount !== uiSrc && !/dancer\$\{done === 1 \? "'s" : "s'"} moves/.test(staleCount),
+    'and the count-blind possessive fails too - it is the one that read "1 dancer\' moves"');
   const noHandler = uiSrc.replace(/private mirrorSelectedMoves/, 'private mirrorGone');
   check(noHandler !== uiSrc && !/private mirrorSelectedMoves/.test(noHandler), 'removing the handler fails the checks that name it');
   const inlineMath = uiSrc.replace('private mirrorSelectedMoves', 'const u = Math.cos(2 * 0);\n  private mirrorSelectedMoves');
-  check(!/Math\.cos\(2 \*|Math\.sin\(2 \*|beta/.test(inlineMath) === false,
+  check(!/Math\.cos\(2 \*|Math\.sin\(2 \*|beta|BOARD_CENTRE/.test(inlineMath) === false,
     'and restating the reflection in the panel fails the check that it is not there');
 }
 
 // ------------------------------------------------------------------ 6. the rejected rules
 console.log('\n== 6. the rules that were rejected, each against the check that rules it out ==');
 
-// THE ONLY ARITHMETIC WRITTEN OUT IN THIS FILE, and it is here to be WRONG in six measured ways. Each control
-// rebuilds the track with `setDancerPath` - the engine's own write - so a control differs from the rule only
-// in the reflection it asks for: the `beta` it uses, the line it mirrors the facing about, and whether it
-// swaps the hands.
+// THE ONLY ARITHMETIC WRITTEN OUT IN THIS FILE, and it is here to be WRONG in five measured ways. Each control
+// rebuilds the track with `setDancerPath` - the engine's own write - so a control differs from the rule only in
+// the reflection it asks for.
 const applyMirror = (call, i, segOf) => engine.setDancerPath(call, i, call.dancers[i].path.map(segOf));
 
-/** Reflect one segment by `R(2*beta) * diag(1, -1)`, with the facing about the local +X, about `beta`, or not at all. */
-const controlSeg = (s, beta, facing, swapHands) => {
+/** One local curve flipped about one of the two local axes - the rule, as the controls' building block. */
+const flip = (b, axis) => (axis === 'x'
+  ? { ...b, cy1: -b.cy1, cy2: -b.cy2, y2: -b.y2 }
+  : { ...b, cx1: -b.cx1, cx2: -b.cx2, x2: -b.x2 });
+
+/** One local curve reflected about the line through the local origin at angle `beta` - the BOARD reading. */
+const flipAbout = (b, beta) => {
   const u = Math.cos(2 * beta);
   const v = Math.sin(2 * beta);
-  const at = (x, y) => ({ x: u * x + v * y, y: v * x - u * y });
-  const c1 = at(s.translate.cx1, s.translate.cy1);
-  const c2 = at(s.translate.cx2, s.translate.cy2);
-  const p3 = at(s.translate.x2, s.translate.y2);
-  let rotate = null;
-  if (s.rotate) {
-    if (facing === 'none') rotate = { ...s.rotate };
-    else if (facing === 'localX') rotate = { ...s.rotate, cy1: -s.rotate.cy1, cy2: -s.rotate.cy2, y2: -s.rotate.y2 };
-    else {
-      const r1 = at(s.rotate.cx1, s.rotate.cy1);
-      const r2 = at(s.rotate.cx2, s.rotate.cy2);
-      const r3 = at(s.rotate.x2, s.rotate.y2);
-      rotate = { cx1: r1.x, cy1: r1.y, cx2: r2.x, cy2: r2.y, x2: r3.x, y2: r3.y };
-    }
-  }
   return {
-    beats: s.beats,
-    hands: swapHands ? engine.swapLR(s.hands) : s.hands,
-    translate: { cx1: c1.x, cy1: c1.y, cx2: c2.x, cy2: c2.y, x2: p3.x, y2: p3.y },
-    rotate,
+    cx1: u * b.cx1 + v * b.cy1,
+    cy1: v * b.cx1 - u * b.cy1,
+    cx2: u * b.cx2 + v * b.cy2,
+    cy2: v * b.cx2 - u * b.cy2,
+    x2: u * b.x2 + v * b.y2,
+    y2: v * b.x2 - u * b.y2,
   };
 };
 
-/** The frame heading when move `k` begins, which is what "each move's own heading" would use. */
-const headingAt = (d, k) => engine.poseFor(d, engine.moveBeatRange(d, k).from).heading;
-
 /**
- * ONE CONTROL OVER ONE SET OF CALLS: the worst `compare` reading it produces, plus the two counts that decide
- * which single check can see it - the hand violations and how differently X and Y come out.
- *
- * `facing` is the facing channel's reading: `localX` (the rule), `beta` (the control that is geometrically
- * right and unrepresentable) or `none` (the turn left alone).
+ * ONE CONTROL OVER ONE SET OF CALLS: the worst `compare` reading it produces, plus the counts that decide
+ * which single check can see it.
  */
-function control(name, makeBeta, facing, swapHands, samples, axes) {
-  const worst = { pos: 0, heading: 0, cy1: 0, curves: 0, handsWrong: 0, calls: 0, axisDiffers: 0 };
-  for (const { call, dancers } of samples) {
+function control(name, makeSeg, callsToUse, axes) {
+  const worst = { pos: 0, heading: 0, cy1: 0, curves: 0, handsWrong: 0, tracks: 0, axisDiffers: 0 };
+  for (const { call, dancers } of callsToUse) {
     for (const axis of axes) {
       for (const i of dancers) {
         const d = call.dancers[i];
         if (d.path.length === 0) continue;
-        const h0 = d.angleDeg * DEG;
-        const after = applyMirror(call, i, (s, k) => controlSeg(s, makeBeta(d, axis, k, h0), facing, swapHands));
+        const after = applyMirror(call, i, (s, k) => makeSeg(s, axis, d, k));
         const r = compare(d, after.dancers[i], axis);
         if (r.samples === 0) continue;
-        worst.calls++;
+        worst.tracks++;
         worst.pos = Math.max(worst.pos, r.pos);
         worst.heading = Math.max(worst.heading, r.heading);
         worst.cy1 += r.cy1;
@@ -554,75 +552,118 @@ function control(name, makeBeta, facing, swapHands, samples, axes) {
     // 1e's own reading: what this control makes of X against Y.
     const mirrorWith = (axis) => dancers.reduce((c, i) => {
       if (call.dancers[i].path.length === 0) return c;
-      const h0 = call.dancers[i].angleDeg * DEG;
-      return applyMirror(c, i, (s, k) => controlSeg(s, makeBeta(call.dancers[i], axis, k, h0), facing, swapHands));
+      return applyMirror(c, i, (s, k) => makeSeg(s, axis, call.dancers[i], k));
     }, call);
     const x = mirrorWith('x');
     const y = mirrorWith('y');
     for (const i of dancers) if (JSON.stringify(x.dancers[i]) !== JSON.stringify(y.dancers[i])) worst.axisDiffers++;
   }
   console.log(`    ${name}: worst position ${sci(worst.pos)}, worst heading ${sci(worst.heading)}, ` +
-    `non-zero cy1 ${worst.cy1}, hand violations ${worst.handsWrong}, X-vs-Y differences ${worst.axisDiffers} (${worst.calls} tracks)`);
+    `non-zero cy1 ${worst.cy1}, hand violations ${worst.handsWrong}, X-vs-Y differences ${worst.axisDiffers} ` +
+    `(${worst.tracks} tracks)`);
   return worst;
 }
 
-const betaRight = (d, axis) => AXIS_ANGLE[axis] - d.angleDeg * DEG;
-const betaBoard = (d, axis) => AXIS_ANGLE[axis];
-const betaPerMove = (d, axis, k) => AXIS_ANGLE[axis] - headingAt(d, k);
-/** The X rule applied whatever the button says - the "ignore the axis argument" control. */
-const betaAlwaysX = (d) => AXIS_ANGLE.x - d.angleDeg * DEG;
+/** The rule, as a control's `makeSeg`. */
+const segRule = (s, axis) => ({
+  beats: s.beats,
+  hands: engine.swapLR(s.hands),
+  translate: flip(s.translate, axis),
+  rotate: s.rotate ? flip(s.rotate, axis) : null,
+});
 
-check(pool.length >= 40 && diagonal.length >= 100, `the control samples are big enough to mean something (${pool.length} corpus calls, ${diagonal.length} diagonal tracks)`);
+check(pool.length >= 40 && diagonal.length >= 100,
+  `the control samples are big enough to mean something (${pool.length} corpus calls, ${diagonal.length} diagonal tracks)`);
 
 {
-  // REJECTED 1: THE BOARD ANGLE USED AS A LOCAL ONE (`beta = phi`). It ignores where the dancer is facing, and
-  // the POSITION property is what catches it; 1b does NOT, because a heading comes only from the negated
-  // turns, which this control still negates.
-  const r = control('beta = phi (the board angle read as a local one)', betaBoard, 'localX', true, pool, ['x', 'y']);
-  check(r.pos > 0.5, `it moves mirrored positions by up to ${fmt(r.pos)}, so 1a is what rules it out`);
-  check(r.heading < 1e-9, `and it leaves every heading perfect (worst ${sci(r.heading)}), so 1b cannot`);
+  // REJECTED 1: THE BOARD'S AXES, BOTH CHANNELS REFLECTED ABOUT `beta = phi - h0` - the consistent form of the
+  // reading this feature replaced. It is a quarter turn only for a dancer facing along the board's axis, so the
+  // POSITION property is what catches it on everyone else; the headings stay perfect, because a heading comes
+  // only from the negated turns. On a DIAGONAL witness it does worse than a wrong shape: the facing curve comes
+  // back with a `cy1` the format has nowhere to write.
+  //
+  // THE VERSION THAT SHIPPED SPLIT THE FACING ONTO THE LOCAL +X AXIS (which is what a quarter turn is), so it
+  // stayed representable - and that split is the tell: the board's axes are not the frame the moves are written
+  // in, and a reflection in that frame has to be re-expressed per dancer to be written back at all.
+  const boardSeg = (s, axis, d) => {
+    const beta = BOARD_AXIS_ANGLE[axis] - d.angleDeg * DEG;
+    return {
+      beats: s.beats,
+      hands: engine.swapLR(s.hands),
+      translate: flipAbout(s.translate, beta),
+      rotate: s.rotate ? flipAbout(s.rotate, beta) : null,
+    };
+  };
+  const corpus = control('the BOARD\'s axes, both channels about beta = phi - h0', boardSeg, pool, ['x', 'y']);
+  const diag = control('  ...and the same on a DIAGONAL dancer', boardSeg, diagonal, ['x', 'y']);
+  check(corpus.pos > 0.5, `it moves mirrored positions by up to ${fmt(corpus.pos)}, so 1a is what rules it out`);
+  check(corpus.heading < 1e-9, `and it leaves every heading perfect (worst ${sci(corpus.heading)}), so 1b cannot`);
+  check(diag.cy1 > 0 && diag.curves > 100,
+    `and on a diagonal facing it writes ${diag.cy1} of ${diag.curves} facing curves the format cannot carry ` +
+    `(cy1 != 0), where the local axes write none - the measurement AGENTS.md §8 trap 18 records`);
 }
 {
-  // REJECTED 2: `beta` from EACH MOVE's OWN heading instead of the track's start heading. The plausible
-  // reading of "mirror this move", and it does not compose: the tail is turned against the head.
-  const r = control("beta from each move's own heading", betaPerMove, 'localX', true, pool, ['x', 'y']);
-  check(r.pos > 0.5, `it moves mirrored positions by up to ${fmt(r.pos)}, so 1a is what rules it out`);
-  check(r.heading < 1e-9, `and it leaves every heading perfect (worst ${sci(r.heading)}), so 1b cannot`);
+  // REJECTED 2: THE AXIS ARGUMENT IGNORED - both buttons applying the local X flip. Every pose it produces is a
+  // correct mirror of ONE axis, so the only reading that catches it is 1e's "the two buttons are different".
+  const alwaysX = (s) => segRule(s, 'x');
+  const r = control('the axis argument ignored (always the local X flip)', alwaysX, pool, ['x']);
+  check(r.axisDiffers === 0, `X and Y come out identical on every dancer (${r.axisDiffers} differences), so 1e is what rules it out`);
+  check(r.pos < 1e-9, `and on the axis it does apply it is a self-consistent mirror (worst ${sci(r.pos)}), so no single-axis check can`);
 }
 {
   // REJECTED 3: THE HANDS LEFT ALONE. Geometry is untouched, so only section 2's count can catch it.
-  const r = control('the hand state left alone', betaRight, 'localX', false, pool, ['x', 'y']);
+  const noHands = (s, axis) => ({ ...segRule(s, axis), hands: s.hands });
+  const r = control('the hand state left alone', noHands, pool, ['x', 'y']);
   check(r.handsWrong > 100, `it leaves ${r.handsWrong} moves holding the wrong hand, so section 2 is what rules it out`);
   check(r.pos < 1e-9 && r.heading < 1e-9,
     `and it is geometrically identical (worst ${sci(r.pos)} / ${sci(r.heading)}), so no pose check can`);
 }
 {
-  // REJECTED 4: THE FACING MIRRORED ABOUT `beta` AS WELL. The turn is still negated, so every pose is right -
-  // what breaks is the FORMAT. Run over the DIAGONAL tracks, because on an axis-aligned facing the two
-  // readings of the facing channel coincide and the control would be vacuous (measured: the corpus's own
-  // starts are all axis-aligned, which is what section 1f records).
-  const r = control('the facing mirrored about beta too', betaRight, 'beta', true, diagonal, ['x']);
-  check(r.cy1 > 0 && r.curves > 100,
-    `it writes ${r.cy1} of ${r.curves} facing curves with a non-zero cy1, so section 1f's count is what rules it out`);
-  check(r.pos < 1e-9 && r.heading < 1e-9,
-    `and it moves nothing (worst ${sci(r.pos)} / ${sci(r.heading)}), so no pose check can`);
-}
-{
-  // REJECTED 5: THE FACING TURN LEFT ALONE. Each move's floor shape is untouched, but the FRAMES are the
-  // accumulated turns, so a track that no longer turns is also no longer mirrored: this breaks 1b's headings
-  // AND carries the positions off the mirror. Both are measured, because the facing channel's own reading is
-  // the heading one and the position consequence is why this cannot be dismissed as cosmetic.
-  const r = control('the facing turn left alone', betaRight, 'none', true, pool, ['x', 'y']);
+  // REJECTED 4: THE FACING TURN LEFT ALONE. Each move's own floor shape is mirrored, but the FRAMES are the
+  // accumulated turns, so a track that no longer turns is also no longer mirrored. Both are measured, because
+  // the facing channel's own reading is the heading one and the position consequence is why this cannot be
+  // dismissed as cosmetic.
+  const noTurn = (s, axis) => ({ ...segRule(s, axis), rotate: s.rotate ? { ...s.rotate } : null });
+  const r = control('the facing turn left alone', noTurn, pool, ['x', 'y']);
   check(r.heading > 1e-3, `it leaves every heading unreflected (worst ${sci(r.heading)} rad), which is 1b's own reading`);
   check(r.pos > 0.5, `and because the frames carry those turns the positions leave the mirror too (worst ${fmt(r.pos)})`);
 }
 {
-  // REJECTED 6: THE AXIS ARGUMENT IGNORED. Every pose is a correct mirror of ONE axis, so the only reading
-  // that catches it is 1e's "the two buttons are different edits" - measured on X alone here, where this
-  // control is exactly right and no single-axis check can see anything wrong.
-  const r = control('the axis argument ignored', betaAlwaysX, 'localX', true, pool, ['x']);
-  check(r.axisDiffers === 0, `X and Y come out identical on every dancer (${r.axisDiffers} differences), so 1e is what rules it out`);
-  check(r.pos < 1e-9, `and on the axis it does apply it is a self-consistent mirror (worst ${sci(r.pos)}), so no single-axis check can`);
+  // REJECTED 5: THE RIGID MIRROR ABOUT THE LOCAL Y AXIS - the geometrically clean alternative, and the one the
+  // pinned start pose forbids. A rigid mirror of the whole pose about the line across the facing maps the start
+  // heading `h0` to `2*theta - h0`, which for the local Y axis is `h0 + PI`: THE DANCER HAS TO START FACING THE
+  // OTHER WAY. Built that way (the local X flip, which reflects about the facing line, followed by the half turn
+  // that carries that line onto the local Y one) the track is a perfect mirror of positions AND headings, and
+  // the only thing wrong with it is the promise 1c makes. That is the reason the shipped rule splits the two
+  // channels the way it does rather than turning anybody.
+  const r = { pos: 0, heading: 0, startMoved: 0, tracks: 0 };
+  for (const { call, dancers } of pool) {
+    for (const i of dancers) {
+      const d = call.dancers[i];
+      if (d.path.length === 0) continue;
+      const h0 = d.angleDeg * DEG;
+      const theta = axisAngle(h0, 'y');
+      const S = { x: d.x, y: d.y };
+      const mirrored = applyMirror(call, i, (s, k) => segRule(s, 'x'));
+      const turned = engine.setDancerStart(mirrored, i, { x: d.x, y: d.y, heading: normAngle(h0 + Math.PI) });
+      // ITS OWN REFERENCE, not `compare`'s: a RIGID mirror reflects the positions AND the headings about the one
+      // line, which is exactly what the shipped rule does not do for Y.
+      const a = poses(d);
+      const b = poses(turned.dancers[i]);
+      r.tracks++;
+      for (let s = 0; s < a.length; s++) {
+        const want = reflectWorld(a[s], theta, S);
+        r.pos = Math.max(r.pos, Math.hypot(b[s].x - want.x, b[s].y - want.y));
+        r.heading = Math.max(r.heading, Math.abs(normAngle(b[s].heading - (2 * theta - a[s].heading))));
+      }
+      r.startMoved = Math.max(r.startMoved, Math.abs(turned.dancers[i].angleDeg - d.angleDeg));
+    }
+  }
+  console.log(`    the rigid mirror about the local Y axis: worst position ${sci(r.pos)}, worst heading ${sci(r.heading)}, ` +
+    `start heading moved ${fmt(r.startMoved)} (${r.tracks} tracks)`);
+  check(r.pos < 1e-9 && r.heading < 1e-9,
+    `it IS the perfect mirror - positions ${sci(r.pos)} and headings ${sci(r.heading)} - which is why no pose check can refuse it`);
+  check(r.startMoved > 90, `and it has to TURN every dancer by ${fmt(r.startMoved)} degrees to do it, so 1c's promise is what rules it out`);
 }
 
 console.log('\n=================');

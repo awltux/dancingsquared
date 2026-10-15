@@ -317,8 +317,9 @@ with its measurement, in the same commit that found it.
 18. **The format has no `cy3`, so a facing curve cannot be mirrored about a line that is not a quarter turn
     away.** Reflecting a `<rotate>` about the local line at `beta` writes `cy1 = sin(2*beta) * cx1`, which
     `bezRotAttr` has nowhere to put — the curve keeps it in memory and the file loses it. MEASURED: the control
-    in `poc/tools/mirror-moves-probe.mjs` leaves **222 of 222** diagonal facings unrepresentable, where the
-    local +X mirror (`cy1` stays exactly 0) leaves none. Mirror the TURN, which is the only thing `poseFor`
+    in `poc/tools/mirror-moves-probe.mjs` leaves **444 of 444** diagonal facings unrepresentable, where a flip
+    of the same curve about one of the dancer's own axes (`cy1` stays exactly 0) leaves none — which is why the
+    Call editor's mirror takes quarter turns and nothing else. Mirror the TURN, which is the only thing `poseFor`
     reads from a facing curve, rather than the curve itself.
 19. **A Vite dev server watching `game/src` fights the editor's atomic write.** The editor writes
     `game/src/.main.ts.<pid>.<guid>.tmpdir/main.ts.tmp` and renames it over the target; Vite's file watcher

@@ -1903,23 +1903,27 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * MIRROR THE SELECTED DANCERS' MOVES ACROSS ONE OF THE BOARD'S AXES - the X and Y buttons below the Edit row.
+   * MIRROR THE SELECTED DANCERS' MOVES ACROSS ONE OF THE DANCER'S OWN AXES - the X and Y buttons below the Edit
+   * row.
    *
-   * WHAT IT IS FOR, asked for as: "Add a mirror feature. Add an X and Y button that mirrors the selected
+   * WHAT IT IS FOR, asked for first as: "Add a mirror feature. Add an X and Y button that mirrors the selected
    * dancers Moves across the axis indicated by the button. Dont move the dancers start position or rotation,
    * just their Moves. When multiple dancers are selected, the mirror must use the translation around the board
-   * centre to ensure the board maintains its balance. put the buttons below the Edit: line". So this is the one
-   * edit in the panel that rewrites PATHS WITHOUT MOVING ANYBODY: every selected dancer's start pose - position
-   * AND heading - is left exactly as it is, and only the moves change.
+   * centre to ensure the board maintains its balance. put the buttons below the Edit: line" - and then, after
+   * trying what that produced, as: "Currently the mirror is allong the boards X and Y, but after some
+   * experimentation I realise that it should be along the dancers local X and Y axis."
+   *
+   * SO THIS IS THE ONE EDIT IN THE PANEL THAT REWRITES PATHS WITHOUT MOVING ANYBODY, in the frame those paths
+   * are authored in: every selected dancer's moves are reflected about their OWN X axis (the line they face
+   * along, so left becomes right) or their OWN Y axis (the line across it, so forward becomes back), and their
+   * start pose - position AND heading - is left exactly as it is. `X` is a rigid mirror of the whole track; `Y`
+   * is not, because a rigid mirror about the line across the facing would have to turn the dancer half a turn,
+   * and the start pose is the one thing that must not move.
    *
    * THE RULE IS THE ENGINE'S (`mirrorDancerMoves`), for the reason every gesture rule here is: a rule that has
    * to be measured cannot live in this file, which builds DOM and cannot be imported by a probe. That function
    * documents what the reflection is and what it is exact in; what belongs HERE is only WHO it applies to and
    * what to say about it.
-   *
-   * ONE BOARD AXIS FOR THE WHOLE SELECTION, which is the part a per-dancer mirror would get wrong: the axis is
-   * the board's - through the board's centre, with each reflected track carried back to its own start - so a
-   * set mirrored together stays balanced instead of each dancer being reflected about its own frame.
    *
    * ONE `commit`, so the whole mirror is ONE undo step, and no scope change: the buttons act on the moves
    * whatever the Edit row is showing, and the board redraws every trail through the ordinary render.
@@ -1946,7 +1950,10 @@ export class EditorController implements EditorUI {
       return;
     }
     this.commit(next, 'mirror');
-    this.statusEl.textContent = `mirrored ${done} dancer${done === 1 ? '' : 's'}' moves across the board's ${axis.toUpperCase()} axis`;
+    // THE POSSESSIVE IS PER COUNT, and the first version was not: `dancer${done === 1 ? '' : 's'}'` announced "1
+    // dancer' moves" - seen in a real browser, and the reason the singular and the plural are both pinned below.
+    this.statusEl.textContent =
+      `mirrored ${done} dancer${done === 1 ? "'s" : "s'"} moves across the dancer's own ${axis.toUpperCase()} axis`;
   }
 
   /**

@@ -1578,104 +1578,92 @@ export function setDancerPath(call: CallBundle, index: number, path: Seg[]): Cal
 
 // ------------------------------------------------------------------ mirroring a track
 
-/** Which of the BOARD'S OWN AXES a track is mirrored across: the horizontal one the board is drawn about
- *  (`x`, the line y = 0) or the vertical one (`y`, the line x = 0). Both pass through the board's centre. */
+/** Which of THE DANCER'S OWN AXES a track is mirrored across: the local `x`, which is the line the dancer
+ *  faces along, or the local `y`, which is the line across it - `types.ts` puts `+X` on the facing and `+Y`
+ *  to the dancer's LEFT. */
 export type MirrorAxis = 'x' | 'y';
 
-/** Each board axis as an angle in the board's own frame: `x` is the line at 0, `y` the line at a quarter turn. */
-const MIRROR_AXIS_ANGLE: Record<MirrorAxis, number> = { x: 0, y: Math.PI / 2 };
-
 /**
- * MIRROR ONE DANCER'S MOVES ACROSS A BOARD AXIS, LEAVING THE START POSE EXACTLY WHERE IT IS - POSITION AND
- * ROTATION BOTH. This is the Call editor's `X` / `Y` buttons: the authored track is replaced by its mirror
- * image, and the dancer does not move, does not turn, and is not re-stationed.
+ * MIRROR ONE DANCER'S MOVES ACROSS ONE OF THE DANCER'S OWN AXES, LEAVING THE START POSE EXACTLY WHERE IT IS -
+ * POSITION AND ROTATION BOTH. This is the Call editor's `X` / `Y` buttons: the authored track is replaced by
+ * its mirror image in the very frame the track is authored in, and the dancer does not move, does not turn,
+ * and is not re-stationed.
  *
- * THE RULE IS ONE REFLECTION PER MOVE, ABOUT A FIXED DIRECTION IN THE DANCER'S OWN FRAME:
+ * THE RULE IS ONE QUARTER-TURN REFLECTION PER MOVE, ABOUT THE DANCER'S OWN FRAME:
  *
- *     beta       = phi - h0          the board axis (phi) as the DANCER'S OWN frame sees it
- *     local point -> R(2*beta) * diag(1, -1) * local point
+ *     X:  (x, y) -> (x, -y)      reflect about the local X axis - the line the dancer faces along
+ *     Y:  (x, y) -> (-x, y)      reflect about the local Y axis - the line across the facing
  *
- * A path is authored in dancer-LOCAL coordinates (`types.ts`: the origin is the dancer's spot when the move
- * begins and +X is the facing at that instant), so `phi - h0` is the only reading of "the board's axis" that
- * exists here at all - and it is the one asked for: the axis is the BOARD'S, not the dancer's, and a dancer
- * already facing along it gets `beta = 0`, a plain left-for-right mirror.
+ * so `X` is the left-for-right mirror and `Y` the forward-for-back one. A path is authored in dancer-LOCAL
+ * coordinates (`types.ts`: the origin is the dancer's spot when the move begins and +X is the facing at that
+ * instant), so these two axes are not a choice of pivot at all - they ARE the frame the moves are written in.
  *
- * AND THE RESULT IS EXACT IN BOARD TERMS, which is what makes this a BOARD edit rather than a pile of
- * per-dancer ones - MEASURED by `poc/tools/mirror-moves-probe.mjs` over the shipped corpus, at every joint
- * and every sampled instant of every move (worst 1.6e-14 units and 3.6e-15 rad over 21472 instants):
+ * A BOARD-AXIS READING WAS SHIPPED FIRST AND REPLACED ON REQUEST - *"after some experimentation I realise that
+ * it should be along the dancers local X and Y axis"*. It reflected about the BOARD's axis as the dancer's
+ * frame sees it (`beta = phi - h0`), which is a quarter turn only for a dancer facing along the board's axis,
+ * and everywhere else it had to SPLIT the facing channel onto the local +X axis to stay writable at all - the
+ * tell that the board's frame is not the frame the moves are written in. What the format cannot carry is a
+ * reflection about a line that is not a quarter turn away: reflecting BOTH channels about `beta` writes
+ * `cy1 = sin(2*beta)*cx1`, which `bezRotAttr` has no `cy3` for, and the probe's control measures exactly that -
+ * 444 of 444 diagonal facings unrepresentable (AGENTS.md §8 trap 18). THE LOCAL AXES CANNOT DO IT: both are
+ * quarter turns, so `cy1` stays exactly 0 for every facing of every dancer, whatever way they face.
  *
- *   - POSITIONS. The mirrored world position is the original's mirror about the chosen board axis through
- *     the DANCER'S OWN START: `p' = M * (p - S) + S`.
- *   - HEADINGS. The mirrored heading is the original's mirror about the DANCER'S OWN FACING: `h' = 2*h0 - h`.
+ * WHAT IS EXACT, MEASURED by `poc/tools/mirror-moves-probe.mjs` over the shipped corpus at every joint and
+ * every sampled instant of every move:
  *
- * READ THE FIRST ONE THE OTHER WAY ROUND AND IT IS THE REQUIREMENT: the axis is the board's, through the
- * BOARD CENTRE, and the reflected track is then TRANSLATED back so it still begins at its own start. That
- * translation is exactly what puts the axis through `S`, so it cancels out of the rule above - which is why
- * this function takes no centre argument, and why selecting eight dancers mirrors the set about ONE line
- * (the board's) rather than about eight dancers' own centres.
+ *   - POSITIONS. The mirrored world position is the original's mirror about the chosen axis through the
+ *     DANCER'S OWN START: for `X` the line the dancer faces along, for `Y` the line across it.
+ *   - HEADINGS. The mirrored heading is the original's mirror about the DANCER'S OWN START FACING, whichever
+ *     of the two axes is chosen - because `poseFor` reads a facing curve as a TURN and a reflection negates
+ *     every turn, whichever line it is about.
  *
- * A RIGID MIRROR OF THE WHOLE TRACK IS NOT AVAILABLE, and the pair above is the exact price of it: a
- * reflection about the board axis maps the start heading `h0` to `2*phi - h0`, so a track that both mirrored
- * and still began facing `h0` would have to be the reflection about `h0`'s OWN line - the dancer's axis and
- * not the board's, the same picture from both buttons. Pinning the start pose (which is what was asked for)
- * therefore splits the two channels as above, and pins both of them exactly.
+ * SO `X` IS A FULL RIGID MIRROR OF THE TRACK AND `Y` IS NOT, and the pinned start pose is the reason rather
+ * than the arithmetic: a reflection about a line at angle `theta` maps the start heading `h0` to `2*theta - h0`,
+ * which is `h0` itself only when the line IS the facing. `X` is that line, so positions and headings reflect
+ * about one axis; for `Y` the positions reflect about the left-hand line while the facing profile stays
+ * mirrored about the facing - the only pair of readings available with the dancer still facing the way they
+ * started, which is what "dont move the dancers start position or rotation" asks for.
  *
- * THE FACING CHANNEL IS MIRRORED ABOUT THE LOCAL +X AXIS WHATEVER `beta` IS. `poseFor` reads a facing curve
- * as `bezierAngle(f, t) - bezierAngle(f, 0)` (`core.ts`), so only its TURN means anything, and a reflection
- * negates the turn whichever line it is about - the board axis adds nothing to it. What DOES matter is that
- * the format has no `cy3` (`bezRotAttr` writes `cx3 cx4 cy4 x4 y4`; `taminations.md` §7.3), so a facing
- * reflected about a `beta` that is not a multiple of a quarter turn comes back with a non-zero `cy1` and
- * loses its first span the moment the file is re-read. The local +X mirror is the one form of that same turn
- * the format can carry - it is what `facingFromTravel` re-normalises to, for the same reason - and the probe
- * pins `cy1` through an export and a re-read.
+ * BOTH CHANNELS TAKE THE SAME SIGN FLIP (`mirrorLocalCurve`), which the format also requires: the facing's
+ * `cy1` is 0 in the corpus and a sign flip of x or y leaves it 0, so every mirrored facing survives an export
+ * - the probe pins that through `callToXml` and a re-read.
  *
- * HANDS SWAP LEFT FOR RIGHT (`swapLR`), which is the corpus's own mirror convention rather than a second
- * decision made here. Beats, the number of moves, the gender, and every dancer not asked for are untouched.
+ * HANDS SWAP LEFT FOR RIGHT (`swapLR`), which is the corpus's own mirror convention (`reflect="-1"` is
+ * `scale(1, -1)`) rather than a second decision made here. Beats, the number of moves, the gender and every
+ * dancer not asked for are untouched.
  *
- * MIRRORING TWICE IS THE IDENTITY: the same `beta` both times, and both channels and the hand swap are
- * involutions - which is what makes an accidental double press harmless, and the probe measures it rather
- * than trusting it.
+ * MIRRORING TWICE IS THE IDENTITY: each axis is a sign flip of one coordinate and the hand swap is an
+ * involution - which is what makes an accidental double press harmless, and the probe measures it rather than
+ * trusting it.
  */
 export function mirrorDancerMoves(call: CallBundle, index: number, axis: MirrorAxis): CallBundle {
   const base = requireDancer(call, index);
   const d = base.dancers[index];
-  const beta = MIRROR_AXIS_ANGLE[axis] - d.angleDeg * DEG;
-  const u = Math.cos(2 * beta);
-  const v = Math.sin(2 * beta);
   return setDancerPath(
     base,
     index,
     d.path.map((s) => ({
       ...s,
-      translate: mirrorLocalCurve(s.translate, u, v),
-      rotate: s.rotate ? mirrorLocalFacing(s.rotate) : null,
+      translate: mirrorLocalCurve(s.translate, axis),
+      rotate: s.rotate ? mirrorLocalCurve(s.rotate, axis) : null,
       hands: swapLR(s.hands),
     })),
   );
 }
 
 /**
- * ONE LOCAL CURVE REFLECTED ABOUT THE LINE THROUGH THE LOCAL ORIGIN AT ANGLE `beta`, written as the single
- * matrix `R(2*beta) * diag(1, -1)` and handed in as its two numbers, so a whole track costs one `cos`/`sin`.
+ * ONE LOCAL CURVE REFLECTED ABOUT ONE OF THE DANCER'S OWN AXES - a single sign flip of one coordinate, which
+ * is all a quarter-turn reflection is: `X` negates y (left for right), `Y` negates x (forward for back).
+ *
+ * ONE FUNCTION FOR BOTH CHANNELS, and that is the local reading's own property rather than an economy: a
+ * reflection negates every turn whichever line it is about, so the facing channel wants the same flip as the
+ * travel channel - and a quarter turn is the one family of flips the format can write back (`bezRotAttr` has
+ * no `cy3`, so a facing whose first control moved off the local +X axis would lose its first span).
  */
-function mirrorLocalCurve(b: BezierData, u: number, v: number): BezierData {
-  return {
-    cx1: u * b.cx1 + v * b.cy1,
-    cy1: v * b.cx1 - u * b.cy1,
-    cx2: u * b.cx2 + v * b.cy2,
-    cy2: v * b.cx2 - u * b.cy2,
-    x2: u * b.x2 + v * b.y2,
-    y2: v * b.x2 - u * b.y2,
-  };
-}
-
-/**
- * A FACING CURVE'S MIRROR: its turn negated, about the LOCAL +X AXIS. See `mirrorDancerMoves` for why the
- * board axis does not enter this channel, and for why this is the only form the format can carry (`cy1`
- * stays exactly 0, so the first span survives an export).
- */
-function mirrorLocalFacing(b: BezierData): BezierData {
-  return { ...b, cy1: -b.cy1, cy2: -b.cy2, y2: -b.y2 };
+function mirrorLocalCurve(b: BezierData, axis: MirrorAxis): BezierData {
+  return axis === 'x'
+    ? { ...b, cy1: -b.cy1, cy2: -b.cy2, y2: -b.y2 }
+    : { ...b, cx1: -b.cx1, cx2: -b.cx2, x2: -b.x2 };
 }
 
 /**

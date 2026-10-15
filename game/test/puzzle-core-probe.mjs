@@ -10,6 +10,7 @@
 // Usage: node game/test/puzzle-core-probe.mjs   (engine must be built)
 import { sameBoardById } from 'dancing-squared-engine';
 import { generatePuzzle } from '../src/puzzle/generator.ts';
+import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { firstLevels, levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { boardSig } from 'dancing-squared-engine';
@@ -27,7 +28,7 @@ const check = (cond, msg) => {
 const LEVEL = levelSpec(3);
 const POOL = poolFor(LEVEL, MAIN_POOL);
 const { applier, registered } = applierFor(POOL, LEVEL.poolSize);
-const CONFIG = { poolVersion: MAIN_POOL.version, maxDepth: LEVEL.depth, nodeBudget: 50_000 };
+const CONFIG = generatorConfigFor(MAIN_POOL.version, LEVEL);
 const SEED = 20260714;
 
 console.log(`== the level under test: pool ${POOL.length} titles, ${registered} registered, depth ${LEVEL.depth} ==`);
@@ -153,7 +154,7 @@ console.log('\n== 6. the ladder the game ships generates at every level ==');
   for (const spec of levels) {
     const pool = poolFor(spec, MAIN_POOL);
     const { applier: a } = applierFor(pool, spec.poolSize);
-    const r = generatePuzzle({ poolVersion: MAIN_POOL.version, maxDepth: spec.depth, nodeBudget: 50_000 }, 7919, spec, a);
+    const r = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), 7919, spec, a);
     if (r.ok) generated++;
     else failed.push(`L${spec.index} (pool ${spec.poolSize}): ${r.reason}`);
   }

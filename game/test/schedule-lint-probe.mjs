@@ -26,6 +26,7 @@
 //
 // Usage: node game/test/schedule-lint-probe.mjs   (engine must be built)
 import { generatePuzzle } from '../src/puzzle/generator.ts';
+import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { lintSchedule } from '../src/puzzle/schedule.ts';
@@ -44,7 +45,6 @@ const SEED_TRIES = 20;
 /** How many seeds 8b may try at L2 before falling back. The generator SEEDS ITS RNG WITH `level.index`
  * (generator.ts), so L2 and L3 are different runs and a seed can fail at one and not the other. */
 const L2_SEED_TRIES = 40;
-const NODE_BUDGET = 50_000;
 
 const VERSION = MAIN_POOL.version;
 const L1 = levelSpec(1);
@@ -58,9 +58,12 @@ const { applier: applier1 } = applierFor(poolFor(L1, MAIN_POOL), L1.poolSize);
 const { applier: applier15 } = applierFor(poolFor(L2, MAIN_POOL), L2.poolSize);
 const applierForLevel = (levelIndex) => (levelIndex === 1 ? applier1 : applier15);
 
-const CONFIG1 = { poolVersion: VERSION, maxDepth: L1.depth, nodeBudget: NODE_BUDGET };
-const CONFIG2 = { poolVersion: VERSION, maxDepth: L2.depth, nodeBudget: NODE_BUDGET };
-const CONFIG3 = { poolVersion: VERSION, maxDepth: L3.depth, nodeBudget: NODE_BUDGET };
+// THE GENERATOR'S CONFIGURATION COMES FROM THE MODULE THAT OWNS IT, so this probe cannot validate the
+// lint against a budget the game does not ship. An earlier version declared its own `NODE_BUDGET = 50_000`
+// here, which meant retuning the real one left this gate measuring the old number.
+const CONFIG1 = generatorConfigFor(VERSION, L1);
+const CONFIG2 = generatorConfigFor(VERSION, L2);
+const CONFIG3 = generatorConfigFor(VERSION, L3);
 
 // STRUCTURAL checks pass `verify: false` so they do not pay for generation: what they pin is the data
 // rule, and running the generator would let a slow level mask an index that is simply wrong.

@@ -5,6 +5,7 @@
 // neither starts a frame callback — a second rAF somewhere is how two clocks end up disagreeing about which
 // frame it is. So this file advances the playhead, decides what to draw, and reports a finished motion once.
 import { generatePuzzle } from './puzzle/generator.ts';
+import { generatorConfigFor } from './puzzle/config.ts';
 import { levelSpec } from './puzzle/levels.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { createLevelRuntime } from './data/corpus.ts';
@@ -33,7 +34,7 @@ function startDrill(next: number): void {
 
   screen.setLoading(true, `Generating drill ${position + 1} of ${scheduleLength()}…`);
   const { applier, registered } = createLevelRuntime(level, MAIN_POOL);
-  const result = generatePuzzle({ poolVersion: MAIN_POOL.version, maxDepth: level.depth, nodeBudget: 50_000 }, entry.seed, level, applier);
+  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level), entry.seed, level, applier);
   screen.setLoading(false);
 
   if (!result.ok) {

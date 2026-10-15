@@ -11,14 +11,19 @@
 // pool size actually registered with the engine (which can be smaller than the level asks for), and how
 // often the puzzle carries an alternate path — which is the one gate that is a SHOULD rather than a MUST,
 // so it is reported instead of enforced.
+//
+// THE BUDGET ARGUMENT DEFAULTS TO THE SHIPPED ONE (`NODE_BUDGET`), and this tool is the one caller that
+// may override it: its answer is the budget the ladder should ship, so it has to be able to try one the
+// game does not.
 import { generatePuzzle } from '../src/puzzle/generator.ts';
+import { NODE_BUDGET, generatorConfigFor } from '../src/puzzle/config.ts';
 import { firstLevels } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor, poolIsComplete } from '../src/puzzle/pool.ts';
 import { applierFor } from '../test/lib/corpus.mjs';
 
 const levels = Number(process.argv[2] ?? 30);
 const seeds = Number(process.argv[3] ?? 5);
-const budget = Number(process.argv[4] ?? 50_000);
+const budget = Number(process.argv[4] ?? NODE_BUDGET);
 
 console.log(`ladder census: ${levels} level(s) x ${seeds} seed(s), budget ${budget}, pool ${MAIN_POOL.order.length} titles`);
 console.log('lvl  pool depth opts  ok/seed  worst ms  explored  unknown  alt  pool-short');
@@ -32,9 +37,12 @@ for (const spec of firstLevels(levels)) {
   let unknowns = 0;
   let alts = 0;
   let why = '';
+  // The level's own configuration, with the SWEPT budget on top: this tool exists to try budgets the game
+  // does not ship, so it is the one caller that overrides the shipped one.
+  const config = { ...generatorConfigFor(pool.version ?? MAIN_POOL.version, spec), nodeBudget: budget };
   for (let s = 1; s <= seeds; s++) {
     const t = Date.now();
-    const r = generatePuzzle({ poolVersion: pool.version ?? MAIN_POOL.version, maxDepth: spec.depth, nodeBudget: budget }, s * 7919, spec, applier);
+    const r = generatePuzzle(config, s * 7919, spec, applier);
     const ms = Date.now() - t;
     if (r.ok) {
       ok++;

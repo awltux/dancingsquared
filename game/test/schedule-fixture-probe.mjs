@@ -13,6 +13,7 @@
 //
 // Usage: node game/test/schedule-fixture-probe.mjs   (engine must be built)
 import { generatePuzzle } from '../src/puzzle/generator.ts';
+import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { LOCAL_SCHEDULE, FIXTURE_POOL_VERSION, scheduleEntryFor, scheduleLength } from '../src/game/schedule-fixture.ts';
@@ -64,7 +65,7 @@ console.log('== every seed generates at the level it declares ==');
       registered === level.poolSize,
       `level ${e.levelIndex} has all ${level.poolSize} of its titles in the corpus (${registered})`,
     );
-    const result = generatePuzzle({ poolVersion: FIXTURE_POOL_VERSION, maxDepth: level.depth, nodeBudget: 50_000 }, e.seed, level, applier);
+    const result = generatePuzzle(generatorConfigFor(FIXTURE_POOL_VERSION, level), e.seed, level, applier);
     if (!result.ok) {
       check(false, `entry ${i} (seed ${e.seed}, level ${e.levelIndex}) generates: ${result.reason}`);
       continue;

@@ -35,11 +35,8 @@
 // instrument's silence is itself a bug).
 
 import { makeSquaredSet, sameBoardById, boardSig, type Board } from 'dancing-squared-engine';
-import { DEFAULT_GENERATOR } from './config.ts';
 import { rngFrom } from './rand.ts';
 import type { GameApplier, GenerateResult, GeneratorConfig, LevelSpec, Move, Puzzle, PuzzleOption, PuzzleStep } from './types.ts';
-
-export { DEFAULT_GENERATOR };
 
 /**
  * Sort a move list by call name.

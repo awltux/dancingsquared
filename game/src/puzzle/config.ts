@@ -8,43 +8,41 @@
 // decision to revisit with playtest data; presenting one of those as measured would be the fabrication
 // AGENTS.md 4.1 forbids, so they are labelled.
 
-import { MAX_DEPTH } from './levels.ts';
-import type { GeneratorConfig } from './types.ts';
+import type { GeneratorConfig, LevelSpec } from './types.ts';
 
 /**
- * How many OPTIONS a step presents, including the correct one. A step needs this many distinct endings, so
- * a board that offers fewer cannot carry a question with this many buttons.
- *
- * MEASURED, and it is the number that decides whether multi-call puzzles exist at all. With it set to 3
- * (the design's "three options"), the generator finds **no usable path** at depth 2 for any pool size up
- * to the corpus's 62 titles: every route from the squared set passes through a board offering fewer than
- * three distinct endings. At depth 3, no board is reachable in exactly three calls. With it set to 2 the
- * search has something to work with, at the cost of one fewer button per step.
- *
- * LEFT AT 3 BY DEFAULT, because 3 is the design's requirement and a published ladder should not quietly
- * be a weaker game than the design asks for. The ladder census prints both, so the trade — three options
- * and depth 1 only, versus two options and depth 2 — is a decision taken from numbers.
- */
-export const OPTION_COUNT = 3;
-
-/**
- * The states a single `generatePuzzle` call may enumerate.
+ * The states a single search may enumerate — read by the GENERATOR, and by the hint's reverse BFS.
  *
  * CHOSEN, and then bounded by measurement: the ladder census prints the explored count and the wall time
  * per level, so this number is revisited from data rather than from taste. It exists because the state
  * space is exponential in `depth` and the pool, and an unbounded search is how a browser tab stops
- * responding — the generator runs on the CLIENT for the Daily (DESIGN.md 4.4), so the budget has to fit a
- * browser rather than a server.
+ * responding — both readers run on the CLIENT (`generatePuzzle` for the Daily per DESIGN.md 4.4, and
+ * `PlaySession.distanceToGoal` for a hint per DESIGN.md 10), so the budget has to fit a browser rather
+ * than a server.
+ *
+ * ONE NUMBER FOR TWO SEARCHES, deliberately: both are "a bounded search over boards inside one frame's
+ * worth of patience", and they are the same order of work, so a playtest that moves one is a reason to
+ * look at the other. They are NOT the same budget — the hint's is additionally bounded by the move
+ * allowance — which is why the hint search would be the reader to give its own constant if the two ever
+ * want different values.
  */
 export const NODE_BUDGET = 50_000;
 
-/** The generator's default configuration. `maxDepth` is the ladder's ceiling, so a level's own depth
- * is passed to `generatePuzzle` by the caller that knows the level. */
-export const DEFAULT_GENERATOR: GeneratorConfig = {
-  poolVersion: 'unknown',
-  maxDepth: MAX_DEPTH,
-  nodeBudget: NODE_BUDGET,
-};
+/**
+ * The generator configuration for ONE LEVEL, at the budget this build ships.
+ *
+ * WHY THE CONFIG OBJECT IS BUILT HERE AND NOT AT EACH CALL SITE. Every caller used to build it by hand,
+ * and MEASURED, they disagreed: the generator's own default was dead, and four call sites (the app plus
+ * three probes) each carried their own literal `50_000`, so retuning `NODE_BUDGET` moved the GAME and
+ * left the GATE measuring the old budget — the one failure a budget is gated for. `main.ts` additionally
+ * had to restate the level's depth, which is the same class of defect one field over.
+ *
+ * IT BUILDS A NEW OBJECT on every call rather than returning a shared one: a module-level config object
+ * is one `Object.assign` (or one field write) away from a caller editing the default for everybody.
+ */
+export function generatorConfigFor(poolVersion: string, level: LevelSpec): GeneratorConfig {
+  return { poolVersion, maxDepth: level.depth, nodeBudget: NODE_BUDGET };
+}
 
 /**
  * The Daily's move allowance: the shortest solution plus this many calls.
@@ -61,8 +59,13 @@ export const MOVE_ALLOWANCE_CUSHION = 2;
  *
  * CHOSEN, not measured. It is deliberately legible — a minute is a thing a player can feel — and
  * deliberately dominant at low levels, where `par` is one call.
+ *
+ * NOT YET READ BY ANY CODE, and kept anyway: DESIGN.md 6 names this number and `HINT_CAP` as the config
+ * module's own contents, and DESIGN.md 13's Phase 3 (the Daily UI and the hint) is their first reader.
+ * Deleting them would be a smaller diff and would make that section of the design cite an example that
+ * no longer exists.
  */
 export const HINT_PENALTY_SECONDS = 60;
 
-/** The most hints a player may hold at once (DESIGN.md 10). */
+/** The most hints a player may hold at once (DESIGN.md 10). Not yet read; see `HINT_PENALTY_SECONDS`. */
 export const HINT_CAP = 3;

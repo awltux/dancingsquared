@@ -143,7 +143,18 @@ function skewBezier(b: BezierData, ox: number, oy: number): BezierData {
   return { ...b, cx2: b.cx2 + ox, cy2: b.cy2 + oy, x2: b.x2 + ox, y2: b.y2 + oy };
 }
 
-function swapLR(h: Hands): Hands {
+/**
+ * THE HAND STATE'S MIRROR: a grip changes hands, a pair of hands does not.
+ *
+ * A REFLECTION IS GEOMETRY AND HANDEDNESS IN ONE OPERATION. The reference's own `reflect()` is
+ * `scale(1, -1)` and its `scale` swaps the hand bits when the y factor is negative
+ * (`math/movement.dart:141-150`; `taminations.md` §7.4), so a mirrored Left-hand move is a Right-hand
+ * one. `both` and `gripboth` are their own mirror, and `none` has no hand to change.
+ *
+ * Exported for the editor's track mirror (`mirrorDancerMoves`), so the corpus's convention has ONE
+ * definition rather than a second one written beside the button.
+ */
+export function swapLR(h: Hands): Hands {
   switch (h) {
     case 'left':
       return 'right';

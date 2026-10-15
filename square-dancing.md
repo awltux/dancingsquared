@@ -4332,3 +4332,100 @@ is exactly where it was" again with the centroid orbit as its negative control, 
 import. THE ROTATION PROBLEM IS OPEN AND NOT YET CHARACTERISED: the reporter's point is that the obvious pivot -
 the board's centre - is not what they want, so the axis needs its actual behaviour pinned down before another
 rule is chosen.
+
+THE CALL EDITOR MIRRORS THE SELECTED DANCERS' MOVES ACROSS ONE OF THE BOARD'S AXES. Reported as: *"Add a mirror
+feature. Add an X and Y button that mirrors the selected dancers Moves across the axis indicated by the button.
+Dont move the dancers start position or rotation, just their Moves. When multiple dancers are selected, the
+mirror must use the translation around the board centre to ensure the board maintains its balance. put the
+buttons below the Edit: line"*.
+
+TWO DECISIONS WERE THE CALLER'S, and both were taken before any arithmetic: the buttons name the **BOARD'S**
+axes - X the horizontal line through the board's centre, Y the vertical one - and the hand state **swaps left
+for right**, which is what the corpus means by a mirror.
+
+THE RULE IS ONE REFLECTION PER MOVE, ABOUT A FIXED DIRECTION IN THE DANCER'S OWN FRAME:
+
+    beta        = phi - h0        the board axis (phi: 0 for X, a quarter turn for Y), in the DANCER's frame
+    local point -> R(2*beta) * diag(1, -1) * local point
+
+A path is authored in dancer-LOCAL coordinates, so `phi - h0` is the only reading of "the board's axis" that
+exists in this data at all - and it is the one asked for, because a dancer already facing along the axis gets
+`beta = 0`: a plain left-for-right mirror.
+
+AND THE RESULT IS EXACT IN BOARD TERMS - measured at every joint and mid-move instant of every move of every
+selected dancer:
+
+  - **POSITIONS.** The mirrored world position is the original's mirror about the chosen board axis through the
+    DANCER'S OWN START: `p' = M * (p - S) + S`.
+  - **HEADINGS.** The mirrored heading is the original's mirror about the DANCER'S OWN FACING: `h' = 2*h0 - h`.
+
+THE FIRST ONE IS THE REQUIREMENT READ THE OTHER WAY ROUND. The axis is the board's, through the **board
+centre**, and the reflected track is then **translated** back to where it started - which is exactly what moves
+the axis onto the dancer's own start, so the centre cancels and the rule needs no centre argument. That is also
+why selecting eight dancers mirrors the set about ONE line rather than about eight dancers' own centres, which
+is what "the board maintains its balance" asks for.
+
+A RIGID MIRROR OF THE WHOLE TRACK WAS NOT AVAILABLE, and the split above is forced rather than chosen. A
+reflection about the board axis maps the start heading `h0` to `2*phi - h0`; a track that both mirrored AND
+still began facing `h0` would have to be the reflection about `h0`'s OWN line - the dancer's axis and not the
+board's, the same picture from both buttons. Pinning the start pose, which is what was asked for, therefore
+pins the two channels separately - and both of them exactly.
+
+THE FACING CHANNEL IS MIRRORED ABOUT THE LOCAL +X AXIS, NOT ABOUT `beta`, and the file format is why. `poseFor`
+reads a facing curve as the DIFFERENCE of its own tangents at `t` and `0`, so only its turn means anything, and
+a reflection negates the turn whichever line it is about - the board axis adds nothing to it. What DOES matter
+is that the format has no `cy3` (`bezRotAttr` writes `cx3 cx4 cy4 x4 y4`), so a facing reflected about a
+non-quarter-turn `beta` comes back with a non-zero `cy1` and loses its first span the moment the file is
+re-read. The local +X mirror is that same turn in the one form the format can carry - it is what
+`facingFromTravel` re-normalises to, for the same reason (AGENTS.md §8 trap 18).
+
+WHERE IT LIVES. The rule is `mirrorDancerMoves` in `engine/src/editor.ts`, exported by the package, because the
+engine owns every geometric decision and a rule inside `editor-ui.ts` can only ever be MIRRORED by a probe. The
+hand swap is the engine's own `swapLR` - the definition `reflect="-1"` already used - now exported so the probe
+measures it rather than restating it. The panel's half is two `el()` buttons in a new row directly below the
+Edit row, one handler (`mirrorSelectedMoves`), and one `commit`: the whole mirror is one undo step, and no scope
+changes.
+
+MEASURED (`poc/tools/mirror-moves-probe.mjs`, ALL CHECKS PASSED; about 10 s of which all but a tenth is loading
+the corpus):
+  - 495 calls, 3288 selected dancer-tracks and 21472 instants: worst POSITION error **1.6e-14** and worst
+    HEADING error **3.6e-15** rad against an independently written "reflect about the board axis, then carry it
+    back" - so the rule IS the requirement's own sentence and not an approximation of it;
+  - the start pose (x, y, heading), every move's beat count and every UNSELECTED dancer come back
+    **bit-identical (0)**, and **3196** of the selected tracks come out differently under X and Y;
+  - **3122** named hand states: every one is the engine's own `swapLR` of the authored one, and every one
+    changed;
+  - mirroring twice restores the track (worst **4.4e-16** over 9122 moves) and every hand with it;
+  - **3592** mirrored facing curves, **0** with a non-zero `cy1`.
+  - THE COVERAGE GAP THIS FOUND, and it is the interesting number: of the corpus's 3288 dancer-tracks only
+    **8** land on a `beta` that is not a multiple of a quarter turn, because the shipped start headings are
+    axis-aligned. That is the case where a reflected facing curve stops being representable at all, and it is a
+    state the PANEL reaches from the formation table's `head` column, so the probe **builds** it with the
+    panel's own `setDancerStart`: 232 dancers re-headed 45 degrees off the axis, 464 mirrored tracks, 2992
+    instants - worst position **7.5e-15**, worst heading **2.0e-15** rad, and **0 of 444** diagonal facings
+    unrepresentable - and one of them is exported and re-read (`a1/square_chain_thru.xml` dancer 1, 45 deg, 6
+    moves): the track comes back through the format's own four decimals to **3.8e-5**.
+  - THE REJECTED RULES, each measured as the control for the check that rules it out: `beta = phi` moves
+    positions by up to **12.65** and leaves headings perfect, so the heading check cannot catch it; `beta` from
+    each MOVE's own heading is the same shape (**12.17**); the hands left alone are geometrically identical and
+    caught only by the hand count (**464** moves); the facing mirrored about `beta` moves nothing and is caught
+    only by the representability count (**222 of 222**); the facing turn left alone breaks the headings
+    (**3.14** rad) AND the positions (**14.42**), because the frames ARE the accumulated turns; and ignoring the
+    axis argument makes X and Y identical on every dancer while remaining a self-consistent mirror of X.
+
+GATES: `npm run build --prefix engine` clean; `npx tsc -p poc --noEmit` clean; `poc/tools/mirror-moves-probe.mjs`
+ALL CHECKS PASSED (10 s standalone, 15 s inside the suite); `node poc/verify.cjs` **2 FAILED**, exactly the
+pre-existing `Circle Left` ring pair of TODO item 6; `poc/tools/verify-probes.mjs` **62 probes, 5 failed** - the
+four TODO item 10 reds (`facing-handle`, `radial-arc-fit`, `run-circle`, `start-facing`) plus `offer-permission`,
+which was MEASURED red with this change stashed and the engine rebuilt from master, so it is not this change's;
+`npm run verify --prefix engine` **47 harnesses, 25 FAILED**, MEASURED TWICE - before and after the rebase onto
+`ebf8c14`, with the same 25 names both times (1693.5 s and 1815.7 s) - which is the recorded baseline of TODO
+items 5-7 and 9 and no new one (the first run's `callerlab-diff` ENOENT is the un-provisioned oracle AGENTS §10
+describes: re-run after `extract-pdf-text.mjs` it is red for the two PINNED numbers TODO item 5 already names);
+`npm run verify:light --prefix engine` **30 harnesses, 14 FAILED**, the same pre-existing subset; and
+`book/tools/check-links.mjs` passes with the repo-wide encoding item in it (`make-animations --check` still
+reports the pre-existing `DRIFT animations-index.json` of TODO item 8, so `check:book` stops there as before).
+
+NOT CHECKED, and it is the same gap the start-pose drag records: **THE BUTTONS HAVE NOT BEEN SEEN IN A
+BROWSER.** A Vite build in this sandbox needs esbuild's piped-stdio service spawn, which the file sandbox
+denies, so the visual check is the reporter's, on the dev server already running.

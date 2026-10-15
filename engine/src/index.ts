@@ -277,8 +277,11 @@ export {
   rotateFormation,
   callToXmlNamed,
   halfSetReport,
+  // The track-level mirror behind the Call editor's X / Y buttons: a dancer's moves reflected across one
+  // of the board's own axes, with the start pose - position AND rotation - left exactly where it was.
+  mirrorDancerMoves,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis } from './editor.js';
 
 export {
   setParser,
@@ -292,6 +295,9 @@ export {
   loadCallFromXml,
   selectTam,
   tamName,
+  // The one definition of the hand state's mirror, exported so a probe can measure a mirroring edit against
+  // the corpus's own convention instead of restating it.
+  swapLR,
 } from './convert.js';
 export type { CallMeta } from './convert.js';
 export { setupLabel, parseTaminationTitle } from './convert.js';

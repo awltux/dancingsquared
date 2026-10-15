@@ -311,6 +311,12 @@ with its measurement, in the same commit that found it.
     regularly mid-edit when a session starts.
 17. **Isolation between agents is a separate CLONE, never a `git worktree`** — the junction that makes a
     worktree a second engine instance is measured in §10.
+18. **The format has no `cy3`, so a facing curve cannot be mirrored about a line that is not a quarter turn
+    away.** Reflecting a `<rotate>` about the local line at `beta` writes `cy1 = sin(2*beta) * cx1`, which
+    `bezRotAttr` has nowhere to put — the curve keeps it in memory and the file loses it. MEASURED: the control
+    in `poc/tools/mirror-moves-probe.mjs` leaves **222 of 222** diagonal facings unrepresentable, where the
+    local +X mirror (`cy1` stays exactly 0) leaves none. Mirror the TURN, which is the only thing `poseFor`
+    reads from a facing curve, rather than the curve itself.
 
 ---
 

@@ -355,6 +355,22 @@
                 <button id="edAxisHead" type="button" title="Drag the start HEADING: the same angle is added to every selected dancer's heading, and nobody moves. The path is authored in the dancer's own frame, so each dancer's whole track turns with them, about their own start.">rotation</button>
               </span>
             </div>
+            <!-- THE MIRROR, asked for as: "Add a mirror feature. Add an X and Y button that mirrors the selected
+                 dancers Moves across the axis indicated by the button. Dont move the dancers start position or
+                 rotation, just their Moves. When multiple dancers are selected, the mirror must use the
+                 translation around the board centre to ensure the board maintains its balance. put the buttons
+                 below the Edit: line".
+
+                 IT IS ITS OWN ROW RATHER THAN TWO MORE BUTTONS ON THE EDIT ROW, because it is not a scope or an
+                 axis: the Edit row says WHAT A HANDLE DRAG CHANGES, and this changes the tracks outright, on
+                 every selected dancer, in one press. It sits directly under that row because it edits the same
+                 thing the row is about - the dancers' moves - and it is deliberately NOT wired to the scope: it
+                 writes paths whatever the gizmo happens to be on. -->
+            <div class="row" id="edMirrorRow">
+              <label title="Reflect the selected dancers' MOVES across one of the board's own axes. Two buttons, one axis each, and the dancers themselves never move: see the tooltips.">Mirror</label>
+              <button id="edMirrorX" type="button" title="Mirror every SELECTED dancer's moves across the BOARD's horizontal axis. The moves are reflected about that board axis - taken through the board's centre - and then carried back to where each dancer already stands, so nobody's START POSITION or START ROTATION moves and a set mirrored together keeps its balance. The axis is the BOARD's rather than the dancer's: a dancer facing along it comes out as a plain left-for-right mirror, and one facing across it has its positions reflected about the axis and its facings about its own facing. Every hand swaps left for right, which is what the corpus means by a mirror. Mirroring twice puts the track back exactly, and the whole mirror is one undo step.">X</button>
+              <button id="edMirrorY" type="button" title="Mirror every SELECTED dancer's moves across the BOARD's vertical axis. The moves are reflected about that board axis - taken through the board's centre - and then carried back to where each dancer already stands, so nobody's START POSITION or START ROTATION moves and a set mirrored together keeps its balance. The axis is the BOARD's rather than the dancer's: a dancer facing along it comes out as a plain left-for-right mirror, and one facing across it has its positions reflected about the axis and its facings about its own facing. Every hand swaps left for right, which is what the corpus means by a mirror. Mirroring twice puts the track back exactly, and the whole mirror is one undo step.">Y</button>
+            </div>
             <div class="row">
               <label title="Which dancers an edit applies to. The LOWEST-numbered one selected is the one whose values the tile shows, and its move is the one the strip lists.">Dancers</label>
               <span id="edDancerPicks" class="ed-picks"></span>

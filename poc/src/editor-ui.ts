@@ -75,8 +75,12 @@ import {
   rotateFormation,
   DEG,
   placeDancerEnd,
+  // The mirror below the Edit row: the whole reflection - which line it is about, what it does to the travel
+  // and facing channels and to the hands - is the engine's, so `poc/tools/mirror-moves-probe.mjs` measures the
+  // function this panel calls instead of a copy of the arithmetic.
+  mirrorDancerMoves,
 } from 'dancing-squared-engine';
-import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -658,6 +662,9 @@ export class EditorController implements EditorUI {
   private axisTabsEl = el<HTMLSpanElement>('edAxisTabs');
   private axisPosBtn = el<HTMLButtonElement>('edAxisPos');
   private axisHeadBtn = el<HTMLButtonElement>('edAxisHead');
+  /** The mirror pair below the Edit row: one button per board axis. See `mirrorSelectedMoves`. */
+  private mirrorXBtn = el<HTMLButtonElement>('edMirrorX');
+  private mirrorYBtn = el<HTMLButtonElement>('edMirrorY');
   private moveStripEl = el<HTMLDivElement>('edMoveStrip');
   private moveInfoEl = el<HTMLSpanElement>('edMoveInfo');
   private moveAddBtn = el<HTMLButtonElement>('edMoveAdd');
@@ -1893,6 +1900,53 @@ export class EditorController implements EditorUI {
         : next.axis === 'position'
           ? 'Edit: Dancers + Position — a drag moves every selected dancer by the same delta'
           : 'Edit: Dancers + Rotation — a drag turns every selected dancer by the same angle';
+  }
+
+  /**
+   * MIRROR THE SELECTED DANCERS' MOVES ACROSS ONE OF THE BOARD'S AXES - the X and Y buttons below the Edit row.
+   *
+   * WHAT IT IS FOR, asked for as: "Add a mirror feature. Add an X and Y button that mirrors the selected
+   * dancers Moves across the axis indicated by the button. Dont move the dancers start position or rotation,
+   * just their Moves. When multiple dancers are selected, the mirror must use the translation around the board
+   * centre to ensure the board maintains its balance. put the buttons below the Edit: line". So this is the one
+   * edit in the panel that rewrites PATHS WITHOUT MOVING ANYBODY: every selected dancer's start pose - position
+   * AND heading - is left exactly as it is, and only the moves change.
+   *
+   * THE RULE IS THE ENGINE'S (`mirrorDancerMoves`), for the reason every gesture rule here is: a rule that has
+   * to be measured cannot live in this file, which builds DOM and cannot be imported by a probe. That function
+   * documents what the reflection is and what it is exact in; what belongs HERE is only WHO it applies to and
+   * what to say about it.
+   *
+   * ONE BOARD AXIS FOR THE WHOLE SELECTION, which is the part a per-dancer mirror would get wrong: the axis is
+   * the board's - through the board's centre, with each reflected track carried back to its own start - so a
+   * set mirrored together stays balanced instead of each dancer being reflected about its own frame.
+   *
+   * ONE `commit`, so the whole mirror is ONE undo step, and no scope change: the buttons act on the moves
+   * whatever the Edit row is showing, and the board redraws every trail through the ordinary render.
+   */
+  private mirrorSelectedMoves(axis: MirrorAxis) {
+    const call = this.instance;
+    if (!call) return;
+    const targets = this.selectedSorted();
+    if (targets.length === 0) {
+      this.statusEl.textContent = 'no dancers selected — pick dancers above the table, or the mirror has nowhere to write';
+      return;
+    }
+    let next = call;
+    let done = 0;
+    for (const d of targets) {
+      if (!call.dancers[d]?.path.length) continue;
+      next = mirrorDancerMoves(next, d, axis);
+      done++;
+    }
+    // A REFUSAL RATHER THAN AN EMPTY COMMIT: a selection of dancers that have no moves has nothing to mirror,
+    // and a commit that changed nothing would still be an undo step and a line of history.
+    if (done === 0) {
+      this.statusEl.textContent = 'the selected dancers have no moves to mirror';
+      return;
+    }
+    this.commit(next, 'mirror');
+    this.statusEl.textContent = `mirrored ${done} dancer${done === 1 ? '' : 's'}' moves across the board's ${axis.toUpperCase()} axis`;
   }
 
   /**
@@ -5820,6 +5874,11 @@ export class EditorController implements EditorUI {
     this.scopeDancerBtn.addEventListener('click', () => this.setScope('dancer'));
     this.axisPosBtn.addEventListener('click', () => this.setScope('dancer', 'position'));
     this.axisHeadBtn.addEventListener('click', () => this.setScope('dancer', 'rotation'));
+    // THE MIRROR PAIR, one button per BOARD axis and both through the one handler. It sits with the Edit row
+    // because it edits what that row is about - the dancers' moves - and it deliberately does NOT change the
+    // scope: what it writes is the tracks, whatever the gizmo happens to be on.
+    this.mirrorXBtn.addEventListener('click', () => this.mirrorSelectedMoves('x'));
+    this.mirrorYBtn.addEventListener('click', () => this.mirrorSelectedMoves('y'));
     // THE INITIAL STATE IS TAKEN FROM THE FIELD rather than from a class written into the markup, so the
     // buttons and `scope` cannot be made to say different things by editing one of them.
     this.setScope(this.scope);

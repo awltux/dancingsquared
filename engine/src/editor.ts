@@ -14,6 +14,9 @@
 
 import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg, Symmetry } from './types.js';
 import { DEG, bezierAngle, bezierPoint, poseFor } from './core.js';
+// THE HAND STATE'S MIRROR, imported rather than restated: `mirrorDancerMoves` swaps left for right exactly
+// as the converter's own `reflect="-1"` does, and this is the one definition of that rule.
+import { swapLR } from './convert.js';
 // The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
 // stage next to it.
@@ -1571,6 +1574,108 @@ export function setDancerPath(call: CallBundle, index: number, path: Seg[]): Cal
   const next = cloneSegs(path);
   const dancers = base.dancers.map((d, j) => (j === index ? { ...d, path: next } : d));
   return retime({ ...base, dancers }, beforeMax);
+}
+
+// ------------------------------------------------------------------ mirroring a track
+
+/** Which of the BOARD'S OWN AXES a track is mirrored across: the horizontal one the board is drawn about
+ *  (`x`, the line y = 0) or the vertical one (`y`, the line x = 0). Both pass through the board's centre. */
+export type MirrorAxis = 'x' | 'y';
+
+/** Each board axis as an angle in the board's own frame: `x` is the line at 0, `y` the line at a quarter turn. */
+const MIRROR_AXIS_ANGLE: Record<MirrorAxis, number> = { x: 0, y: Math.PI / 2 };
+
+/**
+ * MIRROR ONE DANCER'S MOVES ACROSS A BOARD AXIS, LEAVING THE START POSE EXACTLY WHERE IT IS - POSITION AND
+ * ROTATION BOTH. This is the Call editor's `X` / `Y` buttons: the authored track is replaced by its mirror
+ * image, and the dancer does not move, does not turn, and is not re-stationed.
+ *
+ * THE RULE IS ONE REFLECTION PER MOVE, ABOUT A FIXED DIRECTION IN THE DANCER'S OWN FRAME:
+ *
+ *     beta       = phi - h0          the board axis (phi) as the DANCER'S OWN frame sees it
+ *     local point -> R(2*beta) * diag(1, -1) * local point
+ *
+ * A path is authored in dancer-LOCAL coordinates (`types.ts`: the origin is the dancer's spot when the move
+ * begins and +X is the facing at that instant), so `phi - h0` is the only reading of "the board's axis" that
+ * exists here at all - and it is the one asked for: the axis is the BOARD'S, not the dancer's, and a dancer
+ * already facing along it gets `beta = 0`, a plain left-for-right mirror.
+ *
+ * AND THE RESULT IS EXACT IN BOARD TERMS, which is what makes this a BOARD edit rather than a pile of
+ * per-dancer ones - MEASURED by `poc/tools/mirror-moves-probe.mjs` over the shipped corpus, at every joint
+ * and every sampled instant of every move (worst 1.6e-14 units and 3.6e-15 rad over 21472 instants):
+ *
+ *   - POSITIONS. The mirrored world position is the original's mirror about the chosen board axis through
+ *     the DANCER'S OWN START: `p' = M * (p - S) + S`.
+ *   - HEADINGS. The mirrored heading is the original's mirror about the DANCER'S OWN FACING: `h' = 2*h0 - h`.
+ *
+ * READ THE FIRST ONE THE OTHER WAY ROUND AND IT IS THE REQUIREMENT: the axis is the board's, through the
+ * BOARD CENTRE, and the reflected track is then TRANSLATED back so it still begins at its own start. That
+ * translation is exactly what puts the axis through `S`, so it cancels out of the rule above - which is why
+ * this function takes no centre argument, and why selecting eight dancers mirrors the set about ONE line
+ * (the board's) rather than about eight dancers' own centres.
+ *
+ * A RIGID MIRROR OF THE WHOLE TRACK IS NOT AVAILABLE, and the pair above is the exact price of it: a
+ * reflection about the board axis maps the start heading `h0` to `2*phi - h0`, so a track that both mirrored
+ * and still began facing `h0` would have to be the reflection about `h0`'s OWN line - the dancer's axis and
+ * not the board's, the same picture from both buttons. Pinning the start pose (which is what was asked for)
+ * therefore splits the two channels as above, and pins both of them exactly.
+ *
+ * THE FACING CHANNEL IS MIRRORED ABOUT THE LOCAL +X AXIS WHATEVER `beta` IS. `poseFor` reads a facing curve
+ * as `bezierAngle(f, t) - bezierAngle(f, 0)` (`core.ts`), so only its TURN means anything, and a reflection
+ * negates the turn whichever line it is about - the board axis adds nothing to it. What DOES matter is that
+ * the format has no `cy3` (`bezRotAttr` writes `cx3 cx4 cy4 x4 y4`; `taminations.md` §7.3), so a facing
+ * reflected about a `beta` that is not a multiple of a quarter turn comes back with a non-zero `cy1` and
+ * loses its first span the moment the file is re-read. The local +X mirror is the one form of that same turn
+ * the format can carry - it is what `facingFromTravel` re-normalises to, for the same reason - and the probe
+ * pins `cy1` through an export and a re-read.
+ *
+ * HANDS SWAP LEFT FOR RIGHT (`swapLR`), which is the corpus's own mirror convention rather than a second
+ * decision made here. Beats, the number of moves, the gender, and every dancer not asked for are untouched.
+ *
+ * MIRRORING TWICE IS THE IDENTITY: the same `beta` both times, and both channels and the hand swap are
+ * involutions - which is what makes an accidental double press harmless, and the probe measures it rather
+ * than trusting it.
+ */
+export function mirrorDancerMoves(call: CallBundle, index: number, axis: MirrorAxis): CallBundle {
+  const base = requireDancer(call, index);
+  const d = base.dancers[index];
+  const beta = MIRROR_AXIS_ANGLE[axis] - d.angleDeg * DEG;
+  const u = Math.cos(2 * beta);
+  const v = Math.sin(2 * beta);
+  return setDancerPath(
+    base,
+    index,
+    d.path.map((s) => ({
+      ...s,
+      translate: mirrorLocalCurve(s.translate, u, v),
+      rotate: s.rotate ? mirrorLocalFacing(s.rotate) : null,
+      hands: swapLR(s.hands),
+    })),
+  );
+}
+
+/**
+ * ONE LOCAL CURVE REFLECTED ABOUT THE LINE THROUGH THE LOCAL ORIGIN AT ANGLE `beta`, written as the single
+ * matrix `R(2*beta) * diag(1, -1)` and handed in as its two numbers, so a whole track costs one `cos`/`sin`.
+ */
+function mirrorLocalCurve(b: BezierData, u: number, v: number): BezierData {
+  return {
+    cx1: u * b.cx1 + v * b.cy1,
+    cy1: v * b.cx1 - u * b.cy1,
+    cx2: u * b.cx2 + v * b.cy2,
+    cy2: v * b.cx2 - u * b.cy2,
+    x2: u * b.x2 + v * b.y2,
+    y2: v * b.x2 - u * b.y2,
+  };
+}
+
+/**
+ * A FACING CURVE'S MIRROR: its turn negated, about the LOCAL +X AXIS. See `mirrorDancerMoves` for why the
+ * board axis does not enter this channel, and for why this is the only form the format can carry (`cy1`
+ * stays exactly 0, so the first span survives an export).
+ */
+function mirrorLocalFacing(b: BezierData): BezierData {
+  return { ...b, cy1: -b.cy1, cy2: -b.cy2, y2: -b.y2 };
 }
 
 /**

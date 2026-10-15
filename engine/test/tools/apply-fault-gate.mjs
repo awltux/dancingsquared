@@ -12,23 +12,31 @@
 // not turn this red.
 //
 // THE WORK LIST IS PRINTED, because a count is not a work list. The by-call tally says where the next hour
-// goes: RE-MEASURED at `8750274`, `Touch a Quarter` 7, `Box the Gnat` 5, `Square Thru 3` 4, `Chain Down the
-// Line` 4, `Turn Thru` 4, `Square Thru 4` 3, `Lead Right` 2, then eight calls at one each - and 23 of the 37
-// are catalogue (authored) bodies, `Swing Thru` being the only coded move among them.
+// goes: RE-MEASURED ON THE BODY MODEL at this revision, `Turn Thru` 4, `Touch a Quarter` 3, `Wheel and Deal`
+// 3, `Lead Right` 2, `Box the Gnat` 2, `Square Thru 4` 2, `Chain Down the Line` 2, then six calls at one
+// each - and 13 of the 23 are catalogue (authored) bodies, `Swing Thru` being the only coded move among them.
 //
-// THE CEILING TRACKS THE TREE, and that is why it is 37 rather than the 50 it was pinned at in 2026-10-14:
-// the count fell BY 13 and a ceiling cannot report a fall. `Lead Right` alone fell 15 -> 2 when `a476a4f`
-// rewrote `lead_right.xml`, and nothing here said so. Lowering it is the gate's own instruction above, and
-// it is what makes the next fall visible instead of silent.
+// THE MEASURE IS THE ENGINE'S BODY MODEL, and that is a change of WHOLE. This file used CENTRE distance
+// (`closestPair < 0.1`), which `apply-faults.mjs`'s header now records as superseded, and the reason is
+// measured: on `Tidal Line RH` + `Chain Down the Line` the centre measure preferred an application whose
+// bodies pass through each other by **-0.700** over one that grazes at **+0.003**, because their centres read
+// 0.136 against 0.062. The same change moves the animation half of the split by an order of magnitude:
+// **295** applications put two bodies in the same space somewhere in their motion, of which **272** end on a
+// healthy board (the path is the fault) and **23** end with the destination already broken (the call's own
+// body). The 295 is consistent with the engine's own recorded figure - `BODY_PATH_CLEARANCE`'s note measures
+// 723 of 1580 corpus modules overlapping, i.e. about 46%, which is why `'guard'` is not the default.
+//
+// THE CEILING TRACKS THE TREE. It was 50, then 37 on the centre measure, and it is **23** here; the gate's
+// own instruction is to lower it in the same commit that re-measures, because a ceiling cannot report a fall.
 //
 // WHAT THIS SWEEP CANNOT SEE, measured rather than assumed. `SURVEY_CALLS` names the BARE `Lead Right`, so
 // the authoring titles the corpus ALSO publishes (`Lead Right - Close` / `- Normal` / `- Far`, and
 // `Lead Left - Normal` / `- Far`) are never applied here. They carry most of the family's faults: sweeping
-// all seven titles over the same 138 formations measured 450 of 966 applications legal, 92 coincident and
-// **86 apply faults over 47 boards** - the five variants 83 (25 / 16 / 15 / 12 / 11), the two bare names 7.
-// They are also UNGOVERNED by `PERMISSION_RULES`: each is offered on all 138 formations x 45 group names,
-// against 20 of 6,210 for the bare names. Widening this sweep is a separate change; the number is recorded
-// here so that it is not re-derived.
+// all seven titles over the same 138 formations measured 450 of 966 applications legal and **86 apply faults
+// over 47 boards** on the CENTRE measure - the five variants 83, the two bare names 7. They are also
+// UNGOVERNED by `PERMISSION_RULES`: each is offered on all 138 formations x 45 group names, against 20 of
+// 6,210 for the bare names. Widening this sweep is a separate change; the 86 was taken on the old measure and
+// has NOT been re-taken on this one.
 //
 // Run: node engine/test/tools/apply-fault-gate.mjs
 import { readFileSync } from 'node:fs';
@@ -60,7 +68,7 @@ const check = (cond, msg) => {
  * The apply-fault count as last measured. A CEILING, not an equality: fewer faults is a fix and must not
  * fail here. Lower it in the same commit that fixes faults, so the pin keeps tracking the tree.
  */
-const APPLY_FAULT_CEILING = 37;
+const APPLY_FAULT_CEILING = 23;
 
 const formations = seq.listFormations().filter((n) => {
   const b = seq.boardForFormation(n);

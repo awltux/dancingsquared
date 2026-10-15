@@ -8,41 +8,74 @@
 // survey and `engine/test/tools/apply-fault-gate.mjs` both call it rather than each spelling out the
 // numbers.
 //
-// WHAT "COINCIDENT" MEANS. Two dancers on the same spot, which no dance path does. `worst < 0.1` is the
-// survey's own definition and it is deliberately absolute rather than relative: the formations stand at
-// 2.00, so a tenth of a unit is unambiguously a collision and not dancers passing close.
+// WHAT "COINCIDENT" MEANS. Two BODIES in the same space, which no dance path does. The measure is the
+// engine's own body gap and the threshold is the engine's own contact value (`BODY_PATH_CLEARANCE`, 0):
+// below zero the two volumes intersect. That replaced a CENTRE-distance test (`worst < 0.1`), which is the
+// measure `BODY_PATH_CLEARANCE`'s note records as superseded - and keeping it made this file prefer the
+// worse of two applications, measured (see the BODIES paragraph below).
 //
-// THE END BOARD IS THE DISCRIMINATOR, and `1.9` is the formation spacing with a little slack. A pair
-// whose end board is healthy but whose animation passes through itself is a routing fault an animator
-// can fix; a pair whose END BOARD is already broken cannot be repaired by any interpolation, which is
-// why the two are counted apart. MEASURED AT `8750274`: 51 coincident pairs, of which 14 are animation
-// faults and 37 are apply faults. The 2026-10-14 reading was 64 / 14 / 50, and the fall is `a476a4f`'s
-// rewrite of `lead_right.xml` (`Lead Right` alone 15 -> 2) - which is why the gate's ceiling had to come
-// down with it, a ceiling being unable to report a fall.
+// THE END BOARD IS THE DISCRIMINATOR. A pair whose end board is healthy but whose animation passes through
+// itself is a routing fault an animator can fix; a pair whose END BOARD is already broken cannot be repaired
+// by any interpolation, which is why the two are counted apart. MEASURED ON THE BODY MODEL at this revision:
+// **295** applications put two bodies in the same space at some beat, of which **272** end on a healthy board
+// and **23** end with the destination broken. Under the CENTRE measure this file used before, the same sweep
+// read 51 / 14 / 37; the 295 is consistent with the engine's own `BODY_PATH_CLEARANCE` note, which measures
+// 723 of 1580 corpus modules overlapping (about 46%), and it is why the engine's own guard is not the default.
 //
-// THE 37 ARE NOT A WRONG-SEPARATION FAULT, WHICH WAS MEASURED RATHER THAN ASSUMED - see `matchQuality`
+// THE 23 ARE NOT A WRONG-SEPARATION FAULT, WHICH WAS MEASURED RATHER THAN ASSUMED - see `matchQuality`
 // and `classifyApplyFault`. Every one is a PARALLEL (or whole-board) application whose admitted match is
-// GEOMETRICALLY CONGRUENT with the setup it was applied through: all 37 at the tightest tolerance tested,
-// 0.01 (23 of them a direct, unreflected, gender-exact match with mean error 0.0000), and NOT ONE is
+// GEOMETRICALLY CONGRUENT with the setup it was applied through: all 23 at the tightest tolerance tested,
+// 0.01 (13 of them a direct, unreflected, gender-exact match with mean error 0.0000), and NOT ONE is
 // non-congruent even at 1.5. So "refuse a wrong separation" - the fix proposed for them - refuses ZERO. The
 // refusals that would bite are the ones that withdraw a permission the engine grants on purpose (mirrored
 // readings, gender-blind admission, the interactive tolerance); the call's own BODY is what puts the
 // dancers together.
 //
-// MEASURED SPLIT AT `8750274`: 23 body / 9 genderMiss / 5 mirrored / 0 loose / 0 non-congruent. The split is
-// REPORTED by `apply-fault-gate.mjs` rather than pinned, because a corpus fix moves it and must not turn a
+// MEASURED SPLIT AT THIS REVISION: 13 body / 5 genderMiss / 5 mirrored / 0 loose / 0 non-congruent. The split
+// is REPORTED by `apply-fault-gate.mjs` rather than pinned, because a corpus fix moves it and must not turn a
 // gate red; the one thing pinned is that no fault is `noncongruent`.
 //
 // AND THAT IS THE BARE TITLES ONLY. `SURVEY_CALLS` names `Lead Right`, not the authoring titles the corpus
 // also publishes for it - which is where most of that family's faults now sit. The gate's header carries the
 // measurement (86 apply faults over 47 boards for the seven-title family, 83 of them the variants).
+//
+// THIS NOW MEASURES BODIES, NOT CENTRES, and that was a decision taken on a measurement rather than a tidy-up.
+// The centre measure is the one the ENGINE already records as superseded - `BODY_PATH_CLEARANCE`'s header
+// calls the centre-distance distribution "the very measure this work replaced" - and keeping this file on it
+// made the gate prefer the worse of two applications. MEASURED on `Tidal Line RH` + `Chain Down the Line`:
+// the engine's own choice tiles it as two groups of four whose BODIES pass through each other by **-0.700**,
+// and a candidate that grazes at **+0.003** instead is scored worse here, because its CENTRES come 0.062
+// apart where the first's come 0.136 apart. A ceiling that prefers two dancers walking through each other to
+// two dancers grazing is measuring the wrong quantity. So: a pair is COINCIDENT when its BODIES intersect
+// (`bodyGap < 0`, contact - the engine's own `BODY_PATH_CLEARANCE`), and the end-board discriminator is the
+// same threshold, because "the destination is already broken" means exactly "two bodies are in the same
+// space". The old `floor = min(2.0, endGap)` heuristic is GONE with it: it existed to normalise a
+// centre distance by the board's spacing, and a body gap needs no normalising.
+//
+// SIZED BEFORE THE CHANGE, so the re-pin is a known loss and not a surprise: of the 37 apply faults the
+// centre measure pinned, **21** have bodies that intersect at the end board, **7** only graze (0 <= gap <
+// 0.1) and **9** are clear (gap >= 0.1). The 21 stay; the other 16 were the centre measure talking.
 
-import { matchFormations } from '../../dist/index.js';
+import { matchFormations, worstBodyGap, BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from '../../dist/index.js';
 
-/** Two dancers closer than this are on top of each other rather than passing. */
-export const COINCIDENT_MAX = 0.1;
-/** Below this the END board itself is broken, so no animation can be blamed for the collision. */
-export const APPLY_END_LIMIT = 1.9;
+/** Bodies below this are in the same space, so no dance path can play. CONTACT, the engine's own number. */
+export const CONTACT = BODY_PATH_CLEARANCE;
+
+/** The body gap a pair has to come inside to be FLAGGED at all - a near miss, not a collision. The engine's
+ *  own `BODY_COLLISION_MIN`, so the survey's "close" and the engine's "colliding during a glide" agree. */
+export const NEAR_MISS = BODY_COLLISION_MIN;
+
+/**
+ * The closest two bodies on a board, or `Infinity` when there is no pair to measure.
+ *
+ * `worstBodyGap` returns null for a board with fewer than two non-ghost dancers, and that null is a
+ * COVERAGE GAP rather than a clean result - there is nothing to compare, so no pair can be close. Reading it
+ * as Infinity is what makes that explicit at the one place it can arise.
+ */
+export function closestBodyGap(board) {
+  const w = worstBodyGap(board);
+  return w ? w.gap : Infinity;
+}
 
 /** The calls the survey sweeps, in its own order: the ones the corpora actually use. */
 export const SURVEY_CALLS = [
@@ -54,22 +87,13 @@ export const SURVEY_CALLS = [
 ];
 
 /** The closest two dancers on a board. */
-export function closestPair(board) {
-  const ds = board.dancers;
-  let m = Infinity;
-  for (let i = 0; i < ds.length; i++) {
-    for (let j = i + 1; j < ds.length; j++) m = Math.min(m, Math.hypot(ds[i].x - ds[j].x, ds[i].y - ds[j].y));
-  }
-  return m;
-}
-
 /**
  * Sweep every named 8-dancer formation against `calls`, sample the animation, and classify.
  *
- * `samples` and `threshold` are the survey's own knobs (`24` and `1.0`); they are parameters so a caller
- * can afford a coarser run without redefining the classification.
+ * `samples` and `threshold` are the survey's own knobs (`24` and `NEAR_MISS`); they are parameters so a
+ * caller can afford a coarser run without redefining the classification. `threshold` is a BODY gap.
  */
-export function sweepApplyFaults(seq, formations, calls = SURVEY_CALLS, samples = 24, threshold = 1.0) {
+export function sweepApplyFaults(seq, formations, calls = SURVEY_CALLS, samples = 24, threshold = NEAR_MISS) {
   const hits = [];
   let applied = 0;
   let clean = 0;
@@ -89,11 +113,10 @@ export function sweepApplyFaults(seq, formations, calls = SURVEY_CALLS, samples 
       let worstBeat = 0;
       for (let k = 0; k <= samples; k++) {
         const b = (total * k) / samples;
-        const c = closestPair(seq.evaluateSequence([call], b, start).board);
-        if (c < worst) { worst = c; worstBeat = b; }
+        const g = closestBodyGap(seq.evaluateSequence([call], b, start).board);
+        if (g < worst) { worst = g; worstBeat = b; }
       }
-      // The end board's own spacing is the fair floor: some formations legitimately stand closer.
-      const endGap = closestPair(r.board);
+      const endGap = closestBodyGap(r.board);
       const floor = Math.min(2.0, endGap);
       if (worst < floor - 0.4 || worst < threshold) {
         hits.push({ formation, call, worst, worstBeat, total, route: whole ? 'whole' : 'PARALLEL', endGap });
@@ -103,17 +126,18 @@ export function sweepApplyFaults(seq, formations, calls = SURVEY_CALLS, samples 
     }
   }
   hits.sort((a, b) => a.worst - b.worst);
-  const coincident = hits.filter((h) => h.worst < COINCIDENT_MAX);
+  const coincident = hits.filter((h) => h.worst < CONTACT);
   return {
     applied,
     clean,
     hits,
     coincident,
-    // TWO DIFFERENT DEFECTS SHARE THIS SYMPTOM. If the END board already has coincident dancers then the
-    // APPLY is broken and the animation cannot be blamed; only the pairs with a healthy destination are
-    // cases where the path is the fault.
-    animFault: coincident.filter((h) => h.endGap >= APPLY_END_LIMIT),
-    applyFault: coincident.filter((h) => h.endGap < APPLY_END_LIMIT),
+    // TWO DIFFERENT DEFECTS SHARE THIS SYMPTOM, and the discriminator is the same threshold as the
+    // collision itself because both ask one question: are two bodies in the same space? If the END board
+    // already has them there then the APPLY is broken and no animation can be blamed; only a pair with a
+    // healthy destination is a case where the PATH is the fault.
+    animFault: coincident.filter((h) => h.endGap >= CONTACT),
+    applyFault: coincident.filter((h) => h.endGap < CONTACT),
   };
 }
 

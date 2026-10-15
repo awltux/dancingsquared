@@ -20,7 +20,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, setParser, findCodedMove, splitSelection } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
-import { APPLY_END_LIMIT, COINCIDENT_MAX, SURVEY_CALLS, classifyApplyFault, sweepApplyFaults } from '../lib/apply-faults.mjs';
+import { CONTACT, NEAR_MISS, SURVEY_CALLS, classifyApplyFault, sweepApplyFaults } from '../lib/apply-faults.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -33,7 +33,7 @@ const seq = new Sequencer(
 );
 
 const minArg = process.argv.indexOf('--min');
-const THRESHOLD = minArg >= 0 ? Number(process.argv[minArg + 1]) : 1.0;
+const THRESHOLD = minArg >= 0 ? Number(process.argv[minArg + 1]) : NEAR_MISS;
 const SAMPLES = 24;
 
 const CALLS = SURVEY_CALLS;
@@ -43,8 +43,8 @@ const formations = seq.listFormations().filter((n) => {
   return b !== null && b.dancers.length === 8;
 });
 console.log(`=== ${formations.length} named 8-dancer formation(s) x ${CALLS.length} call(s) ===`);
-console.log(`    flagging any whose closest pair drops below ${THRESHOLD.toFixed(2)} units at some beat`);
-console.log(`    (the formations sit at 2.00, so below that is dancers converging)\n`);
+console.log(`    flagging any whose BODIES come within ${THRESHOLD.toFixed(2)} units at some beat`);
+console.log(`    (a BODY gap: 0 is contact, below 0 is two dancers in the same space)\n`);
 
 // THE SWEEP AND THE CLASSIFICATION ARE A RULE AND LIVE IN `test/lib/apply-faults.mjs`, because
 // `apply-fault-gate.mjs` asserts on the same numbers and two copies of a threshold is how a gate stops
@@ -53,15 +53,15 @@ const survey = sweepApplyFaults(seq, formations, CALLS, SAMPLES, THRESHOLD);
 const { hits, coincident, animFault, applyFault } = survey;
 const applied = survey.applied;
 const clean = survey.clean;
-console.log(`  ${applied} (formation, call) pair(s) applied; ${clean} animated without converging below the floor`);
+console.log(`  ${applied} (formation, call) pair(s) applied; ${clean} animated without a body pair below the flag`);
 console.log(`  ${hits.length} pair(s) flagged:\n`);
 
-// Severity, then by CALL. "Coincident" is the unambiguous case: two dancers on the same spot, which
-// no dance path does. A near-miss may just be dancers passing.
-console.log(`  COINCIDENT (< ${COINCIDENT_MAX} units): ${coincident.length}`);
-console.log(`    ... of which the END board is healthy (>= ${APPLY_END_LIMIT}): ${animFault.length}  <- the ANIMATION is at fault`);
+// Severity, then by CALL. "Coincident" is the unambiguous case: two BODIES in the same space, which no dance
+// path does. A near-miss may just be dancers passing.
+console.log(`  COINCIDENT (body gap < ${CONTACT}): ${coincident.length}`);
+console.log(`    ... of which the END board is healthy (body gap >= ${CONTACT}): ${animFault.length}  <- the ANIMATION is at fault`);
 console.log(`    ... of which the END board is already broken:   ${applyFault.length}  <- the APPLY is at fault`);
-console.log(`  near-miss (< ${THRESHOLD.toFixed(2)}, >= ${COINCIDENT_MAX}): ${(hits.length - coincident.length)}\n`);
+console.log(`  near-miss (body gap < ${THRESHOLD.toFixed(2)}, >= ${CONTACT}): ${(hits.length - coincident.length)}\n`);
 
 // THE APPLY FAULTS ARE NOT A WRONG-SEPARATION FAULT. Measured rather than argued: for every one of them,
 // ask how well the group the applicator used actually IS the variant's setup. A congruent admission means

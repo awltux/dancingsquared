@@ -18,12 +18,17 @@ export default defineConfig({
     alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js') },
   },
   server: {
-    port: 5174,
+    port: 8089,
     open: false,
-    // THE CORPUS LIVES IN `poc/src/assets`, OUTSIDE THIS APP'S ROOT, and `src/data/assets.ts` globs it
-    // from there rather than keeping a second copy (AGENTS.md §1: the corpus has one home). Vite refuses
-    // to serve files above the root unless it is told, which is what `allow` is for. The same setting
-    // appears in the POC's config for the repo-root `modules/` directory.
+    // SERVING FILES FROM ABOVE THIS APP'S ROOT. Vite refuses to serve anything outside `root` unless it is
+    // told otherwise, and this app imports two things that live above it: `dancing-squared-engine` (aliased
+    // to `engine/dist`) and `dancing-squared-stage` (a source-exporting workspace package under
+    // `packages/`). The POC's config carries the same setting for the same reason.
+    //
+    // IT IS NOT FOR THE CORPUS, which is what an earlier version of this comment claimed. The corpus IS
+    // inside the root, at `game/src/assets/` - a copy of `poc/src/assets`, because `import.meta.glob` cannot
+    // reach outside the root at all and `server.fs.allow` does not change that (measured; see
+    // `tools/sync-corpus.mjs`, which is why the copy exists and what keeps it identical).
     fs: { allow: ['..'] },
   },
   build: {

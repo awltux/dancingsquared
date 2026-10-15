@@ -1323,17 +1323,21 @@ export class DancerView {
     if (arms.left) {
       placeArm(this.parts.lUp, this.parts.lFo, lShoulder, toLocal(arms.left));
     } else {
-      const idle = toLocal(this.group.position.clone().add(new THREE.Vector3(0, 0, -halfW)));
-      idle.y = 0.35;
-      idle.x -= armSwing;
+      // IDLE HANDS ARE BUILT IN THE AVATAR'S OWN FRAME, and this used to be a round trip through the parent's
+      // coordinates: `toLocal(group.position.add(0, 0, -halfW))`. That is only the same point when the parent
+      // carries NO transform, which is true of the POC and FALSE of the game, whose board group is scaled
+      // (0.42 / 0.68) and offset to ±2.9 so that two boards fit one floor. MEASURED in the game's 3D view
+      // before this fix: every dancer had two arms stretched several board-widths across the canvas — a
+      // cat's-cradle rather than a set — because `group.position` in parent coordinates was then read as a
+      // WORLD point and converted back. The local values below are what that expression computes when the
+      // parent is identity, so the POC's rendering is unchanged and any parent transform now works.
+      const idle = new THREE.Vector3(-armSwing, 0.35, -halfW);
       placeArm(this.parts.lUp, this.parts.lFo, lShoulder, idle);
     }
     if (arms.right) {
       placeArm(this.parts.rUp, this.parts.rFo, rShoulder, toLocal(arms.right));
     } else {
-      const idle = toLocal(this.group.position.clone().add(new THREE.Vector3(0, 0, halfW)));
-      idle.y = 0.35;
-      idle.x += armSwing;
+      const idle = new THREE.Vector3(armSwing, 0.35, halfW);
       placeArm(this.parts.rUp, this.parts.rFo, rShoulder, idle);
     }
 

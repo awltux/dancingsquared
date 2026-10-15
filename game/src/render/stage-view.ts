@@ -133,18 +133,36 @@ class BoardView {
    * graph is derived from the poses (`computeHandholds(poses, 'static')`, the POC's own choice for an
    * evaluated board), and each edge aims two hands at the point between the dancers. See `poses.ts` for why a
    * board cannot carry an authored grip.
+   *
+   * THE HOLD POINT MUST BE CONVERTED TO WORLD SPACE, and this is the defect the browser found in the version
+   * that added holds: `DancerView.update` documents its arm targets as WORLD points and converts them into the
+   * avatar's own frame by inverting `matrixWorld`, so a BOARD-space point is interpreted as a world one. This
+   * group is scaled (0.42 or 0.68) and translated to ±2.9, so every target landed a board-width away from the
+   * dancer it belonged to: MEASURED in a 3D screenshot, every dancer had two arms stretched right across the
+   * canvas, which read as a cat's cradle rather than as a set holding hands. The POC does not hit this because
+   * its views sit in an untransformed group, where board and world coordinates coincide.
    */
   draw(board: Board, poses: readonly Pose[], walk: { phase: number }): void {
     const ids = board.dancers.map((d) => d.id);
     if (!sameIds(this.ids, ids)) this.rebuild(board);
+    // WHICH THE CONVERSION BELOW NEEDS TO BE CURRENT FOR THIS FRAME: `localToWorld` reads `matrixWorld`, and
+    // this group's transform is written once in the constructor, so without this the first frame converts
+    // through a stale matrix.
+    this.group.updateMatrixWorld(true);
     const holds = computeHandholds([...poses], 'static');
     const targets: { left?: THREE.Vector3; right?: THREE.Vector3 }[] = poses.map(() => ({}));
     for (const h of holds) {
-      const hold = new THREE.Vector3((poses[h.i].x + poses[h.j].x) / 2, HOLD_HEIGHT, -(poses[h.i].y + poses[h.j].y) / 2);
-      if (h.hi === 'left') targets[h.i].left = hold.clone();
-      else targets[h.i].right = hold.clone();
-      if (h.hj === 'left') targets[h.j].left = hold.clone();
-      else targets[h.j].right = hold.clone();
+      // Board (x, y) -> 3D (x, height, -y), then to WORLD through this board's own scale and offset. The
+      // height is converted with the point rather than added afterwards, so the hands meet at the same place
+      // the avatars' shoulders are — both are children of the same scaled group.
+      const point = new THREE.Vector3((poses[h.i].x + poses[h.j].x) / 2, HOLD_HEIGHT, -(poses[h.i].y + poses[h.j].y) / 2);
+      const hold = this.group.localToWorld(point);
+      if (h.hi === 'left') targets[h.i].left = hold;
+      else targets[h.i].right = hold;
+      // The SAME Vector3 is handed to both hands: `update` clones it as it aims, and the two hands meeting at
+      // one point is the whole meaning of a hold.
+      if (h.hj === 'left') targets[h.j].left = hold;
+      else targets[h.j].right = hold;
     }
     for (let i = 0; i < this.views.length; i++) {
       const pose = poses[i] ?? { x: board.dancers[i].x, y: board.dancers[i].y, heading: board.dancers[i].heading, hands: 'both' as const };

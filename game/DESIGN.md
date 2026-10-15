@@ -915,11 +915,62 @@ spans ~1.7 units and the set reads as a tangle rather than as eight figures. A p
 is the open piece. **The 2D view is the verified path** — it is the default, the design asks for it first, and
 every check below was made on it.
 
-**Phase 3 — the Daily UI, the hint, and the live animation.** The offering list built from `legalNext`,
-add/remove and undo/redo over the client sequencer (§4.4), the goal test, the allowance and waste counter, and
-the animation of the chosen list via `evaluateSequence` + `sequenceStop`, on **both** the 2D and 3D views.
-The hint lands here with the mode it is spent on: "which offered call has distance-to-goal one less" over the
-map from §7, the 60-second charge, and the no-refund rule.
+**Phase 3 — the Daily UI, the hint, and the live animation. DONE.**
+Both modes are playable in one shell, and the animation is the ENGINE'S walk rather than a chord. New:
+`src/puzzle/daily.ts` (the UTC day and the level-bound seed), `src/puzzle/score.ts` (§6's formula, one
+function), `src/puzzle/hints.ts` (the earning and spending ledger), `src/game/clock.ts` (a stopwatch with
+injected time), `src/game/daily-run.ts` (the run: move stack, clock, hints, outcome), `src/game/poses.ts`
+(`stillBoard`, replacing `src/game/tween.ts` and its probe), `src/ui/dom.ts`, `src/ui/daily-screen.ts`, and
+`main.ts` as the shell (one stage, one playhead, one ledger, the mode switch). `GameApplier` gained `motion`
+(`SequenceMotion`); `ui/playhead.ts` measures BEATS; `PlaySession`'s allowance became a hard cap; and the
+stage gained `Stage.setFrameHalf` so a host whose scene is wider than one floor can be framed. Six new probes
+(`daily`, `daily-run`, `hint-ledger`, `motion`, `playhead`, `poses`) and two extended ones.
+
+**Six things this phase measured rather than assumed:**
+
+1. **The replay is the authored path, and the difference is measurable.** `motion-probe` finds that the
+   engine's frame at half a call leaves the straight line between the endpoints by **1.727 board units** on
+   "Allemande Left in the Alamo Style", and that a chord implementation scores **exactly 0.000** on the same
+   check. `at(beats)` is the board a real `PlaySession` reaches by applying the same calls, by the engine's
+   own `sameBoardById` — so the picture and the verdict cannot disagree, which is the property the deleted
+   `tween-probe` pinned for the chord. The fixture's L2 solution walks in **12.6 beats**, and the worst
+   single sampled frame costs **1.457 ms** against a 16 ms frame.
+2. **An arm target is a WORLD point.** The 3D view drew every dancer with arms several board-widths long —
+   a cat's cradle rather than a set. Two assumptions, one rule: `DancerView.update` converts a target with
+   the inverse of `matrixWorld`, so a board-space point is read as a world one; and its IDLE arm was built as
+   `toLocal(group.position …)`, which is only the same point when the parent is untransformed. The game's
+   board group is scaled (0.42 / 0.68) and offset to ±2.9. Fixed in both places, and the POC never hit either
+   because its group is untransformed — which is why a shared component needs a second consumer to find this
+   class of bug.
+3. **Two boards do not fit one floor.** The arena reaches `centre + halfBoard` = 6.3 units at the 3D scale
+   against the stage's 5.6-unit frame, so both boards were cropped. The stage now takes the extent
+   (`setFrameHalf`), the game declares its arena per view, and the 2D frame is unchanged **by arithmetic**
+   rather than by luck: 2.9 + 2.1 + 0.6 = 5.6, the stage's own default. A dancer is then ~10% of the frame
+   height in 3D against ~4% in 2D, so the 3D view is still the one where a figure reads as a figure.
+4. **The Daily is a seed, not a puzzle.** FNV-1a over `day#level` in UTC: 12 of 12 sampled days generate and
+   regenerate byte-identically, and the level really is in the hash — a day-only hash collided on **1160 of
+   1200** sampled pairs. A malformed day throws rather than hashing into a challenge outside the calendar.
+5. **A hint is one added minute, not a multiplier.** `score-probe` pins it by EQUALITY: a run with one hint
+   and no thinking time scores exactly what a run with no hint and a minute of thinking scores. The ledger's
+   cap is on the balance (a success at three held banks nothing), and the grant lands on the tenth success.
+6. **A success is one DRILL, not one step** — MEASURED in a browser: an L2 drill's first correct answer left
+   the count at 2 of 10 and completing the puzzle took it to 3 of 10.
+
+**And the browser pass is what found the defects.** The dev server on 8089 plus a real browser drove both
+modes through play, undo, the allowance cap, the grant on the tenth drill, the hint spend (**+60 s on the
+clock, the call marked in the list, the balance spent and not refunded**) and the review lines. It found
+three UI defects and one renderer bug that no probe could see: an idempotent mode click that broke the
+OPENING call (the shell starts in `drill`, so the guard returned before starting anything — an empty page),
+a kept Daily whose header still read "The Drill", a kept Daily whose board caption belonged to the previous
+mode, and item 2's arms. §14's claim that the app cannot be checked in a browser was wrong and is corrected
+there.
+
+**Still open, and not implied otherwise:** the mobile canvas size, and whether a revealed answer should count
+as a ranked success (§15, Q16 — the ledger has to know, and the ledger is the server's from Phase 5).
+Gate: `tsc -p game --noEmit` → 0; `node game/tools/verify-probes.mjs` → 13 probes, 0 failed. The POC row was
+re-run because `packages/stage` changed, and carries its pre-existing failures (`Circle Left` ×2 in
+`verify.cjs`; five probes) — the engine's `dist` was also rebuilt, because it was stale against the editor
+work already committed in `poc/`.
 
 **Phase 4 — local persistence** and the anonymous run ledger, including the **issued-drill id**, the
 player's position, **and the hint balance with its earning progress**, so an anonymous player's regime and
@@ -957,13 +1008,16 @@ hint having nothing to spend until the Drill ships.
   the engine's own, and that every option applies from the shared start board are all properties of the
   generated puzzle. A probe can therefore **answer a whole Drill** under Node, exactly as it can play a whole
   Daily (§4.4).
-- **Not checked, and said so rather than implied.** The renderer, the DOM, the ad and consent flow, and the
-  2D/3D switch will **not** be observed in a browser from this environment: the Vite app cannot be started
-  under the sandbox that `poc/tools/verify-probes.mjs` documents (AGENTS.md §8 trap 3). What that leaves
-  unverified is **presentation** — whether the board reads clearly, whether three buttons are legible at that
-  size — and not correctness, which is the improvement decision 13 bought. No AWS call is made or tested
-  either: the schedule pipeline, the boundary job, Cognito and the table are all designed here and
-  **unverified until they are deployed against a real account**. No live AdSense account is touched.
+- **Not checked, and said so rather than implied.** The ad and consent flow, and no AWS call: the schedule
+  pipeline, the boundary job, Cognito and the table are designed here and **unverified until they are deployed
+  against a real account**. No live AdSense account is touched.
+  **THE RENDERER, THE DOM AND THE 2D/3D SWITCH *WERE* OBSERVED IN A BROWSER, and a claim here that they could
+  not be was wrong** — it said the Vite app "cannot be started under the sandbox" (AGENTS.md §8 trap 3). The
+  sandbox constrains a Node child whose output is piped; it does not stop `npm run dev:game` from binding a
+  port. MEASURED in Phase 3: the dev server on 8089 and a real browser drove the Drill and the Daily through
+  play, undo, the allowance cap, a hint, the reviewed line and both views, which is how the phase's three UI
+  defects and the arms' frame bug were found rather than shipped. What a browser check still does NOT cover is
+  the mobile canvas size, the ad flow, and anything behind a login.
 - **Every citation in this document is a path or a relationship, never a drifting count**, per AGENTS.md
   §4.2.
 
@@ -1022,7 +1076,17 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     the Lambdas* — no asset bucket is needed any more (decision 13). This app deliberately lifts the
     repository's offline-frontend rule (AGENTS.md §6), so the decision to make a network call must be recorded
     in the commit that adds it, with the endpoint named.
-15. **The workspace name**, for `game/package.json` when Phase 1 starts.
+15. **The workspace name**, for `game/package.json` when Phase 1 starts. *(Settled: `dancing-squared-game`.)*
+16. **Does an answer given AFTER "show me the answer" count as a ranked success?** Phase 3 made the review
+    name and dance the call without answering the step, so a player still presses it — and that press earns a
+    score and, on the tenth completed drill, a hint. *Recommend NOT counting a revealed puzzle*, because a
+    hint is a currency and "press the button, then press the call you were told" mints it for free; the
+    difficulty is that the LEDGER has to know the puzzle was revealed, which means the revealed flag has to
+    reach the server with the run. DESIGN.md 11 already puts hint-earning on the server, so the transcript
+    needs one more field rather than a new mechanism. Nothing in Phase 3 depends on the answer: the review
+    scores what a correct answer scores, and the server clamps it from Phase 5 either way.
+17. **How many drills are in a season, and how does a season end?** Unchanged from Q4/Q3 above; Phase 3 left
+    the fixture's twelve drills wrapping round, which is a demo of a regime rather than a regime.
 
 ---
 

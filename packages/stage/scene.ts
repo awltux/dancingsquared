@@ -71,6 +71,15 @@ export interface Stage {
    *  than through `controls` because there are TWO control sets now, and reaching for the 3D one while
    *  the 2D view is up is how the 2D camera came to be left out of the pan and zoom. */
   setControlsEnabled(on: boolean): void;
+  /**
+   * Declare the world half-extent the frame must show, in board units.
+   *
+   * WHY THIS EXISTS: the default is one dance floor plus a pad (`FLOOR_HALF + FRAME_PAD`), which is what the
+   * POC draws. A host that draws MORE than one floor - the game shows two boards side by side - cannot be
+   * framed by that default and its content is cropped, measured at 6.3 units of extent against a 5.6-unit
+   * frame. Both cameras refit immediately, and the value is remembered across resizes.
+   */
+  setFrameHalf(half: number): void;
   /** Advance both control sets (damping). Call once per frame. */
   updateControls(): void;
   /** Draw the frame, from whichever camera is on screen. Call once per frame, AFTER `updateControls` — the
@@ -261,6 +270,16 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const FRAME_PAD = 0.6;
   /** The world half-extent the frame has to show: the floor plus its pad. */
   const FRAME_HALF = FLOOR_HALF + FRAME_PAD;
+  /**
+   * THE EXTENT THE FRAME MUST SHOW, which is the floor's until a caller says otherwise.
+   *
+   * WHY IT IS NOT A CONSTANT: a host whose scene is wider than one dance floor cannot be framed by a rule
+   * that assumes the floor is all there is. MEASURED, the game draws TWO boards side by side for "you are
+   * here" / "get here", so its world reaches `centre + halfBoard` = 6.3 units at its 3D scale against this
+   * frame's 5.6 — and every board edge and the dancers on it were cropped off the sides of the canvas. The
+   * POC, which shows ONE board, keeps the default and its framing is unchanged.
+   */
+  let frameHalf = FRAME_HALF;
 
   /**
    * HOW MUCH OF THE CANVAS THE FLOATING UI COVERS, in CSS pixels, and the box that is left.
@@ -315,7 +334,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
    */
   const frame = (w: number, h: number) => {
     const v = visibleBox(w, h);
-    const halfV = Math.max(FRAME_HALF * h / v.h, FRAME_HALF * h / v.w);
+    const halfV = Math.max(frameHalf * h / v.h, frameHalf * h / v.w);
     const halfW = halfV * (w / h);
     const dx = (v.l - v.r) / 2; // px the VISIBLE centre sits right of the canvas centre
     const dy = (v.t - v.b) / 2; // px ... and below it
@@ -658,7 +677,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       camera.updateProjectionMatrix();
     }
     if (userFramed3D) return;
-    const d = (FRAME_HALF * fullH) / (VIEW_TAN_HALF_FOV * Math.min(w, h));
+    const d = (frameHalf * fullH) / (VIEW_TAN_HALF_FOV * Math.min(w, h));
     camera.position.copy(controls.target).addScaledVector(VIEW_DIR, d);
   };
 
@@ -849,6 +868,13 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     renderer,
     resize,
     setViewInsets,
+    setFrameHalf: (half: number) => {
+      // A CALLER'S EXTENT, REFITTED IMMEDIATELY. It is a LAYOUT fact rather than an input, so it is applied
+      // even to a view the caller has orbited: `frame3D` keeps its own rule about not fighting a user's
+      // distance, and this does not override that.
+      frameHalf = half;
+      resize();
+    },
     setView2D: (on: boolean) => {
       out.camera = on ? camera2d : camera;
       // THE FRUSTUM IS RE-APPLIED ON EVERY SWITCH, not only on a resize: entering the flat view after

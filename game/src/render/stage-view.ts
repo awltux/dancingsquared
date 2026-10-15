@@ -55,11 +55,27 @@ const BOARD_CENTRE = 5 * BOARD_SCALE + GUTTER / 2;
  * is that a DANCER is legible. A dancer's avatar is 2 units tall at scale 1, so at 0.42 it spans ~0.84 units
  * on a board that is 4.2 across — measured on screen, eight of those read as a tangle of limbs seen edge-on
  * rather than as eight people, which is what the first 3D screenshot showed. At 0.68 a dancer spans ~1.36
- * units and the set reads as figures. The boards then extend past the floor grid, which is acceptable in an
- * orbit view because the camera can be moved; it would not be acceptable in the overhead one, where the whole
- * point is that both boards are on screen at once.
+ * units and the set reads as figures. The boards then reach further than one floor grid, which is why the
+ * camera is told the arena's extent below rather than assuming a floor is all there is.
  */
 const BOARD_SCALE_3D = 0.68;
+
+/**
+ * HOW FAR THE SCENE REACHES FROM ITS CENTRE, which is what the camera has to fit.
+ *
+ * TWO BOARDS AND THE GUTTER, not one floor: `centre + half a board`. The stage's default frame is one floor
+ * plus its own 0.6 pad, which is right for the POC and too small here — MEASURED in the 3D view, the two
+ * boards reach 6.3 units against a 5.6-unit frame, so both outer edges and the dancers on them were cropped
+ * off the canvas. The 0.6 here is the same pad the stage uses, and it is deliberate that the 2D arena
+ * (2.9 + 2.1 + 0.6) comes out at exactly that default: the flat view was already framed correctly and this
+ * must not change it.
+ */
+const ARENA_PAD = 0.6;
+
+/** The world half-extent a view must show, at the board scale that view uses. */
+function arenaHalf(scale: number): number {
+  return BOARD_CENTRE + 5 * scale + ARENA_PAD;
+}
 
 /**
  * Where two dancers' hands meet, in board units above the floor.
@@ -240,6 +256,10 @@ export class GameStage {
       board.setFlat(flat);
       board.setScale(scale);
     }
+    // THE CAMERA IS TOLD WHAT TO FIT, per view: the two views use different board scales and so reach
+    // different distances from the centre. Without this the 3D view is framed for one floor and crops the
+    // outer half of each board — see `arenaHalf`.
+    this.stage.setFrameHalf(arenaHalf(scale));
     this.resize();
   }
 

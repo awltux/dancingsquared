@@ -724,7 +724,7 @@ a player who has a score to lose is a player who signs up.
 | `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
 | `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9) |
-| `POST /runs` | both | One completed run. **Daily**: the level, seed, elapsed, move list, `hintsUsed` and client `runId`. **Drill**: the issued-drill id, the chosen option, elapsed and `runId` — and the server re-derives which option was correct rather than trusting the client's claim about it. |
+| `POST /runs` | both | One completed run. **Daily**: the level, seed, elapsed, move list, `hintsUsed` and client `runId`. **Drill**: the issued-drill id, elapsed, `runId` and **the calls chosen — one per step**, which is a CORRECTION of this row: it said "the chosen option", written while a drill was imagined as a single question, and the ladder ships two-step drills from L2 (§5). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
 | `POST /me/runs:bulk` | both | Claim the anonymous ledger on login, **including the hint balance and the drill success count** (§10) |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
 
@@ -972,9 +972,52 @@ re-run because `packages/stage` changed, and carries its pre-existing failures (
 `verify.cjs`; five probes) — the engine's `dist` was also rebuilt, because it was stale against the editor
 work already committed in `poc/`.
 
-**Phase 4 — local persistence** and the anonymous run ledger, including the **issued-drill id**, the
-player's position, **and the hint balance with its earning progress**, so an anonymous player's regime and
-tips survive a reload and can be claimed later.
+**Phase 4 — local persistence and the anonymous run ledger. DONE.**
+The issued-drill id, the player's position, the hint balance with its earning progress, the Daily attempt in
+flight and every completed run now survive a reload on the device, which is what makes "claim them on login"
+(§11) possible at all. New: `src/game/store.ts` (the record, the injected storage, and the rules for reading
+one back), `save-probe.mjs` (14 sections), `Stopwatch.resume`, `DailyRun.save`/`DailyRun.resume`, the drill's
+resume options, and `main.ts`'s `persist()` plus a `#ledger` readout. DESIGN.md 11's Progress row is what the
+drill's part of the record IS, so the local shape is the server's shape rather than a near-miss.
+
+**What the record is, and the four rules in it:**
+- **A schema change discards everything; a pool change keeps the HINTS.** An older build's fields may not mean
+  what this build means by them; a moved `poolVersion` invalidates the seeds and the runs but not the balance,
+  because a hint is earned effort rather than puzzle data (§15 Q4: a season boundary must not reset one).
+- **What is read back is clamped, never trusted.** `localStorage` is text the player can edit — a hand-edited
+  `hints: 99` would otherwise let the Daily's hint button mint minutes — so every number is range-checked and a
+  record that is not the right shape is dropped AND COUNTED (a loader's silence about bad data is itself a bug).
+- **The run ledger is a queue, deduped on `runId`** — the key §11's claim is idempotent on — and the OLDEST are
+  dropped when it is full, because a claim submits what has not been claimed and a best-of keeps nothing.
+- **A store that refuses is not a broken app**: `saving: false`, the footer says so, and the game plays on.
+
+**And two rules the wiring turned up, both of them fairness rather than plumbing:**
+1. **A RUN'S CLOCK IS RE-BASED, NOT RESTARTED, and the wall gap is CHARGED.** A reload that resumed a run at
+   its saved elapsed would be a pause button in the middle of a timed puzzle. A run whose clock had already
+   STOPPED (a solved Daily) gets no gap, because a stopped clock was not counting while the page was away —
+   which is why a solved run comes back at exactly the score and time it earned.
+2. **ONE SUCCESS PER ISSUED DRILL.** A drill can be re-issued without the player asking — a reload re-issues
+   the entry once it is solved — and §11's Progress row keeps "the set of finished ones" precisely so that
+   re-solving cannot count twice. The BOARD was never farmable (§6 takes the player's best); the BALANCE was,
+   and a hint is a currency (§10).
+
+**MEASURED, and the browser is where the last two came from:**
+- a full record — the envelope, both in-flight records and 50 runs of three long call names each — serialises
+  to **19505 bytes**, two orders of magnitude inside localStorage; 200 runs recorded keep exactly the newest
+  50; 1000 platform-generated ids and 100 fallback ids are all distinct.
+- RELOAD resumes the regime (drill 2 of 12, "Hints: 0 of 3 · 1 of 10", "1 run · best 23" — with the run count
+  unchanged, so the solve was not re-recorded) and the daily (line, allowance, and a clock at 1:04 = 49 s of
+  play + the 15 s away).
+- ONE SUCCESS PER DRILL, measured: solving drill 2 took the balance to 2 of 10; reloading re-issued it; solving
+  it again left the balance at 2 of 10 while the ledger grew to 3 runs and the best went to 100.
+- DEFECTS the browser found that no probe could: `persist()` written from the drill WIPED the Daily's saved
+  record before the Daily was ever resumed (the tab opens on the Drill), and the record had no place for a
+  run's id, so a resume could not help but mint a second one.
+
+**Still not settled, and not implied otherwise:** §15 Q16 (does an answer given after "show me the answer"
+count as a ranked success?) is now a ONE-FIELD change — the run record is the transcript that could carry the
+flag — but the decision is the owner's. Nothing persists the MODE: a reload opens on the Drill, which is the
+funnel. No network call, no account, no cookie: everything is this device's.
 
 **Phase 5 — AWS.** Cognito, the six endpoints, the DynamoDB table and its item shapes **including the Hints
 row**, the schedule publishing pipeline, the boundary job for the Daily, verification-by-regeneration and
@@ -996,7 +1039,10 @@ hint having nothing to spend until the Drill ships.
 - **Probeable headless, in Node.** The generator, the level specs, the scoring arithmetic, the hint rule and
   the move stack are pure and take no DOM. The engine's data files are readable from `poc/src/assets/`
   exactly as `engine/test/mainstream.mjs` does, and Node needs `setParser(DOMParser)` from `@xmldom/xmldom` —
-  the pattern that file already follows.
+  the pattern that file already follows. **The saved game is probeable the same way**, because storage is an
+  INJECTED interface rather than a call to `localStorage`: `game/test/save-probe.mjs` drives the loader with a
+  fake, with a store that throws, and with records that are corrupt, from another schema and from another
+  pool — which is how the resume rules are pinned without a browser (Phase 4).
 - **The serving-side rules are probeable too, and should be**, because they are the new fairness surface:
   "everyone at a level gets the same seed at the same position", "an issued drill does not change", and
   **"the hint ledger grants on the tenth success and never on a client's word"** are decisions about plain
@@ -1087,6 +1133,14 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     scores what a correct answer scores, and the server clamps it from Phase 5 either way.
 17. **How many drills are in a season, and how does a season end?** Unchanged from Q4/Q3 above; Phase 3 left
     the fixture's twelve drills wrapping round, which is a demo of a regime rather than a regime.
+18. **Can a player make the device forget them?** Phase 4 keeps the regime, the balance and every run in
+    `localStorage`, which is the player's own machine and nobody else's — but there is no control that clears
+    it, and a player who wants a fresh start has to find their browser's site-data settings. *Recommend a
+    plainly-labelled "start over on this device" in the footer, behind a confirmation*, because the ledger is
+    unclaimed until login (§11) and losing it silently is worse than a two-tap reset. The tradeoff to decide:
+    a reset that also clears the HINT BALANCE is the honest reading ("forget this device"), while a reset that
+    keeps the balance is not a reset at all. Phase 4 deliberately ships neither, because it is a UI and privacy
+    decision rather than a persistence mechanism.
 
 ---
 

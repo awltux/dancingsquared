@@ -31,7 +31,7 @@
 // consumers and creates NO local binding, which is why a rule could not reference `SINGLES_GROUP_NAMES`
 // while that line was there - TS2304, "Cannot find name". A module that USES a name has to import it, and
 // the public barrel for these is `index.ts`, not this file.
-import { COMBINED_GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES } from './selection.js';
+import { COMBINED_GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES, COUPLE_GROUP_NAMES } from './selection.js';
 
 /** The programme order, weakest first. A rule at a LATER index overrides one at an earlier index.
  *
@@ -261,6 +261,51 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'through each other. `Heads Dosado` / `Sides Dosado` are the scoped forms and still available.',
   },
   {
+    call: 'Lead Right - Close',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD RIGHT',
+  },
+  {
+    call: 'Lead Right - Close',
+    group: [...COUPLE_GROUP_NAMES],
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Right - Close is for a single couple to dance',
+  },
+  {
+    call: 'Lead Right - Normal',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD RIGHT',
+  },
+  {
+    call: 'Lead Right - Normal',
+    group: [...COUPLE_GROUP_NAMES],
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Right - Normal is for a single couple to dance',
+  },
+  {
+    call: 'Lead Right - Far',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD RIGHT',
+  },
+  {
+    call: 'Lead Right - Far',
+    group: [...COUPLE_GROUP_NAMES],
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Right - Far is for a single couple to dance',
+  },
+  {
     call: 'Lead Right',
     level: 'ms',
     decision: 'deny',
@@ -299,6 +344,36 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       'Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead '
       + 'right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in '
       + 'the picker applies it as one.',
+  },
+  {
+    call: 'Lead Left - Normal',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD LEFT',
+  },
+  {
+    call: 'Lead Left - Normal',
+    group: [...COUPLE_GROUP_NAMES],
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Left - Normal is for a single couple to dance',
+  },
+  {
+    call: 'Lead Left - Far',
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'START A WHITE LIST FOR LEAD LEFT',
+  },
+  {
+    call: 'Lead Left - Far',
+    group: [...COUPLE_GROUP_NAMES],
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Lead Left - Far is for a single couple to dance',
   },
   {
     call: 'Lead Left',

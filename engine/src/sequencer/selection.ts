@@ -92,10 +92,14 @@ export const SINGLES_GROUP_NAMES: readonly string[] = [
   'Ends', 'Couples', 'Leaders', 'Trailers', 'Beaus', 'Belles',
 ];
 
+export const COUPLE_GROUP_NAMES: readonly string[] = [
+  'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
+];
+
 /** The readings that name WHOLE COUPLES - the head and side pairs, and the numbered couples. */
 export const COUPLES_GROUP_NAMES: readonly string[] = [
   'Heads', 'Sides',
-  'Couple #1', 'Couple #2', 'Couple #3', 'Couple #4',
+  ...COUPLE_GROUP_NAMES,
 ];
 
 /**

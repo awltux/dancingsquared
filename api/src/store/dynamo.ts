@@ -20,8 +20,8 @@ import {
   DescribeTableCommand,
   type DynamoDBClientConfig,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import type { ItemKey, ItemStore, StoredItem } from '../ports.ts';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import type { ItemKey, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
 
 /** The key attributes, as DESIGN.md 11's table writes them. */
 const PK = 'PK';
@@ -33,6 +33,19 @@ const REV = 'rev';
 function isNamed(error: unknown, name: string): boolean {
   return typeof error === 'object' && error !== null && (error as { name?: unknown }).name === name;
 }
+
+/**
+ * The cancellation codes that mean "another writer moved first" rather than "this request is wrong".
+ *
+ * `ConditionalCheckFailed` IS THE MEASURED ONE: a transaction whose second condition was impossible came back
+ * as `TransactionCanceledException` with `CancellationReasons: [{Code: 'None'}, {Code:
+ * 'ConditionalCheckFailed'}]` — one reason per item, `None` for the items that were fine. `TransactionConflict`
+ * is the other code that means a lost race, and it is named here from the service's documented set rather than
+ * measured locally, because DynamoDB Local does not produce it. Everything else — a size limit, throttling, a
+ * validation error — PROPAGATES, because treating a capacity failure as "you lost a race" would silently
+ * discard a player's run.
+ */
+const LOST_RACE: ReadonlySet<string> = new Set(['None', 'ConditionalCheckFailed', 'TransactionConflict']);
 
 export class DynamoStore implements ItemStore {
   // NO CONSTRUCTOR PARAMETER PROPERTIES, AND THE COMPILER WILL NOT TELL YOU. Node runs this file by STRIPPING
@@ -59,6 +72,38 @@ export class DynamoStore implements ItemStore {
       value[name] = field;
     }
     return { rev: typeof rev === 'number' ? rev : 0, value };
+  }
+
+  /**
+   * Every write in one `TransactWriteItems`: all of them or none.
+   *
+   * THE CONDITIONS TRAVEL WITH THE WRITES, exactly as `put` sends them, so a transaction is the same
+   * compare-and-set applied to several items at once — which is what lets the run handler read three rows,
+   * decide, and have the decision land as one thing.
+   */
+  async transact(writes: readonly StoreWrite[]): Promise<boolean> {
+    try {
+      await this.client.send(
+        new TransactWriteCommand({
+          TransactItems: writes.map((write) => ({
+            Put: {
+              TableName: this.table,
+              Item: { ...write.value, [PK]: write.key.pk, [SK]: write.key.sk, [REV]: (write.expectedRev ?? 0) + 1 },
+              ConditionExpression: write.expectedRev === null ? `attribute_not_exists(${PK})` : `#rev = :rev`,
+              ...(write.expectedRev === null
+                ? {}
+                : { ExpressionAttributeNames: { '#rev': REV }, ExpressionAttributeValues: { ':rev': write.expectedRev } }),
+            },
+          })),
+        }),
+      );
+      return true;
+    } catch (error) {
+      if (!isNamed(error, 'TransactionCanceledException')) throw error;
+      const reasons = (error as { CancellationReasons?: readonly { Code?: string }[] }).CancellationReasons ?? [];
+      if (reasons.length > 0 && reasons.every((reason) => LOST_RACE.has(reason.Code ?? ''))) return false;
+      throw error;
+    }
   }
 
   async put(key: ItemKey, value: Readonly<Record<string, unknown>>, expectedRev: number | null): Promise<boolean> {

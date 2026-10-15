@@ -103,6 +103,38 @@ async function contract(name, store, unconditional) {
   check((await store.get(other)).value.levelIndex === 2, 'a second sort key under the same partition is its own item');
   check((await store.get(key)).value.moves[0] === 'Allemande Left', 'and reading it did not disturb the first');
 
+  // --- SEVERAL ITEMS AT ONCE. A completed run changes three or four rows, so the port's `transact` is what
+  // makes "the whole run landed" true rather than "most of it did".
+  const t1 = KEY(name, 'item#t1');
+  const t2 = KEY(name, 'item#t2');
+  check(await store.transact([{ key: t1, value: { n: 1 }, expectedRev: null }, { key: t2, value: { n: 2 }, expectedRev: null }]) === true, 'a transaction of two creates lands');
+  check((await store.get(t1)).value.n === 1 && (await store.get(t2)).value.n === 2, 'and both items are readable');
+
+  const t3 = KEY(name, 'item#t3');
+  check(await store.transact([{ key: t3, value: { n: 3 }, expectedRev: null }, { key: t1, value: { n: 99 }, expectedRev: null }]) === false, 'a transaction whose SECOND condition fails is refused');
+  check((await store.get(t3)) === null, 'and its FIRST write did not land — which is the whole reason the port has it');
+  check((await store.get(t1)).value.n === 1, 'and the item whose condition failed is untouched');
+
+  check(await store.transact([{ key: t1, value: { n: 10 }, expectedRev: 1 }, { key: t2, value: { n: 20 }, expectedRev: 1 }]) === true, 'a transaction of two replaces lands');
+  check((await store.get(t1)).rev === 2 && (await store.get(t2)).rev === 2, 'and both revisions advanced');
+  check(await store.transact([{ key: t1, value: { n: 100 }, expectedRev: 2 }, { key: t2, value: { n: 200 }, expectedRev: 99 }]) === false, 'a transaction with one stale revision is refused');
+  check((await store.get(t1)).value.n === 10, 'and the item whose revision was RIGHT did not change either');
+  // THE ASSERTION IS "IT DOES NOT LAND", NOT "IT THROWS", AND THE TWO STORES GET THERE DIFFERENTLY: the twin
+  // throws (writing one key twice is a programming error), while DynamoDB Local evaluates the conditions in
+  // order and cancels the transaction when the second one fails — MEASURED, which is how the first version of
+  // this check reported "landed" for a `false` return.
+  const duplicate = await store.transact([{ key: t1, value: { n: 1 }, expectedRev: 2 }, { key: t1, value: { n: 2 }, expectedRev: 2 }]).then((landed) => landed, (error) => `threw ${error.name ?? ''}`);
+  check(duplicate !== true, `a transaction cannot write the same key twice (${duplicate})`);
+
+  // NEGATIVE CONTROL, MEASURED: the same two writes applied ONE AT A TIME leave the first behind when the
+  // second is refused — a partially applied run, which is what `transact` exists to make impossible.
+  const seqA = KEY(name, 'item#seqA');
+  const seqB = KEY(name, 'item#seqB');
+  await store.put(seqA, { present: true }, null);
+  const oneAtATime = [await store.put(seqB, { n: 1 }, null), await store.put(seqA, { n: 2 }, null)];
+  check(oneAtATime[0] === true && oneAtATime[1] === false, `NEGATIVE CONTROL: applied one at a time, the two writes give (${oneAtATime.join(', ')})`);
+  check((await store.get(seqB)) !== null, 'NEGATIVE CONTROL: and the FIRST one is left behind, which a transaction would not do');
+
   // TWO CONCURRENT CREATES: EXACTLY ONE LANDS. This is the property the whole API rests on, and it is the last
   // check because it is the only one that needs the store to be genuinely concurrent.
   const race = KEY(name, 'item#race');

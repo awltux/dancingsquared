@@ -30,6 +30,16 @@ export interface StoredItem {
 }
 
 /**
+ * One write inside a `transact`: the same compare-and-set as `put`, so `expectedRev: null` means "this key
+ * must not exist" and a number means "it must still be at that revision".
+ */
+export interface StoreWrite {
+  readonly key: ItemKey;
+  readonly value: Readonly<Record<string, unknown>>;
+  readonly expectedRev: number | null;
+}
+
+/**
  * The item store, as the handlers need it.
  *
  * `put` IS A COMPARE-AND-SET AND RETURNS WHETHER IT LANDED. `expectedRev === null` means "this key must not
@@ -43,6 +53,20 @@ export interface StoredItem {
 export interface ItemStore {
   get(key: ItemKey): Promise<StoredItem | null>;
   put(key: ItemKey, value: Readonly<Record<string, unknown>>, expectedRev: number | null): Promise<boolean>;
+  /**
+   * Write several items as ONE UNIT: every write lands or none does. False means a condition failed — the
+   * caller lost a race, or a key it meant to create already exists — and NOTHING was written.
+   *
+   * WHY THE PORT HAS THIS AT ALL. A completed run changes three or four rows (its own ledger entry, the
+   * player's progress, the hint balance, the board), and those are different items: applied one at a time, a
+   * failure on the third leaves the first two in place, which is a run that half happened. MEASURED, by the
+   * contract probe's control: two plain `put`s leave the first behind when the second is refused.
+   *
+   * A KEY MAY APPEAR AT MOST ONCE in one transaction. DynamoDB refuses a transaction that touches the same
+   * item twice, and the in-memory twin throws for the same input rather than quietly applying both — a
+   * divergence between the two would be found in production otherwise.
+   */
+  transact(writes: readonly StoreWrite[]): Promise<boolean>;
 }
 
 /** Time, injected: a handler that called `Date.now()` could not be probed for its clock arithmetic. */

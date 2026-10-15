@@ -11,7 +11,7 @@
 // not corrupt it. `structuredClone` on the way in and out makes that true here too, and it is what would
 // catch a handler that mutates the array it was given instead of writing a new one — a bug the twin would
 // otherwise hide by sharing the object.
-import type { ItemKey, ItemStore, StoredItem } from '../ports.ts';
+import type { ItemKey, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
 
 /** The key as one string, so a `Map` can hold it: the store only ever needs equality, never ordering. */
 const flat = (key: ItemKey): string => `${key.pk}\u0000${key.sk}`;
@@ -38,6 +38,31 @@ export class MemoryStore implements ItemStore {
     // is expected to re-read.
     if (expectedRev === null ? current !== undefined : current?.rev !== expectedRev) return false;
     this.items.set(id, { rev: (current?.rev ?? 0) + 1, value: structuredClone(value) });
+    return true;
+  }
+
+  /**
+   * Check every condition, then apply every write.
+   *
+   * THE TWO LOOPS WITH NO `await` BETWEEN THEM ARE THE ATOMICITY. JavaScript runs this function to completion
+   * once it starts (there is no await inside either loop), so no other task can observe the map between the
+   * check and the apply — which is the same guarantee DynamoDB gives across items, arrived at differently.
+   */
+  async transact(writes: readonly StoreWrite[]): Promise<boolean> {
+    const seen = new Set<string>();
+    for (const write of writes) {
+      const id = flat(write.key);
+      if (seen.has(id)) throw new Error(`a transaction cannot write ${id} twice`);
+      seen.add(id);
+    }
+    for (const write of writes) {
+      const current = this.items.get(flat(write.key));
+      if (write.expectedRev === null ? current !== undefined : current?.rev !== write.expectedRev) return false;
+    }
+    for (const write of writes) {
+      const current = this.items.get(flat(write.key));
+      this.items.set(flat(write.key), { rev: (current?.rev ?? 0) + 1, value: structuredClone(write.value) });
+    }
     return true;
   }
 

@@ -78,6 +78,9 @@ const spy = (inner, lose = 0) => {
         state.writes++;
         return inner.put(key, value, expectedRev);
       },
+      // FORWARDED SO THE PROXY IS STILL A STORE: a port has more than the two methods the drill endpoints use,
+      // and a wrapper that dropped one would be a store that throws the first time a handler reached for it.
+      transact: (writes) => inner.transact(writes),
     },
   };
 };

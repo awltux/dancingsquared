@@ -1,0 +1,200 @@
+/* The game's styles.
+ *
+ * FOR AN OLDER AUDIENCE, WHICH IS A STATED CONSTRAINT RATHER THAN A PREFERENCE (prd.md §15: square dance
+ * teachers target "an older audience, so it must be easy to read, tap, and understand"). So: large type, big
+ * targets, high contrast, and no hover-only affordances — every control is a real button a touch can hit.
+ *
+ * THE CANVAS IS THE BACKDROP AND THE PANEL FLOATS OVER IT, the same arrangement as the POC, with the panel on
+ * the left. The stage frames the floor around the space that is left, so the panel's WIDTH IS A FACT THE
+ * LAYOUT DEPENDS ON — hence a fixed width rather than a content-sized one. */
+:root {
+  --bg: #0b1016;
+  --ink: #eef4f8;
+  --dim: #9fb2c0;
+  --ok: #7fe3a1;
+  --bad: #ff8f8f;
+  --accent: #ffd166;
+  --panel: 340px;
+  font-size: 18px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, "Segoe UI", sans-serif;
+}
+
+#app {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--panel);
+  padding: 20px 20px 28px;
+  overflow-y: auto;
+  background: rgba(8, 13, 19, 0.92);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+#head h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.01em;
+}
+
+#regime {
+  margin: 6px 0 0;
+  color: var(--dim);
+  font-size: 0.95rem;
+}
+
+#prompt {
+  font-size: 1.15rem;
+  line-height: 1.35;
+  margin: 0 0 14px;
+}
+
+#answers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 56px MINIMUM: a comfortable touch target, and the reason the buttons are full width rather than a row of
+   three that would each be too narrow to read a call name in. */
+.answer {
+  min-height: 56px;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: #16222e;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.answer:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.answer:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* THE ILLEGAL CHOICE IS VISUALLY DISTINCT, because it is a different KIND of answer — the lesson is "that
+   cannot be called from here", and a player who cannot tell it apart cannot learn that. It is marked by a
+   border and a label, never by colour alone, so it survives a colour-vision difference. */
+.answer.illegal {
+  border-style: dashed;
+  border-color: rgba(255, 143, 143, 0.7);
+}
+
+#verdict {
+  margin-top: 16px;
+  min-height: 3.2em;
+  line-height: 1.4;
+  font-size: 1rem;
+}
+
+#verdict[data-kind="ok"] {
+  color: var(--ok);
+}
+
+#verdict[data-kind="bad"] {
+  color: var(--bad);
+}
+
+#verdict[data-kind="info"] {
+  color: var(--accent);
+}
+
+#foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#foot button {
+  min-height: 48px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: #1d2b38;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#foot button:hover {
+  border-color: var(--accent);
+}
+
+#loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  font-size: 1.2rem;
+}
+
+#loading[hidden] {
+  display: none;
+}
+
+/* THE TWO BOARD CAPTIONS. Positioned over the canvas in the space the panel leaves, each centred on its own
+   board's half. `pointer-events: none` is load-bearing rather than tidiness: a label that captured the
+   pointer would swallow the start of a drag on the board underneath it, so panning would silently fail on
+   exactly the strip a player is most likely to grab. */
+.board-label {
+  position: absolute;
+  top: 14px;
+  margin: 0;
+  transform: translateX(-50%);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+/* 25% AND 75% OF THE VISIBLE AREA, which is what centres a label on each board: the framing insets the floor
+   by the panel's width, so the two board centres sit at those fractions of what is left. The panel's width is
+   the `--panel` custom property, so the labels and the stage's inset read the same number. */
+#labelHere {
+  left: calc(var(--panel) + (100% - var(--panel)) * 0.25);
+}
+
+#labelGoal {
+  left: calc(var(--panel) + (100% - var(--panel)) * 0.75);
+}

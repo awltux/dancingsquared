@@ -48,7 +48,7 @@ NEXT commit is not green standalone; if you cannot avoid the pair, say so in bot
 |---|---|---|
 | `engine/` | **The thing under test.** `dancing-squared-engine`, TypeScript → `dist/`, renderer-agnostic. `src/sequencer/` holds matcher, applicator, legality, solver, analyser, FSM, alignment. | yes — `engine/test/verify-suite.mjs` |
 | `packages/stage/` | `dancing-squared-stage`: the shared render stage — `scene.ts` (Three.js adapter) and `grid-magnet.ts` (the pure square/radial grid + magnet rule, which is why the probes load it). Exported as **source**, not `dist/`. | yes, via the POC gate |
-| `game/` | `dancing-squared-game`: the call game. `src/puzzle/` is the **pure, seeded core** (ladder, generator, session); `src/engine/applier.ts` is the only file importing an engine VALUE. No UI or network yet. | yes — `game/tools/verify-probes.mjs` |
+| `game/` | `dancing-squared-game`: the call game. `src/puzzle/` is the **pure, seeded core** (ladder, generator, session) and `src/game/` the Drill's state machine and replay clock, both engine-free and probe-loadable; the Vite app (`index.html`, `src/main.ts`, `src/render/`, `src/ui/`, `src/data/`) is the browser layer, and `src/assets/` is a CHECKED COPY of `poc/src/assets` (see the gate row). `src/engine/applier.ts` is the only file importing an engine VALUE. | yes - `game/tools/verify-probes.mjs` |
 | `poc/` | Three.js app **and the canonical corpus** (`src/assets/`). Sequencer panel, call editor, FSM view, browse view. | yes — `poc/verify.cjs` + `poc/tools/*-probe.mjs` |
 | `poc-teacher/` | Teacher / session tracker app. | yes — `npm run verify:teacher` |
 | `poc-matrix/` | Earlier matrix/graph experiments. | **no** — no `verify` script, not in any gate |
@@ -88,7 +88,7 @@ Run from the **repo root**. `--prefix engine` is not decoration: from inside `en
 | `engine/src/**` | `npm run build --prefix engine` → `npm run verify:light --prefix engine`. **Before landing behaviour**, `npm run verify --prefix engine` (the whole suite — minutes; run it as a background job). |
 | `poc/src/**` (TypeScript) | `npx tsc -p poc --noEmit` → `node poc/verify.cjs` → `node poc/tools/verify-probes.mjs` |
 | `packages/stage/**` | `npx tsc -p packages/stage --noEmit`, then the `poc/src/**` row — `poc` is its only consumer today, so its real gate is the app's and the probes that load `grid-magnet.ts` |
-| `game/**` | `npx tsc -p game --noEmit` → `node game/tools/verify-probes.mjs`. **Rebuild the engine first** (`npm run build:engine`): the game's probes import `dancing-squared-engine` values, so a stale `dist` reports a missing export rather than the thing under test |
+| `game/**` | `npx tsc -p game --noEmit` → `node game/tools/verify-probes.mjs`. **Rebuild the engine first** (`npm run build:engine`): the game's probes import `dancing-squared-engine` values, so a stale `dist` reports a missing export rather than the thing under test. **The runner checks the corpus copy first** (`tools/sync-corpus.mjs --check`), so an edit under `poc/src/assets` that is not re-copied fails the gate rather than reaching a player as a wrong puzzle |
 | A rule that a probe pins | that probe by name: `node poc/tools/<name>-probe.mjs` |
 | The corpus (`poc/src/assets/**`) | `node engine/test/shape-census.mjs`, then the POC checks above |
 | `book/**` | `npm run check:book` |

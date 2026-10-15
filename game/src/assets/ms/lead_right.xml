@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
+<!--
+
+    Copyright 2023 Brad Christie
+
+    This file is part of Taminations.
+
+    Taminations is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Taminations is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with Taminations.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<tamination title="Lead Right">
+
+<!-- SPECIAL ASYMMETRIC ADJACENT COUPLES CALLS - USED FOR "COUPLES" GROUPS -->
+
+<!-- exported by the dancing-squared web app: commit a443cdb, with uncommitted changes, built 2026-10-11 12:35Z -->
+  <tam title="Lead Right - Close" from="Adjacent Dancers" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="0.4753" cy2="-1.3113" x2="0.7561" y2="-1.7744"/>
+      <movement hands="gripright" beats="2" cx1="0.8432" cy1="-0.0632" cx2="1.2654" cy2="0.6873" x2="1.6929" y2="0.4282" cx3="1.1683" cx4="2.3143" cy4="-0.0949" x4="2.9216" y4="-0.4919"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="0" cy2="-1" x2="0" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 20:00Z -->
+  <tam title="Lead Right - Normal" from="Adjacent Dancers" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="0.7517" cy2="-0.7834" x2="1.3163" y2="-1.2644"/>
+      <movement hands="gripright" beats="2" cx1="0.8982" cy1="0.0097" cx2="1.4345" cy2="0.9126" x2="1.7587" y2="0.532" cx3="1.2882" cx4="1.3401" cy4="-0.122" x4="1.6655" y4="-0.5041"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="1" cy2="0" x2="1" y2="0" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 20:00Z -->
+  <tam title="Lead Right - Far" from="Adjacent Dancers" formation="Adjacent Dancers Close" asymmetric="true">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="1.5431" cy2="-0.9632" x2="1.8382" y2="-1.1967"/>
+      <movement hands="gripright" beats="2" cx1="0.7312" cy1="0.2372" cx2="1.4625" cy2="0.4743" x2="2.1937" y2="0.7115" cx3="0.3005" cx4="0.7137" cy4="-0.2" x4="0.9001" y4="-0.4356"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="2" cy2="0" x2="2" y2="0" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+    </path>
+  </tam>
+
+
+
+
+
+<!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 17:47Z -->
+  <tam title="Lead Right" formation="Facing Couples Close">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="0.4753" cy2="-1.3113" x2="0.7561" y2="-1.7744"/>
+      <movement hands="gripright" beats="2" cx1="0.5643" cy1="0.1427" cx2="1.1286" cy2="0.2855" x2="1.6929" y2="0.4282" cx3="0.1817" cx4="0.8077" cy4="-0.175" x4="0.9631" y4="-0.2692"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="0" cy2="-1" x2="0" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+    </path>
+  </tam>
+
+  <tam title="Lead Right" formation="Facing Couples">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="0.7517" cy2="-0.7834" x2="1.3163" y2="-1.2644"/>
+      <movement hands="gripright" beats="2" cx1="0.8982" cy1="0.0097" cx2="1.4345" cy2="0.9126" x2="1.7587" y2="0.532" cx3="1.2882" cx4="1.3401" cy4="-0.122" x4="1.6655" y4="-0.5041"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="1" cy2="0" x2="1" y2="0" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 17:47Z -->
+  <tam title="Lead Right" formation="Facing Couples Far">
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="1.5431" cy2="-0.9632" x2="1.8382" y2="-1.1967"/>
+      <movement hands="gripright" beats="2" cx1="0.7312" cy1="0.2372" cx2="1.4625" cy2="0.4743" x2="2.1937" y2="0.7115" cx3="0.3005" cx4="0.7137" cy4="-0.2" x4="0.9001" y4="-0.4356"/>
+    </path>
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="2" cy2="0" x2="2" y2="0" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+    </path>
+  </tam>
+
+
+
+
+
+
+
+
+<!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 20:00Z -->
+  <tam title="Lead Left - Normal" from="Adjacent Dancers" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+    <path>
+      <movement hands="right" beats="4" cx1="0" cy1="0" cx2="1" cy2="1" x2="1" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="4" cx1="0.275" cy1="0" cx2="3" cy2="2.725" x2="3" y2="3"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 13b7dd3, with uncommitted changes, built 2026-10-14 20:00Z -->
+  <tam title="Lead Left - Far" from="Adjacent Dancers" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+    <path>
+      <movement hands="left" beats="4" cx1="0" cy1="0" cx2="2" cy2="0" x2="2" y2="0" cx3="0.55" cx4="0.6434" cy4="0.1206" x4="0.6434" y4="0.6206"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="2" cx1="0.275" cy1="0" cx2="1.297" cy2="0.8328" x2="1.7517" y2="1.1777"/>
+      <movement hands="gripright" beats="2" cx1="0.7715" cy1="-0.0211" cx2="1.8898" cy2="-0.4021" x2="2.288" y2="-0.7043" cx3="0.9991" cx4="1.3088" cy4="0.5844" x4="2.3112" y4="1.8964"/>
+    </path>
+  </tam>
+  
+
+
+
+
+
+  <tam title="Lead Left" from="Facing Couples" formation="Facing Couples Compact" difficulty="2">
+    <path>
+      <movement hands="right" beats="4" cx1="0" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="0.5" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="0.5" cy2="1" x2="1" y2="1.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.7071" cy1="0" cx2="1.4142" cy2="-0.7071" x2="1.7678" y2="-0.3536" cx3="0.7071" cx4="0.9514" cy4="0.3207" x4="1.3049" y4="0.6742"/>
+    </path>
+  </tam>
+
+  <tam title="Lead Left" from="Facing Couples" formation="Facing Couples" difficulty="2">
+    <path>
+      <movement hands="right" beats="4" cx1="0" cy1="0" cx2="1" cy2="0" x2="1" y2="0" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="1.0461" cy2="0.8955" x2="1.4763" y2="1.3258"/>
+      <movement hands="gripleft" beats="2" cx1="0.5389" cy1="0.0522" cx2="0.9127" cy2="-0.1999" x2="1.5541" y2="-0.6008" cx3="0.9648" cx4="1.3127" cy4="0.4955" x4="1.6083" y4="0.8258"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit a476a4f, with uncommitted changes, built 2026-10-14 22:30Z -->
+  <tam title="Lead Left" from="Facing Couples" formation="Facing Couples Far" parts="">
+    <path>
+      <movement hands="right" beats="4" cx1="0" cy1="0" cx2="2" cy2="0" x2="2" y2="0" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="1.6062" cy2="0.6004" x2="1.9258" y2="0.9201"/>
+      <movement hands="gripleft" beats="2" cx1="0.4781" cy1="0.0087" cx2="1.7732" cy2="-0.3825" x2="2.2302" y2="-0.7033" cx3="1.6776" cx4="2.1796" cy4="0.5758" x4="2.6601" y4="1.0952"/>
+    </path>
+  </tam>
+
+
+
+
+</tamination>

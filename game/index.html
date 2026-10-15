@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dancing Squared — the Drill</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <!-- THE APP IS OFFLINE BY DESIGN (AGENTS.md §6): no font CDN, no analytics, no stylesheet from a
+         network. Every asset here is bundled, so the game works from a file:// build and adds no
+         external dependency to a page whose audience is an older one on unpredictable connections. -->
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="stage"></canvas>
+
+      <!-- THE BOARD CAPTIONS SIT OVER THE CANVAS, centred on each board's half of the frame. Without them
+           the two floor grids read as ONE board with dancers scattered across it — the two-board framing is
+           invisible until you say which side is which. They are `pointer-events: none` so a drag on the
+           board still reaches the camera controls underneath. -->
+      <p class="board-label" id="labelHere">You are here</p>
+      <p class="board-label" id="labelGoal">Get here</p>
+
+      <main id="panel">
+        <header id="head">
+          <h1>Dancing Squared</h1>
+          <p id="regime"></p>
+        </header>
+
+        <section id="question" aria-live="polite">
+          <p id="prompt"></p>
+          <div id="answers"></div>
+          <div id="verdict" role="status"></div>
+        </section>
+
+        <footer id="foot">
+          <button id="review" type="button" hidden>Show me the answer</button>
+          <button id="view" type="button">Switch to 2D</button>
+          <button id="next" type="button" hidden>Next drill</button>
+        </footer>
+      </main>
+
+      <div id="loading">Loading the corpus…</div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

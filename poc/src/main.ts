@@ -457,7 +457,11 @@ function tick(now: number) {
 
   if (!fsmActive) {
     stage.updateControls();
-    stage.renderer.render(stage.scene, stage.camera);
+    // THROUGH THE STAGE, which draws from whichever camera is on screen. This used to reach for
+    // `stage.camera` directly, which is the 3D one: it happened to be right because the POC's 2D view is a
+    // separate mode that also keeps that camera, but the choice belongs to the module that owns both
+    // cameras and the flat view's invariant (`packages/stage/scene.ts`, `Stage.render`).
+    stage.render();
   }
   requestAnimationFrame(tick);
 }

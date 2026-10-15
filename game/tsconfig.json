@@ -3,7 +3,12 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022"],
+    // DOM AND vite/client ARE FOR THE APP ONLY. `src/puzzle/**` imports neither - it is the pure core -
+    // but one tsconfig covers the package, and the alternative (a second tsconfig per layer) buys nothing
+    // when the probes only ever import the core and `src/game/`. `vite/client` is what types
+    // `import.meta.glob` and `?raw`, which live in `src/data/assets.ts` and nowhere else.
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

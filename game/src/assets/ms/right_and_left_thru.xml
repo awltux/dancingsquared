@@ -1,0 +1,358 @@
+<?xml version="1.0"?>
+<!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
+<!--
+
+    Copyright 2023 Brad Christie
+
+    This file is part of Taminations.
+
+    Taminations is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Taminations is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with Taminations.  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<tamination title="Right and Left Thru">
+
+  <tam title="Right and Left Thru"
+       from="Facing Couples"
+       formation="Facing Couples Compact"
+       parts="3" difficulty="1" sequencer="no">
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="1.5" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="1.5" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+  <!-- SEPARATION SIX. The authorings above are for couples THREE (Facing Couples Compact) and FOUR
+       (Facing Couples, b1) apart; the heads of a Static Square are two couples facing each other SIX
+       apart, so `Heads Right and Left Thru` - SIX of the first-call failures, the largest single
+       group - matched neither. The law is the one every separation fix in this catalogue has used
+       and the two authorings pin it: `scaleX = separation / 2`, so separation 6 gives
+       `scaleX = 3` on the pull-by and the extension. `Beau Wheel`/`Belle Wheel` are NOT scaled:
+       they are the courtesy turn taken at the end, not part of the travel. Everything else is
+       unchanged, and the start formation is written INLINE at x = -3 so the engine's own mirror
+       (180 degrees about the origin) puts the second couple at x = +3.
+
+       MEASURED BLAST RADIUS, because this variant also lets the whole board tile (heads and sides
+       are both facing-couple boxes, so bare `Right and Left Thru` becomes legal from a Static
+       Square): legal calls from a Static Square 232 -> 233, i.e. exactly this one call; the figure
+       suite's first-call failures 13 -> 7; and the motion keeps every couple 2.00 apart, so it does
+       not touch the identity-coherence defect pinned in selection.mjs. -->
+  <tam title="Right and Left Thru"
+       from="Facing Couples"
+       parts="3" difficulty="1" sequencer="no">
+    <formation>
+      <dancer gender="boy" x="-3" y="1" angle="0" />
+      <dancer gender="girl" x="-3" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="3" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+  <!-- SEPARATION TWO, for the Trade By boards. The authorings above are separations THREE (Facing
+       Couples Compact) and SIX (the inline one), and the corpus's remaining `Right and Left Thru`
+       refusals are on a Trade By whose facing couples are TWO apart - so both miss, and it is the
+       largest remaining `no setup matches` group that is not a body error.
+
+       Same law, same number as every other separation fix here: `scaleX = separation / 2` on the
+       pull-by and the extension, so separation 2 gives `1`. `Beau Wheel`/`Belle Wheel` are NOT scaled
+       (the courtesy turn at the end, not travel), and the start formation is written INLINE at x = -1
+       so the engine's own mirror puts the second couple at x = +1.
+
+       MEASURED: see PLAN.md. Authored, then the census and `verify-suite` decide - the same
+       procedure as the `Box the Gnat` separation-6 tam, which is the one that has held. -->
+  <tam title="Right and Left Thru"
+       from="Facing Couples"
+       parts="3" difficulty="1" sequencer="no">
+    <formation>
+      <dancer gender="boy" x="-1" y="1" angle="0" />
+      <dancer gender="girl" x="-1" y="-1" angle="0" />
+    </formation>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="1" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+  <tam title="Right and Left Thru"
+       from="Right-Hand Wave"
+       formation="Wave RH"
+       parts="2" difficulty="1" sequencer="gender-specific">
+    <path>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY="2" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Forward 2" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+  <tam title="Right and Left Thru"
+       from="Lines"
+       formation="Normal Lines"
+       parts="3" difficulty="1" sequencer="gender-specific">
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+  <tam title="Right and Left Thru"
+       from="Eight Chain Thru"
+       formation="Eight Chain Thru"
+       parts="2" difficulty="1" sequencer="gender-specific">
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".5" />
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".5" />
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+  <tam title="Right and Left Thru"
+       from="Right-Hand Waves"
+       formation="Ocean Waves RH BGGB"
+       parts="2" difficulty="1" sequencer="gender-specific">
+    <path>
+      <move select="Extend Right" beats="2" scaleY="2" />
+      <move select="Beau Wheel" scaleX=".5" />
+    </path>
+    <path>
+      <move select="Forward" beats="2" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Forward" beats="2" />
+      <move select="Belle Wheel" scaleX=".5" />
+    </path>
+    <path>
+      <move select="Extend Right" beats="2" scaleY="2" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <taminator>
+      Common after Spin the Top.
+      This is an example of the Ocean Wave Rule.
+    </taminator>
+  </tam>
+
+  <tam title="Right and Left Thru"
+       from="Tidal Wave"
+       formation="Tidal Wave RH BGGB"
+       parts="2" difficulty="1" sequencer="gender-specific">
+    <path>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <taminator>
+      Another example of the Ocean Wave Rule.
+      This is common after Spin the Top.
+    </taminator>
+  </tam>
+
+  <tam title="Heads Right and Left Thru and Back Away"
+       formation="Static Square" display="none" sequencer="gender-specific">
+    <path>
+      <move select="Forward"/>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" offsetX="1"/>
+    </path>
+    <path>
+      <move select="Forward"/>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" offsetX="1"/>
+    </path>
+    <path/>
+    <path/>
+  </tam>
+
+  <tam title="Sides Right and Left Thru and Back Away"
+       formation="Static Square" display="none" sequencer="gender-specific">
+    <path/>
+    <path/>
+    <path>
+      <move select="Forward"/>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" offsetX="1"/>
+    </path>
+    <path>
+      <move select="Forward"/>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" offsetX="1"/>
+    </path>
+  </tam>
+
+  <tam title="Right and Left Thru and a Quarter More" group=" "
+       formation="Normal Lines" parts="3" difficulty="2" sequencer="gender-specific">
+    <path>
+      <move select="Pull Left" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+      <move select="BackHinge Right" />
+    </path>
+    <path>
+      <move select="Pull Left" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+      <move select="Hinge Left"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+      <move select="BackHinge Right" />
+    </path>
+    <path>
+      <move select="Pull Left" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+      <move select="Hinge Left"/>
+    </path>
+  </tam>
+
+  <tam title="Right and Left Thru and a Quarter More" group=" " display="none"
+       from="Eight Chain Thru"
+       formation="Eight Chain Thru"
+       parts="2" difficulty="1" sequencer="gender-specific">
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".5" />
+      <move select="BackHinge Right" scaleX=".5"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".5" />
+      <move select="Hinge Left" scaleX=".5"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+      <move select="BackHinge Right" scaleX=".5"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+      <move select="Hinge Left" scaleX=".5"/>
+    </path>
+  </tam>
+
+  <tam title="Centers Right and Left Thru, Full Turn" group=" "
+       formation="Double Pass Thru" parts="3" difficulty="2" sequencer="gender-specific">
+    <path/>
+    <path/>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="BackHinge Right" scaleX=".5"/>
+      <move select="Beau Wheel" scaleX=".5" scaleY=".5"/>
+      <move select="BackHinge Right" scaleY=".5"/>
+    </path>
+    <path>
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Extend Right" scaleY=".5" />
+      <move select="Hinge Left" scaleX=".5"/>
+      <move select="Belle Wheel" scaleX=".5" scaleY=".5"/>
+      <move select="Hinge Left" scaleY=".5"/>
+    </path>
+  </tam>
+
+
+  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
+       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
+       Basic levels; every other Basic tam is already re-authored here. -->
+<tam title="Right and Left Thru"
+       from="Facing Couples"
+       formation="Facing Couples"
+       parts="3" difficulty="1">
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Beau Wheel" scaleX=".67" />
+    </path>
+    <path>
+      <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
+      <move select="Belle Wheel" scaleX=".67" />
+    </path>
+  </tam>
+
+</tamination>

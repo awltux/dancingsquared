@@ -877,11 +877,42 @@ depth 2 generated **0/8 at every pool size** until it was fixed; the illegal opt
 broke a working depth 1; and the engine's `dist` must be built before any probe runs, because a stale `dist`
 reports `SAME_BOARD_TOL` as a missing export.
 
-**Phase 2 — the stage and the Drill UI, on a locally issued schedule.** The 2D view first, then the 3D view
-over the same contract (decision 7), and the mode itself: the two boards, the three answer buttons, an
-option's replay through `evaluateSequence`, the engine's own reason for the illegal option, the review, and
-the progression from a schedule read from a local fixture — so the mode is playable and testable before any
-AWS resource exists.
+**Phase 2 — the stage and the Drill UI, on a locally issued schedule. DONE.**
+The mode is playable in a browser on locally generated puzzles, on both views. New: `game/index.html`,
+`game/vite.config.ts` (with the POC's engine alias, for one engine instance), `src/data/` (the corpus and the
+level runtime), `src/game/` (`schedule-fixture.ts`, `drill.ts`, `tween.ts` — all engine-free and
+probe-loadable), `src/render/stage-view.ts`, `src/ui/` (`drill-screen.ts`, `playhead.ts`), `src/main.ts`, and
+three new probes (`drill-controller`, `tween`, `schedule-fixture`). Four findings, each with the measurement
+that produced it:
+
+1. **`import.meta.glob` CANNOT REACH OUTSIDE VITE'S ROOT** — and this is the finding that changed the design.
+   `server.fs.allow` governs what may be SERVED, not what may be GLOBBED. With the game's root at `game/` and
+   globs written as `../../poc/src/assets/...`, Vite compiled all three to **empty objects**
+   (`const MOVES = /* #__PURE__ */ Object.assign({})`) and the app sat on "Loading the corpus…" forever.
+   The intended arrangement — one corpus, globbed where it lives — is therefore not achievable by aliasing or
+   by a path alias: `game/src/assets/` is a COPY of `poc/src/assets/`, and `tools/sync-corpus.mjs --check`
+   runs **first in the gate** so the copy cannot drift silently. AGENTS.md §1 still says the corpus lives in
+   `poc/src/assets` and that still holds: what the game ships is a build input with a gate on it.
+2. **The stage draws nothing by itself.** `DancerView.update` only writes poses into the scene graph; there is
+   no animation loop anywhere in `packages/stage`. The app's first frame loop posed the views and never
+   rendered, so the boards were BLACK — and a screenshot of the first screen came back empty, which is how it
+   was found. `Stage.render()` was added to the stage (it owns the camera choice: `out.camera`), and the POC
+   now calls it instead of reaching for `stage.camera` itself.
+3. **Only ONE representation may be visible.** `DancerView` poses the 3D avatar AND the caller moves the flat
+   marker, so showing both draws a humanoid seen from directly overhead — which is what the "lines across the
+   board" in the first usable screenshot were. `poc/src/browser.ts` gates one on the other
+   (`v.group.visible = on && !flat`); `stage-view.ts` does it once for both boards.
+4. **The two boards' scale and offsets are arithmetic, not taste.** The stage frames a 10-unit floor, a board
+   IS 10 units across, so `2·10s + gutter ≤ 10` fixes `s = 0.42` and centres at ±2.9. The first attempt
+   (0.45 at ±2.6) put each board's inner edge INSIDE the other's, so both grids and both sets of dancers
+   overlapped in the middle — the one thing "you are here" and "get here" must never do.
+
+**And what the browser check could NOT settle:** the 3D view renders the same two boards and the toggle works
+(verified: the button flips and the avatars replace the markers), but at the two-board scale a 2-unit avatar
+spans ~1.7 units and the set reads as a tangle rather than as eight figures. A per-view scale was added
+(0.68 in 3D) and it improved but did not finish the job; the camera framing for two boards in an orbit view
+is the open piece. **The 2D view is the verified path** — it is the default, the design asks for it first, and
+every check below was made on it.
 
 **Phase 3 — the Daily UI, the hint, and the live animation.** The offering list built from `legalNext`,
 add/remove and undo/redo over the client sequencer (§4.4), the goal test, the allowance and waste counter, and

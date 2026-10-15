@@ -13,9 +13,25 @@
 // Run: node game/tools/verify-probes.mjs   (from anywhere; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'test');
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const DIR = path.join(HERE, '..', 'test');
+// THE CORPUS COPY IS CHECKED FIRST, AND IT IS NOT A PROBE.
+//
+// game/src/assets is a COPY of poc/src/assets - see tools/sync-corpus.mjs for why the copy has to exist:
+// import.meta.glob cannot reach outside Vite's root. A copy with no check is a fork, which is the failure
+// mode AGENTS.md section 1 warns about, so this runs before any probe and fails the whole gate rather than
+// being discovered when a puzzle comes out wrong. A child process is used because it is a tool with its own
+// exit code, and stdio inherit is what AGENTS.md trap 3 requires under the file sandbox.
+{
+  const sync = spawnSync(process.execPath, [path.join(HERE, 'sync-corpus.mjs'), '--check'], { stdio: 'inherit' });
+  if (sync.status !== 0) {
+    console.error('verify-probes: the corpus copy under game/src/assets has drifted from poc/src/assets.');
+    process.exit(sync.status ?? 1);
+  }
+}
 const all = fs.readdirSync(DIR).filter((f) => f.endsWith('-probe.mjs')).sort();
 if (all.length === 0) {
   console.error(`verify-probes: no probes found in ${DIR}`);

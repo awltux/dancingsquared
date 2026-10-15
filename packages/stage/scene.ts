@@ -73,6 +73,10 @@ export interface Stage {
   setControlsEnabled(on: boolean): void;
   /** Advance both control sets (damping). Call once per frame. */
   updateControls(): void;
+  /** Draw the frame, from whichever camera is on screen. Call once per frame, AFTER `updateControls` — the
+   * stage owns no animation loop of its own, so a host that poses its views and never calls this shows a
+   * blank canvas. */
+  render(): void;
   /** Show the Bezier gizmo for one move, or clear it with `setGizmo(null)`.
    *
    *  A handle is the classic vector-editor gadget: a line from an anchor out to the control point,
@@ -878,6 +882,21 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       // THE LAST WORD ON THE FLAT CAMERA EACH FRAME. Everything above may move it; this decides where it
       // is, and it is the reason the reported tilt cannot recur whatever the input does.
       if (out.camera === camera2d) squareCamera2D();
+    },
+    // DRAW THE FRAME FROM THE CAMERA THAT IS ON SCREEN.
+    //
+    // WHY THIS BELONGS HERE AND NOT AT THE CALL SITE. `out.camera` is which view is active, and that is this
+    // module's fact, not a caller's — the interface already says so about `controls` ("deliberately NOT
+    // exported any more: there is one orbit control per camera, and a caller reaching for 'the' controls
+    // while the 2D view was up is exactly how the 2D camera ended up with no pan and no zoom"). A caller that
+    // rendered `stage.camera` directly would draw the 3D camera while the flat view was on screen, and the
+    // failure is a black or wrong board rather than an error.
+    //
+    // It exists because the stage draws NOTHING by itself: it owns no animation loop. `DancerView.update`
+    // only writes poses into the scene graph, so a host that updates views and never renders shows a blank
+    // canvas — which is exactly what the game did before this method existed.
+    render: () => {
+      renderer.render(scene, out.camera);
     },
     setGizmo,
     pickHandle,

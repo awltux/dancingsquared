@@ -6,7 +6,9 @@
 // levels") and leaves the rest to the generator, so this file answers the question the prose cannot:
 // WHICH LEVELS CAN ACTUALLY PRODUCE A PUZZLE?
 //
-// MEASURED by `game/test/ladder-census-probe.mjs`, 6 seeds per cell, 50 000-node budget:
+// MEASURED by `game/tools/measure-ladder.mjs`, 6 seeds per cell, 50 000-node budget. (This header named
+// `game/test/ladder-census-probe.mjs` until Phase 4.5, which has never existed in this package — the census is
+// a TOOL, because it prints numbers and always exits 0 rather than judging them.)
 //
 //   pool  depth 1            depth 2            depth 3
 //   10    3 opts   150ms     2 opts   260ms     2 opts   290ms

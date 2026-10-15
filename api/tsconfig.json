@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    // NO DOM LIB, DELIBERATELY. This package runs on Node and must not acquire a habit the browser cannot
+    // pay for: `src/ports.ts` hands a handler a plain request object precisely so nothing here reaches for
+    // `fetch`, `window` or a `Headers`. The probes are `.mjs` and are not typechecked, so they may use the
+    // globals Node has (the end-to-end probe drives a real socket with `fetch`).
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    // THE PROBES LOAD THIS SOURCE DIRECTLY under Node's type stripping, so relative specifiers carry `.ts`:
+    // Node's loader does not map `./x.js` onto `x.ts`, and a `.js` specifier would typecheck and then fail at
+    // runtime. Legal only because nothing here ever emits (the deployment copies sources and lets Node run
+    // them, or compiles them with the same setting).
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src"]
+}

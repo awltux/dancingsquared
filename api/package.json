@@ -1,0 +1,20 @@
+{
+  "name": "dancing-squared-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The game's server: DESIGN.md 11's endpoints over injected ports, with a local dev server and an AWS Lambda adapter. No AWS call anywhere until the deployment is wired.",
+
+  "scripts": {
+    "dev": "node src/dev-server.ts",
+    "verify": "node tools/verify-probes.mjs"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.11",
+    "dancing-squared-game": "file:../game"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  }
+}

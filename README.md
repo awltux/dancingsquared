@@ -12,10 +12,11 @@ managed as a single npm workspace.
 | `dancing-squared-teacher` | `poc-teacher/` | Teacher / session tracker: class plans, attendance, and practice tips built from the engine's Sequencer. |
 | `dancing-squared-stage` | `packages/stage/` | The shared Three.js render stage the apps draw through (`scene.ts`, `grid-magnet.ts`), exported as **source** so both apps render through one implementation rather than two. It has no gate of its own: its consumers' gates are its gate, and the probes that load `grid-magnet.ts` are the closest thing to a unit test it has. |
 | `dancing-squared-game` | `game/` | The call game: a seeded puzzle core, the Drill and the Daily, playable offline and (from Phase 5) account-backed. Its design of record is `game/DESIGN.md`, and it has **its own gate** — see `npm run verify:game` below. |
+| `dancing-squared-api` | `api/` | The game's server: the endpoints of `game/DESIGN.md` §11 as handler functions over injected ports, with a local dev server (port **8090**) and an in-memory store. It is the one component that will talk to AWS. **Its own gate** — `npm run verify:api`. |
 | `dancing-squared-matrix-poc` | `poc-matrix/` | Exploratory: whether a call reads as a matrix transformation of (position, heading). **Not in any gate** — its only script is `poc`. |
 
 The engine is what all the others consume (linked as a workspace), so it is the single source of truth for
-all engine logic; the packages with a gate of their own are `engine/`, `poc/`, `poc-teacher/` and `game/`,
+all engine logic; the packages with a gate of their own are `engine/`, `poc/`, `poc-teacher/`, `game/` and `api/`,
 and why each one runs what it runs is `AGENTS.md` §3.
 
 ## Setup
@@ -38,6 +39,8 @@ npm install        # install everything at the root (workspaces)
 | `npm run dev:game`, `npm run build:game`, `npm run preview:game` | The game's Vite dev server (port **8089**, set in `game/vite.config.ts`), its build, and a preview of the build |
 | `npm run build:pool` | Regenerate the game's level pool from the corpus (`game/tools/build-pool.mjs`) |
 | `npm run measure:ladder` | The ladder census: what every level actually costs to generate (`game/tools/measure-ladder.mjs`) |
+| `npm run verify:api` | The API's probe suite: every `api/test/*-probe.mjs` (its typecheck is `npx tsc -p api --noEmit`, for the same reason as the game's) |
+| `npm run dev:api` | The API's local dev server (port **8090**, `DSQ_PORT` to move it), seeded with the game's local schedule fixture and backed by an in-memory store. `x-dev-player: <name>` (or `Authorization: Bearer dev:<name>`) is the development identity |
 | `npm run dev:teacher`, `npm run build:teacher` | The teacher app |
 | `npm run check:book` | The book's link, animation and diagram checks |
 

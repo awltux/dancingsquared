@@ -733,6 +733,19 @@ player therefore gets an issued drill keyed to a device id, and the progression 
 login — the same shape as `POST /me/runs:bulk`, and the reason the Progress row's key includes the player
 rather than the level alone.
 
+**The two Drill endpoints as they are implemented (Phase 5.0), so the client can be written against them.**
+`GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, issuedAtMs,
+optionLabels, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
+level is finished. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
+matters ("is this the drill I issued you?") is an exact comparison against the player's Progress row, and an
+opaque token would need a row or an index to resolve. `POST /drill/advance { drillId }` → `200 { regime }`.
+Refusals are `{ error: { code, message } }` with a status: `400 bad_level`/`bad_drill_id`, `401
+unauthenticated`, `404 no_schedule` (that level has no published regime — the normal state of a fresh
+deployment), `409 stale_drill` (the id is not the one issued) and `409 contended` (three compare-and-set
+attempts lost), `503 unreadable_progress`/`unreadable_schedule`/`unplayable_drill` (a stored row this build
+cannot read, or a published seed that no longer generates — both operator findings rather than client errors).
+**A refusal never writes**, which is what makes a retry safe.
+
 **DynamoDB, one table**, `PK`/`SK`, with a `GSI1 (GSI1PK, GSI1SK)` for the two leaderboard partitions and a
 `seed#playerId` dedup index so a replay does not spam a board with duplicate entries. The item shapes below
 are the storage form of decisions 10, 11 and 15, and of the two published sources of a puzzle:
@@ -1046,6 +1059,47 @@ false after), which a boot-only flag would have got wrong.
 - **THE KEEP-WHAT-IS-STORED RULE APPLIES TO THE DAILY ALONE**, which is what stops it being over-applied: a
   `drill: null` write CLEARS the drill in flight, so a finished drill is not resumed by the next reload.
 
+**Phase 5.0 — the serving surface, locally runnable and probeable. DONE.**
+The API exists as a package (`api/`) with the two Drill endpoints of §11 over three injected ports — an
+`ItemStore` with a compare-and-set `put`, a `Clock`, and a `PlayerIdOf` — plus an in-memory store (the same
+protocol the DynamoDB adapter will implement), a `node:http` dev server seeded with the game's local schedule
+fixture (`npm run dev:api`, port 8090, `x-dev-player: <name>` to be somebody), and `npm run verify:api`. The
+rules live in `api/src/drill-regime.ts`, which is pure over a schedule, a progress row and a clock — exactly
+the shape §14 asks for — and the handlers only read, validate, decide and conditionally write.
+
+**MEASURED, by `api/test/drill-probe.mjs`** (9 sections, 68 checks, 6 negative controls; **4.4 s** in the gate
+run, 10.2 s cold, because it builds three levels' appliers — the last section drives a real socket on an
+ephemeral port):
+- the regime is served in order and an issued drill is LOCKED — asking again returns the same seed and the same
+  issue time, and a resumed read performs **0** writes where an issue performs **1**;
+- **a republished schedule cannot rewrite a drill already handed out**: with all-new seeds at that level the
+  issued drill still comes back with its own seed, where the wrong rule (reading the seed back out of the
+  schedule) would serve the new one;
+- **an advance finishes the drill that was ISSUED**: a repeated advance is refused `409 stale_drill` and the
+  player stays on the next entry, where the plausible wrong rule — "finish the first unfinished entry" —
+  reaches **4 finished with 3 played**;
+- a drill whose `poolVersion` the build does not have is RE-ISSUED rather than served (the lock test is exactly
+  the pool comparison, demonstrated by feeding the row's own version back);
+- a finished regime answers `drill: null` rather than wrapping (the client fixture wraps on purpose; the server
+  must not re-serve a season the score table already holds);
+- the option labels are the ones the same generator produces from that seed (2 of them at level 1, where the
+  solution is 1 call — so "return the solution instead" fails the count check);
+- two concurrent requests agree on ONE issued drill, a lost compare-and-set is retried (2 reads of the row), and
+  a writer that never lands is reported `409 contended` after exactly 3 attempts;
+- an unreadable progress row is a `503` **and the refusal wrote nothing** to it.
+
+**Two things this phase did NOT do, and they are the next commits:** the DynamoDB adapter (the in-memory twin
+implements the same protocol but nothing has yet spoken to DynamoDB Local, so the condition expressions are
+unverified), and the other four endpoints (`GET /puzzle`, `POST /runs`, `POST /me/runs:bulk`,
+`GET /leaderboard`). No Lambda, no template, no Cognito, no AWS call: the SAM CLI is installed
+(1.169.0) and nothing has been deployed.
+
+**One open decision with a number.** `GET /drill/current` generates the puzzle to return `optionLabels` as
+§11 says it should, and that costs **167-230 ms at level 1 and 728-1240 ms at levels 2 and 3** on a warm
+applier, per request — including a resumed read, which is the common case. The client derives the same labels
+from the same seed anyway (§8), so returning only the seed would make every request a data read. The labels are
+served for now because they are the cross-check that the two sides generated the same question.
+
 **Phase 5 — AWS.** Cognito, the six endpoints, the DynamoDB table and its item shapes **including the Hints
 row**, the schedule publishing pipeline, the boundary job for the Daily, verification-by-regeneration and
 clamping, **the server-owned hint ledger**, and the deployment scripts — which live **outside `game/`**, so
@@ -1079,7 +1133,11 @@ hint having nothing to spend until the Drill ships.
   **"the hint ledger grants on the tenth success and never on a client's word"** are decisions about plain
   data, so they are tested as a pure function over a schedule, a run history and a fake progress record. The
   scoring probe pins that a hint is **exactly** a 60-second charge — one added term, not a multiplier — and
-  that it is charged **once** and never refunded by an undo.
+  that it is charged **once** and never refunded by an undo. **Phase 5.0 put the first half of that in place**
+  (`api/src/drill-regime.ts` is the schedule/progress/clock function, with no store, no HTTP and no clock of
+  its own) and `api/test/drill-probe.mjs` pins the two rules that exist there, driving the real handlers over
+  the in-memory store and then over a real socket — so the transport, the identity and the status codes are
+  measured too rather than assumed.
 - **The Drill's question is as probeable as the Daily's**, because both are engine data rather than media:
   which option is correct, that the three options have distinct endings, that the illegal option's reason is
   the engine's own, and that every option applies from the shared start board are all properties of the

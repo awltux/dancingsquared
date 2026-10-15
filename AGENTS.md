@@ -48,6 +48,7 @@ NEXT commit is not green standalone; if you cannot avoid the pair, say so in bot
 |---|---|---|
 | `engine/` | **The thing under test.** `dancing-squared-engine`, TypeScript → `dist/`, renderer-agnostic. `src/sequencer/` holds matcher, applicator, legality, solver, analyser, FSM, alignment. | yes — `engine/test/verify-suite.mjs` |
 | `packages/stage/` | `dancing-squared-stage`: the shared render stage — `scene.ts` (Three.js adapter) and `grid-magnet.ts` (the pure square/radial grid + magnet rule, which is why the probes load it). Exported as **source**, not `dist/`. | yes, via the POC gate |
+| `api/` | `dancing-squared-api`: **the server side of DESIGN.md §11** — the endpoints as handler functions over three injected ports (`ItemStore`, `Clock`, `PlayerIdOf`), with an in-memory store, a `node:http` dev server and (later) an AWS Lambda adapter. It is probe-loadable the same way the game is: the probes drive the handlers, not a mock of them. It reads the corpus through the game's Node loader (`dancing-squared-game/corpus-node`), so there is no second `fs` reader. | yes — `api/tools/verify-probes.mjs` |
 | `game/` | `dancing-squared-game`: the call game. `src/puzzle/` is the **pure, seeded core** (ladder, pool, generator, daily, schedule, session, hints, score) and `src/game/` the run layer (`drill.ts`, `daily-run.ts`, `clock.ts`, `poses.ts`, `store.ts`, `save-state.ts`, `schedule-fixture.ts`), both probe-loadable; the Vite app (`index.html`, `src/main.ts`, `src/render/`, `src/ui/`, `src/data/`) is the browser layer, and `src/assets/` is a CHECKED COPY of `poc/src/assets` (see the gate row). **Engine VALUES are imported where a pure rule is needed** (`sameBoardById`, `boardSig`, `makeSquaredSet`, `computeHandholds`), because a probe imports the same functions and a local copy would be a second implementation; what is reached ONLY through `src/engine/applier.ts` is the **sequencer** — the one mutable engine object. (Until Phase 4.5 this row, and three module headers it was copied from, claimed `applier.ts` was the only file importing an engine value. It was wrong in five files, which is a claim a reader could have trusted.) | yes - `game/tools/verify-probes.mjs` |
 | `poc/` | Three.js app **and the canonical corpus** (`src/assets/`). Sequencer panel, call editor, FSM view, browse view. | yes — `poc/verify.cjs` + `poc/tools/*-probe.mjs` |
 | `poc-teacher/` | Teacher / session tracker app. | yes — `npm run verify:teacher` |
@@ -88,6 +89,7 @@ Run from the **repo root**. `--prefix engine` is not decoration: from inside `en
 | `engine/src/**` | `npm run build --prefix engine` → `npm run verify:light --prefix engine`. **Before landing behaviour**, `npm run verify --prefix engine` (the whole suite — minutes; run it as a background job). |
 | `poc/src/**` (TypeScript) | `npx tsc -p poc --noEmit` → `node poc/verify.cjs` → `node poc/tools/verify-probes.mjs` |
 | `packages/stage/**` | `npx tsc -p packages/stage --noEmit`, then the `poc/src/**` row — `poc` is its only consumer today, so its real gate is the app's and the probes that load `grid-magnet.ts` |
+| `api/**` | `npx tsc -p api --noEmit` → `node api/tools/verify-probes.mjs`. **Rebuild the engine first** (`npm run build:engine`), for the same reason as `game/**`: the api loads the game's Node corpus loader, which imports `dancing-squared-engine` values |
 | `game/**` | `npx tsc -p game --noEmit` → `node game/tools/verify-probes.mjs`. **Rebuild the engine first** (`npm run build:engine`): the game's probes import `dancing-squared-engine` values, so a stale `dist` reports a missing export rather than the thing under test. **The runner checks the corpus copy first** (`tools/sync-corpus.mjs --check`), so an edit under `poc/src/assets` that is not re-copied fails the gate rather than reaching a player as a wrong puzzle |
 | A rule that a probe pins | that probe by name: `node poc/tools/<name>-probe.mjs` |
 | The corpus (`poc/src/assets/**`) | `node engine/test/shape-census.mjs`, then the POC checks above |
@@ -220,10 +222,14 @@ This codebase's comments are load-bearing and are the reason a stranger can chan
 
 - **No secrets in the repo, ever.** Configuration is a `key = value` file with env-var overrides
   (`scripts/deploy-book.mjs`: `BOOK_S3_*`). No tokens in source, no credentials in a committed config, no
-  `.env` in git. Nothing sensitive is currently tracked — keep it that way.
+  `.env` in git. Nothing sensitive is currently tracked — keep it that way. The API's AWS identifiers (account,
+  region, table, user pool) follow the same rule when its deployment lands: a config file plus `DSQ_*`
+  overrides, never a literal.
 - **The apps are offline.** `poc/` makes no network calls; `poc-teacher/` works against local state
   (`localStorage`) and the local engine. Do not add a remote call, a telemetry beacon or an external font
-  without an explicit decision recorded in the commit message.
+  without an explicit decision recorded in the commit message. **`api/` is the other side of that boundary** —
+  it is the one component that talks to AWS by design, and the game stays offline-first whether or not it is
+  ever deployed, because `VITE_API_BASE` unset is today's behaviour.
 - **Escape anything that goes into `innerHTML`.** `esc()` from `poc/src/dom.ts` is the one rule, in one
   place, and it exists precisely because authored data — a call's `from` label, a user-defined formation's
   name, a module name — must not become markup. Prefer `textContent`; if you build markup, interpolate only
@@ -328,6 +334,13 @@ with its measurement, in the same commit that found it.
     same `EIO` this file's trap 5 records, which here is the watcher holding the file rather than a disk
     hiccup. Retrying does not clear it: stop the dev server (`job_kill`, then confirm the port is free) before
     editing under a watched tree, and restart it after.
+20. **Never kill every `node` process (`Stop-Process -Name node`, `taskkill /IM node.exe`).** The harness, every
+    agent's subprocess runner, a Vite dev server and the probes themselves are all `node`, so a blanket kill
+    takes out the session that issued it: MEASURED, a smoke test whose last statement was
+    `Stop-Process -Name node` was **interrupted with no result durably recorded**, and a runner from another
+    clone was live at the time. Stop a process by id (`job_kill` for a job you started, or the `$PID` you
+    captured), never by image name — and a port check afterwards (`Test-NetConnection`) is how to confirm it
+    actually went.
 
 ---
 

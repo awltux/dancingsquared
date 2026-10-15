@@ -12,6 +12,10 @@
     "./corpus-node": {
       "types": "./src/data/corpus-node.ts",
       "import": "./src/data/corpus-node.ts"
+    },
+    "./schedule-fixture": {
+      "types": "./src/game/schedule-fixture.ts",
+      "import": "./src/game/schedule-fixture.ts"
     }
   },
   "scripts": {

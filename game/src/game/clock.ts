@@ -30,6 +30,26 @@ export class Stopwatch {
     this.stoppedAt = nowMs;
   }
 
+  /**
+   * Re-base a clock onto a run that began BEFORE this page was open.
+   *
+   * THE ORIGIN MOVES, NOT THE READING. `elapsedSeconds(nowMs)` is `now - startedAt`, so resuming a run that
+   * had already spent 40 seconds means starting the clock 40 seconds ago — there is no separate "elapsed so
+   * far" field to drift out of step with it, and no second clock for the resumed run to disagree with.
+   *
+   * IT LEAVES THE CLOCK RUNNING, because that is what a resumed run is. A caller resuming a run whose clock
+   * had already STOPPED (a solved Daily) calls `stop(nowMs)` straight after, which freezes it at exactly the
+   * elapsed it was given — the same two calls that produced the original state.
+   *
+   * A NEGATIVE `elapsedMs` IS CLAMPED TO ZERO rather than trusted: it can only come from a corrupt record or
+   * a clock that moved backwards, and either way the player has not been running for negative time.
+   */
+  resume(nowMs: number, elapsedMs: number): void {
+    const elapsed = Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : 0;
+    this.startedAt = nowMs - elapsed;
+    this.stoppedAt = null;
+  }
+
   /** Whether the clock is running now (started and not stopped). */
   get isRunning(): boolean {
     return this.startedAt !== null && this.stoppedAt === null;

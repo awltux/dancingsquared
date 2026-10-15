@@ -27,6 +27,7 @@
 //      reason is the same: the storage is a convenience, and the game is the product.
 
 import { MAX_SAVED_RUNS, SAVE_KEY } from '../puzzle/config.ts';
+import type { DailyOutcome } from './daily-run.ts';
 import { sanitiseLedger, type HintLedger } from '../puzzle/hints.ts';
 
 /** The schema version written into every record. Bump it whenever a field changes meaning or shape. */
@@ -65,7 +66,6 @@ export interface DailySaved {
   savedAtMs: number;
 }
 
-export type DailyOutcome = 'playing' | 'solved' | 'given-up';
 
 /**
  * One completed run — the payload Phase 5 submits, minus everything the server re-derives.

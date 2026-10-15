@@ -153,5 +153,27 @@ console.log('== the ATTEMPT count prices every answer that was not correct ==');
   // a total that is one short as well. The discriminating check for the illegal case is the first of them.
 }
 
+console.log('\n== the drill resumes where it was issued ==');
+{
+  // A TWO-STEP PUZZLE, because a resume is only interesting in the middle: the fixture the other checks use
+  // has one step, where `index: 1` is simply the end.
+  const GOAL2 = board(3);
+  const step2 = { from: GOAL, moves: [{ call: 'Again', board: GOAL2 }], correctIndex: 0, after: GOAL2 };
+  const twoStep = { ...puzzle, goal: GOAL2, path: [START, GOAL, GOAL2], steps: [step, step2], solution: ['Right Way', 'Again'], shortest: 2 };
+
+  const resumed = new DrillController(twoStep, { index: 1, attempts: 1 });
+  check(resumed.view().stepIndex === 1, `a resumed drill is on the step it had reached (${resumed.view().stepIndex})`);
+  check(resumed.step.from === GOAL, 'and asks its question from that step\'s own board');
+  check(!resumed.atEnd, 'so it is not finished');
+  check(resumed.view().attempts === 1, `and it carries the wrong tries it had taken (${resumed.view().attempts})`);
+  // NEGATIVE CONTROLS, MEASURED, one line each: a constructor that ignored `opts.index` reddens the two step
+  // checks and the clamping check (the machine restarts at step 1, so a reload forgives a step it had
+  // answered), and one that ignored `opts.attempts` reddens the attempts check alone.
+  const clamped = new DrillController(twoStep, { index: 99, attempts: -3 });
+  check(clamped.atEnd && clamped.view().attempts === 0, 'an out-of-range record is CLAMPED rather than trusted');
+  const fresh = new DrillController(twoStep);
+  check(!fresh.atEnd && fresh.view().stepIndex === 0 && fresh.view().attempts === 0, 'and no options is the fresh state every other probe here uses');
+}
+
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

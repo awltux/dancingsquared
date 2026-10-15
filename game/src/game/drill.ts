@@ -71,9 +71,24 @@ export class DrillController {
   private index = 0;
   private attemptsCount = 0;
 
-  constructor(puzzle: Puzzle) {
+  /**
+   * `opts` resumes a drill the player was ISSUED before this page was open (DESIGN.md 8: a drill is locked
+   * when it is issued, so a reload continues that drill rather than drawing a new one).
+   *
+   * WHY THE STEP AND THE ATTEMPTS COME BACK. Restarting the steps would make a player who had already
+   * answered step 1 of 2 pay for it twice, and zeroing the attempts would forgive wrong tries the score is
+   * priced on (`attemptFactor`) — so a reload, which is not the player's fault, would be a way to improve a
+   * score. The clock is the shell's business and is re-based there, for the same reason.
+   *
+   * A RECORD OUT OF RANGE IS CLAMPED rather than trusted: `index` is bounded by the puzzle's own step count
+   * and both counts are floored at zero, so a hand-edited save cannot put the machine in a state no player
+   * could reach.
+   */
+  constructor(puzzle: Puzzle, opts: { index?: number; attempts?: number } = {}) {
     if (puzzle.steps.length === 0) throw new Error('a puzzle with no steps cannot be played');
     this.puzzle = puzzle;
+    this.index = Math.min(Math.max(0, Math.floor(opts.index ?? 0)), puzzle.steps.length);
+    this.attemptsCount = Math.max(0, Math.floor(opts.attempts ?? 0));
   }
 
   /**

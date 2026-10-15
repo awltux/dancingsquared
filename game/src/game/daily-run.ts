@@ -24,6 +24,7 @@ import { elapsedSeconds, scoreRun, type RunScore } from '../puzzle/score.ts';
 import { PlaySession, type Verdict } from '../puzzle/session.ts';
 import type { GameApplier, LevelSpec, Move, Puzzle } from '../puzzle/types.ts';
 import { Stopwatch } from './clock.ts';
+import type { DailySaved } from './store.ts';
 
 /** How a run stands. `playing` is the only state in which a call may be added. */
 export type DailyOutcome = 'playing' | 'solved' | 'given-up';
@@ -89,6 +90,67 @@ export class DailyRun {
     this.clock.start(nowMs);
   }
 
+  /**
+   * A run picked up from a saved record — the inverse of `save`, and the only way to build one that is not
+   * starting now.
+   *
+   * THE CLOCK IS RE-BASED, NOT RESTARTED, and the GAP IS CHARGED: `gapMs` is the wall time the page was not
+   * open (`store.wallGapMs`), and adding it is what stops a reload from being a pause button in the middle
+   * of a timed puzzle. A run whose clock had already STOPPED (solved, or given up) gets no gap, because a
+   * stopped clock was not counting while the page was away.
+   *
+   * A RECORD IS REJECTED, NOT REPAIRED, when the line no longer applies: the moves are replayed through the
+   * same `play` the player's clicks go through, and a move the engine now refuses means this record does not
+   * describe this puzzle — null, and the caller issues a fresh challenge. THAT IS THE ONE CASE A POOL OR
+   * CORPUS CHANGE PRODUCES, and it is why the check is here rather than trusted from the store: only the
+   * engine can say whether a call still applies.
+   */
+  static resume(
+    puzzle: Puzzle,
+    applier: GameApplier,
+    nowMs: number,
+    saved: DailySaved,
+    opts: { gapMs?: number; allowance?: number } = {},
+  ): DailyRun | null {
+    const run = new DailyRun(puzzle, applier, nowMs, opts.allowance);
+    const elapsedMs = saved.outcome === 'playing' ? saved.elapsedMs + Math.max(0, opts.gapMs ?? 0) : saved.elapsedMs;
+    run.clock.resume(nowMs, elapsedMs);
+    run.hintsUsed = Math.max(0, saved.hintsUsed);
+    run.hintedCall = saved.hintedCall;
+    for (const call of saved.moves) {
+      const result = run.play(call, nowMs);
+      if (result.verdict === 'illegal' || result.verdict === 'over') return null;
+    }
+    // A FINISHED RUN IS REPRODUCED FROM ITS OWN TERMS: the moves above re-reach the goal (which calls
+    // `finish` at the frozen elapsed) or the record is inconsistent with itself and is refused.
+    if (saved.outcome === 'solved' && run.outcome !== 'solved') return null;
+    if (saved.outcome === 'given-up') run.giveUp(nowMs);
+    return run;
+  }
+
+  /**
+   * The run as a record, for the save.
+   *
+   * `elapsedMs` IS THE CLOCK, never the hint-charged total (`view().elapsedSeconds` adds the charge): the
+   * charge is derived from `hintsUsed` wherever it is needed, and storing both would be two numbers that
+   * could disagree after a retune of the penalty.
+   *
+   * THE DAY IS PASSED IN because a run does not know which day it is playing — the challenge's identity is
+   * `(day, level)` and the app is what holds the calendar (`utcDay`), so the run records the day it is told
+   * rather than asking a clock of its own (AGENTS.md 4.3: no ambient time in a computation).
+   */
+  save(day: string, nowMs: number, wallNowMs: number): DailySaved {
+    return {
+      day,
+      levelIndex: this.puzzle.level.index,
+      moves: this.session.moves,
+      hintsUsed: this.hintsUsed,
+      hintedCall: this.hintedCall,
+      elapsedMs: Math.round(this.clock.elapsedSeconds(nowMs) * 1000),
+      outcome: this.outcome,
+      savedAtMs: Math.round(wallNowMs),
+    };
+  }
   /** The board the player is standing on. */
   get board(): Board {
     return this.session.board;

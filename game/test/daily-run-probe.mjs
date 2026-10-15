@@ -187,5 +187,86 @@ console.log('\n== 6. giving up freezes the time and produces no score ==');
   check(review.shortest.length === 2 && review.shortest[0] === 'go-b', `and the generator's shortest (${review.shortest.join(' ')})`);
 }
 
+console.log('\n== 7. a run survives a reload, and the gap is charged ==');
+{
+  // THE ROUND TRIP THE PHASE EXISTS FOR. `save` writes the RUN's clock (never the hint-charged total) and
+  // `resume` rebuilds the run from it: the same board, the same line, the same hints, and a clock that kept
+  // running while the page was closed.
+  const run = fresh();
+  run.takeHint();
+  run.play('go-b', 1000);
+  const saved = run.save('2026-10-15', 1000, 5000);
+  check(saved.day === '2026-10-15' && saved.outcome === 'playing', `the record names the day and the state (${saved.day}, ${saved.outcome})`);
+  check(saved.moves.length === 1 && saved.moves[0] === 'go-b', `and the line played so far (${saved.moves.join(' ')})`);
+  check(saved.elapsedMs === 1000, `and the CLOCK, not the hint-charged total (${saved.elapsedMs} ms, where the view charges the minute separately)`);
+  // A MOVE CLEARS THE MARKER, and the record carries the cleared one: the marker names a call from the board
+  // the player is standing on, and the move took them off it. The charge stays, which is the no-refund rule.
+  check(saved.hintedCall === null, 'a moved-past hint saves no marker');
+  check(saved.hintsUsed === 1, 'while its charge does, because an undo cannot refund it and neither can a reload');
+
+  const resumed = DailyRun.resume(puzzle, applier, 20000, saved, { gapMs: 4000 });
+  check(resumed !== null, 'the record resumes');
+  check(resumed.board === B, 'onto the board the player had reached');
+  check(resumed.view(20000).moves.join(' ') === 'go-b', 'with the line intact');
+  check(resumed.view(20000).hintsUsed === 1, 'and the hint still spent');
+  check(resumed.view(20000).hintedCall === null, 'and no marker left over for a board the player has left');
+
+  // THE OTHER DIRECTION: a marker that WAS still valid when the page closed comes back, because it names a
+  // call the resumed run is still standing in front of.
+  const standing = fresh();
+  const hint = standing.takeHint();
+  const markerSaved = standing.save('2026-10-15', 500, 5000);
+  check(markerSaved.hintedCall === hint.call, 'a hint taken and not yet acted on saves its marker');
+  const markerBack = DailyRun.resume(puzzle, applier, 20000, markerSaved, { gapMs: 0 });
+  check(markerBack !== null && markerBack.view(20000).hintedCall === hint.call, 'and the resumed run shows it again');
+  // THE GAP, which is the anti-pause rule: 1 s of play + 4 s away reads as 5 s of clock, and the hint's
+  // minute is on top of that.
+  check(resumed.view(20000).elapsedSeconds === 65, `the away time is charged to the clock (${resumed.view(20000).elapsedSeconds}s = 1 + 4 + 60)`);
+  check(resumed.play('go-d', 20000).verdict === 'correct', 'and the resumed run can be finished');
+}
+
+console.log('\n== 8. a FINISHED run comes back finished, at its own time ==');
+{
+  const run = fresh();
+  run.play('go-b', 1000);
+  run.play('go-d', 4000);
+  const before = run.view(4000);
+  const saved = run.save('2026-10-15', 4000, 5000);
+  check(saved.outcome === 'solved' && saved.elapsedMs === 4000, `the solved run saves its frozen clock (${saved.elapsedMs} ms)`);
+
+  // A STOPPED CLOCK GETS NO GAP: the page was away for a minute, but the clock had already stopped, so
+  // charging it would move the result the player earned.
+  const resumed = DailyRun.resume(puzzle, applier, 65000, saved, { gapMs: 60000 });
+  check(resumed !== null, 'the solved record resumes');
+  const after = resumed.view(65000);
+  check(after.outcome === 'solved', 'still solved');
+  check(after.result !== null && after.result.score === before.result.score, `with exactly the score it earned (${after.result?.score})`);
+  check(after.elapsedSeconds === before.elapsedSeconds, `and exactly its time (${after.elapsedSeconds}s)`);
+  check(resumed.review().mine.join(' ') === 'go-b go-d', 'and the review can dance the line it was played with');
+
+  const givenUp = fresh();
+  givenUp.play('go-b', 1000);
+  givenUp.giveUp(9000);
+  const back = DailyRun.resume(puzzle, applier, 60000, givenUp.save('2026-10-15', 9000, 9500), { gapMs: 50000 });
+  check(back !== null && back.view(60000).outcome === 'given-up', 'a given-up run comes back given up');
+  check(back.view(60000).result === null && back.view(60000).elapsedSeconds === 9, `with no score and its own time (${back.view(60000).elapsedSeconds}s)`);
+}
+
+console.log('\n== 9. a record that no longer applies is REFUSED, not repaired ==');
+{
+  const run = fresh();
+  run.play('go-b', 1000);
+  const saved = run.save('2026-10-15', 1000, 5000);
+  // NEGATIVE CONTROL, MEASURED: the stub refuses `stuck` (it is the illegal call), so this is the state a
+  // pool or corpus change leaves behind — a saved line whose calls no longer apply. A resume that ignored the
+  // verdict would rebuild a run that does not match the record it was given.
+  const refused = DailyRun.resume(puzzle, applier, 20000, { ...saved, moves: ['stuck'] }, {});
+  check(refused === null, 'a saved line containing a call the engine now refuses does not resume');
+  // And a record that contradicts itself — a solved state whose line does not solve — is refused too: the
+  // moves are the truth and the outcome has to agree with them.
+  const contradictory = DailyRun.resume(puzzle, applier, 20000, { ...saved, outcome: 'solved' }, {});
+  check(contradictory === null, 'nor does a record claiming a solve its own moves do not reach');
+}
+
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

@@ -21,6 +21,7 @@ import {
   bestScore,
   SAVE_VERSION,
 } from '../src/game/store.ts';
+import { Stopwatch } from '../src/game/clock.ts';
 import { HINT_CAP, HINT_SUCCESS_STEP, MAX_SAVED_RUNS, SAVE_KEY, SCORE_VERSION } from '../src/puzzle/config.ts';
 
 let failures = 0;
@@ -239,6 +240,32 @@ console.log('\n== 13. how big the record is ==');
   check(bytes < 200_000, `and it is small enough for localStorage by two orders of magnitude (${bytes} < 200000)`);
   const back = loadGame(memory({ [SAVE_KEY]: JSON.stringify(state) }), POOL);
   check(back.state.runs.length === MAX_SAVED_RUNS && back.dropped === 0, 'and a full record loads without dropping anything');
+}
+
+console.log('\n== 14. a resumed clock is RE-BASED, not restarted ==');
+{
+  // THE ORIGIN MOVES AND THE READING FOLLOWS, which is why there is no separate "elapsed so far" field for a
+  // resumed run to disagree with. Measured on the clock itself, before any run uses it.
+  const clock = new Stopwatch();
+  clock.start(1000);
+  check(clock.elapsedSeconds(3000) === 2, `a started clock reads the time since it started (${clock.elapsedSeconds(3000)}s)`);
+  clock.resume(20000, 40000);
+  check(clock.isRunning, 'a re-based clock is running');
+  check(clock.elapsedSeconds(20000) === 40, `and reads exactly the elapsed it was handed (${clock.elapsedSeconds(20000)}s)`);
+  check(clock.elapsedSeconds(25000) === 45, 'and keeps counting from there');
+  // A STOPPED CLOCK IS FROZEN WHERE IT WAS, which is the second half of the resume rule: a finished run gets
+  // no gap because its clock had already stopped.
+  clock.stop(30000);
+  check(clock.isStopped && clock.elapsedSeconds(90000) === 50, `and stopping freezes it (${clock.elapsedSeconds(90000)}s)`);
+  // NEGATIVE CONTROLS, MEASURED: a `resume` that kept its old origin reddens THREE checks here — the two
+  // "exactly the elapsed" readings and the frozen reading after `stop`.
+  const negative = new Stopwatch();
+  negative.resume(1000, -5000);
+  check(negative.elapsedSeconds(1000) === 0, 'a negative elapsed reads as zero at the moment of the resume');
+  // THE LATER READING IS WHAT THE CLAMP IS FOR, and the first check does not catch it: `elapsedSeconds` floors
+  // at zero on its own, so an origin five seconds in the FUTURE still reads 0 now and then jumps. MEASURED:
+  // removing the clamp in `resume` leaves the check above green and reddens this one.
+  check(negative.elapsedSeconds(3000) === 2, `and two seconds later it reads two (${negative.elapsedSeconds(3000)}s, where an unclamped origin would read five seconds ahead of the run)`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

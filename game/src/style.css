@@ -186,6 +186,15 @@ body {
   font-size: 0.9rem;
 }
 
+/* THE LOCAL LEDGER LINE, under the hint balance: same voice as the balance, one step quieter, because it is
+   a statement about this device rather than a control. */
+#ledger {
+  margin: 0 0 8px;
+  color: var(--dim);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
 #verdict,
 #dailyVerdict {
   margin-top: 16px;

@@ -28,11 +28,26 @@ import { levelSpec } from './puzzle/levels.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun } from './puzzle/score.ts';
 import { EMPTY_LEDGER, earningProgress, recordSuccess, spendHint, type HintLedger } from './puzzle/hints.ts';
+import { SCORE_VERSION } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, SequenceMotion } from './puzzle/types.ts';
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
+import {
+  bestScore,
+  emptySave,
+  loadGame,
+  newRunId,
+  recordRun,
+  saveGame,
+  wallGapMs,
+  SAVE_VERSION,
+  type DrillSaved,
+  type RunRecord,
+  type SavedGame,
+  type StorageLike,
+} from './game/store.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
@@ -62,13 +77,36 @@ let position = 0;
 let daily: DailyRun | null = null;
 let dailyDay = '';
 let dailyLevelIndex = 0;
+/** The seed today's challenge was issued from, for the run record (a run names the puzzle it played). */
+let dailyRunSeed = 0;
 
 /** The motion the drawing loop should sample, or null when nothing is replaying. */
 let replay: SequenceMotion | null = null;
 let replayOutcome: ReplayOutcome = 'settle';
 
-/** The player's hints: earned on the drill line, spent on the Daily. In memory until Phase 4 persists it. */
+/** The player's hints: earned on the drill line, spent on the Daily (DESIGN.md 10). */
 let ledger: HintLedger = EMPTY_LEDGER;
+
+/**
+ * THE SAVED GAME. `saved` is the record as last read or written, `runs` its ledger, and `saving` whether the
+ * browser is keeping anything at all — the flag the footer's readout says "saving is off" from. Everything
+ * the app persists flows through `persist()` below, so there is exactly one place that builds the record.
+ */
+let saved: SavedGame = emptySave(MAIN_POOL.version, 1, 0);
+let runs: RunRecord[] = [];
+let saving = true;
+
+/** The id of the run in flight, generated once so recording it twice is idempotent (`recordRun` dedupes). */
+let drillRunId = '';
+let dailyRunId = '';
+/** The wall clock the issued drill was handed out at, and the calls it has advanced with, both persisted. */
+let drillIssuedAtMs = 0;
+let drillOptions: string[] = [];
+/**
+ * The drill positions whose success has ALREADY been counted (DESIGN.md 11's Progress: "the set of finished
+ * ones"). Re-solving one — by pressing Next and returning, or by reloading — must not mint a second hint.
+ */
+let finished: number[] = [];
 
 let lastFrameMs = 0;
 
@@ -81,6 +119,7 @@ const els = {
   drillPanel: el('drill'),
   dailyPanel: el('daily'),
   balance: el('balance'),
+  ledger: el('ledger'),
   hint: el<HTMLButtonElement>('hint'),
   review: el<HTMLButtonElement>('review'),
   undo: el<HTMLButtonElement>('undo'),
@@ -141,6 +180,133 @@ function paintBalance(): void {
   els.hint.disabled = ledger.hints <= 0 || !playing;
 }
 
+// -------------------------------------------------------------------------------------------- the saved game
+
+/**
+ * The browser's storage, or a stand-in that refuses.
+ *
+ * THE PROPERTY ACCESS IS THE THING THAT THROWS, not the read: a blocked origin raises on `window.localStorage`
+ * itself, so a `try` around the first `getItem` would never see it. A stand-in that throws on both calls is
+ * what makes `loadGame` report `saving: false` and the footer say what is true.
+ */
+function browserStorage(): StorageLike {
+  try {
+    const store = window.localStorage;
+    if (store) return store;
+  } catch {
+    /* a blocked origin throws here rather than on the first call */
+  }
+  return {
+    getItem: () => {
+      throw new Error('local storage is not available');
+    },
+    setItem: () => {
+      throw new Error('local storage is not available');
+    },
+  };
+}
+
+const storage = browserStorage();
+
+/** The issued drill as a record, or null when there is nothing in flight to resume. */
+function drillSavedState(): DrillSaved | null {
+  if (!controller || controller.atEnd) return null;
+  return {
+    runId: drillRunId,
+    startedAtMs: drillIssuedAtMs,
+    attempts: controller.attempts,
+    index: controller.view().stepIndex,
+    options: [...drillOptions],
+  };
+}
+
+/**
+ * Build the record from the live state and write it. THE ONLY PLACE A SAVE IS BUILT.
+ *
+ * IT IS CALLED AFTER EVERY MUTATION rather than on a timer: a mutation is the only thing that changes what is
+ * stored, the record is a couple of kilobytes, and a periodic save would be a second schedule to reason about
+ * (and would still lose the last move). What is NOT saved on a timer is the CLOCK — a resume charges the wall
+ * gap from `savedAtMs`, so the elapsed does not have to be written every second to stay honest.
+ */
+function persist(): void {
+  saved = {
+    ...saved,
+    version: SAVE_VERSION,
+    poolVersion: MAIN_POOL.version,
+    levelIndex: level?.index ?? saved.levelIndex,
+    drillPosition: position,
+    finished,
+    drillRun: drillSavedState(),
+    // A DRILL MUTATION MUST NOT DISCARD THE DAILY'S RECORD. With no run in memory the field keeps what the
+    // save already held: the Daily is resumed lazily (the tab opens on the Drill), so a `null` here would wipe
+    // an attempt the player never got the chance to resume — MEASURED in the browser: booting, solving a drill
+    // and reloading showed today's Daily back at 0:00 with an empty line. A live run always replaces it, and a
+    // record from another day is simply not resumed.
+    daily: daily && dailyDay ? daily.save(dailyDay, dailyRunId, performance.now(), Date.now()) : saved.daily,
+    hints: ledger,
+    runs,
+    savedAtMs: Date.now(),
+  };
+  // WHETHER SAVING WORKS IS THE LAST WRITE'S ANSWER, so a browser that starts refusing says so from then on.
+  saving = saveGame(storage, saved);
+  paintLedger();
+}
+
+/** What is kept on this device, or that nothing is. */
+function paintLedger(): void {
+  const count = runs.length;
+  const best = bestScore(runs, SCORE_VERSION);
+  els.ledger.textContent = saving
+    ? count === 0
+      ? 'Saved on this device: nothing yet'
+      : `Saved on this device: ${count} run${count === 1 ? '' : 's'}${best === null ? '' : ` · best ${best}`}`
+    : 'Saving is off — this browser blocks local storage, so progress will not be kept.';
+}
+
+/**
+ * Record a completed Drill run, ONCE.
+ *
+ * `runId` IS GENERATED WHEN THE DRILL IS ISSUED rather than here, so a second call for the same run is
+ * deduped by `recordRun` instead of appending a duplicate — the same idempotence Phase 5's claim has, and the
+ * reason a screen that repaints after a solve cannot double-count.
+ */
+function recordDrillRun(seed: number, elapsedSeconds: number, score: number): void {
+  runs = recordRun(saved, {
+    runId: drillRunId,
+    mode: 'drill',
+    levelIndex: level?.index ?? 1,
+    poolVersion: MAIN_POOL.version,
+    seed,
+    position,
+    options: [...drillOptions],
+    elapsedSeconds,
+    attempts: controller?.attempts ?? 0,
+    score,
+    scoreVersion: SCORE_VERSION,
+    recordedAtMs: Date.now(),
+  }).runs;
+}
+
+/** Record a completed Daily run. Only a SOLVED one: a run nobody finished is not a run to submit (§11). */
+function recordDailyRun(seed: number, elapsedSeconds: number, score: number): void {
+  if (!daily) return;
+  runs = recordRun(saved, {
+    runId: dailyRunId,
+    mode: 'daily',
+    levelIndex: dailyLevelIndex,
+    poolVersion: MAIN_POOL.version,
+    seed,
+    day: dailyDay,
+    moves: daily.view(performance.now()).moves,
+    hintsUsed: daily.view(performance.now()).hintsUsed,
+    elapsedSeconds,
+    attempts: 0,
+    score,
+    scoreVersion: SCORE_VERSION,
+    recordedAtMs: Date.now(),
+  }).runs;
+}
+
 /**
  * Switch to a mode from a CLICK on the mode switch.
  *
@@ -190,6 +356,12 @@ function startDrill(next: number): void {
   els.loading.hidden = false;
   els.loading.textContent = `Generating drill ${position + 1} of ${scheduleLength()}…`;
   useLevel(spec);
+  if (saved.savedAtMs > 0 && saved.levelIndex !== spec.index) {
+    // THE FIXTURE IS THE REGIME (until Phase 5 serves one), and the save's level is a record of what the app
+    // last believed. A disagreement means the schedule moved under the player, which is a data question to
+    // report rather than to hide (AGENTS.md 4.1) — and the schedule wins, because the entry IS the question.
+    console.warn(`the save has level ${saved.levelIndex} and drill ${position + 1} is level ${spec.index}; the schedule wins`);
+  }
   const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), entry.seed, spec, applier as GameApplier);
   els.loading.hidden = true;
 
@@ -202,9 +374,26 @@ function startDrill(next: number): void {
     return;
   }
 
-  controller = new DrillController(result.puzzle);
+  // A SAVED DRILL AT THIS POSITION IS CONTINUED, not re-drawn: DESIGN.md 8 locks a drill when it is issued,
+  // so the same seed comes back with the step the player had reached and the wrong tries already taken, and
+  // the clock carries the time the page was closed. A record for a DIFFERENT position is left alone — that is
+  // a drill the player has moved past, and its position is what says so.
+  const carrying: DrillSaved | null = saved.drillRun && saved.drillPosition === position ? saved.drillRun : null;
+  controller = new DrillController(
+    result.puzzle,
+    carrying ? { index: carrying.index, attempts: carrying.attempts } : {},
+  );
+  drillOptions = carrying ? [...carrying.options] : [];
+  drillIssuedAtMs = carrying ? carrying.startedAtMs : Date.now();
+  drillRunId = carrying ? carrying.runId : newRunId(Date.now());
   drillClock = new Stopwatch();
-  drillClock.start(performance.now());
+  if (carrying) {
+    // THE ELAPSED IS WALL TIME because the issue stamp is: the run began when the entry was SHOWN, so the
+    // minute the page spent closed is a minute of the run (and a reload is therefore not a pause).
+    drillClock.resume(performance.now(), Math.max(0, Date.now() - carrying.startedAtMs));
+  } else {
+    drillClock.start(performance.now());
+  }
   PLAYHEAD.cancel();
   replay = null;
   els.regime.textContent = `The Drill — drill ${position + 1} of ${scheduleLength()}, level ${spec.index}`;
@@ -214,6 +403,7 @@ function startDrill(next: number): void {
   els.next.hidden = true;
   captions(result.puzzle.start, result.puzzle.goal);
   paintBalance();
+  persist();
   draw();
 }
 
@@ -235,6 +425,9 @@ function answer(choice: number | 'unknown'): void {
     // is exactly why the illegal choice is a separate field on the step rather than one of the options.
     drillScreen.say(`That cannot be called from here. ${result.reason ?? ''}`.trim(), 'bad');
     settleDrill();
+    // THE ATTEMPT IS PERSISTED EVEN THOUGH THE BOARD DID NOT MOVE: a refused call is one of the wrong tries
+    // the score is priced on, and a reload must not forgive it.
+    persist();
     return;
   }
 
@@ -242,6 +435,9 @@ function answer(choice: number | 'unknown'): void {
   // duration chosen here: a Swing takes longer to dance than a Touch a Quarter, and a fixed 700 ms made every
   // call the same length.
   if (result.kind === 'correct') {
+    // THE CALLED PATH IS THE RUN'S TRANSCRIPT: one entry per step the player advanced, which is what the
+    // Drill's submission carries (§11: the server re-derives which option was correct, so this is the claim).
+    drillOptions.push(result.call);
     drillScreen.say(`${result.call} — correct.`, 'ok');
     startReplay(applier.motion([result.call], result.replayFrom as Board), 'advance');
   } else {
@@ -250,6 +446,7 @@ function answer(choice: number | 'unknown'): void {
     drillScreen.say(`${result.call} is legal, but it does not leave the set on the goal board.`, 'bad');
     startReplay(applier.motion([result.call], result.replayFrom as Board), 'settle');
   }
+  persist();
 }
 
 /**
@@ -296,15 +493,24 @@ function finishDrill(): void {
   drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points.`, 'ok');
   els.review.hidden = true;
   els.next.hidden = false;
-  // A COMPLETED DRILL IS ONE SUCCESS, and a success is a correct answer whether first try or after replays
-  // (DESIGN.md 10) — which is why this is here rather than on every correct step, and why a REVIEWED step
-  // never reaches it.
-  const granted = recordSuccess(ledger);
-  ledger = granted.ledger;
-  if (granted.granted) drillScreen.say(`Solved — and that earned a hint (${ledger.hints} of 3 held).`, 'ok');
+  // A COMPLETED DRILL IS ONE SUCCESS — ONCE. A success is a correct answer whether first try or after
+  // replays (DESIGN.md 10), but re-solving a drill the player has ALREADY finished is not a ranked answer:
+  // DESIGN.md 11's Progress keeps "the set of finished ones", and without that set a reload (which re-issues
+  // the entry) or a Next-and-return would mint a hint every time. The BALANCE is the thing worth protecting
+  // here — the board cannot be farmed either way, because it takes the player's best (§6).
+  if (!finished.includes(position)) {
+    finished.push(position);
+    const granted = recordSuccess(ledger);
+    ledger = granted.ledger;
+    if (granted.granted) drillScreen.say(`Solved — and that earned a hint (${ledger.hints} of 3 held).`, 'ok');
+  }
   drillScreen.render(controller);
   captions(controller.view().from, controller.puzzleRef.goal);
   paintBalance();
+  // ONE RUN, RECORDED ONCE, keyed on the id issued with the drill — so a repaint after the solve appends
+  // nothing. `scheduleEntryFor` is where the seed comes from, and it is the same one the puzzle was built on.
+  recordDrillRun(scheduleEntryFor(position).seed, score.elapsedSeconds, score.score);
+  persist();
 }
 
 // ----------------------------------------------------------------------------------------------- the daily
@@ -352,13 +558,28 @@ function startDaily(): void {
     return;
   }
 
-  daily = new DailyRun(result.puzzle, applier, performance.now());
   dailyDay = day;
   dailyLevelIndex = level.index;
+  dailyRunSeed = entry.seed;
+  // A SAVED ATTEMPT FOR TODAY IS PICKED UP. The challenge is a pure function of (day, level), so the puzzle
+  // regenerated here IS the one that was being played; what the record adds is the line, the hints and the
+  // clock — with the wall time the page was away charged to it. A record that no longer describes this
+  // puzzle (a pool or corpus change) comes back null and is simply not carried.
+  const carried = saved.daily && saved.daily.day === day && saved.daily.levelIndex === level.index
+    ? DailyRun.resume(result.puzzle, applier, performance.now(), saved.daily, { gapMs: wallGapMs(saved.daily.savedAtMs, Date.now()) })
+    : null;
+  daily = carried ?? new DailyRun(result.puzzle, applier, performance.now());
+  dailyRunId = carried && saved.daily ? saved.daily.runId : newRunId(Date.now());
   els.regime.textContent = dailyRegime();
-  dailyScreen.say('Add calls until the set is on the goal board. Undo is free; the allowance is not.', 'info');
-  captions(result.puzzle.start, result.puzzle.goal);
+  dailyScreen.say(
+    carried
+      ? 'Picked up where you left off — the time the page was away is on the clock.'
+      : 'Add calls until the set is on the goal board. Undo is free; the allowance is not.',
+    'info',
+  );
+  captions(daily.board, daily.view(performance.now()).goal);
   paintDaily();
+  persist();
   draw();
 }
 
@@ -378,6 +599,7 @@ function playDailyCall(call: string): void {
   }
   if (result.verdict === 'wrong') dailyScreen.say(`${call} is legal, but the set is not on the goal board yet.`, 'info');
   else dailyScreen.say(`${call} — that is the goal board.`, 'ok');
+  persist();
   startReplay(applier.motion([call], from), result.verdict === 'correct' ? 'advance' : 'settle');
 }
 
@@ -386,6 +608,7 @@ function undoDaily(): void {
   if (!daily.undo()) return;
   dailyScreen.say('Undone — and the clock kept running, and any hint is still spent.', 'info');
   paintDaily();
+  persist();
   draw();
 }
 
@@ -394,6 +617,7 @@ function redoDaily(): void {
   if (!daily.redo()) return;
   dailyScreen.say('Redone.', 'info');
   paintDaily();
+  persist();
   draw();
 }
 
@@ -415,6 +639,7 @@ function takeHint(): void {
   ledger = spend.ledger;
   dailyScreen.say(`Hint: ${hint.call}. A minute has been added to the clock, and it is not refunded.`, 'info');
   paintDaily();
+  persist();
 }
 
 function giveUpDaily(): void {
@@ -422,6 +647,7 @@ function giveUpDaily(): void {
   daily.giveUp(performance.now());
   dailyScreen.say('Given up. Both lines are available to replay.', 'bad');
   paintDaily();
+  persist();
 }
 
 /** Replay a whole line through the engine's walk, from the board the challenge was issued on. */
@@ -448,6 +674,13 @@ function paintDaily(): void {
   if (!daily) return;
   const view = daily.view(performance.now());
   dailyScreen.show(view);
+  // A SOLVED RUN IS RECORDED FROM HERE, and recording is idempotent on `dailyRunId` — so this can live in a
+  // paint that the frame loop calls, and only a NEW entry is written to storage.
+  if (view.outcome === 'solved' && view.result) {
+    const before = runs.length;
+    recordDailyRun(dailyRunSeed, view.result.elapsedSeconds, view.result.score);
+    if (runs.length !== before) persist();
+  }
   // THE REVIEW BUTTONS APPEAR WHEN THE RUN IS OVER (DESIGN.md 9: "on solving, or on giving up, the player can
   // replay their own line and the generator's shortest line").
   const over = view.outcome !== 'playing';
@@ -547,6 +780,21 @@ function main(): void {
   stage.setMode(viewMode);
   els.view.textContent = 'Switch to 3D';
   els.loading.hidden = true;
+
+  // THE SAVED GAME IS READ BEFORE ANYTHING IS ISSUED, so the first drill is the one the player was on and
+  // the balance is the one they earned. What a record means is `store.ts`'s decision: an absent one, an older
+  // schema or unreadable text yields no state and a fresh game, a moved pool keeps the hints and drops the
+  // rest, and every field is clamped. A record the loader had to DROP is reported rather than swallowed,
+  // because a loader's silence about bad data is itself a bug (AGENTS.md 4.1).
+  const loaded = loadGame(storage, MAIN_POOL.version);
+  saving = loaded.saving;
+  if (loaded.state) saved = loaded.state;
+  ledger = saved.hints;
+  runs = saved.runs;
+  finished = saved.finished;
+  position = saved.drillPosition;
+  if (loaded.dropped > 0) console.warn(`${loaded.dropped} saved record(s) were unusable and were discarded`);
+  paintLedger();
 
   els.modeDrill.addEventListener('click', () => setMode('drill'));
   els.modeDaily.addEventListener('click', () => setMode('daily'));

@@ -67,6 +67,16 @@ const SUITE = [
   // cannot separate, and that the four-axis separating-axis answer is exact rather than an axis-aligned
   // approximation (which overstates clearance by 0.596 in the case pinned). Pure arithmetic, ~0s.
   { h: 'bodies', light: true },
+  // ARE THESE TWO BOARDS THE SAME BOARD? `sameBoardById` compares by dancer IDENTITY with a position
+  // and heading tolerance, and it is the engine's only facing-aware equality: `boardSig` is
+  // positions-only by design and `reorderLike` fixes an order rather than testing one. The harness
+  // pins the difference that matters — a board whose dancers all face the wrong way is NOT the same
+  // board, and `boardSig` accepts it, so a goal test built on the signature would score a wrong
+  // arrival as correct. Also pins the id:0 refusal (`boardAtBeat`'s unknown-identity board), the
+  // wrapped heading comparison, and MEASURED that replaying a call twice is bit-identical (worst
+  // difference 0), which is why the tolerance has no population near it. Pure arithmetic plus one
+  // ordinary call: ~2s.
+  { h: 'board-identity', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

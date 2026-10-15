@@ -1,0 +1,21 @@
+{
+  "name": "dancing-squared-game",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The call game: a pure, seeded puzzle core (levels, generator, session) over dancing-squared-engine. Phase 1 is the pure core; the UI and the network come later.",
+  "exports": {
+    ".": {
+      "types": "./src/puzzle/index.ts",
+      "import": "./src/puzzle/index.ts"
+    }
+  },
+  "scripts": {
+    "verify": "node tools/verify-probes.mjs",
+    "build:pool": "node tools/build-pool.mjs",
+    "measure": "node tools/measure-ladder.mjs"
+  },
+  "dependencies": {
+    "dancing-squared-engine": "file:../engine"
+  }
+}

@@ -74,7 +74,16 @@ export type {
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold
 // the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
 export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';
-export { makeSquaredSet, cloneBoard, reorderLike, boardSig, boardAtBeat } from './sequencer/board.js';
+export {
+  makeSquaredSet,
+  cloneBoard,
+  reorderLike,
+  boardSig,
+  boardAtBeat,
+  // The goal test: are these two boards THE SAME BOARD, by dancer identity? Distinct from `boardSig`
+  // (positions-only congruence, for search dedup) — see the function's own comment.
+  sameBoardById,
+} from './sequencer/board.js';
 export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
@@ -175,7 +184,7 @@ export type {
   FormationSetup,
   ComplianceLevel,
 } from './sequencer/alignment.js';
-export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES } from './sequencer/constants.js';
+export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SAME_BOARD_TOL } from './sequencer/constants.js';
 export { applyCodedMove } from './sequencer/coded-moves.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
 export {

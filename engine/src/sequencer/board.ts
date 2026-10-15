@@ -2,10 +2,87 @@
 // rotation/translation/reflection-invariant signature used for search dedup.
 
 import { HOME_DANCERS, assignHomeIdentity } from './identity.js';
-import { UNKNOWN_COUPLE } from './constants.js';
+import { SAME_BOARD_TOL, UNKNOWN_COUPLE } from './constants.js';
 import { poseFor } from '../core.js';
 import type { Board, SeqDancer } from './types.js';
 import type { CallBundle } from '../types.js';
+
+/** The wrapped difference between two headings, in `(-pi, pi]`. Headings are
+ * radians on a circle, so `|a - b|` alone reports an almost-full turn for two
+ * dancers who face the same way, and a comparison written with it would refuse a
+ * correct arrival. */
+const headingDelta = (a: number, b: number): number => {
+  let d = (a - b) % (Math.PI * 2);
+  if (d > Math.PI) d -= Math.PI * 2;
+  if (d <= -Math.PI) d += Math.PI * 2;
+  return Math.abs(d);
+};
+
+/**
+ * Whether two boards are THE SAME BOARD — every dancer in the same place and
+ * facing the same way, matched by IDENTITY rather than by array position.
+ *
+ * WHY THIS EXISTS, and why neither of the two helpers beside it answers the
+ * question. `boardSig` is the rotation/reflection-invariant signature used for
+ * SEARCH DEDUP: it is positions-only (deliberately — see its own comment) and it
+ * is order-free, so it answers "are these two shapes congruent" and NOT "did the
+ * set arrive". `reorderLike` fixes an ORDER, not an equality: it says nothing
+ * about whether the geometry matches. A goal test built on `boardSig` would
+ * therefore accept a board whose dancers all face the wrong way, and one built on
+ * a per-index comparison would fail a board that is correct but arrayed in the
+ * order a different code path produced. This is the third question, and the
+ * engine had no answer for it.
+ *
+ * IDENTITY IS THE KEY AND NEVER THE INDEX (AGENTS.md §4.3, `identity.ts`). Both
+ * sides must carry the same id set; a dancer present on one side and missing on
+ * the other is NOT a match, which is the direction that matters — a board
+ * synthesized from geometry alone carries `id: 0` for every dancer
+ * (`boardAtBeat`'s documented answer for "there is no identity to read"), and
+ * treating those as "all the same dancer" would make two unrelated boards
+ * compare equal.
+ *
+ * AND A BOARD WITH NO IDENTITY IS NOT COMPARED AT ALL — it is refused,
+ * INCLUDING AGAINST ITSELF. The first version of this function refused a
+ * duplicate id only when the two boards differed, which made a `boardAtBeat`
+ * board unequal to its own copy: the answer depended on which board was `a` and
+ * which was `b`, and a rule whose answer depends on argument order is a rule
+ * nobody can reason about. The refusal is now total and checked up front. That
+ * is the correct direction for the engine's standing rule ("refuse when identity
+ * is unknown rather than inventing a grouping"): an identity-less board has no
+ * per-dancer identity to compare, so the only honest answer is "not the same
+ * board" — and the caller that needs an answer must carry identity, which every
+ * board the game builds does (`makeSquaredSet` numbers its dancers 1..8).
+ *
+ * WHAT IS NOT COMPARED, and why. `couple`, `gender`, `lastTurnDir` and
+ * `isGhost` are the inputs the generator itself declared; asking them again would
+ * make the test reject a correct arrival whose remembered turn direction differs
+ * (a `Posture` detail no geometry depends on). `adjustToNextSetup` is a
+ * PERMISSION owed to the next call, not part of the set's state. Ghost dancers
+ * ARE compared, like any other dancer: a phantom is part of the formation the
+ * engine matched, so two boards that differ in where a phantom stands are not the
+ * same board.
+ *
+ * The tolerance is `SAME_BOARD_TOL`, whose comment records why an exact-arrival
+ * test still needs one and what the measured gap to the smallest rejectable
+ * difference is.
+ */
+export function sameBoardById(a: Board, b: Board, tol: number = SAME_BOARD_TOL): boolean {
+  if (a.dancers.length !== b.dancers.length) return false;
+  const byId = new Map<number, SeqDancer>();
+  for (const d of b.dancers) {
+    if (byId.has(d.id)) return false; // a duplicate id is not an identity
+    byId.set(d.id, d);
+  }
+  // THE ID-UNIQUENESS REFUSAL APPLIES TO `a` TOO, so it is total rather than one-sided.
+  if (new Set(a.dancers.map((d) => d.id)).size !== a.dancers.length) return false;
+  for (const d of a.dancers) {
+    const o = byId.get(d.id);
+    if (!o) return false;
+    if (Math.hypot(d.x - o.x, d.y - o.y) > tol) return false;
+    if (headingDelta(d.heading, o.heading) > tol) return false;
+  }
+  return true;
+}
 
 export function makeSquaredSet(): Board {
   return {

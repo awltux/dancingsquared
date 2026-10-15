@@ -6,6 +6,7 @@
   "workspaces": [
     "engine",
     "packages/stage",
+    "game",
     "poc",
     "poc-teacher",
     "poc-matrix"
@@ -20,6 +21,9 @@
     "verify:teacher": "npm run verify -w dancing-squared-teacher",
     "verify": "npm run build -w dancing-squared-engine && npm run verify -w dancing-squared-poc",
     "verify:engine": "npm run verify -w dancing-squared-engine",
+    "verify:game": "npm run verify -w dancing-squared-game",
+    "build:pool": "npm run build:pool -w dancing-squared-game",
+    "measure:ladder": "npm run measure -w dancing-squared-game",
     "build:book": "node book/tools/make-animations.mjs && node book/tools/make-formations.mjs && node book/tools/make-diagrams.mjs && node book/tools/make-reference.mjs && node book/tools/make-nav.mjs && node book/tools/build-site.mjs",
     "build:book:anims": "node book/tools/make-animations.mjs",
     "build:book:gifs": "node book/tools/make-animations.mjs --gifs",

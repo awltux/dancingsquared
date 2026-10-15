@@ -27,8 +27,24 @@ export const SEARCH_MATCH_MAX = 6.0;
 // spent; measure the effective limit instead (test/selection.mjs pins it).
 export const KNOWN_FORMATION_MAX = 6.0;
 
-// Couple value meaning "identity unknown". Real home couples are 1..4. A board
-// synthesised from geometry alone (e.g. jumped to with setFormation, rather than
+// Tolerance for "IS THIS THE SAME BOARD" — the per-dancer position AND heading slack `sameBoardById`
+// allows when it compares two boards by dancer IDENTITY.
+//
+// THIS IS NOT A MATCHING TOLERANCE, and it must not be confused with one. `DEFAULT_MATCH_MAX` answers
+// "may this call be called from this board", which is tolerant by design: a caller's board is never
+// exactly the authored setup. This answers "did the set arrive at the goal", which is exact by design:
+// the two boards being compared were both computed by applying the SAME calls to the SAME start board,
+// so the only difference a correct arrival can carry is floating-point residue.
+//
+// The distinction matters because a tolerance here is the difference between a correct answer and a
+// wrong one that happens to be near. MEASURED by `test/board-identity.mjs`: a path applied twice
+// reproduces its end board to 0, i.e. bit-identically, so any positive tolerance is already slack; and
+// the smallest difference that must be REJECTED is a dancer moved one grid cell (1.0 unit) or turned by
+// the authored step (45 degrees = 0.785 rad) — six to eight orders of magnitude above this. There is no
+// population near the boundary, so this is a range rather than a taste.
+export const SAME_BOARD_TOL = 1e-6;
+
+
 // reached by dancing) has no real home identity, so its dancers carry this
 // sentinel instead of a couple derived from the array index.
 //

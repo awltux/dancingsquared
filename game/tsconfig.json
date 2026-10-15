@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "noEmit": true,
+    // THE PROBES LOAD THIS SOURCE DIRECTLY, under Node's type stripping, so relative specifiers carry
+    // `.ts` — Node's loader does NOT map `./x.js` onto `x.ts`, and a `.js` specifier therefore fails to
+    // resolve at runtime while type-checking perfectly. `poc/src/fsm-view.ts` establishes the same
+    // convention for the same reason (`poc/tools/fsm-open-probe.mjs` loads it by path). Legal only
+    // because nothing here ever emits.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src"]
+}

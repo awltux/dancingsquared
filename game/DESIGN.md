@@ -211,12 +211,18 @@ board, keyed on `SeqDancer.id` with a small position and heading tolerance. It i
 Naming a board is therefore **display-only**: the game shows the formation name as a teaching aid and never
 as the correctness test.
 
-**This is the one engine addition Phase 1 needs.** A public identity comparison (`sameBoardById`) belongs in
-the engine, next to `reorderLike` and `boardSig`, because it is a rule the engine owns and a probe must be
-able to import it, **and because all three consumers need the same test**: the server decides a submitted
-run's correctness with it, the Daily's client decides whether to show the win, and the Drill uses it to label
-its options. Three implementations of "did this board arrive" is exactly the drift this design is trying to
-avoid (AGENTS.md §4.3, §5: "import the rule; never mirror it").
+**This is the one engine addition Phase 1 needs — and it LANDED in Phase 1.** A public identity comparison
+(`sameBoardById`, in `engine/src/sequencer/board.ts` beside `reorderLike` and `boardSig`) belongs in the
+engine because it is a rule the engine owns and a probe must be able to import it, **and because all three
+consumers need the same test**: the server decides a submitted run's correctness with it, the Daily's client
+decides whether to show the win, and the Drill uses it to label its options. Three implementations of "did
+this board arrive" is exactly the drift this design is trying to avoid (AGENTS.md §4.3, §5: "import the rule;
+never mirror it"). Its tolerance (`SAME_BOARD_TOL`, 1e-6) and the reason it is a *range* rather than a taste
+are in the constant's own comment; the engine harness `board-identity` pins the four properties — including
+the one that makes it necessary, that `boardSig` **accepts** a board whose dancers all face the wrong way.
+Its refusal of a board whose ids are not unique is **total, including against itself**: the first version
+tested only one side and made an identity-less board unequal to its own copy, which is an answer that depends
+on argument order.
 
 ### 4.3 Animating a call or a list (both modes)
 
@@ -267,12 +273,40 @@ interface LevelSpec {
   index: number;    // 1-based; the leaderboard partition
   poolSize: number; // how many Mainstream titles exist at this level
   depth: number;    // how long the intended solution is, in calls
+  optionCount: number; // how many options a step presents (added in Phase 1 — see below)
 }
 ```
 
+**MEASURED IN PHASE 1, AND TWO OF THESE RULES ARE CORRECTED BY IT.** The census
+(`node game/tools/measure-ladder.mjs 30 3 50000`) sweeps pool × depth × options at 6–8 seeds per cell and
+found that the design's ladder as written **cannot generate puzzles above depth 1**:
+
+| pool | depth 1 | depth 2 | depth 3 |
+|---|---|---|---|
+| 10 | 3 options, 150 ms | **2 options** only | 2 options, 290 ms |
+| 25 | 3 options, 209 ms | **2 options** only | 2 options, 893 ms |
+| 35 | 3 options, 295 ms | 3 options, 1304 ms | 3 options, 3345 ms |
+| 40 | 3 options, 365 ms | 3 options, 1657 ms | 3 options, 4361 ms |
+| 45 | 3 options, 382 ms | 3 options, 1825 ms | 2 options, 7176 ms |
+
+1. **A three-option question needs a pool of at least 35 titles.** Below that, the reachable board graph has
+   no route from the squared set whose played-from boards all offer three distinct endings. So `optionCount`
+   is a **per-level value**, and levels 1–15 ship with **two** options because the alternative is a level
+   that cannot make a puzzle at all.
+2. **Depth 3 is capped out.** It generates at most pools, but its worst case reaches **7.2 s** (pool 45) and
+   it *regresses* to 2 options in places — and the Daily regenerates on the client, where 7 s is not a load
+   state, it is a hang. **The ladder ships `depth ≤ 2`.**
+3. The measured ladder: `poolSize(1) = 10`, `poolSize(n) = 10 + 5 + 5·floor((n − 4)/3)` for `n ≥ 2`,
+   `depth = 1` at L1 and 2 after, `optionCount = 3` once `poolSize ≥ 35` (L16) and 2 before. All **30**
+   levels generate; worst level **4959 ms**; largest exploration **194 states**.
+
+So the three bullets below stand as the *design's intent*, and the table above is what the corpus supports.
+The gap is recorded rather than papered over: **the design asked for three options at every level and a
+depth-3 ceiling, and this ships what the corpus can actually generate.**
+
 - **L1 = `{ poolSize: 10, depth: 1 }`.** That is decision 5's starting point.
-- `depth` rises 1 → 2 → 3 while `depth ≤ 3`.
-- Once depth has reached 3, `poolSize` grows by **5 every 3 levels**.
+- `depth` rises 1 → 2 and stays (design: 1 → 3; capped, see above).
+- Once depth has finished rising, `poolSize` grows by **5 every 3 levels**.
 - Every level's `Sequencer` is built from **only that level's titles**, so the engine's own legality scan is
   already level-scoped and the "offered moves are limited to the level being played" rule is a property of
   construction, not of a filter that could drift.
@@ -292,7 +326,16 @@ reasons it cannot be derived mechanically:
 producing puzzles that pass the quality gates in §7 — or at which the offering list stops fitting a phone
 screen — and it is to be **measured**. The design states a floor rather than a ceiling: the ladder must
 comfortably exceed L1, and if it cannot reach a useful number of levels the finding is the design's problem,
-not the player's. The measurement lands with Phase 1.
+not the player's.
+
+**MEASURED IN PHASE 1: there is no ceiling to find, and `levelSpec` is TOTAL for every integer ≥ 1.** The
+census walks 30 levels and all 30 generate, with the pool outrunning the 62-title corpus at L45 — so the
+ladder stops only when the *pool* does, and the code has no top level. A consequence the schedule-lint probe
+found the hard way: its negative control `levelIndex: 999` **passed as a valid level** (pool 1680, depth 2),
+because the formula answers it. The control had to become `0` and a negative index, and a new check now pins
+that 999 IS a level — a negative control that passes tests nothing (AGENTS.md §5). So "a level that cannot
+generate" is a **measurement to report** (§5's finding 1 is exactly that at small pools), never an index the
+code refuses.
 
 ---
 
@@ -413,6 +456,21 @@ must **measure generation time per level** and pin the node budget so the worst 
 stated time **on the client**; the server's copy can afford more, and the design must not assume they are the
 same number. No unmeasured budget ships.
 
+**MEASURED (Phase 1, committed with this file): `node game/tools/measure-ladder.mjs 30 3 50000`** — 30
+levels, 3 seeds each, 50 000-node budget:
+
+| | value |
+|---|---|
+| levels that generate | **30 of 30** (every published level) |
+| worst level | **4959 ms** (L23; L25–L30 all 3.3–4.9 s) |
+| largest exploration | **194 states** (L28–L30, pool 55) |
+| cheapest level | 460 ms (L1) |
+
+So the budget is pinned at **50 000 nodes**, and the client's worst case is **~5 s** — which is the number
+Phase 2's loading state has to cover. The exploration count is far below the budget (194 against 50 000),
+which is why raising the budget changes nothing: what bounds these levels is the **reachability structure**,
+not the search cap. Depth 3 was measured too and is **capped out of the ladder** — see §5's corrections.
+
 ### 7.2 Authoring the regime (the schedule pipeline)
 
 The schedule is code-adjacent data, so it needs the gate every generated artefact in this repository needs
@@ -421,12 +479,18 @@ that are about policy rather than mechanism:
 
 - **Every seed in the schedule passes the §7 quality gates for its level**, or the build fails. A schedule
   published with one bad puzzle is a bad puzzle served to every player at that level simultaneously.
-- **A seed is valid only for the level it was validated at.** If a seed were reused at a level with a
-  different `poolSize`, `generatePuzzle` would return a *different* puzzle — same seed, different legal move
-  set — so the schedule stores the level beside each seed and a lint rejects reuse at another level rather
-  than trusting the author to remember.
+- **A seed is MEANINGFUL only against the level it was validated at — and this is NOT because it fails
+  elsewhere.** The first draft of this rule said reusing a seed at another `poolSize` "would return a
+  *different* puzzle", and Phase 1 measured exactly that, but also measured that the failure mode people
+  would expect does **not** happen: of 60 seeds that generate at L1 (pool 10), **60 also generate at L3**
+  (pool 15) — while **20 of 20 produce a different goal and a different solution**. So cross-level reuse is
+  not an error to be rejected; it is a puzzle that has been validated at the level that declares it and is
+  simply a different question there. What the lint must catch is the case that IS an error: **a seed that no
+  longer generates at its declared level**, which is what makes a schedule go stale after a pool, ladder or
+  generator change. The level travels beside the seed because it is part of the puzzle's identity, and the
+  lint re-runs the generator rather than trusting the author's memory.
 - **The order is the contract.** The gate pins that the schedule is non-empty, ordered, and advances; the
-  design does not pin a count, because the count is a season-length decision (§14).
+  design does not pin a count, because the count is a season-length decision (§15).
 
 ### 7.3 Drill question construction (the puzzle, as the engine presents it)
 
@@ -441,6 +505,26 @@ The constraints the generator must satisfy, or the seed is rejected:
   correct**, not offered as wrong — otherwise the game tells a player who found a genuine alternative that
   they were wrong.
 - **The illegal option's reason is the engine's own string**, displayed verbatim.
+
+**CORRECTED IN PHASE 1 — the illegal option CANNOT be one of a step's options, and this is provable rather
+than a preference.** An illegal application returns the board *unchanged*, so an illegal option's "ending"
+would be the current board — and the §7 gate that the start and goal are distinguishable guarantees the
+current board is not the goal, which is what makes it a viable WRONG option but not a third *distinct
+ending*. Requiring three distinct endings and admitting an illegal member are mutually unsatisfiable. The
+implementation therefore has **`moves`: exactly `optionCount` legal options with distinct endings**, and a
+**separate `step.unknown = { call, reason }`** authored from the engine's own refusals — which is also why
+the game's engine seam has `candidateCalls()` at all (a refusal can only be found by naming a call and
+asking). §4.2's wording "one correct, one legal-but-wrong, one illegal" is therefore a description of what
+the *player* sees, not of the option array.
+
+**AND THE "CORRECT" OPTION IS NOT "AN OPTION THAT REACHES THE GOAL" — except on the last step.** This was
+the Phase 1 bug that made depth 2 generate **0/8 at every pool size**, and the arithmetic is worth keeping:
+the goal is at distance `d`, and a board at distance `i < d − 1` cannot reach the goal in one call, because
+a move from distance `i` lands at distance at most `i + 1` — so a one-call route would mean the goal was at
+distance `i + 1 < d`, contradicting the BFS. The correct rule is the design's own *"makes progress"*: a
+correct move **reduces the remaining distance**, which on the last step is the same statement as reaching
+the goal. Requiring goal-reaching at every step was asking for a solution shorter than the puzzle's own
+distance.
 
 **Each option is a one-call `evaluateSequence` on a shared start board** (§4.3), so the question is the same
 board shown three ways. Four rules follow from the options being **computed on the client** rather than
@@ -771,17 +855,27 @@ touches `poc/src/**` (AGENTS.md §3). One measured surprise for Phase 1: the pac
 barrel, because `scene.ts` is not the only module the app imports from and a root entry pointing at it alone
 leaves `grid-magnet`'s names unexported — `tsc` failed on exactly that, and `index.ts` is the fix.
 
-**Phase 1 — the engine's goal test, and the pure game core.**
-`sameBoardById` in the engine, with an engine harness registered in `engine/test/verify-suite.mjs`
-(`light` field and a `why` if it is not in light), gated by `npm run verify:light --prefix engine` and
-before landing `npm run verify --prefix engine` in the background. Then `game/src/puzzle/`: `LevelSpec`, the
-generator with its quality gates, the **schedule lint** from §7.2, the three-option construction from §7.3,
-and `PlaySession` with undo/redo. Probes: every generated puzzle is solvable at its stated `depth`; the three
-options are distinct boards; **every offered call applies from the board it was offered on**; an illegal
-option carries the engine's own reason; a schedule seed fails its lint if moved to a level with a different
-`poolSize`; the generator is bit-identical on a repeat call (the property the server's verification rests on);
-a reverted fix turns a probe red. Plus the two measurements §5 and §7.1 demand: the ladder's ceiling and the
-generation-time budget, **measured on the client's constrained path**.
+**Phase 1 — the engine's goal test, and the pure game core. DONE.**
+`sameBoardById` landed in the engine (`engine/src/sequencer/board.ts`, exported with `SAME_BOARD_TOL`) with the
+harness `board-identity` registered `light: true` in `engine/test/verify-suite.mjs` — 3.1 s, and it pins the
+property that makes the function necessary (that `boardSig` **accepts** a board whose dancers face the wrong
+way). `game/src/puzzle/` now holds `types`, `levels`, `pool` + generated `calls-data`, `rand`, `config`,
+`generator`, `schedule` and `session`, with `game/src/engine/applier.ts` as the only file importing an engine
+VALUE. The package has **its own gate** — `game/tools/verify-probes.mjs`, the directory-is-the-list runner —
+and three probes: `puzzle-core-probe` (34 checks), `session-undo-probe` (40 checks, driven by a stub applier
+so the session is proven pure) and `schedule-lint-probe`.
+
+**The measurements §5 and §7.1 demand are taken** (`node game/tools/measure-ladder.mjs 30 3 50000`): all 30
+levels generate, worst 4959 ms, largest exploration 194 states — and they **overturned two of the design's
+own rules**, which are corrected in §5 and §7.3 above: a 3-option question needs pool ≥ 35, and depth 3 is
+capped out for the client's budget.
+
+**What Phase 1's probes found that no amount of reading would have:** the generator's correctness rule was
+wrong for every step but the last (a board at distance `i < d − 1` cannot reach the goal in one call), so
+depth 2 generated **0/8 at every pool size** until it was fixed; the illegal option is unrepresentable among
+"three distinct endings" (see §7.3); the goal is *reached, never played from*, so requiring options from it
+broke a working depth 1; and the engine's `dist` must be built before any probe runs, because a stale `dist`
+reports `SAME_BOARD_TOL` as a missing export.
 
 **Phase 2 — the stage and the Drill UI, on a locally issued schedule.** The 2D view first, then the 3D view
 over the same contract (decision 7), and the mode itself: the two boards, the three answer buttons, an

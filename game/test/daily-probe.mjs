@@ -17,7 +17,7 @@ import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { dailyEntry, dailySeed, isUtcDay, utcDay } from '../src/puzzle/daily.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, POOL_VERSION, poolFor } from '../src/puzzle/pool.ts';
-import { applierFor } from './lib/corpus.mjs';
+import { applierFor } from '../src/data/corpus-node.ts';
 
 let failures = 0;
 const check = (cond, msg) => {

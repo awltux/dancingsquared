@@ -19,7 +19,7 @@ import { generatePuzzle } from '../src/puzzle/generator.ts';
 import { NODE_BUDGET, generatorConfigFor } from '../src/puzzle/config.ts';
 import { firstLevels } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor, poolIsComplete } from '../src/puzzle/pool.ts';
-import { applierFor } from '../test/lib/corpus.mjs';
+import { applierFor } from '../src/data/corpus-node.ts';
 
 const levels = Number(process.argv[2] ?? 30);
 const seeds = Number(process.argv[3] ?? 5);

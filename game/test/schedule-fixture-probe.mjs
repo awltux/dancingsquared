@@ -17,7 +17,7 @@ import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { LOCAL_SCHEDULE, FIXTURE_POOL_VERSION, scheduleEntryFor, scheduleLength } from '../src/game/schedule-fixture.ts';
-import { applierFor } from './lib/corpus.mjs';
+import { applierFor } from '../src/data/corpus-node.ts';
 
 let failures = 0;
 const check = (cond, msg) => {

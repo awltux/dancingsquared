@@ -8,6 +8,10 @@
     ".": {
       "types": "./src/puzzle/index.ts",
       "import": "./src/puzzle/index.ts"
+    },
+    "./corpus-node": {
+      "types": "./src/data/corpus-node.ts",
+      "import": "./src/data/corpus-node.ts"
     }
   },
   "scripts": {
@@ -24,6 +28,7 @@
     "three": "^0.169.0"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "@types/three": "^0.169.0",
     "@xmldom/xmldom": "^0.9.11",
     "typescript": "^5.6.0",

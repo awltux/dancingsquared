@@ -1,6 +1,6 @@
 // The app's engine seam: a `GameApplier` bound to the real corpus.
 //
-// THE TWIN OF `game/test/lib/corpus.mjs`, AND THE DIFFERENCE BETWEEN THEM IS ONLY WHERE THE BYTES COME
+// THE TWIN OF `src/data/corpus-node.ts`, AND THE DIFFERENCE BETWEEN THEM IS ONLY WHERE THE BYTES COME
 // FROM. The probe reads them with `fs` under Node; the app gets them from Vite `?raw`. Everything that
 // decides BEHAVIOUR — `createEngineApplier`, `poolFor`, the level's slice — is imported from the same
 // modules in both, so the app and its gate cannot disagree about what a level is.

@@ -30,7 +30,7 @@ import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { lintSchedule } from '../src/puzzle/schedule.ts';
-import { applierFor } from './lib/corpus.mjs';
+import { applierFor } from '../src/data/corpus-node.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -52,7 +52,7 @@ const L2 = levelSpec(2);
 const L3 = levelSpec(3);
 
 // THE APPLIER IS THE REAL ONE, sliced to the level's own titles -- a stub would make this probe measure
-// the stub rather than the engine's legality and refusals (game/test/lib/corpus.mjs). L2 and L3 share
+// the stub rather than the engine's legality and refusals (game/src/data/corpus-node.ts). L2 and L3 share
 // pool 15, so one applier serves both; the LEVEL still differs in the generator's rng.
 const { applier: applier1 } = applierFor(poolFor(L1, MAIN_POOL), L1.poolSize);
 const { applier: applier15 } = applierFor(poolFor(L2, MAIN_POOL), L2.poolSize);

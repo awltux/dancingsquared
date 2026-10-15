@@ -12,31 +12,33 @@
 // not turn this red.
 //
 // THE WORK LIST IS PRINTED, because a count is not a work list. The by-call tally says where the next hour
-// goes: RE-MEASURED ON THE BODY MODEL at this revision, `Turn Thru` 4, `Touch a Quarter` 3, `Wheel and Deal`
-// 3, `Lead Right` 2, `Box the Gnat` 2, `Square Thru 4` 2, `Chain Down the Line` 2, then six calls at one
-// each - and 13 of the 23 are catalogue (authored) bodies, `Swing Thru` being the only coded move among them.
+// goes, and since the sweep was WIDENED (below) it is led by the couple family's own authorings:
+// `Lead Right - Close` 24, `Lead Right - Far` 13, `Lead Left - Normal` 12, `Lead Left - Far` 11,
+// `Lead Right - Normal` 8, `Lead Left` 4, then `Turn Thru` 4, `Touch a Quarter` 3, `Wheel and Deal` 3 and
+// the rest at one or two each - 50 of the 95 are catalogue (authored) bodies, `Swing Thru` the only coded
+// move among them.
 //
 // THE MEASURE IS THE ENGINE'S BODY MODEL, and that is a change of WHOLE. This file used CENTRE distance
 // (`closestPair < 0.1`), which `apply-faults.mjs`'s header now records as superseded, and the reason is
 // measured: on `Tidal Line RH` + `Chain Down the Line` the centre measure preferred an application whose
 // bodies pass through each other by **-0.700** over one that grazes at **+0.003**, because their centres read
 // 0.136 against 0.062. The same change moves the animation half of the split by an order of magnitude:
-// **295** applications put two bodies in the same space somewhere in their motion, of which **272** end on a
-// healthy board (the path is the fault) and **23** end with the destination already broken (the call's own
-// body). The 295 is consistent with the engine's own recorded figure - `BODY_PATH_CLEARANCE`'s note measures
-// 723 of 1580 corpus modules overlapping, i.e. about 46%, which is why `'guard'` is not the default.
+// **532** applications put two bodies in the same space somewhere in their motion, of which **437** end on a
+// healthy board (the path is the fault) and **95** end with the destination already broken (the call's own
+// body). On the NARROWER 33-call sweep those three were 295 / 272 / 23, and the difference is the widened
+// calls. The figure is consistent with the engine's own recorded measurement - `BODY_PATH_CLEARANCE`'s note
+// finds 723 of 1580 corpus modules overlapping, about 46%, which is why `'guard'` is not the default.
 //
-// THE CEILING TRACKS THE TREE. It was 50, then 37 on the centre measure, and it is **23** here; the gate's
-// own instruction is to lower it in the same commit that re-measures, because a ceiling cannot report a fall.
+// THE CEILING TRACKS THE TREE. It was 50, then 37 and 23 on the narrower sweep, and it is **95** here; the
+// gate's own instruction is to re-pin in the same commit that re-measures, because a ceiling cannot report a
+// fall - and widening the sweep is the one change that legitimately raises it.
 //
-// WHAT THIS SWEEP CANNOT SEE, measured rather than assumed. `SURVEY_CALLS` names the BARE `Lead Right`, so
-// the authoring titles the corpus ALSO publishes (`Lead Right - Close` / `- Normal` / `- Far`, and
-// `Lead Left - Normal` / `- Far`) are never applied here. They carry most of the family's faults: sweeping
-// all seven titles over the same 138 formations measured 450 of 966 applications legal and **86 apply faults
-// over 47 boards** on the CENTRE measure - the five variants 83, the two bare names 7. They are also
-// UNGOVERNED by `PERMISSION_RULES`: each is offered on all 138 formations x 45 group names, against 20 of
-// 6,210 for the bare names. Widening this sweep is a separate change; the 86 was taken on the old measure and
-// has NOT been re-taken on this one.
+// THE SWEEP NOW COVERS EVERY AUTHORING OF THE COUPLE CALLS, which is what this file could not see before.
+// `SURVEY_CALLS` names the BARE `Lead Right`; the corpus also publishes `Lead Right - Close` / `- Normal` /
+// `- Far` and `Lead Left - Normal` / `- Far`, and those titles are where most of the family's faults are -
+// 72 of the 95. They are read FROM THE CORPUS (`catalogueTitles`), not typed, so a sibling added or retired
+// cannot be missed here. Those titles are still UNGOVERNED by `PERMISSION_RULES`: each is offered on all 138
+// formations x 45 group names, against 20 of 6,210 for the bare names, which is why the picker lists them.
 //
 // Run: node engine/test/tools/apply-fault-gate.mjs
 import { readFileSync } from 'node:fs';
@@ -45,8 +47,8 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser } from '../../dist/index.js';
-import { callsByTitle } from '../lib/engine-calls.mjs';
-import { classifyApplyFault, sweepApplyFaults } from '../lib/apply-faults.mjs';
+import { callsByTitle, catalogueTitles } from '../lib/engine-calls.mjs';
+import { SURVEY_CALLS, classifyApplyFault, sweepApplyFaults } from '../lib/apply-faults.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -68,15 +70,23 @@ const check = (cond, msg) => {
  * The apply-fault count as last measured. A CEILING, not an equality: fewer faults is a fix and must not
  * fail here. Lower it in the same commit that fixes faults, so the pin keeps tracking the tree.
  */
-const APPLY_FAULT_CEILING = 23;
+const APPLY_FAULT_CEILING = 95;
 
 const formations = seq.listFormations().filter((n) => {
   const b = seq.boardForFormation(n);
   return b !== null && b.dancers.length === 8;
 });
-const survey = sweepApplyFaults(seq, formations);
+// THE SWEEP IS WIDENED TO EVERY AUTHORING OF THE COUPLE CALLS, which is the half of the family this gate
+// could not see. `SURVEY_CALLS` names the BARE `Lead Right`; the corpus also publishes `Lead Right - Close` /
+// `- Normal` / `- Far` and `Lead Left - Normal` / `- Far`, and those titles carry most of the family's apply
+// faults. They are taken FROM THE CORPUS rather than typed, so a sibling added or retired cannot be missed
+// here - the same "the list is the data" rule the probe runner uses.
+const COUPLE_FAMILY = [...catalogueTitles(assets)].filter((t) => /^Lead (Right|Left)/.test(t)).sort();
+const sweptCalls = [...new Set([...SURVEY_CALLS, ...COUPLE_FAMILY])];
+const survey = sweepApplyFaults(seq, formations, sweptCalls);
 console.log(`== the apply faults ==`);
-console.log(`   ${formations.length} formation(s) x 33 call(s): ${survey.applied} applied, ${survey.coincident.length} coincident`);
+console.log(`   ${formations.length} formation(s) x ${sweptCalls.length} call(s): ${survey.applied} applied, ${survey.coincident.length} coincident`);
+console.log(`   (${COUPLE_FAMILY.length} of those calls are authorings of the couple calls: ${COUPLE_FAMILY.join(', ')})`);
 console.log(`   ANIMATION fault ${survey.animFault.length} (the end board is healthy - an animator's job)`);
 console.log(`   APPLY fault     ${survey.applyFault.length} (the end board is already broken - the call's own body)`);
 

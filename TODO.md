@@ -95,52 +95,56 @@ suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
   no-op; `engine/test/sequencer.mjs` now pins that stop and measures `Girls Circulate 2` on the canonical wave.
   The gap it exposes is the heads' own `Lead Right` reading.
 
-- [ ] **4. RE-SCOPED, NOT FIXED — 23 apply-side pairs whose end board already has two BODIES in the same
+- [ ] **4. RE-SCOPED, NOT FIXED — 95 apply-side pairs whose end board already has two BODIES in the same
   space, and they are BODY faults, not matching faults.** `[measured]`, RE-MEASURED ON THE ENGINE'S BODY
-  MODEL — the earlier readings in this item were taken on a CENTRE-distance measure and are given in brackets
-  where they still mean something.
-  The walk-through's **295 coincident** applications split into **272 animation faults and 23 APPLY faults**
-  (was 51 / 14 / 37 on centres, and 64 / 14 / 50 in 2026-10-14). The sweep lives in
-  `engine/test/lib/apply-faults.mjs` and `node engine/test/tools/apply-fault-gate.mjs` pins it. **THE MEASURE
-  CHANGED, AND THAT WAS A DECISION TAKEN ON A MEASUREMENT**: the centre test (`closestPair < 0.1`) is the
-  measure the engine's own `BODY_PATH_CLEARANCE` note records as superseded, and keeping it made the gate
-  prefer the WORSE of two applications — measured on `Tidal Line RH` + `Chain Down the Line`, where the
-  centre measure prefers an application whose bodies pass through each other by **−0.700** over one that
-  grazes at **+0.003** because their centres read 0.136 against 0.062. A pair is now coincident when its
-  bodies intersect (`bodyGap < 0`), and the end-board discriminator is the same threshold. The 295 is
-  consistent with the engine's recorded 723-of-1580 modules overlapping (~46%), which is why the engine's own
-  guard is off by default.
+  MODEL with the sweep WIDENED to every authoring of the couple calls (39 calls x 138 formations); on the
+  narrower 33-call sweep the same tree reads 23 apply / 292 coincident / 269 animation.
+  The widened walk-through's **532 coincident** applications split into **437 animation faults and 95 APPLY
+  faults**, and **72 of the 95 are the couple family's own authorings** — `Lead Right - Close` 24,
+  `Lead Right - Far` 13, `Lead Left - Normal` 12, `Lead Left - Far` 11, `Lead Right - Normal` 8, `Lead Left` 4
+  — which the gate could not see until this sweep was widened. The sweep lives in
+  `engine/test/lib/apply-faults.mjs` and `node engine/test/tools/apply-fault-gate.mjs` pins it, with a ceiling
+  of **95**. **THE MEASURE CHANGED, AND THAT WAS A DECISION TAKEN ON A MEASUREMENT**: the centre test
+  (`closestPair < 0.1`) is the measure the engine's own `BODY_PATH_CLEARANCE` note records as superseded, and
+  keeping it made the gate prefer the WORSE of two applications — measured on `Tidal Line RH` + `Chain Down
+  the Line`, where the centre measure prefers an application whose bodies pass through each other by
+  **−0.700** over one that grazes at **+0.003** because their centres read 0.136 against 0.062. A pair is now
+  coincident when its bodies intersect (`bodyGap < 0`), and the end-board discriminator is the same threshold.
+  The 532 is consistent with the engine's recorded 723-of-1580 modules overlapping (~46%), which is why the
+  engine's own guard is off by default.
   **THE SCOPE THE OWNER PICKED FOR THIS ITEM IS REFUTED BY MEASUREMENT, BEFORE IMPLEMENTATION.** "Refuse a
-  wrong-separation match" would refuse **ZERO of the 23**: every one is an application whose admitted match is
+  wrong-separation match" would refuse **ZERO of the 95**: every one is an application whose admitted match is
   **geometrically congruent** with the setup it was applied through — `noncongruent 0` even at the loose 1.5
-  admission — and the worst per-pair separation disagreement across all 23 is **0.0000 units**. What the
-  faults actually are, measured: **13 body** (congruent at the tightest tolerance tested, 0.01, unreflected,
-  gender-exact, mean error 0.0000 — no matching rule can refuse these, the call's own body collides the
-  dancers), **5 gender-miss** and **5 mirrored** (congruent but only through a permission the engine grants on
-  purpose — `requireGender` is off wherever a variant is not declared `gender-specific`, and reflected
-  readings are required to stay available, pinned by `engine/test/selection.mjs`), and **0 loose**. The item's
-  own attribution was therefore RIGHT — the call's own body lands two dancers on one spot — so this is corpus
-  authoring (Phases A/B), except `Swing Thru`, which is coded.
-  Work list by call: `Turn Thru` 4, `Touch a Quarter` 3, `Wheel and Deal` 3, `Lead Right` 2, `Box the Gnat`
-  2, `Square Thru 4` 2, `Chain Down the Line` 2, then 1 each of `Star Thru`, `Swing Thru`, `Veer Left`,
-  `Veer Right`, `Square Thru 3` — 22 of the 23 are authored calls. THE CEILING IS NOW **23** (was 37 on
-  centres, 50 before that); lowering it in the same commit that re-measures is the gate's own instruction,
-  because a ceiling cannot report a fall.
+  admission. What the faults actually are, measured: **50 body** (congruent at the tightest tolerance tested,
+  0.01, unreflected, gender-exact, mean error 0.0000 — no matching rule can refuse these, the call's own body
+  collides the dancers), **15 gender-miss** and **5 mirrored** (congruent but only through a permission the
+  engine grants on purpose — `requireGender` is off wherever a variant is not declared `gender-specific`, and
+  reflected readings are required to stay available, pinned by `engine/test/selection.mjs`), and **25 loose**
+  (congruent only at the loosest 1.5 — the objective's "wrong Close/Normal/Far spacing sibling", and it is
+  REAL and live again now that the siblings are swept; worst per-pair separation disagreement across all 95 is
+  **0.1092 units**).
+  Work list by call, on the WIDENED sweep: `Lead Right - Close` 24, `Lead Right - Far` 13,
+  `Lead Left - Normal` 12, `Lead Left - Far` 11, `Lead Right - Normal` 8, `Lead Left` 4, then `Turn Thru` 4,
+  `Touch a Quarter` 3, `Wheel and Deal` 3, `Lead Right` 2, `Box the Gnat` 2, `Square Thru 4` 2,
+  `Chain Down the Line` 2, then 1 each of `Star Thru`, `Swing Thru`, `Veer Left`, `Veer Right`,
+  `Square Thru 3` — 50 of the 95 are authored bodies. THE CEILING IS NOW **95** (23 on the narrower 33-call
+  sweep, 37 and 50 before that on centres); re-pinning in the same commit that re-measures is the gate's own
+  instruction, and widening the sweep is the one change that legitimately RAISES it.
 
-  **THE PATH HALF IS AN ORDER OF MAGNITUDE LARGER AND IS NOW VISIBLE.** On the body model **272** applications
+  **THE PATH HALF IS AN ORDER OF MAGNITUDE LARGER AND IS NOW VISIBLE.** On the body model **437** applications
   put two bodies in the same space somewhere in their motion while ENDING on a healthy board — an animator's
-  job, not the applicator's. Under the centre measure that figure was **14**, so the measure change did not
-  create them; it disclosed them. They are reported by the gate, not pinned.
+  job, not the applicator's. Under the centre measure, on the narrower sweep, that figure was **14**, so the
+  measure change did not create them; it disclosed them. They are reported by the gate, not pinned.
 
-  **THE WORK LIST IS INCOMPLETE, AND THAT IS A MEASUREMENT RATHER THAN A SUSPICION.** The gate sweeps the
-  BARE `Lead Right`. The authoring titles the corpus ALSO publishes for it (`Lead Right - Close` /
-  `- Normal` / `- Far`, and `Lead Left - Normal` / `- Far`) are not in `SURVEY_CALLS`, and they carry most of
-  the family's faults: all seven titles over the same 138 formations is **450 of 966 applications legal and
-  86 apply faults over 47 boards** — the five variants 83, the two bare names 7. **That 86 was taken on the
-  CENTRE measure and has NOT been re-taken on the body model.** The variants are also **ungoverned by
-  `PERMISSION_RULES`** — each offered on all 138 formations x 45 group names, against 20 of 6,210 for the bare
-  names — so the picker lists them, measured in `legalNext()`: 275 calls on a Static Square including all
-  seven titles, 250 on `Double Pass Thru` including the five variants and NOT the bare names.
+  **THE SWEEP WAS WIDENED, WHICH IS THE HALF OF THIS ITEM THAT WAS INCOMPLETE.** It now sweeps every
+  authoring the corpus publishes for the couple calls, read from the corpus rather than typed, so a sibling
+  added or retired cannot be missed: 39 calls x 138 formations, **1009 applied, 532 coincident, 95 apply**.
+  **72 of the 95 are the sibling titles** — the gate could not see any of them before. They remain
+  **ungoverned by `PERMISSION_RULES`** — each offered on all 138 formations x 45 group names, against 20 of
+  6,210 for the bare names — so the picker lists them, measured in `legalNext()`: 275 calls on a Static Square
+  including all seven titles, 250 on `Double Pass Thru` including the five variants and NOT the bare names.
+  **AND THE `25 loose` ARE THE OBJECTIVE'S OWN `d` STEP, LIVE AGAIN**: with the siblings swept, the wrong
+  Close/Normal/Far spacing sibling being admitted at 1.5 is a measured class rather than a suspicion.
 
   **AND `permissions` IS RED FOR FIVE ASSERTIONS, WHICH ARE NOW THE `- Close` / `- Normal` / `- Far` GAP.**
   Section 13 and section 15 were corrected to name the corpus's own titles, and the loop over those titles

@@ -146,14 +146,14 @@ function frame(nowMs: number): void {
         // where the call left the set — which is the state the NEXT question is asked from. `render()` is
         // what redraws the buttons for that new step.
         advances = false;
-        screen.endReplay(controller.view().from);
+        screen.endReplay();
         screen.render();
         draw();
       } else if (controller) {
         // A WRONG ANSWER KEEPS its message and its landing board on screen. `render()` is deliberately not
         // called here, because it clears the verdict line — the sentence explaining where the call went is
         // the whole teaching content of a wrong answer.
-        screen.endReplay(controller.view().from);
+        screen.endReplay();
       }
     }
   }

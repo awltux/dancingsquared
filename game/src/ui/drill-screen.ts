@@ -166,16 +166,19 @@ export class DrillScreen {
   }
 
   /**
-   * STOP drawing the motion and settle on `board`.
+   * STOP drawing the motion, so that the next `draw()` shows the controller's own board.
    *
    * The pair is dropped rather than left in place, because a stale pair is what would let the drawing loop
    * keep interpolating after the motion has been reported — the picture would keep moving after the verdict
    * was announced.
+   *
+   * IT TAKES NO BOARD, and the earlier version took one and ignored it (`void board`): what is on screen is
+   * `main.ts`'s business, not this object's. A dropped parameter reads as a contract the screen does not
+   * have, which is why the call sites now pass nothing.
    */
-  endReplay(board: Board): void {
+  endReplay(): void {
     this.replayFrom = null;
     this.replayTo = null;
-    void board;
   }
 
   /** The label on the 2D/3D button, which names what pressing it will DO rather than the current mode. */

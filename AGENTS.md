@@ -341,6 +341,12 @@ with its measurement, in the same commit that found it.
     clone was live at the time. Stop a process by id (`job_kill` for a job you started, or the `$PID` you
     captured), never by image name — and a port check afterwards (`Test-NetConnection`) is how to confirm it
     actually went.
+21. **A tool that says "the real service" when no endpoint is set WILL use the real service.** MEASURED, and it
+    cost a real table: `npm run api:table` with no `DSQ_DDB_ENDPOINT` created `dancing-squared-dev` in the
+    account this machine's ambient credentials belong to (root, `eu-west-2`) — the command said so in its own
+    output and did it, and the table had to be deleted by hand. Any command that CREATEs or SEEDs must refuse
+    without an explicit endpoint or opt-in (`api/src/config.ts`'s `realServiceWarning`), because a developer's
+    default is a local container while a credential chain's default is production.
 
 ---
 

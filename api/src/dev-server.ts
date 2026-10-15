@@ -14,7 +14,7 @@
 //        npm run dev:api:ddb      (DynamoDB Local, after `npm run api:table`)
 import http from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { configFromEnv } from './config.ts';
+import { configFromEnv, realServiceWarning } from './config.ts';
 import { MemoryStore } from './store/memory.ts';
 import { openStore, type OpenedStore } from './store/open.ts';
 import { PLANNED_ENDPOINTS, ROUTES, routeFor } from './routes.ts';
@@ -163,6 +163,9 @@ export async function startDevServer(options: { port?: number; seed?: boolean; o
 /** Start from the environment: the store, the port and the seed all come from `configFromEnv`. */
 export async function startFromEnv(): Promise<DevServer> {
   const config = configFromEnv();
+  // THIS SERVER SEEDS, so it must not be pointed at a service nobody named: see `realServiceWarning`.
+  const warning = realServiceWarning(config);
+  if (warning) throw new Error(`dev:api refuses to start: ${warning}`);
   const server = await startDevServer({ port: config.port, opened: await openStore(config) });
   console.log(`dev:api listening on http://127.0.0.1:${server.port}/ store: ${server.label}`);
   console.log('       x-dev-player: <name> (or Authorization: Bearer dev:<name>) is the development identity');

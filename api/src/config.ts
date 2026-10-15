@@ -31,6 +31,28 @@ export const DEFAULT_TABLE = 'dancing-squared-dev';
 /** The port DynamoDB Local listens on in `api/docker-compose.yml`. */
 export const DEFAULT_DDB_ENDPOINT = 'http://127.0.0.1:8000';
 
+/** The opt-in that turns "no endpoint" from an accident into a decision. */
+export const ALLOW_REAL_AWS = 'DSQ_ALLOW_REAL_AWS';
+
+/**
+ * Why this configuration must not run unattended, or null when it is safe.
+ *
+ * MEASURED, AND IT COST A REAL TABLE. `npm run api:table` with no `DSQ_DDB_ENDPOINT` resolved the REAL service
+ * for the region and CREATED the table in the account this machine's ambient credentials belong to — a setup
+ * tool whose default action was to make infrastructure somewhere the user never named. The same shape applies
+ * to the dev server, which SEEDS the local fixture: with store=dynamodb and no endpoint it would write
+ * development schedule rows into a production table. Reading is not the danger; creating and seeding are.
+ *
+ * SO AN ENDPOINT IS REQUIRED, OR AN EXPLICIT `DSQ_ALLOW_REAL_AWS=1`. A deployed Lambda passes neither and never
+ * calls this — it is a guard for the two entry points that WORK on a store (the setup tool and the dev server),
+ * not a rule inside the handlers.
+ */
+export function realServiceWarning(config: Config, env: Record<string, string | undefined> = process.env): string | null {
+  if (config.endpoint !== null) return null;
+  if (env[ALLOW_REAL_AWS] === '1') return null;
+  return `no DSQ_DDB_ENDPOINT is set, so this would use the REAL AWS service in ${config.region}: set DSQ_DDB_ENDPOINT for a local run, or ${ALLOW_REAL_AWS}=1 to mean it`;
+}
+
 /**
  * Read the configuration.
  *

@@ -74,6 +74,11 @@ Configuration is `DSQ_*` environment variables with working defaults (`DSQ_STORE
 and is bound to `127.0.0.1` for that reason, while a real deployment takes its credentials from the Lambda
 role.
 
+**`api:table` and `dev:api:ddb` REFUSE to run without `DSQ_DDB_ENDPOINT`** unless `DSQ_ALLOW_REAL_AWS=1` is set
+as well: with no endpoint the SDK resolves the real service for the region, so the default would be to create a
+table and seed a schedule in whatever account the ambient credentials belong to. That happened once, while this
+tool was being written (AGENTS.md §8 trap 21), and the guard is what came of it.
+
 Because the poc depends on the engine via the workspace link, rebuild the engine
 with `npm run build:engine` whenever the engine source changes — `poc/verify.cjs`
 and every PoC probe run against the built `dist`, so a stale build silently tests

@@ -1276,6 +1276,20 @@ export class CallApplicator {
     // whatever order the Map happened to iterate in. Registration order is that thing, and it is what
     // the old code used - so a tie resolves exactly as before and only a STRICT improvement moves.
     candidates.sort((a, b) => (a.error - b.error) || (a.index - b.index));
+    // MEASURED CAVEAT: DOCUMENT ORDER IS STABLE BUT IT IS NOT NEUTRAL, and the size of that is known.
+    // With the `Lead Right` / `Lead Left` bodies pooled under one title, **86 of 276** (title, board) pairs
+    // change which body runs when the blocks are reversed, and the gate's own criterion calls **21** of them
+    // collapses the order decides - a clean ~2.0 against ~0.0. Corpus-wide the same test is rare: **46 of
+    // 7900** pairs (0.6%) over 790 multi-setup titles, **5** of them collapse-deciding. So this key is doing
+    // its job of being stable, and it is NOT choosing the better body - it cannot, because a collapse is only
+    // visible on the destination and nothing has been applied yet.
+    // WHICH RULE WOULD CHOOSE BETTER, measured against every candidate over the pooled family (86 pairs, the
+    // gate's criterion, each body forced alone through a synthetic name): prefer the candidate whose
+    // APPLICATION does not collapse - **83 clean, 0 collapsing, 3 with no clean body at all** (`Lead Left` on
+    // `3 and 1 lines #2`, `Completed Double Pass Thru`, `Double Pass Thru`: authoring, not arbitration);
+    // naming the board **0 clean / 86 cannot choose** (these setups are relational by construction); tightest
+    // spacing **48 collapsing**; widest **49**. The survivors are ambiguous - **65 of 86** have more than one
+    // clean body - so this key stays, as the tie-break among the sane ones rather than as the only one.
     // Apply best-fit-first, keeping the old "first one whose sub-applies are all legal wins" rule: a
     // lower-error tiling whose per-group call does not apply is not a better answer, it is not an
     // answer at all.

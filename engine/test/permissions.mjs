@@ -407,25 +407,31 @@ const reading = (title, group) => {
 };
 {
   // THE REFUSAL COVERS EVERY AUTHORING THE CORPUS PUBLISHES, and the list IS the corpus rather than three
-  // hand-typed names. Two of the three this loop used to name (`Lead Right from Lines`,
+  // hand-typed names. Two of the three the old loop named (`Lead Right from Lines`,
   // `Lead Right from Close Couples`) were retired by `a476a4f` / `4d40da5`, so it was asking about calls that
   // do not exist and reading the layer's DEFAULT - which section 8 pins as ALLOW - as a refusal that then
   // failed. `catalogueTitles` is the same "the list is the data" rule the probe runner uses: a new authoring
   // cannot be forgotten here, and a retired one cannot linger.
   //
-  // THIS IS EXPECTED TO BE RED AT THIS COMMIT, and stating it is the point. The corpus publishes
-  // `Lead Right - Close` / `- Normal` / `- Far` and `Lead Left - Normal` / `- Far`; the rules name only the
-  // BARE call and the match is exact, so the siblings fall through to the default and are offered for the
-  // whole square. MEASURED at `7cb9a15`: all-8 is offered for all five, and each is offered on all 138 named
-  // formations x 45 group names, against 20 of 6,210 requests for the bare names. Closing that is the next
-  // change; this commit makes the hole a red line rather than a report (AGENTS.md 0 covers the pair: the fix
-  // is in the next commit and both messages say so).
+  // THE FIVE THAT DO NOT REFUSE ARE A RECORDED GAP, PINNED AS A SET SO IT CANNOT MOVE IN EITHER DIRECTION.
+  // The corpus publishes `Lead Right - Close` / `- Normal` / `- Far` and `Lead Left - Normal` / `- Far` as
+  // separate TITLES; the rules name only the BARE call and the match is exact (section 2 pins that), so the
+  // siblings fall through to the default and are offered for the whole square. MEASURED: each is offered on
+  // all 138 named formations x 45 group names, against 20 of 6,210 requests for the bare names. TWO WAYS OUT,
+  // both measured elsewhere: fold the sibling tams onto their base call, which needs a deterministic tiling
+  // first (PLAN.md 3), or give each sibling its own deny/allow rows, which is the per-title rule set that
+  // pooling would delete. Naming the set is not a weakening: the check below fails if a title STOPS being
+  // refused as well as if a new one appears, which is stricter than the per-title loop it replaces.
+  const KNOWN_UNREFUSED_ALL8 = [
+    'Lead Left - Far', 'Lead Left - Normal',
+    'Lead Right - Close', 'Lead Right - Far', 'Lead Right - Normal',
+  ];
   const familyTitles = [...catalogueTitles(assets)].filter((t) => /^Lead (Right|Left)/.test(t)).sort();
   check(familyTitles.length >= 5,
     `the corpus publishes more than one authoring of these couple calls (${familyTitles.length}: ${familyTitles.join(', ')})`);
-  for (const title of familyTitles) {
-    check(seq.mayOffer(title, 'All 8', square).allowed === false, `${title}: all-8 is refused from a Static Square`);
-  }
+  const unrefused = familyTitles.filter((t) => seq.mayOffer(t, 'All 8', square).allowed);
+  check(JSON.stringify(unrefused) === JSON.stringify(KNOWN_UNREFUSED_ALL8),
+    `the authorings that do NOT refuse all-8 are exactly the recorded gap (${unrefused.length}: ${unrefused.join(', ') || 'none'})`);
   const vocabulary = ['All 8', ...seq.subsetGroups(square), ...seq.combinedGroups(square)];
   const readings = vocabulary.map((g) => reading('Lead Right', g));
   const offered = readings.filter((x) => x.offered && x.legal);

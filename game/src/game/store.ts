@@ -26,7 +26,7 @@
 //      game plays on, `saving` is false, and the screen says so. `poc/src/data.ts` already does this, and the
 //      reason is the same: the storage is a convenience, and the game is the product.
 
-import { MAX_SAVED_RUNS, SAVE_KEY } from '../puzzle/config.ts';
+import { HINT_CAP, MAX_SAVED_RUNS, SAVE_KEY } from '../puzzle/config.ts';
 import type { DailyOutcome } from './daily-run.ts';
 import { sanitiseLedger, type HintLedger } from '../puzzle/hints.ts';
 
@@ -170,15 +170,21 @@ export function wallGapMs(savedAtMs: number, wallNowMs: number): number {
  * A new id for a run, which Phase 5's claim is idempotent on.
  *
  * `crypto.randomUUID` IS NOT AVAILABLE EVERYWHERE — a non-secure origin has no `randomUUID` at all — so the
- * fallback is a stamped counter, which is unique within a device and never needs to be unguessable: it keys
- * the player's own claim, not anyone else's.
+ * fallback is stamped and random. It never needs to be unguessable (it keys the player's own claim, not
+ * anyone else's), but it does need to be UNIQUE, and the millisecond plus a counter is not enough on its own:
+ * THE COUNTER RESTARTS AT ZERO ON EVERY RELOAD, so two runs recorded in the same millisecond either side of
+ * one would collide — and `recordRun` DEDUPES on this id, so the second run would be dropped without a word.
+ * MEASURED by `game/test/save-probe.mjs`, which loads this module TWICE as separate instances (what a reload
+ * is for a module) with `crypto` removed: without the random part, both loads hand back the same two ids, so a
+ * four-id sample holds two distinct values.
  */
 let fallbackCounter = 0;
 export function newRunId(nowMs: number): string {
   const cryptoApi = (globalThis as { crypto?: { randomUUID?: () => string } }).crypto;
   if (typeof cryptoApi?.randomUUID === 'function') return cryptoApi.randomUUID();
   fallbackCounter += 1;
-  return `r${Math.floor(nowMs).toString(36)}-${fallbackCounter.toString(36)}`;
+  const entropy = Math.floor(Math.random() * 0x1000000).toString(36);
+  return `r${Math.floor(nowMs).toString(36)}-${fallbackCounter.toString(36)}-${entropy}`;
 }
 
 /**
@@ -347,7 +353,10 @@ function sanitiseDaily(raw: unknown): DailySaved | null {
     day: r['day'],
     levelIndex: intOr(r['levelIndex'], 1, 1),
     moves,
-    hintsUsed: intOr(r['hintsUsed'], 0, 0),
+    // A RUN CANNOT HAVE SPENT MORE HINTS THAN THE BALANCE CAN HOLD. `HINT_CAP` is the most a player can be
+    // holding (DESIGN.md 10), so a record claiming more is hand-edited — and the charge is folded into the
+    // elapsed time, which means an unbounded `hintsUsed` is an unbounded score for a run nobody played.
+    hintsUsed: Math.min(HINT_CAP, intOr(r['hintsUsed'], 0, 0)),
     hintedCall: typeof hinted === 'string' ? hinted : null,
     elapsedMs: intOr(r['elapsedMs'], 0, 0),
     outcome,

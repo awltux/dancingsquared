@@ -177,6 +177,11 @@ console.log('\n== 6b. a run record without an ID is refused whole ==');
   check(noDrillId.state.drillRun === null, 'a drill record with no runId is not carried');
   const noDailyId = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), daily: { day: '2026-10-15', levelIndex: 1, moves: [], hintsUsed: 0, hintedCall: null, elapsedMs: 0, outcome: 'playing', savedAtMs: 0 } }) }), POOL);
   check(noDailyId.state.daily === null, 'nor is a Daily record with no runId');
+  // THE HINT COUNT IS BOUNDED BY THE BALANCE. A run cannot have spent more hints than a player can hold
+  // (DESIGN.md 10), the charge is folded into the elapsed time, and the elapsed is what the score's time
+  // factor reads — so an unbounded count is an unbounded score for a run nobody played.
+  const manyHints = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), daily: { runId: 'r', day: '2026-10-15', levelIndex: 1, moves: [], hintsUsed: 99, hintedCall: null, elapsedMs: 0, outcome: 'playing', savedAtMs: 0 } }) }), POOL);
+  check(manyHints.state.daily.hintsUsed === HINT_CAP, `a record claiming 99 hints is clamped to the cap (${manyHints.state.daily.hintsUsed})`);
   // NEGATIVE CONTROLS, MEASURED, one line each: relaxing the DRILL's id check reddens the drill check above,
   // and relaxing the Daily's reddens the Daily one. Neither can be a single control, because the two records
   // are validated in different functions — which is also why a store cannot mint an id for a run it did not
@@ -233,6 +238,26 @@ console.log('\n== 10. ids are unique, with and without crypto ==');
   if (original) Object.defineProperty(globalThis, 'crypto', original);
   check(without.size === 100, `and 100 from the stamped fallback are distinct too (${without.size})`);
   check([...without].every((id) => id.startsWith('r')), 'and the fallback ids are recognisable by their prefix');
+
+  // ACROSS A RELOAD, WHICH IS THE CASE THE COUNTER ALONE CANNOT COVER. The counter is module state, so it
+  // restarts at zero when the page does — and two runs recorded in the same millisecond either side of a
+  // reload would then collide, which `recordRun`'s dedupe turns into a SILENTLY DROPPED RUN. A second module
+  // instance is what a reload IS for this module, and it is loaded for real (a query string is a different
+  // URL, so Node evaluates it again) rather than mocked.
+  Object.defineProperty(globalThis, 'crypto', { value: undefined, configurable: true });
+  // TWO FRESH INSTANCES, not this one: the counter of a module instance has already moved past zero by here
+  // (the loop above took 100 ids from it), and a reload that restarts at zero would then look unique for the
+  // wrong reason. MEASURED while writing this: the first version of the check passed with the entropy REMOVED
+  // for exactly that reason, which is a check no alternative fails.
+  const loadA = await import('../src/game/store.ts?load-a');
+  const firstIds = [loadA.newRunId(5000), loadA.newRunId(5000)];
+  const loadB = await import('../src/game/store.ts?load-b');
+  const secondIds = [loadB.newRunId(5000), loadB.newRunId(5000)];
+  if (original) Object.defineProperty(globalThis, 'crypto', original);
+  // NEGATIVE CONTROL, MEASURED: dropping the random part of the fallback makes the two loads produce the SAME
+  // two ids — same millisecond, counter back at one — so the set holds 2 rather than 4 and this check is the
+  // only one that reddens.
+  check(new Set([...firstIds, ...secondIds]).size === 4, `four ids from two loads of the module in the same millisecond are all distinct (${new Set([...firstIds, ...secondIds]).size})`);
 }
 
 console.log('\n== 11. the best score counts only this build\'s weights ==');

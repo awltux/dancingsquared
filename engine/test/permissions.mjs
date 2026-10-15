@@ -24,6 +24,8 @@
 //  (15) and the refusal REMOVES THE OVERLAP: every reading still offered is a WHOLE COUPLE, moves at most
 //       two couples and never closes within 1.0 of another dancer, while the refused reading moves all
 //       eight onto one spot
+//  (16) the rules do not outgrow the corpus: every `<call> - <variant>` authoring of a GOVERNED call is
+//       governed too, and a numbered couple can still dance each of them
 //
 // Usage: node engine/test/permissions.mjs
 import { readFileSync } from 'node:fs';
@@ -413,25 +415,24 @@ const reading = (title, group) => {
   // failed. `catalogueTitles` is the same "the list is the data" rule the probe runner uses: a new authoring
   // cannot be forgotten here, and a retired one cannot linger.
   //
-  // THE FIVE THAT DO NOT REFUSE ARE A RECORDED GAP, PINNED AS A SET SO IT CANNOT MOVE IN EITHER DIRECTION.
-  // The corpus publishes `Lead Right - Close` / `- Normal` / `- Far` and `Lead Left - Normal` / `- Far` as
-  // separate TITLES; the rules name only the BARE call and the match is exact (section 2 pins that), so the
-  // siblings fall through to the default and are offered for the whole square. MEASURED: each is offered on
-  // all 138 named formations x 45 group names, against 20 of 6,210 requests for the bare names. TWO WAYS OUT,
-  // both measured elsewhere: fold the sibling tams onto their base call, which needs a deterministic tiling
-  // first (PLAN.md 3), or give each sibling its own deny/allow rows, which is the per-title rule set that
-  // pooling would delete. Naming the set is not a weakening: the check below fails if a title STOPS being
-  // refused as well as if a new one appears, which is stricter than the per-title loop it replaces.
-  const KNOWN_UNREFUSED_ALL8 = [
-    'Lead Left - Far', 'Lead Left - Normal',
-    'Lead Right - Close', 'Lead Right - Far', 'Lead Right - Normal',
-  ];
+  // THE FIVE THAT DID NOT REFUSE ARE REFUSED NOW, and the set is still pinned - empty - so it cannot move
+  // silently in either direction. The corpus publishes `Lead Right - Close` / `- Normal` / `- Far` and
+  // `Lead Left - Normal` / `- Far` as separate TITLES; the match is exact (section 2 pins that), so a rule
+  // keyed on the BARE call cannot see an authoring published BESIDE it and the siblings fell through to the
+  // default - which section 8 pins as ALLOW - and were offered for the whole square. MEASURED before the rows
+  // landed: each was offered on all 138 named formations x 45 group names, against 20 of 6,210 requests for
+  // the bare names. `5096c63` closed it with the second of the two ways out this comment used to name - a
+  // deny/allow pair per sibling; the first, folding the sibling tams onto their base call, is still blocked
+  // on a deterministic tiling (PLAN.md 3). Pinning an EMPTY set is not a weakening: the check below fails if
+  // a title STOPS being refused as well as if a new one appears, which is stricter than the per-title loop
+  // it replaces. Section 16 is the other direction of the same question.
+  const KNOWN_UNREFUSED_ALL8 = [];
   const familyTitles = [...catalogueTitles(assets)].filter((t) => /^Lead (Right|Left)/.test(t)).sort();
   check(familyTitles.length >= 5,
     `the corpus publishes more than one authoring of these couple calls (${familyTitles.length}: ${familyTitles.join(', ')})`);
   const unrefused = familyTitles.filter((t) => seq.mayOffer(t, 'All 8', square).allowed);
   check(JSON.stringify(unrefused) === JSON.stringify(KNOWN_UNREFUSED_ALL8),
-    `the authorings that do NOT refuse all-8 are exactly the recorded gap (${unrefused.length}: ${unrefused.join(', ') || 'none'})`);
+    `every authoring refuses all-8 from a Static Square (${unrefused.length} do not: ${unrefused.join(', ') || 'none'})`);
   const vocabulary = ['All 8', ...seq.subsetGroups(square), ...seq.combinedGroups(square)];
   const readings = vocabulary.map((g) => reading('Lead Right', g));
   const offered = readings.filter((x) => x.offered && x.legal);
@@ -462,6 +463,41 @@ const reading = (title, group) => {
   check(notCouples.length === 0,
     `every offered reading is a WHOLE COUPLE (${notCouples.length} were not: ${notCouples.map((x) => x.group).join(', ') || 'none'})`);
   console.log(`    offered here: ${offered.map((x) => `${x.group}(${x.moved} dancers)`).sort().join(', ')}`);
+}
+
+console.log('\n== (16) A GOVERNED CALL\'S AUTHORING VARIANTS ARE GOVERNED TOO ==');
+{
+  // SECTION 15 PINS THE BEHAVIOUR FOR ONE FAMILY; THIS PINS THE RULE SET AGAINST THE WHOLE CORPUS, because
+  // that is the direction the gap actually opened in. The rules match a call EXACTLY (section 2 pins that,
+  // and `Dosado to a Wave` is its negative control) and the corpus spells an AUTHORING variant of a call
+  // `<call> - <variant>`, so a variant of ANY governed call is ungoverned by construction and falls through
+  // to the default. MEASURED as this check's negative control: substituting the rule set that was on master
+  // BEFORE `5096c63` (`git show d54b867:engine/src/sequencer/permissions.ts`: `Dosado`, `Lead Left`,
+  // `Lead Right`) for the shipped set makes this predicate name exactly the five siblings section 15 used to
+  // list, so it is the check that would have caught the gap on the commit that opened it rather than on the
+  // one that closed it.
+  //
+  // THE SEPARATOR IS PART OF THE RULE RATHER THAN A CONVENIENCE. A looser measure on `<call> <anything>` was
+  // tried and it demands `Dosado to a Wave`, `Dosado your Corner` and `Dosado your Partner` be governed too
+  // - three DIFFERENT calls, which section 2 leaves alone on purpose. The eight `Circle * - Stop at Home`
+  // titles are not asked for either, because their base is not governed: this asks that a family not outgrow
+  // its rules, not that every dashed title be ruled on.
+  const governed = new Set(PERMISSION_RULES.map((r) => r.call).filter(Boolean));
+  const variantBase = (t) => (t.includes(' - ') ? t.slice(0, t.indexOf(' - ')) : null);
+  const variants = [...catalogueTitles(assets)].filter((t) => {
+    const base = variantBase(t);
+    return base !== null && governed.has(base);
+  }).sort();
+  const ungovernedVariants = variants.filter((t) => !governed.has(t));
+  check(ungovernedVariants.length === 0,
+    `every authoring variant of a governed call is governed too (${ungovernedVariants.length} not: ${ungovernedVariants.join(', ') || 'none'})`);
+  // AND THE DENY DID NOT EAT THE CALL IT PROTECTS. A rule pair with a deny and no allow row for the numbered
+  // couples would satisfy every check above while making the variants undanceable - the failure mode a
+  // per-title pair has and the bare-call rule it replaced did not - so this is the negative control for the
+  // rows themselves, not a restatement of the check above.
+  const refused = variants.filter((t) => !seq.mayOffer(t, 'Couple #1', square).allowed);
+  check(refused.length === 0,
+    `and a numbered couple may still dance each of them (${variants.length - refused.length} of ${variants.length}: ${refused.join(', ') || 'none'} refused)`);
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

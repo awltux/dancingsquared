@@ -8,7 +8,7 @@
 // decision to revisit with playtest data; presenting one of those as measured would be the fabrication
 // AGENTS.md 4.1 forbids, so they are labelled.
 
-import type { GeneratorConfig, LevelSpec } from './types.ts';
+import type { GeneratorConfig, LevelSpec, PuzzleMode } from './types.ts';
 
 /**
  * The states a single search may enumerate — read by the GENERATOR, and by the hint's reverse BFS.
@@ -39,9 +39,14 @@ export const NODE_BUDGET = 50_000;
  *
  * IT BUILDS A NEW OBJECT on every call rather than returning a shared one: a module-level config object
  * is one `Object.assign` (or one field write) away from a caller editing the default for everybody.
+ *
+ * `mode` DEFAULTS TO THE DRILL, because that is what nearly every caller wants and a default that failed
+ * loudly would put an argument at every call site that has no opinion. The Daily is the one caller that
+ * passes `'daily'`, and `game/test/config-probe.mjs` pins both readings — MEASURED, the generator stamped
+ * `mode: 'drill'` on every puzzle before this, so a Daily challenge was labelled as a Drill.
  */
-export function generatorConfigFor(poolVersion: string, level: LevelSpec): GeneratorConfig {
-  return { poolVersion, maxDepth: level.depth, nodeBudget: NODE_BUDGET };
+export function generatorConfigFor(poolVersion: string, level: LevelSpec, mode: PuzzleMode = 'drill'): GeneratorConfig {
+  return { poolVersion, mode, maxDepth: level.depth, nodeBudget: NODE_BUDGET };
 }
 
 /**

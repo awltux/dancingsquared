@@ -9,6 +9,7 @@ export * from './levels.ts';
 export * from './pool.ts';
 export * from './rand.ts';
 export * from './config.ts';
+export * from './daily.ts';
 export * from './generator.ts';
 export * from './schedule.ts';
 export * from './session.ts';

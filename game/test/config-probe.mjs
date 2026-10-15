@@ -45,6 +45,18 @@ console.log('== 1. the configuration reads the LEVEL, not the ladder ceiling =='
   check(generatorConfigFor('a', L1) !== generatorConfigFor('a', L1), 'each call builds a fresh object, so no caller can edit another caller\'s configuration');
 }
 
+console.log('\n== 1b. the mode travels with the configuration ==');
+{
+  // THE GENERATOR USED TO STAMP `mode: 'drill'` ON EVERY PUZZLE, measured: a Daily challenge came back
+  // labelled as a Drill, which is the field Phase 5 will read to decide which board a run belongs on. The
+  // default is the Drill because every caller but one is the Drill.
+  const L1 = levelSpec(1);
+  check(generatorConfigFor('pool-under-test', L1).mode === 'drill', `the default wants a Drill (got ${generatorConfigFor('pool-under-test', L1).mode})`);
+  check(generatorConfigFor('pool-under-test', L1, 'daily').mode === 'daily', 'and a caller that says "daily" gets a Daily');
+  // Negative control: a factory with one hard-coded mode fails exactly one of the two checks above, and
+  // nothing else in this package reads `GeneratorConfig.mode`.
+}
+
 console.log('\n== 2. no source in this package hands the generator a budget of its own ==');
 {
   // WHY A SOURCE SCAN RATHER THAN A BEHAVIOURAL CHECK: the thing being pinned is the ABSENCE of a second

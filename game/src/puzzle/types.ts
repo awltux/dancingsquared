@@ -152,6 +152,12 @@ export interface Puzzle {
 export interface GeneratorConfig {
   /** The pool version stamped on every puzzle this configuration generates. */
   poolVersion: string;
+  /**
+   * WHICH MODE the puzzle is generated for. The Drill's questions and the Daily's challenge are the same
+   * generator over the same seed and level, and this is the only field that tells the two apart — so it
+   * belongs in the configuration rather than being inferred by whoever reads the puzzle later.
+   */
+  mode: PuzzleMode;
   /** The longest solution to look for. The caller passes the level's depth; this is the ceiling the
    * search will enumerate to, so it bounds the work rather than the answer. */
   maxDepth: number;

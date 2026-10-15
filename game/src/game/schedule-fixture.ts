@@ -16,12 +16,22 @@
 // and that a three-option question needs a pool of at least 35 titles (L16). So the fixture is exactly the
 // part of the ladder that always generates — three levels, two options, no 3-button question — which keeps
 // "the fixture is what broke" off the list of reasons the app can fail.
+import { POOL_VERSION } from '../puzzle/pool.ts';
 import type { ScheduleEntry } from '../puzzle/types.ts';
 
 export type ScheduleFixture = readonly ScheduleEntry[];
 
-/** The pool version these entries were validated against. A mismatch is what `lintSchedule` reports. */
-export const FIXTURE_POOL_VERSION = 'ms-1';
+/**
+ * The pool version these entries were validated against.
+ *
+ * IT IS `POOL_VERSION` ITSELF, not a second copy of the string. It used to be the literal `'ms-1'`, which
+ * is a duplicate of the shipped pool's version with no gate that would notice the two drifting apart:
+ * MEASURED, nothing under `game/` compares a fixture entry's version against `MAIN_POOL.version` — the
+ * schedule-lint probe builds its own entries from `MAIN_POOL.version` — so a bumped pool would have left
+ * this file claiming the old one silently. It stays a named export because it reads better at the
+ * call sites below ("validated against THE FIXTURE's pool") than the raw constant would.
+ */
+export const FIXTURE_POOL_VERSION = POOL_VERSION;
 
 export const LOCAL_SCHEDULE: ScheduleFixture = [
   { seed: 1, levelIndex: 1, poolVersion: FIXTURE_POOL_VERSION },

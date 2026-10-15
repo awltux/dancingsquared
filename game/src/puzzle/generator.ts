@@ -330,7 +330,7 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
     }
 
     return {
-      mode: 'drill',
+      mode: config.mode,
       seed,
       level,
       poolVersion: config.poolVersion,

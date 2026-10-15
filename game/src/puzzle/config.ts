@@ -73,9 +73,17 @@ export const MOVE_ALLOWANCE_CUSHION = 2;
  */
 export const HINT_PENALTY_SECONDS = 60;
 
-/** The most hints a player may hold at once (DESIGN.md 10). Not yet read by any code — the cap is enforced
- * by the hint ledger, which arrives with the earning rule. */
+/** The most hints a player may hold at once (DESIGN.md 10). Enforced by `puzzle/hints.ts`. */
 export const HINT_CAP = 3;
+
+/**
+ * How many successful Drill puzzles earn one hint (DESIGN.md 10: "one hint per 10").
+ *
+ * CHOSEN, not measured, and the cadence is what makes a hint a tip rather than a resource. It is also the
+ * number the schedule's cadence interacts with — how long ten successes take is a property of the regime —
+ * which is part of why DESIGN.md 15 leaves the cadence itself open.
+ */
+export const HINT_SUCCESS_STEP = 10;
 
 // ---------------------------------------------------------------------------------------------- scoring
 //

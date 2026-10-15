@@ -136,6 +136,20 @@ const BODY_PATH_CLEARANCE = 0.0;
 export { BODY_PATH_CLEARANCE };
 
 /**
+ * The least number of samples the parallel path's collision check takes over a call.
+ *
+ * WHY IT IS NOT "EVERY HALF BEAT", WHICH IS WHAT IT WAS. `authoredPathGap` sampled at a FIXED 0.5 beats,
+ * so a caller's number had a resolution that depended on how long the call is, while the instrument that
+ * judges this engine's faults samples 24 points of every call. A predicate coarser than its judge is how a
+ * `Chain Down the Line` candidate that interpenetrates at ONE beat was reported clean and deferred to last -
+ * MEASURED: the deferral moved that pair from a clean body to one the gate counted, taking the coincident
+ * count 295 -> 296 and the animation faults 272 -> 273. Sampling `total / PATH_SAMPLES` when that is finer
+ * than 0.5 closes the gap: the iteration count is at least this and otherwise follows the fixed step.
+ */
+const PATH_SAMPLES = 24;
+export { PATH_SAMPLES };
+
+/**
  * The genders a set of dancers carries, as a comparable key. Used to prefer a group that reproduces
  * the genders the authored setup declares.
  */
@@ -1177,13 +1191,22 @@ export class CallApplicator {
    * group holds its final pose while a longer one finishes — the same reading `durationBeats` gives a
    * parallel step.
    */
-  private authoredPathGap(groups: SeqDancer[][], callName: string, step = 0.5): BodyPair | null {
+  private authoredPathGap(
+    groups: SeqDancer[][],
+    callName: string,
+    step = 0.5,
+  ): { worst: BodyPair | null; covered: boolean } {
     // Each dancer's own pose source in the variant that tiled it, plus that group's match.
     const sources: { d: SeqDancer; v: CallBundle['dancers'][number]; m: VariantMatch }[] = [];
     let total = 0;
+    let expected = 0;
     for (const group of groups) {
+      expected += group.filter((d) => !d.isGhost).length;
       const gb: Board = { dancers: group.map((d) => ({ ...d })) };
       const m = this.matcher.findMatchingVariant(gb, callName, SEARCH_MATCH_MAX + this.config.matchMargin);
+      // A GROUP WITH NO MATCH IS NOT CHECKED AT ALL, and that used to be invisible: `continue` left its
+      // dancers out of every sampled frame, so the pair returned was a minimum over a SUBSET and read exactly
+      // like a clean answer. `covered` is what says whether the number is over every dancer.
       if (!m) continue;
       const { variant, mapping } = m;
       for (let i = 0; i < group.length; i++) {
@@ -1192,10 +1215,14 @@ export class CallApplicator {
         total = Math.max(total, dancerBeats(v));
       }
     }
-    if (sources.length === 0 || !(total > 0)) return null;
+    const covered = sources.filter((s) => !s.d.isGhost).length === expected;
+    if (sources.length === 0 || !(total > 0)) return { worst: null, covered: false };
 
     let worst: BodyPair | null = null;
-    for (let t = 0; t <= total + 1e-9; t += step) {
+    // AT LEAST `PATH_SAMPLES` OVER THE CALL, and 0.5 beats otherwise - see `PATH_SAMPLES` for the witness
+    // that made the fixed step a defect in this predicate.
+    const fine = Math.min(step, total / PATH_SAMPLES);
+    for (let t = 0; t <= total + 1e-9; t += fine) {
       const all = sources.map(({ d, v, m }) => {
         const start = poseFor(v, 0);
         const cur = poseFor(v, Math.min(t, dancerBeats(v)));
@@ -1218,7 +1245,7 @@ export class CallApplicator {
         }
       }
     }
-    return worst;
+    return { worst, covered };
   }
 
   parallelApply(
@@ -1293,6 +1320,16 @@ export class CallApplicator {
     // Apply best-fit-first, keeping the old "first one whose sub-applies are all legal wins" rule: a
     // lower-error tiling whose per-group call does not apply is not a better answer, it is not an
     // answer at all.
+    // THE ANSWER OF LAST RESORT. With the guard OFF a candidate whose bodies interpenetrate is not REFUSED -
+    // it is DEFERRED, because a later candidate in this same (error, document order) order that does not walk
+    // two bodies through each other is a strictly better answer to the same question, while keeping the first
+    // one means this changes nothing when no better candidate exists. That is the difference from `'guard'`,
+    // which refuses the call outright and so refuses 45.8% of the corpus (`BODY_PATH_CLEARANCE`'s note): this
+    // can only replace a colliding body with a non-colliding one, never turn a legal application into a
+    // refusal. MEASURED over the pooled `Lead Right`/`Lead Left` family (86 order-sensitive pairs): the order
+    // decides a collapse on 21 of them, and "prefer the body that does not interpenetrate" is the only one of
+    // four candidate rules that picks none (83 clean / 0 collapsing / 3 with no clean body at all).
+    let fallback: (ApplyResult & { error: number }) | null = null;
     for (const cand of candidates) {
       const { v, groups, error } = cand;
       // Apply the call to each subset independently (disable parallel recursion).
@@ -1316,17 +1353,24 @@ export class CallApplicator {
       // candidate survives does the call become illegal — which is the honest answer for a call the
       // engine cannot dance without two bodies occupying the same space.
       let bodyCollision: BodyPair | null = null;
+      // NOT PROVEN CLEAN is deliberately wider than "interpenetrates": a candidate whose check could not
+      // cover every dancer has not been shown to be clean either, and reading that silence as a clean bill of
+      // health is the failure mode already recorded (PLAN.md 3). It only ever feeds the DEFERRAL - the
+      // `'guard'` branch above is untouched, so the guard behaves exactly as it did.
+      let notProvenClean = false;
       if (this.config.bodyCollisionMode !== 'off') {
-        bodyCollision = this.authoredPathGap(groups, callName);
+        const gap = this.authoredPathGap(groups, callName);
+        bodyCollision = gap.worst;
         const interpenetrates = !!bodyCollision && bodyCollision.gap < BODY_PATH_CLEARANCE;
         if (interpenetrates && this.config.bodyCollisionMode === 'guard') continue;
+        notProvenClean = interpenetrates || !gap.covered;
       }
       // Restore the board's OWN dancer order. The groups were concatenated in
       // partition order, which permuted the array; callers pair dancers by array
       // position (the renderer draws view[i] from poses[i]), so a permuted board
       // made the dancers appear to swap places once a subset call completed.
       const movedById = new Map(merged.map((d) => [d.id, d]));
-      return {
+      const result = {
         board: { dancers: board.dancers.map((d) => movedById.get(d.id) ?? d) },
         legal: true,
         error,
@@ -1337,8 +1381,13 @@ export class CallApplicator {
         // refuse — that is the number that has to be tracked before the guard is switched on.
         ...(bodyCollision ? { bodyCollision } : {}),
       };
+      if (notProvenClean) {
+        if (!fallback) fallback = result;
+        continue;
+      }
+      return result;
     }
-    return null;
+    return fallback;
   }
 
   /**

@@ -54,8 +54,17 @@ const call = (name, mode) => {
 console.log('== (1) the corpus witnesses are DETECTED ==');
 // The depths are the measured ones, pinned rather than asserted loosely, so a regression that silently
 // stops measuring the path (and reports a mere endpoint value) shows up as a failure.
+//
+// THE DOSADO PAIR MOVED 1+4 -> 6+3, and the reason is recorded because the pin is about WHICH DANCERS. The
+// path check now samples at least `PATH_SAMPLES` (24) points over a call instead of a fixed half beat, and
+// the two pairs overlap at the SAME depth - the depth check is unmoved at -0.377 against -0.39 - so on this
+// board the identity of the shallowest pair is a near-tie that the sampling grid used to settle. The grid is
+// deterministic now, so the pin is too; the pair is a DIAGNOSTIC (the deferral reads only the gap).
+// Two other candidates for stabilising it were tried and REFUTED by this file: breaking the tie by lowest id
+// gave 1+4 for BOTH `Dosado` and `Right and Left Thru` and 1+8 for `Touch a Quarter`, contradicting two of
+// the three pins, which is what showed the old answers were grid artefacts rather than a rule to keep.
 const WITNESSES = [
-  ['Dosado', -0.39, '1', '4'],
+  ['Dosado', -0.39, '6', '3'],
   ['Right and Left Thru', -0.28, '6', '7'],
   ['Touch a Quarter', -0.75, '6', '8'],
 ];

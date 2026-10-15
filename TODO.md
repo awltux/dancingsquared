@@ -127,7 +127,8 @@ measurement.** At `abc10f1` with `poc/src/assets` clean, **25 of 46 harnesses fa
 them are a stale pin or a stale generated asset — the rest are live work: the `Circle Left` ring, the bare
 `Promenade` gap, the `Lead Right` square-set rule. A red below is a defect until the sweep says otherwise.
 
-- [x] **5. DONE `abc10f1` — the corpus is frozen, the measurement is taken, and the `50d3e95` sweep is run.** `[measured]`
+- [x] **5. DONE `dc51e56` — the corpus is frozen, the measurement is taken, and the `50d3e95` sweep is run.**
+  `[measured]` (measured AT `abc10f1`, the declared-final corpus revision)
   The seven XMLs are committed (`ms/circle.xml` is `a834725`, verbatim the content that was pending), and the
   owner has declared the catalogue final. `poc/src/assets` is clean, so these numbers are not churn:
   - `npm run verify:light --prefix engine` → **29 of 47 harnesses, 14 FAILED**, 136.9 s

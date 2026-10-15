@@ -122,22 +122,57 @@ suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
 
 ## P1 — the red gates: decide per harness, re-pin or fix
 
-The engine suite is red **because the corpus is mid-edit**, and that currently makes a regression
-indistinguishable from corpus churn. Freeze the corpus, run the full gate once, then work this list.
+**THE SUITE IS RED IN SPITE OF A COMMITTED CORPUS, and the premise this section led with is REFUTED by
+measurement.** At `abc10f1` with `poc/src/assets` clean, **25 of 46 harnesses fail** (item 5) and only NINE of
+them are a stale pin or a stale generated asset — the rest are live work: the `Circle Left` ring, the bare
+`Promenade` gap, the `Lead Right` square-set rule. A red below is a defect until the sweep says otherwise.
 
-- [ ] **5. Freeze the corpus and take one clean measurement.** `[measured]`
-  `npm run verify --prefix engine` → **45 of 46 harnesses, `FAILED at catalogue`, 1604.9 s**;
-  `npm run verify:light --prefix engine` → **29 of 46, `FAILED at catalogue`, 121.7 s**.
-  Seven corpus XMLs are modified and uncommitted in the tree (`formations.xml`,
-  `ms/{alamo_style,allemande,circle,promenade,right_and_left_grand,star}.xml`). Nothing below can be
-  classified as defect-vs-stale until those are settled.
-  **SWEEP FOR MORE `50d3e95` DAMAGE — the pin drifts below are probably not all corpus churn.** Item 1 found
-  that the b1/b2 retirement broke TWO unrelated gates (an ambiguous selector and a stale count) and that
-  neither was attributed. That commit deleted the `b1/` and `b2/` level directories, so any gate counting,
-  pooling or listing tams across levels was pinned to a tree that no longer exists. The method: for each
-  currently-red harness, ask whether its pinned number was plausibly taken across b1/b2, and check with
-  `git show 50d3e95^:poc/src/assets/b1/<file>` whether the difference is exactly the retired copy. A red
-  whose delta equals a b1/b2 duplicate is a re-pin; a red that does not is a real change.
+- [x] **5. DONE `abc10f1` — the corpus is frozen, the measurement is taken, and the `50d3e95` sweep is run.** `[measured]`
+  The seven XMLs are committed (`ms/circle.xml` is `a834725`, verbatim the content that was pending), and the
+  owner has declared the catalogue final. `poc/src/assets` is clean, so these numbers are not churn:
+  - `npm run verify:light --prefix engine` → **29 of 47 harnesses, 14 FAILED**, 136.9 s
+  - `npm run verify --prefix engine` → **46 of 47 harnesses, 25 FAILED**, 1288.4 s, first failure `catalogue`
+
+  RED in `light` (14): catalogue, shape-census, arrangement-picker, verify, sequencer, circle-four, permissions,
+  parallel-calls, step-forward, group-calls, mainstream, matrix, editor, features.
+  RED only in the full tier (11 more): anim-convergence, reading-census, fsm-asset, cell-census, level-census,
+  canonical-identity-probe, getout-conformance, getout-convention, selection, behaviour-audit, callerlab-diff.
+
+  **SWEEP — nine reds are stale pins or a stale generated asset:**
+  - `shape-census` — **RE-PIN.** The pin is 5963 tams (its own buckets sum to exactly that); `50d3e95^` has
+    **6019**, i.e. **+56** from the Promenade family committed between them, and `abc10f1` has **5516**, i.e.
+    **−503** from the b1/b2 retirement exactly: **622** b1/b2 tams retired against **119** added to `ms`
+    (622 − 119 = 503). The written-size buckets moved with the total (2: 1063 → 1001, 4: 4815 → 4434).
+  - `arrangement-picker`; `canonical-identity-probe` — **RE-PIN.** `formations.xml` went **279 → 291** committed
+    formations after the pin, and the arrangement counts and library names moved with it: 2: 6 → 10, 4: 48 → 49,
+    8: 201 → 208, library names 134 → 138 (the `canonical-identity-probe` red is that same 138 vs 134).
+  - `fsm-asset`; `reading-census`; `level-census` — **RE-PIN, one stale asset.** The stored
+    `poc/src/assets/fsm-ms.json` is `catalogCount 274` while the tree builds **290**; `fsm-asset` also reports
+    schema 2 against the engine's 3, 70 states different, and 6 new-fact counts moved. All three read that
+    one file.
+  - `cell-census` — **RE-PIN.** The catalogue grew: 84 geometries → **122** cells (pinned 121) and 505 kept /
+    **215** lost (pinned 506/216); 11 pinned numbers moved.
+  - `getout-conformance` — **RE-PIN.** *"declared as a catalogue gap but the engine DOES implement it now:
+    `Promenade 3/4`, `Promenade Full`"* — two entries to remove from `KNOWN_CATALOGUE_GAPS`.
+  - `callerlab-diff` — **RE-PIN.** `PINNED.matched` 11 → **12** and `notASetup` 11 → **10**: one pair MOVED
+    between the two buckets. The round-39 comment names `Dosado` among the (B) pairs and `Dosado` is not in
+    today's (B) list of ten, so its documented `Facing Dancers` now matches a setup. The other three pins hold.
+  **…and the rest are REAL**: the Circle-family data (`catalogue`, `verify`, `editor`, `mainstream`, `matrix`,
+  `behaviour-audit`), the bare `Promenade` gap (`sequencer`, `getout-convention`), the `Lead Right` square-set
+  rule (`permissions`, `circle-four`), the while-step/lane work (`step-forward`, `parallel-calls`,
+  `group-calls`), the tied board name (`selection`), the figure/animation lists (`anim-convergence`,
+  `features`).
+
+  INSTRUMENT, in this commit: `verify-suite.mjs` now prints **the corpus revision it measured** (git prints it
+  with `stdio: 'inherit'`, since a piped child is EPERM here; a file list means the corpus was dirty) and one
+  `ok` / `FAILED <harness> (Ns)` line per harness. The runner previously named only the FIRST failure, so
+  "FAILED at catalogue" read as though everything after it had passed — which is how a 25-red suite looked like
+  one red. It also caught the corpus moving three times under this session (`a476a4f` → `38d1ee2` → `fa4fb67` →
+  `abc10f1`), which is why the numbers above are taken in the main tree at a declared-final revision rather
+  than in a worktree: a detached `git worktree` isolates the corpus but breaks the FOUR harnesses that import
+  `poc-teacher/src/catalog.ts` (`fsm-asset`, `matrix`, `matrix-getout`, `level-census`), because
+  `node_modules/dancing-squared-engine` is a junction to the main engine and they then hold a SECOND engine
+  instance — measured: `matrix-getout` passes in the main tree and crashed in the worktree.
 
 - [ ] **6. `Circle Left` fails in TWO gates — almost certainly one corpus edit.** `[measured]`
   `node engine/test/catalogue.mjs` → 3 checks:
@@ -155,23 +190,31 @@ indistinguishable from corpus churn. Freeze the corpus, run the full gate once, 
   do NOT fix either gate's expectation first.
 
 - [ ] **7. Pin-drift failures: each needs ONE decision, re-pin or fix.** `[measured]`
-  These are signals, not noise — a pinned number moved.
-  - `anim-convergence` — `the final-frame jump list changed: measured 20, pinned 7` and
-    `the phantom list changed: measured 18, pinned 11`.
-  - `cell-census` (`engine/test/tools/cell-census.mjs`) — `10 pinned number(s) moved - decide and re-pin`,
-    plus `84 geometries -> 121 cells` and `506 kept, 216 lost of 1372 targeted edges`.
-  - `level-census` (`engine/test/tools/level-census.mjs`) — `3 pinned number(s) moved - the
-    STRICT-vs-PERMISSIVE decision has to be taken again`.
-  - `fsm-asset` — `the asset was built from 274 catalog entries, the gate builds 288` and
-    `6 new-fact count(s) moved - decide and re-pin`.
-  - `reading-census` — `288 ms catalog entries, and the stored asset was built from 274`;
-    `40 edge(s) disagree about the reading`; `28 build edge(s) were NOT reproducible`.
-  - `selection` — `a board tied between two formations is still named "Right and Left Grand Static Square"
-    - a tied best match is not an identity`.
-  - `behaviour-audit` — 2, including `declared genders accept Circle Left from a Circle board`.
-  - `editor.mjs` — 4 (identical before and after this session's `Face In` and rotation work):
-    the `Circle Left` 1° heading discrepancy, the bounding-box check, the ms/a1 quarter-arc census, and
-    `the witness has both cases to measure`.
+  These are signals, not noise — a pinned number moved. **ITEM 5 RAN THE SWEEP AND SPLIT THEM**: the four
+  asset/count bullets below are RE-PINS (the b1/b2 retirement, the Promenade family and the `formations.xml`
+  growth all moved the catalogue after the pins were taken), and `anim-convergence`, `selection`,
+  `behaviour-audit` and `editor.mjs` are REAL. Re-measured at `abc10f1`:
+  - `anim-convergence` — **REAL** (no pin of its own moved with the catalogue): `the final-frame jump list
+    changed: measured 20, pinned 7` and `the phantom list changed: measured 18, pinned 11`. The
+    Circle/promenade animation is what moved; decide whether the two lists are re-pinned or the jumps are a
+    defect.
+  - `cell-census` (`engine/test/tools/cell-census.mjs`) — **RE-PIN**: `11 pinned number(s) moved`, plus
+    `84 geometries -> 122 cells` and `505 kept, 215 lost of 1372 targeted edges`.
+  - `level-census` (`engine/test/tools/level-census.mjs`) — **RE-PIN, and it is the STALE ASSET, not the
+    decision**: `the live state count matches the stored asset (70)` and `3 pinned number(s) moved`.
+    Regenerate `poc/src/assets/fsm-ms.json` FIRST and re-measure — the stored asset is schema 2 against the
+    engine's 3, so the STRICT-vs-PERMISSIVE answer would be taken against a table that is a schema behind.
+  - `fsm-asset` — **RE-PIN, one regeneration**: `the asset was built from 274 catalog entries, the gate builds
+    290`, `schema version 2 matches the engine's 3`, `70 state(s) differ` and `6 new-fact count(s) moved`.
+  - `reading-census` — **RE-PIN, the same asset**: `290 ms catalog entries, and the stored asset was built
+    from 274`; `42 edge(s) disagree about the reading`; `30 build edge(s) were NOT reproducible`.
+  - `selection` — **REAL**: `a board tied between two formations is still named "Right and Left Grand Static
+    Square" - a tied best match is not an identity`.
+  - `behaviour-audit` — **REAL**, and 2 with the second now named: `declared genders accept Circle Left from a
+    Circle board (the fabricated all-boy rejected it)` and `the last animated frame lands on the applied board`
+    (2641 pairs swept; **4 unpinned jumps**, `Circle + promenade`).
+  - `editor.mjs` — **REAL**: the `Circle Left` 1° heading discrepancy, the bounding-box check, the ms/a1
+    quarter-arc census, and `the witness has both cases to measure`.
 
 - [ ] **8. `check:book` stops at a stale generated artefact.** `[measured]`
   `npm run check:book` → `check-links.mjs` PASSES (108 pages), then

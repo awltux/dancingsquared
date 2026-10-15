@@ -243,6 +243,18 @@ if (mode === 'light') {
   for (const e of skipped) console.log(`    ${e.h.padEnd(20)} ${e.why}`);
 }
 
+// THE CORPUS REVISION THESE NUMBERS BELONG TO, printed before anything is run. A red gate is undecidable
+// without it: the verdict moves with `poc/src/assets`, and a run on a mid-edit corpus cannot tell a
+// regression from corpus churn (TODO.md P1.5). GIT PRINTS THE ANSWER ITSELF, with `stdio: 'inherit'`, because
+// a PIPED child fails with EPERM under the file sandbox - the same reason every harness below is spawned
+// that way (AGENTS.md trap 3), and why this reads no output of its own. An empty file list means the corpus
+// is the committed tree; a list means these numbers belong to an uncommitted state.
+const repoRoot = path.resolve(here, '..', '..');
+console.log('verify-suite: corpus revision (git prints it; a file list means poc/src/assets is DIRTY, so the');
+console.log('  numbers below belong to that uncommitted state and must not be compared with a committed run):');
+spawnSync('git', ['-C', repoRoot, 'rev-parse', '--short', 'HEAD'], { stdio: 'inherit' });
+spawnSync('git', ['-C', repoRoot, 'status', '--porcelain', '--', 'poc/src/assets'], { stdio: 'inherit' });
+
 const results = [];
 let failed = null;
 for (const e of run) {
@@ -256,6 +268,11 @@ for (const e of run) {
   const r = spawnSync(process.execPath, [file], { stdio: 'inherit' });
   const seconds = (Date.now() - started) / 1000;
   results.push({ h: e.h, seconds });
+  // WHICH HARNESS THOSE CHECK LINES BELONG TO. Every harness is spawned with `stdio: 'inherit'` (trap 3), so
+  // the suite cannot capture one's output and the log is a single undivided stream: without this line a run
+  // names only the FIRST failing harness, and every later red has to be attributed by reading its message.
+  // That is the difference between a measurement and a log, so it is printed as each harness settles.
+  console.log(`\nverify-suite: ${r.status === 0 ? 'ok    ' : 'FAILED'} ${e.h} (${seconds.toFixed(1)}s)`);
   if (r.status !== 0 && failed === null) failed = { h: e.h, status: r.status };
 }
 

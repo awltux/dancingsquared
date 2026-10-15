@@ -40,7 +40,7 @@ import {
   PERMISSION_RULES,
   GROUP_NAMES,
 } from '../dist/index.js';
-import { callsByTitle, implementedTitles } from './lib/engine-calls.mjs';
+import { callsByTitle, catalogueTitles, implementedTitles } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -270,9 +270,18 @@ console.log('\n== (13) ALL-8 `Lead Right` FROM A STATIC SQUARE ==');
 {
   const r = seq.mayOffer('Lead Right', 'All 8', square);
   check(r.allowed === false, 'all-8 Lead Right is NOT offered from a Static Square');
-  check(r.rule?.board === 'Static Square' && r.rule?.group?.includes('All 8'),
-    `and it is the square-set rule that decided it (${r.rule?.call}/${r.rule?.group?.join('+')}/${r.rule?.board})`);
-  check(!!r.reason && /heads or the sides/.test(r.reason), 'the reason names the two readings that ARE the call');
+  // THE DECIDING RULE MOVED WHEN THE WHITELIST DID, so this check follows it rather than the old shape.
+  // `a476a4f` replaced the square-set deny with a catch-all deny on the call plus ALLOW rows for the readings
+  // that survive, so an all-8 refusal is now decided by a rule that carries neither a board nor a group. What
+  // the check is FOR is unchanged - the refusal is a RULE and not the default - so it asserts that, by name
+  // and decision, instead of pinning a board/group pair the new rule does not have.
+  check(r.rule?.call === 'Lead Right' && r.rule?.decision === 'deny',
+    `and a rule decided it, not the default (${r.rule?.call}/${r.rule?.group?.join('+') ?? '*'}/${r.rule?.board ?? '*'})`);
+  // THE REASON IS THE DECIDING RULE'S OWN. The old sentence ("heads or the sides") belongs to the ALLOW rows
+  // now, so asserting that text here would pin the wrong rule's wording; what matters to a caller is that a
+  // refusal always carries the reason its own rule gave.
+  check(!!r.reason && r.reason === r.rule?.reason,
+    `the refusal carries its own rule's reason ("${r.reason}")`);
 }
 // THE DESIGNATED READINGS SURVIVE, which is the whole point of a group-scoped deny.
 for (const g of ['Heads', 'Sides']) {
@@ -285,9 +294,11 @@ check(seq.mayOffer('Heads Lead Right', 'Heads', square).allowed === true,
 // THE NEGATIVE CONTROL FOR THE MATCH: a title that merely CONTAINS the denied name. `matching` is exact
 // on the normalised name, so this must survive; a substring or prefix match would take it.
 //
-// `Lead Right from Lines` was this control until the caller extended the rules to the two prefixed
-// authorings as well, which is a deny rather than a bug - so the witness is now a DIFFERENT call that
-// still contains the name, and the prefixed pair is asserted refused in section 15.
+// THE WITNESS MOVED TWICE, and the second move is the one that matters. It was `Lead Right from Lines` until
+// that title was denied in its own right; then it was this call and the two prefixed authorings were asserted
+// refused in section 15. Both of those authorings have since been RETIRED by the corpus (`a476a4f` /
+// `4d40da5`), so section 15 now asserts the refusal against the titles the corpus actually publishes - and
+// this control keeps its job either way, because it is about the MATCH and not about the corpus.
 check(seq.mayOffer('Heads Lead Right and Roll', 'All 8', square).allowed === true,
   '`Heads Lead Right and Roll` is untouched - the match is exact, not a prefix or a substring');
 // FORMATION-SCOPED, not global: an eight-dancer `Lead Right` authoring exists from `Normal Lines`, where
@@ -301,8 +312,19 @@ check(seq.mayOffer('Heads Lead Right and Roll', 'All 8', square).allowed === tru
 {
   const r = seq.applyToBoard(square, 'Lead Right');
   check(r.legal === true, 'applyToBoard still applies all-8 Lead Right - the layer decides what is SUGGESTED');
-  check(!!r.parallel && r.parallel.groups.length === 4,
-    `and it still tiles the square four ways (${r.parallel?.groups.length} group(s))`);
+  // THE TILING IS TWO GROUPS OF FOUR AT THIS REVISION, and it was FOUR GROUPS OF TWO when this check was
+  // written. The cause is the corpus, not the rules (the layer cannot affect `applyToBoard`): `a476a4f`
+  // rewrote `lead_right.xml` and promoted the 2-dancer `Adjacent Dancers` bodies to their own titles, so the
+  // bare name now matches the 4-DANCER `Facing Couples` authoring instead. Pinned as the measured shape,
+  // with its cause, so the next move is a reading rather than a surprise.
+  check(!!r.parallel && r.parallel.groups.length === 2,
+    `and it tiles the square as two groups of four (${r.parallel?.groups.map((g) => g.length).join('+')})`);
+  // MEASURED AND RECORDED RATHER THAN PINNED, because it is a defect and not an expectation: that 4-dancer
+  // reading puts two dancers on ONE SPOT on a Static Square (worst 0.000, the same overlap section 15's
+  // control measures), while the 2-dancer SIBLING titles are clean on the same board (`- Close` 1.048,
+  // `- Normal` 1.087). So the refusal above is HIDING a body/matching defect rather than fixing it, which
+  // AGENTS.md 4.1 calls out - "a fix that trades a visible defect for a hidden one is not a fix". Recorded in
+  // `TODO.md` P0.4 as the corpus work it is.
 }
 // AND THE LIMIT OF THIS LAYER, MEASURED, because a consumer that offers `legalNext()` verbatim still hands
 // the player this call: `legalNext` keeps a call whose OWN reading was refused when some GROUP can perform
@@ -384,8 +406,24 @@ const reading = (title, group) => {
   return { group, offered, legal: r.legal, moved, worst };
 };
 {
-  // The refusal covers every authoring of the call, not only the one the picker happens to list.
-  for (const title of ['Lead Right', 'Lead Right from Lines', 'Lead Right from Close Couples']) {
+  // THE REFUSAL COVERS EVERY AUTHORING THE CORPUS PUBLISHES, and the list IS the corpus rather than three
+  // hand-typed names. Two of the three this loop used to name (`Lead Right from Lines`,
+  // `Lead Right from Close Couples`) were retired by `a476a4f` / `4d40da5`, so it was asking about calls that
+  // do not exist and reading the layer's DEFAULT - which section 8 pins as ALLOW - as a refusal that then
+  // failed. `catalogueTitles` is the same "the list is the data" rule the probe runner uses: a new authoring
+  // cannot be forgotten here, and a retired one cannot linger.
+  //
+  // THIS IS EXPECTED TO BE RED AT THIS COMMIT, and stating it is the point. The corpus publishes
+  // `Lead Right - Close` / `- Normal` / `- Far` and `Lead Left - Normal` / `- Far`; the rules name only the
+  // BARE call and the match is exact, so the siblings fall through to the default and are offered for the
+  // whole square. MEASURED at `7cb9a15`: all-8 is offered for all five, and each is offered on all 138 named
+  // formations x 45 group names, against 20 of 6,210 requests for the bare names. Closing that is the next
+  // change; this commit makes the hole a red line rather than a report (AGENTS.md 0 covers the pair: the fix
+  // is in the next commit and both messages say so).
+  const familyTitles = [...catalogueTitles(assets)].filter((t) => /^Lead (Right|Left)/.test(t)).sort();
+  check(familyTitles.length >= 5,
+    `the corpus publishes more than one authoring of these couple calls (${familyTitles.length}: ${familyTitles.join(', ')})`);
+  for (const title of familyTitles) {
     check(seq.mayOffer(title, 'All 8', square).allowed === false, `${title}: all-8 is refused from a Static Square`);
   }
   const vocabulary = ['All 8', ...seq.subsetGroups(square), ...seq.combinedGroups(square)];

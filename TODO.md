@@ -95,28 +95,49 @@ suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
   no-op; `engine/test/sequencer.mjs` now pins that stop and measures `Girls Circulate 2` on the canonical wave.
   The gap it exposes is the heads' own `Lead Right` reading.
 
-- [ ] **4. RE-SCOPED, NOT FIXED — 50 apply-side pairs whose end board already has coincident dancers, and
-  they are BODY faults, not matching faults.** `[measured]`
-  The walk-through's `COINCIDENT 64` splits into **14 animation faults and 50 APPLY faults** (was
-  32 / 10 / 22). The sweep now lives in `engine/test/lib/apply-faults.mjs`, and
+- [ ] **4. RE-SCOPED, NOT FIXED — 37 apply-side pairs whose end board already has coincident dancers, and
+  they are BODY faults, not matching faults.** `[measured]`, RE-MEASURED AT `8750274` — the figures in this
+  item are that revision, and the 2026-10-14 reading they replace is given in brackets.
+  The walk-through's `COINCIDENT 51` splits into **14 animation faults and 37 APPLY faults** (was 64 /
+  14 / 50). The sweep now lives in `engine/test/lib/apply-faults.mjs`, and
   `node engine/test/tools/apply-fault-gate.mjs` pins it. **THE SCOPE THE OWNER PICKED FOR THIS ITEM IS
   REFUTED BY MEASUREMENT, BEFORE IMPLEMENTATION.** "Refuse a wrong-separation match" would refuse **ZERO
-  of the 50**: every one is an application whose admitted match is **geometrically congruent** with the
+  of the 37**: every one is an application whose admitted match is **geometrically congruent** with the
   setup it was applied through — `noncongruent 0` even at the loose 1.5 admission — and the worst per-pair
-  separation disagreement across all 50 is **0.0000 units**. What the faults actually are, measured:
-  **29 body** (congruent at the tightest tolerance tested, 0.01, unreflected, gender-exact, mean error
-  0.0000 — no matching rule can refuse these, the call's own body collides the dancers), **11 gender-miss**
+  separation disagreement across all 37 is **0.0000 units**. What the faults actually are, measured:
+  **23 body** (congruent at the tightest tolerance tested, 0.01, unreflected, gender-exact, mean error
+  0.0000 — no matching rule can refuse these, the call's own body collides the dancers), **9 gender-miss**
   and **5 mirrored** (congruent but only through a permission the engine grants on purpose — `requireGender`
   is off wherever a variant is not declared `gender-specific`, and reflected readings are required to stay
-  available, pinned by `engine/test/selection.mjs`), and **5 loose** (separated correctly in SHAPE,
-  congruent only at the loosest admission tested, 1.5). The item's own attribution was therefore RIGHT —
-  the call's own body is what lands two dancers on one spot — so this is corpus authoring (Phases A/B),
-  except `Swing Thru`, which is coded.
-  Work list by call: `Lead Right` 15, `Touch a Quarter` 7, `Box the Gnat` 5, `Square Thru 3` 4,
-  `Chain Down the Line` 4, `Turn Thru` 4, `Square Thru 4` 3, then 1 each of `Star Thru`, `Swing Thru`,
-  `Veer Right`, `Allemande Left`, `Wheel and Deal`, `Veer Left`, `Scoot Back`, `Right and Left Thru` —
-  49 of the 50 are authored calls. The gate holds a ceiling of 50 and pins `noncongruent === 0`, so a fix
-  that trades a body fault for a wrong-separation admission cannot pass it.
+  available, pinned by `engine/test/selection.mjs`), and **0 loose** (was 5). The item's own attribution was
+  therefore RIGHT — the call's own body is what lands two dancers on one spot — so this is corpus authoring
+  (Phases A/B), except `Swing Thru`, which is coded.
+  Work list by call: `Touch a Quarter` 7, `Box the Gnat` 5, `Square Thru 3` 4, `Chain Down the Line` 4,
+  `Turn Thru` 4, `Square Thru 4` 3, `Lead Right` 2, then 1 each of `Star Thru`, `Swing Thru`, `Veer Right`,
+  `Allemande Left`, `Wheel and Deal`, `Veer Left`, `Scoot Back`, `Right and Left Thru` — 36 of the 37 are
+  authored calls. THE CEILING IS NOW **37**, lowered from 50 in the commit that re-measured, which is the
+  gate's own instruction and the only way a FALL gets reported at all: `Lead Right` fell 15 -> 2 under
+  `a476a4f`'s rewrite of `lead_right.xml` and the ceiling of 50 called that green.
+
+  **THE WORK LIST IS INCOMPLETE, AND THAT IS A MEASUREMENT RATHER THAN A SUSPICION.** The gate sweeps the
+  BARE `Lead Right`. The authoring titles the corpus ALSO publishes for it (`Lead Right - Close` /
+  `- Normal` / `- Far`, and `Lead Left - Normal` / `- Far`) are not in `SURVEY_CALLS`, and they carry most
+  of the family's faults: all seven titles over the same 138 formations is **450 of 966 applications legal,
+  92 coincident, 86 apply faults over 47 boards** — the five variants 83, the two bare names 7. Worst
+  boards: `Double Pass Thru` 6, `Completed Double Pass Thru` 5, `Mixed Columns RH Ends In` 4, `T-Bone URDR`
+  4, `T-Bone UURL` 4, `Static Square` 4. They are also **ungoverned by `PERMISSION_RULES`** — each offered
+  on all 138 formations x 45 group names, against 20 of 6,210 for the bare names — so the picker lists them,
+  measured in `legalNext()`: 275 calls on a Static Square including all seven titles, 250 on
+  `Double Pass Thru` including the five variants and NOT the bare names.
+
+  **AND `permissions` IS RED AT `8750274`, FOR FIVE ASSERTIONS THAT NAME THE PRE-RENAME WORLD.** Section 13
+  expects the deciding rule to be the square-set one, but the whitelist's catch-all deny decides now
+  (`rule.board` undefined) and its reason is `START A WHITE LIST FOR LEAD RIGHT` rather than the old
+  sentence; section 15's control expects `applyToBoard` to tile the square FOUR ways and it tiles **2**; and
+  two of its subjects (`Lead Right from Lines`, `Lead Right from Close Couples`) are titles the corpus no
+  longer publishes, so it asks about a call that does not exist and the "refused" expectation fails.
+  `circle-four` is red by CRASH (`applied.lanes` is undefined at `circle-four.mjs:124`), and `group-calls`
+  carries its 2 pre-existing `Head Boys` reds.
 
 ---
 

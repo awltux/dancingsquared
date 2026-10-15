@@ -16,10 +16,13 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    // THE PROBES LOAD THIS SOURCE DIRECTLY under Node's type stripping, so relative specifiers carry `.ts`:
-    // Node's loader does not map `./x.js` onto `x.ts`, and a `.js` specifier would typecheck and then fail at
-    // runtime. Legal only because nothing here ever emits (the deployment copies sources and lets Node run
-    // them, or compiles them with the same setting).
+    // THE PROBES LOAD THIS SOURCE DIRECTLY under Node's type stripping, which CONSTRAINS THE SOURCE in two ways
+    // the compiler will not tell you about. Relative specifiers carry `.ts`, because Node's loader does not map
+    // `./x.js` onto `x.ts` — a `.js` specifier typechecks and then fails to resolve at runtime. And there are
+    // NO CONSTRUCTOR PARAMETER PROPERTIES: strip-only mode refuses the syntax outright
+    // (`ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX: TypeScript parameter property is not supported in strip-only mode`)
+    // while `tsc --noEmit` is perfectly happy, so the failure appears the first time a probe imports the file.
+    // MEASURED in `src/store/dynamo.ts`, where the class had to be rewritten with explicit fields.
     "allowImportingTsExtensions": true
   },
   "include": ["src"]

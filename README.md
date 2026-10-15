@@ -41,6 +41,9 @@ npm install        # install everything at the root (workspaces)
 | `npm run measure:ladder` | The ladder census: what every level actually costs to generate (`game/tools/measure-ladder.mjs`) |
 | `npm run verify:api` | The API's probe suite: every `api/test/*-probe.mjs` (its typecheck is `npx tsc -p api --noEmit`, for the same reason as the game's) |
 | `npm run dev:api` | The API's local dev server (port **8090**, `DSQ_PORT` to move it), seeded with the game's local schedule fixture and backed by an in-memory store. `x-dev-player: <name>` (or `Authorization: Bearer dev:<name>`) is the development identity |
+| `npm run dev:api:ddb` | The same server backed by **DynamoDB Local** — start it first (`docker compose -f api/docker-compose.yml up -d`) and create the table (`npm run api:table`) |
+| `npm run api:table` | Create the API's single DynamoDB table, idempotently, at `DSQ_DDB_ENDPOINT` or in the configured region |
+| `npm run verify:api:ddb` | The API's suite with the DynamoDB half MANDATORY: without it, a probe whose endpoint does not answer reports a skip rather than a failure |
 | `npm run dev:teacher`, `npm run build:teacher` | The teacher app |
 | `npm run check:book` | The book's link, animation and diagram checks |
 
@@ -51,6 +54,25 @@ verify:light --prefix engine` runs the fast subset — a subset of one list, not
 banner says which harnesses it skipped. The PoC probes have a slow tier too: `npm run
 verify:probes --prefix poc` runs the default tier and `npm run verify:probes:all --prefix poc` adds
 `call-formations-probe`, which is most of the time.
+
+### Local DynamoDB (the API's real store)
+
+The API runs against an in-memory twin by default, so nothing is needed to start it. To exercise the actual
+store — the same adapter the deployment will use — run DynamoDB Local in a container, create the table once, and
+start the server against it:
+
+```bash
+docker compose -f api/docker-compose.yml up -d   # DynamoDB Local on 127.0.0.1:8000, in memory
+npm run api:table                               # create the table (idempotent)
+npm run dev:api:ddb                             # the dev server, store: dynamodb … at http://127.0.0.1:8000
+npm run verify:api:ddb                          # the store contract, with the DynamoDB half required
+docker compose -f api/docker-compose.yml down   # stop it (nothing is kept: the container runs -inMemory)
+```
+
+Configuration is `DSQ_*` environment variables with working defaults (`DSQ_STORE`, `DSQ_TABLE`,
+`DSQ_DDB_ENDPOINT`, `DSQ_REGION`, `DSQ_PORT`). **No secret is involved**: DynamoDB Local authenticates nothing
+and is bound to `127.0.0.1` for that reason, while a real deployment takes its credentials from the Lambda
+role.
 
 Because the poc depends on the engine via the workspace link, rebuild the engine
 with `npm run build:engine` whenever the engine source changes — `poc/verify.cjs`

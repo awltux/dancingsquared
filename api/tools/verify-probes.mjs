@@ -10,10 +10,17 @@
 // stdio fails with EPERM under the file sandbox, so a runner that captured its children's output could not
 // run at all.
 //
-// Run: node api/tools/verify-probes.mjs   (from anywhere; the engine must be built)
+// `--require-ddb` MAKES THE DYNAMODB HALF MANDATORY: the store probe reports a skip when nothing answers on its
+// endpoint, and this turns that skip into a failure for the run that is supposed to have a real store (the
+// local DynamoDB Local check and, later, a deployment smoke test). Without it the skip is reported loudly and
+// the suite still passes, because a fresh clone has no DynamoDB.
+//
+// Run: node api/tools/verify-probes.mjs [--require-ddb]   (from anywhere; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+
+if (process.argv.includes('--require-ddb')) process.env['DSQ_REQUIRE_DDB'] = '1';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DIR = path.join(HERE, '..', 'test');

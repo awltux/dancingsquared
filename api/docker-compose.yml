@@ -1,0 +1,19 @@
+# DynamoDB Local, for the runs that need the real API rather than the in-memory twin.
+#
+#   docker compose -f api/docker-compose.yml up -d
+#   npm run api:table
+#   npm run dev:api:ddb
+#
+# `-inMemory` MEANS NOTHING SURVIVES THE CONTAINER, which is the wanted behaviour for a development store: a
+# developer who wants a clean slate restarts it rather than deleting rows. The provider's own alternative is a
+# volume with a shared-DB file, and that is a decision to make when someone needs to keep something.
+#
+# BOUND TO 127.0.0.1 ONLY. DynamoDB Local authenticates NOTHING — MEASURED: it answered DescribeTable both with
+# dummy credentials and with none at all — so any client that reaches the port owns the data, and publishing it
+# on every interface would hand a shared network a writable database. The bind address is the security boundary.
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory', '-sharedDb']
+    ports:
+      - '127.0.0.1:8000:8000'

@@ -1088,17 +1088,52 @@ ephemeral port):
   a writer that never lands is reported `409 contended` after exactly 3 attempts;
 - an unreadable progress row is a `503` **and the refusal wrote nothing** to it.
 
-**Two things this phase did NOT do, and they are the next commits:** the DynamoDB adapter (the in-memory twin
-implements the same protocol but nothing has yet spoken to DynamoDB Local, so the condition expressions are
-unverified), and the other four endpoints (`GET /puzzle`, `POST /runs`, `POST /me/runs:bulk`,
-`GET /leaderboard`). No Lambda, no template, no Cognito, no AWS call: the SAM CLI is installed
-(1.169.0) and nothing has been deployed.
+**What this phase did NOT do, and what came next:** the DynamoDB adapter (Phase 5.1, below — the in-memory twin
+implemented the same protocol, so the condition expressions were unverified until then) and the other four
+endpoints (`GET /puzzle`, `POST /runs`, `POST /me/runs:bulk`, `GET /leaderboard`). No Lambda, no template, no
+Cognito, no AWS call: the SAM CLI is installed (1.169.0) and nothing has been deployed.
 
 **One open decision with a number.** `GET /drill/current` generates the puzzle to return `optionLabels` as
 §11 says it should, and that costs **167-230 ms at level 1 and 728-1240 ms at levels 2 and 3** on a warm
 applier, per request — including a resumed read, which is the common case. The client derives the same labels
 from the same seed anyway (§8), so returning only the seed would make every request a data read. The labels are
 served for now because they are the cross-check that the two sides generated the same question.
+
+**Phase 5.1 — the store is DynamoDB, and ONE contract suite runs against both implementations. DONE.**
+`api/src/store/dynamo.ts` implements `ItemStore` over the single table (`PK`/`SK`, DESIGN.md 11) with the
+compare-and-set as a `ConditionExpression` — `attribute_not_exists(PK)` to create, `#rev = :rev` to replace —
+and a failed condition reported as `false` rather than thrown, because "another writer moved first" is an answer
+the caller re-reads on. `api/src/store/open.ts` is the ONE place a store is built, so the dev server and the
+future Lambda handler cannot disagree about where the data goes; `api/src/config.ts` reads `DSQ_STORE`,
+`DSQ_TABLE`, `DSQ_DDB_ENDPOINT`, `DSQ_REGION` and `DSQ_PORT` with defaults; `api/docker-compose.yml` runs
+DynamoDB Local on 127.0.0.1:8000; `npm run api:table` creates the table idempotently; `npm run dev:api:ddb` is
+the development run against it, and `npm run verify:api:ddb` is the gate that requires it.
+
+**MEASURED, by `api/test/store-probe.mjs`** — the same functions driven twice, once with the in-memory twin and
+once against DynamoDB Local (40 checks, 2 negative controls): a create on an absent key lands and reads back at
+revision 1; a second create is refused and changes nothing; a replace expecting the wrong revision is refused
+and changes nothing; a replace expecting the current revision lands, advances the revision, and REPLACES the
+value rather than merging it; what `get` returns is a copy, so mutating it does not write through; nested
+values round-trip exactly; two sort keys under one partition are separate items; and two concurrent creates
+leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionExpression` removed, the same
+`PutItem` succeeds and overwrites a row the caller never read.
+
+- **Attribute order is not part of the contract**, and the first version of this suite failed four checks per
+  store on order alone: DynamoDB returns an item's attributes in its own order, so a value comparison has to
+  sort keys (`stable()` in the probe — the same trap `save-probe.mjs` records).
+- **A probe has to be re-runnable against a store that keeps what it is given.** The port has no `delete` (no
+  endpoint needs one), so the second run found the first run's rows: "an absent key reads as null" failed with
+  the revision already at 3. The probe's keys now carry a run stamp.
+- **DynamoDB Local authenticates NOTHING.** MEASURED (a throwaway under `api/tools/`, deleted after it was
+  read): it answered `DescribeTable` both with the dummy credential pair and with no credentials at all. That is
+  why the compose file binds it to 127.0.0.1 and says the bind address is the security boundary.
+- **Persistence, end to end.** `npm run dev:api:ddb` was driven over HTTP (current → advance → current), the
+  server was killed and restarted, and the same player came back on drill `1:1` with `resumed: true` and `1/4`
+  finished — the Progress row is in DynamoDB, not in the process.
+
+**Still not done from Phase 5:** the other four endpoints, the publishing pipeline, Cognito, the Lambda adapter
+and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
+machine.
 
 **Phase 5 — AWS.** Cognito, the six endpoints, the DynamoDB table and its item shapes **including the Hints
 row**, the schedule publishing pipeline, the boundary job for the Daily, verification-by-regeneration and
@@ -1137,7 +1172,11 @@ hint having nothing to spend until the Drill ships.
   (`api/src/drill-regime.ts` is the schedule/progress/clock function, with no store, no HTTP and no clock of
   its own) and `api/test/drill-probe.mjs` pins the two rules that exist there, driving the real handlers over
   the in-memory store and then over a real socket — so the transport, the identity and the status codes are
-  measured too rather than assumed.
+  measured too rather than assumed. **`api/test/store-probe.mjs` is the other half**: the item store's
+  compare-and-set contract, run through the SAME functions against both implementations, with the DynamoDB half
+  skipped LOUDLY when nothing answers on its endpoint and made mandatory by `npm run verify:api:ddb`. A store
+  adapter is exactly the kind of code that cannot be argued into correctness — the condition expression is
+  either there or it is not — so it is measured against the real DynamoDB API rather than against a twin.
 - **The Drill's question is as probeable as the Daily's**, because both are engine data rather than media:
   which option is correct, that the three options have distinct endings, that the illegal option's reason is
   the engine's own, and that every option applies from the shared start board are all properties of the

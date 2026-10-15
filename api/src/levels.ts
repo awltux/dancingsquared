@@ -86,3 +86,29 @@ export function optionLabels(puzzle: Puzzle): string[] {
 export function registeredFor(level: LevelSpec): number {
   return runtimeFor(level).registered;
 }
+
+/**
+ * Whether a move list, played from the puzzle's start board, actually reaches its goal.
+ *
+ * THIS IS THE DAILY'S VERIFICATION. The Drill re-derives which option was correct at each step, which needs
+ * only the generated puzzle; the Daily's submission is a LINE the player built, so it has to be walked — and
+ * walking it is the engine's job, through the same applier the client walked (DESIGN.md 4.4: "the client
+ * sequencer is the same sequencer the server used"). A refusal carries the engine's own reason verbatim, or a
+ * sentence of this function's for the two cases the engine cannot have an opinion about (a line that stops
+ * short of the goal, and one that is longer than the allowance the level allows).
+ *
+ * IT APPLIES EACH CALL RATHER THAN TRUSTING A FINAL BOARD, because the final board is exactly what a modified
+ * client would forge. A line that reaches the goal BY A DIFFERENT ROUTE than the generator's is legitimate and
+ * scores the same — the goal test is `boardsMatch`, never a comparison with `puzzle.solution`.
+ */
+export function lineReachesGoal(level: LevelSpec, puzzle: Puzzle, calls: readonly string[]): { ok: true } | { ok: false; reason: string } {
+  const applier = runtimeFor(level).applier;
+  let board = puzzle.start;
+  for (const call of calls) {
+    const refusal = applier.refusalOf(board, call);
+    if (refusal) return { ok: false, reason: `"${call}" cannot be made from that board: ${refusal.reason}` };
+    board = applier.apply(board, call);
+  }
+  if (!applier.boardsMatch(board, puzzle.goal)) return { ok: false, reason: 'the line does not leave the set on the goal board' };
+  return { ok: true };
+}

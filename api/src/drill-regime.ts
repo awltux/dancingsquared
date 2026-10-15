@@ -185,8 +185,11 @@ export function finishDrill(progress: DrillProgress, id: string): AdvanceOutcome
   if (issued.id !== id) {
     return { kind: 'refused', reason: `the drill in flight is ${issued.id}, not ${id}` };
   }
-  return {
-    kind: 'done',
-    progress: { ...progress, issued: null, finished: [...progress.finished, issued.index].sort((a, b) => a - b) },
-  };
+  // AN INDEX IS FINISHED ONCE. `finished` is a set of positions that the hint rule, the board and "the first
+  // unfinished entry" all read, and a duplicate would inflate a count rather than record a fact — so a position
+  // that is somehow handed out twice (a republished schedule, a row written by hand) still lands in it once.
+  const finished = progress.finished.includes(issued.index)
+    ? [...progress.finished]
+    : [...progress.finished, issued.index].sort((a, b) => a - b);
+  return { kind: 'done', progress: { ...progress, issued: null, finished } };
 }

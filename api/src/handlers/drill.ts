@@ -12,38 +12,10 @@
 import { MAIN_POOL, type ScheduleEntry } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type ItemKey, type StoredItem } from '../ports.ts';
 import { progressKey, scheduleKey } from '../keys.ts';
+import { asProgress, asProgressItem } from '../progress-row.ts';
+import { failure, identity, STATUS } from '../status.ts';
 import { levelAt, optionLabels, puzzleFor } from '../levels.ts';
-import {
-  currentDrill,
-  emptyProgress,
-  finishDrill,
-  parseDrillId,
-  type DrillProgress,
-  type IssuedDrill,
-  type Regime,
-} from '../drill-regime.ts';
-
-/** The status codes this API uses, named so a probe and a reader agree about them rather than by number. */
-export const STATUS = {
-  ok: 200,
-  badRequest: 400,
-  unauthenticated: 401,
-  notFound: 404,
-  conflict: 409,
-  unavailable: 503,
-} as const;
-
-
-
-/** An error body every refusal shares, so a client has one shape to read. */
-const failure = (status: number, code: string, message: string): ApiResult => ({ status, body: { error: { code, message } } });
-
-/** The `playerId`, or the refusal to return: a missing identity is never a 500 — it is who is asking. */
-function identity(request: ApiRequest, deps: Deps): { playerId: string } | { refusal: ApiResult } {
-  const playerId = deps.playerIdOf(request);
-  if (!playerId) return { refusal: failure(STATUS.unauthenticated, 'unauthenticated', 'no player id on this request') };
-  return { playerId };
-}
+import { currentDrill, finishDrill, parseDrillId, type DrillProgress, type IssuedDrill, type Regime } from '../drill-regime.ts';
 
 /** A level number from a query string, or null when it is not one. */
 function levelParam(raw: string | undefined): number | null {
@@ -71,26 +43,6 @@ function asRegime(stored: StoredItem): Regime | null {
   return { scheduleVersion: value.scheduleVersion, entries };
 }
 
-/** A stored row as progress, or null. Same contract as `asRegime`: the row is never silently emptied. */
-function asProgress(stored: StoredItem | null, levelIndex: number): DrillProgress | null {
-  if (!stored) return emptyProgress(levelIndex);
-  const value = stored.value as { levelIndex?: unknown; issued?: unknown; finished?: unknown };
-  if (value.levelIndex !== levelIndex || !Array.isArray(value.finished)) return null;
-  for (const index of value.finished) if (typeof index !== 'number') return null;
-  if (value.issued === null || value.issued === undefined) {
-    return { levelIndex, issued: null, finished: value.finished as number[] };
-  }
-  const raw = value.issued as { id?: unknown; index?: unknown; seed?: unknown; poolVersion?: unknown; issuedAtMs?: unknown };
-  if (typeof raw.id !== 'string' || typeof raw.index !== 'number' || typeof raw.seed !== 'number'
-    || typeof raw.poolVersion !== 'string' || typeof raw.issuedAtMs !== 'number') return null;
-  const issued: IssuedDrill = { id: raw.id, index: raw.index, seed: raw.seed, poolVersion: raw.poolVersion, issuedAtMs: raw.issuedAtMs };
-  return { levelIndex, issued, finished: value.finished as number[] };
-}
-
-/** The stored form of a progress record. */
-function asItem(progress: DrillProgress): Record<string, unknown> {
-  return { levelIndex: progress.levelIndex, issued: progress.issued, finished: progress.finished };
-}
 
 /**
  * The regime as stored, or a refusal.
@@ -135,7 +87,7 @@ async function withProgress(
     }
     const decision = decide(progress);
     if (!('progress' in decision)) return decision.result;
-    if (await deps.store.put(key, asItem(decision.progress), stored?.rev ?? null)) return decision.result;
+    if (await deps.store.put(key, asProgressItem(decision.progress), stored?.rev ?? null)) return decision.result;
   }
   return failure(STATUS.conflict, 'contended', "another request is writing this player's progress; try again");
 }

@@ -1,0 +1,317 @@
+// `POST /runs`, PINNED: what the server verifies, what it clamps, what it credits, and what it refuses.
+//
+// WHY THIS IS A GATE. This endpoint is where the game's two currencies are minted and spent (a score on a board,
+// a hint in a balance), so it is the one place a client's claim could become a fact. DESIGN.md 6 and 11 say
+// what must happen instead: the puzzle is regenerated from the SERVER's seed, the Drill's per-step answer is
+// re-derived, the Daily's line is walked, the score is clamped to what the server can recompute, and the hint
+// credit comes from the server's own record of finished drills. Each of those is measured here, and each has
+// the plausible wrong rule beside it.
+//
+// THE PROBE ANSWERS A REAL PUZZLE rather than fabricating a run: it asks `GET /drill/current`, regenerates the
+// puzzle from the seed it was served, and submits the CORRECT option at every step — so the "should be accepted"
+// case is the one a real client produces, and the "should be refused" cases differ from it by exactly one thing.
+//
+// Usage: node api/test/runs-probe.mjs
+import { postRun } from '../src/handlers/runs.ts';
+import { drillCurrent } from '../src/handlers/drill.ts';
+import { STATUS } from '../src/status.ts';
+import { levelAt, puzzleFor } from '../src/levels.ts';
+import { boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../src/keys.ts';
+import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
+import { seasonOf } from '../src/handlers/runs.ts';
+import { MemoryStore } from '../src/store/memory.ts';
+import { finishDrill } from '../src/drill-regime.ts';
+import { MAIN_POOL, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
+import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
+
+let failures = 0;
+const check = (cond, msg) => {
+  console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
+  if (!cond) failures++;
+};
+
+const LEVEL = 1;
+const DAY = '2026-10-15';
+const CLOCK = 1_700_000_000_000;
+const SEASON = seasonOf(CLOCK);
+
+/**
+ * The three ports, with a clock the probe can MOVE FORWARD.
+ *
+ * THE CLOCK HAS TO BE MUTABLE, because the Drill's elapsed bound is measured against the time the drill was
+ * issued: with a frozen clock no time ever passes, every run claims an impossible elapsed, and the first
+ * version of this probe refused its own CORRECT submission with `impossible_elapsed` (400). `issue` advances it
+ * by a minute — the player then plays — and a test that needs more calls `advance` itself.
+ */
+const depsFor = (store, nowMs = CLOCK) => ({
+  store,
+  clock: {
+    now: nowMs,
+    nowMs() {
+      return this.now;
+    },
+    advance(seconds) {
+      this.now += seconds * 1000;
+    },
+  },
+  playerIdOf: (request) => request.headers['x-dev-player'] ?? null,
+});
+
+const call = (path, player, query = {}, body = null) => ({ method: path === '/runs' ? 'POST' : 'GET', path, query, body, headers: player ? { 'x-dev-player': player } : {} });
+const submit = (player, body) => call('/runs', player, {}, body);
+
+/** A fresh store with the fixture's regimes, and the level-1 puzzle of the first entry regenerated. */
+async function fresh() {
+  const store = new MemoryStore();
+  await seedLocalRegimes(store);
+  return { store, deps: depsFor(store) };
+}
+
+/** The correct per-step answers for a served drill — what a client that solved it would submit. */
+function answersFor(seed) {
+  const generated = puzzleFor(seed, levelAt(LEVEL));
+  if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
+  return { puzzle: generated.puzzle, calls: generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call) };
+}
+
+/** Serve the drill this player is on, and the answers to it — then let a minute pass, so the player has played. */
+async function issue(deps, player, advanceSeconds = 60) {
+  const served = await drillCurrent(call('/drill/current', player, { level: String(LEVEL) }), deps);
+  const drill = served.body.drill;
+  const answers = answersFor(drill.seed);
+  deps.clock.advance(advanceSeconds);
+  return { drill, ...answers };
+}
+
+console.log('== 1. a correct Drill run is accepted, and it does all four things at once ==');
+{
+  const { store, deps } = await fresh();
+  const { drill, calls, puzzle } = await issue(deps, 'r1');
+  const answer = await postRun(submit('r1', { runId: 'run-1', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 12, hintsUsed: 0, attempts: 0, calls }), deps);
+  check(answer.status === STATUS.ok, `the run is accepted (${answer.status})`);
+  const computed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: 12, hintsUsed: 0, attempts: 0 });
+  check(answer.body.run.score === computed.score, `and the score is the server's own (${answer.body.run.score})`);
+  check(answer.body.run.duplicate === false && answer.body.run.clamped === false, 'reported as fresh and unclamped');
+  check(answer.body.progress.finished === 1, `the drill is finished (${answer.body.progress.finished})`);
+  check(answer.body.hints.successes === 1 && answer.body.hints.hints === 0, `the success is counted and no hint is due yet (${answer.body.hints.successes} counted)`);
+  check(answer.body.board.score === computed.score && answer.body.board.runs === 1, `and the board holds the run (${answer.body.board.score})`);
+  const row = (await store.get(progressKey('r1', LEVEL))).value;
+  check(row.issued === null, 'the progress row has no drill in flight any more');
+  check((await store.get(runKey('r1', 'run-1'))).value.calls.length === calls.length, 'and the transcript is stored');
+}
+
+console.log('\n== 2. the score is clamped to what the server can recompute ==');
+{
+  const { store, deps } = await fresh();
+  const { drill, calls, puzzle } = await issue(deps, 'r2');
+  const computed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: 30, hintsUsed: 0, attempts: 0 });
+  const greedy = await postRun(submit('r2', { runId: 'run-greedy', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 30, hintsUsed: 0, attempts: 0, calls, score: 999_999 }), deps);
+  check(greedy.body.run.score === computed.score && greedy.body.run.clamped === true, `a claim of 999999 is clamped to ${computed.score} and reported (${greedy.body.run.clamped})`);
+  check(greedy.body.board.score === computed.score, 'and the board got the computed score, not the claim');
+  // NEGATIVE CONTROL, MEASURED: the board row would hold the claim if the clamp were absent, and 999999 is what
+  // the stored row would say — the check above is the only one that would redden, because the response's
+  // `clamped` flag is a report rather than a constraint.
+  const stored = (await store.get(boardKey('drill', LEVEL, SEASON, 'r2'))).value;
+  check(stored.score === computed.score && stored.score !== 999_999, `NEGATIVE CONTROL: the stored board is ${stored.score}, not the 999999 claimed`);
+  // A SECOND DRILL, because the first one is finished: a submission names the drill that is IN FLIGHT, so a
+  // second claim about the same one would be refused as stale rather than scored.
+  const next = await issue(deps, 'r2');
+  const modest = await postRun(submit('r2', { runId: 'run-modest', mode: 'drill', levelIndex: LEVEL, drillId: next.drill.id, elapsedSeconds: 30, hintsUsed: 0, attempts: 0, calls: next.calls, score: 1 }), deps);
+  check(modest.body.run.score === 1 && modest.body.run.clamped === false, `a claim BELOW the computed score is honoured (${modest.body.run?.score})`);
+}
+
+console.log('\n== 3. a run lands once: the same runId, and a re-solve of a finished drill ==');
+{
+  const { store, deps } = await fresh();
+  const { drill, calls } = await issue(deps, 'r3');
+  const body = { runId: 'run-once', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 20, hintsUsed: 0, attempts: 0, calls };
+  const first = await postRun(submit('r3', body), deps);
+  const second = await postRun(submit('r3', body), deps);
+  check(second.status === STATUS.ok && second.body.run.duplicate === true, `the same runId twice is answered as a duplicate (${second.body.run.duplicate})`);
+  check(second.body.board.score === first.body.board.score && second.body.board.runs === first.body.board.runs, `and the board did not grow (${second.body.board.score}, ${second.body.board.runs} run)`);
+  check(second.body.hints.successes === first.body.hints.successes, `nor did the success count (${second.body.hints.successes})`);
+  check(second.body.run.score === first.body.run.score, 'and the recorded score came back unchanged');
+
+  // THE OTHER SIDE OF IDEMPOTENCE, which the runId cannot cover: a SECOND submission about a drill that is no
+  // longer in flight. It is refused, and that refusal is what makes a replay unable to buy anything (§6): the
+  // drill is gone from the progress row the moment it is finished, so there is nothing left to submit against.
+  const again = await postRun(submit('r3', { ...body, runId: 'run-resolve' }), deps);
+  check(again.status === STATUS.conflict && again.body.error.code === 'stale_drill', `a submission about a drill that is no longer in flight is refused (${again.status} ${again.body.error?.code})`);
+  const after = (await store.get(runKey('r3', 'run-once'))).value;
+  check(after.score === first.body.run.score, `and the recorded run is untouched (${after.score})`);
+  check((await store.get(runKey('r3', 'run-resolve'))) === null, 'and no second run row was written');
+  check((await store.get(boardKey('drill', LEVEL, SEASON, 'r3'))).value.runs === 1, 'so the board still holds one run');
+
+  // NEGATIVE CONTROL, MEASURED: the duplicate path rests on the run row being CREATE-ONLY, so the same create
+  // attempted a second time is refused by the store itself. A row that could be rewritten would let a retry
+  // overwrite the recorded score while the effects below it stayed as they were.
+  const recordedRun = await store.get(runKey('r3', 'run-once'));
+  check((await store.put(runKey('r3', 'run-once'), recordedRun.value, null)) === false, 'NEGATIVE CONTROL: the run row is create-only, which is the condition the duplicate answer rests on');
+
+  // AND THE PURE RULE UNDERNEATH IT: an index that is somehow handed out twice lands in the finished set ONCE,
+  // which is the fact the credit, the board and "the first unfinished entry" all read.
+  const repeated = finishDrill({ levelIndex: LEVEL, issued: { id: '1:0', index: 0, seed: 1, poolVersion: FIXTURE_POOL_VERSION, issuedAtMs: CLOCK }, finished: [0] }, '1:0');
+  check(repeated.kind === 'done' && repeated.progress.finished.length === 1, `finishing an index that is already finished does not duplicate it (${JSON.stringify(repeated.progress?.finished)})`);
+}
+
+console.log('\n== 4. the per-step answer is re-derived, not taken on trust ==');
+{
+  const { deps } = await fresh();
+  const { drill, calls } = await issue(deps, 'r4');
+  const wrong = [...calls];
+  const generated = puzzleFor(drill.seed, levelAt(LEVEL));
+  const correct = generated.puzzle.steps[0].moves[generated.puzzle.steps[0].correctIndex].call;
+  const other = generated.puzzle.steps[0].moves.find((move) => move.call !== correct).call;
+  wrong[0] = other;
+  const answer = await postRun(submit('r4', { runId: 'run-wrong', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 5, hintsUsed: 0, attempts: 0, calls: wrong }), deps);
+  check(answer.status === STATUS.badRequest && answer.body.error.code === 'not_solved', `a wrong option is refused (${answer.status} ${answer.body.error?.code})`);
+  check(answer.body.error.message.includes(correct), `and the refusal names the option that was correct (${answer.body.error.message})`);
+  const short = await postRun(submit('r4', { runId: 'run-short', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 5, hintsUsed: 0, attempts: 0, calls: [] }), deps);
+  check(short.status === STATUS.badRequest && short.body.error.code === 'not_solved', `and a run with no answers is refused (${short.body.error?.code})`);
+}
+
+console.log('\n== 5. the clock cannot claim more time than has passed ==');
+{
+  const { deps } = await fresh();
+  const { drill, calls } = await issue(deps, 'r5');
+  const impossible = await postRun(submit('r5', { runId: 'run-fast', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 3600, hintsUsed: 0, attempts: 0, calls }), deps);
+  check(impossible.status === STATUS.badRequest && impossible.body.error.code === 'impossible_elapsed', `an hour claimed for a drill issued a minute ago is refused (${impossible.body.error?.code})`);
+  // THE BOUND IS THE ISSUE TIME, SO A LATER SUBMISSION CAN CLAIM MORE: the same run is legal 300 s after the
+  // issue, which is what makes this a bound rather than a fixed ceiling. MEASURED on the same store, with the
+  // clock moved on by the probe.
+  deps.clock.advance(400);
+  const patient = await postRun(submit('r5', { runId: 'run-patient', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 300, hintsUsed: 0, attempts: 0, calls }), deps);
+  check(patient.status === STATUS.ok, `while 300 s is accepted 400 s after the issue (${patient.status})`);
+}
+
+console.log('\n== 6. the two hint rules, from the server side ==');
+{
+  // TEN DISTINCT DRILLS, ONE HINT. The level's fixture has four entries, so the probe publishes a longer regime
+  // for this level — the same four MEASURED seeds, cycled, because what the hint rule counts is DISTINCT
+  // POSITIONS and a repeated seed at a different position is a different position.
+  const { store, deps } = await fresh();
+  const four = localRegimes().find((regime) => regime.entries[0].levelIndex === LEVEL).entries;
+  const long = { scheduleVersion: 'probe/long', entries: Array.from({ length: 12 }, (_, index) => four[index % four.length]) };
+  await putRegime(store, LEVEL, long);
+
+  let grantedAt = 0;
+  let last = null;
+  for (let index = 0; index < 10; index++) {
+    const { drill, calls } = await issue(deps, 'r6');
+    last = await postRun(submit('r6', { runId: `run-${index}`, mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 4, hintsUsed: 0, attempts: 0, calls }), deps);
+    if (last.body.hints.granted) grantedAt = index + 1;
+  }
+  check(grantedAt === 10, `the tenth distinct drill grants the hint (granted on submission ${grantedAt})`);
+  check(last.body.hints.hints === 1 && last.body.hints.successes === 0, `and the balance is 1 with the count reset (${last.body.hints.hints} held, ${last.body.hints.successes} counted)`);
+  check(last.body.board.runs === 10, `ten runs are on the board (${last.body.board.runs})`);
+
+  // AND A SPEND IS DEBITED, CLAMPED AT ZERO. The player holds one hint; a Daily run that claims it takes it, and a
+  // second run claiming one again cannot go below zero.
+  const day = DAY;
+  const published = puzzleFor(four[0].seed, levelAt(LEVEL));
+  await store.put(publishedDailyKey(LEVEL, day), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  const line = published.puzzle.solution;
+  const spent = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, day, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
+  check(spent.status === STATUS.ok && spent.body.hints.hints === 0, `a Daily run spends the hint it claims (${spent.body.hints?.hints})`);
+  const overspend = await postRun(submit('r6', { runId: 'daily-2', mode: 'daily', levelIndex: LEVEL, day, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
+  check(overspend.status === STATUS.ok && overspend.body.hints.hints === 0, `and claiming one with an empty balance cannot go below zero (${overspend.body.hints?.hints})`);
+  const tooMany = await postRun(submit('r6', { runId: 'daily-3', mode: 'daily', levelIndex: LEVEL, day, elapsedSeconds: 30, hintsUsed: 4, calls: line }), deps);
+  check(tooMany.status === STATUS.badRequest && tooMany.body.error.code === 'bad_hints_used', `while a claim of four hints is refused outright (${tooMany.body.error?.code})`);
+}
+
+console.log('\n== 7. the Daily: walked, priced on its line, and its board is a BEST ==');
+{
+  const { store, deps } = await fresh();
+  const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
+  const generated = puzzleFor(seed, levelAt(LEVEL));
+  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+
+  const short = await postRun(submit('r7', { runId: 'd-1', mode: 'daily', levelIndex: LEVEL, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  check(short.status === STATUS.ok, `a line that reaches the goal is accepted (${short.status})`);
+  const best = short.body.board.score;
+  check(short.body.progress === null, 'and a Daily run finishes no drill');
+  check(short.body.hints.successes === 0, 'and earns no success, because hints are earned on the drill line only');
+
+  // THE DAILY'S BOARD IS A BEST, NOT A TOTAL, and the only way a replay can differ is TIME (the line is the
+  // same): a slow run of the same challenge must not lower what a fast one earned. MEASURED with the two
+  // scores in the check, so a cumulative rule (which would ADD them) fails it by an order of magnitude.
+  const slow = await postRun(submit('r7', { runId: 'd-slow', mode: 'daily', levelIndex: LEVEL, day: DAY, elapsedSeconds: 5000, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  check(slow.status === STATUS.ok && slow.body.run.score < best, `a slow replay scores less (${slow.body.run?.score} vs ${best})`);
+  check(slow.body.board.score === best && slow.body.board.runs === 2, `and the board kept the best while counting both runs (${slow.body.board.score}, ${slow.body.board.runs} runs)`);
+
+  // A LINE THAT STOPS SHORT needs a puzzle with more than one call in its solution, and level 1's is a single
+  // call — so this half of the check runs at LEVEL 2, whose intended solution is two. MEASURED: at level 1 the
+  // same input is ACCEPTED, because `solution[0]` IS the whole solution there.
+  const level2Seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === 2).seed;
+  await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION }, null);
+  const twoSteps = puzzleFor(level2Seed, levelAt(2));
+  check(twoSteps.puzzle.solution.length === 2, `the level-2 challenge has a two-call solution (${twoSteps.puzzle.solution.length})`);
+  const shortLine = await postRun(submit('r7', { runId: 'd-3', mode: 'daily', levelIndex: 2, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [twoSteps.puzzle.solution[0]] }), deps);
+  check(shortLine.status === STATUS.badRequest && shortLine.body.error.code === 'not_solved', `a line that stops short is refused (${shortLine.status} ${shortLine.body.error?.code})`);
+  const fullLine = await postRun(submit('r7', { runId: 'd-3b', mode: 'daily', levelIndex: 2, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: twoSteps.puzzle.solution }), deps);
+  check(fullLine.status === STATUS.ok, `while the whole line at the same level is accepted (${fullLine.status})`);
+  const illegal = await postRun(submit('r7', { runId: 'd-4', mode: 'daily', levelIndex: LEVEL, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: ['Not A Call At All'] }), deps);
+  check(illegal.status === STATUS.badRequest && illegal.body.error.code === 'not_solved', `and an illegal call is refused with the engine's reason (${illegal.body.error?.message?.slice(0, 60)})`);
+  const unpublished = await postRun(submit('r7', { runId: 'd-5', mode: 'daily', levelIndex: 3, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [] }), deps);
+  check(unpublished.status === STATUS.notFound && unpublished.body.error.code === 'no_published_daily', `a day nobody published is a 404 (${unpublished.status} ${unpublished.body.error?.code})`);
+}
+
+console.log('\n== 8. a refused transaction leaves NOTHING behind ==');
+{
+  // NEGATIVE CONTROL, MEASURED, FOR THE WHOLE ENDPOINT: a store whose `transact` never lands must leave the
+  // board, the balance and the progress exactly as they were. That is the difference between "one run, one
+  // atomic effect" and four writes that half happened — and with the writes applied one at a time the run row
+  // would be there while the score was not (the store probe measures that shape directly).
+  const { store, deps } = await fresh();
+  const { drill, calls } = await issue(deps, 'r9');
+  let attempts = 0;
+  const refuses = {
+    get: (key) => store.get(key),
+    put: (key, value, expectedRev) => store.put(key, value, expectedRev),
+    transact: () => {
+      attempts++;
+      return Promise.resolve(false);
+    },
+  };
+  const answer = await postRun(submit('r9', { runId: 'run-refused', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 10, hintsUsed: 0, attempts: 0, calls }), { ...deps, store: refuses });
+  check(answer.status === STATUS.conflict && answer.body.error.code === 'contended', `NEGATIVE CONTROL: a transaction that never lands is reported as contended (${answer.status} ${answer.body.error?.code})`);
+  check(attempts === 3, `after exactly MAX_WRITE_ATTEMPTS attempts (${attempts})`);
+  check((await store.get(runKey('r9', 'run-refused'))) === null, 'and the run was NOT recorded');
+  check((await store.get(hintsKey('r9'))) === null, 'and the hint balance was not written');
+  check((await store.get(boardKey('drill', LEVEL, SEASON, 'r9'))) === null, 'and the board was not written');
+  const progress = (await store.get(progressKey('r9', LEVEL))).value;
+  check(progress.issued !== null && progress.finished.length === 0, 'and the drill is still in flight, with nothing finished');
+}
+
+console.log('\n== 9. refusals, and the board keys ==');
+{
+  const { deps } = await fresh();
+  const { drill, calls } = await issue(deps, 'r8');
+  const base = { runId: 'run-x', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 5, hintsUsed: 0, attempts: 0, calls };
+  const cases = [
+    [null, 'a null body'],
+    [{ ...base, runId: '' }, 'an empty runId'],
+    [{ ...base, mode: 'practice' }, 'an unknown mode'],
+    [{ ...base, levelIndex: 0 }, 'level 0'],
+    [{ ...base, elapsedSeconds: -1 }, 'negative elapsed'],
+    [{ ...base, elapsedSeconds: Number.NaN }, 'a NaN elapsed'],
+    [{ ...base, attempts: -2 }, 'negative attempts'],
+    [{ ...base, calls: 'Allemande Left' }, 'calls that are not an array'],
+    [{ ...base, drillId: undefined }, 'no drillId'],
+    [{ ...base, drillId: '9:9' }, 'a drill that is not the issued one'],
+    [{ ...base, mode: 'daily', day: 'yesterday' }, 'a daily without a day'],
+  ];
+  for (const [body, why] of cases) {
+    const answer = await postRun(submit('r8', body), deps);
+    check(answer.status >= 400 && answer.status < 500, `${why} is refused (${answer.status} ${answer.body.error?.code})`);
+  }
+  const anonymous = await postRun(submit(null, base), deps);
+  check(anonymous.status === STATUS.unauthenticated, `no identity is a 401 (${anonymous.status})`);
+  // THE BOARD KEY CARRIES THE PERIOD, and the two modes' periods mean different things (§15 Q4's calendar month
+  // for a season, one UTC day for a challenge), so a season boundary is a new key rather than a deleted row.
+  check(seasonOf(Date.UTC(2026, 9, 31, 23, 59)) === '2026-10' && seasonOf(Date.UTC(2026, 10, 1, 0, 0)) === '2026-11', `a season is the UTC calendar month (${seasonOf(Date.UTC(2026, 9, 31, 23, 59))} then ${seasonOf(Date.UTC(2026, 10, 1, 0, 0))})`);
+  check(MAIN_POOL.version && SCORE_VERSION > 0, 'and the pool version and score version are the ones the rows are stamped with');
+}
+
+console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
+process.exit(failures ? 1 : 0);

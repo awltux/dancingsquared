@@ -733,7 +733,7 @@ player therefore gets an issued drill keyed to a device id, and the progression 
 login — the same shape as `POST /me/runs:bulk`, and the reason the Progress row's key includes the player
 rather than the level alone.
 
-**The two Drill endpoints as they are implemented (Phase 5.0), so the client can be written against them.**
+**The three endpoints as they are implemented (Phase 5.0 and 5.3), so the client can be written against them.**
 `GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, issuedAtMs,
 optionLabels, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
 level is finished. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
@@ -745,6 +745,17 @@ deployment), `409 stale_drill` (the id is not the one issued) and `409 contended
 attempts lost), `503 unreadable_progress`/`unreadable_schedule`/`unplayable_drill` (a stored row this build
 cannot read, or a published seed that no longer generates — both operator findings rather than client errors).
 **A refusal never writes**, which is what makes a retry safe.
+
+`POST /runs` takes `{ runId, mode, levelIndex, elapsedSeconds, hintsUsed, attempts, calls, score? }`, plus
+`drillId` for a Drill run and `day` (`YYYY-MM-DD`) for a Daily one, and answers
+`{ run: { runId, mode, score, elapsedSeconds, scoreVersion, clamped, duplicate }, hints: { hints, successes,
+granted }, board: { period, score, runs }, progress: { finished } | null }` — the SERVER's numbers, so a client
+never has to guess what its own claim was worth. `calls` is one call per step for the Drill (the answer the
+player committed at each step, re-derived against the issued puzzle) and the whole line for the Daily (walked
+through the engine). `score` is the client's claim and is CLAMPED to what the server recomputes, with
+`clamped: true` saying that it was. `duplicate: true` means the `runId` had already landed and nothing was
+written twice. Refusals add `400 not_solved`/`over_allowance`/`impossible_elapsed`/`bad_*`,
+`404 no_published_daily`, and `409 stale_drill`/`stale_pool`.
 
 **DynamoDB, one table**, `PK`/`SK`, with a `GSI1 (GSI1PK, GSI1SK)` for the two leaderboard partitions and a
 `seed#playerId` dedup index so a replay does not spam a board with duplicate entries. The item shapes below
@@ -1135,6 +1146,40 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
 
+**Phase 5.3 — a completed run, verified by regeneration. DONE.**
+`POST /runs` exists for both modes. `api/src/runs.ts` owns what a client may send and what the server refuses;
+`api/src/handlers/runs.ts` owns the four effects of accepting one — the run's own ledger row, the player's
+progress, the hint balance and the board — written as ONE transaction, so a run cannot half happen. The boards
+are §6's keys per mode: `board#drill#<level>#<YYYY-MM>` (a season, §15 Q4's calendar month) and
+`board#daily#<level>#<YYYY-MM-DD>`, with the Daily's holding the BEST and the Drill's the CUMULATIVE total.
+
+**MEASURED, by `api/test/runs-probe.mjs`** (63 checks, 3 controls, and the probe answers a REAL puzzle: it asks
+for the current drill, regenerates it from the served seed, and submits the correct option at every step):
+- a correct Drill run is accepted and does all four things at once — the drill is finished, one success is
+  counted, the board holds the run, and the transcript is stored with the drill cleared from flight;
+- **the score is the server's**: a claim of 999999 is clamped to 50 and REPORTED, and the STORED board holds 50
+  rather than the claim; a claim below the computed score is honoured;
+- **a run lands once**: the same `runId` answers `duplicate: true` and moves neither the board nor the success
+  count; a submission about a drill no longer in flight is `409 stale_drill` and writes no second run row —
+  which is why a replay cannot be farmed (§6) — and the finished set holds an index once even if it is somehow
+  handed out twice;
+- **the per-step answer is re-derived**: a wrong option is `400 not_solved`, and the refusal NAMES the option
+  that was correct;
+- **the clock is bounded by the issue time**: an hour claimed a minute after the issue is refused, and 300 s
+  claimed 400 s after it is accepted;
+- **the hint rules hold from the server side**: the TENTH distinct drill grants, the balance then spends on a
+  Daily claim, a claim against an empty balance cannot go below zero, and a claim of four hints is refused;
+- **the Daily is walked through the engine**: the whole line is accepted, a line that stops short is refused (at
+  level 2, whose solution is two calls — at level 1 `solution[0]` IS the whole solution), an illegal call is
+  refused with the engine's own reason, and a SLOW replay of the same challenge scores less while the board keeps
+  the best;
+- a store whose transaction never lands reports `409 contended` after exactly three attempts and leaves the run
+  row, the balance, the board and the progress row ALL untouched.
+
+**And the one thing this phase could not verify, recorded rather than hidden: §15 Q19.** The attempt count and
+the hint spend are the client's word, because §11's six endpoints give neither a server-side interaction; both
+are bounded and priced instead, and Q19 says what a dishonest client gains and what to do about it.
+
 **Phase 5 — AWS.** Cognito, the six endpoints, the DynamoDB table and its item shapes **including the Hints
 row**, the schedule publishing pipeline, the boundary job for the Daily, verification-by-regeneration and
 clamping, **the server-owned hint ledger**, and the deployment scripts — which live **outside `game/`**, so
@@ -1251,6 +1296,17 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     repository's offline-frontend rule (AGENTS.md §6), so the decision to make a network call must be recorded
     in the commit that adds it, with the endpoint named.
 15. **The workspace name**, for `game/package.json` when Phase 1 starts. *(Settled: `dancing-squared-game`.)*
+19. **Two claims in a run submission are still the client's word: the attempt count and the hint spend.** The
+    Drill's `attempts` prices a run (§6's `attemptFactor`), and the Daily's `hintsUsed` debits the balance (§10).
+    Neither has a server-side interaction among §11's six endpoints, so the server can only bound them:
+    `attempts >= 0`, and the debit clamped at zero. **What a client gains by lying, in numbers**: reporting zero
+    attempts raises a Drill score by up to `1/(1 + 0.25n)` — a fifth at four wrong answers, `ATTEMPT_PENALTY` —
+    and reporting zero hints after taking one keeps the hint; worse, because an UNSOLVED Daily is never submitted
+    (a run nobody finished is not a run to submit), a hint taken and then abandoned is never debited at all.
+    *Recommend making both interactions server-side before launch* — a `POST /drill/answer` that records an
+    attempt as it happens, and the hint spend as its own call against the balance — because the alternative is a
+    currency (a hint) and a ranking (the attempt factor) that a modified client sets. This is the one place where
+    §11's "server-owned state that the client displays and requests against" does not yet cover the REQUEST.
 16. **Does an answer given AFTER "show me the answer" count as a ranked success?** Phase 3 made the review
     name and dance the call without answering the step, so a player still presses it — and that press earns a
     score and, on the tenth completed drill, a hint. *Recommend NOT counting a revealed puzzle*, because a

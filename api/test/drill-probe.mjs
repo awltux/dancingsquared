@@ -13,7 +13,8 @@
 // status codes are measured rather than assumed.
 //
 // Usage: node api/test/drill-probe.mjs
-import { drillAdvance, drillCurrent, STATUS } from '../src/handlers/drill.ts';
+import { drillAdvance, drillCurrent } from '../src/handlers/drill.ts';
+import { STATUS } from '../src/status.ts';
 import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDrillId } from '../src/drill-regime.ts';
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
 import { progressKey } from '../src/keys.ts';
@@ -323,7 +324,11 @@ console.log('\n== 9. the local server, over a real socket ==');
   try {
     const health = await call('/health');
     check(health.status === 200 && health.body.ok === true, `health answers (${health.status}, ${health.body.store})`);
-    check(health.body.endpoints.length === 2 && health.body.planned === 6, `and reports 2 of the ${health.body.planned} endpoints served`);
+    // THE LIST IS NOT PINNED TO A COUNT: it grows as the endpoints land, and a count here would be a check that
+    // reddens when someone adds an endpoint and says nothing about whether the health answer is right. What is
+    // pinned is that the routes served are named and that some of the six planned ones are still to come.
+    check(health.body.endpoints.includes('GET /drill/current') && health.body.endpoints.includes('POST /drill/advance'), `and names the routes it serves (${health.body.endpoints.join(', ')})`);
+    check(health.body.endpoints.length < health.body.planned, `out of ${health.body.planned} planned, so the gap is visible here`);
 
     const anonymous = await call('/drill/current?level=1');
     check(anonymous.status === 401, `a request with no identity is a 401 (${anonymous.status})`);

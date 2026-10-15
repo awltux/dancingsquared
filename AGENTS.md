@@ -347,6 +347,13 @@ with its measurement, in the same commit that found it.
     output and did it, and the table had to be deleted by hand. Any command that CREATEs or SEEDs must refuse
     without an explicit endpoint or opt-in (`api/src/config.ts`'s `realServiceWarning`), because a developer's
     default is a local container while a credential chain's default is production.
+22. **An editing helper must never write a variable it has not proved non-null.** The workaround traps 5 and 19
+    push you towards is `[System.IO.File]::ReadAllText(...)` → `.Replace(...)` → `WriteAllText(...)`, and a
+    `.Replace` call that THROWS (a five-character search string binds to the `char, char` overload) leaves the
+    result unassigned — MEASURED: `WriteAllText(path, $null)` **emptied `game/DESIGN.md` to 0 bytes** and the
+    uncommitted edits in it were lost (`git checkout --` restored the committed content and they were rewritten
+    by hand). Assert the result is non-null AND non-empty before writing, or use the editor tools, which fail
+    loudly on a missing anchor instead of silently writing nothing.
 
 ---
 

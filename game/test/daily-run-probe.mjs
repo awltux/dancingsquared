@@ -195,7 +195,7 @@ console.log('\n== 7. a run survives a reload, and the gap is charged ==');
   const run = fresh();
   run.takeHint();
   run.play('go-b', 1000);
-  const saved = run.save('2026-10-15', 1000, 5000);
+  const saved = run.save('2026-10-15', 'run-r', 1000, 5000);
   check(saved.day === '2026-10-15' && saved.outcome === 'playing', `the record names the day and the state (${saved.day}, ${saved.outcome})`);
   check(saved.moves.length === 1 && saved.moves[0] === 'go-b', `and the line played so far (${saved.moves.join(' ')})`);
   check(saved.elapsedMs === 1000, `and the CLOCK, not the hint-charged total (${saved.elapsedMs} ms, where the view charges the minute separately)`);
@@ -215,7 +215,7 @@ console.log('\n== 7. a run survives a reload, and the gap is charged ==');
   // call the resumed run is still standing in front of.
   const standing = fresh();
   const hint = standing.takeHint();
-  const markerSaved = standing.save('2026-10-15', 500, 5000);
+  const markerSaved = standing.save('2026-10-15', 'run-r', 500, 5000);
   check(markerSaved.hintedCall === hint.call, 'a hint taken and not yet acted on saves its marker');
   const markerBack = DailyRun.resume(puzzle, applier, 20000, markerSaved, { gapMs: 0 });
   check(markerBack !== null && markerBack.view(20000).hintedCall === hint.call, 'and the resumed run shows it again');
@@ -231,7 +231,7 @@ console.log('\n== 8. a FINISHED run comes back finished, at its own time ==');
   run.play('go-b', 1000);
   run.play('go-d', 4000);
   const before = run.view(4000);
-  const saved = run.save('2026-10-15', 4000, 5000);
+  const saved = run.save('2026-10-15', 'run-r', 4000, 5000);
   check(saved.outcome === 'solved' && saved.elapsedMs === 4000, `the solved run saves its frozen clock (${saved.elapsedMs} ms)`);
 
   // A STOPPED CLOCK GETS NO GAP: the page was away for a minute, but the clock had already stopped, so
@@ -247,7 +247,7 @@ console.log('\n== 8. a FINISHED run comes back finished, at its own time ==');
   const givenUp = fresh();
   givenUp.play('go-b', 1000);
   givenUp.giveUp(9000);
-  const back = DailyRun.resume(puzzle, applier, 60000, givenUp.save('2026-10-15', 9000, 9500), { gapMs: 50000 });
+  const back = DailyRun.resume(puzzle, applier, 60000, givenUp.save('2026-10-15', 'run-r', 9000, 9500), { gapMs: 50000 });
   check(back !== null && back.view(60000).outcome === 'given-up', 'a given-up run comes back given up');
   check(back.view(60000).result === null && back.view(60000).elapsedSeconds === 9, `with no score and its own time (${back.view(60000).elapsedSeconds}s)`);
 }
@@ -256,7 +256,7 @@ console.log('\n== 9. a record that no longer applies is REFUSED, not repaired ==
 {
   const run = fresh();
   run.play('go-b', 1000);
-  const saved = run.save('2026-10-15', 1000, 5000);
+  const saved = run.save('2026-10-15', 'run-r', 1000, 5000);
   // NEGATIVE CONTROL, MEASURED: the stub refuses `stuck` (it is the illegal call), so this is the state a
   // pool or corpus change leaves behind — a saved line whose calls no longer apply. A resume that ignored the
   // verdict would rebuild a run that does not match the record it was given.

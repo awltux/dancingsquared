@@ -41,6 +41,14 @@ export interface StorageLike {
 
 /** An issued-but-unfinished drill: the clock that has run, the step reached, and the wrong tries taken. */
 export interface DrillSaved {
+  /**
+   * The id of the run this drill will be recorded as.
+   *
+   * IT IS PART OF THE RUN'S IDENTITY, so it is persisted WITH the run rather than generated again on reload:
+   * Phase 5's claim is idempotent on this key, and a fresh id after a resume would be a second claim of the
+   * same run.
+   */
+  runId: string;
   /** Wall-clock stamp of the moment the drill was issued, so a reload does not hand out a fresh clock. */
   startedAtMs: number;
   /** Answers that were not correct, so a reload does not forgive them. */
@@ -53,6 +61,8 @@ export interface DrillSaved {
 
 /** The Daily attempt: solved, given up, or still being played. */
 export interface DailySaved {
+  /** The id this run will be recorded as — see `DrillSaved.runId`, and the same reason. */
+  runId: string;
   day: string;
   levelIndex: number;
   moves: string[];
@@ -100,6 +110,16 @@ export interface SavedGame {
   levelIndex: number;
   /** The ISSUED-drill id (DESIGN.md 8: a drill is locked when it is issued). */
   drillPosition: number;
+  /**
+   * The drill positions whose success has ALREADY been counted.
+   *
+   * WHY THIS IS PERSISTED. DESIGN.md 11's Progress row keeps "the set of finished ones", and DESIGN.md 10
+   * counts only RANKED Drill answers towards a hint. Without the set, a player could re-solve a drill they had
+   * already finished — by pressing Next and coming back, or simply by reloading, which re-issues the entry —
+   * and mint a hint every time. The board could not be farmed (§6 takes the player's best) but the BALANCE
+   * could, and a hint is a currency.
+   */
+  finished: number[];
   drillRun: DrillSaved | null;
   daily: DailySaved | null;
   hints: HintLedger;
@@ -124,6 +144,7 @@ export function emptySave(poolVersion: string, levelIndex: number, nowMs: number
     poolVersion,
     levelIndex,
     drillPosition: 0,
+    finished: [],
     drillRun: null,
     daily: null,
     hints: { hints: 0, successes: 0 },
@@ -256,6 +277,7 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
       poolVersion: currentPoolVersion,
       levelIndex,
       drillPosition: intOr(record['drillPosition'], 0, 0),
+      finished: intList(record['finished']),
       drillRun: sanitiseDrill(record['drillRun']),
       daily: sanitiseDaily(record['daily']),
       hints: sanitiseLedger(record['hints']),
@@ -274,6 +296,16 @@ function intOr(value: unknown, min: number, fallback: number): number {
   return whole < min ? fallback : whole;
 }
 
+/** A list of positions, clamped to whole numbers at or above zero — a hand-edited set cannot invent a level. */
+function intList(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  const out: number[] = [];
+  for (const item of value) {
+    if (typeof item === 'number' && Number.isFinite(item) && item >= 0) out.push(Math.floor(item));
+  }
+  return out;
+}
+
 /** A string array, or null when any element is not a string. */
 function stringList(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
@@ -289,8 +321,10 @@ function sanitiseDrill(raw: unknown): DrillSaved | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const r = raw as Record<string, unknown>;
   const options = stringList(r['options']);
-  if (options === null) return null;
+  const runId = r['runId'];
+  if (options === null || typeof runId !== 'string' || runId.length === 0) return null;
   return {
+    runId,
     startedAtMs: intOr(r['startedAtMs'], 0, 0),
     attempts: intOr(r['attempts'], 0, 0),
     index: intOr(r['index'], 0, 0),
@@ -303,11 +337,13 @@ function sanitiseDaily(raw: unknown): DailySaved | null {
   const r = raw as Record<string, unknown>;
   const moves = stringList(r['moves']);
   const outcome = r['outcome'];
-  if (moves === null) return null;
+  const runId = r['runId'];
+  if (moves === null || typeof runId !== 'string' || runId.length === 0) return null;
   if (outcome !== 'playing' && outcome !== 'solved' && outcome !== 'given-up') return null;
   if (typeof r['day'] !== 'string' || r['day'].length === 0) return null;
   const hinted = r['hintedCall'];
   return {
+    runId,
     day: r['day'],
     levelIndex: intOr(r['levelIndex'], 1, 1),
     moves,

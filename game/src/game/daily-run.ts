@@ -139,8 +139,9 @@ export class DailyRun {
    * `(day, level)` and the app is what holds the calendar (`utcDay`), so the run records the day it is told
    * rather than asking a clock of its own (AGENTS.md 4.3: no ambient time in a computation).
    */
-  save(day: string, nowMs: number, wallNowMs: number): DailySaved {
+  save(day: string, runId: string, nowMs: number, wallNowMs: number): DailySaved {
     return {
+      runId,
       day,
       levelIndex: this.puzzle.level.index,
       moves: this.session.moves,

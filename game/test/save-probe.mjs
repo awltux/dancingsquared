@@ -77,7 +77,16 @@ console.log('== 1. a full record round trips ==');
 {
   const storage = memory();
   const state = {
-    ...save({ drillPosition: 5, drillRun: { startedAtMs: 900, attempts: 2, index: 1, options: ['Boys Run'] } }),
+    ...save({
+      drillPosition: 5,
+      // The RUN ID rides with the run it belongs to: it is what Phase 5's claim is idempotent on, so a resume
+      // keeps it rather than minting a second one (and a record without one is refused — see section 14).
+      drillRun: { runId: 'run-drill', startedAtMs: 900, attempts: 2, index: 1, options: ['Boys Run'] },
+      daily: {
+        runId: 'run-daily', day: '2026-10-15', levelIndex: 3, moves: ['Boys Run'], hintsUsed: 1,
+        hintedCall: 'Boys Run', elapsedMs: 1500, outcome: 'playing', savedAtMs: 5000,
+      },
+    }),
     hints: { hints: 2, successes: 7 },
     runs: [run(), run({ runId: 'run-2', mode: 'daily', day: '2026-10-15', moves: ['Allemande Left'], hintsUsed: 1, position: undefined, options: undefined })],
   };
@@ -148,9 +157,30 @@ console.log('\n== 6. what is read back is CLAMPED ==');
   const nonsense = { ...save(), hints: { hints: 'lots', successes: -5 } };
   const other = loadGame(memory({ [SAVE_KEY]: JSON.stringify(nonsense) }), POOL);
   check(other.state.hints.hints === 0 && other.state.hints.successes === 0, 'and a ledger that is not numbers becomes an empty one');
+  // THE FINISHED SET IS A SET OF POSITIONS, so a hand-edited one cannot invent a position that was never
+  // played — and a string or a negative in it is dropped rather than carried into the hint rule.
+  const badFinished = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), finished: [2, 'x', -1, 3.9, null] }) }), POOL);
+  // NEGATIVE CONTROL, MEASURED: reading the set straight off the record instead of through `intList` reddens
+  // this check and nothing else.
+  check(badFinished.state.finished.join(',') === '2,3', `a hand-edited finished set keeps only real positions (${badFinished.state.finished.join(',')})`);
   const badLevel = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), levelIndex: -3, drillPosition: 'x' }) }), POOL);
   check(badLevel.state.levelIndex === 1, `a level that is not a level falls back to 1 (${badLevel.state.levelIndex})`);
   check(badLevel.state.drillPosition === 0, 'and a position that is not a number falls back to 0');
+}
+
+console.log('\n== 6b. a run record without an ID is refused whole ==');
+{
+  // THE ID IS THE CLAIM KEY, so a record that has lost it cannot be submitted idempotently: Phase 5 would
+  // either drop the run or claim it twice. Refusing the record is the only answer that cannot double-count —
+  // and it costs the player nothing they can see, because the drill simply re-issues.
+  const noDrillId = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [] } }) }), POOL);
+  check(noDrillId.state.drillRun === null, 'a drill record with no runId is not carried');
+  const noDailyId = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), daily: { day: '2026-10-15', levelIndex: 1, moves: [], hintsUsed: 0, hintedCall: null, elapsedMs: 0, outcome: 'playing', savedAtMs: 0 } }) }), POOL);
+  check(noDailyId.state.daily === null, 'nor is a Daily record with no runId');
+  // NEGATIVE CONTROLS, MEASURED, one line each: relaxing the DRILL's id check reddens the drill check above,
+  // and relaxing the Daily's reddens the Daily one. Neither can be a single control, because the two records
+  // are validated in different functions — which is also why a store cannot mint an id for a run it did not
+  // issue: dropping the record is the only answer that cannot double-claim.
 }
 
 console.log('\n== 7. a run recorded twice is ONE run ==');

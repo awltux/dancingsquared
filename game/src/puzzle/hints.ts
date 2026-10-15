@@ -71,8 +71,10 @@ export interface SpendResult {
  * Spend one hint.
  *
  * A SPEND WITH NO BALANCE IS NOT AN ERROR — it is a click on a button the screen should have disabled — so
- * it reports `spent: false` rather than throwing, and the run is not charged (the caller spends first and
- * takes the hint only if the ledger said yes).
+ * it reports `spent: false` rather than throwing, and the run is not charged: the caller READS the balance
+ * first (`save-state.ts` exposes it as a plain getter), asks the run for a hint, and commits the spend only
+ * once the run has named something. Charging first and refunding on a run that had nothing to name would be
+ * a refund path, and a spend with nothing behind it is the case this answer exists for.
  */
 export function spendHint(ledger: HintLedger): SpendResult {
   if (ledger.hints <= 0) return { ledger: { ...ledger }, spent: false };

@@ -1019,6 +1019,33 @@ count as a ranked success?) is now a ONE-FIELD change — the run record is the 
 flag — but the decision is the owner's. Nothing persists the MODE: a reload opens on the Drill, which is the
 funnel. No network call, no account, no cookie: everything is this device's.
 
+**Phase 4.5 — the saved game's rules left the shell. DONE.**
+`src/game/save-state.ts` now owns the live state over `store.ts`'s record and the transitions on it, because
+until it did those rules WERE four module-level variables in `main.ts` written from wherever a handler
+happened to need them — and the only instrument that could see them was a browser, which is exactly how the
+one that had shipped (a drill mutation writing `daily: null` over an un-resumed Daily) was found. The state
+is opened once, before anything is issued, and every mutation goes through one of its transitions:
+`countSuccess` (one success per issued drill), `addRun` (one entry per `runId`, reporting how many it ADDED),
+`spendHint`, and `persist`/`open` around the one write. New: `save-state.ts`, `save-state-probe.mjs` (**7
+sections, 47 checks, 5 measured negative controls**), and `hints.ts`'s prose on the spend's call order,
+corrected.
+
+**MEASURED, by the probe:** nine distinct successes then four replays of an already-finished position leave
+the ledger at 0 held and 9 counted, where the control — the same sequence through the rule with no finished
+set — mints a hint on the first replay; the tenth DISTINCT position is the one that grants, and re-solving it
+grants nothing more; `addRun` with the same `runId` twice adds 1 then 0, where a plain append adds 2; a spend
+with an empty balance is refused and leaves the balance at 0, where an unguarded `hints - 1` goes to -1; a
+drill mutation with no Daily in memory keeps the stored Daily across a reload, where a record written with
+`daily: null` resumes nothing; and the flag at BOOT is not the answer after a refused write (true at open,
+false after), which a boot-only flag would have got wrong.
+
+- **A FRESH RECORD CARRIES NO STAMP, and the probe is what found it.** `SaveState.open` first stamped the
+  record it builds for a first-time player with the current time, and `resumed` — which is `savedAtMs > 0` —
+  then said a brand new game had been resumed, so the shell would have warned a first-time player that the
+  schedule had moved under them. It is opened with the storage and the pool version and no clock.
+- **THE KEEP-WHAT-IS-STORED RULE APPLIES TO THE DAILY ALONE**, which is what stops it being over-applied: a
+  `drill: null` write CLEARS the drill in flight, so a finished drill is not resumed by the next reload.
+
 **Phase 5 — AWS.** Cognito, the six endpoints, the DynamoDB table and its item shapes **including the Hints
 row**, the schedule publishing pipeline, the boundary job for the Daily, verification-by-regeneration and
 clamping, **the server-owned hint ledger**, and the deployment scripts — which live **outside `game/`**, so
@@ -1042,7 +1069,11 @@ hint having nothing to spend until the Drill ships.
   the pattern that file already follows. **The saved game is probeable the same way**, because storage is an
   INJECTED interface rather than a call to `localStorage`: `game/test/save-probe.mjs` drives the loader with a
   fake, with a store that throws, and with records that are corrupt, from another schema and from another
-  pool — which is how the resume rules are pinned without a browser (Phase 4).
+  pool — which is how the resume rules are pinned without a browser (Phase 4). **The shell's own use of that
+  record is pinned the same way** (Phase 4.5): `game/test/save-state-probe.mjs` drives `SaveState` — the one
+  success per issued drill, the one entry per `runId`, the spend, the flag, and the Daily that a drill
+  mutation must not erase — against a fake storage, so a rule that used to be visible only from a browser is
+  now a check that runs in 11 ms.
 - **The serving-side rules are probeable too, and should be**, because they are the new fairness surface:
   "everyone at a level gets the same seed at the same position", "an issued drill does not change", and
   **"the hint ledger grants on the tenth success and never on a client's word"** are decisions about plain

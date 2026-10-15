@@ -40,12 +40,16 @@ import {
   PERMISSION_RULES,
   GROUP_NAMES,
 } from '../dist/index.js';
-import { callsByTitle } from './lib/engine-calls.mjs';
+import { callsByTitle, implementedTitles } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..');
 const assets = path.join(root, 'poc', 'src', 'assets');
+
+/** Every name the corpus can actually PERFORM: the `<tam>` titles plus the coded-move aliases. The list a
+ *  shipped rule's `call` has to be in, and the reason it cannot be a hand-kept array like `GROUP_NAMES`. */
+const implemented = implementedTitles(assets);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -159,10 +163,26 @@ console.log('\n== (8) the default is ALLOW ==');
 }
 
 console.log('\n== (9) the shipped rules are well-formed ==');
+/** THE PREDICATE THE LOOP BELOW USES, named so the control can exercise the real one rather than a copy of
+ *  it: a control that restates the rule measures the restatement (AGENTS.md 5). */
+const ruleCallIsPerformable = (r) => r.call === undefined || implemented.has(r.call);
 for (const r of PERMISSION_RULES) {
   check(typeof r.level === 'string' && r.level.length > 0, `rule for ${r.call ?? '*'} names a level`);
   check(r.decision === 'deny' ? !!r.reason : true, `a deny rule (${r.call ?? '*'}) carries a reason`);
   check(PERMISSION_LEVELS.includes(r.level), `rule level "${r.level}" is a known programme`);
+  // A CALL THE CORPUS CANNOT PERFORM IS THE SAME FAILURE AS A GROUP TYPO WITH A WORSE FAILURE MODE, and it
+  // is the one this section was missing. `GROUP_NAMES` is a fixed list, so a group typo is answerable from
+  // the file; a CALL name comes from the corpus, and THE CORPUS RENAMES. The answer when a rule stops
+  // matching is not "no rule" - it is the DEFAULT, which section 8 pins as ALLOW.
+  // MEASURED, and it is not hypothetical: `4d40da5` renamed the `Lead Left` authorings to
+  // `Lead Left - Normal` / `- Far` while the rules for them were being written by hand, and the two
+  // `Lead Right from *` subjects section 15 used to ask about no longer exist in the corpus at all - so both
+  // the rule and the check that named them had quietly become no-ops.
+  // `implementedTitles` is the corpus's own list plus the coded aliases: the widest true answer, rather than
+  // a second hand-kept list to drift against (AGENTS.md 4.3).
+  if (r.call !== undefined) {
+    check(ruleCallIsPerformable(r), `rule for ${r.call} names a call the catalogue can perform`);
+  }
   // A GROUP NAME THE PICKER CANNOT PRODUCE IS A RULE THAT CANNOT FIRE, so a typo in a shipped rule is a
   // rule that quietly does nothing. `GROUP_NAMES` is the one list of names the picker can offer, and the
   // eight gender spellings are exactly the thing that used to be hand-typed into a rule.
@@ -175,6 +195,17 @@ for (const r of PERMISSION_RULES) {
     || (Array.isArray(r.group) && r.group.length > 0 && r.group.every((g) => typeof g === 'string' && g.trim() !== '')),
     `rule for ${r.call ?? '*'} names no empty group list (${JSON.stringify(r.group)})`);
 }
+
+// THE NEGATIVE CONTROL for the call check above, and it is the case that actually happened. It runs the SAME
+// predicate the loop ran, against the exact strings that moved: "every rule's call is in the catalogue" is
+// satisfied trivially by a list that contains everything, so what makes the check real is that it REJECTS the
+// pre-rename spellings. Had a rule been written against any of these, the loop above is what goes red, and
+// nothing else here would: sections 13-15 name titles directly and would themselves be asking about a call
+// that does not exist - which is exactly how section 15 came to be failing before this change.
+const STALE_TITLES = ['Lead Left Normal', 'Lead Left Far', 'Lead Right from Lines', 'Lead Right from Close Couples'];
+const acceptedStale = STALE_TITLES.filter((call) => ruleCallIsPerformable({ call, level: 'ms', decision: 'allow' }));
+check(acceptedStale.length === 0,
+  `the call check REJECTS the pre-rename spellings (${acceptedStale.length} of ${STALE_TITLES.length} accepted: ${acceptedStale.join(', ') || 'none'})`);
 
 console.log('\n== (10) BOYS / GIRLS DOSADO ARE NEVER OFFERED FROM A STATIC SQUARE ==');
 // "They conflict in the middle of the square." Measured: every boy faces his partner and every girl

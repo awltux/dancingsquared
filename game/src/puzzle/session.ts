@@ -30,7 +30,15 @@ interface Played {
   board: Board;
 }
 
-export type Verdict = 'correct' | 'wrong' | 'illegal';
+/**
+ * What playing one call did.
+ *
+ * `over` IS NOT AN ENGINE VERDICT and is kept distinct from the other three for that reason: the call is
+ * perfectly legal, the engine would apply it, and the RUN refuses it because the move allowance is spent
+ * (DESIGN.md 9). Folding it into `illegal` would show the player a legality reason that is not true, and
+ * folding it into `wrong` would apply a move the budget does not allow.
+ */
+export type Verdict = 'correct' | 'wrong' | 'illegal' | 'over';
 
 export interface SessionView {
   board: Board;
@@ -42,6 +50,11 @@ export interface SessionView {
   atGoal: boolean;
   /** How far the current board is from the goal, or null when it is further than the allowance. */
   remaining: number | null;
+  /** Calls played, and the calls this puzzle allows — what the UI shows as "3 of 4 used". */
+  movesUsed: number;
+  allowance: number;
+  /** How many calls are still available before the cap; never negative. */
+  movesLeft: number;
 }
 
 export class PlaySession {
@@ -51,7 +64,7 @@ export class PlaySession {
   private readonly puzzle: Puzzle;
   private readonly applier: GameApplier;
   /** How many calls beyond the shortest the player may use. DESIGN.md 9's move allowance. */
-  private readonly allowance: number;
+  private readonly budget: number;
 
   /**
    * THE FIELDS ARE DECLARED ABOVE AND ASSIGNED HERE, rather than written as constructor PARAMETER
@@ -64,7 +77,7 @@ export class PlaySession {
   constructor(puzzle: Puzzle, applier: GameApplier, allowance?: number) {
     this.puzzle = puzzle;
     this.applier = applier;
-    this.allowance = allowance ?? puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
+    this.budget = allowance ?? puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
   }
 
   // ------------------------------------------------------------------ reading
@@ -81,6 +94,19 @@ export class PlaySession {
     return this.redoStack.length > 0;
   }
 
+  /** The most calls this run may play. The field is `budget` so the getter can own the public name. */
+  get allowance(): number {
+    return this.budget;
+  }
+
+  get movesUsed(): number {
+    return this.history.length;
+  }
+
+  get movesLeft(): number {
+    return Math.max(0, this.budget - this.history.length);
+  }
+
   atGoal(): boolean {
     return this.applier.boardsMatch(this.board, this.puzzle.goal);
   }
@@ -92,6 +118,9 @@ export class PlaySession {
       canRedo: this.canRedo,
       atGoal: this.atGoal(),
       remaining: this.remaining(),
+      movesUsed: this.movesUsed,
+      allowance: this.budget,
+      movesLeft: this.movesLeft,
     };
   }
 
@@ -105,15 +134,29 @@ export class PlaySession {
   /**
    * Play `call` from the current board.
    *
-   * THE VERDICT IS THREE-VALUED, and the distinction is the teaching content (DESIGN.md 8):
+   * THE VERDICT IS FOUR-VALUED, and the distinction is the teaching content (DESIGN.md 8):
    *   * `illegal` — the engine refused it, and `reason` carries the engine's own string verbatim.
    *   * `wrong`   — it applied and did not reach the goal.
    *   * `correct` — it reached the goal.
+   *   * `over`    — the allowance is spent, so this run may not play another call at all.
    * Note that `wrong` is NOT a failure: DESIGN.md 9 chose honest offerings and free undo, so the player
    * is allowed to walk into a dead end and the SCORE is what makes that cost something. The session
-   * never refuses a legal move.
+   * never refuses a legal move except for the budget.
+   *
+   * THE BUDGET IS CHECKED BEFORE THE CALL IS EVEN LOOKED AT, and that is a decision rather than an
+   * ordering accident: with the check second, a spent run would report a mixture of `illegal`, `wrong` and
+   * `over` depending on which call the player happened to press, so the same state would sometimes explain
+   * itself and sometimes not. What the player needs to hear at the cap is the one actionable sentence,
+   * whether or not the call was also legal.
    */
   play(call: string): { verdict: Verdict; board: Board; reason?: string } {
+    if (this.movesLeft === 0) {
+      return {
+        verdict: 'over',
+        board: this.board,
+        reason: `the allowance of ${this.budget} call(s) is used up — undo one to free a call`,
+      };
+    }
     const refusal: Refusal | null = this.applier.refusalOf(this.board, call);
     if (refusal) return { verdict: 'illegal', board: this.board, reason: refusal.reason };
 

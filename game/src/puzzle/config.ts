@@ -65,12 +65,49 @@ export const MOVE_ALLOWANCE_CUSHION = 2;
  * CHOSEN, not measured. It is deliberately legible — a minute is a thing a player can feel — and
  * deliberately dominant at low levels, where `par` is one call.
  *
- * NOT YET READ BY ANY CODE, and kept anyway: DESIGN.md 6 names this number and `HINT_CAP` as the config
- * module's own contents, and DESIGN.md 13's Phase 3 (the Daily UI and the hint) is their first reader.
- * Deleting them would be a smaller diff and would make that section of the design cite an example that
- * no longer exists.
+ * IT IS ADDED, NOT MULTIPLIED, and that is the rule `game/test/score-probe.mjs` pins: a hint costs a
+ * minute of elapsed time and nothing else, so a run with one hint and no thinking time scores exactly what
+ * a run with no hint and a minute of thinking scores (DESIGN.md 6: "one added term, not a multiplier").
+ * A refundable hint would be a free look at the answer, so nothing un-charges it — the charge is applied
+ * once, by `DailyRun.takeHint`, and an undo does not touch it.
  */
 export const HINT_PENALTY_SECONDS = 60;
 
-/** The most hints a player may hold at once (DESIGN.md 10). Not yet read; see `HINT_PENALTY_SECONDS`. */
+/** The most hints a player may hold at once (DESIGN.md 10). Not yet read by any code — the cap is enforced
+ * by the hint ledger, which arrives with the earning rule. */
 export const HINT_CAP = 3;
+
+// ---------------------------------------------------------------------------------------------- scoring
+//
+// DESIGN.md 6's formula, one factor per rule, with the weights gathered here so retuning is one edit. EVERY
+// NUMBER BELOW IS CHOSEN AND NOT MEASURED — there is no playtest data in this repository and there cannot
+// be one before the game runs, which is what DESIGN.md 6 says in as many words. Presenting any of them as
+// measured would be the fabrication AGENTS.md 4.1 forbids.
+
+/** What one level point of a perfect run is worth, before the three factors below. */
+export const BASE_SCORE = 100;
+
+/**
+ * The seconds a single call is expected to take, which is what makes `par` derived rather than hand-set
+ * (DESIGN.md 6): `par = shortest × this`. At L1 that is a fifteen-second par for a one-call solution, so a
+ * clean level-1 Daily scores its maximum for anything under fifteen seconds.
+ */
+export const SECONDS_PER_CALL = 15;
+
+/**
+ * How much each non-correct Drill answer costs, as the divisor of `1 / (1 + this × attempts)`.
+ *
+ * DRILL ONLY (DESIGN.md 6): a wrong OPTION is a discrete event worth pricing, while the Daily's wandering
+ * is already priced by `wasteFactor` — charging it twice would make the Daily's first mistake cost more
+ * than the Drill's.
+ */
+export const ATTEMPT_PENALTY = 0.25;
+
+/**
+ * The floor on a solved run's score.
+ *
+ * A SOLVED RUN IS NEVER WORTH ZERO, because zero is the score of not having solved it at all: the board
+ * records the best attempt, and a player who took five minutes and four moves still solved the puzzle. A
+ * floor of 1 keeps "solved" and "unsolved" distinguishable on a leaderboard that only stores a number.
+ */
+export const MIN_RUN_SCORE = 1;

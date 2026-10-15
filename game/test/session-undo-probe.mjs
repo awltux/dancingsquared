@@ -1,4 +1,4 @@
-// THE PLAY SESSION'S UNDO/REDO MACHINE AND ITS THREE-VALUED VERDICT, pinned against a STUB applier
+// THE PLAY SESSION'S UNDO/REDO MACHINE AND ITS FOUR-VALUED VERDICT, pinned against a STUB applier
 // over a hand-made four-board graph — no engine value, no corpus, no sequencer.
 //
 // WHAT THIS PINS, and why it needs its own probe: `puzzle-core-probe.mjs` measures the GENERATED
@@ -18,6 +18,9 @@
 //     a move, and does NOT create a redo entry. Check 3 is the negative control for the plausible
 //     wrong rule "a refusal is recorded as a move" — that would silently mark a player's illegal
 //     attempt as progress and corrupt every submission built from `moves`.
+//
+//   * THE MOVE-ALLOWANCE CAP (section 13), which is checked BEFORE legality: at the cap the player is told
+//     to undo, whether or not the call they pressed was legal too.
 //
 // THE STUB IS THE POINT (AGENTS.md 4.3/5: the core is pure over an injected `GameApplier`, and a probe
 // substitutes one rather than importing the real engine applier). The stub's `boardsMatch` is an EXACT
@@ -245,6 +248,35 @@ console.log('\n== 12. offered() is exactly the legal calls, and not the refused 
   check(calls.length === 2, `two calls are offered from the start (${calls.length})`);
   check(calls.includes('go-b') && calls.includes('go-c'), `they are go-b and go-c (${JSON.stringify(calls)})`);
   check(!calls.includes('stuck'), 'the refused call is NOT offered');
+}
+
+console.log('\n== 13. the move allowance is a CAP, and it is checked before the call is looked at ==');
+{
+  // THE BUDGET IS A HARD CAP, not a score deduction (DESIGN.md 9: "the allowance bounds how much
+  // elimination a player can do"). `stuck` is chosen deliberately for the second call: it is ILLEGAL, so a
+  // session that checked legality first would answer `illegal` here and one that checks the budget first
+  // answers `over`. That difference is the whole check — the reason the player is shown must be the one
+  // they can act on, and the actionable sentence is "undo one".
+  const s = new PlaySession(puzzle, applier, 1);
+  check(s.allowance === 1 && s.movesLeft === 1, `an explicit allowance of 1 is reported (${s.allowance})`);
+  const first = s.play('go-b');
+  check(first.verdict === 'wrong', `the first call is allowed (${first.verdict})`);
+  check(s.movesLeft === 0 && s.movesUsed === 1, 'and the budget is now spent');
+  const over = s.play('stuck');
+  check(over.verdict === 'over', `a spent run refuses the next call as 'over', not 'illegal' (${over.verdict})`);
+  check(over.reason.includes('undo'), `and the reason says how to get a call back (${over.reason})`);
+  check(over.board === B && s.moves.length === 1, 'the refused call did not move the board or the move stack');
+  check(s.play('go-d').verdict === 'over', 'and it refuses a LEGAL call for the same reason, so the cap is the cause');
+  check(s.undo() === true, 'undoing frees a call');
+  check(s.movesLeft === 1, `and the budget reports one again (${s.movesLeft})`);
+  // The refusal above was the BUDGET and not the call: with a call free again the session accepts one from
+  // the board the undo returned to. (`go-d` is not the call to retry here — it was refused at B as the
+  // second call, and from A it is genuinely illegal, which would test the engine rather than the cap.)
+  check(s.play('go-c').verdict === 'wrong', 'so a call applies again, which is what makes the cap the cause');
+  // Negative control, MEASURED: moving the budget check AFTER `refusalOf` reddens exactly the two checks
+  // about the ILLEGAL call at the cap (the `over` verdict and its actionable reason, which became the
+  // stub's `no`), while the "refuses a LEGAL call" check still passes — and that asymmetry is why the
+  // illegal call is the discriminating one here.
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

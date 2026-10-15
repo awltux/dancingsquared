@@ -7,7 +7,8 @@ traps that have already cost hours. It is deliberately **not** the state of the 
 (the scoreboard in §2, the work queue in §4, what is refuted in §3). A rule here should still be true in
 ten sessions; the moment one is disproved, fix it **in the same commit** that disproved it.
 
-**If you read nothing else:** §0 (the loop) and §3 (the gates). Everything else is a reason for one of them.
+**If you read nothing else:** §0 (the loop), §3 (the gates) and §10 (delivery). Everything else is a reason
+for one of them.
 
 ---
 
@@ -32,6 +33,8 @@ Every change, without being asked. This is the whole workflow:
 6. **Say what you did not check.** "Not observed in a browser", "not run: the full engine suite", "the
    corpus figure is unchanged because X is out of scope". A claim you did not measure is a claim you must
    not make (§4.1). The repo would rather have a known gap than a confident wrong sentence.
+7. **Deliver it** (§10). One branch, rebased onto a freshly fetched `origin/master`, the gate re-run on the
+   rebased tree, then a fast-forward push. Delivery is the last step of the change, not a separate change.
 
 **Corollary — never batch.** Do not stack unrelated edits and commit them together at the end, and do not
 leave a working tree dirty while starting the next change. A commit that adds a gate whose fix is in the
@@ -254,6 +257,9 @@ This codebase's comments are load-bearing and are the reason a stranger can chan
 - **Never amend or rewrite a commit that has been pushed**, and do not "clean up" history to hide a
   correction: add the correction. Commit messages are immutable, which is why the durable record belongs in
   the harness header (§4.2).
+- **A local branch is rewritable; a pushed one is not.** The immutability above starts at the first push;
+  the task branch is local until delivery, so pre-push fixups are squashed there and never after (§10).
+- **Master only ever fast-forwards.** No merge commit on master and no force-push to it (§10).
 - **Stage explicit paths.** The tree regularly carries someone else's in-flight work; `git add -A` will
   commit it.
 
@@ -301,6 +307,8 @@ with its measurement, in the same commit that found it.
     beats are non-zero.
 16. **Never leave the tree dirty with someone else's work in it** — including the corpus XML, which is
     regularly mid-edit when a session starts.
+17. **Isolation between agents is a separate CLONE, never a `git worktree`** — the junction that makes a
+    worktree a second engine instance is measured in §10.
 
 ---
 
@@ -314,3 +322,69 @@ with its measurement, in the same commit that found it.
 - [ ] Committed alone with a multi-line message carrying the measurement.
 - [ ] What was not checked is stated, in the message and to the user.
 - [ ] No secret, no generated artefact, no untracked oracle, and no other person's work in the commit.
+- [ ] Worked on a branch in this clone — never on master, never in a shared worktree (§10).
+- [ ] Rebased onto the current `origin/master`, and the §3 gate ran on the rebased tree.
+- [ ] Pushed as a fast-forward; no force, no merge commit, no untracked oracle in the push.
+
+---
+
+## 10. Delivery — one branch, one clone, rebase, gate, fast-forward
+
+§0–§9 produce a change in ONE checkout. This section is how it reaches `origin`. Every agent has its own
+clone and its own branch; the only thing shared is `origin`, and master is a single lane.
+
+**WHY A CLONE AND NOT A `git worktree`.** A worktree isolates the corpus but is not an isolation for a run:
+`node_modules/dancing-squared-engine` is a junction into the main tree's `engine/dist`, so the four harnesses
+that import `poc-teacher/src/catalog.ts` (`fsm-asset`, `matrix`, `matrix-getout`, `level-census`) load a
+SECOND engine instance and fail — measured: `matrix-getout` passes in the main tree and crashed in the
+worktree (TODO.md item 5). Own clone, own `npm install`, own branch.
+
+1. **Provision once per clone.** `npm install` at the root (README's Setup), then re-create the untracked
+   oracle: put `docs/` back and run `node engine/test/tools/extract-pdf-text.mjs
+   docs/New_Mainstream_Definitions_26-03-29.pdf callerlab-ms.txt`. Without it `callerlab-diff` throws rather
+   than skips (§6) and the `all` tier cannot be green with or without your change — an un-provisioned clone
+   reports someone else's red as yours. Then assert the tree is clean (`git status --short` empty): a dirty
+   start is someone else's work, and even in your own clone it is work you did not do (trap 16).
+2. **Branch before the first edit**, `<area>/<slug>`, cut from the current `origin/master`. Never commit to
+   `master` locally.
+3. **Commit as you go, per §7** — one intent, one commit, evidence in the body. The branch is local and
+   unpushed, so §7's immutability does not bite yet; the moment it is pushed, it does.
+4. **Integrate by rebase, not by merge.** `git fetch origin master`, then `git rebase origin/master`;
+   resolve conflicts here, once. **Do not merge master into the branch first:** the rebase re-hits the same
+   conflicts and discards the merge commit, so the merge buys a second resolution and nothing else. **Do not
+   `git pull` on master:** the host global config has `pull.rebase=false`, so a diverged `git pull`
+   fabricates a merge commit; `git pull --ff-only` fails loudly instead, which is the wanted behaviour. A
+   `package-lock.json` conflict is regenerated (`npm install --package-lock-only`), never hand-merged.
+5. **Gate the rebased tree, then push it.** Build first, then the §3 row for what you touched — on the FINAL
+   tree, after the rebase. A suite that ran before the rebase proves nothing about what you push, and a build
+   before the rebase is thrown away. `core.autocrlf=true` is set host-wide, so a conflict resolved with
+   `git checkout -- <file>` restores CRLF and can make a probe's multi-line literal match nothing (trap 2):
+   resolve by editing, and re-run the encoding gate if you touched prose.
+6. **Push fast-forward, and only fast-forward:** `git push origin HEAD:refs/heads/master`. There is no CI
+   behind master, so step 5 is the only gate — **never `--force` or `--force-with-lease` to master, and never
+   push a merge commit to it.** `--force-with-lease` is for your own `task/<slug>` branch while it is yours
+   alone.
+7. **A rejected push means master moved: go back to step 4 and repeat** — fetch, rebase, **re-run the gate**,
+   push. Two agents can rebase onto the same master and both be green; only the first push wins, and the
+   rejection is the race being caught, not a failure. Bound the retries (three) and report the state rather
+   than looping.
+8. **Master is not fully green today.** The `all` tier carries known reds and pin drift (TODO.md items 5 and
+   6; `verify:figures` is a red target by design, §3). A red you did not cause is reported, never "fixed" by
+   weakening a gate or re-pinning a number to make your branch green — and never adjudicate a corpus number
+   another task is mid-decision on.
+9. **One branch, one intent.** The delivery unit is the task's intent, so the branch is normally one commit
+   and no squash is wanted: a squashed message cannot carry the per-change measurements §7 requires. If the
+   branch carries two intents, split it; if it carries fixups for one intent, squash them BEFORE step 5,
+   while they are still unpushed.
+10. **After landing**, `git log --oneline -3` and report the pushed SHA; delete any pushed `task/<slug>`
+    branch. A SHA written into a doc is a reference to a commit, valid only while that commit is reachable on
+    master, and any rebase rewrites it — 33 SHAs are cited across these docs and all 33 resolved at
+    `f693ee1`, so the hazard is the next rebase: cite a landed SHA only after it has landed, never one that
+    has not.
+
+**THE SHAPE THIS REPLACES, AND WHY.** *pull master → merge into the branch → rebuild → rebase onto master as
+a single commit → push.* The merge is redundant with the rebase (step 4); the rebuild precedes the rebase, so
+the tree that ships is the one tree never tested (step 5); `pull` is the wrong verb on this host's config
+(step 4); and the squash discards the per-change evidence §7 exists to carry (step 9). A
+branch-and-pull-request flow was considered and rejected: with no CI and no reviewer in the loop it adds a
+waiting state and no check, so the local §3 gate is the only gate either way.

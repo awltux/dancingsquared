@@ -12,9 +12,10 @@
 // the fix, and the refusal names the day.
 import { MAIN_POOL } from 'dancing-squared-game';
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
-import { publishedDailyKey } from '../keys.ts';
-import { failure, STATUS } from '../status.ts';
+import { attemptKey, publishedDailyKey } from '../keys.ts';
+import { failure, optionalIdentity, STATUS } from '../status.ts';
 import { dayParam, levelParam } from '../query.ts';
+import { asAttempt, asAttemptItem, startAttempt } from '../attempt-row.ts';
 
 /** The one mode this endpoint serves, named so the refusal can say what was asked for instead. */
 const MODE = 'daily';
@@ -22,13 +23,20 @@ const MODE = 'daily';
 /**
  * The published challenge for a level and a day.
  *
- * NO IDENTITY IS REQUIRED, AND NONE IS READ. The answer is the published artefact itself: the same seed, level
- * and pool version for every caller, signed in or not, so there is nothing here for an identity to decide — the
- * version of this handler before §11.1 asked for one anyway and answered a signed-out browser `401` to a request
- * that never mentioned the player. That is exactly what §11.2's demo is for: the funnel is "try it read-only,
- * then sign in to be ranked", and a read is already unranked.
+ * NO IDENTITY IS REQUIRED, AND NONE IS NEEDED TO READ IT. The answer is the published artefact itself: the same
+ * seed, level and pool version for every caller, signed in or not, so there is nothing here for an identity to
+ * decide — the version of this handler before §11.1 asked for one anyway and answered a signed-out browser `401`
+ * to a request that never mentioned the player. That is exactly what §11.2's demo is for: the funnel is "try it
+ * read-only, then sign in to be ranked", and a read is already unranked.
+ *
+ * AN IDENTIFIED READ DOES ONE MORE THING, AND IT IS WHY THIS HANDLER WRITES AT ALL: it records WHEN this player
+ * first looked at this challenge (`attempt-row.ts`). That stamp is the Daily's clock — a run submitted later is
+ * scored on `submittedAt − lookedAt`, both of them the server's own facts — and there is no other moment to take
+ * it from, because the seed is public and a client can derive the board without ever asking. A SIGNED-OUT read
+ * records nothing, and the answer is the same bytes either way.
  */
 export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiResult> {
+  const identity = optionalIdentity(request, deps);
   const mode = request.query['mode'] ?? MODE;
   if (mode !== MODE) return failure(STATUS.badRequest, 'bad_mode', `this endpoint serves mode=${MODE}, and ${JSON.stringify(mode)} was asked for`);
   const levelIndex = levelParam(request.query['level']);
@@ -46,6 +54,12 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
   // generate a board the server would then refuse to score (`stale_pool`). It is the same rule as §7.2's: a
   // seed is only meaningful against the pool it was validated at.
   const playable = value.poolVersion === MAIN_POOL.version;
+
+  if (identity) {
+    const stamped = await stampAttempt(deps, identity.playerId, levelIndex, day);
+    if ('refusal' in stamped) return stamped.refusal;
+  }
+
   return {
     status: STATUS.ok,
     body: {
@@ -59,4 +73,25 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
       },
     },
   };
+}
+
+/**
+ * Record that this player has looked at this challenge, ONCE.
+ *
+ * A LOST RACE IS NOT AN ERROR HERE, and that is not a shortcut: two reads arriving together both want the same
+ * row, the condition is create-only, and the loser's state — "the row is already there" — is exactly the state it
+ * wanted. The stamp that survives is the FIRST one, which is the whole point (A21: a re-read must not refresh the
+ * clock). A row that is PRESENT AND UNREADABLE is refused instead, because scoring a run against a stamp nobody
+ * can parse is worse than saying the row is broken.
+ */
+async function stampAttempt(deps: Deps, playerId: string, levelIndex: number, day: string): Promise<{ ok: true } | { refusal: ApiResult }> {
+  const key = attemptKey(playerId, 'daily', `${levelIndex}#${day}`);
+  const stored = await deps.store.get(key);
+  if (stored) {
+    if (!asAttempt(stored)) return { refusal: failure(STATUS.unavailable, 'unreadable_attempt', `the attempt row for ${key.pk}/${key.sk} is not a record this build can read`) };
+    return { ok: true };
+  }
+  const { attempt } = startAttempt(null, deps.clock.nowMs());
+  await deps.store.put(key, asAttemptItem(attempt), null);
+  return { ok: true };
 }

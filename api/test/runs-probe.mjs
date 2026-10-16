@@ -13,10 +13,11 @@
 //
 // Usage: node api/test/runs-probe.mjs
 import { postRun } from '../src/handlers/runs.ts';
+import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { drillCurrent } from '../src/handlers/drill.ts';
 import { STATUS } from '../src/status.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
-import { boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../src/keys.ts';
+import { attemptKey, boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../src/keys.ts';
 import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
 import { seasonOf } from '../src/handlers/runs.ts';
 import { MemoryStore } from '../src/store/memory.ts';
@@ -68,6 +69,7 @@ const ROW = {
   run: (name, id) => runKey(devId(name), id),
   hints: (name) => hintsKey(devId(name)),
   board: (name) => boardKey('drill', LEVEL, SEASON, devId(name)),
+  attempt: (name, level, date) => attemptKey(devId(name), 'daily', `${level}#${date}`),
 };
 
 const call = (path, player, query = {}, body = null) => ({ method: path === '/runs' ? 'POST' : 'GET', path, query, body, headers: player ? { 'x-dev-player': player } : {} });
@@ -87,22 +89,37 @@ function answersFor(seed) {
   return { puzzle: generated.puzzle, calls: generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call) };
 }
 
-/** Serve the drill this player is on, and the answers to it — then let a minute pass, so the player has played. */
+/** Serve the drill this player is on, and the answers to it — then let time pass, so the player has played. */
 async function issue(deps, player, advanceSeconds = 60) {
   const served = await drillCurrent(call('/drill/current', player, { level: String(LEVEL) }), deps);
   const drill = served.body.drill;
   const answers = answersFor(drill.seed);
   deps.clock.advance(advanceSeconds);
-  return { drill, ...answers };
+  // `measuredSeconds` IS THE WINDOW THE SERVER WILL SCORE ON, and it is the ONLY number the expectations below may
+  // use (DESIGN.md 11.1, A21): the submissions still carry a `elapsedSeconds` claim, because that is what a client
+  // sends and what the audit records, but it is not what scores.
+  return { drill, ...answers, measuredSeconds: advanceSeconds };
+}
+
+/**
+ * Start a Daily the way a client does: READ the published challenge, which is what stamps the server's clock, then
+ * let `advanceSeconds` pass. A Daily the server never saw start cannot be timed at all (`no_attempt_row`).
+ */
+async function startDaily(deps, player, level = LEVEL, date = DAY, advanceSeconds = 30) {
+  const answer = await getPuzzle(call('/puzzle', player, { mode: 'daily', level: String(level), date }), deps);
+  if (answer.status !== STATUS.ok) throw new Error(`the probe could not start the Daily: ${answer.status} ${answer.body.error?.code}`);
+  deps.clock.advance(advanceSeconds);
 }
 
 console.log('== 1. a correct Drill run is accepted, and it does all four things at once ==');
 {
   const { store, deps } = await fresh();
-  const { drill, calls, puzzle } = await issue(deps, 'r1');
+  const { drill, calls, puzzle, measuredSeconds } = await issue(deps, 'r1');
   const answer = await postRun(submit('r1', { runId: 'run-1', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 12, hintsUsed: 0, attempts: 0, calls }), deps);
   check(answer.status === STATUS.ok, `the run is accepted (${answer.status})`);
-  const computed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: 12, hintsUsed: 0, attempts: 0 });
+  // THE CLAIM IS 12 s AND THE WINDOW IS 60: the score is computed from what the SERVER measured (A21), which is
+  // why this expectation uses `measuredSeconds` rather than the number the submission carried.
+  const computed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: measuredSeconds, hintsUsed: 0, attempts: 0 });
   check(answer.body.run.score === computed.score, `and the score is the server's own (${answer.body.run.score})`);
   check(answer.body.run.duplicate === false && answer.body.run.clamped === false, 'reported as fresh and unclamped');
   check(answer.body.progress.finished === 1, `the drill is finished (${answer.body.progress.finished})`);
@@ -117,7 +134,7 @@ console.log('\n== 2. the score is clamped to what the server can recompute ==');
 {
   const { store, deps } = await fresh();
   const { drill, calls, puzzle } = await issue(deps, 'r2');
-  const computed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: 30, hintsUsed: 0, attempts: 0 });
+  const computed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: 60, hintsUsed: 0, attempts: 0 });
   const greedy = await postRun(submit('r2', { runId: 'run-greedy', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 30, hintsUsed: 0, attempts: 0, calls, score: 999_999 }), deps);
   check(greedy.body.run.score === computed.score && greedy.body.run.clamped === true, `a claim of 999999 is clamped to ${computed.score} and reported (${greedy.body.run.clamped})`);
   check(greedy.body.board.score === computed.score, 'and the board got the computed score, not the claim');
@@ -183,18 +200,31 @@ console.log('\n== 4. the per-step answer is re-derived, not taken on trust ==');
   check(short.status === STATUS.badRequest && short.body.error.code === 'not_solved', `and a run with no answers is refused (${short.body.error?.code})`);
 }
 
-console.log('\n== 5. the clock cannot claim more time than has passed ==');
+console.log('\n== 5. the clock is the SERVER\'s: a claim below the window buys nothing ==');
 {
-  const { deps } = await fresh();
-  const { drill, calls } = await issue(deps, 'r5');
-  const impossible = await postRun(submit('r5', { runId: 'run-fast', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 3600, hintsUsed: 0, attempts: 0, calls }), deps);
+  const { store, deps } = await fresh();
+  const { drill, calls, puzzle, measuredSeconds } = await issue(deps, 'r5');
+  // THE CHEAT §11.1 MEASURED AT 6.7x, ATTEMPTED: 100 seconds of play claiming par. The claim is 1 s, the window is
+  // 60 s, and the score must be the measured one.
+  const cheated = await postRun(submit('r5', { runId: 'run-claim', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls }), deps);
+  const asMeasured = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: measuredSeconds, hintsUsed: 0, attempts: 0 });
+  const asClaimed = scoreRun({ level: levelAt(LEVEL), shortest: puzzle.shortest, moves: puzzle.shortest, clockSeconds: 1, hintsUsed: 0, attempts: 0 });
+  check(cheated.status === STATUS.ok && cheated.body.run.score === asMeasured.score, `a 1 s claim on a ${measuredSeconds} s window scores as MEASURED (${cheated.body.run?.score})`);
+  // THE NEGATIVE CONTROL IS THE CLAIM'S OWN SCORE, MEASURED RATHER THAN ASSERTED: scoring the claim would have paid
+  // this much instead, and the two numbers are what the old rule's 6.7x was made of.
+  check(asClaimed.score > asMeasured.score, `NEGATIVE CONTROL: scoring the CLAIM would have paid ${asClaimed.score} against ${asMeasured.score}`);
+  // AND THE RECORD KEEPS BOTH, so the difference is visible to an operator rather than inferable (A25's audit).
+  const row = (await store.get(ROW.run('r5', 'run-claim'))).value;
+  check(row.clockSeconds === measuredSeconds && row.claimedSeconds === 1, `the run row holds what was measured (${row.clockSeconds}) beside what was claimed (${row.claimedSeconds})`);
+
+  // A CLAIM ABOVE THE WINDOW IS STILL REFUSED — a lie the server can SEE is refused rather than quietly replaced —
+  // and the bound is the issue stamp, so it is not a fixed ceiling.
+  const second = await issue(deps, 'r5');
+  const impossible = await postRun(submit('r5', { runId: 'run-fast', mode: 'drill', levelIndex: LEVEL, drillId: second.drill.id, elapsedSeconds: 3600, hintsUsed: 0, attempts: 0, calls: second.calls }), deps);
   check(impossible.status === STATUS.badRequest && impossible.body.error.code === 'impossible_elapsed', `an hour claimed for a drill issued a minute ago is refused (${impossible.body.error?.code})`);
-  // THE BOUND IS THE ISSUE TIME, SO A LATER SUBMISSION CAN CLAIM MORE: the same run is legal 300 s after the
-  // issue, which is what makes this a bound rather than a fixed ceiling. MEASURED on the same store, with the
-  // clock moved on by the probe.
-  deps.clock.advance(400);
-  const patient = await postRun(submit('r5', { runId: 'run-patient', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 300, hintsUsed: 0, attempts: 0, calls }), deps);
-  check(patient.status === STATUS.ok, `while 300 s is accepted 400 s after the issue (${patient.status})`);
+  deps.clock.advance(3600);
+  const patient = await postRun(submit('r5', { runId: 'run-patient', mode: 'drill', levelIndex: LEVEL, drillId: second.drill.id, elapsedSeconds: 3600, hintsUsed: 0, attempts: 0, calls: second.calls }), deps);
+  check(patient.status === STATUS.ok, `while the same 3600 s is accepted once 3600 s have passed (${patient.status})`);
 }
 
 console.log('\n== 6. the two hint rules, from the server side ==');
@@ -224,6 +254,7 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   const published = puzzleFor(four[0].seed, levelAt(LEVEL));
   await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
   const line = published.puzzle.solution;
+  await startDaily(deps, 'r6', LEVEL, date, 30);
   const spent = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
   check(spent.status === STATUS.ok && spent.body.hints.hints === 0, `a Daily run spends the hint it claims (${spent.body.hints?.hints})`);
   const overspend = await postRun(submit('r6', { runId: 'daily-2', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
@@ -232,25 +263,50 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   check(tooMany.status === STATUS.badRequest && tooMany.body.error.code === 'bad_hints_used', `while a claim of four hints is refused outright (${tooMany.body.error?.code})`);
 }
 
-console.log('\n== 7. the Daily: walked, priced on its line, and its board is a BEST ==');
+console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, and its board is a BEST ==');
 {
   const { store, deps } = await fresh();
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
   const generated = puzzleFor(seed, levelAt(LEVEL));
   await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
 
+  await startDaily(deps, 'r7', LEVEL, DAY, 10);
   const short = await postRun(submit('r7', { runId: 'd-1', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(short.status === STATUS.ok, `a line that reaches the goal is accepted (${short.status})`);
   const best = short.body.board.score;
   check(short.body.progress === null, 'and a Daily run finishes no drill');
   check(short.body.hints.successes === 0, 'and earns no success, because hints are earned on the drill line only');
 
-  // THE DAILY'S BOARD IS A BEST, NOT A TOTAL, and the only way a replay can differ is TIME (the line is the
-  // same): a slow run of the same challenge must not lower what a fast one earned. MEASURED with the two
-  // scores in the check, so a cumulative rule (which would ADD them) fails it by an order of magnitude.
+  // THE DAILY'S BOARD IS A BEST, NOT A TOTAL, and the only way a replay can differ is TIME (the line is the same):
+  // a slow run of the same challenge must not lower what a fast one earned. THE SLOWNESS IS REAL TIME HERE — the
+  // probe moves the server's clock, because a claim is no longer what scores. MEASURED with the two scores in the
+  // check, so a cumulative rule (which would ADD them) fails it by an order of magnitude.
+  deps.clock.advance(5000);
   const slow = await postRun(submit('r7', { runId: 'd-slow', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 5000, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(slow.status === STATUS.ok && slow.body.run.score < best, `a slow replay scores less (${slow.body.run?.score} vs ${best})`);
   check(slow.body.board.score === best && slow.body.board.runs === 2, `and the board kept the best while counting both runs (${slow.body.board.score}, ${slow.body.board.runs} runs)`);
+
+  // THE WINDOW CANNOT BE REFRESHED, AND THIS IS THE CHECK THE RULE EXISTS FOR. A stamp a re-read moved would let a
+  // player play slowly, re-read, submit, and claim a second of work: MEASURED on the row itself AND on the score,
+  // because the score is what a cheat is after. The negative control is the last line — a 1 s window would pay
+  // this much, and the run does not get it.
+  const stampBefore = (await store.get(ROW.attempt('r7', LEVEL, DAY))).value.startedAtMs;
+  await startDaily(deps, 'r7', LEVEL, DAY, 30);
+  const stampAfter = (await store.get(ROW.attempt('r7', LEVEL, DAY))).value.startedAtMs;
+  check(stampAfter === stampBefore, `a re-read does NOT move the server's start stamp (${stampBefore})`);
+  const replay = await postRun(submit('r7', { runId: 'd-fresh', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 1, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  const asFreshWindow = scoreRun({ level: levelAt(LEVEL), shortest: generated.puzzle.shortest, moves: generated.puzzle.solution.length, clockSeconds: 1, hintsUsed: 0, attempts: 0 });
+  check(replay.status === STATUS.ok && replay.body.run.score < asFreshWindow.score, `so a replay cannot buy a fresh clock (${replay.body.run?.score} against the ${asFreshWindow.score} a 1 s window would pay)`);
+
+  // A DAILY THE SERVER NEVER SAW START CANNOT BE TIMED, so it is refused rather than measured from nothing — and
+  // the READ is what makes the same submission scorable, which is the pair this endpoint's contract is.
+  const otherDay = '2026-10-16';
+  await store.put(publishedDailyKey(LEVEL, otherDay), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  const unread = await postRun(submit('r7', { runId: 'd-6', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  check(unread.status === STATUS.conflict && unread.body.error.code === 'no_attempt_row', `a Daily nobody read is refused (${unread.status} ${unread.body.error?.code})`);
+  await startDaily(deps, 'r7', LEVEL, otherDay, 10);
+  const read = await postRun(submit('r7', { runId: 'd-6b', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  check(read.status === STATUS.ok, `while the same run is scorable after the read that starts it (${read.status})`);
 
   // A LINE THAT STOPS SHORT needs a puzzle with more than one call in its solution, and level 1's is a single
   // call — so this half of the check runs at LEVEL 2, whose intended solution is two. MEASURED: at level 1 the
@@ -259,6 +315,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, and its board is a B
   await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION }, null);
   const twoSteps = puzzleFor(level2Seed, levelAt(2));
   check(twoSteps.puzzle.solution.length === 2, `the level-2 challenge has a two-call solution (${twoSteps.puzzle.solution.length})`);
+  await startDaily(deps, 'r7', 2, DAY, 10);
   const shortLine = await postRun(submit('r7', { runId: 'd-3', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [twoSteps.puzzle.solution[0]] }), deps);
   check(shortLine.status === STATUS.badRequest && shortLine.body.error.code === 'not_solved', `a line that stops short is refused (${shortLine.status} ${shortLine.body.error?.code})`);
   const fullLine = await postRun(submit('r7', { runId: 'd-3b', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: twoSteps.puzzle.solution }), deps);

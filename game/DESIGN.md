@@ -725,7 +725,7 @@ read-only, then sign in to be ranked*.
 |---|---|---|
 | `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
 | `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. |
-| `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9) |
+| `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts` and `hintsUsed` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22) and debits the third (A23). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
 | `POST /me/runs:bulk` | both | Import a device's local ledger on login as **unranked history** — no board, no hints, no progress (A26) |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
@@ -788,6 +788,7 @@ are the storage form of decisions 10, 11 and 15, and of the two published source
 | **Score** (`board#…`) | The leaderboard entry, one per player per board — their best |
 | **Published daily** (`daily#<level>#<date>`) | The generated-and-validated challenge for that level and day, written by the boundary job |
 | **Hints** (`hints#<playerId>`) | The balance and its earning progress: `hints` (0–3) and `successes` (0–9, reset on each grant), plus a `grantedAt` stamp so a grant can be shown once rather than re-announced on every load (§10). **One row per player, not per level** — hints are earned on one level's line and worth spending on another's. |
+| **Attempts** (`attempts#<playerId>` / `daily#<level>#<date>`) | When the server first saw this player look at a Daily. Written by an identified `GET /puzzle` and **never rewritten**, because a stamp a re-read could move is a clock the player controls (A21); it is what a Daily run's elapsed is measured from. |
 
 There is deliberately **no media table and no asset bucket** (decision 13): nothing about a Drill entry is
 rendered ahead of play, so the only published artefacts in the system are a seed and a level.
@@ -856,26 +857,35 @@ penalty; the mitigation is that a hint buys time, not score beyond the par ceili
 the honest path charges. (3) The Daily's seed is a public function of the date (`puzzle/daily.ts`), so a published
 day is pre-computable by anyone; the countermeasures are that the day is published at its boundary rather than
 ahead of it and that A21 bounds what a pre-solver can claim for TIME. (4) Several accounts can be created for
-several board entries; Cognito's email verification raises the cost and does not remove it. Closing (1)–(3)
-properly means not serving the puzzle (a board-state API rather than a seed), which is a change to the game's
-information model rather than to its security.
+several board entries; Cognito's email verification raises the cost and does not remove it. (5) **The window is
+wall time from the server's own stamp to the submission, so it charges for everything in between** — network
+latency, reading the question, and a tab left open while a drill is in flight. A resume does NOT re-stamp it
+(that is the point: a re-stamp is a clock the player controls), so an idle tab scores as a slow run. That is the
+honest cost of measuring the clock at all, and the fix if it ever matters is a client-side "you have been idle"
+prompt, not a movable stamp. Closing (1)–(3) properly means not serving the puzzle (a board-state API rather
+than a seed), which is a change to the game's information model rather than to its security.
 
 **Enforcement status, because a rule that is only written down is not a rule.** What is already true in the code:
 the transcript is verified by regeneration (`handlers/runs.ts`), the score is clamped (`runs.ts:scoreWithClaim`),
 the run row is created inside the same transaction as its effects so a retry cannot double-count, an issued drill
-is locked, the hint CREDIT is the server's own record of finished drills, and — since §11.2 landed — an identity is
-a VERIFIED token or an absent one (`auth/identity.ts`: the token adapters have no expression that reads a request
-header), a signed-out read is a demo that writes nothing, and every write is a `401`
-(`api/test/auth-probe.mjs`, 76 checks, 7 of them negative controls). What is not yet true, and the stage that lands
-it (AGENTS.md §0: one change, one commit):
+is locked, the hint CREDIT is the server's own record of finished drills, an identity is a VERIFIED token or an
+absent one (`auth/identity.ts`: the token adapters have no expression that reads a request header) with a
+signed-out read a demo that writes nothing and every write a `401` (`api/test/auth-probe.mjs`, 76 checks, 7 of
+them negative controls) — and, since the clock stage landed, **A21**: a run's elapsed is
+`submittedAt − issuedAt` from the server's own stamp (the Progress row's issue date for the Drill, an attempt row
+created by this player's identified read of the challenge for the Daily, `attempt-row.ts`), the client's
+`elapsedSeconds` is recorded as `claimedSeconds` and never scored, and a Daily the server never saw start is
+refused (`no_attempt_row`). MEASURED in `api/test/runs-probe.mjs` (70 checks): a 1 s claim on a 60 s window
+scores **25** where scoring the claim would have paid **100** — the same 4x a claim of the 6.7x defect would have
+taken — the run row holds measured **60** beside claimed **1**, and a re-read of the challenge leaves the start
+stamp byte-identical. What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
 | A20's remaining client half | the server serves the demo and refuses the writes, and the client can discover the mode, sign up/in/refresh/out and keep the session (`game/src/net/auth.ts`, `session.ts` — 46 checks). The APP has no sign-in surface and does not yet mark a local run unranked | the sign-in surface and the unranked marking |
-| A21 the clock is the server's | the Drill refuses a claim **above** the wall time but scores the claim below it; the Daily has only a 24-hour bound | server-measured time |
 | A22 attempts counted | `attempts` is read from the submission | `POST /drill/answer` |
 | A23 hint spend is an event | the balance is the server's, the spend is claimed (`§15 Q19`) | `POST /me/hints` |
-| A25 audit and throttling | nothing recorded beyond the run row; a `401` is answered and not counted | audit |
+| A25 audit and throttling | the run row records measured against claimed; nothing increments on a refusal, and `401`s are answered and not counted | audit |
 | A26 the claim is history-only | the endpoint does not exist yet | the claim |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider

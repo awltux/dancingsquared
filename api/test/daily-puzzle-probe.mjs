@@ -11,7 +11,7 @@
 import { publishDay, challengeFor } from '../src/daily-publishing.ts';
 import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { STATUS } from '../src/status.ts';
-import { publishedDailyKey } from '../src/keys.ts';
+import { attemptKey, publishedDailyKey } from '../src/keys.ts';
 import { levelAt, publishableLevels } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
@@ -153,6 +153,47 @@ console.log('\n== 6. the setup tools refuse to touch a service nobody named ==')
   check(typeof devServerRefusal(real) === 'string', 'NEGATIVE CONTROL: while a DynamoDB run with no endpoint is still refused');
   check(challengeFor(1, DAY).seed === dailyEntry(levelAt(1), MAIN_POOL.version, DAY).seed, 'and the job\'s own challenge is the client\'s derivation, through one function');
   check(isUtcDay(utcDay(new Date(CLOCK))) && utcDay(new Date(CLOCK)) === '2023-11-14', `while the day comes from the clock in UTC (${utcDay(new Date(CLOCK))})`);
+}
+
+console.log('\n== 7. the READ is what starts the Daily clock (A21) ==');
+{
+  // WHY THIS IS IN THE PUZZLE PROBE RATHER THAN THE RUNS ONE: the stamp is written by THIS endpoint, and the rule
+  // "a re-read must not refresh it" is a property of this read. The runs probe measures what the stamp is FOR.
+  const store = new MemoryStore();
+  await publishDay(store, DAY, { levels: [1], nowMs: CLOCK });
+  let now = CLOCK;
+  const deps = { store, clock: { nowMs: () => now }, identityOf: devIdentityOf };
+  const player = devIdentityOf({ headers: { 'x-dev-player': 'p1' } }).playerId;
+  const key = attemptKey(player, 'daily', `1#${DAY}`);
+  const ask = (query) => ({ method: 'GET', path: '/puzzle', query, body: null, headers: { 'x-dev-player': 'p1' } });
+  const query = { mode: 'daily', level: '1', date: DAY };
+
+  check((await store.get(key)) === null, 'a player who has not read the challenge has no attempt row at all');
+  const first = await getPuzzle(ask(query), deps);
+  const stamped = (await store.get(key))?.value.startedAtMs;
+  check(first.status === STATUS.ok && stamped === CLOCK, `the identified read records the SERVER's start stamp (${stamped})`);
+
+  // THE EXPLOIT THIS RULE CLOSES: a stamp a re-read moved would let a player play slowly, re-read, submit and claim
+  // a second of work. MEASURED on the row, with the clock moved between the two reads so a moved stamp would be a
+  // different number rather than a coincidence.
+  now = CLOCK + 90_000;
+  await getPuzzle(ask(query), deps);
+  check((await store.get(key))?.value.startedAtMs === CLOCK, `and a LATER re-read does not move it (${(await store.get(key))?.value.startedAtMs})`);
+
+  // AND A SIGNED-OUT READ RECORDS NOTHING (§11.2's demo), while answering the same bytes.
+  const before = store.size;
+  const anonymous = await getPuzzle({ ...ask(query), headers: {} }, deps);
+  check(anonymous.status === STATUS.ok && store.size === before, `a signed-out read records nothing (size ${before} -> ${store.size})`);
+  check(JSON.stringify(anonymous.body) === JSON.stringify(first.body), 'while answering exactly the bytes the identified read did');
+
+  // A ROW NOBODY CAN READ IS REFUSED RATHER THAN RE-STAMPED, because scoring a run against a stamp nobody can parse
+  // is worse than saying the row is broken. THE WRITE CARRIES THE REVISION IT READ: the row already exists, so a
+  // create-only `put` is refused and the corruption this check is about would never reach the store (MEASURED — the
+  // first version of this check reported a 200 for exactly that reason).
+  const rev = (await store.get(key)).rev;
+  await store.put(key, { startedAtMs: 'yesterday' }, rev);
+  const unreadable = await getPuzzle(ask(query), deps);
+  check(unreadable.status === STATUS.unavailable && unreadable.body.error.code === 'unreadable_attempt', `and an attempt row this build cannot read is refused (${unreadable.status} ${unreadable.body.error?.code})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

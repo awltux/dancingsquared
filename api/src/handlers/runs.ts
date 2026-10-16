@@ -8,11 +8,13 @@
 //
 // WHAT IS VERIFIED, AND WHAT CANNOT BE. Verified: the puzzle (regenerated from the server's own seed), which
 // option was correct (the Drill's per-step answer), that a Daily line reaches the goal (walked through the
-// engine), the level, and — for the Drill — that the clock cannot claim more time than has passed since it was
-// issued. NOT verifiable from the state this API holds, and said rather than implied: the ATTEMPTS count and
-// the HINT SPEND are the client's claims, because neither has a server-side interaction in this design. They
-// are bounded, priced and recorded rather than trusted or refused; DESIGN.md §15 Q19 records that with the
-// arithmetic of what a dishonest client gains.
+// engine), the level, and THE TIME — the elapsed a run is scored on is `submittedAt − startedAt` from the server's
+// own stamp (the Progress row's issue date for the Drill, the attempt row an identified read creates for the
+// Daily), with the client's `elapsedSeconds` kept as an audit input and never scored (DESIGN.md 11.1, A21). NOT
+// verifiable from the state this API holds, and said rather than implied: the ATTEMPTS count and the HINT SPEND
+// are the client's claims, because neither has a server-side interaction in this design. They are bounded, priced
+// and recorded rather than trusted or refused; DESIGN.md §15 Q19 records that with the arithmetic of what a
+// dishonest client gains.
 //
 // ONE TRANSACTION, OR NOTHING. The run's own row is created in the same `transact` as its effects with
 // `expectedRev: null`, so a resubmitted `runId` cannot land twice: the condition fails and this handler answers
@@ -20,11 +22,12 @@
 // separate "has this happened" query with a race between the query and the write.
 import { MAIN_POOL, MOVE_ALLOWANCE_CUSHION, SCORE_VERSION, elapsedSeconds, recordSuccess } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type StoreWrite } from '../ports.ts';
-import { boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../keys.ts';
+import { attemptKey, boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../keys.ts';
 import { levelAt, lineReachesGoal, puzzleFor } from '../levels.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
+import { asAttempt, elapsedSince } from '../attempt-row.ts';
 import {
   asBoard,
   asHints,
@@ -46,6 +49,8 @@ interface Source {
   readonly progress: DrillProgress | null;
   readonly progressRev: number | null;
   readonly facts: VerifiedRun;
+  /** What the client claimed its time was. Kept for the record and never scored (DESIGN.md 11.1, A21). */
+  readonly claimedSeconds: number;
 }
 
 /**
@@ -97,13 +102,18 @@ async function verifyDrill(
     }
   }
 
-  // THE CLOCK'S BOUND. The Drill's issue time is the server's own fact, so a claim of more time than has passed
-  // is refused; the tolerance is for the difference between the client's clock and this one, not for a slow
-  // player. A claim well BELOW the bound is still possible — this rules out the absurd, it does not time a run.
-  const wallSeconds = (nowMs - issued.issuedAtMs) / 1000;
-  if (submission.clockSeconds > wallSeconds + CLOCK_SKEW_SECONDS) {
+  // THE CLOCK IS THE SERVER'S, AND THIS IS WHERE THAT IS TRUE. `issuedAtMs` is this API's own stamp, written when
+  // it issued the drill, so the run is scored on `now − issued` — the client's `clockSeconds` is not used for
+  // anything except the refusal below and the record (A21). MEASURED, and it is the defect this replaced: the
+  // elapsed used to BE the client's claim, bounded only above by the wall time, so a 100-second run could claim
+  // par and score 100 instead of 15 (6.7x).
+  const measuredSeconds = elapsedSince(issued.issuedAtMs, nowMs);
+  // A CLAIM ABOVE THE WINDOW IS A LIE THE SERVER CAN SEE, so it is refused rather than quietly replaced: the
+  // tolerance is for the difference between the client's clock and this one, not for a slow player. A claim BELOW
+  // the window is not refused — it is simply not the number that scores.
+  if (submission.clockSeconds > measuredSeconds + CLOCK_SKEW_SECONDS) {
     return {
-      refusal: failure(STATUS.badRequest, 'impossible_elapsed', `the run claims ${submission.clockSeconds.toFixed(1)} s and the drill was issued ${wallSeconds.toFixed(1)} s ago`),
+      refusal: failure(STATUS.badRequest, 'impossible_elapsed', `the run claims ${submission.clockSeconds.toFixed(1)} s and the drill was issued ${measuredSeconds.toFixed(1)} s ago`),
     };
   }
 
@@ -112,12 +122,13 @@ async function verifyDrill(
       seed: issued.seed,
       progress,
       progressRev: stored?.rev ?? null,
+      claimedSeconds: submission.clockSeconds,
       // ONE ANSWER PER STEP AND NOTHING TO WASTE: `moves` is the puzzle's own shortest, exactly as the client
       // computes it (`moves: controller.puzzleRef.shortest`). The Drill's cost is its attempts, not its waste.
       facts: {
         shortest: puzzle.shortest,
         moves: puzzle.shortest,
-        clockSeconds: submission.clockSeconds,
+        clockSeconds: measuredSeconds,
         hintsUsed: submission.hintsUsed,
         attempts: submission.attempts,
       },
@@ -125,11 +136,22 @@ async function verifyDrill(
   };
 }
 
-/** The Daily's source: the published challenge, and the player's line walked through the engine. */
+/**
+ * The Daily's source: the published challenge, the player's line walked through the engine, and the SERVER's clock.
+ *
+ * THE ATTEMPT ROW IS WHERE THE CLOCK COMES FROM, and a submission without one is refused. It is created by this
+ * player's identified read of the challenge (`handlers/puzzle.ts`), which is the only moment the server sees the
+ * run start — the seed is public and a client can derive the board without asking, so "the client says it began at
+ * 12:00" is exactly the kind of fact §11.1 forbids scoring on. The refusal is `no_attempt_row` rather than a
+ * silent zero-length window, because a missing row means the run cannot be MEASURED, and an unmeasurable run is
+ * not a fast one.
+ */
 async function verifyDaily(
   submission: RunSubmission,
   deps: Deps,
+  playerId: string,
   level: ReturnType<typeof levelAt>,
+  nowMs: number,
 ): Promise<{ source: Source } | { refusal: ApiResult }> {
   const date = submission.date ?? '';
   const stored = await deps.store.get(publishedDailyKey(submission.levelIndex, date));
@@ -141,6 +163,24 @@ async function verifyDaily(
   if (value.poolVersion !== MAIN_POOL.version) {
     return { refusal: failure(STATUS.conflict, 'stale_pool', `the challenge was published against pool ${value.poolVersion}, and this build serves ${MAIN_POOL.version}`) };
   }
+
+  const attemptStored = await deps.store.get(attemptKey(playerId, 'daily', `${submission.levelIndex}#${date}`));
+  if (!attemptStored) {
+    return {
+      refusal: failure(STATUS.conflict, 'no_attempt_row', `this player never read the challenge for ${date}: it was not fetched from this server, so the run cannot be timed`),
+    };
+  }
+  const attempt = asAttempt(attemptStored);
+  if (!attempt) {
+    return { refusal: failure(STATUS.unavailable, 'unreadable_attempt', `the attempt row for level ${submission.levelIndex} on ${date} is not a record this build can read`) };
+  }
+  const measuredSeconds = elapsedSince(attempt.startedAtMs, nowMs);
+  if (submission.clockSeconds > measuredSeconds + CLOCK_SKEW_SECONDS) {
+    return {
+      refusal: failure(STATUS.badRequest, 'impossible_elapsed', `the run claims ${submission.clockSeconds.toFixed(1)} s and the challenge was read ${measuredSeconds.toFixed(1)} s ago`),
+    };
+  }
+
   const generated = puzzleFor(value.seed, level);
   if (!generated.ok) return { refusal: failure(STATUS.unavailable, 'unplayable_daily', `the published challenge does not generate: ${generated.reason}`) };
 
@@ -159,9 +199,10 @@ async function verifyDaily(
       seed: value.seed,
       progress: null,
       progressRev: null,
+      claimedSeconds: submission.clockSeconds,
       // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so it is priced on its line and its hints alone. `moves` is
       // the length of the line the player actually built, which is what the waste factor measures.
-      facts: { shortest: generated.puzzle.shortest, moves: submission.calls.length, clockSeconds: submission.clockSeconds, hintsUsed: submission.hintsUsed, attempts: 0 },
+      facts: { shortest: generated.puzzle.shortest, moves: submission.calls.length, clockSeconds: measuredSeconds, hintsUsed: submission.hintsUsed, attempts: 0 },
     },
   };
 }
@@ -254,7 +295,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     // THE SOURCE: the server's own seed, and the verification of what the client claims about it.
     const verified = submission.mode === 'drill'
       ? await verifyDrill(submission, deps, playerId, level, nowMs)
-      : await verifyDaily(submission, deps, level);
+      : await verifyDaily(submission, deps, playerId, level, nowMs);
     if ('refusal' in verified) return verified.refusal;
     const source = verified.source;
 
@@ -286,7 +327,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     const folded = foldBoard(submission.mode, board, score.score);
 
     const writes: StoreWrite[] = [
-      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
+      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
       { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: debited.hints, successes: debited.successes } },
       { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { score: folded.score, runs: folded.runs } },
     ];

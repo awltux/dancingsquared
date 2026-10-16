@@ -172,6 +172,16 @@ export interface RunRecordParts {
   readonly submission: RunSubmission;
   /** The seed the puzzle was regenerated from — the server's fact, never the client's. */
   readonly seed: number;
+  /**
+   * THE SERVER'S OWN MEASUREMENT of how long the run took, which is what the score was computed from (A21).
+   *
+   * IT IS NOT `submission.clockSeconds`, AND THAT IS THE WHOLE OF THIS STAGE: the client's number is an audit
+   * input (`claimedSeconds`), and a record that stored only the claim would leave an operator unable to tell a
+   * slow run from a lying client.
+   */
+  readonly measuredSeconds: number;
+  /** What the client claimed, beside what was measured. */
+  readonly claimedSeconds: number;
   readonly score: number;
   readonly scoreVersion: number;
   readonly nowMs: number;
@@ -180,9 +190,12 @@ export interface RunRecordParts {
 /**
  * The stored form of a run.
  *
- * `calls` IS THE TRANSCRIPT the score and the hint count are auditable from (§6, §10). `clockSeconds` is stored
- * rather than the hint-charged `elapsedSeconds`, because the charge is arithmetic over the two fields and
- * storing the sum would make it un-recomputable when `HINT_PENALTY_SECONDS` is retuned.
+ * `calls` IS THE TRANSCRIPT the score and the hint count are auditable from (§6, §10). `clockSeconds` is the
+ * SERVER's measurement of the run's time — the number the score was computed from — stored rather than the
+ * hint-charged `elapsedSeconds`, because the charge is arithmetic over two fields and storing the sum would make
+ * it un-recomputable when `HINT_PENALTY_SECONDS` is retuned. `claimedSeconds` is what the client said, kept
+ * beside it so the two can be compared after the fact (A25's audit) and so a clamp has a number to be explained
+ * with.
  */
 export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
   const { submission } = parts;
@@ -193,7 +206,8 @@ export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
     seed: parts.seed,
     drillId: submission.drillId,
     date: submission.date,
-    clockSeconds: submission.clockSeconds,
+    clockSeconds: parts.measuredSeconds,
+    claimedSeconds: parts.claimedSeconds,
     hintsUsed: submission.hintsUsed,
     attempts: submission.attempts,
     calls: submission.calls,

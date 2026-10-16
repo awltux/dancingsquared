@@ -52,3 +52,19 @@ export const publishedDailyKey = (levelIndex: number, day: string): ItemKey => (
  * lowercased) by the emulator BEFORE this is called, so `Alice@x` and `alice@x` cannot become two accounts.
  */
 export const accountKey = (email: string): ItemKey => ({ pk: `auth#${email}`, sk: 'account' });
+
+/**
+ * One player's attempt at one challenge — the `Attempts` item of DESIGN.md 11 (A21's server clock).
+ *
+ * THE PARTITION IS THE PLAYER AND THE SORT KEY IS THE CHALLENGE, which is the opposite of the run row's shape and
+ * deliberately so: a run is one item per submission, while an attempt is one item per challenge the player has
+ * LOOKED at, and the question asked of it is always "when did THIS player start THIS one".
+ *
+ * `id` IS THE CHALLENGE'S OWN NAME. Only the Daily writes one today — the Drill's issue stamp is already the
+ * server's own fact in the Progress row — and the Daily's is `<level>#<day>`, which is what makes the same
+ * challenge on two days two attempts rather than one.
+ */
+export const attemptKey = (playerId: string, mode: 'drill' | 'daily', id: string): ItemKey => ({
+  pk: `attempts#${playerId}`,
+  sk: mode === 'drill' ? `drill#${id}` : `daily#${id}`,
+});

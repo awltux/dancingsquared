@@ -228,9 +228,11 @@ This codebase's comments are load-bearing and are the reason a stranger can chan
 - **Measurements are the server's.** A time, a count, a score or a balance that arrives in a request is an AUDIT
   INPUT, never a fact: the server measures the clock from its own issue stamp, counts attempts from the presses it
   recorded, and debits hints from its own balance (`game/DESIGN.md` §11.1, A21–A24). **Prove it by trying to lie**:
-  a probe asserts that a submission claiming `0.1 s` is scored on the wall window, and that a claim the server
-  cannot corroborate is refused or flagged rather than believed. This is not a hypothetical: the Drill trusted a
-  client clock *downward* for a whole phase, so a slow run could claim `par` and take the maximum score.
+  a probe asserts that a claim BELOW the server's window is not the number that scores, and that a claim the server
+  cannot corroborate is refused or flagged rather than believed. MEASURED — `api/test/runs-probe.mjs` scores a
+  submission claiming `1 s` on a `60 s` window at **25**, where scoring the claim would have paid **100**, and the
+  run row holds both numbers. This is not a hypothetical: the Drill used the client's clock whenever it was BELOW
+  the wall time for a whole phase, so a 100-second run could claim par and take the maximum score.
 - **Identity is verified, and a header is not an identity.** Every write needs a verified token subject. The
   trusted-header mode exists for local development only, says so in the boot banner, and is refused when the
   environment is production (`game/DESIGN.md` §11.2). **Test the sign-in flow with the EMULATOR, not by trusting a

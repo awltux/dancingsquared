@@ -380,6 +380,14 @@ with its measurement, in the same commit that found it.
     now a named development mode refused in production (§6, §11.2 of the design), and the clock is the server's own
     issue stamp. The general rule is the §6 bullet — anything a score depends on is measured server-side, and "the
     client said so" is not a measurement.
+24. **PowerShell eats backticks inside a DOUBLE-quoted string, and the damage is silent and legal.** `` `` `` is a
+    literal backtick, but `` `a `` is the BEL control character and a bare backtick before a space is an escape for
+    that space — so `$t.Replace("... `` `attempts` `` ...", ...)`, the helper trap 22 recommends for edits whose
+    anchor is awkward, rewrote a source comment to `ttempts` and dropped a closing backtick. MEASURED: the file
+    still parsed, the line printed as `FIELD. ttempts is a SCORE FACTOR (ttemptFactor)`, and only a byte dump
+    (`[int]$_` over the line's characters — the corruption was `0x07`, not a missing character) showed what had
+    happened. Use SINGLE-quoted strings for any pattern containing a backtick (doubling an inner `''`), or the
+    editor tools, which take literal text.
 
 ---
 

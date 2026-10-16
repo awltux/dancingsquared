@@ -349,6 +349,48 @@ export async function submitRun(submission: RunSubmission, deps: ApiDeps = brows
   };
 }
 
+/** What the server made of one press: its own verdict, and the wrong tries it has recorded so far. */
+export interface PressAnswer {
+  readonly verdict: 'correct' | 'wrong';
+  readonly attempts: number;
+  readonly presses: number;
+}
+
+/**
+ * `POST /drill/answer` — record one press, as it happens (DESIGN.md §11.1, A22).
+ *
+ * THE SERVER DECIDES THE VERDICT, from the puzzle it issued, and the client is told what it decided so the two can
+ * disagree out loud. What the press carries is only which step and which call — never whether it was right, and
+ * never when, because `attempts` is a SCORE FACTOR and a count the server did not witness is not a count.
+ *
+ * IT IS NOT FIRE-AND-FORGET, AND THE CALLER MUST NOT TREAT IT AS SUCH: a submission that arrives before its presses
+ * were recorded is refused `no_press_log`, so the app keeps this promise and waits for it before submitting. The
+ * function itself never rejects — every outcome is an `ApiResult`, like the rest of this module.
+ */
+export async function recordDrillAnswer(
+  drillId: string,
+  step: number,
+  call: string,
+  deps: ApiDeps = browserDeps(),
+): Promise<ApiResult<PressAnswer>> {
+  const answer = await apiCall<Record<string, unknown>>(deps, '/drill/answer', { method: 'POST', body: { drillId, step, call } });
+  if (!answer.ok) return answer;
+  const verdict = answer.value.verdict;
+  if (verdict !== 'correct' && verdict !== 'wrong') {
+    // A VERDICT THIS BUILD DOES NOT KNOW IS NOT A VERDICT: the caller shows feedback from it, so guessing would
+    // put a word on screen the server never said.
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not answer with a verdict for that press' } };
+  }
+  return {
+    ok: true,
+    value: {
+      verdict,
+      attempts: typeof answer.value.attempts === 'number' ? answer.value.attempts : 0,
+      presses: typeof answer.value.presses === 'number' ? answer.value.presses : 0,
+    },
+  };
+}
+
 /** `POST /drill/advance` — mark the issued drill finished, so the next request returns the next entry. */
 export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeCounts }>> {
   const answer = await apiCall<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {

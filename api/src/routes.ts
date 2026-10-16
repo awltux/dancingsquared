@@ -8,6 +8,7 @@
 import { drillAdvance, drillCurrent } from './handlers/drill.ts';
 import { getPuzzle } from './handlers/puzzle.ts';
 import { postRun } from './handlers/runs.ts';
+import { postDrillAnswer } from './handlers/answer.ts';
 import type { Handler } from './ports.ts';
 
 export interface Route {
@@ -19,19 +20,24 @@ export interface Route {
 }
 
 /**
- * THE SIX ENDPOINTS OF DESIGN.md 11, of which two exist. The table is the list in that section, in its order,
- * so the gap is visible here rather than in a document that drifts: every row added below is one row of that
- * table, and `/health` reports how many of the six are served.
+ * THE ENDPOINTS OF DESIGN.md 11, of which four exist. The table is the list in that section, in its order, so the
+ * gap is visible here rather than in a document that drifts: every row below is one row of that table, and
+ * `/health` reports how many of them are served.
+ *
+ * `POST /drill/answer` IS ONE OF THE RECORDING ENDPOINTS §11.1 ADDED (A22), and it is listed in §11's table
+ * because it is part of the surface a client talks to — the alternative, counting only the original six, made
+ * `/health`'s "how many are left" number stop meaning anything the moment the first of them landed.
  */
 export const ROUTES: readonly Route[] = [
   { method: 'GET', path: '/drill/current', handler: drillCurrent, purpose: 'the drill this player is on' },
   { method: 'GET', path: '/puzzle', handler: getPuzzle, purpose: "the published challenge for a level and day" },
   { method: 'POST', path: '/drill/advance', handler: drillAdvance, purpose: 'mark the issued drill finished' },
+  { method: 'POST', path: '/drill/answer', handler: postDrillAnswer, purpose: 'record one press against the issued drill' },
   { method: 'POST', path: '/runs', handler: postRun, purpose: 'record a completed run, verified by regeneration' },
 ];
 
 /** How many endpoints DESIGN.md 11 lists, so `/health` can report the gap without a second list. */
-export const PLANNED_ENDPOINTS = 6;
+export const PLANNED_ENDPOINTS = 10;
 
 /** The handler for a request, or null when nothing serves that path. */
 export function routeFor(method: string, path: string): Route | null {

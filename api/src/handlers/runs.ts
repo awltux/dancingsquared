@@ -28,6 +28,8 @@ import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
 import { asAttempt, elapsedSince } from '../attempt-row.ts';
+import { asPresses, explains, wrongPresses } from '../press-log.ts';
+import { readIssuedDrill } from '../issued-drill.ts';
 import {
   asBoard,
   asHints,
@@ -51,6 +53,8 @@ interface Source {
   readonly facts: VerifiedRun;
   /** What the client claimed its time was. Kept for the record and never scored (DESIGN.md 11.1, A21). */
   readonly claimedSeconds: number;
+  /** What the client claimed its wrong-try count was. Kept for the record and never scored (A22). */
+  readonly claimedAttempts: number;
 }
 
 /**
@@ -72,35 +76,39 @@ async function verifyDrill(
   level: ReturnType<typeof levelAt>,
   nowMs: number,
 ): Promise<{ source: Source } | { refusal: ApiResult }> {
-  const key = progressKey(playerId, submission.levelIndex);
-  const stored = await deps.store.get(key);
-  const progress = asProgress(stored, submission.levelIndex);
-  if (!progress) return { refusal: failure(STATUS.unavailable, 'unreadable_progress', `the progress row for ${key.pk} is not a record this build can read`) };
-
-  const issued = progress.issued;
-  if (!issued || issued.id !== submission.drillId) {
-    return { refusal: failure(STATUS.conflict, 'stale_drill', `the drill in flight is ${issued?.id ?? 'nothing'}, not ${submission.drillId}`) };
-  }
-  if (issued.poolVersion !== MAIN_POOL.version) {
-    // A SEED IS ONLY MEANINGFUL AGAINST THE POOL IT WAS VALIDATED AT (§7.2), so a drill from another pool cannot
-    // be regenerated — and scoring a puzzle nobody issued would be worse than refusing it.
-    return { refusal: failure(STATUS.conflict, 'stale_pool', `drill ${issued.id} was issued against pool ${issued.poolVersion}, and this build serves ${MAIN_POOL.version}`) };
-  }
-  const generated = puzzleFor(issued.seed, level);
-  if (!generated.ok) return { refusal: failure(STATUS.unavailable, 'unplayable_drill', `the issued drill does not generate: ${generated.reason}`) };
+  const read = await readIssuedDrill(deps, playerId, submission.levelIndex, submission.drillId ?? '');
+  if ('refusal' in read) return { refusal: read.refusal };
+  const { issued, progress, progressRev, puzzle } = read.issued;
 
   // THE PER-STEP ANSWER, RE-DERIVED. §11 says the server decides which option was correct at each step, so the
   // client's `calls` are checked against the puzzle rather than against the client's own claim about them.
-  const puzzle = generated.puzzle;
   if (submission.calls.length !== puzzle.steps.length) {
     return { refusal: failure(STATUS.badRequest, 'not_solved', `a Drill run has one call per step: this level asks ${puzzle.steps.length} and the run names ${submission.calls.length}`) };
   }
+  const correctCalls = puzzle.steps.map((step) => step.moves[step.correctIndex].call);
   for (let step = 0; step < puzzle.steps.length; step++) {
-    const correct = puzzle.steps[step].moves[puzzle.steps[step].correctIndex].call;
-    if (submission.calls[step] !== correct) {
-      return { refusal: failure(STATUS.badRequest, 'not_solved', `step ${step + 1} was answered "${submission.calls[step]}", and the correct option was "${correct}"`) };
+    if (submission.calls[step] !== correctCalls[step]) {
+      return { refusal: failure(STATUS.badRequest, 'not_solved', `step ${step + 1} was answered "${submission.calls[step]}", and the correct option was "${correctCalls[step]}"`) };
     }
   }
+
+  // THE PRESSES ARE THE SERVER'S, and this is what A22 bought: `attempts` is the number of wrong presses THE
+  // SERVER recorded, not the number the submission reports. A run whose transcript the log does not explain is
+  // refused rather than scored — the client is told which of the two it is, because the fix differs: `no_press_log`
+  // is a client that never posted (a version skew or a lost connection), `unexplained_calls` is a transcript the
+  // recorded presses cannot account for.
+  const logged = await deps.store.get(attemptKey(playerId, 'drill', issued.id));
+  if (!logged) {
+    return { refusal: failure(STATUS.conflict, 'no_press_log', `no press was recorded for drill ${issued.id}, so its attempts cannot be counted`) };
+  }
+  const presses = asPresses(logged);
+  if (!presses) {
+    return { refusal: failure(STATUS.unavailable, 'unreadable_press_log', `the press log for drill ${issued.id} is not a record this build can read`) };
+  }
+  if (!explains(presses, submission.calls)) {
+    return { refusal: failure(STATUS.badRequest, 'unexplained_calls', `the recorded presses do not explain this transcript, so the run cannot be counted`) };
+  }
+  const measuredAttempts = wrongPresses(presses, correctCalls);
 
   // THE CLOCK IS THE SERVER'S, AND THIS IS WHERE THAT IS TRUE. `issuedAtMs` is this API's own stamp, written when
   // it issued the drill, so the run is scored on `now − issued` — the client's `clockSeconds` is not used for
@@ -121,8 +129,12 @@ async function verifyDrill(
     source: {
       seed: issued.seed,
       progress,
-      progressRev: stored?.rev ?? null,
+      progressRev,
       claimedSeconds: submission.clockSeconds,
+      // A CLAIM BELOW THE RECORDED COUNT IS NOT REFUSED, and that is deliberate: `attemptFactor` prices wrong
+      // tries, so claiming FEWER can only lower the score the server is about to compute, and the audit row keeps
+      // both numbers. Claiming MORE is also ignored — the count is the log's.
+      claimedAttempts: submission.attempts,
       // ONE ANSWER PER STEP AND NOTHING TO WASTE: `moves` is the puzzle's own shortest, exactly as the client
       // computes it (`moves: controller.puzzleRef.shortest`). The Drill's cost is its attempts, not its waste.
       facts: {
@@ -130,7 +142,7 @@ async function verifyDrill(
         moves: puzzle.shortest,
         clockSeconds: measuredSeconds,
         hintsUsed: submission.hintsUsed,
-        attempts: submission.attempts,
+        attempts: measuredAttempts,
       },
     },
   };
@@ -200,6 +212,9 @@ async function verifyDaily(
       progress: null,
       progressRev: null,
       claimedSeconds: submission.clockSeconds,
+      // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so its count is the claimed one and nothing reads it; it is
+      // carried so the audit row has the same shape in both modes.
+      claimedAttempts: submission.attempts,
       // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so it is priced on its line and its hints alone. `moves` is
       // the length of the line the player actually built, which is what the waste factor measures.
       facts: { shortest: generated.puzzle.shortest, moves: submission.calls.length, clockSeconds: measuredSeconds, hintsUsed: submission.hintsUsed, attempts: 0 },
@@ -327,7 +342,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     const folded = foldBoard(submission.mode, board, score.score);
 
     const writes: StoreWrite[] = [
-      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
+      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
       { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: debited.hints, successes: debited.successes } },
       { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { score: folded.score, runs: folded.runs } },
     ];

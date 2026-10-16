@@ -60,16 +60,34 @@ export function runtimeFor(level: LevelSpec): Runtime {
 }
 
 /**
- * Generate the puzzle a published seed names.
+ * The generated puzzle a published seed names, CACHED because a press regenerates it.
  *
- * THE SERVER RUNS THE SAME GENERATOR AS THE CLIENT, over the same seed, level and pool version — which is
- * what makes the option labels in a response a CROSS-CHECK rather than an invention (DESIGN.md 11: "the
- * server re-runs the same generator"). A refusal is passed through with the generator's own reason: a
- * published seed that no longer generates is a finding about the schedule (§7.2's lint), and inventing an
- * answer here would hide it.
+ * IT IS THE CACHE THAT MAKES `POST /drill/answer` A CLICK RATHER THAN A PAUSE. Generating costs 167-230 ms at level
+ * 1 and 728-1240 ms at levels 2 and 3 on a warm applier (the measurement at the top of this file); `POST /runs`
+ * pays that once per run, which is a boundary, while a press happens on every wrong button and paying a fifth of a
+ * second for one would be felt. MEASURED (`api/tools/_measure-press.mjs`, a throwaway deleted after it was read):
+ * 50 calls with a DIFFERENT seed each cost **158.6 ms** each, while 50 calls with the seed a press re-asks for cost
+ * **0.0 ms** each — below the timer's resolution, because the work is a `Map` lookup.
+ *
+ * THE RETURNED PUZZLE IS SHARED BETWEEN CALLERS. Every reader today only reads (`optionLabels`, the per-step
+ * correct option, `lineReachesGoal`'s walk), so this is safe — but a caller that mutated a puzzle would change
+ * what every later request is scored against, which is why the contract is stated here rather than discovered.
+ *
+ * THE POOL VERSION IS NOT IN THE KEY, for the reason the runtime cache gives above: a pool change is a deploy.
+ * THE BOUND IS BLUNT ON PURPOSE: the working set is one season's entries at the levels being played, and a clear
+ * costs one regeneration rather than leaving an unbounded map in a long-lived container.
  */
+const puzzles = new Map<string, GenerateResult>();
+const MAX_CACHED_PUZZLES = 64;
+
 export function puzzleFor(seed: number, level: LevelSpec): GenerateResult {
-  return generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'drill'), seed, level, runtimeFor(level).applier);
+  const key = `${level.index}:${seed}`;
+  const cached = puzzles.get(key);
+  if (cached) return cached;
+  const generated = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'drill'), seed, level, runtimeFor(level).applier);
+  if (puzzles.size >= MAX_CACHED_PUZZLES) puzzles.clear();
+  puzzles.set(key, generated);
+  return generated;
 }
 
 /**

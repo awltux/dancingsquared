@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, recordDrillAnswer, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -283,6 +283,24 @@ console.log('\n== 8. a Daily submission names its date and carries its line ==')
   check(sent.date === '2026-10-15' && sent.day === undefined, `the body names the date and not a second word for it (${JSON.stringify(sent).slice(0, 60)}…)`);
   check(sent.drillId === undefined && sent.mode === 'daily', 'with no drillId, because a Daily answers no issued drill');
   check(sent.calls.length === 2 && sent.hintsUsed === 1, `and the line with the hints it spent (${sent.calls.length} calls, ${sent.hintsUsed} hint)`);
+}
+
+console.log('\n== 9. a press is recorded as it happens, and the server decides what it was worth ==');
+{
+  // THE REQUEST IS THE CONTRACT (DESIGN.md 11.1, A22): the server derives the verdict from the puzzle it issued, so
+  // what this module may send is only the step and the call — never a verdict and never a time.
+  const posted = deps('http://localhost:8090', { status: 200, body: { verdict: 'wrong', attempts: 2, presses: 3 } });
+  const answer = await recordDrillAnswer('1:3', 0, 'Boys Run', posted.api);
+  check(answer.ok === true && answer.value.verdict === 'wrong' && answer.value.attempts === 2, `the server's verdict and count come back (${answer.value?.verdict}, ${answer.value?.attempts})`);
+  const sent = JSON.parse(posted.fetch.calls[0].init.body);
+  check(posted.fetch.calls[0].url === 'http://localhost:8090/drill/answer' && posted.fetch.calls[0].init.method === 'POST', 'posted to the endpoint the route table names');
+  check(sent.drillId === '1:3' && sent.step === 0 && sent.call === 'Boys Run', `carrying the step and the call (${JSON.stringify(sent)})`);
+  check(sent.verdict === undefined && sent.atMs === undefined, 'and NOT a verdict or a time, which are the server\'s business');
+
+  // A VERDICT THIS BUILD DOES NOT KNOW IS REFUSED RATHER THAN GUESSED: the caller shows feedback from it.
+  const strange = deps('http://localhost:8090', { status: 200, body: { verdict: 'maybe', attempts: 0 } });
+  const unknown = await recordDrillAnswer('1:3', 0, 'Boys Run', strange.api);
+  check(unknown.ok === false && unknown.failure.code === 'bad_response', `an unknown verdict is refused (${unknown.failure?.code})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

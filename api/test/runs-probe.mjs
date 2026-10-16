@@ -14,6 +14,7 @@
 // Usage: node api/test/runs-probe.mjs
 import { postRun } from '../src/handlers/runs.ts';
 import { getPuzzle } from '../src/handlers/puzzle.ts';
+import { postDrillAnswer } from '../src/handlers/answer.ts';
 import { drillCurrent } from '../src/handlers/drill.ts';
 import { STATUS } from '../src/status.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
@@ -89,17 +90,35 @@ function answersFor(seed) {
   return { puzzle: generated.puzzle, calls: generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call) };
 }
 
-/** Serve the drill this player is on, and the answers to it — then let time pass, so the player has played. */
+/**
+ * Serve the drill this player is on, and PLAY it — then let time pass, as a client would.
+ *
+ * THE PRESSES ARE POSTED, because `attempts` is counted from the log the server recorded (DESIGN.md 11.1, A22):
+ * a submission whose presses the server never saw is refused `no_press_log`, so a helper that skipped them would
+ * be testing a client that cannot play. `measuredSeconds` IS THE WINDOW THE SERVER WILL SCORE ON, and it is the
+ * only number the expectations below may use — the submissions still carry an `elapsedSeconds` claim, because that
+ * is what a client sends and what the audit records, but it is not what scores.
+ */
 async function issue(deps, player, advanceSeconds = 60) {
   const served = await drillCurrent(call('/drill/current', player, { level: String(LEVEL) }), deps);
   const drill = served.body.drill;
   const answers = answersFor(drill.seed);
+  for (let step = 0; step < answers.calls.length; step++) {
+    const posted = await postDrillAnswer(press(player, drill.id, step, answers.calls[step]), deps);
+    if (posted.status !== STATUS.ok) throw new Error(`the probe could not record a press: ${posted.status} ${posted.body.error?.code}`);
+  }
   deps.clock.advance(advanceSeconds);
-  // `measuredSeconds` IS THE WINDOW THE SERVER WILL SCORE ON, and it is the ONLY number the expectations below may
-  // use (DESIGN.md 11.1, A21): the submissions still carry a `elapsedSeconds` claim, because that is what a client
-  // sends and what the audit records, but it is not what scores.
   return { drill, ...answers, measuredSeconds: advanceSeconds };
 }
+
+/** One press, as the endpoint takes it. `chosen` is the call the player clicked. */
+const press = (player, drillId, step, chosen) => ({
+  method: 'POST',
+  path: '/drill/answer',
+  query: {},
+  body: { drillId, step, call: chosen },
+  headers: player ? { 'x-dev-player': player } : {},
+});
 
 /**
  * Start a Daily the way a client does: READ the published challenge, which is what stamps the server's clock, then

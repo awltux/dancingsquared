@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, recordDrillAnswer, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
@@ -69,6 +69,17 @@ let position = 0;
  * by a local counter, so the issued id is the handle for the next step.
  */
 let serverDrill: IssuedDrill | null = null;
+
+/**
+ * THE PRESSES POSTED SO FAR, as one chain, so the submission can wait for them (DESIGN.md 11.1, A22).
+ *
+ * ttempts is counted from what POST /drill/answer RECORDED, so a run submitted before its presses arrived is
+ * refused 
+o_press_log — a refusal this app would have caused itself rather than a cheat it caught. Chaining
+ * rather than Promise.all keeps the recorded order the order the player pressed in, and the chain never rejects
+ * (ecordDrillAnswer answers with an ApiResult), so one failed press does not stop the rest from being sent.
+ */
+let pressLog: Promise<unknown> = Promise.resolve();
 /** Where the server says the player is in the regime, for the header and the report of a finished season. */
 let serverRegime: RegimeCounts | null = null;
 
@@ -462,6 +473,9 @@ function issueCurrentDrill(next: 'current' | 'advance'): void {
 function answer(choice: number | 'unknown'): void {
   if (!controller || !applier || PLAYHEAD.isRunning) return;
   let result;
+  // THE STEP IS READ BEFORE THE ANSWER, because a correct answer ADVANCES the machine — reading it afterwards would
+  // file the press against the next question, which is a wrong count the server would then score on (A22).
+  const stepIndex = controller.view().stepIndex;
   try {
     result = controller.answer(choice);
   } catch (error) {
@@ -469,6 +483,16 @@ function answer(choice: number | 'unknown'): void {
     // Surfacing it as a message beats a silent no-op on a button that looked live.
     drillScreen.say(error instanceof Error ? error.message : String(error), 'bad');
     return;
+  }
+
+  // EVERY PRESS GOES TO THE SERVER, AS IT HAPPENS, and the chain is kept so the submission can wait for it: the
+  // count that scores is the one the server recorded (DESIGN.md 11.1, A22), so a run whose presses had not arrived
+  // would be refused `no_press_log` — a refusal this app would have caused itself. The chain is a promise chain
+  // rather than `Promise.all` so the log's order is the order the player pressed.
+  if (serverDrill) {
+    const drillId = serverDrill.id;
+    const call = result.call;
+    pressLog = pressLog.then(() => recordDrillAnswer(drillId, stepIndex, call));
   }
 
   if (result.kind === 'illegal') {
@@ -588,6 +612,9 @@ function creditLocally(): void {
  */
 async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<void> {
   if (!controller || !serverDrill) return;
+  // THE PRESSES FIRST. The run is scored on the tries the server recorded, so this waits for the last of them to
+  // land rather than racing it — the one ordering this endpoint's contract requires (DESIGN.md 11.1, A22).
+  await pressLog;
   const answer = await submitRun({
     runId: drillRunId,
     mode: 'drill',
@@ -596,6 +623,9 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     // TIME ON THE CLOCK ONLY: the hint charge is the server's arithmetic (§6), and the Drill spent none.
     elapsedSeconds: clockSeconds,
     hintsUsed: 0,
+    // STILL SENT, AND STILL ONLY A CLAIM: the server counts the tries it recorded and keeps this number beside them
+    // (A22), so a modified client that reports zero is not believed and an honest one whose count differs is visible
+    // rather than wrong.
     attempts: controller.attempts,
     // ONE CALL PER STEP, in the order they were answered — the same transcript the offline ledger keeps.
     calls: [...drillOptions],

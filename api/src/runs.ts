@@ -182,6 +182,15 @@ export interface RunRecordParts {
   readonly measuredSeconds: number;
   /** What the client claimed, beside what was measured. */
   readonly claimedSeconds: number;
+  /**
+   * The wrong tries the SERVER recorded, which is what ttemptFactor is priced on (A22).
+   *
+   * LIKE measuredSeconds, THIS IS NOT THE SUBMISSION'S FIELD: the claim is claimedAttempts, kept beside it so
+   * an operator can see the two disagree.
+   */
+  readonly measuredAttempts: number;
+  /** What the client claimed its wrong-try count was. */
+  readonly claimedAttempts: number;
   readonly score: number;
   readonly scoreVersion: number;
   readonly nowMs: number;
@@ -209,7 +218,8 @@ export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
     clockSeconds: parts.measuredSeconds,
     claimedSeconds: parts.claimedSeconds,
     hintsUsed: submission.hintsUsed,
-    attempts: submission.attempts,
+    attempts: parts.measuredAttempts,
+    claimedAttempts: parts.claimedAttempts,
     calls: submission.calls,
     score: parts.score,
     scoreVersion: parts.scoreVersion,

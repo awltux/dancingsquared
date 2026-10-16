@@ -1833,7 +1833,17 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     it: naming the goal is a big hint, but an older audience may need the anchor, and the name is only ever a
     display either way (§4.2).
 11. **The level-curation order** — the actual first-N list. *Recommend authoring it with a teaching caller*,
-    because it is the one input the engine cannot supply.
+    because it is the one input the engine cannot supply. **AND THE ORDER IS LOAD-BEARING FOR A REASON WORTH
+    MEASURING**: `poolFor` is the FIRST `poolSize` titles of the teaching order, and level 1's ten are NOT ten
+    questions — measured while the engine is mid-repair (a scratch script, deleted), of level 1's ten titles
+    **five are legal from the starting board** (Allemande Left in the Alamo Style, Allemande Left, Box the Gnat, Boys
+    Fold, Boys Run) and **five are not offered at all** (Bend the Line, Box Circulate, Boys Trade, California Twirl,
+    Cast Off Three Quarters — each needs a formation a Static Square does not provide). The generator then accepted
+    **one** of the five as a correct answer, and THAT number is a symptom rather than a property: the correct answer
+    comes from the solver's getout family, which is being re-authored (`getout-convention.mjs` is red: 0 of 28
+    alignments resolve). So the order decides how much of a level's pool a player can actually be asked about, and
+    the census (`game/tools/measure-ladder.mjs`) is where the settled number belongs — this is the second reason to
+    author the list with a caller rather than by taking the corpus in file order.
 12. **Sound.** *Recommend none at v1.* Voice or music is a large surface (autoplay policy, accessibility, ad
     interaction) and does not serve the objective.
 13. **Ads-only, or an ad-free tier?** *Recommend ads-only at v1*: a paid tier adds store fees, tax and a
@@ -2005,10 +2015,15 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     be finished, so promotion would be impossible rather than slow. It does not break, because the schedule is a list of
     ENTRIES and `finished` holds INDICES — a repeated puzzle published at a NEW index is a new entry, it is finishable,
     and it advances the set. The cost is a player meeting a drill they have seen before, which is the outcome the rule
-    accepts. **The number that decides how soon that happens is measurable and not yet measured**: the distinct puzzles
-    a level can generate before repeating (level 1's pool is `poolSize(1) = 10` titles with two-option questions, and
-    §5's measurement says a three-option question needs 35+). Nothing in the implementation needs that number to be
-    large; the UI should simply never promise "100 new puzzles".
+    accepts. **The number that decides how soon that happens is MEASURABLE and NOT YET MEANINGFUL, because the engine
+    is mid-repair**: measured by scanning seeds at level 1 (a scratch script, deleted), the first 120 seeds make
+    **4 distinct questions**, and the counting has two causes that must not be confused — `offered()` is the ENGINE's
+    list of calls legal from the board, while "which call reaches the goal" is the SOLVER's answer, and the solver's
+    getout family is being re-authored right now (`engine/test/getout-convention.mjs` is the red acceptance instrument:
+    0 of 28 alignments resolve). So the figure is a SYMPTOM of that repair and not a property of the ladder; the
+    instrument for the durable number is the existing ladder census (`game/tools/measure-ladder.mjs`, `engine`'s
+    `shape-census`), which is where this belongs when the engine is whole. Nothing in the implementation needs the
+    number to be large; the UI must simply never promise "100 new puzzles".
 18. **Can a player make the device forget them? — DECIDED AND IMPLEMENTED.** Phase 4 kept the regime, the balance and
     every run in `localStorage` and nothing cleared it, so a player who wanted a fresh start had to find their
     browser's site-data settings. What ships is the recommendation this question carried: a plainly-labelled control

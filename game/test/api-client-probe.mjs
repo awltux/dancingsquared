@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, recordDrillAnswer, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -303,5 +303,21 @@ console.log('\n== 9. a press is recorded as it happens, and the server decides w
   check(unknown.ok === false && unknown.failure.code === 'bad_response', `an unknown verdict is refused (${unknown.failure?.code})`);
 }
 
-console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
+console.log('\n== 10. a hint is spent by the SERVER, and the balance it answers with is the one adopted ==');
+{
+  // THE SPEND IS THE EVENT (DESIGN.md 11.1, A23): the app asks before it takes the hint, because a hint the server
+  // did not record is a run it refuses — so the request must name the CHALLENGE (level and day) and nothing else.
+  const posted = deps('http://localhost:8090', { status: 200, body: { hints: { hints: 2, successes: 0 }, spent: 1 } });
+  const answer = await spendHint(1, '2026-10-15', posted.api);
+  check(answer.ok === true && answer.value.hints.hints === 2 && answer.value.spent === 1, `the balance the server holds comes back (${answer.value?.hints.hints} left)`);
+  const sent = JSON.parse(posted.fetch.calls[0].init.body);
+  check(posted.fetch.calls[0].url === 'http://localhost:8090/me/hints' && posted.fetch.calls[0].init.method === 'POST', 'posted to the endpoint the route table names');
+  check(sent.levelIndex === 1 && sent.date === '2026-10-15' && Object.keys(sent).length === 2, `naming the challenge and nothing else (${JSON.stringify(sent)})`);
+  const refused = deps('http://localhost:8090', { status: 409, body: { error: { code: 'no_hints', message: 'no hint is held' } } });
+  const denied = await spendHint(1, '2026-10-15', refused.api);
+  check(denied.ok === false && denied.failure.code === 'no_hints', `a refusal keeps the server's code, which the app shows instead of spending (${denied.failure?.code})`);
+  const odd = deps('http://localhost:8090', { status: 200, body: { spent: 1 } });
+  const unreadable = await spendHint(1, '2026-10-15', odd.api);
+  check(unreadable.ok === false && unreadable.failure.code === 'bad_response', `and an answer with no balance is refused rather than adopted (${unreadable.failure?.code})`);
+}console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

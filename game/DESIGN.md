@@ -728,7 +728,7 @@ read-only, then sign in to be ranked*.
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
 | `POST /daily/move` | Daily | One move, undo or redo, recorded for the same reason (A22): the Daily's line and its length become the server's record rather than the submission's claim. |
-| `POST /me/hints` | both | Spend a hint (§11.1 A23): the server replays the recorded line, names the call by its own §10 look-up, debits the balance and answers with it. |
+| `POST /me/hints` | Daily | Spend a hint (§11.1 A23): the server debits the balance and records the spend against the challenge's attempt row, answering with the balance. **The spend is the anti-cheat part and it is the server's**; the call the hint names is still computed by the client until the recorded line exists (`POST /daily/move`), because §10's look-up runs over the board the player is standing on. |
 | `POST /daily/abandon` | Daily | Give up today's challenge (A23): the hint an abandoned run owes is debited HERE, because a run that is never submitted is a hint nobody would otherwise charge. |
 | `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts` and `hintsUsed` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22) and debits the third (A23). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
 | `POST /me/runs:bulk` | both | Import a device's local ledger on login as **unranked history** — no board, no hints, no progress (A26) |
@@ -848,7 +848,7 @@ claiming `0.1 s` also scores **100**, because `timeFactor` stops at 1.
 | **A20 — the identity is verified or absent.** | Reads (`GET /drill/current`, `GET /puzzle`) answer a signed-out caller as a **demo** and write nothing at all — no Progress row, no attempt row. Every write (`POST /runs`, `POST /drill/advance`, `POST /me/hints`, `POST /me/runs:bulk`, `POST /daily/move`) requires a verified `sub`, and a header is never an identity. |
 | **A21 — the clock is the server's.** | A run's elapsed is `submittedAt − issuedAt`, both the server's own facts: for the Drill the Progress row's issue stamp, for the Daily a per-player attempt row created by that player's own first read of the challenge. The client's `elapsedSeconds` is kept as an **audit input** and never scored. |
 | **A22 — the interaction is recorded, so `attempts` is counted.** | `POST /drill/answer` records each press (step, call and the SERVER's arrival time) against the issued drill, decides the verdict from the puzzle it issued, and `attempts` is the number of recorded non-correct presses — the submission's count is kept as an audit input. A run with no log is refused (`no_press_log`) and a transcript the log cannot account for is refused (`unexplained_calls`); the log is bounded at 200 presses. `POST /daily/move` records add/undo/redo for the same reason, so the Daily's line and its length are server facts too. |
-| **A23 — the hint spend is an event, not a field.** | `POST /me/hints` replays the recorded line, names the call by the server's own §10 look-up, spends one and answers with the balance. The Daily's `hintsUsed` is read from the attempt row, and an abandoned run is debited at abandonment. |
+| **A23 — the hint spend is an event, not a field.** | `POST /me/hints` debits the balance and records the spend against the challenge's attempt row at the moment the hint is taken, so the run is charged 60 seconds per RECORDED spend and a submission claiming more than the record is refused (`unrecorded_hints`). The balance and the event move in one transaction. **The call it names is still the client's** (see the status table): §10's look-up runs over the board the player is standing on, and for the Daily that board is the recorded line — `POST /daily/move` is what records it. `POST /daily/abandon` is what debits the hint an abandoned run owes. |
 | **A24 — scoring is a function of server facts only.** | Measured elapsed, counted attempts, server-debited hints, the regenerated `shortest` and the recorded line. The answer reports measured against claimed, so a disagreement is visible rather than silent. |
 | **A25 — accountability is recorded.** | Every accepted or refused run stores what was measured and what was claimed plus its flags, and increments a bounded `abuse#<playerId>` counter. The gateway throttles per player, and a refusal-rate alarm is the operator's signal that someone is probing. |
 | **A26 — the bulk claim is HISTORY, not rank.** | A device's local ledger may be imported only as `unverified` rows that count for nothing — no board, no hints, no progress — because a run the server never issued cannot be verified. This amends decision 6: the anonymous ledger is kept, and it buys no standing. |
@@ -886,15 +886,19 @@ stamp byte-identical. **A22** is now true for the Drill: `POST /drill/answer` re
 server's own arrival time and its own verdict, and `POST /runs` counts `attempts` from that log rather than from
 the submission — MEASURED in `api/test/press-log-probe.mjs`, where a run claiming **0** wrong tries after two
 recorded ones scores **17** instead of the **25** the claim would have paid, a transcript whose calls were never
-pressed is refused `unexplained_calls`, and a run with no log at all is refused `no_press_log`. What is not yet
-true, and the stage that lands it (AGENTS.md §0: one change, one commit):
+pressed is refused `unexplained_calls`, and a run with no log at all is refused `no_press_log`. **A23's spend is
+an event**: the balance moves when the hint is taken and the run is charged the recorded spend — MEASURED in
+`api/test/hint-event-probe.mjs`, where a Daily run hiding a recorded hint scores **13** instead of the **25** it
+would have taken, the run row holds recorded **1** beside claimed **0**, a claim of a hint the server never
+recorded is refused `unrecorded_hints`, and a challenge nobody read cannot be charged a hint at all
+(`no_attempt_row`). What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
 | A20's remaining client half | the server serves the demo and refuses the writes, and the client can discover the mode, sign up/in/refresh/out and keep the session (`game/src/net/auth.ts`, `session.ts` — 46 checks). The APP has no sign-in surface and does not yet mark a local run unranked | the sign-in surface and the unranked marking |
 | A22's Daily half | the Drill's presses are recorded and counted; the Daily still submits a line the server walks rather than a log of moves, and its `attempts` is 0 by design (§6) | `POST /daily/move` |
-| A23 hint spend is an event | the balance is the server's, the spend is claimed (`§15 Q19`) | `POST /me/hints`, `POST /daily/abandon` |
-| A25 audit and throttling | the run row records measured against claimed (time and tries); nothing increments on a refusal, and `401`s are answered and not counted | audit |
+| A23's naming and abandonment | the spend is the server's; the CALL a hint names is still computed by the client, and an abandoned Daily owes a hint nobody debits | `POST /daily/move`, `POST /daily/abandon` |
+| A25 audit and throttling | the run row records measured against claimed (time, tries and hints); nothing increments on a refusal, and `401`s are answered and not counted | audit |
 | A26 the claim is history-only | the endpoint does not exist yet | the claim |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider

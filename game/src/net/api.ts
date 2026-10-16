@@ -391,6 +391,32 @@ export async function recordDrillAnswer(
   };
 }
 
+/** What the server did about a hint: the balance it now holds, and how many this challenge has spent. */
+export interface HintSpend {
+  readonly hints: { readonly hints: number; readonly successes: number };
+  readonly spent: number;
+}
+
+/**
+ * `POST /me/hints` — spend one hint on a published challenge, as an EVENT (DESIGN.md §11.1, A23).
+ *
+ * THE BALANCE IS THE SERVER'S AND THE SPEND IS ITS RECORD: the run is charged 60 seconds per recorded spend, so a
+ * hint the server did not record is a run it will refuse (`unrecorded_hints`) — which is why the app asks BEFORE
+ * taking the hint locally and does not take it at all if this answers with a refusal.
+ */
+export async function spendHint(levelIndex: number, date: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<HintSpend>> {
+  const answer = await apiCall<Record<string, unknown>>(deps, '/me/hints', { method: 'POST', body: { levelIndex, date } });
+  if (!answer.ok) return answer;
+  const hints = answer.value.hints as Record<string, unknown> | undefined;
+  if (typeof hints?.hints !== 'number' || typeof hints.successes !== 'number') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not answer with a hint balance' } };
+  }
+  return {
+    ok: true,
+    value: { hints: { hints: hints.hints, successes: hints.successes }, spent: typeof answer.value.spent === 'number' ? answer.value.spent : 0 },
+  };
+}
+
 /** `POST /drill/advance` — mark the issued drill finished, so the next request returns the next entry. */
 export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeCounts }>> {
   const answer = await apiCall<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {

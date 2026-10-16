@@ -8,6 +8,7 @@
 import { drillAdvance, drillCurrent } from './handlers/drill.ts';
 import { getPuzzle } from './handlers/puzzle.ts';
 import { postRun } from './handlers/runs.ts';
+import { postHint } from './handlers/hints.ts';
 import { postDrillAnswer } from './handlers/answer.ts';
 import type { Handler } from './ports.ts';
 
@@ -33,6 +34,7 @@ export const ROUTES: readonly Route[] = [
   { method: 'GET', path: '/puzzle', handler: getPuzzle, purpose: "the published challenge for a level and day" },
   { method: 'POST', path: '/drill/advance', handler: drillAdvance, purpose: 'mark the issued drill finished' },
   { method: 'POST', path: '/drill/answer', handler: postDrillAnswer, purpose: 'record one press against the issued drill' },
+  { method: 'POST', path: '/me/hints', handler: postHint, purpose: 'spend one hint, debit the balance and record the event' },
   { method: 'POST', path: '/runs', handler: postRun, purpose: 'record a completed run, verified by regeneration' },
 ];
 

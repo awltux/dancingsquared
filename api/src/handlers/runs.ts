@@ -28,7 +28,7 @@ import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
 import { asAttempt, elapsedSince } from '../attempt-row.ts';
-import { asPresses, explains, wrongPresses } from '../press-log.ts';
+import { explains, wrongPresses } from '../press-log.ts';
 import { readIssuedDrill } from '../issued-drill.ts';
 import {
   asBoard,
@@ -55,6 +55,8 @@ interface Source {
   readonly claimedSeconds: number;
   /** What the client claimed its wrong-try count was. Kept for the record and never scored (A22). */
   readonly claimedAttempts: number;
+  /** What the client claimed it spent on hints. Kept for the record; the Drill's CHARGE is the recorded spend (A23). */
+  readonly claimedHints: number;
 }
 
 /**
@@ -101,14 +103,27 @@ async function verifyDrill(
   if (!logged) {
     return { refusal: failure(STATUS.conflict, 'no_press_log', `no press was recorded for drill ${issued.id}, so its attempts cannot be counted`) };
   }
-  const presses = asPresses(logged);
-  if (!presses) {
-    return { refusal: failure(STATUS.unavailable, 'unreadable_press_log', `the press log for drill ${issued.id} is not a record this build can read`) };
+  const record = asAttempt(logged);
+  if (!record) {
+    return { refusal: failure(STATUS.unavailable, 'unreadable_attempt', `the attempt row for drill ${issued.id} is not a record this build can read`) };
   }
+  const presses = record.presses;
   if (!explains(presses, submission.calls)) {
     return { refusal: failure(STATUS.badRequest, 'unexplained_calls', `the recorded presses do not explain this transcript, so the run cannot be counted`) };
   }
   const measuredAttempts = wrongPresses(presses, correctCalls);
+  if (submission.hintsUsed > record.hints.length) {
+    // A CLAIM ABOVE THE RECORDED SPEND IS THE LAST CHEAT IN THIS FAMILY: hints are spent through
+    // POST /me/hints, which debits the balance and records the event (A23), so a claim of more than was recorded
+    // is either a client that never posted (and would otherwise be charged nothing for help it took) or one
+    // inventing a spend. Refused rather than flagged, because scoring it would charge the help and refuse to
+    // count it either way.
+    return { refusal: failure(STATUS.badRequest, 'unrecorded_hints', `the run claims ${submission.hintsUsed} hint(s) and ${record.hints.length} were recorded for this drill`) };
+  }
+  // THE HINT SPEND IS WHAT THE SERVER RECORDED, for the same reason the tries are: a hint is a 60-second charge
+  // folded into the elapsed, and a client that reported none kept the time it bought (A23). The balance was already
+  // debited when the hint was TAKEN, so this number is a time charge and not a payment.
+  const recordedHints = record.hints.length;
 
   // THE CLOCK IS THE SERVER'S, AND THIS IS WHERE THAT IS TRUE. `issuedAtMs` is this API's own stamp, written when
   // it issued the drill, so the run is scored on `now − issued` — the client's `clockSeconds` is not used for
@@ -135,13 +150,17 @@ async function verifyDrill(
       // tries, so claiming FEWER can only lower the score the server is about to compute, and the audit row keeps
       // both numbers. Claiming MORE is also ignored — the count is the log's.
       claimedAttempts: submission.attempts,
+      claimedHints: submission.hintsUsed,
       // ONE ANSWER PER STEP AND NOTHING TO WASTE: `moves` is the puzzle's own shortest, exactly as the client
       // computes it (`moves: controller.puzzleRef.shortest`). The Drill's cost is its attempts, not its waste.
       facts: {
         shortest: puzzle.shortest,
         moves: puzzle.shortest,
         clockSeconds: measuredSeconds,
-        hintsUsed: submission.hintsUsed,
+        // THE RECORDED SPEND, NOT THE CLAIM: a hint is a 60-second charge folded into the elapsed, and the client's
+        // report of it was the last thing a player could hide (A23 — MEASURED in `hint-event-probe.mjs`, where
+        // hiding a recorded hint paid 25 instead of the 13 the charge earns).
+        hintsUsed: recordedHints,
         attempts: measuredAttempts,
       },
     },
@@ -183,14 +202,22 @@ async function verifyDaily(
     };
   }
   const attempt = asAttempt(attemptStored);
-  if (!attempt) {
-    return { refusal: failure(STATUS.unavailable, 'unreadable_attempt', `the attempt row for level ${submission.levelIndex} on ${date} is not a record this build can read`) };
+  if (!attempt || attempt.startedAtMs === null) {
+    // A DAILY ROW WITHOUT A STAMP IS NOT A DAILY ATTEMPT: the stamp is what the clock is measured from, and a row
+    // that has none (a Drill's, a hand-written one) cannot time anything (A21).
+    return { refusal: failure(STATUS.unavailable, 'unreadable_attempt', `the attempt row for level ${submission.levelIndex} on ${date} holds no start stamp`) };
   }
   const measuredSeconds = elapsedSince(attempt.startedAtMs, nowMs);
   if (submission.clockSeconds > measuredSeconds + CLOCK_SKEW_SECONDS) {
     return {
       refusal: failure(STATUS.badRequest, 'impossible_elapsed', `the run claims ${submission.clockSeconds.toFixed(1)} s and the challenge was read ${measuredSeconds.toFixed(1)} s ago`),
     };
+  }
+
+  // THE SAME RULE AS THE DRILL'S, for the same reason: the balance moved when the hint was TAKEN
+  // (`POST /me/hints`), so a claim of more than the record is help the server never saw being charged for.
+  if (submission.hintsUsed > attempt.hints.length) {
+    return { refusal: failure(STATUS.badRequest, 'unrecorded_hints', `the run claims ${submission.hintsUsed} hint(s) and ${attempt.hints.length} were recorded for this challenge`) };
   }
 
   const generated = puzzleFor(value.seed, level);
@@ -215,9 +242,10 @@ async function verifyDaily(
       // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so its count is the claimed one and nothing reads it; it is
       // carried so the audit row has the same shape in both modes.
       claimedAttempts: submission.attempts,
+      claimedHints: submission.hintsUsed,
       // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so it is priced on its line and its hints alone. `moves` is
       // the length of the line the player actually built, which is what the waste factor measures.
-      facts: { shortest: generated.puzzle.shortest, moves: submission.calls.length, clockSeconds: measuredSeconds, hintsUsed: submission.hintsUsed, attempts: 0 },
+      facts: { shortest: generated.puzzle.shortest, moves: submission.calls.length, clockSeconds: measuredSeconds, hintsUsed: attempt.hints.length, attempts: 0 },
     },
   };
 }
@@ -336,14 +364,16 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
 
     const score = scoreWithClaim(source.facts, level, submission.claimedScore);
     const credit = finishedProgress ? recordSuccess(hints) : { ledger: hints, granted: false };
-    // THE DEBIT IS THE CLIENT'S CLAIM, CLAMPED TO THE BALANCE: claiming more hints than are held cannot take the
-    // balance below zero, and claiming fewer keeps a hint the player spent (see the header, and §15 Q19).
-    const debited = debitHints(credit.ledger, submission.hintsUsed);
+    // A HINT IS PAID FOR WHEN IT IS TAKEN (`handlers/hints.ts` debits the balance and records the event), so the run
+    // must not take it a second time. This used to debit the client's claim — clamped to the balance — and that
+    // debit was the cheat A23 closes: help that was never paid for. What the run does with hints is CHARGE THEIR
+    // TIME (`facts.hintsUsed`, from the record), not move the balance.
+    const ledger = credit.ledger;
     const folded = foldBoard(submission.mode, board, score.score);
 
     const writes: StoreWrite[] = [
-      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
-      { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: debited.hints, successes: debited.successes } },
+      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
+      { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: ledger.hints, successes: ledger.successes } },
       { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { score: folded.score, runs: folded.runs } },
     ];
     if (finishedProgress) {
@@ -358,7 +388,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
           elapsedSeconds: score.elapsedSeconds,
           clamped: score.clamped,
           duplicate: false,
-          hints: debited,
+          hints: ledger,
           granted: credit.granted,
           board: folded,
           period,

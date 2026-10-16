@@ -267,19 +267,24 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   check(last.body.hints.hints === 1 && last.body.hints.successes === 0, `and the balance is 1 with the count reset (${last.body.hints.hints} held, ${last.body.hints.successes} counted)`);
   check(last.body.board.runs === 10, `ten runs are on the board (${last.body.board.runs})`);
 
-  // AND A SPEND IS DEBITED, CLAMPED AT ZERO. The player holds one hint; a Daily run that claims it takes it, and a
-  // second run claiming one again cannot go below zero.
+  // A SPEND IS AN EVENT, NOT A FIELD (A23). The run no longer debits the balance — `POST /me/hints` did that when
+  // the hint was taken — so a claim of a hint that was never spent through that endpoint is REFUSED rather than
+  // charged, which is the half of the old rule that let a client buy time it had not paid for.
   const date = DAY;
   const published = puzzleFor(four[0].seed, levelAt(LEVEL));
   await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
   const line = published.puzzle.solution;
   await startDaily(deps, 'r6', LEVEL, date, 30);
-  const spent = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
-  check(spent.status === STATUS.ok && spent.body.hints.hints === 0, `a Daily run spends the hint it claims (${spent.body.hints?.hints})`);
-  const overspend = await postRun(submit('r6', { runId: 'daily-2', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
-  check(overspend.status === STATUS.ok && overspend.body.hints.hints === 0, `and claiming one with an empty balance cannot go below zero (${overspend.body.hints?.hints})`);
+  const unrecorded = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
+  check(unrecorded.status === STATUS.badRequest && unrecorded.body.error.code === 'unrecorded_hints', `a Daily run claiming a hint the server never recorded is refused (${unrecorded.status} ${unrecorded.body.error?.code})`);
+  check(unrecorded.body.error.message.includes('1') && unrecorded.body.error.message.includes('0'), `and the sentence names both numbers (${unrecorded.body.error?.message})`);
+  const honest = await postRun(submit('r6', { runId: 'daily-1b', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 0, calls: line }), deps);
+  // AND THE RUN MOVES NO BALANCE AT ALL: the hint the player holds is still there afterwards, because the only
+  // thing that spends a hint is `POST /me/hints` (A23). MEASURED — the check that used to sit here asserted the
+  // opposite, from the rule this stage removed.
+  check(honest.status === STATUS.ok && honest.body.hints.hints === 1, `while the same run claiming none is accepted and takes nothing from the balance (${honest.status}, balance ${honest.body.hints?.hints})`);
   const tooMany = await postRun(submit('r6', { runId: 'daily-3', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 4, calls: line }), deps);
-  check(tooMany.status === STATUS.badRequest && tooMany.body.error.code === 'bad_hints_used', `while a claim of four hints is refused outright (${tooMany.body.error?.code})`);
+  check(tooMany.status === STATUS.badRequest && tooMany.body.error.code === 'bad_hints_used', `and a claim of four hints is refused at the door (${tooMany.body.error?.code})`);
 }
 
 console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, and its board is a BEST ==');

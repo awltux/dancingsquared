@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, recordDrillAnswer, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, recordDrillAnswer, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
@@ -862,12 +862,34 @@ function redoDaily(): void {
   draw();
 }
 
-/** Take a hint: the ledger is asked first, and only a granted spend charges the run. */
-function takeHint(): void {
+/**
+ * Take a hint: the LEDGER is asked first, and only a granted spend charges the run.
+ *
+ * WITH A SERVER, THE SPEND IS THE SERVER'S (DESIGN.md 11.1, A23): the balance moves there and the run is charged the
+ * 60 seconds from what was RECORDED, so this asks for the spend before taking it locally. A refusal — no balance,
+ * a challenge nobody read, the bound — is shown and NOTHING is spent, because a hint the server did not record
+ * would be a run it refuses (`unrecorded_hints`) and a player who lost the run rather than the hint.
+ *
+ * THE CALL IT NAMES IS STILL THIS APP'S. §10's look-up runs over the board the player is standing on, and for the
+ * Daily that board is the recorded line — `POST /daily/move` is still to come, so the naming stays local and the
+ * SPEND is what the server owns (DESIGN.md §11.1's known limit 2 records why the information is not the secret).
+ */
+async function takeHint(): Promise<void> {
   if (!daily || PLAYHEAD.isRunning) return;
   if (save.hints.hints <= 0) {
     dailyScreen.say('You have no hints — one is earned every ten solved drills.', 'bad');
     return;
+  }
+  if (apiConfigured()) {
+    const levelIndex = daily.view(performance.now()).level.index;
+    const answer = await spendHint(levelIndex, dailyDay);
+    if (!answer.ok) {
+      dailyScreen.say(`The server would not record a hint: ${answer.failure.message}`, 'bad');
+      return;
+    }
+    // THE SERVER'S BALANCE IS THE ONE SHOWN, for the same reason its score is adopted after a run: two ledgers is
+    // one too many, and this app's copy is the preview.
+    save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
   }
   const hint = daily.takeHint();
   if (!hint.spent || !hint.call) {
@@ -878,7 +900,7 @@ function takeHint(): void {
   }
   // THE BALANCE WAS CHECKED BEFORE THE RUN WAS TOUCHED, and nothing between that read and this charge can
   // change it (a synchronous straight line), so the spend cannot find an empty ledger here.
-  save.spendHint();
+  if (!apiConfigured()) save.spendHint();
   dailyScreen.say(`Hint: ${hint.call}. A minute has been added to the clock, and it is not refunded.`, 'info');
   paintDaily();
   persist();
@@ -1042,7 +1064,7 @@ function main(): void {
   els.review.addEventListener('click', review);
   els.undo.addEventListener('click', undoDaily);
   els.redo.addEventListener('click', redoDaily);
-  els.hint.addEventListener('click', takeHint);
+  els.hint.addEventListener('click', () => void takeHint());
   els.giveUp.addEventListener('click', giveUpDaily);
   els.replayMine.addEventListener('click', () => replayLine('mine'));
   els.replayShortest.addEventListener('click', () => replayLine('shortest'));

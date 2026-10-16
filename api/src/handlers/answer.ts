@@ -14,10 +14,11 @@
 // makes a press cheap enough to send on every click.
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps } from '../ports.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
+import { asAttempt, asAttemptItem, type Press } from '../attempt-row.ts';
 import { attemptKey } from '../keys.ts';
 import { parseDrillId } from '../drill-regime.ts';
 import { readIssuedDrill } from '../issued-drill.ts';
-import { asPresses, asPressLogItem, MAX_CALL_LENGTH, MAX_PRESSES, wrongPresses } from '../press-log.ts';
+import { MAX_CALL_LENGTH, MAX_PRESSES, wrongPresses } from '../press-log.ts';
 
 /**
  * Record one press and answer what the SERVER made of it.
@@ -66,13 +67,13 @@ export async function postDrillAnswer(request: ApiRequest, deps: Deps): Promise<
   const key = attemptKey(playerId, 'drill', drillId);
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
     const stored = await deps.store.get(key);
-    const presses = stored ? asPresses(stored) : [];
-    if (!presses) return failure(STATUS.unavailable, 'unreadable_press_log', `the press log for ${drillId} is not a record this build can read`);
-    if (presses.length >= MAX_PRESSES) {
+    const attempt = stored ? asAttempt(stored) : { startedAtMs: null, presses: [] as Press[], hints: [] };
+    if (!attempt) return failure(STATUS.unavailable, 'unreadable_press_log', `the attempt row for ${drillId} is not a record this build can read`);
+    if (attempt.presses.length >= MAX_PRESSES) {
       return failure(STATUS.conflict, 'press_log_full', `drill ${drillId} already holds ${MAX_PRESSES} presses, which is more than any player makes`);
     }
-    const next = [...presses, { step, call, atMs: deps.clock.nowMs() }];
-    if (await deps.store.put(key, asPressLogItem(next), stored?.rev ?? null)) {
+    const next = [...attempt.presses, { step, call, atMs: deps.clock.nowMs() }];
+    if (await deps.store.put(key, asAttemptItem({ ...attempt, presses: next }), stored?.rev ?? null)) {
       const correctCalls = puzzle.steps.map((each) => each.moves[each.correctIndex].call);
       return {
         status: STATUS.ok,

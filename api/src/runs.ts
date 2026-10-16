@@ -191,6 +191,14 @@ export interface RunRecordParts {
   readonly measuredAttempts: number;
   /** What the client claimed its wrong-try count was. */
   readonly claimedAttempts: number;
+  /**
+   * The hints the SERVER recorded as spent, which is what the 60-second charge is computed from (A23).
+   *
+   * LIKE measuredAttempts, THIS IS NOT THE SUBMISSION'S FIELD: the claim is claimedHints, kept beside it.
+   */
+  readonly measuredHints: number;
+  /** What the client claimed it spent on hints. */
+  readonly claimedHints: number;
   readonly score: number;
   readonly scoreVersion: number;
   readonly nowMs: number;
@@ -217,9 +225,10 @@ export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
     date: submission.date,
     clockSeconds: parts.measuredSeconds,
     claimedSeconds: parts.claimedSeconds,
-    hintsUsed: submission.hintsUsed,
+    hintsUsed: parts.measuredHints,
     attempts: parts.measuredAttempts,
     claimedAttempts: parts.claimedAttempts,
+    claimedHints: parts.claimedHints,
     calls: submission.calls,
     score: parts.score,
     scoreVersion: parts.scoreVersion,

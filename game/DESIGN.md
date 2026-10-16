@@ -817,7 +817,14 @@ panel read "The Drill — level 1, season 2026-10", "Top 1 of 1 player on this b
 by `seasonOf` in the SHARED pure core** (`game/src/puzzle/season.ts`, exported by the package), which is the same
 function the server stamps a run's season with: a client that computed its own would ask for a board nobody was on,
 and would fail exactly at a month boundary. The season rule moved there in this change rather than being written
-twice.
+twice. **THE DAILY PATH IS NOW OBSERVED TOO, AND IT WAS THE ONE CLIENT SURFACE LEFT UNSEEN**: switching to Today's
+Daily, solving it and opening the board read "Today's Daily — level 1, 2026-10-16 (UTC)", "1 player on this board" and
+the row "1. emu:… (you) — 100 — 1 run", and the dev server's log holds the whole chain in order —
+`GET /puzzle?mode=daily&level=1&date=2026-10-16`, `POST /daily/move`, `POST /runs`, then
+`GET /leaderboard?mode=daily&level=1&period=2026-10-16`. That last line is the point: the client asked for the DAILY
+board with the UTC DAY as its period, which is the branch the Drill observation could not exercise (the season comes
+from the shared `seasonOf`; the day comes from `utcDay`), and the server answered it from the day's own index
+partition.
 
 **The `Schedule` item as it is published (Phase 5.5).** `schedule#<level>` / `current` holds `{ scheduleVersion,
 entries: [{ seed, levelIndex, poolVersion }] }` — a seed, a level and a pool version, no puzzle, no board, no media

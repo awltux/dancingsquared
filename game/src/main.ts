@@ -35,6 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
+import { advanceDrill, apiConfigured, issueDrill, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
@@ -56,10 +57,20 @@ let viewMode: ViewMode = '2d';
 let applier: GameApplier | null = null;
 let level: LevelSpec | null = null;
 
-/** The Drill's run: the machine, its clock, and the fixture position it is on. */
+/** The Drill's run: the machine, its clock, and the position it is on (the fixture's, or the server's). */
 let controller: DrillController | null = null;
 let drillClock = new Stopwatch();
 let position = 0;
+
+/**
+ * The drill the SERVER issued, or null in offline mode.
+ *
+ * IT IS KEPT BECAUSE `advance` NAMES IT: the server moves a player on by being told which drill is finished, not
+ * by a local counter, so the issued id is the handle for the next step.
+ */
+let serverDrill: IssuedDrill | null = null;
+/** Where the server says the player is in the regime, for the header and the report of a finished season. */
+let serverRegime: RegimeCounts | null = null;
 
 /** The Daily's run, the UTC day and the level it was issued for. */
 let daily: DailyRun | null = null;
@@ -314,33 +325,35 @@ function applyMode(next: AppMode): void {
   els.giveUp.hidden = mode !== 'daily';
   els.replayMine.hidden = true;
   els.replayShortest.hidden = true;
-  if (mode === 'drill') startDrill(position);
+  if (mode === 'drill') issueCurrentDrill('current');
   else startDaily();
 }
 
 // ----------------------------------------------------------------------------------------------- the drill
 
-function startDrill(next: number): void {
-  position = ((next % scheduleLength()) + scheduleLength()) % scheduleLength();
-  const entry = scheduleEntryFor(position);
-  const spec = levelSpec(entry.levelIndex);
-  if (!spec) throw new Error(`the fixture names level ${entry.levelIndex}, which is not a level`);
-
-  els.loading.hidden = false;
-  els.loading.textContent = `Generating drill ${position + 1} of ${scheduleLength()}…`;
+/**
+ * Show a drill: generate it from a seed and start the run.
+ *
+ * ONE PATH FOR TWO SOURCES. The seed comes either from the local fixture (offline) or from the server (which owns
+ * the order, §8), and everything after the seed is identical — the generator the client runs, the resume of a
+ * half-played drill, the clock, the header and the save. Splitting that in two would be two ways to show a drill.
+ */
+function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number }): void {
+  const spec = levelSpec(issued.levelIndex);
+  if (!spec) throw new Error(`level ${issued.levelIndex} is not a level`);
+  position = issued.index;
   useLevel(spec);
   if (save.resumed && save.levelIndex !== spec.index) {
-    // THE FIXTURE IS THE REGIME (until Phase 5 serves one), and the save's level is a record of what the app
-    // last believed. A disagreement means the schedule moved under the player, which is a data question to
-    // report rather than to hide (AGENTS.md 4.1) — and the schedule wins, because the entry IS the question.
-    console.warn(`the save has level ${save.levelIndex} and drill ${position + 1} is level ${spec.index}; the schedule wins`);
+    // THE SOURCE OF THE SEED IS THE REGIME, and the save's level is a record of what the app last believed. A
+    // disagreement means the regime moved under the player, which is a data question to report rather than to
+    // hide (AGENTS.md 4.1) — and the regime wins, because the entry IS the question.
+    console.warn(`the save has level ${save.levelIndex} and drill ${position + 1} is level ${spec.index}; the regime wins`);
   }
-  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), entry.seed, spec, applier as GameApplier);
+  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), issued.seed, spec, applier as GameApplier);
   els.loading.hidden = true;
 
   if (!result.ok) {
     // A REFUSAL IS A RESULT: the generator says why, and the screen shows it rather than an empty board.
-    // The fixture's seeds are gated, so reaching this branch means the corpus or the generator moved.
     controller = null;
     drillScreen.say(`This drill cannot be generated: ${result.reason}`, 'bad');
     drillScreen.render(controller);
@@ -369,7 +382,7 @@ function startDrill(next: number): void {
   }
   PLAYHEAD.cancel();
   replay = null;
-  els.regime.textContent = `The Drill — drill ${position + 1} of ${scheduleLength()}, level ${spec.index}`;
+  els.regime.textContent = `The Drill — drill ${position + 1} of ${issued.length}, level ${spec.index}`;
   drillScreen.clearVerdict();
   drillScreen.render(controller);
   els.review.hidden = false;
@@ -378,6 +391,60 @@ function startDrill(next: number): void {
   paintBalance();
   persist();
   draw();
+}
+
+/** The OFFLINE path: the local fixture's entry at a position. */
+function startDrill(next: number): void {
+  const length = scheduleLength();
+  const at = ((next % length) + length) % length;
+  els.loading.hidden = false;
+  els.loading.textContent = `Generating drill ${at + 1} of ${length}…`;
+  const entry = scheduleEntryFor(at);
+  showDrill({ seed: entry.seed, levelIndex: entry.levelIndex, index: at, length });
+}
+
+/**
+ * The SERVER path: the drill this player is on, issued or resumed by the server (DESIGN.md 8).
+ *
+ * THE SERVER OWNS THE ORDER, so `advance` is what moves the player on — not a local position counter — and the
+ * header's count is the server's regime rather than the fixture's length. The local save still records the run and
+ * the local balance, because the SERVER's ledger becomes authoritative only when a completed run is submitted
+ * (`POST /runs`, the next step): until then this is the same app with a server-issued question.
+ */
+async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
+  els.loading.hidden = false;
+  els.loading.textContent = next === 'advance' ? 'Asking the server for your next drill…' : 'Asking the server for your drill…';
+
+  if (next === 'advance' && serverDrill) {
+    const advanced = await advanceDrill(serverDrill.id);
+    if (!advanced.ok) {
+      els.loading.hidden = true;
+      controller = null;
+      drillScreen.say(`The server would not advance this drill: ${advanced.failure.message}`, 'bad');
+      drillScreen.render(controller);
+      return;
+    }
+  }
+  // A LEVEL IS ASKED FOR, NOT DECIDED: the player's level comes from the save (1 until there is a ladder to move
+  // up), and the answer's level is adopted when it differs — a schedule that moved is a fact, not a mistake.
+  const answer = await issueDrill(save.levelIndex || 1);
+  if (!answer.ok) {
+    els.loading.hidden = true;
+    controller = null;
+    drillScreen.say(`No drill from the server: ${answer.failure.message}`, 'bad');
+    drillScreen.render(controller);
+    return;
+  }
+  serverDrill = answer.value.drill;
+  serverRegime = answer.value.regime;
+  showDrill({ seed: serverDrill.seed, levelIndex: serverDrill.levelIndex, index: serverDrill.index, length: serverRegime.length });
+}
+
+/** Issue the drill from wherever the app is configured to get it. */
+function issueCurrentDrill(next: 'current' | 'advance'): void {
+  if (apiConfigured()) void startServerDrill(next);
+  else if (next === 'advance') startDrill(position + 1);
+  else startDrill(position);
 }
 
 /** Answer the current step. */
@@ -763,7 +830,7 @@ function main(): void {
 
   els.modeDrill.addEventListener('click', () => setMode('drill'));
   els.modeDaily.addEventListener('click', () => setMode('daily'));
-  els.next.addEventListener('click', () => startDrill(position + 1));
+  els.next.addEventListener('click', () => issueCurrentDrill('advance'));
   els.review.addEventListener('click', review);
   els.undo.addEventListener('click', undoDaily);
   els.redo.addEventListener('click', redoDaily);

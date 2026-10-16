@@ -57,6 +57,20 @@ banner says which harnesses it skipped. The PoC probes have a slow tier too: `np
 verify:probes --prefix poc` runs the default tier and `npm run verify:probes:all --prefix poc` adds
 `call-formations-probe`, which is most of the time.
 
+### Running the game against the local API
+
+The game is offline by default and uses the API when it is told where one is. Two terminals, and the Drill is
+served — issued, advanced and counted — by the server instead of the local fixture:
+
+```bash
+npm run dev:api                                  # the API on 8090 (memory store: no Docker needed)
+VITE_API_BASE=http://127.0.0.1:8090 npm run dev:game   # the game on 8089, now talking to it
+```
+
+With `VITE_API_BASE` unset the game is exactly what it has always been: no network call is made at all (measured
+by `game/test/api-client-probe.mjs`). A refused request, an unreachable server and a timeout each become a
+sentence on the screen, and the local ledger keeps whatever the device already had.
+
 ### Local DynamoDB (the API's real store)
 
 The API runs against an in-memory twin by default, so nothing is needed to start it. To exercise the actual

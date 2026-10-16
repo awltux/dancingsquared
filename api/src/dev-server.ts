@@ -14,7 +14,7 @@
 //        npm run dev:api:ddb      (DynamoDB Local, after `npm run api:table`)
 import http from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { configFromEnv, realServiceWarning } from './config.ts';
+import { configFromEnv, devServerRefusal } from './config.ts';
 import { MemoryStore } from './store/memory.ts';
 import { openStore, type OpenedStore } from './store/open.ts';
 import { PLANNED_ENDPOINTS, ROUTES, routeFor } from './routes.ts';
@@ -58,11 +58,32 @@ async function readBody(request: http.IncomingMessage): Promise<unknown> {
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
+/**
+ * THE CORS HEADERS A BROWSER NEEDS, and they are the DEV SERVER'S business rather than a handler's.
+ *
+ * MEASURED, and it is how this was found: with the game on `:8089` and this server on `:8090`, the page's fetch
+ * failed with a `TypeError` and the app showed "the server could not be reached" — a cross-origin request with no
+ * `Access-Control-Allow-Origin`. The requests also carry `x-dev-player` and a JSON content type, so the browser
+ * sends a PREFLIGHT and an unhandled `OPTIONS` refuses the real request before it is made.
+ *
+ * A DEPLOYMENT DOES THIS AT THE GATEWAY, not here: API Gateway's HTTP API has a CORS configuration, and the
+ * handler core must not learn about origins. Echoing the requesting origin is safe in THIS server because it is
+ * bound to 127.0.0.1, has no cookies and no sessions — the credentials it takes are a header the caller must
+ * write, not one a browser attaches by itself.
+ */
+const CORS_HEADERS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers': 'content-type, authorization, x-dev-player',
+  'access-control-allow-methods': 'GET, POST, OPTIONS',
+  'access-control-max-age': '600',
+} as const;
+
 function send(response: http.ServerResponse, result: ApiResult): void {
   const payload = JSON.stringify(result.body);
   response.writeHead(result.status, {
     'content-type': 'application/json; charset=utf-8',
     'content-length': Buffer.byteLength(payload),
+    ...CORS_HEADERS,
     // NOTHING HERE IS CACHEABLE, and saying so is what keeps a browser from serving a stale drill after a
     // reload — the endpoints are per-player and the Progress row moves under them.
     'cache-control': 'no-store',
@@ -113,6 +134,14 @@ export async function startDevServer(options: { port?: number; seed?: boolean; o
       const url = new URL(request.url ?? '/', 'http://localhost');
       let result: ApiResult;
       try {
+        if (request.method === 'OPTIONS') {
+          // THE PREFLIGHT IS ANSWERED BEFORE ANY ROUTING, because it names a route that does exist rather than
+          // asking this server to serve it.
+          response.writeHead(204, CORS_HEADERS);
+          response.end();
+          console.log(`204 OPTIONS ${url.pathname} (preflight) 0 ms`);
+          return;
+        }
         if (url.pathname === '/health') {
           result = health(opened);
         } else {
@@ -163,9 +192,11 @@ export async function startDevServer(options: { port?: number; seed?: boolean; o
 /** Start from the environment: the store, the port and the seed all come from `configFromEnv`. */
 export async function startFromEnv(): Promise<DevServer> {
   const config = configFromEnv();
-  // THIS SERVER SEEDS, so it must not be pointed at a service nobody named: see `realServiceWarning`.
-  const warning = realServiceWarning(config);
-  if (warning) throw new Error(`dev:api refuses to start: ${warning}`);
+  // THE STORE DECIDES WHETHER THAT MATTERS: the memory store never leaves this process, and only a DynamoDB run
+  // needs an endpoint. See `devServerRefusal`, which exists because applying the warning unconditionally made the
+  // ordinary local run refuse to start (found by loading the page in a browser, with the API pointed at memory).
+  const refusal = devServerRefusal(config);
+  if (refusal) throw new Error(`dev:api refuses to start: ${refusal}`);
   const server = await startDevServer({ port: config.port, opened: await openStore(config) });
   console.log(`dev:api listening on http://127.0.0.1:${server.port}/ store: ${server.label}`);
   console.log('       x-dev-player: <name> (or Authorization: Bearer dev:<name>) is the development identity');

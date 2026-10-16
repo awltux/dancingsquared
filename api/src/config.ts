@@ -54,6 +54,19 @@ export function realServiceWarning(config: Config, env: Record<string, string | 
 }
 
 /**
+ * Why the DEV SERVER must not start, or null when it may.
+ *
+ * THE STORE DECIDES, WHICH IS THE WHOLE POINT OF THIS FUNCTION EXISTING SEPARATELY. `realServiceWarning` answers
+ * "would this configuration talk to the real service", which is the right question for a tool that always talks to
+ * DynamoDB (`api:table`) — but the dev server only talks to it when it was asked to, and the memory store never
+ * leaves the process. MEASURED, and it is how this was found: applying the warning unconditionally made
+ * `npm run dev:api` REFUSE TO START with no endpoint, which is its normal, entirely local configuration.
+ */
+export function devServerRefusal(config: Config, env: Record<string, string | undefined> = process.env): string | null {
+  return config.store === 'dynamodb' ? realServiceWarning(config, env) : null;
+}
+
+/**
  * Read the configuration.
  *
  * `DSQ_STORE=dynamodb` ALONE DOES NOT POINT AT AWS. With no `DSQ_DDB_ENDPOINT` the SDK resolves the real

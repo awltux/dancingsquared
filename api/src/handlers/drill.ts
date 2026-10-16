@@ -130,8 +130,13 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
         ),
       };
     }
+    // THE LEVEL IS IN THE ANSWER, and it was MISSING until a browser found it: §11's row for this endpoint says the
+    // response is "the seed, the level, the option labels and the issue date", and a client that asked for level 1
+    // still has to be told which level the drill it was handed belongs to — the schedule can move under a player,
+    // and the client adopts the answer's level rather than its own. MEASURED: the game's client refused the
+    // response (`bad_response`) because the level was absent.
     const body = {
-      drill: { ...outcome.drill, optionLabels: optionLabels(generated.puzzle), resumed: !outcome.changed },
+      drill: { ...outcome.drill, levelIndex, optionLabels: optionLabels(generated.puzzle), resumed: !outcome.changed },
       regime: regimeCounts(read.regime, outcome.progress),
     };
     if (!outcome.changed) return { result: { status: STATUS.ok, body } };

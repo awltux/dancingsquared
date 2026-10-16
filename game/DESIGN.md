@@ -1161,6 +1161,46 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
 
+**Phase 5.6 — the game reads its Drill from the server, in a browser. DONE.**
+`game/src/net/api.ts` is the game's ONE outbound path, opt-in by `VITE_API_BASE`: it mints an anonymous device id
+(DESIGN.md 8's device-keyed anonymous player), prefers a token when one is stored, and returns a TYPED result for
+every outcome — the server's refusal (its message verbatim), a proxy's HTML error page, an unreachable host and a
+timeout are all one answer each, and nothing throws. `main.ts` grew `showDrill` (one path for two seed sources),
+the fixture path it already had, and `startServerDrill`, which asks the server for the drill and advances through
+it — so THE SERVER OWNS THE ORDER and the header's count is its regime. With no base URL the app is exactly the
+offline game it has always been.
+
+**BROWSER-MEASURED, on `:8089` against the API on `:8090` (`npm run dev:api`, memory store):**
+- the header read **"The Drill — drill 1 of 4, level 1"**: 4 is the SERVER's regime, where the local fixture's is
+  12, so the count is evidence the drill came from the API rather than the fixture;
+- answering the served drill ("correct."), then **Next drill** → the client called `POST /drill/advance` and
+  `GET /drill/current` and the header became **"drill 2 of 4"** with a fresh question — the whole server-authoritative
+  progression, played in a browser;
+- with the API KILLED and the page reloaded, the region showed "No drill from the server: the server could not be
+  reached (TypeError)" and the local ledger still read "1 run · best 100" — the refusal path is graceful, and the
+  app keeps what it had.
+
+**THREE DEFECTS THE BROWSER FOUND, all fixed and pinned:**
+1. **`npm run dev:api` REFUSED TO START** with no endpoint: my own real-service guard fired for the MEMORY store,
+   which never leaves the process. `devServerRefusal` now asks the narrower question ("would THIS run touch
+   DynamoDB"), and `api/test/daily-puzzle-probe.mjs` pins both sides — memory starts, DynamoDB without an endpoint
+   is still refused. A probe could not have found this; it was the ordinary local run.
+2. **No CORS, so the page could not talk to the API at all**: the fetch failed with a `TypeError` and the app said
+   "the server could not be reached". The dev server now answers the preflight and sends the allow headers on every
+   answer, with a note that a DEPLOYMENT does this at the gateway (API Gateway's CORS configuration) so the handler
+   core stays transport-free. Pinned in `api/test/drill-probe.mjs`'s socket section.
+3. **The drill view omitted `levelIndex`** — which §11's row for this endpoint promises ("the seed, the level, the
+   option labels and the issue date") — so the client refused the response as `bad_response`. Fixed in the handler
+   and pinned: the level in the answer is the one to generate from, not the one the client asked with.
+
+**GATE.** `tsc -p game --noEmit` → 0; `node game/tools/verify-probes.mjs` → **16 probes, 0 failed** (the new
+`api-client-probe.mjs` 81 ms; puzzle-core 84.8 s, schedule-lint 20.9 s, daily 9.7 s, schedule-fixture 5.9 s) with
+the corpus check reporting 68 files identical. `tsc -p api --noEmit` → 0 and the api suite green after the two api
+fixes. `npm run check:book` → links, anchors and the encoding check pass; the `animations-index.json` DRIFT is the
+pre-existing one from another task's corpus work.
+**NOT checked:** the Daily and the run submission are still local-only (the client does not call `GET /puzzle` or
+`POST /runs` yet), and no deployment — the whole check above is two dev servers on this machine.
+
 **Phase 5.5 — a level's season is authored, validated and published. DONE.**
 `api/src/schedule-publishing.ts` is §7.2's authoring pipeline: `generateSeason` scans seeds upward, GENERATING each
 candidate and keeping only the ones that produce a puzzle, and `publishSeason` writes the level's `schedule#<level>`
@@ -1392,6 +1432,13 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     attempt as it happens, and the hint spend as its own call against the balance — because the alternative is a
     currency (a hint) and a ranking (the attempt factor) that a modified client sets. This is the one place where
     §11's "server-owned state that the client displays and requests against" does not yet cover the REQUEST.
+20. **When the API is unreachable, should the Drill FALL BACK to the local fixture?** As shipped it refuses, showing
+    the server's failure ("the server could not be reached") and keeping the local ledger. *Recommend NO silent
+    fallback, and a LABELLED one instead*: the fixture's order is not the season's, so serving it quietly would ask
+    a different question from everyone else's and record it as if it counted. The honest version is Q6's unranked
+    practice mode, offered explicitly ("practice offline — this one will not count"), which is a screen decision
+    and a few lines of state, not a change to the serving rules. *The tradeoff*: a player on a flaky connection
+    cannot play the regime at all until it returns, which is the price of the order being the server's.
 16. **Does an answer given AFTER "show me the answer" count as a ranked success?** Phase 3 made the review
     name and dance the call without answering the step, so a player still presses it — and that press earns a
     score and, on the tenth completed drill, a hint. *Recommend NOT counting a revealed puzzle*, because a

@@ -14,7 +14,7 @@ import { STATUS } from '../src/status.ts';
 import { publishedDailyKey } from '../src/keys.ts';
 import { levelAt, publishableLevels } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
-import { configFromEnv, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
+import { configFromEnv, devServerRefusal, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
 import { MAIN_POOL, dailyEntry, isUtcDay, poolIsComplete, utcDay } from 'dancing-squared-game';
 
 let failures = 0;
@@ -140,6 +140,11 @@ console.log('\n== 6. the setup tools refuse to touch a service nobody named ==')
   const warning = realServiceWarning(real);
   check(typeof warning === 'string' && warning.includes('DSQ_DDB_ENDPOINT'), `no endpoint refuses and names the way forward (${warning})`);
   check(realServiceWarning(real, { [ALLOW_REAL_AWS]: '1' }) === null, `and ${ALLOW_REAL_AWS}=1 is the deliberate override`);
+  // THE DEV SERVER ASKS A NARROWER QUESTION THAN THE TOOLS DO, and this pair is the measurement: a memory store
+  // never leaves the process, so an endpoint is irrelevant to it — MEASURED, applying the warning unconditionally
+  // made `npm run dev:api` refuse to start, which a browser found.
+  check(devServerRefusal(local) === null && devServerRefusal(configFromEnv({ DSQ_STORE: 'memory' })) === null, 'the dev server starts with the MEMORY store and no endpoint, which is its normal local configuration');
+  check(typeof devServerRefusal(real) === 'string', 'NEGATIVE CONTROL: while a DynamoDB run with no endpoint is still refused');
   check(challengeFor(1, DAY).seed === dailyEntry(levelAt(1), MAIN_POOL.version, DAY).seed, 'and the job\'s own challenge is the client\'s derivation, through one function');
   check(isUtcDay(utcDay(new Date(CLOCK))) && utcDay(new Date(CLOCK)) === '2023-11-14', `while the day comes from the clock in UTC (${utcDay(new Date(CLOCK))})`);
 }

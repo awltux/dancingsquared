@@ -96,6 +96,9 @@ console.log('== 1. the regime is served in order, and an issued drill is LOCKED 
   check(first.status === STATUS.ok, `the first request is answered (${first.status})`);
   check(drill.id === drillId(LEVEL, 0) && drill.seed === SEEDS[0], `the first entry of the regime is served first (${drill.id}, seed ${drill.seed})`);
   check(drill.resumed === false && drill.index === 0, 'and it is reported as newly issued rather than resumed');
+  // THE LEVEL TRAVELS WITH THE DRILL, which §11's row promises and which a client needs: the schedule can move
+  // under a player, and the response's level — not the one the client asked with — is the one to generate from.
+  check(drill.levelIndex === LEVEL, `and it names the level it was issued at (${drill.levelIndex})`);
   check(first.body.regime.finished === 0 && first.body.regime.length === SEEDS.length, `the regime reports 0 of ${SEEDS.length} finished`);
 
   const again = await drillCurrent(get('p1'), deps);
@@ -349,6 +352,20 @@ console.log('\n== 9. the local server, over a real socket ==');
 
     const second = await call('/drill/current?level=1', { headers });
     check(second.body.drill.id === drillId(LEVEL, 1), `and the next request is the next drill (${second.body.drill.id})`);
+
+    // THE BROWSER'S PREFLIGHT, MEASURED, because a page on another port is the intended local arrangement and it
+    // was exactly this that failed first: a cross-origin fetch with `x-dev-player` is refused before it is sent
+    // unless the preflight names that header. The negative control is the shape of the check itself — the
+    // response is asked for the header it must carry, not merely for a 2xx.
+    const preflight = await fetch(`${base}/drill/current?level=1`, {
+      method: 'OPTIONS',
+      headers: { origin: 'http://localhost:8089', 'access-control-request-headers': 'x-dev-player' },
+    });
+    check(preflight.status === 204, `a preflight is answered (${preflight.status})`);
+    check((preflight.headers.get('access-control-allow-origin') ?? '') !== '', `with an origin (${preflight.headers.get('access-control-allow-origin')})`);
+    check((preflight.headers.get('access-control-allow-headers') ?? '').includes('x-dev-player'), `and the identity header it must allow (${preflight.headers.get('access-control-allow-headers')})`);
+    const carried = await fetch(`${base}/health`, { headers: { origin: 'http://localhost:8089' } });
+    check((carried.headers.get('access-control-allow-origin') ?? '') !== '', 'and every ordinary answer carries one too, so a preflight is not the only thing that works');
 
     const missing = await call('/nope', { headers });
     check(missing.status === 404 && missing.body.error.code === 'not_found', `an unserved path is a 404 (${missing.status})`);

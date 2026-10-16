@@ -69,8 +69,10 @@ console.log('\n== 4b. a PRACTICE drill is not the server’s, whichever mode wou
   check(standingOf(facts({ practice: true, signedIn: true })) === 'unranked', 'even for a signed-in player, whose session would otherwise rank it');
   // THE CHECK THAT MAKES THE OFFER HONEST, and the reason `practice` is tested BEFORE `dev`: in dev mode a signed-out
   // caller IS ranked (section 2), so a fixture drill would be marked ranked while the app knew it was not the
-  // season's. NEGATIVE CONTROL: the plausible wrong rule — "dev always ranks, practice only matters in a token mode"
-  // — passes every other check in this file and fails exactly this one.
+  // season's. NEGATIVE CONTROL, MEASURED rather than reasoned: with the `practice` fact ignored — the plausible wrong
+  // rule, "dev always ranks and practice only matters in a token mode" — EXACTLY these two checks fail (this one and
+  // the signed-in case above) and nothing else in the file moves. `8867b20`'s message declared this control as
+  // reasoned; this line is the correction, and the measurement is the durable record (§4.2).
   check(standingOf(facts({ mode: 'dev', practice: true })) === 'unranked', 'NEGATIVE CONTROL: and it beats the dev header, which would otherwise rank it (the dev-always-ranks rule fails exactly here)');
   check(standingOf(facts({ configured: false, practice: true })) === 'offline', 'while an offline build is still OFFLINE rather than unranked — there is no server to have refused');
 }

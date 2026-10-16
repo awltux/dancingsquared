@@ -1945,12 +1945,22 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     question, no options — and the sentence says only what the endpoint wants. Unlike Q21's 409, this 401 is NOT in
     A25's tally (a refusal with no identity is attributed to nobody, which is deliberate), so the cost is entirely the
     player's. There is nothing WRONG on the server side: §11.2 says a signed-out caller gets a demo, and a demo is one
-    drill with no memory of them, so no advance can exist. *Recommendation*: do not offer a control that cannot work —
-    hide "Next drill" for a demo and say what would move the season on ("Sign in to keep going — the season is the
-    server's"), which is the honest wall §11.2 promises for writes, and is the same shape as the label Q20 puts on the
-    practice offer. The alternative — let a demo re-issue the same entry — shows one drill forever, which reads as a
-    broken button in a different way. This is a UI decision rather than a mechanical one, which is why it is filed
-    rather than taken.
+    drill with no memory of them, so no advance can exist.
+    **DECIDED AND IMPLEMENTED**, and the recommendation is the one taken: the control is not offered when it cannot
+    work. The rule is not a new one — it is `mayWrite`, the predicate the submission, the press and the reveal are
+    already guarded by (`net/standing.ts`, pinned in `game/test/standing-probe.mjs`) — consulted at the one call site
+    that was missing it, which is why there is no new export and nothing new for a probe to drive: the defect was a
+    guard applied three times out of four, and the instrument is a browser check. The verdict carries the guidance in
+    the place the player is already reading — "…That is as far as a signed-out drill goes — the season is the server's,
+    so sign in to be issued the next one." (§11.2's wall, on the label rather than in a refusal) — and the demo test is
+    checked BEFORE the reveal test, because a signed-out run was never going to count and "you were shown the answer"
+    would name the smaller reason. **MEASURED IN A BROWSER**: signed out, the solve reads that sentence and there is NO
+    "Next drill" control at all, with the log for the whole demo session holding only the boot's `GET /health` and
+    `GET /drill/current` — no `OPTIONS /drill/advance`, no `401`, no write of any kind; and as the NEGATIVE CONTROL, a
+    signed-in player on the same build still gets the control, which moves the header to "drill 2 of 4" through
+    `POST /runs` → `GET /drill/current` (Q21's rule doing its work), so the guard hides it for a demo and for nobody
+    else. The alternative this entry weighed — let a demo re-issue the same entry — is rejected: it shows one drill
+    forever, which reads as a broken button in a different way.
 
 ---
 

@@ -1078,17 +1078,30 @@ function finishDrill(): void {
     attempts: controller.attempts,
   });
   const tries = controller.attempts === 0 ? 'first try' : `${controller.attempts} wrong ${controller.attempts === 1 ? 'try' : 'tries'}`;
+  // A DEMO IS AS FAR AS A SIGNED-OUT PLAYER GOES (DESIGN.md §15 Q22). The drill on screen came from the SERVER, and
+  // the server holds no Progress row for this caller — so there is nothing to advance and the next `/drill/current`
+  // would serve the same entry again. MEASURED: the "Next drill" this used to reveal sent `POST /drill/advance` (a
+  // write, A20) and got a `401`, leaving the panel with no drill and the player with a sentence about an endpoint.
+  // A control whose only outcome is a refusal is worse than no control, so it is not offered here and the verdict
+  // says what WOULD move the season on, in the place the player is already reading. The rule is `mayWrite` — the same
+  // predicate the submission, the press and the reveal are guarded by (`net/standing.ts`, pinned in
+  // `game/test/standing-probe.mjs`) — consulted at the one call site that was missing it.
+  const demoOnly = serverDrill !== null && !mayWrite(currentStanding());
+  const scored = `Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points`;
   // THE VERDICT SAYS WHAT THE RUN IS WORTH, and a shown answer changes that to nothing (DESIGN.md §15 Q16, A28): the
   // score is still shown — the player solved it and the clock ran — and the sentence says which standing it bought,
   // which is none. The reason is stated in the same line rather than in the ledger's unranked clause alone, because
-  // this is the moment the player finds out what their press cost.
-  if (controller.revealed.length > 0) {
-    drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
+  // this is the moment the player finds out what their press cost. THE DEMO IS CHECKED FIRST because it outranks the
+  // reveal: a signed-out run was never going to count, so "you were shown the answer" would name the smaller reason.
+  if (demoOnly) {
+    drillScreen.say(`${scored}. That is as far as a signed-out drill goes — the season is the server's, so sign in to be issued the next one.`, 'info');
+  } else if (controller.revealed.length > 0) {
+    drillScreen.say(`${scored}, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
   } else {
-    drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points.`, 'ok');
+    drillScreen.say(`${scored}.`, 'ok');
   }
   els.review.hidden = true;
-  els.next.hidden = false;
+  els.next.hidden = demoOnly;
   // A COMPLETED DRILL IS ONE SUCCESS — ONCE, and WHO COUNTS IT DEPENDS ON WHETHER THERE IS A SERVER. Offline the
   // local rule below runs, exactly as it has since Phase 4; with an API configured the SERVER credits it from its
   // own record of finished drills (DESIGN.md 11) and this app adopts the balance it answers with — so a modified

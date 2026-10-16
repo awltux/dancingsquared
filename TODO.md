@@ -139,18 +139,23 @@ suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
   **THE SWEEP WAS WIDENED, WHICH IS THE HALF OF THIS ITEM THAT WAS INCOMPLETE.** It now sweeps every
   authoring the corpus publishes for the couple calls, read from the corpus rather than typed, so a sibling
   added or retired cannot be missed: 39 calls x 138 formations, **1009 applied, 532 coincident, 95 apply**.
-  **72 of the 95 are the sibling titles** — the gate could not see any of them before. They remain
-  **ungoverned by `PERMISSION_RULES`** — each offered on all 138 formations x 45 group names, against 20 of
-  6,210 for the bare names — so the picker lists them, measured in `legalNext()`: 275 calls on a Static Square
+  **72 of the 95 are the sibling titles** — the gate could not see any of them before. They were
+  **ungoverned by `PERMISSION_RULES`** when this was measured — each offered on all 138 formations x 45 group
+  names, against 20 of 6,210 for the bare names — so the picker listed them: 275 calls on a Static Square
   including all seven titles, 250 on `Double Pass Thru` including the five variants and NOT the bare names.
+  **THAT HALF IS NOW CLOSED**: `5096c63` gave each sibling its own deny/allow pair, so all seven authorings
+  refuse all-8 and only a numbered couple may dance each of them. Governing the picker does NOT touch these
+  apply faults - the permission layer is picker-only - so the 72 stand as measured.
   **AND THE `25 loose` ARE THE OBJECTIVE'S OWN `d` STEP, LIVE AGAIN**: with the siblings swept, the wrong
   Close/Normal/Far spacing sibling being admitted at 1.5 is a measured class rather than a suspicion.
 
-  **AND `permissions` IS RED FOR FIVE ASSERTIONS, WHICH ARE NOW THE `- Close` / `- Normal` / `- Far` GAP.**
+  **AND `permissions` WAS RED FOR FIVE ASSERTIONS, WHICH WERE THE `- Close` / `- Normal` / `- Far` GAP.**
   Section 13 and section 15 were corrected to name the corpus's own titles, and the loop over those titles
-  asserts that all-8 is refused from a Static Square for EVERY authoring: the two bare names pass and the five
-  siblings fail, because the rules name only the bare call and the match is exact. That is the whole of the
-  five reds; nothing else in the harness fails. `circle-four` is red by CRASH (`applied.lanes` is undefined at
+  asserts that all-8 is refused from a Static Square for EVERY authoring: the two bare names passed and the
+  five siblings failed, because the rules named only the bare call and the match is exact. `5096c63` governs
+  the siblings and `engine/test/permissions.mjs` now pins `KNOWN_UNREFUSED_ALL8` EMPTY - measured: **0 of the
+  7** authorings are unrefused, against 5 before - so this red is gone and the pin fails if the gap reopens.
+  `circle-four` is red by CRASH (`applied.lanes` is undefined at
   `circle-four.mjs:124`), and `group-calls` carries its 2 pre-existing `Head Boys` reds.
 
 ---

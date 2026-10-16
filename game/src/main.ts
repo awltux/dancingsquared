@@ -78,6 +78,17 @@ let position = 0;
 let serverDrill: IssuedDrill | null = null;
 
 /**
+ * Whether the drill on screen has a run the SERVER accepted, which decides what "Next drill" may ask for.
+ *
+ * A RECORDED RUN FINISHES ITS DRILL SERVER-SIDE, so the advance the shell used to send afterwards was a request to
+ * skip an already-skipped drill — a `409` the server is right to answer and the app rendered as a dead panel
+ * (DESIGN.md §15 Q21, and `issueCurrentDrill` carries the measurement and the reasoning). It is set by an accepted
+ * submission and cleared wherever the drill on screen stops being this page's run: `showDrill`, and the reset that
+ * clears the device.
+ */
+let serverRecordedRun = false;
+
+/**
  * THE PRESSES POSTED SO FAR, as one chain, so the submission can wait for them (DESIGN.md 11.1, A22).
  *
  * `attempts` is counted from what POST /drill/answer RECORDED, so a run submitted before its presses arrived is
@@ -539,6 +550,11 @@ function startOver(): void {
   daily = null;
   serverDrill = null;
   serverRegime = null;
+  // AND THE DEVICE REMEMBERS NOTHING, so it certainly does not remember a run the server accepted (DESIGN.md §15
+  // Q21): `showDrill` clears this on the way to the fresh drill, but the reset must not depend on that landing —
+  // `startServerDrill` returns without showing anything when the server refuses, and a flag left set would make the
+  // next solve's "Next drill" a read of a drill the server still holds in flight.
+  serverRecordedRun = false;
   position = 0;
   drillRunId = '';
   dailyRunId = '';
@@ -761,6 +777,12 @@ function applyMode(next: AppMode): void {
 function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number; demo?: boolean }): void {
   const spec = levelSpec(issued.levelIndex);
   if (!spec) throw new Error(`level ${issued.levelIndex} is not a level`);
+  // A DRILL ON SCREEN HAS NO RECORDED RUN UNTIL THIS PAGE SUBMITS ONE, so this is where the flag is normally cleared
+  // (DESIGN.md §15 Q21): every path that puts a different drill on screen comes through here — an issue, a resume, a
+  // mode switch, the practice offer — and a stale "the server already has this one" would make the next solve's
+  // "Next drill" a read of a drill the server still holds in flight, which is the same dead panel from the other
+  // side. `startOver` clears it too, because that path can end without a drill being shown at all.
+  serverRecordedRun = false;
   position = issued.index;
   // THE SERVER'S OWN WORD ABOUT THIS RUN, taken before anything can paint: `currentStanding` reads it to decide
   // whether the run may be submitted at all, and it is set on every issued drill (false for the offline path, where
@@ -890,10 +912,35 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   });
 }
 
-/** Issue the drill from wherever the app is configured to get it. */
+/**
+ * Issue the drill from wherever the app is configured to get it.
+ *
+ * "ADVANCE" IS A REQUEST THE SHELL MUST NOT MAKE WHEN THE ROOM ALREADY KNOWS THE ANSWER IS DONE (DESIGN.md §15 Q21).
+ * A recorded run finishes its drill SERVER-side — `POST /runs` writes the Progress row — so asking for an advance
+ * afterwards asks the server to skip a drill that is already skipped. MEASURED IN A BROWSER: the server answers
+ * `409 stale_drill`, and the shell rendered that as a refusal with `controller = null`, so a player who had just
+ * solved a drill was left with an empty panel and no way on but a reload (which worked, because the regime HAD
+ * advanced).
+ *
+ * AND THE ENDPOINT IS RIGHT TO REFUSE, which is why this is the fix rather than a change to the API: a repeated
+ * advance is refused on purpose — the plausible wrong rule ("finish the first unfinished entry") finishes an entry
+ * nobody saw, pinned with its own negative control in `api/test/drill-probe.mjs` §3. Two more reasons point the same
+ * way: every refusal carrying an identity is COUNTED against the player (A25, `api/src/abuse.ts`), so an ordinary
+ * completed drill would add a `stale_drill` to the operator's probing signal; and what the app actually wants after a
+ * solved drill is the NEXT DRILL, which is a read.
+ *
+ * `serverRecordedRun` IS THE WHOLE RULE, and it is shell state like `startOverArmed`: set when a submission is
+ * accepted (including a duplicate — the server holds the run either way) and cleared whenever a different drill is
+ * shown. A run the server did NOT record still needs the advance, and that is the right request for the two cases
+ * where the player is signed in but the run stayed local — an outage and a refusal — because §11 records an advance
+ * as a skip, so a season with a hole in it is visible rather than silent. A DEMO IS A THIRD CASE AND THIS DOES NOT
+ * SETTLE IT: a signed-out player has no Progress row to advance, so the advance is a `401` and the button is just as
+ * dead (DESIGN.md §15 Q22, measured in the same browser session).
+ */
 function issueCurrentDrill(next: 'current' | 'advance'): void {
-  if (apiConfigured()) void startServerDrill(next);
-  else if (next === 'advance') startDrill(position + 1);
+  const ask: 'current' | 'advance' = next === 'advance' && serverRecordedRun ? 'current' : next;
+  if (apiConfigured()) void startServerDrill(ask);
+  else if (ask === 'advance') startDrill(position + 1);
   else startDrill(position);
 }
 
@@ -1138,6 +1185,11 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     return;
   }
   save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  // THE SERVER HOLDS THIS RUN, WHICH IS WHAT "Next drill" MAY RELY ON (DESIGN.md §15 Q21): the accepted submission
+  // finished the drill on the server's own Progress row, so what the app needs next is the next drill, which is a
+  // read. A DUPLICATE COUNTS — the row is the server's either way — and a refused or unreachable submission does not,
+  // which is why this is set on the one path where the server said yes, and nowhere else.
+  serverRecordedRun = true;
   const clamped = answer.value.run.clamped ? ' Your own score was higher, so the server clamped it.' : '';
   // THE SERVER SAYS WHETHER IT COUNTED, and the app repeats that rather than assuming: `granted: false` is the
   // ordinary case, so without `ranked` a revealed run would read exactly like one that simply did not earn a hint.

@@ -724,7 +724,7 @@ read-only, then sign in to be ranked*.
 | Method and path | Mode | Purpose |
 |---|---|---|
 | `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
-| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. |
+| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. **The app asks for it only when the server does not already hold the drill as finished** (§15 Q21): a recorded run finishes the drill itself, so an advance after one asks the server to skip a drill that is already skipped — a `409` the endpoint is right to answer, and a refusal that A25 would count against an honest player. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
 | `POST /drill/reveal` | Drill | That one step's answer was SHOWN to this player (§15 Q16, A28): the step, and the call the server looks up from the puzzle it issued — the same expression A22's verdict and §11's transcript check use, so one position has one answer. **Recorded as an event and not as a press**, because a reveal is not an answer the player committed; deduplicated by step, because a second press of the same button shows the same call. It scores nothing itself, and it is what stops the run it finishes from counting. |
@@ -1911,22 +1911,46 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     the ledger to "Saved on this device: nothing yet", the hint progress to "0 of 10 to the next", a fresh drill 1 of
     12 to the board and the label to its unarmed text. The disarm-on-mode-switch was NOT observed: it is shell state
     and no probe loads `main.ts`.
-21. **"Next drill" is refused after a run that was recorded — FOUND BY THE Q16 BROWSER CHECK, AND OPEN.** A submitted
-    run finishes its drill server-side (`POST /runs` → `finishDrill`, which clears the in-flight lock), and the app
-    then advances before it issues: `startServerDrill('advance')` calls `POST /drill/advance` with a drill the server
-    no longer has in flight, the server answers **`409 stale_drill`** ("this player has no drill in flight, so there is
-    nothing to advance"), and the app shows that and returns with `controller = null` — so the Drill panel is empty
-    and the only way on is a manual reload, which does issue the next entry, because the regime DID advance.
-    **MEASURED IN A BROWSER, ON BOTH PATHS**: the same 409 appears after the revealed run (Q16) *and* after the
-    ordinary ranked run in the same session — so this is not A28's doing, it is the shell asking the server to advance
-    a drill the server has already advanced, and it has been there since the Drill's server path landed. It is also
-    the class of defect no probe can see: `main.ts` is the layer that is not probe-loadable, and every api-side probe
-    passes because the server is behaving exactly as designed. *Recommendation*: `advance` is only meaningful for a
-    drill the run did NOT finish (a skip), so a `stale_drill` refusal from the advance call should fall THROUGH to
-    `issueDrill` rather than ending the click — the refusal says "there is nothing to advance", which is the state the
-    app wants anyway. A probe cannot pin it (`main.ts` again), so the instrument is a browser check with a registered
-    recipe; the honest alternative, if the owner prefers a stricter shell, is for the app to stop calling `advance`
-    once the run has been submitted, which changes the same one branch.
+21. **"Next drill" is refused after a run that was recorded — DECIDED AND IMPLEMENTED** (found by the Q16 browser check).
+    A submitted run finishes its drill server-side (`POST /runs` → `finishDrill`, which clears the in-flight lock), and
+    the app then advanced before it issued: `startServerDrill('advance')` called `POST /drill/advance` with a drill the
+    server no longer had in flight, the server answered **`409 stale_drill`** ("this player has no drill in flight, so
+    there is nothing to advance"), and the app showed that and returned with `controller = null` — an empty Drill panel
+    whose only way on was a manual reload, which DID issue the next entry, because the regime had advanced. **MEASURED
+    IN A BROWSER, ON BOTH PATHS**: the same 409 after the revealed run (Q16) *and* after the ordinary ranked run in one
+    session, so it was not A28's doing — the shell was asking the server to advance a drill the server had already
+    advanced — and every api-side probe passed over it, because the server was behaving exactly as designed and `main.ts`
+    is the layer no probe loads.
+    **WHAT SHIPS** is the alternative this entry named, and the choice between them is a measurement rather than a
+    preference. The ENDPOINT KEEPS ITS REFUSAL: a repeated advance is refused on purpose — the plausible wrong rule
+    ("finish the first unfinished entry") finishes an entry nobody saw, pinned with its own negative control in
+    `api/test/drill-probe.mjs` §3 — and every refusal carrying an identity is COUNTED against the player (A25,
+    `api/src/abuse.ts`), so a shell that went on asking would add a `stale_drill` to the operator's probing signal on
+    every completed drill. So the SHELL stops asking: `serverRecordedRun` is set when a submission is accepted
+    (a duplicate included — the server holds the row either way), cleared by `showDrill` and by the reset, and
+    `issueCurrentDrill` turns an `advance` into a **read** whenever the run on screen is one the server took. A run the
+    server did NOT record still advances, which is the right request for an outage or a refusal: §11 records an advance
+    as a skip, so a season with a hole in it is visible rather than silent. **MEASURED IN A BROWSER** (same recipe as
+    Q16): after a RANKED run the header moves to "drill 2 of 4" and the log shows `POST /runs` followed by
+    **`GET /drill/current?level=1`** with no `advance` at all; after a REVEALED (unranked, but still recorded) run the
+    same, to "drill 3 of 4"; and the loading line the player sees is the read's own — "Asking the server for your
+    drill…" rather than "…for your next drill…". **NO PROBE CAN PIN THIS** (`main.ts` is not probe-loadable, the same
+    reason Q16 was owed a browser check), so the instrument is the browser check and this paragraph is its recipe.
+22. **A signed-out player's "Next drill" is a dead button — FOUND IN THE SAME SESSION, AND OPEN.** A demo's solve is
+    credited locally and never submitted (A20: the server takes no writes from a caller it served without a Progress
+    row), so Q21's rule sends the advance — and a demo has no Progress row to advance, so the server answers
+    **`401`** ("this endpoint needs a signed-in player"). MEASURED IN A BROWSER: the demo drill is solved (the ledger
+    reads "1 run · best 100 — unranked: the server is not recording this run"), "Next drill" is pressed, and the log
+    gains `204 OPTIONS /drill/advance` + **`401 POST /drill/advance`** while the panel loses its drill entirely — no
+    question, no options — and the sentence says only what the endpoint wants. Unlike Q21's 409, this 401 is NOT in
+    A25's tally (a refusal with no identity is attributed to nobody, which is deliberate), so the cost is entirely the
+    player's. There is nothing WRONG on the server side: §11.2 says a signed-out caller gets a demo, and a demo is one
+    drill with no memory of them, so no advance can exist. *Recommendation*: do not offer a control that cannot work —
+    hide "Next drill" for a demo and say what would move the season on ("Sign in to keep going — the season is the
+    server's"), which is the honest wall §11.2 promises for writes, and is the same shape as the label Q20 puts on the
+    practice offer. The alternative — let a demo re-issue the same entry — shows one drill forever, which reads as a
+    broken button in a different way. This is a UI decision rather than a mechanical one, which is why it is filed
+    rather than taken.
 
 ---
 

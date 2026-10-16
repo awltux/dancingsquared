@@ -20,9 +20,13 @@ the harness that pins it, because commit messages are immutable and this file is
   `poc/tools/guard-exclusions-broken.md`, and **NOT re-measured**. Re-measure before acting: the two
   `HANDOVER.md` files were deleted for doing exactly this and being believed anyway.
 
-Last swept: **2026-10-14**, from `15d17ea`. The tree moved to `a5668a2` MID-SWEEP — a POC-only commit by
-the owner (A/F step the selected move slot), so every engine measurement here still stands, and the probe
-suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
+Last swept: **2026-10-16**, from `8cfe8a1` — **THE RED GATES ONLY**: the full engine suite on a clean corpus
+(47 of 48 harnesses, **24 FAILED**), `poc/verify.cjs`, `npm run check:book` and the POC probe suite, with
+every failing harness re-run individually and its cause named by the commit that moved it. That is item 7
+and its corrections to items 6, 9 and 10; items 35–38 are what it found and filed.
+The rest of this file still carries the **2026-10-14** sweep from `15d17ea`. That tree moved to `a5668a2`
+MID-SWEEP — a POC-only commit by the owner (A/F step the selected move slot), so its engine measurements
+still stand, and the probe suite's count went 59 → 60 because it added `poc/tools/move-nav-probe.mjs`.
 
 **The commands this file leans on**, all from the repo root:
 
@@ -215,64 +219,116 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   `node_modules/dancing-squared-engine` is a junction to the main engine and they then hold a SECOND engine
   instance — measured: `matrix-getout` passes in the main tree and crashed in the worktree.
 
-- [ ] **6. `Circle Left` fails in TWO gates — almost certainly one corpus edit.** `[measured]`
-  `node engine/test/catalogue.mjs` → 3 checks:
-  - `FAIL Circle Left from a Static Square ROUND-TRIPS (worst position residual 0.5860, was 0.6140 under the ascending order)`
-  - `FAIL Circle Left leaves every facing where it found it (worst heading residual 22.50 deg, was 43.80)`
-  - `FAIL the board after Circle Left is still named Static Square (got Circle)`
+- [ ] **6. `Circle Left`: THE CORPUS IS SETTLED AND DELIBERATE, so these are TWO different questions.**
+  `[measured]` at `8cfe8a1`, re-measured on the owner's confirmation that `ms/circle.xml` is no longer
+  in flight. `poc/src/assets/ms/circle.xml` carries the answer in its own section header —
+  `CIRCLE LEFT FAMILY FROM STATIC SQUARE TO CIRCLE` for the bare title, and the `… - Stop at Home` family
+  for the round trip. Measured through `poseFor` and `computeHandholds`:
+  - **The bare `Circle Left` is authored to END in the `Circle` formation, and the engine applies it
+    faithfully.** The result is exactly `formations.xml`'s `Circle` (radius 2.609 constant from beat 2,
+    neighbours 1.993 apart, 8 holds at the final frame). `0.5860` is `2−√2`, the shrink from the square's
+    r=3.162 to the ring's r=2.613, and `22.50°` is the `Circle` formation's own facing offset. The round trip
+    exists under the sibling title: `Circle Left - Stop at Home` measures `0.0000 / 0.00° / Static Square`.
+    So `catalogue.mjs`'s three checks and `poc/verify.cjs`'s "does not round-trip" premise are asking the bare
+    title for something the settled corpus no longer says.
+  - **AND THE FACINGS ARE GENUINELY WRONG, which is the one authored-data defect here.** For beats 2–15 every
+    dancer faces **46–51° away from the ring centre**, so no hand-holds derive (0 holds at beats 2, 8 and 14)
+    and the ring only "forms" on the last movement. That — not the radius — is what `poc/verify.cjs`'s
+    `FAIL Circle Left derives 0 holds (expect 8 for a ring)` measures.
+  - **`engine/test/verify.mjs` is a separate, sharper instance of trap 7**: it loads `circle.xml`'s tam
+    **index 0** and asserts a ring, and index 0 stopped being a `Circle Left` authoring at corpus commit
+    `b83c305` (2026-09-24), which stamped an app-exported `movement` authoring whose ring collapses to 0
+    holds; the `move select="cl"` authorings in the same file hold 8 at every beat.
 
-  `node poc/verify.cjs` → 2 checks, and these are the ENTIRE remaining failure list of that gate now that it
-  runs to completion:
-  - `FAIL Circle Left derives 0 holds (expect 8 for a ring)`
-  - `FAIL every dancer holds exactly 2 neighbours (a ring)`
+  NEXT UNIT: ONE harness commit re-pointing the round-trip witnesses at `Circle Left - Stop at Home` —
+  `catalogue.mjs` (keep the check: it is witness 1 for the `callsByTitle` pool order), `matrix.mjs`'s two
+  Circle rows and `editor.mjs`'s closure witness — and a SEPARATE engine/corpus unit for the mid-call facings.
+  Which `Circle Left` authoring is canonical for `verify.mjs` is an owner call (§8 trap 7).
 
-  The 22.50° residual, the `Circle` name and "0 holds" all point at one thing: `ms/circle.xml` is mid-edit and
-  its ring no longer closes. Treat the two gates as one investigation and re-measure once the corpus settles —
-  do NOT fix either gate's expectation first.
+- [ ] **7. THE RED-GATE CENSUS, RE-MEASURED AT `8cfe8a1`.** `[measured]`
+  `npm run verify --prefix engine` on a CLEAN corpus at `8cfe8a1` reads **47 of 48 harnesses, 24 FAILED**,
+  and 13 of those are in `light` as well. Every row below was then re-run individually and each cause is
+  named with the commit that moved it. **THE `abc10f1` SPLIT THIS ITEM USED TO CARRY IS SUPERSEDED**: it
+  predates the `f60f8fe` corpus edits and the `1bc084e` engine rule, it calls `selection` REAL (it is a
+  re-pin — the tie is gone), and it attributes `cell-census` to the same stale asset (it is not).
+  `poc/verify.cjs` adds 2 (item 6) and the POC probe suite adds 4 (item 10).
 
-- [ ] **7. Pin-drift failures: each needs ONE decision, re-pin or fix.** `[measured]`
-  These are signals, not noise — a pinned number moved. **ITEM 5 RAN THE SWEEP AND SPLIT THEM**: the four
-  asset/count bullets below are RE-PINS (the b1/b2 retirement, the Promenade family and the `formations.xml`
-  growth all moved the catalogue after the pins were taken), and `anim-convergence`, `selection`,
-  `behaviour-audit` and `editor.mjs` are REAL. Re-measured at `abc10f1`:
-  - `anim-convergence` — **REAL** (no pin of its own moved with the catalogue): `the final-frame jump list
-    changed: measured 20, pinned 7` and `the phantom list changed: measured 18, pinned 11`. The
-    Circle/promenade animation is what moved; decide whether the two lists are re-pinned or the jumps are a
-    defect.
-  - `cell-census` (`engine/test/tools/cell-census.mjs`) — **RE-PIN**: `11 pinned number(s) moved`, plus
-    `84 geometries -> 122 cells` and `505 kept, 215 lost of 1372 targeted edges`.
-  - `level-census` (`engine/test/tools/level-census.mjs`) — **RE-PIN, and it is the STALE ASSET, not the
-    decision**: `the live state count matches the stored asset (70)` and `3 pinned number(s) moved`.
-    Regenerate `poc/src/assets/fsm-ms.json` FIRST and re-measure — the stored asset is schema 2 against the
-    engine's 3, so the STRICT-vs-PERMISSIVE answer would be taken against a table that is a schema behind.
-  - `fsm-asset` — **RE-PIN, one regeneration**: `the asset was built from 274 catalog entries, the gate builds
-    290`, `schema version 2 matches the engine's 3`, `70 state(s) differ` and `6 new-fact count(s) moved`.
-  - `reading-census` — **RE-PIN, the same asset**: `290 ms catalog entries, and the stored asset was built
-    from 274`; `42 edge(s) disagree about the reading`; `30 build edge(s) were NOT reproducible`.
-  - `selection` — **REAL**: `a board tied between two formations is still named "Right and Left Grand Static
-    Square" - a tied best match is not an identity`.
-  - `behaviour-audit` — **REAL**, and 2 with the second now named: `declared genders accept Circle Left from a
-    Circle board (the fabricated all-boy rejected it)` and `the last animated frame lands on the applied board`
-    (2641 pairs swept; **4 unpinned jumps**, `Circle + promenade`).
-  - `editor.mjs` — **REAL**: the `Circle Left` 1° heading discrepancy, the bounding-box check, the ms/a1
-    quarter-arc census, and `the witness has both cases to measure`.
+  **THE TWO CAUSES THAT CARRY MOST OF IT.** (1) **The corpus re-authored `Circle Left` deliberately** — the
+  bare title ends in `Circle`, the round trip lives under `Circle Left - Stop at Home`, and six harnesses
+  still witness the bare title as a round trip (item 6). (2) **The generated FSM asset
+  `poc/src/assets/fsm-ms.json` is stale** — `schemaVersion 2` / `catalogCount 274` against the engine's
+  schema 3 and **290** entries; last regenerated at `aa76148`, while `d3c0800` bumped the schema without
+  regenerating it, against that file's own comment saying it is regenerated in the same change. That is a
+  **DEFECT, not a knowingly-stale artefact**, and the shipped FSM view cannot label the tam behind an
+  `@embed` node because of it. **A REGENERATION ALONE CLEARS NONE OF THE FOUR HARNESSES THAT READ IT**: each
+  also pins numbers measured from the LIVE engine, which the asset cannot move, and `cell-census` is not even
+  the same asset. `node poc/scripts/build-fsm-asset.mjs` is the only writer and is wired into NO npm script.
 
-- [ ] **8. `check:book` stops at a stale generated artefact.** `[measured]`
-  `npm run check:book` → `check-links.mjs` PASSES (108 pages), then
-  `DRIFT animations-index.json` / `1 file(s) differ`. Knowingly stale: **do not regenerate while the corpus
-  is mid-edit** (AGENTS §8 trap 9). Also note the line it prints: `start queries: 0 matched on a tam's own
-  declared formation (its "from" is empty); 11 resolved to nothing`.
+  | harness | tier | class | the cause, named | next unit |
+  |---|---|---|---|---|
+  | `catalogue` | light | RE-PIN | bare `Circle Left` ends on `Circle` by design (`72cb0508`) | re-point the witness at `… - Stop at Home` |
+  | `shape-census` | light | RE-PIN | pins blame `e041dae4`; tams **5963 → 5516** across `72cb050`/`d3c0800`/`50d3e95`; first declaration mismatch at `72cb050` | re-pin; make the mismatch check a named list |
+  | `arrangement-picker` | light | RE-PIN + harness bug | counts moved by `5bdf55e`/`8731389`/`ab254d9`/`22a9eb3`/`f60f8fe`; **`Columns LH is offered` asks for a name that has never existed** (corpus spelling `Columns LH BGBG`) | fix the witness name, then re-pin 4 counts |
+  | `verify` | light | **REAL** | loads `circle.xml` **index 0** (trap 7); `b83c305` (09-24) stamped an app-exported `movement` authoring there whose ring collapses to 0 holds from beat 2 | owner: which authoring is canonical (item 6) |
+  | `sequencer` | light | REAL 11 / BLOCKED 3 | 3 await a bare `Promenade` tam; 11 independent, incl. the AUTHORED `Promenade 1/2` turning headings **90.8°** not 180° | re-author `Promenade 1/2` rigid; author the bare tam |
+  | `circle-four` | light | REAL (harness) | crash: `applied.lanes.find` at `:124` unguarded after `applied.legal` failed — a refusal carries no lanes. Underlying refusal is the while-step collision (body gap −0.46) | guard the harness; see item 36 |
+  | `parallel-calls` | light | REAL | `1bc084e` (10-13) added the group-scoped collision refusal (`applicator.ts:965`); its two-lane while-step witness is now refused and charged **0** beats, not max(6,2)=6 | engine/owner: exempt disjoint lanes, or re-author the witness |
+  | `step-forward` | light | REAL 11 / RE-PIN 5 | 11 are the `All Except <group>` reading refusing; 5 are `ab254d9` moving `Promenade 1/2 to Home` **8 → 8.5** and `3/4` **12 → 12.25** beats. **A naive re-pin does NOT clear them**: `Array.from({length: 9.5}).length` is 9, so `trace[8.5]` is `undefined` | fix the half-beat sampling AND re-pin; `All Except` is its own engine unit |
+  | `group-calls` | light | REAL / owner | `groupCanPerform('Head Boys','Promenade 1/2')` and `(…, 'Swing Your Partner')` both true, parking non-partner boys on the centre line — while `sequencer.ts:587`'s own doc says the OPPOSITE for `Swing Your Partner`. NOTE: authoring a bare `Promenade` turns the currently-PASSING sub-check RED | settle doc-vs-gate, then stop a whole-board call being scoped to 2 non-partners |
+  | `mainstream` | light | REAL 4 (harness) + REAL 1 (engine) | `callMeta(ms/circle.xml).title` is now `Circle Left - Stop at Home`, so the harness registers no `Circle Left`; the fifth is **`getout()` leaking state into the interactive apply path** | item 35 (the leak); register by title list |
+  | `matrix` | light | RE-PIN 2 + REAL 3 | `Circle Left/Right 1/4` end on `Circle`; `All 4 Couples Promenade 1/4` ends on `Promenade` (`b66b829`/`f60f8fe`) | re-point the two ring rows; promenade rows wait on item 9 |
+  | `editor` | light | RE-PIN 3 + harness bug | witness now closes to **1.02°** (was ~44°); all 8 moves carry a facing curve so `path[-1]` crashes at `:1501`; **28** exact quarter arcs now exist; bbox miss **0.000642** units against a 1e-9 tolerance | guard `:1501`, re-pin three, set the tolerance to a measured number |
+  | `features` | light | REAL (harness) | registers all of `circle.xml` under one name, then takes the SMALLEST setup — now a 2-dancer `Facing Dancers` pair, so the "8-dancer" board is built with 4 | pin the setup, not the smallest |
+  | `anim-convergence` | all | RE-PIN (mostly) | jump list **7 → 20** (13 of 15 new keys are Circle-family, 2 are the `right_and_left_grand.xml` re-authoring); phantom list **11 → 18** is `Right and Left Thru`/`Box the Gnat`/`Slide Thru`, NOT the ring | re-pin both lists once item 6's witness question is settled |
+  | `behaviour-audit` | all | REAL ×2 | a `Circle` board matches the **0.586-away Static-Square setup** over the exact one, which kills the gender gate; plus 4 unpinned animation jumps | matcher variant selection is its own unit |
+  | `reading-census` | all | RE-PIN (+1 half unattributed) | `:118` and `:367` pin constants (**274 → 290**; multi-arity **107 → 104**); the 42 reading mismatches and 29 excluded ARE asset-coupled and were **not** individually attributed | regenerate, re-pin, re-run — the re-run decides the 42/29 |
+  | `fsm-asset` | all | RE-PIN | 6 FAILs: 4 go green by regeneration (schema / state list / 70 differ); `EXPECTED_CATALOG/STATES/EDGES` and the new-fact block compare the FRESH table and stay red | regenerate + re-pin **290 / 70 / 3958** + the new-fact block in ONE commit |
+  | `level-census` | all | RE-PIN | `:176` live 70 vs stored 65 (regeneration fixes only this); `:243` `{42,78,34}` measured **45 / 86 / 38**, live-only | regenerate, re-pin, re-affirm STRICT (the escape direction is unchanged and stronger) |
+  | `cell-census` | all | RE-PIN — **NOT the same asset** | `:279` `70/105` measured **84/122** and the 12-number block are LIVE-only; only the price loop reads the asset (`targeted` still 1372) | its own re-pin commit, sequenced after any regeneration |
+  | `canonical-identity-probe` | all | RE-PIN | `offered` **134 → 138** (+2 at `22a9eb3`, +2 at `f60f8fe`); the legal-calls pin is MIXED engine+corpus — its anonymous 347 appears at NO corpus revision under today's engine | re-run the probe to take the numbers; do not derive them |
+  | `getout-conformance` | all | RE-PIN | `KNOWN_CATALOGUE_GAPS` (`all8-notation.ts:612-613`, `919af90e`) still declares `Promenade 3/4` / `Promenade Full`, authored at `ab254d9` | delete the two stale entries |
+  | `getout-convention` | all | REAL (30 of 35) | only 4 of the 35 name `Promenade`; 30 are `returned path does not end home`, and the goal test accepts a board whose FASR (a RELATIONSHIP key) matches even when every dancer is on a different home spot — reproduced: `[L1p]` from `Normal Lines` returns `[Circle Left - Stop at Home]` and ends 8-of-8 off their own spots while `matchesNamed` is true | engine fix: identity, not name+FASR (item 9) |
+  | `selection` | all | **RE-PIN — the recorded `REAL` is refuted** | the pin's premise is gone: `22a9eb3` added `Right and Left Grand Static Square`, which the `Face In` board now names exactly, so there is no tied best match left. VERIFIED in this tree: `knownFormation` returns that name while `recognize` still returns null | re-pin to assert the exact identity AND that `recognize` still refuses it |
+  | `callerlab-diff` | all | PROVISIONING | `callerlab-ms.txt` is absent in this clone; `callerlab-diff.mjs:46` reads it unguarded → `ENOENT`, exit 1, no summary line. The PDF IS present, so it is one extractor run | provision per §10.1; then decide item 5's `matched 11→12` |
 
-- [ ] **9. `getout-convention` and `getout-conformance`.** `[measured]`
-  `node engine/test/getout-convention.mjs` → **35 FAIL lines** (e.g. `[L1p]: returned path does not end home:
-  dancer 4 at (1.00,3.00), home is (3,1)`, and `[B2r]: refused for the wrong reason: Unknown call: Promenade`).
-  `node engine/test/getout-conformance.mjs` → `1 FIXTURE CHECK(S) FAILED`. Deliberately red since the
-  `Promenade` family was removed; it stays red until hand-authored tams replace them.
+- [ ] **8. `check:book` stops at a stale generated artefact.** `[measured]` at `8cfe8a1`
+  `npm run check:book` → `check-links.mjs` PASSES (108 pages, including its repo-wide encoding walk), then
+  `DRIFT animations-index.json` / `1 file(s) differ`. **VERIFIED PRE-EXISTING**: re-run on a clean tree at
+  `8cfe8a1` it gives the same drift, so it is not caused by any edit in flight. Knowingly stale: **do not
+  regenerate while the corpus is mid-edit** (AGENTS §8 trap 9). Also note the line it prints:
+  `start queries: 0 matched on a tam's own declared formation (its "from" is empty); 11 resolved to nothing`.
 
-- [ ] **10. The four owner-deferred probes.** `[measured]`
-  `node poc/tools/verify-probes.mjs` → **59 probes, 4 failed**: `facing-handle-probe`,
-  `radial-arc-fit-probe`, `run-circle-probe`, `start-facing-probe`. One more, `call-formations-probe`, is
-  SKIPPED in the default tier ("slow tier — run with `--all`").
+- [ ] **9. `getout-convention` and `getout-conformance`: NOT one Promenade item.** `[measured]` at `8cfe8a1`
+  `node engine/test/getout-convention.mjs` → **35 FAIL lines, and only 4 of them name `Promenade`.** The
+  other **30 are `returned path does not end home`**, and the cause is a live ENGINE defect in the goal
+  test's CRITERION, not the missing family. `Solver.reachesTarget` (`engine/src/sequencer/solver.ts`) accepts
+  a board as home when `matchesNamed` says so AND the board's FASR matches the home FASR — and **FASR is a
+  RELATIONSHIP key, so rotating the whole squared set 90° does not change it.** REPRODUCED here from the
+  harness's own start board: `[L1p]` starts on `Normal Lines`, `getout` returns
+  `[Circle Left - Stop at Home]`, and the end board puts **all 8 dancers on a DIFFERENT dancer's home spot**
+  (`#4 (1.00,3.00) vs home (3,1)`, `#3 (3.00,1.00) vs home (3,-1)`, …) — while `matchesNamed(board,'Static
+  Square')` is `true` and the two FASR objects are JSON-identical. `[L.F1p]` shows the same with
+  `[Promenade Full to Home]`. The harness's `onHome` compares **by identity** (each dancer against its OWN
+  home spot and facing) and is right to refuse. The other 4 lines (`[B2r]`, `[B2p]`, `[B4c]`, `[P4p]`) ARE
+  blocked on a bare `Promenade` tam.
+  **So "it stays red until hand-authored tams replace them" is wrong for 30 of the 35, and authoring the
+  tams would clear 4.**
+  `node engine/test/getout-conformance.mjs` → `1 FIXTURE CHECK(S) FAILED`, and THIS one is a pure RE-PIN:
+  `KNOWN_CATALOGUE_GAPS` (`engine/src/sequencer/all8-notation.ts:612-613`, blames `919af90e`) still declares
+  `Promenade 3/4` and `Promenade Full` as gaps while `ab254d9` authored both into `ms/promenade.xml`. Two
+  entries to delete, no tam to write.
+  MEASURED, for the record: `ms/promenade.xml` authors NO bare `Promenade`/`Promenade Home`, and `ab254d9`
+  also moved `Promenade 1/2 to Home` to **8.5** and `3/4 to Home` to **12.25** beats.
+
+- [ ] **10. The four owner-deferred probes.** `[measured]` at `8cfe8a1`
+  `node poc/tools/verify-probes.mjs` → **62 probes, 4 failed**, 9 failing checks in total:
+  `facing-handle-probe` 1, `radial-arc-fit-probe` 2, `run-circle-probe` 4, `start-facing-probe` 2. One more,
+  `call-formations-probe`, is SKIPPED in the default tier ("slow tier — run with `--all`").
+  Re-measured and attributed: `radial-arc-fit-probe` reports the two checks its own header records as
+  owner-ruled (the 180-of-188 offer and the 1.7° band against 2.0° of slack), and `run-circle-probe` reports
+  four — the `setRunCircle`/`arcBezierAbout` closure and turn checks plus the two section-7 OFFSET-orbit
+  pins, a DIFFERENT set from the four its header lists, same owner-ruled class. Both are about
+  `setRunCircle`/`arcBezierAbout`, not the corpus ring.
 
 ---
 
@@ -405,3 +461,53 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   The choice to take: derive the roles from `findCouplePairs`' own pairs (always one role per recognised
   pair, complete by construction) rather than by re-grouping numbers — which also removes the fallback that
   currently invents roles for UNRECOGNISED pairs out of home numbers, the same invention item 2 was about.
+
+---
+
+## P1 — FOUND BY THE ITEM 7 CENSUS AT `8cfe8a1`
+
+- [ ] **35. `getout()` LEAKS STATE INTO THE INTERACTIVE APPLY PATH.** `[measured]` at `8cfe8a1`, found during
+  the item 7 census and filed rather than fixed because it is an engine-contract question, not a pin.
+  `mainstream.mjs`'s fifth red is not its registration bug: with `seq.getout(...)` called first, replaying
+  the returned path interactively is REFUSED, and the SAME replay after `seq.reset()` without the `getout`
+  call is legal at every step — MEASURED, the three-step path
+  `[Cast Off Three Quarters, Right and Left Grand, Promenade Full to Home]` gives
+  `No setup in this call matches the current formation.` for the first two steps when the search ran first,
+  and `legal=true` for all three when it did not. So a search changes the answer of a later apply, which is
+  a contract violation and the same first-call-validity property `features.mjs` pins elsewhere. NEXT UNIT:
+  find what `getout` leaves behind (match memo, FSM store, `adjustToNextSetup`) and show `reset()` does not
+  clear it.
+
+- [ ] **36. FIVE HARNESSES ASSUME A CORPUS SHAPE THAT MOVED, SO THEIR REDS ARE HARNESS BUGS.** `[measured]`
+  at `8cfe8a1`. Each was re-run and the assumption named; none is an engine defect, and each reds the whole
+  harness rather than one check:
+  - `circle-four.mjs:124` reads `applied.lanes.find(...)` after `applied.legal` failed — a REFUSAL carries no
+    lanes, so the harness dies with `TypeError` and exit 1 instead of reporting. Same missing guard at
+    `editor.mjs:1501` (`path[-1]` is undefined when the tam carries a facing curve on all 8 moves).
+  - `arrangement-picker.mjs:120` asserts `Columns LH is offered`, and `Columns LH` has existed in NO revision
+    of `formations.xml` (the corpus spelling is `Columns LH BGBG`), so the check can never pass and the two
+    `if (p('Columns LH'))` witnesses below it never run.
+  - `features.mjs:113-115` pools all of `circle.xml` under one name and then takes the SMALLEST setup, which
+    is now a 2-dancer `Facing Dancers` pair — so its "8-dancer" board is built with 4 dancers and the
+    parallel-apply checks ask the wrong question.
+  - `mainstream.mjs:25-35` registers each ms file by `callMeta(xml).title`, i.e. its FIRST tam's title, which
+    for `circle.xml` is now `Circle Left - Stop at Home` — so `Circle Left` is unregistered and four checks
+    fail on `Unknown call: Circle Left`. (This is AGENTS trap 7 again: register by TITLE, not by file.)
+  - `step-forward.mjs:424/500/574` build their sample traces with `Array.from({length: total+1})`, and
+    `Array.from({length: 9.5}).length` is **9** — so with the corpus's new 8.5-beat promenade `trace[8.5]` is
+    `undefined`. A re-pin alone cannot clear those two checks; the sampling must take half beats.
+
+- [ ] **37. THE FSM ASSET'S STALENESS IS INVISIBLE TO EVERY CHANGE-TIME GATE.** `[measured]` at `8cfe8a1`.
+  `poc/src/assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed stale for the many commits
+  since, and the reason is structural rather than accidental: `node poc/scripts/build-fsm-asset.mjs` (the
+  only writer) is wired into **NO npm script**, and the one gate that checks freshness — `fsm-asset.mjs` — is
+  `light: false`, as are `reading-census`, `cell-census` and `level-census`. So `verify:light`, the gate a
+  change is supposed to run, structurally cannot see it. This is AGENTS §4.3's "a generated artefact needs
+  the gate that fails when it goes stale" with the gate present but unrun. NEXT UNIT: wire the generator into
+  a script AND add a cheap freshness check (the asset's `schemaVersion`/`catalogCount` against the engine's)
+  that a LIGHT run can afford — after item 7's regeneration, not before (trap 9).
+
+- [ ] **38. `engine/test/tools/fsm-getout-audit.mjs` IS IN NO SUITE.** `[measured]` at `8cfe8a1`. It reads
+  the FSM asset (`:45`) and appears in no tier of `engine/test/verify-suite.mjs`, so nothing runs it and
+  nothing will notice if it rots. AGENTS §5: "a probe nobody runs is already stale — wire it in or delete
+  it." NEXT UNIT: one decision, wire it in with a `why`, or delete it.

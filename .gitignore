@@ -36,3 +36,10 @@ poc/tools/_*
 # read tool refuses, so these are re-captured through Out-File -Encoding utf8). Never source.
 engine/test/tools/_*.txt
 /docs/downloads/*
+
+# AN ORIENTATION DOCUMENT IS NOT STATE. Three HANDOVER.md files have now been deleted, the last one at
+# 7484cdb and this line with it: AGENTS.md §8 records the measured failure mode, that a document regenerated
+# only when a session ends is read as current state by the session after it. The authorities are PLAN.md §2
+# and game/DESIGN.md §11.1, and both are corrected in the same commit as the code they describe. Ignoring
+# the name rather than trusting the next session to delete it is the point: a handover is now not stageable.
+HANDOVER.md

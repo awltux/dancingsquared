@@ -724,7 +724,7 @@ read-only, then sign in to be ranked*.
 | Method and path | Mode | Purpose |
 |---|---|---|
 | `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
-| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. **The app asks for it only when the server does not already hold the drill as finished** (§15 Q21): a recorded run finishes the drill itself, so an advance after one asks the server to skip a drill that is already skipped — a `409` the endpoint is right to answer, and a refusal that A25 would count against an honest player. |
+| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. **It is also the SKIP the player can choose** (§15 Q5: a mark-and-continue for a drill they cannot solve), which is why the control is offered only where the request can succeed. **The app asks for it only when the server does not already hold the drill as finished** (§15 Q21): a recorded run finishes the drill itself, so an advance after one asks the server to skip a drill that is already skipped — a `409` the endpoint is right to answer, and a refusal that A25 would count against an honest player. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
 | `POST /drill/reveal` | Drill | That one step's answer was SHOWN to this player (§15 Q16, A28): the step, and the call the server looks up from the puzzle it issued — the same expression A22's verdict and §11's transcript check use, so one position has one answer. **Recorded as an event and not as a press**, because a reveal is not an answer the player committed; deduplicated by step, because a second press of the same button shows the same call. It scores nothing itself, and it is what stops the run it finishes from counting. |
@@ -1790,10 +1790,30 @@ Each has a recommendation and the tradeoff, so this does not need another round 
    and easy to reset. The consequence to accept: a season boundary discards the cumulative board, and the
    schedule and the ladder may only be re-authored there (§6). **Hint balances must not reset with it** —
    they are earned effort, not a season statistic (§10).
-5. **Can a player skip a drill they cannot solve?** The design as written does not offer a skip, so a stuck
-   player is stuck in the regime. *Recommend allowing a mark-and-continue with no score for that drill*:
-   without it, one hard puzzle blocks the order that decision 10 made the whole point. Note the interaction
-   with §10: a skip grants no hint, so skipping is not a shortcut to tips.
+5. **Can a player skip a drill they cannot solve? — DECIDED AND IMPLEMENTED.** The design as written did not offer a
+   skip, so a stuck player was stuck in the regime — and one hard puzzle blocked the order that decision 10 made the
+   whole point. **THE SERVER HALF WAS ALREADY THERE**, which is what made this a control rather than a mechanism:
+   `POST /drill/advance` marks the current drill finished, earns no score and no hint, and is recorded as an
+   abandonment (A25) so a skipped season is visible to an operator rather than a silent gap (§11's table). What ships
+   is the control: **"Skip this drill — no score, no hint"**, whose label carries the cost before the press (the
+   Q18/Q20 house rule), offered wherever the drill can actually be left behind (`skipOffered`): a SERVER-issued drill
+   needs `mayWrite` — so a demo is not offered it, for Q22's reason — an OFFLINE drill is left behind by the local
+   position alone, and a PRACTICE drill is not offered it because the fixture has no server entry to close.
+   **THE LOCAL LEDGER MIRRORS THE SERVER'S FINALITY**, or the two would disagree about a drill: `save.markSkipped`
+   spends the position without crediting it, exactly as `POST /runs`'s credit rule does for a revealed run, so a later
+   local solve of a skipped drill cannot earn — which is also what the server does to it (a closed drill answers a
+   submission `stale_drill`). **MEASURED IN A BROWSER, three paths**: (a) a signed-in player presses it and the log
+   shows `POST /drill/advance` **200** then `GET /drill/current` **200** — and NO `/runs` at all — with the header
+   moving "drill 1 of 4" → "drill 2 of 4", the hint progress unmoved at "1 of 10", the ledger unmoved at "3 runs ·
+   best 100", and the verdict reading "Skipped — no score for it, and no hint."; (b) an OFFLINE build (a second dev
+   server on 8091 with no `VITE_API_BASE`) offers the control and moves "drill 2 of 12" → "drill 3 of 12" with the
+   same sentence on screen and nothing sent anywhere; (c) a DEMO — signed out, and again after an expired token — is
+   offered NO skip at all, which is `mayWrite` refusing it for the same reason it refuses a submission. The
+   sentence's ORDER is load-bearing and was fixed by the browser check: `showDrill` clears the verdict on its way in
+   and the offline drill is painted in the same tick, so the sentence has to be said AFTER the issue (the order Q20's
+   practice offer uses) or it is never seen. Pinned by `game/test/save-state-probe.mjs` §1c, whose negative control is
+   the plausible wrong rule — a skip that moves the player on without spending the position, which lets the same drill
+   pay a hint later.
 6. **Practice mode: puzzle generation the player controls?** *Recommend a clearly-labelled unranked "just
    practice" that generates from the player's level pool.* The regime is authoritative and the Daily is
    issued, so a third, unranked source costs no fairness — but it is the one place the client would choose a

@@ -186,6 +186,7 @@ const els = {
   ledger: el('ledger'),
   hint: el<HTMLButtonElement>('hint'),
   review: el<HTMLButtonElement>('review'),
+  skip: el<HTMLButtonElement>('skip'),
   undo: el<HTMLButtonElement>('undo'),
   redo: el<HTMLButtonElement>('redo'),
   giveUp: el<HTMLButtonElement>('giveUp'),
@@ -752,6 +753,7 @@ function applyMode(next: AppMode): void {
   els.modeDrill.setAttribute('aria-pressed', String(mode === 'drill'));
   els.modeDaily.setAttribute('aria-pressed', String(mode === 'daily'));
   els.review.hidden = true;
+  els.skip.hidden = true;
   els.next.hidden = true;
   // THE PRACTICE OFFER IS ABOUT THE DRILL ON SCREEN, so a mode switch withdraws it: what the server refused was that
   // drill, and an offer left standing would invite a practice run for a failure the player has moved past.
@@ -835,6 +837,9 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   drillScreen.clearVerdict();
   drillScreen.render(controller);
   els.review.hidden = false;
+  // THE SKIP IS OFFERED WHERE IT CAN WORK (DESIGN.md §15 Q5), which `skipOffered` owns: it is a WRITE against a
+  // server-issued drill and a local step offline, and it is not offered at all for a demo (Q22) or a practice drill.
+  els.skip.hidden = !skipOffered();
   els.next.hidden = true;
   captions(result.puzzle.start, result.puzzle.goal);
   paintBalance();
@@ -1052,13 +1057,56 @@ function review(): void {
   startReplay(applier.motion([option.call], controller.view().from), 'settle');
 }
 
+/**
+ * Whether the drill on screen may be SKIPPED — spent without being solved (DESIGN.md §15 Q5).
+ *
+ * TWO WAYS A DRILL IS LEFT BEHIND, and this is the one place that knows both. A SERVER-ISSUED drill is advanced, which
+ * is a WRITE (A20) and so needs `mayWrite` — the same predicate the submission, the press and the reveal are guarded
+ * by, and the reason a DEMO is offered nothing (Q22: there is no Progress row to advance, so the request is a `401`).
+ * An OFFLINE drill is left behind by the local position alone, so the control is honest there too — and it is the
+ * only way out of one there, since "Next drill" appears only after a solve. A PRACTICE drill is NEITHER: it is the
+ * app's own fixture on a server-configured page, so there is no server entry to close, and the control that returns
+ * the player to the season is "Next drill".
+ */
+function skipOffered(): boolean {
+  if (serverDrill) return mayWrite(currentStanding());
+  return !apiConfigured();
+}
+
+/**
+ * Skip the drill on screen — the mark-and-continue DESIGN.md §15 Q5 recommends.
+ *
+ * WHAT IT IS FOR: the regime is an ORDER (decision 10), so one puzzle a player cannot solve blocks every drill behind
+ * it. The recommendation is a skip that EARNS NOTHING, and THE SERVER ALREADY IMPLEMENTS IT: `POST /drill/advance`
+ * marks the current drill finished, scores nothing, credits no hint and is recorded as an abandonment (A25) so a
+ * skipped season is visible to an operator rather than a silent gap. What was missing was the control.
+ *
+ * IT CANNOT BE A SHORTCUT TO TIPS (§10), which is what makes it safe to offer: the advance mints nothing, and the
+ * local ledger spends the position without crediting it (`save.markSkipped`) so a later local solve of that drill
+ * cannot earn either — the same finality the server applies, where the closed drill refuses a submission `stale_drill`.
+ *
+ * THE SENTENCE IS SAID AFTER `issueCurrentDrill`, and the order is the whole of Q20's practice offer's lesson:
+ * `showDrill` clears the verdict line on its way in, and OFFLINE the next drill is generated and painted synchronously,
+ * so a sentence said before the call would be wiped in the same tick and never seen. On the SERVER path the round trip
+ * is what the player reads it during and the new question then replaces it — which is why the label, not the sentence,
+ * is where the cost is stated. A skip the server REFUSES is announced by `startServerDrill` in its own words, and that
+ * one is not cleared at all, because no drill is shown.
+ */
+function skipDrill(): void {
+  if (!controller || PLAYHEAD.isRunning || controller.atEnd) return;
+  if (!skipOffered()) return;
+  save.markSkipped(position);
+  els.skip.hidden = true;
+  issueCurrentDrill('advance');
+  drillScreen.say('Skipped — no score for it, and no hint.', 'info');
+}
+
 /** The step is over: redraw, and score the run if the last step has just been answered. */
 function settleDrill(): void {
   if (!controller) return;
   drillScreen.render(controller);
   captions(controller.view().from, controller.puzzleRef.goal);
 }
-
 /**
  * The last answer was correct: stop the clock, score the run, and record ONE drill success.
  *
@@ -1101,6 +1149,9 @@ function finishDrill(): void {
     drillScreen.say(`${scored}.`, 'ok');
   }
   els.review.hidden = true;
+  // THE DRILL IS OVER, so there is nothing left to skip: "Next drill" is the way on from here, and Q21 is why it no
+  // longer sends an advance the server has already done.
+  els.skip.hidden = true;
   els.next.hidden = demoOnly;
   // A COMPLETED DRILL IS ONE SUCCESS — ONCE, and WHO COUNTS IT DEPENDS ON WHETHER THERE IS A SERVER. Offline the
   // local rule below runs, exactly as it has since Phase 4; with an API configured the SERVER credits it from its
@@ -1677,6 +1728,7 @@ function main(): void {
   els.modeDaily.addEventListener('click', () => setMode('daily'));
   els.next.addEventListener('click', () => issueCurrentDrill('advance'));
   els.review.addEventListener('click', review);
+  els.skip.addEventListener('click', skipDrill);
   els.undo.addEventListener('click', undoDaily);
   els.redo.addEventListener('click', redoDaily);
   els.hint.addEventListener('click', () => void takeHint());

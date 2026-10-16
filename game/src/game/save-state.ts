@@ -176,12 +176,39 @@ export class SaveState {
    * the probe rules the farming out with, and the reason it is reported rather than folded into `granted`.
    */
   countSuccess(position: number, opts: { revealed?: boolean } = {}): { firstTime: boolean; granted: boolean } {
-    if (this.record.finished.includes(position)) return { firstTime: false, granted: false };
+    if (!this.spend(position)) return { firstTime: false, granted: false };
     const granted = opts.revealed === true
       ? { ledger: this.record.hints, granted: false }
       : recordSuccess(this.record.hints);
-    this.record = { ...this.record, finished: [...this.record.finished, position], hints: granted.ledger };
+    this.record = { ...this.record, hints: granted.ledger };
     return { firstTime: true, granted: granted.granted };
+  }
+
+  /**
+   * Spend a drill at `position` WITHOUT solving it — the mark-and-continue of DESIGN.md §15 Q5.
+   *
+   * IT EARNS NOTHING AND IT IS FINAL, which is deliberately the server's own treatment: `POST /drill/advance` closes
+   * the drill (no score, no hint, recorded as an abandonment so a skipped season is visible) and a later submission
+   * for it is refused `stale_drill`. So the local ledger must spend the position as well — otherwise the same drill
+   * could still pay a hint HERE after the server had closed it, which would be the one place the device and the
+   * server disagreed about a drill. Skipping is therefore not a shortcut to tips (§10), which is the property that
+   * makes it safe to offer at all.
+   */
+  markSkipped(position: number): void {
+    this.spend(position);
+  }
+
+  /**
+   * Put `position` in the finished set. False when it was already there.
+   *
+   * THE ONE WRITER OF THAT SET, so a solve and a skip cannot come to mean different things by accident: they differ in
+   * what they then CREDIT (a solve may grant, a revealed solve and a skip never do), and not in whether the drill is
+   * over.
+   */
+  private spend(position: number): boolean {
+    if (this.record.finished.includes(position)) return false;
+    this.record = { ...this.record, finished: [...this.record.finished, position] };
+    return true;
   }
 
   /**

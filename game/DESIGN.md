@@ -1161,6 +1161,40 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
 
+**Phase 5.7 — the Daily comes from the published artefact. DONE.**
+`game/src/net/api.ts` gained `dailyChallenge(level, day)` and `main.ts` a `startServerDaily`/`showDaily` split, so the
+client reads the PUBLISHED seed instead of deriving one — the seed is the same number either way (the app and the
+boundary job both call `dailyEntry`), and what the read buys is that it is the number the boundary job VALIDATED: a
+day nobody published is the server's own `no_published_daily` refusal rather than a challenge nobody checked, and a
+challenge from another pool is refused with the pool named. The generator still runs in the browser, from the
+published seed (§9).
+
+**AND THE DEV SERVER IS NOW THE LOCAL STAND-IN FOR BOTH PUBLISHERS.** The in-memory store is per process, so a
+separate `api:publish-daily` run could never reach it: the dev server seeds the fixture's regimes AND publishes
+today's challenge for the served levels at boot, which is why a developer gets a playable Daily with no setup.
+MEASURED: about 2 s added to the start (levels 1-3 at ~0.1 s, ~1 s, ~1 s — the whole 33-level ladder would be an
+hour, per §7.1's census), and a server left running across midnight serves the new day as UNPUBLISHED, which is the
+honest behaviour: the boundary is a scheduled job's business.
+
+**BROWSER-MEASURED, and the API's own log is the evidence** (the game on `:8089`, the API on `:8090`, memory store):
+```
+dev:api published 2026-10-16 for level(s) 1, 2, 3
+200 GET /drill/current?level=1 247 ms
+204 OPTIONS /puzzle (preflight) 0 ms
+200 GET /puzzle?mode=daily&level=1&date=2026-10-16 1 ms
+```
+— the client's own call, the preflight that CORS-fix exists for, and the page then rendering "Today's Daily —
+2026-10-16 (UTC), level 1" with the board, the call list and the clock. Clicking the Daily showed
+"Asking the server for today's Daily…" first, so the panel is drawn from the READ seed rather than from a local
+derivation that happened to be identical.
+
+**MEASURED, by the probes:** `game/test/api-client-probe.mjs` is now 41 checks (the Daily's request shape — mode,
+level and date in the query, a GET and not a POST — the server's `no_published_daily` sentence kept verbatim, the
+`playable: false` flag for another pool, and two malformed-body refusals including a body with no challenge in it).
+`api/test/drill-probe.mjs` gained the boot-seeding measurement in its socket section: a Daily exists for TODAY the
+moment the dev server is up, and `2099-01-01` is `404` — so the seeding is the boundary job's stand-in rather than a
+generated-on-demand answer.
+
 **Phase 5.6 — the game reads its Drill from the server, in a browser. DONE.**
 `game/src/net/api.ts` is the game's ONE outbound path, opt-in by `VITE_API_BASE`: it mints an anonymous device id
 (DESIGN.md 8's device-keyed anonymous player), prefers a token when one is stored, and returns a TYPED result for

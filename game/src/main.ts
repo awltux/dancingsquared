@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, issueDrill, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
@@ -326,7 +326,7 @@ function applyMode(next: AppMode): void {
   els.replayMine.hidden = true;
   els.replayShortest.hidden = true;
   if (mode === 'drill') issueCurrentDrill('current');
-  else startDaily();
+  else issueDaily();
 }
 
 // ----------------------------------------------------------------------------------------------- the drill
@@ -564,25 +564,34 @@ function dailyRegime(): string {
   return daily && dailyDay ? `Today's Daily — ${dailyDay} (UTC), level ${dailyLevelIndex}` : "Today's Daily";
 }
 
-function startDaily(): void {
-  if (!applier || !level) return;
-  const day = utcDay(new Date());
-  if (daily && dailyDay === day && dailyLevelIndex === level.index) {
-    // AN ISSUED DAILY IS NOT RE-ISSUED, so its clock keeps running across a mode switch: re-issuing would
-    // hand out free thinking time for pressing a button. Everything else on screen IS re-applied, because it
-    // belongs to this mode — a defect the browser showed twice: a stale "You are here" name left over from
-    // the Drill, and a header still reading "The Drill — drill 1 of 12" above the Daily's own panel.
-    els.regime.textContent = dailyRegime();
-    captions(daily.board, daily.view(performance.now()).goal);
-    paintDaily();
-    draw();
-    return;
-  }
+/** An issued Daily is kept: re-issue it and its clock restarts, which is free thinking time for a button press. */
+function keepDaily(): void {
+  // EVERYTHING ELSE ON SCREEN IS RE-APPLIED, because it belongs to this mode — a defect the browser showed twice:
+  // a stale "You are here" name left over from the Drill, and a header still reading "The Drill — drill 1 of 12"
+  // above the Daily's own panel.
+  if (!daily) return;
+  els.regime.textContent = dailyRegime();
+  captions(daily.board, daily.view(performance.now()).goal);
+  paintDaily();
+  draw();
+}
 
+/** Whether the Daily already in flight is today's, at this level. */
+function dailyIsCurrent(day: string): boolean {
+  return daily !== null && dailyDay === day && dailyLevelIndex === level?.index;
+}
+
+/**
+ * Show today's challenge from a seed, however it was obtained.
+ *
+ * ONE PATH FOR TWO SOURCES, like `showDrill`: the client derives the puzzle either way, and what differs is where
+ * the seed came from — the local `dailyEntry` (offline) or the published artefact (the server, §9).
+ */
+function showDaily(seed: number, day: string): void {
+  if (!applier || !level) return;
   els.loading.hidden = false;
   els.loading.textContent = "Generating today's Daily…";
-  const entry = dailyEntry(level, MAIN_POOL.version, day);
-  const result = generatePuzzle(generatorConfigFor(entry.poolVersion, level, 'daily'), entry.seed, level, applier);
+  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'daily'), seed, level, applier);
   els.loading.hidden = true;
 
   if (!result.ok) {
@@ -596,7 +605,7 @@ function startDaily(): void {
 
   dailyDay = day;
   dailyLevelIndex = level.index;
-  dailyRunSeed = entry.seed;
+  dailyRunSeed = seed;
   // A SAVED ATTEMPT FOR TODAY IS PICKED UP. The challenge is a pure function of (day, level), so the puzzle
   // regenerated here IS the one that was being played; what the record adds is the line, the hints and the
   // clock — with the wall time the page was away charged to it. A record that no longer describes this
@@ -618,6 +627,60 @@ function startDaily(): void {
   paintDaily();
   persist();
   draw();
+}
+
+/** The OFFLINE path: the challenge derived from the day and the level (§9). */
+function startDaily(): void {
+  if (!applier || !level) return;
+  const day = utcDay(new Date());
+  if (dailyIsCurrent(day)) {
+    keepDaily();
+    return;
+  }
+  showDaily(dailyEntry(level, MAIN_POOL.version, day).seed, day);
+}
+
+/**
+ * The SERVER path: today's PUBLISHED challenge (§9, §11).
+ *
+ * THE SEED IS READ, NOT DERIVED, and the client would compute the same number — the point is that it is the number
+ * the boundary job validated and published for everyone at this level, so a day nobody published is a refusal
+ * ("no published challenge") rather than a question nobody checked. The generator still runs HERE: §9 has the
+ * client draw the board from the published seed.
+ */
+async function startServerDaily(): Promise<void> {
+  if (!applier || !level) return;
+  const day = utcDay(new Date());
+  if (dailyIsCurrent(day)) {
+    keepDaily();
+    return;
+  }
+  els.loading.hidden = false;
+  els.loading.textContent = "Asking the server for today's Daily…";
+  const answer = await dailyChallenge(level.index, day);
+  if (!answer.ok) {
+    els.loading.hidden = true;
+    daily = null;
+    dailyScreen.say(`No Daily from the server: ${answer.failure.message}`, 'bad');
+    els.regime.textContent = "Today's Daily — unavailable";
+    return;
+  }
+  if (!answer.value.playable) {
+    // A CHALLENGE FROM ANOTHER POOL IS NOT A CHALLENGE THIS BUILD CAN PLAY (§7.2), and saying so is better than
+    // generating a board the server would refuse to score.
+    els.loading.hidden = true;
+    daily = null;
+    dailyScreen.say(`Today's Daily was published against pool ${answer.value.poolVersion}, and this build serves ${MAIN_POOL.version}.`, 'bad');
+    els.regime.textContent = "Today's Daily — unavailable";
+    return;
+  }
+  showDaily(answer.value.seed, day);
+}
+
+/** Issue today's challenge from wherever the app is configured to get it. */
+function issueDaily(): void {
+  if (apiConfigured()) void startServerDaily();
+  else startDaily();
 }
 
 function playDailyCall(call: string): void {

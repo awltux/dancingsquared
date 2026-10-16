@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, deviceId, issueDrill, normaliseBase } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase } from '../src/net/api.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -155,7 +155,41 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
   check(tolerated.ok === true && tolerated.value.drill.optionLabels === null, `a drill without option labels still parses (${tolerated.value?.drill?.optionLabels})`);
 }
 
-console.log('\n== 5. advancing sends the drill id it is advancing ==');
+console.log('\n== 5. the Daily is a READ of the published challenge ==');
+{
+  const CHALLENGE = { day: '2026-10-15', levelIndex: 2, seed: 1268207204, poolVersion: 'ms-1', publishedAtMs: 1700000000000, playable: true };
+  const wired = deps('http://localhost:8090', { status: 200, body: { daily: CHALLENGE } });
+  const answer = await dailyChallenge(2, '2026-10-15', wired.api);
+  check(answer.ok === true && answer.value.seed === 1268207204, `the published seed is read (${answer.value?.seed})`);
+  check(answer.value.playable === true && answer.value.levelIndex === 2, `with the level and playability (${answer.value?.levelIndex}, ${answer.value?.playable})`);
+  const call = wired.fetch.calls[0];
+  check(call.url === 'http://localhost:8090/puzzle?mode=daily&level=2&date=2026-10-15', `the query names the mode, the level and the date (${call.url})`);
+  check(call.init.method === 'GET', `and it is a read, not a POST (${call.init.method})`);
+
+  // A DAY NOBODY PUBLISHED IS THE SERVER'S OWN REFUSAL, verbatim: the fix is an operator running the boundary job,
+  // and a client that invented a seed here would play a question nobody validated (§9).
+  const unpublished = deps('http://localhost:8090', { status: 404, body: { error: { code: 'no_published_daily', message: 'level 2 has no published challenge for 2026-10-16' } } });
+  const missing = await dailyChallenge(2, '2026-10-16', unpublished.api);
+  check(missing.ok === false && missing.failure.code === 'no_published_daily', `an unpublished day is refused (${missing.failure?.code})`);
+  check(missing.failure.message.includes('2026-10-16'), `and the sentence names the day (${missing.failure?.message})`);
+
+  // A CHALLENGE FROM ANOTHER POOL IS FLAGGED, not silently played: `playable` is the server's own answer to "can
+  // this build regenerate it", and the client refuses rather than generating a board that cannot be scored.
+  const foreign = deps('http://localhost:8090', { status: 200, body: { daily: { ...CHALLENGE, poolVersion: 'ms-0', playable: false } } });
+  const stale = await dailyChallenge(2, '2026-10-15', foreign.api);
+  check(stale.ok === true && stale.value.playable === false, `a challenge from another pool arrives with playable: false (${stale.value?.playable})`);
+
+  // THE SEED IS THE ONE FIELD THAT MUST BE THERE: without it the generator would draw today's challenge from
+  // `undefined`, which is the same class of failure the drill's check covers.
+  const noSeed = deps('http://localhost:8090', { status: 200, body: { daily: { day: '2026-10-15', levelIndex: 2, poolVersion: 'ms-1' } } });
+  const malformed = await dailyChallenge(2, '2026-10-15', noSeed.api);
+  check(malformed.ok === false && malformed.failure.code === 'bad_response', `a challenge with no seed is refused (${malformed.failure?.code})`);
+  const noRow = deps('http://localhost:8090', { status: 200, body: {} });
+  const absent = await dailyChallenge(2, '2026-10-15', noRow.api);
+  check(absent.ok === false && absent.failure.code === 'bad_response', `and so is a body with no challenge in it (${absent.failure?.code})`);
+}
+
+console.log('\n== 6. advancing sends the drill id it is advancing ==');
 {
   const wired = deps('http://localhost:8090', { status: 200, body: { regime: { finished: 5, length: 12 } } });
   const answer = await advanceDrill('1:4', wired.api);

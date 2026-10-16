@@ -367,6 +367,15 @@ console.log('\n== 9. the local server, over a real socket ==');
     const carried = await fetch(`${base}/health`, { headers: { origin: 'http://localhost:8089' } });
     check((carried.headers.get('access-control-allow-origin') ?? '') !== '', 'and every ordinary answer carries one too, so a preflight is not the only thing that works');
 
+    // THE DEV SERVER'S BOOT IS THE LOCAL STAND-IN FOR THE BOUNDARY JOB, and this is the measurement: a Daily exists
+    // for TODAY the moment the server is up, because the in-memory store is per process and a separate publish run
+    // could never reach it. The client's own `/puzzle` call is pinned in `game/test/api-client-probe.mjs`.
+    const today = new Date().toISOString().slice(0, 10);
+    const daily = await call(`/puzzle?mode=daily&level=1&date=${today}`, { headers });
+    check(daily.status === 200 && typeof daily.body.daily?.seed === 'number', `the boot published today's Daily (${daily.body.daily?.seed} for ${today})`);
+    const tomorrow = await call(`/puzzle?mode=daily&level=1&date=2099-01-01`, { headers });
+    check(tomorrow.status === 404, `NEGATIVE CONTROL: and only today's, so the seeding is the boundary job's stand-in rather than a generated-on-demand answer (${tomorrow.status})`);
+
     const missing = await call('/nope', { headers });
     check(missing.status === 404 && missing.body.error.code === 'not_found', `an unserved path is a 404 (${missing.status})`);
   } finally {

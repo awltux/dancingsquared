@@ -67,8 +67,10 @@ npm run dev:api                                  # the API on 8090 (memory store
 VITE_API_BASE=http://127.0.0.1:8090 npm run dev:game   # the game on 8089, now talking to it
 ```
 
-With `VITE_API_BASE` unset the game is exactly what it has always been: no network call is made at all (measured
-by `game/test/api-client-probe.mjs`). A refused request, an unreachable server and a timeout each become a
+The dev server seeds the local fixture's regimes AND publishes today's Daily at boot (about 2 s), so both modes are
+playable immediately — in a deployment those are the two publishing jobs instead. With `VITE_API_BASE` unset the
+game is exactly what it has always been: no network call is made at all (measured by
+`game/test/api-client-probe.mjs`). A refused request, an unreachable server and a timeout each become a
 sentence on the screen, and the local ledger keeps whatever the device already had.
 
 ### Local DynamoDB (the API's real store)

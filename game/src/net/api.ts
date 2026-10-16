@@ -210,6 +210,52 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
   };
 }
 
+/** The published Daily challenge: a seed, the level it was validated at, and whether this build can play it. */
+export interface DailyChallenge {
+  readonly day: string;
+  readonly levelIndex: number;
+  readonly seed: number;
+  readonly poolVersion: string;
+  readonly publishedAtMs: number | null;
+  /** False when the row was published against a pool this build does not serve (DESIGN.md 7.2). */
+  readonly playable: boolean;
+}
+
+/**
+ * `GET /puzzle?mode=daily&level&date` — the challenge for a level and a UTC day.
+ *
+ * IT DOES NOT GENERATE, and neither does the server: a puzzle is derivable from `(seed, level, poolVersion)`, so
+ * the client draws the board from the seed with the same generator the server will use to verify the run (§9).
+ * What this call buys is that the seed is the PUBLISHED, validated one rather than a locally derived guess — so a
+ * day nobody published is a refusal (`no_published_daily`) instead of a question nobody checked.
+ */
+export async function dailyChallenge(level: number, day: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<DailyChallenge>> {
+  const answer = await call<{ daily?: unknown }>(deps, '/puzzle', {
+    method: 'GET',
+    query: { mode: 'daily', level: String(level), date: day },
+  });
+  if (!answer.ok) return answer;
+  const raw = answer.value.daily;
+  if (typeof raw !== 'object' || raw === null) return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a published challenge' } };
+  const value = raw as Record<string, unknown>;
+  // THE SEED IS THE ONE FIELD THAT MUST BE THERE, for the same reason the drill's is: `undefined` would generate a
+  // different puzzle and present it as today's challenge.
+  if (typeof value.seed !== 'number' || typeof value.levelIndex !== 'number' || typeof value.day !== 'string') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the published challenge has no seed this app can generate from' } };
+  }
+  return {
+    ok: true,
+    value: {
+      day: value.day,
+      levelIndex: value.levelIndex,
+      seed: value.seed,
+      poolVersion: typeof value.poolVersion === 'string' ? value.poolVersion : '',
+      publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
+      playable: value.playable !== false,
+    },
+  };
+}
+
 /** `POST /drill/advance` — mark the issued drill finished, so the next request returns the next entry. */
 export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeCounts }>> {
   const answer = await call<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {

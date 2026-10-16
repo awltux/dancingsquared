@@ -14,7 +14,10 @@
 //        npm run dev:api:ddb      (DynamoDB Local, after `npm run api:table`)
 import http from 'node:http';
 import { pathToFileURL } from 'node:url';
+import { utcDay } from 'dancing-squared-game';
 import { configFromEnv, devServerRefusal } from './config.ts';
+import { publishDay } from './daily-publishing.ts';
+import { SERVED_LEVELS } from './schedule-publishing.ts';
 import { MemoryStore } from './store/memory.ts';
 import { openStore, type OpenedStore } from './store/open.ts';
 import { PLANNED_ENDPOINTS, ROUTES, routeFor } from './routes.ts';
@@ -126,6 +129,20 @@ export interface DevServer {
 export async function startDevServer(options: { port?: number; seed?: boolean; opened?: OpenedStore } = {}): Promise<DevServer> {
   const opened: OpenedStore = options.opened ?? { store: new MemoryStore(), label: 'memory' };
   const levels = options.seed === false ? [] : await seedLocalRegimes(opened.store);
+  // AND TODAY'S DAILY, because the in-memory store is PER PROCESS: the boundary job publishes into a shared store,
+  // so a separate `api:publish-daily` run could never reach this one. This is the local stand-in for BOTH
+  // publishers, and it is why a developer gets a playable Daily with no setup — while a real deployment runs the
+  // jobs instead (`api:publish-schedule`, `api:publish-daily`).
+  //
+  // ONLY THE SERVED LEVELS, NOT ALL 33 THE CORPUS CAN FILL: generation is ~0.1 s at level 1 and ~1 s at levels 2
+  // and 3 (DESIGN.md 7.1's census), but ~2.5 minutes at a deep level, so seeding the whole ladder would be an hour
+  // of boot. MEASURED: the three levels add about 2 s to the dev server's start.
+  //
+  // A SERVER LEFT RUNNING ACROSS MIDNIGHT SERVES YESTERDAY'S SEED AS UNPUBLISHED, which is the honest behaviour:
+  // the boundary is a scheduled job's business, and the client is told `no_published_daily` rather than being
+  // handed a challenge nobody validated.
+  const day = utcDay(new Date());
+  const daily = options.seed === false ? null : await publishDay(opened.store, day, { levels: [...SERVED_LEVELS], nowMs: Date.now() });
   const deps = devDeps(opened.store);
 
   const server = http.createServer((request, response) => {
@@ -181,6 +198,7 @@ export async function startDevServer(options: { port?: number; seed?: boolean; o
   });
 
   if (levels.length) console.log(`dev:api seeded the local fixture for level(s) ${levels.join(', ')}`);
+  if (daily) console.log(`dev:api published ${daily.day} for level(s) ${daily.published.map((entry) => entry.levelIndex).join(', ')}`);
   return {
     port,
     store: opened.store,

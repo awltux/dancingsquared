@@ -755,7 +755,9 @@ boundary job has not run for that level and day — and the server does NOT inve
 challenge nobody validated is exactly what §7.2's gate exists to prevent.
 
 `POST /runs` takes `{ runId, mode, levelIndex, elapsedSeconds, hintsUsed, attempts, calls, score? }`, plus
-`drillId` for a Drill run and `day` (`YYYY-MM-DD`) for a Daily one, and answers
+`drillId` for a Drill run and `date` (`YYYY-MM-DD`) for a Daily one — the SAME word the query parameter uses,
+because a client that had to know `day` here and `date` there was two names for one fact (the body field was
+renamed in Phase 5.9, while the only consumer was this repository's own client). and answers
 `{ run: { runId, mode, score, elapsedSeconds, scoreVersion, clamped, duplicate }, hints: { hints, successes,
 granted }, board: { period, score, runs }, progress: { finished } | null }` — the SERVER's numbers, so a client
 never has to guess what its own claim was worth. `calls` is one call per step for the Drill (the answer the
@@ -1161,6 +1163,47 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
 
+**Phase 5.9 — the Daily's run is submitted, and one fact got one name. DONE.**
+`DailyRun.submissionFacts(nowMs)` is the run as a submission carries it (`clockSeconds`, `calls`, `hintsUsed`,
+`score`), and `paintDaily`'s existing "a solved run is recorded once" edge now ALSO submits it when an API is
+configured — the same edge, so the two records cannot disagree about which run was the first. What the server
+answers is adopted: `SaveState.adoptHints` replaces the balance, and the line the player reads is the server's
+score and board.
+
+**THE HINT DEBIT IS THE POINT.** Offline a hint is debited when it is TAKEN, because the device is the only record;
+with a server the balance is its (`hintsUsed` in the transcript is what it debits from), so a Daily that reaches the
+server has its hints debited there. What remains outside the server's knowledge is a Daily that is never submitted
+at all — an unsolved run nobody sends — and §15 Q19 now says exactly that, with the half of the question that is
+still open.
+
+**AND ONE FACT GOT ONE NAME.** The body's day field was `day` while the design's query parameter is `date`
+(`GET /puzzle?…&date=`); the client I wrote for the Daily path had to know both, which is the wart this phase
+closes: the body field is `date` now, and the runs probe, the handler, the stored row and §11 all follow. The only
+consumer was this repository's own client, which is why the rename was cheap now and would not be later.
+
+**BROWSER-MEASURED, against DynamoDB Local** (the game on `:8089`, the API on `:8090` with
+`store: dynamodb dancing-squared-dev at http://127.0.0.1:8000`), with the API's log as the evidence:
+```
+204 OPTIONS /puzzle (preflight) 0 ms
+200 GET /puzzle?mode=daily&level=1&date=2026-10-16 52 ms
+204 OPTIONS /runs (preflight) 0 ms
+200 POST /runs 392 ms
+```
+`solutionFacts` was played through the page: the published challenge accepted the one-call line ("Allemande Left in
+the Alamo Style — that is the goal board"), and the screen answered **"Recorded — the server scores it 1 points.
+Best on this board: 1."** — a score and a board the app cannot compute. The balance line then read
+**"Hints: 0 of 3 · 0 of 10 to the next"** where the local value had been "1 of 10": the server's fresh record
+replaced this device's, which is the adoption happening on screen rather than in a comment. (The 1-point score is
+the resumed clock: the Daily charges the wall gap, so a run resumed after ~18 minutes of being away scores
+`MIN_RUN_SCORE` — the same rule Phase 4 measured and DESIGN.md 9 states.)
+
+**MEASURED, by the probes.** `game/test/daily-run-probe.mjs` gained 4b: the view reports the CHARGE while the
+submission carries the CLOCK alone, and the two round trip to the number the player is judged on — with the
+measured control that sending the charged total would double-charge every hint (both numbers are "a time", and only
+their sum is pinned). `game/test/api-client-probe.mjs` is now **56 checks**: the Daily's submission names its
+`date`, carries its line and its hints, has no `drillId`, and reports no progress. The api suite is green after the
+rename (`bad_day` became `bad_date`).
+
 **Phase 5.8 — a solved Drill is submitted, and the SERVER's numbers are the ones adopted. DONE.**
 `game/src/net/api.ts` gained `submitRun` (`POST /runs`, typed, with the run, the balance, the board and the progress),
 and `main.ts` submits in `finishDrill`: the transcript is `drillOptions` (the calls committed per step, which the app
@@ -1493,9 +1536,11 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     Drill's `attempts` prices a run (§6's `attemptFactor`), and the Daily's `hintsUsed` debits the balance (§10).
     Neither has a server-side interaction among §11's six endpoints, so the server can only bound them:
     `attempts >= 0`, and the debit clamped at zero. **What a client gains by lying, in numbers**: reporting zero
-    attempts raises a Drill score by up to `1/(1 + 0.25n)` — a fifth at four wrong answers, `ATTEMPT_PENALTY` —
-    and reporting zero hints after taking one keeps the hint; worse, because an UNSOLVED Daily is never submitted
-    (a run nobody finished is not a run to submit), a hint taken and then abandoned is never debited at all.
+    attempts raises a Drill score by up to `1/(1 + 0.25n)` — a fifth at four wrong answers, `ATTEMPT_PENALTY`.
+    As of Phase 5.9 a SOLVED Daily is submitted like a Drill run, so the server applies the debit it is told about
+    and answers with the balance — but a hint taken on a Daily that is then ABANDONED is still never debited
+    anywhere: an unsolved run is not a run to submit, so the server never hears about it, and the local debit is
+    all there is. That is the remaining half of this question.
     *Recommend making both interactions server-side before launch* — a `POST /drill/answer` that records an
     attempt as it happens, and the hint spend as its own call against the balance — because the alternative is a
     currency (a hint) and a ranking (the attempt factor) that a modified client sets. This is the one place where

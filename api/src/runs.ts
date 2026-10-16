@@ -21,8 +21,8 @@ export interface RunSubmission {
   readonly levelIndex: number;
   /** The Drill's issued-drill id. Absent for the Daily. */
   readonly drillId: string | null;
-  /** The Daily's UTC day. Absent for the Drill. */
-  readonly day: string | null;
+  /** The Daily's UTC day, named as the design names the query parameter. Absent for the Drill. */
+  readonly date: string | null;
   /** TIME ON THE CLOCK ONLY. The hint charge is added by `scoreRun`, never by the client. */
   readonly clockSeconds: number;
   readonly hintsUsed: number;
@@ -90,10 +90,10 @@ export function parseRunSubmission(body: unknown): { ok: true; submission: RunSu
     return bad('bad_calls', 'calls must be an array of call titles');
   }
   const drillId = raw['drillId'];
-  const day = raw['day'];
+  const date = raw['date'];
   if (mode === 'drill' && (typeof drillId !== 'string' || drillId.length === 0)) return bad('bad_drill_id', 'a Drill run must name the drillId it answers');
-  if (mode === 'daily' && (typeof day !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(day))) {
-    return bad('bad_day', 'a Daily run must name its day as YYYY-MM-DD');
+  if (mode === 'daily' && (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
+    return bad('bad_date', 'a Daily run must name its date as YYYY-MM-DD');
   }
   const claimed = raw['score'];
   return {
@@ -103,7 +103,7 @@ export function parseRunSubmission(body: unknown): { ok: true; submission: RunSu
       mode,
       levelIndex,
       drillId: typeof drillId === 'string' ? drillId : null,
-      day: typeof day === 'string' ? day : null,
+      date: typeof date === 'string' ? date : null,
       clockSeconds,
       hintsUsed,
       attempts,
@@ -192,7 +192,7 @@ export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
     levelIndex: submission.levelIndex,
     seed: parts.seed,
     drillId: submission.drillId,
-    day: submission.day,
+    date: submission.date,
     clockSeconds: submission.clockSeconds,
     hintsUsed: submission.hintsUsed,
     attempts: submission.attempts,

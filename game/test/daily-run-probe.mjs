@@ -37,6 +37,7 @@ const CALLS = new Map([
   [D, {}],
 ]);
 
+const HINT_PENALTY_SECONDS = 60;   // the shipped charge, and this probe's stub calls are not hint-charged by the engine
 const eq = (a, b) =>
   a.dancers.length === b.dancers.length &&
   a.dancers.every((d, i) => d.id === b.dancers[i].id && d.x === b.dancers[i].x && d.y === b.dancers[i].y);
@@ -148,6 +149,36 @@ console.log('\n== 4. a hint is charged once, never refunded, and its marker is v
 
   const second = run.takeHint();
   check(second.spent === true && run.view(1000).elapsedSeconds === 121, `a second hint is a second minute (${run.view(1000).elapsedSeconds}s)`);
+}
+
+console.log('\n== 4b. a SUBMISSION carries the clock, not the time the player is judged on ==');
+{
+  // THE SERVER ADDS THE HINT CHARGE ITSELF from `hintsUsed` (DESIGN.md 6, 10), so the transcript must carry the
+  // CLOCK: sending the charged total would charge every hint twice. The round trip is the check — the two numbers
+  // the submission carries must reproduce exactly the time `view` reports, because that is the number the server
+  // recomputes with.
+  const run = fresh(4);
+  // ONE CALL, SO THE RUN IS STILL PLAYING: `go-b` walks the first hop of the route section 3 solves with, and a
+  // run that has already reached the goal cannot be hinted at all (the check below would be measuring that instead).
+  run.play('go-b', 0);
+  check(run.view(5000).elapsedSeconds === 5, `five seconds of thinking reads as five (${run.view(5000).elapsedSeconds})`);
+  run.takeHint();
+  const view = run.view(10_000);
+  const facts = run.submissionFacts(10_000);
+  check(view.elapsedSeconds === 10 + HINT_PENALTY_SECONDS, `the view reports the CHARGE (${view.elapsedSeconds} = 10 + ${HINT_PENALTY_SECONDS})`);
+  check(facts.clockSeconds === 10, `while the submission carries the clock alone (${facts.clockSeconds})`);
+  check(facts.clockSeconds + HINT_PENALTY_SECONDS * facts.hintsUsed === view.elapsedSeconds, 'and the two round trip to the number the player is judged on');
+  // NEGATIVE CONTROL, MEASURED: sending `view.elapsedSeconds` instead double-charges, which is a run worth less
+  // than it was — the check above is the only one that catches it, because both numbers are "a time" and only
+  // their sum is pinned to the view.
+  check(facts.clockSeconds !== view.elapsedSeconds, `NEGATIVE CONTROL: the two numbers differ by exactly the charge (${view.elapsedSeconds - facts.clockSeconds} s)`);
+  check(facts.hintsUsed === 1, `and how many hints were spent travels beside it (${facts.hintsUsed})`);
+  check(facts.calls.join(',') === 'go-b', `with the player's own line as the transcript (${facts.calls.join(',')})`);
+  const solved = fresh(4);
+  solved.play('go-b', 0);
+  solved.play('go-d', 1000);
+  check(solved.view(1000).outcome === 'solved' && solved.submissionFacts(1000).score === solved.view(1000).result.score, 'a solved run carries the score the view shows, as the claim the server clamps');
+  check(run.submissionFacts(10_000).score === 0, 'and a run still playing carries no score at all');
 }
 
 console.log('\n== 5. the allowance is a HARD CAP, and undo is what frees it ==');

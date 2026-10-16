@@ -750,6 +750,44 @@ async function startServerDaily(): Promise<void> {
   showDaily(answer.value.seed, day);
 }
 
+/**
+ * Hand a solved Daily to the server, and adopt what it decides.
+ *
+ * THE HINT DEBIT IS THE REASON THIS EXISTS. Offline, a hint is debited the moment it is taken (`takeHint`), because
+ * the device is the only record. With a server, the balance is ITS (DESIGN.md 10, 11), and the debit it applies is
+ * the `hintsUsed` in the transcript — so the server's answer is what the app adopts, and a modified client that
+ * reported zero hints would still have spent one on the device it lied from. What remains OUTSIDE the server's
+ * knowledge is a Daily that is never submitted at all: an abandoned run owes a hint nobody debits (DESIGN.md §15
+ * Q19 records that, with the fix it needs).
+ */
+async function submitSolvedDaily(run: DailyRun): Promise<void> {
+  const facts = run.submissionFacts(performance.now());
+  const answer = await submitRun({
+    runId: dailyRunId,
+    mode: 'daily',
+    levelIndex: run.view(performance.now()).level.index,
+    date: dailyDay,
+    elapsedSeconds: facts.clockSeconds,
+    hintsUsed: facts.hintsUsed,
+    attempts: 0,
+    calls: facts.calls,
+    score: facts.score,
+  });
+  if (!answer.ok) {
+    // THE LOCAL RECORD STANDS (it was written above), and the refusal is shown rather than swallowed: the run is
+    // real either way, and `POST /me/runs:bulk` is what will claim a ledger the server never heard.
+    dailyScreen.say(`The server would not record this Daily: ${answer.failure.message}`, 'bad');
+    return;
+  }
+  save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  dailyScreen.say(
+    `Recorded — the server scores it ${answer.value.run.score} points. Best on this board: ${answer.value.board.score}.`,
+    'ok',
+  );
+  paintBalance();
+  persist();
+}
+
 /** Issue today's challenge from wherever the app is configured to get it. */
 function issueDaily(): void {
   if (apiConfigured()) void startServerDaily();
@@ -849,9 +887,13 @@ function paintDaily(): void {
   const view = daily.view(performance.now());
   dailyScreen.show(view);
   // A SOLVED RUN IS RECORDED FROM HERE, and recording is idempotent on `dailyRunId` — so this can live in a
-  // paint that the frame loop calls, and only a NEW entry is written to storage.
+  // paint that the frame loop calls, and only a NEW entry is written to storage. THE SAME EDGE SUBMITS IT when an
+  // API is configured, so the two records cannot disagree about which run was the first.
   if (view.outcome === 'solved' && view.result) {
-    if (recordDailyRun(dailyRunSeed, view.result.elapsedSeconds, view.result.score) > 0) persist();
+    if (recordDailyRun(dailyRunSeed, view.result.elapsedSeconds, view.result.score) > 0) {
+      persist();
+      if (apiConfigured()) void submitSolvedDaily(daily);
+    }
   }
   // THE REVIEW BUTTONS APPEAR WHEN THE RUN IS OVER (DESIGN.md 9: "on solving, or on giving up, the player can
   // replay their own line and the generator's shortest line").

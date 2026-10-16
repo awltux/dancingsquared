@@ -227,6 +227,29 @@ export class DailyRun {
     return { mine: this.session.moves, shortest: [...this.puzzle.solution] };
   }
 
+  /**
+   * The run as a SUBMISSION carries it, in the shape the server's `POST /runs` takes.
+   *
+   * WHY THE CLOCK IS SENT RATHER THAN THE TIME THE PLAYER IS JUDGED ON. `view().elapsedSeconds` is the clock PLUS
+   * the hint charge, and the server adds that charge itself from `hintsUsed` (DESIGN.md 6, 10: one term, one place
+   * to tune) — so sending the charged total would charge every hint twice. The subtraction here is the exact
+   * inverse of `elapsedSeconds(clock, hints)` in `puzzle/score.ts`, and `daily-run-probe.mjs` pins the round trip
+   * rather than trusting it: a run with three hints and a hundred seconds of thinking is worth what a run with no
+   * hints and 280 seconds is, and the server recomputes it from these two numbers.
+   *
+   * `moves` IS THE TRANSCRIPT the server walks through the engine to verify the goal (DESIGN.md 11), and it is the
+   * player's OWN line — a different route to the same board is legitimate and scores the same.
+   */
+  submissionFacts(nowMs: number): { clockSeconds: number; calls: string[]; hintsUsed: number; score: number } {
+    const clockSeconds = this.clock.elapsedSeconds(nowMs);
+    return {
+      clockSeconds,
+      calls: [...this.session.moves],
+      hintsUsed: this.hintsUsed,
+      score: this.result ? this.result.score : 0,
+    };
+  }
+
   view(nowMs: number): DailyView {
     const clockSeconds = this.clock.elapsedSeconds(nowMs);
     const session = this.session.view();

@@ -256,5 +256,28 @@ console.log('\n== 7. a completed run is handed over, and what comes back is what
   check(malformed.ok === false && malformed.failure.code === 'bad_response', `a run answer with no score or balance is refused (${malformed.failure?.code})`);
 }
 
+console.log('\n== 8. a Daily submission names its date and carries its line ==');
+{
+  const OUTCOME = {
+    run: { runId: 'd-1', score: 42, elapsedSeconds: 70, scoreVersion: 1, clamped: false, duplicate: false },
+    hints: { hints: 0, successes: 1, granted: false },
+    board: { period: '2026-10-15', score: 42, runs: 1 },
+    progress: null,
+  };
+  const wired = deps('http://localhost:8090', { status: 200, body: OUTCOME });
+  const answer = await submitRun(
+    { runId: 'd-1', mode: 'daily', levelIndex: 2, date: '2026-10-15', elapsedSeconds: 10, hintsUsed: 1, attempts: 0, calls: ['Allemande Left', 'Boys Run'], score: 50 },
+    wired.api,
+  );
+  check(answer.ok === true && answer.value.board.period === '2026-10-15', `a Daily run is accepted against its day (${answer.value.board.period})`);
+  check(answer.value.progress === null, 'and it reports no progress, because a Daily finishes no drill');
+  const sent = JSON.parse(wired.fetch.calls[0].init.body);
+  // ONE FACT, ONE NAME: the body's day field is `date`, the same word DESIGN.md 11's table uses for the query
+  // parameter — a client that had to know `day` here and `date` there was the wart this probe was written to close.
+  check(sent.date === '2026-10-15' && sent.day === undefined, `the body names the date and not a second word for it (${JSON.stringify(sent).slice(0, 60)}…)`);
+  check(sent.drillId === undefined && sent.mode === 'daily', 'with no drillId, because a Daily answers no issued drill');
+  check(sent.calls.length === 2 && sent.hintsUsed === 1, `and the line with the hints it spent (${sent.calls.length} calls, ${sent.hintsUsed} hint)`);
+}
+
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

@@ -207,15 +207,15 @@ console.log('\n== 6. the two hint rules, from the server side ==');
 
   // AND A SPEND IS DEBITED, CLAMPED AT ZERO. The player holds one hint; a Daily run that claims it takes it, and a
   // second run claiming one again cannot go below zero.
-  const day = DAY;
+  const date = DAY;
   const published = puzzleFor(four[0].seed, levelAt(LEVEL));
-  await store.put(publishedDailyKey(LEVEL, day), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
   const line = published.puzzle.solution;
-  const spent = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, day, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
+  const spent = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
   check(spent.status === STATUS.ok && spent.body.hints.hints === 0, `a Daily run spends the hint it claims (${spent.body.hints?.hints})`);
-  const overspend = await postRun(submit('r6', { runId: 'daily-2', mode: 'daily', levelIndex: LEVEL, day, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
+  const overspend = await postRun(submit('r6', { runId: 'daily-2', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
   check(overspend.status === STATUS.ok && overspend.body.hints.hints === 0, `and claiming one with an empty balance cannot go below zero (${overspend.body.hints?.hints})`);
-  const tooMany = await postRun(submit('r6', { runId: 'daily-3', mode: 'daily', levelIndex: LEVEL, day, elapsedSeconds: 30, hintsUsed: 4, calls: line }), deps);
+  const tooMany = await postRun(submit('r6', { runId: 'daily-3', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 4, calls: line }), deps);
   check(tooMany.status === STATUS.badRequest && tooMany.body.error.code === 'bad_hints_used', `while a claim of four hints is refused outright (${tooMany.body.error?.code})`);
 }
 
@@ -226,7 +226,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, and its board is a B
   const generated = puzzleFor(seed, levelAt(LEVEL));
   await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
 
-  const short = await postRun(submit('r7', { runId: 'd-1', mode: 'daily', levelIndex: LEVEL, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  const short = await postRun(submit('r7', { runId: 'd-1', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(short.status === STATUS.ok, `a line that reaches the goal is accepted (${short.status})`);
   const best = short.body.board.score;
   check(short.body.progress === null, 'and a Daily run finishes no drill');
@@ -235,7 +235,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, and its board is a B
   // THE DAILY'S BOARD IS A BEST, NOT A TOTAL, and the only way a replay can differ is TIME (the line is the
   // same): a slow run of the same challenge must not lower what a fast one earned. MEASURED with the two
   // scores in the check, so a cumulative rule (which would ADD them) fails it by an order of magnitude.
-  const slow = await postRun(submit('r7', { runId: 'd-slow', mode: 'daily', levelIndex: LEVEL, day: DAY, elapsedSeconds: 5000, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  const slow = await postRun(submit('r7', { runId: 'd-slow', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 5000, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(slow.status === STATUS.ok && slow.body.run.score < best, `a slow replay scores less (${slow.body.run?.score} vs ${best})`);
   check(slow.body.board.score === best && slow.body.board.runs === 2, `and the board kept the best while counting both runs (${slow.body.board.score}, ${slow.body.board.runs} runs)`);
 
@@ -246,13 +246,13 @@ console.log('\n== 7. the Daily: walked, priced on its line, and its board is a B
   await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION }, null);
   const twoSteps = puzzleFor(level2Seed, levelAt(2));
   check(twoSteps.puzzle.solution.length === 2, `the level-2 challenge has a two-call solution (${twoSteps.puzzle.solution.length})`);
-  const shortLine = await postRun(submit('r7', { runId: 'd-3', mode: 'daily', levelIndex: 2, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [twoSteps.puzzle.solution[0]] }), deps);
+  const shortLine = await postRun(submit('r7', { runId: 'd-3', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [twoSteps.puzzle.solution[0]] }), deps);
   check(shortLine.status === STATUS.badRequest && shortLine.body.error.code === 'not_solved', `a line that stops short is refused (${shortLine.status} ${shortLine.body.error?.code})`);
-  const fullLine = await postRun(submit('r7', { runId: 'd-3b', mode: 'daily', levelIndex: 2, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: twoSteps.puzzle.solution }), deps);
+  const fullLine = await postRun(submit('r7', { runId: 'd-3b', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: twoSteps.puzzle.solution }), deps);
   check(fullLine.status === STATUS.ok, `while the whole line at the same level is accepted (${fullLine.status})`);
-  const illegal = await postRun(submit('r7', { runId: 'd-4', mode: 'daily', levelIndex: LEVEL, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: ['Not A Call At All'] }), deps);
+  const illegal = await postRun(submit('r7', { runId: 'd-4', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: ['Not A Call At All'] }), deps);
   check(illegal.status === STATUS.badRequest && illegal.body.error.code === 'not_solved', `and an illegal call is refused with the engine's reason (${illegal.body.error?.message?.slice(0, 60)})`);
-  const unpublished = await postRun(submit('r7', { runId: 'd-5', mode: 'daily', levelIndex: 3, day: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [] }), deps);
+  const unpublished = await postRun(submit('r7', { runId: 'd-5', mode: 'daily', levelIndex: 3, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [] }), deps);
   check(unpublished.status === STATUS.notFound && unpublished.body.error.code === 'no_published_daily', `a day nobody published is a 404 (${unpublished.status} ${unpublished.body.error?.code})`);
 }
 
@@ -299,7 +299,7 @@ console.log('\n== 9. refusals, and the board keys ==');
     [{ ...base, calls: 'Allemande Left' }, 'calls that are not an array'],
     [{ ...base, drillId: undefined }, 'no drillId'],
     [{ ...base, drillId: '9:9' }, 'a drill that is not the issued one'],
-    [{ ...base, mode: 'daily', day: 'yesterday' }, 'a daily without a day'],
+    [{ ...base, mode: 'daily', date: 'yesterday' }, 'a daily without a date'],
   ];
   for (const [body, why] of cases) {
     const answer = await postRun(submit('r8', body), deps);

@@ -131,12 +131,12 @@ async function verifyDaily(
   deps: Deps,
   level: ReturnType<typeof levelAt>,
 ): Promise<{ source: Source } | { refusal: ApiResult }> {
-  const day = submission.day ?? '';
-  const stored = await deps.store.get(publishedDailyKey(submission.levelIndex, day));
-  if (!stored) return { refusal: failure(STATUS.notFound, 'no_published_daily', `level ${submission.levelIndex} has no published challenge for ${day}`) };
+  const date = submission.date ?? '';
+  const stored = await deps.store.get(publishedDailyKey(submission.levelIndex, date));
+  if (!stored) return { refusal: failure(STATUS.notFound, 'no_published_daily', `level ${submission.levelIndex} has no published challenge for ${date}`) };
   const value = stored.value as { seed?: unknown; poolVersion?: unknown };
   if (typeof value.seed !== 'number' || typeof value.poolVersion !== 'string') {
-    return { refusal: failure(STATUS.unavailable, 'unreadable_daily', `the published challenge for ${day} is not a record this build can read`) };
+    return { refusal: failure(STATUS.unavailable, 'unreadable_daily', `the published challenge for ${date} is not a record this build can read`) };
   }
   if (value.poolVersion !== MAIN_POOL.version) {
     return { refusal: failure(STATUS.conflict, 'stale_pool', `the challenge was published against pool ${value.poolVersion}, and this build serves ${MAIN_POOL.version}`) };
@@ -213,7 +213,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
   const submission = parsed.submission;
   const level = levelAt(submission.levelIndex);
   const nowMs = deps.clock.nowMs();
-  const period = submission.mode === 'daily' ? (submission.day ?? '') : seasonOf(nowMs);
+  const period = submission.mode === 'daily' ? (submission.date ?? '') : seasonOf(nowMs);
   const runItem = runKey(who.playerId, submission.runId);
 
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {

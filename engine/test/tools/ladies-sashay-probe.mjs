@@ -134,10 +134,22 @@ console.log(`\n== the caller's sequence: Static Square -> hold hands -> ladies i
   const fromHome = (asset.table.edges['Static Square'] ?? []).filter((e) => e.endFormation === 'Circle');
   console.log(`\n  states with an edge INTO Circle: ${[...new Set(intoCircle)].join(', ') || '(none)'}`);
   console.log(`  edges Static Square -> Circle  : ${fromHome.length}`);
-  check(intoCircle.length > 0 && [...new Set(intoCircle)].every((s) => s === 'Circle'),
-    'EVERY edge into the Circle state comes from Circle itself - it is an ISLAND in the ms FSM');
-  check(fromHome.length === 0,
-    'and nothing leaves Static Square for Circle, so no sequence from a squared set can reach the figure');
+  // THE CIRCLE STATE IS NOT AN ISLAND, AND IN THE STALE ASSET IT WAS. Both claims here are the OPPOSITE
+  // of what this probe asserted until `poc/src/assets/fsm-ms.json` was regenerated: that asset was built
+  // 2026-09-22 and the circle family was re-authored AFTER it (`ms/circle.xml`'s `CIRCLE LEFT FAMILY FROM
+  // STATIC SQUARE TO CIRCLE`), so the island was a fact about the OLD authoring that the staleness
+  // preserved. MEASURED on the regenerated asset: 9 distinct states have an edge into `Circle`, and
+  // `Static Square -> Circle` has 8 edges - `Circle Left` and its `1/4` / `1/2` / `3/4` spellings plus the
+  // four `Circle Right` ones, each `reading: whole`, `endKind: state`.
+  //
+  // The counts are REPORTED rather than pinned exactly: `engine/test/fsm-asset.mjs` already fails on any
+  // difference between the stored asset and the engine's own table, so an exact pin here would be a second
+  // place to re-pin for no extra coverage. What IS pinned is the property the island claim denied.
+  const intoStates = [...new Set(intoCircle)];
+  check(intoCircle.length > 0 && !intoStates.every((s) => s === 'Circle'),
+    `the Circle state is NOT an island: ${intoStates.length} distinct states have an edge into it (${intoStates.join(', ')})`);
+  check(fromHome.length > 0,
+    `and ${fromHome.length} edges leave Static Square for Circle, so a squared set can now REACH a circle - the route the island used to deny`);
   // The engine's own titles, measured from a squared set. `Hold Hands` is not what it is called here.
   check((seq.getVariants('Hold Hands') ?? []).length === 0,
     '"Hold Hands" is not a title in this vocabulary (the hand-join is authored as "Join Hands")');

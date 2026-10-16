@@ -66,9 +66,17 @@ const check = (cond, msg) => {
 // and every one is a `Heads ...`/`Sides ...`/`Couples ...` call that cannot be evaluated at all without
 // couples, so the anonymous board was answering "not legal here" for calls the engine could not read.
 // That is also why the reading distribution moves only in `whole`: those calls have no partition path.
-const EXPECTED_STATES = 65;
-const EXPECTED_EDGES = 2308;
-const EXPECTED_CATALOG = 274;
+// 274 / 65 / 2308 -> 290 / 70 / 3958 IS THE CORPUS GROWING, AND IT IS THE FIRST RE-PIN TAKEN WITH THE
+// ASSET REGENERATED RATHER THAN LEFT STALE. `d3c0800` bumped the table to SCHEMA 3 and did not regenerate
+// the asset, which that file's own comment says is done in the same change; the asset sat at schema 2 /
+// 274 calls for every commit since, so this harness could not tell a real table change from the staleness
+// and the shipped FSM view could not label the tam behind an `@embed` node. MEASURED after
+// `node poc/scripts/build-fsm-asset.mjs` ("built in 55867ms: 70 states, 3958 edges"): catalog 274 -> 290
+// (+10 at `d3c0800`, +4 at `ab254d9`, +2 at `a476a4f`), states 65 -> 70, edges 2308 -> 3958. The five
+// extra states are the formations the new calls declare; nothing about the SCOPE rule above changed.
+const EXPECTED_STATES = 70;
+const EXPECTED_EDGES = 3958;
+const EXPECTED_CATALOG = 290;
 
 const msFiles = {};
 for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
@@ -181,7 +189,14 @@ const freshEdges = fresh.edges ?? {};
   // three numbers together are +48 of which +32 land on a state and +16 do not. `full-tiling` (665),
   // `partial` (421) and `out-of-scope` (17) do not move at all, which is the shape the change predicts:
   // identity does not alter how much of a board a call moves, only WHICH calls are admitted.
-  const PINNED = { whole: 1222, 'full-tiling': 665, partial: 421, state: 1651, 'out-of-scope': 17, novel: 640 };
+  //
+  // AND 1222/665/421/1651/17/640 -> 1643/1186/1129/3598/14/346 IS THE SAME CORPUS GROWTH as the counts
+  // above, measured on the REGENERATED asset rather than the stale one: the six numbers sum to the new
+  // edge count (`1643 + 1186 + 1129 = 3958`), and the reading distribution moves in all three classes
+  // where the identity change moved only `whole`. `out-of-scope` FALLS 17 -> 14 and `novel` 640 -> 346,
+  // which is the direction the graph says it should: more of the catalogue is now admitted from a named
+  // state, so fewer edges land nowhere.
+  const PINNED = { whole: 1643, 'full-tiling': 1186, partial: 1129, state: 3598, 'out-of-scope': 14, novel: 346 };
   let moved = 0;
   for (const [k, want] of Object.entries(PINNED)) {
     const got = reading[k] ?? kind[k];

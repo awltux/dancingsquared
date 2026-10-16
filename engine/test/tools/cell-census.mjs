@@ -276,14 +276,21 @@ console.log('\n== 5. would ARRANGEMENT-keyed nodes help? (REFUTED - see the comm
   }
   console.log(`  and it would cost: of ${targeted} edges with a target, ${declaredPattern} end on a declared pattern and ` +
     `${newPattern} (${((newPattern / targeted) * 100).toFixed(1)}%) on one no declared shape realises, so those become transients`);
-  check(scoped.geometries.length === 70 && cells === 105,
+  check(scoped.geometries.length === 84 && cells === 122,
     `the sizes are pinned (${scoped.geometries.length} geometries -> ${cells} cells, the SCOPED vocabulary)`);
   // RE-PINNED at 1372 targeted: the canonical identity on the named states admitted 48 more edges, 32 of
   // which have a target, so the pool this price is measured against grew. `declaredPattern` 548 -> 563 is
   // the same change seen from the other side - a board that reads its sequence and relationship lands its
   // ends on cells the vocabulary CAN name more often. `newPattern` is unchanged at 219, so the cost of
   // re-keying is the same and the refutation is unaffected.
-  check(targeted === 1372 && newPattern === 219 && declaredPattern === 563,
+  //
+  // AND 70 / 105 / 1372 / 219 / 563 -> 84 / 122 / 2983 / 331 / 729 IS THE CORPUS GROWTH *PLUS* THE
+  // REGENERATED ASSET, which is why this harness is re-pinned AFTER the asset rather than with it: the
+  // SIZES and the 12-number block below are live-engine numbers, but `targeted` is counted from the
+  // STORED asset's edges, so it moved from 1372 to 2983 the moment the asset was rebuilt at 3958 edges.
+  // The price is consequently measured over a bigger pool: 729 kept / 331 lost (24.5% -> 11.1%), so the
+  // cost of re-keying FALLS and the refutation this section carries is unchanged in direction.
+  check(targeted === 2983 && newPattern === 331 && declaredPattern === 729,
     `and so is the price (${declaredPattern} kept, ${newPattern} lost of ${targeted} targeted edges)`);
 }
 
@@ -321,19 +328,34 @@ console.log('\n== 6. the pinned numbers (re-pin with the reason) ==');
   // identity takes the fully-readable cell vocabulary from 22 to 103 - better than quadrupling it - and
   // the lettered cells from 50 to 112. That is the measured answer to "does the cell vocabulary have
   // anything to key on": it had very little, and identity is what it was missing.
+  // RE-PINNED ONCE MORE, AND THIS TIME THE MOVEMENT IS THE CORPUS AND THE ASSET RATHER THAN A RULE:
+  // the ms catalogue went 274 -> 290 entries and the asset was regenerated at 70 states / 3958 edges, so
+  // the sweep starts from more named states and each of them has more edges. MEASURED, all eleven numbers
+  // move UP except the two cell-shape counts, and they move DOWN:
+  //
+  //   declaredGeometries 155 -> 171   stateSet 70 -> 84   namedGeometries 129 -> 134
+  //   setupOnlyGeometries 26 -> 37    applications 1933 -> 3061
+  //   onLattice 861 -> 1083           offLattice 1072 -> 1978   novelGeometries 670 -> 1431
+  //   cells 301 -> 319                letteredCells 112 -> 110  fullCells 103 -> 86
+  //
+  // `letteredGeometries` (9) does NOT move, which is the one number here that says the vocabulary itself
+  // was not redefined - only swept over more boards. `fullCells` FALLING 103 -> 86 while `cells` RISES is
+  // the same fact seen from the other side: the new states reach 18 more cell SHAPES, but a smaller share
+  // of the 319 are fully readable, because the added boards include setups whose relationship does not
+  // read. That is a ratio movement, not a vocabulary movement, and the section's conclusion is unchanged.
   const PINNED = {
-    declaredGeometries: 155,
-    stateSet: 70,
-    namedGeometries: 129,
-    setupOnlyGeometries: 26,
+    declaredGeometries: 171,
+    stateSet: 84,
+    namedGeometries: 134,
+    setupOnlyGeometries: 37,
     letteredGeometries: 9,
-    applications: 1933,
-    onLattice: 861,
-    offLattice: 1072,
-    novelGeometries: 670,
-    cells: 301,
-    letteredCells: 112,
-    fullCells: 103,
+    applications: 3061,
+    onLattice: 1083,
+    offLattice: 1978,
+    novelGeometries: 1431,
+    cells: 319,
+    letteredCells: 110,
+    fullCells: 86,
   };
   const measured = {
     declaredGeometries: lattice.geometries.length,

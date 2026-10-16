@@ -111,11 +111,17 @@ console.log('== the call set, reproduced from the generator ==');
   // per file), and the number the stored asset records as `catalogCount`. The registry is keyed by
   // TITLE, so a title authored in two files registers once: fewer registry keys than entries is
   // expected, and the duplicate is named rather than tolerated silently.
+  //
+  // 274 -> 290 IS THE CORPUS GROWING, and it is re-pinned HERE rather than left to the asset's own
+  // staleness check (`fsm-asset.mjs`), because this check compares the LIVE catalogue against the STORED
+  // asset's `catalogCount` and so has to move whenever either does. Both sides are 290 now that
+  // `node poc/scripts/build-fsm-asset.mjs` has been re-run; the constant would have been the only thing
+  // failing, and the message above it would have read "290 ... built from 290" while it did.
   const pinnedAsset = JSON.parse(read('fsm-ms.json'));
   const byTitle = new Map();
   for (const e of entries) byTitle.set(e.name, (byTitle.get(e.name) ?? 0) + 1);
   const dupes = [...byTitle].filter(([, n]) => n > 1);
-  check(entries.length === 274 && pinnedAsset.catalogCount === 274,
+  check(entries.length === 290 && pinnedAsset.catalogCount === 290,
     `${entries.length} ms catalog entries, and the stored asset was built from ${pinnedAsset.catalogCount}`);
   check(titles.length === byTitle.size,
     `${titles.length} registered titles for ${byTitle.size} distinct titles` +
@@ -342,11 +348,20 @@ console.log('\n== the multi-arity pool: what a MIXED reading could actually reac
   // place and four in another at once. MEASURED, it cannot reach anything the engine does not
   // already do, and the reason is the SIZE SETS rather than the boards:
   //
-  //   {4,8}   104 titles  no mixed shape at all: 8 IS the whole-board apply, and [4,4] is already
-  //                       reachable homogeneously. This is 104 of the 107 "multi-arity" titles.
+  //   {4,8}    97 titles  no mixed shape at all: 8 IS the whole-board apply, and [4,4] is already
+  //                       reachable homogeneously. This is 97 of the 104 "multi-arity" titles.
+  //   {2,4,8}   4 titles  `Step to a Wave`, `Step to a Left-Hand Wave` and two more - the entire mixed
+  //                       pool, whose only mixed shape is 4+2+2 (210 labelled partitions each).
+  //   {2,8}     2 titles  NEW to this pool with the regenerated asset, and it does NOT open a mixed
+  //                       shape: 8 IS the whole-board apply and [2,2,2,2] is already reachable
+  //                       homogeneously, so there is nothing left to mix.
   //   {6,8}     1 title   `Column Circulate`: 8 - 6 = 2 and it has no 2-dancer authoring.
-  //   {2,4,8}   2 titles  `Step to a Wave`, `Step to a Left-Hand Wave` - the ENTIRE mixed pool, whose
-  //                       only mixed shape is 4+2+2 (210 labelled partitions each).
+  //
+  // WAS 107 TITLES IN THREE SETS (`4,8` 104, `6,8` 1, `2,4,8` 2); the regenerated catalogue gives
+  // 104 in FOUR, because titles moved between files as `ms/circle.xml` and the promenade family were
+  // re-authored. The set that matters - the one that can express a mixed partition - is `{2,4,8}`, and
+  // it GREW 2 -> 4 without the yield below moving off zero, so the re-pin records a wider pool that
+  // still admits nothing.
   //
   // The yield is then a measurement rather than a hope: over the FSM's own boards, count the boards
   // where EVERY block of some mixed partition matches a variant of its own size AND the engine does
@@ -364,8 +379,8 @@ console.log('\n== the multi-arity pool: what a MIXED reading could actually reac
   }
   console.log(`  ${multi.length} of ${titles.length} titles have variants at more than one built size`);
   console.log(`  their size sets: ${[...setCounts].sort((a, b) => b[1] - a[1]).map(([s, n]) => `{${s}} x${n}`).join(', ')}`);
-  check(multi.length === 107 && [...setCounts].map(([s, n]) => `${s}:${n}`).sort().join(' ') === '2,4,8:2 4,8:104 6,8:1',
-    `the multi-arity pool is ${multi.length} titles in exactly the three measured size sets (104 of them a set that admits no mixed shape)`);
+  check(multi.length === 104 && [...setCounts].map(([s, n]) => `${s}:${n}`).sort().join(' ') === '2,4,8:4 2,8:2 4,8:97 6,8:1',
+    `the multi-arity pool is ${multi.length} titles in exactly the four measured size sets (97 of them a set that admits no mixed shape)`);
 
   // A title is only in the MIXED pool if it has two or more usable (non-8) sizes - 8 is the
   // whole-board apply and cannot share a partition with anything.

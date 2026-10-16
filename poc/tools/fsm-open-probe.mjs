@@ -103,7 +103,17 @@ check(resolved > 1000, 'the great majority of edges resolve - the buttons are no
 check(coded > 50, 'and some really do not: the coded moves the FSM applies by rule are REPORTED, not silently opened as some other call');
 console.log(`    the ${codedNames.size} names with no catalogue entry, most used first:`);
 for (const [n, c] of [...codedNames.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)) console.log(`      ${String(c).padStart(4)}  ${n}`);
-check(codedNames.has('Promenade') || codedNames.has('Face Right'), 'among them a coded move (`Promenade` / `Face Right`), which is what makes the null branch a real answer');
+// THE WITNESS IS DERIVED FROM THE ENGINE'S OWN CODED-MOVE LIST, NOT TYPED, BECAUSE THE TYPED PAIR WENT
+// STALE. This check named `Promenade` and `Face Right` by hand and both have left this bucket: the coded
+// `Promenade` was removed at `4d8a82b` and has no edge in the regenerated asset at all, and `Face Right`
+// now resolves through the geometry fallback on every state it appears in, so it never reaches here.
+// MEASURED on the regenerated asset, the names with no catalogue entry AND no geometry answer are
+// `Join Hands` (70 edges), `Face Half` (70), `Do Sa Do` (12) and `Fan the Top` (4) - and every one of them
+// is a coded move (`coded-moves.ts` aliases: `['Join Hands']`, `['Face Half', 'U-Turn Back', 'Face Back']`,
+// and so on), which is exactly the property this check exists to assert. Asking the engine cannot go stale
+// that way.
+const codedSeen = [...codedNames.keys()].filter((n) => engine.CODED_MOVES.some((m) => m.aliases.includes(n)));
+check(codedSeen.length > 0, `among them ${codedSeen.length} coded move(s) the engine applies by rule (${codedSeen.join(', ')}), which is what makes the null branch a real answer`);
 check(exact > 100, `a real share of rows is named EXACTLY by the state (${exact}), which is why the setup is taken when it is a certainty`);
 check(fallback > exact, 'while more fall back - so the fallback is the common path, not an edge case');
 

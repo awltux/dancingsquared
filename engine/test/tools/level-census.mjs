@@ -240,7 +240,14 @@ console.log('\n== 3. strict vs permissive, MEASURED (the decision this file exis
   // from. The APP's own "Mainstream" is `sequencerCallsUpTo('ms')`, which pools the levels below and
   // is 18 titles more; run over that set the closure is 79 and leaks 35 rather than 78 and 34. Same
   // answer, one geometry more, and the difference is recorded in PLAN.md rather than averaged away.
-  const PINNED = { seed: 42, closure: 78, aboveMsReached: 34 };
+  //
+  // 42 / 78 / 34 -> 45 / 86 / 38 IS THE CORPUS GROWING, AND THE DIRECTION IS THE ONE THE DECISION NEEDS.
+  // The ms catalogue went 274 -> 290 entries when the asset was regenerated, so the declared set is 45
+  // names rather than 42, the permissive closure reaches 86 of 136 declared geometries, and the escape -
+  // the whole reason STRICT was chosen - grows 34 -> 38 rather than shrinking. A shrinking escape would
+  // have re-opened the decision in the other direction; this one makes the case for STRICT stronger, and
+  // the two checks below it still pass (leaks > 0 and undeclaredReachable > 0).
+  const PINNED = { seed: 45, closure: 86, aboveMsReached: 38 };
   const measured = { seed: seed.size, closure: reach.size, aboveMsReached: leaks.size };
   let moved = 0;
   for (const [k, want] of Object.entries(PINNED)) {

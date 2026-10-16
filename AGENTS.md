@@ -108,10 +108,13 @@ Rules that go with the table:
 - **A census that fails for a knowingly-stale artefact trains people to skip it.** Report the divergence;
   keep the rules about the engine.
 - **The text-encoding gate is repo-wide.** `npm run check:book`'s item 7 walks every `.md`/`.ts`/`.mjs`/
-  `.json`/`.html`/`.css`/`.txt` file in the repo — skipping vendored, generated and cached trees — for text
-  that has been round-tripped through a single-byte encoding, and it takes seconds. Run it after touching
-  any prose or code containing a non-ASCII character. A file whose SUBJECT is that corruption opts out with
-  an in-file `mojibake-check:allow` sentinel, never by a name hidden in a list.
+  `.json`/`.html`/`.css`/`.txt` file **that git TRACKS** — skipping vendored, generated and cached trees — for
+  text that has been round-tripped through a single-byte encoding, **and for control characters below 0x20 (tab,
+  LF and CRLF excepted) and a CR that is not part of a CRLF**, which is the damage PowerShell's own escapes do
+  (§8 trap 24). It takes seconds. Run it after touching any prose or code containing a non-ASCII character. A
+  file whose SUBJECT is that corruption opts out with an in-file `mojibake-check:allow` sentinel, never by a name
+  hidden in a list; there is no opt-out from the control-character check, because nothing needs to write a BEL.
+  The TRACKED rule is why an ignored scratch file (`poc-matrix/_g.txt`, 448 bytes of NULs) does not redden it.
 - **Do not add a gate whose fix is in another commit** (§0).
 
 ---
@@ -387,7 +390,15 @@ with its measurement, in the same commit that found it.
     still parsed, the line printed as `FIELD. ttempts is a SCORE FACTOR (ttemptFactor)`, and only a byte dump
     (`[int]$_` over the line's characters — the corruption was `0x07`, not a missing character) showed what had
     happened. Use SINGLE-quoted strings for any pattern containing a backtick (doubling an inner `''`), or the
-    editor tools, which take literal text.
+    editor tools, which take literal text. **AND IT IS NOW A GATE, which it was not for as long as this trap has
+    existed**: `npm run check:book`'s text walk fails on any control character below 0x20 (tab, LF and CRLF excepted)
+    and on a CR that is not part of a CRLF — the last being the ghost of `` `r ``, which splits a comment in two.
+    MEASURED when the check landed: the byte scan found SEVEN sites in SIX files (`` `abuse.ts ``,
+    `` `attemptFactor `` and `` `applyToSelection `` — each having lost its CLOSING backtick to the escape,
+    `` `attempts `` and `` `recordDrillAnswer `` in `game/src/main.ts`, the `` `apiCall`'s `anonymous `` pair,
+    and `` `auth-client-probe.mjs ``), every one of them invisible to the mojibake check beside it, and the first
+    run of the new check reported an ignored scratch file (`poc-matrix/_g.txt`) rather than a source file — which
+    is why both text checks now read the TRACKED set.
 25. **A request header a mode does not ADVERTISE is not merely refused — the request is never sent, and the failure
     looks like a dead server.** `api/src/dev-server.ts` puts `x-dev-player` in `access-control-allow-headers` only
     when `DSQ_AUTH=dev` (a deliberate omission, pinned as a NEGATIVE CONTROL in `api/test/auth-probe.mjs`), and a

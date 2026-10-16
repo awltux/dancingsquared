@@ -122,7 +122,7 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
 
 console.log('\n== 3. a session, when there is one, replaces the device id ==');
 {
-    // THE SESSION IS SEEDED AS THE STORED ITEM session.ts WRITES, so this probe and uth-client-probe.mjs cannot
+    // THE SESSION IS SEEDED AS THE STORED ITEM session.ts WRITES, so this probe and `auth-client-probe.mjs` cannot
   // disagree about where a token lives — the shape is imported rather than spelled.
   const wired = deps('http://localhost:8090', { status: 200, body: { drill: DRILL, regime: { finished: 0, length: 3 } } }, { [SESSION_KEY]: JSON.stringify({ accessToken: 'jwt-abc', refreshToken: 'r-1', playerId: 'emu:1', email: 'eve@example.com', expiresAtMs: Date.now() + 3_600_000 }) });
   await issueDrill(1, wired.api);

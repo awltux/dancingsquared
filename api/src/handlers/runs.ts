@@ -29,7 +29,7 @@ import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
 import { asAttempt, elapsedSince } from '../attempt-row.ts';
 // The refusal COUNT is not wired here: it is applied at the route table, so every endpoint is covered by
-// construction (buse.ts: countingRefusals).
+// construction (`abuse.ts: countingRefusals).
 import { explains, wrongPresses } from '../press-log.ts';
 import { readIssuedDrill } from '../issued-drill.ts';
 import {

@@ -183,7 +183,7 @@ export interface RunRecordParts {
   /** What the client claimed, beside what was measured. */
   readonly claimedSeconds: number;
   /**
-   * The wrong tries the SERVER recorded, which is what ttemptFactor is priced on (A22).
+   * The wrong tries the SERVER recorded, which is what `attemptFactor` is priced on (A22).
    *
    * LIKE measuredSeconds, THIS IS NOT THE SUBMISSION'S FIELD: the claim is claimedAttempts, kept beside it so
    * an operator can see the two disagree.

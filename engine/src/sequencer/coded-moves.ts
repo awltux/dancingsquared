@@ -261,7 +261,7 @@ export interface CodedMove {
    *
    * The applicator has to resolve the deferred group from the STEPPED board - the dancers are out, and the
    * question is who is on the spot they left - so it needs that half on its own. It cannot get it from
-   * pplyToSelection, because that IS the whole call: for Step Forward and Back if Possible its answer is
+   * `applyToSelection`, because that IS the whole call: for Step Forward and Back if Possible its answer is
    * the already-decided board, and resolving from that would ask the question about the wrong start.
    */
   deferredHalf?: (b: Board, ids: number[]) => Board;

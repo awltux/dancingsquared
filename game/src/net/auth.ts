@@ -20,7 +20,7 @@ import { clearSession, readSession, sessionFromAuth, writeSession, type Session 
 
 /**
  * Every call in this module is ANONYMOUS — no identity header at all — because the credentials it needs are in the
- * body (piCall's nonymous). MEASURED: without it a signup also sent the device id, which the server ignores,
+ * body (`apiCall`'s `anonymous`). MEASURED: without it a signup also sent the device id, which the server ignores,
  * which a token mode refuses to advertise in CORS, and which puts a stable browser identifier on a request that
  * has no use for one.
  */

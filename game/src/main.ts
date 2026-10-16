@@ -78,11 +78,11 @@ let serverDrill: IssuedDrill | null = null;
 /**
  * THE PRESSES POSTED SO FAR, as one chain, so the submission can wait for them (DESIGN.md 11.1, A22).
  *
- * ttempts is counted from what POST /drill/answer RECORDED, so a run submitted before its presses arrived is
+ * `attempts` is counted from what POST /drill/answer RECORDED, so a run submitted before its presses arrived is
  * refused 
 o_press_log — a refusal this app would have caused itself rather than a cheat it caught. Chaining
  * rather than Promise.all keeps the recorded order the order the player pressed in, and the chain never rejects
- * (ecordDrillAnswer answers with an ApiResult), so one failed press does not stop the rest from being sent.
+ * (`recordDrillAnswer` answers with an ApiResult), so one failed press does not stop the rest from being sent.
  */
 let pressLog: Promise<unknown> = Promise.resolve();
 /** Where the server says the player is in the regime, for the header and the report of a finished season. */

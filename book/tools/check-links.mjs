@@ -17,6 +17,7 @@
 // wrong. So this is a gate, not a report.
 //
 //   node book/tools/check-links.mjs
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { toolsDir } from './lib/load.mjs';
@@ -171,10 +172,33 @@ const slashed = (p) => p.split('\\').join('/');
 const MOJIBAKE_ALLOW = 'mojibake-check:allow';
 const MOJIBAKE = /\u00e2\u20ac|\u00e2\u2020|\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]/;
 const TEXT_FILE = /\.(md|mjs|js|json|css|html|txt)$/;
+
+/**
+ * The files GIT tracks, because these two checks are about the REPO'S TEXT and not about what is on disk.
+ *
+ * THE WALK IS FILESYSTEM-BASED, which is right for the link checks (a page must resolve against what will be
+ * deployed) and wrong for these two: MEASURED, adding the control-character check below turned
+ * `poc-matrix/_g.txt` red — 448 bytes of NULs from a run artifact that `.gitignore` lists under "scratch / run
+ * artifacts (not source)" and that git does not track. A gate that reads an ignored artifact reports the
+ * DEVELOPER'S DISK rather than the repository, and the failure asks whoever sees it to repair something that is
+ * not source and may not exist in a fresh clone. The tracked set is what a clone has.
+ *
+ * IT APPLIES TO THE MOJIBAKE CHECK TOO. That loop has the same exposure and had simply never met a scratch file
+ * whose bytes looked like mojibake; leaving it on-disk while this one is tracked would be two answers to one
+ * question inside one file.
+ */
+const TRACKED = new Set(
+  execFileSync('git', ['ls-files'], { cwd: REPO, encoding: 'utf8' })
+    .split('\n')
+    .filter(Boolean)
+    .map((p) => slashed(p)),
+);
+
 for (const f of walk(REPO, WALK_SKIP).filter((f) => TEXT_FILE.test(f))) {
   const rel = slashed(relative(REPO, f));
   if (SKIP_FILE.has(rel)) continue; // a generated extract, not this repo's text - see SKIP_FILE
   if (rel.startsWith('book/dancingsquared_book/')) continue; // generated from the sources checked here
+  if (!TRACKED.has(rel)) continue; // not the repo's text - see TRACKED
   const text = markdown.get(f) ?? readFileSync(f, 'utf8');
   if (text.includes(MOJIBAKE_ALLOW)) continue;
   for (const m of text.matchAll(new RegExp(MOJIBAKE, 'g'))) {
@@ -182,6 +206,44 @@ for (const f of walk(REPO, WALK_SKIP).filter((f) => TEXT_FILE.test(f))) {
     problems.push(
       `${rel}:${line}: mojibake (${JSON.stringify(m[0])}) — the file was round-tripped through a single-byte encoding`,
     );
+  }
+}
+
+// ---- no control characters: a text file is not a place for a BEL
+//
+// THE MOJIBAKE CHECK ABOVE CANNOT SEE THIS DAMAGE, which is why it sat on `master`: it is not a round-trip through
+// a single-byte encoding, it is PowerShell's OWN escape handling eating a character. In a DOUBLE-quoted string
+// `` `a `` is the BEL control character (0x07), `` `n `` is a newline and `` `r `` a carriage return — so an editing
+// helper that rewrites a comment containing a backticked identifier produces a file that still parses, still passes
+// every other check here, and prints as "ttempts" to a reader. MEASURED: AGENTS.md §8 trap 24 records the first
+// case, and the byte scan that repaired SEVEN sites across SIX files (`` `abuse.ts ``, `` `attemptFactor ` ``, the
+// `apiCall`'s `anonymous` pair, two in `game/src/main.ts` and one in a probe) found the rest — none of which any
+// gate could have caught.
+//
+// A LONE CR IS THE SAME DAMAGE, and it is worth its own rule rather than being folded into the range below: this
+// repo is CRLF, so a CR whose next byte is not LF is either the ghost of `` `r `` (which splits a comment in two —
+// MEASURED in `game/src/main.ts`, where a line began `ecordDrillAnswer`) or a hand-edited mistake. Tab, LF and CRLF
+// are text; nothing else below 0x20 is.
+//
+// THERE IS NO OPT-OUT, deliberately. A file whose SUBJECT is mojibake has to be able to write mojibake down, but
+// nothing needs to write a control character, and a sentinel here would be the "name hidden in a list" this file
+// refuses for the check above. A file that ever genuinely needs one can add one in the change that proves it.
+const CONTROL_CHAR = /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/;
+const LONE_CR = /\r(?!\n)/;
+for (const f of walk(REPO, WALK_SKIP).filter((f) => TEXT_FILE.test(f))) {
+  const rel = slashed(relative(REPO, f));
+  if (SKIP_FILE.has(rel)) continue; // a generated extract, not this repo's text - see SKIP_FILE
+  if (rel.startsWith('book/dancingsquared_book/')) continue; // generated from the sources checked here
+  if (!TRACKED.has(rel)) continue; // not the repo's text - see TRACKED
+  const text = markdown.get(f) ?? readFileSync(f, 'utf8');
+  for (const m of text.matchAll(new RegExp(CONTROL_CHAR, 'g'))) {
+    const line = text.slice(0, m.index).split('\n').length;
+    const hex = m[0].codePointAt(0).toString(16).padStart(2, '0');
+    problems.push(`${rel}:${line}: control character 0x${hex} — an editing helper ate a character (AGENTS.md §8 trap 24)`);
+  }
+  for (const m of text.matchAll(new RegExp(LONE_CR, 'g'))) {
+    const line = text.slice(0, m.index).split('\n').length;
+    problems.push(`${rel}:${line}: a carriage return that is not part of a CRLF — the ghost of an escaped character (AGENTS.md §8 trap 24)`);
   }
 }
 

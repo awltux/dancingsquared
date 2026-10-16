@@ -77,3 +77,13 @@ export const attemptKey = (playerId: string, mode: 'drill' | 'daily', id: string
   pk: `attempts#${playerId}`,
   sk: mode === 'drill' ? `drill#${id}` : `daily#${id}`,
 });
+
+/**
+ * One imported run, keyed by the DEVICE's own id (DESIGN.md 11.1, A26).
+ *
+ * IT IS A SEPARATE PARTITION FROM `runs#` ON PURPOSE: everything under `runs#` is a result the server issued,
+ * timed, verified and possibly ranked, and everything under `history#` is a story a device brought with it. Keeping
+ * them apart means a query for RESULTS cannot accidentally include history, which is a mistake that would stay
+ * invisible until somebody's offline play turned up on a leaderboard.
+ */
+export const historyKey = (playerId: string, runId: string): ItemKey => ({ pk: `history#${playerId}`, sk: `run#${runId}` });

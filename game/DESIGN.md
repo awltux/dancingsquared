@@ -731,7 +731,7 @@ read-only, then sign in to be ranked*.
 | `POST /me/hints` | Daily | Spend a hint (§11.1 A23): the server debits the balance and records the spend against the challenge's attempt row, answering with the balance. **The spend is the anti-cheat part and it is the server's**; the call the hint names is still computed by the client until the recorded line exists (`POST /daily/move`), because §10's look-up runs over the board the player is standing on. |
 | `POST /daily/abandon` | Daily | Give up today's challenge (A25's accounting): the attempt is stamped as abandoned, ONCE (a second call keeps the first stamp), and it does NOT bar a later submission — the app lets a player replay both lines, and an abandonment is a fact about the attempt. The hint an abandoned run owes is no longer debited here: A23 moved the debit to the moment a hint is taken, which is strictly better. |
 | `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts` and `hintsUsed` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22) and debits the third (A23). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
-| `POST /me/runs:bulk` | both | Import a device's local ledger on login as **unranked history** — no board, no hints, no progress (A26) |
+| `POST /me/runs:bulk` | both | Import a device's local ledger as **unranked history** (A26): one `history#<playerId>` row per run, marked `unverified`, and NOTHING ELSE — no board, no hints, no progress, and no row in the results partition. A run already imported is SKIPPED rather than rewritten, so a second import claiming a better score for the same id changes no number. |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
 
 `GET /drill/current` works **without an account, and then it is a demo**: the server answers the level's first
@@ -899,7 +899,7 @@ recorded is refused `unrecorded_hints`, and a challenge nobody read cannot be ch
 | A22's Daily half | the Drill's presses are recorded and counted; the Daily still submits a line the server walks rather than a log of moves, and its `attempts` is 0 by design (§6) | `POST /daily/move` |
 | A23's naming | the spend is the server's and an abandoned challenge is recorded (`POST /daily/abandon`); the CALL a hint names is still computed by the client | `POST /daily/move` |
 | A25's remainder | EVERY endpoint's refusals increment the bounded `abuse#<playerId>` tally (the count is applied at the route table, so coverage is a property of the table); no structured log and no alarm yet | logging, the alarm, per-player throttling at the gateway |
-| A26 the claim is history-only | the endpoint does not exist yet | the claim |
+| A26's client half | the server keeps an imported ledger as unranked history and writes nothing else; the APP still holds its ledger locally and does not import it | the client's ledger import, with the sign-in surface |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider
 

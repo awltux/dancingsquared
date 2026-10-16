@@ -1870,6 +1870,15 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         and sorts by basename — the regeneration must take the order from a transcription that lives IN the repo, never
         from the PDF at build time, because `docs/` is untracked by design (AGENTS.md §6: the oracle is not ours to
         redistribute, so the repo carries the derived ORDER and its attribution, not the document).
+      * **AND THE UNMATCHED TITLES ARE DROPPED (the owner's decision)**: the pool becomes exactly the CALLERLAB
+        Mainstream set, and a corpus title with no teaching-order entry stays in the corpus but is never drawn into a
+        level. **THE CONSEQUENCE TO KNOW BEFORE DOING IT IS THE LADDER'S CEILING**: `poolFor` is the first `poolSize`
+        entries of the order, so a shorter pool lowers how deep the ladder can go — level 30 asks for
+        `poolSize(30) = 55` titles and `poolIsComplete` reports the pool as too short rather than quietly serving fewer
+        (`pool.ts` says the ceiling is "a MEASURED property of the ladder" and §5 says not to invent it). The census
+        (`game/tools/measure-ladder.mjs`) is what reports the new ceiling, so it is run with the change rather than
+        after it. The mapping itself — CALLERLAB entry to game title, one to one and family to several — lands with the
+        change as a table, because it is the artefact a reviewer has to read.
 12. **Sound.** *Recommend none at v1.* Voice or music is a large surface (autoplay policy, accessibility, ad
     interaction) and does not serve the objective.
 13. **Ads-only, or an ad-free tier?** *Recommend ads-only at v1*: a paid tier adds store fees, tax and a

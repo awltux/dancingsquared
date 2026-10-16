@@ -16,6 +16,16 @@ export const progressKey = (playerId: string, levelIndex: number): ItemKey => ({
 export const scheduleKey = (levelIndex: number): ItemKey => ({ pk: `schedule#${levelIndex}`, sk: 'current' });
 
 /**
+ * THE PLAYER'S LEVEL — the one row that says which level is THEIRS (DESIGN.md §15 Q17(vi)).
+ *
+ * IT IS A SEPARATE PARTITION FROM `progress#` BECAUSE THE TWO HAVE DIFFERENT CARDINALITIES. Progress is one row
+ * PER LEVEL (`progressKey(playerId, levelIndex)`) — a player keeps the finished set of every level they have
+ * been through — while the ladder is one row per player. `sk` is a constant because there is exactly one fact in
+ * the row and a sort key that could vary would make "which level am I on" a query rather than a read.
+ */
+export const ladderKey = (playerId: string): ItemKey => ({ pk: `ladder#${playerId}`, sk: 'current' });
+
+/**
  * One completed run, keyed by the id the CLIENT minted.
  *
  * THE ID IS THE KEY, WHICH IS WHAT MAKES A RETRY FREE: the run is created inside the same transaction that

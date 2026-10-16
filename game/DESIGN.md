@@ -735,7 +735,7 @@ read-only, then sign in to be ranked*.
 
 | Method and path | Mode | Purpose |
 |---|---|---|
-| `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
+| `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). **THE LEVEL IS THE SERVER'S TOO** (§15 Q17(vi)): for a request the server can name, the level comes from the player's LADDER row (`api/src/ladder.ts`) and `?level=` is not consulted; a caller the server cannot name has no ladder, so a demo is served the level it asks for and that is the only path on which the query is read. |
 | `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. **It is also the SKIP the player can choose** (§15 Q5: a mark-and-continue for a drill they cannot solve), which is why the control is offered only where the request can succeed. **The app asks for it only when the server does not already hold the drill as finished** (§15 Q21): a recorded run finishes the drill itself, so an advance after one asks the server to skip a drill that is already skipped — a `409` the endpoint is right to answer, and a refusal that A25 would count against an honest player. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
@@ -747,16 +747,19 @@ read-only, then sign in to be ranked*.
 | `POST /me/runs:bulk` | both | Import a device's local ledger as **unranked history** (A26): one `history#<playerId>` row per run, marked `unverified`, and NOTHING ELSE — no board, no hints, no progress, and no row in the results partition. A run already imported is SKIPPED rather than rewritten, so a second import claiming a better score for the same id changes no number. |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
 
-`GET /drill/current` works **without an account, and then it is a demo**: the server answers the level's first
-entry from the schedule, writes no Progress row for that caller, and reports it as a demo (§11.2). A signed-out
+`GET /drill/current` works **without an account, and then it is a demo**: the server answers the level it was
+asked for (a signed-out caller has no ladder row, so it is the only path on which `?level=` is read), writes no
+Progress row for that caller, and reports it as a demo (§11.2). A signed-out
 player therefore follows the same order as everyone else without a progression of their own, and the moment they
 sign in, their progress is a Progress row keyed on their `sub` — which is why the Progress row's key includes the
-player rather than the level alone.
+player rather than the level alone. An IDENTIFIED caller's level comes from their ladder row, and a full block
+promotes them (the promotion is evaluated on the READ, in `api/src/ladder.ts`, so a lost write heals itself).
 
 **The three endpoints as they are implemented (Phase 5.0 and 5.3), so the client can be written against them.**
 `GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, issuedAtMs,
 optionLabels, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
-level is finished. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
+level is finished. **`levelIndex` is the level the answer was SERVED FROM** — the ladder's for an identified
+caller — and it is what the client adopts rather than the level it asked with. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
 matters ("is this the drill I issued you?") is an exact comparison against the player's Progress row, and an
 opaque token would need a row or an index to resolve. `POST /drill/advance { drillId }` → `200 { regime }`.
 Refusals are `{ error: { code, message } }` with a status: `400 bad_level`/`bad_drill_id`, `401
@@ -2081,12 +2084,30 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         goes in the row (or in the key)" was the answer to a question this rule no longer asks.
       * **The hint balance still does not reset** — `hintsKey(playerId)` has no level and no season, and Q4's rule
         stands. Nothing in this rule changes it.
-      * **NEW: a LADDER ROW, because the server owns the level.** Today the level is the CLIENT's choice — `main.ts`
-        says "A LEVEL IS ASKED FOR, NOT DECIDED: the player's level comes from the save (1 until there is a ladder to
-        move up)" and `GET /drill/current?level=n` serves any level with a published schedule, with no check against
-        the player's history. Under the rule the server holds the player's level, serves that level, and promotes on a
-        completed one. Progress is already partitioned per level (`progressKey(playerId, levelIndex)`), so nothing is
-        lost — there is simply no row today that says which level is THE PLAYER'S.
+      * **NEW: a LADDER ROW, because the server owns the level — IMPLEMENTED.** `ladder#<playerId>` / `current`
+        (`api/src/keys.ts`'s `ladderKey`) holds `{ levelIndex }`, and `api/src/ladder.ts` owns the rule: an ABSENT row is
+        level 1 (a player who has never been promoted has no row), a row this build cannot read is REFUSED rather than
+        read as level 1, and a level whose block is full promotes to the next one. `GET /drill/current` reads it and
+        serves THAT level instead of the caller's `?level=`, which is now consulted only for a demo — a caller the server
+        cannot name has no ladder, so "their level" does not exist for them. `LEVEL_SIZE` (100) lives in
+        `game/src/puzzle/levels.ts` and is read by BOTH sides, the publisher's `--season` default and the promotion
+        rule, because a second copy of the number is how "the level is full" and "all its drills are finished" come to
+        disagree. **THE PROMOTION IS EVALUATED WHERE THE LEVEL IS READ, NOT WHERE A DRILL IS FINISHED**: an advance is
+        written on two paths (`POST /drill/advance` and `POST /runs`), so a promotion written on either is a second row
+        whose loss leaves a full block with no next drill to finish — nothing would ever retry it. Read-time evaluation
+        makes the level DERIVED from the same `finished` set the block draws, so the rule has one home and a lost write
+        heals on the next request. It also refuses to promote into an unpublished level: a player whose block is full at
+        the top of the published ladder stays there (and is answered `complete`) until the operator publishes the next
+        one, rather than being moved to a level whose every read is `404 no_schedule`. Progress is already partitioned
+        per level (`progressKey(playerId, levelIndex)`), so nothing is lost — the new row is the one that says which
+        level is THE PLAYER'S.
+        **WHAT IS NOT DONE, stated rather than implied**: `main.ts`'s rule is still "A LEVEL IS ASKED FOR, NOT
+        DECIDED: the player's level comes from the save", so the app keeps sending `?level=<save>` and the server
+        ignores it for an identified player. The app ADOPTS the answer's level for the Drill (`useLevel(spec)`), but it
+        does not write it back to the save, so the DAILY still asks for the save's level — a signed-in player whose
+        ladder has moved can therefore be on level 1 in the Drill and level 3 in the Daily. Closing that is a
+        client-side change (persist `drill.levelIndex` into the save and let `/puzzle` follow it) and is not in this
+        commit.
       * **NEW: the 10×10 block**, a `game/src/ui/` surface with no new endpoint: the drill answer already carries the
         regimen's `finished` and `length`, so a cell per finished drill out of the level's 100 needs nothing else. (The
         same "no probe loads `src/ui/`" rule applies to its check.)
@@ -2094,7 +2115,9 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         which it already supports — `publish-schedule --season N` is a deterministic function of
         `(poolVersion, level, N)` and a LONGER season has the shorter one as its PREFIX, so next month's publication
         cannot rewrite a drill already handed out (rule 2's lock). `scanSeason` reports the candidates it skipped
-        rather than silently repeating.
+        rather than silently repeating. **The flag's DEFAULT is now `LEVEL_SIZE` (100), not 31**, because Q17(v) fixed
+        what a level is: a level published short of its block size is a level no player can be promoted out of, and the
+        failure would look like a player who simply stopped progressing.
       * **"Drills unrestricted" needs no change either**: `currentDrill` hands out the next unfinished entry the moment
         the previous one is finished, with no day gate, while the Daily is already published per UTC day.
     **WHY PROMOTION STAYS REACHABLE, WHICH IS THE ONE THING THAT COULD HAVE BROKEN IT.** "There will be a limit at

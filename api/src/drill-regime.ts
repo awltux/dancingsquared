@@ -89,6 +89,22 @@ export function emptyProgress(levelIndex: number): DrillProgress {
 }
 
 /**
+ * Whether this level's block is FULL — every one of the level's `levelSize` drills finished.
+ *
+ * IT READS THE SAME `finished` SET THE BLOCK DRAWS, which is the whole reason it takes the progress record
+ * rather than a count handed in from elsewhere: the 10×10 surface fills a cell per finished drill, and a
+ * promotion rule fed a different number (a count of runs, a season length, the regime's length) would disagree
+ * with the block the player is looking at. A level whose regime is shorter than `levelSize` cannot fill its
+ * block at all, which is a publisher's job — see `LEVEL_SIZE`'s own comment.
+ *
+ * UNFINISHED IS NOT THE SAME AS ABSENT: a player who has finished nothing has an empty set and is not complete,
+ * so the rule is a comparison rather than a null check.
+ */
+export function levelComplete(progress: DrillProgress, levelSize: number): boolean {
+  return progress.finished.length >= levelSize;
+}
+
+/**
  * The first entry of the regime this player has not finished, or `entries.length` when the regime is complete.
  *
  * IT IS A COUNT OF THE PREFIX IN PRACTICE — a player advances one entry at a time and cannot finish a later

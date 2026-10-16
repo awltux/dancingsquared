@@ -17,13 +17,14 @@ import { drillAdvance, drillCurrent } from '../src/handlers/drill.ts';
 import { STATUS } from '../src/status.ts';
 import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDrillId } from '../src/drill-regime.ts';
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
-import { progressKey } from '../src/keys.ts';
+import { ladderKey, progressKey } from '../src/keys.ts';
+import { FIRST_LEVEL, asLadderItem, asLadderLevel } from '../src/ladder.ts';
 import { levelAt, optionLabels, puzzleFor } from '../src/levels.ts';
 import { startDevServer } from '../src/dev-server.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
-import { MAIN_POOL, levelSpec } from 'dancing-squared-game';
+import { LEVEL_SIZE, MAIN_POOL, levelSpec } from 'dancing-squared-game';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -266,16 +267,27 @@ console.log('\n== 7. refusals: what is refused, and what a refusal changes ==');
   check(anonymous.status === STATUS.ok && anonymous.body.demo === true, `a request with no player id is served as a demo (${anonymous.status}, demo=${anonymous.body.demo})`);
   check((await store.get(progressRow('p7', LEVEL))) === null, 'and it wrote NO progress row, because there is no player to key one on');
 
+  // A DEMO HAS NO LADDER, SO IT STILL CHOOSES ITS LEVEL — and that is the ONLY path on which the query's level is
+  // read at all, because the server owns a PLAYER's level (§15 Q17(vi)). The refusal for a malformed one
+  // therefore lives on this path now, and the check below its other half is what pins the difference.
   for (const [query, why] of [[{ level: 'x' }, 'not a number'], [{ level: '0' }, 'zero'], [{}, 'absent']]) {
-    const answer = await drillCurrent({ ...get('p7'), query }, deps);
-    check(answer.status === STATUS.badRequest && answer.body.error.code === 'bad_level', `level ${why} is a 400 (${answer.status} ${answer.body.error?.code})`);
+    const answer = await drillCurrent({ ...get(null), query }, deps);
+    check(answer.status === STATUS.badRequest && answer.body.error.code === 'bad_level', `a demo's level ${why} is a 400 (${answer.status} ${answer.body.error?.code})`);
   }
 
-  // A LEVEL IS TOTAL (the ladder is closed-form), so an index nobody published is refused by the SCHEDULE,
-  // not by being an unknown level. MEASURED: level 900 is a level with a pool and a depth.
-  const unpublished = await drillCurrent(get('p7', 900), deps);
-  check(unpublished.status === STATUS.notFound && unpublished.body.error.code === 'no_schedule', `a level with no published regime is a 404 no_schedule (${unpublished.status} ${unpublished.body.error?.code})`);
+  // THE TWO IDENTITIES, ONE INPUT, TWO ANSWERS: level 900 is a level of the ladder with no published regime, so a
+  // demo asking for it is refused by the SCHEDULE — while an identified player asking for it is served the level
+  // their LADDER row names, because for them the query is not consulted. MEASURED: the old check asserted the 404
+  // for an identified caller, which is the rule this change replaces.
+  const unpublished = await drillCurrent(get(null, 900), deps);
+  check(unpublished.status === STATUS.notFound && unpublished.body.error.code === 'no_schedule', `a demo's unpublished level is a 404 no_schedule (${unpublished.status} ${unpublished.body.error?.code})`);
   check(levelSpec(900) !== null, `NEGATIVE CONTROL: level 900 IS a level of the ladder (${JSON.stringify(levelSpec(900))})`);
+  // `p11` AND NOT `p7`, because this request ISSUES a drill and the section below depends on p7 having none in
+  // flight — MEASURED while writing it: sharing the player made "advancing a drill nobody issued" succeed and made
+  // the corrupt-row fixture fail to write (its `expectedRev: null` no longer held), which read as three unrelated
+  // failures two screens away.
+  const ignored = await drillCurrent(get('p11', 900), deps);
+  check(ignored.status === STATUS.ok && ignored.body.drill.levelIndex === LEVEL, `and an IDENTIFIED caller asking for it is served their ladder level instead (${ignored.status}, level ${ignored.body.drill?.levelIndex})`);
 
   for (const [body, why] of [[null, 'a null body'], [{}, 'no drillId'], [{ drillId: 7 }, 'a number'], [{ drillId: 'x' }, 'not an id']]) {
     const answer = await drillAdvance({ ...advance('p7', ''), body }, deps);
@@ -320,8 +332,13 @@ console.log('\n== 8. two requests cannot issue two drills, and a lost race retri
   // THE KEY COMES FROM `progressRow`, NOT FROM A STRING LITERAL, and this check is why: the row's key carries the
   // identity namespace, so a literal `progress#p9` silently counted zero reads and the check read as a retry that
   // never happened (MEASURED: `0 reads of it, 1 loss`).
+  //
+  // THE COUNT IS THREE AND THE EXTRA READ IS THE LADDER'S, not a second retry: `servableLevel` reads this row to
+  // ask whether the block is full (`ladder.ts`), `withProgress` reads it to decide, and the lost compare-and-set
+  // makes `withProgress` read it once more. What the check pins is the LAST of those — a loss costs exactly one
+  // extra read of the row it lost on — so the number is stated with its breakdown rather than as a bare 2.
   const progressReads = contended.state.readsByPk[progressRow('p9').pk] ?? 0;
-  check(contended.state.losses === 1 && progressReads === 2, `and the progress row was read again after losing (${progressReads} reads of it, ${contended.state.losses} loss)`);
+  check(contended.state.losses === 1 && progressReads === 3, `and the progress row was read again after losing (${progressReads} reads of it: the ladder's, the decision's, and the re-read; ${contended.state.losses} loss)`);
 
   // AND A ROW THAT KEEPS LOSING IS REPORTED RATHER THAN LOOPED ON: three attempts, then a 409.
   const hopelessInner = new MemoryStore();
@@ -420,6 +437,60 @@ console.log('\n== 9. the local server, over a real socket ==');
   check(SEEDS.length === 4 && localRegimes().length === 3, `the fixture is ${localRegimes().length} regimes of ${SEEDS.length} entries at level 1`);
   check(parseDrillId(drillId(LEVEL, 3)).index === 3, 'and a drill id round trips to its position');
   check(emptyProgress(LEVEL).issued === null, 'and a fresh progress record holds nothing');
+}
+
+console.log('\n== 10. the LADDER: the level is the player\'s, and a full block promotes ==');
+{
+  const store = new MemoryStore();
+  await seedLocalRegimes(store);
+  const deps = depsFor(store);
+  const seedsOf = (levelIndex) => LOCAL_SCHEDULE.filter((entry) => entry.levelIndex === levelIndex).map((entry) => entry.seed);
+  // THE BLOCK IS `LEVEL_SIZE` CELLS, and the probe writes the finished set DIRECTLY: driving 100 drills through
+  // the endpoints would measure 100 issues rather than the rule under test.
+  const full = Array.from({ length: LEVEL_SIZE }, (_, index) => index);
+
+  // AN ABSENT ROW IS THE FIRST LEVEL, and reading it must not WRITE one: a new player's first request is not a
+  // compare-and-set race to record a fact that is already known.
+  const fresh = await drillCurrent(get('l0'), deps);
+  check(fresh.status === STATUS.ok && fresh.body.drill.levelIndex === FIRST_LEVEL, `a player with no ladder row is served level ${FIRST_LEVEL} (${fresh.body.drill?.levelIndex})`);
+  check((await store.get(ladderKey(devId('l0')))) === null, 'and NO ladder row is written, because an absent row already means that level');
+
+  // THE LADDER ROW DECIDES THE LEVEL, not the query. The same request a level-1 player sends is answered from
+  // level 2 for a player whose row says 2 — which is the whole of "the server owns the player's level".
+  await store.put(ladderKey(devId('l1')), asLadderItem(2), null);
+  const onTwo = await drillCurrent(get('l1'), deps);
+  check(onTwo.status === STATUS.ok && onTwo.body.drill.levelIndex === 2, `a ladder row at level 2 is served level 2 (${onTwo.body.drill?.levelIndex})`);
+  check(onTwo.body.drill.seed === seedsOf(2)[0], `and the seed is the level-2 regime's first (${onTwo.body.drill.seed}, where level 1's is ${seedsOf(1)[0]})`);
+  const asked = await drillCurrent(get('l1', 900), deps);
+  check(asked.body.drill.levelIndex === 2, `and a ?level= in the query does not move it (${asked.body.drill?.levelIndex})`);
+
+  // A FULL BLOCK PROMOTES, and the promotion is DERIVED on the read rather than written when a drill is finished:
+  // finishing happens on two paths, and a second row written on either can be lost with nothing left to retry it.
+  await store.put(progressRow('l2', LEVEL), { levelIndex: LEVEL, issued: null, finished: full }, null);
+  const promoted = await drillCurrent(get('l2'), deps);
+  check(promoted.status === STATUS.ok && promoted.body.drill.levelIndex === 2, `a full block at level 1 is promoted to level 2 (${promoted.body.drill?.levelIndex})`);
+  check(promoted.body.drill.seed === seedsOf(2)[0], `and served level 2's first seed (${promoted.body.drill.seed})`);
+  const rowL2 = await store.get(ladderKey(devId('l2')));
+  check(rowL2?.value.levelIndex === 2, `and the ladder row now SAYS level 2, so the next request needs no promotion (${rowL2?.value.levelIndex})`);
+  check(asLadderLevel(rowL2) === 2, 'which is what the reader this build serves with makes of it');
+  check(promoted.body.regime.length === seedsOf(2).length, `and the regime reported is level 2's (${promoted.body.regime?.length})`);
+
+  // NEGATIVE CONTROL: ONE CELL SHORT IS NOT A FULL BLOCK. This is the plausible wrong rule — "the regime has no
+  // unfinished entry, so the level is done" — and the fixture is exactly the shape that separates them: its
+  // regimes are 4 entries long, so a player can complete one without filling a 100-cell block.
+  await store.put(progressRow('l3', LEVEL), { levelIndex: LEVEL, issued: null, finished: full.slice(0, LEVEL_SIZE - 1) }, null);
+  const short = await drillCurrent(get('l3'), deps);
+  check(short.status === STATUS.ok && short.body.drill === null, `NEGATIVE CONTROL: ${LEVEL_SIZE - 1} finished leaves the level complete rather than promoted (${short.status})`);
+  check((await store.get(ladderKey(devId('l3')))) === null, 'and NO ladder row is written, so the level it says is still the first one');
+
+  // AND THE TOP PUBLISHED LEVEL DOES NOT PROMOTE INTO NOTHING. Level 3 is the highest regime the fixture seeds, so
+  // a full block there would move the player to a level with no schedule and answer `404 no_schedule` — for good,
+  // because nothing moves them back. The promotion waits for the operator instead.
+  await store.put(ladderKey(devId('l4')), asLadderItem(3), null);
+  await store.put(progressRow('l4', 3), { levelIndex: 3, issued: null, finished: full }, null);
+  const top = await drillCurrent(get('l4'), deps);
+  check(top.status === STATUS.ok && top.body.drill === null, `a full block at the top published level is not promoted into no schedule (${top.status} ${top.body.drill === null ? 'complete' : top.body.drill?.levelIndex})`);
+  check((await store.get(ladderKey(devId('l4')))).value.levelIndex === 3, 'and its ladder row is untouched, so the promotion lands the moment level 4 is published');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

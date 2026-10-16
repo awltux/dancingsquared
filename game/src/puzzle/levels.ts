@@ -50,6 +50,22 @@ export const MAX_DEPTH = 2;
 /** The smallest pool at which a 3-option question generates. See finding 1 above. */
 export const THREE_OPTION_MIN_POOL = 35;
 
+/**
+ * How many drills a level holds — the whole of a level's block, 10×10 (DESIGN.md §15 Q17(v)).
+ *
+ * IT IS HERE BECAUSE TWO SIDES NEED THE SAME NUMBER AND NEITHER MAY OWN IT. The publisher fills a level to this
+ * size (`api/tools/publish-schedule.mjs`'s `--season` default), and the serving side promotes a player out of a
+ * level when that level's block is full (`api/src/ladder.ts`). A second copy of `100` on either side is how "all
+ * the level's drills are finished" and "the level is full" come to disagree, and the disagreement is INVISIBLE
+ * because each side is self-consistent: the player is simply never promoted, or is promoted early.
+ *
+ * IT IS NOT `poolSize` AND NOT A SEASON. `poolSize` is how many CALLS a level may use, and a season is one
+ * publication's worth of entries — a calendar month of additions, per Q17(i)–(iii). This is the total a level's
+ * block shows, and because a repeated puzzle published at a NEW index is a new entry, a level can always be
+ * filled to it (Q17: "why promotion stays reachable").
+ */
+export const LEVEL_SIZE = 100;
+
 /** How many options a step presents at this level. */
 export function optionCountFor(poolSize: number): number {
   return poolSize >= THREE_OPTION_MIN_POOL ? 3 : 2;

@@ -1,8 +1,14 @@
 // Publish a level's Drill season: the authoring pipeline of DESIGN.md 7.2, run by hand or by a job.
 //
-//   npm run api:publish-schedule                          levels 1-3, a 31-drill season
+//   npm run api:publish-schedule                          levels 1-3, a season of the level's own size
 //   npm run api:publish-schedule -- --levels 1,2 --season 7
 //   npm run api:publish-schedule -- --dry-run             show what would be written, write nothing
+//
+// THE DEFAULT SEASON IS `LEVEL_SIZE` (100) AND NOT A NUMBER OF ITS OWN (DESIGN.md §15 Q17(v): "a level is 100
+// drills"). The publishing side and the serving side must agree on when a level is full — the promotion rule
+// reads the same number — so a level published short is a level no player can ever be promoted out of, and the
+// failure would look like a player who simply stopped progressing. `--season` stays for a deliberately shorter
+// run, which is what a probe or a first look uses.
 //
 // THE GUARD FIRST, because this WRITES (AGENTS.md §8 trap 21, which cost a real table). Then the store: publishing
 // into memory would be gone before anything could read it, so `DSQ_STORE=dynamodb` is required and `openStore`
@@ -12,6 +18,7 @@
 // seed is validated by GENERATING it (§7.2: "the lint re-runs the generator rather than trusting the author's
 // memory"), so a season that cannot be filled is reported and the process exits non-zero: a schedule published
 // short would serve the players at that level nothing after the gap.
+import { LEVEL_SIZE } from 'dancing-squared-game';
 import { configFromEnv, realServiceWarning } from '../src/config.ts';
 import { generateSeason, levelIsPublishable, lintSeason, publishSeason, seasonVersion, SERVED_LEVELS } from '../src/schedule-publishing.ts';
 import { publishableLevels } from '../src/levels.ts';
@@ -29,7 +36,7 @@ if (warning) {
   console.error(`api:publish-schedule refuses to run: ${warning}`);
   process.exit(1);
 }
-const season = Number(valueOf('--season') ?? 31);
+const season = Number(valueOf('--season') ?? LEVEL_SIZE);
 if (!Number.isInteger(season) || season < 1) {
   console.error('--season must be a positive integer');
   process.exit(1);

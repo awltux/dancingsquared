@@ -11,10 +11,12 @@
 // extending a season cannot rewrite a drill that was already handed out (§8: "a schedule edit cannot rewrite a
 // drill already handed out").
 //
-// WHY THE SEASON LENGTH IS AN OPTION RATHER THAN A CONSTANT. §15 Q3 recommends "one new drill per day per level
-// and a season of a fixed number of drills" and leaves the number to the owner; §15 Q4 recommends calendar months
-// for the boundary. The tool's default is 31 — the longest month — and the flag is how that decision is made
-// without editing code.
+// WHY THE SEASON LENGTH IS STILL AN OPTION. §15 Q3 recommends "one new drill per day per level and a season of a
+// fixed number of drills"; Q17 then fixed what that number IS — a level is `LEVEL_SIZE` (100) drills, because a
+// level is a 10x10 block and finishing all of it is what promotes a player — so the tool's default is now that
+// number rather than 31, and the flag remains for a deliberately shorter run (a probe, a first look at the cost).
+// THE TWO SIDES READ THE SAME CONSTANT and that is the point of it: the publisher fills to `LEVEL_SIZE` and
+// `api/src/ladder.ts` promotes at `LEVEL_SIZE`, so "this level is full" cannot mean two different things.
 import { MAIN_POOL, POOL_VERSION, generatorConfigFor, lintSchedule, type ScheduleEntry } from 'dancing-squared-game';
 import { levelAt, publishableLevels, puzzleFor, runtimeFor } from './levels.ts';
 import { scheduleKey } from './keys.ts';

@@ -8,11 +8,13 @@
 //
 // THE STORE KEY SHAPES ARE THE ITEM TABLE'S (DESIGN.md 11): `progress#<playerId>` / `level#<level>` and
 // `schedule#<level>` / `current`, both built in `keys.ts` so the handlers, the seeding and the probe cannot
-// disagree about where a row lives.
+// disagree about where a row lives. THE LADDER ROW (§15 Q17(vi)) IS READ THROUGH `ladder.ts`, which also owns
+// the promotion rule, because it is the one rule here that needs more than one row.
 import { MAIN_POOL, type ScheduleEntry } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type ItemKey, type StoredItem } from '../ports.ts';
 import { progressKey, scheduleKey } from '../keys.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
+import { servableLevel } from '../ladder.ts';
 import { failure, optionalIdentity, requireIdentity, STATUS } from '../status.ts';
 import { levelParam } from '../query.ts';
 import { levelAt, optionLabels, puzzleFor } from '../levels.ts';
@@ -134,7 +136,15 @@ function served(
 }
 
 /**
- * `GET /drill/current?level=n` — the drill this player is on.
+ * `GET /drill/current` — the drill this player is on.
+ *
+ * THE LEVEL IS THE PLAYER'S, NOT THE CALLER'S (DESIGN.md §15 Q17(vi)): for a request the server can name, the
+ * level comes from the LADDER row and a `?level=` in the query is not consulted at all. That is not a narrowing
+ * of the answer — a client that asked for level 1 is told which level it was handed, and the app adopts the
+ * answer's level rather than its own, which is what makes the schedule moving under a player harmless. A CALLER
+ * THE SERVER CANNOT NAME HAS NO LADDER, so a demo is served the level it asked for: "their level" presupposes a
+ * player, and a signed-out visitor is deliberately not one (§11.2). The query's level is therefore still
+ * VALIDATED on that path, which is where `bad_level` comes from.
  *
  * THE OPTION LABELS ARE GENERATED HERE, from the seed the Progress row holds, because the serving layer's
  * answer IS "the seed, the level and the option labels" (§8, §11) — the server re-runs the same generator the
@@ -153,23 +163,32 @@ function served(
 export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<ApiResult> {
   const identity = optionalIdentity(request, deps);
 
-  const levelIndex = levelParam(request.query['level']);
-  if (levelIndex === null) return failure(STATUS.badRequest, 'bad_level', 'level must be a positive integer');
-  // A LEVEL IS TOTAL (see `levelAt`): the only thing that can be missing is its published regime.
-  const level = levelAt(levelIndex);
-
-  const read = await readRegime(deps, levelIndex);
-  if ('refusal' in read) return read.refusal;
-
   if (!identity) {
-    const outcome = currentDrill(read.regime, levelIndex, emptyProgress(levelIndex), MAIN_POOL.version, deps.clock.nowMs());
-    const answered = served(outcome, level, levelIndex, false);
+    const demoLevel = levelParam(request.query['level']);
+    if (demoLevel === null) return failure(STATUS.badRequest, 'bad_level', 'level must be a positive integer');
+    const level = levelAt(demoLevel);
+    const read = await readRegime(deps, demoLevel);
+    if ('refusal' in read) return read.refusal;
+    const outcome = currentDrill(read.regime, demoLevel, emptyProgress(demoLevel), MAIN_POOL.version, deps.clock.nowMs());
+    const answered = served(outcome, level, demoLevel, false);
     if ('refusal' in answered) return answered.refusal;
     return {
       status: STATUS.ok,
       body: { ...answered.body, demo: true, regime: regimeCounts(read.regime, outcome.progress) },
     };
   }
+
+  // THE LADDER IS READ FIRST, because everything below it is a function of the level it names — including which
+  // Progress row to read, and whether a full block has already earned the next level.
+  const on = await servableLevel(deps, identity.playerId);
+  if ('refusal' in on) return on.refusal;
+  const levelIndex = on.levelIndex;
+
+  // A LEVEL IS TOTAL (see `levelAt`): the only thing that can be missing is its published regime.
+  const level = levelAt(levelIndex);
+
+  const read = await readRegime(deps, levelIndex);
+  if ('refusal' in read) return read.refusal;
 
   return withProgress(deps, progressKey(identity.playerId, levelIndex), levelIndex, (progress) => {
     const outcome = currentDrill(read.regime, levelIndex, progress, MAIN_POOL.version, deps.clock.nowMs());

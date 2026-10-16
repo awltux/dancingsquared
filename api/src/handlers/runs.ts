@@ -20,7 +20,7 @@
 // `expectedRev: null`, so a resubmitted `runId` cannot land twice: the condition fails and this handler answers
 // from the row already there. That is what makes a client retry safe, and it is why the record is not a
 // separate "has this happened" query with a race between the query and the write.
-import { MAIN_POOL, SCORE_VERSION, elapsedSeconds, recordSuccess, seasonOf } from 'dancing-squared-game';
+import { MAIN_POOL, SCORE_VERSION, elapsedSeconds, recordSuccess } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type StoreWrite } from '../ports.ts';
 import { attemptKey, boardIndexKeys, boardKey, hintsKey, publishedDailyKey, progressKey, runKey, SCORE_CEILING } from '../keys.ts';
 import { levelAt, lineReachesGoal, puzzleFor, replayDailyMoves } from '../levels.ts';
@@ -50,6 +50,16 @@ import {
 /** Where a run's puzzle came from, once the server has decided it may be scored. */
 interface Source {
   readonly seed: number;
+  /**
+   * THE BOARD THIS RUN BELONGS TO (§15 Q17(vii)): the UTC day for a Daily, which is its challenge's identity, and
+   * the PUBLISHED SET for a Drill — the `Schedule` row's own version, carried on the drill the server issued.
+   *
+   * IT IS A FIELD OF THE SOURCE RATHER THAN A FUNCTION OF THE CLOCK, and that is the whole of the change: the Drill
+   * board's period used to be `seasonOf(nowMs)`, so a run finished just after a month boundary, or after the
+   * publisher replaced a set, landed on a board that was not the one its drill came from — and a set that was
+   * EXTENDED would have moved the denominator under scores already on it.
+   */
+  readonly boardPeriod: string;
   /** The Drill's progress row as read, or null for the Daily; `progressRev` is the revision to transact on. */
   readonly progress: DrillProgress | null;
   readonly progressRev: number | null;
@@ -144,6 +154,7 @@ async function verifyDrill(
   return {
     source: {
       seed: issued.seed,
+      boardPeriod: issued.scheduleVersion,
       progress,
       progressRev,
       claimedSeconds: submission.clockSeconds,
@@ -262,6 +273,7 @@ async function verifyDaily(
   return {
     source: {
       seed: value.seed,
+      boardPeriod: date,
       progress: null,
       progressRev: null,
       claimedSeconds: submission.clockSeconds,
@@ -337,7 +349,6 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
   const submission = parsed.submission;
   const level = levelAt(submission.levelIndex);
   const nowMs = deps.clock.nowMs();
-  const period = submission.mode === 'daily' ? (submission.date ?? '') : seasonOf(nowMs);
   const runItem = runKey(playerId, submission.runId);
 
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
@@ -346,11 +357,20 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     // arrived.
     const recorded = await deps.store.get(runItem);
     if (recorded) {
+      const value = recorded.value as { score?: unknown; clockSeconds?: unknown; hintsUsed?: unknown; reveals?: unknown; boardPeriod?: unknown };
+      // THE BOARD THIS RUN WAS RECORDED ON IS THE ROW'S OWN, not today's. A retry that arrived after a set was
+      // republished, or after a month boundary, would otherwise read a DIFFERENT board than the one the first
+      // answer reported — the same class of defect the run's own score and `ranked` are read off the row for.
+      // A row that does not carry one (written by a build before the board identity moved onto the run) is
+      // REFUSED rather than given a board identity it never had.
+      const recordedPeriod = value.boardPeriod;
+      if (typeof recordedPeriod !== 'string') {
+        return failure(STATUS.unavailable, 'unreadable_run', 'the recorded run does not name the board it belongs to, so its retry cannot be answered');
+      }
       const hints = asHints(await deps.store.get(hintsKey(playerId)));
       if (!hints) return failure(STATUS.unavailable, 'unreadable_hints', 'the hint balance is not a record this build can read');
-      const board = asBoard(await deps.store.get(boardKey(submission.mode, submission.levelIndex, period, playerId)));
+      const board = asBoard(await deps.store.get(boardKey(submission.mode, submission.levelIndex, recordedPeriod, playerId)));
       if (!board) return failure(STATUS.unavailable, 'unreadable_board', 'the board entry is not a record this build can read');
-      const value = recorded.value as { score?: unknown; clockSeconds?: unknown; hintsUsed?: unknown; reveals?: unknown };
       return {
         status: STATUS.ok,
         body: runAnswer({
@@ -372,7 +392,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
           // holds, and it is why a client that retries does not have to be told a different story the second time.
           ranked: !wasRevealed(typeof value.reveals === 'number' ? value.reveals : 0, 0),
           board,
-          period,
+          period: recordedPeriod,
           progress: null,
         }),
       };
@@ -384,6 +404,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
       : await verifyDaily(submission, deps, playerId, level, nowMs);
     if ('refusal' in verified) return verified.refusal;
     const source = verified.source;
+    const period = source.boardPeriod;
 
     // THE ROWS THIS RUN TOUCHES, read at the revisions the transaction will require.
     const hintsStored = await deps.store.get(hintsKey(playerId));
@@ -438,7 +459,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     }
 
     const writes: StoreWrite[] = [
-      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, measuredReveals: source.measuredReveals, claimedReveals: source.claimedReveals, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
+      { key: runItem, expectedRev: null, value: asRunItem({ submission, boardPeriod: period, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, measuredReveals: source.measuredReveals, claimedReveals: source.claimedReveals, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
       { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: ledger.hints, successes: ledger.successes } },
     ];
     if (folds) {

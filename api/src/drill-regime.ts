@@ -46,6 +46,21 @@ export interface IssuedDrill {
   readonly index: number;
   readonly seed: number;
   readonly poolVersion: string;
+  /**
+   * The PUBLISHED SET this drill was handed out from — the `Schedule` row's own version, which is
+   * `seasonVersion(poolVersion, season)` for a season the publisher wrote (DESIGN.md §15 Q17(vii)).
+   *
+   * IT IS HERE FOR THE BOARD RATHER THAN FOR THE PUZZLE. The Drill's board key holds the challenge's identity
+   * instead of a time period, and for the Drill that identity IS the published set — so a run has to land on the
+   * board of the set it was issued from, not on whatever set is current when it is submitted. Carrying it on the
+   * ISSUED RECORD is rule 2's own argument one field over: a drill already handed out keeps its seed across a
+   * republish, so it has to keep the set it belongs to as well.
+   *
+   * A REPUBLISH THEREFORE DOES NOT RE-ISSUE A LOCKED DRILL, and that is deliberate rather than an oversight: the
+   * drill in flight finishes on the OLD set's board, which is the board its score belongs to, and the next drill is
+   * drawn from the new set. `isPlayable` deliberately does not compare this field.
+   */
+  readonly scheduleVersion: string;
   readonly issuedAtMs: number;
 }
 
@@ -153,6 +168,7 @@ export function currentDrill(regime: Regime, levelIndex: number, progress: Drill
     index,
     seed: entry.seed,
     poolVersion: entry.poolVersion,
+    scheduleVersion: regime.scheduleVersion,
     issuedAtMs: nowMs,
   };
   return { kind: 'drill', drill, progress: { ...progress, issued: drill }, changed: true };

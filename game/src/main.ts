@@ -49,7 +49,6 @@ import { AccountScreen } from './ui/account-screen.ts';
 import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { Replay } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
-import { seasonOf } from './puzzle/season.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -462,16 +461,23 @@ function accountChanged(): void {
 // ------------------------------------------------------------------------------------------------ the board
 
 /**
- * The period the board on screen is for, from the mode and the clock.
+ * The period the board on screen is for, from the mode and the DRILL IN PLAY — or null when there is none.
  *
- * THE TWO BOARDS MEAN DIFFERENT THINGS BY "PERIOD" (§6), and the SERVER takes it from the caller: a Daily board is
- * ONE UTC DAY — the same `utcDay` the challenge is seeded from — and a Drill board is a SEASON, the UTC calendar
- * month. The season comes from `seasonOf` in the SHARED package rather than from a second definition here: the
- * server stamps a run with the season it belongs to, so a client computing its own would ask for a board nobody was
- * on, and it would fail exactly at a month boundary.
+ * THE TWO BOARDS MEAN DIFFERENT THINGS BY "PERIOD" (§6), and the SERVER takes it from the caller. A Daily board is
+ * ONE UTC DAY — the same `utcDay` the challenge is seeded from, which the client can compute because the day IS
+ * the challenge. A DRILL board is NOT a calendar month any more (§15 Q17(vii)): it is the PUBLISHED SET the runs
+ * land on, and the only place the client can learn which set that is, is the drill the server issued — so it comes
+ * from the answer rather than from `seasonOf(Date.now())`, which is what this used to be. That mattered: a drill
+ * finished just after a month boundary, or after the publisher replaced a set, used to be ranked on a board its
+ * drill did not come from, and a set that was EXTENDED moved the denominator under scores already on it.
+ *
+ * NULL IS AN ANSWER. With no server drill in play there is no set to name — an offline practice drill is not on any
+ * board — and asking for the current month would show an empty board that looks like a real one.
  */
-function boardPeriod(): string {
-  return mode === 'daily' ? utcDay(new Date()) : seasonOf(Date.now());
+function boardPeriod(): string | null {
+  if (mode === 'daily') return utcDay(new Date());
+  const issued = serverIssued() ? serverDrill : null;
+  return issued?.scheduleVersion ?? null;
 }
 
 /**
@@ -486,8 +492,13 @@ async function loadBoard(): Promise<void> {
     boardScreen.say('There is no server configured, so there is no board to show — this device keeps your own runs only.');
     return;
   }
+  const period = boardPeriod();
+  if (period === null) {
+    boardScreen.say('There is no published set to show a board for — the Drill board holds one season, and this device has no server-issued drill on it.');
+    return;
+  }
   boardScreen.setBusy(true);
-  const answer = await fetchLeaderboard(mode, level?.index ?? save.levelIndex, boardPeriod());
+  const answer = await fetchLeaderboard(mode, level?.index ?? save.levelIndex, period);
   boardScreen.setBusy(false);
   if (!answer.ok) {
     boardScreen.say(`The board could not be read: ${answer.failure.message}`, 'bad');

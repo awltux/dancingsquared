@@ -24,8 +24,9 @@ import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.t
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { finishDrill } from '../src/drill-regime.ts';
-import { MAIN_POOL, SCORE_VERSION, scoreRun, seasonOf } from 'dancing-squared-game';
+import { MAIN_POOL, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
+import { LOCAL_SCHEDULE_VERSION } from '../src/local-regime.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -36,7 +37,8 @@ const check = (cond, msg) => {
 const LEVEL = 1;
 const DAY = '2026-10-15';
 const CLOCK = 1_700_000_000_000;
-const SEASON = seasonOf(CLOCK);
+/** The Drill board's period: the PUBLISHED SET's version, which is what the issued drill carries (§15 Q17(vii)). */
+const SEASON = LOCAL_SCHEDULE_VERSION;
 
 /**
  * The three ports, with a clock the probe can MOVE FORWARD.
@@ -166,6 +168,10 @@ console.log('== 1. a correct Drill run is accepted, and it does all four things 
   check(answer.body.progress.finished === 1, `the drill is finished (${answer.body.progress.finished})`);
   check(answer.body.hints.successes === 1 && answer.body.hints.hints === 0, `the success is counted and no hint is due yet (${answer.body.hints.successes} counted)`);
   check(answer.body.board.score === computed.score && answer.body.board.runs === 1, `and the board holds the run (${answer.body.board.score})`);
+  // THE PERIOD IS THE PUBLISHED SET, NOT A PERIOD OF TIME (§15 Q17(vii)). `ROW.board` builds its key from `SEASON`,
+  // which is the local regime's own version, so the check below and the row read under it are one measurement seen
+  // from both sides: a calendar month would have written the row where this probe does not look.
+  check(answer.body.board.period === SEASON, `the board's period is the published set, not a month (${answer.body.board.period})`);
   const row = (await store.get(ROW.progress('r1'))).value;
   check(row.issued === null, 'the progress row has no drill in flight any more');
   check((await store.get(ROW.run('r1', 'run-1'))).value.calls.length === calls.length, 'and the transcript is stored');
@@ -189,6 +195,22 @@ console.log('\n== 2. the score is clamped to what the server can recompute ==');
   const next = await issue(deps, 'r2');
   const modest = await postRun(submit('r2', { runId: 'run-modest', mode: 'drill', levelIndex: LEVEL, drillId: next.drill.id, elapsedSeconds: 30, hintsUsed: 0, attempts: 0, calls: next.calls, score: 1 }), deps);
   check(modest.body.run.score === 1 && modest.body.run.clamped === false, `a claim BELOW the computed score is honoured (${modest.body.run?.score})`);
+}
+
+console.log('\n== 2b. the Drill board is the PUBLISHED SET, so a month boundary does not move it ==');
+{
+  const { store, deps } = await fresh();
+  const { drill, calls } = await issue(deps, 'r2b');
+  // THE CLOCK CROSSES A MONTH BOUNDARY, which is exactly what the old rule keyed on: `seasonOf(nowMs)` would have
+  // been a different string on the far side of it, so this run would have opened a SECOND board row and left the
+  // one its drill came from behind. The drill is LOCKED (rule 2), so it keeps the set it was issued from and the
+  // run belongs to that set's board.
+  deps.clock.advance(20 * 24 * 3600);
+  const answer = await postRun(submit('r2b', { runId: 'run-boundary', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 5, hintsUsed: 0, attempts: 0, calls }), deps);
+  check(answer.status === STATUS.ok, `the run is accepted on the far side of the boundary (${answer.status})`);
+  check(answer.body.board.period === SEASON, `and the period the answer names is unchanged by the clock (${answer.body.board.period})`);
+  check(answer.body.board.runs === 1, `and it is the first run on that board (${answer.body.board.runs})`);
+  check((await store.get(ROW.board('r2b'))).value.runs === 1, 'on the row the SET names, which is the only board row this player has');
 }
 
 console.log('\n== 3. a run lands once: the same runId, and a re-solve of a finished drill ==');
@@ -453,10 +475,12 @@ console.log('\n== 9. refusals, and the board keys ==');
   }
   const anonymous = await postRun(submit(null, base), deps);
   check(anonymous.status === STATUS.unauthenticated, `no identity is a 401 (${anonymous.status})`);
-  // THE BOARD KEY CARRIES THE PERIOD, and the two modes' periods mean different things (§15 Q4's calendar month
-  // for a season, one UTC day for a challenge), so a season boundary is a new key rather than a deleted row.
-  check(seasonOf(Date.UTC(2026, 9, 31, 23, 59)) === '2026-10' && seasonOf(Date.UTC(2026, 10, 1, 0, 0)) === '2026-11', `a season is the UTC calendar month (${seasonOf(Date.UTC(2026, 9, 31, 23, 59))} then ${seasonOf(Date.UTC(2026, 10, 1, 0, 0))})`);
+  // THE BOARD KEY CARRIES THE PERIOD, and the two modes' periods mean different things: the Daily's is one UTC
+  // day, which IS its challenge's identity, and the DRILL's is the PUBLISHED SET its drill was issued from — not
+  // a calendar month (§15 Q17(vii)). The set is the local regime's own version, which is what `IssuedDrill` carries
+  // and what the assertion below names, so a Drill board boundary is a republished set rather than a new month.
   check(MAIN_POOL.version && SCORE_VERSION > 0, 'and the pool version and score version are the ones the rows are stamped with');
+  check(SEASON === LOCAL_SCHEDULE_VERSION && SEASON.startsWith('local-fixture/'), `NEGATIVE CONTROL: the Drill period is the SET's version rather than a month — this one is ${SEASON}, where a month would match /^\\d{4}-\\d{2}$/`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

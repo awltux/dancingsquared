@@ -238,6 +238,16 @@ export interface RunRecordParts {
   readonly score: number;
   readonly scoreVersion: number;
   readonly nowMs: number;
+  /**
+   * THE BOARD THIS RUN BELONGS TO (§15 Q17(vii)): the UTC day for a Daily, the published SET for a Drill.
+   *
+   * IT IS ON THE ROW BECAUSE A RETRY HAS TO LAND ON THE SAME BOARD THE FIRST ANSWER REPORTED. The period is
+   * otherwise derivable from the submission or the clock, and both of those move: a Daily's date is the client's
+   * field, and the Drill's set used to be the calendar month, so a retry that arrived after the publisher replaced
+   * a set would read a board the run was never on. Recording it makes the retry exact, the same way the row already
+   * records `ranked` rather than re-deriving it.
+   */
+  readonly boardPeriod: string;
 }
 
 /**
@@ -272,6 +282,7 @@ export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
     calls: submission.calls,
     score: parts.score,
     scoreVersion: parts.scoreVersion,
+    boardPeriod: parts.boardPeriod,
     recordedAtMs: parts.nowMs,
   };
 }

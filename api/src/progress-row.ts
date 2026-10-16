@@ -17,10 +17,17 @@ export function asProgress(stored: StoredItem | null, levelIndex: number): Drill
   if (value.issued === null || value.issued === undefined) {
     return { levelIndex, issued: null, finished: value.finished as number[] };
   }
-  const raw = value.issued as { id?: unknown; index?: unknown; seed?: unknown; poolVersion?: unknown; issuedAtMs?: unknown };
+  const raw = value.issued as { id?: unknown; index?: unknown; seed?: unknown; poolVersion?: unknown; scheduleVersion?: unknown; issuedAtMs?: unknown };
   if (typeof raw.id !== 'string' || typeof raw.index !== 'number' || typeof raw.seed !== 'number'
-    || typeof raw.poolVersion !== 'string' || typeof raw.issuedAtMs !== 'number') return null;
-  const issued: IssuedDrill = { id: raw.id, index: raw.index, seed: raw.seed, poolVersion: raw.poolVersion, issuedAtMs: raw.issuedAtMs };
+    || typeof raw.poolVersion !== 'string' || typeof raw.scheduleVersion !== 'string' || typeof raw.issuedAtMs !== 'number') return null;
+  const issued: IssuedDrill = {
+    id: raw.id,
+    index: raw.index,
+    seed: raw.seed,
+    poolVersion: raw.poolVersion,
+    scheduleVersion: raw.scheduleVersion,
+    issuedAtMs: raw.issuedAtMs,
+  };
   return { levelIndex, issued, finished: value.finished as number[] };
 }
 

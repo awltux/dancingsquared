@@ -38,6 +38,14 @@ export interface IssuedDrill {
   readonly levelIndex: number;
   readonly seed: number;
   readonly poolVersion: string;
+  /**
+   * The PUBLISHED SET this drill was issued from — the Drill board's identity (DESIGN.md §15 Q17(vii)).
+   *
+   * `null` WHEN THE SERVER DID NOT SEND ONE, and the client must not invent it: the board panel asks the server
+   * for a board by period, so a client that guessed a period would show a board nobody is on. Play does not need
+   * it at all, which is why it is tolerated as missing rather than making the whole drill unusable.
+   */
+  readonly scheduleVersion: string | null;
   readonly issuedAtMs: number;
   /** A cross-check the client may compare with its own generation; null when the server did not send one. */
   readonly optionLabels: readonly string[] | null;
@@ -240,6 +248,10 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
     levelIndex: value.levelIndex,
     seed: value.seed,
     poolVersion: typeof value.poolVersion === 'string' ? value.poolVersion : '',
+    // TOLERATED AS MISSING, for the same reason `optionLabels` is: it is the BOARD's identity and not the puzzle's,
+    // so a server that does not send it makes the board panel say it cannot show one rather than making the drill
+    // unplayable.
+    scheduleVersion: typeof value.scheduleVersion === 'string' ? value.scheduleVersion : null,
     issuedAtMs: typeof value.issuedAtMs === 'number' ? value.issuedAtMs : Date.now(),
     // OPTIONAL, AND TOLERATED AS MISSING: the labels are the server's cross-check of the client's generation,
     // not something the client needs — so a server that stops sending them is a smaller contract, not a crash.

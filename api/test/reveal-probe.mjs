@@ -27,11 +27,11 @@ import { attemptKey, boardKey, hintsKey, progressKey, publishedDailyKey } from '
 import { levelAt, puzzleFor } from '../src/levels.ts';
 import { asProgress } from '../src/progress-row.ts';
 import { wasRevealed } from '../src/runs.ts';
-import { seedLocalRegimes } from '../src/local-regime.ts';
+import { seedLocalRegimes, LOCAL_SCHEDULE_VERSION } from '../src/local-regime.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { ROUTES, PLANNED_ENDPOINTS } from '../src/routes.ts';
-import { recordSuccess, seasonOf } from 'dancing-squared-game';
+import { recordSuccess } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
 let failures = 0;
@@ -174,8 +174,10 @@ console.log('\n== 2. a revealed run is kept, advances the regime, and counts for
   check(recordSuccess({ hints: 0, successes: 9 }).granted, 'NEGATIVE CONTROL: crediting it would have granted the hint p2 was granted');
   check(counted.body.run.score > 0 && revealed.body.run.score > 0, 'and both runs were scored, so the difference is the credit and not the run');
 
-  // THE BOARD HAS NO ENTRY, which is not the same as a zero: p2 is on it and p3 is not on it at all.
-  const period = seasonOf(now);
+  // THE BOARD HAS NO ENTRY, which is not the same as a zero: p2 is on it and p3 is not on it at all. The period is
+  // the PUBLISHED SET the drill was issued from (§15 Q17(vii)) — the local regime's own version — and not the
+  // calendar month this probe used to compute.
+  const period = LOCAL_SCHEDULE_VERSION;
   const theirs = await shown.store.get(ROW.board('p3', 'drill', period));
   check(theirs === null, 'the revealed run left NO board row rather than a zero score on one');
   const ours = await honest.store.get(ROW.board('p2', 'drill', period));
@@ -209,7 +211,7 @@ console.log('\n== 3. the union of the two sources, because either one alone is a
   const claimed = await postRun(run('p4', drill, correct, { reveals: 1 }), deps);
   check(claimed.status === STATUS.ok && claimed.body.run.ranked === false, `a run that CLAIMS a reveal the server never recorded is not ranked either (${claimed.status}, ranked ${claimed.body.run?.ranked})`);
   check(claimed.body.hints.hints === 0, `so the balance is untouched (${claimed.body.hints?.hints} held)`);
-  check((await store.get(ROW.board('p4', 'drill', seasonOf(now)))) === null, 'and the board has no entry for it');
+  check((await store.get(ROW.board('p4', 'drill', LOCAL_SCHEDULE_VERSION))) === null, 'and the board has no entry for it');
   const stored = (await store.get({ pk: `runs#${devId('p4')}`, sk: 'run#run-p4' })).value;
   check(stored.reveals === 0 && stored.claimedReveals === 1, `with the disagreement visible on the row: recorded ${stored.reveals}, claimed ${stored.claimedReveals}`);
   // THE NEGATIVE CONTROL IS THE PLAUSIBLE WRONG RULE, MEASURED: "the record is the fact" — which is exactly the

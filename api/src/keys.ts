@@ -50,9 +50,11 @@ export const boardPk = (mode: 'drill' | 'daily', levelIndex: number, period: str
  * One entry on one board, keyed by the board's own partition (DESIGN.md 6).
  *
  * THE PERIOD IS PART OF THE KEY AND IT MEANS TWO DIFFERENT THINGS, which is why the caller passes it: the
- * Daily's board is one UTC day per level (`2026-10-15`), and the Drill's is a SEASON — calendar months, the
- * recommendation in §15 Q4 — so its period is `2026-10`. A season boundary therefore resets the Drill's board
- * by construction rather than by a job that deletes rows.
+ * Daily's board is one UTC day per level (`2026-10-15`), which IS its challenge's identity, and the Drill's is the
+ * PUBLISHED SET the run's drill came from — `seasonVersion(poolVersion, season)` for a season the publisher wrote,
+ * or the local fixture's own version in development (`Schedule.scheduleVersion`, §15 Q17(vii)). A REPUBLISHED SET
+ * therefore resets the Drill's board by construction rather than by a job that deletes rows — and the Drill has no
+ * month, so nothing resets a score while the block keeps filling.
  */
 export const boardKey = (mode: 'drill' | 'daily', levelIndex: number, period: string, playerId: string): ItemKey => ({
   pk: boardPk(mode, levelIndex, period),

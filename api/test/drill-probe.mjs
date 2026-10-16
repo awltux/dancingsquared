@@ -198,10 +198,12 @@ console.log('\n== 4. a drill whose pool has moved is RE-ISSUED, not served ==');
   await seedLocalRegimes(store);
   const deps = depsFor(store, CLOCK + 60_000);
   // A row written by an older build: the same level and index, a seed validated against a pool this build does
-  // not have. A seed is only meaningful against the pool it was generated at (DESIGN.md 7.2).
+  // not have. A seed is only meaningful against the pool it was generated at (DESIGN.md 7.2). `scheduleVersion` is
+  // the SET the row names — a field the strict reader requires, so a fixture row without one is a different test
+  // (an unreadable row) rather than this one.
   const stale = {
     levelIndex: LEVEL,
-    issued: { id: drillId(LEVEL, 0), index: 0, seed: 7, poolVersion: 'ms-0', issuedAtMs: CLOCK - 90_000 },
+    issued: { id: drillId(LEVEL, 0), index: 0, seed: 7, poolVersion: 'ms-0', scheduleVersion: LOCAL_SCHEDULE_VERSION, issuedAtMs: CLOCK - 90_000 },
     finished: [],
   };
   await store.put(progressRow('p4', LEVEL), stale, null);

@@ -393,7 +393,7 @@ signed-off transcript of the run, not a display detail.
 | Board | Key | Scope |
 |---|---|---|
 | Daily | `board#daily#<level>#<YYYY-MM-DD>` | One challenge per UTC day **per level**, issued to every player at that level (§9) |
-| Drill | `board#drill#<level>#<season>` | The **cumulative** score over the level's regime: the schedule is a progression (§7.2, §8), not a daily allowance, so the board accumulates across the season |
+| Drill | `board#drill#<level>#<set>` | The **cumulative** score over one published SET of drills: the schedule is a progression (§7.2, §8), not a daily allowance, so the board accumulates across the set. `<set>` is the `Schedule` row's own version — `seasonVersion(poolVersion, season)` for a season the publisher wrote — and NOT a calendar month (§15 Q17(vii)): a set that is extended or republished starts a fresh board rather than moving the denominator under existing scores |
 
 **One entry per player per board — the player's best — and that is a rule, not a convention.** Without it,
 replaying an easy drill repeatedly would out-score one clean run, which is the same exploit the waste factor
@@ -756,10 +756,12 @@ player rather than the level alone. An IDENTIFIED caller's level comes from thei
 promotes them (the promotion is evaluated on the READ, in `api/src/ladder.ts`, so a lost write heals itself).
 
 **The three endpoints as they are implemented (Phase 5.0 and 5.3), so the client can be written against them.**
-`GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, issuedAtMs,
-optionLabels, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
+`GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, scheduleVersion,
+issuedAtMs, optionLabels, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
 level is finished. **`levelIndex` is the level the answer was SERVED FROM** — the ladder's for an identified
-caller — and it is what the client adopts rather than the level it asked with. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
+caller — and it is what the client adopts rather than the level it asked with. **`scheduleVersion` is the published
+set the drill was issued from, which is the Drill board's identity** (§15 Q17(vii)): the client passes it back as
+`/leaderboard`'s `period` instead of computing a calendar month, and `POST /runs` lands the run on that set's board. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
 matters ("is this the drill I issued you?") is an exact comparison against the player's Progress row, and an
 opaque token would need a row or an index to resolve. `POST /drill/advance { drillId }` → `200 { regime }`.
 Refusals are `{ error: { code, message } }` with a status: `400 bad_level`/`bad_drill_id`, `401
@@ -827,19 +829,23 @@ did not ask for. It says three things rather than implying them: WHICH board (th
 written down, because "the leaderboard" is three facts and comparing across levels is comparing nothing), WHICH ROW
 IS YOU (the id the session holds, since the board is public and a signed-out player still reads it), and WHETHER THE
 LIST IS COMPLETE (`truncated` becomes a sentence, because a cut-off list presented as the standings is worse than no
-list at all). MEASURED in a browser (dev:game 8089 + `DSQ_AUTH=emulate` dev:api 8090): after one solved Drill the
-panel read "The Drill — level 1, season 2026-10", "Top 1 of 1 player on this board", and the row "1. emu:… (you) 84 —
-1 run", with `200 GET /leaderboard?mode=drill&level=1&period=2026-10` in the dev server's log. **The period is derived
-by `seasonOf` in the SHARED pure core** (`game/src/puzzle/season.ts`, exported by the package), which is the same
-function the server stamps a run's season with: a client that computed its own would ask for a board nobody was on,
-and would fail exactly at a month boundary. The season rule moved there in this change rather than being written
-twice. **THE DAILY PATH IS NOW OBSERVED TOO, AND IT WAS THE ONE CLIENT SURFACE LEFT UNSEEN**: switching to Today's
+list at all). MEASURED in a browser (dev:game 8089 + `DSQ_AUTH=emulate` dev:api 8090), ON THE OLD PERIOD RULE: after
+one solved Drill the panel read "The Drill — level 1, season 2026-10", "Top 1 of 1 player on this board", and the row
+"1. emu:… (you) 84 — 1 run", with `200 GET /leaderboard?mode=drill&level=1&period=2026-10` in the dev server's log.
+**THAT PERIOD IS SUPERSEDED** (§15 Q17(vii), implemented): the Drill's period is the PUBLISHED SET the drill was issued
+from, which the client takes from the answer's `IssuedDrill.scheduleVersion` rather than computing a month — so the same
+observation now reads "season local-fixture/ms-2" against the local fixture, or "season ms-2-seasonN" against a
+published set, and asks for that string. `game/src/puzzle/season.ts` is DELETED rather than left as an unused export,
+because nothing derives a calendar month any more. **NOT RE-OBSERVED IN A BROWSER AFTER THE CHANGE**: the panel text
+above is the old run's, and the new period has only been driven through the handlers (`api/test/runs-probe.mjs` §1 and
+§2b, which submit on both sides of a month boundary). **THE DAILY PATH IS NOW OBSERVED TOO, AND IT WAS THE ONE CLIENT
+SURFACE LEFT UNSEEN**: switching to Today's
 Daily, solving it and opening the board read "Today's Daily — level 1, 2026-10-16 (UTC)", "1 player on this board" and
 the row "1. emu:… (you) — 100 — 1 run", and the dev server's log holds the whole chain in order —
 `GET /puzzle?mode=daily&level=1&date=2026-10-16`, `POST /daily/move`, `POST /runs`, then
 `GET /leaderboard?mode=daily&level=1&period=2026-10-16`. That last line is the point: the client asked for the DAILY
-board with the UTC DAY as its period, which is the branch the Drill observation could not exercise (the season comes
-from the shared `seasonOf`; the day comes from `utcDay`), and the server answered it from the day's own index
+board with the UTC DAY as its period, which is the branch the Drill observation could not exercise (the day comes from
+`utcDay`), and the server answered it from the day's own index
 partition.
 
 **The `Schedule` item as it is published (Phase 5.5).** `schedule#<level>` / `current` holds `{ scheduleVersion,
@@ -1692,8 +1698,10 @@ path is a store read and a pure derivation):
 `POST /runs` exists for both modes. `api/src/runs.ts` owns what a client may send and what the server refuses;
 `api/src/handlers/runs.ts` owns the four effects of accepting one — the run's own ledger row, the player's
 progress, the hint balance and the board — written as ONE transaction, so a run cannot half happen. The boards
-are §6's keys per mode: `board#drill#<level>#<YYYY-MM>` (a season, §15 Q4's calendar month) and
-`board#daily#<level>#<YYYY-MM-DD>`, with the Daily's holding the BEST and the Drill's the CUMULATIVE total.
+are §6's keys per mode: `board#drill#<level>#<set>` — the published SET's version, `seasonVersion(poolVersion,
+season)` for a season the publisher wrote, and NOT the calendar month this line said until §15 Q17(vii) landed — and
+`board#daily#<level>#<YYYY-MM-DD>`, with the Daily's holding the BEST and the Drill's the CUMULATIVE total. The set
+travels on the drill the server issued, so a run lands on the board of the set its drill came from.
 
 **MEASURED, by `api/test/runs-probe.mjs`** (63 checks, 3 controls, and the probe answers a REAL puzzle: it asks
 for the current drill, regenerates it from the served seed, and submits the correct option at every step):
@@ -2065,19 +2073,28 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         instead of the calendar month it holds today. The owner kept the Daily's board rather than dropping it, so the
         day is the Daily's board identity and nothing else; and there is now **no time period anywhere in a board key**.
     **WHAT THE RULE CHANGES, AND WHAT IT DOES NOT — the second list is the interesting one.**
-      * **The board's period is UNCHANGED IN SHAPE AND CHANGED IN MEANING (vii).** Round 1 would have made the period a
-        season NUMBER; the answer is smaller than that and larger than "nothing": `keys.ts`'s `boardKey(mode, levelIndex,
-        period, playerId)` keeps its four slots and `boardPk` keeps its shape, so neither the partition nor `GSI1` moves —
-        but the DRILL's value stops being `seasonOf(nowMs)` (`handlers/runs.ts`) and becomes the published set's
-        identity, which is `seasonVersion(poolVersion, season)` (`schedule-publishing.ts`) — the string that has existed
-        since the publisher landed and has never had a reader. Consequences worth stating rather than discovering: the
-        Drill board's clock then matches the BLOCK's clock (one unit of progress, one board, no month resetting a score
-        while the block keeps filling); a set that is EXTENDED or re-published starts a fresh board rather than moving
-        the denominator under existing scores; and `seasonOf` (the calendar month, `game/src/puzzle/season.ts`) loses
-        its last two runtime callers (the drill period in `handlers/runs.ts` and the client's `boardPeriod()` in
-        `main.ts`), which is why the season NUMBER is a display and a publishing cadence and not a key. The DAILY's value
-        is unchanged: the UTC day, which is its puzzle's identity, and `runs-probe.mjs`'s month-boundary pin stays valid
-        for the DAILY's dates even though a Drill no longer has a month.
+      * **The board's period is UNCHANGED IN SHAPE AND CHANGED IN MEANING (vii) — IMPLEMENTED.** Round 1 would have made
+        the period a season NUMBER; the answer is smaller than that and larger than "nothing": `keys.ts`'s
+        `boardKey(mode, levelIndex, period, playerId)` keeps its four slots and `boardPk` keeps its shape, so neither the
+        partition nor `GSI1` moves — but the DRILL's value is no longer `seasonOf(nowMs)` (`handlers/runs.ts`) and is now
+        the published set's identity, which is `seasonVersion(poolVersion, season)` (`schedule-publishing.ts`) — the
+        string that has existed since the publisher landed and never had a reader. **WHERE IT COMES FROM MATTERS AS MUCH
+        AS WHAT IT IS**: it is the `Schedule` row's own `scheduleVersion`, carried on the ISSUED DRILL
+        (`IssuedDrill.scheduleVersion`) and copied into the run row, rather than recomputed from the clock or re-read
+        from the schedule at submission time. That is rule 2's argument one field over — a drill already handed out
+        keeps its seed across a republish, so it keeps the set it belongs to — and it is why a republish does NOT
+        re-issue a locked drill: the drill in flight finishes on the OLD set's board, which is where its score belongs,
+        and the next drill is drawn from the new set. Consequences worth stating rather than discovering: the Drill
+        board's clock then matches the BLOCK's clock (one unit of progress, one board, no month resetting a score while
+        the block keeps filling); a set that is EXTENDED or re-published starts a fresh board rather than moving the
+        denominator under existing scores; a RETRY reads the period off the run row it is retrying, so a retry on the far
+        side of a republish still answers about the board the first answer named. And `seasonOf` (the calendar month,
+        `game/src/puzzle/season.ts`) lost its last two runtime callers (the drill period in `handlers/runs.ts` and the
+        client's `boardPeriod()` in `main.ts`) — **so the module was DELETED rather than left as an unused export**,
+        because a season NUMBER is now a publisher's argument and a display, and nothing derives one from a clock. The
+        DAILY's value is unchanged: the UTC day, which is its puzzle's identity, and `runs-probe.mjs`'s month-boundary
+        checks stay valid for the DAILY's dates even though a Drill no longer has a month — §2b of that probe now pins
+        the other direction, submitting a Drill run on both sides of a boundary and finding one board.
       * **The Progress row is UNCHANGED and needs no season**, which removes the whole candidate-rule question I had
         written up: nothing is closed at a boundary, so `progressKey(playerId, levelIndex)` with `finished` holding
         schedule indices is exactly the right shape, and a month boundary touches it not at all. Round 1's "the season

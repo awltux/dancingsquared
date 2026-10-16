@@ -17,6 +17,7 @@ export * from './pool.ts';
 export * from './rand.ts';
 export * from './config.ts';
 export * from './daily.ts';
+export * from './season.ts';
 export * from './generator.ts';
 export * from './hints.ts';
 export * from './score.ts';

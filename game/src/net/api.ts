@@ -563,6 +563,76 @@ export async function recordDailyMove(
   return { ok: true, value: { recorded: answer.value.recorded } };
 }
 
+/** One rank on a board: who, their score, and how many runs earned it. */
+export interface BoardEntry {
+  readonly playerId: string;
+  readonly score: number;
+  readonly runs: number;
+}
+
+/** A board as `GET /leaderboard` answers it. */
+export interface BoardView {
+  readonly mode: 'drill' | 'daily';
+  readonly levelIndex: number;
+  readonly period: string;
+  readonly entries: readonly BoardEntry[];
+  /** How many rows the SERVER examined. It is not the entry count when the page or the cap is smaller. */
+  readonly examined: number;
+  /** True when the read hit the server's cap, so this board is a PARTIAL ranking rather than the whole one. */
+  readonly truncated: boolean;
+}
+
+/**
+ * `GET /leaderboard?mode&level&period` — one board (DESIGN.md §6, §11).
+ *
+ * THE PERIOD IS THE CALLER'S TO NAME, and it means two different things per mode: the Daily's board is one UTC day,
+ * the Drill's is a SEASON (the UTC calendar month). So the caller passes the period it is asking about rather than
+ * this module deriving one — a client that guessed would show a board nobody was on and call it empty.
+ *
+ * `truncated` IS NOT DECORATION. The server ranks the partition it could read and its sort key is the PLAYER, so a
+ * board larger than the server's cap is a PARTIAL order — the screen must say so rather than present a cut-off list
+ * as the standings (the endpoint's own note in DESIGN.md §11 records why the cap exists).
+ */
+export async function fetchLeaderboard(
+  mode: 'drill' | 'daily',
+  levelIndex: number,
+  period: string,
+  deps: ApiDeps = browserDeps(),
+): Promise<ApiResult<BoardView>> {
+  const answer = await apiCall<{ board?: unknown }>(deps, '/leaderboard', {
+    method: 'GET',
+    query: { mode, level: String(levelIndex), period },
+  });
+  if (!answer.ok) return answer;
+  const raw = answer.value.board;
+  if (typeof raw !== 'object' || raw === null) return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a board' } };
+  const board = raw as Record<string, unknown>;
+  // THE ENTRIES ARE THE ANSWER, so a board without a list is refused rather than shown as empty — the same rule this
+  // module keeps for a drill's seed, a run's score and an import's counts.
+  if (!Array.isArray(board.entries) || typeof board.examined !== 'number') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a board this app can show' } };
+  }
+  const entries: BoardEntry[] = [];
+  for (const item of board.entries) {
+    const entry = item as Record<string, unknown>;
+    if (typeof entry.playerId !== 'string' || typeof entry.score !== 'number' || typeof entry.runs !== 'number') {
+      return { ok: false, failure: { code: 'bad_response', message: 'the board holds a rank this app cannot read' } };
+    }
+    entries.push({ playerId: entry.playerId, score: entry.score, runs: entry.runs });
+  }
+  return {
+    ok: true,
+    value: {
+      mode: board.mode === 'daily' ? 'daily' : 'drill',
+      levelIndex: typeof board.levelIndex === 'number' ? board.levelIndex : levelIndex,
+      period: typeof board.period === 'string' ? board.period : period,
+      entries,
+      examined: board.examined,
+      truncated: board.truncated === true,
+    },
+  };
+}
+
 /** What the server made of an import. */
 export interface LedgerImport {
   readonly imported: number;

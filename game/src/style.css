@@ -169,6 +169,64 @@ body {
   margin-top: 10px;
 }
 
+/* THE BOARD PANEL. Tabular figures again, because a column of scores that shifts by a pixel per digit is a column
+   nobody can compare down. `you` is marked by a border rather than a colour alone, so the marking is not the only
+   signal (the same reason the mode switch carries `aria-pressed`). */
+#boardHeading {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+#boardStatus {
+  margin: 0 0 8px;
+  color: var(--dim);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+#boardStatus[data-kind="bad"] {
+  color: var(--bad);
+}
+
+#boardList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+
+#boardList li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+}
+
+#boardList li.you {
+  border-color: var(--accent);
+  border-radius: 6px;
+}
+
+#boardList li .rank {
+  min-width: 2.2em;
+  color: var(--dim);
+}
+
+#boardList li .score {
+  margin-left: auto;
+  color: var(--dim);
+}
+
+#boardList li.muted {
+  color: var(--dim);
+  font-style: italic;
+}
+
 #prompt,
 #dailyPrompt {
   font-size: 1.15rem;

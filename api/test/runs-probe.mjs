@@ -21,11 +21,10 @@ import { STATUS } from '../src/status.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
 import { attemptKey, boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../src/keys.ts';
 import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
-import { seasonOf } from '../src/handlers/runs.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { finishDrill } from '../src/drill-regime.ts';
-import { MAIN_POOL, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
+import { MAIN_POOL, SCORE_VERSION, scoreRun, seasonOf } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
 let failures = 0;

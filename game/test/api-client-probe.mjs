@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -415,6 +415,37 @@ console.log('\n== 12. a Daily move is recorded as a MOVE, not as a line ==');
   const silent = deps('http://localhost:8090', { status: 200, body: {} });
   const unread = await recordDailyMove(1, '2026-10-16', 'redo', null, silent.api);
   check(unread.ok === false && unread.failure.code === 'bad_response', `an answer with no count is refused (${unread.failure?.code})`);
+}
+
+console.log('\n== 13. the board is one request, and a PARTIAL one is not shown as the standings ==');
+{
+  // THE REQUEST IS THE CONTRACT (DESIGN.md §6, §11): the period is the CALLER's, because a Daily board is a day and a
+  // Drill board is a season — a client that derived its own would ask for a board nobody was on.
+  const posted = deps('http://localhost:8090', { status: 200, body: { board: { mode: 'drill', levelIndex: 2, period: '2026-10', entries: [{ playerId: 'p1', score: 120, runs: 3 }, { playerId: 'p2', score: 40, runs: 1 }], examined: 2, truncated: false } } });
+  const answer = await fetchLeaderboard('drill', 2, '2026-10', posted.api);
+  check(posted.fetch.calls[0].url === 'http://localhost:8090/leaderboard?mode=drill&level=2&period=2026-10' && posted.fetch.calls[0].init.method === 'GET', `asked for one board, naming all three facts (${posted.fetch.calls[0].url})`);
+  check(answer.ok === true && answer.value.entries.length === 2 && answer.value.entries[0].playerId === 'p1' && answer.value.entries[0].score === 120, `and the ranks come back in the server's order (${answer.value?.entries?.map((each) => each.playerId).join(',')})`);
+  check(answer.value.mode === 'drill' && answer.value.levelIndex === 2 && answer.value.period === '2026-10', 'with the board named, so the screen cannot show one board under another one\'s heading');
+  check(answer.value.examined === 2 && answer.value.truncated === false, `and the size of the read (${answer.value?.examined}, truncated ${answer.value?.truncated})`);
+
+  // A PARTIAL RANKING IS REPORTED AS PARTIAL. The server ranks the partition it could read, and its sort key is the
+  // player rather than the score — so a board past its cap is a cut-off list, and a client that dropped this flag
+  // would present one as the standings. NEGATIVE CONTROL: the plausible wrong rule, "a board answered is a board
+  // complete", reads `truncated` as false here and fails exactly this check.
+  const capped = deps('http://localhost:8090', { status: 200, body: { board: { mode: 'drill', levelIndex: 2, period: '2026-10', entries: [{ playerId: 'p1', score: 120, runs: 3 }], examined: 1000, truncated: true } } });
+  const partial = await fetchLeaderboard('drill', 2, '2026-10', capped.api);
+  check(partial.value.truncated === true && partial.value.examined === 1000, `NEGATIVE CONTROL: a truncated board is reported as truncated (${partial.value?.examined} rows read, truncated ${partial.value?.truncated})`);
+
+  // AN ANSWER THIS APP CANNOT SHOW IS REFUSED RATHER THAN HALF-READ: no list, and a rank that is not one.
+  for (const [body, why] of [[{ board: { mode: 'drill', levelIndex: 1, period: '2026-10' } }, 'a board with no entries'], [{ board: { mode: 'drill', levelIndex: 1, period: '2026-10', entries: [{ playerId: 'p1', score: 'lots', runs: 1 }], examined: 1 } }, 'a rank whose score is not a number']]) {
+    const odd = deps('http://localhost:8090', { status: 200, body });
+    const refused = await fetchLeaderboard('drill', 1, '2026-10', odd.api);
+    check(refused.ok === false && refused.failure.code === 'bad_response', `${why} is refused (${refused.failure?.code})`);
+  }
+  // AND AN EMPTY BOARD IS A BOARD: "nobody has played this yet" is an answer, not a failure to read one.
+  const nobody = deps('http://localhost:8090', { status: 200, body: { board: { mode: 'daily', levelIndex: 1, period: '2026-10-16', entries: [], examined: 0, truncated: false } } });
+  const empty = await fetchLeaderboard('daily', 1, '2026-10-16', nobody.api);
+  check(empty.ok === true && empty.value.entries.length === 0 && empty.value.examined === 0, `an empty board is shown as empty (${empty.status ?? ''}${empty.value?.entries?.length} entries)`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

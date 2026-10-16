@@ -20,7 +20,7 @@
 // `expectedRev: null`, so a resubmitted `runId` cannot land twice: the condition fails and this handler answers
 // from the row already there. That is what makes a client retry safe, and it is why the record is not a
 // separate "has this happened" query with a race between the query and the write.
-import { MAIN_POOL, SCORE_VERSION, elapsedSeconds, recordSuccess } from 'dancing-squared-game';
+import { MAIN_POOL, SCORE_VERSION, elapsedSeconds, recordSuccess, seasonOf } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type StoreWrite } from '../ports.ts';
 import { attemptKey, boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../keys.ts';
 import { levelAt, lineReachesGoal, puzzleFor, replayDailyMoves } from '../levels.ts';
@@ -59,17 +59,6 @@ interface Source {
   readonly claimedAttempts: number;
   /** What the client claimed it spent on hints. Kept for the record; the Drill's CHARGE is the recorded spend (A23). */
   readonly claimedHints: number;
-}
-
-/**
- * The season a Drill run belongs to: the calendar month, UTC.
- *
- * §15 Q4 recommends calendar months, so the period is a function of the clock rather than a stored value — a
- * season boundary therefore resets the board by construction (the key changes) instead of by a job that deletes
- * rows. UTC is the same choice the Daily's day makes (§9), so the two boards turn over together.
- */
-export function seasonOf(nowMs: number): string {
-  return new Date(nowMs).toISOString().slice(0, 7);
 }
 
 /** The Drill's source: the issued drill, the regenerated puzzle, and the per-step answer re-derived. */

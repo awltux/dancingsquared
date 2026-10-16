@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -44,8 +44,10 @@ import { GameStage, type ViewMode } from './render/stage-view.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
 import { AccountScreen } from './ui/account-screen.ts';
+import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { Replay } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
+import { seasonOf } from './puzzle/season.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -171,6 +173,7 @@ const accountScreen = new AccountScreen({
   confirm: (email, code) => void doConfirm(email, code),
   signOut: () => void doSignOut(),
 });
+const boardScreen = new LeaderboardScreen({ load: () => void loadBoard() });
 const stage = new GameStage(el<HTMLCanvasElement>('stage'));
 
 // ---------------------------------------------------------------------------------------------- the rails
@@ -420,6 +423,45 @@ function accountChanged(): void {
   paintAccount();
   if (mode === 'drill') issueCurrentDrill('current');
   else issueDaily();
+}
+
+// ------------------------------------------------------------------------------------------------ the board
+
+/**
+ * The period the board on screen is for, from the mode and the clock.
+ *
+ * THE TWO BOARDS MEAN DIFFERENT THINGS BY "PERIOD" (§6), and the SERVER takes it from the caller: a Daily board is
+ * ONE UTC DAY — the same `utcDay` the challenge is seeded from — and a Drill board is a SEASON, the UTC calendar
+ * month. The season comes from `seasonOf` in the SHARED package rather than from a second definition here: the
+ * server stamps a run with the season it belongs to, so a client computing its own would ask for a board nobody was
+ * on, and it would fail exactly at a month boundary.
+ */
+function boardPeriod(): string {
+  return mode === 'daily' ? utcDay(new Date()) : seasonOf(Date.now());
+}
+
+/**
+ * Load the board for the mode the app is in, and show it.
+ *
+ * IT IS ON DEMAND, because a board is a request and this panel is opened by a press. A build with no server gets the
+ * sentence rather than a spinner that can never finish, and a refusal is shown in the server's own words.
+ */
+async function loadBoard(): Promise<void> {
+  boardScreen.open();
+  if (!apiConfigured()) {
+    boardScreen.say('There is no server configured, so there is no board to show — this device keeps your own runs only.');
+    return;
+  }
+  boardScreen.setBusy(true);
+  const answer = await fetchLeaderboard(mode, level?.index ?? save.levelIndex, boardPeriod());
+  boardScreen.setBusy(false);
+  if (!answer.ok) {
+    boardScreen.say(`The board could not be read: ${answer.failure.message}`, 'bad');
+    return;
+  }
+  // `you` IS THE ID THIS APP BELIEVES IT IS, or null when it is nobody: the board is public (A20 serves reads to a
+  // signed-out caller), so "which of these is me" is answered by the session rather than by hiding the list.
+  boardScreen.show(answer.value, player?.playerId ?? null);
 }
 
 // -------------------------------------------------------------------------------------------- the saved game

@@ -800,6 +800,20 @@ bounded read, and it is NOT built; until it is, the cost is in the answer. Refus
 bad_mode`/`bad_level`/`bad_period` and `503 unreadable_board` (a row this build cannot rank is an operator finding,
 never a zero and never a skip — a board that quietly dropped a player would be one nobody could audit).
 
+**The board is a PANEL, not a third mode.** A mode is something a player plays; a board is a read (§6), so it is a
+section of the shell with one button, loaded ON DEMAND — a player who came to play should not pay for a request they
+did not ask for. It says three things rather than implying them: WHICH board (the mode, the level and the period are
+written down, because "the leaderboard" is three facts and comparing across levels is comparing nothing), WHICH ROW
+IS YOU (the id the session holds, since the board is public and a signed-out player still reads it), and WHETHER THE
+LIST IS COMPLETE (`truncated` becomes a sentence, because a cut-off list presented as the standings is worse than no
+list at all). MEASURED in a browser (dev:game 8089 + `DSQ_AUTH=emulate` dev:api 8090): after one solved Drill the
+panel read "The Drill — level 1, season 2026-10", "Top 1 of 1 player on this board", and the row "1. emu:… (you) 84 —
+1 run", with `200 GET /leaderboard?mode=drill&level=1&period=2026-10` in the dev server's log. **The period is derived
+by `seasonOf` in the SHARED pure core** (`game/src/puzzle/season.ts`, exported by the package), which is the same
+function the server stamps a run's season with: a client that computed its own would ask for a board nobody was on,
+and would fail exactly at a month boundary. The season rule moved there in this change rather than being written
+twice.
+
 **The `Schedule` item as it is published (Phase 5.5).** `schedule#<level>` / `current` holds `{ scheduleVersion,
 entries: [{ seed, levelIndex, poolVersion }] }` — a seed, a level and a pool version, no puzzle, no board, no media
 (§11, decision 13). The order is ascending and the season is a PREFIX of any longer season, so extending one cannot

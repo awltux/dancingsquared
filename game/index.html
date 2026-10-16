@@ -68,6 +68,17 @@
           <div id="dailyResult" hidden></div>
         </section>
 
+        <!-- THE BOARD IS A PANEL AND NOT A THIRD MODE: a mode is something a player PLAYS, and a board is a read
+             (DESIGN.md §6, §11). It is loaded on demand — a board is a request, and a player who came to play
+             should not pay for one they did not ask for. It says which board it is showing, because "the
+             leaderboard" is three facts (§6: mode, level, period) and comparing across levels is comparing
+             nothing. -->
+        <section id="board" aria-live="polite" hidden>
+          <p id="boardHeading"></p>
+          <p id="boardStatus"></p>
+          <ol id="boardList"></ol>
+        </section>
+
         <footer id="foot">
           <!-- THE HINT ROW IS SHARED: the balance is earned on the drill line and spent on the Daily
                (DESIGN.md 10), so a player in either mode needs to see what they hold and how close the next
@@ -87,6 +98,7 @@
           <button id="replayMine" type="button" hidden>Replay my line</button>
           <button id="replayShortest" type="button" hidden>Replay the shortest</button>
           <button id="view" type="button">Switch to 2D</button>
+          <button id="boardToggle" type="button">Show the board</button>
           <button id="next" type="button" hidden>Next drill</button>
         </footer>
       </main>

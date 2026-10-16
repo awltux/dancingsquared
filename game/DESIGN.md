@@ -27,7 +27,7 @@ a later reader must not re-open them by accident.
 | 3 | Daily: the player selects **each call individually** from the moves the sequencer offers, with **undo/redo** until the puzzle is solved. | `PlaySession` with a move stack in §9. |
 | 4 | Failure is instructive: animate the player's own line, say why it failed, then offer a **"show me the answer" replay** of the correct line. | The review/replay flow, shared by both modes. |
 | 5 | Ladder: L1 is 10 calls and a one-call solution; the solution length rises to 3, then the pool widens by 5 every 3 levels. | `LevelSpec` and the level→spec function in §5. |
-| 6 | **Cognito User Pools** (email + password, JWT verified in Lambda) with anonymous play whose local scores can be claimed on login. | Auth and the bulk-claim endpoint in §11. |
+| 6 | **Cognito User Pools** (email + password, JWT verified in Lambda). Anonymous play is a **read-only demo** that stores nothing; a device's local ledger may be imported only as unranked history (A26, §11.1). **AMENDED** from "anonymous play whose local scores can be claimed on login": the claim survives as history, and it buys no board, no hints and no progress. | Auth, the three identity modes and the bulk-claim endpoint in §11 and §11.2. |
 | 7 | Extract the POC's Three.js stage into a **shared renderer package first**, then build on it, offering **both 2D and 3D** views. | Phase 0 in §13. One package, consumed by the POC and by **both** game modes (§4). |
 | 8 | The daily is seeded from the **UTC date** — one challenge per day — **issued per level to all players**, with the leaderboard partitioned **per level**. | §9: with the challenge now level-scoped, its solution no longer has to be derivable from the level-1 pool. What remains fixed is that every player at a level gets the identical challenge. |
 | 9 | **Free exploration; the score penalises extra moves and time.** Offered calls are **legal now, not "still solvable"** — dead ends are the player's to discover. | Undo is free and unpunished; the clock and the move count carry the cost; §9 and §6 make "wander until the picture matches" a losing strategy. |
@@ -593,10 +593,10 @@ drift between the client and the server, because both derive them from the same 
   §11 is not a `GET /puzzle` by seed for this mode, even though the client could apply one.
 - **The score is cumulative over the regime** and the board accumulates across a season (§6), with one entry
   per player: their best. Re-playing a drill the player enjoyed cannot buy them a place.
-- **Anonymous play still gets the regime.** The Drill is the funnel — playable without an account — so the
-  local ledger holds the issued-drill id and the answer, and the progression is claimed along with the
-  scores on login. A non-member is following the same regime in the same order; they simply have not
-  published a score.
+- **Anonymous play still gets the regime — as a DEMO.** The Drill is the funnel, so a signed-out visitor can be
+  issued a drill and play it; nothing is submitted, scored or stored, and the progression is not theirs. Signing in
+  is what makes a run count, and a device's own ledger can then be imported as unranked history (A26). A
+  non-member is following the same regime in the same order; they simply have not published a score.
 - **Level changes mid-regime** move the player into the new level's regime at its start, because a drill
   validated against one `poolSize` is not a drill at another (§7.2).
 - **A drill's answer is a single choice, so the timing rule is short.** The clock starts when the entry is
@@ -712,26 +712,29 @@ number field that older players find fiddly). The app holds no password and no s
 Lambda by the API Gateway authorizer. Cognito's own hosted/password-reset flows are used rather than an
 invented one.
 
-**Anonymous play first.** The game is playable with no account, and anonymous runs are kept in a **local run
-ledger**. On login, the ledger is **claimed** with `POST /me/runs:bulk`, **idempotent on a client-generated
-`runId`**, so a retry or a double-submit cannot double-count. This is decision 6, and it is also the funnel:
-a player who has a score to lose is a player who signs up.
+**Sign-in is what makes anything count, and a signed-out visitor gets a demo.** The game is playable with no
+account — a read-only demo that stores nothing (§11.2) — and a device's own local run ledger can be **imported**
+on login with `POST /me/runs:bulk`, **idempotent on a client-generated `runId`**, so a retry or a double-submit
+cannot double-count. **The imported rows are history and nothing else**: no board, no hints, no progress, because
+a run the server never issued cannot be verified (A26). This amends decision 6: the funnel becomes *try it
+read-only, then sign in to be ranked*.
 
 **API** (API Gateway + Lambda):
 
 | Method and path | Mode | Purpose |
 |---|---|---|
 | `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). |
-| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. |
+| `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9) |
-| `POST /runs` | both | One completed run. **Daily**: the level, seed, elapsed, move list, `hintsUsed` and client `runId`. **Drill**: the issued-drill id, elapsed, `runId` and **the calls chosen — one per step**, which is a CORRECTION of this row: it said "the chosen option", written while a drill was imagined as a single question, and the ladder ships two-step drills from L2 (§5). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
-| `POST /me/runs:bulk` | both | Claim the anonymous ledger on login, **including the hint balance and the drill success count** (§10) |
+| `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts` and `hintsUsed` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22) and debits the third (A23). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
+| `POST /me/runs:bulk` | both | Import a device's local ledger on login as **unranked history** — no board, no hints, no progress (A26) |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
 
-`GET /drill/current` must work **without an account**, because the Drill is the funnel (§8). An anonymous
-player therefore gets an issued drill keyed to a device id, and the progression is claimed with the scores on
-login — the same shape as `POST /me/runs:bulk`, and the reason the Progress row's key includes the player
-rather than the level alone.
+`GET /drill/current` works **without an account, and then it is a demo**: the server answers the level's first
+entry from the schedule, writes no Progress row for that caller, and reports it as a demo (§11.2). A signed-out
+player therefore follows the same order as everyone else without a progression of their own, and the moment they
+sign in, their progress is a Progress row keyed on their `sub` — which is why the Progress row's key includes the
+player rather than the level alone.
 
 **The three endpoints as they are implemented (Phase 5.0 and 5.3), so the client can be written against them.**
 `GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, issuedAtMs,
@@ -803,10 +806,11 @@ option was actually correct — so neither a puzzle the player chose nor a clien
 be published.
 
 **And the same treatment applies to hints (§10), because a hint is a currency.** The server credits a grant
-from its own record of scored Drill successes rather than from anything the client says, and it debits the
-balance from the `hintsUsed` the run claims — so a client can neither mint a hint by reporting successes it
-did not have, nor spend one and report zero. The balance is therefore **server-owned state that the client
-displays and requests against**, never a client-side counter that happens to be synced.
+from its own record of scored Drill successes rather than from anything the client says — so a client cannot mint
+a hint by reporting successes it did not have. **The spend side is the client's word until A23 (§11.1) lands**: the
+debit came from the `hintsUsed` a submission carried, which a modified client could report as zero. A23 makes the
+spend an event (`POST /me/hints`), and the balance is then **server-owned state that the client displays and
+requests against** on both sides, never a client-side counter that happens to be synced.
 
 **Publishing a schedule is an operator action, not a code path a player can reach**: the authoring pipeline
 in §7.2 writes the Schedule item (and, for the Daily, the boundary job writes the Published item), and there
@@ -816,6 +820,97 @@ is no client-facing write to either.
 records where the obligation attaches — shipped front-end code that derives from the engine — and keeps
 backend logic separate. That is the scope of the claim; nothing more is asserted here, and **no secrets ever
 live in this repository** (AGENTS.md §6).
+
+### 11.1 Cheat resistance: what the server measures, and what it only bounds
+
+**THE RULE THIS SECTION EXISTS FOR: a measurement the server did not make is not a measurement.** Every term of a
+score (§6) comes from something a modified client could otherwise choose, and so does the identity behind it. The
+line a player plays is already verified; the score is already clamped; what could still be bought is the run's
+**time**, its **attempts** and its **hints spent**.
+
+**The ceiling is already honest, which is what makes closing the rest worth doing.** Every factor of the score is
+at most 1 (`puzzle/score.ts`), so the best possible score is `BASE_SCORE × level` — exactly what a clean, par,
+first-try run gets. There is no impossible number to post; a cheat buys a ceiling it did not earn.
+**MEASURED at L1 with the shipped arithmetic** (`game/tools/_measure-cheats.mjs`, a throwaway deleted after it was
+read; the constants are `BASE_SCORE` 100, `SECONDS_PER_CALL` 15, `HINT_PENALTY_SECONDS` 60, `ATTEMPT_PENALTY`
+0.25): a clean par run scores **100**; a 100-second run scores **15**, and claiming par makes it **100**, a
+**6.7×** gain; one hint on a 10-second clock scores **21**, and hiding it makes it **100**, a **4.8×** gain; one
+wrong answer at par scores **80**, and hiding it makes it **100**, **+25 %**. And a claim cannot beat the ceiling —
+claiming `0.1 s` also scores **100**, because `timeFactor` stops at 1.
+
+| Rule | What it requires |
+|---|---|
+| **A20 — the identity is verified or absent.** | Reads (`GET /drill/current`, `GET /puzzle`) answer a signed-out caller as a **demo** and write nothing at all — no Progress row, no attempt row. Every write (`POST /runs`, `POST /drill/advance`, `POST /me/hints`, `POST /me/runs:bulk`, `POST /daily/move`) requires a verified `sub`, and a header is never an identity. |
+| **A21 — the clock is the server's.** | A run's elapsed is `submittedAt − issuedAt`, both the server's own facts: for the Drill the Progress row's issue stamp, for the Daily a per-player attempt row created by that player's own first read of the challenge. The client's `elapsedSeconds` is kept as an **audit input** and never scored. |
+| **A22 — the interaction is recorded, so `attempts` is counted.** | `POST /drill/answer` records each press (step, call, verdict, at) against the issued drill, and `attempts` is the number of recorded non-correct presses. A submission whose transcript the recorded presses do not explain is refused (`no_press_log`). `POST /daily/move` records add/undo/redo for the same reason, so the Daily's line and its length are server facts too. |
+| **A23 — the hint spend is an event, not a field.** | `POST /me/hints` replays the recorded line, names the call by the server's own §10 look-up, spends one and answers with the balance. The Daily's `hintsUsed` is read from the attempt row, and an abandoned run is debited at abandonment. |
+| **A24 — scoring is a function of server facts only.** | Measured elapsed, counted attempts, server-debited hints, the regenerated `shortest` and the recorded line. The answer reports measured against claimed, so a disagreement is visible rather than silent. |
+| **A25 — accountability is recorded.** | Every accepted or refused run stores what was measured and what was claimed plus its flags, and increments a bounded `abuse#<playerId>` counter. The gateway throttles per player, and a refusal-rate alarm is the operator's signal that someone is probing. |
+| **A26 — the bulk claim is HISTORY, not rank.** | A device's local ledger may be imported only as `unverified` rows that count for nothing — no board, no hints, no progress — because a run the server never issued cannot be verified. This amends decision 6: the anonymous ledger is kept, and it buys no standing. |
+| **A27 — local development never needs a provider, and never reaches production.** | Three identity modes (§11.2). `dev` is refused when the environment is production. |
+
+**Known limits, stated rather than dressed up as defences.** (1) Automation that plays correctly earns at most a
+**par** score — but it earns it every time, and no submission can prove a human made it. (2) The information a
+hint reveals is derivable from the puzzle the client was served, so a modified client can skip the 60-second
+penalty; the mitigation is that a hint buys time, not score beyond the par ceiling, and the recorded spend is what
+the honest path charges. (3) The Daily's seed is a public function of the date (`puzzle/daily.ts`), so a published
+day is pre-computable by anyone; the countermeasures are that the day is published at its boundary rather than
+ahead of it and that A21 bounds what a pre-solver can claim for TIME. (4) Several accounts can be created for
+several board entries; Cognito's email verification raises the cost and does not remove it. Closing (1)–(3)
+properly means not serving the puzzle (a board-state API rather than a seed), which is a change to the game's
+information model rather than to its security.
+
+**Enforcement status, because a rule that is only written down is not a rule.** What is already true in the code:
+the transcript is verified by regeneration (`handlers/runs.ts`), the score is clamped (`runs.ts:scoreWithClaim`),
+the run row is created inside the same transaction as its effects so a retry cannot double-count, an issued drill
+is locked, and the hint CREDIT is the server's own record of finished drills. What is not yet true, and the stage
+that lands it (AGENTS.md §0: one change, one commit):
+
+| Not yet enforced | Today | Lands in |
+|---|---|---|
+| A20 identity verified; reads write nothing | handlers require *some* identity, and the dev adapter accepts an unsigned `x-dev-player` header (`dev-server.ts`) | identity modes (§11.2) |
+| A21 the clock is the server's | the Drill refuses a claim **above** the wall time but scores the claim below it; the Daily has only a 24-hour bound | server-measured time |
+| A22 attempts counted | `attempts` is read from the submission | `POST /drill/answer` |
+| A23 hint spend is an event | the balance is the server's, the spend is claimed (`§15 Q19`) | `POST /me/hints` |
+| A25 audit and throttling | nothing recorded beyond the run row | audit |
+| A26 the claim is history-only | the endpoint does not exist yet | the claim |
+
+### 11.2 Identity: three modes, and a local sign-in that needs no provider
+
+**Local development must not need Cognito, and the LOGIN FEATURE must still be testable.** Those are two different
+requirements and they get two different modes. `DSQ_AUTH` selects one; the deployed adapter has only the last.
+
+| Mode | Who the caller is | What it is for |
+|---|---|---|
+| `dev` | the `x-dev-player` header, or `Bearer dev:<name>`, **treated as verified** | the ordinary local run and the probes: no accounts, no tokens, no provider. The boot banner says so (`auth: dev (x-dev-player) — NOT for production`) |
+| `emulate` | a **real JWT** issued and verified locally | testing the sign-in feature: signup → confirm → sign-in → refresh → expiry → sign-out, against the same verifier the deployment uses |
+| `cognito` | a Cognito access token, verified against the pool's JWKS | the deployment. `dev` is refused outright, and the emulator is not imported by that adapter at all |
+
+**ONE VERIFIER, TWO KEY SOURCES.** `api/src/auth/verify.ts` checks a JWT's signature, issuer, audience, expiry and
+`sub` with a pluggable key source — the emulator's local key, or Cognito's JWKS fetched and cached — so the
+emulator exercises the code the deployment runs, and only the key's provenance differs. Signing and verification
+use `node:crypto` (HS256 locally, RS256 with a small JWKS read for Cognito), so this adds **no dependency**.
+
+**THE EMULATOR IS A DEV ADAPTER, NOT A SECOND AUTH SYSTEM.** `api/src/auth/emulator.ts` serves
+`POST /auth/signup`, `/auth/confirm`, `/auth/signin`, `/auth/refresh` and `/auth/signout` **only in `emulate`
+mode**; in the other modes those paths are unrouted (`404`), exactly as any unknown path is, so the handler core
+never learns that authentication has a shape. Accounts are items in the same `ItemStore` — `auth#<email>` holding
+the `sub`, a salted `scrypt` hash, the confirmation state and the live refresh-token ids — so an account persists
+with DynamoDB Local and disappears with the memory store, and no second database appears. `DSQ_AUTH_CONFIRM=1`
+makes the confirm step mandatory and prints the code to the console, because there is no mail sender locally; by
+default the emulator confirms on signup so the shortest path is one call.
+
+**THE MODE IS DISCOVERED, NOT COMPILED IN, AND IT IS IMPOSSIBLE TO SHIP BY ACCIDENT.** `/health` reports
+`auth: dev|emulate|cognito`; the client reads it once (an anonymous read) and picks its flow — `dev` shows no
+sign-in UI at all, `emulate` calls the emulator, `cognito` uses Cognito's hosted flow. `VITE_AUTH_MODE` overrides
+that for a pinned build. The config refuses `DSQ_AUTH=dev` when the environment is production or when a real
+endpoint is configured, in the same shape as `realServiceWarning` (AGENTS.md §8 trap 21) and pinned by a probe the
+same way.
+
+**AND A SIGNED-OUT CALLER GETS A DEMO, NOT A WALL.** This is the amendment to decision 6 and to §8's "the Drill is
+the funnel": the funnel becomes *try it read-only, then sign in to be ranked*. A signed-out player can fetch the
+issued drill and the published challenge and play for real; nothing is submitted, scored or stored, and the app
+says so on screen (`paintBalance`/`paintLedger` mark it unranked). Every write is `401`.
 
 ---
 
@@ -1532,19 +1627,16 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     repository's offline-frontend rule (AGENTS.md §6), so the decision to make a network call must be recorded
     in the commit that adds it, with the endpoint named.
 15. **The workspace name**, for `game/package.json` when Phase 1 starts. *(Settled: `dancing-squared-game`.)*
-19. **Two claims in a run submission are still the client's word: the attempt count and the hint spend.** The
-    Drill's `attempts` prices a run (§6's `attemptFactor`), and the Daily's `hintsUsed` debits the balance (§10).
-    Neither has a server-side interaction among §11's six endpoints, so the server can only bound them:
-    `attempts >= 0`, and the debit clamped at zero. **What a client gains by lying, in numbers**: reporting zero
-    attempts raises a Drill score by up to `1/(1 + 0.25n)` — a fifth at four wrong answers, `ATTEMPT_PENALTY`.
-    As of Phase 5.9 a SOLVED Daily is submitted like a Drill run, so the server applies the debit it is told about
-    and answers with the balance — but a hint taken on a Daily that is then ABANDONED is still never debited
-    anywhere: an unsolved run is not a run to submit, so the server never hears about it, and the local debit is
-    all there is. That is the remaining half of this question.
-    *Recommend making both interactions server-side before launch* — a `POST /drill/answer` that records an
-    attempt as it happens, and the hint spend as its own call against the balance — because the alternative is a
-    currency (a hint) and a ranking (the attempt factor) that a modified client sets. This is the one place where
-    §11's "server-owned state that the client displays and requests against" does not yet cover the REQUEST.
+19. **CLOSED by A22 and A23 (§11.1) — the attempt count and the hint spend were the client's word.** The Drill's
+    `attempts` priced a run (§6's `attemptFactor`) and the Daily's `hintsUsed` debited the balance (§10), and
+    neither had a server-side interaction among §11's six endpoints, so the server could only bound them:
+    `attempts >= 0`, and the debit clamped at zero. **What a client gained by lying, in numbers** (measured, §11.1):
+    reporting zero attempts raised a Drill score from **80 to 100** (+25 %), and hiding one hint at L1 took it from
+    **21 to 100** (4.8×). **The recommendation this question carried — make both interactions server-side — is
+    A22 and A23**: presses and moves are recorded by the server, so `attempts` is counted and the spend is an
+    event; an abandoned Daily is debited at abandonment. What stays open is not the claim but its COMPLETENESS for
+    a client that plays the puzzle itself — §11.1's known limits (1)–(3) say so, and none of them is closable
+    without changing what the client is served.
 20. **When the API is unreachable, should the Drill FALL BACK to the local fixture?** As shipped it refuses, showing
     the server's failure ("the server could not be reached") and keeping the local ledger. *Recommend NO silent
     fallback, and a LABELLED one instead*: the fixture's order is not the season's, so serving it quietly would ask

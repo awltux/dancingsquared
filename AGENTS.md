@@ -225,6 +225,21 @@ This codebase's comments are load-bearing and are the reason a stranger can chan
   `.env` in git. Nothing sensitive is currently tracked — keep it that way. The API's AWS identifiers (account,
   region, table, user pool) follow the same rule when its deployment lands: a config file plus `DSQ_*`
   overrides, never a literal.
+- **Measurements are the server's.** A time, a count, a score or a balance that arrives in a request is an AUDIT
+  INPUT, never a fact: the server measures the clock from its own issue stamp, counts attempts from the presses it
+  recorded, and debits hints from its own balance (`game/DESIGN.md` §11.1, A21–A24). **Prove it by trying to lie**:
+  a probe asserts that a submission claiming `0.1 s` is scored on the wall window, and that a claim the server
+  cannot corroborate is refused or flagged rather than believed. This is not a hypothetical: the Drill trusted a
+  client clock *downward* for a whole phase, so a slow run could claim `par` and take the maximum score.
+- **Identity is verified, and a header is not an identity.** Every write needs a verified token subject. The
+  trusted-header mode exists for local development only, says so in the boot banner, and is refused when the
+  environment is production (`game/DESIGN.md` §11.2). **Test the sign-in flow with the EMULATOR, not by trusting a
+  header**: it signs and verifies with the same verifier the deployment uses, so it cannot pass while the real
+  path is broken.
+- **Record what you refuse.** A refused or clamped submission writes what was measured beside what was claimed and
+  increments a bounded per-player counter; the refusal rate is the operator's signal that someone is probing. An
+  instrument's silence is itself a bug (§4.1) — a check that refuses something and records nothing is a check
+  nobody can audit.
 - **The apps are offline.** `poc/` makes no network calls; `poc-teacher/` works against local state
   (`localStorage`) and the local engine. Do not add a remote call, a telemetry beacon or an external font
   without an explicit decision recorded in the commit message. **`api/` is the other side of that boundary** —
@@ -354,6 +369,15 @@ with its measurement, in the same commit that found it.
     uncommitted edits in it were lost (`git checkout --` restored the committed content and they were rewritten
     by hand). Assert the result is non-null AND non-empty before writing, or use the editor tools, which fail
     loudly on a missing anchor instead of silently writing nothing.
+23. **A request header is not an identity, and a client's clock is not a measurement.** Both were true here at
+    once, and both are MEASURED rather than hypothetical (the review that produced `game/DESIGN.md` §11.1): the
+    dev adapter accepted `x-dev-player: <anyone>` as that player, so any caller who could reach the port owned
+    another player's progress, hints and board; and `POST /runs` used the client's `elapsedSeconds` whenever it was
+    BELOW the wall time since issue, so a 100-second run could claim par and score **100 instead of 15** (6.7×),
+    and one hidden hint was worth **21 → 100** (4.8×). The fix is direction as much as code: the trusted header is
+    now a named development mode refused in production (§6, §11.2 of the design), and the clock is the server's own
+    issue stamp. The general rule is the §6 bullet — anything a score depends on is measured server-side, and "the
+    client said so" is not a measurement.
 
 ---
 

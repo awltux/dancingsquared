@@ -141,6 +141,34 @@ try {
     const noToken = await call('/runs', { method: 'POST', headers: json(), body: JSON.stringify({ runId: 'e2e-nope', mode: 'drill', levelIndex: 1, drillId: '1:0', elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: [] }) });
     check(noToken.status === 401, `nor submit (${noToken.status})`);
   }
+
+  console.log('\n== 8. giving up on a challenge is recorded, once, and does not bar the run ==');
+  {
+    const day = utcDay(new Date());
+    const abandoned = await call('/daily/abandon', { method: 'POST', headers: json(auth), body: JSON.stringify({ levelIndex: 1, date: day }) });
+    check(abandoned.status === 200 && abandoned.body.abandoned === true, `giving up is recorded (${abandoned.status})`);
+    check(abandoned.body.hintsSpent === 0, `with the hints actually spent (${abandoned.body.hintsSpent})`);
+    // IDEMPOTENT, AND IT KEEPS THE FIRST STAMP: giving up twice must not quietly move the moment the player walked
+    // away, which is the only number this endpoint exists for.
+    const again = await call('/daily/abandon', { method: 'POST', headers: json(auth), body: JSON.stringify({ levelIndex: 1, date: day }) });
+    check(again.body.abandonedAtMs === abandoned.body.abandonedAtMs, `NEGATIVE CONTROL: giving up twice keeps the first stamp (${again.body.abandonedAtMs})`);
+
+    // AND A LATER SUBMISSION IS STILL SCORED, because the app lets a player replay both lines after giving up: an
+    // abandonment is a fact about the ATTEMPT, and the run is scored on its own terms.
+    const published = await call(`/puzzle?mode=daily&level=1&date=${day}`, { headers: auth });
+    const line = puzzleFor(published.body.daily.seed, levelAt(1)).puzzle.solution;
+    const scored = await call('/runs', {
+      method: 'POST',
+      headers: json(auth),
+      body: JSON.stringify({ runId: 'e2e-daily-2', mode: 'daily', levelIndex: 1, date: day, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: line }),
+    });
+    check(scored.status === 200 && scored.body.board.runs === 2, `and the run after it is scored as usual (${scored.status}, ${scored.body.board?.runs} runs on the board)`);
+
+    const unread = await call('/daily/abandon', { method: 'POST', headers: json(auth), body: JSON.stringify({ levelIndex: 1, date: '2030-01-01' }) });
+    check(unread.status === 409 && unread.body.error.code === 'no_attempt_row', `while a challenge nobody read has nothing to abandon (${unread.body.error?.code})`);
+    const anonymous = await call('/daily/abandon', { method: 'POST', headers: json(), body: JSON.stringify({ levelIndex: 1, date: day }) });
+    check(anonymous.status === 401, `and abandoning needs an identity (${anonymous.status})`);
+  }
 } finally {
   await server.close();
 }

@@ -67,7 +67,7 @@ export async function postDrillAnswer(request: ApiRequest, deps: Deps): Promise<
   const key = attemptKey(playerId, 'drill', drillId);
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
     const stored = await deps.store.get(key);
-    const attempt = stored ? asAttempt(stored) : { startedAtMs: null, presses: [] as Press[], hints: [] };
+    const attempt = stored ? asAttempt(stored) : { startedAtMs: null, presses: [] as Press[], hints: [], abandonedAtMs: null };
     if (!attempt) return failure(STATUS.unavailable, 'unreadable_press_log', `the attempt row for ${drillId} is not a record this build can read`);
     if (attempt.presses.length >= MAX_PRESSES) {
       return failure(STATUS.conflict, 'press_log_full', `drill ${drillId} already holds ${MAX_PRESSES} presses, which is more than any player makes`);

@@ -44,6 +44,8 @@ export interface Attempt {
   readonly startedAtMs: number | null;
   readonly presses: readonly Press[];
   readonly hints: readonly HintEvent[];
+  /** When the player GAVE UP on a Daily (A25's accounting). Null while the attempt is live or unfinished. */
+  readonly abandonedAtMs: number | null;
 }
 
 function asPresses(raw: unknown): Press[] | null {
@@ -90,7 +92,9 @@ export function asAttempt(stored: StoredItem): Attempt | null {
   if (!presses) return null;
   const hints = asHints(value.hints);
   if (!hints) return null;
-  return { startedAtMs: typeof stamp === 'number' ? stamp : null, presses, hints };
+  const abandoned = (stored.value as { abandonedAtMs?: unknown }).abandonedAtMs;
+  if (abandoned !== undefined && abandoned !== null && (typeof abandoned !== 'number' || !Number.isFinite(abandoned))) return null;
+  return { startedAtMs: typeof stamp === 'number' ? stamp : null, presses, hints, abandonedAtMs: typeof abandoned === 'number' ? abandoned : null };
 }
 
 /**
@@ -104,6 +108,7 @@ export function asAttemptItem(attempt: Attempt): Record<string, unknown> {
     ...(attempt.startedAtMs === null ? {} : { startedAtMs: attempt.startedAtMs }),
     presses: attempt.presses.map((press) => ({ step: press.step, call: press.call, atMs: press.atMs })),
     hints: attempt.hints.map((hint) => ({ step: hint.step, call: hint.call, atMs: hint.atMs })),
+    ...(attempt.abandonedAtMs === null ? {} : { abandonedAtMs: attempt.abandonedAtMs }),
   };
 }
 
@@ -115,7 +120,7 @@ export function asAttemptItem(attempt: Attempt): Record<string, unknown> {
  * until someone re-read the challenge before submitting.
  */
 export function startAttempt(existing: Attempt | null, nowMs: number): { attempt: Attempt; write: boolean } {
-  return existing ? { attempt: existing, write: false } : { attempt: { startedAtMs: nowMs, presses: [], hints: [] }, write: true };
+  return existing ? { attempt: existing, write: false } : { attempt: { startedAtMs: nowMs, presses: [], hints: [], abandonedAtMs: null }, write: true };
 }
 
 /**

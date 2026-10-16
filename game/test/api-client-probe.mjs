@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, submitRun } from '../src/net/api.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -201,6 +201,59 @@ console.log('\n== 6. advancing sends the drill id it is advancing ==');
   const refused = deps('http://localhost:8090', { status: 409, body: { error: { code: 'stale_drill', message: 'this player has no drill in flight' } } });
   const again = await advanceDrill('1:4', refused.api);
   check(again.ok === false && again.failure.code === 'stale_drill', `a repeated advance is the server's refusal (${again.failure?.code})`);
+}
+
+console.log('\n== 7. a completed run is handed over, and what comes back is what is adopted ==');
+{
+  const OUTCOME = {
+    run: { runId: 'run-1', score: 100, elapsedSeconds: 12, scoreVersion: 1, clamped: false, duplicate: false },
+    hints: { hints: 0, successes: 1, granted: false },
+    board: { period: '2026-10', score: 100, runs: 1 },
+    progress: { finished: 1 },
+  };
+  const wired = deps('http://localhost:8090', { status: 200, body: OUTCOME });
+  const body = {
+    runId: 'run-1',
+    mode: 'drill',
+    levelIndex: 1,
+    drillId: '1:0',
+    elapsedSeconds: 12,
+    hintsUsed: 0,
+    attempts: 1,
+    calls: ['Allemande Left in the Alamo Style'],
+    score: 120,
+  };
+  const answer = await submitRun(body, wired.api);
+  check(answer.ok === true, `the run is accepted (${answer.ok})`);
+  // WHAT IS ADOPTED IS THE SERVER'S, not the claim: the score, the balance and the board row all come from the
+  // answer, which is the whole point of submitting rather than keeping a local ledger.
+  check(answer.value.run.score === 100 && answer.value.run.clamped === false, `the server's score comes back (${answer.value.run.score})`);
+  check(answer.value.hints.successes === 1 && answer.value.hints.hints === 0, `with the balance it counted (${answer.value.hints.hints} held, ${answer.value.hints.successes} counted)`);
+  check(answer.value.board.runs === 1 && answer.value.board.period === '2026-10', `and the board row it wrote (${answer.value.board.runs} run, ${answer.value.board.period})`);
+  check(answer.value.progress?.finished === 1, `and the progress it recorded (${answer.value.progress?.finished})`);
+  const call = wired.fetch.calls[0];
+  check(call.url === 'http://localhost:8090/runs' && call.init.method === 'POST', `posted to /runs (${call.init.method} ${call.url})`);
+  const sent = JSON.parse(call.init.body);
+  check(sent.calls.length === 1 && sent.calls[0] === 'Allemande Left in the Alamo Style', `with the transcript as it happened (${sent.calls.join(' → ')})`);
+  check(sent.elapsedSeconds === 12 && sent.hintsUsed === 0 && sent.attempts === 1, 'and the run\'s own measured facts, not a verdict about them');
+
+  // A CLAMP IS REPORTED SO THE PLAYER CAN BE TOLD, because a silently lowered score is the kind of thing that
+  // looks like a bug in the game rather than a rule about claims.
+  const clamped = deps('http://localhost:8090', { status: 200, body: { ...OUTCOME, run: { ...OUTCOME.run, score: 40, clamped: true } } });
+  const lowered = await submitRun({ ...body, score: 999_999 }, clamped.api);
+  check(lowered.ok === true && lowered.value.run.clamped === true && lowered.value.run.score === 40, `a clamped score comes back with the flag (${lowered.value.run.score}, clamped ${lowered.value.run.clamped})`);
+
+  // A REFUSAL IS THE SERVER'S OWN SENTENCE, which the caller shows — and then keeps the local record instead,
+  // because an outage or a stale drill must not cost the player the run.
+  const stale = deps('http://localhost:8090', { status: 409, body: { error: { code: 'stale_drill', message: 'the drill in flight is 1:1, not 1:0' } } });
+  const refused = await submitRun(body, stale.api);
+  check(refused.ok === false && refused.failure.code === 'stale_drill' && refused.failure.message.includes('1:1'), `a refused run keeps the server's reason (${refused.failure?.code}: ${refused.failure?.message})`);
+
+  // A RESPONSE WITH NO SCORE AND BALANCE IS NOT HALF-ADOPTED: a caller that adopted `undefined` would wipe the
+  // local balance while telling the player the run was recorded.
+  const empty = deps('http://localhost:8090', { status: 200, body: { run: { runId: 'run-1' } } });
+  const malformed = await submitRun(body, empty.api);
+  check(malformed.ok === false && malformed.failure.code === 'bad_response', `a run answer with no score or balance is refused (${malformed.failure?.code})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

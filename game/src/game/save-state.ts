@@ -176,6 +176,18 @@ export class SaveState {
     return this.record.runs.length - before;
   }
 
+  /**
+   * Adopt a balance the SERVER stated.
+   *
+   * THE SERVER OWNS THE LEDGER (DESIGN.md 10, 11: "server-owned state that the client displays and requests
+   * against"), so once a run has been submitted, the number it answers with is the truth and this record becomes a
+   * CACHE of it — including the earning progress, which the server counts from its own record of finished drills.
+   * `countSuccess` is untouched and still holds offline, where there is no server to ask.
+   */
+  adoptHints(ledger: HintLedger): void {
+    this.record = { ...this.record, hints: ledger };
+  }
+
   /** Write the live state. Returns whether the storage kept it, and remembers that as `saving`. */
   persist(parts: PersistParts): boolean {
     this.record = {

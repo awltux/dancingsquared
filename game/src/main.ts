@@ -26,7 +26,7 @@ import { generatorConfigFor } from './puzzle/config.ts';
 import { dailyEntry, utcDay } from './puzzle/daily.ts';
 import { levelSpec } from './puzzle/levels.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
-import { scoreRun } from './puzzle/score.ts';
+import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { earningProgress } from './puzzle/hints.ts';
 import { SCORE_VERSION } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, SequenceMotion } from './puzzle/types.ts';
@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
@@ -338,7 +338,7 @@ function applyMode(next: AppMode): void {
  * the order, §8), and everything after the seed is identical — the generator the client runs, the resume of a
  * half-played drill, the clock, the header and the save. Splitting that in two would be two ways to show a drill.
  */
-function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number }): void {
+function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number }): void {
   const spec = levelSpec(issued.levelIndex);
   if (!spec) throw new Error(`level ${issued.levelIndex} is not a level`);
   position = issued.index;
@@ -370,16 +370,19 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
     carrying ? { index: carrying.index, attempts: carrying.attempts } : {},
   );
   drillOptions = carrying ? [...carrying.options] : [];
-  drillIssuedAtMs = carrying ? carrying.startedAtMs : Date.now();
+  // WHEN THE DRILL WAS ISSUED IS THE SERVER'S FACT WHEN THERE IS A SERVER, and this line is a fix rather than a
+  // detail. MEASURED IN A BROWSER, and it cost a refused run: the local save remembered a drill from 421 s earlier
+  // while the server had re-issued the same position 19.8 s before (its store had been restarted), so the run
+  // claimed 421.7 s and the server answered `impossible_elapsed` — correctly, because a claim longer than the drill
+  // has existed is a lie about the run. The local `startedAtMs` is the OFFLINE origin, and the step and attempts
+  // below are still restored from the save either way (they are the player's progress, not a clock).
+  const originMs = issued.issuedAtMs ?? (carrying ? carrying.startedAtMs : Date.now());
+  drillIssuedAtMs = originMs;
   drillRunId = carrying ? carrying.runId : newRunId(Date.now());
   drillClock = new Stopwatch();
-  if (carrying) {
-    // THE ELAPSED IS WALL TIME because the issue stamp is: the run began when the entry was SHOWN, so the
-    // minute the page spent closed is a minute of the run (and a reload is therefore not a pause).
-    drillClock.resume(performance.now(), Math.max(0, Date.now() - carrying.startedAtMs));
-  } else {
-    drillClock.start(performance.now());
-  }
+  // THE ELAPSED IS WALL TIME because the issue stamp is: the run began when the entry was SHOWN, so the minute the
+  // page spent closed is a minute of the run (and a reload is therefore not a pause).
+  drillClock.resume(performance.now(), Math.max(0, Date.now() - originMs));
   PLAYHEAD.cancel();
   replay = null;
   els.regime.textContent = `The Drill — drill ${position + 1} of ${issued.length}, level ${spec.index}`;
@@ -437,7 +440,15 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   }
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
-  showDrill({ seed: serverDrill.seed, levelIndex: serverDrill.levelIndex, index: serverDrill.index, length: serverRegime.length });
+  showDrill({
+    seed: serverDrill.seed,
+    levelIndex: serverDrill.levelIndex,
+    index: serverDrill.index,
+    length: serverRegime.length,
+    // THE SERVER'S ISSUE TIME, which is what the run's clock is measured against (§8: a drill is locked when it is
+    // issued, and the server is the one that issued it).
+    issuedAtMs: serverDrill.issuedAtMs,
+  });
 }
 
 /** Issue the drill from wherever the app is configured to get it. */
@@ -521,11 +532,12 @@ function settleDrill(): void {
 function finishDrill(): void {
   if (!controller) return;
   drillClock.stop(performance.now());
+  const clockSeconds = drillClock.elapsedSeconds(performance.now());
   const score = scoreRun({
     level: controller.puzzleRef.level,
     shortest: controller.puzzleRef.shortest,
     moves: controller.puzzleRef.shortest,
-    clockSeconds: drillClock.elapsedSeconds(performance.now()),
+    clockSeconds,
     hintsUsed: 0,
     attempts: controller.attempts,
   });
@@ -533,19 +545,80 @@ function finishDrill(): void {
   drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points.`, 'ok');
   els.review.hidden = true;
   els.next.hidden = false;
-  // A COMPLETED DRILL IS ONE SUCCESS — ONCE. A success is a correct answer whether first try or after
-  // replays (DESIGN.md 10), but re-solving a drill the player has ALREADY finished is not a ranked answer:
-  // DESIGN.md 11's Progress keeps "the set of finished ones", and without that set a reload (which re-issues
-  // the entry) or a Next-and-return would mint a hint every time. The BALANCE is the thing worth protecting
-  // here — the board cannot be farmed either way, because it takes the player's best (§6).
-  const success = save.countSuccess(position);
-  if (success.granted) drillScreen.say(`Solved — and that earned a hint (${save.hints.hints} of 3 held).`, 'ok');
+  // A COMPLETED DRILL IS ONE SUCCESS — ONCE, and WHO COUNTS IT DEPENDS ON WHETHER THERE IS A SERVER. Offline the
+  // local rule below runs, exactly as it has since Phase 4; with an API configured the SERVER credits it from its
+  // own record of finished drills (DESIGN.md 11) and this app adopts the balance it answers with — so a modified
+  // client cannot mint a hint (DESIGN.md 10). A submission that FAILS falls back to the local rule, because an
+  // outage must not cost the player a success the device can still remember.
+  if (apiConfigured() && serverDrill) void submitSolvedRun(score, clockSeconds);
+  else creditLocally();
   drillScreen.render(controller);
   captions(controller.view().from, controller.puzzleRef.goal);
   paintBalance();
   // ONE RUN, RECORDED ONCE, keyed on the id issued with the drill — so a repaint after the solve appends
-  // nothing. `scheduleEntryFor` is where the seed comes from, and it is the same one the puzzle was built on.
-  recordDrillRun(scheduleEntryFor(position).seed, score.elapsedSeconds, score.score);
+  // nothing. The seed comes from the issued drill (the server's, or the fixture's) and is the one the puzzle was
+  // built on.
+  recordDrillRun(issuedSeed(), score.elapsedSeconds, score.score);
+  persist();
+}
+
+/** The seed the drill on screen was generated from — the server's, or the fixture's at this position. */
+function issuedSeed(): number {
+  return serverDrill ? serverDrill.seed : scheduleEntryFor(position).seed;
+}
+
+/**
+ * Credit a solved drill LOCALLY: the offline rule, and the fallback when the server cannot be told.
+ *
+ * The guard is the same one `SaveState` has always owned — a position already counted earns nothing — because the
+ * BALANCE is what a hint is and the BOARD cannot be farmed either way (§6).
+ */
+function creditLocally(): void {
+  const success = save.countSuccess(position);
+  if (success.granted) drillScreen.say(`Solved — and that earned a hint (${save.hints.hints} of 3 held).`, 'ok');
+}
+
+/**
+ * Hand the solved run to the server and ADOPT what it decides.
+ *
+ * WHAT IS CLAIMED AND WHAT IS DECIDED: the calls played are the transcript, and the server re-derives which option
+ * was correct at each step and clamps the score to what it can recompute (§6, §11). The balance it answers with
+ * replaces the local one, and the score it answers with is the number the board will hold — so the line the player
+ * reads last is the authoritative one rather than this app's preview of it.
+ */
+async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<void> {
+  if (!controller || !serverDrill) return;
+  const answer = await submitRun({
+    runId: drillRunId,
+    mode: 'drill',
+    levelIndex: controller.puzzleRef.level.index,
+    drillId: serverDrill.id,
+    // TIME ON THE CLOCK ONLY: the hint charge is the server's arithmetic (§6), and the Drill spent none.
+    elapsedSeconds: clockSeconds,
+    hintsUsed: 0,
+    attempts: controller.attempts,
+    // ONE CALL PER STEP, in the order they were answered — the same transcript the offline ledger keeps.
+    calls: [...drillOptions],
+    score: score.score,
+  });
+
+  if (!answer.ok) {
+    // AN OUTAGE IS NOT THE PLAYER'S LOSS: the local rule still counts the success, and the refusal is shown so the
+    // gap is visible rather than hidden (`/me/runs:bulk` is what claims a local ledger later).
+    creditLocally();
+    drillScreen.say(`The server would not record this run: ${answer.failure.message}`, 'bad');
+    paintBalance();
+    persist();
+    return;
+  }
+  save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  const clamped = answer.value.run.clamped ? ' Your own score was higher, so the server clamped it.' : '';
+  drillScreen.say(
+    `Recorded — the server scores it ${answer.value.run.score} points.` +
+      ` Board: ${answer.value.board.score} over ${answer.value.board.runs} run(s).${clamped}`,
+    'ok',
+  );
+  paintBalance();
   persist();
 }
 

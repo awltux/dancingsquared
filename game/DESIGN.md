@@ -1161,6 +1161,40 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
 
+**Phase 5.8 — a solved Drill is submitted, and the SERVER's numbers are the ones adopted. DONE.**
+`game/src/net/api.ts` gained `submitRun` (`POST /runs`, typed, with the run, the balance, the board and the progress),
+and `main.ts` submits in `finishDrill`: the transcript is `drillOptions` (the calls committed per step, which the app
+has been accumulating since Phase 3), with the run's measured facts — clock seconds, attempts, no hints. What comes
+back is ADOPTED: `SaveState.adoptHints` replaces the local balance and its earning progress with the server's, and
+the line the player reads last is the server's score and board rather than this app's preview of them. Offline the
+local rule runs exactly as before, and a submission that FAILS falls back to it — an outage must not cost the player
+a success the device can still remember.
+
+**BROWSER-MEASURED, and the pitfalls are the point.** The API's log tells the whole story:
+```
+204 OPTIONS /runs (preflight) 0 ms
+400 POST /runs 170 ms        <- the first attempt, refused: impossible_elapsed
+200 POST /runs 189 ms        <- after the fix
+```
+- the refusal was `the run claims 421.7 s and the drill was issued 19.8 s ago` — CORRECT, and the client was wrong:
+  the local save remembered a drill from 421 s earlier while the server had re-issued that position 19.8 s before
+  (its store had been restarted), so the client resumed a clock for a drill the server had just handed out.
+  **THE ISSUE TIME IS THE SERVER'S WHEN THERE IS A SERVER** (`showDrill` takes `issuedAtMs` from the drill view), and
+  the local `startedAtMs` is the OFFLINE origin. The step and the attempts are still restored from the save either
+  way: they are the player's progress, not a clock.
+- the accepted run showed **"Recorded — the server scores it 19 points. Board: 19 over 1 run(s)."** — a score and a
+  board this app cannot compute (the board is the SERVER's cumulative season), while the footer beside it still read
+  "Saved on this device: 3 runs · best 100". **That divergence is now visible on screen and is intended**: the local
+  ledger is the offline record, the server's board is the ranking, and `POST /me/runs:bulk` is what will reconcile
+  them. Until then a player's two numbers can differ, and the one that ranks is the server's.
+
+**MEASURED, by the probes.** `game/test/api-client-probe.mjs` is now 52 checks, 3 controls: the submission's method
+and path, the transcript sent as it happened, the measured facts, the adopted score/balance/board/progress, the
+clamp flag carried so the player can be told, a refusal keeping the server's sentence, and a response with no score
+or balance REFUSED rather than half-adopted (adopting `undefined` would wipe the local balance while claiming the run
+was recorded). `game/test/save-state-probe.mjs` pins `adoptHints`: the server's numbers replace the local ones, a
+stated count of 0 is adopted as 0 rather than ignored, and the local earning rule still runs on an adopted balance.
+
 **Phase 5.7 — the Daily comes from the published artefact. DONE.**
 `game/src/net/api.ts` gained `dailyChallenge(level, day)` and `main.ts` a `startServerDaily`/`showDaily` split, so the
 client reads the PUBLISHED seed instead of deriving one — the seed is the same number either way (the app and the

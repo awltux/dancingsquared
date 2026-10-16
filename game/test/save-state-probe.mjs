@@ -141,6 +141,22 @@ console.log('\n== 4. a spend with an empty balance changes NOTHING ==');
   check(EMPTY_LEDGER.hints - 1 === -1, `NEGATIVE CONTROL: an unguarded spend goes negative (${EMPTY_LEDGER.hints - 1} where the state stays at 0)`);
 }
 
+console.log('\n== 4b. a balance the server states is ADOPTED, and it is the whole balance ==');
+{
+  const state = open(memory()).state;
+  state.adoptHints({ hints: 2, successes: 7 });
+  check(state.hints.hints === 2 && state.hints.successes === 7, `the server's numbers replace the local ones (${state.hints.hints} held, ${state.hints.successes} counted)`);
+  // THE PROGRESS IS ADOPTED TOO, not just the balance: the server counts successes from its own record of finished
+  // drills, so keeping the local count would make the next grant disagree with the server that awards it.
+  state.adoptHints({ hints: 2, successes: 0 });
+  check(state.hints.successes === 0, 'NEGATIVE CONTROL: a stated count of 0 is adopted as 0, not ignored as "nothing to say"');
+  // AND THE LOCAL RULE STILL WORKS ON TOP OF IT, because offline there is no server to ask (rule 1 in the module
+  // header): a success after an adopted balance counts normally.
+  const before = state.hints.successes;
+  state.countSuccess(0);
+  check(state.hints.successes === before + 1, `and the local earning rule still runs on an adopted balance (${state.hints.successes})`);
+}
+
 console.log('\n== 5. what is written is what a fresh page reads ==');
 {
   const storage = memory();

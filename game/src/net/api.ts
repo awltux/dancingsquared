@@ -256,6 +256,71 @@ export async function dailyChallenge(level: number, day: string, deps: ApiDeps =
   };
 }
 
+/** A completed run, as `POST /runs` takes it. `calls` is the transcript: one call per step for the Drill. */
+export interface RunSubmission {
+  readonly runId: string;
+  readonly mode: 'drill' | 'daily';
+  readonly levelIndex: number;
+  readonly drillId?: string;
+  readonly date?: string;
+  /** TIME ON THE CLOCK ONLY: the hint charge is the SERVER's arithmetic, not the client's (§6, §10). */
+  readonly elapsedSeconds: number;
+  readonly hintsUsed: number;
+  readonly attempts: number;
+  readonly calls: readonly string[];
+  /** The client's own score, which the server CLAMPS to what it can recompute. */
+  readonly score: number;
+}
+
+/** What the server decided about a run — the numbers the player is actually scored and credited on. */
+export interface RunOutcome {
+  readonly run: { readonly runId: string; readonly score: number; readonly elapsedSeconds: number; readonly clamped: boolean; readonly duplicate: boolean };
+  readonly hints: { readonly hints: number; readonly successes: number; readonly granted: boolean };
+  readonly board: { readonly period: string; readonly score: number; readonly runs: number };
+  readonly progress: { readonly finished: number } | null;
+}
+
+/**
+ * `POST /runs` — hand over a completed run.
+ *
+ * THE SERVER MAY REFUSE IT (a stale drill, a line that does not reach the goal, a run it cannot regenerate), and
+ * the refusal is returned as a typed failure with the server's own sentence — the caller decides whether to keep a
+ * local record instead, which is what the offline path does by definition.
+ */
+export async function submitRun(submission: RunSubmission, deps: ApiDeps = browserDeps()): Promise<ApiResult<RunOutcome>> {
+  const answer = await call<Record<string, unknown>>(deps, '/runs', { method: 'POST', body: submission });
+  if (!answer.ok) return answer;
+
+  const run = answer.value.run as Record<string, unknown> | undefined;
+  const hints = answer.value.hints as Record<string, unknown> | undefined;
+  const board = answer.value.board as Record<string, unknown> | undefined;
+  // THE SCORE AND THE BALANCE ARE WHAT MUST BE THERE. A response without them is not a run this app can show or
+  // credit against, so it is refused rather than half-adopted — the caller keeps its own record instead.
+  if (typeof run?.score !== 'number' || typeof hints?.hints !== 'number' || typeof hints?.successes !== 'number') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not answer with a score and a balance' } };
+  }
+  const progress = answer.value.progress as { finished?: unknown } | null | undefined;
+  return {
+    ok: true,
+    value: {
+      run: {
+        runId: typeof run.runId === 'string' ? run.runId : submission.runId,
+        score: run.score,
+        elapsedSeconds: typeof run.elapsedSeconds === 'number' ? run.elapsedSeconds : submission.elapsedSeconds,
+        clamped: run.clamped === true,
+        duplicate: run.duplicate === true,
+      },
+      hints: { hints: hints.hints, successes: hints.successes, granted: hints.granted === true },
+      board: {
+        period: typeof board?.period === 'string' ? board.period : '',
+        score: typeof board?.score === 'number' ? board.score : 0,
+        runs: typeof board?.runs === 'number' ? board.runs : 0,
+      },
+      progress: progress && typeof progress.finished === 'number' ? { finished: progress.finished } : null,
+    },
+  };
+}
+
 /** `POST /drill/advance` — mark the issued drill finished, so the next request returns the next entry. */
 export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeCounts }>> {
   const answer = await call<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {

@@ -240,10 +240,14 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
     `b83c305` (2026-09-24), which stamped an app-exported `movement` authoring whose ring collapses to 0
     holds; the `move select="cl"` authorings in the same file hold 8 at every beat.
 
-  NEXT UNIT: ONE harness commit re-pointing the round-trip witnesses at `Circle Left - Stop at Home` —
-  `catalogue.mjs` (keep the check: it is witness 1 for the `callsByTitle` pool order), `matrix.mjs`'s two
-  Circle rows and `editor.mjs`'s closure witness — and a SEPARATE engine/corpus unit for the mid-call facings.
-  Which `Circle Left` authoring is canonical for `verify.mjs` is an owner call (§8 trap 7).
+  DONE, IN THREE COMMITS, EACH FAST-FORWARDED: `ab415f0` (`catalogue.mjs` - the round trip re-pointed at the
+  sibling, and the ORDER witness re-pinned STRUCTURALLY because `b1` is gone and NO live title is
+  order-sensitive: 0 of 4278 applications differ under the two walks); `09ac387` (`matrix.mjs` - the three
+  bare rows are not rigid any more, every radius 3.162 -> 2.613, while the round-trip siblings are, at
+  4.4e-16); `e28ba96` (`editor.mjs` - the closure witness and three further corpus assumptions, with a crash
+  replaced by five VISIBLE failures, item 7). `verify:light` went **13 -> 11**.
+  WHAT REMAINS: the mid-call FACINGS (46-51° off the ring centre for beats 2-15) are untouched, and which
+  `Circle Left` authoring is canonical for `verify.mjs` is still an owner call (§8 trap 7).
 
 - [ ] **7. THE RED-GATE CENSUS, RE-MEASURED AT `8cfe8a1`.** `[measured]`
   `npm run verify --prefix engine` on a CLEAN corpus at `8cfe8a1` reads **47 of 48 harnesses, 24 FAILED**,
@@ -277,7 +281,7 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   | `group-calls` | light | REAL / owner | `groupCanPerform('Head Boys','Promenade 1/2')` and `(…, 'Swing Your Partner')` both true, parking non-partner boys on the centre line — while `sequencer.ts:587`'s own doc says the OPPOSITE for `Swing Your Partner`. NOTE: authoring a bare `Promenade` turns the currently-PASSING sub-check RED | settle doc-vs-gate, then stop a whole-board call being scoped to 2 non-partners |
   | `mainstream` | light | REAL 4 (harness) + REAL 1 (engine) | `callMeta(ms/circle.xml).title` is now `Circle Left - Stop at Home`, so the harness registers no `Circle Left`; the fifth is **`getout()` leaking state into the interactive apply path** | item 35 (the leak); register by title list |
   | `matrix` | light | RE-PIN 2 + REAL 3 | `Circle Left/Right 1/4` end on `Circle`; `All 4 Couples Promenade 1/4` ends on `Promenade` (`b66b829`/`f60f8fe`) | re-point the two ring rows; promenade rows wait on item 9 |
-  | `editor` | light | RE-PIN 3 + harness bug | witness now closes to **1.02°** (was ~44°); all 8 moves carry a facing curve so `path[-1]` crashes at `:1501`; **28** exact quarter arcs now exist; bbox miss **0.000642** units against a 1e-9 tolerance | guard `:1501`, re-pin three, set the tolerance to a measured number |
+  | `editor` | light | RE-PIN 3 + harness bug — **FIXED `e28ba96`, AND THE CRASH WAS HIDING FIVE MORE** | witness closes to **1.02°** (was ~44°); all 8 moves carry a facing curve so `path[-1]` died at `:1501`; **28** exact quarter arcs now exist; bbox excursion **6.4e-4** units against a 1e-9 tolerance. The uncaught `TypeError` aborted the run ~1000 lines early, so the census could only see four of them: with the guard in, **5 further failures are VISIBLE** — `2% sits in an EMPTY BAND` (worst real arc 4.99e-2 against the next curve at 5.22e-2, a ratio of **1.05** where the check wants 5x), `the END moves by no more than the fit was already out by` (5.6e-5 against a 1e-9 bound), `it reads as ONE turn` (the sweep reads **−201.9°**, not 360°), `runTurn agrees with the fit`, and `the export writes the reference it should` | its own unit — attribute the five; the first is item 10's class |
   | `features` | light | REAL (harness) | registers all of `circle.xml` under one name, then takes the SMALLEST setup — now a 2-dancer `Facing Dancers` pair, so the "8-dancer" board is built with 4 | pin the setup, not the smallest |
   | `anim-convergence` | all | RE-PIN (mostly) | jump list **7 → 20** (13 of 15 new keys are Circle-family, 2 are the `right_and_left_grand.xml` re-authoring); phantom list **11 → 18** is `Right and Left Thru`/`Box the Gnat`/`Slide Thru`, NOT the ring | re-pin both lists once item 6's witness question is settled |
   | `behaviour-audit` | all | REAL ×2 | a `Circle` board matches the **0.586-away Static-Square setup** over the exact one, which kills the gender gate; plus 4 unpinned animation jumps | matcher variant selection is its own unit |
@@ -329,6 +333,12 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   four — the `setRunCircle`/`arcBezierAbout` closure and turn checks plus the two section-7 OFFSET-orbit
   pins, a DIFFERENT set from the four its header lists, same owner-ruled class. Both are about
   `setRunCircle`/`arcBezierAbout`, not the corpus ring.
+  **AND THE CLASS IS NOT CONFINED TO THE PROBES.** `engine/test/editor.mjs` is red for the SAME measurement -
+  `2% sits in an EMPTY BAND`, worst real arc 4.99e-2 against the next curve at 5.22e-2, a ratio of **1.05**
+  where the check wants 5x, which is `radial-arc-fit-probe`'s 1.7°-band-against-2.0°-of-slack measured on the
+  corpus - and that red was HIDDEN until `e28ba96` removed the crash in front of it. So the owner's decision
+  on this window decides an engine harness as well as four probes, and `editor` now reports five failures
+  where it used to report four and then die (item 7's row).
 
 ---
 

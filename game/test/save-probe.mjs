@@ -93,7 +93,7 @@ console.log('== 1. a full record round trips ==');
       drillPosition: 5,
       // The RUN ID rides with the run it belongs to: it is what Phase 5's claim is idempotent on, so a resume
       // keeps it rather than minting a second one (and a record without one is refused — see section 14).
-      drillRun: { runId: 'run-drill', startedAtMs: 900, attempts: 2, index: 1, options: ['Boys Run'] },
+      drillRun: { runId: 'run-drill', startedAtMs: 900, attempts: 2, index: 1, options: ['Boys Run'], revealed: [0] },
       daily: {
         runId: 'run-daily', day: '2026-10-15', levelIndex: 3, moves: ['Boys Run'], hintsUsed: 1,
         hintedCall: 'Boys Run', elapsedMs: 1500, outcome: 'playing', savedAtMs: 5000,
@@ -143,7 +143,7 @@ console.log('\n== 4. a schema change discards the whole record ==');
 console.log('\n== 5. a POOL change keeps the hints and drops the rest ==');
 {
   const stale = {
-    ...save({ drillPosition: 4, runs: [run()], drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [] } }),
+    ...save({ drillPosition: 4, runs: [run()], drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: [] } }),
     poolVersion: 'ms-0-old',
     hints: { hints: 2, successes: 6 },
   };
@@ -185,7 +185,7 @@ console.log('\n== 6b. a run record without an ID is refused whole ==');
   // THE ID IS THE CLAIM KEY, so a record that has lost it cannot be submitted idempotently: Phase 5 would
   // either drop the run or claim it twice. Refusing the record is the only answer that cannot double-count —
   // and it costs the player nothing they can see, because the drill simply re-issues.
-  const noDrillId = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [] } }) }), POOL);
+  const noDrillId = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: [] } }) }), POOL);
   check(noDrillId.state.drillRun === null, 'a drill record with no runId is not carried');
   const noDailyId = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), daily: { day: '2026-10-15', levelIndex: 1, moves: [], hintsUsed: 0, hintedCall: null, elapsedMs: 0, outcome: 'playing', savedAtMs: 0 } }) }), POOL);
   check(noDailyId.state.daily === null, 'nor is a Daily record with no runId');
@@ -198,6 +198,24 @@ console.log('\n== 6b. a run record without an ID is refused whole ==');
   // and relaxing the Daily's reddens the Daily one. Neither can be a single control, because the two records
   // are validated in different functions — which is also why a store cannot mint an id for a run it did not
   // issue: dropping the record is the only answer that cannot double-claim.
+}
+
+console.log('\n== 6c. the reveal list survives the record, and a hand-edited one cannot break the load ==');
+{
+  // THE FIELD THAT DECIDES WHETHER A RUN COUNTS (DESIGN.md §15 Q16, A28) has to survive the same trip as the step
+  // and the wrong tries: a record that forgot which steps were shown would come back with a run that earns a hint,
+  // which makes a reload a way to launder a shown answer. §1's round trip carries it, and this pins the edges.
+  const legacy = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { runId: 'r', startedAtMs: 1, attempts: 0, index: 0, options: [] } }) }), POOL);
+  // AN ABSENT FIELD IS "NOTHING WAS SHOWN", which is the only safe reading of a record written before reveals
+  // existed: the other reading would un-rank runs nobody was helped on, which is the defect in reverse.
+  check(legacy.state.drillRun !== null && legacy.state.drillRun.revealed.length === 0, 'a record written before reveals existed holds none, rather than failing to load');
+  // A HAND-EDITED LIST IS CLAMPED BY `intList`, the same reader the finished set uses: junk is DROPPED. The direction
+  // matters and it is the mild one — the worst a corrupt list can do is rank a run — where refusing the whole record
+  // would throw away the step and the wrong tries instead.
+  const junk = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { runId: 'r', startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: ['x', -1, 1.5, 2] } }) }), POOL);
+  check(stable(junk.state.drillRun?.revealed) === stable([1, 2]), `a list with junk in it keeps the entries that are steps (${JSON.stringify(junk.state.drillRun?.revealed)})`);
+  const notAList = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { runId: 'r', startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: 'yes' } }) }), POOL);
+  check(notAList.state.drillRun !== null && notAList.state.drillRun.revealed.length === 0, 'and a reveal list that is not a list reads as none, without losing the drill record');
 }
 
 console.log('\n== 7. a run recorded twice is ONE run ==');
@@ -291,7 +309,7 @@ console.log('\n== 12. the gap rule ==');
 
 console.log('\n== 13. how big the record is ==');
 {
-  let state = save({ drillPosition: 9, drillRun: { startedAtMs: 1, attempts: 3, index: 1, options: ['Boys Run'] } });
+  let state = save({ drillPosition: 9, drillRun: { startedAtMs: 1, attempts: 3, index: 1, options: ['Boys Run'], revealed: [] } });
   for (let i = 0; i < MAX_SAVED_RUNS; i++) {
     state = recordRun(state, run({
       runId: `run-${i}-${'x'.repeat(20)}`,

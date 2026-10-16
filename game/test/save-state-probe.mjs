@@ -82,6 +82,26 @@ console.log('== 1. a position counts ONCE, however many times it is solved ==');
   check(farmed.hints === 1, `NEGATIVE CONTROL: a rule with no finished set mints a hint on the first replay (${farmed.hints} held where the state holds ${state.hints.hints})`);
 }
 
+console.log('\n== 1b. a REVEALED drill is finished and earns NOTHING (DESIGN.md §15 Q16, A28) ==');
+{
+  // NINE DISTINCT POSITIONS IN, ONE SHORT OF A GRANT, which is §2's sequence so the instrument is the rule rather
+  // than an arithmetic fixture: the next success completes the step unless the drill was shown.
+  const state = open(memory()).state;
+  for (let i = 0; i < HINT_SUCCESS_STEP - 1; i++) state.countSuccess(i);
+  const revealed = state.countSuccess(HINT_SUCCESS_STEP - 1, { revealed: true });
+  check(revealed.firstTime, 'a revealed drill is COUNTED — the player did answer it');
+  check(!revealed.granted && state.hints.hints === 0, `and it grants nothing (${state.hints.hints} held, where the ${HINT_SUCCESS_STEP}th success would have completed the step)`);
+  // NEGATIVE CONTROL, MEASURED: the same position on the same ledger WITHOUT the flag — the rule as it stood before
+  // A28, which grants here. Only the check above reddens for it.
+  const ordinary = open(memory()).state;
+  for (let i = 0; i < HINT_SUCCESS_STEP - 1; i++) ordinary.countSuccess(i);
+  check(ordinary.countSuccess(HINT_SUCCESS_STEP - 1).granted, 'NEGATIVE CONTROL: the same drill NOT revealed grants the hint');
+  // AND THE POSITION IS STILL FINISHED, which is the other half of the rule: skipping the record entirely would leave
+  // the revealed position able to earn on a replay, which is the farm §1 rules out.
+  check(!state.countSuccess(HINT_SUCCESS_STEP - 1, { revealed: true }).firstTime, 'while the position stays finished, so a replay cannot earn it either');
+  check(state.hints.hints === 0, `and the balance is still untouched (${state.hints.hints} held)`);
+}
+
 console.log('\n== 2. the grant lands on the tenth DISTINCT drill ==');
 {
   // THE CONTROL FOR THESE CHECKS IS SECTION 1'S, and it is the same rule one position earlier: the wrong rule

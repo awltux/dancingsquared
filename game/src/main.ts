@@ -15,12 +15,14 @@
 // the playhead's beats share one origin and cannot drift apart, and `Date.now()` only to ask what UTC day it
 // is — a question about the calendar rather than a duration.
 //
-// "SHOW ME THE ANSWER" ANSWERS NOTHING. It names the call and dances it, and the player still presses it —
-// so a review cannot complete a puzzle, and the success it earns when the player does press the revealed call
-// is the same success any correct answer earns (DESIGN.md 10 counts "a correct answer, first try or after
-// replays"). Whether a REVEALED answer should count as a ranked success is a fairness question this phase
-// does not settle: it needs the ledger to know the puzzle was revealed, and the ledger is the server's from
-// Phase 5 (DESIGN.md 11). DESIGN.md 15 carries it as an open question rather than a silent assumption.
+// "SHOW ME THE ANSWER" ANSWERS NOTHING — AND THE RUN IT FINISHES COUNTS FOR NOTHING. It names the call and dances
+// it, and the player still presses it, so a review cannot complete a puzzle; what the revealed press then earns is
+// the whole of DESIGN.md §15 Q16, and it is SETTLED: no hint credit and no board entry, because a hint is a currency
+// and "press the button, then press the call you were told" would mint it for free. The fact has to reach the SERVER
+// (the balance is the server's, DESIGN.md 10), so the controller records which steps were shown and `review()` posts
+// each one as an event — `POST /drill/reveal` — with the run declaring the same count as a claim, because a POST that
+// never arrived must not silently rank the run. The offline ledger applies the same rule locally
+// (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
 import { generatePuzzle } from './puzzle/generator.ts';
 import { generatorConfigFor } from './puzzle/config.ts';
 import { dailyEntry, utcDay } from './puzzle/daily.ts';
@@ -35,7 +37,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -85,6 +87,16 @@ o_press_log — a refusal this app would have caused itself rather than a cheat 
  * (`recordDrillAnswer` answers with an ApiResult), so one failed press does not stop the rest from being sent.
  */
 let pressLog: Promise<unknown> = Promise.resolve();
+
+/**
+ * The reveals this drill has posted, in the same chain shape as the presses and for the same reason.
+ *
+ * A SEPARATE CHAIN RATHER THAN ONE LOG, because the two are different facts with different contracts: the presses are
+ * what the RUN IS SCORED ON (`attempts`, A22), and the reveals are what decides WHETHER it counts at all (A28). The
+ * submission waits for both before it is sent, so the server's record is complete when the run arrives — but neither
+ * chain rejects (`recordDrillReveal` answers with an ApiResult), so one failure cannot stop the rest from being sent.
+ */
+let revealLog: Promise<unknown> = Promise.resolve();
 /** Where the server says the player is in the regime, for the header and the report of a finished season. */
 let serverRegime: RegimeCounts | null = null;
 
@@ -533,6 +545,7 @@ function startOver(): void {
   dailyRunId = '';
   drillOptions = [];
   pressLog = Promise.resolve();
+  revealLog = Promise.resolve();
   dailyMoveLog = Promise.resolve();
   paintLedger();
   paintBalance();
@@ -591,6 +604,9 @@ function drillSavedState(): DrillSaved | null {
     attempts: controller.attempts,
     index: controller.view().stepIndex,
     options: [...drillOptions],
+    // THE REVEALS ARE PART OF THE DRILL'S PROGRESS, like the step and the wrong tries: a page that forgot them would
+    // come back with a run that counts, which is a refresh that launders a shown answer (DESIGN.md §15 Q16, A28).
+    revealed: [...controller.revealed],
   };
 }
 
@@ -776,7 +792,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   const carrying: DrillSaved | null = save.drillRun && save.position === position ? save.drillRun : null;
   controller = new DrillController(
     result.puzzle,
-    carrying ? { index: carrying.index, attempts: carrying.attempts } : {},
+    carrying ? { index: carrying.index, attempts: carrying.attempts, revealed: carrying.revealed } : {},
   );
   drillOptions = carrying ? [...carrying.options] : [];
   // WHEN THE DRILL WAS ISSUED IS THE SERVER'S FACT WHEN THERE IS A SERVER, and this line is a fix rather than a
@@ -961,17 +977,31 @@ function answer(choice: number | 'unknown'): void {
 }
 
 /**
- * The answer, on request — DESIGN.md §8's review.
+ * The answer, on request — DESIGN.md §8's review, and A28's event.
  *
- * IT ADVANCES NOTHING AND SCORES NOTHING: the review names the call and dances it, and the player still has
- * to press it, so the step is not answered here — which is why this is a plain `settle` and not a third
- * outcome. That the revealed call then counts as a normal correct answer when the player does press it is a
- * fairness question this phase does not settle; DESIGN.md 15 records it, and the server owns hint-earning
- * from Phase 5 (DESIGN.md 10: the ledger is not the client's to award).
+ * IT ADVANCES NOTHING AND SCORES NOTHING: the review names the call and dances it, and the player still has to press
+ * it, so the step is not answered here — which is why this is a plain `settle` and not a third outcome.
+ *
+ * THE RUN IT FINISHES COUNTS FOR NOTHING, and that is why this posts an EVENT (DESIGN.md §15 Q16, A28). The server
+ * cannot see a screen: "show me the answer" used to leave no trace at all, so pressing the button and then pressing
+ * the call it named earned a success like any other — ten of which mint a hint. `controller.review()` records WHICH
+ * step was shown (and the record survives a reload, so a refresh cannot launder it), and this posts it against the
+ * issued drill so the server has its own record rather than only the submission's claim. It is a WRITE and so the
+ * same rule as a press applies: a demo does not send one, because the server refuses every write for a caller it
+ * served without a Progress row (A20) and A25's tally would count the honest player as someone probing.
+ *
+ * THE SENTENCE IS UNCHANGED AND THE BUTTON'S LABEL IS NOT: the label now says the drill will not count (index.html),
+ * because a player is owed that BEFORE they press it rather than in the verdict afterwards — the same reason the
+ * practice offer is labelled Q20's way.
  */
 function review(): void {
   if (!controller || !applier || PLAYHEAD.isRunning || controller.atEnd) return;
+  const stepIndex = controller.view().stepIndex;
   const option = controller.review();
+  if (serverDrill && mayWrite(currentStanding())) {
+    const drillId = serverDrill.id;
+    revealLog = revealLog.then(() => recordDrillReveal(drillId, stepIndex));
+  }
   drillScreen.say(`The answer is ${option.call}.`, 'info');
   startReplay(applier.motion([option.call], controller.view().from), 'settle');
 }
@@ -1002,7 +1032,15 @@ function finishDrill(): void {
     attempts: controller.attempts,
   });
   const tries = controller.attempts === 0 ? 'first try' : `${controller.attempts} wrong ${controller.attempts === 1 ? 'try' : 'tries'}`;
-  drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points.`, 'ok');
+  // THE VERDICT SAYS WHAT THE RUN IS WORTH, and a shown answer changes that to nothing (DESIGN.md §15 Q16, A28): the
+  // score is still shown — the player solved it and the clock ran — and the sentence says which standing it bought,
+  // which is none. The reason is stated in the same line rather than in the ledger's unranked clause alone, because
+  // this is the moment the player finds out what their press cost.
+  if (controller.revealed.length > 0) {
+    drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
+  } else {
+    drillScreen.say(`Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points.`, 'ok');
+  }
   els.review.hidden = true;
   els.next.hidden = false;
   // A COMPLETED DRILL IS ONE SUCCESS — ONCE, and WHO COUNTS IT DEPENDS ON WHETHER THERE IS A SERVER. Offline the
@@ -1015,6 +1053,8 @@ function finishDrill(): void {
   // write with a `401`, so posting it buys nothing — and it would be COUNTED, because A25's refusal tally is applied
   // at the route table, so an honest signed-out player would look to the operator like someone probing the API. The
   // local rule credits the success instead, exactly as it does when the server cannot be reached.
+  // AND A REVEALED RUN IS NOT CREDITED BY EITHER RULE (DESIGN.md §15 Q16, A28): `creditLocally` applies it for the
+  // offline and outage paths, and the server applies it for the submitted path, so the three agree.
   if (apiConfigured() && serverDrill && mayWrite(currentStanding())) void submitSolvedRun(score, clockSeconds);
   else creditLocally();
   drillScreen.render(controller);
@@ -1037,9 +1077,15 @@ function issuedSeed(): number {
  *
  * The guard is the same one `SaveState` has always owned — a position already counted earns nothing — because the
  * BALANCE is what a hint is and the BOARD cannot be farmed either way (§6).
+ *
+ * A REVEALED DRILL EARNS NOTHING HERE EITHER (DESIGN.md §15 Q16, A28), and it is the same parameter rather than a
+ * second `if` at the call site: the server applies this rule, so an offline ledger that did not would be the one
+ * place where "press the button, then press the call you were told" still mints a hint — and it would do it in the
+ * mode with no server to catch it.
  */
 function creditLocally(): void {
-  const success = save.countSuccess(position);
+  const revealed = controller !== null && controller.revealed.length > 0;
+  const success = save.countSuccess(position, { revealed });
   if (success.granted) drillScreen.say(`Solved — and that earned a hint (${save.hints.hints} of 3 held).`, 'ok');
 }
 
@@ -1053,9 +1099,12 @@ function creditLocally(): void {
  */
 async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<void> {
   if (!controller || !serverDrill) return;
-  // THE PRESSES FIRST. The run is scored on the tries the server recorded, so this waits for the last of them to
-  // land rather than racing it — the one ordering this endpoint's contract requires (DESIGN.md 11.1, A22).
+  // THE PRESSES AND THE REVEALS FIRST. The run is scored on the tries the server recorded and RANKED on whether it
+  // saw the reveal, so this waits for the last of each rather than racing them — the ordering this endpoint's
+  // contract requires (DESIGN.md 11.1, A22 and A28). The claim below is what covers a POST that never arrived.
   await pressLog;
+  await revealLog;
+  const revealed = controller.revealed.length;
   const answer = await submitRun({
     runId: drillRunId,
     mode: 'drill',
@@ -1068,6 +1117,11 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     // (A22), so a modified client that reports zero is not believed and an honest one whose count differs is visible
     // rather than wrong.
     attempts: controller.attempts,
+    // AND THE REVEALS ARE DECLARED RATHER THAN INFERRED (A28). This is the one claim that points the SAFE way — it
+    // can only cost the claimant — so the server takes it without a refusal, which is also what makes it the belt to
+    // the reveal POST's braces: an event lost to a dropped connection would otherwise rank a run whose answer the
+    // player read. Claiming MORE than was shown is possible and costs the claimant a ranking, which is their business.
+    reveals: revealed,
     // ONE CALL PER STEP, in the order they were answered — the same transcript the offline ledger keeps.
     calls: [...drillOptions],
     score: score.score,
@@ -1075,7 +1129,9 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
 
   if (!answer.ok) {
     // AN OUTAGE IS NOT THE PLAYER'S LOSS: the local rule still counts the success, and the refusal is shown so the
-    // gap is visible rather than hidden (`/me/runs:bulk` is what claims a local ledger later).
+    // gap is visible rather than hidden (`/me/runs:bulk` is what claims a local ledger later). A REVEALED RUN IS THE
+    // EXCEPTION TO "THE LOCAL RULE COUNTS IT", and not an exception here — `creditLocally` applies A28 itself, so
+    // the outage path and the offline path agree about what a shown answer is worth.
     creditLocally();
     drillScreen.say(`The server would not record this run: ${answer.failure.message}`, 'bad');
     paintBalance();
@@ -1084,11 +1140,12 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
   }
   save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
   const clamped = answer.value.run.clamped ? ' Your own score was higher, so the server clamped it.' : '';
-  drillScreen.say(
-    `Recorded — the server scores it ${answer.value.run.score} points.` +
-      ` Board: ${answer.value.board.score} over ${answer.value.board.runs} run(s).${clamped}`,
-    'ok',
-  );
+  // THE SERVER SAYS WHETHER IT COUNTED, and the app repeats that rather than assuming: `granted: false` is the
+  // ordinary case, so without `ranked` a revealed run would read exactly like one that simply did not earn a hint.
+  const standing = answer.value.run.ranked
+    ? ` Board: ${answer.value.board.score} over ${answer.value.board.runs} run(s).`
+    : ' Not ranked: you were shown the answer, so it earns no hint and does not reach the board.';
+  drillScreen.say(`Recorded — the server scores it ${answer.value.run.score} points.${standing}${clamped}`, answer.value.run.ranked ? 'ok' : 'info');
   paintBalance();
   persist();
 }
@@ -1249,6 +1306,10 @@ async function submitSolvedDaily(run: DailyRun): Promise<void> {
     elapsedSeconds: facts.clockSeconds,
     hintsUsed: facts.hintsUsed,
     attempts: 0,
+    // THE DAILY HAS NO REVEAL, so this is always zero and the server ignores the field for it (A28). It is sent
+    // rather than omitted because the shape is one shape: a mode that needed a second submission type to say "not
+    // applicable" would be two contracts to keep in step, which is what this module exists to avoid.
+    reveals: 0,
     calls: facts.calls,
     score: facts.score,
   });

@@ -164,13 +164,22 @@ export class SaveState {
    * THE GUARD IS THE RULE: a position already in the finished set grants nothing and adds nothing, however
    * many times it is solved. See rule 1 in the module header.
    *
+   * A REVEALED DRILL IS FINISHED AND EARNS NOTHING (DESIGN.md §15 Q16, §11.1 A28), which is the SERVER's rule
+   * mirrored here for the offline ledger and for the fallback when a submission fails: the position still goes into
+   * the finished set — the player did answer it, and the drill does not come back — and the credit does not run.
+   * Both halves matter and they are why this is a parameter rather than a caller's `if`: skipping the record
+   * entirely would let the same position pay on a later solve, and crediting it is the defect (the app's own button
+   * minting the currency the hint is).
+   *
    * THE TWO ANSWERS ARE TWO QUESTIONS, and they are not redundant: `granted` is false for a FULL balance as
    * well as for a repeat, so only `firstTime` says "this position was not counted before". That is the answer
    * the probe rules the farming out with, and the reason it is reported rather than folded into `granted`.
    */
-  countSuccess(position: number): { firstTime: boolean; granted: boolean } {
+  countSuccess(position: number, opts: { revealed?: boolean } = {}): { firstTime: boolean; granted: boolean } {
     if (this.record.finished.includes(position)) return { firstTime: false, granted: false };
-    const granted = recordSuccess(this.record.hints);
+    const granted = opts.revealed === true
+      ? { ledger: this.record.hints, granted: false }
+      : recordSuccess(this.record.hints);
     this.record = { ...this.record, finished: [...this.record.finished, position], hints: granted.ledger };
     return { firstTime: true, granted: granted.granted };
   }

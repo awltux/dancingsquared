@@ -63,6 +63,15 @@ export interface DrillSaved {
   index: number;
   /** The calls chosen so far, in step order. */
   options: string[];
+  /**
+   * The steps whose answer was SHOWN to the player (DESIGN.md §15 Q16, A28).
+   *
+   * IT IS PERSISTED FOR THE SAME REASON `attempts` IS, in the other direction: a run that counts for nothing must
+   * not become a ranked one because the page was reloaded, which would make a refresh a way to launder a shown
+   * answer into a hint. The server keeps its own record of the reveal (`POST /drill/reveal`), so this is the
+   * OFFLINE ledger's copy and the fallback when a submission fails.
+   */
+  revealed: number[];
 }
 
 /** The Daily attempt: solved, given up, or still being played. */
@@ -366,6 +375,9 @@ function sanitiseDrill(raw: unknown): DrillSaved | null {
     attempts: intOr(r['attempts'], 0, 0),
     index: intOr(r['index'], 0, 0),
     options,
+    // AN ABSENT FIELD IS AN EMPTY LIST, which is the reading a record written before reveals existed needs: those
+    // runs were never shown an answer, so "none" is the truth about them rather than a missing fact.
+    revealed: intList(r['revealed']),
   };
 }
 

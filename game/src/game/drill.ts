@@ -70,25 +70,42 @@ export class DrillController {
   private readonly puzzle: Puzzle;
   private index = 0;
   private attemptsCount = 0;
+  /**
+   * The steps whose answer this player has been SHOWN (DESIGN.md §15 Q16, §11.1 A28).
+   *
+   * COUNTED HERE BECAUSE IT IS A RULE OF THE MACHINE, not of a screen — the same argument `attempts` is counted
+   * under. A revealed drill counts for nothing (the server refuses the hint credit and the board entry, and the local
+   * ledger below mirrors it), so the fact has to survive a reload and reach the submission, and a screen that owned
+   * it would lose it on the first repaint. A SET rather than a count, because the rule is "which steps were shown"
+   * and the same step revealed twice is the same help: `review()` deduplicates, which is also what keeps the
+   * controller's count equal to the server's (its own event is deduplicated per step for the same reason).
+   */
+  private readonly revealedSteps = new Set<number>();
 
   /**
    * `opts` resumes a drill the player was ISSUED before this page was open (DESIGN.md 8: a drill is locked
    * when it is issued, so a reload continues that drill rather than drawing a new one).
    *
-   * WHY THE STEP AND THE ATTEMPTS COME BACK. Restarting the steps would make a player who had already
+   * WHY THE STEP, THE ATTEMPTS AND THE REVEALS COME BACK. Restarting the steps would make a player who had already
    * answered step 1 of 2 pay for it twice, and zeroing the attempts would forgive wrong tries the score is
    * priced on (`attemptFactor`) — so a reload, which is not the player's fault, would be a way to improve a
-   * score. The clock is the shell's business and is re-based there, for the same reason.
+   * score. The reveals come back for the same reason in the other direction: a reload that forgot them would turn
+   * a run that counts for nothing into a ranked one, which is a way to LAUNDER a shown answer through the refresh
+   * key.
    *
    * A RECORD OUT OF RANGE IS CLAMPED rather than trusted: `index` is bounded by the puzzle's own step count
    * and both counts are floored at zero, so a hand-edited save cannot put the machine in a state no player
-   * could reach.
+   * could reach. A revealed step outside the puzzle is dropped for the same reason — there is no such step to
+   * have been shown. The clock is the shell's business and is re-based there, and neither of these is it.
    */
-  constructor(puzzle: Puzzle, opts: { index?: number; attempts?: number } = {}) {
+  constructor(puzzle: Puzzle, opts: { index?: number; attempts?: number; revealed?: readonly number[] } = {}) {
     if (puzzle.steps.length === 0) throw new Error('a puzzle with no steps cannot be played');
     this.puzzle = puzzle;
     this.index = Math.min(Math.max(0, Math.floor(opts.index ?? 0)), puzzle.steps.length);
     this.attemptsCount = Math.max(0, Math.floor(opts.attempts ?? 0));
+    for (const step of opts.revealed ?? []) {
+      if (Number.isInteger(step) && step >= 0 && step < puzzle.steps.length) this.revealedSteps.add(step);
+    }
   }
 
   /**
@@ -133,6 +150,16 @@ export class DrillController {
   }
 
   /**
+   * The steps whose answer has been SHOWN, ascending — the fact that decides whether this run counts at all.
+   *
+   * ASCENDING RATHER THAN INSERTION-ORDER, so the saved record is stable and a reload cannot rewrite it into a
+   * different byte order for the same drill. The caller tests it for emptiness and sends its length.
+   */
+  get revealed(): readonly number[] {
+    return [...this.revealedSteps].sort((a, b) => a - b);
+  }
+
+  /**
    * Answer the current step. `'unknown'` is the illegal button; a number indexes `moves`.
    *
    * AN OUT-OF-RANGE INDEX IS A BUG IN THE UI, NOT A WRONG ANSWER, so it throws rather than reporting
@@ -171,8 +198,14 @@ export class DrillController {
    *
    * THE OPTION RATHER THAN THE NAME, because the UI needs to REPLAY it: the ending board rides on the
    * option, which is what makes a review possible without re-running the engine.
+   *
+   * AND IT RECORDS THAT THE STEP WAS SHOWN, which is this method's other half now (DESIGN.md §15 Q16, §11.1 A28):
+   * the button that calls this used to leave no trace the server could see, so pressing it and then pressing the
+   * call it named earned a normal success — and ten of those mints a hint. The step is the one being decided
+   * (`this.index`), because a correct answer is the only thing that advances the machine.
    */
   review(): PuzzleOption {
+    if (!this.atEnd) this.revealedSteps.add(this.index);
     return this.step.moves[this.step.correctIndex];
   }
 

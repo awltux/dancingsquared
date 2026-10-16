@@ -347,6 +347,14 @@ export interface RunSubmission {
   readonly elapsedSeconds: number;
   readonly hintsUsed: number;
   readonly attempts: number;
+  /**
+   * How many steps' answers were SHOWN to the player (DESIGN.md §15 Q16, A28).
+   *
+   * REQUIRED RATHER THAN OPTIONAL, which is the point: this is the field that decides whether the run the app is
+   * about to submit counts, and a caller that forgot it would submit a revealed run as a ranked one. The server
+   * takes the union of this and its own record (`POST /drill/reveal`), so the honest direction is to declare.
+   */
+  readonly reveals: number;
   readonly calls: readonly string[];
   /** The client's own score, which the server CLAMPS to what it can recompute. */
   readonly score: number;
@@ -354,7 +362,20 @@ export interface RunSubmission {
 
 /** What the server decided about a run — the numbers the player is actually scored and credited on. */
 export interface RunOutcome {
-  readonly run: { readonly runId: string; readonly score: number; readonly elapsedSeconds: number; readonly clamped: boolean; readonly duplicate: boolean };
+  readonly run: {
+    readonly runId: string;
+    readonly score: number;
+    readonly elapsedSeconds: number;
+    readonly clamped: boolean;
+    readonly duplicate: boolean;
+    /**
+     * Whether the run counted, which is the SERVER's answer and not something the app can infer.
+     *
+     * `granted: false` below is the ordinary case — nine successes in ten grant nothing — so without this a revealed
+     * run and an unremarkable one would look identical to the app, and the app has to TELL the player which it was.
+     */
+    readonly ranked: boolean;
+  };
   readonly hints: { readonly hints: number; readonly successes: number; readonly granted: boolean };
   readonly board: { readonly period: string; readonly score: number; readonly runs: number };
   readonly progress: { readonly finished: number } | null;
@@ -389,6 +410,10 @@ export async function submitRun(submission: RunSubmission, deps: ApiDeps = brows
         elapsedSeconds: typeof run.elapsedSeconds === 'number' ? run.elapsedSeconds : submission.elapsedSeconds,
         clamped: run.clamped === true,
         duplicate: run.duplicate === true,
+        // AN OLDER SERVER THAT DOES NOT SEND THE FLAG IS TAKEN AT ITS WORD ON NOTHING: the app only uses this to say
+        // "not ranked", so a missing flag must not make an unranked run read as ranked. `!== false` is the reading
+        // that keeps a reply this build does not understand from printing a claim the server never made.
+        ranked: run.ranked !== false,
       },
       hints: { hints: hints.hints, successes: hints.successes, granted: hints.granted === true },
       board: {
@@ -441,6 +466,38 @@ export async function recordDrillAnswer(
       presses: typeof answer.value.presses === 'number' ? answer.value.presses : 0,
     },
   };
+}
+
+/** What the server made of one reveal: the call it named for that step, and whether it was news to it. */
+export interface RevealAnswer {
+  /** The call the server looked up for the step. Never empty: the endpoint refuses a step the drill does not have. */
+  readonly call: string;
+  /** False when this step had already been recorded, which is the ordinary case for a second press. */
+  readonly recorded: boolean;
+}
+
+/**
+ * `POST /drill/reveal` — record that one step's answer was shown (DESIGN.md §15 Q16, §11.1 A28).
+ *
+ * THE EVENT IS THE FIX, NOT A FIELD ON THE SUBMISSION: "show me the answer" used to leave no trace the server could
+ * see, so pressing it and then pressing the call it named earned a normal success, and ten of those minted a hint.
+ * The server records this against the issued drill with its own arrival time, deduplicated by step — a second press
+ * of the same button shows the same call.
+ *
+ * THE CALLER DOES NOT NEED THE ANSWER, and that is a fact about the two namers rather than an oversight: the app
+ * already knows which call it replayed (it drew it from the same puzzle the server re-derives from the same seed), so
+ * this is the server's own record of the fact and not a second source of the name — the difference from `spendHint`,
+ * whose name the app CANNOT look up because it runs from a line only the server holds. What reads the answer is
+ * `game/test/api-client-probe.mjs`, which pins the shape and the body.
+ */
+export async function recordDrillReveal(drillId: string, step: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<RevealAnswer>> {
+  const answer = await apiCall<Record<string, unknown>>(deps, '/drill/reveal', { method: 'POST', body: { drillId, step } });
+  if (!answer.ok) return answer;
+  const named = answer.value.call;
+  if (typeof named !== 'string' || named === '') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not name the call it showed' } };
+  }
+  return { ok: true, value: { call: named, recorded: answer.value.recorded === true } };
 }
 
 /** What the server did about a hint: the balance it now holds, how many this challenge has spent, and the CALL. */

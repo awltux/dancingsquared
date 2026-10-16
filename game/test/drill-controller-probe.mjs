@@ -115,8 +115,22 @@ console.log('== the CORRECT answer advances, and the last one solves ==');
 console.log('== the review names the answer, and an out-of-range click is a bug ==');
 {
   const drill = new DrillController(puzzle);
+  check(drill.revealed.length === 0, 'a drill nobody asked about has shown nothing');
   check(drill.review().call === 'Right Way', 'the review returns the correct option');
   check(drill.remainingSolution().length === 1 && drill.remainingSolution()[0] === 'Right Way', 'and the remaining solution is the one call');
+  // THE REVEAL IS A RULE OF THE MACHINE, NOT OF A SCREEN (DESIGN.md §15 Q16, §11.1 A28): the fact that a step's
+  // answer was shown is what decides whether the run counts, so the controller records it — and records the STEP,
+  // because the server's own event is deduplicated by step and the two counts have to agree.
+  check(drill.revealed.length === 1 && drill.revealed[0] === 0, `asking for the answer records WHICH step was shown (${JSON.stringify(drill.revealed)})`);
+  drill.review();
+  check(drill.revealed.length === 1, 'and asking twice for the SAME step is the same piece of help, not a second one');
+  // NEGATIVE CONTROL, MEASURED: this is the rule the app did not have, and it is the only check here that a
+  // `review()` without the recording reddens. What it costs is the whole of A28 — `main.ts` posts one event per
+  // revealed step and declares the count, so a controller that recorded nothing would reveal for free.
+  const ordinary = new DrillController(puzzle);
+  ordinary.answer(1);
+  check(ordinary.revealed.length === 0, 'while ANSWERING a step is not a reveal, however the player got there');
+  check(ordinary.atEnd, 'so the two are different facts about the same step');
 
   let threw = false;
   try {
@@ -128,6 +142,15 @@ console.log('== the review names the answer, and an out-of-range click is a bug 
   // chose something they were never shown, which is worse than a crash in a teaching tool.
   check(threw, 'asking for option 7 throws rather than reporting a wrong answer');
   check(drill.view().stepIndex === 0, 'and the machine is untouched by the throw');
+  // AND A REVIEW AT THE END ADDS NOTHING: `review()` still throws there (there is no current step), and a reveal
+  // recorded for a step that does not exist would be a claim the server would refuse `bad_step`.
+  let endThrew = false;
+  try {
+    ordinary.review();
+  } catch {
+    endThrew = true;
+  }
+  check(endThrew && ordinary.revealed.length === 0, 'a review with no step left to show throws and adds no reveal');
 }
 
 console.log('== the ATTEMPT count prices every answer that was not correct ==');
@@ -161,18 +184,26 @@ console.log('\n== the drill resumes where it was issued ==');
   const step2 = { from: GOAL, moves: [{ call: 'Again', board: GOAL2 }], correctIndex: 0, after: GOAL2 };
   const twoStep = { ...puzzle, goal: GOAL2, path: [START, GOAL, GOAL2], steps: [step, step2], solution: ['Right Way', 'Again'], shortest: 2 };
 
-  const resumed = new DrillController(twoStep, { index: 1, attempts: 1 });
+  const resumed = new DrillController(twoStep, { index: 1, attempts: 1, revealed: [0] });
   check(resumed.view().stepIndex === 1, `a resumed drill is on the step it had reached (${resumed.view().stepIndex})`);
   check(resumed.step.from === GOAL, 'and asks its question from that step\'s own board');
   check(!resumed.atEnd, 'so it is not finished');
   check(resumed.view().attempts === 1, `and it carries the wrong tries it had taken (${resumed.view().attempts})`);
+  // THE REVEALS COME BACK TOO (DESIGN.md §15 Q16, A28): a reload that forgot them would turn a run that counts for
+  // nothing into a ranked one, which is a refresh key that launders a shown answer into a hint.
+  check(resumed.revealed.length === 1 && resumed.revealed[0] === 0, `including which steps were SHOWN (${JSON.stringify(resumed.revealed)})`);
   // NEGATIVE CONTROLS, MEASURED, one line each: a constructor that ignored `opts.index` reddens the two step
   // checks and the clamping check (the machine restarts at step 1, so a reload forgives a step it had
-  // answered), and one that ignored `opts.attempts` reddens the attempts check alone.
-  const clamped = new DrillController(twoStep, { index: 99, attempts: -3 });
+  // answered), one that ignored `opts.attempts` reddens the attempts check alone, and one that ignored
+  // `opts.revealed` reddens the reveal check alone.
+  const clamped = new DrillController(twoStep, { index: 99, attempts: -3, revealed: [-1, 1.5, 0, 99] });
   check(clamped.atEnd && clamped.view().attempts === 0, 'an out-of-range record is CLAMPED rather than trusted');
+  // A SHOWN STEP THAT IS NOT A STEP IS DROPPED, the same reading `attempts` is floored under: a reveal the puzzle
+  // cannot have shown is not a fact about this drill, and keeping it would make the run unrankable for a reason the
+  // server would refuse as `bad_step` anyway.
+  check(clamped.revealed.length === 1 && clamped.revealed[0] === 0, `and a revealed step outside this puzzle is dropped (${JSON.stringify(clamped.revealed)})`);
   const fresh = new DrillController(twoStep);
-  check(!fresh.atEnd && fresh.view().stepIndex === 0 && fresh.view().attempts === 0, 'and no options is the fresh state every other probe here uses');
+  check(!fresh.atEnd && fresh.view().stepIndex === 0 && fresh.view().attempts === 0 && fresh.revealed.length === 0, 'and no options is the fresh state every other probe here uses');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

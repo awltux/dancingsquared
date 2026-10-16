@@ -1031,9 +1031,18 @@ which CLAIMS one scores **0** hints either, with the disagreement left on the ro
 **1**. Each wrong rule is measured to fail exactly the case that rules it out: the record alone fails only the lost-POST
 case, the claim alone only the claim-less client. And the fix is measured by removing it — dropping `!revealed` from
 the credit condition fails **exactly four** checks and nothing else (the two credit checks and the two board checks in
-both directions). **THE APP DOES NOT OBEY IT YET**, which is the honest state of this commit: `review()` still presses
-a correct answer as an ordinary one, no reveal is posted and no claim is sent, so the API enforces a rule the client
-does not yet follow. What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
+both directions). **AND THE APP OBEYS IT**, which is the second half of this rule and the one the server cannot supply:
+`DrillController` records WHICH steps were shown — a rule of the machine rather than of a screen, like `attempts` — the
+record survives a reload (a page that forgot it would come back with a run that counts, which is a refresh key that
+launders a shown answer), `review()` posts each one as `POST /drill/reveal`, the submission DECLARES the same count as
+its claim, and the offline ledger applies the same rule locally, so the outage path and the offline path agree with the
+server about what a shown answer is worth. The button says so BEFORE it is pressed — "Show me the answer — this drill
+will not count" — for the reason Q18's armed reset and Q20's practice offer carry their cost on the label. MEASURED in
+`game/test/drill-controller-probe.mjs` (the reveal is recorded, once per step, and a revealed step outside the puzzle is
+dropped), `game/test/save-state-probe.mjs` §1b (one success short of a grant, a revealed solve grants nothing and still
+finishes the position) and `game/test/api-client-probe.mjs` §7/§9b (the reveal is posted as a step and nothing else, the
+call comes from the server, and `ranked: false` is adopted). What is not yet true, and the stage that lands it
+(AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
@@ -1848,11 +1857,14 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     difficulty is that the LEDGER has to know the puzzle was revealed, which means the revealed flag has to
     reach the server with the run. DESIGN.md 11 already puts hint-earning on the server, so the transcript
     needs one more field rather than a new mechanism. Nothing in Phase 3 depends on the answer: the review
-    scores what a correct answer scores, and the server clamps it from Phase 5 either way. **THE SERVER HALF HAS
-    LANDED (A28, §11.1): the recommendation is taken — a revealed drill is kept and counted for nothing, with no
-    board row and no hint, and the regime still advances. What is left is the client: the app must post the reveal
-    (`POST /drill/reveal`), declare it on the run, and stop crediting a revealed drill against its own offline ledger.
-    Until that lands, the API enforces a rule the app does not follow.**
+    scores what a correct answer scores, and the server clamps it from Phase 5 either way. **DECIDED AND IMPLEMENTED
+    (A28, §11.1)**, and the recommendation is the one taken: a revealed drill is kept and counted for nothing — no
+    board row, no hint, and the regime still advances. The server half records the reveal as an EVENT
+    (`POST /drill/reveal`) and decides the run's standing; the client half records which steps were shown, posts them,
+    declares the count on the run and stops crediting a revealed drill against its own offline ledger; and the button
+    now carries its cost on its label before it is pressed. **NOT YET OBSERVED IN A BROWSER**: the two halves are
+    measured by probes on both sides, and the path between them — the button, the post, the verdict sentence and the
+    server's `ranked` flag on screen — is shell code no probe loads, so it is owed a real-browser check.
 17. **How many drills are in a season, and how does a season end?** Unchanged from Q4/Q3 above; Phase 3 left
     the fixture's twelve drills wrapping round, which is a demo of a regime rather than a regime.
 18. **Can a player make the device forget them? — DECIDED AND IMPLEMENTED.** Phase 4 kept the regime, the balance and

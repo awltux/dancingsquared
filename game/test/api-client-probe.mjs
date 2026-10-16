@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, recordDrillReveal, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -224,7 +224,7 @@ console.log('\n== 6. advancing sends the drill id it is advancing ==');
 console.log('\n== 7. a completed run is handed over, and what comes back is what is adopted ==');
 {
   const OUTCOME = {
-    run: { runId: 'run-1', score: 100, elapsedSeconds: 12, scoreVersion: 1, clamped: false, duplicate: false },
+    run: { runId: 'run-1', score: 100, elapsedSeconds: 12, scoreVersion: 1, clamped: false, duplicate: false, ranked: true },
     hints: { hints: 0, successes: 1, granted: false },
     board: { period: '2026-10', score: 100, runs: 1 },
     progress: { finished: 1 },
@@ -238,6 +238,7 @@ console.log('\n== 7. a completed run is handed over, and what comes back is what
     elapsedSeconds: 12,
     hintsUsed: 0,
     attempts: 1,
+    reveals: 0,
     calls: ['Allemande Left in the Alamo Style'],
     score: 120,
   };
@@ -254,6 +255,23 @@ console.log('\n== 7. a completed run is handed over, and what comes back is what
   const sent = JSON.parse(call.init.body);
   check(sent.calls.length === 1 && sent.calls[0] === 'Allemande Left in the Alamo Style', `with the transcript as it happened (${sent.calls.join(' → ')})`);
   check(sent.elapsedSeconds === 12 && sent.hintsUsed === 0 && sent.attempts === 1, 'and the run\'s own measured facts, not a verdict about them');
+  // THE REVEAL COUNT IS DECLARED (A28), and it is checked as SENT rather than as adopted because it is the claim the
+  // server unions with its own record: a client that dropped the field would submit a revealed run as a ranked one.
+  const shown = deps('http://localhost:8090', { status: 200, body: OUTCOME });
+  const revealed = await submitRun({ ...body, reveals: 2 }, shown.api);
+  const revealedSent = JSON.parse(shown.fetch.calls[0].init.body);
+  check(revealed.ok === true && revealedSent.reveals === 2, `a run that was shown two answers declares them (${revealedSent.reveals})`);
+  // AND THE SERVER'S ANSWER ABOUT WHETHER IT COUNTED IS ADOPTED, because `granted: false` is the ordinary case and the
+  // app could not otherwise tell an unranked run from one that simply earned nothing.
+  const unranked = deps('http://localhost:8090', { status: 200, body: { ...OUTCOME, run: { ...OUTCOME.run, ranked: false } } });
+  const kept = await submitRun({ ...body, reveals: 1 }, unranked.api);
+  check(kept.ok === true && kept.value.run.ranked === false, 'and a run the server did not rank comes back saying so');
+  // NEGATIVE CONTROL, MEASURED: the SAME reply with the flag ABSENT reads as ranked, which is the reading that keeps
+  // an older server's reply from printing "not ranked" for a run it accepted. The check above is the only one a
+  // `=== true` reading reddens, and it would redden it in the direction that matters — a ranked run reported unranked.
+  const older = deps('http://localhost:8090', { status: 200, body: { ...OUTCOME, run: { runId: 'run-1', score: 100, elapsedSeconds: 12, scoreVersion: 1, clamped: false, duplicate: false } } });
+  const silent = await submitRun(body, older.api);
+  check(silent.ok === true && silent.value.run.ranked === true, 'while a reply with no flag at all reads as ranked rather than as a refusal');
 
   // A CLAMP IS REPORTED SO THE PLAYER CAN BE TOLD, because a silently lowered score is the kind of thing that
   // looks like a bug in the game rather than a rule about claims.
@@ -313,6 +331,30 @@ console.log('\n== 9. a press is recorded as it happens, and the server decides w
   const strange = deps('http://localhost:8090', { status: 200, body: { verdict: 'maybe', attempts: 0 } });
   const unknown = await recordDrillAnswer('1:3', 0, 'Boys Run', strange.api);
   check(unknown.ok === false && unknown.failure.code === 'bad_response', `an unknown verdict is refused (${unknown.failure?.code})`);
+}
+
+console.log('\n== 9b. a REVEAL is posted as the event it is, and the server names the call ==');
+{
+  // THE BODY IS THE WHOLE CONTRACT (DESIGN.md §15 Q16, A28): which drill and which step — never the call it was
+  // shown, because the server looks that up from the puzzle it issued, exactly as the verdict above is derived rather
+  // than claimed. Sending a step and a call would be a second source for one fact.
+  const posted = deps('http://localhost:8090', { status: 200, body: { call: 'Allemande Left', step: 0, reveals: 1, recorded: true } });
+  const answer = await recordDrillReveal('1:3', 0, posted.api);
+  check(answer.ok === true && answer.value.call === 'Allemande Left' && answer.value.recorded === true, `the server's own name for the step comes back (${answer.value?.call})`);
+  const call = posted.fetch.calls[0];
+  check(call.url === 'http://localhost:8090/drill/reveal' && call.init.method === 'POST', `posted to /drill/reveal (${call.init.method} ${call.url})`);
+  const sent = JSON.parse(call.init.body);
+  check(sent.drillId === '1:3' && sent.step === 0 && Object.keys(sent).length === 2, `carrying the drill and the step and nothing else (${JSON.stringify(sent)})`);
+  // A SECOND PRESS OF THE SAME BUTTON IS NOT A SECOND PIECE OF HELP, and the flag is how the app could tell — the
+  // server deduplicates by step, so the row holds one event however many times the player asked.
+  const again = deps('http://localhost:8090', { status: 200, body: { call: 'Allemande Left', step: 0, reveals: 1, recorded: false } });
+  const repeat = await recordDrillReveal('1:3', 0, again.api);
+  check(repeat.ok === true && repeat.value.recorded === false, 'and a step already shown is answered as already shown');
+  // A REVEAL THE SERVER DID NOT NAME IS REFUSED RATHER THAN FILLED IN, the same rule `spendHint` follows: a second
+  // name for one fact is exactly the divergence the shared look-up exists to remove.
+  const nameless = deps('http://localhost:8090', { status: 200, body: { reveals: 1, recorded: true } });
+  const unnamed = await recordDrillReveal('1:3', 0, nameless.api);
+  check(unnamed.ok === false && unnamed.failure.code === 'bad_response', `a reveal with no call is refused (${unnamed.failure?.code})`);
 }
 
 console.log('\n== 10. a hint is spent by the SERVER, and the balance it answers with is the one adopted ==');

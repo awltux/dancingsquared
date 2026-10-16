@@ -871,7 +871,7 @@ it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
-| A20's client half | the server serves the demo and refuses the writes; the app still shows its own local progress and has no sign-in surface | the app's sign-in and its unranked marking |
+| A20's remaining client half | the server serves the demo and refuses the writes, and the client can discover the mode, sign up/in/refresh/out and keep the session (`game/src/net/auth.ts`, `session.ts` — 46 checks). The APP has no sign-in surface and does not yet mark a local run unranked | the sign-in surface and the unranked marking |
 | A21 the clock is the server's | the Drill refuses a claim **above** the wall time but scores the claim below it; the Daily has only a 24-hour bound | server-measured time |
 | A22 attempts counted | `attempts` is read from the submission | `POST /drill/answer` |
 | A23 hint spend is an event | the balance is the server's, the spend is claimed (`§15 Q19`) | `POST /me/hints` |
@@ -905,9 +905,12 @@ default the emulator confirms on signup so the shortest path is one call.
 
 **THE MODE IS DISCOVERED, NOT COMPILED IN, AND IT IS IMPOSSIBLE TO SHIP BY ACCIDENT.** `/health` reports
 `auth: dev|emulate|cognito` (with the emulator's sign-in routes beside it, so the endpoint count of §11 does not
-inflate); the client reads it once (an anonymous read) and picks its flow — `dev` shows no sign-in UI at all,
-`emulate` calls the emulator, `cognito` uses Cognito's hosted flow. **The client half of that is the next change**;
-the server reports the mode today. `VITE_AUTH_MODE` overrides it for a pinned build. The config refuses
+inflate); the client reads it once (an anonymous read, `discoverAuth` in `game/src/net/auth.ts`) and picks its
+flow — `dev` shows no sign-in UI at all, `emulate` calls the emulator, `cognito` uses Cognito's hosted flow, which
+this build does not open yet because there is no pool to open. `VITE_AUTH_MODE` overrides the discovery for a
+pinned build, and it is applied BEFORE the request: a build that knows what it was deployed against must not be
+told a different mode by whatever answers the base URL (MEASURED as a fetch count in `game/test/auth-client-probe.mjs`,
+because "it did not ask" is otherwise invisible). The config refuses
 `DSQ_AUTH=dev` when the environment is production or when a real endpoint is configured, in the same shape as
 `realServiceWarning` (AGENTS.md §8 trap 21) and pinned by a probe the same way — `authRefusal`, measured by
 section 6 of `api/test/auth-probe.mjs`, which also pins that `cognito` without an issuer and audience is refused

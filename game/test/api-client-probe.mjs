@@ -7,6 +7,7 @@
 //
 // Usage: node game/test/api-client-probe.mjs
 import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, submitRun } from '../src/net/api.ts';
+import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -25,6 +26,9 @@ const storage = (initial = {}) => {
     setItem: (key, value) => {
       map.set(key, value);
       writes.push(key);
+    },
+    removeItem: (key) => {
+      map.delete(key);
     },
   };
 };
@@ -62,7 +66,7 @@ const DRILL = {
 const deps = (base, scripted, initial) => {
   const store = storage(initial);
   const fetch = fetching(scripted);
-  return { store, fetch, api: { base, fetch: fetch.impl, getItem: store.getItem, setItem: store.setItem, timeoutMs: 1000 } };
+  return { store, fetch, api: { base, fetch: fetch.impl, getItem: store.getItem, setItem: store.setItem, removeItem: store.removeItem, timeoutMs: 1000 } };
 };
 
 console.log('== 1. with no base configured, nothing is called at all ==');
@@ -104,9 +108,11 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
   check(wired.store.writes.length === 1, `NEGATIVE CONTROL: two requests wrote storage ${wired.store.writes.length} time(s)`);
 }
 
-console.log('\n== 3. a token, when there is one, replaces the device id ==');
+console.log('\n== 3. a session, when there is one, replaces the device id ==');
 {
-  const wired = deps('http://localhost:8090', { status: 200, body: { drill: DRILL, regime: { finished: 0, length: 3 } } }, { 'dsq.game.token': 'jwt-abc' });
+    // THE SESSION IS SEEDED AS THE STORED ITEM session.ts WRITES, so this probe and uth-client-probe.mjs cannot
+  // disagree about where a token lives — the shape is imported rather than spelled.
+  const wired = deps('http://localhost:8090', { status: 200, body: { drill: DRILL, regime: { finished: 0, length: 3 } } }, { [SESSION_KEY]: JSON.stringify({ accessToken: 'jwt-abc', refreshToken: 'r-1', playerId: 'emu:1', email: 'eve@example.com', expiresAtMs: Date.now() + 3_600_000 }) });
   await issueDrill(1, wired.api);
   const headers = wired.fetch.calls[0].init.headers;
   check(headers.authorization === 'Bearer jwt-abc', `the token rides in Authorization (${headers.authorization})`);

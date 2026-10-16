@@ -6,15 +6,18 @@
 // content the player has to be told (its `message` is shown as it was written), and an unreachable server is a
 // state the app has to survive rather than a crash.
 //
-// THE IDENTITY IS AN ANONYMOUS DEVICE ID (DESIGN.md 8: "an anonymous player therefore gets an issued drill keyed
-// to a device id"), minted once and kept in `localStorage`. A signed-in player's token, when there is one, takes
-// precedence and rides in the `Authorization` header — which is the header API Gateway's Cognito authorizer will
-// read in a deployment, where `x-dev-player` is the local dev server's own spelling of the same thing.
+// THE IDENTITY IS A SESSION OR A DEVICE. A signed-in player's access token rides in the `Authorization` header —
+// the header a deployment's Cognito authorizer reads, and the one the emulator verifies — and a signed-out one is
+// an anonymous device id, minted once and kept in `localStorage` (DESIGN.md §8: "an anonymous player therefore
+// gets an issued drill keyed to a device id"). WHICH of the two a request should use is not decided here: it is
+// read out of the stored session (`session.ts`), so "the app is signed in" and "there is a token to send" are one
+// fact rather than two that can disagree.
 //
 // IT TAKES ITS DEPENDENCIES AS AN ARGUMENT (`deps`), which is what lets a probe drive every refusal with a fake
 // fetch and a fake storage — no browser, no server, and no way for a probe to mistake an untested path for a
 // working one.
 import { newRunId } from '../game/store.ts';
+import { accessTokenOf, type SessionStore } from './session.ts';
 
 /** A refusal as the API writes it: a code for a program and a sentence for a person. */
 export interface ApiFailure {
@@ -46,14 +49,18 @@ export interface RegimeCounts {
 
 /** The key the device id lives under. Same namespace as the saved game, and never a secret. */
 const DEVICE_KEY = 'dsq.game.device';
-/** The key a signed-in player's token lives under, when there is one. */
-const TOKEN_KEY = 'dsq.game.token';
 
-export interface ApiDeps {
+export interface ApiDeps extends SessionStore {
   readonly base: string;
   readonly fetch: typeof globalThis.fetch;
-  readonly getItem: (key: string) => string | null;
-  readonly setItem: (key: string, value: string) => void;
+  /**
+   * A build-time pin of the identity mode (`VITE_AUTH_MODE`), or undefined to discover it from `/health`.
+   *
+   * IT IS ON THE DEPENDENCIES RATHER THAN READ FROM `import.meta.env` WHERE IT IS USED, for the reason every other
+   * setting here is: a probe cannot set `import.meta.env`, so an override read at the point of use is an override
+   * no test can reach. `browserDeps` is the only place the real value is read.
+   */
+  readonly modeOverride?: string;
   readonly timeoutMs: number;
 }
 
@@ -80,11 +87,14 @@ export function apiConfigured(): boolean {
 
 /** The real dependencies, from the browser. */
 function browserDeps(): ApiDeps {
+  const mode = import.meta.env?.VITE_AUTH_MODE;
   return {
     base: apiBase(),
     fetch: globalThis.fetch.bind(globalThis),
     getItem: (key) => window.localStorage.getItem(key),
     setItem: (key, value) => window.localStorage.setItem(key, value),
+    removeItem: (key) => window.localStorage.removeItem(key),
+    ...(typeof mode === 'string' && mode !== '' ? { modeOverride: mode } : {}),
     // LONG ENOUGH FOR A COLD SERVER, SHORT ENOUGH THAT A DEAD ONE IS NOT A HUNG TAB: the api's first request
     // builds a level's applier, which is MEASURED at 2.0 s for the first level and ~0.8 s for each further one
     // (`api/src/levels.ts`), so a timeout under a few seconds would fail on a cold start that is working.
@@ -107,9 +117,9 @@ export function deviceId(deps: ApiDeps): string {
   return minted;
 }
 
-/** The headers that say who is asking: a token if there is one, the device id otherwise. */
+/** The headers that say who is asking: the session's token if there is one, the device id otherwise. */
 function identityHeaders(deps: ApiDeps): Record<string, string> {
-  const token = deps.getItem(TOKEN_KEY);
+  const token = accessTokenOf(deps);
   if (token) return { authorization: `Bearer ${token}` };
   return { 'x-dev-player': deviceId(deps) };
 }
@@ -130,8 +140,26 @@ async function failureFrom(response: Response): Promise<ApiFailure> {
   }
 }
 
-/** One call: build the URL, send it, and turn every outcome into an `ApiResult`. */
-async function call<T>(deps: ApiDeps, path: string, init: { method: string; query?: Record<string, string>; body?: unknown }): Promise<ApiResult<T>> {
+/**
+ * One call: build the URL, send it, and turn every outcome into an `ApiResult`.
+ *
+ * IT IS EXPORTED FOR `auth.ts`, WHICH IS THE ONLY OTHER MODULE THAT TALKS TO THIS API, and it is exported rather
+ * than re-implemented because a second copy of "what a refusal looks like" is how two callers come to answer
+ * differently for the same failure. It is not part of the app's surface: everything else goes through the named
+ * functions below, each of which checks the shape it needs.
+ *
+ * `anonymous` IS FOR THE CALLS THAT TAKE NO IDENTITY AT ALL — `/health`, which is the mode discovery, and the five
+ * `/auth/*` endpoints, which carry the credentials THEY need in the body. MEASURED, and it is how this option came
+ * to exist: without it every signup also sent `x-dev-player: <device id>`, which the emulator ignores, which a
+ * token mode does not even advertise in CORS, and which mints a stable browser identifier onto a request that has
+ * no use for one. An absent identity header is also the honest request: it says "this call claims to be nobody".
+ */
+export async function apiCall<T>(
+  deps: ApiDeps,
+  path: string,
+  init: { method: string; query?: Record<string, string>; body?: unknown },
+  options: { readonly anonymous?: boolean } = {},
+): Promise<ApiResult<T>> {
   if (deps.base === '') {
     // THE GUARD EVERY CALLER ALREADY CHECKED, kept because a caller that forgot would otherwise fire a relative
     // URL at the dev server that is hosting the page — which reads as a mysterious 404 rather than "no API".
@@ -143,7 +171,7 @@ async function call<T>(deps: ApiDeps, path: string, init: { method: string; quer
     const response = await deps.fetch(url, {
       method: init.method,
       headers: {
-        ...identityHeaders(deps),
+        ...(options.anonymous === true ? {} : identityHeaders(deps)),
         ...(init.body === undefined ? {} : { 'content-type': 'application/json' }),
       },
       ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
@@ -185,7 +213,7 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
  * wrong question presented as a right one.
  */
 export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeCounts }>> {
-  const answer = await call<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/current', {
+  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/current', {
     method: 'GET',
     query: { level: String(level) },
   });
@@ -230,7 +258,7 @@ export interface DailyChallenge {
  * day nobody published is a refusal (`no_published_daily`) instead of a question nobody checked.
  */
 export async function dailyChallenge(level: number, day: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<DailyChallenge>> {
-  const answer = await call<{ daily?: unknown }>(deps, '/puzzle', {
+  const answer = await apiCall<{ daily?: unknown }>(deps, '/puzzle', {
     method: 'GET',
     query: { mode: 'daily', level: String(level), date: day },
   });
@@ -288,7 +316,7 @@ export interface RunOutcome {
  * local record instead, which is what the offline path does by definition.
  */
 export async function submitRun(submission: RunSubmission, deps: ApiDeps = browserDeps()): Promise<ApiResult<RunOutcome>> {
-  const answer = await call<Record<string, unknown>>(deps, '/runs', { method: 'POST', body: submission });
+  const answer = await apiCall<Record<string, unknown>>(deps, '/runs', { method: 'POST', body: submission });
   if (!answer.ok) return answer;
 
   const run = answer.value.run as Record<string, unknown> | undefined;
@@ -323,7 +351,7 @@ export async function submitRun(submission: RunSubmission, deps: ApiDeps = brows
 
 /** `POST /drill/advance` — mark the issued drill finished, so the next request returns the next entry. */
 export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeCounts }>> {
-  const answer = await call<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {
+  const answer = await apiCall<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {
     method: 'POST',
     body: { drillId },
   });

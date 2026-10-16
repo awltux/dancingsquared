@@ -95,11 +95,22 @@ export function implementedTitles(assets) {
  * (`matcher.ts:86-91`: only a strict improvement or a reflect/non-reflect tie changes the
  * winner). So the order of the pool decides which authoring runs whenever both match the
  * same board, and walking `ASSET_LEVELS` ascending handed every such tie to the LOWEST
- * level. `Circle Left` is the case that proves it is wrong: `b1/circle.xml` authors
- * `Forward .59` + 8x `cl` and stops - the dancer never steps back out of the circle - while
- * `ms/circle.xml` authors the round trip (`... Back .59`). Measured on All8's published
- * figures, the difference is 88 vs 90 of 188 end-to-end, and NOTHING is lost by pooling in
- * the other order (the variant SET is identical; only the tie-break changes).
+ * level.
+ *
+ * THE WITNESS THAT ESTABLISHED THE RULE HAS BEEN RETIRED, AND THE RULE OUTLIVED IT. It was
+ * `Circle Left`: `b1/circle.xml` authored `Forward .59` + 8x `cl` and stopped - the dancer
+ * never steps back out of the circle - while `ms/circle.xml` authored the round trip
+ * (`... Back .59`). Measured on All8's published figures, the two walks differed in 88 vs 90
+ * of 188 end-to-end, and NOTHING is lost by pooling in the other order (the variant SET is
+ * identical; only the tie-break changes). **`b1` is not a level any more** - it is absent
+ * from `ASSET_LEVELS` above and from `poc/src/assets` - so that comparison cannot be re-run,
+ * and of the 31 titles STILL defined at two or more levels, none is order-sensitive today:
+ * all 31 applied from all 138 named formations give the same board under both walks, for
+ * 4278 applications identical to the digit. The order is therefore pinned STRUCTURALLY in
+ * `engine/test/catalogue.mjs` - the HIGHER level's `<tam>` block must come first in the
+ * pooled XML - which fails when the walk is reversed (measured: ascending puts `ms` at 7 and
+ * `c1` at 2768; shipped is `c1` at 7 and `ms` at 2528) and does not depend on a corpus
+ * coincidence existing.
  *
  * Pooling at all - rather than keeping only the highest level that defines a title, which is
  * what `poc/src/data.ts` `sequencerCallsUpTo` used to do - matters just as much and was

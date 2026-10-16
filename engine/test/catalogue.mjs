@@ -137,8 +137,8 @@ console.log('\n== a call defined at several LEVELS: the pool is highest-first, a
 // the pool decides which authoring dances. `callsByTitle` used to walk `ASSET_LEVELS` ascending,
 // which handed every tie to the LOWEST level; reverting that is silent everywhere except here.
 // The two witnesses pin both halves of the rule, and each one alone is satisfied by a WRONG rule:
-// the round trip fails if the order goes back to ascending, and the `Circulate` setups fail if the
-// pool is narrowed to the highest level that defines a title (`poc/src/data.ts` used to do that).
+// the ORDER witness fails if the walk goes back to ascending, and the `Circulate` setups fail if
+// the pool is narrowed to the highest level that defines a title (`poc/src/data.ts` used to do that).
 {
   const byId = (b) => b.dancers.slice().sort((a, c) => a.id - c.id);
   const normDeg = (d) => {
@@ -148,23 +148,59 @@ console.log('\n== a call defined at several LEVELS: the pool is highest-first, a
     return x;
   };
 
-  // Witness 1 — ORDER. The retired `b1/circle.xml` authored `Forward .59` + 8x `cl` and stopped, so the
-  // dancer never stepped back out of the circle: that authoring ended at radius 2.61 with a 43.8 degree
-  // heading error. `ms/circle.xml` authors the round trip and ends exactly where it started, which is
-  // the ordering this pins.
+  // Witness 1 — ORDER, PINNED STRUCTURALLY, AND THAT IS A MEASUREMENT. This witness used to be a
+  // DANCE: the retired `b1/circle.xml` authored `Forward .59` + 8x `cl` and stopped, while
+  // `ms/circle.xml` authored the round trip, so the two walks produced different end boards.
+  // **`b1` is not a level any more** - `ASSET_LEVELS` has no `b1` and `poc/src/assets/b1` does not
+  // exist - and of the 31 titles that ARE still defined at two or more levels, NOT ONE is
+  // order-sensitive: all 31 applied from all 138 named formations under both walks give the same
+  // board for **4278 applications**, identical to the digit. So no dance can witness the order
+  // today, and asking the pool itself is the honest instrument. It still fails for the wrong walk
+  // (measured: see the negative control below), and it costs no application.
+  const tamBlock = (rel, title) => {
+    const xml = readFileSync(path.join(assets, rel), 'utf8');
+    return (xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [])
+      .find((blk) => (blk.match(/title="([^"]*)"/) ?? [])[1] === title);
+  };
+  // `Circulate` is the witness because it is defined at TWO levels whose authorings are different
+  // setups rather than more of the same: `ms/circulate.xml` (the wave) and `c1/circulate.xml`
+  // (`Thar`, `Wrong Way Thar`). THE `c1` BLOCK MUST COME FIRST, because `c1` is the HIGHER level and
+  // the walk is highest-first - `callsByTitle` gathers `ASSET_LEVELS` REVERSED, so `c3b` is pooled
+  // before `c1` before `ms`. THE NEGATIVE CONTROL is the rule reversed, and it was MEASURED rather
+  // than assumed: walking `ASSET_LEVELS` ascending puts the `ms` block first and fails this check
+  // (ms at 7, c1 at 2768 under the ascending walk; c1 at 7, ms at 2528 as shipped). Asserting the
+  // levels in the other order is the mistake this comment exists to stop - it reads as obviously
+  // right and is inverted.
+  const pooled = callsByTitle(assets).find((c) => c.name === 'Circulate');
+  const msBlock = tamBlock('ms/circulate.xml', 'Circulate');
+  const c1Block = tamBlock('c1/circulate.xml', 'Circulate');
+  check(!!pooled && !!msBlock && !!c1Block, 'both authorings of `Circulate` and its pool are present');
+  const at = (blk) => (pooled && blk ? pooled.xml.indexOf(blk) : -1);
+  check(at(msBlock) >= 0 && at(c1Block) >= 0 && at(c1Block) < at(msBlock),
+    `the pool lists the HIGHER level first (c1 at ${at(c1Block)}, ms at ${at(msBlock)})`);
+
+  // Witness 1b — THE ROUND TRIP, AND WHICH TITLE AUTHORS IT. `ms/circle.xml`'s own section header
+  // says `CIRCLE LEFT FAMILY FROM STATIC SQUARE TO CIRCLE`, and the file publishes the round trip
+  // under the sibling title: `Circle Left - Stop at Home` ends exactly where it started, while the
+  // BARE `Circle Left` is authored to end in the `Circle` formation. Both halves are asserted,
+  // because a corpus change that made the bare title round-trip is worth seeing - and this is now a
+  // CORPUS assertion, not an order one.
   const square = seq.boardForFormation('Static Square');
-  const cl = seq.applyToBoard(square, 'Circle Left');
-  check(cl.legal, 'Circle Left is legal from a Static Square');
+  const cl = seq.applyToBoard(square, 'Circle Left - Stop at Home');
+  check(cl.legal, '`Circle Left - Stop at Home` is legal from a Static Square');
   const a = byId(square);
   const b = byId(cl.board);
   const posResid = Math.max(...a.map((d, i) => Math.hypot(d.x - b[i].x, d.y - b[i].y)));
   const headResid = Math.max(...a.map((d, i) => Math.abs(normDeg(b[i].heading - d.heading))));
   check(posResid < 0.01,
-    `Circle Left from a Static Square ROUND-TRIPS (worst position residual ${posResid.toFixed(4)}, was 0.6140 under the ascending order)`);
+    `and it ROUND-TRIPS (worst position residual ${posResid.toFixed(4)})`);
   check(headResid < 1,
-    `Circle Left leaves every facing where it found it (worst heading residual ${headResid.toFixed(2)} deg, was 43.80)`);
+    `and leaves every facing where it found it (worst heading residual ${headResid.toFixed(2)} deg)`);
   check(seq.knownFormation(cl.board) === 'Static Square',
-    `the board after Circle Left is still named Static Square (got ${seq.knownFormation(cl.board)})`);
+    `the board after \`Circle Left - Stop at Home\` is named Static Square (got ${seq.knownFormation(cl.board)})`);
+  const bare = seq.applyToBoard(square, 'Circle Left');
+  check(bare.legal && seq.knownFormation(bare.board) === 'Circle',
+    `while the BARE \`Circle Left\` ends on the Circle formation (got ${bare.legal ? seq.knownFormation(bare.board) : 'illegal'}) - the corpus authors the round trip under the sibling title`);
 
   // Witness 2 — NOTHING IS DROPPED. `Circulate` is defined in `ms/circulate.xml` AND in
   // `c1/circulate.xml`, whose tams are `Thar`, `Wrong Way Thar`, `Star Promenade`,

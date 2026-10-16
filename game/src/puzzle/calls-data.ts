@@ -28,7 +28,7 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Cast Off Three Quarters",
   "Centers In",
   "Centers Split the Outside Couple",
-  "Circle Left - Stop at Home",
+  "Circle Left Home",
   "Circulate 1 1/2",
   "Courtesy Turn",
   "Dive Thru",

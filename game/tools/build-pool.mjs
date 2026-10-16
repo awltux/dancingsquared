@@ -1,6 +1,15 @@
 // Regenerate `src/puzzle/calls-data.ts` from the corpus.
 //
-//   node game/tools/build-pool.mjs
+//   node game/tools/build-pool.mjs            write the file
+//   node game/tools/build-pool.mjs --check    fail if the file on disk is not what this would write
+//
+// WHY THERE IS A `--check`. `calls-data.ts` is generated, and a generated artefact with no gate goes
+// stale silently (AGENTS.md §8 trap 9). MEASURED: `134ff33` renamed 43 `title` attributes under
+// `poc/src/assets/ms/circle.xml` — `Circle Left - Stop at Home` -> `Circle Left Home` — and nothing
+// regenerated the pool, so the pool kept naming a title no tam declares. Two probes went red with a
+// reason that points at the corpus rather than at the stale file ("every one of the level's 15 titles
+// registered with the engine (14)"). The game's probe runner now runs this check FIRST, the way it runs
+// `sync-corpus.mjs --check`, so the same edit fails in the place that names the cause.
 //
 // WHERE THE ORDER COMES FROM, and why it is not from `calls.xml`. The obvious source would be that
 // file, and it does not work: MEASURED, `poc/src/assets/src/calls.xml` carries 690 entries and NOT ONE
@@ -27,6 +36,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(here, '..', '..');
 const MS_DIR = path.join(REPO, 'poc', 'src', 'assets', 'ms');
 const OUT = path.join(here, '..', 'src', 'puzzle', 'calls-data.ts');
+const CHECK = process.argv.includes('--check');
 
 /** The pool version. Bump when the ORDER or the membership changes: a puzzle is only meaningful
  * against one pool version (DESIGN.md 7), so this is part of what a leaderboard entry means. */
@@ -81,9 +91,29 @@ ${ordered.map((t) => `  ${JSON.stringify(t)},`).join('\n')}
 ];
 `;
 
-fs.writeFileSync(OUT, body, 'utf8');
-console.log(`build-pool: wrote ${ordered.length} titles to ${path.relative(REPO, OUT)}`);
-console.log(`  first 12: ${ordered.slice(0, 12).join(' | ')}`);
+if (CHECK) {
+  // THE COMPARISON NORMALISES LINE ENDINGS. The host global `core.autocrlf` is true, so a file restored
+  // by `git checkout` comes back with CRLF and a literal comparison would report drift on a file that is
+  // byte-identical to this script's output apart from the endings (AGENTS.md §8 trap 2).
+  const onDisk = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8').replace(/\r\n/g, '\n') : '';
+  if (onDisk === body) {
+    console.log(`build-pool: ${path.relative(REPO, OUT)} is current (${ordered.length} titles, ${POOL_VERSION})`);
+  } else {
+    const a = onDisk.split('\n');
+    const b = body.split('\n');
+    const at = a.findIndex((l, i) => l !== b[i]);
+    console.error(`build-pool: ${path.relative(REPO, OUT)} is NOT what this script writes.`);
+    console.error(`  first difference at line ${at + 1}:`);
+    console.error(`    on disk: ${JSON.stringify(a[at] ?? '(nothing)')}`);
+    console.error(`    wanted : ${JSON.stringify(b[at] ?? '(nothing)')}`);
+    console.error('  run `node game/tools/build-pool.mjs` and commit the result.');
+    process.exit(1);
+  }
+} else {
+  fs.writeFileSync(OUT, body, 'utf8');
+  console.log(`build-pool: wrote ${ordered.length} titles to ${path.relative(REPO, OUT)}`);
+  console.log(`  first 12: ${ordered.slice(0, 12).join(' | ')}`);
+}
 if (failures.length) {
   console.log(`  ${failures.length} file(s) contributed nothing or were refused:`);
   for (const f of failures.slice(0, 10)) console.log(`    ${f.file}: ${f.reason}`);

@@ -1838,10 +1838,46 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     interaction) and does not serve the objective.
 13. **Ads-only, or an ad-free tier?** *Recommend ads-only at v1*: a paid tier adds store fees, tax and a
     cancellation flow for a game whose audience has to be earned first.
-14. **Hosting.** *Recommend S3 + CloudFront + Route 53 for the static front end and API Gateway in front of
-    the Lambdas* — no asset bucket is needed any more (decision 13). This app deliberately lifts the
-    repository's offline-frontend rule (AGENTS.md §6), so the decision to make a network call must be recorded
-    in the commit that adds it, with the endpoint named.
+14. **Hosting — THE REQUEST PATH IS WRITTEN, AND THE AWS DECISIONS ARE LISTED BELOW.** *Recommend S3 + CloudFront +
+    Route 53 for the static front end and API Gateway in front of the Lambdas* — no asset bucket is needed any more
+    (decision 13). This app deliberately lifts the repository's offline-frontend rule (AGENTS.md §6), so the decision
+    to make a network call must be recorded in the commit that adds it, with the endpoint named.
+    **WHAT IS BUILT**: `api/src/lambda.ts` is the adapter — an API Gateway HTTP API event (payload format 2.0) in,
+    `{ statusCode, headers, body }` out — and it holds NO AWS SDK, NO credentials and NO table names, so the whole
+    deployed path is driven by fixture events in `api/test/lambda-probe.mjs` (15 checks over routing, identity, the
+    body rule, preflight, `/health` and the 500-for-a-throw). It reads the SAME route table the dev server does, which
+    is why `POST /drill/reveal` — an endpoint that landed long after the adapter was written — is served with no
+    adapter change at all. The decisions a request has to make are shared with the local server in
+    `api/src/dispatch.ts` (the emulator's routes first and only where an emulator exists, the 404 body, the
+    500-for-a-throw, and the body rule), and the probe drives the same request through BOTH transports and asserts the
+    answers match, because a deployment that refuses a body or an unrouted path differently from the local run is a
+    difference nobody would see until a user did.
+    **THE DECISIONS THE NEXT STEP NEEDS** — each is a real choice with a consequence, and every VALUE belongs in a
+    config file with `DSQ_*` overrides rather than a literal (AGENTS.md §6; `api/src/config.ts` is the existing reader
+    and `realServiceWarning` is the guard that refuses to CREATE anything without an explicit endpoint):
+      1. **Which gateway flavour**: HTTP API (payload 2.0, cheaper, what the adapter reads today) or REST API (1.0,
+         and one more mapping function). The adapter's header records this as a choice rather than a fact.
+      2. **Where CORS is answered**: the adapter answers preflights itself (and does so correctly for `cognito`,
+         advertising `content-type, authorization` and NOT the `dev` header), or the gateway's own CORS configuration
+         does it without invoking the function, which is cheaper — `DSQ_CORS_ORIGIN` then narrows the origin, and the
+         adapter's `*` default is for the local run only.
+      3. **The table and the pool**: table name, region, account — `DSQ_DDB_TABLE`/`DSQ_*` already exist for the local
+         DynamoDB run, and the pool's identifiers (user pool id, client id, issuer, audience, JWKS) are the ones
+         `config.ts` reads for `cognito`. NO literals, and `api/tools/create-table.mjs` already refuses without an
+         explicit endpoint (trap 21).
+      4. **The static front end**: bucket, distribution, certificate and the `VITE_API_BASE` the build is made with
+         (the client's one switch, `game/src/net/api.ts`), plus the decision that the SPA's routing needs the
+         distribution's 404 → `/index.html` behaviour.
+      5. **The two boundary jobs** (`api:publish-schedule`, `api:publish-daily`) need a schedule of their own — before
+         the first player arrives each UTC day for the Daily, and before a month turns for the schedule (which is Q17's
+         season boundary, still the owner's call).
+      6. **The operator's signals** (A25): a log group for the refusals the route table counts, and the alarm on the
+         refusal rate — `abuse#<playerId>` rows exist, and nothing reads them yet.
+    **WHAT IS NOT DONE, AND IS DELIBERATELY NOT**: no AWS resource has been created, by this change or any other
+    (AGENTS.md §8 trap 21 records what happened the one time a command defaulted to a real account), and nothing here
+    is deployed or deployable by a script yet — the composition root that builds a real `Deps` (DynamoDB store plus the
+    Cognito verifier) and wires it to `handleEvent` is the next change, and it is the one that needs the decisions
+    above.
 15. **The workspace name**, for `game/package.json` when Phase 1 starts. *(Settled: `dancing-squared-game`.)*
 19. **CLOSED by A22 and A23 (§11.1) — the attempt count and the hint spend were the client's word.** The Drill's
     `attempts` priced a run (§6's `attemptFactor`) and the Daily's `hintsUsed` debited the balance (§10), and

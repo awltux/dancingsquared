@@ -25,15 +25,13 @@ import { publishDay } from './daily-publishing.ts';
 import { SERVED_LEVELS } from './schedule-publishing.ts';
 import { MemoryStore } from './store/memory.ts';
 import { openStore, type OpenedStore } from './store/open.ts';
-import { PLANNED_ENDPOINTS, ROUTES, routeFor } from './routes.ts';
+import { PLANNED_ENDPOINTS, ROUTES } from './routes.ts';
+import { bodyTooLarge, dispatch, MAX_BODY_BYTES, parseBody } from './dispatch.ts';
 import { seedLocalRegimes } from './local-regime.ts';
 import { createEmulator, type Emulator } from './auth/emulator.ts';
 import { devIdentityOf, tokenIdentityOf } from './auth/identity.ts';
 import { jwksKeys, verifyToken, type JwtClaims } from './auth/verify.ts';
 import type { ApiRequest, ApiResult, Deps, IdentityOf, ItemStore } from './ports.ts';
-
-/** A JSON body larger than this is refused rather than buffered: nothing this API takes is bigger than a move list. */
-const MAX_BODY_BYTES = 64 * 1024;
 
 /**
  * The identity machinery for one mode: the adapter the handlers see, and the emulator's routes when there are any.
@@ -85,17 +83,23 @@ export function depsFor(store: ItemStore, identityOf: IdentityOf, clock: { nowMs
   return { store, clock, identityOf };
 }
 
-async function readBody(request: http.IncomingMessage): Promise<unknown> {
+/**
+ * The body as text, refusing BEFORE it is buffered past the cap — and handing the JSON rule to `parseBody`.
+ *
+ * TWO GUARDS, TWO REASONS, and neither is redundant: the stream guard here is about MEMORY (a body this server is
+ * going to refuse must not be read into the heap first), and `parseBody`'s is about the ANSWER — the same 413 the
+ * Lambda gives, from the same module, so the two adapters cannot spell an oversized or malformed body differently.
+ */
+async function readBody(request: http.IncomingMessage): Promise<{ text: string } | { refusal: ApiResult }> {
   const chunks: Buffer[] = [];
   let size = 0;
   for await (const chunk of request) {
     const buffer = chunk as Buffer;
     size += buffer.length;
-    if (size > MAX_BODY_BYTES) throw new Error(`the request body is larger than ${MAX_BODY_BYTES} bytes`);
+    if (size > MAX_BODY_BYTES) return { refusal: bodyTooLarge() };
     chunks.push(buffer);
   }
-  if (size === 0) return null;
-  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  return { text: Buffer.concat(chunks).toString('utf8') };
 }
 
 /**
@@ -233,7 +237,7 @@ export async function startDevServer(options: DevServerOptions = {}): Promise<De
       try {
         if (request.method === 'OPTIONS') {
           // THE PREFLIGHT IS ANSWERED BEFORE ANY ROUTING, because it names a route that does exist rather than
-          // asking this server to serve it.
+          // asking this server to serve it. The Lambda adapter does the same, in the same order.
           response.writeHead(204, headers);
           response.end();
           console.log(`204 OPTIONS ${url.pathname} (preflight) 0 ms`);
@@ -242,31 +246,37 @@ export async function startDevServer(options: DevServerOptions = {}): Promise<De
         if (url.pathname === '/health') {
           result = health(opened, auth, identity.note, identity.emulator);
         } else {
-          const apiRequest: ApiRequest = {
-            method: request.method ?? 'GET',
-            path: url.pathname,
-            query: Object.fromEntries(url.searchParams),
-            body: await readBody(request),
-            headers: Object.fromEntries(
-              Object.entries(request.headers).filter(([, value]) => typeof value === 'string') as [string, string][],
-            ),
-          };
-          // THE EMULATOR'S ROUTES COME FIRST, AND ONLY WHEN IT EXISTS: in `dev` and `cognito` mode these paths are
-          // unrouted, exactly as any unknown path is, so the handler core never learns that authentication has a
-          // shape (DESIGN.md 11.2).
-          const emulated = identity.emulator ? await identity.emulator.handle(apiRequest) : null;
-          if (emulated) {
-            result = emulated;
+          const read = await readBody(request);
+          if ('refusal' in read) {
+            result = read.refusal;
           } else {
-            const route = routeFor(apiRequest.method, url.pathname);
-            result = route
-              ? await route.handler(apiRequest, deps)
-              : { status: 404, body: { error: { code: 'not_found', message: `nothing serves ${url.pathname}` } } };
+            const parsed = parseBody(read.text);
+            if ('refusal' in parsed) {
+              result = parsed.refusal;
+            } else {
+              const apiRequest: ApiRequest = {
+                method: request.method ?? 'GET',
+                path: url.pathname,
+                query: Object.fromEntries(url.searchParams),
+                body: parsed.body,
+                headers: Object.fromEntries(
+                  Object.entries(request.headers).filter(([, value]) => typeof value === 'string') as [string, string][],
+                ),
+              };
+              // THE EMULATOR, THE ROUTE TABLE, THE 404 AND THE 500 ARE ALL `dispatch`'s NOW, because the Lambda
+              // adapter needs the same four decisions and a second copy of them is how the two deployments come to
+              // disagree about a refusal (AGENTS.md §4.3).
+              result = await dispatch(apiRequest, deps, {
+                emulator: identity.emulator,
+                onError: (failed, error) => console.error(`${failed.method} ${failed.path} threw:`, error),
+              });
+            }
           }
         }
       } catch (error) {
-        // A THROW IS A BUG IN A HANDLER, NOT A CLIENT ERROR, so it is a 500 with the message in the log and a
-        // generic one in the body: the client is not the audience for a stack trace.
+        // WHAT IS LEFT HERE IS THE TRANSPORT: a URL that could not be parsed, a socket that died mid-body. A
+        // HANDLER's throw is answered inside `dispatch` (and logged there through `onError`), so this catch is no
+        // longer the place a handler bug lands — which is exactly why the body rule moved out of it too.
         console.error(`${request.method} ${url.pathname} threw:`, error);
         result = { status: 500, body: { error: { code: 'internal', message: 'the request could not be handled' } } };
       }

@@ -1891,6 +1891,32 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         (`game/tools/measure-ladder.mjs`) is what reports the new ceiling, so it is run with the change rather than
         after it. The mapping itself — CALLERLAB entry to game title, one to one and family to several — lands with the
         change as a table, because it is the artefact a reviewer has to read.
+      * **MEASURED WHILE DOING IT, AND IT BLOCKS THE RE-ORDER UNTIL THE ENGINE IS WHOLE.** The pool was re-ordered to
+        this list on a branch, and the game's own gate caught it. With `ms-3` (53 titles, 62 less the 9 dropped) the
+        teaching order generates **15 of 30 levels**: `game/test/puzzle-core-probe.mjs`'s ladder walk fails at L1–L15
+        with the generator's own reason *"no board is reachable in exactly N call(s) from a squared set at this
+        level"*, against 30/30 for `ms-2`. That reason is the NAMED-GOAL gate (`puzzle/generator.ts`, `attempt`: the
+        goal is the board the game draws, so it needs a caption), and across the whole 53-title pool **only 5 calls
+        reach a named board in one call from a squared set** — `Allemande Left in the Alamo Style` (M31a → Alamo
+        Wave), `Square Thru 2` (M21 → Eight Chain Thru), `Star Thru` (M18 → Double Pass Thru), `Pass the Ocean` and
+        `Spin the Top` (M35, M46 → Quarter Tag LH). Swept over every prefix of the order: **no prefix up to 30 titles
+        generates at depth 1 or 2**; the 31st (M31, Allemande Left in the Alamo Style) is the first that generates at
+        depth 1, and the 32nd (M31c, Step to a Wave) the first at depth 2. L1–L6 of the owner's `poolSize(n) = 4n + 6`
+        are pools 10–30, so **the first six levels have no puzzle at all** — the calls CALLERLAB teaches first are
+        exactly the return-home basics whose one-call endings the engine cannot name.
+      * **AND THE CAUSE IS THE ENGINE, WHICH IS WHY NOTHING WAS CHANGED.** `engine/test/getout-convention.mjs` is red
+        on this tree at **0 of 28 alignments resolving** — the repair `HANDOVER.md` records as in flight in another
+        session. An unnamed intermediate board is not a defect by the engine's own docs, but the GOAL is drawn, so an
+        unnamed goal leaves the level with nothing to ask. Re-measure this item once that instrument is green; the
+        mapping itself is still the work, and §5's "do not invent the ladder's ceiling" now has a floor under it too:
+        a level needs a pool whose calls can reach a nameable board.
+      * **A SECOND, INDEPENDENT DEFECT FOUND WHILE MEASURING, RECORDED RATHER THAN FIXED.** The candidate filter asks
+        for the goal's name on `boards.get(sig)` — the FIRST board that reached a positions-only `boardSig` — so an
+        unnamed ending SHADOWS a named one at the same signature (AGENTS.md §8 trap 11: `boardSig` is positions-only).
+        MEASURED at the 18-title prefix: `Heads Separate` and `Pass Thru` reach the same signature as `Star Thru` and
+        are seen first, so `nameOf` is asked about the wrong board, the candidate list comes back empty, and the level
+        reports "no board is reachable". Removing `Pass Thru` from that prefix does not help — `Heads Separate` then
+        shadows it. This one is the game's, not the engine's, and it is not fixed here.
 12. **Sound.** *Recommend none at v1.* Voice or music is a large surface (autoplay policy, accessibility, ad
     interaction) and does not serve the objective.
 13. **Ads-only, or an ad-free tier?** *Recommend ads-only at v1*: a paid tier adds store fees, tax and a

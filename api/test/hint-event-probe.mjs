@@ -171,16 +171,26 @@ console.log('\n== 3. the bound, and the item holds what both writers put in it =
   check(fourth.status === STATUS.conflict && fourth.body.error.code === 'hints_exhausted', `and the ${MAX_HINTS_PER_ATTEMPT + 1}th is refused (${fourth.body.error?.code})`);
   check((await store.get(ROW.hints('h4'))).value.hints === 1, 'with the balance untouched by the refusal');
 
-  // ONE ITEM, TWO WRITERS, AND NEITHER ERASES THE OTHER. MEASURED because it is how this stage's first draft lost
-  // data: a writer that rebuilt the row from its own field alone dropped what the other had put there — a cheat
-  // nobody would have had to attempt, only a hint that quietly stopped costing anything.
-  const written = asAttemptItem({ startedAtMs: CLOCK, presses: [{ step: 0, call: 'Boys Run', atMs: CLOCK }], moves: [{ kind: 'add', call: 'Boys Run', atMs: CLOCK }], hints: [{ step: 0, call: '', atMs: CLOCK }] });
+  // ONE ITEM, THREE WRITERS, AND NONE ERASES ANOTHER. MEASURED because it is how this stage's first draft lost
+  // data: a writer that rebuilt the row from its own field alone dropped what the others had put there — a cheat
+  // nobody would have had to attempt, only a hint that quietly stopped costing anything. The third writer is A28's
+  // reveal, and this check is why every one of them creates the row through `emptyAttempt` rather than spelling the
+  // shape out: adding `reveals` made this fixture fail with "Cannot read properties of undefined", which is the
+  // instrument working rather than a nuisance.
+  const written = asAttemptItem({ startedAtMs: CLOCK, presses: [{ step: 0, call: 'Boys Run', atMs: CLOCK }], moves: [{ kind: 'add', call: 'Boys Run', atMs: CLOCK }], hints: [{ step: 0, call: '', atMs: CLOCK }], reveals: [{ step: 0, call: 'Swing', atMs: CLOCK }] });
   const round = asAttempt({ rev: 1, value: written });
-  check(round?.startedAtMs === CLOCK && round.presses.length === 1 && round.moves.length === 1 && round.hints.length === 1, `a row with every field reads back with every field (${JSON.stringify(written).slice(0, 60)}…)`);
-  const noStamp = asAttemptItem({ startedAtMs: null, presses: [], moves: [], hints: [] });
+  check(round?.startedAtMs === CLOCK && round.presses.length === 1 && round.moves.length === 1 && round.hints.length === 1 && round.reveals.length === 1, `a row with every field reads back with every field (${JSON.stringify(written).slice(0, 60)}…)`);
+  const noStamp = asAttemptItem({ startedAtMs: null, presses: [], moves: [], hints: [], reveals: [] });
   check(noStamp.startedAtMs === undefined, 'and a Drill row writes NO start stamp rather than a null one');
   check(asAttempt({ rev: 1, value: { startedAtMs: CLOCK, hints: [{ step: 0, call: '', atMs: CLOCK }] } })?.presses.length === 0, 'while a row written before presses existed still reads as a fresh log');
   check(asAttempt({ rev: 1, value: { startedAtMs: CLOCK, presses: [], hints: [] } })?.moves.length === 0, 'and a row written before the Daily had a move log reads as an empty one, not as unreadable');
+  // THE SAME CONTRACT FOR A28'S FIELD: a Drill row written by the build before reveals existed reads as "nothing was
+  // shown", which is the only safe reading of a row that predates the rule (the run's standing is unranked ONLY if a
+  // reveal is there, so an old row must not be treated as revealed).
+  check(asAttempt({ rev: 1, value: { startedAtMs: CLOCK, presses: [], hints: [] } })?.reveals.length === 0, 'and a row written before reveals existed holds no reveal rather than failing to read');
+  // AN EMPTY CALL IS CORRUPTION HERE, where a hint row may hold one for history: nothing wrote a reveal before this
+  // build, so there is no legacy to tolerate.
+  check(asAttempt({ rev: 1, value: { startedAtMs: CLOCK, presses: [], hints: [], reveals: [{ step: 0, call: '', atMs: CLOCK }] } }) === null, 'while a reveal that names nothing is unreadable rather than an empty one');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

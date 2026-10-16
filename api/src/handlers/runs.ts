@@ -40,6 +40,7 @@ import {
   foldBoard,
   parseRunSubmission,
   scoreWithClaim,
+  wasRevealed,
   CLOCK_SKEW_SECONDS,
   type BoardValue,
   type RunSubmission,
@@ -59,6 +60,15 @@ interface Source {
   readonly claimedAttempts: number;
   /** What the client claimed it spent on hints. Kept for the record; the Drill's CHARGE is the recorded spend (A23). */
   readonly claimedHints: number;
+  /**
+   * How many steps' answers the SERVER recorded as shown, and what the client claimed (DESIGN.md §15 Q16, A28).
+   *
+   * BOTH ARE CARRIED RATHER THAN A BOOLEAN, because the run row keeps them beside each other (A25's audit) and the
+   * rule that decides the run's standing takes the union of the two (`wasRevealed`) — so "the client says it was
+   * shown and the server never saw it" is a state an operator can read rather than a disagreement nobody can explain.
+   */
+  readonly measuredReveals: number;
+  readonly claimedReveals: number;
 }
 
 /** The Drill's source: the issued drill, the regenerated puzzle, and the per-step answer re-derived. */
@@ -142,6 +152,11 @@ async function verifyDrill(
       // both numbers. Claiming MORE is also ignored — the count is the log's.
       claimedAttempts: submission.attempts,
       claimedHints: submission.hintsUsed,
+      // THE REVEAL IS THE LOG'S, NOT THE CLAIM'S, AND THE CLAIM IS CARRIED BESIDE IT. `reveals` names the steps whose
+      // answer the app showed; `POST /drill/reveal` recorded them, so this count is the server's own — and because the
+      // claim points the safe way (it can only cost the claimant), it is kept for the audit rather than refused.
+      measuredReveals: record.reveals.length,
+      claimedReveals: submission.reveals,
       // ONE ANSWER PER STEP AND NOTHING TO WASTE: `moves` is the puzzle's own shortest, exactly as the client
       // computes it (`moves: controller.puzzleRef.shortest`). The Drill's cost is its attempts, not its waste.
       facts: {
@@ -254,6 +269,13 @@ async function verifyDaily(
       // carried so the audit row has the same shape in both modes.
       claimedAttempts: submission.attempts,
       claimedHints: submission.hintsUsed,
+      // THE DAILY HAS NO REVEAL, SO BOTH NUMBERS ARE ZERO AND A CLAIM IS IGNORED rather than honoured. It is not a
+      // refusal because the field is meaningless here rather than dangerous: there is no "show me the answer" on the
+      // Daily (§15 Q16 is the Drill's question — the Daily's help is a hint, which is charged), so a body carrying one
+      // cannot have come from an honest client of this build, and letting it unrank a real Daily run would be a client
+      // muting its own board for no reason.
+      measuredReveals: 0,
+      claimedReveals: 0,
       // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so it is priced on its line and its hints alone. `moves` is the
       // length of the RECORDED line — the calls the player actually built, which is what the waste factor measures.
       facts: { shortest: generated.puzzle.shortest, moves: recorded.length, clockSeconds: measuredSeconds, hintsUsed: attempt.hints.length, attempts: 0 },
@@ -270,6 +292,8 @@ interface AnswerParts {
   readonly duplicate: boolean;
   readonly hints: { hints: number; successes: number };
   readonly granted: boolean;
+  /** Whether this run counted towards the board and the hint ledger (A28). The client says so on screen. */
+  readonly ranked: boolean;
   readonly board: BoardValue;
   readonly period: string;
   readonly progress: { finished: number } | null;
@@ -285,6 +309,10 @@ function runAnswer(parts: AnswerParts): unknown {
       scoreVersion: SCORE_VERSION,
       clamped: parts.clamped,
       duplicate: parts.duplicate,
+      // THE SERVER SAYS WHAT IT DECIDED, rather than leaving the client to infer it from a board that did not move:
+      // `granted: false` is the ordinary case (nine successes in ten grant nothing), so a revealed run and an
+      // unremarkable one would otherwise look the same to the app, and the app has to TELL the player which it was.
+      ranked: parts.ranked,
     },
     hints: { hints: parts.hints.hints, successes: parts.hints.successes, granted: parts.granted },
     board: { period: parts.period, score: parts.board.score, runs: parts.board.runs },
@@ -322,7 +350,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
       if (!hints) return failure(STATUS.unavailable, 'unreadable_hints', 'the hint balance is not a record this build can read');
       const board = asBoard(await deps.store.get(boardKey(submission.mode, submission.levelIndex, period, playerId)));
       if (!board) return failure(STATUS.unavailable, 'unreadable_board', 'the board entry is not a record this build can read');
-      const value = recorded.value as { score?: unknown; clockSeconds?: unknown; hintsUsed?: unknown };
+      const value = recorded.value as { score?: unknown; clockSeconds?: unknown; hintsUsed?: unknown; reveals?: unknown };
       return {
         status: STATUS.ok,
         body: runAnswer({
@@ -339,6 +367,10 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
           duplicate: true,
           hints,
           granted: false,
+          // A RETRY REPEATS THE FIRST ANSWER'S DECISION, and the row is where that decision lives: the run was ranked
+          // unless it records a reveal. Reading it here rather than re-deriving it is the same rule the row already
+          // holds, and it is why a client that retries does not have to be told a different story the second time.
+          ranked: !wasRevealed(typeof value.reveals === 'number' ? value.reveals : 0, 0),
           board,
           period,
           progress: null,
@@ -371,34 +403,49 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     const wasFinished = source.progress?.finished.includes(issuedIndex) ?? false;
     const finishing = source.progress ? finishDrill(source.progress, submission.drillId ?? '') : null;
     if (finishing?.kind === 'refused') return failure(STATUS.conflict, 'stale_drill', finishing.reason);
-    const finishedProgress = finishing?.kind === 'done' && !wasFinished ? finishing.progress : null;
+    // ADVANCING AND COUNTING ARE NOW TWO QUESTIONS, where they used to be one condition (DESIGN.md §15 Q16, A28).
+    // A revealed run still FINISHES the drill — the player answered it, and leaving the regime on a question whose
+    // answer they have read would trap them there, which is the problem Q5 exists to solve — and it still gets its
+    // run row, because A26's treatment of a claim it cannot verify is to KEEP it and let it count for NOTHING. What
+    // it does not get is the hint credit or a place on the board. `wasFinished` still guards the credit, so a
+    // position cannot pay twice; `revealed` guards it for the other reason.
+    const advanced = finishing?.kind === 'done' ? finishing.progress : null;
+    const revealed = wasRevealed(source.measuredReveals, source.claimedReveals);
+    const counts = advanced !== null && !wasFinished && !revealed ? advanced : null;
 
     const score = scoreWithClaim(source.facts, level, submission.claimedScore);
-    const credit = finishedProgress ? recordSuccess(hints) : { ledger: hints, granted: false };
+    const credit = counts ? recordSuccess(hints) : { ledger: hints, granted: false };
     // A HINT IS PAID FOR WHEN IT IS TAKEN (`handlers/hints.ts` debits the balance and records the event), so the run
     // must not take it a second time. This used to debit the client's claim — clamped to the balance — and that
     // debit was the cheat A23 closes: help that was never paid for. What the run does with hints is CHARGE THEIR
     // TIME (`facts.hintsUsed`, from the record), not move the balance.
     const ledger = credit.ledger;
-    const folded = foldBoard(submission.mode, board, score.score);
+    // A REVEALED DRILL IS NOT ON THE BOARD AT ALL — not a zero, not an unchanged row, but no board write: the
+    // board's Drill figure is the season's cumulative score (§6), so folding a run that did not count would put a
+    // number on the leaderboard that the rule says is not there. The Daily is folded as it always was (its board is
+    // the day's best, and a Daily has no reveal).
+    const folds = submission.mode === 'daily' || counts !== null;
+    const folded = folds ? foldBoard(submission.mode, board, score.score) : board;
     // THE BOARD ROW CARRIES THE INDEX KEYS THAT RANK IT. A board's base-table sort key is the PLAYER, so without
     // these the leaderboard cannot ask for the top scores as a bounded read (`keys.ts`'s `boardIndexKeys`). A SCORE
     // OUTSIDE THE ORDERABLE SPACE IS REFUSED rather than clamped: a clamped row would sit at the wrong rank for as
     // long as it exists, and a board that silently mis-ranks one player is worse than a write that fails loudly.
     // The ceiling is nine digits against scores this arithmetic produces in the single digits of thousands, and the
     // Drill's is CUMULATIVE over a season, which is why the bound is checked rather than assumed.
-    const ranked = boardIndexKeys(submission.mode, submission.levelIndex, period, playerId, folded.score);
-    if (ranked === null) {
+    const rankKeys = boardIndexKeys(submission.mode, submission.levelIndex, period, playerId, folded.score);
+    if (rankKeys === null) {
       return failure(STATUS.unavailable, 'unrankable_board', `a board score of ${folded.score} is outside the range this board can order (0..${SCORE_CEILING})`);
     }
 
     const writes: StoreWrite[] = [
-      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
+      { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, measuredReveals: source.measuredReveals, claimedReveals: source.claimedReveals, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
       { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: ledger.hints, successes: ledger.successes } },
-      { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { playerId, score: folded.score, runs: folded.runs, ...ranked } },
     ];
-    if (finishedProgress) {
-      writes.push({ key: progressKey(playerId, submission.levelIndex), expectedRev: source.progressRev, value: asProgressItem(finishedProgress) });
+    if (folds) {
+      writes.push({ key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { playerId, score: folded.score, runs: folded.runs, ...rankKeys } });
+    }
+    if (advanced) {
+      writes.push({ key: progressKey(playerId, submission.levelIndex), expectedRev: source.progressRev, value: asProgressItem(advanced) });
     }
     if (await deps.store.transact(writes)) {
       return {
@@ -411,9 +458,10 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
           duplicate: false,
           hints: ledger,
           granted: credit.granted,
+          ranked: !revealed,
           board: folded,
           period,
-          progress: finishedProgress ? { finished: finishedProgress.finished.length } : null,
+          progress: advanced ? { finished: advanced.finished.length } : null,
         }),
       };
     }

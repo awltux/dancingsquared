@@ -14,9 +14,8 @@
 // makes a press cheap enough to send on every click.
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps } from '../ports.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
-import { asAttempt, asAttemptItem, type Press } from '../attempt-row.ts';
+import { asAttempt, asAttemptItem, emptyAttempt } from '../attempt-row.ts';
 import { attemptKey } from '../keys.ts';
-import type { DailyMove } from '../daily-line.ts';
 import { parseDrillId } from '../drill-regime.ts';
 import { readIssuedDrill } from '../issued-drill.ts';
 import { MAX_CALL_LENGTH, MAX_PRESSES, wrongPresses } from '../press-log.ts';
@@ -68,7 +67,7 @@ export async function postDrillAnswer(request: ApiRequest, deps: Deps): Promise<
   const key = attemptKey(playerId, 'drill', drillId);
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
     const stored = await deps.store.get(key);
-    const attempt = stored ? asAttempt(stored) : { startedAtMs: null, presses: [] as Press[], moves: [] as DailyMove[], hints: [], abandonedAtMs: null };
+    const attempt = stored ? asAttempt(stored) : emptyAttempt(null);
     if (!attempt) return failure(STATUS.unavailable, 'unreadable_press_log', `the attempt row for ${drillId} is not a record this build can read`);
     if (attempt.presses.length >= MAX_PRESSES) {
       return failure(STATUS.conflict, 'press_log_full', `drill ${drillId} already holds ${MAX_PRESSES} presses, which is more than any player makes`);

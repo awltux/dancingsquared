@@ -40,6 +40,24 @@ export interface HintEvent {
   readonly atMs: number;
 }
 
+/**
+ * One reveal: a step's answer was SHOWN to the player, and the call the server named when it was.
+ *
+ * THIS IS `HintEvent`'S SHAPE ON PURPOSE. The reveal is the other thing the client can ask the server to look up, and
+ * `POST /drill/reveal` names the call from the puzzle the server issued exactly as `POST /me/hints` names one from the
+ * recorded line (A23) — so the row that records it holds the same three facts, and neither the app nor this API can
+ * disagree with the server about what was shown.
+ *
+ * DEDUPLICATED BY STEP, unlike a press: a second press of "show me the answer" on the same step shows the same call,
+ * so an event per press would make the row's length a count of a nervous hand rather than of how much help was taken
+ * (`handlers/reveal.ts`). The list is therefore bounded by the drill's own step count.
+ */
+export interface RevealEvent {
+  readonly step: number;
+  readonly call: string;
+  readonly atMs: number;
+}
+
 /** The attempt item, with every field that may be absent filled in: a row is present-and-complete or absent. */
 export interface Attempt {
   /** The Daily's start stamp (A21). Absent for a Drill, whose start is the Progress row's issue date. */
@@ -54,6 +72,8 @@ export interface Attempt {
    */
   readonly moves: readonly DailyMove[];
   readonly hints: readonly HintEvent[];
+  /** The steps whose answer was SHOWN to the player (DESIGN.md §15 Q16). Empty for a Daily, which has no reveal. */
+  readonly reveals: readonly RevealEvent[];
   /** When the player GAVE UP on a Daily (A25's accounting). Null while the attempt is live or unfinished. */
   readonly abandonedAtMs: number | null;
 }
@@ -88,6 +108,27 @@ function asHints(raw: unknown): HintEvent[] | null {
 }
 
 /**
+ * A stored row's reveals, or null when the field is not one this build can read.
+ *
+ * STRICTER THAN `asHints` IN ONE PLACE, and the difference is deliberate: a hint row written before A23's naming
+ * moved may hold `''`, which is still a hint that was paid for, but NOTHING wrote a reveal before this build, so an
+ * empty call here is corruption rather than history.
+ */
+function asReveals(raw: unknown): RevealEvent[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw)) return null;
+  const reveals: RevealEvent[] = [];
+  for (const item of raw) {
+    const reveal = item as { step?: unknown; call?: unknown; atMs?: unknown };
+    if (typeof reveal.step !== 'number' || !Number.isInteger(reveal.step) || reveal.step < 0) return null;
+    if (typeof reveal.call !== 'string' || reveal.call === '') return null;
+    if (typeof reveal.atMs !== 'number' || !Number.isFinite(reveal.atMs)) return null;
+    reveals.push({ step: reveal.step, call: reveal.call, atMs: reveal.atMs });
+  }
+  return reveals;
+}
+
+/**
  * A stored row as an attempt, or null when it is not one this build can read.
  *
  * NULL MEANS "UNREADABLE", NOT "ABSENT": the callers distinguish them, because "this player never started" is a
@@ -104,6 +145,8 @@ export function asAttempt(stored: StoredItem): Attempt | null {
   if (!moves) return null;
   const hints = asHints(value.hints);
   if (!hints) return null;
+  const reveals = asReveals((stored.value as { reveals?: unknown }).reveals);
+  if (!reveals) return null;
   const abandoned = (stored.value as { abandonedAtMs?: unknown }).abandonedAtMs;
   if (abandoned !== undefined && abandoned !== null && (typeof abandoned !== 'number' || !Number.isFinite(abandoned))) return null;
   return {
@@ -111,6 +154,7 @@ export function asAttempt(stored: StoredItem): Attempt | null {
     presses,
     moves,
     hints,
+    reveals,
     abandonedAtMs: typeof abandoned === 'number' ? abandoned : null,
   };
 }
@@ -127,8 +171,24 @@ export function asAttemptItem(attempt: Attempt): Record<string, unknown> {
     presses: attempt.presses.map((press) => ({ step: press.step, call: press.call, atMs: press.atMs })),
     moves: asDailyMoveItems(attempt.moves),
     hints: attempt.hints.map((hint) => ({ step: hint.step, call: hint.call, atMs: hint.atMs })),
+    reveals: attempt.reveals.map((reveal) => ({ step: reveal.step, call: reveal.call, atMs: reveal.atMs })),
     ...(attempt.abandonedAtMs === null ? {} : { abandonedAtMs: attempt.abandonedAtMs }),
   };
+}
+
+/**
+ * A row with nothing recorded yet, for a writer that has just read nothing.
+ *
+ * WHY THIS EXISTS: three writers create this item when their key is absent — `handlers/answer.ts`,
+ * `handlers/reveal.ts` and `startAttempt` below — and the failure this module's header records is exactly that a
+ * writer which spelled the shape out for itself DROPPED a field a sibling held. One literal means a field added here
+ * cannot be forgotten by a caller; a fourth copy of the shape is how `reveals` would go missing from one of them.
+ *
+ * `startedAtMs` IS A PARAMETER rather than always-null, because the two kinds of row differ: a Daily's stamp is the
+ * clock A21 scores it on, and a Drill's is absent because the Progress row holds the issue date instead.
+ */
+export function emptyAttempt(startedAtMs: number | null): Attempt {
+  return { startedAtMs, presses: [], moves: [], hints: [], reveals: [], abandonedAtMs: null };
 }
 
 /**
@@ -139,9 +199,7 @@ export function asAttemptItem(attempt: Attempt): Record<string, unknown> {
  * until someone re-read the challenge before submitting.
  */
 export function startAttempt(existing: Attempt | null, nowMs: number): { attempt: Attempt; write: boolean } {
-  return existing
-    ? { attempt: existing, write: false }
-    : { attempt: { startedAtMs: nowMs, presses: [], moves: [], hints: [], abandonedAtMs: null }, write: true };
+  return existing ? { attempt: existing, write: false } : { attempt: emptyAttempt(nowMs), write: true };
 }
 
 /**

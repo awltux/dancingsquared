@@ -28,6 +28,16 @@ export interface RunSubmission {
   readonly hintsUsed: number;
   /** Wrong answers taken. The Drill's own cost (§6); zero for the Daily, which is not scored on attempts. */
   readonly attempts: number;
+  /**
+   * How many steps' answers the client says were SHOWN to the player — the Drill's "show me the answer" (§15 Q16).
+   *
+   * AN AUDIT INPUT THAT POINTS THE SAFE WAY, which is why it is honoured rather than refused. The server records its
+   * own reveals (`POST /drill/reveal`), so a claim BELOW the record changes nothing and a claim ABOVE it can only
+   * cost the claimant — the same doctrine `attempts` states, in the opposite direction: claiming FEWER wrong tries
+   * lowers a score and is honoured, claiming MORE is ignored because the log is the count. Here the harmful direction
+   * is claiming MORE reveals, so a claim is never refused and never needed: `wasRevealed` is the union.
+   */
+  readonly reveals: number;
   /** The Drill: one call per step, the answer the player committed. The Daily: the whole line. */
   readonly calls: readonly string[];
   /** The client's claimed score, clamped. Absent or non-numeric means "whatever you compute". */
@@ -85,6 +95,10 @@ export function parseRunSubmission(body: unknown): { ok: true; submission: RunSu
   if (typeof attempts !== 'number' || !Number.isInteger(attempts) || attempts < 0) {
     return bad('bad_attempts', 'attempts must be a non-negative integer');
   }
+  const reveals = raw['reveals'] ?? 0;
+  if (typeof reveals !== 'number' || !Number.isInteger(reveals) || reveals < 0) {
+    return bad('bad_reveals', 'reveals must be a non-negative integer');
+  }
   const calls = raw['calls'];
   if (!Array.isArray(calls) || calls.some((call) => typeof call !== 'string')) {
     return bad('bad_calls', 'calls must be an array of call titles');
@@ -107,6 +121,7 @@ export function parseRunSubmission(body: unknown): { ok: true; submission: RunSu
       clockSeconds,
       hintsUsed,
       attempts,
+      reveals,
       calls: calls as string[],
       claimedScore: typeof claimed === 'number' && Number.isFinite(claimed) ? claimed : null,
     },
@@ -149,6 +164,23 @@ export function scoreWithClaim(facts: VerifiedRun, level: LevelSpec, claim: numb
 export function debitHints(ledger: HintLedger, hintsUsed: number): HintLedger {
   const spendable = Math.min(hintsUsed, ledger.hints);
   return spendable === 0 ? ledger : { ...ledger, hints: ledger.hints - spendable };
+}
+
+/**
+ * Whether this run's answer was SHOWN to the player, from either side's word (DESIGN.md §15 Q16, §11.1 A28).
+ *
+ * THE UNION IS THE RULE, AND THE ALTERNATIVES ARE BOTH WRONG IN A WAY THAT COSTS SOMETHING REAL:
+ *   * the RECORD alone (`measured > 0`) ranks a run whose reveal the server never received — a dropped POST, a tab
+ *     closed between the button and the submission — which pays the player a hint for an answer they read. MEASURED
+ *     in `api/test/reveal-probe.mjs`, which drives exactly that: the app claims one reveal and the row holds none.
+ *   * the CLAIM alone (`claimed > 0`) ranks a run from a client that simply does not send the field — which is the
+ *     defect being closed, since the whole point is that the app's own button used to leave no trace.
+ * So either source saying "shown" is enough, and neither can be talked out of it. The claim can only ADD: a client
+ * that claims a reveal it never took pays for it in standing, which is why this needs no refusal and no validation
+ * beyond "a non-negative integer" (§6: anything a score depends on is the server's, and everything else is audited).
+ */
+export function wasRevealed(measuredReveals: number, claimedReveals: number): boolean {
+  return measuredReveals > 0 || claimedReveals > 0;
 }
 
 /**
@@ -199,6 +231,10 @@ export interface RunRecordParts {
   readonly measuredHints: number;
   /** What the client claimed it spent on hints. */
   readonly claimedHints: number;
+  /** How many steps' answers the SERVER recorded as shown (`POST /drill/reveal`), which is what taints the run. */
+  readonly measuredReveals: number;
+  /** What the client claimed was shown. Kept beside the record so a lost event is visible rather than silent. */
+  readonly claimedReveals: number;
   readonly score: number;
   readonly scoreVersion: number;
   readonly nowMs: number;
@@ -212,7 +248,9 @@ export interface RunRecordParts {
  * hint-charged `elapsedSeconds`, because the charge is arithmetic over two fields and storing the sum would make
  * it un-recomputable when `HINT_PENALTY_SECONDS` is retuned. `claimedSeconds` is what the client said, kept
  * beside it so the two can be compared after the fact (A25's audit) and so a clamp has a number to be explained
- * with.
+ * with. `reveals` and `claimedReveals` are the same pair for A28, and they are the reason a run whose row holds a
+ * score may have bought nothing: the row records what was shown, and the rule that a shown answer is not ranked
+ * lives in `wasRevealed` above.
  */
 export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
   const { submission } = parts;
@@ -229,6 +267,8 @@ export function asRunItem(parts: RunRecordParts): Record<string, unknown> {
     attempts: parts.measuredAttempts,
     claimedAttempts: parts.claimedAttempts,
     claimedHints: parts.claimedHints,
+    reveals: parts.measuredReveals,
+    claimedReveals: parts.claimedReveals,
     calls: submission.calls,
     score: parts.score,
     scoreVersion: parts.scoreVersion,

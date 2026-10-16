@@ -727,10 +727,11 @@ read-only, then sign in to be ranked*.
 | `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
+| `POST /drill/reveal` | Drill | That one step's answer was SHOWN to this player (§15 Q16, A28): the step, and the call the server looks up from the puzzle it issued — the same expression A22's verdict and §11's transcript check use, so one position has one answer. **Recorded as an event and not as a press**, because a reveal is not an answer the player committed; deduplicated by step, because a second press of the same button shows the same call. It scores nothing itself, and it is what stops the run it finishes from counting. |
 | `POST /daily/move` | Daily | One move, undo or redo, recorded for the same reason (A22): the Daily's line and its length become the server's record rather than the submission's claim. |
 | `POST /me/hints` | Daily | Spend a hint (§11.1 A23): the server debits the balance and records the spend against the challenge's attempt row, answering with the balance AND the call it named. **Both are the server's** — the spend is the anti-cheat part, and the NAME comes from §10's look-up over the recorded line (A22), which is the board the player is actually on. A spend that can name nothing is refused (`nothing_to_name`) before the balance moves. |
 | `POST /daily/abandon` | Daily | Give up today's challenge (A25's accounting): the attempt is stamped as abandoned, ONCE (a second call keeps the first stamp), and it does NOT bar a later submission — the app lets a player replay both lines, and an abandonment is a fact about the attempt. The hint an abandoned run owes is no longer debited here: A23 moved the debit to the moment a hint is taken, which is strictly better. |
-| `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts` and `hintsUsed` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22) and debits the third (A23). The server re-derives which option was correct at each step rather than trusting the client's claim about it. |
+| `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts`, `hintsUsed` and `reveals` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22), debits the third (A23) and has its own record of the fourth (A28). The server re-derives which option was correct at each step rather than trusting the client's claim about it, and it answers with `run.ranked`, which is the server's own word about whether the run counted. |
 | `POST /me/runs:bulk` | both | Import a device's local ledger as **unranked history** (A26): one `history#<playerId>` row per run, marked `unverified`, and NOTHING ELSE — no board, no hints, no progress, and no row in the results partition. A run already imported is SKIPPED rather than rewritten, so a second import claiming a better score for the same id changes no number. |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period |
 
@@ -916,9 +917,14 @@ claiming `0.1 s` also scores **100**, because `timeFactor` stops at 1.
 | **A25 — accountability is recorded.** | Every accepted or refused run stores what was measured and what was claimed plus its flags, and increments a bounded `abuse#<playerId>` counter. The gateway throttles per player, and a refusal-rate alarm is the operator's signal that someone is probing. |
 | **A26 — the bulk claim is HISTORY, not rank.** | A device's local ledger may be imported only as `unverified` rows that count for nothing — no board, no hints, no progress — because a run the server never issued cannot be verified. This amends decision 6: the anonymous ledger is kept, and it buys no standing. |
 | **A27 — local development never needs a provider, and never reaches production.** | Three identity modes (§11.2). `dev` is refused when the environment is production. |
+| **A28 — a shown answer is recorded, and it buys nothing.** | `POST /drill/reveal` records that one step's answer was SHOWN, naming the call from the puzzle the server issued (the same expression A22's verdict uses), deduplicated by step and never recorded as a press. A drill finished with any reveal recorded is **kept and counted for nothing**: no hint credit, no board entry at all (not a zero), and the regime still advances, because leaving a player on a question they have read is the trap Q5 exists to solve. The submission's `reveals` is an AUDIT input and the rule takes the **union** of the two sources — either one saying "shown" is enough, because the record alone ranks a run whose reveal POST was lost and the claim alone ranks a client that never sends one. |
 
 **Known limits, stated rather than dressed up as defences.** (1) Automation that plays correctly earns at most a
-**par** score — but it earns it every time, and no submission can prove a human made it. (2) The information a
+**par** score — but it earns it every time, and no submission can prove a human made it. **A28 IS INSIDE THIS LIMIT
+AND DOES NOT SHRINK IT**: a client that plays the puzzle itself can simply never post a reveal, exactly as it can play
+perfectly, and no submission can tell the difference. What A28 closes is the app's OWN button minting currency —
+press "show me the answer", press the call you were told, earn a tenth of a hint — which is a defect in the honest
+path rather than a defence against a modified client. (2) The information a
 hint reveals is derivable from the puzzle the client was served, so a modified client can skip the 60-second
 penalty; the mitigation is that a hint buys time, not score beyond the par ceiling, and the recorded spend is what
 the honest path charges. (3) The Daily's seed is a public function of the date (`puzzle/daily.ts`), so a published
@@ -1008,6 +1014,26 @@ list rather than a literal, and whose negative control is the rule this replaced
 for a name the client held). §11.1's known limit 2 still stands and is unchanged: the information a hint reveals is
 derivable from the puzzle the client was served, so the naming is a fairness feature and the SPEND is the defence.
 What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
+
+**A28's rule is now the server's, and it is the last of the hint family.** "Show me the answer" names the call and
+dances it, and the player still presses it — so before this, pressing the app's own button and then pressing the call
+it named earned a normal success, and ten of those mints a hint. The design carried it as an open question (§15 Q16)
+precisely because the LEDGER had to know: the hint balance is the server's (A23), so the fact had to reach the server,
+and a fact the server did not witness is not a fact — which is why it is an EVENT (`POST /drill/reveal`, deduplicated
+by step, never recorded as a press) rather than a field. The run it finishes is KEPT and counted for NOTHING, which is
+A26's treatment of a run the server cannot verify and the honest shape of "you may finish, you may not be paid": no
+hint credit, **no board row at all** rather than a zero on one, and the regime still advances, because leaving a
+player on a question whose answer they have read is the trap Q5 exists to solve. **MEASURED in
+`api/test/reveal-probe.mjs` (39 checks)**: the same drill, the same presses and the same balance one success short of a
+grant, submitted by two players — the one who asked to be shown a step finishes holding **0** hints with **no board
+row**, while the one who did not holds **1** and is on the board with **25**; a run whose reveal POST was lost but
+which CLAIMS one scores **0** hints either, with the disagreement left on the row as recorded **0** beside claimed
+**1**. Each wrong rule is measured to fail exactly the case that rules it out: the record alone fails only the lost-POST
+case, the claim alone only the claim-less client. And the fix is measured by removing it — dropping `!revealed` from
+the credit condition fails **exactly four** checks and nothing else (the two credit checks and the two board checks in
+both directions). **THE APP DOES NOT OBEY IT YET**, which is the honest state of this commit: `review()` still presses
+a correct answer as an ordinary one, no reveal is posted and no claim is sent, so the API enforces a rule the client
+does not yet follow. What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
@@ -1822,7 +1848,11 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     difficulty is that the LEDGER has to know the puzzle was revealed, which means the revealed flag has to
     reach the server with the run. DESIGN.md 11 already puts hint-earning on the server, so the transcript
     needs one more field rather than a new mechanism. Nothing in Phase 3 depends on the answer: the review
-    scores what a correct answer scores, and the server clamps it from Phase 5 either way.
+    scores what a correct answer scores, and the server clamps it from Phase 5 either way. **THE SERVER HALF HAS
+    LANDED (A28, §11.1): the recommendation is taken — a revealed drill is kept and counted for nothing, with no
+    board row and no hint, and the regime still advances. What is left is the client: the app must post the reveal
+    (`POST /drill/reveal`), declare it on the run, and stop crediting a revealed drill against its own offline ledger.
+    Until that lands, the API enforces a rule the app does not follow.**
 17. **How many drills are in a season, and how does a season end?** Unchanged from Q4/Q3 above; Phase 3 left
     the fixture's twelve drills wrapping round, which is a demo of a regime rather than a regime.
 18. **Can a player make the device forget them? — DECIDED AND IMPLEMENTED.** Phase 4 kept the regime, the balance and

@@ -20,6 +20,7 @@ import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } fro
 import { progressKey } from '../src/keys.ts';
 import { levelAt, optionLabels, puzzleFor } from '../src/levels.ts';
 import { startDevServer } from '../src/dev-server.ts';
+import { devIdentityOf } from '../src/auth/identity.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 import { MAIN_POOL, levelSpec } from 'dancing-squared-game';
@@ -35,12 +36,19 @@ const LEVEL = 1;
 const SEEDS = LOCAL_SCHEDULE.filter((entry) => entry.levelIndex === LEVEL).map((entry) => entry.seed);
 const CLOCK = 1_700_000_000_000;
 
-/** The three ports, with the local choices: a fixed clock and the header as the identity. */
+/**
+ * THE IDENTITY ADAPTER IS IMPORTED, NOT RE-SPELLED. What "a header names a player" means is `devIdentityOf`'s
+ * business; a probe with its own copy of that rule keeps passing after the adapter changes, and the id it writes
+ * a fixture row under would silently stop matching the id the handler uses.
+ */
 const depsFor = (store, nowMs = CLOCK) => ({
   store,
   clock: { nowMs: () => nowMs },
-  playerIdOf: (request) => request.headers['x-dev-player'] ?? null,
+  identityOf: devIdentityOf,
 });
+/** The player id the dev adapter gives a name, so a probe's key is the handler's key. */
+const devId = (name) => devIdentityOf({ headers: { 'x-dev-player': name } }).playerId;
+const progressRow = (name, level = LEVEL) => progressKey(devId(name), level);
 
 const get = (player, level = LEVEL) => ({
   method: 'GET',
@@ -195,7 +203,7 @@ console.log('\n== 4. a drill whose pool has moved is RE-ISSUED, not served ==');
     issued: { id: drillId(LEVEL, 0), index: 0, seed: 7, poolVersion: 'ms-0', issuedAtMs: CLOCK - 90_000 },
     finished: [],
   };
-  await store.put(progressKey('p4', LEVEL), stale, null);
+  await store.put(progressRow('p4', LEVEL), stale, null);
   const served = (await drillCurrent(get('p4'), deps)).body.drill;
   check(served.seed === SEEDS[0] && served.poolVersion === MAIN_POOL.version, `the seed comes from the current schedule (${served.seed}, pool ${served.poolVersion})`);
   check(served.issuedAtMs === CLOCK + 60_000, `and it was issued now rather than carried over (${served.issuedAtMs})`);
@@ -250,8 +258,13 @@ console.log('\n== 7. refusals: what is refused, and what a refusal changes ==');
   await seedLocalRegimes(store);
   const deps = depsFor(store);
 
+  // THE READ IS A DEMO, NOT A REFUSAL, AND IT IS THE POSITIVE FORM OF THE SAME CHECK: the drill is served, no
+  // Progress row is written for a caller the server cannot name, and the body says which of the two it is
+  // (DESIGN.md 11.1 A20). The old check here asserted a 401 and had to be rewritten when the demo landed — which
+  // is the check doing its job.
   const anonymous = await drillCurrent(get(null), deps);
-  check(anonymous.status === STATUS.unauthenticated, `a request with no player id is refused (${anonymous.status})`);
+  check(anonymous.status === STATUS.ok && anonymous.body.demo === true, `a request with no player id is served as a demo (${anonymous.status}, demo=${anonymous.body.demo})`);
+  check((await store.get(progressRow('p7', LEVEL))) === null, 'and it wrote NO progress row, because there is no player to key one on');
 
   for (const [query, why] of [[{ level: 'x' }, 'not a number'], [{ level: '0' }, 'zero'], [{}, 'absent']]) {
     const answer = await drillCurrent({ ...get('p7'), query }, deps);
@@ -274,7 +287,7 @@ console.log('\n== 7. refusals: what is refused, and what a refusal changes ==');
   // A ROW THIS BUILD CANNOT READ IS REFUSED RATHER THAN SILENTLY EMPTIED — the alternative would reset a
   // player's progress and look like it had never been written. MEASURED on both sides of the line: the
   // refusal, and the row still being there with its revision untouched.
-  const corrupt = progressKey('p7', LEVEL);
+  const corrupt = progressRow('p7', LEVEL);
   await store.put(corrupt, { levelIndex: LEVEL, finished: ['zero'], issued: null }, null);
   const before = await store.get(corrupt);
   const answer = await drillCurrent(get('p7'), deps);
@@ -292,7 +305,7 @@ console.log('\n== 8. two requests cannot issue two drills, and a lost race retri
   const [a, b] = await Promise.all([drillCurrent(get('p8'), deps), drillCurrent(get('p8'), deps)]);
   check(a.status === STATUS.ok && b.status === STATUS.ok, `both concurrent requests are answered (${a.status}, ${b.status})`);
   check(a.body.drill.id === b.body.drill.id && a.body.drill.issuedAtMs === b.body.drill.issuedAtMs, `and they agree on ONE issued drill (${a.body.drill.id}, ${a.body.drill.issuedAtMs})`);
-  check((await store.get(progressKey('p8', LEVEL))).value.issued.id === a.body.drill.id, 'and the stored row holds exactly that one');
+  check((await store.get(progressRow('p8', LEVEL))).value.issued.id === a.body.drill.id, 'and the stored row holds exactly that one');
 
   // A LOST COMPARE-AND-SET IS RETRIED, not surfaced: the store below refuses the first write, which is what
   // another writer moving first looks like, and the player still gets a drill. THE SEEDING GOES STRAIGHT TO
@@ -304,7 +317,10 @@ console.log('\n== 8. two requests cannot issue two drills, and a lost race retri
   const contended = spy(contendedInner, 1);
   const retried = await drillCurrent(get('p9'), depsFor(contended.store));
   check(retried.status === STATUS.ok && retried.body.drill !== null, `a lost race is retried and still answered (${retried.status})`);
-  const progressReads = contended.state.readsByPk['progress#p9'] ?? 0;
+  // THE KEY COMES FROM `progressRow`, NOT FROM A STRING LITERAL, and this check is why: the row's key carries the
+  // identity namespace, so a literal `progress#p9` silently counted zero reads and the check read as a retry that
+  // never happened (MEASURED: `0 reads of it, 1 loss`).
+  const progressReads = contended.state.readsByPk[progressRow('p9').pk] ?? 0;
   check(contended.state.losses === 1 && progressReads === 2, `and the progress row was read again after losing (${progressReads} reads of it, ${contended.state.losses} loss)`);
 
   // AND A ROW THAT KEEPS LOSING IS REPORTED RATHER THAN LOOPED ON: three attempts, then a 409.
@@ -318,7 +334,9 @@ console.log('\n== 8. two requests cannot issue two drills, and a lost race retri
 
 console.log('\n== 9. the local server, over a real socket ==');
 {
-  const server = await startDevServer({ port: 0 });
+  // THE MODE IS NAMED RATHER THAN INHERITED: a probe that took the default would be testing a different mode the
+  // day the default changed, and this section is about the `dev` adapter's two spellings.
+  const server = await startDevServer({ port: 0, auth: 'dev' });
   const base = `http://127.0.0.1:${server.port}`;
   const call = async (path, options = {}) => {
     const response = await fetch(`${base}${path}`, options);
@@ -332,13 +350,27 @@ console.log('\n== 9. the local server, over a real socket ==');
     // pinned is that the routes served are named and that some of the six planned ones are still to come.
     check(health.body.endpoints.includes('GET /drill/current') && health.body.endpoints.includes('POST /drill/advance'), `and names the routes it serves (${health.body.endpoints.join(', ')})`);
     check(health.body.endpoints.length < health.body.planned, `out of ${health.body.planned} planned, so the gap is visible here`);
+    check(health.body.auth?.mode === 'dev', `and names the identity mode it was started in (${health.body.auth?.mode})`);
 
+    // A SIGNED-OUT CALLER GETS THE DRILL AS A DEMO, NOT A 401 (DESIGN.md 11.1 A20 / 11.2). It is the SAME drill
+    // the first identified player is about to be served, because a demo reads the regime and the order and
+    // nothing else — and the body says so, which is what the client marks the run unranked with.
     const anonymous = await call('/drill/current?level=1');
-    check(anonymous.status === 401, `a request with no identity is a 401 (${anonymous.status})`);
+    check(anonymous.status === 200 && anonymous.body.demo === true, `a request with no identity is served the drill as a demo (${anonymous.status}, demo=${anonymous.body.demo})`);
+    check(anonymous.body.drill?.id === drillId(LEVEL, 0), `and it is the season's first drill, exactly as an identified player's first is (${anonymous.body.drill?.id})`);
+
+    // THE WRITE IS WHERE THE WALL IS. The demo can read; it cannot claim anything, and this is the 401 that says so.
+    const demoAdvance = await call('/drill/advance', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ drillId: anonymous.body.drill.id }),
+    });
+    check(demoAdvance.status === 401, `and a write with no identity is a 401 (${demoAdvance.status} ${demoAdvance.body.error?.code ?? ''})`);
 
     const headers = { 'x-dev-player': 'e2e' };
     const first = await call('/drill/current?level=1', { headers });
     check(first.status === 200 && first.body.drill.id === drillId(LEVEL, 0), `and one with an identity gets the first drill (${first.body.drill?.id})`);
+    check(first.body.demo === undefined, 'with no demo flag, because this answer is a stored one');
 
     const bearer = await call('/drill/current?level=1', { headers: { authorization: 'Bearer dev:e2e' } });
     check(bearer.status === 200 && bearer.body.drill.id === first.body.drill.id, 'the bearer spelling names the same player (a browser test and a curl are the two ways in)');

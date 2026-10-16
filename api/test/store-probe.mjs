@@ -93,8 +93,10 @@ async function contract(name, store, unconditional) {
   check((await store.get(key)).value.levelIndex === 9, 'what `get` returned is a copy: mutating it does not write through');
 
   // NESTED STRUCTURES, because a rendered board or a move list will be one, and a store that only round-trips
-  // flat scalars would fail in production rather than here.
-  const nested = { moves: ['Allemande Left', 'Boys Run'], flags: { solved: false, attempts: 3 }, ratio: 0.25, nothing: null };
+  // flat scalars would fail in production rather than here. `sessions` IS A LIST OF MAPS ON PURPOSE: the
+  // emulator's account row holds its live refresh-token ids that way (`auth#<email>`), so the one shape an
+  // account needs is pinned on BOTH stores here rather than assumed from the list-of-strings beside it.
+  const nested = { moves: ['Allemande Left', 'Boys Run'], flags: { solved: false, attempts: 3 }, sessions: [{ id: 'a', at: 1 }], ratio: 0.25, nothing: null };
   check((await store.put(key, nested, 2)) === true, 'a nested value can be written');
   check(stable((await store.get(key)).value) === stable(nested), `and round-trips exactly (${JSON.stringify((await store.get(key)).value)})`);
 

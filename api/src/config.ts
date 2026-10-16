@@ -20,7 +20,34 @@ export interface Config {
   readonly region: string;
   /** The dev server's port. */
   readonly port: number;
+  /**
+   * How a request's identity is established (DESIGN.md 11.2). The one setting that decides whether a header can
+   * name a player, so it is read once here and never at a point of use.
+   */
+  readonly auth: AuthMode;
+  /** Whether this configuration believes it is production. Only `authRefusal` reads it, and it is the guard. */
+  readonly environment: 'development' | 'production';
+  /** The one origin allowed by CORS, or null for the development server's `*`. */
+  readonly corsOrigin: string | null;
+  /** The emulator's signing secret. Null means "mint one for this process", which invalidates tokens on restart. */
+  readonly authSecret: string | null;
+  /** Whether the emulator's signup requires a confirmation code (`DSQ_AUTH_CONFIRM=1`). */
+  readonly confirmAccounts: boolean;
+  /** The expected `iss` of a deployed token, and its audience. Both are required by `authRefusal` in cognito mode. */
+  readonly cognitoIssuer: string | null;
+  readonly cognitoAudience: string | null;
+  /** A JWKS document on disk, so the cognito path can be driven without a pool. The deployment fetches it instead. */
+  readonly cognitoJwksFile: string | null;
 }
+
+/**
+ * The identity modes of DESIGN.md 11.2.
+ *
+ * `dev` IS A DEVELOPMENT MODE AND NOT A FALLBACK: it trusts `x-dev-player`, so it is refused in production and
+ * against a real endpoint (`authRefusal`). `emulate` signs and verifies real JWTs locally so the sign-in feature
+ * is testable with no provider. `cognito` verifies a token against the pool's keys and is what a deployment uses.
+ */
+export type AuthMode = 'dev' | 'emulate' | 'cognito';
 
 /** The AWS region used when nothing says otherwise. `eu-west-2` because that is where the book deploys. */
 export const DEFAULT_REGION = 'eu-west-2';
@@ -67,22 +94,71 @@ export function devServerRefusal(config: Config, env: Record<string, string | un
 }
 
 /**
+ * Why this identity configuration must not run, or null when it may.
+ *
+ * MEASURED AND IT IS THE POINT OF THE WHOLE FILE (AGENTS.md §8 trap 23): the dev adapter accepts
+ * `x-dev-player: <anyone>` as that player, so against a real store ANY caller who can reach the port owns that
+ * player's progress, hints and board. The rule is therefore not "warn" but "do not start", with the same shape
+ * as `realServiceWarning` — and for the same reason, which is that a developer's default is a local container
+ * while a credential chain's default is production.
+ *
+ * `DSQ_ENV=production` IS THE OPERATOR'S ASSERTION and it is what makes a real endpoint unnecessary: a
+ * deployment behind a domain may have no `DSQ_DDB_ENDPOINT` at all, and inferring production from the absence of
+ * one would be exactly wrong. Both checks are kept because they fail in different directions — the environment
+ * catches a misconfigured deploy, and the endpoint catches a local run pointed at a real table.
+ *
+ * COGNITO MODE WITHOUT A POOL IS REFUSED HERE TOO. A verifier with no issuer and no audience would accept a
+ * token signed by anyone who guessed the shape, which is worse than not starting.
+ */
+export function authRefusal(config: Config, env: Record<string, string | undefined> = process.env): string | null {
+  if (config.auth === 'dev') {
+    if (config.environment === 'production') {
+      return 'DSQ_AUTH=dev trusts the x-dev-player header, so ANY caller could name any player: use DSQ_AUTH=cognito in production';
+    }
+    const real = realServiceWarning(config, env);
+    if (config.store === 'dynamodb' && real) return `DSQ_AUTH=dev against the real service is refused — ${real}`;
+    return null;
+  }
+  if (config.auth === 'cognito') {
+    const missing = [
+      ...(config.cognitoIssuer ? [] : ['DSQ_COGNITO_ISSUER']),
+      ...(config.cognitoAudience ? [] : ['DSQ_COGNITO_AUDIENCE']),
+    ];
+    if (missing.length) return `DSQ_AUTH=cognito needs ${missing.join(' and ')}: without them the verifier would accept a token from anywhere`;
+  }
+  return null;
+}
+
+/**
  * Read the configuration.
  *
  * `DSQ_STORE=dynamodb` ALONE DOES NOT POINT AT AWS. With no `DSQ_DDB_ENDPOINT` the SDK resolves the real
  * service for the region — which is what a deployed function wants and what a developer must ask for
  * explicitly, since the local compose file is the default way to run this store. That asymmetry is deliberate:
  * a typo in an endpoint is a local annoyance, while a missing endpoint in production is an outage.
+ *
+ * `DSQ_AUTH` DEFAULTS TO `dev` AND THAT IS A DELIBERATE DEFAULT FOR A LOCAL TOOL, which is why it is refused
+ * everywhere it could matter rather than unset everywhere: the ordinary local run has to work with no setup
+ * (that is the requirement that produced the emulator), and the guard, not the default, is what keeps it local.
  */
 export function configFromEnv(env: Record<string, string | undefined> = process.env): Config {
   const store = env['DSQ_STORE'] === 'dynamodb' ? 'dynamodb' : 'memory';
   const port = Number(env['DSQ_PORT'] ?? 8090);
+  const auth = env['DSQ_AUTH'];
   return {
     store,
     table: env['DSQ_TABLE'] ?? DEFAULT_TABLE,
     endpoint: env['DSQ_DDB_ENDPOINT'] ?? null,
     region: env['DSQ_REGION'] ?? DEFAULT_REGION,
     port: Number.isFinite(port) && port >= 0 ? port : 8090,
+    auth: auth === 'emulate' || auth === 'cognito' ? auth : 'dev',
+    environment: env['DSQ_ENV'] === 'production' ? 'production' : 'development',
+    corsOrigin: env['DSQ_CORS_ORIGIN'] ?? null,
+    authSecret: env['DSQ_AUTH_SECRET'] ?? null,
+    confirmAccounts: env['DSQ_AUTH_CONFIRM'] === '1',
+    cognitoIssuer: env['DSQ_COGNITO_ISSUER'] ?? null,
+    cognitoAudience: env['DSQ_COGNITO_AUDIENCE'] ?? null,
+    cognitoJwksFile: env['DSQ_COGNITO_JWKS_FILE'] ?? null,
   };
 }
 

@@ -42,3 +42,13 @@ export const boardKey = (mode: 'drill' | 'daily', levelIndex: number, period: st
 
 /** One level's published challenge for one UTC day, written by the boundary job (DESIGN.md 11). */
 export const publishedDailyKey = (levelIndex: number, day: string): ItemKey => ({ pk: `daily#${levelIndex}`, sk: `date#${day}` });
+
+/**
+ * One player's account, keyed by the email they sign in with (DESIGN.md 11.2).
+ *
+ * THE EMAIL IS THE KEY BECAUSE IT IS THE ONLY THING A SIGN-IN HAS. The player id is inside the item, so a
+ * `signin` is one read by the handle the caller typed; a key shaped the other way round would need a lookup by
+ * value, which this store deliberately has no operation for (ports.ts). The email is normalised (trimmed and
+ * lowercased) by the emulator BEFORE this is called, so `Alice@x` and `alice@x` cannot become two accounts.
+ */
+export const accountKey = (email: string): ItemKey => ({ pk: `auth#${email}`, sk: 'account' });

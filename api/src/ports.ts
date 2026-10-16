@@ -74,15 +74,31 @@ export interface Clock {
   nowMs(): number;
 }
 
+/** How a caller's identity was established. The three modes of DESIGN.md 11.2, named where they are produced. */
+export type IdentitySource = 'dev' | 'emulator' | 'cognito';
+
 /**
- * Who is asking.
+ * Who is asking, and on what authority.
  *
- * ONE STRING, TWO SOURCES, AND THE ENDPOINTS DO NOT CARE WHICH. A signed-in player is their Cognito `sub`; an
- * anonymous one is a device id, because the Drill is the funnel and must work with no account (DESIGN.md 8).
- * That is why this returns a plain player id rather than an "authenticated" flag: the difference between the
- * two lives in what they are allowed to CLAIM (the score board), not in what they are allowed to play.
+ * IT IS AN OBJECT RATHER THAN A STRING BECAUSE THE AUTHORITY IS PART OF THE ANSWER. MEASURED, and it is the
+ * whole of §11.1: this port used to return a bare `string`, and the dev adapter returned `dev:<name>` for any
+ * request that carried `x-dev-player` — so a caller who could reach the port owned whatever player they named,
+ * with that player's progress, hints and board, and nothing in the type or the code said which of the two it
+ * had got. The source is now carried beside the id, so a probe can tell a header-derived identity from a
+ * verified one and assert that a token mode produced the second; §11.1's audit row (A25) records the same field
+ * when the refusal counters land.
+ *
+ * IT IS STILL NOT AN "AUTHENTICATED" FLAG. Whether a source is acceptable for a write is the adapter's
+ * decision — the `dev` adapter is only ever built in development mode, and the token adapters never look at a
+ * request header at all — so a handler asks "is there an identity" and gets the same answer in every mode.
  */
-export type PlayerIdOf = (request: ApiRequest) => string | null;
+export interface Identity {
+  readonly playerId: string;
+  readonly source: IdentitySource;
+}
+
+/** The identity of a request, or null when the request proved none. */
+export type IdentityOf = (request: ApiRequest) => Identity | null;
 
 /** A request as the handlers see it: no socket, no event shape, no framework. */
 export interface ApiRequest {
@@ -110,7 +126,7 @@ export interface ApiResult {
 export interface Deps {
   readonly store: ItemStore;
   readonly clock: Clock;
-  readonly playerIdOf: PlayerIdOf;
+  readonly identityOf: IdentityOf;
 }
 
 /** A handler: a pure-ish function of a request and its dependencies. */

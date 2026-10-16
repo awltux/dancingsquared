@@ -863,16 +863,19 @@ information model rather than to its security.
 **Enforcement status, because a rule that is only written down is not a rule.** What is already true in the code:
 the transcript is verified by regeneration (`handlers/runs.ts`), the score is clamped (`runs.ts:scoreWithClaim`),
 the run row is created inside the same transaction as its effects so a retry cannot double-count, an issued drill
-is locked, and the hint CREDIT is the server's own record of finished drills. What is not yet true, and the stage
-that lands it (AGENTS.md §0: one change, one commit):
+is locked, the hint CREDIT is the server's own record of finished drills, and — since §11.2 landed — an identity is
+a VERIFIED token or an absent one (`auth/identity.ts`: the token adapters have no expression that reads a request
+header), a signed-out read is a demo that writes nothing, and every write is a `401`
+(`api/test/auth-probe.mjs`, 76 checks, 7 of them negative controls). What is not yet true, and the stage that lands
+it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
-| A20 identity verified; reads write nothing | handlers require *some* identity, and the dev adapter accepts an unsigned `x-dev-player` header (`dev-server.ts`) | identity modes (§11.2) |
+| A20's client half | the server serves the demo and refuses the writes; the app still shows its own local progress and has no sign-in surface | the app's sign-in and its unranked marking |
 | A21 the clock is the server's | the Drill refuses a claim **above** the wall time but scores the claim below it; the Daily has only a 24-hour bound | server-measured time |
 | A22 attempts counted | `attempts` is read from the submission | `POST /drill/answer` |
 | A23 hint spend is an event | the balance is the server's, the spend is claimed (`§15 Q19`) | `POST /me/hints` |
-| A25 audit and throttling | nothing recorded beyond the run row | audit |
+| A25 audit and throttling | nothing recorded beyond the run row; a `401` is answered and not counted | audit |
 | A26 the claim is history-only | the endpoint does not exist yet | the claim |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider
@@ -882,9 +885,9 @@ requirements and they get two different modes. `DSQ_AUTH` selects one; the deplo
 
 | Mode | Who the caller is | What it is for |
 |---|---|---|
-| `dev` | the `x-dev-player` header, or `Bearer dev:<name>`, **treated as verified** | the ordinary local run and the probes: no accounts, no tokens, no provider. The boot banner says so (`auth: dev (x-dev-player) — NOT for production`) |
+| `dev` | the `x-dev-player` header, or `Bearer dev:<name>`, **treated as verified** | the ordinary local run and the probes: no accounts, no tokens, no provider. The boot banner says so (`auth: dev — x-dev-player: <name> names the player — NOT for production`) |
 | `emulate` | a **real JWT** issued and verified locally | testing the sign-in feature: signup → confirm → sign-in → refresh → expiry → sign-out, against the same verifier the deployment uses |
-| `cognito` | a Cognito access token, verified against the pool's JWKS | the deployment. `dev` is refused outright, and the emulator is not imported by that adapter at all |
+| `cognito` | a Cognito access token, verified against the pool's JWKS | the deployment. `dev` is refused outright, and only the `cognito` path loads a JWKS — `emulate` builds the emulator instead, and the deployed adapter does not import the emulator at all |
 
 **ONE VERIFIER, TWO KEY SOURCES.** `api/src/auth/verify.ts` checks a JWT's signature, issuer, audience, expiry and
 `sub` with a pluggable key source — the emulator's local key, or Cognito's JWKS fetched and cached — so the
@@ -901,11 +904,14 @@ makes the confirm step mandatory and prints the code to the console, because the
 default the emulator confirms on signup so the shortest path is one call.
 
 **THE MODE IS DISCOVERED, NOT COMPILED IN, AND IT IS IMPOSSIBLE TO SHIP BY ACCIDENT.** `/health` reports
-`auth: dev|emulate|cognito`; the client reads it once (an anonymous read) and picks its flow — `dev` shows no
-sign-in UI at all, `emulate` calls the emulator, `cognito` uses Cognito's hosted flow. `VITE_AUTH_MODE` overrides
-that for a pinned build. The config refuses `DSQ_AUTH=dev` when the environment is production or when a real
-endpoint is configured, in the same shape as `realServiceWarning` (AGENTS.md §8 trap 21) and pinned by a probe the
-same way.
+`auth: dev|emulate|cognito` (with the emulator's sign-in routes beside it, so the endpoint count of §11 does not
+inflate); the client reads it once (an anonymous read) and picks its flow — `dev` shows no sign-in UI at all,
+`emulate` calls the emulator, `cognito` uses Cognito's hosted flow. **The client half of that is the next change**;
+the server reports the mode today. `VITE_AUTH_MODE` overrides it for a pinned build. The config refuses
+`DSQ_AUTH=dev` when the environment is production or when a real endpoint is configured, in the same shape as
+`realServiceWarning` (AGENTS.md §8 trap 21) and pinned by a probe the same way — `authRefusal`, measured by
+section 6 of `api/test/auth-probe.mjs`, which also pins that `cognito` without an issuer and audience is refused
+rather than started.
 
 **AND A SIGNED-OUT CALLER GETS A DEMO, NOT A WALL.** This is the amendment to decision 6 and to §8's "the Drill is
 the funnel": the funnel becomes *try it read-only, then sign in to be ranked*. A signed-out player can fetch the

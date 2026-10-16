@@ -14,6 +14,7 @@ import { drillCurrent } from '../src/handlers/drill.ts';
 import { STATUS } from '../src/status.ts';
 import { scheduleKey } from '../src/keys.ts';
 import { MemoryStore } from '../src/store/memory.ts';
+import { devIdentityOf } from '../src/auth/identity.ts';
 import { MAIN_POOL, POOL_VERSION } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION } from 'dancing-squared-game/schedule-fixture';
 
@@ -97,7 +98,7 @@ console.log('\n== 4. what is published is what the endpoint SERVES ==');
   check(row.entries.length === 3 && row.scheduleVersion === seasonVersion(POOL_VERSION, 3), `the row holds the season and its version (${row.scheduleVersion})`);
   check(JSON.stringify(row.entries) === JSON.stringify(entries), 'and the entries are stored verbatim — a seed, a level and a pool version, no puzzle');
 
-  const deps = { store, clock: { nowMs: () => 1_700_000_000_000 }, playerIdOf: (request) => request.headers['x-dev-player'] ?? null };
+  const deps = { store, clock: { nowMs: () => 1_700_000_000_000 }, identityOf: devIdentityOf };
   const served = await drillCurrent(
     { method: 'GET', path: '/drill/current', query: { level: '1' }, body: null, headers: { 'x-dev-player': 'p1' } },
     deps,

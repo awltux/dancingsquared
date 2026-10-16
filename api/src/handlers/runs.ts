@@ -23,7 +23,7 @@ import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type St
 import { boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../keys.ts';
 import { levelAt, lineReachesGoal, puzzleFor } from '../levels.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
-import { failure, identity, STATUS } from '../status.ts';
+import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
 import {
   asBoard,
@@ -206,15 +206,16 @@ function runAnswer(parts: AnswerParts): unknown {
  * submission rather than an edge case.
  */
 export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResult> {
-  const who = identity(request, deps);
+  const who = requireIdentity(request, deps);
   if ('refusal' in who) return who.refusal;
+  const playerId = who.identity.playerId;
   const parsed = parseRunSubmission(request.body);
   if (!parsed.ok) return failure(STATUS.badRequest, parsed.refusal.code, parsed.refusal.message);
   const submission = parsed.submission;
   const level = levelAt(submission.levelIndex);
   const nowMs = deps.clock.nowMs();
   const period = submission.mode === 'daily' ? (submission.date ?? '') : seasonOf(nowMs);
-  const runItem = runKey(who.playerId, submission.runId);
+  const runItem = runKey(playerId, submission.runId);
 
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
     // ALREADY RECORDED? Then this is a retry, and the answer is what was recorded: no second credit, no second
@@ -222,9 +223,9 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     // arrived.
     const recorded = await deps.store.get(runItem);
     if (recorded) {
-      const hints = asHints(await deps.store.get(hintsKey(who.playerId)));
+      const hints = asHints(await deps.store.get(hintsKey(playerId)));
       if (!hints) return failure(STATUS.unavailable, 'unreadable_hints', 'the hint balance is not a record this build can read');
-      const board = asBoard(await deps.store.get(boardKey(submission.mode, submission.levelIndex, period, who.playerId)));
+      const board = asBoard(await deps.store.get(boardKey(submission.mode, submission.levelIndex, period, playerId)));
       if (!board) return failure(STATUS.unavailable, 'unreadable_board', 'the board entry is not a record this build can read');
       const value = recorded.value as { score?: unknown; clockSeconds?: unknown; hintsUsed?: unknown };
       return {
@@ -252,16 +253,16 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
 
     // THE SOURCE: the server's own seed, and the verification of what the client claims about it.
     const verified = submission.mode === 'drill'
-      ? await verifyDrill(submission, deps, who.playerId, level, nowMs)
+      ? await verifyDrill(submission, deps, playerId, level, nowMs)
       : await verifyDaily(submission, deps, level);
     if ('refusal' in verified) return verified.refusal;
     const source = verified.source;
 
     // THE ROWS THIS RUN TOUCHES, read at the revisions the transaction will require.
-    const hintsStored = await deps.store.get(hintsKey(who.playerId));
+    const hintsStored = await deps.store.get(hintsKey(playerId));
     const hints = asHints(hintsStored);
     if (!hints) return failure(STATUS.unavailable, 'unreadable_hints', 'the hint balance is not a record this build can read');
-    const boardStored = await deps.store.get(boardKey(submission.mode, submission.levelIndex, period, who.playerId));
+    const boardStored = await deps.store.get(boardKey(submission.mode, submission.levelIndex, period, playerId));
     const board = asBoard(boardStored);
     if (!board) return failure(STATUS.unavailable, 'unreadable_board', 'the board entry is not a record this build can read');
 
@@ -286,11 +287,11 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
 
     const writes: StoreWrite[] = [
       { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
-      { key: hintsKey(who.playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: debited.hints, successes: debited.successes } },
-      { key: boardKey(submission.mode, submission.levelIndex, period, who.playerId), expectedRev: boardStored?.rev ?? null, value: { score: folded.score, runs: folded.runs } },
+      { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: debited.hints, successes: debited.successes } },
+      { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { score: folded.score, runs: folded.runs } },
     ];
     if (finishedProgress) {
-      writes.push({ key: progressKey(who.playerId, submission.levelIndex), expectedRev: source.progressRev, value: asProgressItem(finishedProgress) });
+      writes.push({ key: progressKey(playerId, submission.levelIndex), expectedRev: source.progressRev, value: asProgressItem(finishedProgress) });
     }
     if (await deps.store.transact(writes)) {
       return {

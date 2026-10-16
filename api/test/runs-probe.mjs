@@ -20,6 +20,7 @@ import { boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../s
 import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
 import { seasonOf } from '../src/handlers/runs.ts';
 import { MemoryStore } from '../src/store/memory.ts';
+import { devIdentityOf } from '../src/auth/identity.ts';
 import { finishDrill } from '../src/drill-regime.ts';
 import { MAIN_POOL, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
@@ -54,8 +55,20 @@ const depsFor = (store, nowMs = CLOCK) => ({
       this.now += seconds * 1000;
     },
   },
-  playerIdOf: (request) => request.headers['x-dev-player'] ?? null,
+  identityOf: devIdentityOf,
 });
+
+/**
+ * The identity adapter is IMPORTED rather than re-spelled (see `drill-probe.mjs`), which is why the fixture rows
+ * this probe writes and reads are keyed by the id that adapter produces rather than by the bare header value.
+ */
+const devId = (name) => devIdentityOf({ headers: { 'x-dev-player': name } }).playerId;
+const ROW = {
+  progress: (name) => progressKey(devId(name), LEVEL),
+  run: (name, id) => runKey(devId(name), id),
+  hints: (name) => hintsKey(devId(name)),
+  board: (name) => boardKey('drill', LEVEL, SEASON, devId(name)),
+};
 
 const call = (path, player, query = {}, body = null) => ({ method: path === '/runs' ? 'POST' : 'GET', path, query, body, headers: player ? { 'x-dev-player': player } : {} });
 const submit = (player, body) => call('/runs', player, {}, body);
@@ -95,9 +108,9 @@ console.log('== 1. a correct Drill run is accepted, and it does all four things 
   check(answer.body.progress.finished === 1, `the drill is finished (${answer.body.progress.finished})`);
   check(answer.body.hints.successes === 1 && answer.body.hints.hints === 0, `the success is counted and no hint is due yet (${answer.body.hints.successes} counted)`);
   check(answer.body.board.score === computed.score && answer.body.board.runs === 1, `and the board holds the run (${answer.body.board.score})`);
-  const row = (await store.get(progressKey('r1', LEVEL))).value;
+  const row = (await store.get(ROW.progress('r1'))).value;
   check(row.issued === null, 'the progress row has no drill in flight any more');
-  check((await store.get(runKey('r1', 'run-1'))).value.calls.length === calls.length, 'and the transcript is stored');
+  check((await store.get(ROW.run('r1', 'run-1'))).value.calls.length === calls.length, 'and the transcript is stored');
 }
 
 console.log('\n== 2. the score is clamped to what the server can recompute ==');
@@ -111,7 +124,7 @@ console.log('\n== 2. the score is clamped to what the server can recompute ==');
   // NEGATIVE CONTROL, MEASURED: the board row would hold the claim if the clamp were absent, and 999999 is what
   // the stored row would say — the check above is the only one that would redden, because the response's
   // `clamped` flag is a report rather than a constraint.
-  const stored = (await store.get(boardKey('drill', LEVEL, SEASON, 'r2'))).value;
+  const stored = (await store.get(ROW.board('r2'))).value;
   check(stored.score === computed.score && stored.score !== 999_999, `NEGATIVE CONTROL: the stored board is ${stored.score}, not the 999999 claimed`);
   // A SECOND DRILL, because the first one is finished: a submission names the drill that is IN FLIGHT, so a
   // second claim about the same one would be refused as stale rather than scored.
@@ -137,16 +150,16 @@ console.log('\n== 3. a run lands once: the same runId, and a re-solve of a finis
   // drill is gone from the progress row the moment it is finished, so there is nothing left to submit against.
   const again = await postRun(submit('r3', { ...body, runId: 'run-resolve' }), deps);
   check(again.status === STATUS.conflict && again.body.error.code === 'stale_drill', `a submission about a drill that is no longer in flight is refused (${again.status} ${again.body.error?.code})`);
-  const after = (await store.get(runKey('r3', 'run-once'))).value;
+  const after = (await store.get(ROW.run('r3', 'run-once'))).value;
   check(after.score === first.body.run.score, `and the recorded run is untouched (${after.score})`);
-  check((await store.get(runKey('r3', 'run-resolve'))) === null, 'and no second run row was written');
-  check((await store.get(boardKey('drill', LEVEL, SEASON, 'r3'))).value.runs === 1, 'so the board still holds one run');
+  check((await store.get(ROW.run('r3', 'run-resolve'))) === null, 'and no second run row was written');
+  check((await store.get(ROW.board('r3'))).value.runs === 1, 'so the board still holds one run');
 
   // NEGATIVE CONTROL, MEASURED: the duplicate path rests on the run row being CREATE-ONLY, so the same create
   // attempted a second time is refused by the store itself. A row that could be rewritten would let a retry
   // overwrite the recorded score while the effects below it stayed as they were.
-  const recordedRun = await store.get(runKey('r3', 'run-once'));
-  check((await store.put(runKey('r3', 'run-once'), recordedRun.value, null)) === false, 'NEGATIVE CONTROL: the run row is create-only, which is the condition the duplicate answer rests on');
+  const recordedRun = await store.get(ROW.run('r3', 'run-once'));
+  check((await store.put(ROW.run('r3', 'run-once'), recordedRun.value, null)) === false, 'NEGATIVE CONTROL: the run row is create-only, which is the condition the duplicate answer rests on');
 
   // AND THE PURE RULE UNDERNEATH IT: an index that is somehow handed out twice lands in the finished set ONCE,
   // which is the fact the credit, the board and "the first unfinished entry" all read.
@@ -276,10 +289,10 @@ console.log('\n== 8. a refused transaction leaves NOTHING behind ==');
   const answer = await postRun(submit('r9', { runId: 'run-refused', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 10, hintsUsed: 0, attempts: 0, calls }), { ...deps, store: refuses });
   check(answer.status === STATUS.conflict && answer.body.error.code === 'contended', `NEGATIVE CONTROL: a transaction that never lands is reported as contended (${answer.status} ${answer.body.error?.code})`);
   check(attempts === 3, `after exactly MAX_WRITE_ATTEMPTS attempts (${attempts})`);
-  check((await store.get(runKey('r9', 'run-refused'))) === null, 'and the run was NOT recorded');
-  check((await store.get(hintsKey('r9'))) === null, 'and the hint balance was not written');
-  check((await store.get(boardKey('drill', LEVEL, SEASON, 'r9'))) === null, 'and the board was not written');
-  const progress = (await store.get(progressKey('r9', LEVEL))).value;
+  check((await store.get(ROW.run('r9', 'run-refused'))) === null, 'and the run was NOT recorded');
+  check((await store.get(ROW.hints('r9'))) === null, 'and the hint balance was not written');
+  check((await store.get(ROW.board('r9'))) === null, 'and the board was not written');
+  const progress = (await store.get(ROW.progress('r9'))).value;
   check(progress.issued !== null && progress.finished.length === 0, 'and the drill is still in flight, with nothing finished');
 }
 

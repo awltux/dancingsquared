@@ -13,10 +13,18 @@ import { MAIN_POOL, type ScheduleEntry } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type ItemKey, type StoredItem } from '../ports.ts';
 import { progressKey, scheduleKey } from '../keys.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
-import { failure, identity, STATUS } from '../status.ts';
+import { failure, optionalIdentity, requireIdentity, STATUS } from '../status.ts';
 import { levelParam } from '../query.ts';
 import { levelAt, optionLabels, puzzleFor } from '../levels.ts';
-import { currentDrill, finishDrill, parseDrillId, type DrillProgress, type IssuedDrill, type Regime } from '../drill-regime.ts';
+import {
+  currentDrill,
+  emptyProgress,
+  finishDrill,
+  parseDrillId,
+  type CurrentOutcome,
+  type DrillProgress,
+  type Regime,
+} from '../drill-regime.ts';
 
 
 /**
@@ -93,6 +101,39 @@ function regimeCounts(regime: Regime, progress: DrillProgress): { finished: numb
 }
 
 /**
+ * The served form of one outcome, or a refusal.
+ *
+ * IT IS A SEPARATE FUNCTION BECAUSE TWO CALLERS NOW SERVE THE SAME DRILL: the identified one, which may have just
+ * WRITTEN the issue into a Progress row, and the demo one, which never writes at all (§11.2's "a signed-out caller
+ * gets a demo, not a wall"). Two copies of this body is how the two come to answer differently for one regime —
+ * which is precisely the drift the level field was once missing from.
+ */
+function served(
+  outcome: CurrentOutcome,
+  level: ReturnType<typeof levelAt>,
+  levelIndex: number,
+  resumed: boolean,
+): { body: Record<string, unknown> } | { refusal: ApiResult } {
+  if (outcome.kind === 'complete') return { body: { drill: null } };
+  const generated = puzzleFor(outcome.drill.seed, level);
+  if (!generated.ok) {
+    return {
+      refusal: failure(
+        STATUS.unavailable,
+        'unplayable_drill',
+        `the published drill at level ${levelIndex} entry ${outcome.drill.index} does not generate: ${generated.reason}`,
+      ),
+    };
+  }
+  // THE LEVEL IS IN THE ANSWER, and it was MISSING until a browser found it: §11's row for this endpoint says the
+  // response is "the seed, the level, the option labels and the issue date", and a client that asked for level 1
+  // still has to be told which level the drill it was handed belongs to — the schedule can move under a player,
+  // and the client adopts the answer's level rather than its own. MEASURED: the game's client refused the
+  // response (`bad_response`) because the level was absent.
+  return { body: { drill: { ...outcome.drill, levelIndex, optionLabels: optionLabels(generated.puzzle), resumed } } };
+}
+
+/**
  * `GET /drill/current?level=n` — the drill this player is on.
  *
  * THE OPTION LABELS ARE GENERATED HERE, from the seed the Progress row holds, because the serving layer's
@@ -102,10 +143,15 @@ function regimeCounts(regime: Regime, progress: DrillProgress): { finished: numb
  * applier (a throwaway script under `api/tools/`, deleted before the commit), and returning only the seed is a
  * one-line change; DESIGN.md §13 records the measurement so that is a decision with a number rather than a
  * silent one.
+ *
+ * A SIGNED-OUT CALLER IS SERVED THE SAME DRILL AND NOTHING IS WRITTEN (§11.1's A20, §11.2's demo). The drill is
+ * derived from the published regime and the ORDER alone, so it needs no Progress row to exist and none is read;
+ * the answer says `demo: true` so the client knows the run it is about to play cannot be ranked, rather than
+ * discovering it at the 401. WHICH DRILL a demo gets is the first one this level has not been told is finished —
+ * and a signed-out caller has never finished one, so it is the season's first entry, every time.
  */
 export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<ApiResult> {
-  const who = identity(request, deps);
-  if ('refusal' in who) return who.refusal;
+  const identity = optionalIdentity(request, deps);
 
   const levelIndex = levelParam(request.query['level']);
   if (levelIndex === null) return failure(STATUS.badRequest, 'bad_level', 'level must be a positive integer');
@@ -115,31 +161,22 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
   const read = await readRegime(deps, levelIndex);
   if ('refusal' in read) return read.refusal;
 
-  return withProgress(deps, progressKey(who.playerId, levelIndex), levelIndex, (progress) => {
-    const outcome = currentDrill(read.regime, levelIndex, progress, MAIN_POOL.version, deps.clock.nowMs());
-    if (outcome.kind === 'complete') {
-      return { result: { status: STATUS.ok, body: { drill: null, regime: regimeCounts(read.regime, outcome.progress) } } };
-    }
-    const generated = puzzleFor(outcome.drill.seed, level);
-    if (!generated.ok) {
-      return {
-        result: failure(
-          STATUS.unavailable,
-          'unplayable_drill',
-          `the published drill at level ${levelIndex} entry ${outcome.drill.index} does not generate: ${generated.reason}`,
-        ),
-      };
-    }
-    // THE LEVEL IS IN THE ANSWER, and it was MISSING until a browser found it: §11's row for this endpoint says the
-    // response is "the seed, the level, the option labels and the issue date", and a client that asked for level 1
-    // still has to be told which level the drill it was handed belongs to — the schedule can move under a player,
-    // and the client adopts the answer's level rather than its own. MEASURED: the game's client refused the
-    // response (`bad_response`) because the level was absent.
-    const body = {
-      drill: { ...outcome.drill, levelIndex, optionLabels: optionLabels(generated.puzzle), resumed: !outcome.changed },
-      regime: regimeCounts(read.regime, outcome.progress),
+  if (!identity) {
+    const outcome = currentDrill(read.regime, levelIndex, emptyProgress(levelIndex), MAIN_POOL.version, deps.clock.nowMs());
+    const answered = served(outcome, level, levelIndex, false);
+    if ('refusal' in answered) return answered.refusal;
+    return {
+      status: STATUS.ok,
+      body: { ...answered.body, demo: true, regime: regimeCounts(read.regime, outcome.progress) },
     };
-    if (!outcome.changed) return { result: { status: STATUS.ok, body } };
+  }
+
+  return withProgress(deps, progressKey(identity.playerId, levelIndex), levelIndex, (progress) => {
+    const outcome = currentDrill(read.regime, levelIndex, progress, MAIN_POOL.version, deps.clock.nowMs());
+    const answered = served(outcome, level, levelIndex, outcome.kind === 'drill' && !outcome.changed);
+    if ('refusal' in answered) return { result: answered.refusal };
+    const body = { ...answered.body, regime: regimeCounts(read.regime, outcome.progress) };
+    if (outcome.kind === 'complete' || !outcome.changed) return { result: { status: STATUS.ok, body } };
     return { progress: outcome.progress, result: { status: STATUS.ok, body } };
   });
 }
@@ -151,10 +188,15 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
  * from `POST /runs`, where the server re-derives the answer (DESIGN.md 11). Advancing is about the ORDER, and
  * a player who advances without submitting has skipped a drill they cannot score — the board takes their best,
  * so there is nothing to gain and nothing to forge.
+ *
+ * IT IS A WRITE AND SO IT NEEDS AN IDENTITY (§11.1 A20). A demo player is served a drill with no Progress row to
+ * advance, so there is nothing for this endpoint to do for them — and a 401 says that, rather than an
+ * `isolation`-style refusal for a drill the server never issued.
  */
 export async function drillAdvance(request: ApiRequest, deps: Deps): Promise<ApiResult> {
-  const who = identity(request, deps);
+  const who = requireIdentity(request, deps);
   if ('refusal' in who) return who.refusal;
+  const playerId = who.identity.playerId;
 
   const body = request.body as { drillId?: unknown } | null;
   const id = body?.drillId;
@@ -165,7 +207,7 @@ export async function drillAdvance(request: ApiRequest, deps: Deps): Promise<Api
   const read = await readRegime(deps, parsed.levelIndex);
   if ('refusal' in read) return read.refusal;
 
-  return withProgress(deps, progressKey(who.playerId, parsed.levelIndex), parsed.levelIndex, (progress) => {
+  return withProgress(deps, progressKey(playerId, parsed.levelIndex), parsed.levelIndex, (progress) => {
     const outcome = finishDrill(progress, id);
     if (outcome.kind === 'refused') return { result: failure(STATUS.conflict, 'stale_drill', outcome.reason) };
     return {

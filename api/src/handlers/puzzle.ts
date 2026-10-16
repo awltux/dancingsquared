@@ -13,16 +13,22 @@
 import { MAIN_POOL } from 'dancing-squared-game';
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { publishedDailyKey } from '../keys.ts';
-import { failure, identity, STATUS } from '../status.ts';
+import { failure, STATUS } from '../status.ts';
 import { dayParam, levelParam } from '../query.ts';
 
 /** The one mode this endpoint serves, named so the refusal can say what was asked for instead. */
 const MODE = 'daily';
 
+/**
+ * The published challenge for a level and a day.
+ *
+ * NO IDENTITY IS REQUIRED, AND NONE IS READ. The answer is the published artefact itself: the same seed, level
+ * and pool version for every caller, signed in or not, so there is nothing here for an identity to decide — the
+ * version of this handler before §11.1 asked for one anyway and answered a signed-out browser `401` to a request
+ * that never mentioned the player. That is exactly what §11.2's demo is for: the funnel is "try it read-only,
+ * then sign in to be ranked", and a read is already unranked.
+ */
 export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiResult> {
-  const who = identity(request, deps);
-  if ('refusal' in who) return who.refusal;
-
   const mode = request.query['mode'] ?? MODE;
   if (mode !== MODE) return failure(STATUS.badRequest, 'bad_mode', `this endpoint serves mode=${MODE}, and ${JSON.stringify(mode)} was asked for`);
   const levelIndex = levelParam(request.query['level']);

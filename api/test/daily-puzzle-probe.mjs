@@ -14,6 +14,7 @@ import { STATUS } from '../src/status.ts';
 import { publishedDailyKey } from '../src/keys.ts';
 import { levelAt, publishableLevels } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
+import { devIdentityOf } from '../src/auth/identity.ts';
 import { configFromEnv, devServerRefusal, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
 import { MAIN_POOL, dailyEntry, isUtcDay, poolIsComplete, utcDay } from 'dancing-squared-game';
 
@@ -28,7 +29,9 @@ const DAY = '2026-10-15';
 const CLOCK = 1_700_000_000_000;
 const LEVELS = [1, 2, 3];
 
-const depsFor = (store) => ({ store, clock: { nowMs: () => CLOCK }, playerIdOf: (request) => request.headers['x-dev-player'] ?? null });
+// THE IDENTITY ADAPTER IS IMPORTED, NOT RE-SPELLED: what "a header names a player" means is `devIdentityOf`'s
+// business, and a probe that restated it would keep passing after the adapter changed.
+const depsFor = (store) => ({ store, clock: { nowMs: () => CLOCK }, identityOf: devIdentityOf });
 const ask = (player, query) => ({ method: 'GET', path: '/puzzle', query, body: null, headers: player ? { 'x-dev-player': player } : {} });
 
 console.log('== 1. what is published is EXACTLY what the client derives ==');
@@ -100,8 +103,11 @@ console.log('\n== 3. what the query must carry ==');
   check(noMode.status === STATUS.ok, `an omitted mode defaults to daily (${noMode.status})`);
   const wrongMode = await getPuzzle(ask('p3', { mode: 'drill', level: '1', date: DAY }), deps);
   check(wrongMode.status === STATUS.badRequest && wrongMode.body.error.code === 'bad_mode', `and a Drill is refused, because the Drill's order is served by /drill/current (${wrongMode.body.error?.code})`);
+  // NO IDENTITY IS NEEDED AND NONE IS READ: the answer is the published artefact, identical for every caller, so
+  // a signed-out browser gets it rather than a 401 for a request that never mentioned the player (§11.2's demo).
   const anonymous = await getPuzzle(ask(null, { mode: 'daily', level: '1', date: DAY }), deps);
-  check(anonymous.status === STATUS.unauthenticated, `no identity is a 401 (${anonymous.status})`);
+  check(anonymous.status === STATUS.ok, `no identity is served the same challenge (${anonymous.status})`);
+  check(JSON.stringify(anonymous.body) === JSON.stringify((await getPuzzle(ask('p3', { mode: 'daily', level: '1', date: DAY }), deps)).body), 'BYTE FOR BYTE, so there is no player-specific part for an identity to decide');
 }
 
 console.log('\n== 4. publishing the same day twice changes nothing that matters ==');

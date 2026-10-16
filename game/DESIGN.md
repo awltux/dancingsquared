@@ -1823,6 +1823,12 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     reads, where a browser dialog is an API no probe can see. Pinned in `game/test/save-probe.mjs` §15, whose checks
     are about SCOPE — exactly one key removed and it is the record — plus the state object's own forgetting, which is
     what stops a reset that clears the key and leaves the in-memory record to be written back on the next `persist`.
+    **MEASURED IN A BROWSER** (`npm run dev:game` on 8089, offline build): with one solved drill and its local success
+    on the device — "Saved on this device: 1 run · best 100", hint progress "1 of 10" — the first press only ARMS the
+    control (its label becomes the erase sentence, the board and the ledger unchanged), and the second press returns
+    the ledger to "Saved on this device: nothing yet", the hint progress to "0 of 10 to the next", a fresh drill 1 of
+    12 to the board and the label to its unarmed text. The disarm-on-mode-switch was NOT observed: it is shell state
+    and no probe loads `main.ts`.
 
 ---
 

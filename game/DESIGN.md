@@ -1981,12 +1981,27 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     (v) **A LEVEL IS 100 DRILLS**, shown as a **10×10 block** with a cell per finished drill, "it doesn't need to be
         fully populated", and more blocks are added as more drills become available — so a block IS a level.
     (vi) **The server owns the player's level**: finishing all 100 drills of a level promotes them to the next one.
+    (vii) **THE BOARD'S KEY HOLDS THE CHALLENGE'S IDENTITY, NOT A TIME PERIOD** — round 3, prompted by the owner asking
+        whether a period is needed at all once progress is a 10×10 block. The answer is that the SLOT stays and the
+        PERIOD goes: for the **Daily** it holds the published DAY, which is the same thing as saying which puzzle it
+        is (two days are two different puzzles, so a board without the day would rank different questions together and
+        crown whoever caught the easiest one); for the **Drill** it holds the published SET — the schedule version —
+        instead of the calendar month it holds today. The owner kept the Daily's board rather than dropping it, so the
+        day is the Daily's board identity and nothing else; and there is now **no time period anywhere in a board key**.
     **WHAT THE RULE CHANGES, AND WHAT IT DOES NOT — the second list is the interesting one.**
-      * **The board's period is UNCHANGED.** Round 1's largest consequence — that the period stops being `seasonOf` (the
-        month) and becomes a season number — is WITHDRAWN, because a calendar month is what `seasonOf` already returns.
-        `keys.ts`'s `boardKey`, `handlers/leaderboard.ts`'s validation, `handlers/runs.ts`'s `seasonOf(nowMs)` stamp and
-        the client's `boardPeriod()` all stay exactly as they are, and `runs-probe.mjs`'s pin on both sides of a month
-        boundary stays valid. The season NUMBER is a display and publishing cadence, not a key.
+      * **The board's period is UNCHANGED IN SHAPE AND CHANGED IN MEANING (vii).** Round 1 would have made the period a
+        season NUMBER; the answer is smaller than that and larger than "nothing": `keys.ts`'s `boardKey(mode, levelIndex,
+        period, playerId)` keeps its four slots and `boardPk` keeps its shape, so neither the partition nor `GSI1` moves —
+        but the DRILL's value stops being `seasonOf(nowMs)` (`handlers/runs.ts`) and becomes the published set's
+        identity, which is `seasonVersion(poolVersion, season)` (`schedule-publishing.ts`) — the string that has existed
+        since the publisher landed and has never had a reader. Consequences worth stating rather than discovering: the
+        Drill board's clock then matches the BLOCK's clock (one unit of progress, one board, no month resetting a score
+        while the block keeps filling); a set that is EXTENDED or re-published starts a fresh board rather than moving
+        the denominator under existing scores; and `seasonOf` (the calendar month, `game/src/puzzle/season.ts`) loses
+        its last two runtime callers (the drill period in `handlers/runs.ts` and the client's `boardPeriod()` in
+        `main.ts`), which is why the season NUMBER is a display and a publishing cadence and not a key. The DAILY's value
+        is unchanged: the UTC day, which is its puzzle's identity, and `runs-probe.mjs`'s month-boundary pin stays valid
+        for the DAILY's dates even though a Drill no longer has a month.
       * **The Progress row is UNCHANGED and needs no season**, which removes the whole candidate-rule question I had
         written up: nothing is closed at a boundary, so `progressKey(playerId, levelIndex)` with `finished` holding
         schedule indices is exactly the right shape, and a month boundary touches it not at all. Round 1's "the season

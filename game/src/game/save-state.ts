@@ -30,6 +30,7 @@ import { SCORE_VERSION } from '../puzzle/config.ts';
 import { recordSuccess, spendHint, type HintLedger } from '../puzzle/hints.ts';
 import {
   bestScore,
+  clearGame,
   emptySave,
   loadGame,
   recordRun as appendRun,
@@ -88,6 +89,22 @@ export class SaveState {
     const loaded = loadGame(storage, poolVersion);
     const record = loaded.state ?? emptySave(poolVersion, 1, 0);
     return { state: new SaveState(storage, poolVersion, record, loaded.saving), dropped: loaded.dropped };
+  }
+
+  /**
+   * Forget this device's game and become a fresh one (DESIGN.md §15 Q18).
+   *
+   * THE IN-MEMORY RECORD IS REPLACED, not merely the storage. The shell holds THIS object, so a reset that cleared
+   * the key and left the old record here would put the balance and the ledger back on the very next `persist` —
+   * a control that appears to work and then undoes itself, which is worse than not having one.
+   *
+   * IT REPORTS WHETHER THE DEVICE LET GO, and returns false without touching the record when it did not: the caller
+   * shows the refusal instead of a fresh board that is not there.
+   */
+  clear(): boolean {
+    if (!clearGame(this.storage)) return false;
+    this.record = emptySave(this.poolVersion, 1, 0);
+    return true;
   }
 
   get saving(): boolean {

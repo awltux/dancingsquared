@@ -12,6 +12,7 @@
 //
 // Usage: node game/test/save-probe.mjs
 import {
+  clearGame,
   emptySave,
   loadGame,
   newRunId,
@@ -22,6 +23,7 @@ import {
   SAVE_VERSION,
 } from '../src/game/store.ts';
 import { Stopwatch } from '../src/game/clock.ts';
+import { SaveState } from '../src/game/save-state.ts';
 import { HINT_CAP, HINT_SUCCESS_STEP, MAX_SAVED_RUNS, SAVE_KEY, SCORE_VERSION } from '../src/puzzle/config.ts';
 
 let failures = 0;
@@ -35,14 +37,24 @@ const POOL = 'ms-1';
 /** An in-memory Storage, so a probe can be a browser. */
 const memory = (initial = {}) => {
   const map = new Map(Object.entries(initial));
+  const removed = [];
   return {
     map,
+    removed,
     getItem: (k) => (map.has(k) ? map.get(k) : null),
     setItem: (k, v) => void map.set(k, v),
+    removeItem: (k) => {
+      removed.push(k);
+      map.delete(k);
+    },
   };
 };
 /** A store that refuses to be READ — a blocked origin, private mode. */
-const blockedRead = () => ({ getItem: () => { throw new Error('blocked'); }, setItem: () => { throw new Error('blocked'); } });
+const blockedRead = () => ({
+  getItem: () => { throw new Error('blocked'); },
+  setItem: () => { throw new Error('blocked'); },
+  removeItem: () => { throw new Error('blocked'); },
+});
 /** A store that reads but refuses to be WRITTEN — a full quota. */
 const blockedWrite = (initial) => ({ ...memory(initial), setItem: () => { throw new Error('quota'); } });
 
@@ -321,6 +333,40 @@ console.log('\n== 14. a resumed clock is RE-BASED, not restarted ==');
   // at zero on its own, so an origin five seconds in the FUTURE still reads 0 now and then jumps. MEASURED:
   // removing the clamp in `resume` leaves the check above green and reddens this one.
   check(negative.elapsedSeconds(3000) === 2, `and two seconds later it reads two (${negative.elapsedSeconds(3000)}s, where an unclamped origin would read five seconds ahead of the run)`);
+}
+
+console.log('\n== 15. "start over on this device" clears the record, and nothing else ==');
+{
+  // THE ONE CONTROL THAT DELETES (DESIGN.md §15 Q18). What is pinned is the SCOPE: the record goes — the regime, the
+  // BALANCE and the ledger are all inside it, so the reset is honest by construction — and no other key moves.
+  const store = memory({ [SAVE_KEY]: JSON.stringify(emptySave(POOL, 1, 0)) });
+  store.setItem('dsq.game.session', 'a session this control must not touch');
+  store.setItem('dsq.game.device', 'a device id this control must not touch');
+  store.setItem('unrelated', 'somebody else’s key');
+  store.map.set(SAVE_KEY, JSON.stringify({ ...emptySave(POOL, 1, 0), hints: { hints: 3, successes: 4 }, runs: [run()] }));
+  check(clearGame(store) === true, 'clearGame reports that the device let go');
+  check(store.map.get(SAVE_KEY) === undefined, 'and the record is gone, which takes the hint balance and every run with it');
+  check(store.map.get('dsq.game.session') === 'a session this control must not touch', 'while the SESSION is left alone, because signing out is its own control');
+  check(store.map.get('dsq.game.device') === 'a device id this control must not touch', 'and so is the device id, which is not the player’s data');
+  check(store.map.get('unrelated') === 'somebody else’s key', 'and no key this module does not own is touched');
+  // ONE KEY, NAMED: a reader can see the whole scope in the fake's own log.
+  check(store.removed.length === 1 && store.removed[0] === SAVE_KEY, `NEGATIVE CONTROL: exactly one key was removed, and it is the record (${store.removed.join(',')})`);
+
+  // A DEVICE THAT REFUSES IS NOT A DEVICE THAT FORGOT. The refused case must be distinguishable, or the shell would
+  // show a fresh board the player has not got — which is the one silence this app must not produce (§4.1).
+  check(clearGame(blockedRead()) === false, 'NEGATIVE CONTROL: a store that refuses reports false rather than claiming the reset');
+  const refuses = { ...memory({ [SAVE_KEY]: 'x' }), removeItem: () => { throw new Error('blocked'); } };
+  check(clearGame(refuses) === false && refuses.map.get(SAVE_KEY) === 'x', 'and the record is still there when it does');
+
+  // AND THE STATE OBJECT ITSELF FORGETS. Clearing the key while the in-memory record survived would put the balance
+  // back on the next `persist` — a reset that undoes itself. NEGATIVE CONTROL: an implementation that only removed
+  // the key fails this and the two checks after it.
+  const live = SaveState.open(store, POOL).state;
+  live.addRun(run());
+  check(live.runs.length === 1, `the state has a run to lose (${live.runs.length})`);
+  check(live.clear() === true, 'clearing the state reports success');
+  check(live.runs.length === 0 && live.hints.hints === 0 && live.position === 0, `and the state IS the fresh game (${live.runs.length} runs, ${live.hints.hints} hints, position ${live.position})`);
+  check(live.clear() === true, 'and clearing an already-forgotten device is not an error — it is the state the caller wanted');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -1805,14 +1805,24 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     scores what a correct answer scores, and the server clamps it from Phase 5 either way.
 17. **How many drills are in a season, and how does a season end?** Unchanged from Q4/Q3 above; Phase 3 left
     the fixture's twelve drills wrapping round, which is a demo of a regime rather than a regime.
-18. **Can a player make the device forget them?** Phase 4 keeps the regime, the balance and every run in
-    `localStorage`, which is the player's own machine and nobody else's — but there is no control that clears
-    it, and a player who wants a fresh start has to find their browser's site-data settings. *Recommend a
-    plainly-labelled "start over on this device" in the footer, behind a confirmation*, because the ledger is
-    unclaimed until login (§11) and losing it silently is worse than a two-tap reset. The tradeoff to decide:
-    a reset that also clears the HINT BALANCE is the honest reading ("forget this device"), while a reset that
-    keeps the balance is not a reset at all. Phase 4 deliberately ships neither, because it is a UI and privacy
-    decision rather than a persistence mechanism.
+18. **Can a player make the device forget them? — DECIDED AND IMPLEMENTED.** Phase 4 kept the regime, the balance and
+    every run in `localStorage` and nothing cleared it, so a player who wanted a fresh start had to find their
+    browser's site-data settings. What ships is the recommendation this question carried: a plainly-labelled control
+    in the footer ("Start over on this device"), armed by the first press and performed by the second, whose label
+    says what the second press will do. **THE BALANCE GOES WITH THE LEDGER**, because it is inside the same record —
+    so the reset is honest by construction rather than by remembering to clear two things — and that settles the
+    tradeoff this question left open: a reset that kept the hint balance would not be a reset at all. What is
+    deliberately NOT touched: the signed-in SESSION (`net/session.ts`'s item, with its own control and its own
+    sentence — "Sign out") and the DEVICE ID (`net/api.ts`), which is not the player's data but what lets an
+    anonymous regime be resumed, so clearing it would change who the server believes is asking while forgetting
+    nothing about the player. Two consequences are stated rather than hidden: the SERVER's rows are not this device's
+    to forget, so a signed-in player's next `GET /drill/current` may answer with the same drill from their own
+    Progress row; and a device that REFUSES the write (`clearGame` returns false — private mode, a blocked origin)
+    is shown as a refusal, never as a fresh board the player has not got. The confirmation is a two-press armed state
+    rather than a native `confirm()`, because an armed state is a rule the shell owns and whose text the player
+    reads, where a browser dialog is an API no probe can see. Pinned in `game/test/save-probe.mjs` §15, whose checks
+    are about SCOPE — exactly one key removed and it is the record — plus the state object's own forgetting, which is
+    what stops a reset that clears the key and leaves the in-memory record to be written back on the next `persist`.
 
 ---
 

@@ -99,6 +99,11 @@
           <button id="replayShortest" type="button" hidden>Replay the shortest</button>
           <button id="view" type="button">Switch to 2D</button>
           <button id="boardToggle" type="button">Show the board</button>
+          <!-- THE ONE CONTROL THAT DELETES SOMETHING (DESIGN.md §15 Q18). It is a FOOTER control rather than a
+               browser dialog because the armed state is a rule the shell owns — two presses, with the second one
+               saying what will go — where a native `confirm()` is an API no probe can see. The ledger's own line
+               ("Saved on this device: nothing yet") is what reports the result. -->
+          <button id="startOver" type="button">Start over on this device</button>
           <button id="next" type="button" hidden>Next drill</button>
         </footer>
       </main>

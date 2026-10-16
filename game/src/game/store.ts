@@ -33,10 +33,16 @@ import { sanitiseLedger, type HintLedger } from '../puzzle/hints.ts';
 /** The schema version written into every record. Bump it whenever a field changes meaning or shape. */
 export const SAVE_VERSION = 1;
 
-/** The subset of the Storage interface this module needs — so a probe can pass anything. */
+/**
+ * The subset of the Storage interface this module needs — so a probe can pass anything.
+ *
+ * `removeItem` IS HERE FOR ONE CONTROL: "start over on this device" (DESIGN.md §15 Q18) is the only thing in this
+ * app that deletes rather than overwrites, and a reset is the one operation that cannot be expressed as a write.
+ */
 export interface StorageLike {
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
+  removeItem(key: string): void;
 }
 
 /** An issued-but-unfinished drill: the clock that has run, the step reached, and the wrong tries taken. */
@@ -220,6 +226,31 @@ export function recordRun(state: SavedGame, run: RunRecord): SavedGame {
 export function saveGame(storage: StorageLike, state: SavedGame): boolean {
   try {
     storage.setItem(SAVE_KEY, JSON.stringify(state));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Forget this device's game, and say whether the storage let it go (DESIGN.md §15 Q18).
+ *
+ * THIS IS THE WHOLE OF "START OVER ON THIS DEVICE", because the one record holds the regime, the HINT BALANCE and
+ * every run — so removing it IS the reset rather than a part of one. A reset that kept the balance would not be a
+ * reset at all, which is the design's own wording for the tradeoff it left to be decided.
+ *
+ * IT RETURNS FALSE WHEN THE STORAGE REFUSES, and the caller must show that rather than a fresh board the player has
+ * not got: a blocked origin throws on `removeItem` exactly as it does on `setItem`, and a reset the device did not
+ * perform is the one kind of silence this app must not produce (AGENTS.md §4.1).
+ *
+ * IT CLEARS ONE KEY AND ONLY ONE, and the two it leaves are deliberate. The signed-in SESSION is `net/session.ts`'s
+ * item and signing out is its own control with its own sentence; the DEVICE ID (`net/api.ts`) is not the player's
+ * data — it is what lets an anonymous regime be resumed — and clearing it would change who the server believes is
+ * asking without forgetting anything about the player.
+ */
+export function clearGame(storage: StorageLike): boolean {
+  try {
+    storage.removeItem(SAVE_KEY);
     return true;
   } catch {
     return false;

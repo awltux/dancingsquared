@@ -162,6 +162,7 @@ const els = {
   replayShortest: el<HTMLButtonElement>('replayShortest'),
   view: el<HTMLButtonElement>('view'),
   next: el<HTMLButtonElement>('next'),
+  startOver: el<HTMLButtonElement>('startOver'),
   loading: el('loading'),
 };
 
@@ -464,14 +465,79 @@ async function loadBoard(): Promise<void> {
   boardScreen.show(answer.value, player?.playerId ?? null);
 }
 
+// -------------------------------------------------------------------------------------------- start over
+
+/**
+ * Whether the "start over" control has been pressed once and is waiting for the press that means it.
+ *
+ * IT IS SHELL STATE BECAUSE IT IS TRANSIENT and belongs to no mode: the button is in the shared footer, and the arm
+ * is dropped by anything that shows the player has moved on (`applyMode`), so a control left armed cannot fire on a
+ * stray press minutes later.
+ */
+let startOverArmed = false;
+
+/** The label says what the NEXT press does, which is the whole of this control's honesty. */
+function paintStartOver(): void {
+  els.startOver.textContent = startOverArmed
+    ? 'Press again — this device’s runs and hints will be forgotten'
+    : 'Start over on this device';
+}
+
+/**
+ * Forget this device's game (DESIGN.md §15 Q18), on the SECOND press.
+ *
+ * TWO PRESSES RATHER THAN A NATIVE DIALOG: the armed state is a rule this shell owns and whose text says what will
+ * go, where a `confirm()` is a browser API no probe can see — and the smallest possible rule in `main.ts` is the
+ * right instinct, because `main.ts` and `ui/` are the layer no probe loads (AGENTS.md §1).
+ *
+ * WHAT IT DOES NOT TOUCH, because a reset that overreaches is worse than none: the SERVER's rows are not this
+ * device's to forget. A signed-in player's progress, board entries and balance are the server's (DESIGN.md §11), so
+ * this forgets the DEVICE's copy — and since the next `GET /drill/current` answers from that player's own Progress
+ * row, the board that comes back after a reset may be the same drill. The session is `net/session.ts`'s item and
+ * has its own control ("Sign out"), and the device id is not the player's data (see `clearGame`).
+ *
+ * THE RUN IN FLIGHT GOES WITH THE RECORD, so the shell's own state is discarded before the next board is issued:
+ * a controller, a Daily or a press chain that outlived the record it belonged to would write its next move against
+ * a game the player has just thrown away.
+ */
+function startOver(): void {
+  if (!startOverArmed) {
+    startOverArmed = true;
+    paintStartOver();
+    return;
+  }
+  startOverArmed = false;
+  paintStartOver();
+  if (!save.clear()) {
+    // THE DEVICE REFUSED, and that is shown rather than swallowed: `paintLedger` already says storage is off, and
+    // this sentence says what the button therefore could not do.
+    drillScreen.say('This browser blocks local storage, so there is nothing here to forget.', 'bad');
+    return;
+  }
+  controller = null;
+  daily = null;
+  serverDrill = null;
+  serverRegime = null;
+  position = 0;
+  drillRunId = '';
+  dailyRunId = '';
+  drillOptions = [];
+  pressLog = Promise.resolve();
+  dailyMoveLog = Promise.resolve();
+  paintLedger();
+  paintBalance();
+  issueCurrentDrill('current');
+}
+
 // -------------------------------------------------------------------------------------------- the saved game
 
 /**
  * The browser's storage, or a stand-in that refuses.
  *
  * THE PROPERTY ACCESS IS THE THING THAT THROWS, not the read: a blocked origin raises on `window.localStorage`
- * itself, so a `try` around the first `getItem` would never see it. A stand-in that throws on both calls is
- * what makes `loadGame` report `saving: false` and the footer say what is true.
+ * itself, so a `try` around the first `getItem` would never see it. A stand-in that throws on EVERY call — including
+ * `removeItem`, which "start over on this device" needs — is what makes `loadGame` report `saving: false`, the
+ * footer say what is true, and a reset refuse rather than claim a board it did not clear.
  */
 function browserStorage(): StorageLike {
   try {
@@ -485,6 +551,9 @@ function browserStorage(): StorageLike {
       throw new Error('local storage is not available');
     },
     setItem: () => {
+      throw new Error('local storage is not available');
+    },
+    removeItem: () => {
       throw new Error('local storage is not available');
     },
   };
@@ -621,6 +690,10 @@ function applyMode(next: AppMode): void {
   mode = next;
   PLAYHEAD.cancel();
   replay = null;
+  // A MODE SWITCH DISARMS "START OVER": it is the clearest sign the player has moved on, and a control still armed
+  // minutes later would fire on one stray press.
+  startOverArmed = false;
+  paintStartOver();
   els.drillPanel.hidden = mode !== 'drill';
   els.dailyPanel.hidden = mode !== 'daily';
   els.modeDrill.setAttribute('aria-pressed', String(mode === 'drill'));
@@ -1431,6 +1504,7 @@ function main(): void {
   els.replayMine.addEventListener('click', () => replayLine('mine'));
   els.replayShortest.addEventListener('click', () => replayLine('shortest'));
   els.view.addEventListener('click', toggleView);
+  els.startOver.addEventListener('click', startOver);
 
   // FRAME THE BOARDS IN THE SPACE THE PANEL LEAVES, not under it. MEASURED FROM THE ELEMENT rather than
   // hard-coded, because the panel is content-sized: a fixed number here would be correct until a call name

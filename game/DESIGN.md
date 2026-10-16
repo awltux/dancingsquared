@@ -26,7 +26,7 @@ a later reader must not re-open them by accident.
 | 2 | Drill: at each step three options — one correct, one legal-but-wrong, one illegal; a click gives instant feedback. | `DrillPuzzle` and `StepOptions`; the failure taxonomy in §8. |
 | 3 | Daily: the player selects **each call individually** from the moves the sequencer offers, with **undo/redo** until the puzzle is solved. | `PlaySession` with a move stack in §9. |
 | 4 | Failure is instructive: animate the player's own line, say why it failed, then offer a **"show me the answer" replay** of the correct line. | The review/replay flow, shared by both modes. |
-| 5 | Ladder: L1 is 10 calls and a one-call solution; the solution length rises to 3, then the pool widens by 5 every 3 levels. | `LevelSpec` and the level→spec function in §5. |
+| 5 | Ladder: L1 is 10 calls and a one-call solution; the solution length rises to 3, then **every level adds 4 calls** (`poolSize(n) = 4n + 6`, the owner's rule — see §5). | `LevelSpec` and the level→spec function in §5. |
 | 6 | **Cognito User Pools** (email + password, JWT verified in Lambda). Anonymous play is a **read-only demo** that stores nothing; a device's local ledger may be imported only as unranked history (A26, §11.1). **AMENDED** from "anonymous play whose local scores can be claimed on login": the claim survives as history, and it buys no board, no hints and no progress. | Auth, the three identity modes and the bulk-claim endpoint in §11 and §11.2. |
 | 7 | Extract the POC's Three.js stage into a **shared renderer package first**, then build on it, offering **both 2D and 3D** views. | Phase 0 in §13. One package, consumed by the POC and by **both** game modes (§4). |
 | 8 | The daily is seeded from the **UTC date** — one challenge per day — **issued per level to all players**, with the leaderboard partitioned **per level**. | §9: with the challenge now level-scoped, its solution no longer has to be derivable from the level-1 pool. What remains fixed is that every player at a level gets the identical challenge. |
@@ -296,9 +296,19 @@ found that the design's ladder as written **cannot generate puzzles above depth 
 2. **Depth 3 is capped out.** It generates at most pools, but its worst case reaches **7.2 s** (pool 45) and
    it *regresses* to 2 options in places — and the Daily regenerates on the client, where 7 s is not a load
    state, it is a hang. **The ladder ships `depth ≤ 2`.**
-3. The measured ladder: `poolSize(1) = 10`, `poolSize(n) = 10 + 5 + 5·floor((n − 4)/3)` for `n ≥ 2`,
-   `depth = 1` at L1 and 2 after, `optionCount = 3` once `poolSize ≥ 35` (L16) and 2 before. All **30**
+3. The measured ladder as it SHIPPED (superseded by the owner's rule below, and kept because the measurements are
+   what the new rule has to be judged against): `poolSize(1) = 10`, `poolSize(n) = 10 + 5 + 5·floor((n − 4)/3)` for
+   `n ≥ 2`, `depth = 1` at L1 and 2 after, `optionCount = 3` once `poolSize ≥ 35` (L16) and 2 before. All **30**
    levels generate; worst level **4959 ms**; largest exploration **194 states**.
+4. **THE OWNER'S RULE, which replaces the growth formula: `poolSize(1) = 10` and EVERY SUBSEQUENT LEVEL ADDS 4
+   CALLS** — `poolSize(n) = 4n + 6`, so 10, 14, 18, 22, 26, 30, 34, 38, … What that changes, computed from the table
+   above rather than guessed: **three-option questions begin at L8** (pool 38 crosses the measured `pool ≥ 35`
+   threshold, where the shipped ladder crossed it at L16); the pool is consumed about twice as fast, so a
+   **Mainstream-sized pool fills far fewer levels** (about 11 from ~50 titles, against ~30 today — the exact ceiling
+   is the census's to report, and §5's "do not invent the ladder's ceiling" stands); and **generation cost rises with
+   the pool**, so L8+ costs roughly 1.5-2 s per drill by the measured table while L1-L7 stay near today's cost. The
+   client regenerates a drill on every visit (§4.4), so that last number is a player-visible one and not a build-time
+   curiosity.
 
 So the three bullets below stand as the *design's intent*, and the table above is what the corpus supports.
 The gap is recorded rather than papered over: **the design asked for three options at every level and a
@@ -306,7 +316,9 @@ depth-3 ceiling, and this ships what the corpus can actually generate.**
 
 - **L1 = `{ poolSize: 10, depth: 1 }`.** That is decision 5's starting point.
 - `depth` rises 1 → 2 and stays (design: 1 → 3; capped, see above).
-- Once depth has finished rising, `poolSize` grows by **5 every 3 levels**.
+- **`poolSize` grows by 4 PER LEVEL** (the owner's rule; decision 3 above recorded the 5-every-3-levels formula it
+  replaces, with the numbers that change with it: three options from L8, a Mainstream pool filling about 11 levels,
+  and ~1.5-2 s generation at L8+).
 - Every level's `Sequencer` is built from **only that level's titles**, so the engine's own legality scan is
   already level-scoped and the "offered moves are limited to the level being played" rule is a property of
   construction, not of a filter that could drift.

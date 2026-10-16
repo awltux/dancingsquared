@@ -124,13 +124,29 @@ export const TOKENS: Record<string, string> = {
   // PROMENADE FRACTIONS. All8: `Pr1/2` = "Promenade Half Way Around", `Pr3/4` = "Promenade 3/4",
   // `Pr4/4` = "Promenade All The Way Around". The designator supplies who, so `H-Pr1/2` expands
   // through the group handler to "Heads Promenade 1/2" - which IS the catalogue's own title (as
-  // are the Sides, 3/4 and Full forms). This one pattern is 41 of the 109 unread fig_m cells.
-  // THESE FRACTIONS ARE CATALOGUE CALLS, not derived ones: `ms/promenade.xml` authors `Promenade 1/2`,
-  // `Promenade 3/4` and `Promenade Full`, so a bare `Pr1/2` dances through the normal variant lookup.
-  // The bare `Prom` / `PromH` in the table above are the two that do NOT - see KNOWN_CATALOGUE_GAPS.
+  // are the Sides and 3/4 forms). This one pattern is 41 of the 109 unread fig_m cells.
+  // THESE FRACTIONS ARE CATALOGUE CALLS, not derived ones: `ms/promenade.xml` authors `Promenade 1/2`
+  // and `Promenade 3/4`, so a bare `Pr1/2` dances through the normal variant lookup.
+  //
+  // `Pr4/4` MAPS TO THE BARE `Promenade`, AND THAT IS THE CALLERLAB READING RATHER THAN A SHORTCUT:
+  // "Promenade All The Way Around" IS the `Promenade` call, and the corpus now authors it under that
+  // name - the tam it used to be titled `Promenade Full` ends in the `Promenade` formation, which is
+  // what the definition says `Promenade` does. The call that ends in the SQUARED SET is
+  // `Promenade Home` (`PromH`), a different call, and the corpus authors it too.
+  // The bare `Prom` / `PromH` in the table above are no longer gaps - see KNOWN_CATALOGUE_GAPS.
+  //
+  // AND THERE IS NO `Pr1/2H`, DELIBERATELY. All8's own call-name list carries exactly three promenade
+  // shapes - `Prom` (`Promenade`), `PromH` (`Promenade Home`) and the `Pr...` fractions - and NONE of
+  // them composes a fraction with `Home`. MEASURED over the whole repo: `Pr1/2H`, `Pr1/4H`, `Pr3/4H`,
+  // `Pr4/4H` and `PrH` appear NOWHERE, the published get-outs use only `--Prom` and `--PromH`, and the
+  // figure page writes `H-Pr1/2` for the fraction. The corpus DOES author `Promenade 1/2 Home` and its
+  // siblings - they are what a caller-side search returns, and the caller command "Promenade Home" is
+  // in the CALLERLAB definitions - but nothing in All8's notation reaches them, so a token here would
+  // be a spelling this table invented, which is the one thing its header says it does not do. Recorded
+  // as a fact rather than left as an apparent omission for the next reader to "fix".
   'Pr1/2': 'Promenade 1/2',
   'Pr3/4': 'Promenade 3/4',
-  'Pr4/4': 'Promenade Full',
+  'Pr4/4': 'Promenade',
 
   // `Lr` is All8's Leaders/Lead Couple designator, and it sits in the CALL positions in these two
   // (`LrTrd`, `LrUTurn`), so the group handler cannot reach them - it only knows whole-group
@@ -598,18 +614,21 @@ export const KNOWN_CATALOGUE_GAPS = new Set([
   // `Promenade 1/2` WAS REMOVED FROM THIS LIST in round 18 because it was a DERIVED call
   // (`promenadeFraction`) - and it is back here in the list's history only; the derived rule is GONE
   // as of the change that made the Promenade family authored, so the harness now measures what the
-  // CATALOGUE has. `Promenade 1/2` is authored (`ms/promenade.xml`), so it is implemented and must
-  // NOT be declared a gap; `Promenade 3/4` and `Promenade Full` are authored there too, so the
-  // stale-gap check below will ask for their removal as soon as that corpus lands.
+  // CATALOGUE has. `Promenade 1/2` and `Promenade 3/4` are authored (`ms/promenade.xml`), so they are
+  // implemented and must NOT be declared gaps - the stale-gap check asked for exactly that removal
+  // the moment the corpus landed, and it is taken here.
   //
-  // BARE `Promenade` AND `Promenade Home` ARE DECLARED GAPS NOW, and that is the deliberate cost of
-  // removing the derived rule: the engine used to COMPUTE both from geometry, and nothing authors
-  // either as a tam yet, so `--Prom` and `--PromH` figures decode to names the engine cannot dance.
-  // The harness's rule is "implemented, or explicitly declared here", and declaring them is the
-  // honest half of that - the alternative was a name the engine silently pretends to know.
-  'Promenade',
-  'Promenade Home',
-  'Promenade 3/4',
+  // BARE `Promenade` AND `Promenade Home` WERE THE DELIBERATE COST of removing the derived rule: the
+  // engine used to COMPUTE both from geometry and nothing authored either as a tam, so `--Prom` and
+  // `--PromH` figures decoded to names the engine could not dance. THE CORPUS AUTHORS BOTH NOW, under
+  // the CALLERLAB names: the tams formerly titled `Promenade Full` and `Promenade Full to Home` are
+  // `Promenade` and `Promenade Home`, because the definition says `Promenade` ends in the Promenade
+  // formation and it takes `Promenade Home` to end in the squared set. Both entries therefore leave
+  // this list in the same change that renamed them - `--Prom` and `--PromH` figures dance now.
+  //
+  // `Promenade Full` STAYS DECLARED, and it is the one name here whose status actually changed:
+  // `Pr4/4` no longer decodes to it (it decodes to `Promenade`), and no tam authors it any more, so
+  // it is a name the engine knows and cannot perform - which is exactly what this list is for.
   'Promenade Full',
   'Change Hands',
   'A Full Turn',

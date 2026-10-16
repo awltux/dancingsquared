@@ -69,8 +69,19 @@ const check = (cond, msg) => {
 /**
  * The apply-fault count as last measured. A CEILING, not an equality: fewer faults is a fix and must not
  * fail here. Lower it in the same commit that fixes faults, so the pin keeps tracking the tree.
+ *
+ * 95 -> 97 IS A WIDENING, NOT A REGRESSION, AND IT IS THE SWEEP THAT WIDENED RATHER THAN THE ENGINE. The
+ * promenade family took the CALLERLAB names (`Promenade` for the call that ends in the Promenade
+ * formation, `Promenade Home` for the one that ends in the squared set), and `SURVEY_CALLS` - which names
+ * BARE titles - has carried `'Promenade'` all along. Until the rename that name resolved to NOTHING (it
+ * was declared in `KNOWN_CATALOGUE_GAPS`), so the sweep silently skipped it; now it resolves to the tams
+ * formerly titled `Promenade Full`, and those authorings are swept for the FIRST time. The +2 are
+ * therefore faults that were always there and were never measured, not faults the rename created - the
+ * geometry of every tam is byte-identical across the rename. The gate's own instruction is to re-pin in
+ * the same commit that re-measures, and TODO item 4 records widening as the one change that legitimately
+ * RAISES a ceiling.
  */
-const APPLY_FAULT_CEILING = 95;
+const APPLY_FAULT_CEILING = 97;
 
 const formations = seq.listFormations().filter((n) => {
   const b = seq.boardForFormation(n);

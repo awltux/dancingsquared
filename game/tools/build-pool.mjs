@@ -30,7 +30,7 @@ const OUT = path.join(here, '..', 'src', 'puzzle', 'calls-data.ts');
 
 /** The pool version. Bump when the ORDER or the membership changes: a puzzle is only meaningful
  * against one pool version (DESIGN.md 7), so this is part of what a leaderboard entry means. */
-const POOL_VERSION = 'ms-1';
+const POOL_VERSION = 'ms-2';
 
 const files = fs.readdirSync(MS_DIR).filter((f) => f.endsWith('.xml')).sort();
 const titles = [];

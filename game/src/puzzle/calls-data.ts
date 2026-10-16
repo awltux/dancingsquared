@@ -13,7 +13,7 @@
 //
 // A title here is an IDENTITY, not a position: registration in the game is by title, so re-sorting
 // this array without bumping `POOL_VERSION` would silently renumber every level's pool.
-export const POOL_VERSION = "ms-1";
+export const POOL_VERSION = "ms-2";
 
 export const CALLS_IN_ORDER: readonly string[] = [
   "Allemande Left",
@@ -50,7 +50,7 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Left Hand Star",
   "Pass Thru",
   "Pass the Ocean",
-  "Promenade Full to Home",
+  "Promenade Home",
   "Quarter Tag",
   "Recycle",
   "Right Pull By",

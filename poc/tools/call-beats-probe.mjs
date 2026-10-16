@@ -60,8 +60,10 @@ console.log('== the picker labels each option with its beats ==');
 console.log('\n== and the number is the one the sequencer charges ==');
 {
   // THE ENGINE HALF: `stepBeats` for a group-prefixed name is what the step costs, so the label cannot be
-  // showing one thing and the scrub charging another. `Heads Promenade Full` is the report's own shape (16
-  // beats) and `Heads Trade` its short partner (4).
+  // showing one thing and the scrub charging another. `Heads Promenade` is the report's own shape (16
+  // beats) and `Heads Trade` its short partner (4). The report called it `Heads Promenade Full`; the
+  // corpus renamed that tam to the CALLERLAB `Promenade` (the call ends in the Promenade formation,
+  // and `Promenade Home` is the one that ends in the squared set), so the name here follows it.
   const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
   const { DOMParser } = await import('@xmldom/xmldom');
   const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
@@ -70,7 +72,7 @@ console.log('\n== and the number is the one the sequencer charges ==');
   const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
   const seq = new engine.Sequencer(read('moves.xml'), read('formations.xml'), callsByTitle(assets));
   const square = seq.boardForFormation('Static Square');
-  for (const [name, want] of [['Heads Promenade Full', 16], ['Heads Trade', 4], ['Heads Touch a Quarter', 2]]) {
+  for (const [name, want] of [['Heads Promenade', 16], ['Heads Trade', 4], ['Heads Touch a Quarter', 2]]) {
     const shown = seq.stepBeats(square, name);
     seq.setBoard(square);
     const charged = seq.sequenceBeats([name], square);
@@ -81,7 +83,7 @@ console.log('\n== and the number is the one the sequencer charges ==');
   // AND THE BARE AND GROUP READINGS ARE MEASURED TOGETHER, because the prefix is not a decoration and is not
   // always a difference in BEATS: for these witnesses the two agree, so what the prefix settles is which step
   // the number describes (and, elsewhere, whether the call is offered at all - `Trade` refuses its bare name).
-  console.log(`    (the bare "Promenade Full" reads ${seq.stepBeats(square, 'Promenade Full')} from the same board, so the prefix does not change this one's number - it fixes WHICH step the number is about)`);
+  console.log(`    (the bare "Promenade" reads ${seq.stepBeats(square, 'Promenade')} from the same board, so the prefix does not change this one's number - it fixes WHICH step the number is about)`);
 }
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');

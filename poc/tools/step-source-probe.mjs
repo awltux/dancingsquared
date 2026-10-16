@@ -95,10 +95,13 @@ console.log('\n== the counts, over the registry itself ==');
 //
 // RE-PINNED 23 -> 21 AND 11 -> 10 when the derived Promenade family was removed from `coded-moves.ts` so it
 // could be hand-authored from tams: that took TWO registry entries with it (`Promenade`/`Promenade Home`,
-// which are one move, and `Promenade 1/2`). Only `Promenade 1/2` was among the overlapped names - the
-// catalogue authors it in `ms/promenade.xml` and authors no bare `Promenade`, which is exactly why the
-// overlap falls by one while the registry falls by two. The fallback count is unchanged at 5, and that is
-// the check that says so rather than a claim about it.
+// which are one move, and `Promenade 1/2`). AT THE TIME only `Promenade 1/2` was among the overlapped names -
+// the catalogue authored it in `ms/promenade.xml` and authored no bare `Promenade` - which is why the overlap
+// fell by one while the registry fell by two. THE CORPUS AUTHORS BOTH BARE NAMES NOW (the CALLERLAB
+// `Promenade` and `Promenade Home`), so that explanation no longer describes the tree: what keeps these
+// numbers where they are is that NEITHER name is a CODED MOVE any more, so `codedAlsoAuthored` below cannot
+// see them either way. The fallback count is unchanged at 5, and that is the check that says so rather than
+// a claim about it.
 const codedAlsoAuthored = engine.CODED_MOVES.filter((m) => seq.library.hasCall(m.name)).map((m) => m.name);
 const withFallback = engine.CODED_MOVES.filter((m) => m.catalogueFallback).map((m) => m.name);
 console.log(`    ${engine.CODED_MOVES.length} coded moves; ${codedAlsoAuthored.length} also authored; ${withFallback.length} with a catalogue fallback`);

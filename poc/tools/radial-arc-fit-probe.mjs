@@ -406,7 +406,13 @@ console.log('\n== 8. the reported miss: the middle curve of `Promenade Full` =='
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   const variants = engine.buildCallVariants(
     fs.readFileSync(path.join(path0, 'ms', 'promenade.xml'), 'utf8'), movesXml, formationsXml,
-  ).filter((v) => v.title.startsWith('Promenade Full'));
+  ).filter((v) => v.title === 'Promenade' || v.title === 'Promenade Home');
+  // THE FILTER IS BY EXACT TITLE, NOT `startsWith('Promenade')`, AND IT USED TO BE `startsWith('Promenade
+  // Full')`. That matched the two full-promenade authorings (`Promenade Full` and `Promenade Full to
+  // Home`) and NOTHING ELSE; the rename would have made it match NOTHING AT ALL, so both sections below
+  // would have silently measured an empty set - the instrument's silence being the bug, not a pass.
+  // `startsWith('Promenade')` is the other wrong repair: it also catches `Promenade 1/2`, `Promenade
+  // 3/4`, `Promenade 1/4` and the `Home` fractions, which are different calls.
   console.log(`    ${variants.length} authorings of the call: ${variants.map((v) => `"${v.title}" (${v.formationName ?? v.formation})`).join(', ')}`);
   let ringMoves = 0;
   let ringOffered = 0;
@@ -490,7 +496,13 @@ console.log('\n== 9. and a fit leaves every later end point exactly where it was
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   const variants = engine.buildCallVariants(
     fs.readFileSync(path.join(path0, 'ms', 'promenade.xml'), 'utf8'), movesXml, formationsXml,
-  ).filter((v) => v.title.startsWith('Promenade Full'));
+  ).filter((v) => v.title === 'Promenade' || v.title === 'Promenade Home');
+  // THE FILTER IS BY EXACT TITLE, NOT `startsWith('Promenade')`, AND IT USED TO BE `startsWith('Promenade
+  // Full')`. That matched the two full-promenade authorings (`Promenade Full` and `Promenade Full to
+  // Home`) and NOTHING ELSE; the rename would have made it match NOTHING AT ALL, so both sections below
+  // would have silently measured an empty set - the instrument's silence being the bug, not a pass.
+  // `startsWith('Promenade')` is the other wrong repair: it also catches `Promenade 1/2`, `Promenade
+  // 3/4`, `Promenade 1/4` and the `Home` fractions, which are different calls.
   // THE PANEL'S OWN TWO CONVERSIONS, from `editor-ui.ts`: a board point into a move's local frame and back. The
   // probe repeats them because they are the arithmetic the fit goes through on its way to the tile's numbers.
   const localToFloor = (f, lx, ly) => ({

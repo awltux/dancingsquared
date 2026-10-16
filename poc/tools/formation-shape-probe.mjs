@@ -5,8 +5,9 @@
 // and lose the `formation` element. The `from` property is useful if the start positions have changes and
 // the formation isnt recognised."
 //
-// The corpus already writes it that way - `<tam title="Promenade Full to Home" formation="Facing Couples
-// Far">` with no block - and the app did not, for two reasons that both live in `tam-xml.ts`:
+// The corpus already writes it that way - `<tam title="Promenade Home" formation="Facing Couples
+// Far">` with no block (that tam was titled `Promenade Full to Home` until the promenade family took
+// the CALLERLAB names) - and the app did not, for two reasons that both live in `tam-xml.ts`:
 //
 //   1. THE RESOLVER COMPLETED ONLY THE 4-DANCER CASE. A named formation is authored as HALF the set (the
 //      corpus's own rule), so a `formation="Name"` reference has to be compared against the COMPLETED
@@ -94,7 +95,7 @@ const oldPosesOf = (name) => {
 };
 
 const call = engine.loadCallFromXml(read('assets/ms/promenade.xml'), movesXml, formationsXml,
-  { title: 'Promenade Full to Home', formation: 'Facing Couples Far' });
+  { title: 'Promenade Home', formation: 'Facing Couples Far' });
 
 console.log(`    the corpus tam: title="${call.title}" from=${JSON.stringify(call.from)} formation=${JSON.stringify(call.formation)} ${call.dancers.length} dancers`);
 check(call.from === '' && call.formation === 'Facing Couples Far',

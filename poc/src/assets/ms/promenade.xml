@@ -22,7 +22,7 @@
 -->
 <tamination title="Promenade Family">
 
-  <tam title="Promenade Full to Home" formation="Facing Couples Far">
+  <tam title="Promenade Home" formation="Facing Couples Far">
     <path>
       <movement hands="gripright" beats="2.75" cx1="1.4882" cy1="-0.0226" cx2="0.5295" cy2="-1.461" x2="1.5858" y2="-2.4142" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
       <movement hands="right" beats="3.75" cx1="1.0984" cy1="0.1168" cx2="1.8941" cy2="1.102" x2="1.7772" y2="2.2003"/>
@@ -40,7 +40,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Promenade 3/4 to Home" formation="Facing Couples Far">
+  <tam title="Promenade 3/4 Home" formation="Facing Couples Far">
     <path>
       <movement hands="gripright" beats="2.75" cx1="1.4882" cy1="-0.0226" cx2="0.5295" cy2="-1.461" x2="1.5858" y2="-2.4142" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
       <movement hands="right" beats="3.75" cx1="1.0984" cy1="0.1168" cx2="1.8941" cy2="1.102" x2="1.7772" y2="2.2003"/>
@@ -56,7 +56,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Promenade 1/2 to Home" formation="Facing Couples Far">
+  <tam title="Promenade 1/2 Home" formation="Facing Couples Far">
     <path>
       <movement hands="gripright" beats="2.75" cx1="1.4882" cy1="-0.0226" cx2="0.5295" cy2="-1.461" x2="1.5858" y2="-2.4142" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
       <movement hands="right" beats="3.75" cx1="1.0984" cy1="0.1168" cx2="1.8941" cy2="1.102" x2="1.7772" y2="2.2003"/>
@@ -70,7 +70,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 383da30, with uncommitted changes, built 2026-10-12 11:03Z -->
-  <tam title="Promenade 1/4 to Home" from="Facing Couples Far" formation="Facing Couples Far" parts="">
+  <tam title="Promenade 1/4 Home" from="Facing Couples Far" formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripright" beats="2.75" cx1="1.4882" cy1="-0.0226" cx2="0.5295" cy2="-1.461" x2="1.5858" y2="-2.4142" cx3="2" cx4="2.4571" cy4="-0.8257" x4="3.3572" y4="-1.9401"/>
       <movement hands="gripright" beats="2" cx1="0.6045" cy1="0.0258" cx2="1.1049" cy2="-0.36" x2="1.4939" y2="-0.6742" cx3="0.5761" cx4="0.4487" cy4="0.8305" x4="-0.3142" y4="1.4313"/>
@@ -84,7 +84,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit aeedfc9, with uncommitted changes, built 2026-10-12 09:10Z -->
-  <tam title="Promenade Full" from="Facing Couples Far" formation="Facing Couples Far" parts="">
+  <tam title="Promenade" from="Facing Couples Far" formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripright" beats="2.875" cx1="1" cy1="0" cx2="0.2439" cy2="-1.0251" x2="1.5858" y2="-2.4142" cx3="2" cx4="2.2807" cy4="-0.8927" x4="3.3572" y4="-1.9401"/>
       <movement hands="right" beats="3.75" cx1="1.1045" cy1="-0.0151" cx2="2.0121" cy2="0.8679" x2="2.0272" y2="1.9724"/>
@@ -145,7 +145,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 20:26Z -->
-  <tam title="Promenade Full" formation="Two-Faced Lines LH" parts="">
+  <tam title="Promenade" formation="Two-Faced Lines LH" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="0.8294" cy2="1.2985" x2="1" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
       <movement hands="right" beats="4" cx1="1.6567" cy1="-0.0236" cx2="3.0188" cy2="1.3003" x2="3.0424" y2="2.957"/>
@@ -251,7 +251,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 383da30, with uncommitted changes, built 2026-10-12 11:03Z -->
-  <tam title="Promenade Full to Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
+  <tam title="Promenade Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="0.8294" cy2="1.2985" x2="1" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
       <movement hands="right" beats="3.5" cx1="1.6567" cy1="-0.0236" cx2="3.0188" cy2="1.3003" x2="3.0424" y2="2.957"/>
@@ -283,7 +283,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 383da30, with uncommitted changes, built 2026-10-12 11:03Z -->
-  <tam title="Promenade 3/4 to Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
+  <tam title="Promenade 3/4 Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="0.8294" cy2="1.2985" x2="1" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
       <movement hands="right" beats="3.25" cx1="1.6567" cy1="-0.0236" cx2="3.0188" cy2="1.3003" x2="3.0424" y2="2.957"/>
@@ -311,7 +311,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 383da30, with uncommitted changes, built 2026-10-12 11:03Z -->
-  <tam title="Promenade 1/2 to Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
+  <tam title="Promenade 1/2 Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="0.8294" cy2="1.2985" x2="1" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
       <movement hands="right" beats="3" cx1="1.6567" cy1="-0.0236" cx2="3.0188" cy2="1.3003" x2="3.0424" y2="2.957"/>
@@ -335,7 +335,7 @@
   </tam>
 
   <!-- exported by the dancing-squared web app: commit 383da30, with uncommitted changes, built 2026-10-12 11:03Z -->
-  <tam title="Promenade 1/4 to Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
+  <tam title="Promenade 1/4 Home" from="Two-Faced Lines LH" formation="Two-Faced Lines LH" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.4193" cy1="-0.0208" cx2="0.8294" cy2="1.2985" x2="1" y2="3" cx3="2" cx4="2.7058" cy4="1.5056" x4="2.6977" y4="2.0751"/>
       <movement hands="right" beats="2" cx1="3.0148" cy1="-0.0583" cx2="3.2255" cy2="3.3449" x2="3.0567" y2="3.9569" cx3="2.3825" cx4="0.9564" cy4="3.1783" x4="0.368" y4="3.1909"/>
@@ -357,7 +357,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit b1edee8, with uncommitted changes, built 2026-10-08 10:40Z -->
-  <tam title="Promenade Full" formation="Right and Left Grand Circle" parts="">
+  <tam title="Promenade" formation="Right and Left Grand Circle" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6534" cy2="0.0647" x2="0.9567" y2="0.1903" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
       <movement hands="right" beats="3.5" cx1="1.3781" cy1="0.0851" cx2="2.4263" cy2="1.2712" x2="2.3412" y2="2.6493"/>
@@ -467,7 +467,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade Full to Home" formation="Right and Left Grand Circle" parts="">
+  <tam title="Promenade Home" formation="Right and Left Grand Circle" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
       <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
@@ -503,7 +503,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade 3/4 to Home" formation="Right and Left Grand Circle" parts="">
+  <tam title="Promenade 3/4 Home" formation="Right and Left Grand Circle" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
       <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
@@ -535,7 +535,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade 1/2 to Home" formation="Right and Left Grand Circle" parts="">
+  <tam title="Promenade 1/2 Home" formation="Right and Left Grand Circle" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
       <movement hands="right" beats="3.5" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
@@ -563,7 +563,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade 1/4 to Home" formation="Right and Left Grand Circle" parts="">
+  <tam title="Promenade 1/4 Home" formation="Right and Left Grand Circle" parts="">
     <path>
       <movement hands="gripright" beats="2" cx1="0.3283" cy1="0" cx2="0.6535" cy2="0.1776" x2="0.9568" y2="0.3032" cx3="0.1103" cx4="0.882" cy4="0.1289" x4="0.9863" y4="0.1648"/>
       <movement hands="gripright" beats="3.5" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
@@ -587,7 +587,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade Full to Home" formation="Right and Left Grand Static Square" parts="">
+  <tam title="Promenade Home" formation="Right and Left Grand Static Square" parts="">
     <path>
       <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
       <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
@@ -623,7 +623,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade 3/4 to Home" formation="Right and Left Grand Static Square" parts="">
+  <tam title="Promenade 3/4 Home" formation="Right and Left Grand Static Square" parts="">
     <path>
       <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
       <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
@@ -655,7 +655,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade Full to Home" formation="Right and Left Grand Static Square" parts="">
+  <tam title="Promenade Home" formation="Right and Left Grand Static Square" parts="">
     <path>
       <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
       <movement hands="right" beats="3.6" cx1="1.3783" cy1="0.0845" cx2="2.4263" cy2="1.2711" x2="2.3412" y2="2.6493"/>
@@ -683,7 +683,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Promenade 1/4 to Home" formation="Right and Left Grand Static Square" parts="">
+  <tam title="Promenade 1/4 Home" formation="Right and Left Grand Static Square" parts="">
     <path>
       <movement hands="gripright" beats="1.6" cx1="0" cy1="0.5" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="0.0204" cx4="0.9792" cy4="-0.0293" x4="0.9995" y4="-0.0306"/>
       <movement hands="gripright" beats="1.8" cx1="0.7571" cy1="0.0526" cx2="1.51" cy2="0.5258" x2="1.7186" y2="0.8388"/>
@@ -707,7 +707,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Single File Promenade to Home" formation="Opposite Boy" parts="" sequencer="gender-specific" symmetrical="true">
+  <tam title="Single File Promenade Home" formation="Opposite Boy" parts="" sequencer="gender-specific" symmetrical="true">
     <path>
       <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="1" cy2="-0.5" x2="1" y2="-1" cx3="0.265" cx4="2.4406" cy4="0.2537" x4="2.4406" y4="-0.8525"/>
       <movement hands="none" beats="4" cx1="1.1081" cy1="0" cx2="2.0081" cy2="0.8972" x2="2.0052" y2="2.0052"/>
@@ -727,7 +727,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Single File Promenade to Home" formation="Opposite Girl" parts="" sequencer="gender-specific" symmetrical="true">
+  <tam title="Single File Promenade Home" formation="Opposite Girl" parts="" sequencer="gender-specific" symmetrical="true">
     <path>
       <movement hands="none" beats="1" cx1="0.4244" cy1="0.0044" cx2="1.1251" cy2="0.0658" x2="1.5858" y2="-0.4142" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="none" beats="4" cx1="1.1046" cy1="0.0029" cx2="1.9976" cy2="0.9008" x2="1.9947" y2="2.0053"/>
@@ -812,7 +812,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Single File Promenade to Home" formation="Circle" parts="">
+  <tam title="Single File Promenade Home" formation="Circle" parts="">
     <path>
       <movement hands="none" beats="4" cx1="0.0286" cy1="-1.631" cx2="0.8615" cy2="-2.6045" x2="2.6158" y2="-2.6017" cx3="0.0286" cx4="1.092" cy4="-0.1155" x4="3.3479" y4="0.0366"/>
       <movement hands="none" beats="4" cx1="1.4389" cy1="-0.0761" cx2="2.4875" cy2="0.705" x2="2.7556" y2="2.3519"/>
@@ -874,7 +874,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-02 14:52Z -->
-  <tam title="Single File Promenade to Home" formation="Column LH GBGB" parts="">
+  <tam title="Single File Promenade Home" formation="Column LH GBGB" parts="">
     <path>
       <movement hands="none" beats="1" cx1="1" cy1="0" cx2="0.7064" cy2="-0.3315" x2="1.2322" y2="-0.7678" cx3="0.0898" cx4="0.0619" cy4="-0.0576" x4="0.3466" y4="-0.2882"/>
       <movement hands="none" beats="3.75" cx1="1.4364" cy1="-0.1077" cx2="2.5746" cy2="0.8582" x2="2.7474" y2="2.2253"/>
@@ -941,7 +941,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Wrong Way Promenade Full to Home" formation="Facing Couples Far" parts="">
+  <tam title="Wrong Way Promenade Home" formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
       <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
@@ -961,7 +961,7 @@
   </tam>
 
   <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Wrong Way Promenade 3/4 to Home"  formation="Facing Couples Far" parts="">
+  <tam title="Wrong Way Promenade 3/4 Home"  formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
       <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
@@ -979,7 +979,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Wrong Way Promenade 1/2 to Home" formation="Facing Couples Far" parts="">
+  <tam title="Wrong Way Promenade 1/2 Home" formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
       <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>
@@ -995,7 +995,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
-  <tam title="Wrong Way Promenade Full" formation="Facing Couples Far" parts="">
+  <tam title="Wrong Way Promenade" formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripright" beats="2.5" cx1="0.5" cy1="0" cx2="-0.399" cy2="0.6879" x2="0.0184" y2="1.1889" cx3="2" cx4="2.7752" cy4="0.6585" x4="3.3936" y4="1.6541"/>
       <movement hands="right" beats="1.5" cx1="1.1819" cy1="-0.0943" cx2="1.8955" cy2="-0.5669" x2="2.6869" y2="-1.8411"/>

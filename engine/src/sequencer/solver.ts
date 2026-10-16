@@ -19,9 +19,14 @@
 // `Promenade` IS STILL ONE OF `STANDARD_FINISHES` (it is CALLERLAB's third, and
 // `constants.ts` records it as such) but it is no longer an edge the search can take:
 // the derived rule that computed it was removed so the family could be hand-authored
-// from tams, and no shipped tam authors a bare `Promenade` yet. So a figure whose only
-// published get-out is `--Prom`/`--PromH` has no get-out here until those tams land —
-// measured, and recorded in the commit that removed the rule.
+// from tams. THE TAMS HAVE SINCE LANDED - `ms/promenade.xml` authors the bare
+// `Promenade` and `Promenade Home` under the CALLERLAB names - SO THE SENTENCE ABOVE IS
+// NO LONGER THE REASON a figure like `[L.F1p]` has no get-out. MEASURED, it still has
+// none, and the reason moved: the closing edge has to land every dancer on its OWN spot
+// (`reachesTarget` is identity), and a `Promenade` ends in the Promenade formation, not
+// the squared set. This list names `Promenade`; per the CALLERLAB definitions the
+// home-ending figure is `Promenade Home`. `getout-convention.mjs`'s header carries the
+// measurement and is the acceptance instrument for it.
 
 import { fitRigidMatrix, identity5, mul5, type Mat5 } from '../matrix.js';
 import { matchFormations, type Matchable } from './match.js';

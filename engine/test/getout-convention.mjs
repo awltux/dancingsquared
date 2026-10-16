@@ -25,6 +25,20 @@
 // corpus is mid-edit would bake an in-flight state into a gate, and the numbers must come back up on
 // their own when the tams land. This file is the acceptance instrument for that work.
 //
+// *** THE TAMS LANDED, THE NUMBERS DID NOT COME BACK, AND THE PREDICTION ABOVE IS THEREFORE REFUTED. ***
+// MEASURED on `ms/promenade.xml` after it took the CALLERLAB names - the bare `Promenade` (3 tams) and
+// `Promenade Home` (5) - this file went from 15 FAIL lines to 15, and NOT ONE of the `no getout found`
+// or `fixIt` lines cleared. What changed is the SHAPE: `[B4c]`'s `Unknown call: Promenade` went green,
+// and the two `[B2r]`/`[B2p]` "refused for the wrong reason" lines became "a promenade is now legal
+// from a ring that is out of sequence" - i.e. the tams are reachable and the REFUSAL is what moved.
+// THE REASON THE PREDICTION FAILED is the finish, not the tams: a get-out closes when a `STANDARD_FINISH`
+// lands every dancer on its OWN spot, `STANDARD_FINISHES` names `Promenade`, and per the CALLERLAB
+// definitions `Promenade` ends in the PROMENADE FORMATION - it takes `Promenade Home` to end in the
+// squared set. So the finish list and the corpus now disagree, and that is the decision this file is
+// waiting on rather than the tams. Two further checks here still assume the pre-tam world and are red
+// for that reason: section 1 asserts `Promenade` is NOT in `legalCalls` ("so this is not a search-edge
+// test") and section 3b expects it refused.
+//
 // The safety property this gate exists for is unchanged: adopting the convention must never make a
 // path claim to resolve when it does not. Every path this file accepts is replayed
 // through the Sequencer's own interactive apply and must end on the home board with

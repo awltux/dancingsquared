@@ -132,6 +132,14 @@ console.log('\n== 4. a hint is charged once, never refunded, and its marker is v
   check(h.spent === true && typeof h.call === 'string', `the hint names a call (${h.call})`);
   check(run.view(0).offered.some((m) => m.call === h.call), 'and it is a call the offering list contains, so the player can follow it');
   check(h.call !== 'stuck', 'and never the refused call');
+  // THE SERVER'S NAME WINS WHEN THERE IS ONE (A23's naming), checked on its OWN run so the counting below is not
+  // disturbed: the server looks the call up from the line it RECORDED, which is the board the player is actually on,
+  // where this object's own look-up runs from the position it believes it is on. NEGATIVE CONTROL: a run that ignored
+  // the argument would name its own call here, and these two are the only checks in the suite that would fail.
+  const namedRun = fresh();
+  const named = namedRun.takeHint('Bend the Line');
+  check(named.spent === true && named.call === 'Bend the Line', `NEGATIVE CONTROL: a name handed in is the one it uses (${named.call})`);
+  check(namedRun.view(0).hintedCall === 'Bend the Line', 'and the marker follows the server\'s name, not a local one');
   check(run.view(0).elapsedSeconds === 60, `taking it charges one minute (${run.view(0).elapsedSeconds}s at the frame it was taken)`);
   check(run.view(0).hintsUsed === 1, 'and the run carries the count, because the server clamps on it');
   check(run.view(0).hintedCall === h.call, 'and the marker is on the named call while the player is still on that board');

@@ -18,7 +18,7 @@ import { postDailyMove } from '../src/handlers/daily-move.ts';
 import { postRun } from '../src/handlers/runs.ts';
 import { STATUS } from '../src/status.ts';
 import { attemptKey, hintsKey, publishedDailyKey } from '../src/keys.ts';
-import { levelAt, puzzleFor } from '../src/levels.ts';
+import { levelAt, puzzleFor, runtimeFor } from '../src/levels.ts';
 import { seedLocalRegimes } from '../src/local-regime.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
@@ -89,7 +89,7 @@ async function fresh() {
 
 console.log('== 1. a hint is spent once, against the challenge that was READ ==');
 {
-  const { store, deps } = await fresh();
+  const { store, deps, seed } = await fresh();
   // NO BALANCE, NO HINT: the balance is the server's, so a player holding none is refused rather than helped and
   // charged later.
   await getPuzzle(read('h1'), deps);
@@ -109,6 +109,14 @@ console.log('== 1. a hint is spent once, against the challenge that was READ =='
   const row = (await store.get(ROW.attempt('h1', LEVEL, DAY))).value;
   check(row.hints.length === 1 && row.hints[0].atMs === CLOCK + 7000, `with the event stamped by the SERVER (${row.hints[0].atMs - CLOCK} ms after the read)`);
   check(typeof row.startedAtMs === 'number', 'and the start stamp the clock is measured from is still there, because one item holds both');
+  // THE CALL IS THE SERVER'S NOW (A23's naming). This challenge has NO recorded moves yet, so the board §10's look-up
+  // runs over is the puzzle's START — and the check is against the ENGINE's own offered list rather than a literal.
+  // NEGATIVE CONTROL: the rule this replaced left the field EMPTY (a placeholder for a name the client held), so the
+  // first comparison below is the one it fails.
+  const puzzle = puzzleFor(seed, levelAt(LEVEL)).puzzle;
+  const offered = runtimeFor(levelAt(LEVEL)).applier.offered(puzzle.start).map((move) => move.call);
+  check(typeof row.hints[0].call === 'string' && row.hints[0].call !== '' && offered.includes(row.hints[0].call), `NEGATIVE CONTROL: the hint's call is named by the SERVER from the recorded board (${row.hints[0].call})`);
+  check(spent.body.call === row.hints[0].call, `and the answer carries the same name, so the app can show the server's rather than a second one (${spent.body.call})`);
 
   const badDay = await postHint(hint('h1', LEVEL, 'yesterday'), deps);
   check(badDay.status === STATUS.badRequest && badDay.body.error.code === 'bad_date', `a date that is not a day is refused (${badDay.body.error?.code})`);

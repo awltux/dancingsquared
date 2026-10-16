@@ -319,12 +319,22 @@ console.log('\n== 10. a hint is spent by the SERVER, and the balance it answers 
 {
   // THE SPEND IS THE EVENT (DESIGN.md 11.1, A23): the app asks before it takes the hint, because a hint the server
   // did not record is a run it refuses — so the request must name the CHALLENGE (level and day) and nothing else.
-  const posted = deps('http://localhost:8090', { status: 200, body: { hints: { hints: 2, successes: 0 }, spent: 1 } });
+  const posted = deps('http://localhost:8090', { status: 200, body: { hints: { hints: 2, successes: 0 }, spent: 1, call: 'Boys Run' } });
   const answer = await spendHint(1, '2026-10-15', posted.api);
   check(answer.ok === true && answer.value.hints.hints === 2 && answer.value.spent === 1, `the balance the server holds comes back (${answer.value?.hints.hints} left)`);
+  // THE NAME IS THE SERVER'S (A23's naming): it looked the call up from the line it RECORDED, so the app shows that
+  // one rather than a second name of its own.
+  check(answer.value.call === 'Boys Run', `with the call the server named (${answer.value?.call})`);
   const sent = JSON.parse(posted.fetch.calls[0].init.body);
   check(posted.fetch.calls[0].url === 'http://localhost:8090/me/hints' && posted.fetch.calls[0].init.method === 'POST', 'posted to the endpoint the route table names');
   check(sent.levelIndex === 1 && sent.date === '2026-10-15' && Object.keys(sent).length === 2, `naming the challenge and nothing else (${JSON.stringify(sent)})`);
+  // A SPEND THAT NAMES NOTHING IS REFUSED RATHER THAN FILLED IN HERE. The server's own rule is that a hint which
+  // cannot say anything is not a hint, so this answer cannot happen — and a client that invented a name would be the
+  // second name the shared look-up exists to remove. NEGATIVE CONTROL: the plausible wrong rule, "the name stays the
+  // client's", reads this answer as a spend and shows a call the server never recorded.
+  const nameless = deps('http://localhost:8090', { status: 200, body: { hints: { hints: 2, successes: 0 }, spent: 1 } });
+  const unnamed = await spendHint(1, '2026-10-15', nameless.api);
+  check(unnamed.ok === false && unnamed.failure.code === 'bad_response', `NEGATIVE CONTROL: a spend with no name is refused (${unnamed.failure?.code})`);
   const refused = deps('http://localhost:8090', { status: 409, body: { error: { code: 'no_hints', message: 'no hint is held' } } });
   const denied = await spendHint(1, '2026-10-15', refused.api);
   check(denied.ok === false && denied.failure.code === 'no_hints', `a refusal keeps the server's code, which the app shows instead of spending (${denied.failure?.code})`);

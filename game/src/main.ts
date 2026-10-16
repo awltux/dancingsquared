@@ -1228,6 +1228,7 @@ async function takeHint(): Promise<void> {
   // still a hint — DESIGN.md §10's rule is that a hint names a call and costs a minute, and both of those are this
   // app's arithmetic once the server is not the ledger.
   const serverSpend = apiConfigured() && mayWrite(currentStanding());
+  let serverNamed: string | null = null;
   if (serverSpend) {
     const levelIndex = daily.view(performance.now()).level.index;
     const answer = await spendHint(levelIndex, dailyDay);
@@ -1238,8 +1239,11 @@ async function takeHint(): Promise<void> {
     // THE SERVER'S BALANCE IS THE ONE SHOWN, for the same reason its score is adopted after a run: two ledgers is
     // one too many, and this app's copy is the preview.
     save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+    // AND SO IS ITS NAME (A23's naming): the server looked the call up from the line it RECORDED, which is the board
+    // the player is actually on, where this app's own look-up runs from the position it believes it is on.
+    serverNamed = answer.value.call;
   }
-  const hint = daily.takeHint();
+  const hint = daily.takeHint(serverNamed);
   if (!hint.spent || !hint.call) {
     // The balance allows a spend but there is nothing to name, so the run is NOT charged: a hint that cannot
     // say anything is not a hint (DESIGN.md 10).

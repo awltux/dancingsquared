@@ -202,13 +202,18 @@ export class DailyRun {
    * ledger's (`puzzle/hints.ts`), and the app asks it first — so this method is the SPENDING side only, and
    * a probe can drive it with no ledger at all.
    *
+   * `named` IS THE SERVER'S CALL, when there is a server (A23's naming): it looked the call up from the RECORDED
+   * line, which is the board the player is actually on, where this object's own look-up runs from the position it
+   * believes it is on — and a move still in flight is a difference. Passing it in is what makes ONE name for one
+   * fact; omitting it keeps the offline path exactly as it was, which is the local look-up below.
+   *
    * `spent: false` WITH A NULL CALL means there is nothing to hint from here (no call is offered), which is
    * reported rather than thrown: the screen's hint button is disabled in that state, so reaching it is a
    * stale click, not a bug.
    */
-  takeHint(): { call: string | null; spent: boolean } {
+  takeHint(named: string | null = null): { call: string | null; spent: boolean } {
     if (this.outcome !== 'playing') return { call: null, spent: false };
-    const call = this.session.hint();
+    const call = named ?? this.session.hint();
     if (call === null) return { call: null, spent: false };
     this.hintsUsed++;
     this.hintedCall = call;

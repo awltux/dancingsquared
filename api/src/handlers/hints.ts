@@ -10,11 +10,17 @@
 // where the player is stuck, which is a line they are building. A hint for a Drill would hand over the answer to a
 // two-option question, which is not what the hint is for.
 //
-// WHAT IS NOT YET THE SERVER'S: the CALL the hint names. §10's look-up runs over the BOARD the player is standing
-// on, and the Daily's board is the recorded line — `POST /daily/move` is what records it, and until that lands the
-// client names the call from the puzzle it was served (DESIGN.md §11.1's known limit 2: that information is
-// derivable anyway, so the server naming it is a fairness feature rather than an anti-cheat one). The SPEND is the
-// anti-cheat part, and that is what this endpoint owns.
+// WHAT THE SERVER NAMES, AND WHY IT CAN NOW. The CALL a hint names is the server's: §10's look-up runs over the
+// BOARD the player is standing on, and for the Daily that board is the RECORDED line — `POST /daily/move` records it
+// and `nameHintFor` replays it through `PlaySession.hint()`, the same function the screen calls. So the server names
+// the call from the position it WATCHED the player reach, where the client names from the position it believes it is
+// on (which can lag by a move that has not landed) — and the answer carries the name so the app can adopt it rather
+// than show a second one.
+//
+// THE SPEND REMAINS THE ANTI-CHEAT PART. A hint is a 60-second charge folded into the elapsed the score is computed
+// from, and `POST /runs` charges what was RECORDED here. §11.1's known limit 2 still stands: the information a hint
+// reveals is derivable from the puzzle the client was served, so the NAMING is a fairness feature rather than a
+// defence — what is a defence is that the help cannot be taken without the balance moving.
 //
 // IT IS NOT A SCORING ENDPOINT. It debits one hint and records one event; the run's TIME CHARGE happens in
 // `POST /runs`, from the recorded events, which is why a hint taken on a run that is never submitted still costs
@@ -25,6 +31,7 @@ import { attemptKey, hintsKey } from '../keys.ts';
 import { dayParam, levelParam } from '../query.ts';
 import { asAttempt, asAttemptItem } from '../attempt-row.ts';
 import { asHints } from '../runs.ts';
+import { levelAt, nameHintFor, publishedPuzzle } from '../levels.ts';
 
 /** How many hints one challenge may spend. Three is the whole balance (§10), and the bound is the item's. */
 export const MAX_HINTS_PER_ATTEMPT = 3;
@@ -71,13 +78,33 @@ export async function postHint(request: ApiRequest, deps: Deps): Promise<ApiResu
       return failure(STATUS.conflict, 'hints_exhausted', `the challenge for ${day} has already spent ${MAX_HINTS_PER_ATTEMPT} hints`);
     }
 
-    const event = { step: record.hints.length, call: '', atMs: deps.clock.nowMs() };
+    // THE NAME COMES FROM THE RECORDED BOARD, and the puzzle is generated once per spend (the memoised
+    // `puzzleFor`, so a second hint on the same challenge costs a Map lookup). A refusal here is the published
+    // row's — the same three `verifyDaily` answers with — and it is returned BEFORE the balance moves.
+    const challenge = await publishedPuzzle(deps.store, levelIndex, day);
+    if (!challenge.ok) return failure(challenge.status, challenge.code, challenge.message);
+    const named = nameHintFor(levelAt(levelIndex), challenge.puzzle, record.moves);
+    // A HINT THAT CANNOT SAY ANYTHING IS NOT A HINT, which is the app's own rule and now the server's: the look-up
+    // runs over the recorded board, so the server can tell BEFORE it debits that there is nothing to name (a dead
+    // end). Refusing here is what stops a player paying for a hint that names no call — MEASURED as reachable the
+    // moment the naming moved to the server, because the debit used to happen with an empty name.
+    if (named === null) {
+      return failure(STATUS.conflict, 'nothing_to_name', 'there is no call to name from this board: a hint that cannot say anything is not a hint');
+    }
+
+    const event = { step: record.hints.length, call: named, atMs: deps.clock.nowMs() };
     const written = await deps.store.transact([
       { key: hintsKey(playerId), expectedRev: balanceStored?.rev ?? null, value: { hints: balance.hints - 1, successes: balance.successes } },
       { key: rowKey, expectedRev: attemptStored.rev, value: asAttemptItem({ ...record, hints: [...record.hints, event] }) },
     ]);
     if (written) {
-      return { status: STATUS.ok, body: { hints: { hints: balance.hints - 1, successes: balance.successes }, spent: record.hints.length + 1 } };
+      return {
+        status: STATUS.ok,
+        // THE CALL IS IN THE ANSWER so the app can SHOW the server's name rather than its own: two names for one
+        // fact is the confusion the shared look-up exists to avoid. It is never null — the refusal above means a
+        // spend that cannot name a call does not happen.
+        body: { hints: { hints: balance.hints - 1, successes: balance.successes }, spent: record.hints.length + 1, call: named },
+      };
     }
   }
   return failure(STATUS.conflict, 'contended', 'another request is writing this attempt; try again');

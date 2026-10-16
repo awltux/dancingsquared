@@ -28,6 +28,8 @@ import {
   type Puzzle,
 } from 'dancing-squared-game';
 import { applierFor } from 'dancing-squared-game/corpus-node';
+import type { ItemStore } from './ports.ts';
+import { publishedDailyKey } from './keys.ts';
 import type { DailyMove } from './daily-line.ts';
 
 type Runtime = ReturnType<typeof applierFor>;
@@ -175,11 +177,68 @@ export function lineReachesGoal(level: LevelSpec, puzzle: Puzzle, calls: readonl
  * needs it anyway. A move endpoint that generated the puzzle would pay the generator on every click.
  */
 export function replayDailyMoves(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): string[] {
+  return sessionWith(level, puzzle, moves).moves;
+}
+
+/**
+ * The call a hint names, from the board the RECORDED line leaves the player on (DESIGN.md §10, A23's naming).
+ *
+ * THE LOOK-UP IS `PlaySession.hint()` — THE SAME FUNCTION THE APP CALLS — and that is the point rather than a
+ * convenience. §10's rule is "name one call that makes progress from where the player is", and a second
+ * implementation here would be a server naming one call while the screen showed another. What the SERVER adds is the
+ * BOARD: it replays the recorded line, so the hint is named from the position the server watched the player reach,
+ * where the client names from the position IT believes it is on — which can lag by a move that has not landed.
+ *
+ * NULL IS AN ANSWER: a board with nothing offered is a state a player can be in (a dead end), and "no call" is the
+ * honest name rather than an invented one.
+ */
+export function nameHintFor(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): string | null {
+  return sessionWith(level, puzzle, moves).hint();
+}
+
+/**
+ * The published challenge's puzzle, or a refusal — the read a handler needs before it can name or walk a line.
+ *
+ * IT IS THE SAME ROW `verifyDaily` READS, with the same three refusals (`no_published_daily`, `unreadable_daily`,
+ * `stale_pool`); that function keeps its own copy because its MESSAGES are pinned by `runs-probe.mjs` and it needs
+ * the seed for the audit row rather than the puzzle. This one is for the readers that need the puzzle and nothing
+ * else, which is what the hint's look-up is.
+ */
+export async function publishedPuzzle(
+  store: ItemStore,
+  levelIndex: number,
+  day: string,
+): Promise<{ ok: true; seed: number; puzzle: Puzzle } | { ok: false; status: number; code: string; message: string }> {
+  const stored = await store.get(publishedDailyKey(levelIndex, day));
+  if (!stored) {
+    return { ok: false, status: 404, code: 'no_published_daily', message: `level ${levelIndex} has no published challenge for ${day}` };
+  }
+  const value = stored.value as { seed?: unknown; poolVersion?: unknown };
+  if (typeof value.seed !== 'number' || typeof value.poolVersion !== 'string') {
+    return { ok: false, status: 503, code: 'unreadable_daily', message: `the published challenge for ${day} is not a record this build can read` };
+  }
+  if (value.poolVersion !== MAIN_POOL.version) {
+    return { ok: false, status: 409, code: 'stale_pool', message: `the challenge was published against pool ${value.poolVersion}, and this build serves ${MAIN_POOL.version}` };
+  }
+  const generated = puzzleFor(value.seed, levelAt(levelIndex));
+  if (!generated.ok) {
+    return { ok: false, status: 503, code: 'unplayable_daily', message: `the published challenge does not generate: ${generated.reason}` };
+  }
+  return { ok: true, seed: value.seed, puzzle: generated.puzzle };
+}
+
+/**
+ * A session on `puzzle`, with `moves` replayed into it.
+ *
+ * THE REPLAY LOOP LIVES HERE ONCE, so the reader that needs the LINE and the reader that needs the BOARD the line
+ * leaves cannot drift apart — which is the drift `nameHintFor` exists to remove.
+ */
+function sessionWith(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): PlaySession {
   const session = new PlaySession(puzzle, runtimeFor(level).applier);
   for (const move of moves) {
     if (move.kind === 'add') session.play(move.call);
     else if (move.kind === 'undo') session.undo();
     else session.redo();
   }
-  return session.moves;
+  return session;
 }

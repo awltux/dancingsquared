@@ -443,10 +443,12 @@ export async function recordDrillAnswer(
   };
 }
 
-/** What the server did about a hint: the balance it now holds, and how many this challenge has spent. */
+/** What the server did about a hint: the balance it now holds, how many this challenge has spent, and the CALL. */
 export interface HintSpend {
   readonly hints: { readonly hints: number; readonly successes: number };
   readonly spent: number;
+  /** The call the SERVER named from the recorded line. Never null: a spend that cannot name a call is refused. */
+  readonly call: string;
 }
 
 /**
@@ -463,9 +465,21 @@ export async function spendHint(levelIndex: number, date: string, deps: ApiDeps 
   if (typeof hints?.hints !== 'number' || typeof hints.successes !== 'number') {
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not answer with a hint balance' } };
   }
+  // THE NAME IS THE SERVER'S (A23's naming): it looked the call up from the RECORDED line, which is the board the
+  // player is actually on — the client's own look-up runs from the position it believes it is on, which can lag by a
+  // move that has not landed. A body that does not name a call is refused rather than filled in here, because a
+  // second name is exactly the divergence the shared look-up removes.
+  const named = answer.value.call;
+  if (typeof named !== 'string' || named === '') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server spent a hint without naming a call' } };
+  }
   return {
     ok: true,
-    value: { hints: { hints: hints.hints, successes: hints.successes }, spent: typeof answer.value.spent === 'number' ? answer.value.spent : 0 },
+    value: {
+      hints: { hints: hints.hints, successes: hints.successes },
+      spent: typeof answer.value.spent === 'number' ? answer.value.spent : 0,
+      call: named,
+    },
   };
 }
 

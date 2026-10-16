@@ -26,14 +26,13 @@ export interface Press {
 }
 
 /**
- * One hint, as the server spent it: which hint of the challenge it was, and when.
+ * One hint, as the server spent it: which hint of the challenge it was, the call it named, and when.
  *
- * `call` IS STILL EMPTY IN PRACTICE, AND THAT IS NOW A CHOICE RATHER THAN A GAP. §10's hint names a call on the board
- * the player is standing on, and for the Daily that board IS the recorded line — `POST /daily/move` landed, so the
- * server can derive it (`levels.ts`'s `replayDailyMoves`). What has not moved is §10's LOOK-UP: which of the offered
- * calls to name is `PlaySession.hint()`'s rule, and the api has not yet driven it here. Until it does, the spend is
- * recorded and the NAME stays the client's (DESIGN.md §11.1's known limit 2 says that information is derivable
- * anyway). The field is kept so the row's shape does not change when the naming moves.
+ * `call` IS THE SERVER'S NOW (A23's naming). §10's look-up runs over the board the player is standing on, and for
+ * the Daily that board IS the recorded line — `levels.ts`'s `nameHintFor` replays it through `PlaySession.hint()`,
+ * the same function the screen calls, so there is ONE name for one fact. It is never empty in a row this build
+ * writes: a spend that cannot name a call is REFUSED instead (`nothing_to_name`), because a hint that cannot say
+ * anything is not a hint. A row written before the naming moved may still hold `''`, which `asHints` reads.
  */
 export interface HintEvent {
   readonly step: number;

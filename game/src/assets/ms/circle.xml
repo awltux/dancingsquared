@@ -28,7 +28,7 @@
   <!-- [CALLERLAB 2026] CIRCLE LEFT FAMILY FROM STATIC SQUARE TO STATIC SQUARE-->
 
 
-  <tam title="Circle Left - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Left Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5525" cy1="-0.0022" cx2="1.361" cy2="1.2937" x2="2.001" y2="1.5637" cx3="0.265" cx4="0.5046" cy4="-0.206" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.5218" cy1="0.5137" cx2="1.2269" cy2="0.7982" x2="1.9592" y2="0.7905" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -73,7 +73,7 @@
       However, in general dancers continue to circle left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/4 - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Left 1/4 Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.1783" cy2="1.1219" x2="2" y2="1.41" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.27" cy1="0.64" cx2="1.3466" cy2="1.4814" x2="0.9921" y2="1.8341" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -108,7 +108,7 @@
     </path>
   </tam>
   
-  <tam title="Circle Left 1/2 - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Left 1/2 Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.77" cy2="1.14" x2="2" y2="1.41" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.2635" cy1="0.6422" cx2="0.7721" cy2="1.1529" x2="1.4132" y2="1.4191" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -135,7 +135,7 @@
     </path>
   </tam>
 
-  <tam title="Circle Left 3/4 - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Left 3/4 Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.77" cy2="1.14" x2="2" y2="1.41" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.27" cy1="0.64" cx2="0.77" cy2="1.14" x2="1.41" y2="1.41" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -175,7 +175,7 @@
   <!-- [CALLERLAB 2026] CIRCLE LEFT FAMILY FROM CIRCLE TO STATIC SQUARE -->
 
 
-  <tam title="Circle Left - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Left Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0" cy1="0.6954" cx2="0.2772" cy2="1.3621" x2="0.7703" y2="1.8525" cx3="0.265" cx4="0.4986" cy4="0.0269" x4="0.8172" y4="-0.1226"/>
       <movement hands="gripboth" beats="2" cx1="0.2379" cy1="0.6534" cx2="0.7266" cy2="1.185" x2="1.3576" y2="1.4771" cx3="0.265" cx4="0.5107" cy4="-0.1255" x4="0.707" y4="-0.293"/>
@@ -220,7 +220,7 @@
       However, in general dancers continue to circle left until the next call is given.</taminator>
   </tam>
   
-  <tam title="Circle Left 1/4 - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Left 1/4 Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0" cy1="0.6712" cx2="0.3487" cy2="1.474" x2="0.8118" y2="1.9598" cx3="0.265" cx4="0.5655" cy4="-0.0323" x4="0.7069" y4="-0.1118"/>
       <movement hands="gripboth" beats="2" cx1="0.1655" cy1="0.6505" cx2="1.2356" cy2="1.5726" x2="0.8425" y2="1.8815" cx3="0.265" cx4="0.5317" cy4="-0.1585" x4="0.707" y4="-0.293"/>
@@ -239,7 +239,7 @@
     </path>
   </tam>
   
-  <tam title="Circle Left 1/2 - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Left 1/2 Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0" cy1="0.6917" cx2="0.2743" cy2="1.3551" x2="0.7627" y2="1.8449" cx3="0.1318" cx4="0.8589" cy4="-0.1456" x4="0.9805" y4="-0.1964"/>
       <movement hands="gripboth" beats="2" cx1="0.2621" cy1="0.6401" cx2="0.7672" cy2="1.1502" x2="1.4048" y2="1.4184" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -266,7 +266,7 @@
     </path>
   </tam>
   
-  <tam title="Circle Left 3/4 - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Left 3/4 Home" formation="Circle" parts="">
     <path>
       <movement hands="both" beats="2" cx1="0" cy1="0.594" cx2="0.2024" cy2="1.1702" x2="0.5738" y2="1.6338" cx3="0.1309" cx4="0.549" cy4="-0.1037" x4="0.7866" y4="-0.1655"/>
       <movement hands="gripboth" beats="2" cx1="0.2426" cy1="0.5422" cx2="0.6625" cy2="0.9856" x2="1.1908" y2="1.2571" cx3="0.2903" cx4="0.5951" cy4="-0.2181" x4="0.707" y4="-0.293"/>
@@ -708,7 +708,7 @@
   <!-- [CALLERLAB 2026] CIRCLE LEFT FAMILY FROM NORMAL LINES COMPACT TO STATIC SQUARE -->
 
   
-  <tam title="Circle Left - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Left Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="2.5059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -752,7 +752,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/4- Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 1/4Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="2.5059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6378" cy4="-0.0617" x4="0.707" y4="-0.293"/>
@@ -772,7 +772,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/2 - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 1/2 Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="2.5059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -800,7 +800,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 3/4 - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 3/4 Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="2.5059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -974,7 +974,7 @@
   <!-- [CALLERLAB 2026] CIRCLE LEFT FAMILY FROM NORMAL LINES TO STATIC SQUARE -->
 
 
-  <tam title="Circle Left - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Left Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -1018,7 +1018,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/4 - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 1/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
@@ -1038,7 +1038,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/2 - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 1/2 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -1066,7 +1066,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 3/4 - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 3/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
@@ -1106,7 +1106,7 @@
   <!-- [CALLERLAB 2026] CIRCLE RIGHT FAMILY FROM STATIC SQUARE TO STATIC SQUARE -->
 
   
-  <tam title="Circle Right - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Right Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.1636" cy2="-1.3381" x2="0.5847" y2="-1.994" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
       <movement hands="gripboth" beats="2" cx1="-0.2692" cy1="-0.6409" cx2="-0.2718" cy2="-1.3626" x2="-0.0072" y2="-2.0054" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1151,7 +1151,7 @@
       However, in general dancers continue to circle right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 1/4 - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Right 1/4 Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.1636" cy2="-1.3381" x2="0.5847" y2="-1.994" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
       <movement hands="gripboth" beats="2" cx1="-0.2692" cy1="-0.6409" cx2="-0.0862" cy2="-2.0258" x2="-0.4463" y2="-2.3727" cx3="0.265" cx4="0.565" cy4="0.1557" x4="0.707" y4="0.293"/>
@@ -1172,7 +1172,7 @@
       However, in general dancers continue to circle right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 1/2 - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Right 1/2 Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.1636" cy2="-1.3381" x2="0.5847" y2="-1.994" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
       <movement hands="gripboth" beats="2" cx1="-0.2692" cy1="-0.6409" cx2="-0.2718" cy2="-1.3626" x2="-0.0073" y2="-2.0054" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1201,7 +1201,7 @@
       However, in general dancers continue to circle right until the next call is given.</taminator>
   </tam>
   
-  <tam title="Circle Right 3/4 - Stop at Home" formation="Static Square" parts="">
+  <tam title="Circle Right 3/4 Home" formation="Static Square" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.1636" cy2="-1.3381" x2="0.5847" y2="-1.994" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
       <movement hands="gripboth" beats="2" cx1="-0.2692" cy1="-0.6409" cx2="-0.2718" cy2="-1.3626" x2="-0.0072" y2="-2.0054" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1242,7 +1242,7 @@
   <!-- [CALLERLAB 2026] CIRCLE RIGHT FAMILY FROM CIRCLE TO STATIC SQUARE -->
 
   
-  <tam title="Circle Right - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Right Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.0025" cy1="-0.771" cx2="0.2671" cy2="-1.4098" x2="0.7619" y2="-1.8427" cx3="0.265" cx4="0.479" cy4="0.1393" x4="0.707" y4="0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1312" cy1="-0.6826" cx2="0.5291" cy2="-1.2847" x2="1.1056" y2="-1.6731" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1287,7 +1287,7 @@
       However, in general dancers continue to circle right until the next call is given.</taminator>
   </tam>
   
-  <tam title="Circle Right 1/4 - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Right 1/4 Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0" cy1="-0.6954" cx2="0.2772" cy2="-1.3621" x2="0.7702" y2="-1.8525" cx3="0.265" cx4="0.5589" cy4="0.0707" x4="0.7121" y4="0.1733"/>
       <movement hands="gripboth" beats="2" cx1="0.1367" cy1="-0.6818" cx2="1.0671" cy2="-1.7259" x2="0.9638" y2="-2.2151" cx3="0.265" cx4="0.6461" cy4="-0.0014" x4="0.707" y4="0.293"/>
@@ -1306,7 +1306,7 @@
     </path>
   </tam>
 
-  <tam title="Circle Right 1/2 - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Right 1/2 Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0" cy1="-0.6954" cx2="0.2772" cy2="-1.3621" x2="0.7702" y2="-1.8525" cx3="0.265" cx4="0.5589" cy4="0.0707" x4="0.7121" y4="0.1733"/>
       <movement hands="gripboth" beats="2" cx1="0.1367" cy1="-0.6818" cx2="0.5396" cy2="-1.281" x2="1.1194" y2="-1.6649" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1333,7 +1333,7 @@
     </path>
   </tam>
   
-  <tam title="Circle Right 3/4 - Stop at Home" formation="Circle" parts="">
+  <tam title="Circle Right 3/4 Home" formation="Circle" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0" cy1="-0.6954" cx2="0.2772" cy2="-1.3621" x2="0.7702" y2="-1.8525" cx3="0.265" cx4="0.5589" cy4="0.0707" x4="0.7121" y4="0.1733"/>
       <movement hands="gripboth" beats="2" cx1="0.1367" cy1="-0.6818" cx2="0.5396" cy2="-1.281" x2="1.1195" y2="-1.6649" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1779,7 +1779,7 @@
 <!-- [CALLERLAB 2026] CIRCLE RIGHT FAMILY FROM NORMAL LINES COMPACT TO STATIC SQUARE -->
 
 
-  <tam title="Circle Right - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Right Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.6924" cy2="-1.305" x2="-0.9501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.4833" cy2="-1.3246" x2="1.0518" y2="-1.7423" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1823,7 +1823,7 @@
     <taminator>Already in a circle, dancers continue circling right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 3/4 - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Right 3/4 Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.6924" cy2="-1.305" x2="-0.9501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.4833" cy2="-1.3246" x2="1.0518" y2="-1.7423" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1859,7 +1859,7 @@
     <taminator>Already in a circle, dancers continue circling right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 1/2 - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Right 1/2 Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.6924" cy2="-1.305" x2="-0.9501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.4833" cy2="-1.3246" x2="1.0518" y2="-1.7423" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -1887,7 +1887,7 @@
     <taminator>Already in a circle, dancers continue circling right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 1/4 - Stop at Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Right 1/4 Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.6924" cy2="-1.305" x2="-0.9501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.9579" cy2="-1.7241" x2="0.5252" y2="-1.9745" cx3="0.265" cx4="0.4843" cy4="0.1653" x4="0.707" y4="0.293"/>
@@ -2045,7 +2045,7 @@
   <!-- [CALLERLAB 2026] CIRCLE RIGHT FAMILY FROM NORMAL LINES TO STATIC SQUARE -->
 
 
-  <tam title="Circle Right - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Right Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.2339" cy2="-1.5564" x2="-0.4501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.4833" cy2="-1.3246" x2="1.0518" y2="-1.7423" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -2089,7 +2089,7 @@
     <taminator>Already in a circle, dancers continue circling right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 1/4 - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Right 1/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.2339" cy2="-1.5564" x2="-0.4501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.9579" cy2="-1.7241" x2="0.5252" y2="-1.9745" cx3="0.265" cx4="0.553" cy4="0.2067" x4="0.707" y4="0.293"/>
@@ -2109,7 +2109,7 @@
     <taminator>Already in a circle, dancers continue circling right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 1/2 - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Right 1/2 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.2339" cy2="-1.5564" x2="-0.4501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.4833" cy2="-1.3246" x2="1.0518" y2="-1.7423" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -2137,7 +2137,7 @@
     <taminator>Already in a circle, dancers continue circling right until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Right 3/4 - Stop at Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+  <tam title="Circle Right 3/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.2339" cy2="-1.5564" x2="-0.4501" y2="-1.9888" cx3="0.265" cx4="0.4655" cy4="-0.1192" x4="0.5926" y4="-0.1955"/>
       <movement hands="gripboth" beats="2" cx1="0.1048" cy1="-0.6976" cx2="0.4833" cy2="-1.3246" x2="1.0518" y2="-1.7423" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
@@ -2178,7 +2178,7 @@
   <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES TO FACING COUPLES -->
 
 
-  <tam title="Circle Four Left Full" from="Facing Couples" formation="Facing Couples" parts="">
+  <tam title="Circle Four Left" from="Facing Couples" formation="Facing Couples" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.8558" cy2="1.017" x2="3" y2="0" cx3="3.18" cx4="3.2907" cy4="-1.4999" x4="2.4671" y4="-2.211"/>
       <movement hands="gripboth" beats="2" cx1="-0.055" cy1="0.7768" cx2="0.5301" cy2="1.4511" x2="1.3069" y2="1.5063" cx3="1.1" cx4="2" cy4="-0.9" x4="2" y4="-2"/>
@@ -2233,7 +2233,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit aeedfc9, with uncommitted changes, built 2026-10-12 09:10Z -->
-  <tam title="Circle Four Right Full" from="Facing Couples" formation="Facing Couples" parts="">
+  <tam title="Circle Four Right" from="Facing Couples" formation="Facing Couples" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="1.104" cy1="-0.0461" cx2="-0.087" cy2="-0.8795" x2="0.9393" y2="-2.0607" cx3="1.1" cx4="1.869" cy4="-1.0361" x4="2.926" y4="-0.0093"/>
       <movement hands="gripboth" beats="2" cx1="0.012" cy1="-0.8283" cx2="0.6932" cy2="-1.4901" x2="1.5216" y2="-1.4781" cx3="1.1" cx4="2" cy4="0.9" x4="2" y4="2"/>
@@ -2288,7 +2288,7 @@
   <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES CLOSE TO FACING COUPLES CLOSE -->
 
 <!-- exported by the dancing-squared web app: commit d285865, with uncommitted changes, built 2026-10-10 14:32Z -->
-  <tam title="Circle Four Left Full" formation="Facing Couples Close" parts="">
+  <tam title="Circle Four Left" formation="Facing Couples Close" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5523" cy1="0.5523" cx2="1.4477" cy2="0.5523" x2="2" y2="0" cx3="0.5236" cx4="0.4817" cy4="-0.961" x4="0.1519" y4="-1.2889"/>
       <movement hands="gripboth" beats="2" cx1="-0.0003" cy1="0.7787" cx2="0.6308" cy2="1.4103" x2="1.4095" y2="1.4107"/>
@@ -2308,7 +2308,7 @@
 
   <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES COMPACT TO FACING COUPLES COMPACT -->
 
-  <tam title="Circle Four Left Full"  formation="Facing Couples Compact" parts="">
+  <tam title="Circle Four Left"  formation="Facing Couples Compact" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.3558" cy2="1.017" x2="2.5" y2="0" cx3="1.1" cx4="2" cy4="-0.9" x4="2" y4="-2"/>
       <movement hands="gripboth" beats="2" cx1="0.552" cy1="0.5493" cx2="1.4448" cy2="0.5471" x2="1.9942" y2="-0.0048" cx3="1.1" cx4="2" cy4="-0.9" x4="2" y4="-2"/>
@@ -2362,7 +2362,7 @@
   <!-- [CALLERLAB 2026] CIRCLE FOUR LEFT FAMILY FROM FACING COUPLES FAR TO FACING COUPLES FAR -->
 
 
-  <tam title="Circle Four Left Full"  formation="Facing Couples Far" parts="">
+  <tam title="Circle Four Left"  formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="2.5" cy1="0" cx2="2.813" cy2="1.0027" x2="4" y2="0" cx3="1.1" cx4="1.2745" cy4="-1.5354" x4="0.4811" y4="-2.5501"/>
       <movement hands="gripboth" beats="2" cx1="0.0965" cy1="0.7727" cx2="0.8012" cy2="1.3209" x2="1.574" y2="1.2245" cx3="1.1" cx4="2" cy4="-0.9" x4="2" y4="-2"/>
@@ -2418,7 +2418,7 @@
 <!-- [CALLERLAB 2026] CIRCLE FOUR RIGHT FAMILY FROM FACING COUPLES COMPACT TO FACING COUPLES COMPACT -->
 
 
-  <tam title="Circle Four Right Full" formation="Facing Couples Compact" parts="">
+  <tam title="Circle Four Right" formation="Facing Couples Compact" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="1" cy1="0" cx2="-0.6253" cy2="-0.614" x2="0.5" y2="-2" cx3="1.1" cx4="2" cy4="0.9" x4="2" y4="2"/>
       <movement hands="gripboth" beats="2" cx1="-0.5523" cy1="-0.5523" cx2="-0.5523" cy2="-1.4477" x2="0" y2="-2" cx3="1.1" cx4="2" cy4="0.9" x4="2" y4="2"/>
@@ -2473,7 +2473,7 @@
 <!-- [CALLERLAB 2026] CIRCLE FOUR RIGHT FAMILY FROM FACING COUPLES FAR TO FACING COUPLES FAR -->
 
 
-  <tam title="Circle Four Right Full" formation="Facing Couples Far" parts="">
+  <tam title="Circle Four Right" formation="Facing Couples Far" parts="">
     <path>
       <movement hands="gripboth" beats="2" cx1="2" cy1="0" cx2="1.0163" cy2="-0.9936" x2="2" y2="-2" cx3="1.1" cx4="1.5272" cy4="0.1229" x4="1.8894" y4="0.4369"/>
       <movement hands="gripboth" beats="2" cx1="0.0556" cy1="-0.7791" cx2="0.7321" cy2="-1.3656" x2="1.5112" y2="-1.31" cx3="1.1" cx4="2" cy4="0.9" x4="2" y4="2"/>
@@ -2531,7 +2531,7 @@
 <!-- [CALLERLAB 2026] SINGLE CIRCLE LEFT FAMILY FROM FACING DANCERS FAR TO FACING DANCERS FAR -->
 
 
-  <tam title="Single Circle Left Full" formation="Facing Dancers Far" parts="" asymmetric="true">
+  <tam title="Single Circle Left" formation="Facing Dancers Far" parts="" asymmetric="true">
     <path>
       <movement hands="gripboth" beats="2" cx1="3" cy1="0" cx2="2.5" cy2="0.5" x2="3" y2="0.5" cx3="1.1" cx4="1.5531" cy4="-0.3977" x4="1.7085" y4="-1.6695"/>
       <movement hands="gripboth" beats="2" cx1="0.0347" cy1="0.284" cx2="0.3009" cy2="0.467" x2="0.557" y2="0.4357"/>
@@ -2585,7 +2585,7 @@
 <!-- [CALLERLAB 2026] SINGLE CIRCLE LEFT FAMILY FROM FACING DANCERS TO FACING DANCERS -->
 
 
-  <tam title="Single Circle Left Full" formation="Facing Dancers" parts="" asymmetric="true">
+  <tam title="Single Circle Left" formation="Facing Dancers" parts="" asymmetric="true">
     <path>
       <movement hands="gripboth" beats="2" cx1="1.5" cy1="0" cx2="1.5" cy2="0.5" x2="2" y2="0.5" cx3="1.1" cx4="1.5531" cy4="-0.3977" x4="1.7085" y4="-1.6695"/>
       <movement hands="gripboth" beats="2" cx1="0.0347" cy1="0.284" cx2="0.3009" cy2="0.467" x2="0.557" y2="0.4357"/>
@@ -2640,7 +2640,7 @@
 <!-- [CALLERLAB 2026] SINGLE CIRCLE RIGHT FAMILY FROM FACING DANCERS FAR TO FACING DANCERS FAR -->
 
 
-  <tam title="Single Circle Right Full" formation="Facing Dancers Far" parts="" asymmetric="true">
+  <tam title="Single Circle Right" formation="Facing Dancers Far" parts="" asymmetric="true">
     <path>
       <movement hands="gripboth" beats="2" cx1="2.5" cy1="0" cx2="2.5" cy2="-0.5" x2="3" y2="-0.5" cx3="1.1" cx4="2.979" cy4="0.9811" x4="3.0944" y4="1.999"/>
       <movement hands="gripboth" beats="2" cx1="0.0378" cy1="-0.3336" cx2="0.2873" cy2="-0.4706" x2="0.5531" y2="-0.4405"/>
@@ -2692,7 +2692,7 @@
 <!-- [CALLERLAB 2026] SINGLE CIRCLE RIGHT FAMILY FROM FACING DANCERS TO FACING DANCERS -->
 
 
-  <tam title="Single Circle Right Full" formation="Facing Dancers" parts="" asymmetric="true">
+  <tam title="Single Circle Right" formation="Facing Dancers" parts="" asymmetric="true">
     <path>
       <movement hands="gripboth" beats="2" cx1="1.5" cy1="0" cx2="1.5" cy2="-0.5" x2="2" y2="-0.5" cx3="1.1" cx4="2.979" cy4="0.9811" x4="3.0944" y4="1.999"/>
       <movement hands="gripboth" beats="2" cx1="0.0378" cy1="-0.3336" cx2="0.2873" cy2="-0.4706" x2="0.5531" y2="-0.4405"/>

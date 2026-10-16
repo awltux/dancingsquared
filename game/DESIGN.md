@@ -1955,58 +1955,60 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     also found is NOT part of this rule**: pressing "Next drill" after a recorded run is refused (see Q21), measured
     on BOTH paths above — with and without a reveal — so it is a pre-existing defect in the shell rather than
     anything A28 introduced.
-17. **How many drills are in a season, and how does a season end? — DECIDED BY THE OWNER (round 1); three things
-    below are still unanswered.** The owner's rule, as given, and then what it means for the code.
-    **THE RULE.** (i) Seasons are NUMBERED and LAST 28 DAYS, starting with **13 entries** per level. (ii) The
-    one-per-day cadence is a GATE **for the Daily Challenge only**; DRILLS ARE NOT RESTRICTED, "as this is where the
-    learning happens". (iii) The server must keep generating NEW UNIQUE drills per level and ADD them, "but there will
-    be a limit at which point the drills repeat". (iv) An unfinished drill at a boundary is **ROLLED OVER**. (v)
-    Progress is shown as a **10×10 block**, a cell per completed drill, "it doesn't need to be fully populated", with
-    more blocks added as more drills become available. (vi) **Finishing all the drills within the set time (the season)
-    moves the player to the next level.**
-    **WHAT THE CODE ALREADY DOES, so the work is smaller than it looks.** (ii) is already true at both ends: the Daily
-    is published per UTC day and a player gets that day's challenge, while `currentDrill` hands out the next unfinished
-    drill entry the MOMENT the previous one is finished, with no day gate — so "drills unrestricted" needs no change.
-    (iii) is mostly there too: `publish-schedule --season N` is a deterministic function of `(poolVersion, level, N)`
-    and a LONGER season has the shorter one as its prefix (`schedule-publishing.ts`'s header), so ADDING drills is
-    re-running the publisher with a bigger N — nothing already handed out is rewritten, which is rule 2's lock; and
-    `scanSeason` validates every candidate by generating it and REPORTS the ones it skipped rather than silently
-    repeating. The limit (iii) mentions is the POOL's, not the seed space's: `poolSize(1) = 10` titles, and §5's
-    measurement says a three-option question needs at least 35, which is why levels 1..15 ship two-option questions —
-    so level 1's distinct puzzles are bounded by a small pool while a deep level's are not.
-    **WHAT THE RULE CHANGES.**
-      * **The board's period stops being `seasonOf` (a calendar month) and becomes the season NUMBER.** That is the
-        largest consequence and it touches four places at once: `game/src/puzzle/season.ts` (the month would become
-        the season's clock rather than its identity), `api/src/keys.ts`'s `boardKey`, `handlers/leaderboard.ts`'s
-        period validation, and the client's `boardPeriod()` in `main.ts` — which currently asks for `seasonOf(now)`.
-        The published schedule's `seasonVersion` = `${poolVersion}-season${season}` finally gets a reader.
-      * **28-day seasons do not tile a year**: 13 × 28 = 364, so a fixed-anchor year has 13 seasons and one spare day
-        (two in a leap year). That arithmetic is not an obstacle, but the spare days are a decision, not a detail.
-      * **(iv) rolled over means the Progress row must KNOW its season** — the owner chose the second of the three
-        candidate rules: keep `progressKey(playerId, levelIndex)` and carry the season in the row, with `currentDrill`
-        comparing them, so an issued drill survives a boundary. The FIRST candidate (the season in the key) is
-        explicitly ruled out, because it would close an unfinished drill at the boundary.
-      * **(v) is a new client surface** and it is cheap on the data side: the drill answer already carries the regime's
-        length and the number finished (`finished`/`length` in `regime`), so a 10×10 block needs no new endpoint —
-        only a new `game/src/ui/` module (and the same "no probe loads `src/ui/`" rule applies to its check).
-      * **(vi) needs something the code does NOT have: a server-side notion of the player's level.** Today the level
-        is the CLIENT's choice — `main.ts` says "A LEVEL IS ASKED FOR, NOT DECIDED: the player's level comes from the
-        save (1 until there is a ladder to move up)", and `GET /drill/current?level=n` serves any level with a
-        published schedule, with no check against the player's history (progress is partitioned per level already,
-        `progressKey(playerId, levelIndex)`, so nothing is lost — there is simply no row that says which level is
-        THE PLAYER'S). Promotion therefore needs a ladder row (or a decision that the client keeps choosing, which for
-        a cumulative season board is a scoring question rather than a UI one).
-    **THE THREE THINGS STILL UNANSWERED, and each one changes code rather than prose:**
-      a. **The season's anchor and the spare days.** Are seasons numbered GLOBALLY (everyone on season 7 at once, which
-         is what makes a shared board meaningful)? Do they start at a fixed calendar date, and what happens on the
-         364th/365th day of the year — a short season, or the next season starting early?
-      b. **What "all the drills" means for promotion**, now that the set GROWS: the 13 authored entries, or everything
-         the publisher has added for that level by the time the season ends? And does a level's progress block count
-         drills (a cell each) toward 100 — i.e. is a level 100 drills, or is that just the display size?
-      c. **Who owns the player's level.** The server (a ladder row that refuses a level above the player's, and
-         promotes on a completed season) or the client's save (self-promotion stays possible)? A rolled-over drill's
-         run also needs one answer here: which season's board it scores on — the one it was issued in, or the one it
-         is submitted in (today's rule is the submission's, via `seasonOf(nowMs)` in `handlers/runs.ts`).
+17. **How many drills are in a season, and how does a season end? — DECIDED BY THE OWNER (two rounds; round 2 revised
+    two of round 1's answers, and the revisions SIMPLIFIED the design).** The rule, as it now stands, then what it means
+    for the code.
+    **THE RULE.** (i) **A season is a CALENDAR MONTH** — round 1 said "numbered seasons of 13 entries (28 day seasons)",
+        and round 2 revised it: *"it might as well align to the calendar month then. It will make more sense to players
+        as well."* Each season publishes **13 new drill entries per level**, and the season is numbered for display.
+    (ii) The one-per-day cadence is a GATE **for the Daily Challenge only**; DRILLS ARE NOT RESTRICTED, "as this is
+        where the learning happens".
+    (iii) The server keeps generating NEW UNIQUE drills per level and ADDING them, "but there will be a limit at which
+        point the drills repeat".
+    (iv) **NOTHING ROLLS OVER AND NOTHING IS CLOSED**: round 1 said an unfinished drill rolls over a boundary, and round
+        2 replaced that — *"an unfinished drill doesnt roll over, it just remains uncompleted and prevents them
+        ascending to the next level. All drills must be finished to progress to the next level."*
+    (v) **A LEVEL IS 100 DRILLS**, shown as a **10×10 block** with a cell per finished drill, "it doesn't need to be
+        fully populated", and more blocks are added as more drills become available — so a block IS a level.
+    (vi) **The server owns the player's level**: finishing all 100 drills of a level promotes them to the next one.
+    **WHAT THE RULE CHANGES, AND WHAT IT DOES NOT — the second list is the interesting one.**
+      * **The board's period is UNCHANGED.** Round 1's largest consequence — that the period stops being `seasonOf` (the
+        month) and becomes a season number — is WITHDRAWN, because a calendar month is what `seasonOf` already returns.
+        `keys.ts`'s `boardKey`, `handlers/leaderboard.ts`'s validation, `handlers/runs.ts`'s `seasonOf(nowMs)` stamp and
+        the client's `boardPeriod()` all stay exactly as they are, and `runs-probe.mjs`'s pin on both sides of a month
+        boundary stays valid. The season NUMBER is a display and publishing cadence, not a key.
+      * **The Progress row is UNCHANGED and needs no season**, which removes the whole candidate-rule question I had
+        written up: nothing is closed at a boundary, so `progressKey(playerId, levelIndex)` with `finished` holding
+        schedule indices is exactly the right shape, and a month boundary touches it not at all. Round 1's "the season
+        goes in the row (or in the key)" was the answer to a question this rule no longer asks.
+      * **The hint balance still does not reset** — `hintsKey(playerId)` has no level and no season, and Q4's rule
+        stands. Nothing in this rule changes it.
+      * **NEW: a LADDER ROW, because the server owns the level.** Today the level is the CLIENT's choice — `main.ts`
+        says "A LEVEL IS ASKED FOR, NOT DECIDED: the player's level comes from the save (1 until there is a ladder to
+        move up)" and `GET /drill/current?level=n` serves any level with a published schedule, with no check against
+        the player's history. Under the rule the server holds the player's level, serves that level, and promotes on a
+        completed one. Progress is already partitioned per level (`progressKey(playerId, levelIndex)`), so nothing is
+        lost — there is simply no row today that says which level is THE PLAYER'S.
+      * **NEW: the 10×10 block**, a `game/src/ui/` surface with no new endpoint: the drill answer already carries the
+        regimen's `finished` and `length`, so a cell per finished drill out of the level's 100 needs nothing else. (The
+        same "no probe loads `src/ui/`" rule applies to its check.)
+      * **The publisher's job becomes a monthly cadence**: 13 entries per level per season, ADDED rather than replaced,
+        which it already supports — `publish-schedule --season N` is a deterministic function of
+        `(poolVersion, level, N)` and a LONGER season has the shorter one as its PREFIX, so next month's publication
+        cannot rewrite a drill already handed out (rule 2's lock). `scanSeason` reports the candidates it skipped
+        rather than silently repeating.
+      * **"Drills unrestricted" needs no change either**: `currentDrill` hands out the next unfinished entry the moment
+        the previous one is finished, with no day gate, while the Daily is already published per UTC day.
+    **WHY PROMOTION STAYS REACHABLE, WHICH IS THE ONE THING THAT COULD HAVE BROKEN IT.** "There will be a limit at
+    which point the drills repeat" and "all drills must be finished to progress" sound like they contradict each other,
+    and they would if the 100 were 100 UNIQUE puzzles: a level whose pool cannot supply 100 distinct drills could never
+    be finished, so promotion would be impossible rather than slow. It does not break, because the schedule is a list of
+    ENTRIES and `finished` holds INDICES — a repeated puzzle published at a NEW index is a new entry, it is finishable,
+    and it advances the set. The cost is a player meeting a drill they have seen before, which is the outcome the rule
+    accepts. **The number that decides how soon that happens is measurable and not yet measured**: the distinct puzzles
+    a level can generate before repeating (level 1's pool is `poolSize(1) = 10` titles with two-option questions, and
+    §5's measurement says a three-option question needs 35+). Nothing in the implementation needs that number to be
+    large; the UI should simply never promise "100 new puzzles".
 18. **Can a player make the device forget them? — DECIDED AND IMPLEMENTED.** Phase 4 kept the regime, the balance and
     every run in `localStorage` and nothing cleared it, so a player who wanted a fresh start had to find their
     browser's site-data settings. What ships is the recommendation this question carried: a plainly-labelled control

@@ -54,6 +54,15 @@ export const publishedDailyKey = (levelIndex: number, day: string): ItemKey => (
 export const accountKey = (email: string): ItemKey => ({ pk: `auth#${email}`, sk: 'account' });
 
 /**
+ * One player's tally of REFUSED requests (DESIGN.md 11.1, A25).
+ *
+ * THE PARTITION IS THE PLAYER AND THERE IS ONE ROW, because the question an operator asks is "is this account
+ * probing?" rather than "what did it probe" — the per-code tally inside the row answers the second well enough, and
+ * the refusal rate the alarm watches needs only the total.
+ */
+export const abuseKey = (playerId: string): ItemKey => ({ pk: `abuse#${playerId}`, sk: 'counters' });
+
+/**
  * One player's attempt at one challenge — the `Attempts` item of DESIGN.md 11 (A21's server clock).
  *
  * THE PARTITION IS THE PLAYER AND THE SORT KEY IS THE CHALLENGE, which is the opposite of the run row's shape and

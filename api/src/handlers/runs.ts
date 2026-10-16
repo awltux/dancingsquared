@@ -28,6 +28,7 @@ import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
 import { asAttempt, elapsedSince } from '../attempt-row.ts';
+import { recordRefusal, refusalCode } from '../abuse.ts';
 import { explains, wrongPresses } from '../press-log.ts';
 import { readIssuedDrill } from '../issued-drill.ts';
 import {
@@ -289,7 +290,24 @@ function runAnswer(parts: AnswerParts): unknown {
  * differs is that the loser usually finds the RUN ROW ALREADY THERE, because a retry is the common case for a
  * submission rather than an edge case.
  */
+/**
+ * Record a completed run, and COUNT THE REFUSAL when it is one.
+ *
+ * THE COUNT IS WIRED HERE, AT ONE POINT, rather than at each of the dozen refusals inside: a counter incremented at
+ * every `return failure(...)` is a counter somebody forgets to increment on the thirteenth. The player is read from
+ * the request, so an unauthenticated refusal — which has no player to attribute it to — is not counted, and that is
+ * the honest answer rather than a gap to paper over.
+ */
 export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResult> {
+  const result = await postRunOnce(request, deps);
+  if (result.status >= 400) {
+    const playerId = deps.identityOf(request)?.playerId;
+    if (playerId) await recordRefusal(deps, playerId, refusalCode(result.body));
+  }
+  return result;
+}
+
+async function postRunOnce(request: ApiRequest, deps: Deps): Promise<ApiResult> {
   const who = requireIdentity(request, deps);
   if ('refusal' in who) return who.refusal;
   const playerId = who.identity.playerId;

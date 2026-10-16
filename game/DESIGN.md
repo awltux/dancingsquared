@@ -898,7 +898,7 @@ recorded is refused `unrecorded_hints`, and a challenge nobody read cannot be ch
 | A20's remaining client half | the server serves the demo and refuses the writes, and the client can discover the mode, sign up/in/refresh/out and keep the session (`game/src/net/auth.ts`, `session.ts` — 46 checks). The APP has no sign-in surface and does not yet mark a local run unranked | the sign-in surface and the unranked marking |
 | A22's Daily half | the Drill's presses are recorded and counted; the Daily still submits a line the server walks rather than a log of moves, and its `attempts` is 0 by design (§6) | `POST /daily/move` |
 | A23's naming | the spend is the server's and an abandoned challenge is recorded (`POST /daily/abandon`); the CALL a hint names is still computed by the client | `POST /daily/move` |
-| A25 audit and throttling | the run row records measured against claimed (time, tries and hints); nothing increments on a refusal, and `401`s are answered and not counted | audit |
+| A25's remainder | a refused `POST /runs` increments a bounded `abuse#<playerId>` tally (total plus the recent codes); nothing counts refusals on the other endpoints, no structured log, and no alarm | the remaining counters, logging, the alarm |
 | A26 the claim is history-only | the endpoint does not exist yet | the claim |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider

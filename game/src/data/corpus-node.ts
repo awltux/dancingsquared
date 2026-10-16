@@ -20,7 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
-import { setParser, callMeta } from 'dancing-squared-engine';
+import { setParser, callMeta, parseCallXml } from 'dancing-squared-engine';
 import { createEngineApplier } from '../engine/applier.ts';
 
 // THE CAST IS THE TWO `Document` DECLARATIONS, NOT A DEPENDENCY CHOICE. `setParser` takes the DOM lib's
@@ -39,13 +39,22 @@ const movesXml = fs.readFileSync(path.join(ASSETS, 'moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8');
 
 let cachedCalls: { name: string; xml: string }[] | null = null;
+let cachedTamTitles: string[] | null = null;
+
+/** The Mainstream call files, read once: name and bytes, in the directory's sorted order. */
+function corpusFiles(): { file: string; xml: string }[] {
+  const dir = path.join(ASSETS, 'ms');
+  return fs.readdirSync(dir).filter((f) => f.endsWith('.xml')).sort().map((file) => ({ file, xml: fs.readFileSync(path.join(dir, file), 'utf8') }));
+}
 
 /**
  * Every Mainstream call the corpus carries, as `{ name, xml }` with the name taken from `callMeta`.
  *
  * REGISTRATION IS BY TITLE (AGENTS.md trap 7: a position into an authored list is not an identity), and a
  * file that yields no title is a moves/rule file rather than a call — `engine/test/mainstream.mjs` skips it
- * the same way. MEASURED in P1's `tools/build-pool.mjs`: the pool holds 62 titles from 66 files.
+ * the same way. MEASURED, and it is the number that limits the pool: **62 titles, one per file**, because
+ * `callMeta(xml).title` is the FIRST `<tam>`'s title and every other tam in the file goes unnamed. The
+ * corpus actually carries **322 distinct tam titles** — see `corpusTamTitles` below, which is the difference.
  *
  * THE FILE ORDER IS THE DIRECTORY'S, and it does not need to be the pool's: `poolFor` selects from the
  * ORDERED title list in `src/puzzle/calls-data.ts`, so this only has to supply the XML for a title.
@@ -55,15 +64,40 @@ let cachedCalls: { name: string; xml: string }[] | null = null;
  */
 function corpusCalls(): { name: string; xml: string }[] {
   if (cachedCalls) return cachedCalls;
-  const dir = path.join(ASSETS, 'ms');
   const out: { name: string; xml: string }[] = [];
-  for (const file of fs.readdirSync(dir).filter((f) => f.endsWith('.xml')).sort()) {
-    const xml = fs.readFileSync(path.join(dir, file), 'utf8');
+  for (const { xml } of corpusFiles()) {
     const title = callMeta(xml).title;
     if (title) out.push({ name: title, xml });
   }
   cachedCalls = out;
   return out;
+}
+
+/**
+ * EVERY tam title the corpus carries, across every file — 322 distinct ones, where `corpusCalls` offers 62.
+ *
+ * WHY THIS EXISTS, AND WHY IT IS THE DIFFERENCE THAT MATTERS TO A CURATED POOL. `corpusCalls` names each FILE
+ * after its first tam, which is what the app has always drawn: one call per file. A hand-curated
+ * `CALLS_IN_ORDER` can name any call the corpus holds, though, and `Circle Left 3/4` is a title four different
+ * tams carry (Static Square, Circle, Normal Lines, Normal Lines Compact) while `Circle Left 3/4 Home` is four
+ * more — so "does the pool name a real call" and "can the level loader register it" are two different
+ * questions with two different answers, and a probe that conflated them would report the second as if the
+ * call did not exist.
+ *
+ * IT READS THE SAME FILES AS `corpusCalls` rather than opening its own — AGENTS.md's rule that there is one
+ * `fs` reader for the corpus, so the two cannot disagree about what the corpus holds.
+ *
+ * IT IS NODE-ONLY, unlike the applier seam both loaders share: its one caller is the probe, and the browser
+ * has no use for a list of titles it cannot register.
+ */
+export function corpusTamTitles(): string[] {
+  if (cachedTamTitles) return cachedTamTitles;
+  const titles = new Set<string>();
+  for (const { xml } of corpusFiles()) {
+    for (const tam of parseCallXml(xml)) if (tam.title) titles.add(tam.title);
+  }
+  cachedTamTitles = [...titles].sort();
+  return cachedTamTitles;
 }
 
 /**

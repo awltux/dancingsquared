@@ -23,7 +23,6 @@
     "build": "vite build",
     "preview": "vite preview",
     "verify": "node tools/verify-probes.mjs",
-    "build:pool": "node tools/build-pool.mjs",
     "measure": "node tools/measure-ladder.mjs"
   },
   "dependencies": {

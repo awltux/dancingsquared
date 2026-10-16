@@ -35,7 +35,9 @@ export const formationsXml = only(FORMATIONS, 'formations.xml');
  *
  * REGISTRATION IS BY TITLE, never by file basename (AGENTS.md trap 7: a position into an authored list is
  * not an identity). A file that yields no title is a moves/rule file rather than a call and is skipped —
- * measured in P1's `tools/build-pool.mjs`, which is why the pool holds 62 titles from 66 files.
+ * measured when the pool was generated (P1), which is why this names **62 titles from 66 files**: one per
+ * file, because `callMeta(xml).title` is the FIRST tam's and the corpus's other 260 tam titles go unnamed.
+ * `game/src/data/corpus-node.ts` measures the same two numbers and is the twin of this file.
  *
  * THE FILE ORDER IS THE DIRECTORY'S, and it does not need to be the pool's: `poolFor` selects from the
  * ORDERED title list in `src/puzzle/calls-data.ts`, so this only has to supply the XML for a title.

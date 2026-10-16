@@ -37,7 +37,6 @@ npm install        # install everything at the root (workspaces)
 | `npm run verify:teacher` | The teacher app's own checks |
 | `npm run verify:game` | The game's probe suite: every `game/test/*-probe.mjs`, checking first that the game's copy of the corpus still matches `poc/src/assets`. **Its typecheck is a separate command** (`npx tsc -p game --noEmit`), as the POC's is; `AGENTS.md` §3 is the gate, and this script is the half of it that can be one |
 | `npm run dev:game`, `npm run build:game`, `npm run preview:game` | The game's Vite dev server (port **8089**, set in `game/vite.config.ts`), its build, and a preview of the build |
-| `npm run build:pool` | Regenerate the game's level pool from the corpus (`game/tools/build-pool.mjs`) |
 | `npm run measure:ladder` | The ladder census: what every level actually costs to generate (`game/tools/measure-ladder.mjs`) |
 | `npm run verify:api` | The API's probe suite: every `api/test/*-probe.mjs` (its typecheck is `npx tsc -p api --noEmit`, for the same reason as the game's) |
 | `npm run dev:api` | The API's local dev server (port **8090**, `DSQ_PORT` to move it), seeded with the game's local schedule fixture and backed by an in-memory store. `x-dev-player: <name>` (or `Authorization: Bearer dev:<name>`) is the development identity |

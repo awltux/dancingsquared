@@ -1886,12 +1886,24 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         until later in the teaching sequence" is qualified in the document as "See details in the (New) Mainstream
         Playbook", which this repo does not hold, so the DELAY DESTINATION is still the owner's — the pool order is
         the printed one and no entry has been moved.
-      * **THE WORK IS A MAPPING, NOT A SORT.** The order's names are CALLERLAB's and the game's pool titles are the
-        corpus's (`calls-data.ts`, generated from `poc/src/assets/ms/*.xml` by `game/tools/build-pool.mjs`), so
+      * **THE WORK IS A MAPPING, NOT A SORT — AND THE MAPPING IS NOW HAND-CURATED.** The order's names are
+        CALLERLAB's and the game's pool titles are the corpus's (`calls-data.ts`, which WAS generated from
+        `poc/src/assets/ms/*.xml` and is now edited by hand: the owner took the order over, `game/tools/build-pool.mjs`
+        is deleted, and `game/test/pool-probe.mjs` is what validates the result), so
         "Circle Left/Right (1/4, 1/2, 3/4, Full)", "Promenade Family", "Star Right/Left" and "Trade Family" have to be
-        resolved to titles like `Circle Left - Stop at Home`, `Promenade Home`, `Left Hand Star`, `Boys Trade` — one to
+        resolved to titles like `Circle Left Home`, `Promenade Home`, `Left Hand Star`, `Boys Trade` — one to
         one in some cases (Dosado, Bend the Line, Courtesy Turn, Dive Thru, Box the Gnat) and one to several in others.
         That mapping is the curatorial act Q11 always was, and it is now a bounded one because the ORDER is given.
+        **AND THE POOL'S VOCABULARY IS NOT THE ENGINE'S**, which a hand edit runs into immediately and is worth
+        stating before it is discovered: a POOL TITLE is a raw `<tam title>` attribute, and the level loader
+        (`data/corpus-node.ts`) registers ONE call per FILE, named by that file's first tam — so it exposes 62 of the
+        corpus's 322 distinct tam titles, while the engine's own identity for a tam is `tamName(tam)`, the title plus
+        its starting formation (`"Circle Left 3/4 [Static Square]"`), because 398 of 547 corpus files carry a
+        duplicate title and a bare title is therefore not a key. MEASURED on the first hand-curated pool (97 titles):
+        every one of the 97 is carried by some tam, and **35 of them are titles the loader does not name** — so a
+        curated list can only be drawn from once the loader registers more than one call per file, which is a change
+        to `data/corpus-node.ts` and to what a pool title MEANS, and not a data edit here. `game/test/pool-probe.mjs`
+        reports both numbers separately for exactly this reason.
       * **"WORK TOGETHER" IS THE HALF THE ORDER DOES NOT SUPPLY**, and it is the reason this entry is not simply
         "sort the pool by the list": a level's pool is the first `poolSize` titles, so if two consecutive entries
         cannot be applied in either order the level's generator loses combinations. MEASURED for the CURRENT
@@ -1906,10 +1918,11 @@ Each has a recommendation and the tradeoff, so this does not need another round 
       * **WHAT IT COSTS AND WHAT IT MUST NOT DO**: `POOL_VERSION` bumps (`ms-2` -> `ms-3`, and it MUST, because a title
         is an identity and re-ordering renumbers every level's pool — `calls-data.ts`'s header says so); the published
         schedules and saved runs carrying `ms-2` become unplayable by design (rule 2's lock and `isPlayable`'s pool
-        check); and the generation is a change to `game/tools/build-pool.mjs`, which today reads the asset directory
-        and sorts by basename — the regeneration must take the order from a transcription that lives IN the repo, never
-        from the PDF at build time, because `docs/` is untracked by design (AGENTS.md §6: the oracle is not ours to
-        redistribute, so the repo carries the derived ORDER and its attribution, not the document).
+        check); and the ORDER IS NOW EDITED BY HAND — the generator this bullet described
+        (`game/tools/build-pool.mjs`) is deleted, so nothing can overwrite the list and there is no build-time read of
+        the PDF or of `docs/` at all. The transcription this bullet asked for is therefore unnecessary: the derived
+        order IS `calls-data.ts`, and the attribution CALLERLAB's notice requires travels with the design record
+        rather than with a generator.
       * **AND THE UNMATCHED TITLES ARE DROPPED (the owner's decision)**: the pool becomes exactly the CALLERLAB
         Mainstream set, and a corpus title with no teaching-order entry stays in the corpus but is never drawn into a
         level. **THE CONSEQUENCE TO KNOW BEFORE DOING IT IS THE LADDER'S CEILING**: `poolFor` is the first `poolSize`

@@ -1832,18 +1832,44 @@ Each has a recommendation and the tradeoff, so this does not need another round 
 10. **Is the goal board's formation name shown?** *Recommend yes at first*, then experiment with withholding
     it: naming the goal is a big hint, but an older audience may need the anchor, and the name is only ever a
     display either way (§4.2).
-11. **The level-curation order** — the actual first-N list. *Recommend authoring it with a teaching caller*,
-    because it is the one input the engine cannot supply. **AND THE ORDER IS LOAD-BEARING FOR A REASON WORTH
-    MEASURING**: `poolFor` is the FIRST `poolSize` titles of the teaching order, and level 1's ten are NOT ten
-    questions — measured while the engine is mid-repair (a scratch script, deleted), of level 1's ten titles
-    **five are legal from the starting board** (Allemande Left in the Alamo Style, Allemande Left, Box the Gnat, Boys
-    Fold, Boys Run) and **five are not offered at all** (Bend the Line, Box Circulate, Boys Trade, California Twirl,
-    Cast Off Three Quarters — each needs a formation a Static Square does not provide). The generator then accepted
-    **one** of the five as a correct answer, and THAT number is a symptom rather than a property: the correct answer
-    comes from the solver's getout family, which is being re-authored (`getout-convention.mjs` is red: 0 of 28
-    alignments resolve). So the order decides how much of a level's pool a player can actually be asked about, and
-    the census (`game/tools/measure-ladder.mjs`) is where the settled number belongs — this is the second reason to
-    author the list with a caller rather than by taking the corpus in file order.
+11. **The level-curation order** — the actual first-N list. **DECIDED: the list comes from the CALLERLAB Mainstream
+    Teaching Order**, the section at the end of the definitions document the repo already keeps as an untracked oracle
+    (`docs/New_Mainstream_Definitions_26-03-29.pdf`, extracted to the also-untracked `callerlab-ms.txt`, §"Teaching
+    Order", *Effective September 1, 2026*), **and a level's calls must WORK TOGETHER** rather than merely appear
+    consecutively in that list. What that means in the tree, read from both sides while writing this:
+      * **THE SOURCE, as it actually is** (read from `callerlab-ms.txt`): **48 top-level entries, M1..M50** (the
+        extraction mangles two of the numbers — "M1 2." is M12 and "M4 6." is M46 — so a parser must be tolerant or
+        the list must be transcribed by hand), and most entries are FAMILIES with lettered variants: M1 Circle Family
+        (Circle Left/Right; Circle of 4; Single Circle), M4 Arm Turn Family (Right/Left Arm Turn; Allemande Left/Right),
+        M19 Circulate Family (Couples; Named Dancers; All Eight; Single File/Column; Box/Split), M32 Trade Family
+        (Couples; Named; Right/Left Hand; Partner), M49 Tag the Line Family (Tag; Fraction Tag). **IT ALSO CARRIES A
+        RULE THE PLAIN TEXT CANNOT CARRY**: "It is suggested that calls in italics be delayed until later in the
+        teaching sequence" — italics are a font attribute, so the extracted text has lost which calls those are, and
+        recovering them means the PDF (or the Playbook it points to) rather than the text file.
+      * **THE WORK IS A MAPPING, NOT A SORT.** The order's names are CALLERLAB's and the game's pool titles are the
+        corpus's (`calls-data.ts`, generated from `poc/src/assets/ms/*.xml` by `game/tools/build-pool.mjs`), so
+        "Circle Left/Right (1/4, 1/2, 3/4, Full)", "Promenade Family", "Star Right/Left" and "Trade Family" have to be
+        resolved to titles like `Circle Left - Stop at Home`, `Promenade Home`, `Left Hand Star`, `Boys Trade` — one to
+        one in some cases (Dosado, Bend the Line, Courtesy Turn, Dive Thru, Box the Gnat) and one to several in others.
+        That mapping is the curatorial act Q11 always was, and it is now a bounded one because the ORDER is given.
+      * **"WORK TOGETHER" IS THE HALF THE ORDER DOES NOT SUPPLY**, and it is the reason this entry is not simply
+        "sort the pool by the list": a level's pool is the first `poolSize` titles, so if two consecutive entries
+        cannot be applied in either order the level's generator loses combinations. MEASURED for the CURRENT
+        file-order pool, which is what makes the point concrete: of level 1's ten titles **five are legal from the
+        starting board** (Allemande Left in the Alamo Style, Allemande Left, Box the Gnat, Boys Fold, Boys Run) and
+        **five are never offered** from a Static Square (Bend the Line, Box Circulate, Boys Trade, California Twirl,
+        Cast Off Three Quarters) — ten titles of pool and five titles of questions, because the order is the asset
+        directory's, not a teaching sequence. The MEASUREMENT that says whether a candidate order works is the
+        distinct-supply count per level — the instrument this session already used once (Q17's note: 4 distinct drills
+        at level 1 and 18 at levels 2 and 3 over 120 seeds, measured while the engine's getout family is mid-repair, so
+        provisional). A curated order should be judged by that count going UP, per level, once the engine is whole.
+      * **WHAT IT COSTS AND WHAT IT MUST NOT DO**: `POOL_VERSION` bumps (`ms-2` -> `ms-3`, and it MUST, because a title
+        is an identity and re-ordering renumbers every level's pool — `calls-data.ts`'s header says so); the published
+        schedules and saved runs carrying `ms-2` become unplayable by design (rule 2's lock and `isPlayable`'s pool
+        check); and the generation is a change to `game/tools/build-pool.mjs`, which today reads the asset directory
+        and sorts by basename — the regeneration must take the order from a transcription that lives IN the repo, never
+        from the PDF at build time, because `docs/` is untracked by design (AGENTS.md §6: the oracle is not ours to
+        redistribute, so the repo carries the derived ORDER and its attribution, not the document).
 12. **Sound.** *Recommend none at v1.* Voice or music is a large surface (autoplay policy, accessibility, ad
     interaction) and does not serve the objective.
 13. **Ads-only, or an ad-free tier?** *Recommend ads-only at v1*: a paid tier adds store fees, tax and a

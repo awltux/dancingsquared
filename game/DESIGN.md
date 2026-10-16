@@ -2081,7 +2081,7 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     skip, so the hole a lost submission leaves is visible rather than silent. (No dev-server log line exists for that
     step, because the server was down by definition — the evidence is the sentence's own wording, which is why the two
     failure sentences are distinct in the first place.)
-22. **A signed-out player's "Next drill" is a dead button — FOUND IN THE SAME SESSION, AND OPEN.** A demo's solve is
+22. **A signed-out player's "Next drill" is a dead button — DECIDED AND IMPLEMENTED.** A demo's solve is
     credited locally and never submitted (A20: the server takes no writes from a caller it served without a Progress
     row), so Q21's rule sends the advance — and a demo has no Progress row to advance, so the server answers
     **`401`** ("this endpoint needs a signed-in player"). MEASURED IN A BROWSER: the demo drill is solved (the ledger

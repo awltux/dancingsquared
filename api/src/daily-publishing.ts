@@ -11,29 +11,10 @@
 // that does not generate is a day where every player at that level gets a refusal, so the refusal is reported at
 // the boundary instead — and the day's other levels still publish, because one broken level is not a reason to
 // serve nobody a Daily.
-import { MAIN_POOL, POOL_VERSION, dailyEntry, isUtcDay, poolIsComplete, type ScheduleEntry } from 'dancing-squared-game';
-import { levelAt, puzzleFor } from './levels.ts';
+import { POOL_VERSION, dailyEntry, isUtcDay, type ScheduleEntry } from 'dancing-squared-game';
+import { levelAt, publishableLevels, puzzleFor } from './levels.ts';
 import { publishedDailyKey } from './keys.ts';
 import type { ItemStore } from './ports.ts';
-
-/**
- * Every level the corpus can actually fill, lowest first.
- *
- * THE LADDER IS TOTAL AND THE POOL IS NOT, and that is the whole of this function. `levelSpec` answers for any
- * positive integer (its pool widens by five every three levels from L4), while the corpus carries a fixed number
- * of titles — so "which levels does the Daily exist at" is answered by `poolIsComplete`, and the loop STOPS at
- * the first level whose pool the corpus cannot fill. It terminates by construction: `poolSize` grows
- * monotonically, so the first failure ends the run rather than being skipped over.
- */
-export function publishableLevels(): number[] {
-  const levels: number[] = [];
-  for (let index = 1; ; index++) {
-    const level = levelAt(index);
-    if (!poolIsComplete(level, MAIN_POOL)) break;
-    levels.push(index);
-  }
-  return levels;
-}
 
 /** One level's challenge for one day, as the artefact stores it: a seed, a level and a pool version. */
 export function challengeFor(levelIndex: number, day: string): ScheduleEntry {

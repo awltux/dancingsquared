@@ -765,6 +765,13 @@ through the engine). `score` is the client's claim and is CLAMPED to what the se
 written twice. Refusals add `400 not_solved`/`over_allowance`/`impossible_elapsed`/`bad_*`,
 `404 no_published_daily`, and `409 stale_drill`/`stale_pool`.
 
+**The `Schedule` item as it is published (Phase 5.5).** `schedule#<level>` / `current` holds `{ scheduleVersion,
+entries: [{ seed, levelIndex, poolVersion }] }` — a seed, a level and a pool version, no puzzle, no board, no media
+(§11, decision 13). The order is ascending and the season is a PREFIX of any longer season, so extending one cannot
+rewrite a drill already handed out. `scheduleVersion` is `ms-1-season<N>`: it names the pool and the length, which
+is what an operator needs to see that a republish changed the regime. It deliberately does NOT encode the
+generator's version, because a change there is caught by `lintSchedule` re-running the generator rather than by a
+string comparison.
 **DynamoDB, one table**, `PK`/`SK`, with a `GSI1 (GSI1PK, GSI1SK)` for the two leaderboard partitions and a
 `seed#playerId` dedup index so a replay does not spam a board with duplicate entries. The item shapes below
 are the storage form of decisions 10, 11 and 15, and of the two published sources of a puzzle:
@@ -1153,6 +1160,44 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 **Still not done from Phase 5:** the other four endpoints, the publishing pipeline, Cognito, the Lambda adapter
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
+
+**Phase 5.5 — a level's season is authored, validated and published. DONE.**
+`api/src/schedule-publishing.ts` is §7.2's authoring pipeline: `generateSeason` scans seeds upward, GENERATING each
+candidate and keeping only the ones that produce a puzzle, and `publishSeason` writes the level's `schedule#<level>`
+row as a seed, a level and a pool version and nothing else (§11). `api/tools/publish-schedule.mjs` runs it
+(`npm run api:publish-schedule`, `--levels`, `--season`, `--dry-run`), and `publishableLevels()` moved into
+`levels.ts` so the two publishing jobs share one answer to "which levels can the corpus fill".
+
+**WHY IT MATTERED: a deployed Drill had nothing to serve.** `schedule#<level>` was written only by the dev server's
+fixture, so a real deployment answered `404 no_schedule` to everyone. The Daily's path was already complete; this
+completes the Drill's.
+
+**THE ORDER IS THE CONTRACT, AND SO IS THE PREFIX.** Seeds are taken in ascending order, so a season is a
+deterministic function of `(poolVersion, level, length)`: re-running the publisher is a no-op, and a LONGER season
+has the shorter one as its prefix — which is what stops an extension from rewriting a drill already handed out
+(§8).
+
+**MEASURED, by `api/test/schedule-publish-probe.mjs`** (29 checks, 6 controls):
+- **the skip rule, with its control**: seeds 1..40 at level 1 ALL generate (0 refusals, 104 ms each), so no
+  affordable range holds a refusal to demonstrate with — the probe injects a predicate that refuses seed 3 and
+  measures the season becoming `1,2,4` rather than `1,2,3`, while the real generator is measured separately by
+  authoring and regenerating a three-entry season. A level that can fill nothing gives up after
+  `SCAN_PATIENCE × season` candidates rather than spinning;
+- **determinism and the prefix**: the same request authors `1,2,3` twice, and a five-drill season starts
+  `1,2,3,4,5`;
+- **the design's own lint**, imported: the structural pass is clean and the FULL pass — every seed regenerated — is
+  clean on three entries, which is why the probe pays for it and the tool does not pay twice per season. Controls:
+  an entry from another pool and a repeated seed are both refused. **And the module records that the lint CANNOT
+  refuse a level the corpus cannot fill** — the ladder is total — which is `levelIsPublishable`'s question, asked
+  before the lint is;
+- **end to end**: publishing a season makes `GET /drill/current` serve its first seed and report its length, so the
+  pipeline's output reaches the endpoint with no fixture involved;
+- levels 1-3 are publishable and level 34 is not (65 titles wanted, 62 carried), and the version names the season's
+  length.
+
+**COST, from §7.1's own census, which is why the default is levels 1-3 and not all 33 the corpus could fill**: a
+31-drill season is ~3.2 s at level 1 (MEASURED: 40 seeds at 104 ms) but ~2.5 minutes at each deep level (L25-L30
+are 3.3-4.9 s per generation), so "publish every level" is an hour of work for shelves nothing plays yet.
 
 **Phase 5.4 — the Daily's boundary job, and the read that needs it. DONE.**
 `api/src/daily-publishing.ts` is the boundary job as a module: which levels a day needs, a challenge per level

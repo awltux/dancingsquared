@@ -8,11 +8,11 @@
 // than inventing one, and the ladder of levels the corpus can actually fill.
 //
 // Usage: node api/test/daily-puzzle-probe.mjs
-import { publishDay, publishableLevels, challengeFor } from '../src/daily-publishing.ts';
+import { publishDay, challengeFor } from '../src/daily-publishing.ts';
 import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { STATUS } from '../src/status.ts';
 import { publishedDailyKey } from '../src/keys.ts';
-import { levelAt } from '../src/levels.ts';
+import { levelAt, publishableLevels } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { configFromEnv, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
 import { MAIN_POOL, dailyEntry, isUtcDay, poolIsComplete, utcDay } from 'dancing-squared-game';

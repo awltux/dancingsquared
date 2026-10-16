@@ -21,6 +21,7 @@ import {
   generatorConfigFor,
   levelSpec,
   poolFor,
+  poolIsComplete,
   type GenerateResult,
   type LevelSpec,
   type Puzzle,
@@ -80,6 +81,29 @@ export function puzzleFor(seed: number, level: LevelSpec): GenerateResult {
  */
 export function optionLabels(puzzle: Puzzle): string[] {
   return (puzzle.steps[0]?.moves ?? []).map((move) => move.call);
+}
+
+/**
+ * Every level the corpus can actually fill, lowest first.
+ *
+ * THE LADDER IS TOTAL AND THE POOL IS NOT, which is the whole of this function: `levelSpec` answers for any
+ * positive integer (its pool widens by five every three levels from L4) while the corpus carries a fixed number
+ * of titles. MEASURED: that is levels 1..33, and level 34 asks for 65 titles where the corpus carries 62. The
+ * loop stops at the first level the corpus cannot fill and terminates by construction, because `poolSize` grows
+ * monotonically — so "how far does the game go" is a measurement, not a constant.
+ *
+ * IT LIVES HERE BECAUSE TWO JOBS NEED IT: the Daily's boundary job publishes a challenge per level, and the
+ * schedule publisher authors a season per level, and both must refuse a level nobody can play rather than
+ * publish something unservable.
+ */
+export function publishableLevels(): number[] {
+  const levels: number[] = [];
+  for (let index = 1; ; index++) {
+    const level = levelAt(index);
+    if (!poolIsComplete(level, MAIN_POOL)) break;
+    levels.push(index);
+  }
+  return levels;
 }
 
 /** How many of a level's titles the corpus actually carries — reported, never asserted (the ladder census). */

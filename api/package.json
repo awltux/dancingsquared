@@ -9,6 +9,7 @@
     "dev": "node src/dev-server.ts",
     "dev:ddb": "node tools/dev-ddb.mjs",
     "publish-daily": "node tools/publish-daily.mjs",
+    "publish-schedule": "node tools/publish-schedule.mjs",
     "verify": "node tools/verify-probes.mjs"
   },
   "dependencies": {

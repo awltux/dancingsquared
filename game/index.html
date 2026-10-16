@@ -98,6 +98,10 @@
           <button id="replayMine" type="button" hidden>Replay my line</button>
           <button id="replayShortest" type="button" hidden>Replay the shortest</button>
           <button id="view" type="button">Switch to 2D</button>
+          <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order
+               is not the season's, so it is offered by name rather than substituted quietly, and the label says what
+               taking it means. -->
+          <button id="practice" type="button" hidden>Practice offline — this one will not count</button>
           <button id="boardToggle" type="button">Show the board</button>
           <!-- THE ONE CONTROL THAT DELETES SOMETHING (DESIGN.md §15 Q18). It is a FOOTER control rather than a
                browser dialog because the armed state is a rule the shell owns — two presses, with the second one

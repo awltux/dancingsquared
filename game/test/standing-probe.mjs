@@ -23,14 +23,14 @@ const check = (cond, msg) => {
 };
 
 /** Every fact the rule takes, with the boring ones defaulted so each check reads as the one thing it varies. */
-const facts = (over = {}) => ({ configured: true, mode: 'emulate', signedIn: false, demo: false, ...over });
+const facts = (over = {}) => ({ configured: true, mode: 'emulate', signedIn: false, demo: false, practice: false, ...over });
 
 console.log('== 1. with no API configured there is no server to have an opinion ==');
 {
   // NOTHING LEAVES THE DEVICE, so the standing is not "unranked" (which would promise a server that is recording
   // nothing) and not "ranked" (which would promise one that is). The offline game is its own case.
   check(standingOf(facts({ configured: false })) === 'offline', 'no base URL means offline, not ranked');
-  check(standingOf(facts({ configured: false, mode: 'dev', signedIn: true, demo: true })) === 'offline', 'and nothing else can move it');
+  check(standingOf(facts({ configured: false, mode: 'dev', signedIn: true, demo: true, practice: true })) === 'offline', 'and nothing else can move it');
 }
 
 console.log('\n== 2. `dev` names the player by a verified header, so a signed-out caller is still that player ==');
@@ -58,6 +58,21 @@ console.log('\n== 4. the server\'s own `demo` outranks everything the client bel
   check(standingOf(facts({ signedIn: true, demo: true })) === 'unranked', 'NEGATIVE CONTROL: and it beats a session the app still holds (the session-means-ranked rule fails exactly here)');
   // `dev` IS AN IDENTITY, NOT AN EXEMPTION: if the server says demo, the header did not name anyone it would write for.
   check(standingOf(facts({ mode: 'dev', signedIn: true, demo: true })) === 'unranked', 'and it beats the dev header as well');
+}
+
+console.log('\n== 4b. a PRACTICE drill is not the server’s, whichever mode would otherwise rank it ==');
+{
+  // THE OTHER ROAD TO "THIS RUN CANNOT BE RANKED" (DESIGN.md §15 Q20): the server said demo, or the app never asked
+  // and served its own fixture. The facts are separate because they mean opposite things about the server, and they
+  // share one answer — which is why they are checked in the same place.
+  check(standingOf(facts({ practice: true })) === 'unranked', 'a practice drill is unranked');
+  check(standingOf(facts({ practice: true, signedIn: true })) === 'unranked', 'even for a signed-in player, whose session would otherwise rank it');
+  // THE CHECK THAT MAKES THE OFFER HONEST, and the reason `practice` is tested BEFORE `dev`: in dev mode a signed-out
+  // caller IS ranked (section 2), so a fixture drill would be marked ranked while the app knew it was not the
+  // season's. NEGATIVE CONTROL: the plausible wrong rule — "dev always ranks, practice only matters in a token mode"
+  // — passes every other check in this file and fails exactly this one.
+  check(standingOf(facts({ mode: 'dev', practice: true })) === 'unranked', 'NEGATIVE CONTROL: and it beats the dev header, which would otherwise rank it (the dev-always-ranks rule fails exactly here)');
+  check(standingOf(facts({ configured: false, practice: true })) === 'offline', 'while an offline build is still OFFLINE rather than unranked — there is no server to have refused');
 }
 
 console.log('\n== 5. a mode this build could not learn is NOT treated as `dev` ==');

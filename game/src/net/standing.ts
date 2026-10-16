@@ -36,20 +36,32 @@ export interface StandingFacts {
   readonly signedIn: boolean;
   /** What the server said about the puzzle it issued, when it said anything at all (the Drill does, the Daily does not). */
   readonly demo: boolean;
+  /**
+   * Whether the drill on screen is this DEVICE'S OWN FIXTURE rather than one the server issued (`main.ts`'s
+   * practice offer, DESIGN.md §15 Q20).
+   *
+   * IT IS A FACT OF ITS OWN AND NOT PART OF `demo`, because the two mean opposite things about the SERVER: `demo` is
+   * the server saying "I served this and will not rank it", where `practice` is the app saying "the server was never
+   * asked". They share one answer — the run cannot be ranked — which is why they are checked in the same place.
+   */
+  readonly practice: boolean;
 }
 
 /**
  * THE RULE, in the order the answers outrank each other.
  *
- * `demo` IS CHECKED BEFORE THE SESSION, and `dev` is checked after both: a token mode with no session is a demo,
- * while `dev` names the player by a verified header (`api/src/auth/`), so a signed-out caller under it is still the
- * identity it claims — which is why `dev` shows no sign-in UI at all (§11.2). A mode that is still `null` (discovery
- * in flight, or a server that did not name one) is deliberately NOT treated as `dev`: guessing an identity mode is
- * how a build sends a header a deployment ignores, or opens a sign-in form no server serves.
+ * `demo` AND `practice` ARE CHECKED BEFORE THE SESSION, and `dev` is checked after both: a token mode with no
+ * session is a demo, while `dev` names the player by a verified header (`api/src/auth/`), so a signed-out caller
+ * under it is still the identity it claims — which is why `dev` shows no sign-in UI at all (§11.2). PRACTICE is
+ * checked before `dev` too, and that is the check that makes the offer honest: under `dev` a signed-out caller IS
+ * ranked, so without this a drill played from the local fixture would be marked ranked while the app knew it was
+ * not the season's. A mode that is still `null` (discovery in flight, or a server that did not name one) is
+ * deliberately NOT treated as `dev`: guessing an identity mode is how a build sends a header a deployment ignores,
+ * or opens a sign-in form no server serves.
  */
 export function standingOf(facts: StandingFacts): Standing {
   if (!facts.configured) return 'offline';
-  if (facts.demo) return 'unranked';
+  if (facts.demo || facts.practice) return 'unranked';
   if (facts.signedIn) return 'ranked';
   return facts.mode === 'dev' ? 'ranked' : 'unranked';
 }

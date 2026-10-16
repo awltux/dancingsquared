@@ -109,6 +109,15 @@ let dailyLevelIndex = 0;
 let dailyRunSeed = 0;
 
 /**
+ * Whether the drill on screen is this DEVICE'S OWN FIXTURE rather than one the server issued (DESIGN.md §15 Q20).
+ *
+ * IT IS SET BY THE FIXTURE PATH, NOT BY THE BUTTON, so no route to a fixture drill can leave the standing saying the
+ * run is the server's — and it is cleared by a server drill that worked. `standingOf` is what turns it into what the
+ * player sees (the unranked clause on the ledger and the balance).
+ */
+let practiceRun = false;
+
+/**
  * THE DAILY'S MOVES POSTED SO FAR, as one chain, so a submission can wait for them (DESIGN.md 11.1, A22).
  *
  * THE SAME CONTRACT THE DRILL'S PRESSES HAVE, and for the same reason: the server scores the RECORDED line and
@@ -162,6 +171,7 @@ const els = {
   replayShortest: el<HTMLButtonElement>('replayShortest'),
   view: el<HTMLButtonElement>('view'),
   next: el<HTMLButtonElement>('next'),
+  practice: el<HTMLButtonElement>('practice'),
   startOver: el<HTMLButtonElement>('startOver'),
   loading: el('loading'),
 };
@@ -217,7 +227,7 @@ function captions(here: Board, goal: Board): void {
  * called a demo.
  */
 function currentStanding(): Standing {
-  return standingOf({ configured: apiConfigured(), mode: authMode, signedIn: player !== null, demo: demoRun });
+  return standingOf({ configured: apiConfigured(), mode: authMode, signedIn: player !== null, demo: demoRun, practice: practiceRun });
 }
 
 /** The hint balance and the progress towards the next one (DESIGN.md 10: silent progress, announced grant). */
@@ -618,9 +628,21 @@ function paintLedger(): void {
     count === 0
       ? 'Saved on this device: nothing yet'
       : `Saved on this device: ${count} run${count === 1 ? '' : 's'}${best === null ? '' : ` · best ${best}`}`;
-  // A SIGNED-OUT LEDGER IS A FUNNEL, NOT A SCOREBOARD (DESIGN.md §11.2): the runs are real and kept, and they are
-  // not ranked — which is the fact the old line left implicit until the server refused the submission.
-  els.ledger.textContent = currentStanding() === 'unranked' ? `${kept} — unranked: the server is recording nothing for a signed-out player` : kept;
+  // AN UNRANKED LEDGER IS A FUNNEL, NOT A SCOREBOARD (DESIGN.md §11.2): the runs are real and kept, and they are not
+  // ranked — which is the fact the old line left implicit until the server refused the submission.
+  //
+  // AND THE REASON IS SAID, because there are now TWO of them and ONE sentence was wrong for the other. MEASURED in a
+  // browser while this change was being checked: a SIGNED-IN player taking the practice offer read "unranked: the
+  // server is recording nothing for a signed-out player", which is not what happened — the server was never asked. So
+  // the demo case keeps a sentence that is true of it whether or not there is a session, and the practice case says
+  // the practice reason instead.
+  const clause =
+    currentStanding() === 'unranked'
+      ? practiceRun
+        ? ' — unranked: a practice drill, so it is kept here and never submitted'
+        : ' — unranked: the server is not recording this run'
+      : '';
+  els.ledger.textContent = `${kept}${clause}`;
 }
 
 /**
@@ -700,6 +722,9 @@ function applyMode(next: AppMode): void {
   els.modeDaily.setAttribute('aria-pressed', String(mode === 'daily'));
   els.review.hidden = true;
   els.next.hidden = true;
+  // THE PRACTICE OFFER IS ABOUT THE DRILL ON SCREEN, so a mode switch withdraws it: what the server refused was that
+  // drill, and an offer left standing would invite a practice run for a failure the player has moved past.
+  els.practice.hidden = true;
   els.undo.hidden = mode !== 'daily';
   els.redo.hidden = mode !== 'daily';
   els.giveUp.hidden = mode !== 'daily';
@@ -787,6 +812,10 @@ function startDrill(next: number): void {
   els.loading.hidden = false;
   els.loading.textContent = `Generating drill ${at + 1} of ${length}…`;
   const entry = scheduleEntryFor(at);
+  // A FIXTURE DRILL WITH AN API CONFIGURED IS PRACTICE, and the flag is set HERE rather than by the button that
+  // offers it, so no path can show a fixture drill without saying it is one (DESIGN.md §15 Q20). With no API
+  // configured the whole game is offline and the standing is already `offline`, so the flag is moot.
+  practiceRun = apiConfigured();
   showDrill({ seed: entry.seed, levelIndex: entry.levelIndex, index: at, length });
 }
 
@@ -820,8 +849,15 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
     controller = null;
     drillScreen.say(`No drill from the server: ${answer.failure.message}`, 'bad');
     drillScreen.render(controller);
+    // AND THEN THE HONEST OFFER (DESIGN.md §15 Q20). The fixture's order is NOT the season's, so serving it quietly
+    // would ask a different question from everyone else's and record it as if it counted; what is offered instead is
+    // the local drill, named as practice, and taken only by a press. The button is revealed here and hidden again by
+    // a server drill that worked.
+    els.practice.hidden = false;
     return;
   }
+  practiceRun = false;
+  els.practice.hidden = true;
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
   showDrill({
@@ -844,6 +880,25 @@ function issueCurrentDrill(next: 'current' | 'advance'): void {
   if (apiConfigured()) void startServerDrill(next);
   else if (next === 'advance') startDrill(position + 1);
   else startDrill(position);
+}
+
+/**
+ * Take the practice offer: play the local fixture, and say what that means (DESIGN.md §15 Q20).
+ *
+ * THE SENTENCE COMES AFTER THE DRILL IS SHOWN, because `showDrill` clears the verdict line on its way in — a player
+ * who pressed a button labelled "this one will not count" is owed the reason in the same place the ordinary verdicts
+ * appear, and the LEDGER's own unranked clause (`paintLedger`, driven by `standingOf`) is the standing fact beside
+ * it. The offer is hidden again: it is a choice, not a mode, and leaving it on screen would read as a setting.
+ *
+ * THE RUN IS STILL KEPT ON THIS DEVICE, and that is deliberate rather than an oversight: the local ledger is what
+ * A26 later imports as UNRANKED HISTORY, which is exactly what a practice run is — a run the server never issued,
+ * which buys no standing (§11.1). What it is NOT is a submission: `serverDrill` is null on this path, so `finishDrill`
+ * has nothing to submit and credits the local rule instead.
+ */
+function startPractice(): void {
+  els.practice.hidden = true;
+  startDrill(position);
+  drillScreen.say('Practice drill — this device’s own fixture, not the season’s, so it will not count.', 'info');
 }
 
 /** Answer the current step. */
@@ -1504,6 +1559,7 @@ function main(): void {
   els.replayMine.addEventListener('click', () => replayLine('mine'));
   els.replayShortest.addEventListener('click', () => replayLine('shortest'));
   els.view.addEventListener('click', toggleView);
+  els.practice.addEventListener('click', startPractice);
   els.startOver.addEventListener('click', startOver);
 
   // FRAME THE BOARDS IN THE SPACE THE PANEL LEAVES, not under it. MEASURED FROM THE ELEMENT rather than

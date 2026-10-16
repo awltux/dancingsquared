@@ -1795,13 +1795,26 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     event; an abandoned Daily is debited at abandonment. What stays open is not the claim but its COMPLETENESS for
     a client that plays the puzzle itself — §11.1's known limits (1)–(3) say so, and none of them is closable
     without changing what the client is served.
-20. **When the API is unreachable, should the Drill FALL BACK to the local fixture?** As shipped it refuses, showing
-    the server's failure ("the server could not be reached") and keeping the local ledger. *Recommend NO silent
-    fallback, and a LABELLED one instead*: the fixture's order is not the season's, so serving it quietly would ask
-    a different question from everyone else's and record it as if it counted. The honest version is Q6's unranked
-    practice mode, offered explicitly ("practice offline — this one will not count"), which is a screen decision
-    and a few lines of state, not a change to the serving rules. *The tradeoff*: a player on a flaky connection
-    cannot play the regime at all until it returns, which is the price of the order being the server's.
+20. **When the API is unreachable, should the Drill FALL BACK to the local fixture? — DECIDED AND IMPLEMENTED: no
+    silent fallback, and a labelled offer instead.** The fixture's order is not the season's, so serving it quietly
+    would ask a different question from everyone else's and record it as if it counted. What ships is the
+    recommendation: when `GET /drill/current` fails the app shows the server's own sentence AND reveals a footer
+    control labelled "Practice offline — this one will not count"; taking it plays the local fixture, says in the
+    verdict line that this is the device's own drill and not the season's, and hides the offer again (it is a choice,
+    not a mode). **The standing knows the difference**: `standingOf` takes `practice` as a fact of its own, separate
+    from the server's `demo` — the two mean opposite things about the server ("I served this and will not rank it"
+    versus "I was never asked") and share one answer — and it is checked BEFORE `dev`, which is what makes the offer
+    honest: in `dev` mode a signed-out caller IS ranked, so without that a fixture drill would be marked ranked while
+    the app knew it was not the season's. The ledger's unranked clause follows automatically, because the lines are
+    painted from the same rule. **The run is still kept on this device, and that is deliberate**: the local ledger is
+    what A26 later imports as UNRANKED HISTORY, which is exactly what a practice run is — a run the server never
+    issued, buying no standing — while `serverDrill` is null on this path, so `finishDrill` has nothing to submit and
+    credits the local rule instead. *The tradeoff is unchanged*: a player on a flaky connection cannot play the regime
+    until it returns, which is the price of the order being the server's — and the offer is now the honest thing they
+    can do meanwhile. **THE DAILY HAS NO SUCH OFFER**, deliberately: Q20 is about the SEASON's order, and a Daily whose
+    published artefact cannot be read is refused with its reason rather than replaced by a locally derived seed, which
+    would be a different challenge from everyone else's. Pinned in `game/test/standing-probe.mjs` §4b, whose negative
+    control is the plausible wrong rule ("dev always ranks") that passes every other check in that file.
 16. **Does an answer given AFTER "show me the answer" count as a ranked success?** Phase 3 made the review
     name and dance the call without answering the step, so a player still presses it — and that press earns a
     score and, on the tenth completed drill, a hint. *Recommend NOT counting a revealed puzzle*, because a

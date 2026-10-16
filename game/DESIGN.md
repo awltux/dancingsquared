@@ -1041,8 +1041,11 @@ will not count" — for the reason Q18's armed reset and Q20's practice offer ca
 `game/test/drill-controller-probe.mjs` (the reveal is recorded, once per step, and a revealed step outside the puzzle is
 dropped), `game/test/save-state-probe.mjs` §1b (one success short of a grant, a revealed solve grants nothing and still
 finishes the position) and `game/test/api-client-probe.mjs` §7/§9b (the reveal is posted as a step and nothing else, the
-call comes from the server, and `ranked: false` is adopted). What is not yet true, and the stage that lands it
-(AGENTS.md §0: one change, one commit):
+call comes from the server, and `ranked: false` is adopted). **AND IT IS NOW OBSERVED END TO END IN A BROWSER**, which
+is the only place the two halves meet: the label before the press, `POST /drill/reveal` in the dev server's log, the
+two verdict sentences, the hint progress that does not move and the empty board — with the SAME flow without a reveal
+as the measured negative control. §15 Q16 carries the observation, and Q21 carries the shell defect that check found
+beside it. What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
@@ -1862,9 +1865,26 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     board row, no hint, and the regime still advances. The server half records the reveal as an EVENT
     (`POST /drill/reveal`) and decides the run's standing; the client half records which steps were shown, posts them,
     declares the count on the run and stops crediting a revealed drill against its own offline ledger; and the button
-    now carries its cost on its label before it is pressed. **NOT YET OBSERVED IN A BROWSER**: the two halves are
-    measured by probes on both sides, and the path between them — the button, the post, the verdict sentence and the
-    server's `ranked` flag on screen — is shell code no probe loads, so it is owed a real-browser check.
+    now carries its cost on its label before it is pressed. **MEASURED IN A BROWSER** (Chrome, `npm run dev:game` on
+    8089 with `VITE_API_BASE=http://127.0.0.1:8090`, `DSQ_AUTH=emulate npm run dev:api` on 8090, the dev server's own
+    log read): a signed-in player at drill 1 presses "Show me the answer — this drill will not count" (the label,
+    before the press), the log gains `200 POST /drill/reveal` and **no** `/drill/answer` until they press the call
+    the app named, and the finished run reads *"Recorded — the server scores it 62 points. Not ranked: you were shown
+    the answer, so it earns no hint and does not reach the board."* The two consequences are visible beside it and
+    both are the rule rather than a sentence about it: the hint progress stays **"0 of 10 to the next"** and the
+    board panel says **"Nobody has a score on this board yet."** The NEGATIVE CONTROL IS THE SAME FLOW WITHOUT THE
+    REVEAL, run in the same session: drill 2, one wrong press then the right one, reads *"Recorded — the server
+    scores it 80 points. Board: 80 over 1 run(s)."*, the progress moves to **"1 of 10 to the next"**, and the board
+    panel then reads *"1 player on this board. 1. emu:… (you) — 80 — 1 run"* — so the difference between the two
+    runs is the reveal and nothing else. **AND THE REVEAL SURVIVES A RELOAD**, which is the client half's own rule:
+    drill 3 was revealed, the page was reloaded mid-drill (the same drill resumed, and only ONE reveal POST in the
+    whole session — the restored fact rides on the run's claim), and solving it still answered *"…100 points. Not
+    ranked: you were shown the answer…"* with the progress unmoved at **"1 of 10"**. The regime advances as designed:
+    after the revealed drill the next issue is drill 2 of 4. A signed-OUT player's press of the same button sends
+    NOTHING at all — no `OPTIONS`, no `POST` — which is A20's rule holding from the other side. **What the browser
+    also found is NOT part of this rule**: pressing "Next drill" after a recorded run is refused (see Q21), measured
+    on BOTH paths above — with and without a reveal — so it is a pre-existing defect in the shell rather than
+    anything A28 introduced.
 17. **How many drills are in a season, and how does a season end?** Unchanged from Q4/Q3 above; Phase 3 left
     the fixture's twelve drills wrapping round, which is a demo of a regime rather than a regime.
 18. **Can a player make the device forget them? — DECIDED AND IMPLEMENTED.** Phase 4 kept the regime, the balance and
@@ -1891,6 +1911,22 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     the ledger to "Saved on this device: nothing yet", the hint progress to "0 of 10 to the next", a fresh drill 1 of
     12 to the board and the label to its unarmed text. The disarm-on-mode-switch was NOT observed: it is shell state
     and no probe loads `main.ts`.
+21. **"Next drill" is refused after a run that was recorded — FOUND BY THE Q16 BROWSER CHECK, AND OPEN.** A submitted
+    run finishes its drill server-side (`POST /runs` → `finishDrill`, which clears the in-flight lock), and the app
+    then advances before it issues: `startServerDrill('advance')` calls `POST /drill/advance` with a drill the server
+    no longer has in flight, the server answers **`409 stale_drill`** ("this player has no drill in flight, so there is
+    nothing to advance"), and the app shows that and returns with `controller = null` — so the Drill panel is empty
+    and the only way on is a manual reload, which does issue the next entry, because the regime DID advance.
+    **MEASURED IN A BROWSER, ON BOTH PATHS**: the same 409 appears after the revealed run (Q16) *and* after the
+    ordinary ranked run in the same session — so this is not A28's doing, it is the shell asking the server to advance
+    a drill the server has already advanced, and it has been there since the Drill's server path landed. It is also
+    the class of defect no probe can see: `main.ts` is the layer that is not probe-loadable, and every api-side probe
+    passes because the server is behaving exactly as designed. *Recommendation*: `advance` is only meaningful for a
+    drill the run did NOT finish (a skip), so a `stale_drill` refusal from the advance call should fall THROUGH to
+    `issueDrill` rather than ending the click — the refusal says "there is nothing to advance", which is the state the
+    app wants anyway. A probe cannot pin it (`main.ts` again), so the instrument is a browser check with a registered
+    recipe; the honest alternative, if the owner prefers a stricter shell, is for the app to stop calling `advance`
+    once the run has been submitted, which changes the same one branch.
 
 ---
 

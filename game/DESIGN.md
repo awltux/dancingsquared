@@ -772,7 +772,21 @@ player committed at each step, re-derived against the issued puzzle) and the who
 through the engine). `score` is the client's claim and is CLAMPED to what the server recomputes, with
 `clamped: true` saying that it was. `duplicate: true` means the `runId` had already landed and nothing was
 written twice. Refusals add `400 not_solved`/`over_allowance`/`impossible_elapsed`/`bad_*`,
-`404 no_published_daily`, and `409 stale_drill`/`stale_pool`.
+`404 no_published_daily`, and `409 stale_drill`/`stale_pool`. **A Daily submission is also cross-checked against the
+server's own record of the line: `409 no_recorded_line` when the moves were never recorded, and `400 line_mismatch`
+when the calls it names are not the ones the log derives.** The `400 over_allowance` refusal is GONE — the line is
+replayed through `PlaySession`, whose budget is the same `MOVE_ALLOWANCE_CUSHION`, so a recorded line cannot exceed
+the allowance and the check was unreachable.
+
+`POST /daily/move` records one move of the Daily, and it is what makes the LINE the server's. The body is
+`{ levelIndex, date, move: 'add' | 'undo' | 'redo', call? }` — a call on an `add`, and nothing on the other two,
+because an undo names no call of its own. The answer is `{ recorded }`, the number of moves the log now holds: it is
+the only number the endpoint can report without generating the puzzle, and it is what tells a client its move landed.
+**The client never states its line.** `POST /runs` derives it by replaying the log through the same `PlaySession` the
+app drives (§4.4), which is why the two sides cannot disagree about what was played. Refusals: `400
+bad_level`/`bad_date`/`bad_move`/`bad_call`, `401 unauthenticated`, `409 no_attempt_row` (the challenge was never
+read by this player, so there is no attempt to record against — A21's row is what a move hangs on), `409
+move_log_full` (the 300-move bound) and `409 contended`.
 
 **The `Schedule` item as it is published (Phase 5.5).** `schedule#<level>` / `current` holds `{ scheduleVersion,
 entries: [{ seed, levelIndex, poolVersion }] }` — a seed, a level and a pool version, no puzzle, no board, no media
@@ -921,10 +935,21 @@ EMPTY LEDGER IS SENT TO NOBODY — a fresh session signs in, the row reads "Sign
 posting one would put the commonest first sign-in into the operator's signal that someone is probing. What is not yet
 true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
+**A22's Daily half is now true, and it is the one change here that could not be made tolerance-free.** The Daily's
+line is the server's: `POST /daily/move` records add/undo/redo as the player presses them, and `POST /runs` derives
+the line by replaying that log through **the same `PlaySession` the client drives** (§4.4) — not a reimplementation of
+undo/redo, so the two sides cannot disagree about what was played. §6 prices that line (`wasteFactor`), which is why
+it could not stay a claim. MEASURED: `api/test/daily-move-probe.mjs` compares the server's derivation against a real
+`PlaySession` driven over the same sequence, for the add/undo/redo round trip, for the redo branch an add truncates,
+and for an illegal call — which the recorder stores and the replay drops, so it never enters the line. A submission
+whose calls the log does not derive is refused `line_mismatch` and one with no log at all `no_recorded_line`
+(`runs-probe.mjs`), so the claim is cross-checked rather than ignored. The `over_allowance` refusal is REMOVED with
+its check: the allowance is `PlaySession`'s own budget now, so the refusal became unreachable. What is not yet true,
+and the stage that lands it (AGENTS.md §0: one change, one commit):
+
 | Not yet enforced | Today | Lands in |
 |---|---|---|
-| A22's Daily half | the Drill's presses are recorded and counted; the Daily still submits a line the server walks rather than a log of moves, and its `attempts` is 0 by design (§6) | `POST /daily/move` |
-| A23's naming | the spend is the server's and an abandoned challenge is recorded (`POST /daily/abandon`); the CALL a hint names is still computed by the client | `POST /daily/move` |
+| A23's naming | the spend is the server's, an abandoned challenge is recorded, and the Daily's LINE is the server's now — so the board a hint names from is a fact rather than a claim | the hint's look-up (`PlaySession.hint`) driven server-side, over the recorded line |
 | A25's remainder | EVERY endpoint's refusals increment the bounded `abuse#<playerId>` tally (the count is applied at the route table, so coverage is a property of the table); no structured log and no alarm yet | logging, the alarm, per-player throttling at the gateway |
 | the `cognito` flow | the surface offers a form only where `/health` advertises sign-in routes, which is `dev` (none) and `emulate` (the emulator's five); a deployed pool's hosted flow is not opened by this build | stage 7, with the pool |
 

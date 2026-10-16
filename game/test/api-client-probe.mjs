@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -386,6 +386,35 @@ console.log('\n== 11. the device ledger is imported as HISTORY, and an empty one
   const silent = deps('http://localhost:8090', { status: 200, body: { unverified: true } });
   const unread = await importLedger([record({})], silent.api);
   check(unread.ok === false && unread.failure.code === 'bad_response', `an answer with no counts is refused (${unread.failure?.code})`);
+}
+
+console.log('\n== 12. a Daily move is recorded as a MOVE, not as a line ==');
+{
+  // THE REQUEST IS THE CONTRACT (DESIGN.md 11.1, A22's Daily half). The server derives the line by replaying these
+  // moves through the same session this app drives, so the client must send what the player DID — a client that
+  // sent its line instead would be handing over the number §6 prices (`wasteFactor`), which is the lie this
+  // endpoint exists to make impossible.
+  const posted = deps('http://localhost:8090', { status: 200, body: { recorded: 4 } });
+  const answer = await recordDailyMove(1, '2026-10-16', 'add', 'Boys Run', posted.api);
+  check(posted.fetch.calls[0].url === 'http://localhost:8090/daily/move' && posted.fetch.calls[0].init.method === 'POST', `posted to the endpoint the route table names (${posted.fetch.calls[0].init.method})`);
+  const sent = JSON.parse(posted.fetch.calls[0].init.body);
+  check(sent.move === 'add' && sent.call === 'Boys Run' && sent.levelIndex === 1 && sent.date === '2026-10-16', `carrying the move, the call and the challenge (${JSON.stringify(sent)})`);
+  check(sent.calls === undefined, 'and NOT a line, which is the number the server is deriving for itself');
+  check(answer.ok === true && answer.value.recorded === 4, `and the server's count comes back (${answer.value?.recorded})`);
+
+  // AN UNDO NAMES NO CALL, and it does not send a null one either: a field that is always null is a field a reader
+  // has to interpret, and the server's own log makes the same distinction between an add and the other two.
+  const undone = deps('http://localhost:8090', { status: 200, body: { recorded: 5 } });
+  await recordDailyMove(1, '2026-10-16', 'undo', null, undone.api);
+  const undoBody = JSON.parse(undone.fetch.calls[0].init.body);
+  // NEGATIVE CONTROL: the plausible wrong rule, "always name a call, null when there is none", sends `call: null`
+  // here and fails exactly this check — the add above agrees with it, which is why nothing else catches it.
+  check(undoBody.move === 'undo' && Object.keys(undoBody).length === 3, `NEGATIVE CONTROL: an undo carries three keys and no call (${JSON.stringify(undoBody)})`);
+
+  // THE COUNT IS THE ANSWER, so an answer without it is not read as a zero.
+  const silent = deps('http://localhost:8090', { status: 200, body: {} });
+  const unread = await recordDailyMove(1, '2026-10-16', 'redo', null, silent.api);
+  check(unread.ok === false && unread.failure.code === 'bad_response', `an answer with no count is refused (${unread.failure?.code})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

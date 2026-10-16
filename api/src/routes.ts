@@ -12,6 +12,7 @@ import { postHint } from './handlers/hints.ts';
 import { postAbandon } from './handlers/abandon.ts';
 import { postBulkRuns } from './handlers/bulk.ts';
 import { postDrillAnswer } from './handlers/answer.ts';
+import { postDailyMove } from './handlers/daily-move.ts';
 import type { Handler } from './ports.ts';
 import { countingRefusals } from './abuse.ts';
 
@@ -37,6 +38,7 @@ export const ROUTES: readonly Route[] = [
   { method: 'GET', path: '/puzzle', handler: countingRefusals(getPuzzle), purpose: "the published challenge for a level and day" },
   { method: 'POST', path: '/drill/advance', handler: countingRefusals(drillAdvance), purpose: 'mark the issued drill finished' },
   { method: 'POST', path: '/drill/answer', handler: countingRefusals(postDrillAnswer), purpose: 'record one press against the issued drill' },
+  { method: 'POST', path: '/daily/move', handler: countingRefusals(postDailyMove), purpose: "record one move, undo or redo of today's Daily" },
   { method: 'POST', path: '/me/hints', handler: countingRefusals(postHint), purpose: 'spend one hint, debit the balance and record the event' },
   { method: 'POST', path: '/daily/abandon', handler: countingRefusals(postAbandon), purpose: 'record that a player gave up on a challenge' },
   { method: 'POST', path: '/runs', handler: countingRefusals(postRun), purpose: 'record a completed run, verified by regeneration' },

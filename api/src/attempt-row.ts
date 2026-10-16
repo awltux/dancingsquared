@@ -16,6 +16,7 @@
 // THE DRILL HAS A ROW TOO, and it is not a clock: its start is the Progress row's `issuedAtMs`, and what the row
 // holds is the presses and the hints.
 import type { StoredItem } from './ports.ts';
+import { asDailyMoveItems, asDailyMoves, type DailyMove } from './daily-line.ts';
 
 /** One press: which step, which call, and when the SERVER saw it. */
 export interface Press {
@@ -27,10 +28,12 @@ export interface Press {
 /**
  * One hint, as the server spent it: which hint of the challenge it was, and when.
  *
- * call IS EMPTY UNTIL THE LINE IS THE SERVER'S. §10's hint names a call on the board the player is standing on,
- * and for the Daily that board comes from the recorded line (POST /daily/move, still to land) — so the spend is
- * recorded here and the NAME stays the client's for now (DESIGN.md §11.1's known limit 2 says that information is
- * derivable anyway). The field is kept so the row's shape does not change when the naming moves here.
+ * `call` IS STILL EMPTY IN PRACTICE, AND THAT IS NOW A CHOICE RATHER THAN A GAP. §10's hint names a call on the board
+ * the player is standing on, and for the Daily that board IS the recorded line — `POST /daily/move` landed, so the
+ * server can derive it (`levels.ts`'s `replayDailyMoves`). What has not moved is §10's LOOK-UP: which of the offered
+ * calls to name is `PlaySession.hint()`'s rule, and the api has not yet driven it here. Until it does, the spend is
+ * recorded and the NAME stays the client's (DESIGN.md §11.1's known limit 2 says that information is derivable
+ * anyway). The field is kept so the row's shape does not change when the naming moves.
  */
 export interface HintEvent {
   readonly step: number;
@@ -43,6 +46,14 @@ export interface Attempt {
   /** The Daily's start stamp (A21). Absent for a Drill, whose start is the Progress row's issue date. */
   readonly startedAtMs: number | null;
   readonly presses: readonly Press[];
+  /**
+   * The Daily's recorded moves (A22's Daily half). Empty for a Drill, which has one answer per step instead.
+   *
+   * THE LINE IS NOT STORED, only the moves that built it: a second copy of the player's line is a second thing that
+   * can disagree with the log, and the line is a pure replay of this list through the same session the client drove
+   * (`levels.ts`'s `replayDailyMoves`).
+   */
+  readonly moves: readonly DailyMove[];
   readonly hints: readonly HintEvent[];
   /** When the player GAVE UP on a Daily (A25's accounting). Null while the attempt is live or unfinished. */
   readonly abandonedAtMs: number | null;
@@ -85,16 +96,24 @@ function asHints(raw: unknown): HintEvent[] | null {
  * progress rows make. An absent FIELD is a fresh list, so a Daily row written before hints existed still reads.
  */
 export function asAttempt(stored: StoredItem): Attempt | null {
-  const value = stored.value as { startedAtMs?: unknown; presses?: unknown; hints?: unknown };
+  const value = stored.value as { startedAtMs?: unknown; presses?: unknown; moves?: unknown; hints?: unknown };
   const stamp = value.startedAtMs;
   if (stamp !== undefined && (typeof stamp !== 'number' || !Number.isFinite(stamp))) return null;
   const presses = asPresses(value.presses);
   if (!presses) return null;
+  const moves = asDailyMoves(value.moves);
+  if (!moves) return null;
   const hints = asHints(value.hints);
   if (!hints) return null;
   const abandoned = (stored.value as { abandonedAtMs?: unknown }).abandonedAtMs;
   if (abandoned !== undefined && abandoned !== null && (typeof abandoned !== 'number' || !Number.isFinite(abandoned))) return null;
-  return { startedAtMs: typeof stamp === 'number' ? stamp : null, presses, hints, abandonedAtMs: typeof abandoned === 'number' ? abandoned : null };
+  return {
+    startedAtMs: typeof stamp === 'number' ? stamp : null,
+    presses,
+    moves,
+    hints,
+    abandonedAtMs: typeof abandoned === 'number' ? abandoned : null,
+  };
 }
 
 /**
@@ -107,6 +126,7 @@ export function asAttemptItem(attempt: Attempt): Record<string, unknown> {
   return {
     ...(attempt.startedAtMs === null ? {} : { startedAtMs: attempt.startedAtMs }),
     presses: attempt.presses.map((press) => ({ step: press.step, call: press.call, atMs: press.atMs })),
+    moves: asDailyMoveItems(attempt.moves),
     hints: attempt.hints.map((hint) => ({ step: hint.step, call: hint.call, atMs: hint.atMs })),
     ...(attempt.abandonedAtMs === null ? {} : { abandonedAtMs: attempt.abandonedAtMs }),
   };
@@ -120,7 +140,9 @@ export function asAttemptItem(attempt: Attempt): Record<string, unknown> {
  * until someone re-read the challenge before submitting.
  */
 export function startAttempt(existing: Attempt | null, nowMs: number): { attempt: Attempt; write: boolean } {
-  return existing ? { attempt: existing, write: false } : { attempt: { startedAtMs: nowMs, presses: [], hints: [], abandonedAtMs: null }, write: true };
+  return existing
+    ? { attempt: existing, write: false }
+    : { attempt: { startedAtMs: nowMs, presses: [], moves: [], hints: [], abandonedAtMs: null }, write: true };
 }
 
 /**

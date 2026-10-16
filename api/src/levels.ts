@@ -17,6 +17,7 @@
 
 import {
   MAIN_POOL,
+  PlaySession,
   generatePuzzle,
   generatorConfigFor,
   levelSpec,
@@ -27,6 +28,7 @@ import {
   type Puzzle,
 } from 'dancing-squared-game';
 import { applierFor } from 'dancing-squared-game/corpus-node';
+import type { DailyMove } from './daily-line.ts';
 
 type Runtime = ReturnType<typeof applierFor>;
 
@@ -153,4 +155,31 @@ export function lineReachesGoal(level: LevelSpec, puzzle: Puzzle, calls: readonl
   }
   if (!applier.boardsMatch(board, puzzle.goal)) return { ok: false, reason: 'the line does not leave the set on the goal board' };
   return { ok: true };
+}
+
+/**
+ * The Daily's line, derived from the moves the server recorded (DESIGN.md §11.1, A22's Daily half).
+ *
+ * IT DRIVES THE SAME SESSION THE CLIENT DROVE, which is the point rather than a convenience. `PlaySession` is what
+ * DEFINES add/undo/redo — a new call truncates the redo branch, an undo pushes onto it, an illegal or over-budget
+ * call is dropped instead of recorded — so a server-side reimplementation of that would be exactly the second
+ * implementation DESIGN.md §4.4 forbids ("the client sequencer is the same sequencer the server used"). What this
+ * returns IS the client's own history, which is why the two sides cannot disagree about what the player played.
+ *
+ * THE ALLOWANCE IS THE SESSION'S. A log that tried to play more calls than the puzzle allows derives a SHORTER line
+ * rather than an error, because the budget is enforced as the moves are replayed — exactly as it was in the browser.
+ * That is why the submission no longer needs an allowance check of its own: it had one, and it is now unreachable.
+ *
+ * THE COST IS ONE SESSION PER SUBMISSION, not per move: `POST /daily/move` records a move without generating
+ * anything (the client already knows its own line), and the puzzle is generated once here, where `verifyDaily`
+ * needs it anyway. A move endpoint that generated the puzzle would pay the generator on every click.
+ */
+export function replayDailyMoves(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): string[] {
+  const session = new PlaySession(puzzle, runtimeFor(level).applier);
+  for (const move of moves) {
+    if (move.kind === 'add') session.play(move.call);
+    else if (move.kind === 'undo') session.undo();
+    else session.redo();
+  }
+  return session.moves;
 }

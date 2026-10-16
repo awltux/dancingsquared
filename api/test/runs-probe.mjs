@@ -15,6 +15,7 @@
 import { postRun } from '../src/handlers/runs.ts';
 import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { postDrillAnswer } from '../src/handlers/answer.ts';
+import { postDailyMove } from '../src/handlers/daily-move.ts';
 import { drillCurrent } from '../src/handlers/drill.ts';
 import { STATUS } from '../src/status.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
@@ -75,6 +76,28 @@ const ROW = {
 
 const call = (path, player, query = {}, body = null) => ({ method: path === '/runs' ? 'POST' : 'GET', path, query, body, headers: player ? { 'x-dev-player': player } : {} });
 const submit = (player, body) => call('/runs', player, {}, body);
+const move = (player, level, date, kind, named = null) => ({
+  method: 'POST',
+  path: '/daily/move',
+  query: {},
+  body: kind === 'add' ? { levelIndex: level, date, move: kind, call: named } : { levelIndex: level, date, move: kind },
+  headers: player ? { 'x-dev-player': player } : {},
+});
+
+/**
+ * Record a line as the moves that built it — how the server now learns what a Daily player played (A22's Daily half).
+ *
+ * IT IS PER CHALLENGE, NOT PER SUBMISSION. The log lives on the attempt row, so a SECOND run of the same challenge
+ * on the same day reuses the line already recorded — which this probe does deliberately (its board check submits two
+ * runs of one challenge to show the board keeps the best). Recording the line again would append a second copy and
+ * derive a line twice as long, so the submissions below record once, at the read, and reuse.
+ */
+async function recordLine(deps, player, level, date, line) {
+  for (const named of line) {
+    const posted = await postDailyMove(move(player, level, date, 'add', named), deps);
+    if (posted.status !== STATUS.ok) throw new Error(`the probe could not record a move: ${posted.status} ${posted.body.error?.code}`);
+  }
+}
 
 /** A fresh store with the fixture's regimes, and the level-1 puzzle of the first entry regenerated. */
 async function fresh() {
@@ -275,6 +298,7 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
   const line = published.puzzle.solution;
   await startDaily(deps, 'r6', LEVEL, date, 30);
+  await recordLine(deps, 'r6', LEVEL, date, line);
   const unrecorded = await postRun(submit('r6', { runId: 'daily-1', mode: 'daily', levelIndex: LEVEL, date, elapsedSeconds: 30, hintsUsed: 1, calls: line }), deps);
   check(unrecorded.status === STATUS.badRequest && unrecorded.body.error.code === 'unrecorded_hints', `a Daily run claiming a hint the server never recorded is refused (${unrecorded.status} ${unrecorded.body.error?.code})`);
   check(unrecorded.body.error.message.includes('1') && unrecorded.body.error.message.includes('0'), `and the sentence names both numbers (${unrecorded.body.error?.message})`);
@@ -295,6 +319,9 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
 
   await startDaily(deps, 'r7', LEVEL, DAY, 10);
+  // THE LINE IS THE SERVER'S NOW (A22's Daily half): it is replayed from the recorded moves, so the probe plays them
+  // through the endpoint before it submits — exactly as a client must.
+  await recordLine(deps, 'r7', LEVEL, DAY, generated.puzzle.solution);
   const short = await postRun(submit('r7', { runId: 'd-1', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(short.status === STATUS.ok, `a line that reaches the goal is accepted (${short.status})`);
   const best = short.body.board.score;
@@ -315,6 +342,8 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   // because the score is what a cheat is after. The negative control is the last line — a 1 s window would pay
   // this much, and the run does not get it.
   const stampBefore = (await store.get(ROW.attempt('r7', LEVEL, DAY))).value.startedAtMs;
+  // THE RE-READ IS NOT A RE-RECORD: this is the same challenge, so its line is already the log's, and appending the
+  // moves again would derive a line twice as long as the claim. That is the whole reason the log is per CHALLENGE.
   await startDaily(deps, 'r7', LEVEL, DAY, 30);
   const stampAfter = (await store.get(ROW.attempt('r7', LEVEL, DAY))).value.startedAtMs;
   check(stampAfter === stampBefore, `a re-read does NOT move the server's start stamp (${stampBefore})`);
@@ -329,6 +358,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const unread = await postRun(submit('r7', { runId: 'd-6', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(unread.status === STATUS.conflict && unread.body.error.code === 'no_attempt_row', `a Daily nobody read is refused (${unread.status} ${unread.body.error?.code})`);
   await startDaily(deps, 'r7', LEVEL, otherDay, 10);
+  await recordLine(deps, 'r7', LEVEL, otherDay, generated.puzzle.solution);
   const read = await postRun(submit('r7', { runId: 'd-6b', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(read.status === STATUS.ok, `while the same run is scorable after the read that starts it (${read.status})`);
 
@@ -340,12 +370,30 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const twoSteps = puzzleFor(level2Seed, levelAt(2));
   check(twoSteps.puzzle.solution.length === 2, `the level-2 challenge has a two-call solution (${twoSteps.puzzle.solution.length})`);
   await startDaily(deps, 'r7', 2, DAY, 10);
+  // THE RECORDED LINE IS THE SHORT ONE, so the claim below matches the log and the refusal comes from the WALK: the
+  // line really does stop short of the goal. That is this check's original purpose, with the line the server holds.
+  await recordLine(deps, 'r7', 2, DAY, [twoSteps.puzzle.solution[0]]);
   const shortLine = await postRun(submit('r7', { runId: 'd-3', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [twoSteps.puzzle.solution[0]] }), deps);
   check(shortLine.status === STATUS.badRequest && shortLine.body.error.code === 'not_solved', `a line that stops short is refused (${shortLine.status} ${shortLine.body.error?.code})`);
-  const fullLine = await postRun(submit('r7', { runId: 'd-3b', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: twoSteps.puzzle.solution }), deps);
+  // A SECOND PLAYER, because the log is per CHALLENGE: r7's level-2 line is the short one now, and one challenge
+  // cannot hold two different lines. The whole line is recorded for r7b, and that is the run that is accepted.
+  await startDaily(deps, 'r7b', 2, DAY, 10);
+  await recordLine(deps, 'r7b', 2, DAY, twoSteps.puzzle.solution);
+  const fullLine = await postRun(submit('r7b', { runId: 'd-3b', mode: 'daily', levelIndex: 2, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: twoSteps.puzzle.solution }), deps);
   check(fullLine.status === STATUS.ok, `while the whole line at the same level is accepted (${fullLine.status})`);
-  const illegal = await postRun(submit('r7', { runId: 'd-4', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: ['Not A Call At All'] }), deps);
-  check(illegal.status === STATUS.badRequest && illegal.body.error.code === 'not_solved', `and an illegal call is refused with the engine's reason (${illegal.body.error?.message?.slice(0, 60)})`);
+  // AN ILLEGAL CALL CANNOT ENTER THE LINE AT ALL, which is the stronger half of the check that used to sit here. The
+  // recorder does not judge (`daily-move.ts`), and the REPLAY drops it — `PlaySession.play` refuses an illegal call
+  // without pushing it — so the derived line is EMPTY and there is nothing to score. MEASURED, and the reason the
+  // engine's own reason string is no longer quoted below is that no walk happens for this player at all.
+  await startDaily(deps, 'r7c', LEVEL, DAY, 10);
+  await recordLine(deps, 'r7c', LEVEL, DAY, ['Not A Call At All']);
+  const illegal = await postRun(submit('r7c', { runId: 'd-4', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: ['Not A Call At All'] }), deps);
+  check(illegal.status === STATUS.conflict && illegal.body.error.code === 'no_recorded_line', `an illegal call never enters the line, so there is nothing to score (${illegal.status} ${illegal.body.error?.code})`);
+  // AND THE CLAIM IS CROSS-CHECKED RATHER THAN IGNORED: r7's level-1 log IS the solution, so a submission naming a
+  // different line is refused for saying so. This replaces that input's old `not_solved` expectation, which was only
+  // reachable while the CLIENT was the source of the line.
+  const mismatched = await postRun(submit('r7', { runId: 'd-4b', mode: 'daily', levelIndex: LEVEL, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: ['Not A Call At All'] }), deps);
+  check(mismatched.status === STATUS.badRequest && mismatched.body.error.code === 'line_mismatch', `and a claim that disagrees with the log is refused (${mismatched.status} ${mismatched.body.error?.code})`);
   const unpublished = await postRun(submit('r7', { runId: 'd-5', mode: 'daily', levelIndex: 3, date: DAY, elapsedSeconds: 10, hintsUsed: 0, calls: [] }), deps);
   check(unpublished.status === STATUS.notFound && unpublished.body.error.code === 'no_published_daily', `a day nobody published is a 404 (${unpublished.status} ${unpublished.body.error?.code})`);
 }

@@ -14,6 +14,7 @@
 // Usage: node api/test/hint-event-probe.mjs
 import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { postHint } from '../src/handlers/hints.ts';
+import { postDailyMove } from '../src/handlers/daily-move.ts';
 import { postRun } from '../src/handlers/runs.ts';
 import { STATUS } from '../src/status.ts';
 import { attemptKey, hintsKey, publishedDailyKey } from '../src/keys.ts';
@@ -45,6 +46,19 @@ const depsFor = (store) => ({ store, clock: { nowMs: () => now }, identityOf: de
 const read = (player, level = LEVEL, date = DAY) => ({ method: 'GET', path: '/puzzle', query: { mode: 'daily', level: String(level), date }, body: null, headers: { 'x-dev-player': player } });
 const hint = (player, level, date) => ({ method: 'POST', path: '/me/hints', query: {}, body: { levelIndex: level, date }, headers: { 'x-dev-player': player } });
 const submit = (player, body) => ({ method: 'POST', path: '/runs', query: {}, body, headers: { 'x-dev-player': player } });
+
+/**
+ * Record a line as the moves that built it (DESIGN.md §11.1, A22's Daily half).
+ *
+ * A Daily submission is scored on the line the SERVER holds and is refused `line_mismatch` when its claim disagrees,
+ * so a probe that submits a Daily without playing it is testing a client that cannot exist.
+ */
+async function recordLine(player, level, date, line, deps) {
+  for (const named of line) {
+    const posted = await postDailyMove({ method: 'POST', path: '/daily/move', query: {}, body: { levelIndex: level, date, move: 'add', call: named }, headers: { 'x-dev-player': player } }, deps);
+    if (posted.status !== STATUS.ok) throw new Error(`the probe could not record a move: ${posted.status} ${posted.body.error?.code}`);
+  }
+}
 
 /** Publish a day at a level with the fixture's first seed, so there is a challenge to hint at. */
 async function publish(store, level, date, seed) {
@@ -106,6 +120,9 @@ console.log('\n== 2. the run is CHARGED for what was recorded, and a claim it ca
 {
   const { store, deps, solution } = await fresh();
   await getPuzzle(read('h2'), deps);
+  // THE LINE IS PLAYED BEFORE IT IS SUBMITTED: the recorded moves are what the run is scored on and the claim is
+  // cross-checked against them (A22's Daily half).
+  await recordLine('h2', LEVEL, DAY, solution, deps);
   await grant(store, 'h2', 1);
   await postHint(hint('h2', LEVEL, DAY), deps);
   now += 60_000;
@@ -123,6 +140,7 @@ console.log('\n== 2. the run is CHARGED for what was recorded, and a claim it ca
   // THE OTHER DIRECTION: a claim of help the server never recorded is REFUSED, because the only way to spend a hint
   // is through this endpoint — and scoring it would charge the help while the help itself stayed unrecorded.
   await getPuzzle(read('h3'), deps);
+  await recordLine('h3', LEVEL, DAY, solution, deps);
   // THE CLOCK HAS TO COVER THE CLAIM FIRST, or the refusal would be `impossible_elapsed` and this check would be
   // measuring the wrong rule — MEASURED: the first version of it did exactly that.
   now += 60_000;
@@ -148,12 +166,13 @@ console.log('\n== 3. the bound, and the item holds what both writers put in it =
   // ONE ITEM, TWO WRITERS, AND NEITHER ERASES THE OTHER. MEASURED because it is how this stage's first draft lost
   // data: a writer that rebuilt the row from its own field alone dropped what the other had put there — a cheat
   // nobody would have had to attempt, only a hint that quietly stopped costing anything.
-  const written = asAttemptItem({ startedAtMs: CLOCK, presses: [{ step: 0, call: 'Boys Run', atMs: CLOCK }], hints: [{ step: 0, call: '', atMs: CLOCK }] });
+  const written = asAttemptItem({ startedAtMs: CLOCK, presses: [{ step: 0, call: 'Boys Run', atMs: CLOCK }], moves: [{ kind: 'add', call: 'Boys Run', atMs: CLOCK }], hints: [{ step: 0, call: '', atMs: CLOCK }] });
   const round = asAttempt({ rev: 1, value: written });
-  check(round?.startedAtMs === CLOCK && round.presses.length === 1 && round.hints.length === 1, `a row with all three fields reads back with all three (${JSON.stringify(written).slice(0, 60)}…)`);
-  const noStamp = asAttemptItem({ startedAtMs: null, presses: [], hints: [] });
+  check(round?.startedAtMs === CLOCK && round.presses.length === 1 && round.moves.length === 1 && round.hints.length === 1, `a row with every field reads back with every field (${JSON.stringify(written).slice(0, 60)}…)`);
+  const noStamp = asAttemptItem({ startedAtMs: null, presses: [], moves: [], hints: [] });
   check(noStamp.startedAtMs === undefined, 'and a Drill row writes NO start stamp rather than a null one');
   check(asAttempt({ rev: 1, value: { startedAtMs: CLOCK, hints: [{ step: 0, call: '', atMs: CLOCK }] } })?.presses.length === 0, 'while a row written before presses existed still reads as a fresh log');
+  check(asAttempt({ rev: 1, value: { startedAtMs: CLOCK, presses: [], hints: [] } })?.moves.length === 0, 'and a row written before the Daily had a move log reads as an empty one, not as unreadable');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

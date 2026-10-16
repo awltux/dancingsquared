@@ -20,10 +20,10 @@
 // `expectedRev: null`, so a resubmitted `runId` cannot land twice: the condition fails and this handler answers
 // from the row already there. That is what makes a client retry safe, and it is why the record is not a
 // separate "has this happened" query with a race between the query and the write.
-import { MAIN_POOL, MOVE_ALLOWANCE_CUSHION, SCORE_VERSION, elapsedSeconds, recordSuccess } from 'dancing-squared-game';
+import { MAIN_POOL, SCORE_VERSION, elapsedSeconds, recordSuccess } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type StoreWrite } from '../ports.ts';
 import { attemptKey, boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../keys.ts';
-import { levelAt, lineReachesGoal, puzzleFor } from '../levels.ts';
+import { levelAt, lineReachesGoal, puzzleFor, replayDailyMoves } from '../levels.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
 import { finishDrill, type DrillProgress } from '../drill-regime.ts';
@@ -225,16 +225,36 @@ async function verifyDaily(
   const generated = puzzleFor(value.seed, level);
   if (!generated.ok) return { refusal: failure(STATUS.unavailable, 'unplayable_daily', `the published challenge does not generate: ${generated.reason}`) };
 
-  const walked = lineReachesGoal(level, generated.puzzle, submission.calls);
+  // THE LINE IS THE SERVER'S (A22's Daily half): it is replayed from the moves recorded against this attempt, and it
+  // is the ONLY source of the line the run is scored on — §6 prices it, so a client that could state it could hide
+  // what it wasted. The replay goes through the same `PlaySession` the client drove, so it cannot disagree with what
+  // the player saw (levels.ts's `replayDailyMoves`).
+  const recorded = replayDailyMoves(level, generated.puzzle, attempt.moves);
+  if (recorded.length === 0) {
+    return {
+      refusal: failure(STATUS.conflict, 'no_recorded_line', `this challenge has no recorded moves for ${date}: the line is built by POST /daily/move, and a submission cannot supply it`),
+    };
+  }
+  // THE CLAIM IS A CROSS-CHECK RATHER THAN AN INPUT. It is not ignored — a client whose moves did not all land would
+  // otherwise be scored on a line it never played and told nothing — and it is not the source, because the log is.
+  if (submission.calls.length !== recorded.length || submission.calls.some((call, index) => call !== recorded[index])) {
+    return {
+      refusal: failure(
+        STATUS.badRequest,
+        'line_mismatch',
+        `the submission names ${submission.calls.length} call(s) and ${recorded.length} were recorded for this challenge`,
+      ),
+    };
+  }
+
+  const walked = lineReachesGoal(level, generated.puzzle, recorded);
   if (!walked.ok) return { refusal: failure(STATUS.badRequest, 'not_solved', walked.reason) };
 
-  // THE ALLOWANCE IS CHECKED BECAUSE THE LINE IS THE PLAYER'S. `MOVE_ALLOWANCE_CUSHION` is the same constant the
-  // client's allowance is built from (`src/puzzle/config.ts`), so a line the client would not have let the
-  // player submit is refused here rather than scored.
-  const allowance = generated.puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
-  if (submission.calls.length > allowance) {
-    return { refusal: failure(STATUS.badRequest, 'over_allowance', `the line is ${submission.calls.length} calls and this puzzle allows ${allowance}`) };
-  }
+  // THE ALLOWANCE CHECK THAT USED TO BE HERE IS GONE, and its absence is a guarantee rather than a gap: the line is
+  // replayed through `PlaySession`, whose budget is `shortest + MOVE_ALLOWANCE_CUSHION` — the same constant the
+  // client's allowance is built from — so a RECORDED line cannot be longer than the allowance. The check existed
+  // because the client wrote the line; with the log as the source it is unreachable (`over_allowance` is gone from
+  // this endpoint's refusals, and no client can reach it).
   return {
     source: {
       seed: value.seed,
@@ -245,9 +265,9 @@ async function verifyDaily(
       // carried so the audit row has the same shape in both modes.
       claimedAttempts: submission.attempts,
       claimedHints: submission.hintsUsed,
-      // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so it is priced on its line and its hints alone. `moves` is
-      // the length of the line the player actually built, which is what the waste factor measures.
-      facts: { shortest: generated.puzzle.shortest, moves: submission.calls.length, clockSeconds: measuredSeconds, hintsUsed: attempt.hints.length, attempts: 0 },
+      // THE DAILY IS NOT SCORED ON ATTEMPTS (§6), so it is priced on its line and its hints alone. `moves` is the
+      // length of the RECORDED line — the calls the player actually built, which is what the waste factor measures.
+      facts: { shortest: generated.puzzle.shortest, moves: recorded.length, clockSeconds: measuredSeconds, hintsUsed: attempt.hints.length, attempts: 0 },
     },
   };
 }

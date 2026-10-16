@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, importLedger, issueDrill, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -105,6 +105,16 @@ let dailyDay = '';
 let dailyLevelIndex = 0;
 /** The seed today's challenge was issued from, for the run record (a run names the puzzle it played). */
 let dailyRunSeed = 0;
+
+/**
+ * THE DAILY'S MOVES POSTED SO FAR, as one chain, so a submission can wait for them (DESIGN.md 11.1, A22).
+ *
+ * THE SAME CONTRACT THE DRILL'S PRESSES HAVE, and for the same reason: the server scores the RECORDED line and
+ * cross-checks the submission against it, so a run submitted before its moves arrived would be refused
+ * `line_mismatch` — a refusal this app would have caused itself rather than a cheat it caught. A chain rather than
+ * `Promise.all` keeps the recorded order the order the player moved in, which is the order the line is replayed in.
+ */
+let dailyMoveLog: Promise<unknown> = Promise.resolve();
 
 /** The motion the drawing loop should sample, or null when nothing is replaying. */
 let replay: SequenceMotion | null = null;
@@ -1057,6 +1067,9 @@ async function startServerDaily(): Promise<void> {
  * Q19 records that, with the fix it needs).
  */
 async function submitSolvedDaily(run: DailyRun): Promise<void> {
+  // THE MOVES FIRST, for the reason the Drill waits for its presses: the server scores the RECORDED line and refuses a
+  // submission that disagrees with it (`line_mismatch`), so this waits rather than racing them.
+  await dailyMoveLog;
   const facts = run.submissionFacts(performance.now());
   const answer = await submitRun({
     runId: dailyRunId,
@@ -1090,6 +1103,25 @@ function issueDaily(): void {
   else startDaily();
 }
 
+/**
+ * Record one move of the Daily's line, where the server is the one keeping it.
+ *
+ * A DEMO SENDS NOTHING: a signed-out player's Daily is unranked and never submitted, so its moves would be writes
+ * the server refuses (A20) and refusals A25 counts. The local run keeps its own move stack either way, which is what
+ * the review replays and what a later sign-in imports.
+ *
+ * ONLY A MOVE THAT LANDED IS SENT. An illegal call never entered the line and an over-budget one was refused by the
+ * session, so recording either would spend a log entry on a move the replay will not reproduce — the two sides'
+ * logs would then differ in length for no reason.
+ */
+function logDailyMove(move: 'add' | 'undo' | 'redo', call: string | null = null): void {
+  if (!apiConfigured() || !mayWrite(currentStanding())) return;
+  if (dailyDay === '') return;
+  const levelIndex = dailyLevelIndex;
+  const date = dailyDay;
+  dailyMoveLog = dailyMoveLog.then(() => recordDailyMove(levelIndex, date, move, call));
+}
+
 function playDailyCall(call: string): void {
   if (!daily || !applier || PLAYHEAD.isRunning) return;
   const from = daily.board;
@@ -1106,6 +1138,7 @@ function playDailyCall(call: string): void {
   }
   if (result.verdict === 'wrong') dailyScreen.say(`${call} is legal, but the set is not on the goal board yet.`, 'info');
   else dailyScreen.say(`${call} — that is the goal board.`, 'ok');
+  logDailyMove('add', call);
   persist();
   startReplay(applier.motion([call], from), result.verdict === 'correct' ? 'advance' : 'settle');
 }
@@ -1113,6 +1146,7 @@ function playDailyCall(call: string): void {
 function undoDaily(): void {
   if (!daily || PLAYHEAD.isRunning) return;
   if (!daily.undo()) return;
+  logDailyMove('undo');
   dailyScreen.say('Undone — and the clock kept running, and any hint is still spent.', 'info');
   paintDaily();
   persist();
@@ -1122,6 +1156,7 @@ function undoDaily(): void {
 function redoDaily(): void {
   if (!daily || PLAYHEAD.isRunning) return;
   if (!daily.redo()) return;
+  logDailyMove('redo');
   dailyScreen.say('Redone.', 'info');
   paintDaily();
   persist();

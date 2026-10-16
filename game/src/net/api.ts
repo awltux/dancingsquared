@@ -529,6 +529,40 @@ export function ledgerEntryOf(run: RunRecord): LedgerEntry {
   };
 }
 
+/**
+ * `POST /daily/move` — record one move of today's Daily (DESIGN.md §11.1, A22's Daily half).
+ *
+ * WHY THE CLIENT SENDS A MOVE AND NOT ITS LINE. §6 prices the line — `wasteFactor` measures the calls used against
+ * the shortest — so a client that reported its own line could play a wasteful one and submit the short one. The
+ * server derives the line by replaying these moves through the SAME session this app drives, so what is sent is
+ * what the player did, never what it amounted to.
+ *
+ * AN UNDO OR A REDO CARRIES NO CALL AT ALL, rather than a null: it names nothing, and a field that is always null
+ * is a field a reader has to interpret (`session.ts`'s own log makes the same distinction). The server ignores a
+ * call on those two either way — this is about the request saying what it means.
+ *
+ * IT IS NOT FIRE-AND-FORGET, and the caller must not treat it as such: `POST /runs` cross-checks the submission's
+ * line against the RECORDED one and refuses a mismatch, so the app waits for this chain before submitting (the
+ * Drill's press log has exactly this contract, for exactly this reason).
+ */
+export async function recordDailyMove(
+  levelIndex: number,
+  date: string,
+  move: 'add' | 'undo' | 'redo',
+  call: string | null = null,
+  deps: ApiDeps = browserDeps(),
+): Promise<ApiResult<{ recorded: number }>> {
+  const body = move === 'add' ? { levelIndex, date, move, call } : { levelIndex, date, move };
+  const answer = await apiCall<{ recorded?: unknown }>(deps, '/daily/move', { method: 'POST', body });
+  if (!answer.ok) return answer;
+  // THE COUNT IS THE ANSWER, so a body without it is refused rather than reported as a zero — the same rule this
+  // module keeps for a score, a balance and a verdict: "recorded nothing" and "did not say" must not read the same.
+  if (typeof answer.value.recorded !== 'number') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not say how many moves it recorded' } };
+  }
+  return { ok: true, value: { recorded: answer.value.recorded } };
+}
+
 /** What the server made of an import. */
 export interface LedgerImport {
   readonly imported: number;

@@ -169,6 +169,31 @@ try {
     const anonymous = await call('/daily/abandon', { method: 'POST', headers: json(), body: JSON.stringify({ levelIndex: 1, date: day }) });
     check(anonymous.status === 401, `and abandoning needs an identity (${anonymous.status})`);
   }
+  console.log('\n== 9. the ledger import, over the wire, and what it does NOT write ==');
+  {
+    const runs = [
+      { runId: 'old-d1', mode: 'drill', levelIndex: 1, score: 40, elapsedSeconds: 20, hintsUsed: 0, calls: ['Boys Run'] },
+      { runId: 'old-d2', mode: 'daily', levelIndex: 1, score: 70, elapsedSeconds: 30, hintsUsed: 1, date: '2026-10-14', calls: ['Boys Run'] },
+    ];
+    // THE BOARD BEFORE, so the check below is a DIFFERENCE rather than an absence at one moment: an import that
+    // wrote a board entry would move this number, and an import that wrote nothing cannot.
+    const before = await call('/drill/current?level=1', { headers: auth });
+    const imported = await call('/me/runs:bulk', { method: 'POST', headers: json(auth), body: JSON.stringify({ runs }) });
+    check(imported.status === 200 && imported.body.imported === 2 && imported.body.unverified === true, `a device's ledger is imported as unverified history (${imported.body.imported} imported)`);
+    const again = await call('/me/runs:bulk', { method: 'POST', headers: json(auth), body: JSON.stringify({ runs }) });
+    check(again.body.imported === 0 && again.body.skipped === 2, `NEGATIVE CONTROL: importing the same ledger again skips all of it (${again.body.skipped} skipped)`);
+    // AND IT BUYS NO STANDING: the board is not a row this endpoint may write, and the Progress row it must not
+    // touch is the one the import would have had to invent (A26).
+    const after = await call('/drill/current?level=1', { headers: auth });
+    check(after.body.regime.finished === before.body.regime.finished, `and no drill was finished by it (${before.body.regime.finished} then ${after.body.regime.finished})`);
+
+    const malformed = await call('/me/runs:bulk', { method: 'POST', headers: json(auth), body: JSON.stringify({ runs: [{ runId: 'bad', mode: 'solo', levelIndex: 1, score: 1, elapsedSeconds: 1, hintsUsed: 0 }] }) });
+    check(malformed.status === 400 && malformed.body.error.code === 'bad_run', `while a malformed ledger is refused (${malformed.status} ${malformed.body.error?.code})`);
+    const anonymous = await call('/me/runs:bulk', { method: 'POST', headers: json(), body: JSON.stringify({ runs }) });
+    check(anonymous.status === 401, `and an import needs an identity (${anonymous.status})`);
+    const routes = await call('/health');
+    check(routes.body.endpoints.includes('POST /me/runs:bulk'), 'and the route is one the process advertises');
+  }
 } finally {
   await server.close();
 }

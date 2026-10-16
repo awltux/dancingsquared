@@ -68,8 +68,25 @@ const seq = makeSequencer(movesXml, formationsXml, buildCatalog(files));
 // caller convention rather than a geometry fact and is recorded in PLAN.md Phase 9c. What is gated
 // here is that IF it applies, it applies as ONE rigid motion, so a later change that makes it
 // non-rigid from home has to be made deliberately.
-const rigidCalls = ['Circle Left 1/4', 'Circle Right 1/4', 'All 4 Couples Promenade 1/4', 'Right and Left Thru'];
-const nonRigid = ['Heads Promenade 1/2', 'Spin the Top', 'Star Thru'];
+// THE LISTS FOLLOW THE CORPUS, AND THE SPLIT IS MEASURED RATHER THAN ASSUMED. The bare
+// `Circle Left 1/4` / `Circle Right 1/4` / `All 4 Couples Promenade 1/4` used to be rigid from home and
+// are not any more: `ms/circle.xml` now authors the bare quarter INTO the ring (its section header says
+// `CIRCLE LEFT FAMILY FROM STATIC SQUARE TO CIRCLE`), so the end board is the `Circle` formation and every
+// radius falls 3.162 -> 2.613 - which is the ring radius for 2.00 spacing, `1/sin(22.5deg)`, and NOT a
+// rigid motion of the square. Measured from home: worst pairwise-distance change **1.1719** for
+// `Circle Left 1/4`, **1.1720** for `Circle Right 1/4`, and **2.3247** for `All 4 Couples Promenade 1/4`
+// (which ends on the `Promenade` formation, radii alternating 2.000/3.000). So those three move to the
+// non-rigid list, and the ROUND-TRIP SIBLINGS - which are the same calls danced back to the square - take
+// their place: `Circle Left 1/4 - Stop at Home` reproduces at **4.4e-16**.
+//
+// THE RIGID LIST IS A SAMPLE OF 11, AND THE OTHER 222 ARE WHY IT CANNOT BE LONGER. Swept over every title
+// legal and moving from home (233 of them): 212 have no fit at all, and 10 fit at the 1e-3 tolerance but
+// FAIL the 1e-6 assertions below - `Promenade 1/4 to Home` at 3.9e-5 and `Promenade Full to Home` at
+// 5.5e-4, so the promenade family is only APPROXIMATELY rigid and belongs in neither list's claim. The 11
+// that pass all three assertions are the six `Circle * - Stop at Home` siblings, the four
+// `All 4 Couples ...` whole-board calls, and `Right and Left Thru`.
+const rigidCalls = ['Circle Left 1/4 - Stop at Home', 'Circle Right 1/4 - Stop at Home', 'All 4 Couples Right and Left Thru', 'Right and Left Thru'];
+const nonRigid = ['Circle Left 1/4', 'Circle Right 1/4', 'All 4 Couples Promenade 1/4', 'Heads Promenade 1/2', 'Spin the Top', 'Star Thru'];
 for (const call of rigidCalls) {
   seq.reset();
   const start = seq.startBoard();
@@ -131,9 +148,14 @@ function composeErr(A, B) {
   }
   return err;
 }
-for (const B of ['Circle Right 1/4', 'All 4 Couples Promenade 1/4']) {
-  const err = composeErr('Circle Left 1/4', B);
-  check(err !== null && err < 1e-6, `Circle Left 1/4 -> ${B}: M_B∘M_A matches engine (err=${err === null ? 'n/a' : err.toExponential(1)})`);
+// THE PAIRS ARE RIGID ON BOTH SIDES, which is what makes the product meaningful. The old second pair was
+// `All 4 Couples Promenade 1/4`, non-rigid now and so a `null` fit; `Promenade 1/4 to Home` is rigid only
+// to 3.9e-5 and is NOT used here for the same reason it is not in the rigid list. Both pairs below were
+// measured end to end: `Circle Right 1/4 - Stop at Home` gives **8.9e-16** and `Circle Right 1/2` gives
+// **1.7e-15**, against the 1e-6 tolerance.
+for (const B of ['Circle Right 1/4 - Stop at Home', 'Circle Right 1/2 - Stop at Home']) {
+  const err = composeErr('Circle Left 1/4 - Stop at Home', B);
+  check(err !== null && err < 1e-6, `Circle Left 1/4 - Stop at Home -> ${B}: M_B∘M_A matches engine (err=${err === null ? 'n/a' : err.toExponential(1)})`);
 }
 
 console.log('\n=================');

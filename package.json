@@ -27,6 +27,7 @@
     "dev:api": "npm run dev -w dancing-squared-api",
     "dev:api:ddb": "npm run dev:ddb -w dancing-squared-api",
     "api:table": "node api/tools/create-table.mjs",
+    "api:publish-daily": "npm run publish-daily -w dancing-squared-api --",
     "verify:api": "npm run verify -w dancing-squared-api",
     "verify:api:ddb": "node api/tools/verify-probes.mjs --require-ddb",
     "build:game": "npm run build -w dancing-squared-game",

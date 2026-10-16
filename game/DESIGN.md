@@ -746,6 +746,14 @@ attempts lost), `503 unreadable_progress`/`unreadable_schedule`/`unplayable_dril
 cannot read, or a published seed that no longer generates — both operator findings rather than client errors).
 **A refusal never writes**, which is what makes a retry safe.
 
+`GET /puzzle?mode=daily&level=<n>&date=<YYYY-MM-DD>` answers `{ daily: { day, levelIndex, seed, poolVersion,
+publishedAtMs, playable } }` — the PUBLISHED artefact and nothing more: no board, no option labels, no
+generation, because the client derives the puzzle from the seed (§9) and `POST /runs` regenerates it to verify.
+`playable` is false when the row was published against a pool this build does not serve, which is the same rule
+as §7.2's "a seed is only meaningful against the pool it was validated at". `404 no_published_daily` means the
+boundary job has not run for that level and day — and the server does NOT invent a seed in that case, because a
+challenge nobody validated is exactly what §7.2's gate exists to prevent.
+
 `POST /runs` takes `{ runId, mode, levelIndex, elapsedSeconds, hintsUsed, attempts, calls, score? }`, plus
 `drillId` for a Drill run and `day` (`YYYY-MM-DD`) for a Daily one, and answers
 `{ run: { runId, mode, score, elapsedSeconds, scoreVersion, clamped, duplicate }, hints: { hints, successes,
@@ -1145,6 +1153,38 @@ leave exactly one winner. The controls are RAW SDK WRITES: with the `ConditionEx
 **Still not done from Phase 5:** the other four endpoints, the publishing pipeline, Cognito, the Lambda adapter
 and its template. **No AWS call has been made**: everything above is DynamoDB Local in a container on this
 machine.
+
+**Phase 5.4 — the Daily's boundary job, and the read that needs it. DONE.**
+`api/src/daily-publishing.ts` is the boundary job as a module: which levels a day needs, a challenge per level
+(the client's own `dailyEntry`, imported), and a write that happens ONLY when the puzzle regenerates. Beside it
+`api/tools/publish-daily.mjs` runs it (`npm run api:publish-daily`, `--day` and `--levels` to narrow it) and
+`GET /puzzle?mode=daily&level&date` serves what it wrote.
+
+**THE READ DOES NOT GENERATE.** DESIGN.md 11's clause is the whole design of this endpoint — "a read of the
+published artefact, not a generation per request" — so the response is the stored seed, level and pool version
+plus a `playable` flag for this build's pool, and no applier is touched. The client derives the board from the
+seed with the same generator the server will use to verify it, which is what makes everyone's challenge the
+same (§9).
+
+**MEASURED, by `api/test/daily-puzzle-probe.mjs`** (39 checks, 5 controls; no DynamoDB needed, because this
+path is a store read and a pure derivation):
+- **the published seed IS what the client derives**: for levels 1–3 the row's seed equals
+  `dailyEntry(levelAt(n), POOL_VERSION, day).seed` — the CLIENT's function, imported rather than restated
+  (1268207204, 1318540061, 1301762442 for 2026-10-15) — and a different level and a different day both give a
+  different seed, which is what stops a server that returned one number for everything from passing;
+- a level or a day nobody published is `404 no_published_daily`, and **the read creates no row**: the server
+  never invents a challenge (§9);
+- a challenge published against another pool reads back with `playable: false` rather than as if it were fine;
+- the query is strict: no level, level 0, a non-numeric or fractional level, no date, `2026-02-30` and
+  `15/10/2026` are all `400`, and `mode=drill` is refused because the Drill's order is `/drill/current`'s;
+- **re-publishing a day produces the same seed** and stamps the new write, and a day that does not exist is
+  refused rather than hashed;
+- **the boundary is the POOL and not the ladder**: `publishableLevels()` returns levels 1..33, and level 34 asks
+  for 65 titles where the corpus carries 62 — while level 900 is still "a level" by `levelSpec` (pool 1505),
+  so a publisher that trusted the ladder alone would publish forever. (This corrected an arithmetic guess of
+  "31 levels" made while writing the code; the probe printed 33.)
+- the setup tools refuse to run without an endpoint: measured on `realServiceWarning`, including the
+  `DSQ_ALLOW_REAL_AWS=1` override.
 
 **Phase 5.3 — a completed run, verified by regeneration. DONE.**
 `POST /runs` exists for both modes. `api/src/runs.ts` owns what a client may send and what the server refuses;

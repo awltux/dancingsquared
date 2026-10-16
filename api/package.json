@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "node src/dev-server.ts",
     "dev:ddb": "node tools/dev-ddb.mjs",
+    "publish-daily": "node tools/publish-daily.mjs",
     "verify": "node tools/verify-probes.mjs"
   },
   "dependencies": {

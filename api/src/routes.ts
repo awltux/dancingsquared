@@ -6,6 +6,7 @@
 // pay it while one pays it once and keeps it. The split would buy per-endpoint IAM granularity that these
 // endpoints do not need — they all read and write the same table with the same permissions.
 import { drillAdvance, drillCurrent } from './handlers/drill.ts';
+import { getPuzzle } from './handlers/puzzle.ts';
 import { postRun } from './handlers/runs.ts';
 import type { Handler } from './ports.ts';
 
@@ -24,6 +25,7 @@ export interface Route {
  */
 export const ROUTES: readonly Route[] = [
   { method: 'GET', path: '/drill/current', handler: drillCurrent, purpose: 'the drill this player is on' },
+  { method: 'GET', path: '/puzzle', handler: getPuzzle, purpose: "the published challenge for a level and day" },
   { method: 'POST', path: '/drill/advance', handler: drillAdvance, purpose: 'mark the issued drill finished' },
   { method: 'POST', path: '/runs', handler: postRun, purpose: 'record a completed run, verified by regeneration' },
 ];

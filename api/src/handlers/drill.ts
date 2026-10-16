@@ -14,15 +14,10 @@ import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type It
 import { progressKey, scheduleKey } from '../keys.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, identity, STATUS } from '../status.ts';
+import { levelParam } from '../query.ts';
 import { levelAt, optionLabels, puzzleFor } from '../levels.ts';
 import { currentDrill, finishDrill, parseDrillId, type DrillProgress, type IssuedDrill, type Regime } from '../drill-regime.ts';
 
-/** A level number from a query string, or null when it is not one. */
-function levelParam(raw: string | undefined): number | null {
-  if (raw === undefined || !/^\d+$/.test(raw)) return null;
-  const value = Number(raw);
-  return value >= 1 ? value : null;
-}
 
 /**
  * A stored row as a regime, or null.

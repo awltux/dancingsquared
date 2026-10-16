@@ -43,6 +43,7 @@ npm install        # install everything at the root (workspaces)
 | `npm run dev:api` | The API's local dev server (port **8090**, `DSQ_PORT` to move it), seeded with the game's local schedule fixture and backed by an in-memory store. `x-dev-player: <name>` (or `Authorization: Bearer dev:<name>`) is the development identity |
 | `npm run dev:api:ddb` | The same server backed by **DynamoDB Local** — start it first (`docker compose -f api/docker-compose.yml up -d`) and create the table (`npm run api:table`) |
 | `npm run api:table` | Create the API's single DynamoDB table, idempotently, at `DSQ_DDB_ENDPOINT` or in the configured region |
+| `npm run api:publish-daily` | **The boundary job**: publish the Daily's challenges (today in UTC, every level the corpus can fill) after validating that each one generates. `-- --day 2026-11-01 --levels 1,2,3` to narrow it. Needs `DSQ_STORE=dynamodb` and an endpoint |
 | `npm run verify:api:ddb` | The API's suite with the DynamoDB half MANDATORY: without it, a probe whose endpoint does not answer reports a skip rather than a failure |
 | `npm run dev:teacher`, `npm run build:teacher` | The teacher app |
 | `npm run check:book` | The book's link, animation and diagram checks |
@@ -66,6 +67,7 @@ docker compose -f api/docker-compose.yml up -d   # DynamoDB Local on 127.0.0.1:8
 npm run api:table                               # create the table (idempotent)
 npm run dev:api:ddb                             # the dev server, store: dynamodb … at http://127.0.0.1:8000
 npm run verify:api:ddb                          # the store contract, with the DynamoDB half required
+npm run api:publish-daily                       # publish today's Daily challenges (the boundary job)
 docker compose -f api/docker-compose.yml down   # stop it (nothing is kept: the container runs -inMemory)
 ```
 

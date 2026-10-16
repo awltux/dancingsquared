@@ -40,16 +40,16 @@ export interface StoreWrite {
 }
 
 /**
- * A read of ONE PARTITION, for the endpoint that needs more than a key.
+ * A read of ONE PARTITION, for the endpoints that need more than a key.
  *
  * IT IS NOT A SCAN, AND THE TYPE IS WHAT SAYS SO: `pk` is required, so a caller cannot ask for the table, and there
  * is no filter — a caller that wants a subset asks for it in the sort key or filters the answer it was given. That
  * is deliberate for the leaderboard: a board IS one partition (`board#<mode>#<level>#<period>`), and a `query` that
  * could scan would be the operation this store has refused to have since it was written.
  *
- * `limit` CAPS WHAT IS RETURNED. It does NOT order by anything but the sort key, which for a board is the PLAYER —
- * so it cannot produce "the top scores" and the leaderboard does not use it to try (`handlers/leaderboard.ts` reads
- * the partition under its own cap and sorts, and reports what it examined).
+ * `limit` CAPS WHAT IS RETURNED, in the order the keys give — so what it can return depends on WHICH keys. The base
+ * table's sort key for a board is the PLAYER, which is why "the top N" needed `index` below; an index whose sort
+ * key is the score returns the top N directly.
  */
 export interface ItemQuery {
   readonly pk: string;
@@ -58,6 +58,15 @@ export interface ItemQuery {
   readonly limit: number;
   /** Sort-key DESCENDING order. Never a value order — see the note above. */
   readonly descending?: boolean;
+  /**
+   * The NAME of a secondary index to read instead of the base table, or absent for the table itself.
+   *
+   * A NAME, NOT AN ATTRIBUTE PAIR, because what an index IS belongs to the store and the table definition: both
+   * resolve it through the same map (`keys.ts`'s `INDEX_ATTRIBUTES`), so a caller cannot ask for an index no table
+   * has, and a store that does not know the name REFUSES the read rather than returning an empty answer that looks
+   * like an empty board. When it is set, `pk` is the index's partition and the ordering is the index's sort key.
+   */
+  readonly index?: string;
 }
 
 /**

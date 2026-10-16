@@ -49,8 +49,59 @@ export const boardKey = (mode: 'drill' | 'daily', levelIndex: number, period: st
   sk: `player#${playerId}`,
 });
 
-/** One level's published challenge for one UTC day, written by the boundary job (DESIGN.md 11). */
-export const publishedDailyKey = (levelIndex: number, day: string): ItemKey => ({ pk: `daily#${levelIndex}`, sk: `date#${day}` });
+/**
+ * The index the leaderboard reads: one board, ordered by SCORE.
+ *
+ * WHY AN INDEX AT ALL. A board is one partition whose SORT KEY IS THE PLAYER, so the base table can return a board
+ * only in player order — and "the top N scores" then means reading the whole partition and sorting it in the
+ * handler. That is what the endpoint did while it recorded `truncated`: it read up to a 1000-row cap per request
+ * and had to admit the ranking might be partial. With the score in this index's sort key the same question is a
+ * bounded read of the first page.
+ *
+ * THE SCORE IS INVERTED SO THAT ASCENDING IS BEST-FIRST. DynamoDB orders a sort key ascending and cannot negate a
+ * number, so this key holds `(SCORE_CEILING - score)` zero-padded to a fixed width: a HIGHER score sorts FIRST, and
+ * the tie-break is the player id, which keeps a board answering ONE order. The ceiling is therefore a real bound on
+ * a board row's score rather than decoration, and a board's score can be CUMULATIVE (the Drill's is the season's
+ * total), so `boardIndexKeys` REFUSES a score outside the space instead of clamping it: a clamped row would sit at
+ * the wrong rank forever, and a board that silently mis-ranks one player is worse than a write that fails loudly.
+ */
+export const BOARD_INDEX = 'GSI1';
+export const BOARD_INDEX_PK = 'GSI1PK';
+export const BOARD_INDEX_SK = 'GSI1SK';
+
+/** The highest score a board row can order. Nine digits, which is far above any board this game's arithmetic reaches. */
+export const SCORE_CEILING = 999_999_999;
+
+/** The width of the inverted-score field, so every sort key compares at the same length. */
+const SCORE_DIGITS = String(SCORE_CEILING).length;
+
+/**
+ * The attribute names behind each index name, so a store can resolve one without knowing the schema.
+ *
+ * THE NAME IS WHAT A CALLER PASSES AND THE ATTRIBUTES ARE WITHIN THE STORE'S REMIT, which is why this map lives
+ * here beside the keys and is read by BOTH implementations and by the table definition. A caller that spelled an
+ * attribute name would be writing the schema at a call site.
+ */
+export const INDEX_ATTRIBUTES: Readonly<Record<string, { readonly pk: string; readonly sk: string }>> = {
+  [BOARD_INDEX]: { pk: BOARD_INDEX_PK, sk: BOARD_INDEX_SK },
+};
+
+/** One board row's index keys, or null when the score is outside the space the sort key can hold. */
+export function boardIndexKeys(
+  mode: 'drill' | 'daily',
+  levelIndex: number,
+  period: string,
+  playerId: string,
+  score: number,
+): Record<string, string> | null {
+  if (!Number.isInteger(score) || score < 0 || score > SCORE_CEILING) return null;
+  return {
+    [BOARD_INDEX_PK]: boardPk(mode, levelIndex, period),
+    [BOARD_INDEX_SK]: `${String(SCORE_CEILING - score).padStart(SCORE_DIGITS, '0')}#${playerId}`,
+  };
+}
+
+/** One level's published challenge for one UTC day, written by the boundary job (DESIGN.md 11). */export const publishedDailyKey = (levelIndex: number, day: string): ItemKey => ({ pk: `daily#${levelIndex}`, sk: `date#${day}` });
 
 /**
  * One player's account, keyed by the email they sign in with (DESIGN.md 11.2).

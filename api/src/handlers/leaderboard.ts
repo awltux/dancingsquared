@@ -6,30 +6,19 @@
 // SEASON — the UTC calendar month, §15 Q4's recommendation — so a season boundary starts a new board by
 // construction rather than by a job that deletes rows.
 //
-// IT READS THE PARTITION AND SORTS, WHICH IS THE HONEST SHAPE OF THIS ENDPOINT TODAY AND NOT A FINISHED ONE.
-// The board's sort key is the PLAYER, so the store cannot return score order and a `limit` on the query would
-// return "the first N players" rather than "the top N scores" — a leaderboard that was silently the wrong fifty.
-// So the whole partition is read under `BOARD_READ_CAP`, sorted here, and the answer REPORTS WHAT IT EXAMINED
-// (`examined`, `truncated`): a board larger than the cap is a board this endpoint cannot rank, and saying so is
-// the difference between a truncated answer and a wrong one (AGENTS.md §4.1: an instrument's silence is a bug).
-// The step that removes the cap is the GSI DESIGN §11 describes and the table does not have yet — it is NOT built,
-// so the cost here is stated in the answer rather than assumed away.
+// IT READS THE BOARD INDEX, SO THE TOP N IS ONE BOUNDED READ. The base table's sort key for a board is the PLAYER,
+// so ranking by score there means reading the whole partition and sorting it here — which is what this endpoint did
+// first, under a 1000-row cap it had to admit in the answer (`BOARD_READ_CAP`, now GONE with that read). The index
+// carries the score INVERTED in its sort key, so ascending IS best-first and the tie-break by player id is part of
+// the same key; `limit` therefore returns the top of the board and this handler sorts nothing. `examined` and
+// `truncated` remain, with the meanings the new read gives them: the size of the page, and whether the page filled
+// (which may mean there is more behind it).
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { failure, STATUS } from '../status.ts';
-import { boardPk } from '../keys.ts';
+import { BOARD_INDEX, boardPk } from '../keys.ts';
 import { asBoardRow } from '../runs.ts';
 
-/**
- * How many rows one board read may examine.
- *
- * IT IS A BOUND ON A READ, NOT A PAGE SIZE, and the two are different things: the entries a caller receives are
- * `LEADERBOARD_PAGE` of them, chosen by SCORE from everything this read saw. A cap of 1000 is far above any board
- * this game has (a board is one level, one period and the players who played it) and low enough that one request
- * cannot walk a runaway partition; a board that hits it is reported as truncated rather than ranked.
- */
-export const BOARD_READ_CAP = 1000;
-
-/** How many entries the answer carries. The board's own page, chosen after the sort rather than by the read. */
+/** How many entries the answer carries, and the `Limit` of the one read that produces them. */
 export const LEADERBOARD_PAGE = 50;
 
 /** One rank on a board: who, their score, and how many runs earned it. */
@@ -42,9 +31,12 @@ interface Entry {
 /**
  * The board for one mode, one level and one period, highest score first.
  *
- * TIES ARE BROKEN BY PLAYER ID, so the same board answers the same order every time: two players on the same score
- * would otherwise be ordered by whatever the read returned, which makes a board page unrepeatable for a caller
- * flicking between two requests. The id is arbitrary but STABLE, which is what an order needs to be.
+ * THE ORDER COMES FROM THE INDEX, NOT FROM A SORT HERE. The base table's sort key for a board is the PLAYER, so
+ * ranking by score would mean reading the whole partition and sorting it in this process — which is what this
+ * endpoint did, under a 1000-row cap it had to report as `truncated`. `keys.ts`'s board index carries the score
+ * INVERTED in its sort key, so ascending order IS best-first, the tie-break by player id is part of the key, and
+ * `limit` returns the top of the board: ONE bounded read, and no sort. There is nothing to sort because the store
+ * guarantees the order, which is also why a `Query` limit is exact here (no `FilterExpression`).
  */
 export async function getLeaderboard(request: ApiRequest, deps: Deps): Promise<ApiResult> {
   const mode = request.query['mode'];
@@ -64,7 +56,7 @@ export async function getLeaderboard(request: ApiRequest, deps: Deps): Promise<A
     return failure(STATUS.badRequest, 'bad_period', 'period must name the board, which is a day for a Daily and a season for the Drill');
   }
 
-  const rows = await deps.store.query({ pk: boardPk(mode, levelIndex, period), limit: BOARD_READ_CAP });
+  const rows = await deps.store.query({ pk: boardPk(mode, levelIndex, period), index: BOARD_INDEX, limit: LEADERBOARD_PAGE });
   const entries: Entry[] = [];
   for (const row of rows) {
     const board = asBoardRow(row);
@@ -76,7 +68,6 @@ export async function getLeaderboard(request: ApiRequest, deps: Deps): Promise<A
     entries.push({ playerId: board.playerId, score: board.score, runs: board.runs });
   }
 
-  entries.sort((left, right) => (right.score - left.score) || (left.playerId < right.playerId ? -1 : left.playerId > right.playerId ? 1 : 0));
   return {
     status: STATUS.ok,
     body: {
@@ -84,11 +75,14 @@ export async function getLeaderboard(request: ApiRequest, deps: Deps): Promise<A
         mode,
         levelIndex,
         period,
-        entries: entries.slice(0, LEADERBOARD_PAGE),
-        // WHAT THE READ SAW, so a caller can tell a short board from a truncated one — and so the operator can see
-        // the cap being reached rather than reading a rank that was never computed.
+        entries,
+        // THE SIZE OF THE READ, which with a bounded page is the page's own size.
         examined: entries.length,
-        truncated: rows.length >= BOARD_READ_CAP,
+        // A FULL PAGE MAY HAVE MORE BEHIND IT, and one more read per request to decide a sentence is not worth it —
+        // so the answer says the list is a page rather than claiming to be the whole board. Before the index this
+        // flag meant "the 1000-row cap was reached"; it is re-stated rather than re-used, and `BOARD_READ_CAP` is
+        // GONE with that read rather than left as a constant nothing consults.
+        truncated: rows.length >= LEADERBOARD_PAGE,
       },
     },
   };

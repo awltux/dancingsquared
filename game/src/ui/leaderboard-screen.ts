@@ -78,13 +78,16 @@ export class LeaderboardScreen {
       item.append(rank, name, score);
       this.els.list.append(item);
     }
-    // THE COST IS SAID OUT LOUD WHEN IT BITES: a truncated board is a PARTIAL ranking, and the server reports it
-    // because the endpoint's sort key is the player rather than the score (§11).
+    // THE PAGE IS SAID OUT LOUD WHEN THERE IS MORE BEHIND IT. The server ranks through an index whose sort key is the
+    // SCORE, so the list IS the top of the board — but it is one PAGE of it, and `truncated` says the page filled.
+    // Presenting a page as the whole standings is the failure this sentence exists to prevent, and it no longer says
+    // "of the rows the server could read": that was true while the endpoint read a partition under a cap and reported
+    // how much it had examined, and it is not what the answer means now (`examined` is the page's own size).
     this.els.status.textContent = board.truncated
-      ? `Showing the top ${board.entries.length} of the ${board.examined} rows the server could read — this board is larger than one read, so it is only part of the standings.`
+      ? `The top ${board.entries.length} are listed — this board has more players than one page shows.`
       : board.entries.length === 0
         ? ''
-        : `Top ${board.entries.length} of ${board.examined} player${board.examined === 1 ? '' : 's'} on this board.`;
+        : `${board.entries.length} player${board.entries.length === 1 ? '' : 's'} on this board.`;
     this.setBusy(this.busy);
   }
 

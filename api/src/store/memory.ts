@@ -12,6 +12,7 @@
 // catch a handler that mutates the array it was given instead of writing a new one — a bug the twin would
 // otherwise hide by sharing the object.
 import type { ItemKey, ItemQuery, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
+import { INDEX_ATTRIBUTES } from '../keys.ts';
 
 /** The character between the two halves of a flattened key. It cannot occur in a `pk` or an `sk` this API writes. */
 const SEPARATOR = '\u0000';
@@ -34,19 +35,31 @@ export class MemoryStore implements ItemStore {
   }
 
   /**
-   * Read one partition, in sort-key order.
+   * Read one partition, in sort-key order — of the base table, or of a named INDEX.
    *
    * THE SORT IS THE CONTRACT AND NOT A CONVENIENCE: DynamoDB returns a partition in sort-key order, so a handler
    * that received these in `Map` insertion order would behave differently in production than under the twin — the
    * divergence this twin exists to make impossible. The comparison is on the raw sort key, which is what DynamoDB
    * compares (its own byte order), not on anything parsed out of it.
+   *
+   * AN INDEX IS A PROJECTION OF THE SAME ITEMS, AND THE TWIN MODELS IT THAT WAY: this map holds one entry per ITEM
+   * keyed by its `PK`/`SK`, and an index read takes each item's partition and order from the ATTRIBUTES it carries
+   * (`keys.ts`'s `INDEX_ATTRIBUTES`) — which is exactly what DynamoDB's GSI does. A row that lacks them is simply
+   * not in the index, so it cannot appear in an index answer. An index THIS STORE DOES NOT KNOW throws rather than
+   * answering empty: an empty answer is a legitimate board nobody is on, and the two must not look alike.
    */
   async query(request: ItemQuery): Promise<StoredItem[]> {
+    const index = request.index === undefined ? null : INDEX_ATTRIBUTES[request.index];
+    if (request.index !== undefined && index === undefined) {
+      throw new Error(`no index named ${request.index} in this store`);
+    }
     const found: { sk: string; entry: Entry }[] = [];
     for (const [id, entry] of this.items) {
       const cut = id.indexOf(SEPARATOR);
-      if (id.slice(0, cut) !== request.pk) continue;
-      const sk = id.slice(cut + 1);
+      const rowPk = index ? entry.value[index.pk] : id.slice(0, cut);
+      const sk = index ? entry.value[index.sk] : id.slice(cut + 1);
+      if (typeof rowPk !== 'string' || typeof sk !== 'string') continue;
+      if (rowPk !== request.pk) continue;
       if (request.skPrefix !== undefined && !sk.startsWith(request.skPrefix)) continue;
       found.push({ sk, entry });
     }

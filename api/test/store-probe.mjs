@@ -12,6 +12,7 @@
 //
 // Usage: node api/test/store-probe.mjs
 import { configFromEnv, clientOptions, DEFAULT_DDB_ENDPOINT } from '../src/config.ts';
+import { BOARD_INDEX, boardIndexKeys, boardKey, boardPk } from '../src/keys.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { DynamoStore, createTable, dynamoClient, tableExists } from '../src/store/dynamo.ts';
 
@@ -129,6 +130,39 @@ async function contract(name, store, unconditional) {
   const fromQuery = ascending[0];
   fromQuery.value.marker = 'mutated';
   check((await store.get(QUERY_KEY('player#a'))).value.marker === 'a', 'and what a query returned is a copy, as `get` is');
+
+  // --- AN INDEX IS A PROJECTION OF THE SAME ITEMS, AND THE SAME CHECKS HOLD OF IT. This is the read the leaderboard
+  // uses to make "the top N scores" bounded: the base table's sort key for a board is the PLAYER, and an index whose
+  // sort key is the SCORE is what turns that into a page. The keys are built by `keys.ts`'s `boardIndexKeys` rather
+  // than spelled here — a probe that wrote its own index attributes would be measuring its own copy of the schema,
+  // which is the one thing that has to agree between the twin, the adapter and the table definition.
+  const boardRows = [
+    ['p-low', 10],
+    ['p-high', 900],
+    ['p-mid', 400],
+  ];
+  for (const [playerId, score] of boardRows) {
+    const ranked = boardIndexKeys('daily', 1, '2026-10-15', playerId, score);
+    await store.put(boardKey('daily', 1, '2026-10-15', playerId), { playerId, score, runs: 1, ...ranked }, null);
+  }
+  const boardPkValue = boardPk('daily', 1, '2026-10-15');
+  const topTwo = await store.query({ pk: boardPkValue, index: BOARD_INDEX, limit: 2 });
+  check(topTwo.map((row) => row.value.playerId).join(',') === 'p-high,p-mid', `an index read returns the TOP of the board, not the first players (${topTwo.map((row) => row.value.playerId).join(',')})`);
+  check(topTwo.every((row) => typeof row.value.score === 'number'), 'and its rows carry the projected attributes the rank is reported from');
+  const wholeBoard = await store.query({ pk: boardPkValue, index: BOARD_INDEX, limit: 100 });
+  check(wholeBoard.map((row) => row.value.score).join(',') === '900,400,10', `the whole index partition is in score order (${wholeBoard.map((row) => row.value.score).join(',')})`);
+  // THE BASE TABLE IS STILL THE BASE TABLE: the same partition read without `index` is in PLAYER order, which is the
+  // difference that made the index necessary. A store that ignored the field would fail one of these two.
+  const baseOrder = await store.query({ pk: boardPkValue, limit: 100 });
+  check(baseOrder.map((row) => row.value.playerId).join(',') === 'p-high,p-low,p-mid', `and the base table still orders by player, which is why the index exists (${baseOrder.map((row) => row.value.playerId).join(',')})`);
+  // AN INDEX NAME NO TABLE HAS IS REFUSED, not answered empty: an empty answer is a board nobody is on.
+  let refused = false;
+  try {
+    await store.query({ pk: boardPkValue, index: 'GSI9', limit: 10 });
+  } catch {
+    refused = true;
+  }
+  check(refused, 'NEGATIVE CONTROL: an index this store does not know is refused rather than answered empty');
 
   // --- SEVERAL ITEMS AT ONCE. A completed run changes three or four rows, so the port's `transact` is what
   // makes "the whole run landed" true rather than "most of it did".

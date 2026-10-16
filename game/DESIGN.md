@@ -791,12 +791,17 @@ move_log_full` (the 300-move bound) and `409 contended`.
 `GET /leaderboard?mode=<drill|daily>&level=<n>&period=<p>` answers
 `{ board: { mode, levelIndex, period, entries: [{ playerId, score, runs }], examined, truncated } }`, highest score
 first with ties broken by player id so one board answers ONE order. It is a READ and needs no identity, and it reads
-exactly ONE partition — a board is `board#<mode>#<level>#<period>`, so another day, level or mode cannot appear in it
-(the negative control in `api/test/leaderboard-probe.mjs` is a board that would). **`examined` and `truncated` are
-there because the sort key is the PLAYER, not the score:** the store cannot return score order, so the endpoint reads
-the partition under `BOARD_READ_CAP` (1000 rows) and sorts, and a board at the cap is reported as truncated rather
-than ranked as if the read had seen everything. The GSI the paragraph above describes is what would make the top N a
-bounded read, and it is NOT built; until it is, the cost is in the answer. Refusals: `400
+exactly ONE board — `board#<mode>#<level>#<period>`, so another day, level or mode cannot appear in it (the negative
+control in `api/test/leaderboard-probe.mjs` is a board that would). **IT READS THE BOARD INDEX, so the top N is ONE
+BOUNDED READ**: the base table's sort key for a board is the PLAYER, so ranking there would mean reading the whole
+partition and sorting it in the process — which is what this endpoint did first, under a 1000-row `BOARD_READ_CAP` it
+had to admit in the answer. The index carries the score INVERTED in its sort key (§11's table paragraph), so
+ascending IS best-first, the tie-break is part of the same key, and `limit` returns the top of the board with nothing
+to sort. `examined` and `truncated` are re-stated rather than re-used: they now mean the size of the page and whether
+the page FILLED (which may mean there is more behind it), and `BOARD_READ_CAP` is GONE with the read it bounded. A
+row the index does not carry cannot appear at all — the attributes are built by the one writer (`handlers/runs.ts`),
+which REFUSES a run whose board score will not fit the sort key's fixed width (`unrankable_board`) rather than
+clamping it into a wrong rank. Refusals: `400
 bad_mode`/`bad_level`/`bad_period` and `503 unreadable_board` (a row this build cannot rank is an operator finding,
 never a zero and never a skip — a board that quietly dropped a player would be one nobody could audit).
 
@@ -821,13 +826,20 @@ rewrite a drill already handed out. `scheduleVersion` is `ms-1-season<N>`: it na
 is what an operator needs to see that a republish changed the regime. It deliberately does NOT encode the
 generator's version, because a change there is caught by `lintSchedule` re-running the generator rather than by a
 string comparison.
-**DynamoDB, one table**, `PK`/`SK` — **and NO index, which corrects what this paragraph used to say.** It described a
-`GSI1 (GSI1PK, GSI1SK)` "for the two leaderboard partitions" and a `seed#playerId` dedup index; `api/tools/create-table.mjs`
-defines neither, and no row writes an index attribute, so what ships is one base table. What that costs is stated at
-the endpoint that pays it (see `GET /leaderboard` below) rather than assumed away. The dedup index's job is done by
-the run id being the key (`runs#<player> / run#<runId>`): a replay writes the same key and the transaction's
-create-only condition cancels it. The item shapes below are the storage form of decisions 10, 11 and 15, and of the
-two published sources of a puzzle:
+**DynamoDB, one table**, `PK`/`SK`, **plus the board index — which is now built, and this paragraph has been wrong
+twice.** It first described a `GSI1 (GSI1PK, GSI1SK)` "for the two leaderboard partitions" *and* a `seed#playerId`
+dedup index; neither existed. It was then corrected to say NO index existed, which was true until `createTable` grew
+one. What exists now is **one** index, and the dedup index is still not needed: the run id is the key
+(`runs#<player> / run#<runId>`), so a replay writes the same key and the transaction's create-only condition cancels
+it. **The index is what makes the leaderboard's top N a bounded read**: a board row carries `GSI1PK = the board's own
+partition` and `GSI1SK = (999999999 − score)` zero-padded to a fixed width, then `#<playerId>` — so ascending order
+IS highest-score-first, the tie-break by player id is part of the key, and a `Query` with `Limit` returns the top of
+the board. A score too wide for that field is REFUSED rather than clamped (`handlers/runs.ts`'s `unrankable_board`),
+because a clamped row would sit at the wrong rank forever. Its projection is `ALL`, and that is a decision with a
+measurement behind it: the in-memory twin returns the whole item for an index read, so a GSI projecting a SUBSET would
+make the two stores answer differently for the same query — and the store contract suite, which runs the same checks
+against both, is the only reason that would be found before production. The item shapes below are the storage form of
+decisions 10, 11 and 15, and of the two published sources of a puzzle:
 
 | Item | Purpose |
 |---|---|
@@ -994,7 +1006,9 @@ What is not yet true, and the stage that lands it (AGENTS.md §0: one change, on
 |---|---|---|
 | A25's remainder | EVERY endpoint's refusals increment the bounded `abuse#<playerId>` tally (the count is applied at the route table, so coverage is a property of the table); no structured log and no alarm yet | logging, the alarm, per-player throttling at the gateway |
 | the `cognito` flow | the surface offers a form only where `/health` advertises sign-in routes, which is `dev` (none) and `emulate` (the emulator's five); a deployed pool's hosted flow is not opened by this build | stage 7, with the pool |
-| the leaderboard's scale | `GET /leaderboard` ranks the partition it can read under a 1000-row cap and reports `truncated`; the GSI that would make the top N a bounded read is NOT built | the index and the rows that key it |
+
+The leaderboard's scale left this table when the board index landed: `GET /leaderboard` reads the index with `Limit`,
+so the top N is one bounded read and `truncated` means "the page filled" rather than "the read hit a cap".
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider
 

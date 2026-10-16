@@ -22,7 +22,7 @@
 // separate "has this happened" query with a race between the query and the write.
 import { MAIN_POOL, SCORE_VERSION, elapsedSeconds, recordSuccess, seasonOf } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type StoreWrite } from '../ports.ts';
-import { attemptKey, boardKey, hintsKey, publishedDailyKey, progressKey, runKey } from '../keys.ts';
+import { attemptKey, boardIndexKeys, boardKey, hintsKey, publishedDailyKey, progressKey, runKey, SCORE_CEILING } from '../keys.ts';
 import { levelAt, lineReachesGoal, puzzleFor, replayDailyMoves } from '../levels.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
@@ -381,11 +381,21 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     // TIME (`facts.hintsUsed`, from the record), not move the balance.
     const ledger = credit.ledger;
     const folded = foldBoard(submission.mode, board, score.score);
+    // THE BOARD ROW CARRIES THE INDEX KEYS THAT RANK IT. A board's base-table sort key is the PLAYER, so without
+    // these the leaderboard cannot ask for the top scores as a bounded read (`keys.ts`'s `boardIndexKeys`). A SCORE
+    // OUTSIDE THE ORDERABLE SPACE IS REFUSED rather than clamped: a clamped row would sit at the wrong rank for as
+    // long as it exists, and a board that silently mis-ranks one player is worse than a write that fails loudly.
+    // The ceiling is nine digits against scores this arithmetic produces in the single digits of thousands, and the
+    // Drill's is CUMULATIVE over a season, which is why the bound is checked rather than assumed.
+    const ranked = boardIndexKeys(submission.mode, submission.levelIndex, period, playerId, folded.score);
+    if (ranked === null) {
+      return failure(STATUS.unavailable, 'unrankable_board', `a board score of ${folded.score} is outside the range this board can order (0..${SCORE_CEILING})`);
+    }
 
     const writes: StoreWrite[] = [
       { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
       { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: ledger.hints, successes: ledger.successes } },
-      { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { playerId, score: folded.score, runs: folded.runs } },
+      { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { playerId, score: folded.score, runs: folded.runs, ...ranked } },
     ];
     if (finishedProgress) {
       writes.push({ key: progressKey(playerId, submission.levelIndex), expectedRev: source.progressRev, value: asProgressItem(finishedProgress) });

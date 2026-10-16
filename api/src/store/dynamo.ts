@@ -22,6 +22,7 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import type { ItemKey, ItemQuery, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
+import { BOARD_INDEX, BOARD_INDEX_PK, BOARD_INDEX_SK, INDEX_ATTRIBUTES } from '../keys.ts';
 
 /** The key attributes, as DESIGN.md 11's table writes them. */
 const PK = 'PK';
@@ -84,20 +85,30 @@ export class DynamoStore implements ItemStore {
   }
 
   /**
-   * Read one partition of the base table, in sort-key order.
+   * Read one partition, in sort-key order — of the base table, or of a named INDEX.
    *
-   * IT IS A `Query` ON `PK`, NOT A `Scan`, and that is the whole reason the port's shape requires a partition: the
-   * board is one partition, so this reads one board and cannot read another. `Limit` caps what comes back WITHOUT a
+   * IT IS A `Query` AND NEVER A `Scan`, which is the whole reason the port's shape requires a partition: the board
+   * is one partition, so this reads one board and cannot read another. `Limit` caps what comes back WITHOUT a
    * `FilterExpression`, so it is exact rather than "the first N evaluated" — the distinction the port's note warns
-   * about. The name attributes are always used for `PK`/`SK`, never interpolated.
+   * about. The name attributes are always used for the keys, never interpolated, and for an index the names come
+   * from the same map the table definition builds the index from, so a read cannot address an index that is not
+   * there. An index name THIS BUILD DOES NOT KNOW throws rather than querying the table by mistake: an empty answer
+   * and an unreadable board must not look alike (the twin throws for the same input).
    */
   async query(request: ItemQuery): Promise<StoredItem[]> {
+    const index = request.index === undefined ? null : INDEX_ATTRIBUTES[request.index];
+    if (request.index !== undefined && index === undefined) {
+      throw new Error(`no index named ${request.index} in this build`);
+    }
+    const keyPk = index ? index.pk : PK;
+    const keySk = index ? index.sk : SK;
     const wholePartition = request.skPrefix === undefined;
     const answer = await this.client.send(
       new QueryCommand({
         TableName: this.table,
+        ...(index ? { IndexName: request.index } : {}),
         KeyConditionExpression: wholePartition ? '#pk = :pk' : '#pk = :pk AND begins_with(#sk, :sk)',
-        ExpressionAttributeNames: { '#pk': PK, ...(wholePartition ? {} : { '#sk': SK }) },
+        ExpressionAttributeNames: { '#pk': keyPk, ...(wholePartition ? {} : { '#sk': keySk }) },
         ExpressionAttributeValues: { ':pk': request.pk, ...(wholePartition ? {} : { ':sk': request.skPrefix }) },
         Limit: request.limit,
         ScanIndexForward: request.descending !== true,
@@ -178,6 +189,17 @@ export function dynamoClient(options: DynamoDBClientConfig): { raw: DynamoDBClie
  * PAY_PER_REQUEST RATHER THAN PROVISIONED, because this table is a small game's and provisioned capacity is a
  * bill for idle time. It is idempotent so a setup script can call it every time, and it is separate from the
  * store so a deployment can create the table from its template and never call this at all.
+ *
+ * THE BOARD INDEX IS PART OF THE TABLE rather than something a caller adds, and it is built from the same constants
+ * `keys.ts` gives the stores, so the schema and the readers cannot disagree about what an index name means. Its
+ * projection is ALL rather than a list of attributes, and that is a decision with a measurement behind it: the
+ * in-memory twin returns the whole item for an index read (it projects nothing), so a GSI that projected a SUBSET
+ * would make the two stores answer differently for the same query — and the contract suite runs the same checks
+ * against both, which is the only reason that divergence would be found before production.
+ *
+ * A TABLE THAT ALREADY EXISTS IS NOT ALTERED, so an index added after the fact needs `UpdateTable` (or, in
+ * development, a fresh container). This function reports false for that case and says nothing about the index: the
+ * honest place for that is the deployment's template, which does not exist yet (DESIGN.md §13's stage 7).
  */
 export async function createTable(raw: DynamoDBClient, table: string): Promise<boolean> {
   try {
@@ -188,10 +210,22 @@ export async function createTable(raw: DynamoDBClient, table: string): Promise<b
         AttributeDefinitions: [
           { AttributeName: PK, AttributeType: 'S' },
           { AttributeName: SK, AttributeType: 'S' },
+          { AttributeName: BOARD_INDEX_PK, AttributeType: 'S' },
+          { AttributeName: BOARD_INDEX_SK, AttributeType: 'S' },
         ],
         KeySchema: [
           { AttributeName: PK, KeyType: 'HASH' },
           { AttributeName: SK, KeyType: 'RANGE' },
+        ],
+        GlobalSecondaryIndexes: [
+          {
+            IndexName: BOARD_INDEX,
+            KeySchema: [
+              { AttributeName: BOARD_INDEX_PK, KeyType: 'HASH' },
+              { AttributeName: BOARD_INDEX_SK, KeyType: 'RANGE' },
+            ],
+            Projection: { ProjectionType: 'ALL' },
+          },
         ],
       }),
     );

@@ -2054,9 +2054,32 @@ Each has a recommendation and the tradeoff, so this does not need another round 
 
 ## 16. Explicitly not in this change
 
+**THIS SECTION IS THE BOUNDARY OF THE COMMIT THAT FIRST LANDED THIS FILE — a deliberate part of the brief it was
+written under, and NOT a description of the tree today.** It is kept, and labelled, because a reader who took it as
+state would be wrong on every line; it read:
+
 - No game source, no `package.json`, no lockfile, no `.gitignore`, no CI, no submodule.
 - **Nothing is staged or committed.** The brief was "do not put them under source control at this point", so
   this file is left as an untracked working-tree file. The tree also carries mid-edit corpus XML and engine
   sources that belong to someone else's in-flight work and are **not** touched (AGENTS.md §8 trap 16).
 - No engine edit: `sameBoardById` and the renderer extraction are designed here and performed in Phases 0
   and 1.
+
+**WHAT IS TRUE NOW**, and each of these is checkable rather than remembered:
+
+- **`game/` is a tracked workspace package**: 133 tracked files, with its own `package.json`, `tsconfig.json` and
+  `vite.config.ts`, the Vite app (§13), and 18 probes under `game/test/` that `game/tools/verify-probes.mjs` runs as
+  a gate (`AGENTS.md` §1's map row). The lockfile and `.gitignore` are committed, and so is this file.
+- **Every phase the boundary listed as future has landed** — the game source, the renderer extraction, the schedule
+  and its publisher, the auth surface, the leaderboard — and §13's phase table is the record of what each one added,
+  with §11.1's A-numbers as the cheat-resistance record. The engine and API work that followed is in those sections
+  rather than here.
+- **No CI**, which is the one line that is still true: there is no `.github/` and no CI configuration, so §3's local
+  gate is the only gate before a push (`AGENTS.md` §10.6 says exactly that).
+- **No engine edit came from this design's commit, and none is wanted**: the engine is still the single source of
+  truth, and `game/` imports its VALUES by name (`sameBoardById`, `boardSig`, `makeSquaredSet`, `computeHandholds`)
+  while reaching the one mutable engine object only through `src/engine/applier.ts` (`AGENTS.md` §1).
+- **The tree really does carry other people's in-flight work**, which was true when the boundary was written and is
+  true today: the corpus under `poc/src/assets` is regularly mid-edit, and an uncommitted corpus change by another
+  session is what stops `tools/sync-corpus.mjs --check` from passing while it is there (`AGENTS.md` §8 trap 16). That
+  is a fact about the working tree, not about this design.

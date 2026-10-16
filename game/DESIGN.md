@@ -1873,6 +1873,20 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     published artefact cannot be read is refused with its reason rather than replaced by a locally derived seed, which
     would be a different challenge from everyone else's. Pinned in `game/test/standing-probe.mjs` §4b, whose negative
     control is the plausible wrong rule ("dev always ranks") that passes every other check in that file.
+    **THE TWO THINGS THIS ENTRY STILL OWED ARE NOW OBSERVED, in one session.** (1) The offer against a server that
+    ANSWERS and refuses, rather than being unreachable: four skips (§15 Q5) finished level 1's season, the next
+    `/drill/current` answered `drill: null`, and the app said **"No drill from the server: every drill in this level's
+    season has been finished"** — which is the client's wording of a legitimate "the season is over" answer, not a
+    server sentence — and revealed the same labelled offer. (2) The practice run's LATER IMPORT: the fixture drill was
+    played and solved ("Solved in 49.2 s, first try — 30 points", the ledger reading "4 runs · best 100 — unranked: a
+    practice drill, so it is kept here and never submitted"), and signing out and back in produced **"1 run from this
+    device imported as history: kept, and not ranked"** — ONE run, not four, because the three earlier runs had already
+    been claimed by the previous sign-in: `POST /me/runs:bulk`'s create-only rows showing up as a delta rather than as a
+    client remembering. **AND THIS SESSION FOUND A DEFECT IN Q22's OWN FIX, in exactly this path**: on the practice run
+    the verdict read *"…That is as far as a signed-out drill goes — the season is the server's, so sign in…"* and "Next
+    drill" was HIDDEN, because `serverDrill` was still holding the last SERVER-ISSUED drill while the drill on screen
+    was the fixture — a stale shell fact standing in for "this drill came from the server". Filed as §15 Q23 and fixed
+    in its own change.
 16. **Does an answer given AFTER "show me the answer" count as a ranked success?** Phase 3 made the review
     name and dance the call without answering the step, so a player still presses it — and that press earns a
     score and, on the tenth completed drill, a hint. *Recommend NOT counting a revealed puzzle*, because a
@@ -1929,8 +1943,10 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     on the device — "Saved on this device: 1 run · best 100", hint progress "1 of 10" — the first press only ARMS the
     control (its label becomes the erase sentence, the board and the ledger unchanged), and the second press returns
     the ledger to "Saved on this device: nothing yet", the hint progress to "0 of 10 to the next", a fresh drill 1 of
-    12 to the board and the label to its unarmed text. The disarm-on-mode-switch was NOT observed: it is shell state
-    and no probe loads `main.ts`.
+    12 to the board and the label to its unarmed text. **AND THE DISARM IS NOW OBSERVED TOO**, in the session that closed
+    the other gaps: the first press arms the control ("Press again — this device's runs and hints will be forgotten",
+    with the ledger still reading "3 runs · best 100" — nothing cleared), and a switch to the Daily and back returns
+    the label to "Start over on this device" with the ledger untouched, which is `applyMode`'s disarm doing its work.
 21. **"Next drill" is refused after a run that was recorded — DECIDED AND IMPLEMENTED** (found by the Q16 browser check).
     A submitted run finishes its drill server-side (`POST /runs` → `finishDrill`, which clears the in-flight lock), and
     the app then advanced before it issued: `startServerDrill('advance')` called `POST /drill/advance` with a drill the
@@ -1956,6 +1972,15 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     same, to "drill 3 of 4"; and the loading line the player sees is the read's own — "Asking the server for your
     drill…" rather than "…for your next drill…". **NO PROBE CAN PIN THIS** (`main.ts` is not probe-loadable, the same
     reason Q16 was owed a browser check), so the instrument is the browser check and this paragraph is its recipe.
+    **AND THE BRANCH THAT WAS ONLY REASONED IS NOW DRIVEN**, in the gaps session: a signed-in player's submission was
+    made to fail (the API was stopped mid-run, so the run stayed local — "The server would not record this run: the
+    server could not be reached (TypeError)", the ledger going to "5 runs · best 100"), and pressing "Next drill"
+    then attempted the **advance**, which the sentence names exactly — "The server would not advance this drill: the
+    server could not be reached (TypeError)", where the READ path's failure says "No drill from the server: …". So a
+    run the server did NOT record still advances, which is the right request for an outage: §11 records an advance as a
+    skip, so the hole a lost submission leaves is visible rather than silent. (No dev-server log line exists for that
+    step, because the server was down by definition — the evidence is the sentence's own wording, which is why the two
+    failure sentences are distinct in the first place.)
 22. **A signed-out player's "Next drill" is a dead button — FOUND IN THE SAME SESSION, AND OPEN.** A demo's solve is
     credited locally and never submitted (A20: the server takes no writes from a caller it served without a Progress
     row), so Q21's rule sends the advance — and a demo has no Progress row to advance, so the server answers
@@ -1981,6 +2006,33 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     `POST /runs` → `GET /drill/current` (Q21's rule doing its work), so the guard hides it for a demo and for nobody
     else. The alternative this entry weighed — let a demo re-issue the same entry — is rejected: it shows one drill
     forever, which reads as a broken button in a different way.
+    **THE PREDICATE WAS TOO WIDE AND A PRACTICE RUN PROVED IT** (filed as Q23, fixed in the change that follows):
+    `demoOnly` asked `serverDrill !== null`, and `serverDrill` is shell state that is NOT cleared when the practice
+    offer takes over — the last SERVER-ISSUED drill sits in it while the drill on screen is the device's own fixture.
+    So on a practice run the verdict said "…as far as a signed-out drill goes — the season is the server's, so sign
+    in…" and "Next drill" was hidden, which is wrong twice: the player IS signed in, and a practice run must not be
+    what stops them returning to the season. The fact wanted is "the drill on screen came from the server", which is
+    `serverDrill !== null && !practiceRun` — and Q5's `skipOffered` needs the same fact, which is why the fix is a
+    named helper rather than a second condition.
+23. **A practice run is told it is signed out — FOUND BY THE GAPS SESSION, OPEN until the next change.** With Q22's
+    rule as written, the practice path (`startPractice` → `startDrill` → `showDrill`) leaves `serverDrill` holding the
+    last server-issued drill, so `demoOnly` fires and the practice verdict reads "…That is as far as a signed-out drill
+    goes — the season is the server's, so sign in to be issued the next one." while the account row says "Signed in as
+    gaps@example.com" and the ledger says "unranked: a practice drill, so it is kept here and never submitted". The
+    same stale fact also suppresses "Next drill". MEASURED: the practice run above shows both sentences side by side.
+    *Recommendation*: ask the fact that means what it says — the drill on screen is the server's iff
+    `serverDrill !== null && !practiceRun` — and use it for Q22's verdict and for Q5's `skipOffered`, which currently
+    reaches the right answer for a practice drill only because `mayWrite` happens to be false there too.
+24. **A failed issue leaves the previous drill's buttons looking live — FOUND BY THE GAPS SESSION, AND OPEN.** When
+    `issueDrill` fails — the season complete, an outage — `startServerDrill` sets `controller = null` and calls
+    `drillScreen.render(null)`, and `render` returns immediately by design, so the LAST question and its three option
+    buttons stay on screen. They are inert (every handler guards on `!controller`: `answer`, `review`, `skipDrill` were
+    all checked), but a control that looks live and silently does nothing is the thing this repo calls a defect in its
+    own words — `answer`'s out-of-range branch says "surfacing it as a message beats a silent no-op on a button that
+    looked live". MEASURED twice in one session: after the season-complete refusal, and again after the offer was
+    declined by signing out and back in. *Recommendation*: clear or disable the options when no controller is on
+    screen — the honest place is `DrillScreen.render(null)`, which is the one call that already means "there is no
+    drill" — and say in the prompt that the season is over rather than leaving the old question up.
 
 ---
 

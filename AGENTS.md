@@ -398,7 +398,14 @@ with its measurement, in the same commit that found it.
     `` `attempts `` and `` `recordDrillAnswer `` in `game/src/main.ts`, the `` `apiCall`'s `anonymous `` pair,
     and `` `auth-client-probe.mjs ``), every one of them invisible to the mojibake check beside it, and the first
     run of the new check reported an ignored scratch file (`poc-matrix/_g.txt`) rather than a source file — which
-    is why both text checks now read the TRACKED set.
+    is why both text checks now read the TRACKED set. **AND THE CHECK CANNOT SEE THE OTHER HALF OF THE SAME DAMAGE**,
+    which is why this trap stays a rule rather than becoming a gate's job: `` `n `` inserts a LEGAL CRLF, so a word
+    split by it passes the control-character scan — MEASURED on an EIGHTH site, `game/src/main.ts`'s A22 header, where
+    ``refused `no_press_log` `` had become ``refused `` + newline + ``o_press_log`` (the opening backtick and the `n`
+    consumed by the escape, the closing backtick before a space turned into that space, and the continuation line left
+    with no ` * ` prefix), committed and green for as long as it existed. **The signature is a COMMENT LINE THAT DOES
+    NOT START WITH ITS FILE'S PREFIX**, and it is searchable: `git grep -n '^[a-z][a-z0-9]*_[a-z]' -- '*.ts' '*.mjs'`
+    found that one site and nothing else in the tree. Read the shape of the line, not only its bytes.
 25. **A request header a mode does not ADVERTISE is not merely refused — the request is never sent, and the failure
     looks like a dead server.** `api/src/dev-server.ts` puts `x-dev-player` in `access-control-allow-headers` only
     when `DSQ_AUTH=dev` (a deliberate omission, pinned as a NEGATIVE CONTROL in `api/test/auth-probe.mjs`), and a

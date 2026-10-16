@@ -905,15 +905,27 @@ demo drill and its press sends **no** request at all, while the same press after
 demo read as `TypeError — the server could not be reached` — MEASURED in that browser and visible in the dev server's
 own log as an `OPTIONS /drill/current` with no request behind it. The device header is now a `dev`-only identity
 (`game/src/net/api.ts`), the boot waits for `/health` before the first request, and the rule lives in
-`game/src/net/standing.ts`, where `game/test/standing-probe.mjs` drives every combination. What is not yet true, and
-the stage that lands it (AGENTS.md §0: one change, one commit):
+`game/src/net/standing.ts`, where `game/test/standing-probe.mjs` drives every combination.
+
+**A26 is now enforced on both sides too.** A device's ledger is handed over on sign-in, as `history#<playerId>` rows
+marked `unverified` that buy no standing — no board, no hints, no progress. The mapping is the client's half and it is
+a rule rather than a field copy: the two modes name the transcript differently LOCALLY (`options` for a drill's one
+call per step, `moves` for the daily's line) and the imported row has one `calls` list, so a mapping that read one
+field for both would send a Daily with an empty transcript — which the endpoint accepts and stores as history with no
+line. MEASURED in a browser: a drill solved as a signed-out DEMO is recorded on the device ("1 run · best 59 —
+unranked"), and signing in answers "1 run from this device imported as history: kept, and not ranked" with `200 POST
+/me/runs:bulk` in the dev server's log; the SAME sign-in again answers "the server already held all 1 of this
+device's runs (1 run skipped)", which is the create-only row doing its work rather than the client remembering. AN
+EMPTY LEDGER IS SENT TO NOBODY — a fresh session signs in, the row reads "Signed in as …", and the log holds no
+`/me/runs:bulk` AT ALL, because the endpoint refuses an empty body and A25 counts refusals at the route table, so
+posting one would put the commonest first sign-in into the operator's signal that someone is probing. What is not yet
+true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
 | Not yet enforced | Today | Lands in |
 |---|---|---|
 | A22's Daily half | the Drill's presses are recorded and counted; the Daily still submits a line the server walks rather than a log of moves, and its `attempts` is 0 by design (§6) | `POST /daily/move` |
 | A23's naming | the spend is the server's and an abandoned challenge is recorded (`POST /daily/abandon`); the CALL a hint names is still computed by the client | `POST /daily/move` |
 | A25's remainder | EVERY endpoint's refusals increment the bounded `abuse#<playerId>` tally (the count is applied at the route table, so coverage is a property of the table); no structured log and no alarm yet | logging, the alarm, per-player throttling at the gateway |
-| A26's client half | the server keeps an imported ledger as unranked history and writes nothing else; the APP has a sign-in surface now and still does not IMPORT its device ledger | the client's ledger import, on sign-in |
 | the `cognito` flow | the surface offers a form only where `/health` advertises sign-in routes, which is `dev` (none) and `emulate` (the emulator's five); a deployed pool's hosted flow is not opened by this build | stage 7, with the pool |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider

@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, issueDrill, normaliseBase, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDrillAnswer, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -331,5 +331,62 @@ console.log('\n== 10. a hint is spent by the SERVER, and the balance it answers 
   const odd = deps('http://localhost:8090', { status: 200, body: { spent: 1 } });
   const unreadable = await spendHint(1, '2026-10-15', odd.api);
   check(unreadable.ok === false && unreadable.failure.code === 'bad_response', `and an answer with no balance is refused rather than adopted (${unreadable.failure?.code})`);
-}console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
+}
+
+console.log('\n== 11. the device ledger is imported as HISTORY, and an empty one is never sent ==');
+{
+  // THE MAPPING IS THE RULE (DESIGN.md 11.1, A26). Locally the two modes name the transcript differently — a Drill
+  // keeps one call per step in `options`, a Daily keeps its line in `moves` — and the imported row has a single
+  // `calls` list, where a wrong mapping is invisible: an absent transcript is TOLERATED by the endpoint and stored
+  // as history with no line, so the run is kept and its line silently lost.
+  const record = (over) => ({
+    runId: 'r1',
+    mode: 'drill',
+    levelIndex: 1,
+    poolVersion: 'ms-1',
+    seed: 42,
+    position: 0,
+    options: ['Boys Run', 'Bend the Line'],
+    elapsedSeconds: 12.5,
+    attempts: 1,
+    score: 80,
+    scoreVersion: 1,
+    recordedAtMs: 1_700_000_000_000,
+    ...over,
+  });
+  const drill = ledgerEntryOf(record({}));
+  check(JSON.stringify(drill.calls) === '["Boys Run","Bend the Line"]', `a Drill's transcript is its \`options\` (${JSON.stringify(drill.calls)})`);
+  check(drill.date === null && drill.hintsUsed === 0, 'and it has no date and no hint spend, which only a Daily has');
+  // NEGATIVE CONTROL: a mapping that read ONE field for both modes sends the Daily with an empty `calls`, and the
+  // endpoint accepts it — so ONLY this check fails that rule, and it fails on the second line below.
+  const daily = ledgerEntryOf(record({ runId: 'r2', mode: 'daily', day: '2026-10-16', moves: ['Boys Run'], hintsUsed: 1, options: undefined, position: undefined }));
+  check(JSON.stringify(daily.calls) === '["Boys Run"]', `NEGATIVE CONTROL: a Daily's transcript is its \`moves\` (${JSON.stringify(daily.calls)})`);
+  check(daily.date === '2026-10-16' && daily.hintsUsed === 1, 'and it carries the day and the hints it spent');
+
+  // THE REQUEST IS THE CONTRACT: the whole ledger under `runs`, as the endpoint's own shape rather than the local
+  // record's, and the counts back — which are how a first sign-in is told from a retry.
+  const wired = deps('http://localhost:8090', { status: 200, body: { imported: 1, skipped: 1, total: 2, unverified: true } });
+  const answer = await importLedger([record({}), record({ runId: 'r2', mode: 'daily', day: '2026-10-16', moves: ['Boys Run'], hintsUsed: 1, options: undefined })], wired.api);
+  check(wired.fetch.calls[0].url === 'http://localhost:8090/me/runs:bulk' && wired.fetch.calls[0].init.method === 'POST', `posted to the endpoint the route table names (${wired.fetch.calls[0].init.method})`);
+  const sent = JSON.parse(wired.fetch.calls[0].init.body);
+  check(Array.isArray(sent.runs) && sent.runs.length === 2, `carrying the whole ledger under \`runs\` (${sent.runs?.length} of 2)`);
+  check(sent.runs[1].date === '2026-10-16' && sent.runs[1].calls.length === 1 && sent.runs[1].options === undefined, `in the endpoint's shape and not the record's (${JSON.stringify(sent.runs[1])})`);
+  check(answer.ok === true && answer.value.imported === 1 && answer.value.skipped === 1 && answer.value.total === 2, `and the counts come back (${answer.value?.imported} imported, ${answer.value?.skipped} skipped)`);
+
+  // AN EMPTY LEDGER IS ANSWERED LOCALLY, with no request: the endpoint refuses one (`bad_ledger`) and A25's refusal
+  // tally is applied at the route table, so a client that posted it on every first sign-in would put the COMMONEST
+  // case into the operator's signal that someone is probing. NEGATIVE CONTROL: the naive client posts `{runs: []}`,
+  // and the fetch count is the only thing that shows it.
+  const empty = deps('http://localhost:8090', { status: 400, body: { error: { code: 'bad_ledger', message: 'the ledger is empty' } } });
+  const nothing = await importLedger([], empty.api);
+  check(nothing.ok === false && nothing.failure.code === 'nothing_to_import', `an empty ledger is answered without asking (${nothing.failure?.code})`);
+  check(empty.fetch.calls.length === 0, `NEGATIVE CONTROL: and nothing was sent (${empty.fetch.calls.length} fetches)`);
+
+  // THE COUNTS ARE THE ANSWER, so an answer without them is not read as "nothing was imported".
+  const silent = deps('http://localhost:8090', { status: 200, body: { unverified: true } });
+  const unread = await importLedger([record({})], silent.api);
+  check(unread.ok === false && unread.failure.code === 'bad_response', `an answer with no counts is refused (${unread.failure?.code})`);
+}
+
+console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

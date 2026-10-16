@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, issueDrill, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, importLedger, issueDrill, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -309,6 +309,42 @@ async function doSignIn(email: string, password: string): Promise<void> {
   }
   player = answer.value;
   accountChanged();
+  // AND THE LEDGER GOES WITH IT. A26 keeps a device's runs as HISTORY, and this is the only moment the app can hand
+  // them over: before the session there is no identity to import into, and the local ledger is what the offline game
+  // counted instead (DESIGN.md §11's funnel — "a player with a score to lose is a player who signs up").
+  void importDeviceLedger();
+}
+
+/**
+ * Hand this device's ledger over as history (DESIGN.md §11.1, A26).
+ *
+ * THE WHOLE LEDGER GOES, AND THE SERVER MAKES THAT SAFE: an imported row is written once and never updated, so a
+ * second sign-in re-sends it and the server skips what it already holds. That is why this app keeps no "already
+ * imported" flag — a flag is one more thing that can disagree with the server, and the counts in the answer already
+ * tell a first sign-in from a retry.
+ *
+ * AN EMPTY LEDGER IS THE ORDINARY CASE AND NOT AN ERROR, which is why `nothing_to_import` is reported to nobody: the
+ * endpoint refuses an empty body, and A25's refusal tally is applied at the route table, so a request that could
+ * only be refused would also make a new player look like someone probing the API.
+ *
+ * IT IS SAID IN THE ACCOUNT ROW, and after `accountChanged` for the same reason a failed sign-out is: the repaint is
+ * what the session change implies, and this sentence is the extra fact about what happened to the runs.
+ */
+async function importDeviceLedger(): Promise<void> {
+  const answer = await importLedger(save.runs);
+  if (!answer.ok) {
+    if (answer.failure.code !== 'nothing_to_import') {
+      accountScreen.say(`Signed in as ${player?.email ?? ''} — but this device's runs were not imported: ${answer.failure.message}`, 'bad');
+    }
+    return;
+  }
+  const held = answer.value.skipped === 1 ? '1 run' : `${answer.value.skipped} runs`;
+  accountScreen.say(
+    answer.value.imported > 0
+      ? `Signed in as ${player?.email ?? ''} — ${answer.value.imported} run${answer.value.imported === 1 ? '' : 's'} from this device imported as history: kept, and not ranked.`
+      : `Signed in as ${player?.email ?? ''} — the server already held all ${answer.value.total} of this device's runs (${held} skipped).`,
+    'ok',
+  );
 }
 
 /**

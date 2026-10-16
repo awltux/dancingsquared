@@ -32,8 +32,7 @@ import { LegalityChecker } from './legality.js';
 import { SequencerConfig, emptySearchStats, type SearchStats } from './config.js';
 import { KNOWN_FORMATION_MAX, STANDARD_FINISHES, canonicalName } from './constants.js';
 import { applyCodedMove } from './coded-moves.js';
-import { makeSquaredSet, cloneBoard, boardSig } from './board.js';
-import { fasrKey, homeFasrKey } from './fasr.js';
+import { makeSquaredSet, cloneBoard, boardSig, sameBoardById } from './board.js';
 import type { Board, SeqDancer } from './types.js';
 
 export class HomeSolver {
@@ -448,12 +447,26 @@ export class HomeSolver {
     return 'unknown';
   }
 
-  /** Whether `board` counts as "reaching" the getout target. For the home target
-   * this additionally requires the board to reproduce the start/home FASR. */
+  /** Whether `board` counts as "reaching" the getout target.
+   *
+   * FOR THE HOME TARGET THIS IS IDENTITY, AND IT USED TO BE THE HOME FASR. `fasrKey` is a RELATIONSHIP
+   * key - formation, arrangement, sequence parity, partner and corner - so a squared set ROTATED AS A
+   * WHOLE has exactly the same key as home. MEASURED, and it is the defect this replaces: `getout()` from
+   * the `L1p` alignment (`Normal Lines`) returns `[Circle Left - Stop at Home]`, whose end board puts ALL
+   * EIGHT dancers on a DIFFERENT dancer's home spot (`#4` at `(1.00,3.00)` where its home is `(3,1)`), and
+   * `fasrKey` matches home there - so the search called a permuted squared set "home".
+   *
+   * `sameBoardById` against `makeSquaredSet()` is the caller's own test, compared BY DANCER ID, and it is
+   * the property `engine/test/getout-convention.mjs` replays every accepted path to enforce ("every dancer
+   * back on its OWN spot and facing"). `isZero` (`sequence.ts`) reached the same conclusion for the same
+   * reason and pairs `fasrKey` with a facing check; identity does not need the pair.
+   *
+   * The finish path is unaffected by construction: a finish still has to PASS this test, so tightening it
+   * can only remove candidates, never admit a worse one. */
   private reachesTarget(board: Board, target: string): boolean {
     const canonical = canonicalName(target);
     if (!this.matcher.matchesNamed(board, canonical)) return false;
-    if (canonical === 'Static Square') return fasrKey(board) === homeFasrKey();
+    if (canonical === 'Static Square') return sameBoardById(board, makeSquaredSet());
     return true;
   }
 

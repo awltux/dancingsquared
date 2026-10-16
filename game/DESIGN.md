@@ -1869,6 +1869,23 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         RULE THE PLAIN TEXT CANNOT CARRY**: "It is suggested that calls in italics be delayed until later in the
         teaching sequence" — italics are a font attribute, so the extracted text has lost which calls those are, and
         recovering them means the PDF (or the Playbook it points to) rather than the text file.
+      * **THE ITALIC SET IS RECOVERED (this was HANDOVER.md's third open item, and the answer is a measurement rather
+        than a guess).** The font is readable from the PDF even though the text is not: page 70's italic face is
+        `/F5` = `BCDIEE+CenturySchoolbook-Italic` in that page's `/Resources /Font` dictionary, so each text run's face
+        can be read off the content stream — MEASURED with a throwaway scanner over
+        `docs/New_Mainstream_Definitions_26-03-29.pdf` (walk the objects, map each page's font resource names to
+        `/BaseFont`, then track the face in force at each `Tj`/`TJ`). **19 sub-entries are wholly italic and one is
+        partly**: M3b Single File Promenade, M3c Star Promenade, M3d Wrong Way Promenade; M6b Weave the Ring, M6c Wrong
+        Way Grand; M8 Reverse Wheel Around; M12a (Ladies Chain 3/4), M12b (Chain 3/4), M12c Chain Down the Line; M13a
+        Half Sashay, M13b Rollaway; M15a Separate, M15c Separate Around 1 or 2 into the middle; M19c All Eight
+        Circulate, M19d Single File (Column) Circulate, M19e Box/Split Circulate; M21 Left Square Thru; M31d Dosado to
+        a Wave, M31e Single Circle to a Wave; M33 Left Swing Thru; M34 Cross Run — that is 21 runs over 11 entries, and
+        the partial is M4's `Allemande Left/Right`, where only the "Right" is italic, so `Allemande Right` is the
+        delayed call and `Allemande Left` is not. Three of the POOLED titles are therefore italic: `Box Circulate`
+        (M19e), `Half Sashay` (M13a) and `Single Circle to a Wave` (M31e). **WHAT THIS DOES NOT SETTLE**: "delayed
+        until later in the teaching sequence" is qualified in the document as "See details in the (New) Mainstream
+        Playbook", which this repo does not hold, so the DELAY DESTINATION is still the owner's — the pool order is
+        the printed one and no entry has been moved.
       * **THE WORK IS A MAPPING, NOT A SORT.** The order's names are CALLERLAB's and the game's pool titles are the
         corpus's (`calls-data.ts`, generated from `poc/src/assets/ms/*.xml` by `game/tools/build-pool.mjs`), so
         "Circle Left/Right (1/4, 1/2, 3/4, Full)", "Promenade Family", "Star Right/Left" and "Trade Family" have to be

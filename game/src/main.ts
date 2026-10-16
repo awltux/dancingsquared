@@ -35,12 +35,15 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, dailyChallenge, issueDrill, recordDrillAnswer, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, issueDrill, recordDrillAnswer, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
+import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
+import { AccountScreen } from './ui/account-screen.ts';
 import { Replay } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import type { Board } from 'dancing-squared-engine';
@@ -82,6 +85,19 @@ o_press_log — a refusal this app would have caused itself rather than a cheat 
 let pressLog: Promise<unknown> = Promise.resolve();
 /** Where the server says the player is in the regime, for the header and the report of a finished season. */
 let serverRegime: RegimeCounts | null = null;
+
+/**
+ * WHO THE SERVER THINKS IS ASKING, as far as this app can tell (DESIGN.md §11.2).
+ *
+ * `authMode` IS DISCOVERED RATHER THAN COMPILED IN and `signinRoutes` comes from the same `/health` answer, so the
+ * form is offered only where the server serves one. `player` is the session THIS DEVICE HOLDS — what the app can
+ * read, not what the server will honour — and `standingOf` is the one place those are reconciled into what a run is
+ * worth. `demoRun` is the server's own word about the drill on screen, which outranks both.
+ */
+let authMode: AuthMode | null = null;
+let signinRoutes: readonly string[] = [];
+let player: SignedIn | null = null;
+let demoRun = false;
 
 /** The Daily's run, the UTC day and the level it was issued for. */
 let daily: DailyRun | null = null;
@@ -139,6 +155,12 @@ const els = {
 
 const drillScreen = new DrillScreen(answer);
 const dailyScreen = new DailyScreen({ play: playDailyCall });
+const accountScreen = new AccountScreen({
+  signIn: (email, password) => void doSignIn(email, password),
+  signUp: (email, password) => void doSignUp(email, password),
+  confirm: (email, code) => void doConfirm(email, code),
+  signOut: () => void doSignOut(),
+});
 const stage = new GameStage(el<HTMLCanvasElement>('stage'));
 
 // ---------------------------------------------------------------------------------------------- the rails
@@ -172,17 +194,186 @@ function captions(here: Board, goal: Board): void {
   els.labelGoal.textContent = goalName ? `Get here — ${goalName}` : 'Get here';
 }
 
+/**
+ * What the server will do with the run on screen, from the four facts the app holds.
+ *
+ * THE RULE IS IN `net/standing.ts` AND NOT HERE, because the shell is the layer no probe can load (AGENTS.md §1):
+ * this function only gathers. `demoRun` is the server's own answer about the drill it issued, and it is passed in
+ * rather than left to be inferred, because a client that decided for itself would rank a run the server has already
+ * called a demo.
+ */
+function currentStanding(): Standing {
+  return standingOf({ configured: apiConfigured(), mode: authMode, signedIn: player !== null, demo: demoRun });
+}
+
 /** The hint balance and the progress towards the next one (DESIGN.md 10: silent progress, announced grant). */
 function paintBalance(): void {
   const p = earningProgress(save.hints);
-  els.balance.textContent = p.full
+  const held = p.full
     ? `Hints: ${save.hints.hints} of 3 — full, so successes stop counting`
     : `Hints: ${save.hints.hints} of 3 · ${p.successes} of ${p.needed} to the next`;
+  // THE UNRANKED CLAUSE IS ON THE BALANCE BECAUSE THE BALANCE IS WHAT A DEMO CANNOT CHANGE (DESIGN.md §11.2): a
+  // signed-out spend is answered `401`, so what is on screen is this device's own copy rather than the server's —
+  // and saying so is the difference between a player who knows nothing is kept and one who finds out later.
+  els.balance.textContent = currentStanding() === 'unranked' ? `${held} — this device's own balance, not the server's` : held;
   // THE HINT BUTTON BELONGS TO THE DAILY, because that is the mode it is spent on (DESIGN.md 10), and it is
   // hidden rather than merely disabled once the run is over — there is nothing left to be hinted.
   const playing = daily !== null && daily.view(performance.now()).outcome === 'playing';
   els.hint.hidden = mode !== 'daily' || !playing;
   els.hint.disabled = save.hints.hints <= 0 || !playing;
+}
+
+// ---------------------------------------------------------------------------------------------- the account
+
+/**
+ * Draw the account row, and repaint the two lines that claim what is kept.
+ *
+ * THE THREE GO TOGETHER BECAUSE ONE FACT DECIDES ALL THREE. Signing in does not merely change a button: it changes
+ * whether the run on screen is ranked, so the ledger's sentence and the balance's clause are stale the moment the
+ * session changes and repainting them here is what keeps one story on screen instead of three.
+ */
+function paintAccount(): void {
+  accountScreen.show({
+    standing: currentStanding(),
+    mode: authMode,
+    player,
+    offersForm: signInOffered({ mode: authMode, signin: signinRoutes, pinned: apiDeps.modeOverride !== undefined }),
+  });
+  paintLedger();
+  paintBalance();
+}
+
+/**
+ * The session this device holds, or null — and null rather than a throw on a blocked origin.
+ *
+ * IT IS GUARDED BECAUSE IT READS `localStorage`: `SaveState.open` degrades the same way for the saved game, and a
+ * page that would not start because it could not read a token is a worse answer than an anonymous one. It is NOT
+ * evidence that the server will honour the token: that is what the refresh below and `standingOf` are for.
+ */
+function heldSession(): SignedIn | null {
+  try {
+    return currentPlayer(apiDeps);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Settle the identity situation at boot: refresh a session that is due, learn the mode, then START the app.
+ *
+ * THIS RUNS BEFORE THE FIRST REQUEST IS SENT, and that ordering is a measured requirement rather than a
+ * preference. `/health` is what says whether a signed-out caller is a DEVICE (`dev`, whose header the server
+ * advertises in CORS) or a DEMO (a token mode, whose header it deliberately does not) — so a drill issued before
+ * the answer would carry an identity the browser is not allowed to send, and would come back `TypeError — the
+ * server could not be reached`. MEASURED in a browser against `DSQ_AUTH=emulate`. An anonymous first request is the
+ * other wrong answer: under `dev` it is a demo, so the player's first run would not be kept. The app waits for the
+ * one round trip instead, under the corpus's own loading line.
+ *
+ * THE REFRESH IS ASKED FOR RATHER THAN ASSUMED, and it is `refreshIfExpired` that decides — it compares the clock
+ * first, so a reload does not spend a single-use refresh token every time (MEASURED as a fetch count in
+ * `game/test/auth-client-probe.mjs`, which is why the rule lives there and not here). A session the server refuses
+ * is OVER and is cleared by `auth.ts` rather than retried, so the app cannot sit on a dead token saying "signed in".
+ */
+async function bootAccount(): Promise<void> {
+  els.loading.hidden = false;
+  els.loading.textContent = 'Asking the server how it identifies players…';
+  try {
+    const refreshed = await refreshIfExpired(apiDeps);
+    if (refreshed.kind === 'signed_out' || refreshed.kind === 'no_session') player = null;
+  } catch {
+    // A BLOCKED ORIGIN CANNOT BE READ, LET ALONE REFRESHED, AND THAT IS NOT A REASON TO STOP THE BOOT: the app goes
+    // anonymous, exactly as `SaveState.open` opens a fresh game when storage cannot be read.
+    player = null;
+  }
+  const discovered = await discoverAuth(apiDeps);
+  if (discovered.ok) {
+    authMode = discovered.value.mode;
+    signinRoutes = discovered.value.signin;
+  }
+  // THE ANSWER GOES TO THE REQUEST LAYER, which is where the identity header is chosen — it is the one place that
+  // knows whether this browser may send a device id at all, and it is a mode the shell has just learned.
+  rememberAuthMode(authMode);
+  paintAccount();
+  // AND ONLY NOW IS THE FIRST QUESTION ASKED, with an identity the server will accept.
+  applyMode('drill');
+}
+
+/** Sign in, and re-read everything the session decides. The refusals are the server's own sentences (§11.2). */
+async function doSignIn(email: string, password: string): Promise<void> {
+  accountScreen.setBusy(true);
+  const answer = await signIn(email, password, apiDeps);
+  accountScreen.setBusy(false);
+  if (!answer.ok) {
+    accountScreen.say(`Could not sign in — ${answer.failure.message}`, 'bad');
+    return;
+  }
+  player = answer.value;
+  accountChanged();
+}
+
+/**
+ * Create an account, and reveal the confirm step when the server did not confirm it outright.
+ *
+ * `confirmCode` IS THE EMULATOR's, returned because there is no mail sender locally (`api/src/auth/emulator.ts`);
+ * a real provider answers without one, which is why the code is OFFERED here and never required by the flow.
+ */
+async function doSignUp(email: string, password: string): Promise<void> {
+  accountScreen.setBusy(true);
+  const answer = await signUp(email, password, apiDeps);
+  accountScreen.setBusy(false);
+  if (!answer.ok) {
+    accountScreen.say(`Could not create the account — ${answer.failure.message}`, 'bad');
+    return;
+  }
+  if (!answer.value.confirmed) {
+    accountScreen.askForCode(answer.value.confirmCode);
+    accountScreen.say(`Account created — confirm ${answer.value.email} to finish.`, 'info');
+    return;
+  }
+  accountScreen.say('Account created — sign in to be counted.', 'ok');
+}
+
+/** Hand back the confirmation code. Signing in is a separate step, because an account and a session are two facts. */
+async function doConfirm(email: string, code: string): Promise<void> {
+  accountScreen.setBusy(true);
+  const answer = await confirmAccount(email, code, apiDeps);
+  accountScreen.setBusy(false);
+  if (!answer.ok) {
+    accountScreen.say(`Could not confirm — ${answer.failure.message}`, 'bad');
+    return;
+  }
+  accountScreen.say('Confirmed — sign in to be counted.', 'ok');
+}
+
+/**
+ * Sign out, LOCALLY FIRST.
+ *
+ * A REFUSED SIGN-OUT MEANS "THE SERVER WAS NOT TOLD", NOT "YOU ARE STILL SIGNED IN" (`net/auth.ts`): the stored
+ * tokens are gone either way, so the app's state changes and the sentence says which half happened. The status line
+ * is written AFTER `accountChanged` for that reason — the repaint is what the state change implies, and this
+ * sentence is the extra fact about it.
+ */
+async function doSignOut(): Promise<void> {
+  accountScreen.setBusy(true);
+  const answer = await signOut(apiDeps);
+  accountScreen.setBusy(false);
+  player = null;
+  accountChanged();
+  if (!answer.ok) accountScreen.say(`Signed out on this device — the server could not be told: ${answer.failure.message}`, 'bad');
+}
+
+/**
+ * The session changed, so everything that depends on it is re-read.
+ *
+ * THE PUZZLE IS RE-ISSUED, and that is not a nicety: the SAME request is answered differently for a different
+ * identity — a signed-out caller gets a demo with no Progress row, a signed-in one gets the drill their own row
+ * holds — so keeping the board on screen would leave a run belonging to nobody. A run in flight is therefore
+ * dropped, which is the honest outcome rather than a loss: it could not have been ranked either way.
+ */
+function accountChanged(): void {
+  paintAccount();
+  if (mode === 'drill') issueCurrentDrill('current');
+  else issueDaily();
 }
 
 // -------------------------------------------------------------------------------------------- the saved game
@@ -212,6 +403,17 @@ function browserStorage(): StorageLike {
 }
 
 const storage = browserStorage();
+
+/**
+ * THE API DEPENDENCIES, built once and shared.
+ *
+ * `browserDeps` is the one place `import.meta.env` and `window.localStorage` are read (`net/api.ts`), and the
+ * account surface MUST write the session through the same ones the requests read it with — two sets of dependencies
+ * would be two answers to "is this player signed in", which is the disagreement `session.ts` exists to prevent.
+ * `modeOverride` is read off it rather than from `import.meta.env` here, for the same reason: a dependency is a
+ * value a probe can hand over, and an env var read at the point of use is one no probe can reach.
+ */
+const apiDeps = browserDeps();
 
 /** The issued drill as a record, or null when there is nothing in flight to resume. */
 function drillSavedState(): DrillSaved | null {
@@ -251,11 +453,17 @@ function persist(): void {
 function paintLedger(): void {
   const count = save.runs.length;
   const best = save.best;
-  els.ledger.textContent = save.saving
-    ? count === 0
+  if (!save.saving) {
+    els.ledger.textContent = 'Saving is off — this browser blocks local storage, so progress will not be kept.';
+    return;
+  }
+  const kept =
+    count === 0
       ? 'Saved on this device: nothing yet'
-      : `Saved on this device: ${count} run${count === 1 ? '' : 's'}${best === null ? '' : ` · best ${best}`}`
-    : 'Saving is off — this browser blocks local storage, so progress will not be kept.';
+      : `Saved on this device: ${count} run${count === 1 ? '' : 's'}${best === null ? '' : ` · best ${best}`}`;
+  // A SIGNED-OUT LEDGER IS A FUNNEL, NOT A SCOREBOARD (DESIGN.md §11.2): the runs are real and kept, and they are
+  // not ranked — which is the fact the old line left implicit until the server refused the submission.
+  els.ledger.textContent = currentStanding() === 'unranked' ? `${kept} — unranked: the server is recording nothing for a signed-out player` : kept;
 }
 
 /**
@@ -349,10 +557,14 @@ function applyMode(next: AppMode): void {
  * the order, §8), and everything after the seed is identical — the generator the client runs, the resume of a
  * half-played drill, the clock, the header and the save. Splitting that in two would be two ways to show a drill.
  */
-function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number }): void {
+function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number; demo?: boolean }): void {
   const spec = levelSpec(issued.levelIndex);
   if (!spec) throw new Error(`level ${issued.levelIndex} is not a level`);
   position = issued.index;
+  // THE SERVER'S OWN WORD ABOUT THIS RUN, taken before anything can paint: `currentStanding` reads it to decide
+  // whether the run may be submitted at all, and it is set on every issued drill (false for the offline path, where
+  // there is no server to have said anything).
+  demoRun = issued.demo === true;
   useLevel(spec);
   if (save.resumed && save.levelIndex !== spec.index) {
     // THE SOURCE OF THE SEED IS THE REGIME, and the save's level is a record of what the app last believed. A
@@ -459,6 +671,10 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
     // THE SERVER'S ISSUE TIME, which is what the run's clock is measured against (§8: a drill is locked when it is
     // issued, and the server is the one that issued it).
     issuedAtMs: serverDrill.issuedAtMs,
+    // AND WHETHER IT IS A DEMO. A signed-out caller is served the level's first entry with no Progress row written
+    // and this flag set (§11.2), which is the server saying the run cannot be ranked — read from the answer rather
+    // than inferred from the session the app happens to hold.
+    demo: answer.value.demo,
   });
 }
 
@@ -489,7 +705,11 @@ function answer(choice: number | 'unknown'): void {
   // count that scores is the one the server recorded (DESIGN.md 11.1, A22), so a run whose presses had not arrived
   // would be refused `no_press_log` — a refusal this app would have caused itself. The chain is a promise chain
   // rather than `Promise.all` so the log's order is the order the player pressed.
-  if (serverDrill) {
+  //
+  // AND A PRESS IS A WRITE, so a demo does not send one: `POST /drill/answer` requires an identity (A20), and the
+  // presses of a run that will never be submitted could only ever be refusals on A25's tally. The transcript still
+  // accumulates locally, because the local run record keeps it.
+  if (serverDrill && mayWrite(currentStanding())) {
     const drillId = serverDrill.id;
     const call = result.call;
     pressLog = pressLog.then(() => recordDrillAnswer(drillId, stepIndex, call));
@@ -574,7 +794,12 @@ function finishDrill(): void {
   // own record of finished drills (DESIGN.md 11) and this app adopts the balance it answers with — so a modified
   // client cannot mint a hint (DESIGN.md 10). A submission that FAILS falls back to the local rule, because an
   // outage must not cost the player a success the device can still remember.
-  if (apiConfigured() && serverDrill) void submitSolvedRun(score, clockSeconds);
+  // A DEMO RUN IS NOT SENT AT ALL, which is the second half of "the server records nothing for a signed-out
+  // player" (A20): the server answers `demo: true` for a caller it served without a Progress row and refuses every
+  // write with a `401`, so posting it buys nothing — and it would be COUNTED, because A25's refusal tally is applied
+  // at the route table, so an honest signed-out player would look to the operator like someone probing the API. The
+  // local rule credits the success instead, exactly as it does when the server cannot be reached.
+  if (apiConfigured() && serverDrill && mayWrite(currentStanding())) void submitSolvedRun(score, clockSeconds);
   else creditLocally();
   drillScreen.render(controller);
   captions(controller.view().from, controller.puzzleRef.goal);
@@ -692,6 +917,11 @@ function dailyIsCurrent(day: string): boolean {
  */
 function showDaily(seed: number, day: string): void {
   if (!applier || !level) return;
+  // THE DRILL'S DEMO FLAG DOES NOT CARRY OVER. `demo` is the server's word about an ISSUED DRILL
+  // (`GET /drill/current`), and the Daily's answer carries no such flag — so leaving the last drill's value set
+  // would mark a typed-in player's Daily unranked because of a board they left behind. The Daily's standing comes
+  // from the mode and the session alone, which is the same rule that decides it before any drill has been issued.
+  demoRun = false;
   els.loading.hidden = false;
   els.loading.textContent = "Generating today's Daily…";
   const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'daily'), seed, level, applier);
@@ -880,7 +1110,12 @@ async function takeHint(): Promise<void> {
     dailyScreen.say('You have no hints — one is earned every ten solved drills.', 'bad');
     return;
   }
-  if (apiConfigured()) {
+  // A HINT IS A WRITE TOO (A20), so a demo spends the DEVICE's balance and never asks: `POST /me/hints` would answer
+  // `401`, and the balance on screen is already the device's own (see the clause `paintBalance` adds). The hint is
+  // still a hint — DESIGN.md §10's rule is that a hint names a call and costs a minute, and both of those are this
+  // app's arithmetic once the server is not the ledger.
+  const serverSpend = apiConfigured() && mayWrite(currentStanding());
+  if (serverSpend) {
     const levelIndex = daily.view(performance.now()).level.index;
     const answer = await spendHint(levelIndex, dailyDay);
     if (!answer.ok) {
@@ -900,7 +1135,9 @@ async function takeHint(): Promise<void> {
   }
   // THE BALANCE WAS CHECKED BEFORE THE RUN WAS TOUCHED, and nothing between that read and this charge can
   // change it (a synchronous straight line), so the spend cannot find an empty ledger here.
-  if (!apiConfigured()) save.spendHint();
+  // ONLY WHERE THE SERVER DID NOT ALREADY CHARGE IT: with a recorded spend the balance moved there and adopting it
+  // is the whole of the bookkeeping — debiting this device as well would charge one hint twice.
+  if (!serverSpend) save.spendHint();
   dailyScreen.say(`Hint: ${hint.call}. A minute has been added to the clock, and it is not refunded.`, 'info');
   paintDaily();
   persist();
@@ -944,7 +1181,10 @@ function paintDaily(): void {
   if (view.outcome === 'solved' && view.result) {
     if (recordDailyRun(dailyRunSeed, view.result.elapsedSeconds, view.result.score) > 0) {
       persist();
-      if (apiConfigured()) void submitSolvedDaily(daily);
+      // THE SAME GUARD THE DRILL's SOLVE USES: a signed-out Daily is a demo, and `POST /runs` would be a `401` that
+      // buys nothing and is counted (A20, A25). The local record above is the whole record for that player until
+      // they sign in and import it (A26).
+      if (apiConfigured() && mayWrite(currentStanding())) void submitSolvedDaily(daily);
     }
   }
   // THE REVIEW BUTTONS APPEAR WHEN THE RUN IS OVER (DESIGN.md 9: "on solving, or on giving up, the player can
@@ -1056,6 +1296,11 @@ function main(): void {
   save = opened.state;
   position = save.position;
   if (opened.dropped > 0) console.warn(`${opened.dropped} saved record(s) were unusable and were discarded`);
+  // THE SESSION IS READ BEFORE THE FIRST ISSUE, SYNCHRONOUSLY, so the first request already carries the identity this
+  // device holds and the first paint already says the right standing. Discovery and any refresh are a round trip each
+  // and cannot be waited for here; they only REPAINT (see `bootAccount`), because re-issuing the drill after them
+  // would throw away a half-played one to learn something that does not change which drill it is.
+  player = heldSession();
   paintLedger();
 
   els.modeDrill.addEventListener('click', () => setMode('drill'));
@@ -1088,8 +1333,13 @@ function main(): void {
     draw();
   });
 
-  applyMode('drill');
+  // THE FRAME LOOP STARTS FIRST, because the stage owns no loop of its own and a paused one is a black canvas.
+  // THE FIRST DRILL THEN WAITS FOR THE IDENTITY: with a server, `bootAccount` learns the mode and applies it, which
+  // is what issues the drill with an identity the browser is allowed to send; offline there is nothing to learn and
+  // the fixture's drill is issued here.
   requestAnimationFrame(frame);
+  if (apiConfigured()) void bootAccount();
+  else applyMode('drill');
 }
 
 main();

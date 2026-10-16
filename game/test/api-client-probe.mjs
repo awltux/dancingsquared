@@ -96,16 +96,28 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
   check(call.url === 'http://127.0.0.1:8090/drill/current?level=2', `the URL is the path and the query with no double slash (${call.url})`);
   check(call.init.method === 'GET', `and the method is GET (${call.init.method})`);
   const device = call.init.headers['x-dev-player'];
-  check(typeof device === 'string' && device.length > 0, `carrying the anonymous device id as the dev identity (${device})`);
-  check(wired.store.map.get('dsq.game.device') === device, 'which was minted into storage on first use');
-  // THE ID IS STABLE, not minted per call: a device id that changed would make every request a different player,
-  // and the server's whole regime is keyed on it.
-  const second = await issueDrill(2, wired.api);
-  check(second.ok && wired.fetch.calls[1].init.headers['x-dev-player'] === device, 'and the same id on the next request');
-  check(deviceId(wired.api) === device, 'and through the exported accessor');
-  // NEGATIVE CONTROL, MEASURED: the id was minted ONCE across two requests. A client that minted per call would
-  // make every request a different player, and the server's regime is keyed on the id.
-  check(wired.store.writes.length === 1, `NEGATIVE CONTROL: two requests wrote storage ${wired.store.writes.length} time(s)`);
+  // AN UNKNOWN MODE IS NOT `dev`, SO THE REQUEST CARRIES NO IDENTITY AT ALL. This is the check a BROWSER produced:
+  // a custom header makes the request non-simple, so it is preflighted, and a token mode deliberately does not
+  // advertise `x-dev-player` (`api/src/dev-server.ts`, pinned by `api/test/auth-probe.mjs`). MEASURED at
+  // `http://localhost:8089` against `DSQ_AUTH=emulate`: with the header unconditional, a signed-out player's demo
+  // drill answered `TypeError — the server could not be reached`, which is the one read §11.2 promises them.
+  // NEGATIVE CONTROL: the unconditional rule this replaced puts a device id here, and ONLY this check fails it.
+  check(device === undefined, 'a mode this client has not learned sends NO device id (that header would fail a token-mode preflight)');
+  check(call.init.headers.authorization === undefined, 'and no token, so the request claims to be nobody — which is what the server reads as a demo');
+  check(wired.store.writes.length === 0, `NEGATIVE CONTROL: and no device id was even minted (${wired.store.writes.length} storage write(s))`);
+
+  // IN `dev` THE DEVICE ID **IS** THE IDENTITY, and it must still be minted once and reused: a device id that
+  // changed per call would make every request a different player, and the server's whole regime is keyed on it.
+  const dev = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: 4, length: 12 } } });
+  dev.api.modeOverride = 'dev';
+  await issueDrill(2, dev.api);
+  const deviceIdSent = dev.fetch.calls[0].init.headers['x-dev-player'];
+  check(typeof deviceIdSent === 'string' && deviceIdSent.length > 0, `under dev the device id names the player (${deviceIdSent})`);
+  check(dev.store.map.get('dsq.game.device') === deviceIdSent, 'which was minted into storage on first use');
+  const second = await issueDrill(2, dev.api);
+  check(second.ok && dev.fetch.calls[1].init.headers['x-dev-player'] === deviceIdSent, 'and the same id on the next request');
+  check(deviceId(dev.api) === deviceIdSent, 'and through the exported accessor');
+  check(dev.store.writes.length === 1, `NEGATIVE CONTROL: two requests wrote storage ${dev.store.writes.length} time(s)`);
 }
 
 console.log('\n== 3. a session, when there is one, replaces the device id ==');

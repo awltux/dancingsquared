@@ -388,6 +388,17 @@ with its measurement, in the same commit that found it.
     (`[int]$_` over the line's characters — the corruption was `0x07`, not a missing character) showed what had
     happened. Use SINGLE-quoted strings for any pattern containing a backtick (doubling an inner `''`), or the
     editor tools, which take literal text.
+25. **A request header a mode does not ADVERTISE is not merely refused — the request is never sent, and the failure
+    looks like a dead server.** `api/src/dev-server.ts` puts `x-dev-player` in `access-control-allow-headers` only
+    when `DSQ_AUTH=dev` (a deliberate omission, pinned as a NEGATIVE CONTROL in `api/test/auth-probe.mjs`), and a
+    custom header makes a request non-simple, so the browser preflights it first. MEASURED: the game sent
+    `x-dev-player` for a signed-out caller in every mode, and against `DSQ_AUTH=emulate` the demo drill — the ONE
+    read §11.2 promises a signed-out player — came back as `TypeError — the server could not be reached`, with a
+    lone `204 OPTIONS /drill/current` and no request behind it in the dev server's own log. No status code, no
+    `401`, nothing to read. The identity header is now a function of the mode the server reported and the boot asks
+    `/health` BEFORE its first request; `game/src/net/standing.ts` and `game/test/standing-probe.mjs` pin the
+    rule. **When a cross-origin call fails as `TypeError`, read the dev server's log for an `OPTIONS` with no
+    request after it before believing anything about the server.**
 
 ---
 

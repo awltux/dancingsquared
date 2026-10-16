@@ -18,6 +18,9 @@
 // working one.
 import { newRunId } from '../game/store.ts';
 import { accessTokenOf, type SessionStore } from './session.ts';
+// A TYPE-ONLY IMPORT, so there is no runtime cycle: `auth.ts` calls this module's `apiCall`, and this module needs
+// only the NAME of the mode it discovers.
+import type { AuthMode } from './auth.ts';
 
 /** A refusal as the API writes it: a code for a program and a sentence for a person. */
 export interface ApiFailure {
@@ -85,8 +88,14 @@ export function apiConfigured(): boolean {
   return apiBase() !== '';
 }
 
-/** The real dependencies, from the browser. */
-function browserDeps(): ApiDeps {
+/**
+ * The real dependencies, from the browser.
+ *
+ * IT IS EXPORTED FOR THE SHELL, which needs the same dependencies `auth.ts` takes: the sign-in surface reads and
+ * writes the session through them. Every other caller uses the default argument below, so this stays the ONE place
+ * `import.meta.env` and `window.localStorage` are read (the reason it was built here rather than at each call site).
+ */
+export function browserDeps(): ApiDeps {
   const mode = import.meta.env?.VITE_AUTH_MODE;
   return {
     base: apiBase(),
@@ -117,11 +126,45 @@ export function deviceId(deps: ApiDeps): string {
   return minted;
 }
 
-/** The headers that say who is asking: the session's token if there is one, the device id otherwise. */
+/**
+ * THE MODE `/health` ANSWERED, remembered here because the dependencies are built per call.
+ *
+ * `browserDeps()` runs afresh for every defaulted call, and `deps.modeOverride` carries only a build-time PIN — so
+ * without this the identity decision below would have to be re-discovered (or guessed) per request. One anonymous
+ * read settles it for the page's lifetime, which is what §11.2 means by "the mode is discovered, not compiled in":
+ * the pin is the exception, the answer is the rule.
+ */
+let discoveredMode: AuthMode | null = null;
+
+/** Record what `/health` said. Called once by the shell after `discoverAuth`, and by nothing else. */
+export function rememberAuthMode(mode: AuthMode | null): void {
+  discoveredMode = mode;
+}
+
+/** The mode in force: the build-time pin if it names a real one, otherwise what the server answered. */
+function identityMode(deps: ApiDeps): AuthMode | null {
+  if (deps.modeOverride === 'dev' || deps.modeOverride === 'emulate' || deps.modeOverride === 'cognito') return deps.modeOverride;
+  return discoveredMode;
+}
+
+/**
+ * The headers that say who is asking: the session's token if there is one, the device id in `dev`, and NOTHING else.
+ *
+ * THE DEVICE HEADER IS SENT ONLY WHERE THE SERVER ADVERTISES IT, and sending it anywhere else is not the smaller
+ * mistake it looks like. A custom header makes a request non-simple, so the browser sends a CORS PREFLIGHT first, and
+ * a token mode's `access-control-allow-headers` deliberately omits `x-dev-player` (`api/src/dev-server.ts`, pinned as
+ * a NEGATIVE CONTROL in `api/test/auth-probe.mjs`) — the point of the omission being that a browser cannot even
+ * attempt to name a player by header in a mode where a header is not an identity. MEASURED in a real browser at
+ * `http://localhost:8089` against `DSQ_AUTH=emulate`: with this header unconditional, a signed-out player's demo
+ * drill came back as `TypeError — the server could not be reached`, which is the ONE read §11.2 promises them. An
+ * ABSENT identity header is also the honest request: it says "this call claims to be nobody", and the server answers
+ * the demo (A20). A mode this build could not learn is therefore NO header and not a device id.
+ */
 function identityHeaders(deps: ApiDeps): Record<string, string> {
   const token = accessTokenOf(deps);
   if (token) return { authorization: `Bearer ${token}` };
-  return { 'x-dev-player': deviceId(deps) };
+  if (identityMode(deps) === 'dev') return { 'x-dev-player': deviceId(deps) };
+  return {};
 }
 
 /** A non-2xx answer, as the API writes it — or a sentence of this module's when the body is not one. */
@@ -211,9 +254,15 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
  * A MALFORMED DRILL IS REFUSED RATHER THAN GENERATED FROM. This is the one shape check in this module that earns
  * its place: a missing `seed` would become `undefined` and the generator would draw a puzzle from it, which is a
  * wrong question presented as a right one.
+ *
+ * `demo` IS READ BECAUSE THE SERVER KNOWS SOMETHING THE CLIENT CANNOT. A signed-out caller is served the level's
+ * first entry with no Progress row written and this flag set (DESIGN.md §11.2), and it is the server's own word
+ * that the run about to be played cannot be ranked — so the app marks it unranked from the answer rather than
+ * inferring it from a session it may be wrong about (`net/standing.ts`). It was answered and dropped until the
+ * sign-in surface existed, which is the shape of gap §11.2's "the app has no sign-in surface" describes.
  */
-export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeCounts }>> {
-  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/current', {
+export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeCounts; demo: boolean }>> {
+  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown }; demo?: unknown }>(deps, '/drill/current', {
     method: 'GET',
     query: { level: String(level) },
   });
@@ -230,6 +279,9 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
     ok: true,
     value: {
       drill,
+      // THE SERVER'S OWN WORD, defaulted to `false` rather than inferred: an older server that does not send the
+      // flag is one this build cannot claim makes a run unranked, and the standing rule's other facts still apply.
+      demo: answer.value.demo === true,
       regime: {
         finished: typeof regime.finished === 'number' ? regime.finished : 0,
         length: typeof regime.length === 'number' ? regime.length : 0,

@@ -26,6 +26,22 @@
         <header id="head">
           <h1>Dancing Squared</h1>
           <p id="regime"></p>
+          <!-- THE ACCOUNT ROW IS THE SIGN-IN SURFACE (DESIGN.md §11.2), and it starts HIDDEN because both the
+               offline game and a `dev` server have no account to offer: `ui/account-screen.ts` reveals it only
+               when there is something true to say, and the form inside it only when `/health` advertises sign-in
+               routes — a form at a server that would answer 404 is the failure reading that list avoids. -->
+          <section id="account" hidden>
+            <p id="accountStatus"></p>
+            <form id="accountForm" hidden>
+              <input id="accountEmail" type="email" name="email" autocomplete="username" placeholder="you@example.com" aria-label="Email address" />
+              <input id="accountPassword" type="password" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password" />
+              <button id="accountSignIn" type="submit">Sign in</button>
+              <button id="accountSignUp" type="button">Create an account</button>
+              <input id="accountCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" aria-label="Confirmation code" hidden />
+              <button id="accountConfirm" type="button" hidden>Confirm</button>
+            </form>
+            <button id="accountSignOut" type="button" hidden>Sign out</button>
+          </section>
           <!-- THE TWO MODES ARE A CHOICE, NOT A SETTING: the Drill is the regime in order and the Daily is
                one issued challenge, and each has its own panel below. Switching keeps a Daily already in
                progress rather than restarting its clock — see `setMode` in `main.ts`. -->

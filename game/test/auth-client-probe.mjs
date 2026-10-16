@@ -174,9 +174,22 @@ console.log('\n== 3. the stored token is what the NEXT api call sends ==');
   const anonymous = wired({ '/drill/current': { status: 200, body: { drill: { id: '1:0', index: 0, levelIndex: 1, seed: 7, issuedAtMs: NOW, resumed: false }, regime: { finished: 0, length: 4 } } } });
   await issueDrill(1, anonymous.api);
   const anonHeaders = anonymous.fetch.calls[0].init.headers;
-  check(typeof anonHeaders['x-dev-player'] === 'string' && anonHeaders.authorization === undefined, `NEGATIVE CONTROL: signed out, the same call sends the device id instead (${anonHeaders['x-dev-player']})`);
-  check(anonymous.store.map.get('dsq.game.device') === anonHeaders['x-dev-player'], 'which was minted into storage on first use');
+  // SIGNED OUT, AND A MODE THIS PROBE DID NOT LEARN: NO identity header at all. The device id is a `dev`-only
+  // identity (`api.ts`'s `identityHeaders`), because a token mode refuses to advertise that header in CORS — a
+  // browser showed what sending it costs: the preflight fails and the demo read the server DOES serve arrives as
+  // `TypeError — the server could not be reached` (MEASURED at `http://localhost:8089`, `DSQ_AUTH=emulate`).
+  check(anonHeaders['x-dev-player'] === undefined && anonHeaders.authorization === undefined, 'NEGATIVE CONTROL: signed out, the same call claims to be nobody rather than naming a device');
+  check(anonymous.store.map.get('dsq.game.device') === undefined, 'and no device id was minted, because nothing needed one');
   check(currentPlayer(anonymous.api) === null, 'and the app reports nobody signed in');
+
+  // THE `dev` PATH IS THE ONE THAT WANTS THE DEVICE ID — the mode whose server advertises the header — and it must
+  // still mint exactly one, on first use.
+  const dev = wired({ '/drill/current': { status: 200, body: { drill: { id: '1:0', index: 0, levelIndex: 1, seed: 7, issuedAtMs: NOW, resumed: false }, regime: { finished: 0, length: 4 } } } });
+  dev.api.modeOverride = 'dev';
+  await issueDrill(1, dev.api);
+  const devHeaders = dev.fetch.calls[0].init.headers;
+  check(typeof devHeaders['x-dev-player'] === 'string', `under dev the device id names the player (${devHeaders['x-dev-player']})`);
+  check(dev.store.map.get('dsq.game.device') === devHeaders['x-dev-player'], 'and it was minted into storage on first use');
 }
 
 console.log('\n== 4. the refresh happens on the CLOCK, once, and a dead session is dropped ==');

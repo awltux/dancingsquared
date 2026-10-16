@@ -893,13 +893,28 @@ would have taken, the run row holds recorded **1** beside claimed **0**, a claim
 recorded is refused `unrecorded_hints`, and a challenge nobody read cannot be charged a hint at all
 (`no_attempt_row`). What is not yet true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
+**A20's client half is now true, and the last piece of it was a defect a browser found.** The app discovers the mode,
+runs the flow, keeps the session and **marks an unranked run on screen** (`paintLedger` and `paintBalance`, §11.2),
+and it reads the server's own `demo: true` rather than inferring the demo from a session it might be wrong about — so
+a run the server called a demo is never submitted. MEASURED in a real browser (Chrome, `npm run dev:game` on 8089,
+`DSQ_AUTH=emulate npm run dev:api` on 8090, server log read from the dev server itself): a signed-out page loads the
+demo drill and its press sends **no** request at all, while the same press after signing in is `200 POST
+/drill/answer`. AND THE FIRST VERSION OF THIS DID NOT WORK, which is why it is written down: the client sent
+`x-dev-player` unconditionally when signed out, a token mode deliberately does not advertise that header in CORS
+(§11.2, pinned as a negative control in `api/test/auth-probe.mjs`), and the resulting failed preflight answered the
+demo read as `TypeError — the server could not be reached` — MEASURED in that browser and visible in the dev server's
+own log as an `OPTIONS /drill/current` with no request behind it. The device header is now a `dev`-only identity
+(`game/src/net/api.ts`), the boot waits for `/health` before the first request, and the rule lives in
+`game/src/net/standing.ts`, where `game/test/standing-probe.mjs` drives every combination. What is not yet true, and
+the stage that lands it (AGENTS.md §0: one change, one commit):
+
 | Not yet enforced | Today | Lands in |
 |---|---|---|
-| A20's remaining client half | the server serves the demo and refuses the writes, and the client can discover the mode, sign up/in/refresh/out and keep the session (`game/src/net/auth.ts`, `session.ts` — 46 checks). The APP has no sign-in surface and does not yet mark a local run unranked | the sign-in surface and the unranked marking |
 | A22's Daily half | the Drill's presses are recorded and counted; the Daily still submits a line the server walks rather than a log of moves, and its `attempts` is 0 by design (§6) | `POST /daily/move` |
 | A23's naming | the spend is the server's and an abandoned challenge is recorded (`POST /daily/abandon`); the CALL a hint names is still computed by the client | `POST /daily/move` |
 | A25's remainder | EVERY endpoint's refusals increment the bounded `abuse#<playerId>` tally (the count is applied at the route table, so coverage is a property of the table); no structured log and no alarm yet | logging, the alarm, per-player throttling at the gateway |
-| A26's client half | the server keeps an imported ledger as unranked history and writes nothing else; the APP still holds its ledger locally and does not import it | the client's ledger import, with the sign-in surface |
+| A26's client half | the server keeps an imported ledger as unranked history and writes nothing else; the APP has a sign-in surface now and still does not IMPORT its device ledger | the client's ledger import, on sign-in |
+| the `cognito` flow | the surface offers a form only where `/health` advertises sign-in routes, which is `dev` (none) and `emulate` (the emulator's five); a deployed pool's hosted flow is not opened by this build | stage 7, with the pool |
 
 ### 11.2 Identity: three modes, and a local sign-in that needs no provider
 
@@ -911,6 +926,16 @@ requirements and they get two different modes. `DSQ_AUTH` selects one; the deplo
 | `dev` | the `x-dev-player` header, or `Bearer dev:<name>`, **treated as verified** | the ordinary local run and the probes: no accounts, no tokens, no provider. The boot banner says so (`auth: dev — x-dev-player: <name> names the player — NOT for production`) |
 | `emulate` | a **real JWT** issued and verified locally | testing the sign-in feature: signup → confirm → sign-in → refresh → expiry → sign-out, against the same verifier the deployment uses |
 | `cognito` | a Cognito access token, verified against the pool's JWKS | the deployment. `dev` is refused outright, and only the `cognito` path loads a JWKS — `emulate` builds the emulator instead, and the deployed adapter does not import the emulator at all |
+
+**A HEADER A MODE DOES NOT ACCEPT IS NOT SENT, AND THAT IS A BROWSER RULE RATHER THAN A STYLE ONE.** The `dev` mode's
+`x-dev-player` is advertised in `access-control-allow-headers` **only** when `DSQ_AUTH=dev` (`api/src/dev-server.ts`,
+pinned as a negative control by `api/test/auth-probe.mjs`): in a token mode the omission is the point, because it
+means a browser cannot even attempt to name a player by header. A CUSTOM HEADER MAKES A REQUEST NON-SIMPLE, so a
+client that sends it anyway has its preflight refused and gets no request at all — MEASURED in a browser as
+`TypeError — the server could not be reached` on the demo read, with a lone `OPTIONS /drill/current` in the dev
+server's log. So the client's identity header is a function of the mode the server reported (`game/src/net/api.ts`),
+a signed-out caller in a token mode sends **no** identity at all, and a mode the client has not learned yet is not
+treated as `dev` — the app asks `/health` BEFORE its first request for exactly this reason.
 
 **ONE VERIFIER, TWO KEY SOURCES.** `api/src/auth/verify.ts` checks a JWT's signature, issuer, audience, expiry and
 `sub` with a pluggable key source — the emulator's local key, or Cognito's JWKS fetched and cached — so the

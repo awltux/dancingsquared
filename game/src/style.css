@@ -100,6 +100,75 @@ body {
   font-weight: 600;
 }
 
+/* THE ACCOUNT ROW (DESIGN.md §11.2): under the regime line and above the mode switch, because whether a run is
+   ranked is a fact about the SESSION rather than about either mode. It is `hidden` until the app has something
+   true to say, so an offline build and a `dev` server draw nothing here at all.
+   THE TOUCH TARGETS MATCH THE MODE SWITCH's 44px — the audience is the reason that number was chosen there. */
+#account {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: #121d28;
+}
+
+#accountStatus {
+  margin: 0;
+  color: var(--dim);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+#accountStatus[data-kind="ok"] {
+  color: var(--ok);
+}
+
+#accountStatus[data-kind="bad"] {
+  color: var(--bad);
+}
+
+#accountForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#accountForm input {
+  flex: 1 1 9rem;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: #0d1620;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+}
+
+#accountForm button,
+#accountSignOut {
+  min-height: 44px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: #16222e;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#accountForm button:hover,
+#accountSignOut:hover {
+  border-color: var(--accent);
+}
+
+#accountSignOut {
+  margin-top: 10px;
+}
+
 #prompt,
 #dailyPrompt {
   font-size: 1.15rem;

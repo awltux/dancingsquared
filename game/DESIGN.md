@@ -2006,23 +2006,32 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     `POST /runs` → `GET /drill/current` (Q21's rule doing its work), so the guard hides it for a demo and for nobody
     else. The alternative this entry weighed — let a demo re-issue the same entry — is rejected: it shows one drill
     forever, which reads as a broken button in a different way.
-    **THE PREDICATE WAS TOO WIDE AND A PRACTICE RUN PROVED IT** (filed as Q23, fixed in the change that follows):
-    `demoOnly` asked `serverDrill !== null`, and `serverDrill` is shell state that is NOT cleared when the practice
-    offer takes over — the last SERVER-ISSUED drill sits in it while the drill on screen is the device's own fixture.
-    So on a practice run the verdict said "…as far as a signed-out drill goes — the season is the server's, so sign
-    in…" and "Next drill" was hidden, which is wrong twice: the player IS signed in, and a practice run must not be
-    what stops them returning to the season. The fact wanted is "the drill on screen came from the server", which is
-    `serverDrill !== null && !practiceRun` — and Q5's `skipOffered` needs the same fact, which is why the fix is a
-    named helper rather than a second condition.
-23. **A practice run is told it is signed out — FOUND BY THE GAPS SESSION, OPEN until the next change.** With Q22's
-    rule as written, the practice path (`startPractice` → `startDrill` → `showDrill`) leaves `serverDrill` holding the
-    last server-issued drill, so `demoOnly` fires and the practice verdict reads "…That is as far as a signed-out drill
-    goes — the season is the server's, so sign in to be issued the next one." while the account row says "Signed in as
-    gaps@example.com" and the ledger says "unranked: a practice drill, so it is kept here and never submitted". The
-    same stale fact also suppresses "Next drill". MEASURED: the practice run above shows both sentences side by side.
-    *Recommendation*: ask the fact that means what it says — the drill on screen is the server's iff
-    `serverDrill !== null && !practiceRun` — and use it for Q22's verdict and for Q5's `skipOffered`, which currently
-    reaches the right answer for a practice drill only because `mayWrite` happens to be false there too.
+    **THE PREDICATE WAS TOO WIDE AND A PRACTICE RUN PROVED IT** (filed and fixed as Q23): `demoOnly` asked
+    `serverDrill !== null`, and `serverDrill` is shell state that is NOT cleared when the practice offer takes over —
+    the last SERVER-ISSUED drill sits in it while the drill on screen is the device's own fixture. So on a practice run
+    the verdict said "…as far as a signed-out drill goes — the season is the server's, so sign in…" and "Next drill"
+    was hidden, which is wrong twice: the player IS signed in, and a practice run must not be what stops them
+    returning to the season.
+23. **A practice run is told it is signed out — DECIDED AND IMPLEMENTED.** With Q22's rule as written, the practice
+    path (`startPractice` → `startDrill` → `showDrill`) leaves `serverDrill` holding the last server-issued drill, so
+    `demoOnly` fired: the practice verdict read "…That is as far as a signed-out drill goes — the season is the
+    server's, so sign in to be issued the next one." while the account row said "Signed in as …" and the ledger said
+    "unranked: a practice drill, so it is kept here and never submitted", and "Next drill" was suppressed.
+    **THE FIX IS A NAMED FACT RATHER THAN A SECOND CONDITION**: `serverIssued()` is
+    `serverDrill !== null && !practiceRun` — `practiceRun` is what `startDrill` sets and `startServerDrill` clears —
+    and every caller that means "the server's drill" now asks it instead of the variable: Q22's verdict, Q5's
+    `skipOffered`, the press and the reveal guards, the submission guard, and `issuedSeed()` (which was reading the
+    stale drill's SEED for a fixture run — the same bug one field further on, found by grepping for the variable
+    rather than by the browser). It mattered in one more place than the browser showed: `startServerDrill`'s advance
+    guard advanced `serverDrill.id` for a practice run's "Next drill", so returning to the season from a practice run
+    would have asked the server to advance a stale id and been refused.
+    **MEASURED IN A BROWSER** (the API stopped, so the offer is reached by a failed read): the practice run now reads
+    the plain **"Solved in 28.0 s, first try — 54 points."** with no signed-out sentence, the ledger keeping its
+    "unranked: a practice drill…" clause, and **"Next drill" IS offered**; pressing it shows the READ's failure —
+    **"No drill from the server: the server could not be reached (TypeError)"** — rather than the advance's
+    ("The server would not advance this drill: …"), which is how the stale advance is shown to be gone. No probe can
+    pin any of this (`main.ts` is not probe-loadable), so the instrument is the browser check and this paragraph is
+    its recipe.
 24. **A failed issue leaves the previous drill's buttons looking live — FOUND BY THE GAPS SESSION, AND OPEN.** When
     `issueDrill` fails — the season complete, an outage — `startServerDrill` sets `controller = null` and calls
     `drillScreen.render(null)`, and `render` returns immediately by design, so the LAST question and its three option

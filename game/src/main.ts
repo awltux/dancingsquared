@@ -873,7 +873,7 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   els.loading.hidden = false;
   els.loading.textContent = next === 'advance' ? 'Asking the server for your next drill…' : 'Asking the server for your drill…';
 
-  if (next === 'advance' && serverDrill) {
+  if (next === 'advance' && serverIssued() && serverDrill) {
     const advanced = await advanceDrill(serverDrill.id);
     if (!advanced.ok) {
       els.loading.hidden = true;
@@ -959,8 +959,10 @@ function issueCurrentDrill(next: 'current' | 'advance'): void {
  *
  * THE RUN IS STILL KEPT ON THIS DEVICE, and that is deliberate rather than an oversight: the local ledger is what
  * A26 later imports as UNRANKED HISTORY, which is exactly what a practice run is — a run the server never issued,
- * which buys no standing (§11.1). What it is NOT is a submission: `serverDrill` is null on this path, so `finishDrill`
- * has nothing to submit and credits the local rule instead.
+ * which buys no standing (§11.1). What it is NOT is a submission: the drill on screen is the fixture, so
+ * `serverIssued()` is false, `finishDrill` has nothing to submit and credits the local rule instead. (This comment
+ * used to say `serverDrill` is null on this path, which is true only when the offer is taken before any server drill
+ * was ever issued — once a season is complete the variable still holds the last one, and that stale fact is Q23.)
  */
 function startPractice(): void {
   els.practice.hidden = true;
@@ -991,9 +993,11 @@ function answer(choice: number | 'unknown'): void {
   //
   // AND A PRESS IS A WRITE, so a demo does not send one: `POST /drill/answer` requires an identity (A20), and the
   // presses of a run that will never be submitted could only ever be refusals on A25's tally. The transcript still
-  // accumulates locally, because the local run record keeps it.
-  if (serverDrill && mayWrite(currentStanding())) {
-    const drillId = serverDrill.id;
+  // accumulates locally, because the local run record keeps it. THE DRILL ASKED FOR THE PREVIOUS LINE, through the
+  // fact rather than the variable, so a fixture drill on a server-configured page cannot post against a stale id (Q23).
+  const issued = serverIssued() ? serverDrill : null;
+  if (issued && mayWrite(currentStanding())) {
+    const drillId = issued.id;
     const call = result.call;
     pressLog = pressLog.then(() => recordDrillAnswer(drillId, stepIndex, call));
   }
@@ -1049,12 +1053,27 @@ function review(): void {
   if (!controller || !applier || PLAYHEAD.isRunning || controller.atEnd) return;
   const stepIndex = controller.view().stepIndex;
   const option = controller.review();
-  if (serverDrill && mayWrite(currentStanding())) {
-    const drillId = serverDrill.id;
+  const issued = serverIssued() ? serverDrill : null;
+  if (issued && mayWrite(currentStanding())) {
+    const drillId = issued.id;
     revealLog = revealLog.then(() => recordDrillReveal(drillId, stepIndex));
   }
   drillScreen.say(`The answer is ${option.call}.`, 'info');
   startReplay(applier.motion([option.call], controller.view().from), 'settle');
+}
+
+/**
+ * Whether the drill on screen is one the SERVER issued — as opposed to this device's own fixture (DESIGN.md §15 Q23).
+ *
+ * `serverDrill` ALONE IS NOT THAT FACT, and a browser check measured the difference on the practice path: taking
+ * Q20's offer calls `startDrill`, which paints the fixture drill while `serverDrill` still holds the last
+ * SERVER-ISSUED one, so a test of `serverDrill !== null` reported "the server issued this" for a drill the server had
+ * never seen. `practiceRun` is the flag that path sets (`startDrill` sets it, `startServerDrill` clears it), so the
+ * two together are the fact — and every caller that means "the server's drill" asks this rather than the variable, so
+ * one stale fact cannot reappear at the next call site.
+ */
+function serverIssued(): boolean {
+  return serverDrill !== null && !practiceRun;
 }
 
 /**
@@ -1065,11 +1084,12 @@ function review(): void {
  * by, and the reason a DEMO is offered nothing (Q22: there is no Progress row to advance, so the request is a `401`).
  * An OFFLINE drill is left behind by the local position alone, so the control is honest there too — and it is the
  * only way out of one there, since "Next drill" appears only after a solve. A PRACTICE drill is NEITHER: it is the
- * app's own fixture on a server-configured page, so there is no server entry to close, and the control that returns
- * the player to the season is "Next drill".
+ * app's own fixture, so there is no server entry to close, and the control that returns the player to the season is
+ * "Next drill" (which is why Q23's fix had to reach this too — before it, a practice drill was refused the control
+ * for the right answer and the wrong reason).
  */
 function skipOffered(): boolean {
-  if (serverDrill) return mayWrite(currentStanding());
+  if (serverIssued()) return mayWrite(currentStanding());
   return !apiConfigured();
 }
 
@@ -1134,7 +1154,7 @@ function finishDrill(): void {
   // says what WOULD move the season on, in the place the player is already reading. The rule is `mayWrite` — the same
   // predicate the submission, the press and the reveal are guarded by (`net/standing.ts`, pinned in
   // `game/test/standing-probe.mjs`) — consulted at the one call site that was missing it.
-  const demoOnly = serverDrill !== null && !mayWrite(currentStanding());
+  const demoOnly = serverIssued() && !mayWrite(currentStanding());
   const scored = `Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points`;
   // THE VERDICT SAYS WHAT THE RUN IS WORTH, and a shown answer changes that to nothing (DESIGN.md §15 Q16, A28): the
   // score is still shown — the player solved it and the clock ran — and the sentence says which standing it bought,
@@ -1165,7 +1185,7 @@ function finishDrill(): void {
   // local rule credits the success instead, exactly as it does when the server cannot be reached.
   // AND A REVEALED RUN IS NOT CREDITED BY EITHER RULE (DESIGN.md §15 Q16, A28): `creditLocally` applies it for the
   // offline and outage paths, and the server applies it for the submitted path, so the three agree.
-  if (apiConfigured() && serverDrill && mayWrite(currentStanding())) void submitSolvedRun(score, clockSeconds);
+  if (apiConfigured() && serverIssued() && mayWrite(currentStanding())) void submitSolvedRun(score, clockSeconds);
   else creditLocally();
   drillScreen.render(controller);
   captions(controller.view().from, controller.puzzleRef.goal);
@@ -1179,7 +1199,8 @@ function finishDrill(): void {
 
 /** The seed the drill on screen was generated from — the server's, or the fixture's at this position. */
 function issuedSeed(): number {
-  return serverDrill ? serverDrill.seed : scheduleEntryFor(position).seed;
+  const issued = serverIssued() ? serverDrill : null;
+  return issued ? issued.seed : scheduleEntryFor(position).seed;
 }
 
 /**

@@ -47,7 +47,18 @@ export class DrillScreen {
 
   /** The current step's question, or the solved state. */
   render(controller: DrillController | null): void {
-    if (!controller) return;
+    // NO DRILL IS ON SCREEN, SO NOTHING MAY LOOK PRESSABLE (DESIGN.md §15 Q24). This used to return here and leave the
+    // last question and its options standing, which made a failed issue — the season complete, an outage — look like
+    // a live question. They were inert, because every handler in `main.ts` guards on `controller`, but a control that
+    // looks live and silently does nothing is exactly what this file's own out-of-range comment calls worse than a
+    // message. THE BOARD STAYS (the picture is where the player was, and clearing it is the caller's business); the
+    // QUESTION goes, and the prompt says there is nothing to play while the verdict line — which the caller has
+    // already set — says why.
+    if (!controller) {
+      this.els.prompt.textContent = 'No drill to play.';
+      this.els.answers.replaceChildren();
+      return;
+    }
     const view: DrillView = controller.view();
 
     this.els.prompt.textContent = view.atEnd

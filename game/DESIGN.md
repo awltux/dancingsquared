@@ -2032,16 +2032,23 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     ("The server would not advance this drill: …"), which is how the stale advance is shown to be gone. No probe can
     pin any of this (`main.ts` is not probe-loadable), so the instrument is the browser check and this paragraph is
     its recipe.
-24. **A failed issue leaves the previous drill's buttons looking live — FOUND BY THE GAPS SESSION, AND OPEN.** When
-    `issueDrill` fails — the season complete, an outage — `startServerDrill` sets `controller = null` and calls
-    `drillScreen.render(null)`, and `render` returns immediately by design, so the LAST question and its three option
-    buttons stay on screen. They are inert (every handler guards on `!controller`: `answer`, `review`, `skipDrill` were
-    all checked), but a control that looks live and silently does nothing is the thing this repo calls a defect in its
-    own words — `answer`'s out-of-range branch says "surfacing it as a message beats a silent no-op on a button that
-    looked live". MEASURED twice in one session: after the season-complete refusal, and again after the offer was
-    declined by signing out and back in. *Recommendation*: clear or disable the options when no controller is on
-    screen — the honest place is `DrillScreen.render(null)`, which is the one call that already means "there is no
-    drill" — and say in the prompt that the season is over rather than leaving the old question up.
+24. **A failed issue leaves the previous drill's buttons looking live — DECIDED AND IMPLEMENTED.** When `issueDrill`
+    fails — the season complete, an outage — `startServerDrill` sets `controller = null` and calls
+    `drillScreen.render(null)`, and `render` returned immediately, so the LAST question and its three option buttons
+    stayed on screen. They were inert (every handler guards on `!controller`: `answer`, `review` and `skipDrill` were
+    each checked rather than assumed), but a control that looks live and silently does nothing is the thing this repo
+    calls a defect in its own words — `answer`'s out-of-range branch exists because "surfacing it as a message beats a
+    silent no-op on a button that looked live". MEASURED twice in one session: after the season-complete refusal, and
+    again after the offer was declined by signing out and back in.
+    **WHAT SHIPS** is the recommendation, in the place it named: `DrillScreen.render(null)` — the one call that already
+    means "there is no drill" — clears the OPTIONS and says "No drill to play." in the prompt, while leaving the BOARD
+    alone (the picture is where the player was, and clearing it is the caller's business) and leaving the VERDICT line
+    to the caller, which has already put the reason there. **MEASURED IN A BROWSER** (dev:game 8089 with the API
+    stopped, so the offer is reached by a failed read): the panel reads "No drill to play." over the last board, with
+    the verdict "No drill from the server: the server could not be reached (TypeError)", NO answer buttons at all, and
+    the labelled offer standing; and as the NEGATIVE CONTROL, taking the offer restores the question and three live
+    options for the fixture drill. No probe can pin this: `DrillScreen` is DOM, and the game's probe layer does not
+    load `src/ui/`.
 
 ---
 

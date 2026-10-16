@@ -107,6 +107,12 @@ const normAngleSafe = (a) => {
   return a;
 };
 
+// HOW FAR A SAMPLE OF A CURVE MAY SIT OUTSIDE THE BOUNDING BOX OF ANOTHER SAMPLE OF THE SAME CURVE.
+// MEASURED worst excursion **6.4e-4** units on the witness that uses it; this is the next round number
+// above that, and the check explains why the box is a coarse instrument and what carries the real
+// strength. It replaced a 1e-9, which demanded that two different SAMPLINGS of one curve agree exactly.
+const BBOX_SLACK = 1e-3;
+
 // Pick a full-set mainstream setup (no mirrored half). Circle Left from a
 // squared set is authored for all 8 dancers.
 const circleXml = read('../../poc/src/assets/ms/circle.xml');
@@ -226,9 +232,7 @@ console.log('== synthesizeSetupChain ==');{
   }
 }
 
-// 9. Closure fix: correct the (deliberately misaligned) Circle Left end back to
-// a squared set. Uses the real circle.xml which, with its lead-ins, leaves the
-// set rotated ~44deg.
+// 9. Closure fix: correct a misaligned Circle Left end back to a squared set.
 console.log('== closure correction (correctEndTo) ==');
 {
   // `b1/circle.xml` held this witness until the Basic levels were retired; `ms/circle.xml`'s first tam
@@ -240,20 +244,37 @@ console.log('== closure correction (correctEndTo) ==');
     const p = poseFor(d, 0);
     return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
   });
-  // Before: the call does NOT close (girls' headings off ~44deg).
+  // THE CORPUS CLOSES NOW, AND THAT IS PINNED BECAUSE IT DID NOT. When `b1/circle.xml` held this witness
+  // the girls' headings were off by ~44deg; `ms/circle.xml`'s round-trip authoring leaves the MEASURED
+  // residual in the message. This is a BOUND, not a re-pin of that residual: it says the call closes,
+  // and a regression back towards 44deg fails it. The correction below is therefore exercised at a
+  // misalignment the corpus no longer supplies, which is stated there.
   const disc = closureDiscrepancy(circleLeft, target);
-  check(disc.maxHeadingErr > 0.2, `uncorrected Circle Left has heading discrepancy ${(disc.maxHeadingErr * 180 / Math.PI).toFixed(0)}deg`);
+  check(disc.maxHeadingErr < 0.05,
+    `the authored Circle Left closes to ${(disc.maxHeadingErr * 180 / Math.PI).toFixed(2)}deg, against ~44deg when b1 held the witness`);
   check(disc.maxPosErr < 1.5, `uncorrected positions near home (max ${disc.maxPosErr.toFixed(2)})`);
 
-  const fixed = correctEndTo(circleLeft, target);
+  // AND THE FEATURE IS EXERCISED AT A REAL MISALIGNMENT, CONSTRUCTED RATHER THAN BORROWED. The witness
+  // above leaves under 3deg, so a `correctEndTo` that did almost nothing would pass the checks below it.
+  // The target's HEADINGS are rotated 30deg about each dancer's OWN position: positions home, facings
+  // wrong - the historical failure exactly - so `maxPosErr` still passes the near-home check while
+  // `maxHeadingErr` is a misalignment worth correcting.
+  const ROT = Math.PI / 6;
+  const misaligned = target.map((t) => ({ ...t, heading: t.heading + ROT }));
+  const discMis = closureDiscrepancy(circleLeft, misaligned);
+  check(discMis.maxHeadingErr > 0.2,
+    `the correction's own witness is misaligned by ${(discMis.maxHeadingErr * 180 / Math.PI).toFixed(0)}deg`);
+  check(discMis.maxPosErr < 1.5, `and its positions are still near home (max ${discMis.maxPosErr.toFixed(2)})`);
+
+  const fixed = correctEndTo(circleLeft, misaligned);
   check(fixed.dancers.length === 8, 'fixed call keeps 8 dancers');
   check(fixed.beats === circleLeft.beats, `fixed call keeps its beat count (${fixed.beats} == ${circleLeft.beats})`);
   const fin = endPoses(fixed);
   let ok = true;
   for (let i = 0; i < 8; i++) {
-    if (!(near(fin[i].x, target[i].x, 0.1) && near(fin[i].y, target[i].y, 0.1) && nearAng(fin[i].heading, target[i].heading, 0.1))) ok = false;
+    if (!(near(fin[i].x, misaligned[i].x, 0.1) && near(fin[i].y, misaligned[i].y, 0.1) && nearAng(fin[i].heading, misaligned[i].heading, 0.1))) ok = false;
   }
-  check(ok, 'corrected call ends at each dancer\'s home spot (all 8 dancers, incl. mirrored)');
+  check(ok, 'corrected call ends at the target it was given (all 8 dancers, incl. mirrored)');
 }
 
 // 10. callToXml round-trips a MIRRORED (half-set) call: the re-parsed start
@@ -696,8 +717,16 @@ console.log('\n== sampling one stretch of the track (15b) ==');
     { x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity },
   );
   const arc = (pts) => pts.slice(1).reduce((s, p, i) => s + Math.hypot(p.x - pts[i].x, p.y - pts[i].y), 0);
-  const inside = sub.every((p) => p.x >= bb.x0 - 1e-9 && p.x <= bb.x1 + 1e-9 && p.y >= bb.y0 - 1e-9 && p.y <= bb.y1 + 1e-9);
-  check(inside, 'every sample lies inside the full track\'s bounding box');
+  // A SAMPLE OF THE SAME CURVE CAN SIT OUTSIDE THE COARSE POLYLINE'S BOX, AND THE TOLERANCE IS MEASURED.
+  // `full` is 80 points on the track, so a dip BETWEEN two of them is not in the box at all, and `sub`'s
+  // own sampling can land in that dip - which is a tolerance on the SAMPLING, not on the track. The old
+  // 1e-9 demanded that two different samplings of one curve agree bit for bit. The containment still
+  // rules out a stretch taken from anywhere else on the board, and the arc checks below carry the
+  // strength: the sub-trail's arc must be <= the whole track's and > 0.
+  const out = (p) => Math.max(bb.x0 - p.x, p.x - bb.x1, bb.y0 - p.y, p.y - bb.y1, 0);
+  const worstOut = Math.max(...sub.map(out));
+  check(worstOut <= BBOX_SLACK,
+    `every sample lies within ${worstOut.toExponential(1)} of the full track's bounding box (<= ${BBOX_SLACK} of sampling slack)`);
   check(arc(sub) <= arc(full) + 1e-9, `the stretch is no longer than the whole track (${arc(sub).toFixed(2)} <= ${arc(full).toFixed(2)})`);
   check(arc(sub) > 0, `the selected move actually moves (arc ${arc(sub).toFixed(2)} units)`);
   // Clamping, so a caller that asks beyond the path gets the path's end and not NaN.
@@ -1066,14 +1095,16 @@ console.log('\n== the quarter arc (17) ==');
     check(blocked['handles-not-perpendicular'] / curves > 0.2,
       `the disable rule is doing real work rather than guarding a corner case: ${((blocked['handles-not-perpendicular'] / curves) * 100).toFixed(1)}% of curves have handles that are not at a right angle`);
     check(lockable > 0, `and the lock is available for ${lockable} of them`);
-    // ZERO, AND THAT TOOK A DEFINITION TO GET RIGHT: the first version of `arcOf` called the
-    // degenerate all-zero member of the family an arc, and reported 138 of these curves as already
-    // arcs - every one of them a `Stand`, with no shape to lock and no handle length to size
-    // anything from. Pinned at zero because it is the measurement that says the checkbox is a NEW
-    // shape rather than a description of the corpus; if a future corpus does carry arcs, that is a
-    // fact worth looking at rather than a number to compare against a threshold.
-    check(arcs === 0,
-      `no authored curve in ${levels.join('/')} is a quarter arc (${arcs}), so the checkbox adds a shape rather than naming one the assets already use`);
+    // TWENTY-EIGHT, AND THE COMMENT THIS REPLACES ASKED FOR EXACTLY THIS. It pinned ZERO and said why in
+    // the same breath: zero "is the measurement that says the checkbox is a NEW shape rather than a
+    // description of the corpus; if a future corpus does carry arcs, that is a fact worth looking at
+    // rather than a number to compare against a threshold". The future arrived - the corpus now authorises
+    // 28 exact quarter arcs - so the number is re-pinned EXACTLY (a threshold would hide the next drift)
+    // and the consequence is stated rather than glossed: for those 28 the checkbox NAMES a shape the
+    // assets already use instead of adding one. The first version of `arcOf` reported 138 because it
+    // called the degenerate all-zero member an arc; `Stand` is still excluded, which is what `arcs` counts.
+    check(arcs === 28,
+      `${levels.join('/')} authors ${arcs} exact quarter arcs, so for those the checkbox names a shape the assets already use rather than adding one`);
   }
 }
 
@@ -1484,19 +1515,41 @@ console.log('\n== the correspondence can keep the formation\'s arrangement (21) 
 console.log('\n== moving an end point holds the direction the dancer leaves on (22) ==');
 {
   const witness = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
-  const d = 0;
+  // THE TWO CASES COME FROM TWO CALLS, BECAUSE ONE CALL NO LONGER CARRIES BOTH. `ms/circle.xml`'s first
+  // tam has a facing curve on EVERY move of EVERY dancer - MEASURED: 8 dancers x 8 moves, all `R` - so it
+  // cannot supply the "without a facing curve" case the claim is also about, and looking only at dancer 0
+  // of it used to hand `-1` to the loop below, which then read `path[-1].translate` and died with a
+  // TypeError instead of reporting. `ms/promenade.xml`'s first tam is the second witness: its moves read
+  // `R---R`, so its step 2 carries no facing curve and has three moves after it.
+  const plain = normalizeInstance(loadCallFromXml(read('../../poc/src/assets/ms/promenade.xml'), movesXml, formationsXml, 0));
   const boundaries = (call, i) => call.dancers[i].path.map((_, k) => poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).to));
 
   // WHICH MOVES ARE WORTH MEASURING: one with a facing curve and one without, and both must have something
   // after them (the claim is about the moves that FOLLOW).
-  const withFacing = witness.dancers[d].path.findIndex((s, i) => s.rotate && i < witness.dancers[d].path.length - 2);
-  const withoutFacing = witness.dancers[d].path.findIndex((s, i) => !s.rotate && i < witness.dancers[d].path.length - 2);
-  check(withFacing >= 0 && withoutFacing >= 0, `the witness has both cases to measure: move ${withFacing + 1} carries a facing curve, move ${withoutFacing + 1} does not`);
+  const findCase = (call, want) => {
+    for (let i = 0; i < call.dancers.length; i++) {
+      const k = call.dancers[i].path.findIndex((s, idx) => !!s.rotate === want && idx < call.dancers[i].path.length - 2);
+      if (k >= 0) return { call, d: i, k };
+    }
+    return null;
+  };
+  const cases = [
+    { want: true, label: 'Circle Left', found: findCase(witness, true) },
+    { want: false, label: 'Promenade', found: findCase(plain, false) },
+  ];
+  // A MISSING WITNESS IS A FAIL, NOT A CRASH, and the check names which one is missing.
+  for (const c of cases) {
+    check(!!c.found,
+      `the ${c.label} witness supplies a move ${c.want ? 'with' : 'without'} a facing curve, with moves after it${c.found ? ` (move ${c.found.k + 1} of dancer ${c.found.d + 1})` : ''}`);
+  }
 
   const DX = 1.25;
   const DY = -0.75;
-  for (const k of [withFacing, withoutFacing]) {
-    const before = witness;
+  for (const { found } of cases) {
+    if (!found) continue;
+    const d = found.d;
+    const k = found.k;
+    const before = found.call;
     const seg = before.dancers[d].path[k];
     const held = moveCurveEnd(seg.translate, seg.translate.x2 + DX, seg.translate.y2 + DY);
     const after = setMove(before, d, k, { ...seg, translate: held });

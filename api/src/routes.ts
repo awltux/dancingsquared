@@ -12,6 +12,7 @@ import { postHint } from './handlers/hints.ts';
 import { postAbandon } from './handlers/abandon.ts';
 import { postDrillAnswer } from './handlers/answer.ts';
 import type { Handler } from './ports.ts';
+import { countingRefusals } from './abuse.ts';
 
 export interface Route {
   readonly method: string;
@@ -31,13 +32,13 @@ export interface Route {
  * `/health`'s "how many are left" number stop meaning anything the moment the first of them landed.
  */
 export const ROUTES: readonly Route[] = [
-  { method: 'GET', path: '/drill/current', handler: drillCurrent, purpose: 'the drill this player is on' },
-  { method: 'GET', path: '/puzzle', handler: getPuzzle, purpose: "the published challenge for a level and day" },
-  { method: 'POST', path: '/drill/advance', handler: drillAdvance, purpose: 'mark the issued drill finished' },
-  { method: 'POST', path: '/drill/answer', handler: postDrillAnswer, purpose: 'record one press against the issued drill' },
-  { method: 'POST', path: '/me/hints', handler: postHint, purpose: 'spend one hint, debit the balance and record the event' },
-  { method: 'POST', path: '/daily/abandon', handler: postAbandon, purpose: 'record that a player gave up on a challenge' },
-  { method: 'POST', path: '/runs', handler: postRun, purpose: 'record a completed run, verified by regeneration' },
+  { method: 'GET', path: '/drill/current', handler: countingRefusals(drillCurrent), purpose: 'the drill this player is on' },
+  { method: 'GET', path: '/puzzle', handler: countingRefusals(getPuzzle), purpose: "the published challenge for a level and day" },
+  { method: 'POST', path: '/drill/advance', handler: countingRefusals(drillAdvance), purpose: 'mark the issued drill finished' },
+  { method: 'POST', path: '/drill/answer', handler: countingRefusals(postDrillAnswer), purpose: 'record one press against the issued drill' },
+  { method: 'POST', path: '/me/hints', handler: countingRefusals(postHint), purpose: 'spend one hint, debit the balance and record the event' },
+  { method: 'POST', path: '/daily/abandon', handler: countingRefusals(postAbandon), purpose: 'record that a player gave up on a challenge' },
+  { method: 'POST', path: '/runs', handler: countingRefusals(postRun), purpose: 'record a completed run, verified by regeneration' },
 ];
 
 /** How many endpoints DESIGN.md 11 lists, so `/health` can report the gap without a second list. */

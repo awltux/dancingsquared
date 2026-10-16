@@ -14,7 +14,7 @@
 // a submission because its AUDIT failed would tell a player their run was rejected for a reason they cannot act on,
 // and would hand a cheater a way to make refusals expensive. `recordRefusal` returns whether it landed, and only a
 // probe reads that.
-import { MAX_WRITE_ATTEMPTS, type Deps } from './ports.ts';
+import { MAX_WRITE_ATTEMPTS, type Deps, type Handler } from './ports.ts';
 import { abuseKey } from './keys.ts';
 
 /** How many distinct refusal codes one player's row remembers. The rest still count toward the total. */
@@ -89,4 +89,26 @@ export async function recordRefusal(deps: Deps, playerId: string, code: string):
     if (await deps.store.put(key, asAbuseItem(countRefusal(current, code, deps.clock.nowMs())), stored?.rev ?? null)) return true;
   }
   return false;
+}
+
+/**
+ * A handler that counts its OWN refusals, so every endpoint is covered by construction.
+ *
+ * IT IS APPLIED AT THE ROUTE TABLE (`routes.ts`), which is the one place every endpoint is named: counting inside
+ * each handler is the shape that leaves the thirteenth refusal uncounted, and it was measured here — the run
+ * endpoint needed a `postRun`/`postRunOnce` split to get a single point, and a second wrapper anywhere would
+ * double-count every refusal it saw.
+ *
+ * A REFUSAL WITH NO IDENTITY IS NOT ATTRIBUTED TO ANYBODY: a 401 has no player to charge, and inventing one (a
+ * device id, a remote address) would put another account's probing on the wrong row.
+ */
+export function countingRefusals(handler: Handler): Handler {
+  return async (request, deps) => {
+    const result = await handler(request, deps);
+    if (result.status >= 400) {
+      const playerId = deps.identityOf(request)?.playerId;
+      if (playerId) await recordRefusal(deps, playerId, refusalCode(result.body));
+    }
+    return result;
+  };
 }

@@ -10,6 +10,7 @@
 import { drillCurrent } from '../src/handlers/drill.ts';
 import { postDrillAnswer } from '../src/handlers/answer.ts';
 import { postRun } from '../src/handlers/runs.ts';
+import { routeFor } from '../src/routes.ts';
 import { STATUS } from '../src/status.ts';
 import { abuseKey } from '../src/keys.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
@@ -34,6 +35,15 @@ const get = (player) => ({ method: 'GET', path: '/drill/current', query: { level
 const press = (player, drillId, step, call) => ({ method: 'POST', path: '/drill/answer', query: {}, body: { drillId, step, call }, headers: { 'x-dev-player': player } });
 const submit = (player, body) => ({ method: 'POST', path: '/runs', query: {}, body, headers: { 'x-dev-player': player } });
 
+/**
+ * THE ROUTE'S HANDLER, NOT THE BARE ONE.
+ *
+ * The count is applied at the route table (`routes.ts`), so a probe that called the handler directly would be
+ * measuring a version of the endpoint the server never serves — and it would measure NOTHING, which is exactly what
+ * the first version of this file did (four checks went red the moment the wiring moved).
+ */
+const routed = (method, path) => routeFor(method, path).handler;
+
 async function fresh() {
   const store = new MemoryStore();
   await seedLocalRegimes(store);
@@ -47,7 +57,7 @@ async function issue(deps, player) {
   const generated = puzzleFor(drill.seed, levelAt(LEVEL));
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   const correct = generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call);
-  for (let step = 0; step < correct.length; step++) await postDrillAnswer(press(player, drill.id, step, correct[step]), deps);
+  for (let step = 0; step < correct.length; step++) await routed('POST', '/drill/answer')(press(player, drill.id, step, correct[step]), deps);
   return { drill, correct, puzzle: generated.puzzle };
 }
 
@@ -62,13 +72,13 @@ console.log('== 1. a refused run is counted, by the code the API answered with =
   // check passes) and NO press was recorded, which is `no_press_log` — the refusal that says the count cannot be
   // made. MEASURED while writing this: submitting against a drill nobody issued answers `stale_drill` first, so the
   // setup here is an issued drill with an empty log.
-  const served = await drillCurrent(get('a1'), deps);
+  const served = await routed('GET', '/drill/current')(get('a1'), deps);
   const drill = served.body.drill;
   const generated = puzzleFor(drill.seed, levelAt(LEVEL));
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   const correct = generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call);
   now += 1000;
-  const refused = await postRun(submit('a1', { runId: 'r-1', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: correct }), deps);
+  const refused = await routed('POST', '/runs')(submit('a1', { runId: 'r-1', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: correct }), deps);
   check(refused.status === STATUS.conflict && refused.body.error.code === 'no_press_log', `a run with no recorded presses is refused (${refused.status} ${refused.body.error?.code})`);
   const first = await counted(store, 'a1');
   check(first.total === 1 && first.codes.length === 1 && first.codes[0].code === 'no_press_log' && first.codes[0].count === 1, `and the refusal is counted under that code (${JSON.stringify(first.codes)})`);
@@ -77,15 +87,15 @@ console.log('== 1. a refused run is counted, by the code the API answered with =
   // A SECOND REFUSAL, FOR A DIFFERENT REASON: a transcript that is not the puzzle's answer, which is refused before
   // the log is even read.
   now += 1000;
-  const wrongLine = await postRun(submit('a1', { runId: 'r-2', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: correct.map(() => 'Not A Call At All') }), deps);
+  const wrongLine = await routed('POST', '/runs')(submit('a1', { runId: 'r-2', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: correct.map(() => 'Not A Call At All') }), deps);
   check(wrongLine.body.error.code === 'not_solved', `a wrong transcript is refused (${wrongLine.body.error?.code})`);
   const second = await counted(store, 'a1');
   check(second.total === 2 && second.codes.map((entry) => entry.code).join(',') === 'no_press_log,not_solved', `and the tally holds both codes, most recent last (${second.codes.map((entry) => `${entry.code}=${entry.count}`).join(' ')})`);
 
   // AND THE ACCEPTED RUN IS NOT COUNTED, which is the control that says this measures refusals rather than traffic:
   // the same player PLAYS the drill and submits again, and the total does not move.
-  for (let step = 0; step < correct.length; step++) await postDrillAnswer(press('a1', drill.id, step, correct[step]), deps);
-  const accepted = await postRun(submit('a1', { runId: 'r-3', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: correct }), deps);
+  for (let step = 0; step < correct.length; step++) await routed('POST', '/drill/answer')(press('a1', drill.id, step, correct[step]), deps);
+  const accepted = await routed('POST', '/runs')(submit('a1', { runId: 'r-3', mode: 'drill', levelIndex: LEVEL, drillId: drill.id, elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: correct }), deps);
   check(accepted.status === STATUS.ok, `an honest run is accepted (${accepted.status})`);
   check((await counted(store, 'a1')).total === 2, 'NEGATIVE CONTROL: and the tally did not move for it, so it counts refusals and not requests');
 }
@@ -113,7 +123,7 @@ console.log('\n== 2. the tally is bounded, and the total is not ==');
   check(!many.codes.some((entry) => entry.code === 'no_press_log'), 'the oldest code is the one that falls off');
 
   // IT IS PER PLAYER: another account's refusals are its own row.
-  await postRun({ ...submit('a3', { runId: 'r-4', mode: 'drill', levelIndex: LEVEL, drillId: '1:0', elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: [] }), headers: {} }, deps);
+  await routed('POST', '/runs')({ ...submit('a3', { runId: 'r-4', mode: 'drill', levelIndex: LEVEL, drillId: '1:0', elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: [] }), headers: {} }, deps);
   check((await counted(store, 'a3')).total === 0, 'an unauthenticated refusal is attributed to nobody rather than to a guess');
 }
 
@@ -130,5 +140,29 @@ console.log('\n== 3. the row is a row: an unreadable one is not silently zero ==
   check(asAbuse(null).total === 0, 'and an absent row is zeroes rather than unreadable, which is the one "absent means empty" this API allows');
 }
 
+console.log('\n== 4. EVERY endpoint counts, because the count is applied at the route table ==');
+{
+  const { store, deps } = await fresh();
+  // A READ THAT REFUSES, and a WRITE THAT REFUSES: both are the server saying no, and an operator watching for
+  // probing wants both. The count lives on the route table, so this is a property of the TABLE rather than of two
+  // handlers that happen to have remembered.
+  const badLevel = await routed('GET', '/puzzle')({ method: 'GET', path: '/puzzle', query: { mode: 'daily', level: '0', date: '2026-10-15' }, body: null, headers: { 'x-dev-player': 'a5' } }, deps);
+  check(badLevel.status === STATUS.badRequest && badLevel.body.error.code === 'bad_level', `a read that refuses is refused (${badLevel.body.error?.code})`);
+  const badStep = await routed('POST', '/drill/answer')(press('a5', '1:0', 9, 'Boys Run'), deps);
+  check(badStep.status >= 400, `and so is a write (${badStep.body.error?.code})`);
+  const tally = await counted(store, 'a5');
+  check(tally.total === 2 && tally.codes.map((entry) => entry.code).join(',') === 'bad_level,stale_drill', `both are on the tally (${tally.codes.map((entry) => `${entry.code}=${entry.count}`).join(' ')})`);
+
+  // AND AN ACCEPTED READ DOES NOT COUNT, which is the control: the same identity, a request that succeeds.
+  const fine = await routed('GET', '/drill/current')(get('a5'), deps);
+  check(fine.status === STATUS.ok, `a read that works is served (${fine.status})`);
+  check((await counted(store, 'a5')).total === 2, 'NEGATIVE CONTROL: and it did not count, so the tally is refusals and not calls');
+
+  // COUNTED ONCE, NOT TWICE. The run endpoint had its own counter before this change; leaving both would have
+  // doubled every refusal it saw, and this is the check that would have caught that.
+  const refused = await routed('POST', '/runs')(submit('a5', { runId: 'r-once', mode: 'drill', levelIndex: LEVEL, drillId: '1:0', elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: [] }), deps);
+  check(refused.status >= 400, `a refused run is still refused (${refused.body.error?.code})`);
+  check((await counted(store, 'a5')).total === 3, `and counted exactly once (${(await counted(store, 'a5')).total})`);
+}
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

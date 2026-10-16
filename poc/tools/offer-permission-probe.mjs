@@ -16,6 +16,15 @@
 //      `applyToBoard` CANNOT be the refusal. Apply in the panel is reachable without the list - a name
 //      left selected from another board, a group changed under it, a restored figure - so the panel
 //      checks the layer itself before it dances the call, and shows the engine's own reason when refused.
+//   3. THE TWO-DANCER AUTHORINGS. `Lead Right - Close` / `- Normal` / `- Far` and `Lead Left - Normal` /
+//      `- Far` are published BESIDE the bare calls, and a rule keyed on the bare call matches exactly, so
+//      they used to fall through to the default and be offered for the whole square. `5096c63` governs
+//      them; the probe asks both directions at the panel's own entry point, `mayOffer`.
+//
+// THE PROBE WAS RED ON MASTER ON THREE CHECKS, and they are corrected here rather than presented as a fresh
+// defect: `a476a4f` moved the deciding rule (two of them named the old shape) and rewrote the corpus the
+// tiling check described, and this probe had not been rerun against either. `engine/test/permissions.mjs`
+// section 13 owns both of those measurements; this probe pins that the PANEL sees the same answers.
 //
 // THE RULE IS NOT MIRRORED HERE. Every behavioural check calls the engine's `mayOffer`; the two panel
 // decisions are pinned as WIRING, the way `call-filter-probe.mjs` pins its panel's, because they are DOM
@@ -49,12 +58,30 @@ const lines = seq.boardForFormation('Normal Lines');
 console.log('== the layer answers for the reported reading ==');
 const denied = seq.mayOffer('Lead Right', 'All 8', square);
 check(denied.allowed === false, 'all-8 `Lead Right` from a Static Square is refused');
-check(denied.rule?.call === 'Lead Right' && denied.rule?.board === 'Static Square',
-  `and the deciding rule is the square-set one (${denied.rule?.call}/${denied.rule?.group}/${denied.rule?.board})`);
-check(!!denied.reason && /heads or the sides/.test(denied.reason),
-  'the reason it shows names the two readings that ARE the call');
+// THE DECIDING RULE MOVED WHEN THE WHITELIST DID, and this probe follows the ENGINE HARNESS rather than the
+// shape it was written against: `a476a4f` replaced the square-set deny with a catch-all deny on the call plus
+// ALLOW rows for the readings that survive, so an all-8 refusal is now decided by a rule carrying neither a
+// board nor a group. What the check is FOR is unchanged - the refusal is a RULE and not the default - and
+// `engine/test/permissions.mjs` section 13 is where the correction and its measurement live. The probe had
+// been red on this since that commit, which is recorded rather than presented as a fresh defect.
+check(denied.rule?.call === 'Lead Right' && denied.rule?.decision === 'deny',
+  `and a rule decided it, not the default (${denied.rule?.call}/${denied.rule?.group ?? '*'}/${denied.rule?.board ?? '*'})`);
+check(!!denied.reason && denied.reason === denied.rule?.reason,
+  `the reason it shows is the deciding rule's own ("${denied.reason}")`);
 check(seq.mayOffer('Dosado', 'All 8', square).allowed === false,
   'the older all-8 `Dosado` deny still answers the same way');
+
+console.log('\n== the two-dancer authorings are governed too ==');
+// THE SIBLING GAP, asked the way the PANEL asks it. The corpus publishes `Lead Right - Close` / `- Normal` /
+// `- Far` and `Lead Left - Normal` / `- Far` beside the bare calls; a rule keyed on the bare call matches
+// exactly (the engine harness pins that), so before `5096c63` they matched no rule, fell through to the
+// DEFAULT - which section 8 of the engine harness pins as ALLOW - and were offered for the whole square.
+// Both directions are checked, because a deny that swallowed the call it protects would pass the first line
+// alone. This is the panel-level control for what `engine/test/permissions.mjs` sections 15 and 16 pin.
+for (const title of ['Lead Right - Close', 'Lead Right - Normal', 'Lead Right - Far', 'Lead Left - Normal', 'Lead Left - Far']) {
+  check(seq.mayOffer(title, 'All 8', square).allowed === false, `${title}: all-8 is refused`);
+  check(seq.mayOffer(title, 'Couple #1', square).allowed === true, `${title}: and a numbered couple may dance it`);
+}
 
 console.log('\n== the readings that ARE the call are untouched ==');
 // The negative control for the rule: a deny that swallowed these would be the rule failing, not working.
@@ -85,8 +112,13 @@ console.log('\n== and the capability is deliberately still there ==');
 // refusal into the engine is a DELIBERATE change to this probe and to `permissions.mjs` section 7.
 const applied = seq.applyToBoard(square, 'Lead Right');
 check(applied.legal === true, '`applyToBoard` still applies all-8 Lead Right - the engine refuses nothing');
-check(!!applied.parallel && applied.parallel.groups.length === 4,
-  `it tiles the square four ways (${applied.parallel?.groups.length} group(s)), which is the defect`);
+// TWO GROUPS OF FOUR AT THIS REVISION, and it was FOUR GROUPS OF TWO when this check was written. The cause
+// is the corpus, not the rules (this layer cannot affect `applyToBoard`): `a476a4f` rewrote `lead_right.xml`
+// and promoted the 2-dancer `Adjacent Dancers` bodies to their own titles, so the bare name now matches the
+// 4-dancer `Facing Couples` authoring. `engine/test/permissions.mjs` section 13 carries the same correction
+// and the measurement; a probe that kept asserting the old shape was pinning the pre-rewrite corpus.
+check(!!applied.parallel && applied.parallel.groups.length === 2,
+  `it tiles the square as two groups of four (${applied.parallel?.groups.map((g) => g.length).join('+')}), which is the defect`);
 
 console.log('\n== the panel asks the layer in both places (wiring) ==');
 // A MULTI-LINE MATCH MUST NORMALISE LINE ENDINGS: `git checkout` restores CRLF in this tree, and a

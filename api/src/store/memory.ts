@@ -11,10 +11,13 @@
 // not corrupt it. `structuredClone` on the way in and out makes that true here too, and it is what would
 // catch a handler that mutates the array it was given instead of writing a new one — a bug the twin would
 // otherwise hide by sharing the object.
-import type { ItemKey, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
+import type { ItemKey, ItemQuery, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
+
+/** The character between the two halves of a flattened key. It cannot occur in a `pk` or an `sk` this API writes. */
+const SEPARATOR = '\u0000';
 
 /** The key as one string, so a `Map` can hold it: the store only ever needs equality, never ordering. */
-const flat = (key: ItemKey): string => `${key.pk}\u0000${key.sk}`;
+const flat = (key: ItemKey): string => `${key.pk}${SEPARATOR}${key.sk}`;
 
 interface Entry {
   rev: number;
@@ -28,6 +31,28 @@ export class MemoryStore implements ItemStore {
     const entry = this.items.get(flat(key));
     if (!entry) return null;
     return { rev: entry.rev, value: structuredClone(entry.value) };
+  }
+
+  /**
+   * Read one partition, in sort-key order.
+   *
+   * THE SORT IS THE CONTRACT AND NOT A CONVENIENCE: DynamoDB returns a partition in sort-key order, so a handler
+   * that received these in `Map` insertion order would behave differently in production than under the twin — the
+   * divergence this twin exists to make impossible. The comparison is on the raw sort key, which is what DynamoDB
+   * compares (its own byte order), not on anything parsed out of it.
+   */
+  async query(request: ItemQuery): Promise<StoredItem[]> {
+    const found: { sk: string; entry: Entry }[] = [];
+    for (const [id, entry] of this.items) {
+      const cut = id.indexOf(SEPARATOR);
+      if (id.slice(0, cut) !== request.pk) continue;
+      const sk = id.slice(cut + 1);
+      if (request.skPrefix !== undefined && !sk.startsWith(request.skPrefix)) continue;
+      found.push({ sk, entry });
+    }
+    found.sort((left, right) => (left.sk < right.sk ? -1 : left.sk > right.sk ? 1 : 0));
+    if (request.descending === true) found.reverse();
+    return found.slice(0, request.limit).map(({ entry }) => ({ rev: entry.rev, value: structuredClone(entry.value) }));
   }
 
   async put(key: ItemKey, value: Readonly<Record<string, unknown>>, expectedRev: number | null): Promise<boolean> {

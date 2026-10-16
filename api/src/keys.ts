@@ -28,6 +28,15 @@ export const runKey = (playerId: string, runId: string): ItemKey => ({ pk: `runs
 export const hintsKey = (playerId: string): ItemKey => ({ pk: `hints#${playerId}`, sk: 'balance' });
 
 /**
+ * One board's partition, WITHOUT a player: the whole board, which is what a leaderboard reads.
+ *
+ * IT IS A SECRETARY FOR `boardKey` RATHER THAN A SECOND SPELLING, so the leaderboard cannot ask for a partition the
+ * writer never writes: a `query` built from its own string would keep working while every board row landed
+ * somewhere else, and the failure would look like an empty board.
+ */
+export const boardPk = (mode: 'drill' | 'daily', levelIndex: number, period: string): string => `board#${mode}#${levelIndex}#${period}`;
+
+/**
  * One entry on one board, keyed by the board's own partition (DESIGN.md 6).
  *
  * THE PERIOD IS PART OF THE KEY AND IT MEANS TWO DIFFERENT THINGS, which is why the caller passes it: the
@@ -36,7 +45,7 @@ export const hintsKey = (playerId: string): ItemKey => ({ pk: `hints#${playerId}
  * by construction rather than by a job that deletes rows.
  */
 export const boardKey = (mode: 'drill' | 'daily', levelIndex: number, period: string, playerId: string): ItemKey => ({
-  pk: `board#${mode}#${levelIndex}#${period}`,
+  pk: boardPk(mode, levelIndex, period),
   sk: `player#${playerId}`,
 });
 

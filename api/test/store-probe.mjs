@@ -105,6 +105,31 @@ async function contract(name, store, unconditional) {
   check((await store.get(other)).value.levelIndex === 2, 'a second sort key under the same partition is its own item');
   check((await store.get(key)).value.moves[0] === 'Allemande Left', 'and reading it did not disturb the first');
 
+  // --- ONE PARTITION, WHICH IS WHAT A LEADERBOARD IS. `query` is the port's only read that is not a key, so it is
+  // where a mistake becomes a SCAN: the checks below pin the order, the prefix, the limit and the direction, and the
+  // negative control is that a partition nobody wrote returns nothing — a read that reached into another partition
+  // would be one. Their values carry their own name because `StoredItem` has no key in it, which is also why the
+  // board row names its player (`runs.ts`'s `asBoardRow`).
+  const queryPk = KEY(`${name}#query`).pk;
+  const QUERY_KEY = (sk) => ({ pk: queryPk, sk });
+  // WRITTEN OUT OF ORDER ON PURPOSE: the store must order them, not the writer. The memory twin holds a `Map`, so a
+  // reader that returned insertion order would pass every other check in this file and fail only this one.
+  for (const [sk, marker] of [['player#b', 'b'], ['player#a', 'a'], ['player#c', 'c']]) await store.put(QUERY_KEY(sk), { marker }, null);
+
+  const ascending = await store.query({ pk: queryPk, limit: 100 });
+  check(ascending.map((row) => row.value.marker).join('') === 'abc', `a partition reads in SORT-KEY order, not insertion order (${ascending.map((row) => row.value.marker).join('')})`);
+  const descending = await store.query({ pk: queryPk, limit: 100, descending: true });
+  check(descending.map((row) => row.value.marker).join('') === 'cba', `and the direction reverses it (${descending.map((row) => row.value.marker).join('')})`);
+  const capped = await store.query({ pk: queryPk, limit: 2 });
+  check(capped.length === 2 && capped[0].value.marker === 'a' && capped[1].value.marker === 'b', `the limit caps the answer from the START of the order (${capped.length} row(s))`);
+  const prefixed = await store.query({ pk: queryPk, skPrefix: 'player#b', limit: 100 });
+  check(prefixed.length === 1 && prefixed[0].value.marker === 'b', `and a prefix selects a subset of the partition (${prefixed.length} row(s))`);
+  const elsewhere = await store.query({ pk: KEY(`${name}#unwritten`).pk, limit: 100 });
+  check(elsewhere.length === 0, 'NEGATIVE CONTROL: a partition nobody wrote holds nothing — an answer reaching another partition would be a scan');
+  const fromQuery = ascending[0];
+  fromQuery.value.marker = 'mutated';
+  check((await store.get(QUERY_KEY('player#a'))).value.marker === 'a', 'and what a query returned is a copy, as `get` is');
+
   // --- SEVERAL ITEMS AT ONCE. A completed run changes three or four rows, so the port's `transact` is what
   // makes "the whole run landed" true rather than "most of it did".
   const t1 = KEY(name, 'item#t1');

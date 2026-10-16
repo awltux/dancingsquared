@@ -264,4 +264,25 @@ export function asBoard(stored: StoredItem | null): BoardValue | null {
   return { score: value.score, runs: value.runs };
 }
 
+/**
+ * A board row as the LEADERBOARD reads it: the folded value plus the player it belongs to.
+ *
+ * WHY THE ROW CARRIES ITS PLAYER. The player is the row's SORT KEY (`player#<id>`), and the store hands a caller
+ * the value rather than the key — so a board row that did not name its player would be a rank with nobody on it.
+ * Writing it is also what makes the row readable in the console, which is the same reason the adapter flattens an
+ * item.
+ */
+export interface BoardRow extends BoardValue {
+  readonly playerId: string;
+}
+
+/** One board row, or null when it is not a record this build can rank. */
+export function asBoardRow(stored: StoredItem): BoardRow | null {
+  const board = asBoard(stored);
+  if (!board) return null;
+  const playerId = stored.value['playerId'];
+  if (typeof playerId !== 'string' || playerId === '') return null;
+  return { ...board, playerId };
+}
+
 

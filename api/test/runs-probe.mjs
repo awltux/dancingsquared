@@ -327,6 +327,11 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const best = short.body.board.score;
   check(short.body.progress === null, 'and a Daily run finishes no drill');
   check(short.body.hints.successes === 0, 'and earns no success, because hints are earned on the drill line only');
+  // THE BOARD ROW NAMES ITS PLAYER. The player is the row's SORT KEY and the store hands a reader the VALUE rather
+  // than the key — so without this field the leaderboard could not name a rank it had just read (`runs.ts`'s
+  // `asBoardRow`, whose probe rejects a row that is missing it).
+  const boardRow = (await store.get(boardKey('daily', LEVEL, DAY, devId('r7')))).value;
+  check(boardRow.playerId === devId('r7') && boardRow.score === best, `and the board row it wrote names its player (${boardRow.playerId} at ${boardRow.score})`);
 
   // THE DAILY'S BOARD IS A BEST, NOT A TOTAL, and the only way a replay can differ is TIME (the line is the same):
   // a slow run of the same challenge must not lower what a fast one earned. THE SLOWNESS IS REAL TIME HERE — the

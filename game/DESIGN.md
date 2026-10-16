@@ -788,6 +788,18 @@ bad_level`/`bad_date`/`bad_move`/`bad_call`, `401 unauthenticated`, `409 no_atte
 read by this player, so there is no attempt to record against — A21's row is what a move hangs on), `409
 move_log_full` (the 300-move bound) and `409 contended`.
 
+`GET /leaderboard?mode=<drill|daily>&level=<n>&period=<p>` answers
+`{ board: { mode, levelIndex, period, entries: [{ playerId, score, runs }], examined, truncated } }`, highest score
+first with ties broken by player id so one board answers ONE order. It is a READ and needs no identity, and it reads
+exactly ONE partition — a board is `board#<mode>#<level>#<period>`, so another day, level or mode cannot appear in it
+(the negative control in `api/test/leaderboard-probe.mjs` is a board that would). **`examined` and `truncated` are
+there because the sort key is the PLAYER, not the score:** the store cannot return score order, so the endpoint reads
+the partition under `BOARD_READ_CAP` (1000 rows) and sorts, and a board at the cap is reported as truncated rather
+than ranked as if the read had seen everything. The GSI the paragraph above describes is what would make the top N a
+bounded read, and it is NOT built; until it is, the cost is in the answer. Refusals: `400
+bad_mode`/`bad_level`/`bad_period` and `503 unreadable_board` (a row this build cannot rank is an operator finding,
+never a zero and never a skip — a board that quietly dropped a player would be one nobody could audit).
+
 **The `Schedule` item as it is published (Phase 5.5).** `schedule#<level>` / `current` holds `{ scheduleVersion,
 entries: [{ seed, levelIndex, poolVersion }] }` — a seed, a level and a pool version, no puzzle, no board, no media
 (§11, decision 13). The order is ascending and the season is a PREFIX of any longer season, so extending one cannot
@@ -795,9 +807,13 @@ rewrite a drill already handed out. `scheduleVersion` is `ms-1-season<N>`: it na
 is what an operator needs to see that a republish changed the regime. It deliberately does NOT encode the
 generator's version, because a change there is caught by `lintSchedule` re-running the generator rather than by a
 string comparison.
-**DynamoDB, one table**, `PK`/`SK`, with a `GSI1 (GSI1PK, GSI1SK)` for the two leaderboard partitions and a
-`seed#playerId` dedup index so a replay does not spam a board with duplicate entries. The item shapes below
-are the storage form of decisions 10, 11 and 15, and of the two published sources of a puzzle:
+**DynamoDB, one table**, `PK`/`SK` — **and NO index, which corrects what this paragraph used to say.** It described a
+`GSI1 (GSI1PK, GSI1SK)` "for the two leaderboard partitions" and a `seed#playerId` dedup index; `api/tools/create-table.mjs`
+defines neither, and no row writes an index attribute, so what ships is one base table. What that costs is stated at
+the endpoint that pays it (see `GET /leaderboard` below) rather than assumed away. The dedup index's job is done by
+the run id being the key (`runs#<player> / run#<runId>`): a replay writes the same key and the transaction's
+create-only condition cancels it. The item shapes below are the storage form of decisions 10, 11 and 15, and of the
+two published sources of a puzzle:
 
 | Item | Purpose |
 |---|---|

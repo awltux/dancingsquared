@@ -347,9 +347,11 @@ console.log('\n== 9. the local server, over a real socket ==');
     check(health.status === 200 && health.body.ok === true, `health answers (${health.status}, ${health.body.store})`);
     // THE LIST IS NOT PINNED TO A COUNT: it grows as the endpoints land, and a count here would be a check that
     // reddens when someone adds an endpoint and says nothing about whether the health answer is right. What is
-    // pinned is that the routes served are named and that some of the six planned ones are still to come.
+    // pinned is that the routes served are named and that the gap `/health` reports is the REAL one — which is now
+    // NONE, because §11's ten endpoints are all in the table (the leaderboard was the last, and this check used to
+    // assert the opposite: AGENTS.md §8 trap 8).
     check(health.body.endpoints.includes('GET /drill/current') && health.body.endpoints.includes('POST /drill/advance'), `and names the routes it serves (${health.body.endpoints.join(', ')})`);
-    check(health.body.endpoints.length < health.body.planned, `out of ${health.body.planned} planned, so the gap is visible here`);
+    check(health.body.endpoints.length === health.body.planned, `out of ${health.body.planned} planned, so the gap it reports is closed`);
     check(health.body.auth?.mode === 'dev', `and names the identity mode it was started in (${health.body.auth?.mode})`);
 
     // A SIGNED-OUT CALLER GETS THE DRILL AS A DEMO, NOT A 401 (DESIGN.md 11.1 A20 / 11.2). It is the SAME drill

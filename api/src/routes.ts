@@ -13,6 +13,7 @@ import { postAbandon } from './handlers/abandon.ts';
 import { postBulkRuns } from './handlers/bulk.ts';
 import { postDrillAnswer } from './handlers/answer.ts';
 import { postDailyMove } from './handlers/daily-move.ts';
+import { getLeaderboard } from './handlers/leaderboard.ts';
 import type { Handler } from './ports.ts';
 import { countingRefusals } from './abuse.ts';
 
@@ -43,6 +44,7 @@ export const ROUTES: readonly Route[] = [
   { method: 'POST', path: '/daily/abandon', handler: countingRefusals(postAbandon), purpose: 'record that a player gave up on a challenge' },
   { method: 'POST', path: '/runs', handler: countingRefusals(postRun), purpose: 'record a completed run, verified by regeneration' },
   { method: 'POST', path: '/me/runs:bulk', handler: countingRefusals(postBulkRuns), purpose: "import a device's local ledger as unranked history" },
+  { method: 'GET', path: '/leaderboard', handler: countingRefusals(getLeaderboard), purpose: 'one board: the scores for a mode, a level and a period' },
 ];
 
 /** How many endpoints DESIGN.md 11 lists, so `/health` can report the gap without a second list. */

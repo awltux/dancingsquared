@@ -396,7 +396,7 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     const writes: StoreWrite[] = [
       { key: runItem, expectedRev: null, value: asRunItem({ submission, seed: source.seed, measuredSeconds: source.facts.clockSeconds, claimedSeconds: source.claimedSeconds, measuredAttempts: source.facts.attempts, claimedAttempts: source.claimedAttempts, measuredHints: source.facts.hintsUsed, claimedHints: source.claimedHints, score: score.score, scoreVersion: SCORE_VERSION, nowMs }) },
       { key: hintsKey(playerId), expectedRev: hintsStored?.rev ?? null, value: { hints: ledger.hints, successes: ledger.successes } },
-      { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { score: folded.score, runs: folded.runs } },
+      { key: boardKey(submission.mode, submission.levelIndex, period, playerId), expectedRev: boardStored?.rev ?? null, value: { playerId, score: folded.score, runs: folded.runs } },
     ];
     if (finishedProgress) {
       writes.push({ key: progressKey(playerId, submission.levelIndex), expectedRev: source.progressRev, value: asProgressItem(finishedProgress) });

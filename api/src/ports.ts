@@ -40,18 +40,39 @@ export interface StoreWrite {
 }
 
 /**
+ * A read of ONE PARTITION, for the endpoint that needs more than a key.
+ *
+ * IT IS NOT A SCAN, AND THE TYPE IS WHAT SAYS SO: `pk` is required, so a caller cannot ask for the table, and there
+ * is no filter — a caller that wants a subset asks for it in the sort key or filters the answer it was given. That
+ * is deliberate for the leaderboard: a board IS one partition (`board#<mode>#<level>#<period>`), and a `query` that
+ * could scan would be the operation this store has refused to have since it was written.
+ *
+ * `limit` CAPS WHAT IS RETURNED. It does NOT order by anything but the sort key, which for a board is the PLAYER —
+ * so it cannot produce "the top scores" and the leaderboard does not use it to try (`handlers/leaderboard.ts` reads
+ * the partition under its own cap and sorts, and reports what it examined).
+ */
+export interface ItemQuery {
+  readonly pk: string;
+  /** Only rows whose sort key starts with this. Absent means the whole partition. */
+  readonly skPrefix?: string;
+  readonly limit: number;
+  /** Sort-key DESCENDING order. Never a value order — see the note above. */
+  readonly descending?: boolean;
+}
+
+/**
  * The item store, as the handlers need it.
  *
  * `put` IS A COMPARE-AND-SET AND RETURNS WHETHER IT LANDED. `expectedRev === null` means "this key must not
  * exist"; a number means "this key must still be at that revision". False is not an error — it is another
  * writer having moved first, and the caller re-reads and decides again (see `MAX_WRITE_ATTEMPTS`).
  *
- * THERE IS NO DELETE AND NO SCAN, because nothing in the endpoints implemented so far needs one: a schedule
- * and a player's progress are both read by key. A leaderboard query would add a `query`, and it should be
- * added when the endpoint that needs it is written rather than now (AGENTS.md 4.5).
+ * THERE IS STILL NO DELETE AND NO SCAN. The `query` below is the one addition the leaderboard needed, and it was
+ * added WITH that endpoint rather than before it (AGENTS.md §4.5: a rule that exists is a rule that is tested).
  */
 export interface ItemStore {
   get(key: ItemKey): Promise<StoredItem | null>;
+  query(query: ItemQuery): Promise<StoredItem[]>;
   put(key: ItemKey, value: Readonly<Record<string, unknown>>, expectedRev: number | null): Promise<boolean>;
   /**
    * Write several items as ONE UNIT: every write lands or none does. False means a condition failed — the

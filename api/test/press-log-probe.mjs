@@ -168,7 +168,11 @@ console.log('\n== 3. no press log means no count, so the run is refused rather t
 console.log('\n== 4. the route table says where the endpoint is ==');
 {
   check(ROUTES.some((route) => route.method === 'POST' && route.path === '/drill/answer'), 'POST /drill/answer is in the route table, so the dev server serves it');
-  check(ROUTES.length < PLANNED_ENDPOINTS, `${ROUTES.length} of ${PLANNED_ENDPOINTS} endpoints exist, so /health still reports a real gap`);
+  // THE GAP THIS USED TO PIN IS CLOSED. The check read `ROUTES.length < PLANNED_ENDPOINTS` and its sentence said
+  // "so /health still reports a real gap" — true until the leaderboard landed, and a pin that keeps a gap open is a
+  // pin that hides a finished endpoint (AGENTS.md §8 trap 8). What is worth pinning now is that the table is
+  // COMPLETE, which is also what makes `/health`'s gap zero rather than merely small.
+  check(ROUTES.length === PLANNED_ENDPOINTS, `all ${PLANNED_ENDPOINTS} endpoints of §11 exist, so /health reports no gap`);
   // THE SEED THE PROBE USED IS THE FIXTURE'S, so a level whose schedule changed would fail here rather than in a
   // player's browser: the press endpoints are drill-scoped, and a drill comes from the published regime.
   check(LOCAL_SCHEDULE.some((entry) => entry.levelIndex === LEVEL), 'the local fixture still publishes level 1, which is what every check above played');

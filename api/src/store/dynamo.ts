@@ -20,8 +20,8 @@ import {
   DescribeTableCommand,
   type DynamoDBClientConfig,
 } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
-import type { ItemKey, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
+import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
+import type { ItemKey, ItemQuery, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
 
 /** The key attributes, as DESIGN.md 11's table writes them. */
 const PK = 'PK';
@@ -47,6 +47,22 @@ function isNamed(error: unknown, name: string): boolean {
  */
 const LOST_RACE: ReadonlySet<string> = new Set(['None', 'ConditionalCheckFailed', 'TransactionConflict']);
 
+/**
+ * One returned item as the store's shape: the three store-owned attributes removed.
+ *
+ * IT IS ONE FUNCTION BECAUSE THERE ARE NOW THREE READERS. The store's own fields must not leak into `value`, and a
+ * second copy of the strip list is how a fourth attribute ends up in the domain's shape without anyone noticing.
+ */
+function asStored(item: Record<string, unknown>): StoredItem {
+  const rev = item[REV];
+  const value: Record<string, unknown> = {};
+  for (const [name, field] of Object.entries(item)) {
+    if (name === PK || name === SK || name === REV) continue;
+    value[name] = field;
+  }
+  return { rev: typeof rev === 'number' ? rev : 0, value };
+}
+
 export class DynamoStore implements ItemStore {
   // NO CONSTRUCTOR PARAMETER PROPERTIES, AND THE COMPILER WILL NOT TELL YOU. Node runs this file by STRIPPING
   // types rather than compiling them, and strip-only mode refuses the syntax outright:
@@ -64,14 +80,30 @@ export class DynamoStore implements ItemStore {
   async get(key: ItemKey): Promise<StoredItem | null> {
     const answer = await this.client.send(new GetCommand({ TableName: this.table, Key: { [PK]: key.pk, [SK]: key.sk } }));
     if (!answer.Item) return null;
-    const item = answer.Item as Record<string, unknown>;
-    const rev = item[REV];
-    const value: Record<string, unknown> = {};
-    for (const [name, field] of Object.entries(item)) {
-      if (name === PK || name === SK || name === REV) continue;
-      value[name] = field;
-    }
-    return { rev: typeof rev === 'number' ? rev : 0, value };
+    return asStored(answer.Item as Record<string, unknown>);
+  }
+
+  /**
+   * Read one partition of the base table, in sort-key order.
+   *
+   * IT IS A `Query` ON `PK`, NOT A `Scan`, and that is the whole reason the port's shape requires a partition: the
+   * board is one partition, so this reads one board and cannot read another. `Limit` caps what comes back WITHOUT a
+   * `FilterExpression`, so it is exact rather than "the first N evaluated" — the distinction the port's note warns
+   * about. The name attributes are always used for `PK`/`SK`, never interpolated.
+   */
+  async query(request: ItemQuery): Promise<StoredItem[]> {
+    const wholePartition = request.skPrefix === undefined;
+    const answer = await this.client.send(
+      new QueryCommand({
+        TableName: this.table,
+        KeyConditionExpression: wholePartition ? '#pk = :pk' : '#pk = :pk AND begins_with(#sk, :sk)',
+        ExpressionAttributeNames: { '#pk': PK, ...(wholePartition ? {} : { '#sk': SK }) },
+        ExpressionAttributeValues: { ':pk': request.pk, ...(wholePartition ? {} : { ':sk': request.skPrefix }) },
+        Limit: request.limit,
+        ScanIndexForward: request.descending !== true,
+      }),
+    );
+    return (answer.Items ?? []).map((item) => asStored(item as Record<string, unknown>));
   }
 
   /**

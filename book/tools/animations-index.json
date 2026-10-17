@@ -64,7 +64,7 @@
               }
             },
             {
-              "title": "Circle Left - Stop at Home",
+              "title": "Circle Left Home",
               "file": "ms/circle.xml",
               "tamIndex": 0,
               "from": "",
@@ -75,7 +75,7 @@
               }
             },
             {
-              "title": "Circle Left 1/4 - Stop at Home",
+              "title": "Circle Left 1/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 1,
               "from": "",
@@ -86,7 +86,7 @@
               }
             },
             {
-              "title": "Circle Left 1/2 - Stop at Home",
+              "title": "Circle Left 1/2 Home",
               "file": "ms/circle.xml",
               "tamIndex": 2,
               "from": "",
@@ -97,7 +97,7 @@
               }
             },
             {
-              "title": "Circle Left 3/4 - Stop at Home",
+              "title": "Circle Left 3/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 3,
               "from": "",
@@ -152,7 +152,7 @@
               }
             },
             {
-              "title": "Circle Right - Stop at Home",
+              "title": "Circle Right Home",
               "file": "ms/circle.xml",
               "tamIndex": 32,
               "from": "",
@@ -163,7 +163,7 @@
               }
             },
             {
-              "title": "Circle Right 1/4 - Stop at Home",
+              "title": "Circle Right 1/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 33,
               "from": "",
@@ -174,7 +174,7 @@
               }
             },
             {
-              "title": "Circle Right 1/2 - Stop at Home",
+              "title": "Circle Right 1/2 Home",
               "file": "ms/circle.xml",
               "tamIndex": 34,
               "from": "",
@@ -185,7 +185,7 @@
               }
             },
             {
-              "title": "Circle Right 3/4 - Stop at Home",
+              "title": "Circle Right 3/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 35,
               "from": "",
@@ -245,7 +245,7 @@
               }
             },
             {
-              "title": "Circle Left - Stop at Home",
+              "title": "Circle Left Home",
               "file": "ms/circle.xml",
               "tamIndex": 4,
               "from": "",
@@ -256,7 +256,7 @@
               }
             },
             {
-              "title": "Circle Left 1/4 - Stop at Home",
+              "title": "Circle Left 1/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 5,
               "from": "",
@@ -267,7 +267,7 @@
               }
             },
             {
-              "title": "Circle Left 1/2 - Stop at Home",
+              "title": "Circle Left 1/2 Home",
               "file": "ms/circle.xml",
               "tamIndex": 6,
               "from": "",
@@ -278,7 +278,7 @@
               }
             },
             {
-              "title": "Circle Left 3/4 - Stop at Home",
+              "title": "Circle Left 3/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 7,
               "from": "",
@@ -333,7 +333,7 @@
               }
             },
             {
-              "title": "Circle Right - Stop at Home",
+              "title": "Circle Right Home",
               "file": "ms/circle.xml",
               "tamIndex": 36,
               "from": "",
@@ -344,7 +344,7 @@
               }
             },
             {
-              "title": "Circle Right 1/4 - Stop at Home",
+              "title": "Circle Right 1/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 37,
               "from": "",
@@ -355,7 +355,7 @@
               }
             },
             {
-              "title": "Circle Right 1/2 - Stop at Home",
+              "title": "Circle Right 1/2 Home",
               "file": "ms/circle.xml",
               "tamIndex": 38,
               "from": "",
@@ -366,7 +366,7 @@
               }
             },
             {
-              "title": "Circle Right 3/4 - Stop at Home",
+              "title": "Circle Right 3/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 39,
               "from": "",
@@ -426,7 +426,7 @@
               }
             },
             {
-              "title": "Circle Left - Stop at Home",
+              "title": "Circle Left Home",
               "file": "ms/circle.xml",
               "tamIndex": 28,
               "from": "",
@@ -437,7 +437,7 @@
               }
             },
             {
-              "title": "Circle Left 3/4 - Stop at Home",
+              "title": "Circle Left 3/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 31,
               "from": "",
@@ -448,7 +448,7 @@
               }
             },
             {
-              "title": "Circle Left 1/2 - Stop at Home",
+              "title": "Circle Left 1/2 Home",
               "file": "ms/circle.xml",
               "tamIndex": 30,
               "from": "",
@@ -459,7 +459,7 @@
               }
             },
             {
-              "title": "Circle Left 1/4 - Stop at Home",
+              "title": "Circle Left 1/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 29,
               "from": "",
@@ -514,7 +514,7 @@
               }
             },
             {
-              "title": "Circle Right - Stop at Home",
+              "title": "Circle Right Home",
               "file": "ms/circle.xml",
               "tamIndex": 60,
               "from": "",
@@ -525,7 +525,7 @@
               }
             },
             {
-              "title": "Circle Right 3/4 - Stop at Home",
+              "title": "Circle Right 3/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 63,
               "from": "",
@@ -536,7 +536,7 @@
               }
             },
             {
-              "title": "Circle Right 1/2 - Stop at Home",
+              "title": "Circle Right 1/2 Home",
               "file": "ms/circle.xml",
               "tamIndex": 62,
               "from": "",
@@ -547,7 +547,7 @@
               }
             },
             {
-              "title": "Circle Right 1/4 - Stop at Home",
+              "title": "Circle Right 1/4 Home",
               "file": "ms/circle.xml",
               "tamIndex": 61,
               "from": "",

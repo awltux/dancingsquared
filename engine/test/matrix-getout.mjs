@@ -43,7 +43,7 @@ console.log('== Matrix getout fast-path (rigid self-inverse single call) ==');
 // tell. The path is now verified BY IDENTITY, the property `engine/test/getout-convention.mjs` replays for
 // every path it accepts, and the witness list is the calls that really are rigid AND self-inverse (each
 // measured rigid to ~1e-16 and identity after two applications).
-const selfInverse = ['Right and Left Thru', 'Circle Left 1/2 - Stop at Home', 'All 4 Couples Right and Left Thru'];
+const selfInverse = ['Right and Left Thru', 'Circle Left 1/2 Home', 'All 4 Couples Right and Left Thru'];
 for (const call of selfInverse) {
   seq.reset();
   const start = seq.startBoard();
@@ -79,7 +79,7 @@ console.log('\n== Matrix getout fast-path safety (non-self-inverse rigid) ==');
 // twice-from-home), which is exactly the shape the fast-path must refuse to claim. They are all `ms`
 // calls because this harness builds its catalogue from `ms/` alone: `All 4 Couples Cross Trail Thru` is
 // rigid and not self-inverse too, but it is a `plus`/`a1` call and is not registered here at all.
-const notSelfInverse = ['Circle Left 1/4 - Stop at Home', 'Circle Left 3/4 - Stop at Home', 'Circle Right 1/4 - Stop at Home', 'Circle Right 3/4 - Stop at Home'];
+const notSelfInverse = ['Circle Left 1/4 Home', 'Circle Left 3/4 Home', 'Circle Right 1/4 Home', 'Circle Right 3/4 Home'];
 for (const call of notSelfInverse) {
   seq.reset();
   const step = seq.apply(call);

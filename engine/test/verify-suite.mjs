@@ -115,6 +115,11 @@ const SUITE = [
   // squared set with the pooled catalogue: 267 whole-board readings and 900 group readings, every group selection
   // RESOLVING through `selectionIds` to a non-empty PROPER subset, and both readings of a call listed separately.
   { h: 'applicable-moves', light: true },
+  // THE WAY BACK FROM A LABEL. `stepLabel` writes a step down and nothing read it back, so a parallel step — two groups
+  // dancing different calls at once — could not travel as text, which is the only form the game's Daily line has. This
+  // pins the round trip, the APPLY invariant (the parsed step dances the SAME board, so a lost lane boundary cannot pass
+  // on string equality), and the refusals. Corpus-driven with the whole Mainstream catalogue: ~3s.
+  { h: 'step-parse', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

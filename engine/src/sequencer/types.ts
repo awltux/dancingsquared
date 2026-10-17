@@ -1,6 +1,8 @@
 // Sequencer data structures.
 
 import type { Gender } from '../types.js';
+// A VALUE IMPORT, and it is safe: `selection.ts` imports nothing, so the pair cannot cycle.
+import { splitSelection } from './selection.js';
 
 /** A dancer in the sequencer's board, carrying identity. */
 export interface SeqDancer {
@@ -216,10 +218,60 @@ export function stepLabel(step: ModuleStep): string {
     .join(' || ');
 }
 
+/**
+ * The STEP a label names — the inverse of `stepLabel`, for a caller that carries a step as text.
+ *
+ * WHY THIS EXISTS. A step can already be applied as a `ModuleStep` (`Sequencer.applyToBoard` takes one), but the only
+ * way to WRITE one down was `stepLabel`, which produced text nothing read back. The game's Daily needs the inverse: its
+ * line is a list of strings (that is what the wire carries and what the server replays), so a parallel step — two
+ * groups dancing different calls at once — has to survive as text. `game/src/engine/applier.ts` is the first caller.
+ *
+ * IT IS DELIBERATELY PARTIAL, and it says so by returning null rather than guessing:
+ *   * a label with NO ` || ` is returned as a plain step string — the applicator reads a selection out of a call name
+ *     itself, so `Heads Dosado` needs no decomposition here;
+ *   * a part of the form `Selection ( A + B )` becomes a lane of two calls, and a part of the form `Selection A` a lane
+ *     of one;
+ *   * a part with an unbalanced bracket, an empty selection or an empty call is null, because a label that cannot be
+ *     read back is a caller's bug and a silent fallback would turn it into a wrong dance.
+ *
+ * ROUND TRIP IS THE CONTRACT THIS SHARES WITH `stepLabel`: `stepLabel(parseStep(x))` must equal `x` for every label
+ * `stepLabel` produces. `engine/test/step-parse.mjs` measures it, and also that the PARSED step applies to the same
+ * board as the original.
+ */
+export function parseStep(label: string): ModuleStep | null {
+  const text = label.trim();
+  if (text === '') return null;
+  const parts = text.split(' || ');
+  if (parts.length === 1) return text;
+  const groups: GroupLane[] = [];
+  for (const raw of parts) {
+    const part = raw.trim();
+    if (part === '') return null;
+    const bracketed = /^(.+?)\s+\(\s*(.+?)\s*\)$/.exec(part);
+    if (bracketed) {
+      const selection = bracketed[1].trim();
+      const calls = bracketed[2].split(' + ').map((call) => call.trim());
+      if (selection === '' || calls.length < 2 || calls.some((call) => call === '')) return null;
+      groups.push({ selection, calls });
+      continue;
+    }
+    // THE BARE FORM: the selection is the longest group prefix that leaves a call behind — `splitSelection`'s rule,
+    // which is why this calls it rather than splitting on the first space (`Head Boys Dosado` is a two-word selection
+    // and a one-word call, and the naive split would read it backwards).
+    const spec = splitSelection(part);
+    if (!spec.selection || spec.call === '') return null;
+    // A CALL THAT STARTS WITH A BRACKET IS A LANE WHOSE BRACKET DID NOT CLOSE. The bracket form is matched above; a part
+    // that reaches here still carrying one is malformed, and reading it as a call name would hand the applicator
+    // `"( Trade"` as a call.
+    if (spec.call.startsWith('(') || spec.call.endsWith(')')) return null;
+    groups.push({ selection: spec.selection, calls: [spec.call] });
+  }
+  return { groups };
+}
+
 /** A user-defined module: a named sequence of calls used as a fix/getout. Each
  * call may carry an optional dancer selection. */
-export interface Module {
-  name: string;
+export interface Module {  name: string;
   calls: ModuleStep[];
   level?: string;
   tags?: string[];

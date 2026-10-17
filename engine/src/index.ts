@@ -207,7 +207,7 @@ export type { CodedMove } from './sequencer/coded-moves.js';
 export { stepForwardRule, stepForwardAndBackRule, stepForwardSteps, resolveStepForward, STEP_FORWARD_UNITS, STEP_FORWARD_BEATS, STEP_FORWARD_AND_BACK_BEATS } from './sequencer/step-forward.js';
 export type { StepForwardResolution } from './sequencer/step-forward.js';
 export type { CallStep, GroupLane, LegacyGroupLane, GroupStep, ModuleStep } from './sequencer/types.js';
-export { isGroupStep, stepCall, stepSelection, stepLabel, groupCalls, normalizeGroupLane } from './sequencer/types.js';
+export { isGroupStep, stepCall, stepSelection, stepLabel, parseStep, groupCalls, normalizeGroupLane } from './sequencer/types.js';
 
 // Call editor: synthesize missing setups by padding core moves.
 export {

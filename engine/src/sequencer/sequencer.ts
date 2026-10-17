@@ -646,6 +646,36 @@ export class Sequencer {
    * A CALL THAT ALREADY NAMES ITS DANCERS IS NOT THE GROUP'S TO PERFORM ("Head Boys Dosado"), so it gets no
    * hint — the same rule `groupCanPerform` applies.
    */
+  /**
+   * EVERY move this board offers, each with its READING: the whole board (`selection: null`) and every group that
+   * can perform the call (`selection` naming the group).
+   *
+   * WHY THE ENGINE HAS TO ENUMERATE IT. `legalCalls` is PRE-GROUP -- it answers "is there a reading" -- and the
+   * group-aware list has until now been assembled by the app, which is why the game never had one: its whole-board
+   * `offered()` cannot express a subset reading at all, so every `actives` authoring in the corpus (28 shipped
+   * tams declare one) was unreachable from the game however the pool was built. The decision -- which call, for
+   * which group, from which board -- belongs with `groupCanPerform` and `resolveSelection`, not in a consumer.
+   *
+   * IT IS A PER-BOARD SURFACE, NOT A HOT PATH: the cost is `legalCalls x subsetGroups` applicator runs, which is
+   * a picker's or a probe's question and NOT something the generator, which walks thousands of boards, may call.
+   * `selectionIds(board, selection)` answers which dancers a returned `selection` claims.
+   */
+  applicableMoves(board: Board): { call: string; selection: string | null; board: Board }[] {
+    const out: { call: string; selection: string | null; board: Board }[] = [];
+    const legal = this.legalCalls(board);
+    for (const call of legal) {
+      const res = this.applyToBoard(board, call);
+      if (res.legal) out.push({ call, selection: null, board: res.board });
+    }
+    for (const group of this.subsetGroups(board)) {
+      for (const call of legal) {
+        if (!this.groupCanPerform(board, group, call)) continue;
+        const res = this.applyToBoard(board, `${group} ${call}`);
+        if (res.legal) out.push({ call, selection: group, board: res.board });
+      }
+    }
+    return out;
+  }
   groupForCall(board: Board, call: string): string | null {
     const spec = splitSelection(call);
     if (spec.selection && spec.call) return null;

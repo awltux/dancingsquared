@@ -109,6 +109,12 @@ const SUITE = [
   // Controls both sides: a title no tam carries registers nothing (no silent fallback), and `register`'s
   // whole-document default is unchanged, which is why the two harnesses whose SUBJECT is that keying still pass.
   { h: 'register-by-title', light: true },
+  // THE MOVES A BOARD OFFERS, WITH THEIR READING. `applicableMoves` enumerates the whole-board reading and every
+  // group that can perform the call, which is the surface the game has never had — its `offered()` asks only the
+  // whole-board question, so no `actives` authoring (28 shipped tams) was reachable from it. MEASURED from a
+  // squared set with the pooled catalogue: 267 whole-board readings and 900 group readings, every group selection
+  // RESOLVING through `selectionIds` to a non-empty PROPER subset, and both readings of a call listed separately.
+  { h: 'applicable-moves', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

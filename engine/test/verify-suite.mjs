@@ -94,6 +94,15 @@ const SUITE = [
   // never hinted. MEASURED while writing it: from a squared set there is NO registered call that is refused
   // whole-board and performable by no group, which is why the middle control uses the rule seam. ~1s.
   { h: 'group-refusal', light: true },
+  // WHICH BOARD IDENTITY A PERMISSION RULE SHOULD MATCH ON — and why it is the recogniser's NAME. Step "3" of
+  // the agreed order proposed a geometry/cell key instead; MEASURED, that is backwards. The NAME is a shape
+  // identity and survives rotation (a square turned 0/45/90/180 is still `Static Square`), while
+  // `geometryKey` is a POSE key: the same square turned gives different keys, so a rule keyed on it would stop
+  // firing on a turned board. Pins both, with determinism as the control. Also PRINTS the real gap rather than
+  // asserting it: 122 of 138 boards built from the corpus's own named formations recognise to NO name, and
+  // `mayOffer` passes that null into the permission request, where a formation-scoped rule cannot match it --
+  // which is a naming-totality problem, not a key problem. Pure geometry: ~1s.
+  { h: 'permission-board-identity', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

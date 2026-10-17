@@ -23,7 +23,7 @@
 // depend on the snapping rather than on the call — so two runs could agree on the FORMATION and differ
 // in the pose, and `sameBoardById` would then disagree with the engine's own recogniser about whether
 // the player arrived. Turning it off makes the goal exactly what the calls produce.
-import { Sequencer, sameBoardById, type Board } from 'dancing-squared-engine';
+import { Sequencer, parseStep, sameBoardById, type Board } from 'dancing-squared-engine';
 import type { GameApplier, Move, MoveReading, Refusal, SequenceMotion } from '../puzzle/types.ts';
 
 interface ApplierOptions {
@@ -70,6 +70,22 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
   const names = opts.calls.map((c) => c.name);
   const readingCache = new Map<string, MoveReading[]>();
 
+  /**
+   * Apply one LINE ELEMENT, which is either a call name or a PARALLEL STEP written the way `stepLabel` writes one
+   * (`Sides Trade || Heads Dosado`).
+   *
+   * WHY THE SPLIT IS HERE AND NOT AT EVERY CALLER. The game's line is a list of strings — that is what the wire records
+   * and what the server replays — so a parallel step has to survive as text, and exactly one place should know that a
+   * string can describe two groups. `parseStep` is the engine's inverse of `stepLabel`; a string it cannot read is a
+   * REFUSAL with its own sentence rather than an "unknown call", because the two are different mistakes.
+   */
+  const apply = (board: Board, call: string) => {
+    if (!call.includes(' || ')) return seq.applyToBoard(board, call);
+    const step = parseStep(call);
+    if (!step) return { legal: false, board, reason: `${JSON.stringify(call)} names a parallel step this app cannot read` };
+    return seq.applyToBoard(board, step);
+  };
+
   return {
     offered(board: Board): Move[] {
       const out: Move[] = [];
@@ -112,13 +128,13 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
     },
 
     refusalOf(board: Board, call: string): Refusal | null {
-      const r = seq.applyToBoard(board, call);
+      const r = apply(board, call);
       if (r.legal) return null;
       return { call, reason: r.reason ?? `the engine refused ${call} without a reason` };
     },
 
     apply(board: Board, call: string): Board {
-      const r = seq.applyToBoard(board, call);
+      const r = apply(board, call);
       // THE APPLY PATH IS ONLY REACHED WHEN `refusalOf` SAID YES, so a refusal here means the two
       // answers disagree — which would be a caller using `apply` as a legality test. Rather than
       // returning the unchanged board (a silent "nothing happened", which reads as a no-op call), this

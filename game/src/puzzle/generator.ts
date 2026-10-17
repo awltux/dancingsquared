@@ -291,7 +291,15 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
           ? `step ${i + 1} has no option that reaches the goal`
           : `step ${i + 1} has no option that makes progress`;
       }
-      const chosen = rng.pick(correctMoves) as Move;
+      // THE CORRECT OPTION IS THE PATH'S CALL, and the pick only breaks ties where the path's call is absent. `calls` is
+      // the route the search found and `steps[i + 1].from` is the board it lands on, so an option chosen from a DIFFERENT
+      // correct route would publish an answer key whose steps do not connect: MEASURED, `solution` then named a call the
+      // step's `correctIndex` did not, and playing the solution stopped reaching the goal. It surfaced only when the pool
+      // grew from 62 names to 322 and more options made progress from one board. The path's call is always among
+      // `correctMoves` (a step that makes progress is exactly what the distance map says the next path board is), so
+      // the fallback is a safety net rather than the common case.
+      const onPath = correctMoves.find((m) => m.call === calls[i]);
+      const chosen = onPath ?? (rng.pick(correctMoves) as Move);
 
       // Distractors: pairwise-distinct endings, never the goal, and never ending where another option
       // ends. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`, because a

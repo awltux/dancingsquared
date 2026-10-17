@@ -653,6 +653,16 @@ puzzle is only reproducible while both sides hold the same call set and the same
 pool change only for a client that agrees to check. A served puzzle makes the question a fact about the payload.
 The cost is a body of ~8 boards per drill, measured at `api/src/levels.ts`.
 
+**WITH NO API CONFIGURED THERE IS NO DAILY, and that is a decision rather than an omission.** The mode's premise is
+a challenge PUBLISHED for a level and a UTC day: the boundary job validates it, everyone at the level gets the same
+one, and the server scores against it. Nothing publishes without a server, so the panel says so rather than deriving
+a seed on the device — which was, until it was removed, the last place on the client that still ran the generator.
+The DRILL still plays offline, from a BAKED fixture season (`game/src/game/season-data.ts`, written by
+`game/tools/bake-season.mjs` and gated by `game/test/schedule-fixture-probe.mjs`): data the build ships, not a call
+it makes. `game/test/client-generation-probe.mjs` walks the app's import graph and fails if the generator is
+reachable from it at all, so "no puzzle is generated on the client" is a property a gate checks rather than a rule
+the code keeps by habit.
+
 - **One challenge per UTC day *per level*, issued to every player at that level** (decision 8). The day is
   computed in **UTC** so it flips at the same instant for everyone and a late-night player is not on a
   different challenge from their friends. The seed therefore has to bind the level — `seed = hash(level,

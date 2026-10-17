@@ -52,13 +52,14 @@ export interface IssuedDrill {
   readonly scheduleVersion: string | null;
   readonly issuedAtMs: number;
   /**
-   * THE PUZZLE ITSELF, when the server sent one — every board, every option and the answer key.
+   * THE PUZZLE ITSELF — every board, every option and the answer key — and it is REQUIRED.
    *
-   * `null` ONLY WHEN THE SERVER DID NOT SEND ONE, which is the run-up state this commit leaves: the client still
-   * knows how to generate from the seed, so an older server is playable. The moment that path is removed, a null
-   * here is a refusal rather than a fallback, and `game/src/main.ts` says so where it branches.
+   * It was optional for exactly one commit, while the client could still generate from the seed. That fallback is
+   * gone (the fixture season is baked, `game/src/game/season-data.ts`), so a drill without boards is a payload this
+   * app cannot draw at all: absent and malformed are now the same refusal, which is simpler than a branch nothing
+   * can reach.
    */
-  readonly puzzle: Puzzle | null;
+  readonly puzzle: Puzzle;
   readonly resumed: boolean;
 }
 
@@ -252,12 +253,11 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const value = raw as Record<string, unknown>;
   if (typeof value.id !== 'string' || typeof value.index !== 'number' || typeof value.levelIndex !== 'number' || typeof value.seed !== 'number') return null;
-  // A PUZZLE THAT IS THERE BUT MALFORMED IS A REFUSAL, where one that is ABSENT is tolerated. The difference is
-  // what the two states mean: absent is a server that predates the change (and the seed still generates), while
-  // present-and-wrong is a payload this app would draw as a question it cannot answer — see `puzzle/parse.ts` on
-  // why a half-parsed puzzle is worse than none.
-  const puzzle = value.puzzle === undefined || value.puzzle === null ? null : parsePuzzle(value.puzzle);
-  if (value.puzzle !== undefined && value.puzzle !== null && puzzle === null) return null;
+  // THE PUZZLE IS PART OF THE DRILL'S SHAPE, not an optional extra: the client generates nothing, so a payload
+  // without boards is one it cannot draw. Malformed and missing are the same refusal (see `puzzle/parse.ts` on why a
+  // half-parsed puzzle is worse than none).
+  const puzzle = parsePuzzle(value.puzzle);
+  if (puzzle === null) return null;
   return {
     id: value.id,
     index: value.index,

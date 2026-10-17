@@ -6,10 +6,16 @@
 // same SHAPE as one: an ordered list of `{ seed, levelIndex }` with nothing else, because a published
 // entry is a seed and a level and no puzzle (decision 13).
 //
+// THIS FILE IS SEEDS ONLY, AND THE PUZZLES ARE BESIDE IT. The client generates nothing (DESIGN.md §9), so the
+// boards the fixture season draws are BAKED in `season-data.ts` and paired with these entries by POSITION in
+// `season.ts`. The split is what keeps the 133 KB of boards out of the API's import graph: `api/src/local-regime.ts`
+// imports this file for the seeds, and never the data.
+//
 // THE SEEDS ARE MEASURED, NOT CHOSEN. Every entry below was found by generating it: seeds 1..4 generate at
 // each of levels 1..3, and each carries an illegal option (the `unknown` slot needs a refused call to
 // exist). `game/test/schedule-fixture-probe.mjs` RE-RUNS that generation, so a corpus or generator change
-// that breaks one of these seeds turns the gate red instead of shipping a player a blank board. The
+// that breaks one of these seeds turns the gate red instead of shipping a player a blank board — and it
+// compares the result with the baked board, which is what catches a stale `season-data.ts`. The
 // measurement is the probe's, and this comment only records where the numbers came from.
 //
 // LEVELS 1..3 ARE THE POINT. P1 measured that level 1 is depth 1 with two options and levels 2+ are depth 2,
@@ -55,9 +61,20 @@ export const LOCAL_SCHEDULE: ScheduleFixture = [
  * player who finishes the twelfth drill should get the first one again rather than an empty screen, and
  * the real "you have finished the season" behaviour belongs with the season boundary that §6 leaves open.
  */
-export function scheduleEntryFor(position: number): ScheduleEntry {
+/**
+ * The fixture POSITION `position` names, wrapped into range.
+ *
+ * IT IS EXPORTED BECAUSE TWO THINGS INDEX OFF IT NOW: the SEED (`scheduleEntryFor`) and the BAKED PUZZLE
+ * (`season.ts`). Two copies of the wrap is how "drill 3 of 12" comes to show one entry's question and another
+ * entry's boards — and the wrap is not decoration: a player who finishes the twelfth drill gets the first again.
+ */
+export function schedulePosition(position: number): number {
   const n = LOCAL_SCHEDULE.length;
-  return LOCAL_SCHEDULE[((position % n) + n) % n];
+  return ((position % n) + n) % n;
+}
+
+export function scheduleEntryFor(position: number): ScheduleEntry {
+  return LOCAL_SCHEDULE[schedulePosition(position)];
 }
 
 /** How many entries the fixture holds — what the UI shows as "drill 3 of 12". */

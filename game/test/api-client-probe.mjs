@@ -192,16 +192,15 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
   const over = await issueDrill(1, complete.api);
   check(over.ok === false && over.failure.code === 'regime_complete', `a finished season is reported as such (${over.failure?.code})`);
 
-  // A TOLERATED MISSING FIELD, measured so nobody adds a second required one by accident: a server that predates the
-  // puzzle (or one whose client may still generate) must not break this one. The FALLBACK is what the app does with
-  // it, and `main.ts` is where that branch is.
+  // A DRILL WITH NO PUZZLE IS REFUSED, and this is the check that moved when the client's generator went: the seed
+  // alone used to be enough because `main.ts` could draw from it, and now it cannot. Absent and malformed are the
+  // same refusal on purpose — a payload without boards is one nothing on this side can turn into a question.
   const noPuzzle = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: undefined }, regime: { finished: 0, length: 3 } } });
-  const tolerated = await issueDrill(1, noPuzzle.api);
-  check(tolerated.ok === true && tolerated.value.drill.puzzle === null, `a drill with no puzzle still parses, with the puzzle null (${tolerated.value?.drill?.puzzle})`);
+  const noPuzzleAnswer = await issueDrill(1, noPuzzle.api);
+  check(noPuzzleAnswer.ok === false && noPuzzleAnswer.failure.code === 'bad_response', `a drill with no puzzle at all is refused (${noPuzzleAnswer.failure?.code})`);
 
-  // A PUZZLE THAT IS THERE BUT WRONG IS THE OTHER CASE, and it is REFUSED rather than drawn: absent means "generate
-  // it", present-and-malformed means "this payload is not a question". The distinction is the whole reason
-  // `parsePuzzle` returns null instead of filling in defaults.
+  // AND A PUZZLE THAT IS THERE BUT WRONG, one field at a time. The distinction that used to matter (absent means
+  // "generate it") is gone, so every one of these is the same sentence to the player.
   for (const [broken, why] of [
     [{ ...PUZZLE, steps: 'none' }, 'no steps at all'],
     [{ ...PUZZLE, goal: { dancers: [] } }, 'a goal board with no dancers'],
@@ -209,8 +208,8 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
     [{ ...PUZZLE, mode: 'challenge' }, 'a mode this app does not know'],
   ]) {
     const scripted = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: broken }, regime: { finished: 0, length: 3 } } });
-    const refused = await issueDrill(1, scripted.api);
-    check(refused.ok === false && refused.failure.code === 'bad_response', `a puzzle with ${why} is refused as a bad response (${refused.failure?.code})`);
+    const bad = await issueDrill(1, scripted.api);
+    check(bad.ok === false && bad.failure.code === 'bad_response', `a puzzle with ${why} is refused as a bad response (${bad.failure?.code})`);
   }
 }
 

@@ -16,9 +16,10 @@ import type { GeneratorConfig, LevelSpec, PuzzleMode } from './types.ts';
  * CHOSEN, and then bounded by measurement: the ladder census prints the explored count and the wall time
  * per level, so this number is revisited from data rather than from taste. It exists because the state
  * space is exponential in `depth` and the pool, and an unbounded search is how a browser tab stops
- * responding — both readers run on the CLIENT (`generatePuzzle` for the Daily per DESIGN.md 4.4, and
- * `PlaySession.distanceToGoal` for a hint per DESIGN.md 10), so the budget has to fit a browser rather
- * than a server.
+ * responding — and the two readers now run in DIFFERENT PLACES, which is why this stays one constant with a
+ * stated reason. `PlaySession.distanceToGoal` (the hint) still runs on the CLIENT (DESIGN.md 10), so its
+ * budget has to fit a browser; the generator runs on the SERVING side and at bake time (DESIGN.md §9: the
+ * client generates nothing), where a few seconds is a loading state rather than a hung tab.
  *
  * ONE NUMBER FOR TWO SEARCHES, deliberately: both are "a bounded search over boards inside one frame's
  * worth of patience", and they are the same order of work, so a playtest that moves one is a reason to

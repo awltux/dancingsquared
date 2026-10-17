@@ -23,15 +23,13 @@
 // each one as an event — `POST /drill/reveal` — with the run declaring the same count as a claim, because a POST that
 // never arrived must not silently rank the run. The offline ledger applies the same rule locally
 // (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
-import { generatePuzzle } from './puzzle/generator.ts';
-import { generatorConfigFor } from './puzzle/config.ts';
-import { dailyEntry, utcDay } from './puzzle/daily.ts';
+import { utcDay } from './puzzle/daily.ts';
 import { levelSpec } from './puzzle/levels.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { earningProgress } from './puzzle/hints.ts';
 import { SCORE_VERSION } from './puzzle/config.ts';
-import type { GameApplier, GenerateResult, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
+import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
@@ -42,6 +40,7 @@ import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, 
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
 import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
+import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
@@ -787,7 +786,7 @@ function applyMode(next: AppMode): void {
  * the order, §8), and everything after the seed is identical — the generator the client runs, the resume of a
  * half-played drill, the clock, the header and the save. Splitting that in two would be two ways to show a drill.
  */
-function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number; demo?: boolean; puzzle?: Puzzle | null }): void {
+function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number; demo?: boolean; puzzle: Puzzle }): void {
   const spec = levelSpec(issued.levelIndex);
   if (!spec) throw new Error(`level ${issued.levelIndex} is not a level`);
   // A DRILL ON SCREEN HAS NO RECORDED RUN UNTIL THIS PAGE SUBMITS ONE, so this is where the flag is normally cleared
@@ -808,25 +807,16 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
     // hide (AGENTS.md 4.1) — and the regime wins, because the entry IS the question.
     console.warn(`the save has level ${save.levelIndex} and drill ${position + 1} is level ${spec.index}; the regime wins`);
   }
-  // THE SERVER'S PUZZLE WHEN THERE IS ONE, AND ONLY THE OFFLINE PATH GENERATES.
+  // THE PUZZLE ARRIVES WITH THE DRILL, FROM ONE OF TWO GENERATORS THAT RAN BEFORE THIS FUNCTION.
   //
-  // This is the reversal DESIGN.md §9 records: a puzzle used to be derived on the client from a seed, and the seed
-  // was the contract. Now the serving layer generates and the client applies, so a drill that arrived with boards
-  // is DRAWN rather than re-derived — which is what makes "everyone at this index was asked the same question" a
-  // fact about the payload instead of an agreement about a number. The generator is still reached here for the
-  // fixture season, where there is no server to ask (and for a server that predates the field).
-  const result: GenerateResult = issued.puzzle
-    ? { ok: true, puzzle: issued.puzzle }
-    : generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), issued.seed, spec, applier as GameApplier);
+  // This is the reversal DESIGN.md §9 records: a puzzle used to be derived HERE from a seed, and the seed was the
+  // contract. Now the serving layer generates for the online path and `game/tools/bake-season.mjs` generates for the
+  // fixture season, so nothing in this file generates at all — which is what makes "everyone at this index was asked
+  // the same question" a fact about the payload rather than an agreement about a number, and what
+  // `game/test/client-generation-probe.mjs` pins by walking this module's import graph.
+  const puzzle = issued.puzzle;
+  controller = null;
   els.loading.hidden = true;
-
-  if (!result.ok) {
-    // A REFUSAL IS A RESULT: the generator says why, and the screen shows it rather than an empty board.
-    controller = null;
-    drillScreen.say(`This drill cannot be generated: ${result.reason}`, 'bad');
-    drillScreen.render(controller);
-    return;
-  }
 
   // A SAVED DRILL AT THIS POSITION IS CONTINUED, not re-drawn: DESIGN.md 8 locks a drill when it is issued,
   // so the same seed comes back with the step the player had reached and the wrong tries already taken, and
@@ -834,7 +824,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // a drill the player has moved past, and its position is what says so.
   const carrying: DrillSaved | null = save.drillRun && save.position === position ? save.drillRun : null;
   controller = new DrillController(
-    result.puzzle,
+    puzzle,
     carrying ? { index: carrying.index, attempts: carrying.attempts, revealed: carrying.revealed } : {},
   );
   drillOptions = carrying ? [...carrying.options] : [];
@@ -861,13 +851,13 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // server-issued drill and a local step offline, and it is not offered at all for a demo (Q22) or a practice drill.
   els.skip.hidden = !skipOffered();
   els.next.hidden = true;
-  captions(result.puzzle.start, result.puzzle.goal);
+  captions(puzzle.start, puzzle.goal);
   paintBalance();
   persist();
   draw();
 }
 
-/** The OFFLINE path: the local fixture's entry at a position. */
+/** The OFFLINE path: the local fixture's entry at a position, with the puzzle baked beside it. */
 function startDrill(next: number): void {
   const length = scheduleLength();
   const at = ((next % length) + length) % length;
@@ -878,7 +868,7 @@ function startDrill(next: number): void {
   // offers it, so no path can show a fixture drill without saying it is one (DESIGN.md §15 Q20). With no API
   // configured the whole game is offline and the standing is already `offline`, so the flag is moot.
   practiceRun = apiConfigured();
-  showDrill({ seed: entry.seed, levelIndex: entry.levelIndex, index: at, length });
+  showDrill({ seed: entry.seed, levelIndex: entry.levelIndex, index: at, length, puzzle: seasonPuzzleFor(at) });
 }
 
 /**
@@ -1384,26 +1374,21 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   draw();
 }
 
-/** The OFFLINE path: the challenge derived from the day and the level (§9). This is where the Daily is still
- * GENERATED, and only because there is no server to ask (`apiConfigured()` is the switch). */
+/**
+ * THE OFFLINE PATH IS GONE, deliberately, and the panel says why rather than the app inventing a challenge.
+ *
+ * The Daily's whole premise is a challenge PUBLISHED for a level and a UTC day (§9): the boundary job validates one,
+ * everybody at the level gets the same one, and the server scores against it. None of that exists without a server,
+ * and the previous behaviour — deriving a seed from the date on the device — was a stand-in from before the client
+ * stopped generating puzzles at all. Keeping it would mean the one place the app still ran `generatePuzzle`, so it
+ * is removed and the mode is honest about needing the API (`apiConfigured()` is the switch, and the boot banner
+ * already names the mode).
+ */
 function startDaily(): void {
-  if (!applier || !level) return;
-  const day = utcDay(new Date());
-  if (dailyIsCurrent(day)) {
-    keepDaily();
-    return;
-  }
-  const seed = dailyEntry(level, MAIN_POOL.version, day).seed;
-  // NO FALLBACK ON A REFUSAL, deliberately (DESIGN.md 9): another seed would be a different challenge from everyone
-  // else's, which is the one thing the mode promises. The reason shown is the generator's own.
-  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'daily'), seed, level, applier);
-  if (!result.ok) {
-    daily = null;
-    dailyScreen.say(`Today's Daily could not be generated: ${result.reason}`, 'bad');
-    els.regime.textContent = "Today's Daily — unavailable";
-    return;
-  }
-  showDaily(result.puzzle, day, seed);
+  daily = null;
+  els.loading.hidden = true;
+  dailyScreen.say("The Daily Challenge needs the game server: a challenge is published for a level and a day, and this build has no API configured.", 'info');
+  els.regime.textContent = "Today's Daily — needs the game server";
 }
 
 /**
@@ -1411,8 +1396,8 @@ function startDaily(): void {
  *
  * THE SEED IS READ, NOT DERIVED, and the client would compute the same number — the point is that it is the number
  * the boundary job validated and published for everyone at this level, so a day nobody published is a refusal
- * ("no published challenge") rather than a question nobody checked. The generator still runs HERE: §9 has the
- * client draw the board from the published seed.
+ * ("no published challenge") rather than a question nobody checked. The PUZZLE comes with it: the client generates
+ * nothing (§9), so a playable challenge with no boards is a refusal rather than a seed to draw from.
  */
 async function startServerDaily(): Promise<void> {
   if (!applier || !level) return;

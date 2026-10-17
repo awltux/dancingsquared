@@ -123,8 +123,30 @@ console.log('\n== 8. the `demo` the rule reads is the one the WIRE carries ==');
   // with (`{ drill, regime, demo: true }`, MEASURED against that handler's own `served(...)` spread), fed through the
   // module that parses it. A rename of the flag on either side fails HERE, which is the only place it would fail
   // before a browser did it for us.
+  // THE PUZZLE IS PART OF THE DRILL'S SHAPE NOW (the client generates nothing, DESIGN.md §9), so this fixture — which
+  // is about the DEMO FLAG and nothing else — carries a minimal one. It is spelled out here rather than imported from
+  // another probe because the probes are self-contained by design (`tools/verify-probes.mjs`): a fixture shared
+  // between two of them would be a third thing to keep in step. Eight dancers, because that is the engine's own
+  // invariant and `parsePuzzle` checks it.
+  const board = (k) => ({
+    dancers: Array.from({ length: 8 }, (_, i) => ({ id: i + 1, couple: (i >> 1) + 1, gender: i % 2 === 0 ? 'boy' : 'girl', x: (i % 2) + k, y: (i >> 1) + k, heading: 0 })),
+  });
+  const puzzle = {
+    mode: 'drill',
+    seed: 42,
+    level: { index: 1, poolSize: 10, depth: 1, optionCount: 2 },
+    poolVersion: 'ms-1',
+    start: board(1),
+    goal: board(3),
+    path: [board(1), board(3)],
+    steps: [{ from: board(1), moves: [{ call: 'Boys Run', board: board(3) }, { call: 'Bend the Line', board: board(2) }], correctIndex: 0, after: board(3) }],
+    solution: ['Boys Run'],
+    shortest: 1,
+    alternatePath: false,
+    explored: 2,
+  };
   const body = {
-    drill: { id: '1:0', index: 0, levelIndex: 1, seed: 42, poolVersion: 'ms-1', issuedAtMs: 1_700_000_000_000, puzzle: null, resumed: false },
+    drill: { id: '1:0', index: 0, levelIndex: 1, seed: 42, poolVersion: 'ms-1', issuedAtMs: 1_700_000_000_000, puzzle, resumed: false },
     regime: { finished: 0, length: 12 },
     demo: true,
   };

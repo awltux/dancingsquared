@@ -759,6 +759,29 @@ the generator does not yet REQUIRE distinct arrangements — it does so by luck,
 gating is the next step, and it is a generator change with a re-bake, not a display change. And the numbers above are
 why "solve it on the server" should not be attempted again: 23 minutes for the cheapest level, one solution, and a
 display name that cannot tell its own route apart.
+
+### 9.2 Parallel calls for two subsets: measured, and why they are not a client change
+
+The mode was specified with "parallel calls for different subsets of dancers, similar to the POC sequencer". The
+cheap reading of that is a composition: play `Heads Circle Left Home` and `Sides Single Circle Left` — selections
+confined to their own dancers — one after the other, and if the order did not matter a parallel step would need
+nothing new on the wire. **MEASURED, from a squared set at pool 36, 40 pairs of disjoint-selection readings: 23 were
+legal in both orders, 11 produced the same board either way and 12 produced DIFFERENT boards.**
+
+So order decides the outcome, and the feature is not a game-side composition. Two reasons:
+
+- **The engine has no primitive for it.** `Applicator.parallelApply` tiles ONE call across disjoint copies of its
+  setup; the corpus expresses two different calls at once as a "while" tam with lanes, which is authored, not composed
+  at runtime.
+- **The primitive it needs is not a sequence.** Both calls would have to be resolved from the SAME board and their
+  results merged by dancer, with a collision check across the two groups — a generalisation of `parallelApply` from
+  (one call, N groups) to (N calls, N groups), in the engine, where the matcher and the collision machinery live.
+
+**NOT BUILT, deliberately.** The picker offers every legal READING — the whole board and each subset — which is the
+group-aware half of the feature and is measured at 370 readings in 14 sections. A step that moves two groups with two
+DIFFERENT calls waits on the engine primitive above. A game-side composition would have shipped a rule the engine
+disagrees with, and the disagreement would be invisible: the two readings look identical on screen until the board
+comes out wrong.
 - **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
   offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
   board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the

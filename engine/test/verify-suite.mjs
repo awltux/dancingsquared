@@ -103,6 +103,12 @@ const SUITE = [
   // `mayOffer` passes that null into the permission request, where a formation-scoped rule cannot match it --
   // which is a naming-totality problem, not a key problem. Pure geometry: ~1s.
   { h: 'permission-board-identity', light: true },
+  // A CALL'S VARIANTS ARE THE TAMS THAT CARRY ITS TITLE. `registerByTitle` is the engine entry point for it, and
+  // this pins the census that makes it a GAIN rather than the trade it was predicted to be: over a 24-formation
+  // sample the file-keyed registration is legal 329 times and the title-keyed one 863, and NO formation loses one.
+  // Controls both sides: a title no tam carries registers nothing (no silent fallback), and `register`'s
+  // whole-document default is unchanged, which is why the two harnesses whose SUBJECT is that keying still pass.
+  { h: 'register-by-title', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

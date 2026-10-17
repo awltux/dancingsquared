@@ -210,6 +210,12 @@ export class Sequencer {
     this.library.register(name, xml);
   }
 
+  /** Register `name` from `xml`, taking only the tams that carry it as their title. See `registerByTitle` in
+   * `library.ts` for why the grouping lives there and why it is a second entry point rather than the default. */
+  registerByTitle(name: string, xml: string): void {
+    this.library.registerByTitle(name, xml);
+  }
+
   /** Every call variant the catalogue failed to build, as `{ call, reason }`.
    *
    * The shipped catalogue is NOT clean: some tams name formations that `formations.xml` does not

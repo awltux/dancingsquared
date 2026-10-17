@@ -159,7 +159,30 @@ export class CallLibrary {
   // ---- registration ----
 
   register(name: string, xml: string): void {
-    const variants = this.loadVariants(xml);
+    this.registerScoped(name, xml, null);
+  }
+
+  /**
+   * Register a call FROM A DOCUMENT, taking ONLY the tams that carry `name` as their title.
+   *
+   * WHY THIS EXISTS. A title is the call's identity and a document is a FAMILY of calls, so `register`
+   * registering every tam in the document under the caller's name made one call's variant set the whole file's.
+   * MEASURED: registering `circle.xml` under a single name gave that name all 124 of its tams, so `Boys Trade`
+   * matched `Partner Trade`'s and `Couples Trade`'s authorings from `trade.xml`. The census that says the split
+   * is a gain with nothing lost: over the 138 named formations and Mainstream only, file-keyed registration
+   * (62 names) is legal 1791 times and title-keyed (322 names) 4960 times, with **0 formations losing one**.
+   *
+   * IT IS A SECOND ENTRY POINT RATHER THAN A CHANGED DEFAULT, deliberately: `register`'s whole-document
+   * behaviour is what the POC, the probes and two harnesses whose SUBJECT is that keying rely on, and a
+   * breaking default would have to re-pin them in the same commit. The grouping rule now lives here, in the
+   * module that owns the variant model, and a caller adopts it by name.
+   */
+  registerByTitle(name: string, xml: string): void {
+    this.registerScoped(name, xml, canonicalName(name));
+  }
+
+  private registerScoped(name: string, xml: string, onlyTitle: string | null): void {
+    const variants = this.loadVariants(xml, onlyTitle);
     // A call with NO buildable variant is left unregistered, so the applicator still reports
     // `Unknown call: X` rather than `No setup in this call matches` - the same symptom the old
     // all-or-nothing throw produced. The difference is that it is now visible in
@@ -557,7 +580,7 @@ export class CallLibrary {
    * and every skip is RECORDED in `failures` rather than thrown into a bare `catch`, because a
    * silent loss surfaces much later as `Unknown call: ...` - the most misleading possible symptom.
    */
-  private loadVariants(callXml: string): CallBundle[] {
+  private loadVariants(callXml: string, onlyTitle: string | null = null): CallBundle[] {
     // Parsed ONCE, not once per call. These used to be re-parsed inside this method, which meant
     // parsing all of `moves.xml` and `formations.xml` 2211 times to build the shipped catalogue -
     // measured at 32s of a 55s fast verify tier. The parse is pure, so caching it is free.
@@ -566,6 +589,7 @@ export class CallLibrary {
     const tams = parseCallXml(callXml);
     const out: CallBundle[] = [];
     for (const tam of tams) {
+      if (onlyTitle !== null && canonicalName(tam.title) !== onlyTitle) continue;
       try {
         const call = buildCall(tam, formations, moves, true);
         // Stamp each 8-dancer setup with its home identity so matching can preserve

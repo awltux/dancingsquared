@@ -73,6 +73,11 @@ const applier = {
   candidateCalls() {
     return ['go-b', 'go-c', 'go-d', 'stuck'];
   },
+  // NO GROUPS IN THE STUB: the Daily's grouped list is `daily-readings-probe.mjs`'s question, and this probe is about
+  // the move/undo stack.
+  readings(b) {
+    return Object.entries(CALLS.get(b) ?? {}).map(([call, board]) => ({ call, selection: null, board }));
+  },
   refusalOf(b, call) {
     if (call in (CALLS.get(b) ?? {})) return null;
     // `stuck` carries the stub's own one-word reason, verbatim — the session must pass it through

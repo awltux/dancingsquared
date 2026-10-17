@@ -47,6 +47,22 @@ export interface Move {
   board: Board;
 }
 
+/**
+ * One call together with the READING that performs it: the whole board (`selection: null`) or a named subset
+ * (`selection` naming the group, "Heads" …).
+ *
+ * WHY THE READING IS PART OF THE IDENTITY rather than a label on a call: the same title can be legal for the set and
+ * illegal for a group, or the other way round — MEASURED, `Dosado` is refused whole-board at Mainstream and legal
+ * for `Head Boys` — so "the call" and "the call by these dancers" are two different moves that happen to share a
+ * name. The Daily's picker offers both, and what it plays is the group's own spelling (`"Heads Dosado"`), which is
+ * what the engine and the server both read.
+ */
+export interface MoveReading {
+  call: string;
+  selection: string | null;
+  board: Board;
+}
+
 /** A call the engine REFUSES, carrying the engine's own reason verbatim (DESIGN.md 4.1: the reason is
  * engine-owned prose and is never re-worded by the game). */
 export interface Refusal {
@@ -98,6 +114,17 @@ export interface SequenceMotion {
 export interface GameApplier {
   /** The calls that are legal from `board` at this level, each with its resulting board. */
   offered(board: Board): Move[];
+  /**
+   * EVERY reading of every legal call from `board` — the whole board and each subset that can perform it.
+   *
+   * WHY IT IS SEPARATE FROM `offered`. `offered` is the WHOLE-BOARD list: the Drill's options, the hint's menu, the
+   * generator's gates. The Daily's picker is the one screen that has to say "Heads Lead Right" as well as "Lead
+   * Right", and the group-aware list cannot be derived from `offered` in either direction (a call legal for a group
+   * and not for the set, or the reverse). MEASURED at 322 titles: 1754 ms on a squared set (140 whole-board + 718
+   * group readings), and 22 ms one call in — which is why the applier caches it by board and why `offered` was not
+   * turned into it.
+   */
+  readings(board: Board): MoveReading[];
   /**
    * Every call title the level registers — the menu, not the availability. `offered` is this filtered
    * by legality, and `candidateCalls` is what makes an authorable `unknown` option possible.

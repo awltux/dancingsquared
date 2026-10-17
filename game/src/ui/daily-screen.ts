@@ -17,6 +17,7 @@
 // patched buttons would show a stale allowance next to a fresh board. The readouts are the cheap strings, and
 // they are written only when they change — see `writeClock`, which the frame loop calls.
 import type { DailyView } from '../game/daily-run.ts';
+import { groupReadings } from '../puzzle/readings.ts';
 import { el } from './dom.ts';
 
 interface El {
@@ -62,24 +63,44 @@ export class DailyScreen {
       // AT THE CAP THE LIST IS DISABLED, not emptied: the player can still see what was legal, and the
       // readout says the allowance is spent. An empty list would look like a broken puzzle.
       const spent = view.movesLeft === 0;
-      for (const move of view.offered) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'offer';
-        // THE HINT MARKS THE CALL IN THE LIST, which is what DESIGN.md 10 asks a hint to be: one call name,
-        // marked where the player is already looking. The run drops the marker as soon as they move, so it
-        // can never point at a call that is no longer offered.
-        if (move.call === view.hintedCall) {
-          button.classList.add('hinted');
-          button.textContent = `${move.call} · hint`;
-        } else {
-          button.textContent = move.call;
+      // GROUPED BY THE READING: one section per subset that can perform something, the whole board first.
+      //
+      // WHY SECTIONS AND NOT A PREFIX IN THE LABEL. The engine's own vocabulary is a GROUP plus a call ("Heads"
+      // + "Dosado"), and prefixed labels made every row a sentence to re-read ("Head Boys Dosado" beside
+      // "Dosado"). A heading says it once, the rows stay the call's own name, and the same call appearing under
+      // two headings is honest: those are two different moves, by different dancers.
+      for (const section of groupReadings(view.readings)) {
+        const heading = document.createElement('h3');
+        heading.className = 'offer-group';
+        heading.textContent = section.label;
+        this.els.offer.append(heading);
+
+        const row = document.createElement('div');
+        row.className = 'offer-row';
+        for (const reading of section.readings) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'offer';
+          // THE HINT MARKS THE CALL IN THE LIST, which is what DESIGN.md 10 asks a hint to be: one call name,
+          // marked where the player is already looking. The run drops the marker as soon as they move, so it
+          // can never point at a call that is no longer offered. A hinted call is highlighted in EVERY group it
+          // is legal for, because the hint names a call and not a reading.
+          if (reading.call === view.hintedCall) {
+            button.classList.add('hinted');
+            button.textContent = `${reading.call} · hint`;
+          } else {
+            button.textContent = reading.call;
+          }
+          // WHAT IS PLAYED IS THE GROUP'S OWN SPELLING. The engine, the server's replay and the saved line all read
+          // "Heads Dosado", so the button hands the picker that string and nothing has to translate it later.
+          const played = reading.selection === null ? reading.call : `${reading.selection} ${reading.call}`;
+          button.disabled = this.busy || spent;
+          button.addEventListener('click', () => this.on.play(played));
+          row.append(button);
         }
-        button.disabled = this.busy || spent;
-        button.addEventListener('click', () => this.on.play(move.call));
-        this.els.offer.append(button);
+        this.els.offer.append(row);
       }
-      if (view.offered.length === 0) {
+      if (view.readings.length === 0) {
         const note = document.createElement('p');
         note.textContent = 'No call is available from here — undo one to back out.';
         this.els.offer.append(note);

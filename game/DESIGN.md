@@ -673,6 +673,20 @@ the code keeps by habit.
   the mode depends on the level, and nothing about it depends on another level.
 - **The offering list is what is legal now**, per decision 9 — not what is still solvable. Dead ends are the
   player's to discover, and the score is what makes discovering them cost something.
+- **The list is GROUPED BY THE READING, and that is the mode's second half.** The engine's `applicableMoves` gives
+  every legal move with the reading that performs it — the whole board (`selection: null`, headed **All 8**) and
+  each subset that can perform the call ("Heads", "Head Boys", …) — and what the player clicks plays the group's own
+  spelling ("Heads Dosado"), which is what the client applies, what `POST /daily/move` records and what
+  `POST /runs` replays. MEASURED at pool 36 from a squared set: **370 readings against 35 whole-board calls**, in 14
+  sections, and **322 of the 335 shared-call readings end on a different board from the whole-board reading of the
+  same call** — so a list built by filtering `offered` cannot express them in either direction. The picker asks on
+  every view (each move, each undo), which is why `createEngineApplier` caches the list **by full pose and identity**
+  — NOT by `boardSig`, and that is a correction the probe made: a call that changes only FACING returns the same
+  board signature and a different question, so a positions-only key served the previous board's list.
+  `game/test/daily-readings-probe.mjs` pins all of it.
+- **A group-only call — one a subset can perform and the set cannot — is legal here too**, and it is the engine's
+  harness that builds the case (`engine/test/group-refusal.mjs`), because the squared set at a real level's pool
+  offers 35 of its 36 titles whole-board and the situation does not arise within one call of the start.
 - **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
   offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
   board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the

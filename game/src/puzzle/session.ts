@@ -21,7 +21,7 @@
 
 import { boardSig, type Board } from 'dancing-squared-engine';
 import { MOVE_ALLOWANCE_CUSHION, NODE_BUDGET } from './config.ts';
-import type { GameApplier, Move, Puzzle, Refusal } from './types.ts';
+import type { GameApplier, Move, MoveReading, Puzzle, Refusal } from './types.ts';
 
 /** One move the player made, with the board it was played from, so an undo can restore exactly. */
 interface Played {
@@ -124,9 +124,20 @@ export class PlaySession {
     };
   }
 
-  /** The calls available from the current board, with their resulting boards. */
+  /** The calls available from the current board, with their resulting boards — the WHOLE-BOARD list. */
   offered(): Move[] {
     return this.applier.offered(this.board);
+  }
+
+  /**
+   * EVERY legal move from the current board with the reading that makes it legal: the whole board and each group.
+   *
+   * THE DAILY'S PICKER IS THIS LIST, and the difference from `offered` is not cosmetic: `offered` cannot express
+   * "Heads Dosado" at all, and the two lists disagree in both directions (a call legal for a group and not for the
+   * set, and the reverse). It is asked of the applier on every view, which is why the applier caches it by board.
+   */
+  readings(): MoveReading[] {
+    return this.applier.readings(this.board);
   }
 
   // ------------------------------------------------------------------ playing

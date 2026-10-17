@@ -22,7 +22,7 @@
 import type { Board } from 'dancing-squared-engine';
 import { elapsedSeconds, scoreRun, type RunScore } from '../puzzle/score.ts';
 import { PlaySession, type Verdict } from '../puzzle/session.ts';
-import type { GameApplier, LevelSpec, Move, Puzzle } from '../puzzle/types.ts';
+import type { GameApplier, LevelSpec, Move, MoveReading, Puzzle } from '../puzzle/types.ts';
 import { Stopwatch } from './clock.ts';
 import type { DailySaved } from './store.ts';
 
@@ -40,13 +40,18 @@ export interface DailyView {
    */
   goalName: string | null;
   /**
-   * The calls legal from `board` right now — the offering list (DESIGN.md 9, "what is legal now").
+   * EVERY legal move from `board` right now, with the reading that makes it legal — the offering list
+   * (DESIGN.md 9, "what is legal now"), grouped by the dancers who can perform it.
+   *
+   * IT IS THE READINGS AND NOT `offered`: the Daily's picker offers "Heads Lead Right" as well as "Lead Right",
+   * which the whole-board list cannot express, and the two are different moves. Dead ends are legitimate and are
+   * NOT filtered out of this list's consequences — a call that leaves the player with nothing is the puzzle.
    *
    * IT STAYS POPULATED WHEN THE ALLOWANCE IS SPENT, and the screen disables the buttons with the reason.
    * Emptying the list instead would leave the player looking at a puzzle with no moves and no explanation
    * of why, which is the shape of a broken page rather than of a spent budget.
    */
-  offered: Move[];
+  readings: MoveReading[];
   /** The calls played, in order, and whether either direction of the stack is available. */
   moves: string[];
   canUndo: boolean;
@@ -263,7 +268,7 @@ export class DailyRun {
       board: this.board,
       goal: this.puzzle.goal,
       goalName: this.applier.nameOf(this.puzzle.goal),
-      offered: this.outcome === 'playing' ? this.session.offered() : [],
+      readings: this.outcome === 'playing' ? this.session.readings() : [],
       moves: session.moves,
       canUndo: this.outcome === 'playing' && session.movesUsed > 0,
       canRedo: this.outcome === 'playing' && session.canRedo,

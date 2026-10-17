@@ -24,13 +24,39 @@
 // in the pose, and `sameBoardById` would then disagree with the engine's own recogniser about whether
 // the player arrived. Turning it off makes the goal exactly what the calls produce.
 import { Sequencer, sameBoardById, type Board } from 'dancing-squared-engine';
-import type { GameApplier, Move, Refusal, SequenceMotion } from '../puzzle/types.ts';
+import type { GameApplier, Move, MoveReading, Refusal, SequenceMotion } from '../puzzle/types.ts';
 
 interface ApplierOptions {
   movesXml: string;
   formationsXml: string;
   /** The calls this level registers, by TITLE. */
   calls: { name: string; xml: string }[];
+}
+
+/**
+ * How many boards' reading lists one applier keeps.
+ *
+ * THE CACHE IS WHY THE DAILY'S PICKER IS A CLICK. `readings` is `legalCalls × subsetGroups` applicator runs —
+ * MEASURED, 1754 ms on a squared set at 322 titles and 22 ms one call in — and the Daily asks for it again after
+ * every move AND every undo.
+ *
+ * THE KEY IS THE FULL POSE AND IDENTITY, NOT `boardSig`, and that is a correction rather than caution: `boardSig` is
+ * positions-only (AGENTS.md §8 trap 11), and MEASURED while this cached on it, a call that changes FACING alone
+ * returned the previous board's list — same signature, different question. Legality reads headings (the matcher
+ * matches them) and the group list reads couple identity, so the key carries both. It is deliberately
+ * OVER-sensitive: two boards that are genuinely the same pose in different arrays would be two cache entries, which
+ * costs one recomputation, while an UNDER-sensitive key serves a wrong list, which costs a wrong puzzle.
+ *
+ * THE BOUND IS BLUNT, for the reason `api/src/levels.ts` gives about its own caches: the working set is the boards a
+ * player walks in one run, and a clear costs one recomputation rather than leaving an unbounded map in a tab.
+ */
+const READINGS_CACHE_BOARDS = 32;
+
+/** The key: every dancer's identity, couple, gender, position and heading, exactly as floats. */
+function poseKey(board: Board): string {
+  let key = '';
+  for (const d of board.dancers) key += `${d.id},${d.couple},${d.gender},${d.x},${d.y},${d.heading};`;
+  return key;
 }
 
 export function createEngineApplier(opts: ApplierOptions): GameApplier {
@@ -42,6 +68,7 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
   for (const call of opts.calls) seq.registerByTitle(call.name, call.xml);
   seq.setSnapMaxError(0);
   const names = opts.calls.map((c) => c.name);
+  const readingCache = new Map<string, MoveReading[]>();
 
   return {
     offered(board: Board): Move[] {
@@ -55,6 +82,25 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
 
     candidateCalls(): string[] {
       return [...names];
+    },
+
+    /**
+     * Every reading of every legal call from `board`, whole board and per group, from the engine's own enumeration
+     * (`Sequencer.applicableMoves`) and cached by board signature.
+     *
+     * THE ENGINE OWNS THE GROUP RULE, which is why this is a delegation rather than a loop over `subsetGroups` and
+     * `groupCanPerform` here: the deciding is exactly "can THIS group perform the call from THIS board", which is
+     * `groupCanPerform`'s question, and a copy of that walk in the game would be the second implementation AGENTS.md
+     * §5 forbids.
+     */
+    readings(board: Board): MoveReading[] {
+      const key = poseKey(board);
+      const cached = readingCache.get(key);
+      if (cached) return cached;
+      const out = seq.applicableMoves(board);
+      if (readingCache.size >= READINGS_CACHE_BOARDS) readingCache.clear();
+      readingCache.set(key, out);
+      return out;
     },
 
     refusalOf(board: Board, call: string): Refusal | null {

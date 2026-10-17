@@ -44,6 +44,9 @@ const eq = (a, b) =>
 
 const applier = {
   offered: (b) => Object.entries(CALLS.get(b) ?? {}).map(([call, board]) => ({ call, board })),
+  // THE STUB HAS NO GROUPS, so every reading is the whole board — which is exactly what this probe needs: the run's
+  // grouping is the SCREEN's question, and the engine-backed list is measured by `daily-readings-probe.mjs`.
+  readings: (b) => Object.entries(CALLS.get(b) ?? {}).map(([call, board]) => ({ call, selection: null, board })),
   candidateCalls: () => ['go-b', 'go-c', 'go-d', 'stuck'],
   refusalOf: (b, call) => (call in (CALLS.get(b) ?? {}) ? null : { call, reason: 'no' }),
   apply: (b, call) => {
@@ -85,7 +88,7 @@ console.log('== 1. a fresh run is playing, on the start board, with the shipped 
   check(v.allowance === 4, `the allowance is the shortest solution plus the cushion (${v.allowance})`);
   check(v.movesLeft === 4 && v.movesUsed === 0, 'and nothing has been spent');
   check(v.goalName === 'Stub Formation', 'the goal board is named for display only');
-  check(v.offered.length === 2, `the offering list is what is legal now (${v.offered.map((m) => m.call).join(', ')})`);
+  check(v.readings.length === 2, `the offering list is what is legal now (${v.readings.map((m) => m.call).join(', ')})`);
   check(run.board === A, 'and the run reports the board it is standing on');
 }
 
@@ -119,7 +122,7 @@ console.log('\n== 3. solving stops the clock and scores once ==');
   // finished run's time cannot creep up while the player reads the board.
   check(run.view(60000).elapsedSeconds === 4, 'and reading the run a minute later does not move it');
   check(run.view(60000).result.score === v.result.score, 'nor does the score change');
-  check(v.offered.length === 0, 'the offering list is empty once the run is over');
+  check(v.readings.length === 0, 'the offering list is empty once the run is over');
   check(run.undo() === false && run.redo() === false, 'and the stack is closed');
   const late = run.play('go-c', 61000);
   check(late.verdict === 'over' && late.reason.includes('already been scored'), `a late click is refused with its own reason (${late.reason})`);
@@ -130,7 +133,7 @@ console.log('\n== 4. a hint is charged once, never refunded, and its marker is v
   const run = fresh();
   const h = run.takeHint();
   check(h.spent === true && typeof h.call === 'string', `the hint names a call (${h.call})`);
-  check(run.view(0).offered.some((m) => m.call === h.call), 'and it is a call the offering list contains, so the player can follow it');
+  check(run.view(0).readings.some((m) => m.call === h.call), 'and it is a call the offering list contains, so the player can follow it');
   check(h.call !== 'stuck', 'and never the refused call');
   // THE SERVER'S NAME WINS WHEN THERE IS ONE (A23's naming), checked on its OWN run so the counting below is not
   // disturbed: the server looks the call up from the line it RECORDED, which is the board the player is actually on,

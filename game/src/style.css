@@ -252,6 +252,30 @@ body {
   margin-bottom: 14px;
 }
 
+/* THE GROUPED LIST: one section per reading, the whole board first (the order `puzzle/readings.ts` returns).
+   The heading is the ONLY place the group's name appears, which is why the buttons below it are bare call names:
+   a row reading "Head Boys Dosado" under a heading that already says "Head Boys" is the sentence twice. */
+#offer .offer-group {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+#offer .offer-group:first-child {
+  margin-top: 0;
+}
+
+/* A section's buttons WRAP rather than stacking: a squared set offers dozens of calls per group, and a column of
+   forty full-width buttons is a page of scrolling to reach the one below. */
+#offer .offer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .offer {
   min-height: 48px;
   padding: 10px 14px;

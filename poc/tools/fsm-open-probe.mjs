@@ -25,7 +25,7 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const assets = path.join(POC_DIR, 'src', 'assets');
+const assets = path.join(POC_DIR, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
 // ============================================================ 1. the rule, called

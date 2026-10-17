@@ -33,10 +33,10 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
 // THE FOUR `.xml` FILES UNDER THE LEVEL DIRECTORIES THAT ARE NOT CALLS: the moves registry and three rule
 // tables. They sit in a level directory because that is where the loader looks, so a coverage check that
 // merely counts `*.xml` is always four short - and a check with a magic floor cannot say WHICH four.
@@ -44,16 +44,16 @@ const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d
 // which 495 build, and the difference is exactly these four.
 const NOT_CALLS = new Set(['moves.xml', 'facing_couples_rule.xml', 'ocean_wave_rule.xml', 'passing_rule.xml']);
 const CALL_FILES = LEVELS.reduce((n, level) => n
-  + fs.readdirSync(path.join(POC_DIR, 'src/assets', level)).filter((f) => f.endsWith('.xml') && !NOT_CALLS.has(f)).length, 0);
+  + fs.readdirSync(path.join(POC_DIR, '../assets', level)).filter((f) => f.endsWith('.xml') && !NOT_CALLS.has(f)).length, 0);
 const callAt = (level, f) => {
   try {
     return engine.normalizeInstance(engine.loadCallFromXml(
-      fs.readFileSync(path.join(POC_DIR, 'src/assets', level, f), 'utf8'), movesXml, formationsXml, 0));
+      fs.readFileSync(path.join(POC_DIR, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0));
   } catch { return null; }
 };
 function* everyCall() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets', level))) {
+    for (const f of fs.readdirSync(path.join(POC_DIR, '../assets', level))) {
       if (!f.endsWith('.xml')) continue;
       const call = callAt(level, f);
       if (call) yield { level, f, call };

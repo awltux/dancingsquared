@@ -1,7 +1,7 @@
 // ============================================================================================
 // THE STORED FSM ASSET VS A REBUILD.
 //
-// WHY THIS EXISTS. `poc/src/assets/fsm-ms.json` is a GENERATED artefact: `poc/scripts/
+// WHY THIS EXISTS. `assets/fsm-ms.json` is a GENERATED artefact: `poc/scripts/
 // build-fsm-asset.mjs` builds the transition table from the shipped catalogue and serialises it, and
 // the FSM view loads it so opening the view is instant instead of a ~40s runtime build. Nothing
 // checked it. Rebuilding it once showed the drift in full: the SAME 155 states, but 2205 edges
@@ -36,7 +36,7 @@ import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', 'assets');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

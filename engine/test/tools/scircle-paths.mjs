@@ -13,7 +13,7 @@ const root = path.resolve(here, '..', '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
 const TITLE = 'Single Circle Left Full';
 
-const xml = read('poc/src/assets/ms/circle.xml');
+const xml = read('assets/ms/circle.xml');
 const blocks = xml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 console.log(`tams: ${tams.length}`);
@@ -26,7 +26,7 @@ tams.forEach((t, i) => {
 });
 
 for (const [i, t] of tams.entries()) {
-  const seq = new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'), [
+  const seq = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), [
     { name: TITLE, xml: `<calls>\n${t}\n</calls>` },
   ]);
   const v = seq.library.matchableVariants(TITLE)[0];

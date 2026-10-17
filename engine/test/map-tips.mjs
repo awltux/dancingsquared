@@ -2,7 +2,7 @@
 // FSM transition table, reporting any call step whose (formation -> next) edge is
 // not defined in the table. The goal is to find calls/formations that occur in
 // real choreography but are missing from the FSM, so they can be added to
-// poc/src/assets/discovered/.
+// assets/discovered/.
 //
 // Run: `npm run build` then `node test/map-tips.mjs` from engine/.
 
@@ -16,8 +16,8 @@ setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
-const movesXml = read('poc/src/assets/moves.xml');
-const formationsXml = read('poc/src/assets/formations.xml');
+const movesXml = read('assets/moves.xml');
+const formationsXml = read('assets/formations.xml');
 
 // Load the full catalog so every call used in a tip is registered. Calls are
 // keyed by their <tam> TITLE (e.g. "Circle Left"), not the file basename, so
@@ -27,11 +27,11 @@ const tamBlocks = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
 const attr = (b, n) => (b.match(new RegExp(`${n}="([^"]*)"`)) || [])[1] ?? '';
 const isHidden = (b) => /display="(no|none)"/.test(b.slice(0, b.indexOf('>') + 1));
 for (const level of ['ms', 'a1', 'a2', 'plus', 'c1', 'c2']) {
-  const dir = path.join(root, `poc/src/assets/${level}`);
+  const dir = path.join(root, `assets/${level}`);
   let files = [];
   try { files = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }
   for (const f of files) {
-    const xml = read(`poc/src/assets/${level}/${f}`);
+    const xml = read(`assets/${level}/${f}`);
     const byTitle = new Map();
     for (const b of tamBlocks(xml)) {
       if (isHidden(b)) continue;

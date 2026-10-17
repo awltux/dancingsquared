@@ -35,7 +35,7 @@ import { figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
-const assets = path.resolve(root, 'poc', 'src', 'assets');
+const assets = path.resolve(root, 'assets');
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

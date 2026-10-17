@@ -29,7 +29,7 @@ function loadCatalogTitles() {
   const titles = [];
   const seen = new Set();
   for (const level of ['ms', 'a1', 'a2', 'plus']) {
-    const dir = path.join(root, `poc/src/assets/${level}`);
+    const dir = path.join(root, `assets/${level}`);
     let fs = [];
     try { fs = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }
     for (const f of fs) {

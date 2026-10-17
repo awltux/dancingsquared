@@ -125,7 +125,7 @@ console.log('== How close are a move\'s two handles? (whole corpus) ==');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const moves = engine.parseMoves(movesXml);
@@ -141,7 +141,7 @@ for (const [name, items] of moves) {
 const levels = ['ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let calls = 0;
 for (const lv of levels) {
-  const dir = path.join(POC_DIR, 'src/assets', lv);
+  const dir = path.join(POC_DIR, '../assets', lv);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith('.xml')) continue;

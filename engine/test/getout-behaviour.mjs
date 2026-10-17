@@ -56,7 +56,7 @@ const fail = (msg) => { console.log(`  FAIL  ${msg}`); failures++; };
 
 // ------------------------------------------------------------------ the engine
 
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

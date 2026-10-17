@@ -47,7 +47,7 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-const assets = path.join(POC, 'src', 'assets');
+const assets = path.join(POC, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const { callsByTitle } = await import('../../engine/test/lib/engine-calls.mjs');
 const seq = new engine.Sequencer(asset('moves.xml'), asset('formations.xml'), callsByTitle(assets));

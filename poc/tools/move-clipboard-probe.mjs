@@ -39,13 +39,13 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
 const callAt = (level, f) => {
   try {
-    return engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, 'src/assets', level, f), 'utf8'), movesXml, formationsXml, 0));
+    return engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0));
   } catch { return null; }
 };
 
@@ -72,7 +72,7 @@ const gap = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /** Every move of every call in MS that HAS a move before it, with the frame it is played from. */
 function* cases() {
-  for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets/ms')).filter((x) => x.endsWith('.xml'))) {
+  for (const f of fs.readdirSync(path.join(POC_DIR, '../assets/ms')).filter((x) => x.endsWith('.xml'))) {
     const call = callAt('ms', f);
     if (!call) continue;
     for (let i = 0; i < call.dancers.length; i++) {
@@ -280,7 +280,7 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
   let rebaseCases = 0;
   let rebaseKept = 0;
   let rebaseRewroteEveryMove = 0;
-  for (const level of LEVELS) for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets', level)).filter((x) => x.endsWith('.xml'))) {
+  for (const level of LEVELS) for (const f of fs.readdirSync(path.join(POC_DIR, '../assets', level)).filter((x) => x.endsWith('.xml'))) {
     const call = callAt(level, f);
     if (!call) continue;
     calls++;

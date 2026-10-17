@@ -39,7 +39,7 @@ import { boardSig } from '../dist/sequencer/board.js';
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
@@ -997,7 +997,7 @@ console.log('\n== the NON-GEOMETRIC inputs to matching are exactly two, and both
 
 // ------------------------------------------- a call that only exists scoped
 // `Cross Run` has NINE `<tam title="Centers Cross Run">` and nine
-// `<tam title="Ends Cross Run">` entries in `poc/src/assets/ms/run.xml` and NO
+// `<tam title="Ends Cross Run">` entries in `assets/ms/run.xml` and NO
 // bare title at all. So `splitSelection("Girls Cross Run")` yields
 // selection="Girls", call="Cross Run" - and neither the isolated-subset match nor
 // the whole-board fallback can find a call by that name, because there is none.

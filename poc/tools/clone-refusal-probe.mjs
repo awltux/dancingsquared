@@ -38,7 +38,7 @@ const positional = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const CALL = positional[0] ?? 'Circle Left';
 const FORMATION = positional[1] ?? 'call:Right and Left Grand#1';
 
-const assets = path.join(POC_DIR, 'src', 'assets');
+const assets = path.join(POC_DIR, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');

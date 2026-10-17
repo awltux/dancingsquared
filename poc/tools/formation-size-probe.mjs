@@ -31,10 +31,10 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
 
 const DEG = Math.PI / 180;
 const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -69,13 +69,13 @@ const check = (cond, msg) => {
 
 function* everyCall() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(POC_DIR, 'src/assets', level))) {
+    for (const f of fs.readdirSync(path.join(POC_DIR, '../assets', level))) {
       if (!f.endsWith('.xml')) continue;
       try {
         yield {
           level, f,
           call: engine.normalizeInstance(engine.loadCallFromXml(
-            fs.readFileSync(path.join(POC_DIR, 'src/assets', level, f), 'utf8'), movesXml, formationsXml, 0)),
+            fs.readFileSync(path.join(POC_DIR, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0)),
         };
       } catch { /* a call that will not load is another probe's business */ }
     }

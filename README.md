@@ -8,7 +8,7 @@ managed as a single npm workspace.
 | Package | Path | What it is |
 |---------|------|------------|
 | `dancing-squared-engine` | `engine/` | Standalone, renderer-agnostic engine: taminations XML → `CallBundle`, pose evaluation, hand holds. Ships typed ESM to `dist/`. **The thing under test.** |
-| `dancing-squared-poc` | `poc/` | Three.js app that consumes the engine and renders 3D avatars with the full call catalog. Also holds the canonical corpus (`src/assets/`) and the probe suite (`tools/*-probe.mjs`). |
+| `dancing-squared-poc` | `poc/` | Three.js app that consumes the engine and renders 3D avatars with the full call catalog. Also holds its probe suite (`tools/*-probe.mjs`). |
 | `dancing-squared-teacher` | `poc-teacher/` | Teacher / session tracker: class plans, attendance, and practice tips built from the engine's Sequencer. |
 | `dancing-squared-stage` | `packages/stage/` | The shared Three.js render stage the apps draw through (`scene.ts`, `grid-magnet.ts`), exported as **source** so both apps render through one implementation rather than two. It has no gate of its own: its consumers' gates are its gate, and the probes that load `grid-magnet.ts` are the closest thing to a unit test it has. |
 | `dancing-squared-game` | `game/` | The call game: a seeded puzzle core, the Drill and the Daily, playable offline and (from Phase 5) account-backed. Its design of record is `game/DESIGN.md`, and it has **its own gate** — see `npm run verify:game` below. |
@@ -35,7 +35,7 @@ npm install        # install everything at the root (workspaces)
 | `npm run verify` | Build the engine, then run the **PoC** suite: `poc/verify.cjs` plus every `poc/tools/*-probe.mjs` |
 | `npm run verify:engine` | Run the **engine** gate: `tsc`, then `engine/test/verify-suite.mjs all` |
 | `npm run verify:teacher` | The teacher app's own checks |
-| `npm run verify:game` | The game's probe suite: every `game/test/*-probe.mjs`, checking first that the game's copy of the corpus still matches `poc/src/assets`. **Its typecheck is a separate command** (`npx tsc -p game --noEmit`), as the POC's is; `AGENTS.md` §3 is the gate, and this script is the half of it that can be one |
+| `npm run verify:game` | The game's probe suite: every `game/test/*-probe.mjs`, reading the repository's one corpus at `assets/`. **Its typecheck is a separate command** (`npx tsc -p game --noEmit`), as the POC's is; `AGENTS.md` §3 is the gate, and this script is the half of it that can be one |
 | `npm run dev:game`, `npm run build:game`, `npm run preview:game` | The game's Vite dev server (port **8089**, set in `game/vite.config.ts`), its build, and a preview of the build |
 | `npm run measure:ladder` | The ladder census: what every level actually costs to generate (`game/tools/measure-ladder.mjs`) |
 | `npm run verify:api` | The API's probe suite: every `api/test/*-probe.mjs` (its typecheck is `npx tsc -p api --noEmit`, for the same reason as the game's) |
@@ -113,7 +113,7 @@ the old engine. Never rebuild `dist` while a suite is running.
 ## Data
 
 The animation data (`moves.xml`, `formations.xml`, per-level call XMLs) is the
-GPL/AGPL-licensed taminations data, referenced/copied into `poc/src/assets`.
+GPL/AGPL-licensed taminations data, held once at `assets/`.
 
 Two oracles are deliberately **not** in git, because they are not ours to redistribute: `docs/` (CALLERLAB's
 Mainstream definitions PDF and pages downloaded from it) and `callerlab-ms.txt`, the text extracted from

@@ -23,9 +23,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
 const files = {};
-for (const f of readdirSync(path.join(root, 'poc/src/assets/ms')).filter((f) => f.endsWith('.xml'))) files[`ms/${f}`] = read(`poc/src/assets/ms/${f}`);
+for (const f of readdirSync(path.join(root, 'assets/ms')).filter((f) => f.endsWith('.xml'))) files[`ms/${f}`] = read(`assets/ms/${f}`);
 const { buildCatalog, makeSequencer } = await import('../poc-teacher/src/catalog.ts');
-const seq = makeSequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'), buildCatalog(files));
+const seq = makeSequencer(read('assets/moves.xml'), read('assets/formations.xml'), buildCatalog(files));
 
 const DEG = Math.PI / 180;
 const normAngle = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a < -Math.PI) a += 2 * Math.PI; return a; };

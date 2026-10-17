@@ -15,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', 'assets');
 const { renderFsmHtml } = await import('./../src/fsm-view.ts');
 
 const fsm = JSON.parse(readFileSync(path.join(assets, 'fsm-ms.json'), 'utf8'));

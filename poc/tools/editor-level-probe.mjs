@@ -112,7 +112,7 @@ console.log('\n== the default is a level the catalogue really carries ==');
 const levelOrder = engine.PERMISSION_LEVELS;
 const def = /const DEFAULT_LEVEL = '([^']+)'/.exec(src['editor-ui.ts'])?.[1] ?? '';
 const offersLevel = (lv) => {
-  const dir = path.join(POC_DIR, 'src/assets', lv);
+  const dir = path.join(POC_DIR, '../assets', lv);
   return levelOrder.includes(lv) && fs.existsSync(dir) && fs.readdirSync(dir).some((f) => f.endsWith('.xml'));
 };
 // AND THE APP STILL USES THAT ONE ORDER rather than a second copy of it. This is what the deleted regex was
@@ -121,7 +121,7 @@ check(/levelOrder[^=]*= PERMISSION_LEVELS/.test(read('src/data.ts')),
   'the catalogue takes its level order from the engine\'s `PERMISSION_LEVELS` rather than restating it');
 check(!/levelOrder[^=]*= PERMISSION_LEVELS/.test(read('src/data.ts').replace('= PERMISSION_LEVELS', "= ['ms', 'plus']")),
   'and a catalogue that grew its OWN level list again is caught - the divergence the import exists to prevent');
-check(def !== '' && offersLevel(def), `the default \`${def}\` is in the catalogue's level order and has calls under src/assets/${def}`);
+check(def !== '' && offersLevel(def), `the default \`${def}\` is in the catalogue's level order and has calls under ../assets/${def}`);
 check(!offersLevel('mainstream') && !offersLevel(''), 'and a default naming a programme the catalogue does not carry is caught, as is an empty one');
 
 // ---------------------------------------------------------------------------

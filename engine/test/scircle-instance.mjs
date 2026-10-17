@@ -61,7 +61,7 @@ const check = (cond, msg) => {
 // `poc/src/data.ts` `registrationXml` indexes with `entry.tamIndices`. The comments are stripped
 // because the app strips them (`afaae4a`) - a raw-text read here would be indexing a list the app
 // never builds.
-const circleXml = read('poc/src/assets/ms/circle.xml');
+const circleXml = read('assets/ms/circle.xml');
 const blocks = circleXml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 const formOf = (x) => (x.match(/formation="([^"]*)"/) ?? [])[1];
@@ -81,7 +81,7 @@ check(formOf(tams[0]) === 'Facing Dancers Far', `[0] is the "Facing Dancers Far"
 check(formOf(tams[1]) === 'Facing Dancers', `[1] is the plain "Facing Dancers" stance (got "${formOf(tams[1])}")`);
 
 const mkSeq = (xml) =>
-  new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'),
+  new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'),
     [{ name: TITLE, xml: `<calls>\n${xml}\n</calls>` }]);
 
 // The app registers BOTH setups under one title, in file order - Far first.

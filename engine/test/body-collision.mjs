@@ -30,7 +30,7 @@ import { callsByTitle } from './lib/engine-calls.mjs';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..');
-const assets = path.join(root, 'poc', 'src', 'assets');
+const assets = path.join(root, 'assets');
 
 let failures = 0;
 const check = (cond, msg) => {

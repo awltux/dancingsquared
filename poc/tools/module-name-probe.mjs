@@ -27,8 +27,8 @@ engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 
 const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
-const movesXml = read('src/assets/moves.xml');
-const formationsXml = read('src/assets/formations.xml');
+const movesXml = read('../assets/moves.xml');
+const formationsXml = read('../assets/formations.xml');
 const ui = read('src/sequencer-ui.ts');
 const css = read('src/style.css');
 const CALL = 'Single File Promenade Home';
@@ -38,7 +38,7 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const fresh = () => new engine.Sequencer(movesXml, formationsXml, callsByTitle(path.join(POC_DIR, 'src', 'assets')));
+const fresh = () => new engine.Sequencer(movesXml, formationsXml, callsByTitle(path.join(POC_DIR, '..', 'assets')));
 
 console.log('== 1. the refusal, and that it says so ==');
 {

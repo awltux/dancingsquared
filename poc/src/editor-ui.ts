@@ -5769,7 +5769,7 @@ export class EditorController implements EditorUI {
       const key = entry?.file ?? `?${s.callId}`;
       const group = groups.get(key) ?? {
         family: entry?.family ?? null,
-        filepath: entry ? `poc/src/assets/${entry.file}.xml` : '(unknown file)',
+        filepath: entry ? `assets/${entry.file}.xml` : '(unknown file)',
         tams: [],
       };
       group.tams.push(typed);

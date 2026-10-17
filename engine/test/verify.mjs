@@ -17,14 +17,14 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const movesXml = read('../../poc/src/assets/moves.xml');
-const formationsXml = read('../../poc/src/assets/formations.xml');
+const movesXml = read('../../assets/moves.xml');
+const formationsXml = read('../../assets/formations.xml');
 
 const engine = new Engine(movesXml, formationsXml);
 
 // --- Brace Thru (Lines, Boys Ends), mirrored -> 8 dancers ---
 console.log('== Engine: load + poses ==');
-const brace = engine.loadCall(read('../../poc/src/assets/a1/brace_thru.xml'), 0);
+const brace = engine.loadCall(read('../../assets/a1/brace_thru.xml'), 0);
 check(brace.dancers.length === 8, `Brace Thru mirrored -> ${brace.dancers.length} dancers`);
 check(brace.totalBeats === brace.leadin + brace.beats + brace.leadout, 'totalBeats = leadin+beats+leadout');
 
@@ -39,7 +39,7 @@ posesStart.forEach((p, i) => {
 
 // --- Hand holds: static start line = 3 holds, all 4 (half) joined ---
 console.log('== Engine: hand holds ==');
-const half = engine.loadCall(read('../../poc/src/assets/a1/brace_thru.xml'), 0, false); // no mirror
+const half = engine.loadCall(read('../../assets/a1/brace_thru.xml'), 0, false); // no mirror
 const h = engine.handholds(engine.poses(half, 0), 'static');
 const covered = new Set(h.flatMap((e) => [e.i, e.j]));
 check(h.length === 3, `start line derives ${h.length} holds (expect 3)`);
@@ -52,7 +52,7 @@ check(Math.abs(s0.x + s4.x) < 1e-6 && Math.abs(s0.y + s4.y) < 1e-6, 'duplicate h
 
 // --- Circle Left forms a ring ---
 console.log('== Engine: circle ring ==');
-const circle = engine.loadCall(read('../../poc/src/assets/ms/circle.xml'), 0);
+const circle = engine.loadCall(read('../../assets/ms/circle.xml'), 0);
 const cHolds = engine.handholds(engine.poses(circle, circle.beats * 0.5), 'active');
 const cdeg = new Array(circle.dancers.length).fill(0);
 cHolds.forEach((e) => { cdeg[e.i]++; cdeg[e.j]++; });

@@ -28,7 +28,7 @@ import { callsByTitle } from '../lib/engine-calls.mjs';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
-const assets = path.join(root, 'poc', 'src', 'assets');
+const assets = path.join(root, 'assets');
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

@@ -37,7 +37,7 @@ const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'en
 // `corpusFormationsOfSize` builds it, so the witness below has to be the same shape the picker offers.
 const half = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 
-const assets = path.join(POC_DIR, 'src', 'assets');
+const assets = path.join(POC_DIR, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');

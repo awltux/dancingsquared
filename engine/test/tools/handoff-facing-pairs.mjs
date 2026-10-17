@@ -24,13 +24,13 @@ const root = path.resolve(here, '..', '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
 const TITLE = 'Single Circle Left Full';   // 2-dancer authorings only: Facing Dancers Far / Facing Dancers
 
-const raw = read('poc/src/assets/ms/circle.xml');
+const raw = read('assets/ms/circle.xml');
 const all = (raw.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [])
   .filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 console.log(`tams in ms/circle.xml carrying title="${TITLE}": ${all.length}`);
 if (all.length === 0) throw new Error(`no tam for ${TITLE} - check the title spelling`);
 const mkSeq = (xmls) =>
-  new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'),
+  new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'),
     [{ name: TITLE, xml: `<calls>\n${xmls.join('\n')}\n</calls>` }]);
 
 console.log('==================================================================');

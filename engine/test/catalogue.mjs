@@ -31,7 +31,7 @@ import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', 'assets');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -151,7 +151,7 @@ console.log('\n== a call defined at several LEVELS: the pool is highest-first, a
   // Witness 1 — ORDER, PINNED STRUCTURALLY, AND THAT IS A MEASUREMENT. This witness used to be a
   // DANCE: the retired `b1/circle.xml` authored `Forward .59` + 8x `cl` and stopped, while
   // `ms/circle.xml` authored the round trip, so the two walks produced different end boards.
-  // **`b1` is not a level any more** - `ASSET_LEVELS` has no `b1` and `poc/src/assets/b1` does not
+  // **`b1` is not a level any more** - `ASSET_LEVELS` has no `b1` and `assets/b1` does not
   // exist - and of the 31 titles that ARE still defined at two or more levels, NOT ONE is
   // order-sensitive: all 31 applied from all 138 named formations under both walks give the same
   // board for **4278 applications**, identical to the digit. So no dance can witness the order

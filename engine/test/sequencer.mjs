@@ -34,9 +34,9 @@ const fail = (msg) => {
   failures++;
 };
 
-const movesXml = read('../../poc/src/assets/moves.xml');
-const formationsXml = read('../../poc/src/assets/formations.xml');
-const ms = (name) => read(`../../poc/src/assets/ms/${name}.xml`);
+const movesXml = read('../../assets/moves.xml');
+const formationsXml = read('../../assets/formations.xml');
+const ms = (name) => read(`../../assets/ms/${name}.xml`);
 
 const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Allemande Left', xml: ms('allemande') },
@@ -45,7 +45,7 @@ const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Circle Left', xml: ms('circle') },
   { name: 'Heads Spin the Top', xml: ms('spin_the_top') },
   { name: 'Double Pass Thru', xml: ms('double_pass_thru') },
-  { name: 'Heads Pass Thru', xml: filterTam('../../poc/src/assets/ms/pass_thru.xml', 'Heads Pass Thru') },
+  { name: 'Heads Pass Thru', xml: filterTam('../../assets/ms/pass_thru.xml', 'Heads Pass Thru') },
 ]);
 
 console.log('== Sequencer: start ==');
@@ -350,7 +350,7 @@ console.log('== Sequencer: a SCOPED catalogue call falls back to its generic rea
 // MEASURED in the census's EXACT bucket - the five cases where a same-size setup overlays the
 // board's positions AND facings at error 0.000 and the call is still refused - `figm174 Heads Pass
 // Thru` and `figm224 Sides Pass Thru`, both from a Double Pass Thru.
-const scopedSeq = new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(__dirname, '../../poc/src/assets')));
+const scopedSeq = new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(__dirname, '../../assets')));
 const dptBoard = scopedSeq.applyToBoard(scopedSeq.boardForFormation('Static Square'), 'Heads Star Thru');
 check(dptBoard.legal && scopedSeq.knownFormation(dptBoard.board) === 'Double Pass Thru',
   `the witness board is a Double Pass Thru: ${scopedSeq.knownFormation(dptBoard.board) ?? '(unnamed)'}`);
@@ -1325,7 +1325,7 @@ console.log('\n== the end formation of a call instance, and user-defined formati
 // `knownFormation` answered `null` for the board it came from.
 console.log('\n== a registered half-set formation names a whole-set board ==');
 {
-  const tams = parseCallXml(read('../../poc/src/assets/ms/circle.xml'));
+  const tams = parseCallXml(read('../../assets/ms/circle.xml'));
   const tam = tams.find((t) => /^circle$/i.test((t.formationAttr ?? '').trim()));
   check(!!tam, 'ms/circle.xml carries a tam whose formation the corpus authors as a half-group');
   if (tam) {
@@ -1375,7 +1375,7 @@ console.log('\n== a registered half-set formation names a whole-set board ==');
 // `ApplyResult.parallel.groups`), so a group that matched is never pinned.
 console.log('\n== a 4-dancer call applied twice whose turn is a FULL one still animates ==');
 {
-  const s = new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(__dirname, '../../poc/src/assets')));
+  const s = new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(__dirname, '../../assets')));
   const lines = s.boardForSetup('Normal Lines');
   check(!!lines, 'the start board "Normal Lines" is in the library');
   const flat = ['Circle Four Left Full'];

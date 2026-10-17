@@ -40,13 +40,13 @@ const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 const norm = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; };
 /** The app's TypeScript is checked in with CRLF; this file is LF, so a multi-line match needs this. */
 const readSource = (rel) => fs.readFileSync(path.join(POC, rel), 'utf8').replace(/\r\n/g, '\n');
-const asset = (p) => fs.readFileSync(path.join(POC, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC, '../assets', p), 'utf8');
 
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const formations = engine.parseFormations(formationsXml);
 const DEG = Math.PI / 180;
-const LEVELS = fs.readdirSync(path.join(POC, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = fs.readdirSync(path.join(POC, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
 
 // ---------------------------------------------------------------- the panel's own list, mirrored
 /** `sameArrangement`, mirrored: order-independent, position + heading + gender, every spot consumed. */
@@ -91,11 +91,11 @@ const namedSetup = (call, end) => {
 };
 function* everyCall() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(POC, 'src/assets', level)).sort()) {
+    for (const f of fs.readdirSync(path.join(POC, '../assets', level)).sort()) {
       if (!f.endsWith('.xml')) continue;
       try {
         yield { id: `${level}/${f}`, call: engine.normalizeInstance(engine.loadCallFromXml(
-          fs.readFileSync(path.join(POC, 'src/assets', level, f), 'utf8'), movesXml, formationsXml, 0)) };
+          fs.readFileSync(path.join(POC, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0)) };
       } catch { /* a call that will not load is another probe's business */ }
     }
   }

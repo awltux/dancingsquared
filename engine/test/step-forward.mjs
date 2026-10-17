@@ -48,7 +48,7 @@ import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.join(here, '..', '..', 'poc', 'src', 'assets');
+const assets = path.join(here, '..', '..', 'assets');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

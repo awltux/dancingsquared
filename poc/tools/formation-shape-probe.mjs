@@ -42,7 +42,8 @@ const check = (cond, msg) => {
 const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 /** The app's TypeScript is checked in with CRLF; this file is LF, so a multi-line match needs this. */
 const readSource = (rel) => fs.readFileSync(path.join(POC, rel), 'utf8').replace(/\r\n/g, '\n');
-const read = (rel) => fs.readFileSync(path.join(POC, 'src', rel), 'utf8');
+/** The corpus is the repository's ONE copy at `assets/` in the root — one level ABOVE the POC, not beside it. */
+const read = (rel) => fs.readFileSync(path.join(POC, '..', rel), 'utf8');
 
 const movesXml = read('assets/moves.xml');
 const formationsXml = read('assets/formations.xml');

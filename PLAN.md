@@ -38,7 +38,7 @@ Two habits this workstream has paid for repeatedly, and they are rules now:
 
 ## 1. Summary — what the engine is measured against
 
-`engine/` is the TypeScript library under test; `poc/src/assets/` is the canonical tamination XML;
+`engine/` is the TypeScript library under test; `assets/` is the canonical tamination XML;
 `taminations-flutter/` is reference **data and code to read, never to port**.
 
 Three external oracles, plus one derived artefact:
@@ -58,7 +58,7 @@ design** (the finish line, not a gate).
 
 **One tool is deliberately NOT a gate, and it is the only one on disk that is not registered:**
 `test/map-tips.mjs`. It is a GENERATOR, not a check — it walks tips and writes the missing FSM edges
-into `poc/src/assets/discovered/` — and Phase G already says to run it by hand whenever the FSM is
+into `assets/discovered/` — and Phase G already says to run it by hand whenever the FSM is
 touched. Recorded here because "a file in `test/` that the suite does not run" is exactly the shape that
 hid the staleness in `getout-convention` (`GETOUT_SWEEP`), and the answer here is that there is no
 second one: `process.env` appears in exactly ONE place in the whole engine, and every other skip in
@@ -77,7 +77,7 @@ second one: `process.env` appears in exactly ONE place in the whole engine, and 
 | … decoded but stopped at a call (the body gap) | **108** (was 110) | same |
 | FSM | **155 states / 92 home / 43 nohome / 19 dead `@embed#N`** | `node engine/test/tools/fsm-getout-audit.mjs` |
 | CALLERLAB | real gap is **11 (call, start) pairs + 9 formation names** (was 9 + 24 — THREE instrument bugs, rounds 24, 37/38, 39) | `node engine/test/tools/callerlab-diff.mjs` |
-| gates | **at `8cfe8a1` (clean `poc/src/assets`): `verify:light` RED at 13 of 30 harnesses and `verify` RED at 24 of 47 — the census is TODO item 7, where every red is attributed to the commit that moved it. Two causes carry most of it: the corpus re-authored `Circle Left` to end in the `Circle` formation, and the generated `poc/src/assets/fsm-ms.json` is stale (schema 2 / 274 entries against the engine's 3 / 290), which a regeneration alone does NOT clear in any of the four harnesses that read it. `poc/verify.cjs` RED at 2, the POC probe suite 4 of 62, `check:book` red on `animations-index.json` only**; at the FROZEN corpus `abc10f1` it was `verify:light` 14 of 29 and `verify` 25 of 46 (1288 s), where only NINE of the 25 were stale pins or the stale asset and the rest were live work (TODO P1.5's sweep); `verify:figures` **red by design** | `npm run verify --prefix engine` |
+| gates | **at `8cfe8a1` (clean `assets`): `verify:light` RED at 13 of 30 harnesses and `verify` RED at 24 of 47 — the census is TODO item 7, where every red is attributed to the commit that moved it. Two causes carry most of it: the corpus re-authored `Circle Left` to end in the `Circle` formation, and the generated `assets/fsm-ms.json` is stale (schema 2 / 274 entries against the engine's 3 / 290), which a regeneration alone does NOT clear in any of the four harnesses that read it. `poc/verify.cjs` RED at 2, the POC probe suite 4 of 62, `check:book` red on `animations-index.json` only**; at the FROZEN corpus `abc10f1` it was `verify:light` 14 of 29 and `verify` 25 of 46 (1288 s), where only NINE of the 25 were stale pins or the stale asset and the rest were live work (TODO P1.5's sweep); `verify:figures` **red by design** | `npm run verify --prefix engine` |
 | walk-through (POC) | COINCIDENT **64**, of which ANIMATION fault **14** / APPLY fault **50** (was 72 / 42 / 30; all 50 apply faults are **geometrically congruent** with their setup — 0 non-congruent, worst separation disagreement 0.0000 — so no separation rule can refuse them) | `node engine/test/tools/walkthrough-survey.mjs`, gated by `node engine/test/tools/apply-fault-gate.mjs` |
 | … walk vs applicator, over 134 boards × 132 calls | agree **1920 of 1920**; silent no-ops **0**; phantoms **11**; dropped **6** (were 27 / 2466 / 400) | `node engine/test/anim-convergence.mjs` |
 | … ceder modules replayed from a start formation the corpus did not specify | **168 of 294** (Zero Line 108, Zero Box 71); the engine has neither formation | `node engine/test/tools/start-formation-probe.mjs` |
@@ -978,7 +978,7 @@ the round-26 composition attempt could not have worked whatever the sub-apply to
 Three facts pin the owner:
 
 - `Fan the Top` has **no derived rule in this engine at all** (`coded-moves.ts` has no entry); it is a
-  PLUS call served entirely by `poc/src/assets/plus/fan_the_top.xml`. `Spin the Top` is a Mainstream tam.
+  PLUS call served entirely by `assets/plus/fan_the_top.xml`. `Spin the Top` is a Mainstream tam.
 - Its `from="Right-Hand Waves"` tam carries `formation="Ocean Waves RH BGGB"` and only **FOUR `<path>`
   elements for eight dancers**, i.e. the catalogue itself expresses it as a 4-dancer wave read applied
   per half — which is the reference's `SplitCall`, exactly as round 25 cited from `split_call.dart`.
@@ -1045,7 +1045,7 @@ shortcuts past writing a derived rule, and both are refuted by measurement rathe
    match target; our engine does, which is the architectural difference this whole section is about.
    Editing the template would be inventing data.
 
-   The reusable lesson: **`poc/src/assets` and `taminations-flutter/assets` are the same catalogue,
+   The reusable lesson: **`assets` and `taminations-flutter/assets` are the same catalogue,
    so "the data is wrong" must be checked against the reference copy before it is believed.** VERIFIED
    for the four files this section depends on — `formations.xml`, `moves.xml`, `ms/spin_the_top.xml` and
    `plus/fan_the_top.xml` all compare **identical** to their reference counterparts (only the path differs:
@@ -4477,7 +4477,7 @@ The cause of both was NOT the tolerance: it was the PREDICATE. `matchingVariantI
 ### Phase L — PHRASE tams: the catalogue's own model for whole published chains (round 16)
 
 **The finding, and it is a structural one.** `taminations-flutter/`'s XML — and **our own
-`poc/src/assets/`**, which is the same data — author several of the corpus's published chains as a
+`assets/`**, which is the same data — author several of the corpus's published chains as a
 **single `<tam>` whose title is the whole phrase**, `formation="Static Square"`, with the actives'
 paths run end to end and the others standing:
 
@@ -5055,7 +5055,7 @@ side, including the six-dancer case. Engine suite: 31 harnesses green. `poc/veri
 `run-circle-probe.mjs` fails assertions that pin OFFSET orbits (`offsets.every(o => o > 0.5)`) and now measures
 `0.000`, i.e. the symptom it describes is gone. It is not this change: every hunk in `engine/src/editor.ts` is at line
 1839 or later while `fitCircleRun` is at 672 and `setRunCircle` at 752, and the probe's only asset input,
-`poc/src/assets/ms/circle.xml`, was last changed by the BOOK commit `3781730` (15 insertions, 21 deletions). The
+`assets/ms/circle.xml`, was last changed by the BOOK commit `3781730` (15 insertions, 21 deletions). The
 probe reads its symptom from that file, so re-authoring the asset is what invalidated the pin. Left red deliberately:
 re-pinning another workstream's symptom probe would hide the consequence of their change rather than record it.
 
@@ -5151,7 +5151,7 @@ move's facing is the FORMATION's declared one, and every later move's is the pre
 2 checks - `the track is now invalid` (1.99 against a `> 2` threshold) and `a dancer whose first move has ZERO
 beats` (2.44 against `> 3`) - and `poc/tools/run-circle-probe.mjs` fails 2 more pinning OFFSET orbits it now
 measures at `0.000`. PROVEN pre-existing by stashing every file of this change and re-running: the same four
-failures appear at HEAD engine + HEAD harness. All four read `poc/src/assets/ms/circle.xml`, which the book work
+failures appear at HEAD engine + HEAD harness. All four read `assets/ms/circle.xml`, which the book work
 re-authored (`3781730`, `67e9ab9`, and an in-flight edit). Deciding whether the committed or the dirty asset is
 responsible would mean temporarily stashing somebody else's uncommitted file, which was deliberately not done.
 They are the book work's to re-pin.

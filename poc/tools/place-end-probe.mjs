@@ -29,7 +29,7 @@ const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist',
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 

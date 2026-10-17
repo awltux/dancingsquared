@@ -45,7 +45,7 @@ still stand, and the probe suite's count went 59 → 60 because it added `poc/to
 
 - [x] **1. DONE `15d17ea` — the Allemande Left selector that aborted `poc/verify.cjs`.** `[measured]`
   The Allemande Left loop's selector was `{ title: 'Allemande Left', from }`, and
-  `poc/src/assets/ms/allemande.xml`
+  `assets/ms/allemande.xml`
   has **two** such tams (lines 183 and 441), so `selectTam` refused, the script threw, and the gate stopped
   there with everything after it unmeasured. **ROOT CAUSE, unattributed before this: `50d3e95`** ("corpus:
   retire b1/b2 into ms 2026") — `50d3e95^` has ONE `Left-Hand Waves` tam, HEAD has two. The gate now
@@ -167,14 +167,14 @@ still stand, and the probe suite's count went 59 → 60 because it added `poc/to
 ## P1 — the red gates: decide per harness, re-pin or fix
 
 **THE SUITE IS RED IN SPITE OF A COMMITTED CORPUS, and the premise this section led with is REFUTED by
-measurement.** At `abc10f1` with `poc/src/assets` clean, **25 of 46 harnesses fail** (item 5) and only NINE of
+measurement.** At `abc10f1` with `assets` clean, **25 of 46 harnesses fail** (item 5) and only NINE of
 them are a stale pin or a stale generated asset — the rest are live work: the `Circle Left` ring, the bare
 `Promenade` gap, the `Lead Right` square-set rule. A red below is a defect until the sweep says otherwise.
 
 - [x] **5. DONE `dc51e56` — the corpus is frozen, the measurement is taken, and the `50d3e95` sweep is run.**
   `[measured]` (measured AT `abc10f1`, the declared-final corpus revision)
   The seven XMLs are committed (`ms/circle.xml` is `a834725`, verbatim the content that was pending), and the
-  owner has declared the catalogue final. `poc/src/assets` is clean, so these numbers are not churn:
+  owner has declared the catalogue final. `assets` is clean, so these numbers are not churn:
   - `npm run verify:light --prefix engine` → **29 of 47 harnesses, 14 FAILED**, 136.9 s
   - `npm run verify --prefix engine` → **46 of 47 harnesses, 25 FAILED**, 1288.4 s, first failure `catalogue`
 
@@ -192,7 +192,7 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
     formations after the pin, and the arrangement counts and library names moved with it: 2: 6 → 10, 4: 48 → 49,
     8: 201 → 208, library names 134 → 138 (the `canonical-identity-probe` red is that same 138 vs 134).
   - `fsm-asset`; `reading-census`; `level-census` — **RE-PIN, one stale asset.** The stored
-    `poc/src/assets/fsm-ms.json` is `catalogCount 274` while the tree builds **290**; `fsm-asset` also reports
+    `assets/fsm-ms.json` is `catalogCount 274` while the tree builds **290**; `fsm-asset` also reports
     schema 2 against the engine's 3, 70 states different, and 6 new-fact counts moved. All three read that
     one file.
   - `cell-census` — **RE-PIN.** The catalogue grew: 84 geometries → **122** cells (pinned 121) and 505 kept /
@@ -221,7 +221,7 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
 
 - [ ] **6. `Circle Left`: THE CORPUS IS SETTLED AND DELIBERATE, so these are TWO different questions.**
   `[measured]` at `8cfe8a1`, re-measured on the owner's confirmation that `ms/circle.xml` is no longer
-  in flight. `poc/src/assets/ms/circle.xml` carries the answer in its own section header —
+  in flight. `assets/ms/circle.xml` carries the answer in its own section header —
   `CIRCLE LEFT FAMILY FROM STATIC SQUARE TO CIRCLE` for the bare title, and the `… - Stop at Home` family
   for the round trip. Measured through `poseFor` and `computeHandholds`:
   - **The bare `Circle Left` is authored to END in the `Circle` formation, and the engine applies it
@@ -260,7 +260,7 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   **THE TWO CAUSES THAT CARRY MOST OF IT.** (1) **The corpus re-authored `Circle Left` deliberately** — the
   bare title ends in `Circle`, the round trip lives under `Circle Left - Stop at Home`, and six harnesses
   still witness the bare title as a round trip (item 6). (2) **The generated FSM asset
-  `poc/src/assets/fsm-ms.json` is stale** — `schemaVersion 2` / `catalogCount 274` against the engine's
+  `assets/fsm-ms.json` is stale** — `schemaVersion 2` / `catalogCount 274` against the engine's
   schema 3 and **290** entries; last regenerated at `aa76148`, while `d3c0800` bumped the schema without
   regenerating it, against that file's own comment saying it is regenerated in the same change. That is a
   **DEFECT, not a knowingly-stale artefact**, and the shipped FSM view cannot label the tam behind an
@@ -513,7 +513,7 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
     `undefined`. A re-pin alone cannot clear those two checks; the sampling must take half beats.
 
 - [ ] **37. THE FSM ASSET'S STALENESS IS INVISIBLE TO EVERY CHANGE-TIME GATE.** `[measured]` at `8cfe8a1`.
-  `poc/src/assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed stale for the many commits
+  `assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed stale for the many commits
   since, and the reason is structural rather than accidental: `node poc/scripts/build-fsm-asset.mjs` (the
   only writer) is wired into **NO npm script**, and the one gate that checks freshness — `fsm-asset.mjs` — is
   `light: false`, as are `reading-census`, `cell-census` and `level-census`. So `verify:light`, the gate a

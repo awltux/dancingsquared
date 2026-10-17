@@ -6,7 +6,7 @@
 // so this checks exactly that, and it checks it in two steps because `resolvable` has two meanings here:
 //
 //   1. THE CORPUS CARRIES A TAM WITH THAT TITLE. This is what "the call exists" means, and it is checked against
-//      every `<tam>` in `poc/src/assets/ms/*.xml` — 322 distinct titles — not against the 62 the level loader
+//      every `<tam>` in `assets/ms/*.xml` — 322 distinct titles — not against the 62 the level loader
 //      happens to name. MEASURED: a pool of 97 hand-written titles resolves completely on this check.
 //   2. THE LEVEL LOADER CAN REGISTER IT. `applierFor` builds each level from the FIRST tam of each file, named by
 //      that tam's title, so the corpus's other 260 titles are unreachable however real they are. A pool title
@@ -50,7 +50,7 @@ console.log('\n== 1. every title names a call the CORPUS carries ==');
 {
   const carried = new Set(corpusTamTitles());
   const unknown = CALLS_IN_ORDER.filter((title) => !carried.has(title));
-  check(unknown.length === 0, `all ${CALLS_IN_ORDER.length} titles are carried by some <tam> in poc/src/assets/ms (${unknown.length} are not)`);
+  check(unknown.length === 0, `all ${CALLS_IN_ORDER.length} titles are carried by some <tam> in assets/ms (${unknown.length} are not)`);
   for (const title of unknown.slice(0, 10)) console.log(`       not a tam title anywhere: ${title}`);
   // NEGATIVE CONTROL: a title no tam carries must land in the SAME list the loop above reads. Without this the
   // check above passes for a helper that returns nothing, which is the shape a broken filter always has.

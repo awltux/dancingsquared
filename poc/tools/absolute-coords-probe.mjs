@@ -23,7 +23,7 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 
@@ -50,7 +50,7 @@ const floorToLocal = (f, x, y) => {
 // ---------------------------------------------------------------- 1. it IS the engine's frame
 console.log('== 1. the board pair agrees with the pose the engine composes ==');
 {
-  const dir = path.join(POC_DIR, 'src/assets/ms');
+  const dir = path.join(POC_DIR, '../assets/ms');
   let calls = 0;
   let moves = 0;
   let worstStart = 0;

@@ -31,18 +31,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
 
-const movesXml = read('poc/src/assets/moves.xml');
-const formationsXml = read('poc/src/assets/formations.xml');
+const movesXml = read('assets/moves.xml');
+const formationsXml = read('assets/formations.xml');
 const levels = ['ms', 'a1', 'a2', 'plus'];
 
 const calls = [];
 for (const level of levels) {
-  const dir = path.join(root, 'poc/src/assets', level);
+  const dir = path.join(root, 'assets', level);
   let files = [];
   try { files = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }
   for (const f of files) {
     const base = f.replace(/\.xml$/, '');
-    try { calls.push({ name: base, xml: read(`poc/src/assets/${level}/${f}`) }); } catch { /* skip */ }
+    try { calls.push({ name: base, xml: read(`assets/${level}/${f}`) }); } catch { /* skip */ }
   }
 }
 console.log(`Loaded ${calls.length} call files across ${levels.join(', ')}.`);
@@ -576,7 +576,7 @@ console.log('\n== Identity on geometry-only formation boards (feature: heads_sid
 
 console.log('\n== One variant per authored setup (feature: formation_states) ==');
 {
-  const wdXml = read('poc/src/assets/ms/wheel_and_deal.xml');
+  const wdXml = read('assets/ms/wheel_and_deal.xml');
   const blocks = wdXml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
   const seqW = new Sequencer(movesXml, formationsXml, [{ name: 'Wheel and Deal', xml: wdXml }]);
   check((seqW.getVariants('Wheel and Deal')?.length ?? 0) === blocks.length,
@@ -627,7 +627,7 @@ console.log('\n== Index independence: matching ignores array order (feature: ind
 
 console.log('\n== Index independence: editor joins ignore array order ==');
 {
-  const core = loadCallFromXml(read('poc/src/assets/ms/circle.xml'), movesXml, formationsXml, 0, true);
+  const core = loadCallFromXml(read('assets/ms/circle.xml'), movesXml, formationsXml, 0, true);
   const coreStart = core.dancers.map((d) => poseFor(d, 0));
   const coreEnd = core.dancers.map((d) => poseFor(d, core.beats));
   const start = coreStart.map((p) => ({ x: p.x + 2, y: p.y, heading: p.heading }));
@@ -699,7 +699,7 @@ console.log('\n== Index independence: index-derived placeholder is not identity 
   // are plainly legal (Circle Left from a Circle board). A TITLE-registered call is
   // used because this file's own catalog registers by file basename.
   const seqC = new Sequencer(movesXml, formationsXml, [
-    { name: 'Circle Left', xml: read('poc/src/assets/ms/circle.xml') },
+    { name: 'Circle Left', xml: read('assets/ms/circle.xml') },
   ]);
   seqC.setMatchMargin(0);
   const circle = seqC.boardForFormation('Circle');
@@ -715,7 +715,7 @@ console.log('\n== Index independence: index-derived placeholder is not identity 
   // Matching must not depend on the placeholder: flattening identity to unknown
   // must leave the result of a call applied to that board unchanged.
   const seqWd = new Sequencer(movesXml, formationsXml, [
-    { name: 'Wheel and Deal', xml: read('poc/src/assets/ms/wheel_and_deal.xml') },
+    { name: 'Wheel and Deal', xml: read('assets/ms/wheel_and_deal.xml') },
   ]);
   seqWd.setFormation('Two-Faced Lines');
   const asIs = seqWd.applyToBoard(seqWd.board, 'Wheel and Deal');
@@ -758,7 +758,7 @@ console.log('\n== A zero must restore facings, not just positions (feature: zero
   // and a multi-call file such as circle.xml then carries a variant for every
   // title in it, so "circle" applies a fractional circle rather than Circle Left.
   const seqZ = new Sequencer(movesXml, formationsXml, [
-    { name: 'Circle Left', xml: read('poc/src/assets/ms/circle.xml') },
+    { name: 'Circle Left', xml: read('assets/ms/circle.xml') },
   ]);
   seqZ.setMatchMargin(0);
   check(seqZ.isZero(['Circle Left']) === true, 'a genuine circling zero still passes ("Circle Left")');
@@ -904,7 +904,7 @@ console.log('\n== The animation lands on the applied board (feature: sequence_re
   // The engine's own title-keyed construction is `callsByTitle`, which is what the POC and the engine
   // probes use, so the gate builds one. Building it from THIS harness's `calls` is how a gate measures
   // the harness instead of the engine.
-  const selSeq = new Sequencer(movesXml, formationsXml, callsByTitle(path.join(root, 'poc/src/assets')));
+  const selSeq = new Sequencer(movesXml, formationsXml, callsByTitle(path.join(root, 'assets')));
   const selStart = selSeq.boardForFormation('Static Square');
   const selCandidates = ['Pass Thru', 'Square Thru 3', 'Star Thru', 'Right and Left Thru']
     .map((call) => ({ selection: 'Heads', call }));

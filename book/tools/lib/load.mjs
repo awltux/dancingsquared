@@ -61,7 +61,7 @@ export function loadEngine() {
 }
 
 export function assetPath(...parts) {
-  const p = join(root, 'poc', 'src', 'assets', ...parts);
+  const p = join(root, 'assets', ...parts);
   if (!existsSync(p)) throw new Error(`missing asset: ${p}`);
   return p;
 }
@@ -98,7 +98,7 @@ export function makeEngine(eng) {
 export function catalogue(eng, levels = SOURCE_LEVELS) {
   const byTitle = new Map();
   for (const level of levels) {
-    const dir = join(root, 'poc', 'src', 'assets', level);
+    const dir = join(root, 'assets', level);
     if (!existsSync(dir)) continue;
     for (const f of readdirXml(dir)) {
       const rel = `${level}/${f}`;
@@ -127,6 +127,6 @@ function readdirXml(dir) {
 
 /** Build a call bundle from a corpus site, mirroring the half-set authorings. */
 export function loadCall(eng, site) {
-  const xml = readFileSync(join(root, 'poc', 'src', 'assets', site.file), 'utf8');
+  const xml = readFileSync(join(root, 'assets', site.file), 'utf8');
   return eng.loadCallFromXml(xml, readAsset('moves.xml'), readAsset('formations.xml'), site.tamIndex, true);
 }

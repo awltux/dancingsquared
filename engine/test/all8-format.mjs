@@ -205,7 +205,7 @@ console.log('\n== 5. a [FASR] setup code derives the board All8\'s own diagram d
 // All8's OWN diagram for the same alignment, so this compares the code path against the drawing
 // path rather than against itself.
 {
-  const assets = path.resolve(root, '../poc/src/assets');
+  const assets = path.resolve(root, '../assets');
   const seq = new Sequencer(
     readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
     readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

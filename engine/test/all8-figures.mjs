@@ -45,7 +45,7 @@ import {
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', 'assets');
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),

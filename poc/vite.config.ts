@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { corpusAlias } from '../vite.corpus.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -41,7 +42,7 @@ export default defineConfig({
   // makes this app always build against the engine it lives beside, which is what the repo's npm
   // workspaces layout intends.
   resolve: {
-    alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js') },
+    alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js'), ...corpusAlias },
   },
   server: {
     port: 5173,

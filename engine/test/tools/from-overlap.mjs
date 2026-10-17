@@ -31,7 +31,7 @@ import { ASSET_LEVELS, callXmlFiles, callsByTitle } from '../lib/engine-calls.mj
 import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', '..', 'assets');
 const VERBOSE = process.argv.includes('--verbose');
 setParser(DOMParser);
 

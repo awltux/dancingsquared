@@ -13,26 +13,19 @@
 // Run: node game/tools/verify-probes.mjs   (from anywhere; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DIR = path.join(HERE, '..', 'test');
-// THE CORPUS COPY IS CHECKED FIRST, AND IT IS NOT A PROBE.
+// THE CORPUS-COPY CHECK USED TO BE HERE, AND IT IS GONE BECAUSE THE COPY IT GUARDED IS GONE.
 //
-// game/src/assets is a COPY of poc/src/assets - see tools/sync-corpus.mjs for why the copy has to exist:
-// import.meta.glob cannot reach outside Vite's root. A copy with no check is a fork, which is the failure
-// mode AGENTS.md section 1 warns about, so this runs before any probe and fails the whole gate rather than
-// being discovered when a puzzle comes out wrong. A child process is used because it is a tool with its own
-// exit code, and stdio inherit is what AGENTS.md trap 3 requires under the file sandbox.
-{
-  const sync = spawnSync(process.execPath, [path.join(HERE, 'sync-corpus.mjs'), '--check'], { stdio: 'inherit' });
-  if (sync.status !== 0) {
-    console.error('verify-probes: the corpus copy under game/src/assets has drifted from poc/src/assets.');
-    process.exit(sync.status ?? 1);
-  }
-}
-// THE POOL IS NOT CHECKED HERE, AND THE REASON IS THE ONE THING THAT CHANGED ABOUT IT.
+// `game/src/assets/` was a byte-for-byte copy of the POC's corpus, and this runner opened with
+// `tools/sync-corpus.mjs --check` so the copy could not drift. The copy existed because a comment claimed
+// `import.meta.glob` cannot reach outside Vite's root — MEASURED false (`vite.corpus.ts` traces the empty glob
+// that made it look true to one `../` too few), so there is now ONE corpus at `assets/` in the repository root and
+// the game's loader reads it directly. There is nothing left to keep in step, so there is nothing to check.
+//
+// THE POOL IS NOT CHECKED HERE EITHER, AND THE REASON IS THE ONE THING THAT CHANGED ABOUT IT.
 //
 // `src/puzzle/calls-data.ts` was generated, and this runner used to run the generator's `--check` on it — which
 // was the gate that caught a corpus rename (`134ff33` left the pool naming a title no tam declared, and the

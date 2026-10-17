@@ -42,7 +42,7 @@
 // pre-existing reds, unchanged by this data).
 //
 // Usage: node poc/tools/dosado-facing-fit.mjs            (report + verify, on UNFITTED tams)
-//        node poc/tools/dosado-facing-fit.mjs --write    (rewrite poc/src/assets/ms/dosado.xml)
+//        node poc/tools/dosado-facing-fit.mjs --write    (rewrite assets/ms/dosado.xml)
 import { Sequencer, setParser } from '../../engine/dist/index.js';
 import { callsByTitle } from '../../engine/test/lib/engine-calls.mjs';
 import { DOMParser } from '@xmldom/xmldom';
@@ -50,7 +50,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 setParser(DOMParser);
-const assets = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'assets');
+const assets = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'assets');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 const target = path.join(assets, 'ms', 'dosado.xml');
 let out = read('ms/dosado.xml');

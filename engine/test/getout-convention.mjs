@@ -58,7 +58,7 @@ import { startBoardFor } from './lib/all8-boards.mjs';
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),

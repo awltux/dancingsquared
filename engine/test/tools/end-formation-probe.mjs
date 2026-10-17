@@ -22,7 +22,7 @@ import { callsByTitle, callXmlFiles } from '../lib/engine-calls.mjs';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.join(__dirname, '..', '..', '..', 'poc', 'src', 'assets');
+const assets = path.join(__dirname, '..', '..', '..', 'assets');
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');

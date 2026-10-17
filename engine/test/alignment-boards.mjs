@@ -70,7 +70,7 @@ const ok = (msg) => console.log(`  ok    ${msg}`);
 
 // ------------------------------------------------------------------ the engine
 
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 // Register by CALL TITLE, not by file basename. The basename trick used elsewhere
 // makes `Pass Thru` unregistered (the file is pass_thru.xml), and this test applies
 // named calls to constructed boards. All variants of a title are pooled so a call

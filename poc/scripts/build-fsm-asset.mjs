@@ -1,6 +1,6 @@
 // Build a static FSM table asset for the poc FSM view, so opening the view is
 // instant (no 12s runtime build). Run: `node poc/scripts/build-fsm-asset.mjs`
-// from repo root. Writes poc/src/assets/fsm-ms.json (serialised FsmTableData).
+// from repo root. Writes assets/fsm-ms.json (serialised FsmTableData).
 
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -19,7 +19,7 @@ import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
-const assetsDir = path.join(root, 'poc', 'src', 'assets');
+const assetsDir = path.join(root, 'assets');
 const read = (p) => readFileSync(path.join(assetsDir, p), 'utf8');
 
 const msFiles = {};

@@ -1,12 +1,12 @@
 // CAN THE SEQUENCER DANCE "Ladies In, Men Sashay" / "Girls Center, Boys Sashay"?
 //
 // Asked directly: "can the current sequencer now handle 'girls center, boys sashay'". The call is
-// authored in this repo as `Ladies In, Men Sashay` (CALLERLAB's title, and what `poc/src/assets/src/
+// authored in this repo as `Ladies In, Men Sashay` (CALLERLAB's title, and what `assets/src/
 // calls.xml` registers at b1 and ssd); the ceder corpus writes it `Ladies Center & Men Sashay`; the
 // user's wording is the modern gender-neutral one for the same figure. All8's notation table calls it
 // `LyIMS` / "Ladies In And The Men Sashay".
 //
-// The engine has a `<tam>` for it - TWO of them, in `poc/src/assets/ms/sashay.xml`:
+// The engine has a `<tam>` for it - TWO of them, in `assets/ms/sashay.xml`:
 //
 //   <tam title="Ladies In, Men Sashay" from="Circle Left"  formation="Circle" sequencer="gender-specific">
 //   <tam title="Ladies In, Men Sashay" from="Circle Right" formation="Circle" sequencer="gender-specific">
@@ -29,7 +29,7 @@ import { callsByTitle } from '../lib/engine-calls.mjs';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
-const assets = path.join(root, 'poc', 'src', 'assets');
+const assets = path.join(root, 'assets');
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
@@ -135,7 +135,7 @@ console.log(`\n== the caller's sequence: Static Square -> hold hands -> ladies i
   console.log(`\n  states with an edge INTO Circle: ${[...new Set(intoCircle)].join(', ') || '(none)'}`);
   console.log(`  edges Static Square -> Circle  : ${fromHome.length}`);
   // THE CIRCLE STATE IS NOT AN ISLAND, AND IN THE STALE ASSET IT WAS. Both claims here are the OPPOSITE
-  // of what this probe asserted until `poc/src/assets/fsm-ms.json` was regenerated: that asset was built
+  // of what this probe asserted until `assets/fsm-ms.json` was regenerated: that asset was built
   // 2026-09-22 and the circle family was re-authored AFTER it (`ms/circle.xml`'s `CIRCLE LEFT FAMILY FROM
   // STATIC SQUARE TO CIRCLE`), so the island was a fact about the OLD authoring that the staleness
   // preserved. MEASURED on the regenerated asset: 9 distinct states have an edge into `Circle`, and

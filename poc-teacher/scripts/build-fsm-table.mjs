@@ -18,7 +18,7 @@ setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
-const assetsDir = path.join(root, '..', 'poc', 'src', 'assets');
+const assetsDir = path.join(root, '..', 'assets');
 const read = (p) => readFileSync(path.join(assetsDir, p), 'utf8');
 
 // The same ms catalog the app loads (mirrors main.ts's import.meta.glob).

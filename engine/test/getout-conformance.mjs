@@ -75,7 +75,7 @@ if (fixture.failures?.length) {
 
 // ------------------------------------------------------- the engine catalogue
 
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 // The catalogue must include assets/src/calls.xml (the resolve and concept calls)
 // and must be read by TITLE - see lib/engine-calls.mjs for why both matter.
 // The IMPLEMENTED catalogue is the `<tam>` titles PLUS the geometry-derived calls the

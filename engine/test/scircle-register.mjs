@@ -41,7 +41,7 @@ const check = (cond, msg) => {
 };
 
 // The two authored setups, from the app's own comment-stripped index list.
-const circleXml = read('poc/src/assets/ms/circle.xml');
+const circleXml = read('assets/ms/circle.xml');
 const blocks = circleXml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 const formOf = (x) => (x.match(/formation="([^"]*)"/) ?? [])[1];
@@ -50,7 +50,7 @@ tams.forEach((t, i) => console.log(`  [${i}] formation="${formOf(t)}"`));
 check(tams.length === 2, `the corpus still authors it twice (found ${tams.length})`);
 if (tams.length !== 2) { console.log('\n1 CHECK(S) FAILED'); process.exit(1); }
 
-const seq = new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'), []);
+const seq = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), []);
 const asXml = (t) => `<calls>\n${t}\n</calls>`;
 
 // TWO register CALLS, one authored setup each - the shape that loses data.
@@ -74,7 +74,7 @@ check(
 
 // ONE register call carrying both - the shape the app actually produces today.
 console.log(`\n== register("${TITLE}", ...) called ONCE carrying both setups ==`);
-const seq2 = new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'), []);
+const seq2 = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), []);
 seq2.register(TITLE, `<calls>\n${tams.join('\n')}\n</calls>`);
 const both = seq2.matchableVariants(TITLE).map((v) => v.formation);
 console.log(`  variants: [${both.join(', ')}]`);
@@ -82,7 +82,7 @@ check(both.length === 2, `one call carrying both keeps both (got ${both.length})
 
 // Re-registering the SAME setup twice must not accumulate duplicates.
 console.log(`\n== register called twice with the SAME setup ==`);
-const seq3 = new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'), []);
+const seq3 = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), []);
 seq3.register(TITLE, asXml(tams[1]));
 seq3.register(TITLE, asXml(tams[1]));
 const dup = seq3.matchableVariants(TITLE);

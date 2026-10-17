@@ -61,12 +61,12 @@ Two precisions that a casual look gets wrong:
 
 ### 2.2 What this repo actually ships
 
-`poc/src/assets/<level>/*.xml` is a byte-for-byte copy for the eight shared levels — measured file
+`assets/<level>/*.xml` is a byte-for-byte copy for the eight shared levels — measured file
 counts match exactly (ms 66/66, plus 50/50, a1 36/36, a2 26/26, c1 87/87, c2 79/79, c3a 84/84,
 c3b 66/66), and `moves.xml` is **byte-identical** to `assets/src/moves.xml` (same MD5).
 
 **The copied files carry the AGPL header with them** — verified directly in our own tree, e.g.
-`poc/src/assets/ms/pass_thru.xml:8-12`: *"Taminations is free software: you can redistribute it
+`assets/ms/pass_thru.xml:8-12`: *"Taminations is free software: you can redistribute it
 and/or modify it under the terms of the GNU Affero General Public License … either version 3 of the
 License, or (at your option) any later version."* So the animation XML we distribute is
 **AGPL-3.0-or-later**, which is a **licensing decision this repo is already making**, not a technical
@@ -104,7 +104,7 @@ Two deliberate divergences from upstream's data:
 
 Measured across the whole tree:
 
-| Extension | upstream `assets/` | our `poc/src/assets/` |
+| Extension | upstream `assets/` | our `assets/` |
 |---|---|---|
 | `.png` | 1139 | 0 |
 | `.md` | 777 | 0 |
@@ -161,7 +161,7 @@ exist in the Dart, and a grep for `moves.xml|offsetX|scaleX` across `lib/` finds
 parsing at all** — the only `scaleX` hits are local variables inside two sequencer call files
 (`sequencer/calls/ms/cross_run.dart:77`, `sequencer/calls/ms/trade.dart:77`).
 
-`assets/src/moves.xml` has **156** `<path>` entries; `poc/src/assets/ms/moves.xml` has 140. Both are
+`assets/src/moves.xml` has **156** `<path>` entries; `assets/ms/moves.xml` has 140. Both are
 legacy as far as the Flutter app is concerned. **So:**
 
 - Our `convert.ts` is the **only** implementation of XML `<move>` semantics in either codebase.
@@ -352,13 +352,13 @@ a "snapping decision" there are different things.
 
 | | Flutter | this repo |
 |---|---|---|
-| Roster | `lib/moves.dart`, **109** `final Path` constants, hand-written | `poc/src/assets/moves.xml`, **156** `<path>` entries |
+| Roster | `lib/moves.dart`, **109** `final Path` constants, hand-written | `assets/moves.xml`, **156** `<path>` entries |
 | XML read at runtime? | **No** (verified: no `<move>` parsing in `lib/`) | Yes, `convert.ts` → `parseMoves` |
 | Modifiers (`scaleX`, `offsetX`, …) | **not implemented** | implemented |
 | Authority | n/a | `moves.xml:22-43` (its own header comment) |
 
 156 = 109 Dart names + 47 `Counter Rotate {Left|Right} X Y` generated paths. Every Dart constant name
-matches an XML name exactly. `poc/src/assets/ms/moves.xml` (140 paths) carries one extra legacy move,
+matches an XML name exactly. `assets/ms/moves.xml` (140 paths) carries one extra legacy move,
 `H16th` (`ms/moves.xml:592`), equivalent to src's `Hinge Left 1/4` and referenced nowhere.
 
 ### 7.2 The coordinate frame — get this wrong and every path is mirrored
@@ -792,7 +792,7 @@ Ranked by how directly they help this repo:
 
 ## 13. Traps already encountered here
 
-- **`assets/src/formations.xml` and `poc/src/assets/formations.xml` are the same byte length and show
+- **`assets/src/formations.xml` and `assets/formations.xml` are the same byte length and show
   no differing *lines* under a naive line-diff, yet they are not identical.** A check that only
   compares hashes, or only compares lines, gives a misleading answer in one direction each. Byte-compare
   when it matters: this was found by exactly that contradiction — `Compare-Object` reported 0 differing

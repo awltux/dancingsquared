@@ -1080,7 +1080,7 @@ export function main() {
   // arrive on.
   cpSync(join(BOOK, 'assets', 'offline.js'), join(SITE, 'assets', 'offline.js'));
   for (const name of ['moves.xml', 'formations.xml']) {
-    cpSync(join(BOOK, '..', 'poc', 'src', 'assets', name), join(SITE, 'assets', name));
+    cpSync(join(BOOK, '..', 'assets', name), join(SITE, 'assets', name));
   }
 
   // Only the call authorings a page actually plays, not the whole corpus: the one each figure starts
@@ -1097,7 +1097,7 @@ export function main() {
     for (const file of needed.keys()) {
       const dest = join(SITE, 'assets', 'calls', file);
       mkdirSync(dirname(dest), { recursive: true });
-      cpSync(join(BOOK, '..', 'poc', 'src', 'assets', file), dest);
+      cpSync(join(BOOK, '..', 'assets', file), dest);
     }
   }
   const callMap = JSON.parse(readFileSync(join(toolsDir, 'call-map.json'), 'utf8'));

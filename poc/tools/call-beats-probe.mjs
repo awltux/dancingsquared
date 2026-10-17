@@ -68,7 +68,7 @@ console.log('\n== and the number is the one the sequencer charges ==');
   const { DOMParser } = await import('@xmldom/xmldom');
   const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
   engine.setParser(DOMParser);
-  const assets = path.join(POC_DIR, 'src', 'assets');
+  const assets = path.join(POC_DIR, '..', 'assets');
   const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
   const seq = new engine.Sequencer(read('moves.xml'), read('formations.xml'), callsByTitle(assets));
   const square = seq.boardForFormation('Static Square');

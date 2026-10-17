@@ -35,8 +35,8 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const movesXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/moves.xml'), 'utf8');
-const formationsXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/formations.xml'), 'utf8');
+const movesXml = fs.readFileSync(path.join(POC_DIR, '../assets/moves.xml'), 'utf8');
+const formationsXml = fs.readFileSync(path.join(POC_DIR, '../assets/formations.xml'), 'utf8');
 const uiSrc = fs.readFileSync(path.join(POC_DIR, 'src/editor-ui.ts'), 'utf8');
 const htmlSrc = fs.readFileSync(path.join(POC_DIR, 'index.html'), 'utf8');
 const cssSrc = fs.readFileSync(path.join(POC_DIR, 'src/style.css'), 'utf8');
@@ -48,7 +48,7 @@ const check = (cond, msg) => {
 };
 
 const load = (file) =>
-  engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, 'src/assets', file), 'utf8'), movesXml, formationsXml, 0));
+  engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, '../assets', file), 'utf8'), movesXml, formationsXml, 0));
 
 // ------------------------------------------------------------------ 1. the wiring
 console.log('== 1. both buttons exist, are wired, and are guarded the same way ==');

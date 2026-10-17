@@ -34,7 +34,7 @@ export interface UserFormation {
   callId?: string;
   setupIdx?: number;
   /**
-   * WHETHER THIS SHAPE HAS BEEN ADDED TO THE CORPUS - `poc/src/assets/formations.xml`.
+   * WHETHER THIS SHAPE HAS BEEN ADDED TO THE CORPUS - `assets/formations.xml`.
    *
    * A browser cannot write that file, so this is the CALLER'S ASSERTION that the `<formation>` block
    * has gone into it (the panel hands them the block and says so). It is the flag that lets a created

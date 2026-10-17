@@ -1,15 +1,11 @@
 // Browser asset loading: the corpus, as raw XML, through Vite.
 //
-// THE CORPUS IS READ FROM `game/src/assets/`, WHICH IS A COPY OF `poc/src/assets/` — and that copy is not a
-// preference. `import.meta.glob` CANNOT REACH OUTSIDE VITE'S ROOT: it only matches files under `root`, and
-// `server.fs.allow` governs what may be SERVED rather than what may be GLOBBED. MEASURED, with the globs
-// written as `../../poc/src/assets/...`, Vite compiled every one to an EMPTY OBJECT —
-//
-//     const MOVES = /* #__PURE__ */ Object.assign({});
-//
-// — and the app sat on "Loading the corpus…" forever, because `only()` throws on zero matches and a boot
-// error has nowhere to surface. `game/tools/sync-corpus.mjs` copies the bytes and `--check`s them, and
-// `tools/verify-probes.mjs` runs that check first, so the copy cannot silently drift from the original.
+// THE CORPUS IS READ FROM `assets/` AT THE REPOSITORY ROOT, through the `@corpus` alias — there is ONE copy of it
+// and no build step that duplicates the bytes. An earlier version of this header said the opposite, and that claim
+// is corrected rather than repeated: `import.meta.glob` DOES reach outside Vite's root (the POC has globbed the
+// repo-root `modules/` from `poc/src/` since the ceder corpus landed), and the empty object that made a copy look
+// necessary came from one `../` too few — see `vite.corpus.ts`, which measured both directions and is the one place
+// the corpus's location is written down.
 //
 // THE ONLY FILE IN THE PACKAGE THAT USES `import.meta.glob`. That is deliberate: it is a Vite compile-time
 // transform, so anything importing it needs the bundler, while `src/puzzle/**` must stay loadable by bare
@@ -17,9 +13,9 @@
 // convention someone has to remember.
 import { callMeta } from 'dancing-squared-engine';
 
-const MOVES = import.meta.glob('../assets/moves.xml', { query: '?raw', import: 'default', eager: true });
-const FORMATIONS = import.meta.glob('../assets/formations.xml', { query: '?raw', import: 'default', eager: true });
-const CALL_FILES = import.meta.glob('../assets/ms/*.xml', { query: '?raw', import: 'default', eager: true });
+const MOVES = import.meta.glob('@corpus/moves.xml', { query: '?raw', import: 'default', eager: true });
+const FORMATIONS = import.meta.glob('@corpus/formations.xml', { query: '?raw', import: 'default', eager: true });
+const CALL_FILES = import.meta.glob('@corpus/ms/*.xml', { query: '?raw', import: 'default', eager: true });
 
 function only(map: Record<string, unknown>, what: string): string {
   const values = Object.values(map);

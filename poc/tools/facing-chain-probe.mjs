@@ -37,7 +37,7 @@ const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'en
 
 const CALL = process.argv[2] ?? 'Circle Left';
 const DEG = 180 / Math.PI;
-const assets = path.join(POC_DIR, 'src', 'assets');
+const assets = path.join(POC_DIR, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

@@ -22,7 +22,7 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const assets = path.join(POC_DIR, 'src', 'assets');
+const assets = path.join(POC_DIR, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
@@ -70,7 +70,7 @@ for (const lvl of fs.readdirSync(assets, { withFileTypes: true }).filter((e) => 
       families.set(title, (families.get(title) ?? 0) + 1);
       // The family is a FILE's title, and `filepath` names that file - so the two have to agree, and the file
       // has to be where the path says it is.
-      const p = path.join(POC_DIR, 'src', 'assets', lvl, f);
+      const p = path.join(POC_DIR, '..', 'assets', lvl, f);
       if (!fs.existsSync(p)) noFamily.push(`${lvl}/${f}`);
     } else noFamily.push(`${lvl}/${f}`);
   }
@@ -107,7 +107,7 @@ for (const [lvl, file] of [['ms', 'circle'], ['ms', 'arm_turns'], ['ms', 'circul
   const typed = tam.replace('<tam ', '<tam type="clone" ');
   if (typed === tam) { check(false, `the type could not be written onto the <tam> for ${full}`); continue; }
   built++;
-  const block = `<tamination title="${family}" filepath="poc/src/assets/${full}">\n${typed}\n</tamination>`;
+  const block = `<tamination title="${family}" filepath="assets/${full}">\n${typed}\n</tamination>`;
   // READ BACK, which is the half a text check cannot do: the block has to parse into a call again.
   const back = engine.parseCallXml(`<calls>${block}</calls>`);
   const okTam = back.length === 1 && back[0].title === call.title;

@@ -11,9 +11,9 @@ setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
 const root = path.join(__dirname, '..', '..');
-const movesXml = read('../../poc/src/assets/moves.xml');
-const formationsXml = read('../../poc/src/assets/formations.xml');
-const msDir = path.join(root, 'poc/src/assets/ms');
+const movesXml = read('../../assets/moves.xml');
+const formationsXml = read('../../assets/formations.xml');
+const msDir = path.join(root, 'assets/ms');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -25,7 +25,7 @@ const check = (cond, msg) => {
 // Left) are available and legal from home.
 const files = {};
 for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
-  files[`ms/${f}`] = read(`../../poc/src/assets/ms/${f}`);
+  files[`ms/${f}`] = read(`../../assets/ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');
 const seq = makeSequencer(movesXml, formationsXml, buildCatalog(files));

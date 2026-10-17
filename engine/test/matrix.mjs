@@ -19,9 +19,9 @@ setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('../../poc/src/assets/moves.xml');
-const formationsXml = read('../../poc/src/assets/formations.xml');
-const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+const movesXml = read('../../assets/moves.xml');
+const formationsXml = read('../../assets/formations.xml');
+const msDir = path.join(__dirname, '../../assets/ms');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -50,7 +50,7 @@ console.log('\n== Matrix module: rigid fit ==');
 // Use the full teacher catalog so calls that genuinely move the set are legal.
 const files = {};
 for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
-  files[`ms/${f}`] = read(`../../poc/src/assets/ms/${f}`);
+  files[`ms/${f}`] = read(`../../assets/ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');
 const seq = makeSequencer(movesXml, formationsXml, buildCatalog(files));

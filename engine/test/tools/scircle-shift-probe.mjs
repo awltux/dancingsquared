@@ -23,7 +23,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
 
-const circleXml = read('poc/src/assets/ms/circle.xml');
+const circleXml = read('assets/ms/circle.xml');
 const blocks = circleXml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 
 // The index list the DOM walk builds, which is what `entry.tamIndices` holds.
@@ -47,7 +47,7 @@ console.log(`the app's tamIndices for "${TITLE}": ${idx.join(', ')}`);
 const label = (b) => (b.match(/formation="([^"]*)"/) ?? [])[1];
 
 const mkSeq = (xmls) =>
-  new Sequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'),
+  new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'),
     [{ name: TITLE, xml: `<calls>\n${xmls.join('\n')}\n</calls>` }]);
 
 // A robust centre: the point the authored path is most nearly circular about. See scircle-probe.mjs.

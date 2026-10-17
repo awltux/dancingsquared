@@ -109,12 +109,12 @@ console.log('== 6. the whole thing against REAL boards from the engine ==');
   // witness is DISCOVERED rather than named (AGENTS.md §8 trap 7: never pin a position or a basename
   // where the property you need is what matters — the property here is "some legal call moves someone").
   // Registration is by TITLE, taken from `callMeta`, which is the same registry the app builds.
-  const movesXml = read('../../poc/src/assets/moves.xml');
-  const formationsXml = read('../../poc/src/assets/formations.xml');
-  const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+  const movesXml = read('../../assets/moves.xml');
+  const formationsXml = read('../../assets/formations.xml');
+  const msDir = path.join(__dirname, '../../assets/ms');
   const calls = [];
   for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
-    const xml = read(`../../poc/src/assets/ms/${f}`);
+    const xml = read(`../../assets/ms/${f}`);
     const title = callMeta(xml).title;
     if (title) calls.push({ name: title, xml });
   }

@@ -6,7 +6,7 @@
 //     (as some harnesses do) leaves `Pass Thru` unregistered because its file is
 //     pass_thru.xml, so every get-out appears to fail at its first call.
 //
-//  2. `poc/src/assets/src/calls.xml` is an INDEX, not a set of implementations: it is
+//  2. `assets/src/calls.xml` is an INDEX, not a set of implementations: it is
 //     a list of `<call link="c3a/1_4_mix" title="1/4 Mix"/>` entries pointing at call
 //     files. A title in it with no implementation anywhere is a call the engine NAME
 //     knows and cannot perform - `Cross Fold` and `1/2 Circulate` are the ones left.
@@ -103,7 +103,7 @@ export function implementedTitles(assets) {
  * (`... Back .59`). Measured on All8's published figures, the two walks differed in 88 vs 90
  * of 188 end-to-end, and NOTHING is lost by pooling in the other order (the variant SET is
  * identical; only the tie-break changes). **`b1` is not a level any more** - it is absent
- * from `ASSET_LEVELS` above and from `poc/src/assets` - so that comparison cannot be re-run,
+ * from `ASSET_LEVELS` above and from `assets` - so that comparison cannot be re-run,
  * and of the 31 titles STILL defined at two or more levels, none is order-sensitive today:
  * all 31 applied from all 138 named formations give the same board under both walks, for
  * 4278 applications identical to the digit. The order is therefore pinned STRUCTURALLY in

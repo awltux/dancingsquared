@@ -307,7 +307,7 @@ name you type, tagged **user-defined**, registered with the live library so boar
 recognised from that moment on (including the one on screen, whose read is already cached — the
 registry clears the match cache for exactly that reason). The list below it shows each stored shape
 with an **xml** button that copies a `<formation>` block for pasting into
-`poc/src/assets/formations.xml`, and a **del** button that forgets the label.
+`assets/formations.xml`, and a **del** button that forgets the label.
 
 When the end formation **is** user-defined, the field carries two controls, because there are two
 different mistakes and they need different answers:
@@ -1141,7 +1141,7 @@ created call that is not a style question: the whole point of labelling a format
 that other calls start from it, and an embedded copy means the shape exists once per call, so editing the
 formation never reaches them. So the **Browse Calls** panel's user-formation list grows an **add to corpus**
 button beside the `xml` one: it marks the formation as corpus-backed (the flag lives with the stored shape),
-puts its `<formation>` block on the clipboard for `poc/src/assets/formations.xml`, and says what follows —
+puts its `<formation>` block on the clipboard for `assets/formations.xml`, and says what follows —
 calls that start from it now export as `formation="Name"`. Taking it back out returns them to embedding.
 
 Three rules keep that honest, and the third is what makes it safe:
@@ -1709,7 +1709,7 @@ identified by its name, because the name *is* the new setup). The export writes 
 `clone`, and the probe checks the two predicates are the same expression.
 
 ```
-<tamination title="Circle Family" filepath="poc/src/assets/ms/circle.xml">
+<tamination title="Circle Family" filepath="assets/ms/circle.xml">
   <tam type="clone" title="Circle Left" from="Circle" formation="Circle" ...>
 ```
 

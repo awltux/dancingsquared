@@ -43,9 +43,9 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const movesXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/moves.xml'), 'utf8');
-const formationsXml = fs.readFileSync(path.join(POC_DIR, 'src/assets/formations.xml'), 'utf8');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, 'src/assets')).filter((d) => !d.includes('.') && d !== 'src');
+const movesXml = fs.readFileSync(path.join(POC_DIR, '../assets/moves.xml'), 'utf8');
+const formationsXml = fs.readFileSync(path.join(POC_DIR, '../assets/formations.xml'), 'utf8');
+const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
 const DEG = Math.PI / 180;
 const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const deg = (r) => (norm(r) * 180) / Math.PI;
@@ -59,7 +59,7 @@ const check = (cond, msg) => {
 
 function* calls() {
   for (const level of LEVELS) {
-    const dir = path.join(POC_DIR, 'src/assets', level);
+    const dir = path.join(POC_DIR, '../assets', level);
     if (!fs.statSync(dir).isDirectory()) continue;
     for (const f of fs.readdirSync(dir)) {
       if (!f.endsWith('.xml')) continue;
@@ -154,7 +154,7 @@ check(worstCorpus === 0,
 console.log('\n== 3. an AUTHORED move that does not leave along the dancer\'s own facing ==');
 
 const baseCall = engine.normalizeInstance(
-  engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, 'src/assets/a1/as_couples.xml'), 'utf8'), movesXml, formationsXml, 0),
+  engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, '../assets/a1/as_couples.xml'), 'utf8'), movesXml, formationsXml, 0),
 );
 // Sound curves, each with a well-defined tangent at BOTH ends. `snap` is the heading jump across the
 // move's own start - the thing the report calls "strange rotation behaviour at the transition".

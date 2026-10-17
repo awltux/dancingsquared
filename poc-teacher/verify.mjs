@@ -36,7 +36,7 @@ import {
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
 
 let failures = 0;
@@ -45,12 +45,12 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const movesXml = read('poc/src/assets/moves.xml');
-const formationsXml = read('poc/src/assets/formations.xml');
+const movesXml = read('assets/moves.xml');
+const formationsXml = read('assets/formations.xml');
 
 const files = {};
 for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
-  files[`ms/${f}`] = read(`poc/src/assets/ms/${f}`);
+  files[`ms/${f}`] = read(`assets/ms/${f}`);
 }
 const catalog = buildCatalog(files);
 const seq = makeSequencer(movesXml, formationsXml, catalog);

@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { corpusAlias } from '../vite.corpus.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -15,20 +16,20 @@ export default defineConfig({
   root: '.',
   base: './',
   resolve: {
-    alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js') },
+    alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js'), ...corpusAlias },
   },
   server: {
     port: 8089,
     open: false,
     // SERVING FILES FROM ABOVE THIS APP'S ROOT. Vite refuses to serve anything outside `root` unless it is
-    // told otherwise, and this app imports two things that live above it: `dancing-squared-engine` (aliased
-    // to `engine/dist`) and `dancing-squared-stage` (a source-exporting workspace package under
-    // `packages/`). The POC's config carries the same setting for the same reason.
+    // told otherwise, and this app imports three things that live above it: `dancing-squared-engine` (aliased
+    // to `engine/dist`), `dancing-squared-stage` (a source-exporting workspace package under `packages/`) and
+    // the corpus at the repository root (`@corpus`). The POC's config carries the same setting.
     //
-    // IT IS NOT FOR THE CORPUS, which is what an earlier version of this comment claimed. The corpus IS
-    // inside the root, at `game/src/assets/` - a copy of `poc/src/assets`, because `import.meta.glob` cannot
-    // reach outside the root at all and `server.fs.allow` does not change that (measured; see
-    // `tools/sync-corpus.mjs`, which is why the copy exists and what keeps it identical).
+    // THE CORPUS IS THE ONE THAT USED TO HAVE A COPY INSTEAD, because a comment here claimed
+    // `import.meta.glob` cannot reach outside the root. MEASURED false — see `vite.corpus.ts`, which traces the
+    // empty glob that made it look true to one `../` too few. `server.fs.allow` is what the DEV server needs to
+    // serve those bytes; the build resolves the glob from the filesystem and never asks.
     fs: { allow: ['..'] },
   },
   build: {

@@ -2,7 +2,7 @@
 // formation list.
 //
 // WHY THIS IS A POC-SIDE HARNESS LIVING IN `engine/test`. The list is built by
-// `poc/src/tam-xml.ts`'s `corpusFormationsOfSize`, from `poc/src/assets/formations.xml`. It is NOT
+// `poc/src/tam-xml.ts`'s `corpusFormationsOfSize`, from `assets/formations.xml`. It is NOT
 // `Sequencer.listFormations()`: that is the ENGINE's formation library, keyed on GEOMETRY UP TO
 // CONGRUENCE, and it is deliberately left alone - `shape-census.mjs` pins its 134 names and all-eight
 // invariant and four other harnesses walk it. Filling a PICKER from a matching key was the bug: two
@@ -26,7 +26,7 @@ import { DEG, Sequencer, parseFormations, setParser, setStartFormation, loadCall
 
 setParser(DOMParser);
 
-const root = new URL('../../poc/src/assets/', import.meta.url);
+const root = new URL('../../assets/', import.meta.url);
 const asset = (p) => readFileSync(new URL(p, root), 'utf8');
 const formationsXml = asset('formations.xml');
 const movesXml = asset('moves.xml');

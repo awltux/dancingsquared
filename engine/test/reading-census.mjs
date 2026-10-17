@@ -49,7 +49,7 @@
 //      so a catalogue change that creates a witness fails here instead of silently unblocking a
 //      mechanism with no evidence behind it. See the section itself for the size-set breakdown.
 //
-// It compares the live engine against the STORED asset (`poc/src/assets/fsm-ms.json`), because that
+// It compares the live engine against the STORED asset (`assets/fsm-ms.json`), because that
 // asset is the FSM's persisted record. A missing asset is a FAILURE, not a skip - a harness that
 // cannot see its subject must say so. The comparison here is REPORTED rather than asserted; the
 // staleness ASSERTION lives in `test/fsm-asset.mjs`, which rebuilds the table and fails when the
@@ -72,7 +72,7 @@ import { Sequencer, setParser, matchFormations, partitionsFor, CODED_MOVE_NAMES 
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', 'assets');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

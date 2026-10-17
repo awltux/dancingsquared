@@ -24,7 +24,7 @@ const check = (cond, msg) => {
 };
 
 const { filterCalls, matchCount, filterNames } = await import('./../src/call-filter.ts');
-const assets = path.join(POC, 'src', 'assets');
+const assets = path.join(POC, '..', 'assets');
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
 console.log('== the rule ==');

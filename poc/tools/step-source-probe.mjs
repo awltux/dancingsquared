@@ -27,7 +27,7 @@ const check = (cond, msg) => {
 
 const { callSource, stepSource } = await import('./../src/step-source.ts');
 const { callsByTitle } = await import(pathToFileURL(path.join(POC, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
-const assets = path.join(POC, 'src', 'assets');
+const assets = path.join(POC, '..', 'assets');
 const seq = new engine.Sequencer(
   fs.readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   fs.readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

@@ -19,9 +19,9 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const movesXml = read('../../poc/src/assets/moves.xml');
-const formationsXml = read('../../poc/src/assets/formations.xml');
-const ms = (name) => read(`../../poc/src/assets/ms/${name}.xml`);
+const movesXml = read('../../assets/moves.xml');
+const formationsXml = read('../../assets/formations.xml');
+const ms = (name) => read(`../../assets/ms/${name}.xml`);
 
 const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Circle Left', xml: ms('circle') },

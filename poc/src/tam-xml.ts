@@ -20,7 +20,7 @@
 //
 // Anything else embeds the block, which is what every export did until now and is always correct.
 
-import formationsXmlText from './assets/formations.xml?raw';
+import formationsXmlText from '@corpus/formations.xml?raw';
 import { DEG, callToXmlNamed, canonicalName, parseFormations } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer, Gender, Symmetry } from 'dancing-squared-engine';
 import { findUserFormation } from './formations';

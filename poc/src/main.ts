@@ -22,10 +22,11 @@ import { rememberLastSession } from './remember';
 // The edge type is `FsmEdgeData` rather than a local copy: schema 2 added `reading` and `endKind`, and a
 // second, narrower declaration here would silently strip them before the renderer ever saw them - the
 // view would compile and quietly lose the new facts.
+// `@corpus` is the repository's one corpus (`assets/` at the root, named in `vite.corpus.ts`).
 const fsmAssets = import.meta.glob<{
   level?: string;
   table: { states: string[]; edges: Record<string, FsmEdgeData[]> };
-}>('./assets/fsm-*.json', { eager: true, import: 'default' });
+}>('@corpus/fsm-*.json', { eager: true, import: 'default' });
 
 // ---------------------------------------------------------------- loading bar
 

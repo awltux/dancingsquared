@@ -52,7 +52,7 @@ import { buildCatalog, makeSequencer } from '../../../poc-teacher/src/catalog.ts
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', '..', 'assets');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

@@ -27,8 +27,8 @@ const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
 const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
-const movesXml = read('src/assets/moves.xml');
-const formationsXml = read('src/assets/formations.xml');
+const movesXml = read('../assets/moves.xml');
+const formationsXml = read('../assets/formations.xml');
 const ui = read('src/editor-ui.ts');
 const css = read('src/style.css');
 

@@ -8,20 +8,22 @@
 // generator to validate a submission (DESIGN.md 11), so a second `fs` loader would be a second place for
 // "the slice is the level" to drift, which is the failure AGENTS.md 5 forbids by name.
 //
-// IT READS `game/src/assets/` — THE CHECKED COPY, NOT `poc/src/assets/`. That copy exists because
-// `import.meta.glob` cannot reach outside Vite's root (see `assets.ts`), and `tools/sync-corpus.mjs --check`
-// runs FIRST in the game's gate. So the bytes the server serves are the bytes the gate verified, which is the
-// property that matters once a wrong puzzle is served to every player at a level at once (DESIGN.md 7.2).
+// IT READS THE REPOSITORY'S ONE CORPUS, at `assets/` in the root, through the same `CORPUS` constant the Vite apps'
+// `@corpus` alias is built from (`vite.corpus.ts`). It used to read a CHECKED COPY under `game/src/assets/`, kept in
+// step by `tools/sync-corpus.mjs --check`, because a comment claimed `import.meta.glob` could not reach outside
+// Vite's root — a claim that is false, and the copy is gone with it. So the bytes the server serves and the bytes the
+// browser bundles are the same file on disk, which is a stronger property than the copy had: there is nothing left
+// to drift (DESIGN.md 7.2 is about a wrong puzzle being served to every player at a level at once).
 //
 // IT IS THE ONLY FILE UNDER `src/` THAT READS THE FILESYSTEM OR NEEDS NODE TYPES, and it is in no browser
 // import graph: `src/data/corpus.ts` is the app's seam, this is the server's and the probes'. `tsconfig.json`
 // therefore lists both `vite/client` and `node` — the note there says which file the second one is for.
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, callMeta, parseCallXml } from 'dancing-squared-engine';
 import { createEngineApplier } from '../engine/applier.ts';
+import { CORPUS } from '../../../vite.corpus.ts';
 
 // THE CAST IS THE TWO `Document` DECLARATIONS, NOT A DEPENDENCY CHOICE. `setParser` takes the DOM lib's
 // `typeof DOMParser`; `@xmldom/xmldom`'s returns ITS OWN `Document`, and the compiler names the gap exactly:
@@ -30,10 +32,8 @@ import { createEngineApplier } from '../engine/applier.ts';
 // it gets — and the alternative, a `Document` shim of our own, would be a second parser.
 setParser(DOMParser as unknown as Parameters<typeof setParser>[0]);
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-
-/** The corpus the game ships, resolved RELATIVE TO THIS FILE so a deployed copy travels with it. */
-const ASSETS = path.resolve(HERE, '..', 'assets');
+/** The corpus directory: the root's `assets/`, from the one place that names it. */
+const ASSETS = CORPUS;
 
 const movesXml = fs.readFileSync(path.join(ASSETS, 'moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8');

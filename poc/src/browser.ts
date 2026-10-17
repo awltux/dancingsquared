@@ -304,8 +304,8 @@ export class CallBrowser {
         .map(
           (f, i) =>
             `<div class="row ed-formation"><span class="part">${esc(f.name)} <i>(${f.dancers.length} dancers, from ${esc(f.origin)})</i></span>` +
-            `<button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into poc/src/assets/formations.xml">xml</button>` +
-            `<button data-corpus="${i}" title="${f.inCorpus ? 'This formation is in the corpus: calls that start from it are exported as a name reference. Click to take it back out' : 'Add it to the corpus: the block goes on your clipboard to paste into poc/src/assets/formations.xml, and calls that start from it are then exported as a name reference rather than an embedded copy'}">${f.inCorpus ? 'in corpus ✓' : 'add to corpus'}</button>` +
+            `<button data-xml="${i}" title="Copy this formation's &lt;formation&gt; block for pasting into assets/formations.xml">xml</button>` +
+            `<button data-corpus="${i}" title="${f.inCorpus ? 'This formation is in the corpus: calls that start from it are exported as a name reference. Click to take it back out' : 'Add it to the corpus: the block goes on your clipboard to paste into assets/formations.xml, and calls that start from it are then exported as a name reference rather than an embedded copy'}">${f.inCorpus ? 'in corpus ✓' : 'add to corpus'}</button>` +
             `<button data-del="${i}" title="Forget this label">del</button>` +
             `<button data-load="${i}" title="Load this formation's call into the Browse tab: the Level, Call and Setup selectors are set to it and the call is shown. Nothing is edited.">load</button>` +
             `<button data-edit="${i}" title="Open this formation's call in the Call editor, on the setup it was made from. Switch to the editor's Edit instance tab, pick the call and setup there, and load it - the same thing as choosing them by hand, so nothing is edited until you change something.">Edit</button>` +
@@ -317,7 +317,7 @@ export class CallBrowser {
         const f = list[Number(btn.dataset.xml)];
         if (!f) return;
         void navigator.clipboard?.writeText(formationToXml(f.name, f.dancers));
-        this.legend.innerHTML = `copied <b>${esc(f.name)}</b> as a &lt;formation&gt; block<br><span class="small">paste it into poc/src/assets/formations.xml</span>`;
+        this.legend.innerHTML = `copied <b>${esc(f.name)}</b> as a &lt;formation&gt; block<br><span class="small">paste it into assets/formations.xml</span>`;
       });
     }
     for (const btn of this.userFormationsEl.querySelectorAll<HTMLButtonElement>('button[data-corpus]')) {
@@ -335,7 +335,7 @@ export class CallBrowser {
           void navigator.clipboard?.writeText(formationToXml(f.name, f.dancers));
           this.legend.innerHTML =
             `added <b>${esc(f.name)}</b> to the corpus<br><span class="small">its &lt;formation&gt; block is on your clipboard - paste it into ` +
-            `poc/src/assets/formations.xml. Until it is there, a call that names it loads only in this browser; calls starting from it now export ` +
+            `assets/formations.xml. Until it is there, a call that names it loads only in this browser; calls starting from it now export ` +
             `as <b>formation="${esc(f.name)}"</b> instead of an embedded copy.</span>`;
         } else {
           this.legend.innerHTML = `took <b>${esc(f.name)}</b> back out of the corpus<br><span class="small">calls that start from it will export their own &lt;formation&gt; block again</span>`;

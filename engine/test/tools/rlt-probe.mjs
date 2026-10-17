@@ -13,7 +13,7 @@ import { callsByTitle } from '../lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'poc', 'src', 'assets');
+const assets = path.resolve(here, '..', '..', '..', 'assets');
 const movesXml = readFileSync(path.join(assets, 'moves.xml'), 'utf8');
 const formsXml = readFileSync(path.join(assets, 'formations.xml'), 'utf8');
 const seq = new Sequencer(movesXml, formsXml, callsByTitle(assets));

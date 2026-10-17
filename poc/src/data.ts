@@ -29,16 +29,17 @@ import {
 } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer } from 'dancing-squared-engine';
 
-import movesXml from './assets/moves.xml?raw';
-import formationsXml from './assets/formations.xml?raw';
-import callsXml from './assets/src/calls.xml?raw';
+import movesXml from '@corpus/moves.xml?raw';
+import formationsXml from '@corpus/formations.xml?raw';
+import callsXml from '@corpus/src/calls.xml?raw';
 // How a call is written as a `<tam>`: with an embedded start formation, or naming one the corpus carries.
 import { callTamXml } from './tam-xml';
 
 // Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
 // into the main bundle). loadCatalog() fetches them all and reports real
-// download + parse progress.
-const levelLoaders = import.meta.glob<string>('./assets/*/*.xml', {
+// download + parse progress. The `@corpus` alias is the repository's ONE corpus (`assets/` at the root, named in
+// `vite.corpus.ts`), which this app used to hold under `poc/src/assets/`.
+const levelLoaders = import.meta.glob<string>('@corpus/*/*.xml', {
   query: '?raw',
   import: 'default',
 });

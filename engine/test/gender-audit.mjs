@@ -34,7 +34,7 @@ setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
-const assets = 'poc/src/assets';
+const assets = 'assets';
 const movesXml = read(`${assets}/moves.xml`);
 const formationsXml = read(`${assets}/formations.xml`);
 

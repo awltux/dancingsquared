@@ -3,8 +3,8 @@
 // Students, Tips) with a large bottom navigation, built to be easy to read and
 // tap on a phone for an older user.
 
-import movesXml from '../../poc/src/assets/moves.xml?raw';
-import formationsXml from '../../poc/src/assets/formations.xml?raw';
+import movesXml from '../../assets/moves.xml?raw';
+import formationsXml from '../../assets/formations.xml?raw';
 
 import { buildCatalog, makeSequencer } from './catalog';
 import type { CatalogCall } from './catalog';
@@ -23,14 +23,14 @@ import { parseModules } from './modules';
 
 // ---------------------------------------------------------------- catalog
 
-const msFiles = import.meta.glob<string>('../../poc/src/assets/ms/*.xml', {
+const msFiles = import.meta.glob<string>('../../assets/ms/*.xml', {
   query: '?raw',
   import: 'default',
   eager: true,
 });
 // Discovered calls (home squared-set setups for plain call names) are folded in
 // so they're available alongside the main ms catalog.
-const discoveredFiles = import.meta.glob<string>('../../poc/src/assets/discovered/*.xml', {
+const discoveredFiles = import.meta.glob<string>('../../assets/discovered/*.xml', {
   query: '?raw',
   import: 'default',
   eager: true,

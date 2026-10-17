@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..'); // repo root (poc and poc-teacher are siblings)
-const assets = path.join(root, 'poc/src/assets');
+const assets = path.join(root, 'assets');
 const outDir = path.join(assets, 'discovered');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 

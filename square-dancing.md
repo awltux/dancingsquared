@@ -663,7 +663,7 @@ apparent failure rate:*
 - **Calls were being registered by file basename**, so `Pass Thru` (file `pass_thru.xml`) was
   unregistered and every get-out appeared to fail at its first call. Registering by title
   fixes it; the shared loader now does this for every test that runs calls.
-- **`poc/src/assets/src/calls.xml` was never read.** It is not a set of implementations but an
+- **`assets/src/calls.xml` was never read.** It is not a set of implementations but an
   *index* — `<call link="c3a/1_4_mix" title="1/4 Mix"/>` entries pointing at call files — so a
   name in it without a `<tam>` anywhere is a call the engine knows and cannot do. That is how
   the `Promenade` gap surfaced, and it is worth keeping the two notions apart.
@@ -4312,8 +4312,8 @@ this file recorded for the previous revision. MEASURED, the 12 are `clone-refusa
 `coords-gate`, `editor-level`, `facing-end-drag`, `facing-handle`, `formation-ref`, `formation-size`,
 `move-beats`, `run-circle`, `start-facing` and `wysiwyg-path` - so the probe this work changed is NOT among
 them and no new red was introduced; the count is one LOWER because that probe used to be one of the 13 (it is
-the only probe file this work touched, and it is green). `poc/src/assets/formations.xml` and
-`poc/src/assets/ms/dosado.xml` are modified in this tree by other work, so a strict before/after of the whole
+the only probe file this work touched, and it is green). `assets/formations.xml` and
+`assets/ms/dosado.xml` are modified in this tree by other work, so a strict before/after of the whole
 probe suite would want those set aside. NO ENGINE FILE WAS TOUCHED and no data format changed.
 
 OUTSTANDING: the drag has not been seen on the board. A Vite build in this sandbox needs esbuild's piped-stdio

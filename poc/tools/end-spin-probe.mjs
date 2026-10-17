@@ -47,7 +47,7 @@ const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 const norm = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; };
 /** The app's TypeScript is checked in with CRLF; this file is LF, so a multi-line match needs this. */
 const readSource = (rel) => fs.readFileSync(path.join(POC, rel), 'utf8').replace(/\r\n/g, '\n');
-const asset = (p) => fs.readFileSync(path.join(POC, 'src/assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(POC, '../assets', p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const formations = engine.parseFormations(formationsXml);

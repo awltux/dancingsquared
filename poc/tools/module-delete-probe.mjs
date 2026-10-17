@@ -38,7 +38,7 @@ const check = (cond, msg) => {
 
 console.log('== 1. the removal itself, through the engine ==');
 {
-  const seq = new engine.Sequencer(read('src/assets/moves.xml'), read('src/assets/formations.xml'));
+  const seq = new engine.Sequencer(read('../assets/moves.xml'), read('../assets/formations.xml'));
   const NAME = 'Probe Module';
   seq.registerModule(NAME, ['Pass Thru']);
   check(seq.isModule(NAME), 'a registered module IS a module');
@@ -64,7 +64,7 @@ console.log('== 1. the removal itself, through the engine ==');
 
 console.log('\n== 2. and it cannot take anything it should not ==');
 {
-  const seq = new engine.Sequencer(read('src/assets/moves.xml'), read('src/assets/formations.xml'));
+  const seq = new engine.Sequencer(read('../assets/moves.xml'), read('../assets/formations.xml'));
   seq.registerModule('Keep Me', ['Pass Thru']);
   seq.unregisterModule('Something Never Registered');
   check(seq.isModule('Keep Me'), 'deleting an unknown name removes NOTHING else');

@@ -12,8 +12,8 @@ const { loadCallFromXml, callMeta, parseMoves, buildCallVariants } = eng;
 const { poseFor, dancerBeats, allPoses, computeHandholds } = eng;
 
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('src/assets/moves.xml');
-const formationsXml = read('src/assets/formations.xml');
+const movesXml = read('../assets/moves.xml');
+const formationsXml = read('../assets/formations.xml');
 
 let failures = 0;
 function check(cond, msg) {
@@ -57,8 +57,8 @@ check(moves.size > 50, `moves registry has ${moves.size} named paths`);
 
 // Half-group call: Brace Thru "Lines, Boys Ends" is authored for ONE line of 4.
 // With mirroring ON it should expand to the full two-line setup (8 dancers).
-const beau = loadCallFromXml(read('src/assets/a1/brace_thru.xml'), movesXml, formationsXml, { title: 'Brace Thru', from: 'Lines, Boys Ends' }); // mirror default ON
-const beauHalf = loadCallFromXml(read('src/assets/a1/brace_thru.xml'), movesXml, formationsXml, { title: 'Brace Thru', from: 'Lines, Boys Ends' }, false);
+const beau = loadCallFromXml(read('../assets/a1/brace_thru.xml'), movesXml, formationsXml, { title: 'Brace Thru', from: 'Lines, Boys Ends' }); // mirror default ON
+const beauHalf = loadCallFromXml(read('../assets/a1/brace_thru.xml'), movesXml, formationsXml, { title: 'Brace Thru', from: 'Lines, Boys Ends' }, false);
 
 console.log('== Brace Thru (Lines, Boys Ends) ==');
 check(beauHalf.dancers.length === 4, `Brace Thru half has ${beauHalf.dancers.length} dancers (expect 4)`);
@@ -159,7 +159,7 @@ console.log('== Pass Thru (Normal Lines) ==');
 // a line of four all holding hands) describe the `Normal Lines` authoring and nothing else, so the
 // lookup names it. A position into an authored list is not an identity: the pair authoring is a
 // legitimate 2-written shape (2 declares 4), so the tam was never the thing at fault.
-const passXml = read('src/assets/ms/pass_thru.xml');
+const passXml = read('../assets/ms/pass_thru.xml');
 // NAMED, NOT NUMBERED, and the loader is what enforces it now: the selector resolves title + formation +
 // from together and THROWS if that authoring is gone, which is stricter than the findIndex it replaces -
 // the old code checked an index and then passed it on, so a later insertion could still move it.
@@ -185,7 +185,7 @@ check(passStartHolds.length === 3 && new Set(passStartHolds.flatMap((h) => [h.i,
 
 // Circle Left: all 8 dancers hold hands in a ring as they circle.
 console.log('== Circle Left ring (deduced from data) ==');
-const circle = loadCallFromXml(read('src/assets/ms/circle.xml'), movesXml, formationsXml, { title: 'Circle Left', formation: 'Static Square' }); // Circle Left, mirrored
+const circle = loadCallFromXml(read('../assets/ms/circle.xml'), movesXml, formationsXml, { title: 'Circle Left', formation: 'Static Square' }); // Circle Left, mirrored
 const cposes = circle.dancers.map((d) => poseFor(d, circle.beats * 0.5));
 const cholds = computeHandholds(cposes, 'active');
 const cdeg = new Array(circle.dancers.length).fill(0);
@@ -197,7 +197,7 @@ check(cdeg.every((d) => d === 2), 'every dancer holds exactly 2 neighbours (a ri
 // Allemande Left: during the swing each dancer reaches only its ONE corner —
 // no cross-group connections (regression: wide side-tolerance used to over-connect).
 console.log('== Allemande Left (no cross-group holds) ==');
-const allemandeXml = read('src/assets/ms/allemande.xml');
+const allemandeXml = read('../assets/ms/allemande.xml');
 // EVERY AUTHORING from that board, not the first. `from` tells the Allemande Left tams apart from
 // each other but does NOT make one unique - see `listAuthorings` - and the hand-hold property below
 // has to hold for every way the corpus dances the call, so the plural reading is the one it wants.
@@ -221,7 +221,7 @@ for (const from of ['Left-Hand 3/4 Tag', 'Left-Hand Waves', 'Static Square']) {
 // couple. Throughout the move each dancer holds only its wheel partner (so the
 // partner pairs stay constant and every dancer's degree is 1).
 console.log('== Wheel Around (couples stay paired) ==');
-const wheel = loadCallFromXml(read('src/assets/ms/wheel_around.xml'), movesXml, formationsXml, { title: 'Wheel Around', from: 'Lines' }, true); // Lines, mirrored
+const wheel = loadCallFromXml(read('../assets/ms/wheel_around.xml'), movesXml, formationsXml, { title: 'Wheel Around', from: 'Lines' }, true); // Lines, mirrored
 const wheelPairs = ['0-1', '2-3', '4-5', '6-7'];
 let wheelOk = true;
 for (let k = 0; k <= 20; k++) {
@@ -253,7 +253,7 @@ let total = 0;
 let loaded = 0;
 const failures2 = [];
 for (const lv of levels) {
-  const dir = path.join(__dirname, 'src/assets', lv);
+  const dir = path.join(__dirname, '../assets', lv);
   if (!fs.existsSync(dir)) continue;
   let n = 0;
   let ok = 0;

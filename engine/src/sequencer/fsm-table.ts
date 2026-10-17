@@ -72,7 +72,7 @@ export interface FsmTableEdge {
  *
  * 2 adds `reading` and `endKind` to every edge. 3 adds `stateInfo` (what an embedded state came from).
  * `load` accepts ONLY the current version, so a stored v2 asset is refused rather than read with the
- * new fields silently absent - the same rule as before, and the reason `poc/src/assets/fsm-ms.json` is
+ * new fields silently absent - the same rule as before, and the reason `assets/fsm-ms.json` is
  * regenerated in the same change.
  */
 export const FSM_TABLE_SCHEMA_VERSION = 3;

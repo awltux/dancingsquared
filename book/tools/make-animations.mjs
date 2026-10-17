@@ -34,7 +34,7 @@ const START_FORMATIONS = join(toolsDir, 'start-formations.json');
 
 /** The attributes of every `<tam>` in a corpus file, in order. */
 function tamsOf(file) {
-  const xml = readFileSync(join(root, 'poc', 'src', 'assets', file), 'utf8');
+  const xml = readFileSync(join(root, 'assets', file), 'utf8');
   return [...xml.matchAll(/<tam\b[^>]*>/g)].map((m) => {
     const attrs = {};
     for (const a of m[0].matchAll(/(\w+)\s*=\s*"([^"]*)"/g)) attrs[a[1]] = a[2];

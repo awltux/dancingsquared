@@ -15,15 +15,15 @@ setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
 const read = (p) => readFileSync(path.join(root, p), 'utf8');
-const assets = path.join(root, 'poc', 'src', 'assets');
+const assets = path.join(root, 'assets');
 
 const msFiles = {};
 for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
-  msFiles[`ms/${f}`] = read(`poc/src/assets/ms/${f}`);
+  msFiles[`ms/${f}`] = read(`assets/ms/${f}`);
 }
 const catalog = buildCatalog(msFiles);
 const familyMap = new Map(catalog.map((c) => [c.title, c.family ?? '']));
-const seq = makeSequencer(read('poc/src/assets/moves.xml'), read('poc/src/assets/formations.xml'), catalog);
+const seq = makeSequencer(read('assets/moves.xml'), read('assets/formations.xml'), catalog);
 const fsm = seq.transitionTable();
 
 const states = fsm.states();

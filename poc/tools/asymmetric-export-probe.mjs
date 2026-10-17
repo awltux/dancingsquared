@@ -47,8 +47,8 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const formationsXml = read('src/assets/formations.xml');
-const movesXml = read('src/assets/moves.xml');
+const formationsXml = read('../assets/formations.xml');
+const movesXml = read('../assets/moves.xml');
 
 // ---------------------------------------------------------------- 1. the control, and where it goes
 console.log('== 1. the control, and where it goes ==');
@@ -108,7 +108,7 @@ console.log('\n== 3. the two forms, measured on a mirror-completed call ==');
 {
   // `ms/circle.xml` tam 0 is `Circle Left`, whose `Circle` the corpus authors with FOUR dancers - so the
   // engine completes the second half by rotating it 180 degrees, which is exactly what a half-set tam is.
-  const tams = parseCallXml(read('src/assets/ms/circle.xml'));
+  const tams = parseCallXml(read('../assets/ms/circle.xml'));
   const call = normalizeInstance(buildCall(tams[0], parseFormations(formationsXml), parseMoves(movesXml), true));
   check(call.dancers.length === 8, `the witness builds to a whole set (${call.dancers.length} dancers)`);
   const rep = halfSetReport(call);

@@ -9,8 +9,8 @@ setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('../../poc/src/assets/moves.xml');
-const formationsXml = read('../../poc/src/assets/formations.xml');
+const movesXml = read('../../assets/moves.xml');
+const formationsXml = read('../../assets/formations.xml');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -18,12 +18,12 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const msDir = path.join(__dirname, '../../poc/src/assets/ms');
+const msDir = path.join(__dirname, '../../assets/ms');
 const files = fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'));
 const seq = new Sequencer(movesXml, formationsXml);
 let registered = 0;
 for (const f of files) {
-  const xml = read(`../../poc/src/assets/ms/${f}`);
+  const xml = read(`../../assets/ms/${f}`);
   const meta = callMeta(xml);
   if (!meta.title) continue; // moves/rule file, not a call
   try {

@@ -110,7 +110,7 @@ remembered number.
   code anywhere in `poc/`.** `poc/` makes no network calls by rule (AGENTS.md §6), so every call the game
   makes to AWS is new code in `game/` — and so is the authoring side of the regime in §7.2, which is a first
   for this repository: nothing here currently serves an ordered list of puzzles to players.
-- **The Mainstream corpus is what the level-1 pool must be carved out of.** `poc/src/assets/` carries
+- **The Mainstream corpus is what the level-1 pool must be carved out of.** `assets/` carries
   `ms` (66 XML files) plus `plus`, `a1`, `a2`, `c1`, `c2`, `c3a`, `c3b`, `discovered` and the `src`
   directory of shared definitions; `engine/test/mainstream.mjs` registers roughly 59 calls from those 66
   files (it asserts ≥ 50), because a file can hold several titles and a file can fail to build. So a call
@@ -1241,12 +1241,12 @@ findings, each with the measurement that produced it:
 
 1. **`import.meta.glob` CANNOT REACH OUTSIDE VITE'S ROOT** — and this is the finding that changed the design.
    `server.fs.allow` governs what may be SERVED, not what may be GLOBBED. With the game's root at `game/` and
-   globs written as `../../poc/src/assets/...`, Vite compiled all three to **empty objects**
+   globs written as `../../assets/...`, Vite compiled all three to **empty objects**
    (`const MOVES = /* #__PURE__ */ Object.assign({})`) and the app sat on "Loading the corpus…" forever.
    The intended arrangement — one corpus, globbed where it lives — is therefore not achievable by aliasing or
-   by a path alias: `game/src/assets/` is a COPY of `poc/src/assets/`, and `tools/sync-corpus.mjs --check`
+   by a path alias: `game/src/assets/` is a COPY of `assets/`, and `tools/sync-corpus.mjs --check`
    runs **first in the gate** so the copy cannot drift silently. AGENTS.md §1 still says the corpus lives in
-   `poc/src/assets` and that still holds: what the game ships is a build input with a gate on it.
+   `assets` and that still holds: what the game ships is a build input with a gate on it.
 2. **The stage draws nothing by itself.** `DancerView.update` only writes poses into the scene graph; there is
    no animation loop anywhere in `packages/stage`. The app's first frame loop posed the views and never
    rendered, so the boards were BLACK — and a screenshot of the first screen came back empty, which is how it
@@ -1748,7 +1748,7 @@ hint having nothing to spend until the Drill ships.
 ## 14. Testability, and what will not be checked
 
 - **Probeable headless, in Node.** The generator, the level specs, the scoring arithmetic, the hint rule and
-  the move stack are pure and take no DOM. The engine's data files are readable from `poc/src/assets/`
+  the move stack are pure and take no DOM. The engine's data files are readable from `assets/`
   exactly as `engine/test/mainstream.mjs` does, and Node needs `setParser(DOMParser)` from `@xmldom/xmldom` —
   the pattern that file already follows. **The saved game is probeable the same way**, because storage is an
   INJECTED interface rather than a call to `localStorage`: `game/test/save-probe.mjs` drives the loader with a
@@ -1888,7 +1888,7 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         the printed one and no entry has been moved.
       * **THE WORK IS A MAPPING, NOT A SORT — AND THE MAPPING IS NOW HAND-CURATED.** The order's names are
         CALLERLAB's and the game's pool titles are the corpus's (`calls-data.ts`, which WAS generated from
-        `poc/src/assets/ms/*.xml` and is now edited by hand: the owner took the order over, `game/tools/build-pool.mjs`
+        `assets/ms/*.xml` and is now edited by hand: the owner took the order over, `game/tools/build-pool.mjs`
         is deleted, and `game/test/pool-probe.mjs` is what validates the result), so
         "Circle Left/Right (1/4, 1/2, 3/4, Full)", "Promenade Family", "Star Right/Left" and "Trade Family" have to be
         resolved to titles like `Circle Left Home`, `Promenade Home`, `Left Hand Star`, `Boys Trade` — one to
@@ -2341,6 +2341,6 @@ state would be wrong on every line; it read:
   truth, and `game/` imports its VALUES by name (`sameBoardById`, `boardSig`, `makeSquaredSet`, `computeHandholds`)
   while reaching the one mutable engine object only through `src/engine/applier.ts` (`AGENTS.md` §1).
 - **The tree really does carry other people's in-flight work**, which was true when the boundary was written and is
-  true today: the corpus under `poc/src/assets` is regularly mid-edit, and an uncommitted corpus change by another
+  true today: the corpus under `assets` is regularly mid-edit, and an uncommitted corpus change by another
   session is what stops `tools/sync-corpus.mjs --check` from passing while it is there (`AGENTS.md` §8 trap 16). That
   is a fact about the working tree, not about this design.

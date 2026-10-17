@@ -332,8 +332,10 @@ body {
   background: #1d2f3f;
 }
 
-/* THE INSTRUCTION FOR A HALF-MADE STEP. EMPTY MOST OF THE TIME, which is why it takes no space when it is: a paragraph
-   with no text would still advance the layout by a line. */
+/* THE INSTRUCTION FOR THE INTERACTION. It is not empty while a run is playing: with nothing armed it says how to arm a
+   two-group step (the gesture is a Shift-click, and an unannounced gesture does not exist), and with one armed it names
+   it and says what the second click does. It is empty only once the run is over, which is why `:empty` still matters:
+   a paragraph with no text would still advance the layout by a line. */
 #offerPairHint {
   margin: 0 0 10px;
   font-size: 0.88rem;

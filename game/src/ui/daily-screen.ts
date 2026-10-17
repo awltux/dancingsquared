@@ -17,7 +17,8 @@
 // patched buttons would show a stale allowance next to a fresh board. The readouts are the cheap strings, and
 // they are written only when they change — see `writeClock`, which the frame loop calls.
 import type { DailyView } from '../game/daily-run.ts';
-import { groupReadings, parallelLabel, readingSpelling } from '../puzzle/readings.ts';
+import { decidePick, isArmed } from '../puzzle/arming.ts';
+import { groupReadings, readingSpelling } from '../puzzle/readings.ts';
 import type { MoveReading } from '../puzzle/types.ts';
 import { el } from './dom.ts';
 
@@ -136,8 +137,8 @@ export class DailyScreen {
           // marked where the player is already looking. The run drops the marker as soon as they move, so it
           // can never point at a call that is no longer offered. A hinted call is highlighted in EVERY group it
           // is legal for, because the hint names a call and not a reading.
-          const armed = this.armed === reading;
-          if (armed) {
+          const armedNow = isArmed(this.armed, reading);
+          if (armedNow) {
             button.classList.add('armed');
             button.textContent = `${reading.call} · 1st of two`;
           } else if (reading.call === view.hintedCall) {
@@ -147,21 +148,29 @@ export class DailyScreen {
             button.textContent = reading.call;
           }
           button.disabled = this.busy || spent;
-          button.addEventListener('click', () => this.choose(reading));
+          // THE GESTURE IS THE MODE: a plain click plays, a Shift-click arms the first half of a two-group step
+          // (`puzzle/arming.ts` owns the rule, and its probe pins every row of that table).
+          button.addEventListener('click', (event) => this.choose(reading, event.shiftKey));
           row.append(button);
         }
         this.els.offer.append(row);
       }
-      // THE STATE OF A HALF-MADE STEP, in words, because a button that says "1st of two" is only half the instruction.
-      this.els.pairHint.textContent = this.armed
-        ? `${readingSpelling(this.armed)} armed — pick a call under a DIFFERENT group to dance both at once, or pick the same one again to cancel.`
-        : '';
       if (view.readings.length === 0) {
         const note = document.createElement('p');
         note.textContent = 'No call is available from here — undo one to back out.';
         this.els.offer.append(note);
       }
     }
+
+    // THE INSTRUCTION LINE carries the whole interaction, so it is NOT empty on the ordinary path: with nothing armed
+    // it says how to arm one (the gesture is the mode, and a gesture nobody is told about does not exist), and with a
+    // reading armed it says what a second click does — a button reading "1st of two" is only half the instruction. It
+    // is empty only when the run is over and there is nothing left to pick.
+    this.els.pairHint.textContent = view.outcome !== 'playing'
+      ? ''
+      : this.armed
+        ? `${readingSpelling(this.armed)} armed — pick a call under a DIFFERENT group to dance both at once, or pick the same one again to cancel.`
+        : 'Shift-click a call (⇧) to start a two-group step, then pick a call under another group.';
 
     this.els.line.textContent = view.moves.length ? `Your line: ${view.moves.join(' → ')}` : 'Your line: (nothing yet)';
     this.writeClock(view);
@@ -184,36 +193,36 @@ export class DailyScreen {
   /**
    * A CLICK ON A READING: play it, arm it, or complete a pair.
    *
-   * THE THREE OUTCOMES ARE ONE CONTROL, which is why there is no "combine" mode: a click with nothing armed PLAYS the
-   * reading (the common case, unchanged); a second click on a reading for a DIFFERENT group plays both at once; a click
-   * on the armed reading itself CANCELS. MEASURED, the alternative — a mode toggle — costs an extra press on every move
-   * to serve a step most moves are not.
+   * THE GESTURE IS THE MODE, and the rule is `puzzle/arming.ts`'s `decidePick` rather than a branch here: a plain click
+   * PLAYS the reading (the common case, one press — the run is scored on the clock, so a press costs the player time);
+   * a SHIFT-click arms it as the first of two; with one armed, a click on a reading for a DIFFERENT group plays both at
+   * once, a click on the armed reading cancels, and a reading of the SAME group re-arms (that is a sequence, and the two
+   * orders disagree half the time).
    *
-   * TWO READINGS OF THE SAME GROUP ARE NOT A PAIR (`parallelLabel` is null), because they are a sequence and the two
-   * orders disagree half the time; the click re-arms instead, so the second click is never silently ignored.
+   * THIS METHOD ONCE DID NOTHING BUT ARM, and the difference is why the rule was extracted: the version before this one
+   * had no `play` call at all, so a single call could not be made and the Daily was unplayable past its first move.
+   * `game/test/picker-interaction-probe.mjs` pins every row of the table.
    */
-  private choose(reading: MoveReading): void {
-    const armed = this.armed;
-    if (!armed) {
-      this.armed = reading;
-      if (this.lastView) this.show(this.lastView);
-      return;
+  private choose(reading: MoveReading, arming: boolean): void {
+    const decision = decidePick(this.armed, reading, arming);
+    switch (decision.kind) {
+      case 'play':
+        // NOTHING LOCAL CHANGES: the run's next view arrives with the move in it, and a new view clears the arming.
+        this.on.play(decision.call);
+        return;
+      case 'arm':
+        this.armed = decision.reading;
+        if (this.lastView) this.show(this.lastView);
+        return;
+      case 'disarm':
+        this.armed = null;
+        if (this.lastView) this.show(this.lastView);
+        return;
+      case 'parallel':
+        this.armed = null;
+        this.on.parallel(decision.label);
+        return;
     }
-    if (armed === reading) {
-      this.armed = null;
-      if (this.lastView) this.show(this.lastView);
-      return;
-    }
-    const label = parallelLabel(armed, reading);
-    this.armed = null;
-    if (label === null) {
-      // The same group twice: re-arm on the new reading and say so, rather than playing a sequence the player called a
-      // parallel step.
-      this.armed = reading;
-      if (this.lastView) this.show(this.lastView);
-      return;
-    }
-    this.on.parallel(label);
   }
 
   /** A verdict line, and optionally the engine's own reason. */

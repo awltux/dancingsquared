@@ -782,12 +782,26 @@ step could not travel as the string the game's line is made of. That is now in p
   `Heads Allemande Left in the Alamo Style || Sides Allemande Left to an Alamo Ring` is one element of a line, legal,
   with both groups moved — pinned by `game/test/parallel-step-probe.mjs` against the engine's object form as the oracle.
 
-**THE PICKER COMPOSES ONE TOO, and it needed no mode switch.** A click with nothing armed plays the reading (the common
-case, unchanged); a click on a reading for a **different** group plays both at once as the label `A || B`; a click on the
-armed reading itself cancels. Two readings of the SAME group are not a pair — `parallelLabel` returns null and the click
-re-arms instead — because that is a sequence, and the measurement above is exactly why it must not be sold as a parallel
-step. `game/test/parallel-step-probe.mjs` pins the picker's composer against the applier, so the two spellings cannot
-drift.
+**THE PICKER COMPOSES ONE TOO, AND THE GESTURE IS THE MODE.** A plain click **plays** the reading — the common case, one
+press, and the run is scored on the clock, so an extra press on every move would cost the player real time. A
+**Shift-click** arms a reading as the first half of a two-group step; with one armed, a click on a reading for a
+**different** group plays both at once as the label `A || B`, a click on the armed reading cancels, and two readings of
+the SAME group are not a pair — `parallelLabel` returns null and the click re-arms instead — because that is a sequence,
+and the measurement above is exactly why it must not be sold as a parallel step. The hint line above the list carries
+both halves of that instruction, because a gesture nobody is told about does not exist. **THE COST IS RECORDED: composing
+needs a Shift key, so the two-group step is desktop-only.**
+
+**THE FIRST VERSION OF THIS SHIPPED BROKEN, AND NO GATE SAW IT — that is the durable part.** `b4d1d43` armed on every
+plain click and never called `play`, so a single call had no path at all and the Daily was unplayable past its first
+move. MEASURED in a real browser against the built app (`npm run dev:game` over `npm run dev:api`), while the code
+comment, that commit's message and this section all said "a click with nothing armed plays the reading" — a sentence
+that is also self-contradictory, since a click that has already played cannot be half of a pair with a second click.
+`game/test/parallel-step-probe.mjs` was green throughout because it measures the COMPOSER, not the rule that decides what
+a click does, and the rule could not be imported at all while it lived in `ui/daily-screen.ts` (bare Node refuses that
+class). The rule is now `puzzle/arming.ts`'s `decidePick`, and `game/test/picker-interaction-probe.mjs` pins every row of
+its table — including `an unarmed plain click PLAYS`, the one check the shipped rule fails — with the three plausible
+wrong rules run beside it as negative controls. `game/test/parallel-step-probe.mjs` still pins the composer against the
+applier, so the two spellings cannot drift.
 - **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
   offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
   board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the

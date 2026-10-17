@@ -428,6 +428,23 @@ with its measurement, in the same commit that found it.
     glob's `ms/circle.xml` key, the one-short path 731 KB without it. There is now one corpus at `assets/`, its
     location is written ONCE in `vite.corpus.ts`, and both apps reach it through the `@corpus` alias because an
     alias cannot be one `../` short.
+27. **A RULE THAT LIVES ONLY IN THE SCREEN HAS NO GATE — and its own prose will not catch it.** `game/src/ui/daily-screen.ts`
+    cannot be imported by bare Node (parameter properties), so `b4d1d43`'s `choose()` was unmeasurable: MEASURED, it
+    armed on every click and never called `play`, so a single call had no path at all and the Daily could not be played
+    past its first move. Every probe was green, because `parallel-step-probe.mjs` measures the COMPOSER, not the click —
+    and the same commit said "NOT checked: no browser was driven" while its message and `DESIGN.md` §9.2 both asserted
+    the interaction worked. **The prose was not just unverified, it was self-contradictory**: "a click with nothing armed
+    plays the reading; a second click on a different group plays both at once" cannot both be true, because a click that
+    has already played is not available to be half of a pair. The rule is now `game/src/puzzle/arming.ts` (`decidePick`
+    plus `isArmed`), pinned row-by-row with negative controls by `game/test/picker-interaction-probe.mjs`, and MEASURED
+    to go red on a revert (4 checks, no others). **So: a claim about an interaction that the commit also says was never
+    driven is not a claim, it is a hope — and the fix is to move the rule where a probe can reach it, not to drive the
+    browser once more.** A modifier click is the one thing the DSH browser tools cannot send: the cached
+    `.pw-browsers` Chromium will (`playwright-core` into a temp prefix — nothing added to the repo).
+28. **`npm run dev:game` binds `localhost`, which is `::1` here — `http://127.0.0.1:8089` is REFUSED.** MEASURED as
+    `ERR_CONNECTION_REFUSED` while Vite was serving happily on `http://localhost:8089/`; the api dev server binds
+    `127.0.0.1:8090` and accepts that address, so the two halves of one browser check do not share a host spelling. Use
+    `localhost` for the app and `127.0.0.1` for `VITE_API_BASE`, or the page loads and the puzzle does not.
 
 ---
 

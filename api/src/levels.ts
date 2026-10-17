@@ -18,6 +18,7 @@
 import {
   MAIN_POOL,
   PlaySession,
+  dailySpec,
   generatePuzzle,
   generatorConfigFor,
   levelSpec,
@@ -99,7 +100,10 @@ export function puzzleFor(seed: number, level: LevelSpec, mode: PuzzleMode): Gen
   const key = `${mode}:${level.index}:${seed}`;
   const cached = puzzles.get(key);
   if (cached) return cached;
-  const generated = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, mode), seed, level, runtimeFor(level).applier);
+  // THE DAILY IS ASKED IN ITS OWN DEPTH, applied at this boundary: `DAILY_DEPTH` calls at every level, where the
+  // Drill's depth is the level's (DESIGN.md §9, and `game/src/puzzle/levels.ts` on why the two differ).
+  const spec = mode === 'daily' ? dailySpec(level) : level;
+  const generated = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec, mode), seed, spec, runtimeFor(level).applier);
   if (puzzles.size >= MAX_CACHED_PUZZLES) puzzles.clear();
   puzzles.set(key, generated);
   return generated;

@@ -24,7 +24,7 @@ import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.t
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { finishDrill } from '../src/drill-regime.ts';
-import { MAIN_POOL, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
+import { MAIN_POOL, DAILY_DEPTH, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 import { LOCAL_SCHEDULE_VERSION } from '../src/local-regime.ts';
 
@@ -388,13 +388,13 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const read = await postRun(submit('r7', { runId: 'd-6b', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(read.status === STATUS.ok, `while the same run is scorable after the read that starts it (${read.status})`);
 
-  // A LINE THAT STOPS SHORT needs a puzzle with more than one call in its solution, and level 1's is a single
-  // call — so this half of the check runs at LEVEL 2, whose intended solution is two. MEASURED: at level 1 the
-  // same input is ACCEPTED, because `solution[0]` IS the whole solution there.
+  // A LINE THAT STOPS SHORT needs a puzzle with more than one call in its solution — and NOW EVERY DAILY HAS ONE,
+  // because the Daily is `DAILY_DEPTH` calls at every level (DESIGN.md §9). This used to have to run at level 2
+  // because level 1's Daily was a single call; that is no longer possible, which is the point of the change.
   const level2Seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === 2).seed;
   await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION }, null);
   const twoSteps = puzzleFor(level2Seed, levelAt(2), 'daily');
-  check(twoSteps.puzzle.solution.length === 2, `the level-2 challenge has a two-call solution (${twoSteps.puzzle.solution.length})`);
+  check(twoSteps.puzzle.solution.length === DAILY_DEPTH, `the level-2 challenge has a ${DAILY_DEPTH}-call solution (${twoSteps.puzzle.solution.length})`);
   await startDaily(deps, 'r7', 2, DAY, 10);
   // THE RECORDED LINE IS THE SHORT ONE, so the claim below matches the log and the refusal comes from the WALK: the
   // line really does stop short of the goal. That is this check's original purpose, with the line the server holds.

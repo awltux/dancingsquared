@@ -1,54 +1,82 @@
 // The level ladder — one concern, one formula, and the levels it produces are PINNED by a probe.
 //
 // ============================================================================================
-// THE LADDER IS DERIVED FROM MEASUREMENT, not from the design's prose alone. DESIGN.md 5 states three
-// rules ("L1 = { poolSize: 10, depth: 1 }", "depth rises 1 → 2 → 3", "poolSize grows by 5 every 3
-// levels") and leaves the rest to the generator, so this file answers the question the prose cannot:
-// WHICH LEVELS CAN ACTUALLY PRODUCE A PUZZLE?
+// THE LADDER IS DERIVED FROM MEASUREMENT, not from the design's prose alone. DESIGN.md §5 states the shape
+// ("L1 is the smallest pool", "depth rises", "the pool grows by 4 a level") and leaves the numbers to the
+// generator, so this file answers the question the prose cannot: WHICH LEVELS CAN ACTUALLY PRODUCE A PUZZLE?
 //
-// MEASURED by `game/tools/measure-ladder.mjs`, 6 seeds per cell, 50 000-node budget. (This header named
-// `game/test/ladder-census-probe.mjs` until Phase 4.5, which has never existed in this package — the census is
-// a TOOL, because it prints numbers and always exits 0 rather than judging them.)
+// MEASURED by `game/tools/measure-ladder.mjs` and by a depth sweep (5 seeds per cell, 50 000-node budget,
+// `optionCount` from `optionCountFor`). Every number below is worst-case wall time for a puzzle at that cell:
 //
-//   pool  depth 1            depth 2            depth 3
-//   10    3 opts   150ms     2 opts   260ms     2 opts   290ms
-//   15    3 opts   113ms     2 opts   379ms     2 opts   516ms
-//   25    3 opts   209ms     2 opts   655ms     2 opts   893ms
-//   30    3 opts   384ms     2 opts   908ms     2 opts  2026ms
-//   35    3 opts   295ms     3 opts  1304ms     3 opts  3345ms   <- 3 options become possible
-//   40    3 opts   365ms     3 opts  1657ms     3 opts  4361ms
-//   45    3 opts   382ms     3 opts  1825ms     2 opts  7176ms   <- depth 3 regresses to 2 options
+//   pool  depth 2             depth 3
+//   10    2 opts    56 ms     FAILS        <- "no board is reachable in exactly 3 call(s)"
+//   15    2 opts    34 ms     FAILS
+//   20    2 opts   292 ms     2 opts    423 ms   <- depth 3 becomes possible
+//   24    2 opts   494 ms     2 opts   1035 ms
+//   28    2 opts   634 ms     2 opts   1879 ms
+//   32    2 opts   730 ms     2 opts   2662 ms
+//   36    3 opts   834 ms     3 opts   3095 ms   <- 3 options become possible
+//   45    3 opts   971 ms     3 opts   3169 ms
+//   55    3 opts  1442 ms     3 opts   4899 ms
 //
-// TWO FINDINGS, neither of which the design could have known:
+// THREE FINDINGS, none of which the design could have known:
 //
-// 1. A 3-OPTION QUESTION NEEDS A POOL OF AT LEAST 35. Below that, the reachable board graph has no route
-//    from the squared set in which every played-from board offers three distinct endings, so the level
-//    can only be asked with TWO options. That is why `optionCount` is a per-level value rather than the
-//    constant 3: a ladder that insisted on three would have levels 1..6 with no puzzles at all.
+// 1. A 3-OPTION QUESTION NEEDS A POOL OF AT LEAST 35. Below that, the reachable board graph has no route from the
+//    squared set in which every played-from board offers three distinct endings, so the level can only be asked
+//    with TWO options. `optionCount` is therefore a per-level value rather than the constant 3.
 //
-// 2. DEPTH 3 IS EXPENSIVE AND NOT UNIFORMLY POSSIBLE. It generates at most pools, but its worst case
-//    grows to ~4-7 s, which is too slow for a browser — the Daily regenerates on the client (DESIGN.md
-//    4.4). DEPTH IS THEREFORE CAPPED AT 2.
+// 2. DEPTH 3 NEEDS A POOL OF AT LEAST 20, and that is a HARD floor rather than a cost: at pools 10 and 15 there is
+//    no board reachable in exactly three calls from the squared set at all, so the search has no goal to offer.
+//    This is why `BASE_POOL` is 20 and not the 10 the design first proposed: the Daily is asked in three calls
+//    (DESIGN.md §9), so every level has to be able to answer in three.
 //
-// WHAT THE DESIGN ASKS FOR AND WHAT THIS SHIPS, stated rather than quietly differenced: the design wants
-// depth to rise to 3 and options to be 3. This ships depth 2 (for the client's budget) and 3 options only
-// where the corpus supports them. The alternative — publishing levels that cannot generate a puzzle — is
-// not a game. Both findings are recorded as corrections to DESIGN.md §5, with these numbers.
+// 3. DEPTH 3 IS EXPENSIVE — 0.4 s at pool 20 rising to ~4.9 s at pool 55 — and it used to be the reason the ladder
+//    stopped at depth 2, because the CLIENT generated. It does not any more (DESIGN.md §9: the serving layer
+//    generates, the client applies), so depth 3 is a publish-time and per-request cost with a cache in front of
+//    it. WHAT SHIPPED: the Drill keeps `MAX_DEPTH = 2` (its questions are one call at L1 and two after, which is
+//    what a three-button question is for), and the DAILY is asked in `DAILY_DEPTH = 3` calls at every level, which
+//    is the "multi-call, at least three" the mode was specified with.
+//
+// Both findings are recorded as corrections to DESIGN.md §5, with these numbers.
 
 import type { LevelSpec } from './types.ts';
 
-/** The pool every level starts from. DESIGN.md 5: "L1 is 10 calls". */
-export const BASE_POOL = 10;
+/**
+ * The pool every level starts from.
+ *
+ * IT IS 20 BECAUSE DEPTH 3 REQUIRES IT, and the requirement is a measurement: at pools 10 and 15 there is NO board
+ * reachable in exactly three calls from the squared set, so a level with a smaller pool cannot carry a Daily at all.
+ * The design's original "L1 is 10 calls" was a guess at a comfortable start; the corpus does not support three-call
+ * questions there, and a ladder whose first six levels cannot be asked the Daily is not a ladder.
+ */
+export const BASE_POOL = 20;
 
-/** How much the pool grows per widening step, and how many levels apart those steps are. */
-export const POOL_STEP = 5;
-export const POOL_STEP_LEVELS = 3;
+/**
+ * How much the pool grows per level.
+ *
+ * FOUR A LEVEL is the owner's rule (DESIGN.md §5 decision 4), kept: it is the shape a Mainstream pool can sustain
+ * over a season, and with the floor at 20 it puts three-option questions at L5 (pool 36) where the old
+ * five-every-three-levels formula reached them at L16.
+ */
+export const POOL_STEP = 4;
 
-/** The deepest solution the ladder asks for. See finding 2 above. */
+/** The deepest solution the DRILL asks for. See finding 3 above. */
 export const MAX_DEPTH = 2;
+
+/**
+ * The deepest solution the DAILY asks for, at EVERY level — "always multi-call, at least three" (DESIGN.md §9).
+ *
+ * IT IS NOT ON THE LEVEL, deliberately: a level's `depth` is the Drill's question length, and the Daily's is a
+ * property of the mode. Two numbers on one type would be two things to keep in step, and the one that drifted would
+ * be the Daily's silently.
+ */
+export const DAILY_DEPTH = 3;
 
 /** The smallest pool at which a 3-option question generates. See finding 1 above. */
 export const THREE_OPTION_MIN_POOL = 35;
+
+/** The smallest pool at which a three-call puzzle generates at all. See finding 2 above. */
+export const DEPTH3_MIN_POOL = 20;
 
 /**
  * How many drills a level holds — the whole of a level's block, 10×10 (DESIGN.md §15 Q17(v)).
@@ -74,18 +102,28 @@ export function optionCountFor(poolSize: number): number {
 /**
  * The level at `index` (1-based), or `null` for an index below 1.
  *
- * TOTAL AND CLOSED-FORM, with no table: a table would be one more thing to keep in step with the design,
- * and the formula is four lines. `depth` rises 1 → 2 and stays; the pool widens by 5 every 3 levels from
- * L4, which is where depth has finished rising.
+ * TOTAL AND CLOSED-FORM, with no table: a table would be one more thing to keep in step with the design, and the
+ * formula is two lines. `depth` is 1 at L1 (the teaching level: one call, two options) and `MAX_DEPTH` after; the
+ * pool grows by `POOL_STEP` every level from the floor of `BASE_POOL`.
  */
 export function levelSpec(index: number): LevelSpec | null {
   if (!Number.isInteger(index) || index < 1) return null;
   const depth = index === 1 ? 1 : MAX_DEPTH;
-  const widenings = index >= 4 ? Math.floor((index - 4) / POOL_STEP_LEVELS) : 0;
-  // L2 and L3 sit between the base pool and the first widening; L2's extra 5 is a CHOICE, not a
-  // derivation — see `game/DESIGN.md` §5 for the alternative reading and the numbers against it.
-  const poolSize = index === 1 ? BASE_POOL : BASE_POOL + POOL_STEP + widenings * POOL_STEP;
+  const poolSize = BASE_POOL + POOL_STEP * (index - 1);
   return { index, poolSize, depth, optionCount: optionCountFor(poolSize) };
+}
+
+/**
+ * The level as the DAILY asks it: the same pool, `DAILY_DEPTH` calls.
+ *
+ * WHY A FUNCTION RATHER THAN A FIELD OR A SECOND LADDER. The Daily and the Drill are one progression — a player's
+ * level is one number — but they ask different-length questions, and the generator takes the depth from the spec it
+ * is handed. So the depth is applied at the boundary where a puzzle is generated for a mode, which is also where
+ * the seed and the cache key are decided (`api/src/levels.ts`), rather than being carried on the level for every
+ * reader to ignore.
+ */
+export function dailySpec(level: LevelSpec): LevelSpec {
+  return { ...level, depth: DAILY_DEPTH };
 }
 
 /** The first `n` levels, for a census or a UI. Stops where `levelSpec` would return null. */

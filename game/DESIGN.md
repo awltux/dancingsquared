@@ -304,37 +304,36 @@ the commit that re-measures the depth-3 question.
 
 1. **A three-option question needs a pool of at least 35 titles.** Below that, the reachable board graph has
    no route from the squared set whose played-from boards all offer three distinct endings. So `optionCount`
-   is a **per-level value**, and levels 1–15 ship with **two** options because the alternative is a level
+   is a **per-level value**, and levels 1–4 ship with **two** options because the alternative is a level
    that cannot make a puzzle at all.
-2. **Depth 3 is capped out.** It generates at most pools, but its worst case reached **7.2 s** (pool 45) when this
-   was measured, and it *regresses* to 2 options in places — and at the time the Daily regenerated on the client,
-   where 7 s is not a load state, it is a hang. **The ladder ships `depth ≤ 2`.** THE REASON IS NOW HALF GONE and
-   the cap is kept deliberately until it is re-measured: generation moved to the serving side (§9), so a slow level
-   is a publish-time and per-request cost rather than a hung tab, and the same loader change that made the pool
-   title-scoped cut the measured cost — see the note under the table.
-3. The measured ladder as it SHIPPED (superseded by the owner's rule below, and kept because the measurements are
-   what the new rule has to be judged against): `poolSize(1) = 10`, `poolSize(n) = 10 + 5 + 5·floor((n − 4)/3)` for
-   `n ≥ 2`, `depth = 1` at L1 and 2 after, `optionCount = 3` once `poolSize ≥ 35` (L16) and 2 before. All **30**
-   levels generate; worst level **4959 ms**; largest exploration **194 states**.
-4. **THE OWNER'S RULE, which replaces the growth formula: `poolSize(1) = 10` and EVERY SUBSEQUENT LEVEL ADDS 4
-   CALLS** — `poolSize(n) = 4n + 6`, so 10, 14, 18, 22, 26, 30, 34, 38, … What that changes, computed from the table
-   above rather than guessed: **three-option questions begin at L8** (pool 38 crosses the measured `pool ≥ 35`
-   threshold, where the shipped ladder crossed it at L16); the pool is consumed about twice as fast, so a
-   **Mainstream-sized pool fills far fewer levels** (about 11 from ~50 titles, against ~30 today — the exact ceiling
-   is the census's to report, and §5's "do not invent the ladder's ceiling" stands); and **generation cost rises with
-   the pool**, so L8+ costs roughly 1.5-2 s per drill by the measured table while L1-L7 stay near today's cost. The
-   client regenerates a drill on every visit (§4.4), so that last number is a player-visible one and not a build-time
-   curiosity.
+2. **A three-CALL question needs a pool of at least 20 — and that is a hard floor, not a cost.** MEASURED (5 seeds
+   per cell): at pools 10 and 15 the generator answers "no board is reachable in exactly 3 call(s) from a squared set
+   at this level", i.e. there is no goal to offer at all. At pool 20 it generates every seed in **423 ms**. That is
+   why the ladder's floor is 20 rather than the 10 first proposed: the Daily is asked in three calls (§9), and a
+   level that cannot be asked one is not a level of this game.
+3. **Depth 3 is affordable now that it is not the client's job.** Its worst case is 0.4 s at pool 20 rising to
+   ~4.9 s at pool 55, and it cost the cap on a browser; generation moved to the serving side (§9), so the cap is
+   kept for the DRILL only (`MAX_DEPTH = 2`, one call at L1) and the Daily is asked in `DAILY_DEPTH = 3` at every
+   level. The earlier 7.2 s figure was measured with the old whole-document registration (see the note under the
+   table above).
+4. **THE LADDER THAT SHIPS: `poolSize(n) = 20 + 4·(n − 1)`, `depth = 1` at L1 and 2 after, `optionCount = 3` once
+   `poolSize ≥ 35` (L5, pool 36).** That is the owner's four-calls-a-level rule (decision 4's shape) on the floor
+   finding 2 requires. What it changes from the formula it replaces (`10 + 5 + 5·floor((n−4)/3)`): three-option
+   questions begin at **L5** instead of L16; a **Mainstream-sized pool fills 76 levels** (pools 20..320 from 322
+   titles) instead of 33 — MEASURED by `publishableLevels()`, which is where the boundary is measured rather than
+   declared; and a Daily costs **0.4 s at L1 rising to ~4.9 s at L76**, once per (level, day) and cached.
+5. **The Daily is three calls at EVERY level; the Drill is one at L1 and two after.** The two modes ask different
+   questions of the same progression — `dailySpec(level)` applies the mode's depth where a puzzle is generated for
+   the mode — so a level does not carry two depths that could drift apart.
 
 So the three bullets below stand as the *design's intent*, and the table above is what the corpus supports.
-The gap is recorded rather than papered over: **the design asked for three options at every level and a
-depth-3 ceiling, and this ships what the corpus can actually generate.**
+The gap is recorded rather than papered over: **the design asked for three options at every level, and this ships
+what the corpus can actually generate; it asked for depth to rise to 3, and that is now the Daily's question at
+every level rather than the Drill's.**
 
-- **L1 = `{ poolSize: 10, depth: 1 }`.** That is decision 5's starting point.
-- `depth` rises 1 → 2 and stays (design: 1 → 3; capped, see above).
-- **`poolSize` grows by 4 PER LEVEL** (the owner's rule; decision 3 above recorded the 5-every-3-levels formula it
-  replaces, with the numbers that change with it: three options from L8, a Mainstream pool filling about 11 levels,
-  and ~1.5-2 s generation at L8+).
+- **L1 = `{ poolSize: 20, depth: 1 }`.** The floor is finding 2's, not a preference.
+- `depth` rises 1 → 2 for the Drill and stays; the Daily is `DAILY_DEPTH` throughout.
+- **`poolSize` grows by 4 PER LEVEL** from a floor of 20 (decision 4).
 - Every level's `Sequencer` is built from **only that level's titles**, so the engine's own legality scan is
   already level-scoped and the "offered moves are limited to the level being played" rule is a property of
   construction, not of a filter that could drift.
@@ -1702,12 +1701,13 @@ has the shorter one as its prefix — which is what stops an extension from rewr
   before the lint is;
 - **end to end**: publishing a season makes `GET /drill/current` serve its first seed and report its length, so the
   pipeline's output reaches the endpoint with no fixture involved;
-- levels 1-3 are publishable and level 34 is not (65 titles wanted, 62 carried), and the version names the season's
-  length.
+- levels 1-3 are publishable and level 77 is not (324 titles wanted, 322 carried), and the version names the season's
+  length. (The 76/77 boundary is the shipped ladder's; see the note under §5's decisions for the formula.)
 
-**COST, from §7.1's own census, which is why the default is levels 1-3 and not all 33 the corpus could fill**: a
-31-drill season is ~3.2 s at level 1 (MEASURED: 40 seeds at 104 ms) but ~2.5 minutes at each deep level (L25-L30
-are 3.3-4.9 s per generation), so "publish every level" is an hour of work for shelves nothing plays yet.
+**COST, from the measurements in §5, which is why the default is a handful of levels rather than all 76 the corpus
+could fill**: a level-1 Daily is ~0.4 s and a deep level's is ~4.9 s (both MEASURED, 5 seeds per cell), so
+publishing every level for every day is minutes of work for shelves nothing plays yet. The ladder itself changed
+after this phase (floor 20, +4 a level), so the exact figures here are from that phase's census.
 
 **Phase 5.4 — the Daily's boundary job, and the read that needs it. DONE.**
 `api/src/daily-publishing.ts` is the boundary job as a module: which levels a day needs, a challenge per level
@@ -1735,10 +1735,11 @@ path is a store read and a pure derivation):
   `15/10/2026` are all `400`, and `mode=drill` is refused because the Drill's order is `/drill/current`'s;
 - **re-publishing a day produces the same seed** and stamps the new write, and a day that does not exist is
   refused rather than hashed;
-- **the boundary is the POOL and not the ladder**: `publishableLevels()` returns levels 1..33, and level 34 asks
-  for 65 titles where the corpus carries 62 — while level 900 is still "a level" by `levelSpec` (pool 1505),
-  so a publisher that trusted the ladder alone would publish forever. (This corrected an arithmetic guess of
-  "31 levels" made while writing the code; the probe printed 33.)
+- **the boundary is the POOL and not the ladder**: `publishableLevels()` returns levels 1..76 on the ladder that
+  ships now (floor 20, +4 a level: level 77 asks for 324 titles where the corpus carries 322) — while level 900 is
+  still "a level" by `levelSpec` (pool 3616), so a publisher that trusted the ladder alone would publish forever.
+  (At this phase the ladder was the 5-every-3-levels formula and the number was 33; the point is the same and the
+  count moves with the formula, which is why it is measured by the probe rather than written down here.)
 - the setup tools refuse to run without an endpoint: measured on `realServiceWarning`, including the
   `DSQ_ALLOW_REAL_AWS=1` override.
 

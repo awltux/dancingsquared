@@ -17,7 +17,7 @@ import { levelAt, publishableLevels, puzzleFor } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { configFromEnv, devServerRefusal, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
-import { MAIN_POOL, dailyEntry, isUtcDay, poolIsComplete, utcDay } from 'dancing-squared-game';
+import { MAIN_POOL, DAILY_DEPTH, dailyEntry, isUtcDay, poolIsComplete, utcDay } from 'dancing-squared-game';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -55,7 +55,10 @@ console.log('== 1. what is published is EXACTLY what the client derives ==');
     // "the read and the scorer agree about the question" rather than "the read is stable".
     const generated = puzzleFor(answer.body.daily.seed, levelAt(levelIndex), 'daily');
     check(generated.ok && JSON.stringify(answer.body.daily.puzzle) === JSON.stringify(generated.puzzle), `and it carries the puzzle its seed generates, exactly (${answer.body.daily.puzzle?.steps?.length} step(s))`);
-    check(answer.body.daily.puzzle?.steps?.length === levelAt(levelIndex).depth, `which is the level's ${levelAt(levelIndex).depth} step(s)`);
+    // THE DAILY IS THREE CALLS AT EVERY LEVEL — "always multi-call, at least three" (DESIGN.md §9), which is
+    // `DAILY_DEPTH` and NOT the level's own depth (that is the Drill's question length). This check used to compare
+    // with the level's depth; it now pins the mode's, which is the thing that changed.
+    check(answer.body.daily.puzzle?.steps?.length === DAILY_DEPTH, `which is the Daily's ${DAILY_DEPTH} step(s) at level ${levelIndex}, whose Drill is ${levelAt(levelIndex).depth}-call`);
     // NEGATIVE CONTROL FOR THE WHOLE ENDPOINT, MEASURED: the seed is LEVEL-BOUND and DAY-BOUND, so a server that
     // returned one number for everything would satisfy the checks above for exactly one level.
     const otherLevel = dailyEntry(levelAt(levelIndex + 1), MAIN_POOL.version, DAY).seed;
@@ -141,8 +144,8 @@ console.log('\n== 5. the levels the corpus can fill ==');
   check(levels.every((level) => poolIsComplete(levelAt(level), MAIN_POOL)), `every published level's pool is complete (${levels.length} levels, 1..${last})`);
   check(!poolIsComplete(beyond, MAIN_POOL), `and the next one is not: level ${last + 1} asks for ${beyond.poolSize} titles and the corpus carries ${MAIN_POOL.order.length}`);
   // NEGATIVE CONTROL: the ladder itself is TOTAL, so a publisher that trusted `levelSpec` alone would publish
-  // forever. MEASURED: level 900 is a level (a pool of 1505 and depth 2) with nothing behind it.
-  check(levelAt(900).poolSize === 1505, `NEGATIVE CONTROL: level 900 is still a level of the ladder (pool ${levelAt(900).poolSize}), which is why the boundary is the POOL and not the ladder`);
+  // forever. MEASURED: level 900 is a level (a pool of 3616 and depth 2) with nothing behind it.
+  check(levelAt(900).poolSize === 3616, `NEGATIVE CONTROL: level 900 is still a level of the ladder (pool ${levelAt(900).poolSize}), which is why the boundary is the POOL and not the ladder`);
   check(publishableLevels().length === levels.length, 'and the list is stable across calls');
 }
 

@@ -77,6 +77,14 @@ const SUITE = [
   // difference 0), which is why the tolerance has no population near it. Pure arithmetic plus one
   // ordinary call: ~2s.
   { h: 'board-identity', light: true },
+  // THE ROTATION SET, AND WHICH ALIGNMENT WINS A TIE. `match.ts` tries eight rotations (quarter turns AND
+  // diagonals) x direct/reflected and keeps the best by summed error. This pins the premise that makes that
+  // safe for a square-lattice board: an already-aligned shape is never RE-ORIENTED and never read as a
+  // REFLECTION (138 unique shapes, both tolerances), while controls prove rotation and the diagonals are
+  // genuinely reachable -- a quarter-turned target reports -90, a 45-degree one reports -45 -- and that the
+  // heading-stripped square, whose eight dancers sit at 45-degree spacing, has an EXACT diagonal tie
+  // (error 8.9e-16) that only the tie-break keeps out. Corpus-driven but geometry only: ~2s.
+  { h: 'rotation-tiebreak', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

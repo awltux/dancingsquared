@@ -768,20 +768,24 @@ confined to their own dancers — one after the other, and if the order did not 
 nothing new on the wire. **MEASURED, from a squared set at pool 36, 40 pairs of disjoint-selection readings: 23 were
 legal in both orders, 11 produced the same board either way and 12 produced DIFFERENT boards.**
 
-So order decides the outcome, and the feature is not a game-side composition. Two reasons:
+So order decides the outcome, and the feature is not a game-side composition.
 
-- **The engine has no primitive for it.** `Applicator.parallelApply` tiles ONE call across disjoint copies of its
-  setup; the corpus expresses two different calls at once as a "while" tam with lanes, which is authored, not composed
-  at runtime.
-- **The primitive it needs is not a sequence.** Both calls would have to be resolved from the SAME board and their
-  results merged by dancer, with a collision check across the two groups — a generalisation of `parallelApply` from
-  (one call, N groups) to (N calls, N groups), in the engine, where the matcher and the collision machinery live.
+**CORRECTED — THE ENGINE DID HAVE THE PRIMITIVE, and this section said it did not.** A `GroupStep`
+(`{ groups: [{ selection, calls }, …] }`) is applied as one step by `Sequencer.applyToBoard`, and
+`engine/test/parallel-calls.mjs` and `modules.mjs` already pin the rules (disjoint, atomic, simultaneous, one undo). What
+was genuinely missing was the WAY BACK: `stepLabel` wrote a step down as text and nothing read it back, so a parallel
+step could not travel as the string the game's line is made of. That is now in place:
 
-**NOT BUILT, deliberately.** The picker offers every legal READING — the whole board and each subset — which is the
-group-aware half of the feature and is measured at 370 readings in 14 sections. A step that moves two groups with two
-DIFFERENT calls waits on the engine primitive above. A game-side composition would have shipped a rule the engine
-disagrees with, and the disagreement would be invisible: the two readings look identical on screen until the board
-comes out wrong.
+- `parseStep` (engine, `a2f1203`) is the inverse of `stepLabel`, pinned by `engine/test/step-parse.mjs`: the round trip,
+  the APPLY invariant (the parsed step dances the same board), and the refusals.
+- `createEngineApplier` (game, `62d7dfc`) routes any line element containing ` || ` through it, so
+  `Heads Allemande Left in the Alamo Style || Sides Allemande Left to an Alamo Ring` is one element of a line, legal,
+  with both groups moved — pinned by `game/test/parallel-step-probe.mjs` against the engine's object form as the oracle.
+
+**WHAT IS STILL NOT BUILT is the PICKER, and only the picker.** It offers every legal reading (370 at pool 36 in 14
+sections) and each click plays one; choosing two readings for disjoint groups and committing them as one step is a UI
+change on top of a surface that now exists. The measurement above is the reason it must be a real group step rather than
+two clicks in a row: applied in sequence, the same two selections disagree with each other half the time.
 - **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
   offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
   board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the

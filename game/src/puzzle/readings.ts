@@ -36,3 +36,28 @@ export function groupReadings(readings: readonly MoveReading[]): ReadingSection[
   // `sort` is stable in ES2019, so the groups keep the engine's order behind it.
   return out.sort((a, b) => (a.label === 'All 8' ? -1 : b.label === 'All 8' ? 1 : 0));
 }
+
+/**
+ * How one reading is played: the group's own spelling, or the bare call for the whole board.
+ *
+ * IT IS ONE FUNCTION because the click handler, the saved line and the server's replay all read this string — a second
+ * place spelling it would be a second spelling.
+ */
+export function readingSpelling(reading: MoveReading): string {
+  return reading.selection === null ? reading.call : `${reading.selection} ${reading.call}`;
+}
+
+/**
+ * The label for TWO groups dancing at once, or null when they are not two groups.
+ *
+ * THE FORM IS THE ENGINE'S (`stepLabel` writes `A || B`), and `parseStep` reads it back, so the composition needs no new
+ * wire shape: it is one element of the line, which is why the server's replay needed no change either.
+ *
+ * NULL WHEN THE SELECTIONS ARE NOT DIFFERENT, and that is a rule rather than a convenience: two readings of the same
+ * group are a SEQUENCE, and MEASURED, applying the two in either order gives different boards for half the pairs — so a
+ * "parallel" step over one group would be a lie about what the dancers did.
+ */
+export function parallelLabel(a: MoveReading, b: MoveReading): string | null {
+  if (a.selection === b.selection) return null;
+  return `${readingSpelling(a)} || ${readingSpelling(b)}`;
+}

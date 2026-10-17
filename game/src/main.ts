@@ -198,7 +198,10 @@ const els = {
 };
 
 const drillScreen = new DrillScreen(answer);
-const dailyScreen = new DailyScreen({ play: playDailyCall });
+// A PARALLEL STEP IS ONE LINE ELEMENT (`Sides Trade || Heads Dosado`), which the applier reads back with the engine's
+// own `parseStep`, so `playDailyCall` is the whole path: the session applies it, the line records the label and the
+// server replays it. Nothing distinct to record, and nothing to keep in step with the single-call path.
+const dailyScreen = new DailyScreen({ play: playDailyCall, parallel: playDailyCall });
 const accountScreen = new AccountScreen({
   signIn: (email, password) => void doSignIn(email, password),
   signUp: (email, password) => void doSignUp(email, password),

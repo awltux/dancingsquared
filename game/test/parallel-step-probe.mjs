@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, makeSquaredSet, parseCallXml, setParser } from 'dancing-squared-engine';
 import { createEngineApplier } from '../src/engine/applier.ts';
+import { parallelLabel } from '../src/puzzle/readings.ts';
 import { CORPUS } from '../../vite.corpus.ts';
 
 setParser(DOMParser);
@@ -92,6 +93,20 @@ console.log(`== a two-group step through the applier (${pairs.length} titles reg
   check(malformed !== null && malformed.reason.includes('parallel step'), `a malformed step says so (${malformed?.reason})`);
   // AND A PLAIN CALL IS UNTOUCHED: the seam must not route every call through the parser.
   check(applier.refusalOf(start, 'Promenade') === null || applier.refusalOf(start, 'Promenade')?.reason.includes('parallel') === false, 'a plain call is still applied as a call');
+}
+
+console.log('\n== the PICKER\'s rule: two readings become one label, or none ==');
+{
+  // THE SCREEN'S OWN COMPOSER, imported rather than restated: `parallelLabel` is what a click on a second group builds,
+  // and it must produce a label the applier accepts — the picker and the seam cannot disagree about the spelling.
+  const readings = applier.readings(start).filter((r) => r.selection !== null);
+  const a = readings[0];
+  const b = readings.find((r) => r.selection !== a.selection);
+  const label = parallelLabel(a, b);
+  check(label !== null && label.includes(' || '), `two different groups compose to one label (${label})`);
+  check(label !== null && applier.refusalOf(start, label) === null, 'and the applier accepts what the picker built');
+  check(parallelLabel(a, a) === null, 'NEGATIVE CONTROL: the same group twice is NOT a parallel step — it is a sequence, and the two orders disagree half the time');
+  check(parallelLabel(a, { call: a.call, selection: null, board: a.board }) !== null, 'while a group beside the whole board is a pair the composer allows (the engine decides whether it is legal)');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

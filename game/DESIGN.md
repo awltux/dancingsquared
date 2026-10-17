@@ -782,10 +782,12 @@ step could not travel as the string the game's line is made of. That is now in p
   `Heads Allemande Left in the Alamo Style || Sides Allemande Left to an Alamo Ring` is one element of a line, legal,
   with both groups moved — pinned by `game/test/parallel-step-probe.mjs` against the engine's object form as the oracle.
 
-**WHAT IS STILL NOT BUILT is the PICKER, and only the picker.** It offers every legal reading (370 at pool 36 in 14
-sections) and each click plays one; choosing two readings for disjoint groups and committing them as one step is a UI
-change on top of a surface that now exists. The measurement above is the reason it must be a real group step rather than
-two clicks in a row: applied in sequence, the same two selections disagree with each other half the time.
+**THE PICKER COMPOSES ONE TOO, and it needed no mode switch.** A click with nothing armed plays the reading (the common
+case, unchanged); a click on a reading for a **different** group plays both at once as the label `A || B`; a click on the
+armed reading itself cancels. Two readings of the SAME group are not a pair — `parallelLabel` returns null and the click
+re-arms instead — because that is a sequence, and the measurement above is exactly why it must not be sold as a parallel
+step. `game/test/parallel-step-probe.mjs` pins the picker's composer against the applier, so the two spellings cannot
+drift.
 - **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
   offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
   board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the

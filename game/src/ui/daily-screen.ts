@@ -17,7 +17,8 @@
 // patched buttons would show a stale allowance next to a fresh board. The readouts are the cheap strings, and
 // they are written only when they change — see `writeClock`, which the frame loop calls.
 import type { DailyView } from '../game/daily-run.ts';
-import { groupReadings } from '../puzzle/readings.ts';
+import { groupReadings, parallelLabel, readingSpelling } from '../puzzle/readings.ts';
+import type { MoveReading } from '../puzzle/types.ts';
 import { el } from './dom.ts';
 
 interface El {
@@ -28,10 +29,14 @@ interface El {
   line: HTMLElement;
   verdict: HTMLElement;
   result: HTMLElement;
+  pairHint: HTMLElement;
 }
 
 export interface DailyCallbacks {
+  /** Play one reading's own spelling. */
   play: (call: string) => void;
+  /** Play TWO readings at once — the label `A || B`, which the engine reads back as a group step. */
+  parallel: (label: string) => void;
 }
 
 export class DailyScreen {
@@ -39,6 +44,17 @@ export class DailyScreen {
   private busy = false;
   /** The last clock string written, so the frame loop does not rewrite the DOM 60 times a second. */
   private clockText: string | null = null;
+  /**
+   * The first half of a parallel step, while the player is choosing the second: the label of the armed reading.
+   *
+   * THE ARMED READING IS HELD HERE, not in the run, because it is not part of the line until the second group is chosen
+   * — a half-made move must never reach the session, the save or the server. It is cleared by every `show()` that is
+   * not the immediate re-render of an arming click, which is what happens on a new move: the board changed, so the
+   * armed reading may no longer be legal.
+   */
+  private armed: MoveReading | null = null;
+  /** The view the last `show()` was drawn from, so arming can redraw without a new one. */
+  private lastView: DailyView | null = null;
 
   constructor(private readonly on: DailyCallbacks) {
     this.els = {
@@ -46,6 +62,7 @@ export class DailyScreen {
       waypoints: el('dailyWaypoints'),
       readout: el('dailyReadout'),
       offer: el('offer'),
+      pairHint: el('offerPairHint'),
       line: el('line'),
       verdict: el('dailyVerdict'),
       result: el('dailyResult'),
@@ -88,6 +105,11 @@ export class DailyScreen {
     }
 
     this.els.offer.replaceChildren();
+    // A NEW VIEW CLEARS A HALF-MADE STEP unless the view is the ARMED one being redrawn: `lastView === view` only on the
+    // arming click's own re-render, where the board has not moved.
+    const redrawing = this.lastView === view;
+    if (!redrawing) this.armed = null;
+    this.lastView = view;
     if (view.outcome === 'playing') {
       // AT THE CAP THE LIST IS DISABLED, not emptied: the player can still see what was legal, and the
       // readout says the allowance is spent. An empty list would look like a broken puzzle.
@@ -114,21 +136,26 @@ export class DailyScreen {
           // marked where the player is already looking. The run drops the marker as soon as they move, so it
           // can never point at a call that is no longer offered. A hinted call is highlighted in EVERY group it
           // is legal for, because the hint names a call and not a reading.
-          if (reading.call === view.hintedCall) {
+          const armed = this.armed === reading;
+          if (armed) {
+            button.classList.add('armed');
+            button.textContent = `${reading.call} · 1st of two`;
+          } else if (reading.call === view.hintedCall) {
             button.classList.add('hinted');
             button.textContent = `${reading.call} · hint`;
           } else {
             button.textContent = reading.call;
           }
-          // WHAT IS PLAYED IS THE GROUP'S OWN SPELLING. The engine, the server's replay and the saved line all read
-          // "Heads Dosado", so the button hands the picker that string and nothing has to translate it later.
-          const played = reading.selection === null ? reading.call : `${reading.selection} ${reading.call}`;
           button.disabled = this.busy || spent;
-          button.addEventListener('click', () => this.on.play(played));
+          button.addEventListener('click', () => this.choose(reading));
           row.append(button);
         }
         this.els.offer.append(row);
       }
+      // THE STATE OF A HALF-MADE STEP, in words, because a button that says "1st of two" is only half the instruction.
+      this.els.pairHint.textContent = this.armed
+        ? `${readingSpelling(this.armed)} armed — pick a call under a DIFFERENT group to dance both at once, or pick the same one again to cancel.`
+        : '';
       if (view.readings.length === 0) {
         const note = document.createElement('p');
         note.textContent = 'No call is available from here — undo one to back out.';
@@ -152,6 +179,41 @@ export class DailyScreen {
     if (text === this.clockText) return;
     this.clockText = text;
     this.els.readout.textContent = text;
+  }
+
+  /**
+   * A CLICK ON A READING: play it, arm it, or complete a pair.
+   *
+   * THE THREE OUTCOMES ARE ONE CONTROL, which is why there is no "combine" mode: a click with nothing armed PLAYS the
+   * reading (the common case, unchanged); a second click on a reading for a DIFFERENT group plays both at once; a click
+   * on the armed reading itself CANCELS. MEASURED, the alternative — a mode toggle — costs an extra press on every move
+   * to serve a step most moves are not.
+   *
+   * TWO READINGS OF THE SAME GROUP ARE NOT A PAIR (`parallelLabel` is null), because they are a sequence and the two
+   * orders disagree half the time; the click re-arms instead, so the second click is never silently ignored.
+   */
+  private choose(reading: MoveReading): void {
+    const armed = this.armed;
+    if (!armed) {
+      this.armed = reading;
+      if (this.lastView) this.show(this.lastView);
+      return;
+    }
+    if (armed === reading) {
+      this.armed = null;
+      if (this.lastView) this.show(this.lastView);
+      return;
+    }
+    const label = parallelLabel(armed, reading);
+    this.armed = null;
+    if (label === null) {
+      // The same group twice: re-arm on the new reading and say so, rather than playing a sequence the player called a
+      // parallel step.
+      this.armed = reading;
+      if (this.lastView) this.show(this.lastView);
+      return;
+    }
+    this.on.parallel(label);
   }
 
   /** A verdict line, and optionally the engine's own reason. */

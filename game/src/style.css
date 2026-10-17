@@ -325,6 +325,25 @@ body {
   opacity: 0.6;
 }
 
+/* THE ARMED READING, waiting for a second group: marked by a border AND a label ("1st of two"), never by colour alone. */
+.offer.armed {
+  border-color: var(--accent);
+  border-width: 3px;
+  background: #1d2f3f;
+}
+
+/* THE INSTRUCTION FOR A HALF-MADE STEP. EMPTY MOST OF THE TIME, which is why it takes no space when it is: a paragraph
+   with no text would still advance the layout by a line. */
+#offerPairHint {
+  margin: 0 0 10px;
+  font-size: 0.88rem;
+  color: var(--dim);
+}
+
+#offerPairHint:empty {
+  display: none;
+}
+
 #line {
   margin: 0 0 12px;
   color: var(--dim);

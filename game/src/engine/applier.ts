@@ -103,6 +103,14 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
       return out;
     },
 
+    seedReadings(board: Board, readings: readonly MoveReading[]): void {
+      // COPIED, because the caller's array came off a response that is also still holding the puzzle: a later reader
+      // that mutated the seed would otherwise edit the wire's own list.
+      const key = poseKey(board);
+      if (readingCache.size >= READINGS_CACHE_BOARDS) readingCache.clear();
+      readingCache.set(key, [...readings]);
+    },
+
     refusalOf(board: Board, call: string): Refusal | null {
       const r = seq.applyToBoard(board, call);
       if (r.legal) return null;

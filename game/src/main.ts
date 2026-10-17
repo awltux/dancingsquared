@@ -1435,6 +1435,9 @@ async function startServerDaily(): Promise<void> {
     els.regime.textContent = "Today's Daily — unavailable";
     return;
   }
+  // THE START BOARD'S GROUPED LIST, when the server sent one: it goes into the applier's cache before the first view,
+  // so the picker draws without paying `applicableMoves` for the one board the server had already computed.
+  if (answer.value.readings) applier.seedReadings(answer.value.puzzle.start, answer.value.readings);
   showDaily(answer.value.puzzle, day, answer.value.seed);
 }
 

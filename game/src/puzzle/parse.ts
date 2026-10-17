@@ -25,7 +25,7 @@
 // because `sameBoardById` over a malformed board is a wrong verdict, not a wrong display.
 
 import type { Board } from 'dancing-squared-engine';
-import type { LevelSpec, Puzzle, PuzzleMode, PuzzleOption, PuzzleStep } from './types.ts';
+import type { LevelSpec, MoveReading, Puzzle, PuzzleMode, PuzzleOption, PuzzleStep } from './types.ts';
 
 /** One dancer, named through the board it sits on rather than imported: the engine's `SeqDancer` is a member of
  * `Board`, and reaching for it separately would be a second import site for one shape. */
@@ -118,6 +118,27 @@ function asStep(value: unknown): PuzzleStep | null {
     step.unknown = { call: value.unknown.call, reason: value.unknown.reason };
   }
   return step;
+}
+
+/**
+ * A board's grouped move list from a wire value, or null.
+ *
+ * IT IS THE SERVER'S OPTIMISATION, so a malformed one is DROPPED rather than refused: the client can compute the same
+ * list for the same board, and losing it costs the first render a `applicableMoves` run. That is the opposite of
+ * `parsePuzzle`'s rule, and the difference is what each one is for — a puzzle cannot be invented, a cache can be
+ * thrown away.
+ */
+export function parseReadings(value: unknown): MoveReading[] | null {
+  if (!Array.isArray(value)) return null;
+  const out: MoveReading[] = [];
+  for (const raw of value) {
+    if (!isRecord(raw) || typeof raw.call !== 'string' || raw.call === '') return null;
+    if (raw.selection !== null && typeof raw.selection !== 'string') return null;
+    const board = asBoard(raw.board);
+    if (!board) return null;
+    out.push({ call: raw.call, selection: raw.selection === null ? null : (raw.selection as string), board });
+  }
+  return out;
 }
 
 /**

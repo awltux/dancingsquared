@@ -23,8 +23,8 @@ import { accessTokenOf, type SessionStore } from './session.ts';
 import type { AuthMode } from './auth.ts';
 // THE PUZZLE'S OWN SHAPE CHECK, imported rather than restated: `GET /drill/current` and `GET /puzzle` carry a
 // generated puzzle now (DESIGN.md §9), and `parsePuzzle` is the one rule for whether one arrived.
-import { parsePuzzle } from '../puzzle/parse.ts';
-import type { Puzzle } from '../puzzle/types.ts';
+import { parsePuzzle, parseReadings } from '../puzzle/parse.ts';
+import type { MoveReading, Puzzle } from '../puzzle/types.ts';
 
 /** A refusal as the API writes it: a code for a program and a sentence for a person. */
 export interface ApiFailure {
@@ -327,6 +327,14 @@ export interface DailyChallenge {
   readonly playable: boolean;
   /** The puzzle, or null on a challenge this build cannot play (`playable: false`) or one that is malformed. */
   readonly puzzle: Puzzle | null;
+  /**
+   * The start board's grouped move list, when the server sent one.
+   *
+   * IT IS AN OPTIMISATION, NOT A CONTRACT: the client can compute the same list for the same board, so a missing or
+   * malformed one costs the first render an `applicableMoves` run rather than breaking the challenge — which is why it
+   * is parsed leniently and defaulted to null.
+   */
+  readonly readings: MoveReading[] | null;
 }
 
 /**
@@ -362,6 +370,7 @@ export async function dailyChallenge(level: number, day: string, deps: ApiDeps =
       publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
       playable: value.playable !== false,
       puzzle: value.puzzle === undefined || value.puzzle === null ? null : parsePuzzle(value.puzzle),
+      readings: value.readings === undefined || value.readings === null ? null : parseReadings(value.readings),
     },
   };
 }

@@ -19,7 +19,7 @@ import { attemptKey, publishedDailyKey } from '../keys.ts';
 import { failure, optionalIdentity, STATUS } from '../status.ts';
 import { dayParam, levelParam } from '../query.ts';
 import { asAttempt, asAttemptItem, startAttempt } from '../attempt-row.ts';
-import { levelAt, puzzleFor } from '../levels.ts';
+import { levelAt, puzzleFor, startReadings } from '../levels.ts';
 
 /** The one mode this endpoint serves, named so the refusal can say what was asked for instead. */
 const MODE = 'daily';
@@ -63,15 +63,20 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
   // hand the client a board the server would refuse to score — the worst of the three answers, because it looks
   // playable. `puzzle: null` beside `playable: false` says exactly what is true.
   let puzzle: Puzzle | null = null;
+  let readings: ReturnType<typeof startReadings> = [];
   if (playable) {
     // THE ROW'S LEVEL, not the query's, because the row's is what the answer reports and the seed was validated
     // against it. A disagreeing row is a corrupt row, and generating at the query's level would publish a puzzle
     // under a level number it was not generated at — the §7.2 rule the drill's schedule lint exists to enforce.
-    const generated = puzzleFor(value.seed, levelAt(value.levelIndex), 'daily');
+    const dailyLevel = levelAt(value.levelIndex);
+    const generated = puzzleFor(value.seed, dailyLevel, 'daily');
     if (!generated.ok) {
       return failure(STATUS.unavailable, 'unplayable_daily', `the published challenge for ${day} does not generate: ${generated.reason}`);
     }
     puzzle = generated.puzzle;
+    // THE START BOARD'S GROUPED LIST, so the picker draws without the client paying `applicableMoves` first. It is a
+    // pure function of the board and the level's pool, and the applier is already warm from the generation.
+    readings = startReadings(generated.puzzle, dailyLevel);
   }
 
   if (identity) {
@@ -90,6 +95,7 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
         publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
         playable,
         puzzle,
+        readings,
       },
     },
   };

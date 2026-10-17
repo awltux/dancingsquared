@@ -24,7 +24,7 @@ import { generatePuzzle } from '../src/puzzle/generator.ts';
 import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
-import { parsePuzzle } from '../src/puzzle/parse.ts';
+import { parsePuzzle, parseReadings } from '../src/puzzle/parse.ts';
 import { applierFor } from '../src/data/corpus-node.ts';
 
 let failures = 0;
@@ -116,7 +116,27 @@ console.log('\n== 3. a malformed puzzle is refused, one field at a time ==');
   check(parsePuzzle(clone()) !== null, 'NEGATIVE CONTROL: an unbroken clone still parses, so the refusals above are caused by the field that was broken');
 }
 
-console.log('\n== 4. the shape check does NOT re-validate the game\'s rules ==');
+console.log('\n== 4. the START BOARD\'S GROUPED LIST survives the wire too ==');
+{
+  // THE SERVER SHIPS THIS LIST so the picker can draw without an `applicableMoves` run (api/src/levels.ts's
+  // `startReadings`), and the client parses it with the same board rule the puzzle gets. A lost or mangled entry would
+  // be a picker that offers a move it cannot play.
+  const list = applier.readings(parsed.start);
+  const wiredList = JSON.parse(JSON.stringify(list));
+  const parsedList = parseReadings(wiredList);
+  check(parsedList !== null && parsedList.length === list.length, `the ${list.length} reading(s) of the start board parse back (${parsedList ? parsedList.length : 'null'})`);
+  const spelling = (r) => (r.selection === null ? r.call : `${r.selection} ${r.call}`);
+  const lost = (parsedList ?? []).filter((r) => applier.refusalOf(parsed.start, spelling(r)) !== null);
+  check(lost.length === 0, `and every parsed reading is still legal as its own spelling${lost.length ? ` — ${lost.map(spelling).join(', ')}` : ''}`);
+  // NEGATIVE CONTROLS: the parser refuses a list it cannot trust (a reading with no board, one whose board is not
+  // eight dancers), and it does NOT need a group to exist (the whole-board reading is `selection: null`).
+  check(parseReadings([{ call: 'X', selection: null }]) === null, 'a reading with no board is refused');
+  check(parseReadings([{ call: 'X', selection: null, board: { dancers: [] } }]) === null, 'and so is one whose board has no dancers');
+  check(parseReadings('none') === null, 'while something that is not a list at all is refused rather than thrown on');
+  check(parseReadings([{ call: 'X', selection: null, board: parsed.start }]) !== null, 'NEGATIVE CONTROL: a well-formed reading does parse, so the refusals above are about the field that was broken');
+}
+
+console.log('\n== 5. the shape check does NOT re-validate the game\'s rules ==');
 {
   // A DELIBERATE BOUNDARY, pinned so it is not "fixed" by accident. `parse.ts` asks "is this a puzzle shape", not
   // "is this a good puzzle": `shortest` disagreeing with the step count, or a step whose options share an ending,

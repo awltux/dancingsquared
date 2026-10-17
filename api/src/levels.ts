@@ -110,14 +110,29 @@ export function puzzleFor(seed: number, level: LevelSpec, mode: PuzzleMode): Gen
 }
 
 /**
- * THE OPTION LABELS USED TO BE HERE, and they are gone with the reason they existed.
+ * The start board's grouped move list, for a client that would otherwise have to compute it before it can draw a
+ * picker.
  *
- * `optionLabels(puzzle)` returned the first step's three calls so a client could cross-check its own generation
- * before drawing anything. MEASURED: no client ever read it — `game/src/net/api.ts` parsed the field and neither
- * `main.ts` nor any other module used it, so it was a cross-check that never ran. It is replaced by the puzzle
- * itself (`GET /drill/current` and `GET /puzzle` both carry one), because the client no longer generates and
- * therefore has nothing to check its own board against.
+ * WHY THE SERVER SHIPS IT. `Sequencer.applicableMoves` is `legalCalls x subsetGroups` applicator runs — MEASURED,
+ * 1754 ms at 322 titles on a squared set and 22 ms one call in — and a level's pool is up to 320 titles, so the very
+ * first render of a Daily is the expensive one. The server has the applier warm (it generated the puzzle with it) and
+ * the list is a pure function of the start board, so it costs this response nothing it was not already paying.
+ *
+ * IT IS AN OPTIMISATION, NOT A CONTRACT: the client can compute the same list for the same board and does so for
+ * every board it reaches after this one. A client that does not receive it is slower for one render, not broken —
+ * which is why the field is tolerated as missing on the wire.
  */
+export function startReadings(puzzle: Puzzle, level: LevelSpec): { call: string; selection: string | null; board: Puzzle['start'] }[] {
+  return runtimeFor(level).applier.readings(puzzle.start);
+}
+
+/**
+ * THE OPTION LABELS USED TO BE HERE, and they are gone with the reason they existed: `optionLabels(puzzle)` returned
+ * the first step's three calls so a client could cross-check its own generation, and MEASURED no client ever read the
+ * field. It is replaced by the puzzle itself, because the client no longer generates (`startReadings` above is the
+ * other half of that: what it needs before its first render, rather than a number to check).
+ */
+
 /**
  * Every level the corpus can actually fill, lowest first.
  *

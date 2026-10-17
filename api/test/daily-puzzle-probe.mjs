@@ -13,7 +13,7 @@ import { publishDay, challengeFor } from '../src/daily-publishing.ts';
 import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { STATUS } from '../src/status.ts';
 import { attemptKey, publishedDailyKey } from '../src/keys.ts';
-import { levelAt, publishableLevels, puzzleFor } from '../src/levels.ts';
+import { levelAt, publishableLevels, puzzleFor, runtimeFor } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { configFromEnv, devServerRefusal, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
@@ -59,6 +59,17 @@ console.log('== 1. what is published is EXACTLY what the client derives ==');
     // `DAILY_DEPTH` and NOT the level's own depth (that is the Drill's question length). This check used to compare
     // with the level's depth; it now pins the mode's, which is the thing that changed.
     check(answer.body.daily.puzzle?.steps?.length === DAILY_DEPTH, `which is the Daily's ${DAILY_DEPTH} step(s) at level ${levelIndex}, whose Drill is ${levelAt(levelIndex).depth}-call`);
+    // THE START BOARD'S GROUPED LIST travels beside the puzzle, and it is what the picker draws before it computes
+    // anything. It is checked by PLAYING it: every reading must be legal from the start board as its own spelling,
+    // which is the only property the client relies on.
+    const list = answer.body.daily.readings;
+    const applier = runtimeFor(levelAt(levelIndex)).applier;
+    const spelling = (r) => (r.selection === null ? r.call : `${r.selection} ${r.call}`);
+    const refusedReading = Array.isArray(list) ? list.find((r) => applier.refusalOf(answer.body.daily.puzzle.start, spelling(r)) !== null) : 'not a list';
+    check(Array.isArray(list) && list.length > 0, `and ${Array.isArray(list) ? list.length : 0} grouped reading(s) for its start board (${Array.isArray(list) ? new Set(list.map((r) => r.selection ?? 'All 8')).size : 0} section(s))`);
+    check(refusedReading === undefined, `every one of which is legal as its own spelling${refusedReading ? ` — ${JSON.stringify(refusedReading)} is not` : ''}`);
+    check(Array.isArray(list) && list.every((r) => r.selection === null || typeof r.selection === 'string'), 'with each reading naming its group or null for the whole board');
+    check(Array.isArray(list) && JSON.stringify(list) === JSON.stringify(applier.readings(answer.body.daily.puzzle.start)), 'and the list is the applier\'s own enumeration, not a second one');
     // NEGATIVE CONTROL FOR THE WHOLE ENDPOINT, MEASURED: the seed is LEVEL-BOUND and DAY-BOUND, so a server that
     // returned one number for everything would satisfy the checks above for exactly one level.
     const otherLevel = dailyEntry(levelAt(levelIndex + 1), MAIN_POOL.version, DAY).seed;

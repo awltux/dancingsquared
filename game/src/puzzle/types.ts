@@ -126,6 +126,18 @@ export interface GameApplier {
    */
   readings(board: Board): MoveReading[];
   /**
+   * Put a list the SERVER already computed for `board` into the cache, so the first render does not pay for it.
+   *
+   * WHY THE SEAM HAS A WRITE AS WELL AS A READ: `readings` is 0.3 s at a level-5 pool and ~1.7 s at the top of the
+   * ladder on a squared set, and the serving layer has the applier warm when it generates the puzzle — so it ships the
+   * start board's list (`api/src/levels.ts`'s `startReadings`). This is where that list enters the same cache the read
+   * uses, keyed by the same pose, so an optimisation cannot become a second source of truth.
+   *
+   * A KEY THAT DOES NOT MATCH IS A MISS, never a wrong answer: the key is the board's own pose, so a seeded list can
+   * only be found by the board it describes.
+   */
+  seedReadings(board: Board, readings: readonly MoveReading[]): void;
+  /**
    * Every call title the level registers — the menu, not the availability. `offered` is this filtered
    * by legality, and `candidateCalls` is what makes an authorable `unknown` option possible.
    */

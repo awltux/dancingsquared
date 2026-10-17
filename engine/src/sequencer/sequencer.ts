@@ -623,6 +623,34 @@ export class Sequencer {
   }
 
   /**
+   * The group that COULD perform `call` from `board` when the whole-board reading cannot, or null.
+   *
+   * WHY A REFUSAL SHOULD NAME IT. A call that is not offered for `All 8` is not the same as a call that cannot
+   * be performed here, and the difference is invisible to a caller that only reads `mayOffer`: MEASURED, the
+   * picker's own filter once dropped `Dosado` because the whole-board reading is refused at MS, which emptied
+   * `Head Boys Dosado` out of the list — the symptom `group-calls.mjs` pins. A refusal that says "not offered"
+   * teaches nothing; one that says which group would work is the same fact made usable, and it is the
+   * "record what you refuse" rule (AGENTS.md §6) applied to legality rather than to submissions.
+   *
+   * IT IS A SEPARATE CALL RATHER THAN A FIELD ON `mayOffer`, deliberately: `legalNext` asks `mayOffer` once per
+   * legal call and the group probe is `subsetGroups(board) x groupCanPerform` (each of which is a permission
+   * check plus an applicator run), so putting the probe inside the hot predicate would pay it for every
+   * candidate. This is the question a caller asks when it is about to SHOW a refusal.
+   *
+   * A CALL THAT ALREADY NAMES ITS DANCERS IS NOT THE GROUP'S TO PERFORM ("Head Boys Dosado"), so it gets no
+   * hint — the same rule `groupCanPerform` applies.
+   */
+  groupForCall(board: Board, call: string): string | null {
+    const spec = splitSelection(call);
+    if (spec.selection && spec.call) return null;
+    const base = spec.call || call;
+    for (const group of this.subsetGroups(board)) {
+      if (this.groupCanPerform(board, group, base)) return group;
+    }
+    return null;
+  }
+
+  /**
    * Whether the picker may OFFER `call` for `group` here. Picker-only: this does not gate `apply`, so a
    * caller who names the call directly still gets it.
    *
@@ -646,10 +674,25 @@ export class Sequencer {
     return evaluatePermissions([...PERMISSION_RULES, ...this.permissionRules], req);
   }
 
-  /** The reason the picker is not offering `call` for `group`, or null when it is. For a status line. */
+  /** The reason the picker is not offering `call` for `group`, or null when it is. For a status line.
+   *
+   * A WHOLE-BOARD REFUSAL NAMES THE GROUP THAT WOULD WORK when one does — "…, but Head Boys can perform it from
+   * here". The group walk is `subsetGroups x groupCanPerform` (a permission check plus an applicator run each),
+   * which is why it lives here and not in `mayOffer`: `legalNext` asks `mayOffer` once per legal call, and paying
+   * the probe for every candidate would be the hot path this repository keeps out of (§4.4). It runs only when
+   * the requested reading IS the whole board; a caller who asks about a specific group has already asked the
+   * narrower question.
+   *
+   * THE SENTENCE IS TRUE BY CONSTRUCTION: `groupForCall` returns only a group for which `groupCanPerform` said
+   * yes, which is the same predicate the picker would use to offer it. A call that no group can perform keeps the
+   * plain reason. */
   permissionReason(call: string, group?: string | null): string | null {
     const r = this.mayOffer(call, group);
-    return r.allowed ? null : r.reason ?? `not offered at ${this.activeLevel.toUpperCase()}`;
+    if (r.allowed) return null;
+    const reason = r.reason ?? `not offered at ${this.activeLevel.toUpperCase()}`;
+    if (group !== undefined && group !== null && group !== 'All 8') return reason;
+    const alternative = this.groupForCall(this.board, call);
+    return alternative === null ? reason : `${reason} — but ${alternative} can perform it from here`;
   }
 
   /**

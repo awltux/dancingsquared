@@ -85,6 +85,15 @@ const SUITE = [
   // heading-stripped square, whose eight dancers sit at 45-degree spacing, has an EXACT diagonal tie
   // (error 8.9e-16) that only the tie-break keeps out. Corpus-driven but geometry only: ~2s.
   { h: 'rotation-tiebreak', light: true },
+  // A REFUSAL THAT NAMES THE GROUP THAT WOULD WORK. `permissionReason` appends "— but Head Boys can perform it
+  // from here" when the whole-board reading is refused and a group can do it, and `groupForCall` is exposed for
+  // callers that want the fact rather than the sentence. Pins that the NAME IS TRUE (checked with
+  // `groupCanPerform`, the predicate the picker itself uses) on the engine's own witness — all-8 `Dosado` from a
+  // squared set is refused at MS while `Heads Dosado` is legal — plus three controls: an offered call gets no
+  // reason at all, a rule that forbids every reading gets no hint, and a call that already names its dancers is
+  // never hinted. MEASURED while writing it: from a squared set there is NO registered call that is refused
+  // whole-board and performable by no group, which is why the middle control uses the rule seam. ~1s.
+  { h: 'group-refusal', light: true },
   // THE PATH GUARD. Pins that the reported squared-set `Dosado` is DETECTED as an interpenetration
   // (-0.390 on 1+4) while its ENDPOINT stays clean at 2.000 — which is why no endpoint threshold could
   // have caught it — that a legitimate two-dancer `Dosado` is NOT flagged, and that the three modes

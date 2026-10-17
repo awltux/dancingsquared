@@ -306,6 +306,25 @@ body {
   border-width: 4px;
 }
 
+/* THE ROUTE LINE: the waypoint sequence, a stage per arrangement. A REACHED stage is dimmed and ticked rather than
+   coloured alone, so it survives a colour-vision difference (the same rule the hinted call follows). */
+#dailyWaypoints {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--dim);
+  word-break: break-word;
+}
+
+#dailyWaypoints .waypoint.reached {
+  color: var(--ink);
+  opacity: 0.75;
+}
+
+#dailyWaypoints .waypoint-arrow {
+  opacity: 0.6;
+}
+
 #line {
   margin: 0 0 12px;
   color: var(--dim);

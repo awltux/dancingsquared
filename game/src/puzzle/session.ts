@@ -130,6 +130,17 @@ export class PlaySession {
   }
 
   /**
+   * Every board the player has stood on, in order — the start first, then each move's arrival.
+   *
+   * WHY IT IS A METHOD RATHER THAN THE VIEW'S `board`: a waypoint is satisfied by a BOARD THE PLAYER WAS ON, and the
+   * count has to be recoverable after an UNDO. Deriving it from the history means there is no second progress record
+   * to keep in step with the move stack — the stack IS the progress (`puzzle/arrangement.ts`).
+   */
+  playedBoards(): Board[] {
+    return [this.puzzle.start, ...this.history.map((played) => played.board)];
+  }
+
+  /**
    * EVERY legal move from the current board with the reading that makes it legal: the whole board and each group.
    *
    * THE DAILY'S PICKER IS THIS LIST, and the difference from `offered` is not cosmetic: `offered` cannot express

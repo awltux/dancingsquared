@@ -22,6 +22,7 @@ import { el } from './dom.ts';
 
 interface El {
   prompt: HTMLElement;
+  waypoints: HTMLElement;
   readout: HTMLElement;
   offer: HTMLElement;
   line: HTMLElement;
@@ -42,6 +43,7 @@ export class DailyScreen {
   constructor(private readonly on: DailyCallbacks) {
     this.els = {
       prompt: el('dailyPrompt'),
+      waypoints: el('dailyWaypoints'),
       readout: el('dailyReadout'),
       offer: el('offer'),
       line: el('line'),
@@ -57,6 +59,33 @@ export class DailyScreen {
       : view.outcome === 'solved'
         ? 'Solved. That is the run.'
         : 'Given up — you can still replay both lines below.';
+
+    // THE WAYPOINT SEQUENCE, as text: what the route passes through, which stages are behind the player, and which is
+    // next. A "✓" is a stage whose arrangement the player has stood in — not a call they made, because many calls land
+    // in the same arrangement and the route is a sequence of ARRANGEMENTS (puzzle/arrangement.ts).
+    this.els.waypoints.replaceChildren();
+    if (view.waypoints.length > 0) {
+      const label = document.createElement('span');
+      label.textContent = 'Route: ';
+      this.els.waypoints.append(label);
+      for (const [i, stage] of view.waypoints.entries()) {
+        if (i > 0) {
+          const arrow = document.createElement('span');
+          arrow.className = 'waypoint-arrow';
+          arrow.textContent = ' → ';
+          this.els.waypoints.append(arrow);
+        }
+        const mark = document.createElement('span');
+        mark.className = stage.reached ? 'waypoint reached' : 'waypoint';
+        mark.textContent = `${stage.reached ? '✓' : '·'} ${stage.label}`;
+        this.els.waypoints.append(mark);
+      }
+      const arrow = document.createElement('span');
+      arrow.className = 'waypoint-arrow';
+      // THE GOAL CLOSES THE SEQUENCE and is named by the prompt above, so it is marked rather than captioned twice.
+      arrow.textContent = ' → goal';
+      this.els.waypoints.append(arrow);
+    }
 
     this.els.offer.replaceChildren();
     if (view.outcome === 'playing') {

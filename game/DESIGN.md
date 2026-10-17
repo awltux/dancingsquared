@@ -687,6 +687,78 @@ the code keeps by habit.
 - **A group-only call — one a subset can perform and the set cannot — is legal here too**, and it is the engine's
   harness that builds the case (`engine/test/group-refusal.mjs`), because the squared set at a real level's pool
   offers 35 of its 36 titles whole-board and the situation does not arise within one call of the start.
+
+### 9.1 Can the server solve the Daily outright? Measured, and no — but the measurement says what to do instead
+
+The proposal was: once per puzzle, before publication, enumerate every choice to the allowance and ship the result,
+so the client can warn on a dead end and refuse a circular line. Measured on the CHEAPEST level (pool 20, a
+three-call Daily, allowance five), forward from the start over EVERY reading:
+
+| calls | boards (new) | distinct lines | edges | cumulative CPU |
+|---|---|---|---|---|
+| 1 | 97 | 192 | 192 | 0.5 s |
+| 2 | 5 366 | 22 480 | 11 920 | 29 s |
+| 3 | 247 927 | 2 546 477 | 624 487 | **23.4 min** |
+
+and the answers it would buy, from the same run:
+
+- **Exactly ONE three-call line reaches the goal**, out of 2 546 477 distinct lines.
+- **252 388 of the 252 389 boards at three calls are dead ends** — the goal is not reachable in the two calls left.
+- The goal-side table to depth 2 (what a warning would consult) holds **1 board**.
+- Shipping the artefact would cost **16.9 MB** of pose keys at three calls alone, before the four- and five-call
+  layers the allowance also permits.
+
+So the tree is neither shippable nor affordable per puzzle, and the cost grows with the pool — the level-5 pool is
+eighteen times the titles and the top of the ladder is 320. **The design does not need it**, for a reason the same
+run exposes: the graph does not branch into interesting states, it branches into *the same* states. 192 readings from
+the start land on **2 distinct recognised arrangements** — 112 on `Static Square` and 80 on boards the recogniser
+refuses to name. The route itself is `Static Square → (unnamed) → Static Square → Static Square`.
+
+**That last number is the finding, and it kills two rules that looked free:**
+
+1. *"A call must end in a known formation to be valid"* — with today's recogniser this would refuse **80 of the 192
+   legal readings (42%)** and accept 112 that are all the same name. Validity by name is not a filter, it is a coin
+   toss that happens to be stable.
+2. *"Waypoints as a sequence of named formations"* — the names are rotation- and reflection-invariant, so they cannot
+   tell the route's stages apart: all three waypoints above are `Static Square`. A waypoint sequence keyed on the name
+   is degenerate by construction.
+
+**What the arrangement that CAN be keyed is.** The engine already has `geometryKey` (`engine/src/sequencer/cells.ts`):
+positions AND headings, taken over all eight rotations and both reflections — "two boards share a key precisely when
+the matcher would call them congruent", which is exactly the equivalence a waypoint wants. So the shape of the mode
+that survives this measurement is:
+
+**THE FIRST SLICE OF THAT IS BUILT** (`game/src/puzzle/arrangement.ts`, `DailyRun.view().waypoints`, the route line in
+the Daily panel):
+
+- `arrangementKey(board)` is `geometryKey(boardMatchables(board))` — the engine's own congruence — and the route's
+  waypoints are `puzzle.path.slice(1, -1)`, so the sequence is the generator's own route rather than a second one.
+- progress is `waypointReached(waypoints, keysPlayed)`: a monotone count over the boards the player actually stood on,
+  derived from the move stack, so an undo rewinds it for free and it cannot disagree with the line the server replays.
+- the panel shows the route as text (`✓ Ocean Wave → · Lines Facing Out → goal`), the recogniser's name as a caption
+  and the stage number where it has none. It is a readout, not a gate: correctness is still the goal board.
+
+MEASURED, and it is the number that justifies the arrangement being the unit: from a squared set, **143 of 192 readings
+leave a different arrangement and 49 leave the SAME arrangement on a DIFFERENT board** — a quarter of the legal moves
+change the setup without changing the stage. A call-name rule cannot see that; a pose rule would call all 192 distinct.
+
+- a **waypoint** is a congruence class of arrangements (`geometryKey`), not a board pose and not a display name;
+- the puzzle carries an ordered sequence of them, and the route is legible as a sequence of PICTURES, with the
+  recogniser's name as a caption where it has one;
+- correctness at each step is "the board you are on is congruent to waypoint *k*", which is decidable, cheap
+  (`geometryKey` is a string comparison), and never depends on the goal pose or on the player's line matching the
+  generator's;
+- a **dead end** then means "no waypoint-advancing move is left", which is a local question the picker can answer
+  without a shipped graph — and it is the warning the mode would want, rather than a warning about a tree.
+- **Circularity needs no analysis at all**: MEASURED, a reading that changes nothing is rare (0 self-loops from the
+  start at pool 20), and a repeated ARRANGEMENT is visible in the waypoint state — a line that returns to a waypoint
+  it has already satisfied is exactly the case the sequence is there to make impossible.
+
+**What is NOT built, and should not be re-derived.** Waypoints are not yet a CORRECTNESS test (the goal board is), and
+the generator does not yet REQUIRE distinct arrangements — it does so by luck, 11 routes in 12. Making the sequence
+gating is the next step, and it is a generator change with a re-bake, not a display change. And the numbers above are
+why "solve it on the server" should not be attempted again: 23 minutes for the cheapest level, one solution, and a
+display name that cannot tell its own route apart.
 - **Add a call, remove a call, see the consequence.** The sequencer is local, so this is immediate: `legalNext`
   offers the available calls from the board the player is standing on, `applyToBoard` advances it, and the
   board is redrawn from the engine's own poses. This is the interaction the mode exists for, and it is the

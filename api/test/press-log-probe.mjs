@@ -53,7 +53,7 @@ async function fresh() {
 async function issue(deps, player) {
   const served = await drillCurrent(get(player), deps);
   const drill = served.body.drill;
-  const generated = puzzleFor(drill.seed, levelAt(LEVEL));
+  const generated = puzzleFor(drill.seed, levelAt(LEVEL), 'drill');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   const puzzle = generated.puzzle;
   return { drill, puzzle, correct: puzzle.steps.map((step) => step.moves[step.correctIndex].call) };

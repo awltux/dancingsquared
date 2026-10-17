@@ -237,7 +237,7 @@ async function verifyDaily(
     return { refusal: failure(STATUS.badRequest, 'unrecorded_hints', `the run claims ${submission.hintsUsed} hint(s) and ${attempt.hints.length} were recorded for this challenge`) };
   }
 
-  const generated = puzzleFor(value.seed, level);
+  const generated = puzzleFor(value.seed, level, 'daily');
   if (!generated.ok) return { refusal: failure(STATUS.unavailable, 'unplayable_daily', `the published challenge does not generate: ${generated.reason}`) };
 
   // THE LINE IS THE SERVER'S (A22's Daily half): it is replayed from the moves recorded against this attempt, and it

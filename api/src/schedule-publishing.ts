@@ -68,7 +68,7 @@ export function generateSeason(
 ): Season {
   const poolVersion = options.poolVersion ?? POOL_VERSION;
   const level = levelAt(levelIndex);
-  const accepts = options.accepts ?? ((seed: number) => puzzleFor(seed, level));
+  const accepts = options.accepts ?? ((seed: number) => puzzleFor(seed, level, 'drill'));
   const limit = options.season * SCAN_PATIENCE;
   const entries: ScheduleEntry[] = [];
   const skipped: { seed: number; reason: string }[] = [];

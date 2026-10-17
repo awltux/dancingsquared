@@ -69,7 +69,7 @@ async function fresh() {
 async function issue(deps, player) {
   const served = await drillCurrent(get(player), deps);
   const drill = served.body.drill;
-  const generated = puzzleFor(drill.seed, levelAt(LEVEL));
+  const generated = puzzleFor(drill.seed, levelAt(LEVEL), 'drill');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   return { drill, puzzle: generated.puzzle, correct: generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call) };
 }
@@ -223,7 +223,7 @@ console.log('\n== 3. the union of the two sources, because either one alone is a
   // its help is a hint, which is charged. Unranking a real Daily on a meaningless field would be a client muting
   // its own board for nothing.
   await store.put(publishedDailyKey(LEVEL, DAY), { seed: LOCAL_SCHEDULE[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
-  const solution = puzzleFor(LOCAL_SCHEDULE[0].seed, levelAt(LEVEL)).puzzle.solution;
+  const solution = puzzleFor(LOCAL_SCHEDULE[0].seed, levelAt(LEVEL), 'daily').puzzle.solution;
   await getPuzzle(read('p5'), deps);
   for (const named of solution) await postDailyMove({ method: 'POST', path: '/daily/move', query: {}, body: { levelIndex: LEVEL, date: DAY, move: 'add', call: named }, headers: { 'x-dev-player': 'p5' } }, deps);
   now += 60_000;

@@ -30,7 +30,7 @@ console.log('== 1. a season is authored by scanning, and a seed that cannot gene
   const authored = generateSeason(1, { season: 3 });
   check(authored.entries.length === 3, `three entries are authored (${authored.entries.length} from ${authored.attempts} candidates)`);
   for (const entry of authored.entries) {
-    const generated = puzzleFor(entry.seed, levelAt(1));
+    const generated = puzzleFor(entry.seed, levelAt(1), 'drill');
     check(generated.ok, `and seed ${entry.seed} generates (${generated.ok ? 'ok' : generated.reason})`);
   }
   check(authored.skipped.length === 0, `with nothing skipped: MEASURED, seeds 1..40 at level 1 all generate (${authored.skipped.length} skips)`);

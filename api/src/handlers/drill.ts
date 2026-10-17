@@ -17,7 +17,7 @@ import { asProgress, asProgressItem } from '../progress-row.ts';
 import { servableLevel } from '../ladder.ts';
 import { failure, optionalIdentity, requireIdentity, STATUS } from '../status.ts';
 import { levelParam } from '../query.ts';
-import { levelAt, optionLabels, puzzleFor } from '../levels.ts';
+import { levelAt, puzzleFor } from '../levels.ts';
 import {
   currentDrill,
   emptyProgress,
@@ -117,7 +117,7 @@ function served(
   resumed: boolean,
 ): { body: Record<string, unknown> } | { refusal: ApiResult } {
   if (outcome.kind === 'complete') return { body: { drill: null } };
-  const generated = puzzleFor(outcome.drill.seed, level);
+  const generated = puzzleFor(outcome.drill.seed, level, 'drill');
   if (!generated.ok) {
     return {
       refusal: failure(
@@ -132,7 +132,16 @@ function served(
   // still has to be told which level the drill it was handed belongs to — the schedule can move under a player,
   // and the client adopts the answer's level rather than its own. MEASURED: the game's client refused the
   // response (`bad_response`) because the level was absent.
-  return { body: { drill: { ...outcome.drill, levelIndex, optionLabels: optionLabels(generated.puzzle), resumed } } };
+  //
+  // AND THE PUZZLE IS IN THE ANSWER, which is the change that moves generation off the client (DESIGN.md §9/§11).
+  // The server already generated it here — it is what `POST /drill/answer` and `POST /runs` score against — so
+  // carrying it costs nothing but the bytes, and the client drawing the server's own puzzle is what makes "every
+  // player at this index is asked the same question" a fact rather than an agreement about a seed. The whole
+  // `Puzzle` travels, answer key included: the client gives instant feedback from it and "show me the answer"
+  // names from it, and a key withheld from the browser would be a key the browser can re-derive in ten seconds
+  // because it holds the engine and the corpus. What the server keeps to itself is the MEASUREMENT — the clock,
+  // the press log, the attempt count — which is §6's rule and the reason this is not a secrecy decision.
+  return { body: { drill: { ...outcome.drill, levelIndex, puzzle: generated.puzzle, resumed } } };
 }
 
 /**
@@ -146,13 +155,13 @@ function served(
  * player, and a signed-out visitor is deliberately not one (§11.2). The query's level is therefore still
  * VALIDATED on that path, which is where `bad_level` comes from.
  *
- * THE OPTION LABELS ARE GENERATED HERE, from the seed the Progress row holds, because the serving layer's
- * answer IS "the seed, the level and the option labels" (§8, §11) — the server re-runs the same generator the
- * client will, so the labels are a cross-check the client can compare against its own board before drawing
- * anything. MEASURED, that generation costs 167-230 ms at level 1 and 728-1240 ms at levels 2 and 3 on a warm
- * applier (a throwaway script under `api/tools/`, deleted before the commit), and returning only the seed is a
- * one-line change; DESIGN.md §13 records the measurement so that is a decision with a number rather than a
- * silent one.
+ * THE PUZZLE IS GENERATED HERE, from the seed the Progress row holds, because the client no longer has a
+ * generator (DESIGN.md §9: "the serving layer generates, the client applies"). It used to return only a
+ * cross-check's worth of it — the first step's option labels — and that field was never read by any client.
+ * MEASURED, the generation this costs is 167-230 ms at level 1 and 728-1240 ms at levels 2 and 3 on a warm
+ * applier (a throwaway script under `api/tools/`, deleted before the commit), against `puzzleFor`'s cache, which
+ * makes every later read of the same seed a `Map` lookup — and it is the SAME puzzle `POST /drill/answer` and
+ * `POST /runs` score against, so the two sides cannot disagree about the question.
  *
  * A SIGNED-OUT CALLER IS SERVED THE SAME DRILL AND NOTHING IS WRITTEN (§11.1's A20, §11.2's demo). The drill is
  * derived from the published regime and the ORDER alone, so it needs no Progress row to exist and none is read;

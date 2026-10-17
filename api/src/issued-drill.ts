@@ -51,7 +51,7 @@ export async function readIssuedDrill(
   if (issued.poolVersion !== MAIN_POOL.version) {
     return { refusal: failure(STATUS.conflict, 'stale_pool', `drill ${issued.id} was issued against pool ${issued.poolVersion}, and this build serves ${MAIN_POOL.version}`) };
   }
-  const generated = puzzleFor(issued.seed, levelAt(levelIndex));
+  const generated = puzzleFor(issued.seed, levelAt(levelIndex), 'drill');
   if (!generated.ok) return { refusal: failure(STATUS.unavailable, 'unplayable_drill', `the issued drill does not generate: ${generated.reason}`) };
 
   return { issued: { issued, progress, progressRev: stored?.rev ?? null, puzzle: generated.puzzle } };

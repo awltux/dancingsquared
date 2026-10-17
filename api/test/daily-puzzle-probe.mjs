@@ -1,18 +1,19 @@
 // The Daily's boundary job and its read, PINNED.
 //
 // WHY THIS IS A GATE. `GET /puzzle` is the one endpoint whose answer must be IDENTICAL for every player at a
-// level, and the thing that makes it identical is that the client and the server derive the same challenge from
-// the same inputs (DESIGN.md 9). So the central check here is not "the row reads back" — it is that the row's
+// level, and the thing that makes it identical is that the server derives the challenge from `(level, day)` and
+// hands every caller the same puzzle. So the central check here is not "the row reads back" — it is that the row's
 // seed is EXACTLY what the client's own `dailyEntry` computes for that level and day, imported rather than
-// restated. Beside it: the boundary job validates before it publishes, refusing a day nobody published rather
-// than inventing one, and the ladder of levels the corpus can actually fill.
+// restated, AND that the puzzle in the answer is the one that seed generates. Beside it: the boundary job
+// validates before it publishes, refusing a day nobody published rather than inventing one, and the ladder of
+// levels the corpus can actually fill.
 //
 // Usage: node api/test/daily-puzzle-probe.mjs
 import { publishDay, challengeFor } from '../src/daily-publishing.ts';
 import { getPuzzle } from '../src/handlers/puzzle.ts';
 import { STATUS } from '../src/status.ts';
 import { attemptKey, publishedDailyKey } from '../src/keys.ts';
-import { levelAt, publishableLevels } from '../src/levels.ts';
+import { levelAt, publishableLevels, puzzleFor } from '../src/levels.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { configFromEnv, devServerRefusal, realServiceWarning, ALLOW_REAL_AWS } from '../src/config.ts';
@@ -49,6 +50,12 @@ console.log('== 1. what is published is EXACTLY what the client derives ==');
     check(answer.body.daily.levelIndex === levelIndex && answer.body.daily.poolVersion === MAIN_POOL.version, `with the level and pool version beside it (${answer.body.daily.levelIndex}, ${answer.body.daily.poolVersion})`);
     check(answer.body.daily.publishedAtMs === CLOCK, `and the publish stamp (${answer.body.daily.publishedAtMs})`);
     check(answer.body.daily.playable === true, 'and it is playable by this build');
+    // THE PUZZLE IS THE ANSWER NOW, not the seed alone (DESIGN.md §9's reversal): the client generates nothing, so
+    // the read has to carry the boards. It is compared with `puzzleFor` rather than with a fixture, so the check is
+    // "the read and the scorer agree about the question" rather than "the read is stable".
+    const generated = puzzleFor(answer.body.daily.seed, levelAt(levelIndex), 'daily');
+    check(generated.ok && JSON.stringify(answer.body.daily.puzzle) === JSON.stringify(generated.puzzle), `and it carries the puzzle its seed generates, exactly (${answer.body.daily.puzzle?.steps?.length} step(s))`);
+    check(answer.body.daily.puzzle?.steps?.length === levelAt(levelIndex).depth, `which is the level's ${levelAt(levelIndex).depth} step(s)`);
     // NEGATIVE CONTROL FOR THE WHOLE ENDPOINT, MEASURED: the seed is LEVEL-BOUND and DAY-BOUND, so a server that
     // returned one number for everything would satisfy the checks above for exactly one level.
     const otherLevel = dailyEntry(levelAt(levelIndex + 1), MAIN_POOL.version, DAY).seed;
@@ -75,6 +82,9 @@ console.log('\n== 2. the read is a READ: no row, no answer ==');
   await store.put(publishedDailyKey(2, DAY), { seed: 7, levelIndex: 2, poolVersion: 'ms-0', publishedAtMs: CLOCK }, null);
   const stale = await getPuzzle(ask('p2', { mode: 'daily', level: '2', date: DAY }), deps);
   check(stale.status === STATUS.ok && stale.body.daily.playable === false, `a challenge from another pool reads back as NOT playable (${stale.body.daily?.playable} for pool ${stale.body.daily?.poolVersion})`);
+  // AND IT CARRIES NO PUZZLE, rather than one generated from a foreign seed against this build's pool — which would
+  // be a board the server would refuse to score, dressed as a playable challenge.
+  check(stale.body.daily.puzzle === null, `and with NO puzzle, because this build's pool is not the one it was validated at (${JSON.stringify(stale.body.daily.puzzle)})`);
   const fresh = await getPuzzle(ask('p2', { mode: 'daily', level: '1', date: DAY }), deps);
   check(fresh.body.daily.playable === true, 'NEGATIVE CONTROL: while one from this pool is playable, so the flag is a comparison and not a constant');
 }

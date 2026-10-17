@@ -54,7 +54,7 @@ async function fresh() {
 async function issue(deps, player) {
   const served = await drillCurrent(get(player), deps);
   const drill = served.body.drill;
-  const generated = puzzleFor(drill.seed, levelAt(LEVEL));
+  const generated = puzzleFor(drill.seed, levelAt(LEVEL), 'drill');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   const correct = generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call);
   for (let step = 0; step < correct.length; step++) await routed('POST', '/drill/answer')(press(player, drill.id, step, correct[step]), deps);
@@ -74,7 +74,7 @@ console.log('== 1. a refused run is counted, by the code the API answered with =
   // setup here is an issued drill with an empty log.
   const served = await routed('GET', '/drill/current')(get('a1'), deps);
   const drill = served.body.drill;
-  const generated = puzzleFor(drill.seed, levelAt(LEVEL));
+  const generated = puzzleFor(drill.seed, levelAt(LEVEL), 'drill');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   const correct = generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call);
   now += 1000;

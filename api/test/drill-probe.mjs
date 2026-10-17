@@ -19,7 +19,7 @@ import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDril
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
 import { ladderKey, progressKey } from '../src/keys.ts';
 import { FIRST_LEVEL, asLadderItem, asLadderLevel } from '../src/ladder.ts';
-import { levelAt, optionLabels, puzzleFor } from '../src/levels.ts';
+import { levelAt, puzzleFor } from '../src/levels.ts';
 import { startDevServer } from '../src/dev-server.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { MemoryStore } from '../src/store/memory.ts';
@@ -236,23 +236,36 @@ console.log('\n== 5. a finished regime is COMPLETE, and does not wrap ==');
   check(localRegimes().find((r) => r.entries[0].levelIndex === LEVEL).entries.length === SEEDS.length, 'NEGATIVE CONTROL: the fixture has an entry to wrap to, and the server does not use it');
 }
 
-console.log('\n== 6. the option labels are the ones the client will derive ==');
+console.log('\n== 6. the payload carries the puzzle, and it is the server\'s own ==');
 {
   const store = new MemoryStore();
   await seedLocalRegimes(store);
   const deps = depsFor(store);
   const drill = (await drillCurrent(get('p6'), deps)).body.drill;
   const level = levelAt(LEVEL);
-  const generated = puzzleFor(drill.seed, level);
+  const generated = puzzleFor(drill.seed, level, 'drill');
   check(generated.ok, `the served seed generates for this level (${generated.ok})`);
-  const mine = optionLabels(generated.puzzle);
-  check(JSON.stringify(drill.optionLabels) === JSON.stringify(mine), `the labels are the ones the same generator produces (${drill.optionLabels.join(' | ')})`);
-  check(drill.optionLabels.length === level.optionCount, `and there are ${level.optionCount} of them, the level's option count`);
-  // NEGATIVE CONTROL, MEASURED: returning the SOLUTION instead of the option labels would fail the count check
-  // above at every level, because a step has `optionCount` options and the solution is `depth` calls long —
-  // 1 at level 1 here, where the option count is 2.
-  check(generated.puzzle.solution.length === level.depth, `NEGATIVE CONTROL: the solution is ${generated.puzzle.solution.length} call(s) where the option count is ${level.optionCount}`);
-  check(generated.puzzle.steps[0].moves.every((move, index) => move.call === drill.optionLabels[index]), 'and each label is the call of the option in that position');
+  // THE WHOLE PUZZLE, BYTE FOR BYTE THE ONE THE SERVER SCORES AGAINST. This is the property that replaced the
+  // option labels: the client draws what the server will score, so `POST /drill/answer` and `POST /runs` cannot
+  // be measuring a different question from the one on screen.
+  check(JSON.stringify(drill.puzzle) === JSON.stringify(generated.puzzle), `the drill carries the puzzle the same seed generates, exactly (${drill.puzzle?.steps?.length} step(s))`);
+  // NEGATIVE CONTROL, MEASURED: a payload that ignored the seed would satisfy nothing above — so assert the seed
+  // DECIDES, by comparing with the puzzle a neighbouring seed produces. Without this, a server that returned one
+  // fixed puzzle for every drill would pass the equality check only if the generator were fixed too.
+  const other = puzzleFor(drill.seed + 1, level, 'drill');
+  check(other.ok && JSON.stringify(other.puzzle) !== JSON.stringify(drill.puzzle), `NEGATIVE CONTROL: a different seed is a different puzzle (${drill.seed} vs ${drill.seed + 1})`);
+  check(drill.puzzle.steps.length === level.depth, `and it has the level's ${level.depth} step(s)`);
+  // THE WIRE IS JSON, AND JSON DROPS `undefined`. Every optional field on a dancer and on a board is one, so the
+  // only copy of this puzzle a client will ever hold is a round-tripped one. This asserts what the WIRE can
+  // promise: the step's `after` and its correct option's board travel as the same bytes. Whether the engine still
+  // calls them the same board after the round trip is the CLIENT's gate, where the engine is a dependency —
+  // `game/test/puzzle-wire-probe.mjs` measures that half with the engine's own `sameBoardById`.
+  const wired = JSON.parse(JSON.stringify(drill.puzzle));
+  check(
+    wired.steps.every((step) => JSON.stringify(step.after) === JSON.stringify(step.moves[step.correctIndex].board)),
+    'and every step\'s `after` is byte-identical to the board its correct option reaches, so the wire carries one board twice rather than two claims',
+  );
+  check(wired.steps.every((step) => step.moves.length === level.optionCount && step.correctIndex < step.moves.length), `with ${level.optionCount} options per step and an index inside them`);
 }
 
 console.log('\n== 7. refusals: what is refused, and what a refusal changes ==');
@@ -392,6 +405,14 @@ console.log('\n== 9. the local server, over a real socket ==');
     const first = await call('/drill/current?level=1', { headers });
     check(first.status === 200 && first.body.drill.id === drillId(LEVEL, 0), `and one with an identity gets the first drill (${first.body.drill?.id})`);
     check(first.body.demo === undefined, 'with no demo flag, because this answer is a stored one');
+    // THE PUZZLE SURVIVES A REAL HTTP ROUND TRIP, which is the one thing the handler-level checks above cannot
+    // measure: they compare objects in one process, where the served puzzle is a reference to the generated one.
+    // Here it has been through `JSON.stringify`, the socket and `JSON.parse`, so this is the payload a browser gets.
+    const overTheWire = puzzleFor(first.body.drill.seed, levelAt(LEVEL), 'drill');
+    check(
+      overTheWire.ok && JSON.stringify(first.body.drill.puzzle) === JSON.stringify(overTheWire.puzzle),
+      `the puzzle survives the socket byte for byte (${first.body.drill.puzzle?.steps?.length} step(s), ${JSON.stringify(first.body.drill.puzzle?.steps?.[0]?.moves?.map((m) => m.call))})`,
+    );
 
     const bearer = await call('/drill/current?level=1', { headers: { authorization: 'Bearer dev:e2e' } });
     check(bearer.status === 200 && bearer.body.drill.id === first.body.drill.id, 'the bearer spelling names the same player (a browser test and a curl are the two ways in)');

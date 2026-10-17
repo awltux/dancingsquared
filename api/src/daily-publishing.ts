@@ -43,7 +43,7 @@ export async function publishDay(store: ItemStore, day: string, options: { level
 
   for (const levelIndex of levels) {
     const entry = challengeFor(levelIndex, day);
-    const generated = puzzleFor(entry.seed, levelAt(levelIndex));
+    const generated = puzzleFor(entry.seed, levelAt(levelIndex), 'daily');
     if (!generated.ok) {
       refused.push({ levelIndex, reason: generated.reason });
       continue;

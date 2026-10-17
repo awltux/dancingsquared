@@ -115,7 +115,7 @@ console.log('\n== 4. the two partitions do not mix ==');
   // results partition is keyed by runId too, and one row kind for both would let an import shadow a result.
   const import1 = await postBulkRuns(bulk('b4', [led('same-id', { score: 11 })]), deps);
   check(import1.status === STATUS.ok, `an import under an id a verified run might also use (${import1.status})`);
-  const generated = puzzleFor(LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed, levelAt(LEVEL));
+  const generated = puzzleFor(LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed, levelAt(LEVEL), 'drill');
   const verified = await postRun({ method: 'POST', path: '/runs', query: {}, body: { runId: 'same-id', mode: 'drill', levelIndex: LEVEL, drillId: '1:0', elapsedSeconds: 1, hintsUsed: 0, attempts: 0, calls: generated.puzzle.solution }, headers: { 'x-dev-player': 'b4' } }, deps);
   check(verified.status >= 400, `while the verified path still checks its own rules for that id (${verified.status} ${verified.body.error?.code})`);
   check((await store.get(ROW.history('b4', 'same-id'))).value.score === 11, `and the history row is untouched by the attempt (${(await store.get(ROW.history('b4', 'same-id'))).value.score})`);

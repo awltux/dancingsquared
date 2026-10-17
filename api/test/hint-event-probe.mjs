@@ -84,7 +84,7 @@ async function fresh() {
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
   await publish(store, LEVEL, DAY, seed);
   await publish(store, LEVEL, OTHER_DAY, seed);
-  return { store, deps: depsFor(store), seed, solution: puzzleFor(seed, levelAt(LEVEL)).puzzle.solution };
+  return { store, deps: depsFor(store), seed, solution: puzzleFor(seed, levelAt(LEVEL), 'daily').puzzle.solution };
 }
 
 console.log('== 1. a hint is spent once, against the challenge that was READ ==');
@@ -113,7 +113,7 @@ console.log('== 1. a hint is spent once, against the challenge that was READ =='
   // runs over is the puzzle's START — and the check is against the ENGINE's own offered list rather than a literal.
   // NEGATIVE CONTROL: the rule this replaced left the field EMPTY (a placeholder for a name the client held), so the
   // first comparison below is the one it fails.
-  const puzzle = puzzleFor(seed, levelAt(LEVEL)).puzzle;
+  const puzzle = puzzleFor(seed, levelAt(LEVEL), 'daily').puzzle;
   const offered = runtimeFor(levelAt(LEVEL)).applier.offered(puzzle.start).map((move) => move.call);
   check(typeof row.hints[0].call === 'string' && row.hints[0].call !== '' && offered.includes(row.hints[0].call), `NEGATIVE CONTROL: the hint's call is named by the SERVER from the recorded board (${row.hints[0].call})`);
   check(spent.body.call === row.hints[0].call, `and the answer carries the same name, so the app can show the server's rather than a second one (${spent.body.call})`);

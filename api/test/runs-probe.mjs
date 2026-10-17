@@ -109,7 +109,7 @@ async function fresh() {
 
 /** The correct per-step answers for a served drill — what a client that solved it would submit. */
 function answersFor(seed) {
-  const generated = puzzleFor(seed, levelAt(LEVEL));
+  const generated = puzzleFor(seed, levelAt(LEVEL), 'drill');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   return { puzzle: generated.puzzle, calls: generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call) };
 }
@@ -252,7 +252,7 @@ console.log('\n== 4. the per-step answer is re-derived, not taken on trust ==');
   const { deps } = await fresh();
   const { drill, calls } = await issue(deps, 'r4');
   const wrong = [...calls];
-  const generated = puzzleFor(drill.seed, levelAt(LEVEL));
+  const generated = puzzleFor(drill.seed, levelAt(LEVEL), 'drill');
   const correct = generated.puzzle.steps[0].moves[generated.puzzle.steps[0].correctIndex].call;
   const other = generated.puzzle.steps[0].moves.find((move) => move.call !== correct).call;
   wrong[0] = other;
@@ -315,7 +315,7 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   // the hint was taken — so a claim of a hint that was never spent through that endpoint is REFUSED rather than
   // charged, which is the half of the old rule that let a client buy time it had not paid for.
   const date = DAY;
-  const published = puzzleFor(four[0].seed, levelAt(LEVEL));
+  const published = puzzleFor(four[0].seed, levelAt(LEVEL), 'daily');
   await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
   const line = published.puzzle.solution;
   await startDaily(deps, 'r6', LEVEL, date, 30);
@@ -336,7 +336,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
 {
   const { store, deps } = await fresh();
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
-  const generated = puzzleFor(seed, levelAt(LEVEL));
+  const generated = puzzleFor(seed, levelAt(LEVEL), 'daily');
   await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
 
   await startDaily(deps, 'r7', LEVEL, DAY, 10);
@@ -393,7 +393,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   // same input is ACCEPTED, because `solution[0]` IS the whole solution there.
   const level2Seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === 2).seed;
   await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION }, null);
-  const twoSteps = puzzleFor(level2Seed, levelAt(2));
+  const twoSteps = puzzleFor(level2Seed, levelAt(2), 'daily');
   check(twoSteps.puzzle.solution.length === 2, `the level-2 challenge has a two-call solution (${twoSteps.puzzle.solution.length})`);
   await startDaily(deps, 'r7', 2, DAY, 10);
   // THE RECORDED LINE IS THE SHORT ONE, so the claim below matches the log and the refusal comes from the WALK: the

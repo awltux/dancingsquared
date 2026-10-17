@@ -1,21 +1,25 @@
 // `GET /puzzle?mode=daily&level&date` — the published challenge, as a READ.
 //
-// DESIGN.md 11 puts this endpoint's whole point in one clause: "a read of the published artefact, not a
-// generation per request". So it returns the stored seed and level and does NOT generate: the client derives the
-// board from the seed with the same generator the server used (§9), and the seed is the thing that makes
-// everyone's challenge the same. That is also why it is fast — no applier is touched on this path, where
-// `POST /runs` regenerates for verification and pays for it.
+// THE READ NOW CARRIES THE PUZZLE, and that is the reversal DESIGN.md §9 records: a puzzle was derivable from
+// `(seed, level, poolVersion)`, so the serving layer answered with the seed and the client drew the board. The
+// client no longer generates anything, so the seed alone is not playable — this endpoint generates the puzzle the
+// seed names (through `puzzleFor`'s cache, so a re-read is a `Map` lookup) and answers with it.
+//
+// WHAT IS STILL STORED IS THE SEED, NOT THE PUZZLE, and the difference is deliberate: `POST /runs` re-derives the
+// puzzle from the seed to verify a submission, so a stored board would be a second copy that a corrupt or edited
+// row could disagree with. One derivation, used by every reader, is the stronger property.
 //
 // A DAY NOBODY PUBLISHED IS THE BOUNDARY JOB'S ABSENCE, and it is reported as such rather than answered with a
 // freshly derived seed: a server that invented one on demand would serve a challenge that was never validated
 // (§7.2), and the two sides would disagree about it the moment the pool moved. `npm run api:publish-daily` is
 // the fix, and the refusal names the day.
-import { MAIN_POOL } from 'dancing-squared-game';
+import { MAIN_POOL, type Puzzle } from 'dancing-squared-game';
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { attemptKey, publishedDailyKey } from '../keys.ts';
 import { failure, optionalIdentity, STATUS } from '../status.ts';
 import { dayParam, levelParam } from '../query.ts';
 import { asAttempt, asAttemptItem, startAttempt } from '../attempt-row.ts';
+import { levelAt, puzzleFor } from '../levels.ts';
 
 /** The one mode this endpoint serves, named so the refusal can say what was asked for instead. */
 const MODE = 'daily';
@@ -55,6 +59,21 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
   // seed is only meaningful against the pool it was validated at.
   const playable = value.poolVersion === MAIN_POOL.version;
 
+  // ONLY A PLAYABLE CHALLENGE HAS A PUZZLE THIS BUILD CAN DRAW, and generating a foreign seed's puzzle here would
+  // hand the client a board the server would refuse to score — the worst of the three answers, because it looks
+  // playable. `puzzle: null` beside `playable: false` says exactly what is true.
+  let puzzle: Puzzle | null = null;
+  if (playable) {
+    // THE ROW'S LEVEL, not the query's, because the row's is what the answer reports and the seed was validated
+    // against it. A disagreeing row is a corrupt row, and generating at the query's level would publish a puzzle
+    // under a level number it was not generated at — the §7.2 rule the drill's schedule lint exists to enforce.
+    const generated = puzzleFor(value.seed, levelAt(value.levelIndex), 'daily');
+    if (!generated.ok) {
+      return failure(STATUS.unavailable, 'unplayable_daily', `the published challenge for ${day} does not generate: ${generated.reason}`);
+    }
+    puzzle = generated.puzzle;
+  }
+
   if (identity) {
     const stamped = await stampAttempt(deps, identity.playerId, levelIndex, day);
     if ('refusal' in stamped) return stamped.refusal;
@@ -70,6 +89,7 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
         poolVersion: value.poolVersion,
         publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
         playable,
+        puzzle,
       },
     },
   };

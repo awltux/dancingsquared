@@ -26,6 +26,7 @@ import {
   type GenerateResult,
   type LevelSpec,
   type Puzzle,
+  type PuzzleMode,
 } from 'dancing-squared-game';
 import { applierFor } from 'dancing-squared-game/corpus-node';
 import type { ItemStore } from './ports.ts';
@@ -73,9 +74,19 @@ export function runtimeFor(level: LevelSpec): Runtime {
  * 50 calls with a DIFFERENT seed each cost **158.6 ms** each, while 50 calls with the seed a press re-asks for cost
  * **0.0 ms** each — below the timer's resolution, because the work is a `Map` lookup.
  *
- * THE RETURNED PUZZLE IS SHARED BETWEEN CALLERS. Every reader today only reads (`optionLabels`, the per-step
- * correct option, `lineReachesGoal`'s walk), so this is safe — but a caller that mutated a puzzle would change
- * what every later request is scored against, which is why the contract is stated here rather than discovered.
+ * THE RETURNED PUZZLE IS SHARED BETWEEN CALLERS. Every reader today only reads (the per-step correct option,
+ * `lineReachesGoal`'s walk, and — now that the client generates nothing — the `GET /drill/current` and
+ * `GET /puzzle` bodies), so this is safe, but a caller that mutated one would change what every later request is
+ * scored against. **A HANDLER MUST NOT MUTATE IT**: the served body holds a reference to this object, and a
+ * projection that edited it in place would rewrite the answer key the press log and the run scoring read back.
+ *
+ * THE MODE IS A REQUIRED ARGUMENT AND PART OF THE KEY. It has no default, and that is the point: a Daily and a
+ * Drill may share a seed and a level and are still two labels on the same boards, and `mode` is stamped on the
+ * puzzle (MEASURED, it was `drill` on every Daily before `generatorConfigFor` took the argument, and
+ * `game/test/config-probe.mjs` pins it). MEASURED while this became a required argument: five call sites were
+ * quietly generating DAILY puzzles through the drill's config, because the default hid which one they meant — and
+ * a default here is a call site that does not say what it is generating, which is the class of defect that made
+ * the parameter necessary.
  *
  * THE POOL VERSION IS NOT IN THE KEY, for the reason the runtime cache gives above: a pool change is a deploy.
  * THE BOUND IS BLUNT ON PURPOSE: the working set is one season's entries at the levels being played, and a clear
@@ -84,27 +95,25 @@ export function runtimeFor(level: LevelSpec): Runtime {
 const puzzles = new Map<string, GenerateResult>();
 const MAX_CACHED_PUZZLES = 64;
 
-export function puzzleFor(seed: number, level: LevelSpec): GenerateResult {
-  const key = `${level.index}:${seed}`;
+export function puzzleFor(seed: number, level: LevelSpec, mode: PuzzleMode): GenerateResult {
+  const key = `${mode}:${level.index}:${seed}`;
   const cached = puzzles.get(key);
   if (cached) return cached;
-  const generated = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'drill'), seed, level, runtimeFor(level).applier);
+  const generated = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, mode), seed, level, runtimeFor(level).applier);
   if (puzzles.size >= MAX_CACHED_PUZZLES) puzzles.clear();
   puzzles.set(key, generated);
   return generated;
 }
 
 /**
- * The three option labels of the puzzle's FIRST step, in order.
+ * THE OPTION LABELS USED TO BE HERE, and they are gone with the reason they existed.
  *
- * IT IS STEP ONE BECAUSE THAT IS WHAT THE PLAYER IS ASKED FIRST. A depth-2 drill's step 2 labels are a
- * different question, and the client derives them from the same seed anyway; what the response carries is the
- * label set a client can compare against its own generation before it draws anything.
+ * `optionLabels(puzzle)` returned the first step's three calls so a client could cross-check its own generation
+ * before drawing anything. MEASURED: no client ever read it — `game/src/net/api.ts` parsed the field and neither
+ * `main.ts` nor any other module used it, so it was a cross-check that never ran. It is replaced by the puzzle
+ * itself (`GET /drill/current` and `GET /puzzle` both carry one), because the client no longer generates and
+ * therefore has nothing to check its own board against.
  */
-export function optionLabels(puzzle: Puzzle): string[] {
-  return (puzzle.steps[0]?.moves ?? []).map((move) => move.call);
-}
-
 /**
  * Every level the corpus can actually fill, lowest first.
  *
@@ -220,7 +229,7 @@ export async function publishedPuzzle(
   if (value.poolVersion !== MAIN_POOL.version) {
     return { ok: false, status: 409, code: 'stale_pool', message: `the challenge was published against pool ${value.poolVersion}, and this build serves ${MAIN_POOL.version}` };
   }
-  const generated = puzzleFor(value.seed, levelAt(levelIndex));
+  const generated = puzzleFor(value.seed, levelAt(levelIndex), 'daily');
   if (!generated.ok) {
     return { ok: false, status: 503, code: 'unplayable_daily', message: `the published challenge does not generate: ${generated.reason}` };
   }

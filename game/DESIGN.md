@@ -600,7 +600,8 @@ drift between the client and the server, because both derive them from the same 
   drill already handed out, so the fix for a bad puzzle is a new schedule entry, not an edit to an old one.
   (This is also why §7.2's gate runs before publication rather than after.)
 - **Issuing a drill, resuming one, and fetching the next are server decisions.** The client asks for "the
-  drill I am on"; the serving layer answers with **the seed, the level and the option labels**. Which entry is
+  drill I am on"; the serving layer answers with **the seed, the level and the puzzle itself** — every step, every
+  option, every board and the answer key (§9: the client generates nothing). Which entry is
   next, and whether the previous one is finished, are facts the server owns — which is why the endpoint in
   §11 is not a `GET /puzzle` by seed for this mode, even though the client could apply one.
 - **The score is cumulative over the regime** and the board accumulates across a season (§6), with one entry
@@ -735,9 +736,9 @@ read-only, then sign in to be ranked*.
 
 | Method and path | Mode | Purpose |
 |---|---|---|
-| `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the option labels and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). **THE LEVEL IS THE SERVER'S TOO** (§15 Q17(vi)): for a request the server can name, the level comes from the player's LADDER row (`api/src/ladder.ts`) and `?level=` is not consulted; a caller the server cannot name has no ladder, so a demo is served the level it asks for and that is the only path on which the query is read. |
+| `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the generated puzzle and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). **THE LEVEL IS THE SERVER'S TOO** (§15 Q17(vi)): for a request the server can name, the level comes from the player's LADDER row (`api/src/ladder.ts`) and `?level=` is not consulted; a caller the server cannot name has no ladder, so a demo is served the level it asks for and that is the only path on which the query is read. |
 | `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. **It is also the SKIP the player can choose** (§15 Q5: a mark-and-continue for a drill they cannot solve), which is why the control is offered only where the request can succeed. **The app asks for it only when the server does not already hold the drill as finished** (§15 Q21): a recorded run finishes the drill itself, so an advance after one asks the server to skip a drill that is already skipped — a `409` the endpoint is right to answer, and a refusal that A25 would count against an honest player. |
-| `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date — a read of the published artefact, not a generation per request (§9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
+| `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date: the stored seed AND the puzzle it names (generated once, then served from the cache — the client generates nothing, §9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
 | `POST /drill/reveal` | Drill | That one step's answer was SHOWN to this player (§15 Q16, A28): the step, and the call the server looks up from the puzzle it issued — the same expression A22's verdict and §11's transcript check use, so one position has one answer. **Recorded as an event and not as a press**, because a reveal is not an answer the player committed; deduplicated by step, because a second press of the same button shows the same call. It scores nothing itself, and it is what stops the run it finishes from counting. |
 | `POST /daily/move` | Daily | One move, undo or redo, recorded for the same reason (A22): the Daily's line and its length become the server's record rather than the submission's claim. |
@@ -757,8 +758,11 @@ promotes them (the promotion is evaluated on the READ, in `api/src/ladder.ts`, s
 
 **The three endpoints as they are implemented (Phase 5.0 and 5.3), so the client can be written against them.**
 `GET /drill/current?level=<n>` → `200 { drill: { id, index, levelIndex, seed, poolVersion, scheduleVersion,
-issuedAtMs, optionLabels, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
-level is finished. **`levelIndex` is the level the answer was SERVED FROM** — the ladder's for an identified
+issuedAtMs, puzzle, resumed }, regime: { finished, length } }`, where `drill` is `null` once every entry of that
+level is finished. **`puzzle` is the whole generated puzzle** — start, goal, every step's options and their boards,
+and the answer key — because the client generates nothing; it is the same object `POST /drill/answer` and
+`POST /runs` score against, so the screen and the verdict cannot disagree about the question. **`levelIndex` is the
+level the answer was SERVED FROM** — the ladder's for an identified
 caller — and it is what the client adopts rather than the level it asked with. **`scheduleVersion` is the published
 set the drill was issued from, which is the Drill board's identity** (§15 Q17(vii)): the client passes it back as
 `/leaderboard`'s `period` instead of computing a calendar month, and `POST /runs` lands the run on that set's board. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
@@ -772,9 +776,12 @@ cannot read, or a published seed that no longer generates — both operator find
 **A refusal never writes**, which is what makes a retry safe.
 
 `GET /puzzle?mode=daily&level=<n>&date=<YYYY-MM-DD>` answers `{ daily: { day, levelIndex, seed, poolVersion,
-publishedAtMs, playable } }` — the PUBLISHED artefact and nothing more: no board, no option labels, no
-generation, because the client derives the puzzle from the seed (§9) and `POST /runs` regenerates it to verify.
-`playable` is false when the row was published against a pool this build does not serve, which is the same rule
+publishedAtMs, playable, puzzle } }`. **What is STORED is the seed and what is SERVED is the puzzle**: `POST /runs`
+re-derives the puzzle from the stored seed to verify a submission, so a stored board would be a second copy that a
+corrupt or edited row could disagree with. `puzzle` is `null` exactly when `playable` is false — a challenge published
+against a pool this build does not serve has no boards this build can draw, and generating one anyway would hand the
+client a puzzle the server would refuse to score. `playable` is false when the row was published against a pool this
+build does not serve, which is the same rule
 as §7.2's "a seed is only meaningful against the pool it was validated at". `404 no_published_daily` means the
 boundary job has not run for that level and day — and the server does NOT invent a seed in that case, because a
 challenge nobody validated is exactly what §7.2's gate exists to prevent.
@@ -1422,8 +1429,8 @@ ephemeral port):
   the pool comparison, demonstrated by feeding the row's own version back);
 - a finished regime answers `drill: null` rather than wrapping (the client fixture wraps on purpose; the server
   must not re-serve a season the score table already holds);
-- the option labels are the ones the same generator produces from that seed (2 of them at level 1, where the
-  solution is 1 call — so "return the solution instead" fails the count check);
+- the puzzle the drill carries is the one the same generator produces from that seed, byte for byte, and a
+  neighbouring seed produces a different one (so the seed decides, rather than one fixed puzzle being served);
 - two concurrent requests agree on ONE issued drill, a lost compare-and-set is retried (2 reads of the row), and
   a writer that never lands is reported `409 contended` after exactly 3 attempts;
 - an unreadable progress row is a `503` **and the refusal wrote nothing** to it.
@@ -1433,11 +1440,12 @@ implemented the same protocol, so the condition expressions were unverified unti
 endpoints (`GET /puzzle`, `POST /runs`, `POST /me/runs:bulk`, `GET /leaderboard`). No Lambda, no template, no
 Cognito, no AWS call: the SAM CLI is installed (1.169.0) and nothing has been deployed.
 
-**One open decision with a number.** `GET /drill/current` generates the puzzle to return `optionLabels` as
-§11 says it should, and that costs **167-230 ms at level 1 and 728-1240 ms at levels 2 and 3** on a warm
-applier, per request — including a resumed read, which is the common case. The client derives the same labels
-from the same seed anyway (§8), so returning only the seed would make every request a data read. The labels are
-served for now because they are the cross-check that the two sides generated the same question.
+**The measurement that used to be an open decision, now closed by it.** `GET /drill/current` generates the puzzle,
+and that costs **167-230 ms at level 1 and 728-1240 ms at levels 2 and 3** on a warm applier, once per seed
+(`puzzleFor` caches, so a resumed read of the same drill is a `Map` lookup and MEASURED at 0.0 ms). The design
+originally served only a cross-check's worth of that — the first step's option labels — on the argument that the
+client generated the same question anyway. That argument is gone: the client generates nothing, so the whole puzzle
+is what the answer has to carry.
 
 **Phase 5.1 — the store is DynamoDB, and ONE contract suite runs against both implementations. DONE.**
 `api/src/store/dynamo.ts` implements `ItemStore` over the single table (`PK`/`SK`, DESIGN.md 11) with the
@@ -1612,8 +1620,9 @@ offline game it has always been.
    "the server could not be reached". The dev server now answers the preflight and sends the allow headers on every
    answer, with a note that a DEPLOYMENT does this at the gateway (API Gateway's CORS configuration) so the handler
    core stays transport-free. Pinned in `api/test/drill-probe.mjs`'s socket section.
-3. **The drill view omitted `levelIndex`** — which §11's row for this endpoint promises ("the seed, the level, the
-   option labels and the issue date") — so the client refused the response as `bad_response`. Fixed in the handler
+3. **The drill view omitted `levelIndex`** — which §11's row for this endpoint then promised ("the seed, the level,
+   the option labels and the issue date"; the row promises the whole puzzle now) — so the client refused the response
+   as `bad_response`. Fixed in the handler
    and pinned: the level in the answer is the one to generate from, not the one the client asked with.
 
 **GATE.** `tsc -p game --noEmit` → 0; `node game/tools/verify-probes.mjs` → **16 probes, 0 failed** (the new

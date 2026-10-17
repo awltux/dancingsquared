@@ -56,7 +56,7 @@ async function fresh() {
   await seedLocalRegimes(store);
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
   await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
-  const generated = puzzleFor(seed, levelAt(LEVEL));
+  const generated = puzzleFor(seed, levelAt(LEVEL), 'daily');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   return { store, deps: depsFor(store), puzzle: generated.puzzle, line: generated.puzzle.solution };
 }

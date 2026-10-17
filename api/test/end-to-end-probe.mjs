@@ -69,7 +69,7 @@ try {
     const served = await call('/drill/current?level=1', { headers: auth });
     drill = served.body.drill;
     check(served.status === 200 && drill !== null && served.body.demo === undefined, `the drill is served to a verified token (${drill?.id})`);
-    const generated = puzzleFor(drill.seed, levelAt(1));
+    const generated = puzzleFor(drill.seed, levelAt(1), 'drill');
     if (!generated.ok) throw new Error(`the served seed does not generate: ${generated.reason}`);
     correct = generated.puzzle.steps.map((step) => step.moves[step.correctIndex].call);
     check(correct.length >= 1, `and this app regenerates it from the seed the server sent (${correct.length} step(s))`);
@@ -120,7 +120,7 @@ try {
     const day = utcDay(new Date());
     const published = await call(`/puzzle?mode=daily&level=1&date=${day}`, { headers: auth });
     check(published.status === 200 && typeof published.body.daily?.seed === 'number', `today's challenge is published and readable (${published.status})`);
-    const generated = puzzleFor(published.body.daily.seed, levelAt(1));
+    const generated = puzzleFor(published.body.daily.seed, levelAt(1), 'daily');
     if (!generated.ok) throw new Error(`the published seed does not generate: ${generated.reason}`);
     const line = generated.puzzle.solution;
     // THE MOVES ARE PLAYED BEFORE THE RUN IS SUBMITTED (A22's Daily half): the server scores the line IT recorded and
@@ -162,7 +162,7 @@ try {
     // AND A LATER SUBMISSION IS STILL SCORED, because the app lets a player replay both lines after giving up: an
     // abandonment is a fact about the ATTEMPT, and the run is scored on its own terms.
     const published = await call(`/puzzle?mode=daily&level=1&date=${day}`, { headers: auth });
-    const line = puzzleFor(published.body.daily.seed, levelAt(1)).puzzle.solution;
+    const line = puzzleFor(published.body.daily.seed, levelAt(1), 'daily').puzzle.solution;
     // THE SAME CHALLENGE IS ALREADY PLAYED — §6 recorded this line on this player's attempt row, and the log is per
     // CHALLENGE rather than per submission, so a second run of the same day reuses it. Recording it again would
     // append a second copy and derive a line twice as long as the claim, which is exactly what the server refuses.

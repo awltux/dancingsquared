@@ -21,6 +21,10 @@ import { accessTokenOf, type SessionStore } from './session.ts';
 // A TYPE-ONLY IMPORT, so there is no runtime cycle: `auth.ts` calls this module's `apiCall`, and this module needs
 // only the NAME of the mode it discovers.
 import type { AuthMode } from './auth.ts';
+// THE PUZZLE'S OWN SHAPE CHECK, imported rather than restated: `GET /drill/current` and `GET /puzzle` carry a
+// generated puzzle now (DESIGN.md §9), and `parsePuzzle` is the one rule for whether one arrived.
+import { parsePuzzle } from '../puzzle/parse.ts';
+import type { Puzzle } from '../puzzle/types.ts';
 
 /** A refusal as the API writes it: a code for a program and a sentence for a person. */
 export interface ApiFailure {
@@ -47,8 +51,14 @@ export interface IssuedDrill {
    */
   readonly scheduleVersion: string | null;
   readonly issuedAtMs: number;
-  /** A cross-check the client may compare with its own generation; null when the server did not send one. */
-  readonly optionLabels: readonly string[] | null;
+  /**
+   * THE PUZZLE ITSELF, when the server sent one — every board, every option and the answer key.
+   *
+   * `null` ONLY WHEN THE SERVER DID NOT SEND ONE, which is the run-up state this commit leaves: the client still
+   * knows how to generate from the seed, so an older server is playable. The moment that path is removed, a null
+   * here is a refusal rather than a fallback, and `game/src/main.ts` says so where it branches.
+   */
+  readonly puzzle: Puzzle | null;
   readonly resumed: boolean;
 }
 
@@ -242,20 +252,23 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const value = raw as Record<string, unknown>;
   if (typeof value.id !== 'string' || typeof value.index !== 'number' || typeof value.levelIndex !== 'number' || typeof value.seed !== 'number') return null;
+  // A PUZZLE THAT IS THERE BUT MALFORMED IS A REFUSAL, where one that is ABSENT is tolerated. The difference is
+  // what the two states mean: absent is a server that predates the change (and the seed still generates), while
+  // present-and-wrong is a payload this app would draw as a question it cannot answer — see `puzzle/parse.ts` on
+  // why a half-parsed puzzle is worse than none.
+  const puzzle = value.puzzle === undefined || value.puzzle === null ? null : parsePuzzle(value.puzzle);
+  if (value.puzzle !== undefined && value.puzzle !== null && puzzle === null) return null;
   return {
     id: value.id,
     index: value.index,
     levelIndex: value.levelIndex,
     seed: value.seed,
     poolVersion: typeof value.poolVersion === 'string' ? value.poolVersion : '',
-    // TOLERATED AS MISSING, for the same reason `optionLabels` is: it is the BOARD's identity and not the puzzle's,
-    // so a server that does not send it makes the board panel say it cannot show one rather than making the drill
-    // unplayable.
+    // TOLERATED AS MISSING: it is the BOARD's identity and not the puzzle's, so a server that does not send it makes
+    // the board panel say it cannot show one rather than making the drill unplayable.
     scheduleVersion: typeof value.scheduleVersion === 'string' ? value.scheduleVersion : null,
     issuedAtMs: typeof value.issuedAtMs === 'number' ? value.issuedAtMs : Date.now(),
-    // OPTIONAL, AND TOLERATED AS MISSING: the labels are the server's cross-check of the client's generation,
-    // not something the client needs — so a server that stops sending them is a smaller contract, not a crash.
-    optionLabels: Array.isArray(value.optionLabels) ? (value.optionLabels as string[]) : null,
+    puzzle,
     resumed: value.resumed === true,
   };
 }
@@ -302,7 +315,8 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
   };
 }
 
-/** The published Daily challenge: a seed, the level it was validated at, and whether this build can play it. */
+/** The published Daily challenge: a seed, the level it was validated at, whether this build can play it, and —
+ * now that the client generates nothing — the puzzle that seed names. */
 export interface DailyChallenge {
   readonly day: string;
   readonly levelIndex: number;
@@ -311,15 +325,18 @@ export interface DailyChallenge {
   readonly publishedAtMs: number | null;
   /** False when the row was published against a pool this build does not serve (DESIGN.md 7.2). */
   readonly playable: boolean;
+  /** The puzzle, or null on a challenge this build cannot play (`playable: false`) or one that is malformed. */
+  readonly puzzle: Puzzle | null;
 }
 
 /**
  * `GET /puzzle?mode=daily&level&date` — the challenge for a level and a UTC day.
  *
- * IT DOES NOT GENERATE, and neither does the server: a puzzle is derivable from `(seed, level, poolVersion)`, so
- * the client draws the board from the seed with the same generator the server will use to verify the run (§9).
- * What this call buys is that the seed is the PUBLISHED, validated one rather than a locally derived guess — so a
- * day nobody published is a refusal (`no_published_daily`) instead of a question nobody checked.
+ * THE ANSWER CARRIES THE PUZZLE, because the client no longer generates (§9's reversal): the server derives the
+ * boards from the published seed and hands them over, so everyone at a level is asked the same question by
+ * construction rather than by agreeing about a number. What the call still buys beyond the boards is that the seed
+ * is the PUBLISHED, validated one — a day nobody published is a refusal (`no_published_daily`) instead of a question
+ * nobody checked.
  */
 export async function dailyChallenge(level: number, day: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<DailyChallenge>> {
   const answer = await apiCall<{ daily?: unknown }>(deps, '/puzzle', {
@@ -344,6 +361,7 @@ export async function dailyChallenge(level: number, day: string, deps: ApiDeps =
       poolVersion: typeof value.poolVersion === 'string' ? value.poolVersion : '',
       publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
       playable: value.playable !== false,
+      puzzle: value.puzzle === undefined || value.puzzle === null ? null : parsePuzzle(value.puzzle),
     },
   };
 }

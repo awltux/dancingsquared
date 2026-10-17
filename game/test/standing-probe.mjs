@@ -124,7 +124,7 @@ console.log('\n== 8. the `demo` the rule reads is the one the WIRE carries ==');
   // module that parses it. A rename of the flag on either side fails HERE, which is the only place it would fail
   // before a browser did it for us.
   const body = {
-    drill: { id: '1:0', index: 0, levelIndex: 1, seed: 42, poolVersion: 'ms-1', issuedAtMs: 1_700_000_000_000, optionLabels: null, resumed: false },
+    drill: { id: '1:0', index: 0, levelIndex: 1, seed: 42, poolVersion: 'ms-1', issuedAtMs: 1_700_000_000_000, puzzle: null, resumed: false },
     regime: { finished: 0, length: 12 },
     demo: true,
   };

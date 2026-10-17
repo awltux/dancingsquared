@@ -53,8 +53,9 @@ daily without a date": its sequence is authored once, published per level, and t
 that matters (§7.2, §8), where a date-seeded challenge is reproducible by anyone who knows the date.
 
 **And a third, from decisions 12 to 14: the engine is on both sides, and neither mode needs production
-infrastructure.** A published Drill entry is a **seed**; the client generates its three options and dances
-them on the renderer the Daily already needs. The mode that looked like the cheap one and the mode that
+infrastructure.** A published Drill entry is a **seed**, and since the client stopped generating (§9) the puzzle
+that seed names travels with it: the serving layer builds the boards, the client draws and dances them on the
+renderer the Daily already needs. The mode that looked like the cheap one and the mode that
 looked like the expensive one turn out to need the same things — a `Sequencer` and a stage — and the only
 difference is what the player does with them.
 
@@ -247,7 +248,9 @@ const stop = seq.sequenceStop(chosenCalls, startBoard);
 
 The client's `Sequencer` is built from the level's call XML and the engine bundle, and the server builds the
 identical one to generate the puzzle and to validate the run. **That is a contract, not a coincidence**, and
-it has teeth:
+it has teeth — and it is *stronger* than it was, not weaker: the puzzles themselves now come from the server (§9),
+so what the client's identical sequencer applies is the player's own CALLS (the Daily's line, the drill's dance),
+and those have to be the ones the server will replay.
 
 - **The call data must ship with the app, or behind the app's own version.** The client cannot ask the server
   for a puzzle and then apply it with a different catalogue — a single missing or extra title changes the
@@ -289,13 +292,26 @@ found that the design's ladder as written **cannot generate puzzles above depth 
 | 40 | 3 options, 365 ms | 3 options, 1657 ms | 3 options, 4361 ms |
 | 45 | 3 options, 382 ms | 3 options, 1825 ms | 2 options, 7176 ms |
 
+**THE TABLE ABOVE IS STALE BY ABOUT 2×, AND THE CAUSE IS THE LOADER RATHER THAN THE GENERATOR.** MEASURED by
+re-running the same census on the current tree (`node game/tools/measure-ladder.mjs 30 3`): worst level **1346 ms**
+(L30), level 1 **20 ms**, pool 45 at depth 2 **814 ms** where the table says 1825 ms, and every level's pool
+registers in full. The generator is unchanged; `createEngineApplier` is not — it now registers one call per TAM
+TITLE (`registerByTitle`) where it used to register each file as a whole document, so every title used to drag its
+file's sibling variants into the matcher and pay for them on every legality sweep. The old numbers are kept because
+they are what the ladder was DESIGNED against (and the reason the ladder stops at depth 2); the fresh ones are what
+a budget should be set from. `game/src/puzzle/levels.ts`'s header still carries the old table and is corrected in
+the commit that re-measures the depth-3 question.
+
 1. **A three-option question needs a pool of at least 35 titles.** Below that, the reachable board graph has
    no route from the squared set whose played-from boards all offer three distinct endings. So `optionCount`
    is a **per-level value**, and levels 1–15 ship with **two** options because the alternative is a level
    that cannot make a puzzle at all.
-2. **Depth 3 is capped out.** It generates at most pools, but its worst case reaches **7.2 s** (pool 45) and
-   it *regresses* to 2 options in places — and the Daily regenerates on the client, where 7 s is not a load
-   state, it is a hang. **The ladder ships `depth ≤ 2`.**
+2. **Depth 3 is capped out.** It generates at most pools, but its worst case reached **7.2 s** (pool 45) when this
+   was measured, and it *regresses* to 2 options in places — and at the time the Daily regenerated on the client,
+   where 7 s is not a load state, it is a hang. **The ladder ships `depth ≤ 2`.** THE REASON IS NOW HALF GONE and
+   the cap is kept deliberately until it is re-measured: generation moved to the serving side (§9), so a slow level
+   is a publish-time and per-request cost rather than a hung tab, and the same loader change that made the pool
+   title-scoped cut the measured cost — see the note under the table.
 3. The measured ladder as it SHIPPED (superseded by the owner's rule below, and kept because the measurements are
    what the new rule has to be judged against): `poolSize(1) = 10`, `poolSize(n) = 10 + 5 + 5·floor((n − 4)/3)` for
    `n ≥ 2`, `depth = 1` at L1 and 2 after, `optionCount = 3` once `poolSize ≥ 35` (L16) and 2 before. All **30**
@@ -456,17 +472,18 @@ gate that the generator passes at authoring time is the gate it passes forever, 
 pure — so "this seed is good" is decided once, by machine, and never by the player discovering a bad puzzle.
 
 **And a published entry is a seed and nothing else** (decision 13). The schedule stores no puzzle, no board
-and no media; the client regenerates the entry from `(seed, level, poolVersion)` with the same call it would
-use for the Daily, which is what keeps the two modes on one generator rather than two.
+and no media; the SERVING LAYER regenerates the entry from `(seed, level, poolVersion)` with the same call the
+Daily uses, which is what keeps the two modes on one generator rather than two. What the client receives is the
+result, not the seed alone (§9).
 
 ### 7.1 Generation performance — the one real risk, so it is measured
 
 The call pool is small by construction (it is the level), and a published entry is a seed rather than a
-pre-built puzzle. The generator therefore runs **on both sides** — the server to create and to validate, the
-client to play — and the budget that matters most is the client's, because it runs in a browser. Phase 1
-must **measure generation time per level** and pin the node budget so the worst level generates within a
-stated time **on the client**; the server's copy can afford more, and the design must not assume they are the
-same number. No unmeasured budget ships.
+pre-built puzzle. The generator therefore runs **on the serving side** — to create the puzzle and to validate the
+run — and, since the client no longer generates, its cost is a **publish-time and per-request** cost rather than a
+browser's. The client still runs the ENGINE (to apply calls and to draw them), which is why the same budget bounds
+the hint's search, but a level that takes seconds to generate is now a loading state on the server rather than a
+hung tab. No unmeasured budget ships.
 
 **MEASURED (Phase 1, committed with this file): `node game/tools/measure-ladder.mjs 30 3 50000`** — 30
 levels, 3 seeds each, 50 000-node budget:
@@ -547,9 +564,10 @@ rendered ahead of time:
   comparable, and it is why the options are generated as one puzzle rather than assembled from three
   independent ones. It also falls out of the design rather than being maintained — they literally share the
   generator's start board.
-- **The option order is shuffled per issue and stored nowhere**, because the client regenerates the entry
-  from the seed: the shuffle is part of what the seed determines, so it is reproducible without a published
-  index. (An earlier revision had to publish a `correctIndex` because the answer had to survive a video
+- **The option order is shuffled per issue and stored nowhere**, because the seed determines it: the generator's
+  rng is what shuffles, so the order is reproducible from `(seed, level)` without a published
+  index — and now the server hands the ordered options over, so there is nothing to reproduce.
+  (An earlier revision had to publish a `correctIndex` because the answer had to survive a video
   cache; with the engine on the client there is nothing to survive.)
 - **Correctness is the goal board** (§4.2) for the same reason it is in the Daily: an option that reaches
   the goal by any legal route is correct, and the generator's chosen route does not decide the answer.
@@ -576,9 +594,9 @@ regime in the same order. The schedule from §7.2 is what the server serves, and
 advance through it — it never picks a seed, and it cannot skip one without the server having issued the next.
 
 **The client runs the engine here, exactly as it does for the Daily** (decision 13, §4). A published entry is
-a seed; the client generates the board and the three options and animates them with the stage it already
-needs. Nothing is pre-rendered, so the presentation is data rather than media (§7.4) and the answers cannot
-drift between the client and the server, because both derive them from the same seed with the same code.
+a seed, and the serving layer sends the boards it generates from that seed; the client animates them with the
+stage it already needs. Nothing is pre-rendered, so the presentation is data rather than media (§7.4), and the
+answers cannot drift between the client and the server, because there is now only ONE derivation — the server's.
 
 - **Two boards on screen — "you are here" and "get here" — and three answer buttons.** Pressing one *dances*
   that option, then gives its verdict. The player can replay an option as often as they like before
@@ -621,9 +639,19 @@ drift between the client and the server, because both derive them from the same 
 
 ## 9. Mode B — the Daily Challenge (once a day)
 
-**The Daily needs the engine and a sequencer on the client** (§4), because the player adds and removes calls
-and must see the consequences. Every board the player sees is computed in the browser from the level's own
-call set, with no round trip; the API is touched only to fetch the day's challenge and to submit the run.
+**THE PUZZLE IS THE SERVER'S; THE ENGINE IS STILL THE CLIENT'S, AND THE TWO ARE NOW DIFFERENT JOBS.** A puzzle used
+to be derived in the browser from `(seed, level, poolVersion)`, and this section used to say so. It does not any
+more: `GET /puzzle` answers with the **boards**, because "generated on the server, applied on the client" is the
+arrangement that makes the challenge identical for everyone by construction rather than by two implementations
+agreeing. What stays on the client is the part that cannot: the player adds and removes calls and must see the
+consequence immediately, so `applyToBoard` runs locally with no round trip. The API is touched to fetch the
+challenge's boards and to submit the run.
+
+**WHY THE REVERSAL, since it costs a payload.** Determinism was never the client's problem — the same seed and pool
+give the same puzzle on both sides, and `game/test/puzzle-core-probe.mjs` pins it. The problem is the CORPUS: a
+puzzle is only reproducible while both sides hold the same call set and the same engine, and `poolVersion` catches a
+pool change only for a client that agrees to check. A served puzzle makes the question a fact about the payload.
+The cost is a body of ~8 boards per drill, measured at `api/src/levels.ts`.
 
 - **One challenge per UTC day *per level*, issued to every player at that level** (decision 8). The day is
   computed in **UTC** so it flips at the same instant for everyone and a late-night player is not on a
@@ -1677,11 +1705,12 @@ are 3.3-4.9 s per generation), so "publish every level" is an hour of work for s
 `api/tools/publish-daily.mjs` runs it (`npm run api:publish-daily`, `--day` and `--levels` to narrow it) and
 `GET /puzzle?mode=daily&level&date` serves what it wrote.
 
-**THE READ DOES NOT GENERATE.** DESIGN.md 11's clause is the whole design of this endpoint — "a read of the
-published artefact, not a generation per request" — so the response is the stored seed, level and pool version
-plus a `playable` flag for this build's pool, and no applier is touched. The client derives the board from the
-seed with the same generator the server will use to verify it, which is what makes everyone's challenge the
-same (§9).
+**THE READ GENERATES, ONCE PER SEED.** The clause that used to govern this endpoint — "a read of the published
+artefact, not a generation per request" — was about the CLIENT not generating, and it is superseded by §9's
+reversal: the client generates nothing, so the read has to answer with the boards. `puzzleFor` caches them, so the
+first read of a `(level, day)` pays one generation and every later read is a `Map` lookup; the response is the
+stored seed, level and pool version, a `playable` flag for this build's pool, and the puzzle (null when the pool is
+not this build's). The stored artefact is still the seed, because `POST /runs` re-derives from it to verify.
 
 **MEASURED, by `api/test/daily-puzzle-probe.mjs`** (39 checks, 5 controls; no DynamoDB needed, because this
 path is a store read and a pure derivation):

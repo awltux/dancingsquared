@@ -53,6 +53,32 @@ const fetching = (answer) => {
   return { calls, impl };
 };
 
+/**
+ * A MINIMAL PUZZLE, hand-built rather than generated.
+ *
+ * WHY NOT GENERATE ONE: this probe measures the WIRE, so the fixture has to be a value that arrived as JSON, not a
+ * board the engine just built — and a hand-built one makes a malformed variant (below) one field away. The board is
+ * eight dancers because that is the engine's own invariant and `parsePuzzle` checks it; the POSITIONS are arbitrary
+ * squares, because nothing here compares them.
+ */
+const board = (k) => ({
+  dancers: Array.from({ length: 8 }, (_, i) => ({ id: i + 1, couple: (i >> 1) + 1, gender: i % 2 === 0 ? 'boy' : 'girl', x: (i % 2) + k, y: (i >> 1) + k, heading: 0 })),
+});
+const PUZZLE = {
+  mode: 'drill',
+  seed: 42,
+  level: { index: 1, poolSize: 10, depth: 1, optionCount: 2 },
+  poolVersion: 'ms-1',
+  start: board(1),
+  goal: board(3),
+  path: [board(1), board(3)],
+  steps: [{ from: board(1), moves: [{ call: 'Boys Run', board: board(3) }, { call: 'Bend the Line', board: board(2) }], correctIndex: 0, after: board(3) }],
+  solution: ['Boys Run'],
+  shortest: 1,
+  alternatePath: false,
+  explored: 2,
+};
+
 const DRILL = {
   id: '1:3',
   index: 3,
@@ -60,7 +86,7 @@ const DRILL = {
   seed: 42,
   poolVersion: 'ms-1',
   issuedAtMs: 1700000000000,
-  optionLabels: ['Boys Run', 'Bend the Line'],
+  puzzle: PUZZLE,
   resumed: false,
 };
 const deps = (base, scripted, initial) => {
@@ -166,20 +192,37 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
   const over = await issueDrill(1, complete.api);
   check(over.ok === false && over.failure.code === 'regime_complete', `a finished season is reported as such (${over.failure?.code})`);
 
-  // A TOLERATED MISSING FIELD, measured so nobody adds a second required one by accident: the option labels are
-  // the server's cross-check, and a server that stops sending them must not break the client.
-  const noLabels = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, optionLabels: undefined }, regime: { finished: 0, length: 3 } } });
-  const tolerated = await issueDrill(1, noLabels.api);
-  check(tolerated.ok === true && tolerated.value.drill.optionLabels === null, `a drill without option labels still parses (${tolerated.value?.drill?.optionLabels})`);
+  // A TOLERATED MISSING FIELD, measured so nobody adds a second required one by accident: a server that predates the
+  // puzzle (or one whose client may still generate) must not break this one. The FALLBACK is what the app does with
+  // it, and `main.ts` is where that branch is.
+  const noPuzzle = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: undefined }, regime: { finished: 0, length: 3 } } });
+  const tolerated = await issueDrill(1, noPuzzle.api);
+  check(tolerated.ok === true && tolerated.value.drill.puzzle === null, `a drill with no puzzle still parses, with the puzzle null (${tolerated.value?.drill?.puzzle})`);
+
+  // A PUZZLE THAT IS THERE BUT WRONG IS THE OTHER CASE, and it is REFUSED rather than drawn: absent means "generate
+  // it", present-and-malformed means "this payload is not a question". The distinction is the whole reason
+  // `parsePuzzle` returns null instead of filling in defaults.
+  for (const [broken, why] of [
+    [{ ...PUZZLE, steps: 'none' }, 'no steps at all'],
+    [{ ...PUZZLE, goal: { dancers: [] } }, 'a goal board with no dancers'],
+    [{ ...PUZZLE, steps: [{ ...PUZZLE.steps[0], correctIndex: 5 }] }, 'a correct index past the options'],
+    [{ ...PUZZLE, mode: 'challenge' }, 'a mode this app does not know'],
+  ]) {
+    const scripted = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: broken }, regime: { finished: 0, length: 3 } } });
+    const refused = await issueDrill(1, scripted.api);
+    check(refused.ok === false && refused.failure.code === 'bad_response', `a puzzle with ${why} is refused as a bad response (${refused.failure?.code})`);
+  }
 }
 
 console.log('\n== 5. the Daily is a READ of the published challenge ==');
 {
-  const CHALLENGE = { day: '2026-10-15', levelIndex: 2, seed: 1268207204, poolVersion: 'ms-1', publishedAtMs: 1700000000000, playable: true };
+  const CHALLENGE = { day: '2026-10-15', levelIndex: 2, seed: 1268207204, poolVersion: 'ms-1', publishedAtMs: 1700000000000, playable: true, puzzle: { ...PUZZLE, mode: 'daily', level: { index: 2, poolSize: 15, depth: 1, optionCount: 2 } } };
   const wired = deps('http://localhost:8090', { status: 200, body: { daily: CHALLENGE } });
   const answer = await dailyChallenge(2, '2026-10-15', wired.api);
   check(answer.ok === true && answer.value.seed === 1268207204, `the published seed is read (${answer.value?.seed})`);
   check(answer.value.playable === true && answer.value.levelIndex === 2, `with the level and playability (${answer.value?.levelIndex}, ${answer.value?.playable})`);
+  // THE BOARDS COME WITH IT NOW: the client generates nothing, so a challenge without a puzzle would be unplayable.
+  check(answer.value.puzzle?.mode === 'daily' && answer.value.puzzle?.steps.length === 1, `and the puzzle the server generated (${answer.value?.puzzle?.mode}, ${answer.value?.puzzle?.steps?.length} step(s))`);
   const call = wired.fetch.calls[0];
   check(call.url === 'http://localhost:8090/puzzle?mode=daily&level=2&date=2026-10-15', `the query names the mode, the level and the date (${call.url})`);
   check(call.init.method === 'GET', `and it is a read, not a POST (${call.init.method})`);

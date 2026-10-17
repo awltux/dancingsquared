@@ -31,7 +31,7 @@ import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { earningProgress } from './puzzle/hints.ts';
 import { SCORE_VERSION } from './puzzle/config.ts';
-import type { GameApplier, LevelSpec, SequenceMotion } from './puzzle/types.ts';
+import type { GameApplier, GenerateResult, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
@@ -787,7 +787,7 @@ function applyMode(next: AppMode): void {
  * the order, §8), and everything after the seed is identical — the generator the client runs, the resume of a
  * half-played drill, the clock, the header and the save. Splitting that in two would be two ways to show a drill.
  */
-function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number; demo?: boolean }): void {
+function showDrill(issued: { seed: number; levelIndex: number; index: number; length: number; issuedAtMs?: number; demo?: boolean; puzzle?: Puzzle | null }): void {
   const spec = levelSpec(issued.levelIndex);
   if (!spec) throw new Error(`level ${issued.levelIndex} is not a level`);
   // A DRILL ON SCREEN HAS NO RECORDED RUN UNTIL THIS PAGE SUBMITS ONE, so this is where the flag is normally cleared
@@ -808,7 +808,16 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
     // hide (AGENTS.md 4.1) — and the regime wins, because the entry IS the question.
     console.warn(`the save has level ${save.levelIndex} and drill ${position + 1} is level ${spec.index}; the regime wins`);
   }
-  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), issued.seed, spec, applier as GameApplier);
+  // THE SERVER'S PUZZLE WHEN THERE IS ONE, AND ONLY THE OFFLINE PATH GENERATES.
+  //
+  // This is the reversal DESIGN.md §9 records: a puzzle used to be derived on the client from a seed, and the seed
+  // was the contract. Now the serving layer generates and the client applies, so a drill that arrived with boards
+  // is DRAWN rather than re-derived — which is what makes "everyone at this index was asked the same question" a
+  // fact about the payload instead of an agreement about a number. The generator is still reached here for the
+  // fixture season, where there is no server to ask (and for a server that predates the field).
+  const result: GenerateResult = issued.puzzle
+    ? { ok: true, puzzle: issued.puzzle }
+    : generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec), issued.seed, spec, applier as GameApplier);
   els.loading.hidden = true;
 
   if (!result.ok) {
@@ -925,6 +934,9 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
     // and this flag set (§11.2), which is the server saying the run cannot be ranked — read from the answer rather
     // than inferred from the session the app happens to hold.
     demo: answer.value.demo,
+    // THE BOARDS THE SERVER WILL SCORE. Sent through rather than re-derived, so a disagreement between the two
+    // generators is impossible rather than merely unlikely.
+    puzzle: serverDrill.puzzle,
   });
 }
 
@@ -1330,44 +1342,34 @@ function dailyIsCurrent(day: string): boolean {
 }
 
 /**
- * Show today's challenge from a seed, however it was obtained.
+ * Show today's challenge from a puzzle, however it was obtained.
  *
- * ONE PATH FOR TWO SOURCES, like `showDrill`: the client derives the puzzle either way, and what differs is where
- * the seed came from — the local `dailyEntry` (offline) or the published artefact (the server, §9).
+ * ONE PATH FOR TWO SOURCES, like `showDrill`: the server's published puzzle and the offline one both arrive as a
+ * `Puzzle` here, and what differs is where it came from — `dailyEntry`'s seed generated locally (offline) or the
+ * boards `GET /puzzle` carried (DESIGN.md §9). The client no longer derives the board from the seed on the server's
+ * path, because `GET /puzzle` answers with the boards themselves.
  */
-function showDaily(seed: number, day: string): void {
+function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   if (!applier || !level) return;
   // THE DRILL'S DEMO FLAG DOES NOT CARRY OVER. `demo` is the server's word about an ISSUED DRILL
   // (`GET /drill/current`), and the Daily's answer carries no such flag — so leaving the last drill's value set
   // would mark a typed-in player's Daily unranked because of a board they left behind. The Daily's standing comes
   // from the mode and the session alone, which is the same rule that decides it before any drill has been issued.
   demoRun = false;
-  els.loading.hidden = false;
-  els.loading.textContent = "Generating today's Daily…";
-  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'daily'), seed, level, applier);
   els.loading.hidden = true;
-
-  if (!result.ok) {
-    // NO FALLBACK, deliberately (DESIGN.md 9): another seed would be a different challenge from everyone
-    // else's, which is the one thing the mode promises. The reason shown is the generator's own.
-    daily = null;
-    dailyScreen.say(`Today's Daily could not be generated: ${result.reason}`, 'bad');
-    els.regime.textContent = "Today's Daily — unavailable";
-    return;
-  }
 
   dailyDay = day;
   dailyLevelIndex = level.index;
   dailyRunSeed = seed;
-  // A SAVED ATTEMPT FOR TODAY IS PICKED UP. The challenge is a pure function of (day, level), so the puzzle
-  // regenerated here IS the one that was being played; what the record adds is the line, the hints and the
-  // clock — with the wall time the page was away charged to it. A record that no longer describes this
+  // A SAVED ATTEMPT FOR TODAY IS PICKED UP. The puzzle is the same one the record was written against — the
+  // server's for a published challenge, the derived one offline — and what the record adds is the line, the hints
+  // and the clock, with the wall time the page was away charged to it. A record that no longer describes this
   // puzzle (a pool or corpus change) comes back null and is simply not carried.
   const stored = save.daily;
   const carried = stored && stored.day === day && stored.levelIndex === level.index
-    ? DailyRun.resume(result.puzzle, applier, performance.now(), stored, { gapMs: wallGapMs(stored.savedAtMs, Date.now()) })
+    ? DailyRun.resume(puzzle, applier, performance.now(), stored, { gapMs: wallGapMs(stored.savedAtMs, Date.now()) })
     : null;
-  daily = carried ?? new DailyRun(result.puzzle, applier, performance.now());
+  daily = carried ?? new DailyRun(puzzle, applier, performance.now());
   dailyRunId = carried && stored ? stored.runId : newRunId(Date.now());
   els.regime.textContent = dailyRegime();
   dailyScreen.say(
@@ -1382,7 +1384,8 @@ function showDaily(seed: number, day: string): void {
   draw();
 }
 
-/** The OFFLINE path: the challenge derived from the day and the level (§9). */
+/** The OFFLINE path: the challenge derived from the day and the level (§9). This is where the Daily is still
+ * GENERATED, and only because there is no server to ask (`apiConfigured()` is the switch). */
 function startDaily(): void {
   if (!applier || !level) return;
   const day = utcDay(new Date());
@@ -1390,7 +1393,17 @@ function startDaily(): void {
     keepDaily();
     return;
   }
-  showDaily(dailyEntry(level, MAIN_POOL.version, day).seed, day);
+  const seed = dailyEntry(level, MAIN_POOL.version, day).seed;
+  // NO FALLBACK ON A REFUSAL, deliberately (DESIGN.md 9): another seed would be a different challenge from everyone
+  // else's, which is the one thing the mode promises. The reason shown is the generator's own.
+  const result = generatePuzzle(generatorConfigFor(MAIN_POOL.version, level, 'daily'), seed, level, applier);
+  if (!result.ok) {
+    daily = null;
+    dailyScreen.say(`Today's Daily could not be generated: ${result.reason}`, 'bad');
+    els.regime.textContent = "Today's Daily — unavailable";
+    return;
+  }
+  showDaily(result.puzzle, day, seed);
 }
 
 /**
@@ -1427,7 +1440,17 @@ async function startServerDaily(): Promise<void> {
     els.regime.textContent = "Today's Daily — unavailable";
     return;
   }
-  showDaily(answer.value.seed, day);
+  // A PLAYABLE CHALLENGE WITH NO PUZZLE IS A REFUSAL, not a seed to generate from: the server's own read says this
+  // build may play it, so a missing puzzle is a payload this app cannot use, and drawing one locally would be the
+  // client inventing the question it is about to be scored on (DESIGN.md §9).
+  if (!answer.value.puzzle) {
+    els.loading.hidden = true;
+    daily = null;
+    dailyScreen.say("The server's Daily arrived without a puzzle this app can draw.", 'bad');
+    els.regime.textContent = "Today's Daily — unavailable";
+    return;
+  }
+  showDaily(answer.value.puzzle, day, answer.value.seed);
 }
 
 /**

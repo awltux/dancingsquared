@@ -22,3 +22,6 @@ export * from './hints.ts';
 export * from './score.ts';
 export * from './schedule.ts';
 export * from './session.ts';
+// THE WIRE'S SHAPE CHECK, exported because the client now draws puzzles it did not generate (DESIGN.md §9), so the
+// module that reads one off a response needs the same rule the probe measures.
+export * from './parse.ts';

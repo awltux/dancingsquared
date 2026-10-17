@@ -34,7 +34,12 @@ interface ApplierOptions {
 }
 
 export function createEngineApplier(opts: ApplierOptions): GameApplier {
-  const seq = new Sequencer(opts.movesXml, opts.formationsXml, opts.calls);
+  // A CALL IS ITS TITLE, AND ITS VARIANTS ARE THE TAMS THAT CARRY IT. The constructor registers each pair as a
+  // WHOLE DOCUMENT, which would give every title every tam of its file -- `trade.xml` under one name means
+  // `Boys Trade` also matches `Partner Trade`'s authorings. `registerByTitle` takes only the tams carrying the
+  // name, which is the engine's variant model applied at its own grain.
+  const seq = new Sequencer(opts.movesXml, opts.formationsXml);
+  for (const call of opts.calls) seq.registerByTitle(call.name, call.xml);
   seq.setSnapMaxError(0);
   const names = opts.calls.map((c) => c.name);
 

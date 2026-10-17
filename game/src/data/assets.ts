@@ -11,7 +11,7 @@
 // transform, so anything importing it needs the bundler, while `src/puzzle/**` must stay loadable by bare
 // Node for the probes. Keeping it here makes the split a property of the import graph rather than a
 // convention someone has to remember.
-import { callMeta } from 'dancing-squared-engine';
+import { parseCallXml } from 'dancing-squared-engine';
 
 const MOVES = import.meta.glob('@corpus/moves.xml', { query: '?raw', import: 'default', eager: true });
 const FORMATIONS = import.meta.glob('@corpus/formations.xml', { query: '?raw', import: 'default', eager: true });
@@ -40,10 +40,16 @@ export const formationsXml = only(FORMATIONS, 'formations.xml');
  */
 export function corpusCalls(): { name: string; xml: string }[] {
   const out: { name: string; xml: string }[] = [];
+  const seen = new Set<string>();
+  // ONE PAIR PER TAM TITLE, not one per file — the twin of `corpus-node.ts`'s walk, and of its measurement: 62
+  // names became 322, and level 1 went from registering one of its ten titles to registering its pool.
   for (const path of Object.keys(CALL_FILES).sort()) {
     const xml = String(CALL_FILES[path]);
-    const title = callMeta(xml).title;
-    if (title) out.push({ name: title, xml });
+    for (const tam of parseCallXml(xml)) {
+      if (!tam.title || seen.has(tam.title)) continue;
+      seen.add(tam.title);
+      out.push({ name: tam.title, xml });
+    }
   }
   return out;
 }

@@ -65,9 +65,18 @@ function corpusFiles(): { file: string; xml: string }[] {
 function corpusCalls(): { name: string; xml: string }[] {
   if (cachedCalls) return cachedCalls;
   const out: { name: string; xml: string }[] = [];
+  const seen = new Set<string>();
+  // ONE PAIR PER TAM TITLE, not one per file. A title is the call's identity and a file is a FAMILY of calls, so
+  // the old walk named 62 of the corpus's 322 Mainstream titles and handed each the whole document. MEASURED: with
+  // the per-file walk level 1 registered ONE of its ten titles. `registerByTitle` then takes only that title's own
+  // authorings, so `Boys Trade` stops matching `Partner Trade`'s. The census that justifies it: 62 -> 322 names,
+  // 1791 -> 4960 legal applications over the 138 named formations, and no formation losing one.
   for (const { xml } of corpusFiles()) {
-    const title = callMeta(xml).title;
-    if (title) out.push({ name: title, xml });
+    for (const tam of parseCallXml(xml)) {
+      if (!tam.title || seen.has(tam.title)) continue;
+      seen.add(tam.title);
+      out.push({ name: tam.title, xml });
+    }
   }
   cachedCalls = out;
   return out;

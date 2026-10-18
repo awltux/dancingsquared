@@ -220,52 +220,6 @@
       However, in general dancers continue to circle left until the next call is given.</taminator>
   </tam>
   
-  <tam title="Circle Left 1/4 Home" formation="Circle" parts="">
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6712" cx2="0.3487" cy2="1.474" x2="0.8118" y2="1.9598" cx3="0.265" cx4="0.5655" cy4="-0.0323" x4="0.7069" y4="-0.1118"/>
-      <movement hands="gripboth" beats="2" cx1="0.1655" cy1="0.6505" cx2="1.2356" cy2="1.5726" x2="0.8425" y2="1.8815" cx3="0.265" cx4="0.5317" cy4="-0.1585" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6713" cx2="0.3487" cy2="1.4739" x2="0.8118" y2="1.9598" cx3="0.2447" cx4="0.5171" cy4="-0.0026" x4="0.6463" y4="-0.0956"/>
-      <movement hands="gripboth" beats="2" cx1="0.092" cy1="0.6649" cx2="1.0606" cy2="1.6659" x2="0.9461" y2="2.1526" cx3="0.414" cx4="0.6483" cy4="-0.0284" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6712" cx2="0.3487" cy2="1.474" x2="0.8118" y2="1.9598" cx3="0.265" cx4="0.5655" cy4="-0.0323" x4="0.7069" y4="-0.1118"/>
-      <movement hands="gripboth" beats="2" cx1="0.1655" cy1="0.6505" cx2="1.2356" cy2="1.5726" x2="0.8425" y2="1.8815" cx3="0.265" cx4="0.5317" cy4="-0.1585" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6713" cx2="0.3487" cy2="1.4739" x2="0.8118" y2="1.9598" cx3="0.2447" cx4="0.5171" cy4="-0.0026" x4="0.6463" y4="-0.0956"/>
-      <movement hands="gripboth" beats="2" cx1="0.092" cy1="0.6649" cx2="1.0606" cy2="1.6659" x2="0.9461" y2="2.1526" cx3="0.414" cx4="0.6483" cy4="-0.0284" x4="0.707" y4="-0.293"/>
-    </path>
-  </tam>
-  
-  <tam title="Circle Left 1/2 Home" formation="Circle" parts="">
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6917" cx2="0.2743" cy2="1.3551" x2="0.7627" y2="1.8449" cx3="0.1318" cx4="0.8589" cy4="-0.1456" x4="0.9805" y4="-0.1964"/>
-      <movement hands="gripboth" beats="2" cx1="0.2621" cy1="0.6401" cx2="0.7672" cy2="1.1502" x2="1.4048" y2="1.4184" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.2594" cy1="0.6412" cx2="0.7625" cy2="1.1533" x2="1.3989" y2="1.4242" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.2632" cy1="0.6423" cx2="1.334" cy2="1.477" x2="0.9776" y2="1.8278" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6918" cx2="0.2743" cy2="1.3553" x2="0.7627" y2="1.8451" cx3="0.1494" cx4="0.8403" cy4="-0.1575" x4="0.975" y4="-0.2223"/>
-      <movement hands="gripboth" beats="2" cx1="0.2279" cy1="0.6531" cx2="0.7055" cy2="1.1892" x2="1.3281" y2="1.4908" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.2253" cy1="0.654" cx2="0.7008" cy2="1.1921" x2="1.3221" y2="1.4961" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.228" cy1="0.6564" cx2="1.3171" cy2="1.5774" x2="1.2867" y2="2.0765" cx3="0.265" cx4="0.6868" cy4="-0.0102" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6917" cx2="0.2743" cy2="1.3551" x2="0.7627" y2="1.8449" cx3="0.1318" cx4="0.8589" cy4="-0.1456" x4="0.9805" y4="-0.1964"/>
-      <movement hands="gripboth" beats="2" cx1="0.2621" cy1="0.6401" cx2="0.7672" cy2="1.1502" x2="1.4048" y2="1.4184" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.2594" cy1="0.6412" cx2="0.7625" cy2="1.1533" x2="1.3989" y2="1.4242" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.2632" cy1="0.6423" cx2="1.334" cy2="1.477" x2="0.9776" y2="1.8278" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6918" cx2="0.2743" cy2="1.3553" x2="0.7627" y2="1.8451" cx3="0.1494" cx4="0.8403" cy4="-0.1575" x4="0.975" y4="-0.2223"/>
-      <movement hands="gripboth" beats="2" cx1="0.2279" cy1="0.6531" cx2="0.7055" cy2="1.1892" x2="1.3281" y2="1.4908" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.2253" cy1="0.654" cx2="0.7008" cy2="1.1921" x2="1.3221" y2="1.4961" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.228" cy1="0.6564" cx2="1.3171" cy2="1.5774" x2="1.2867" y2="2.0765" cx3="0.265" cx4="0.6868" cy4="-0.0102" x4="0.707" y4="-0.293"/>
-    </path>
-  </tam>
-  
   <tam title="Circle Left 3/4 Home" formation="Circle" parts="">
     <path>
       <movement hands="both" beats="2" cx1="0" cy1="0.594" cx2="0.2024" cy2="1.1702" x2="0.5738" y2="1.6338" cx3="0.1309" cx4="0.549" cy4="-0.1037" x4="0.7866" y4="-0.1655"/>
@@ -305,6 +259,52 @@
     </path>
   </tam>
 
+  <tam title="Circle Left 1/2 Home" formation="Circle" parts="">
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6917" cx2="0.2743" cy2="1.3551" x2="0.7627" y2="1.8449" cx3="0.1318" cx4="0.8589" cy4="-0.1456" x4="0.9805" y4="-0.1964"/>
+      <movement hands="gripboth" beats="2" cx1="0.2621" cy1="0.6401" cx2="0.7672" cy2="1.1502" x2="1.4048" y2="1.4184" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.2594" cy1="0.6412" cx2="0.7625" cy2="1.1533" x2="1.3989" y2="1.4242" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.2632" cy1="0.6423" cx2="1.334" cy2="1.477" x2="0.9776" y2="1.8278" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6918" cx2="0.2743" cy2="1.3553" x2="0.7627" y2="1.8451" cx3="0.1494" cx4="0.8403" cy4="-0.1575" x4="0.975" y4="-0.2223"/>
+      <movement hands="gripboth" beats="2" cx1="0.2279" cy1="0.6531" cx2="0.7055" cy2="1.1892" x2="1.3281" y2="1.4908" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.2253" cy1="0.654" cx2="0.7008" cy2="1.1921" x2="1.3221" y2="1.4961" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.228" cy1="0.6564" cx2="1.3171" cy2="1.5774" x2="1.2867" y2="2.0765" cx3="0.265" cx4="0.6868" cy4="-0.0102" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6917" cx2="0.2743" cy2="1.3551" x2="0.7627" y2="1.8449" cx3="0.1318" cx4="0.8589" cy4="-0.1456" x4="0.9805" y4="-0.1964"/>
+      <movement hands="gripboth" beats="2" cx1="0.2621" cy1="0.6401" cx2="0.7672" cy2="1.1502" x2="1.4048" y2="1.4184" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.2594" cy1="0.6412" cx2="0.7625" cy2="1.1533" x2="1.3989" y2="1.4242" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.2632" cy1="0.6423" cx2="1.334" cy2="1.477" x2="0.9776" y2="1.8278" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6918" cx2="0.2743" cy2="1.3553" x2="0.7627" y2="1.8451" cx3="0.1494" cx4="0.8403" cy4="-0.1575" x4="0.975" y4="-0.2223"/>
+      <movement hands="gripboth" beats="2" cx1="0.2279" cy1="0.6531" cx2="0.7055" cy2="1.1892" x2="1.3281" y2="1.4908" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.2253" cy1="0.654" cx2="0.7008" cy2="1.1921" x2="1.3221" y2="1.4961" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.228" cy1="0.6564" cx2="1.3171" cy2="1.5774" x2="1.2867" y2="2.0765" cx3="0.265" cx4="0.6868" cy4="-0.0102" x4="0.707" y4="-0.293"/>
+    </path>
+  </tam>
+  
+  <tam title="Circle Left 1/4 Home" formation="Circle" parts="">
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6712" cx2="0.3487" cy2="1.474" x2="0.8118" y2="1.9598" cx3="0.265" cx4="0.5655" cy4="-0.0323" x4="0.7069" y4="-0.1118"/>
+      <movement hands="gripboth" beats="2" cx1="0.1655" cy1="0.6505" cx2="1.2356" cy2="1.5726" x2="0.8425" y2="1.8815" cx3="0.265" cx4="0.5317" cy4="-0.1585" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6713" cx2="0.3487" cy2="1.4739" x2="0.8118" y2="1.9598" cx3="0.2447" cx4="0.5171" cy4="-0.0026" x4="0.6463" y4="-0.0956"/>
+      <movement hands="gripboth" beats="2" cx1="0.092" cy1="0.6649" cx2="1.0606" cy2="1.6659" x2="0.9461" y2="2.1526" cx3="0.414" cx4="0.6483" cy4="-0.0284" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6712" cx2="0.3487" cy2="1.474" x2="0.8118" y2="1.9598" cx3="0.265" cx4="0.5655" cy4="-0.0323" x4="0.7069" y4="-0.1118"/>
+      <movement hands="gripboth" beats="2" cx1="0.1655" cy1="0.6505" cx2="1.2356" cy2="1.5726" x2="0.8425" y2="1.8815" cx3="0.265" cx4="0.5317" cy4="-0.1585" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0" cy1="0.6713" cx2="0.3487" cy2="1.4739" x2="0.8118" y2="1.9598" cx3="0.2447" cx4="0.5171" cy4="-0.0026" x4="0.6463" y4="-0.0956"/>
+      <movement hands="gripboth" beats="2" cx1="0.092" cy1="0.6649" cx2="1.0606" cy2="1.6659" x2="0.9461" y2="2.1526" cx3="0.414" cx4="0.6483" cy4="-0.0284" x4="0.707" y4="-0.293"/>
+    </path>
+  </tam>
+  
 
 
   <!-- [CALLERLAB 2026] CIRCLE LEFT FAMILY FROM STATIC SQUARE TO CIRCLE-->
@@ -752,7 +752,7 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/4Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
+  <tam title="Circle Left 1/4 Home" formation="Normal Lines Compact" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="2.5059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6378" cy4="-0.0617" x4="0.707" y4="-0.293"/>
@@ -844,13 +844,59 @@
   <tam title="Circle Left" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4495" cy2="1.3261" x2="1.0042" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4496" cy2="1.326" x2="1.0043" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4496" cy2="1.326" x2="1.0043" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4496" cy2="1.326" x2="1.0043" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4497" cy2="1.326" x2="1.0045" y2="1.7536"/>
+      <movement hands="gripboth" beats="2" cx1="0.0882" cy1="0.6949" cx2="0.4498" cy2="1.326" x2="1.0046" y2="1.7535"/>
+      <movement hands="gripboth" beats="2" cx1="0.1001" cy1="0.9724" cx2="0.8975" cy2="1.7443" x2="0.4602" y2="1.9867" cx3="0.265" cx4="0.9867" cy4="-0.0635" x4="1.728" y4="-0.4623"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4784" cy2="1.3208" x2="1.0437" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4785" cy2="1.3207" x2="1.0438" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4785" cy2="1.3207" x2="1.0438" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4785" cy2="1.3207" x2="1.0438" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4786" cy2="1.3207" x2="1.0439" y2="1.7381"/>
+      <movement hands="gripboth" beats="2" cx1="0.1029" cy1="0.6952" cx2="0.4786" cy2="1.3207" x2="1.0441" y2="1.738"/>
+      <movement hands="gripboth" beats="2" cx1="0.3103" cy1="1.5696" cx2="1.1164" cy2="1.2789" x2="0.8584" y2="2.245" cx3="0.265" cx4="0.5657" cy4="-0.2513" x4="0.721" y4="-0.8711"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
+      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.5739" cy2="1.2814" x2="1.1681" y2="1.6559"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.574" cy2="1.2813" x2="1.1683" y2="1.6558"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6853" cx2="0.5742" cy2="1.2812" x2="1.1685" y2="1.6556"/>
+      <movement hands="gripboth" beats="2" cx1="0.3249" cy1="1.2934" cx2="1.0801" cy2="1.6604" x2="0.6694" y2="1.9456" cx3="0.265" cx4="0.3093" cy4="-0.2759" x4="0.7592" y4="-0.5882"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6546" cy2="1.2462" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6546" cy2="1.2463" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6546" cy2="1.2463" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6546" cy2="1.2463" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6545" cy2="1.2463" x2="1.2726" y2="1.5839"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6545" cy2="1.2463" x2="1.2725" y2="1.5839"/>
+      <movement hands="gripboth" beats="2" cx1="0.4499" cy1="1.2741" cx2="1.2238" cy2="1.6112" x2="1.1618" y2="2.1073" cx3="0.265" cx4="0.6186" cy4="-0.1508" x4="0.68" y4="-0.5679"/>
+    </path>
+    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
+  </tam>
+
+  <tam title="Circle Left 3/4" formation="Normal Lines" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
@@ -858,9 +904,7 @@
       <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.576" cy4="-0.1128" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.9427" cy2="1.7266" x2="0.5091" y2="1.9757" cx3="0.265" cx4="0.4907" cy4="-0.1753" x4="0.707" y4="-0.293"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
@@ -868,9 +912,7 @@
       <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.5338" cy4="-0.0182" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="1.1905" cy2="1.7136" x2="1.0511" y2="2.1937" cx3="0.265" cx4="0.6586" cy4="-0.035" x4="0.707" y4="-0.293"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
@@ -878,9 +920,35 @@
       <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="1.2146" cy2="1.6388" x2="0.781" y2="1.8879" cx3="0.265" cx4="0.5758" cy4="-0.1957" x4="0.707" y4="-0.293"/>
+    </path>
+    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
+  </tam>
+
+  <tam title="Circle Left 1/2" formation="Normal Lines" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.9427" cy2="1.7266" x2="0.5091" y2="1.9757" cx3="0.265" cx4="0.4907" cy4="-0.1753" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
+      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="1.1905" cy2="1.7136" x2="1.0511" y2="2.1937" cx3="0.265" cx4="0.6586" cy4="-0.035" x4="0.707" y4="-0.293"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
       <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.6298" cy4="-0.1643" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="1.2146" cy2="1.6388" x2="0.781" y2="1.8879" cx3="0.265" cx4="0.5758" cy4="-0.1957" x4="0.707" y4="-0.293"/>
     </path>
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
@@ -905,70 +973,6 @@
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
 
-  <tam title="Circle Left 1/2" formation="Normal Lines" parts="" sequencer="gender-specific">
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.576" cy4="-0.1128" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.5338" cy4="-0.0182" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.6298" cy4="-0.1643" x4="0.707" y4="-0.293"/>
-    </path>
-    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
-  </tam>
-
-  <tam title="Circle Left 3/4" formation="Normal Lines" parts="" sequencer="gender-specific">
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.576" cy4="-0.1128" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.5338" cy4="-0.0182" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.6298" cy4="-0.1643" x4="0.707" y4="-0.293"/>
-    </path>
-    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
-  </tam>
-
 
 
   <!-- [CALLERLAB 2026] CIRCLE LEFT FAMILY FROM NORMAL LINES TO STATIC SQUARE -->
@@ -977,91 +981,47 @@
   <tam title="Circle Left Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4495" cy2="1.3261" x2="1.0042" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4496" cy2="1.326" x2="1.0043" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4497" cy2="1.326" x2="1.0045" y2="1.7536"/>
+      <movement hands="gripboth" beats="2" cx1="0.0882" cy1="0.6949" cx2="0.4498" cy2="1.326" x2="1.0046" y2="1.7535"/>
+      <movement hands="gripboth" beats="2" cx1="0.0882" cy1="0.6949" cx2="0.4499" cy2="1.3259" x2="1.0047" y2="1.7534"/>
+      <movement hands="gripboth" beats="2" cx1="0.0883" cy1="0.6949" cx2="0.45" cy2="1.3259" x2="1.0048" y2="1.7534"/>
+      <movement hands="gripboth" beats="2" cx1="0.2685" cy1="1.29" cx2="0.8985" cy2="1.7459" x2="0.4599" y2="1.986" cx3="0.265" cx4="0.5234" cy4="-0.2928" x4="1.0244" y4="-0.581"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.9427" cy2="1.7266" x2="0.5091" y2="1.9757" cx3="0.265" cx4="0.4907" cy4="-0.1753" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4784" cy2="1.3208" x2="1.0437" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4785" cy2="1.3207" x2="1.0438" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4786" cy2="1.3207" x2="1.0439" y2="1.7381"/>
+      <movement hands="gripboth" beats="2" cx1="0.1029" cy1="0.6952" cx2="0.4786" cy2="1.3207" x2="1.0441" y2="1.738"/>
+      <movement hands="gripboth" beats="2" cx1="0.1029" cy1="0.6952" cx2="0.4787" cy2="1.3206" x2="1.0442" y2="1.738"/>
+      <movement hands="gripboth" beats="2" cx1="0.103" cy1="0.6952" cx2="0.4788" cy2="1.3206" x2="1.0443" y2="1.7379"/>
+      <movement hands="gripboth" beats="2" cx1="0.2962" cy1="1.4347" cx2="0.9897" cy2="1.762" x2="0.8582" y2="2.2444" cx3="0.265" cx4="0.487" cy4="-0.2463" x4="0.6153" y4="-0.6701"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="1.1905" cy2="1.7136" x2="1.0511" y2="2.1937" cx3="0.265" cx4="0.6586" cy4="-0.035" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.5739" cy2="1.2814" x2="1.1681" y2="1.6559"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.574" cy2="1.2813" x2="1.1683" y2="1.6558"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6853" cx2="0.5742" cy2="1.2812" x2="1.1685" y2="1.6556"/>
+      <movement hands="gripboth" beats="2" cx1="0.2444" cy1="1.0979" cx2="1.0801" cy2="1.6604" x2="0.6694" y2="1.9456" cx3="0.265" cx4="0.5237" cy4="-0.3532" x4="0.9509" y4="-0.6649"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="1.2146" cy2="1.6388" x2="0.781" y2="1.8879" cx3="0.265" cx4="0.5758" cy4="-0.1957" x4="0.707" y4="-0.293"/>
-    </path>
-    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
-  </tam>
-
-  <tam title="Circle Left 1/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.9427" cy2="1.7266" x2="0.5091" y2="1.9757" cx3="0.265" cx4="0.4907" cy4="-0.1753" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="1.1905" cy2="1.7136" x2="1.0511" y2="2.1937" cx3="0.265" cx4="0.6586" cy4="-0.035" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="1.2146" cy2="1.6388" x2="0.781" y2="1.8879" cx3="0.265" cx4="0.5758" cy4="-0.1957" x4="0.707" y4="-0.293"/>
-    </path>
-    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
-  </tam>
-
-  <tam title="Circle Left 1/2 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.9427" cy2="1.7266" x2="0.5091" y2="1.9757" cx3="0.265" cx4="0.4907" cy4="-0.1753" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="1.1905" cy2="1.7136" x2="1.0511" y2="2.1937" cx3="0.265" cx4="0.6586" cy4="-0.035" x4="0.707" y4="-0.293"/>
-    </path>
-    <path>
-      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="1.2146" cy2="1.6388" x2="0.781" y2="1.8879" cx3="0.265" cx4="0.5758" cy4="-0.1957" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6546" cy2="1.2462" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6546" cy2="1.2463" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6545" cy2="1.2463" x2="1.2726" y2="1.5839"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6545" cy2="1.2463" x2="1.2725" y2="1.5839"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6544" cy2="1.2463" x2="1.2725" y2="1.584"/>
+      <movement hands="gripboth" beats="2" cx1="0.1964" cy1="0.6763" cx2="0.6544" cy2="1.2464" x2="1.2724" y2="1.584"/>
+      <movement hands="gripboth" beats="2" cx1="0.3951" cy1="1.2233" cx2="1.2267" cy2="1.6119" x2="1.162" y2="2.1077" cx3="0.265" cx4="0.7582" cy4="-0.5143" x4="0.8398" y4="-0.9499"/>
     </path>
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>
@@ -1069,35 +1029,95 @@
   <tam title="Circle Left 3/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.9546" cy2="1.7915" x2="0.8152" y2="2.2717" cx3="0.265" cx4="0.6273" cy4="-0.0329" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4495" cy2="1.3261" x2="1.0042" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4496" cy2="1.326" x2="1.0043" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4497" cy2="1.326" x2="1.0045" y2="1.7536"/>
+      <movement hands="gripboth" beats="2" cx1="0.0882" cy1="0.6949" cx2="0.4498" cy2="1.326" x2="1.0046" y2="1.7535"/>
+      <movement hands="gripboth" beats="2" cx1="0.2685" cy1="1.29" cx2="0.9104" cy2="1.7564" x2="0.4718" y2="1.9965" cx3="0.265" cx4="0.5234" cy4="-0.2928" x4="1.0244" y4="-0.581"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.9427" cy2="1.7266" x2="0.5091" y2="1.9757" cx3="0.265" cx4="0.4907" cy4="-0.1753" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4784" cy2="1.3208" x2="1.0437" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4785" cy2="1.3207" x2="1.0438" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4786" cy2="1.3207" x2="1.0439" y2="1.7381"/>
+      <movement hands="gripboth" beats="2" cx1="0.1029" cy1="0.6952" cx2="0.4786" cy2="1.3207" x2="1.0441" y2="1.738"/>
+      <movement hands="gripboth" beats="2" cx1="0.2962" cy1="1.4347" cx2="1.0035" cy2="1.7712" x2="0.872" y2="2.2536" cx3="0.265" cx4="0.487" cy4="-0.2463" x4="0.6153" y4="-0.6701"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="1.1905" cy2="1.7136" x2="1.0511" y2="2.1937" cx3="0.265" cx4="0.6586" cy4="-0.035" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.5739" cy2="1.2814" x2="1.1681" y2="1.6559"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.574" cy2="1.2813" x2="1.1683" y2="1.6558"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.1537" cy1="0.6854" cx2="0.5741" cy2="1.2813" x2="1.1684" y2="1.6557"/>
+      <movement hands="gripboth" beats="2" cx1="0.2444" cy1="1.0979" cx2="1.0924" cy2="1.6696" x2="0.6817" y2="1.9548" cx3="0.265" cx4="0.5237" cy4="-0.3532" x4="0.9509" y4="-0.6649"/>
     </path>
     <path>
       <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
-      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="1.2146" cy2="1.6388" x2="0.781" y2="1.8879" cx3="0.265" cx4="0.5758" cy4="-0.1957" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6546" cy2="1.2462" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6546" cy2="1.2463" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6545" cy2="1.2463" x2="1.2726" y2="1.5839"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6545" cy2="1.2463" x2="1.2725" y2="1.5839"/>
+      <movement hands="gripboth" beats="2" cx1="0.3951" cy1="1.2233" cx2="1.2418" cy2="1.6184" x2="1.1771" y2="2.1142" cx3="0.265" cx4="0.7848" cy4="-0.4811" x4="0.8398" y4="-0.9499"/>
+    </path>
+    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
+  </tam>
+
+  <tam title="Circle Left 1/2 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538"/>
+      <movement hands="gripboth" beats="2" cx1="0.088" cy1="0.6949" cx2="0.4495" cy2="1.3261" x2="1.0042" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.0881" cy1="0.6949" cx2="0.4496" cy2="1.326" x2="1.0043" y2="1.7537"/>
+      <movement hands="gripboth" beats="2" cx1="0.2685" cy1="1.29" cx2="0.9216" cy2="1.7681" x2="0.483" y2="2.0082" cx3="0.265" cx4="0.5234" cy4="-0.2928" x4="1.0244" y4="-0.581"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383"/>
+      <movement hands="gripboth" beats="2" cx1="0.1027" cy1="0.6952" cx2="0.4784" cy2="1.3208" x2="1.0437" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.1028" cy1="0.6952" cx2="0.4785" cy2="1.3207" x2="1.0438" y2="1.7382"/>
+      <movement hands="gripboth" beats="2" cx1="0.2962" cy1="1.4347" cx2="1.017" cy2="1.7805" x2="0.8855" y2="2.2629" cx3="0.265" cx4="0.487" cy4="-0.2463" x4="0.6153" y4="-0.6701"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
+      <movement hands="gripboth" beats="2" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.5739" cy2="1.2814" x2="1.1681" y2="1.6559"/>
+      <movement hands="gripboth" beats="2" cx1="0.1536" cy1="0.6854" cx2="0.574" cy2="1.2813" x2="1.1683" y2="1.6558"/>
+      <movement hands="gripboth" beats="2" cx1="0.2444" cy1="1.0979" cx2="1.1052" cy2="1.6798" x2="0.6945" y2="1.965" cx3="0.265" cx4="0.5237" cy4="-0.3532" x4="0.9509" y4="-0.6649"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="2" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837"/>
+      <movement hands="gripboth" beats="2" cx1="0.1966" cy1="0.6763" cx2="0.6546" cy2="1.2462" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.1965" cy1="0.6763" cx2="0.6546" cy2="1.2463" x2="1.2727" y2="1.5838"/>
+      <movement hands="gripboth" beats="2" cx1="0.3951" cy1="1.2233" cx2="1.2565" cy2="1.6256" x2="1.1918" y2="2.1214" cx3="0.265" cx4="0.7582" cy4="-0.5143" x4="0.8398" y4="-0.9499"/>
+    </path>
+    <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
+  </tam>
+
+  <tam title="Circle Left 1/4 Home" formation="Normal Lines" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="gripboth" beats="1.5" cx1="0.5" cy1="0" cx2="1.9586" cy2="-0.2533" x2="3.0059" y2="-0.5678" cx3="0.265" cx4="0.4038" cy4="-0.3428" x4="0.3702" y4="-0.4659"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.088" cy1="0.6949" cx2="0.4494" cy2="1.3261" x2="1.0041" y2="1.7538"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.2685" cy1="1.29" cx2="0.9341" cy2="1.7804" x2="0.4955" y2="2.0205" cx3="0.265" cx4="0.5234" cy4="-0.2928" x4="1.0244" y4="-0.581"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="1.5" cx1="0.5" cy1="0" cx2="0.2239" cy2="1.1766" x2="0.9941" y2="1.4414" cx3="0.265" cx4="0.5716" cy4="-0.0658" x4="0.707" y4="-0.293"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.1027" cy1="0.6952" cx2="0.4783" cy2="1.3208" x2="1.0436" y2="1.7383"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.2962" cy1="1.4347" cx2="1.031" cy2="1.79" x2="0.8995" y2="2.2724" cx3="0.265" cx4="0.4785" cy4="-0.2062" x4="0.6153" y4="-0.6701"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="1.5" cx1="0.5" cy1="0" cx2="-0.7523" cy2="1.3458" x2="-0.4455" y2="1.9923" cx3="0.265" cx4="0.2696" cy4="0.1665" x4="0.6051" y4="0.1105"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.1535" cy1="0.6854" cx2="0.5738" cy2="1.2814" x2="1.168" y2="1.656"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.2444" cy1="1.0979" cx2="1.1186" cy2="1.6905" x2="0.7079" y2="1.9757" cx3="0.265" cx4="0.5237" cy4="-0.3532" x4="0.9509" y4="-0.6649"/>
+    </path>
+    <path>
+      <movement hands="gripboth" beats="1.5" cx1="0.5" cy1="0" cx2="-0.0608" cy2="1.3659" x2="-0.4455" y2="1.9893" cx3="0.1801" cx4="0.4821" cy4="0.1862" x4="0.6499" y4="0.3204"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.1966" cy1="0.6763" cx2="0.6547" cy2="1.2462" x2="1.2728" y2="1.5837"/>
+      <movement hands="gripboth" beats="1.25" cx1="0.3951" cy1="1.2233" cx2="1.2719" cy2="1.6336" x2="1.2072" y2="2.1294" cx3="0.265" cx4="0.7839" cy4="-0.499" x4="0.8398" y4="-0.9499"/>
     </path>
     <taminator>Already in a circle, dancers continue circling left until the next call is given.</taminator>
   </tam>

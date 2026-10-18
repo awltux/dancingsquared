@@ -36,6 +36,13 @@ the invariance number, why a raw diff is not enough) are in `references/measured
 4. **Apply it.** `node scripts/reorder-formation.mjs --formation <Name> --write`. It re-reads what it
    wrote and re-proves the geometry; on any failure it restores the files and exits non-zero.
 
+   **A permutation can be the IDENTITY, and then the block is the whole change.** Measured on `Normal
+   Lines Compact`: its new written four were the old written four's antipodes, and a half-set tam gives each
+   written dancer the same local path as its antipode, so upending the written half changed the index order
+   and nothing else — `0 change and 27 already read the same under this permutation`, worst sampled
+   difference `2.84e-15`. `--write` then writes identical files, which shows up as no diff at all: that is
+   the answer, not a failure. The dry run is what proves it, so always run that step.
+
 5. **Gate the corpus.**
    ```
    node engine/test/shape-census.mjs
@@ -44,9 +51,10 @@ the invariance number, why a raw diff is not enough) are in `references/measured
    node poc/tools/verify-probes.mjs
    node book/tools/check-links.mjs
    ```
-   Then re-pin `engine/test/formation-order.mjs` (its `PINNED` table: `order`, `pending: false`; the
-   **digest must not change**, and if it does the conversion moved somebody). Run it before and after;
-   a stale dependent is exactly what it catches.
+   Then re-pin `engine/test/formation-order.mjs` (its `PINNED` table: the completed **spot list**, the
+   `order` letters or `null` for a formation the compass cannot name, the dependent counts, and the
+   digest; the **digest must not change**, and if it does the conversion moved somebody). Run it before
+   and after; a stale dependent is exactly what it catches.
 
 6. **Commit once, per formation.** `corpus: the <Name> formation is ordered <letters> and N calls
    follow` - carrying the permutation, the dependent count and the worst sampled difference. One

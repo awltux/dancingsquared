@@ -604,11 +604,11 @@ export class EditorController implements EditorUI {
   private createBtn = el<HTMLButtonElement>('edCreate');
   private saveBtn = el<HTMLButtonElement>('edSave');
   private exportBtn = el<HTMLButtonElement>('edExport');
-  // `Export <formation>` and the name it writes. The name is a field rather than a constant because a call whose
-  // setup carries no name of its own (`from` empty AND no `formation` attribute - 249 of the corpus's tams) has
-  // nothing to fall back on, and a `<formation>` without a name is one `parseFormations` skips.
+  // `Export <formation>`. THE BLOCK IS NAMED BY THE SETUP ITSELF, with no field beside the button: asked for as "no
+  // need for the 'formation name' input field". A setup that carries no name (`from` empty AND no `formation`
+  // attribute - 249 of the corpus's tams) is therefore refused out loud, because a `<formation>` without a name is
+  // one `parseFormations` skips.
   private exportFormationBtn = el<HTMLButtonElement>('edExportFormation');
-  private formationNameInput = el<HTMLInputElement>('edFormationName');
   private statusEl = el<HTMLSpanElement>('edStatus');
   private savedEl = el<HTMLDivElement>('edSaved');
   private exportAllBtn = el<HTMLButtonElement>('edExportAll');
@@ -5730,11 +5730,12 @@ export class EditorController implements EditorUI {
    * THE SPOTS COME FROM `instanceTable`, the same read the formation table below is built from, so an export and
    * the table cannot disagree about where a dancer stands - the reason `refreshDancerNumbers` gives.
    *
-   * THE NAME, in order: what the caller typed, then the setup's own `formation`, then its `from` label. `formation`
-   * FIRST is the deliberate difference from the `<tam>` export, which passes `from` as its first name: `formation`
-   * is the attribute that NAMES a formation, while `from` is free text for the caller - the corpus writes
-   * `from="Lines"` for a tam whose formation is "Normal Lines". A call with neither has no name to write, and the
-   * refusal says so rather than inventing one.
+   * THE NAME COMES FROM THE SETUP, with no field beside the button - asked for as: "no need for the 'formation
+   * name' input field." In order: the setup's own `formation` attribute, then its `from` label. `formation` FIRST is
+   * the deliberate difference from the `<tam>` export, which passes `from` as its first name: `formation` is the
+   * attribute that NAMES a formation, while `from` is free text for the caller - the corpus writes `from="Lines"`
+   * for a tam whose formation is "Normal Lines". A call with neither has no name to write, and the refusal says so
+   * rather than inventing one.
    *
    * IT GOES ON THE CLIPBOARD AND NOWHERE ELSE, asked for as: "No need to show the exported text. Just put it on the
    * OS copy buffer." So the pane is left exactly as it was - NOT cleared on a refusal either, because it is not
@@ -5749,12 +5750,13 @@ export class EditorController implements EditorUI {
       return;
     }
     const spots = instanceTable(call).map((r) => r.start);
-    const typed = this.formationNameInput.value.trim();
-    const result = formationExportXml(typed || call.formation || call.from, spots, corpusFormationPoses);
+    const result = formationExportXml(call.formation || call.from, spots, corpusFormationPoses);
     if (!result) {
+      // THE ONE REFUSAL the button has, and it is not a corner case: 249 of the corpus's 5516 tams carry neither
+      // `formation` nor a non-empty `from`, so there is no name to write and no block to hand over.
       this.statusEl.textContent =
-        '✗ cannot export a formation: this setup carries no name, and a <formation> without one is one ' +
-        '`parseFormations` skips - type a name in the field beside this button';
+        '✗ cannot export a formation: this setup carries no name - no `formation` attribute and no `from` label - ' +
+        'and a <formation> without one is one `parseFormations` skips';
       return;
     }
     void navigator.clipboard?.writeText(buildStamp() + '\n' + result.xml);

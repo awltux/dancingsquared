@@ -1488,12 +1488,13 @@ into **`reordered` with exactly 2 of 8 spots differing** — while an ORDER-INSE
 (the rule the arrangement picker uses, where order genuinely does not matter) calls the swapped
 formation "the same". That control is the reason the verdict is index for index.
 
-The name is a field, and it defaults to the setup's own — its `formation` attribute, then its
+**The name comes from the setup, with no field beside the button** — asked for as: *"no need for
+the 'formation name' input field."* In order: the setup's own `formation` attribute, then its
 `from` label. NEITHER IS ALWAYS THERE: **249 of the corpus's 5516 `<tam>`s declare no `formation`
-and no `from`**, and a `<formation>` with no name is one `parseFormations` skips, so the button
-refuses out loud rather than writing a block that does nothing. That refusal was observed in the
-browser on `_Finish Line of 6 Half Tag`, whose setup is `(default)`; the same call with a typed
-name exported as `changed` with 6 of 6 spots differing from `Compact Wave of 6`.
+and no `from`**, and a `<formation>` with no name is one `parseFormations` skips, so such a setup
+is **refused out loud** rather than getting a block that does nothing — and with the field gone,
+that refusal is the one thing the button cannot do for those calls. It was observed in the browser
+on `_Finish Line of 6 Half Tag`, whose setup is `(default)`.
 
 Also observed in the browser, on `Allemande Left in the Alamo Style` (which starts from `Static
 Square`), with the button in its new place: the status line read *"exported \<formation\> "Static

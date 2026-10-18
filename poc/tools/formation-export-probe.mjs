@@ -316,29 +316,31 @@ console.log('\n== 7. the panel: the button beside the tam export, one handler, t
     'and it sits in the instance panel\'s own row, after the first `<tam>` export and before the grid switch');
   check(html.indexOf('id="edExportFormation"') < html.indexOf('id="edExport"'),
     'which is before the second `<tam>` export, in a row of its own at the bottom of the panel');
-  check(/<input id="edFormationName"/.test(instRow), 'beside a field for the name the block will carry');
-  check(/HALF the set/.test(buttonAt('edExportFormation')) && /clipboard/.test(buttonAt('edExportFormation')),
-    'whose tooltip says that it writes the HALF set the reader completes, and that it goes on the clipboard');
+  check(!/id="edFormationName"/.test(html), 'with NO name field beside it - asked for as "no need for the \'formation name\' input field"');
+  check(/HALF the set/.test(buttonAt('edExportFormation')) && /clipboard/.test(buttonAt('edExportFormation')) &&
+    /setup's own `formation` attribute/.test(buttonAt('edExportFormation')),
+    'whose tooltip says where the name comes from, that it writes the HALF set the reader completes, and that it goes on the clipboard');
 
-  check(/private exportFormationBtn = el<HTMLButtonElement>\('edExportFormation'\)/.test(ui) &&
-    /private formationNameInput = el<HTMLInputElement>\('edFormationName'\)/.test(ui),
-    'both are reached through `el()`, so a missing id fails loudly instead of doing nothing');
+  check(/private exportFormationBtn = el<HTMLButtonElement>\('edExportFormation'\)/.test(ui),
+    'it is reached through `el()`, so a missing id fails loudly instead of doing nothing');
+  check(!/formationNameInput|edFormationName/.test(ui), 'and the panel has no name field to read, so the markup and the code cannot disagree about one');
   check(/this\.exportFormationBtn\.addEventListener\('click', \(\) => this\.doExportFormation\(\)\);/.test(ui),
     'and one listener calls one method');
   check(/^import \{ formationExportXml \} from '\.\/formation-xml';$/m.test(ui),
     'the handler uses the imported rule rather than a private copy');
-  check(/formationExportXml\(typed \|\| call\.formation \|\| call\.from, spots, corpusFormationPoses\)/.test(ui) &&
+  check(/formationExportXml\(call\.formation \|\| call\.from, spots, corpusFormationPoses\)/.test(ui) &&
     /const call = this\.instance;/.test(handler),
-    'and the name it writes is the field, then the setup\'s `formation`, then its `from` - the corpus\'s own precedence for naming a setup');
+    "and the name it writes is the setup's own `formation`, then its `from` - the corpus's own precedence for naming a setup");
   check(/const spots = instanceTable\(call\)\.map\(\(r\) => r\.start\);/.test(ui),
     'the spots come from `instanceTable`, the same read the formation table below is built from');
   // THE PANE IS NOT THE OUTPUT. Asked for as: "No need to show the exported text. Just put it on the OS copy buffer."
   check(/navigator\.clipboard\?\.writeText\(buildStamp\(\) \+ '\\n' \+ result\.xml\);/.test(handler),
     'the stamped block goes straight to the clipboard');
   check(!/xmlEl/.test(handler),
-    'and the handler never touches the pane - not even to clear it on a refusal, because it is not this button\'s to clear');
-  check(/✗ cannot export a formation: this setup carries no name/.test(ui) && !/this\.xmlEl\.value = '';/.test(handler),
-    'and a setup with no name is refused out loud, leaving the pane as it was');
+    "and the handler never touches the pane - not even to clear it on a refusal, because it is not this button's to clear");
+  check(/✗ cannot export a formation: this setup carries no name - no `formation` attribute and no `from` label/.test(ui) &&
+    !/this\.xmlEl\.value = '';/.test(handler),
+    'and a setup with no name is refused out loud, naming both attributes that are empty, and leaving the pane as it was');
   for (const [verdict, wording] of [
     ['add', 'no corpus formation has that name, so pasting it ADDS one'],
     ['same', "the corpus's own spots in the same order, so pasting it changes no board"],
@@ -361,9 +363,12 @@ console.log('\n== 7. the panel: the button beside the tam export, one handler, t
   // THE CONTROLS: each check above fails on the fault it was written for.
   const renamed = ui.replace("private exportFormationBtn = el<HTMLButtonElement>('edExportFormation')", "private exportFormationBtn = el<HTMLButtonElement>('edExportFormationX')");
   check(!/private exportFormationBtn = el<HTMLButtonElement>\('edExportFormation'\)/.test(renamed), 'renaming the id fails the `el()` check');
-  const noCall = ui.replace('formationExportXml(typed || call.formation || call.from, spots, corpusFormationPoses)', 'formationExportXml(typed, spots, corpusFormationPoses)');
-  check(!/formationExportXml\(typed \|\| call\.formation \|\| call\.from, spots, corpusFormationPoses\)/.test(noCall),
-    'dropping the setup-name fallback fails the name-chain check');
+  const noFallback = ui.replace('formationExportXml(call.formation || call.from, spots, corpusFormationPoses)', 'formationExportXml(call.from, spots, corpusFormationPoses)');
+  check(!/formationExportXml\(call\.formation \|\| call\.from, spots, corpusFormationPoses\)/.test(noFallback),
+    'dropping the `formation`-before-`from` order fails the name-chain check');
+  const withField = ui.replace("private exportFormationBtn = el<HTMLButtonElement>('edExportFormation');", "private exportFormationBtn = el<HTMLButtonElement>('edExportFormation');\n  private formationNameInput = el<HTMLInputElement>('edFormationName');");
+  check(/formationNameInput/.test(withField) && !/formationNameInput|edFormationName/.test(ui),
+    'and putting the name field back fails the check that there is none');
   const paned = handler.replace('void navigator.clipboard?.writeText(', 'this.xmlEl.value = result.xml;\n    void navigator.clipboard?.writeText(');
   check(/xmlEl/.test(paned) && !/xmlEl/.test(handler), 'and writing the block into the pane fails the clipboard-only check');
   const inlined = ui.replace('const spots = instanceTable(call).map((r) => r.start);', 'function sameSpot(a: FormDancer, b: FormDancer) { return a === b; }\n    const spots = instanceTable(call).map((r) => r.start);');

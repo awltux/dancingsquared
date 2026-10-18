@@ -38,6 +38,15 @@ const coded = new Set(CODED_MOVES.map((m) => m.name));
 /** The owner of a refusal: which part of the engine has to change. */
 function cause(call, reason) {
   if (!reason) return 'other';
+  // A REFUSAL A PERMISSION RULE MADE IS NOT A GEOMETRY FAILURE, and this classifier reported both as one — a rule refusal
+  // fell into "other: <prose>" and was then counted with the shape gaps. Asked of the LAYER that decided it, not guessed
+  // from the prose, and only while the gate is on: in 'offer-only' a denial does not refuse an apply, so asking there would
+  // mislabel a genuine no-setup refusal.
+  if ((seq.config?.permissionMode ?? 'offer-only') === 'consistent') {
+    const reading = splitSelection(call);
+    const offer = seq.mayOffer(reading.call, reading.selection ?? null);
+    if (!offer.allowed) return `permission rule: ${offer.reason ?? 'denied'}`;
+  }
   if (/^Unknown call/.test(reason)) return 'unknown call (no catalogue entry)';
   const base = splitSelection(call).call;
   const move = findCodedMove(base);

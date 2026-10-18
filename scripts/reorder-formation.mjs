@@ -46,6 +46,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+// THE BLOCK RULE IS IMPORTED, NOT RESTATED - see `tam-blocks.mjs`. A commented-out tam is not a tam, and
+// addressing a tam by position without that rule edits the wrong call.
+import { liveTamBlocks, titlePattern } from './tam-blocks.mjs';
 
 const USAGE = `usage: node scripts/reorder-formation.mjs --formation <Name> [--write] [--json] [--check]
 
@@ -248,17 +251,28 @@ if (failures.length) {
 const perFile = new Map();
 for (const { entry } of results) {
   const { text, tam, plan } = entry;
-  // The tam's raw block, matched in document order and cross-checked against the parsed tam, so a regex
-  // that slips cannot edit the wrong call. The INDEX is the one this file's own `parseCallXml` gave, and the
-  // title in the raw text is what confirms the two lists agree - a position alone is not an identity
-  // (AGENTS.md §8 trap 7).
-  const blocks = [...text.matchAll(/<tam\b[^>]*>[\s\S]*?<\/tam>/g)];
-  const block = blocks[entry.tamIndex];
-  if (!block) die(`${entry.rel} "${entry.title}": could not locate the tam's text (block ${entry.tamIndex} of ${blocks.length})`);
-  const raw = block[0];
-  if (!new RegExp(`title="${tam.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`).test(raw)) {
-    die(`${entry.rel} "${entry.title}": the raw block at that position is a different tam - refusing to edit`);
+  // The tam's raw block, matched in document order and cross-checked against the parsed tam, so a regex that
+  // slips cannot edit the wrong call. The INDEX is the one this file's own `parseCallXml` gave - the two lists
+  // agree because `liveTamBlocks` masks the commented-out tams the parser skips - and the title in the raw text
+  // is what confirms it, because a position alone is not an identity (AGENTS.md §8 trap 7). If they ever
+  // disagree the title is the fallback, and only when it names ONE block: `ms/sashay.xml` carries two
+  // `Ladies In, Men Sashay` tams, so a title alone is not an identity either.
+  const blocks = liveTamBlocks(text);
+  const pattern = titlePattern(tam.title);
+  let k = entry.tamIndex;
+  if (!blocks[k] || !pattern.test(blocks[k].text)) {
+    const named = blocks.filter((b) => pattern.test(b.text));
+    if (named.length !== 1) {
+      die(
+        `${entry.rel} "${entry.title}": the parsed tams and the file's ${blocks.length} live blocks disagree ` +
+          `(parsed index ${entry.tamIndex}, ${named.length} blocks carry that title) - refusing to edit`,
+      );
+    }
+    k = blocks.indexOf(named[0]);
   }
+  // `raw` IS THE ORIGINAL BLOCK'S BYTES, comments included - `liveTamBlocks` slices them from the real text
+  // precisely so that writing the block back cannot eat a comment (the mask it matches on is not writable).
+  const raw = blocks[k].text;
   const pathBlocks = [...raw.matchAll(/<path\b[\s\S]*?<\/path>/g)].map((m) => m[0]);
   if (pathBlocks.length !== tam.paths.length) {
     die(`${entry.rel} "${entry.title}": ${pathBlocks.length} <path> blocks in the text but ${tam.paths.length} parsed - refusing to edit`);
@@ -266,16 +280,18 @@ for (const { entry } of results) {
   const permutedXml = engine.permuteBy(pathBlocks, plan.permutation);
   const parts = [];
   let last = 0;
-  let k = 0;
+  let next = 0;
   for (const m of raw.matchAll(/<path\b[\s\S]*?<\/path>/g)) {
     parts.push(raw.slice(last, m.index));
-    parts.push(permutedXml[k++]);
+    parts.push(permutedXml[next++]);
     last = m.index + m[0].length;
   }
   parts.push(raw.slice(last));
   const plan2 = perFile.get(entry.rel) ?? { text, blocks };
   plan2.replacements ??= new Map();
-  plan2.replacements.set(entry.tamIndex, parts.join(''));
+  // KEYED BY THE BLOCK'S ORDINAL, which is what the edit loop below walks - not by the parsed index, which
+  // was the same number only while no block was masked out.
+  plan2.replacements.set(k, parts.join(''));
   perFile.set(entry.rel, plan2);
 }
 
@@ -283,23 +299,37 @@ const edits = new Map();
 for (const [rel, { text, blocks, replacements }] of perFile) {
   const parts = [];
   let last = 0;
-  for (const [k, m] of blocks.entries()) {
-    parts.push(text.slice(last, m.index));
-    parts.push(replacements.get(k) ?? m[0]);
-    last = m.index + m[0].length;
+  for (const [k, block] of blocks.entries()) {
+    parts.push(text.slice(last, block.index));
+    parts.push(replacements.get(k) ?? block.text);
+    last = block.index + block.text.length;
   }
   parts.push(text.slice(last));
   edits.set(rel, { text, next: parts.join('') });
 }
 
 if (write) {
-  for (const [rel, edit] of edits) fs.writeFileSync(path.join(assets, rel), edit.next);
+  // ONLY THE FILES THAT ACTUALLY CHANGE. An identity permutation (which is a real answer - see the skill) edits
+  // nothing, and writing every dependent file back from its own bytes would still be a pointless write that a
+  // reader has to diff to find out was pointless.
+  const rewrite = [...edits].filter(([, edit]) => edit.next !== edit.text);
+  for (const [rel, edit] of rewrite) fs.writeFileSync(path.join(assets, rel), edit.next);
   // VERIFY WHAT WAS WRITTEN, not what was planned: re-read every file and rebuild. The tam is located by the
   // SAME index the edit used, and its title is re-checked, because a title alone is not unique in this corpus
   // (`ms/sashay.xml` carries two `Ladies In, Men Sashay` tams, both from Circle).
   const reread = new Map();
   for (const rel of edits.keys()) reread.set(rel, readText(path.join(assets, rel)));
   const broke = [];
+  // THE RE-PARSE CANNOT SEE A COMMENT, and that was MEASURED the hard way: a mask leak rewrote
+  // `<!--  Scoot and Little  -->` to spaces in four files and every geometry check stayed green. A reorder may
+  // touch the `<path>` blocks and nothing else, so the text OUTSIDE them is compared too - the one check that
+  // fails on damage the parser is blind to.
+  const outsidePaths = (text) => text.replace(/<path\b[\s\S]*?<\/path>/g, '\u0000');
+  for (const [rel, edit] of edits) {
+    if (outsidePaths(edit.text) !== outsidePaths(edit.next)) {
+      broke.push(`${rel}: the reorder changed text outside the <path> blocks`);
+    }
+  }
   for (const { entry } of results) {
     const text = reread.get(entry.rel);
     const tams = engine.parseCallXml(text);
@@ -319,7 +349,7 @@ if (write) {
     if (!cmp.ok) broke.push(`${entry.rel} "${entry.title}": after writing, geometry moves (worst ${cmp.worst.toExponential(2)})`);
   }
   if (broke.length) {
-    for (const [rel, edit] of edits) fs.writeFileSync(path.join(assets, rel), edit.text);
+    for (const [rel, edit] of rewrite) fs.writeFileSync(path.join(assets, rel), edit.text);
     die(`the written files failed their own check and were RESTORED:\n    ${broke.join('\n    ')}`);
   }
 }

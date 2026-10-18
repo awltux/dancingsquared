@@ -29,6 +29,9 @@ const ROOT = path.join(here, '..', '..');
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
+// THE BLOCK RULE, imported rather than restated: it is the one the reorder tool edits by (see §2), and a probe
+// that mirrored it would be measuring a copy of it (AGENTS.md §5).
+const { liveTamBlocks } = await import(pathToFileURL(path.join(ROOT, 'scripts', 'tam-blocks.mjs')).href);
 
 const DEG = Math.PI / 180;
 const assets = path.join(ROOT, 'assets');
@@ -267,8 +270,85 @@ for (const [name, pin] of Object.entries(PINNED)) {
   );
 }
 
-// ------------------------------------------------------------------ 2. the rest of the corpus, reported
-console.log('\n== 2. the rest of the corpus: how many formations are out of order (reported, not asserted) ==');
+// ------------------------------------------- 2. a tam's block is addressable by the index the parser gives it
+console.log('\n== 2. every tam a reorder must edit is addressable by the index the parser gives it ==');
+{
+  // THE REORDER TOOL REWRITES THE BLOCK AT THE INDEX `parseCallXml` RETURNED, so a scan that counts blocks the
+  // parser SKIPS edits the wrong call. The skip is a commented-out tam, and a sweep of the corpus is what says
+  // whether that is hypothetical: the naive `<tam ...>...</tam>` regex found **5515** blocks where the parser
+  // returns **5495**, and masking comments out closes the gap EXACTLY - which is the rule
+  // `scripts/tam-blocks.mjs` implements and both this pin and the tool import.
+  const mismatched = [];
+  const overCounted = [];
+  const census = { files: 0, raw: 0, live: 0, parsed: 0 };
+  for (const dir of fs.readdirSync(assets, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
+    for (const file of fs.readdirSync(path.join(assets, dir)).filter((f) => f.endsWith('.xml'))) {
+      const rel = `${dir}/${file}`;
+      const text = fs.readFileSync(path.join(assets, rel), 'utf8');
+      let tams;
+      try {
+        tams = engine.parseCallXml(text);
+      } catch {
+        continue;
+      }
+      census.files++;
+      const live = liveTamBlocks(text).length;
+      const raw = [...text.matchAll(/<tam\b[^>]*>[\s\S]*?<\/tam>/g)].length;
+      census.live += live;
+      census.raw += raw;
+      census.parsed += tams.length;
+      if (live !== tams.length) mismatched.push(`${rel}: ${live} live blocks, ${tams.length} parsed`);
+      if (raw !== tams.length) overCounted.push(`${rel} +${raw - tams.length}`);
+    }
+  }
+  check(
+    mismatched.length === 0 && census.live === census.parsed,
+    `${census.live} live <tam> blocks = the ${census.parsed} the parser returns, across ${census.files} call files`,
+    mismatched.slice(0, 6).join('; '),
+  );
+  check(
+    census.raw > census.live && overCounted.length > 0,
+    `NEGATIVE CONTROL: without the mask the same scan finds ${census.raw}, i.e. ${census.raw - census.live} blocks that are not tams, in ${overCounted.length} files (${overCounted.join(', ')})`,
+    'if this goes green with no excess, the mask has nothing to do and this section has stopped measuring',
+  );
+
+  // THE WITNESS, by name: the file that made the tool refuse. Its commented `Bend the Line and Spread` sat at
+  // index 1, so every later block was one out - `"Pass the Ocean and Spread"` is index 9 in the live list and
+  // index 10 in the raw one, which is why the tool answered the parser's index with `"Hinge and Spread"`. Both
+  // halves are pinned, so a revert of the mask breaks a check that names the call it broke.
+  const witness = fs.readFileSync(path.join(assets, 'plus', 'anything_and_spread.xml'), 'utf8');
+  const liveWitness = liveTamBlocks(witness);
+  const rawWitness = [...witness.matchAll(/<tam\b[^>]*>[\s\S]*?<\/tam>/g)];
+  const titleAt = (blocks, i) => (blocks[i] ? (blocks[i].text.match(/title="([^"]*)"/) ?? [, '(none)'])[1] : '(missing)');
+  const rawTitleAt = (blocks, i) => (blocks[i] ? (blocks[i][0].match(/title="([^"]*)"/) ?? [, '(none)'])[1] : '(missing)');
+  check(
+    titleAt(liveWitness, 9) === 'Pass the Ocean and Spread' && liveWitness.length === 15,
+    `plus/anything_and_spread.xml: the live list's own index 9 is "Pass the Ocean and Spread" (${liveWitness.length} live blocks)`,
+    `found "${titleAt(liveWitness, 9)}"`,
+  );
+  check(
+    rawTitleAt(rawWitness, 9) === 'Hinge and Spread' && rawTitleAt(rawWitness, 10) === 'Pass the Ocean and Spread' && rawWitness.length === 16,
+    `and the UNMASKED scan of the same file has "Hinge and Spread" at 9 and the same call at 10, one block out (${rawWitness.length} raw blocks) - the refusal this rule removed`,
+    `found "${rawTitleAt(rawWitness, 9)}" / "${rawTitleAt(rawWitness, 10)}"`,
+  );
+
+  // THE BLOCK A CALLER GETS IS THE FILE'S OWN BYTES, COMMENTS INCLUDED. `matchAll` returns the substring it
+  // matched IN THE STRING IT MATCHED, so the obvious implementation hands back the MASKED block - and a reorder
+  // that wrote that back turned comments inside tams into runs of spaces while every geometry check stayed green
+  // (a comment has no geometry). MEASURED, and this is the file it happened to: `c1/interrupt.xml` carries a
+  // `<!--  Scoot and Little  -->` inside each of its paths.
+  const bytesWitness = fs.readFileSync(path.join(assets, 'c1', 'interrupt.xml'), 'utf8');
+  const bytesBlocks = liveTamBlocks(bytesWitness);
+  const commentsInside = bytesBlocks.filter((b) => /<!--/.test(b.text)).length;
+  check(
+    bytesBlocks.every((b) => bytesWitness.slice(b.index, b.index + b.text.length) === b.text) && commentsInside > 0,
+    `every live block is the file's own bytes, comments intact (c1/interrupt.xml: ${commentsInside} of ${bytesBlocks.length} blocks carry one)`,
+    'a masked block would be spaces where a comment was - the corruption the write path must not be able to cause',
+  );
+}
+
+// ------------------------------------------------------------------ 3. the rest of the corpus, reported
+console.log('\n== 3. the rest of the corpus: how many formations are out of order (reported, not asserted) ==');
 {
   // Every formation whose couples sit on the compass points is one a square-set order could name. The pin
   // above covers the converted ones; this line exists so a reader can see how much is deliberately NOT

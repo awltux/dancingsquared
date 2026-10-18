@@ -33,6 +33,33 @@ A raw `formations.xml` diff cannot tell you what those 22 tams need, for three m
    (Alamo Wave differs in facing), so a name-driven change does not reach them and must say so rather than
    look complete.
 
+## A commented-out tam is not a tam, and it shifts every block after it
+
+The tool edits the `<tam>` block at the index `parseCallXml` returned, so the raw text scan and the parser have
+to see the same list. They did not: a naive `<tam ...>...</tam>` regex counts **commented-out** tams, which the
+parser (rightly) skips. Measured over the corpus's 500 call files: **5515** blocks by regex, **5495** by the
+parser, and **masking the comments closes the gap exactly** (5495 = 5495). The 20 commented tams live in four
+files: `ms/star.xml` (16), `a1/split_square_thru.xml` (2), `c1/magic_column_formation.xml` (1),
+`plus/anything_and_spread.xml` (1).
+
+The one that bit is `plus/anything_and_spread.xml`, whose commented `Bend the Line and Spread` sits at index 1:
+`Pass the Ocean and Spread` is index **9** of the live list and index **10** of the raw one, so the first
+`Normal Lines` conversion refused with *"the raw block at that position is a different tam"* - the title
+cross-check doing exactly its job. The rule now lives in `scripts/tam-blocks.mjs` (`liveTamBlocks`, imported by
+the tool and by `engine/test/formation-order.mjs` section 2), which masks each comment to spaces **of the same
+length**, so an index into the masked text still addresses the real file.
+
+**AND THE MASK MUST NEVER BE WHAT GETS WRITTEN BACK**, which is the second half of the same trap and the one that
+did damage: `matchAll` returns the substring it matched *in the string it matched*, so `liveTamBlocks` returning
+`m[0]` handed the tool the MASKED block, and writing that back turned every `<!-- … -->` **inside** a tam into a
+run of spaces. Measured on the `Normal Lines` conversion: `c1/interrupt.xml`, `c2/cross_the_k.xml`,
+`c3a/scatter_circulate.xml` and `plus/walk_and_dodge.xml` lost their in-path comments, and the tool's own
+write-then-verify did **not** see it - it re-parses the files, and a comment has no geometry. Two fixes, both
+gated: `liveTamBlocks` now returns `{ index, text }` with the text sliced from the ORIGINAL string
+(`engine/test/formation-order.mjs` pins that byte-for-byte on `c1/interrupt.xml`, 3 of its 4 blocks carry a
+comment), and the write path compares the written file's text **outside** the `<path>` blocks against the
+original, which is the only check that can fail on damage the parser is blind to.
+
 ## The convention, and how much of the corpus shares it
 
 A square set's couple order in FASR terms is **S, E, N, W** (couples 1–4 counter-clockwise), boy then

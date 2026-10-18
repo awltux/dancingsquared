@@ -445,6 +445,18 @@ with its measurement, in the same commit that found it.
     `ERR_CONNECTION_REFUSED` while Vite was serving happily on `http://localhost:8089/`; the api dev server binds
     `127.0.0.1:8090` and accepts that address, so the two halves of one browser check do not share a host spelling. Use
     `localhost` for the app and `127.0.0.1` for `VITE_API_BASE`, or the page loads and the puzzle does not.
+29. **A GLOB'S KEY IS NOT THE FILE'S IDENTITY, and pointing the glob at an ALIAS changes the prefix in silence.** `poc/src/data.ts`
+    globbed `./assets/*/*.xml` and looked the XML back up by `./assets/<level>/<base>.xml`. When the corpus moved to the repo root
+    (`0d76cbd`) the pattern became the `@corpus` alias and Vite keyed the same files `../assets/<level>/<base>.xml` — MEASURED: the
+    glob still matched every file (2094 KB in the bundle) and EVERY lookup missed, so `loadCallBase` threw `Missing XML for <file>`
+    for every call while the level lists, built from the same XML text the glob had just handed over, still filled. Reported as
+    "Dancers arent appearing on Call Editor board now. Sequencer seems ok" — the board was empty because there was no instance to
+    draw, and the app looked alive because the lists came from the parse that had already succeeded. The identity is now
+    `corpusFileOf()` in `poc/src/corpus-key.ts` (the last two segments of ANY key shape, so no call site spells a prefix), and
+    `poc/tools/corpus-key-probe.mjs` measures four key shapes over every file in the corpus and proves the prefix-strip rule it
+    replaced is wrong for all 500 of them. **The same walk read each file's FAMILY out of a map that was published AFTER it**,
+    so every call's `family` had been empty since the field was added (`0d76cbd^` was already wrong); a latent defect found in
+    the same read is fixed in the same commit, not left for its own.
 
 ---
 

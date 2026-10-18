@@ -34,6 +34,8 @@ import formationsXml from '@corpus/formations.xml?raw';
 import callsXml from '@corpus/src/calls.xml?raw';
 // How a call is written as a `<tam>`: with an embedded start formation, or naming one the corpus carries.
 import { callTamXml } from './tam-xml';
+// The glob's own key -> the corpus-relative `level/base` identity this module stores in `CallInfo.file`.
+import { corpusFileOf } from './corpus-key';
 
 // Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
 // into the main bundle). loadCatalog() fetches them all and reports real
@@ -125,12 +127,13 @@ export class Catalog {
     return l !== 0 ? l : a.title.localeCompare(b.title);
   }
 
-  private parseCatalogFile(xml: string, path: string): CallInfo[] {
-    const m = /\.\/assets\/([^/]+)\/([^/]+)\.xml$/.exec(path);
-    if (!m) return [];
-    const level = m[1];
-    const base = m[2];
-    const file = `${level}/${base}`;
+  private parseCatalogFile(xml: string, file: string): CallInfo[] {
+    // THE FILE'S NAME IS `level/base`, WHICH IS `CallInfo.file` - see `corpus-key.ts` for why the glob's own
+    // key is not used as an identity (it was `./assets/ms/circle.xml`, then `../assets/ms/circle.xml`, and every
+    // lookup went on asking for the first one). Every key this is called with came from `corpusFileOf`, whose
+    // two segments `poc/tools/corpus-key-probe.mjs` measures for every file in the corpus, so there is no guard
+    // here for a name without a level.
+    const level = file.slice(0, file.indexOf('/'));
     let tams;
     try {
       tams = parseCallXml(xml);
@@ -147,8 +150,10 @@ export class Catalog {
     });
     const out: CallInfo[] = [];
     // THE FAMILY, once per file: the `<tamination title>` every call in this file is filed under, so an export
-    // can group its tams the way the corpus does and be pasted back where it came from.
-    const family = parseTaminationTitle(this.levelXml.get(`./assets/${file}.xml`) ?? '');
+    // can group its tams the way the corpus does and be pasted back where it came from. IT READS `levelXml`, so
+    // `loadCatalog` fills that map BEFORE this walk - it used to be assigned after, which made this read the
+    // empty map every time and filed every exported block under nothing.
+    const family = parseTaminationTitle(this.levelXml.get(file) ?? '');
     for (const [title, indices] of byTitle) {
       out.push({
         id: `${file}::${title}`,
@@ -186,7 +191,7 @@ export class Catalog {
       if (!m) continue;
       const level = m[1];
       const base = m[2];
-      if (xmlMap.has(`./assets/${level}/${base}.xml`)) continue;
+      if (xmlMap.has(`${level}/${base}`)) continue;
       for (const found of catalog.filter((c) => c.file.split('/')[1] === base)) {
         const id = `${level}/${base}::${found.title}`;
         if (aliases.some((a) => a.id === id)) continue;
@@ -219,23 +224,31 @@ export class Catalog {
         const worker = async () => {
           while (next < total) {
             const p = paths[next++];
-            try {
-              xmlMap.set(p, await levelLoaders[p]());
-            } catch {
-              // Skip a file that failed to load.
+            // THE KEY IS THE FILE'S CORPUS NAME, not the glob's path: see `corpus-key.ts`.
+            const file = corpusFileOf(p);
+            if (file) {
+              try {
+                xmlMap.set(file, await levelLoaders[p]());
+              } catch {
+                // Skip a file that failed to load.
+              }
             }
             done++;
             onProgress?.('download', done / total);
           }
         };
         await Promise.all(Array.from({ length: Math.min(POOL, total) }, () => worker()));
+        // THE MAP IS PUBLISHED BEFORE THE WALK, because `parseCatalogFile` reads the file's FAMILY out of it (the
+        // `<tamination title>` an export files a block under). It was assigned AFTER the walk until this fix -
+        // `0d76cbd^` did the same, so this is not a regression the corpus move introduced - which left that read
+        // on an empty map and every call's `family` empty, so an export had nothing to file a block under.
+        this.levelXml = xmlMap;
         const catalog: CallInfo[] = [];
-        for (const [path, xml] of xmlMap) {
-          catalog.push(...this.parseCatalogFile(xml, path));
+        for (const [file, xml] of xmlMap) {
+          catalog.push(...this.parseCatalogFile(xml, file));
         }
         catalog.sort((a, b) => this.byLevelThenTitle(a, b));
         const aliases = this.buildAliases(catalog, xmlMap);
-        this.levelXml = xmlMap;
         this.fullCatalog = [...catalog, ...aliases].sort((a, b) => this.byLevelThenTitle(a, b));
         onProgress?.('parse', 1);
       })();
@@ -301,7 +314,7 @@ export class Catalog {
   private loadCallBase(id: string, tamIndex: number, mirror = true): CallBundle {
     const entry = this.fullCatalog.find((c) => c.id === id);
     if (!entry) throw new Error(`Unknown call: ${id}`);
-    const xml = this.levelXml.get(`./assets/${entry.file}.xml`);
+    const xml = this.levelXml.get(entry.file);
     if (xml == null) throw new Error(`Missing XML for ${entry.file}`);
     const tams = parseCallXml(xml);
     const fileIdx = entry.tamIndices[tamIndex] ?? entry.tamIndices[0];
@@ -396,7 +409,7 @@ export class Catalog {
     return m ? m[0] : null;
   }
   private registrationXml(entry: CallInfo): string | null {
-    const xml = this.levelXml.get(`./assets/${entry.file}.xml`);
+    const xml = this.levelXml.get(entry.file);
     if (xml == null) return null;
     // COMMENTS OUT, BEFORE INDEXING. `entry.tamIndices` is computed by `parseCatalogFile` with a DOM
     // walk, which does NOT return a `<tam>` inside `<!-- -->`; this regex reads the RAW TEXT and does.

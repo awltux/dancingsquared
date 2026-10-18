@@ -95,6 +95,9 @@ import {
 import type { CallEdit, CallInfo } from './data';
 // The one place that decides whether an exported `<tam>` embeds its start formation or NAMES it.
 import { callTamXml, corpusFormationPoses } from './tam-xml';
+// AND THE FORMATION ITSELF, for `Export <formation>`: the block and its verdict are a pure rule in their own
+// module, so `poc/tools/formation-export-probe.mjs` measures THAT rather than a copy of it.
+import { formationExportXml } from './formation-xml';
 import type { Stage, CurveSpec, HandleSpec } from 'dancing-squared-stage';
 import { FLOOR_HALF, HANDLE_COLOR } from 'dancing-squared-stage';
 import { el, esc } from './dom';
@@ -601,6 +604,11 @@ export class EditorController implements EditorUI {
   private createBtn = el<HTMLButtonElement>('edCreate');
   private saveBtn = el<HTMLButtonElement>('edSave');
   private exportBtn = el<HTMLButtonElement>('edExport');
+  // `Export <formation>` and the name it writes. The name is a field rather than a constant because a call whose
+  // setup carries no name of its own (`from` empty AND no `formation` attribute - 249 of the corpus's tams) has
+  // nothing to fall back on, and a `<formation>` without a name is one `parseFormations` skips.
+  private exportFormationBtn = el<HTMLButtonElement>('edExportFormation');
+  private formationNameInput = el<HTMLInputElement>('edFormationName');
   private statusEl = el<HTMLSpanElement>('edStatus');
   private savedEl = el<HTMLDivElement>('edSaved');
   private exportAllBtn = el<HTMLButtonElement>('edExportAll');
@@ -5709,6 +5717,72 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * EXPORT `<formation>`: the START formation on screen, as the block `assets/formations.xml` is authored in.
+   *
+   * Asked for as: "When I change the order of the dancer list, I'm really changing the formation definition, but
+   * there is no way to export a formation from the call editor. Add an 'Export <formation>' button." The reason it
+   * is the FORMATION and not the call: a `<tam>`'s paths are paired with the formation's dancers BY POSITION, so
+   * the same spots in another order is a different setup to every call that names it (`startsFromFormation` is the
+   * engine's own statement of that). The block, the half and the verdict are `formation-xml.ts`'s, because a rule a
+   * probe cannot import is a rule only this panel could state - and this file cannot be imported by anything but
+   * the bundler.
+   *
+   * THE SPOTS COME FROM `instanceTable`, the same read the formation table below is built from, so an export and
+   * the table cannot disagree about where a dancer stands - the reason `refreshDancerNumbers` gives.
+   *
+   * THE NAME, in order: what the caller typed, then the setup's own `formation`, then its `from` label. `formation`
+   * FIRST is the deliberate difference from the `<tam>` export, which passes `from` as its first name: `formation`
+   * is the attribute that NAMES a formation, while `from` is free text for the caller - the corpus writes
+   * `from="Lines"` for a tam whose formation is "Normal Lines". A call with neither has no name to write, and the
+   * refusal says so rather than inventing one.
+   *
+   * IT GOES ON THE CLIPBOARD AND NOWHERE ELSE, asked for as: "No need to show the exported text. Just put it on the
+   * OS copy buffer." So the pane is left exactly as it was - NOT cleared on a refusal either, because it is not
+   * this button's to clear: it holds whatever the `<tam>` export last wrote, and blanking it would destroy that.
+   * The status line is the only place this export reports itself.
+   */
+  private doExportFormation() {
+    // THE BUTTON LIVES IN THE INSTANCE PANEL, so the instance is the only source there is.
+    const call = this.instance;
+    if (!call) {
+      this.statusEl.textContent = 'nothing to export yet';
+      return;
+    }
+    const spots = instanceTable(call).map((r) => r.start);
+    const typed = this.formationNameInput.value.trim();
+    const result = formationExportXml(typed || call.formation || call.from, spots, corpusFormationPoses);
+    if (!result) {
+      this.statusEl.textContent =
+        '✗ cannot export a formation: this setup carries no name, and a <formation> without one is one ' +
+        '`parseFormations` skips - type a name in the field beside this button';
+      return;
+    }
+    void navigator.clipboard?.writeText(buildStamp() + '\n' + result.xml);
+    const n = result.count;
+    const corpusN = result.corpusCount;
+    // WHAT THE BLOCK IS: the half set - which the reader completes - or every dancer, and the line says which,
+    // because the two are different claims about the file. See `formation-xml.ts`'s `halfOf`.
+    const written =
+      result.written < n ? `${n} spots, written as the ${result.written}-dancer half the reader turns 180°` : `${n} spots, every dancer written`;
+    // THE VERDICT IS THE POINT OF THE LINE rather than decoration: a block pasted under a name the corpus already
+    // carries REPLACES that entry (`parseFormationsImpl` `map.set`s by name), so the caller is told which of the
+    // four things they are about to do before they do it. A size change is said as a size change rather than
+    // counted into a "differing spots" report, because "8 of 6 spots differ" is not a sentence about spots.
+    const what =
+      result.verdict === 'add'
+        ? ' - no corpus formation has that name, so pasting it ADDS one'
+        : result.verdict === 'same'
+          ? " - the corpus's own spots in the same order, so pasting it changes no board"
+          : corpusN !== null && corpusN !== n
+            ? ` - ${n} spots against the corpus's ${corpusN} for "${result.name}", so pasting it REPLACES that formation and every call that names it gets a set of a different size`
+            : result.verdict === 'reordered'
+              ? ` - the SAME spots in a DIFFERENT ORDER from the corpus's, which is a different setup because a call's paths pair with the ` +
+                `formation's dancers by position: pasting it REPLACES "${result.name}"`
+              : ` - ${result.differing} of ${n} spots differ from "${result.name}" in the corpus, so pasting it REPLACES that formation`;
+    this.statusEl.textContent = `exported <formation> "${result.name}" (${written}, copied)${what}`;
+  }
+
+  /**
    * EXPORT ALL: every saved edit, grouped the way the corpus files them.
    *
    * Asked for: "add an 'Export All' button that copies all the created calls. Each tam should be inside a
@@ -5862,6 +5936,7 @@ export class EditorController implements EditorUI {
     this.createBtn.addEventListener('click', () => this.doCreate());
     this.saveBtn.addEventListener('click', () => this.doSave());
     this.exportBtn.addEventListener('click', () => this.doExport());
+    this.exportFormationBtn.addEventListener('click', () => this.doExportFormation());
     this.exportAllBtn.addEventListener('click', () => this.doExportAll());
     this.showTargetBtn.addEventListener('click', () => this.showTarget());
     this.showEndBtn.addEventListener('click', () => this.showEnd());

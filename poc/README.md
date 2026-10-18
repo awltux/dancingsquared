@@ -266,8 +266,9 @@ only contains the browser/renderer layer:
 | `src/scene.ts` | Three.js adapter: floor grid, low-poly **wireframe** humanoids (torso/head/2-seg arm IK/legs with a beat-synced **walk cycle** via `WalkCycle`), hand-hold connectors, path trails. |
 | `src/main.ts` | Playhead (beats → ms), HUD wiring, play/pause/step/scrub, level filter, mode switch, frame loop. |
 | `src/sequencer-ui.ts` | Sequencer panel: apply calls on the board, FASR readout, getout + fix-it buttons. |
-| `src/editor-ui.ts` | Call editor: edit a taminations call INSTANCE (its start formation and arrangement, its end formation and its moves), fix a setup's closure, or generate a missing setup (padding core moves); preview, save to `localStorage`, export `<tam>` XML. |
-| `src/assets/*.xml` | taminations data per level (`ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). |
+| `src/editor-ui.ts` | Call editor: edit a taminations call INSTANCE (its start formation and arrangement, its end formation and its moves), fix a setup's closure, or generate a missing setup (padding core moves); preview, save to `localStorage`, export `<tam>` XML and the start FORMATION as a `<formation>` block. |
+| `src/formation-xml.ts` | The `Export <formation>` rule on its own, with no DOM: the block (through the engine's `formationToXml`) and the verdict a paste into `assets/formations.xml` would have — `add`, `same`, `reordered` or `changed`. Pure and given the corpus lookup as an argument, so `poc/tools/formation-export-probe.mjs` drives every verdict. |
+| `assets/*.xml` | The tamination data per level (`ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). It is the repository's ONE copy, at the repo root, reached through the `@corpus` alias named in `vite.corpus.ts`. |
 | `verify.cjs` | Headless assertions over the engine + a full-catalog scan. |
 
 ## Browse mode: moving the dancers by hand
@@ -1436,6 +1437,75 @@ you can drop back into the data files. An instance edit is saved as the exported
 itself — expanded, full-set, carrying its own `sequencer`/`actives` declarations — and is
 read back with `mirror: false`, because the engine's mirror rule would otherwise DOUBLE an
 edited formation that has no 180-degree partner.
+
+**`Export <formation>` hands over the START formation itself.** Asked for as: *"Call editor:
+When I change the order of the dancer list, I'm really changing the formation definition, but
+there is no way to export a formation from the call editor. Add an 'Export \<formation\>' button."*
+The observation is the **format's**, not a quirk of this app: a `<tam>`'s paths are paired with
+the formation's dancers **by position in the list** (`buildCallImpl` pairs `dancers[i]` with
+`paths[i]`), so swapping two dancers in the table is the same spots in a different ORDER — a
+different setup to every call that names that formation. `startsFromFormation` is the engine
+saying the same thing from the other side. `assets/formations.xml` is where a formation lives and
+the browser cannot write it, so the button puts the block **on the clipboard** — asked for as: *"No
+need to show the exported text. Just put it on the OS copy buffer."* It sits beside the **first**
+`Export <tam>` button, in the instance panel's own row.
+
+**It writes HALF the set, because that is what the corpus writes and what the reader completes.**
+Asked for as: *"the formation uses symmetry about the origin of the board to only include half the
+dancers. The missing dancers are reconstituted at load time by duplication and rotation about the
+center by 180 deg."* The written dancers are the first half, in list order, with the gender at each
+spot; the reader rebuilds the rest by duplicating them and turning them 180° about the board
+centre (`half-set.ts`, and `hasAntipode` in `convert.ts` where the parser decides). MEASURED
+(`poc/tools/formation-export-probe.mjs`): **281 of the 291** corpus formations are authored as
+half a set, and the export writes **the count the file authored for all 291** — completing every
+block back to its own board, worst position error **0**, every one exporting as `same`. The name
+and heading cross the boundary correctly too: `angle="90"` for a heading of π/2, read back as
+**90.000°**.
+
+**Half only when it really is half.** The block is halved only when completing that half returns
+the board index for index; a board that is not symmetric about the centre (one dancer moved, or
+the two swapped) is written out in **full**, because halving it would silently drop dancers. That
+is the ten entries the corpus already authors whole, and every asymmetric board; the status line
+says which of the two it wrote. NOTHING SMALLER THAN TWO DANCERS is written either: a two-dancer
+board *is* its own half, but the corpus authors 62 two-dancer entries and no one-dancer one, so
+"Opposite Boy" exports as both its dancers.
+
+The status line says **what the paste will be**, because a block pasted under a name the corpus
+already carries REPLACES that entry (`parseFormationsImpl` `map.set`s by name) for every call
+that names it:
+
+| Verdict | When | What it tells you |
+|---|---|---|
+| `add` | no corpus formation has that name | pasting it adds one |
+| `same` | the corpus's own spots, same order | pasting it changes no board |
+| `reordered` | the SAME spots in a DIFFERENT ORDER | this is the reported case, and a different setup |
+| `changed` | some spots differ | **n of m** spots differ, so it replaces that formation |
+| *(size)* | the counts differ at all | stated as a size change, never as "8 of 6 spots" |
+
+MEASURED on a real call: `ms/alamo_style.xml`'s *Allemande Left in the Alamo Style* starts from
+`Static Square`, and the engine's own `swapDancers(call, 0, 1)` turns the verdict from `same`
+into **`reordered` with exactly 2 of 8 spots differing** — while an ORDER-INSENSITIVE comparison
+(the rule the arrangement picker uses, where order genuinely does not matter) calls the swapped
+formation "the same". That control is the reason the verdict is index for index.
+
+The name is a field, and it defaults to the setup's own — its `formation` attribute, then its
+`from` label. NEITHER IS ALWAYS THERE: **249 of the corpus's 5516 `<tam>`s declare no `formation`
+and no `from`**, and a `<formation>` with no name is one `parseFormations` skips, so the button
+refuses out loud rather than writing a block that does nothing. That refusal was observed in the
+browser on `_Finish Line of 6 Half Tag`, whose setup is `(default)`; the same call with a typed
+name exported as `changed` with 6 of 6 spots differing from `Compact Wave of 6`.
+
+Also observed in the browser, on `Allemande Left in the Alamo Style` (which starts from `Static
+Square`), with the button in its new place: the status line read *"exported \<formation\> "Static
+Square" (8 spots, written as the 4-dancer half the reader turns 180°, copied) — the corpus's own
+spots in the same order, so pasting it changes no board"*, and the text pane still read *"Exported
+XML appears here."* — the block went to the clipboard and nowhere else. **NOT observed in a
+browser:** the `reordered` verdict. The swap that produces it is the *table's* control, which on
+the only calls large enough to have a namesake formation sits below the two setup pickers
+(~208 options each) and therefore past the browser tool's 500-ref snapshot cap; and no six-dancer
+call in the catalogue starts from a six-dancer named formation (MEASURED: none in
+`ms`/`plus`/`a1`/`a2`), so the small-picker calls cannot produce it either. It is measured against
+the engine instead — `swapDancers` plus `startsFromFormation`, as above.
 
 Each saved edit has an **apply to live** toggle. Applying it overrides the live
 call-position database: `loadCall` returns the edited setup (a `fix` or an `instance`

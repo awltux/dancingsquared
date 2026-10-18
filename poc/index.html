@@ -283,6 +283,14 @@
               <button id="edRevert" disabled title="Put back the state before the last change.">Revert</button>
               <button id="edClone" title="Start a NEW setup from this instance instead of replacing it: edits are then saved and applied as an addition. Picking a Start setup re-bases the clone onto that formation.">Clone</button>
               <button id="edInstExport" title="Export the edited instance as taminations &lt;tam&gt; XML">Export &lt;tam&gt;</button>
+              <!-- THE FORMATION'S OWN EXPORT, beside the tam's and sharing its row. A caller who reorders the
+                   dancer list has edited the FORMATION rather than the call - a tam's paths pair with a
+                   formation's dancers by position in the list - and `assets/formations.xml` is where a formation
+                   lives, so this hands over that block. The NAME is a field because a setup can carry no name at
+                   all (249 of the corpus's tams declare neither `formation` nor `from`), and a `<formation>` with
+                   no name is one the reader skips. -->
+              <input id="edFormationName" title="The name written into the &lt;formation&gt; block. Blank uses this setup's own name - its `formation` attribute, or its `from` label when the tam names no formation. Type a name to compare against THAT corpus formation instead, which is how a paste that would REPLACE one is reported before it happens." placeholder="formation name — blank = the setup's" />
+              <button id="edExportFormation" title="Copy the START formation as a &lt;formation&gt; block for assets/formations.xml. It writes HALF the set, as the corpus does, when the dancers opposite each other really are the same dancers turned 180 degrees about the board centre - the reader reconstitutes the rest - and every dancer when they are not, which the status line says. The order is part of the definition, because a call's paths pair with a formation's dancers by position, so reordering the list is an edit of the formation and this is how it leaves the app. It goes on the clipboard, not into the pane. The status line says which of four things the paste will be: a NEW formation, the corpus's own unchanged, the same spots REORDERED, or spots CHANGED or of a different SIZE - the last three REPLACE that formation for every call that names it.">Export &lt;formation&gt;</button>
               <!-- THE FLOOR GRID: a STATE-DRIVEN BUTTON rather than a checkbox or a list, because there are
                    two references and no "off" - the label IS the state, and pressing it flips to the other
                    one. `data-state` is what the app reads and writes (and what `remember.ts` stores), so the
@@ -427,7 +435,7 @@
           <div class="row">
             <button id="edExportAll" title="Copy EVERY saved edit at once, grouped into &lt;tamination&gt; blocks the way the corpus files them: each block carries the file's own family title and the file path to update, and each &lt;tam&gt; carries a type of `clone` (a new setup to add) or `update` (a setup to replace).">Export All</button>
           </div>
-          <textarea id="edXml" class="small" rows="6" readonly placeholder="Exported <tam> XML appears here."></textarea>
+          <textarea id="edXml" class="small" rows="6" readonly placeholder="Exported XML appears here."></textarea>
 
         </div>
         <!-- THE GRAB HANDLE, the panel's last child so it sits in the bottom-right corner - where a resize

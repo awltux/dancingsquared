@@ -54,14 +54,16 @@ const check = (cond, msg, detail = '') => {
  *
  * `pending: true` means the formation's order is still the BASELINE and the conversion is a separate commit:
  * the row is then pinning the state that conversion will change, and the negative control below proves the
- * pin is live while it does.
+ * pin is live while it does. `Circle` was converted in the commit whose message carries the measurement, so
+ * its row is the converted order with `pending: false` - and its DIGEST is the one recorded BEFORE the
+ * conversion, because a correct conversion moves nobody.
  */
 const PINNED = {
   Circle: {
-    // The reported defect: couples ordered W,N,E,S where a square set orders them S,E,N,W (FASR's Sequence
-    // field, couples 1-4 counter-clockwise, boy then girl within each couple).
-    order: 'WNES',
-    pending: true,
+    // The square set's own order: couples 1-4 = south, east, north, west (FASR's Sequence field), boy then
+    // girl within each couple. `Circle` was W,N,E,S before this conversion, which was the reported defect.
+    order: 'SENW',
+    pending: false,
     written: 4,
     dependents: { total: 22, files: { 'ms/allemande.xml': 1, 'ms/circle.xml': 16, 'ms/promenade.xml': 2, 'ms/sashay.xml': 3 } },
     digest: '1ff72181',

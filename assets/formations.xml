@@ -618,10 +618,10 @@
   </formation>
 
   <formation name="Circle">
-    <dancer gender="boy" x="-2.414" y="1" angle="-22.5"/>
-    <dancer gender="girl" x="-2.414" y="-1" angle="22.5"/>
-    <dancer gender="boy" x="1" y="2.414" angle="247.5"/>
-    <dancer gender="girl" x="-1" y="2.414" angle="292.5"/>
+    <dancer gender="boy" x="-1" y="-2.414" angle="67.5"/>
+    <dancer gender="girl" x="1" y="-2.414" angle="112.5"/>
+    <dancer gender="boy" x="2.414" y="-1" angle="157.5"/>
+    <dancer gender="girl" x="2.414" y="1" angle="-157.5"/>
   </formation>
 
   <formation name="Alamo Wave">

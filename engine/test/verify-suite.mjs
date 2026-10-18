@@ -153,6 +153,12 @@ const SUITE = [
   // offer and apply agree over a 25-reading sweep (with the `offer-only` disagreement as the negative control), and
   // that the enumerators and modules inherit the gate. One board, ~1s.
   { h: 'permission-gate', light: true },
+  // HOW A CALL GOES, and that a body the rules refuse is never a candidate. The label is DERIVED from the title
+  // (`- Close` / `- Normal` / `- Far`), because these tams are app-exported and an authored attribute would be dropped by
+  // the next round-trip; `Circle Left - Stop at Home` is the control that keeps the list closed. Pins that the shipped
+  // corpus derives it for exactly the authorings that declare it, and that a `going`-keyed rule removes that body from the
+  // candidate set — while the READING-level ask is deliberately not decided by a body rule. Two boards, ~1s.
+  { h: 'going', light: true },
   // PARALLEL CALLS FOR THE REMAINING DANCERS. The `GroupStep` construct already existed and `modules.mjs`
   // pins its rules; this pins what was missing for the reported case ("Sides Promenade Home" with the
   // heads in the path): that the remainder is NAMEABLE (`remainingSelection` derives `All Except X` from

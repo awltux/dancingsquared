@@ -39,6 +39,7 @@ import { identifyByAssignment } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
 import { DEFAULT_MATCH_MAX } from './constants.js';
+import type { Going } from '../going.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { analyzeFasr } from './fasr.js';
@@ -80,6 +81,9 @@ export class Sequencer {
     // class answers with the SAME predicate the picker uses (`permissionFor`), so "the app will not suggest this"
     // and "the engine refuses this" cannot become two different opinions about one call.
     this.applicator.setPermissionResolver((board, ask) => this.permissionAnswer(board, ask));
+    // …and the MATCHER asks too, because the candidate filter has to run BEFORE the tie-break: a body the rules refuse
+    // must never be the best fit that gets chosen and then replaced. Same predicate, same answer.
+    this.matcher.setPermissionResolver((board, ask) => this.permissionAnswer(board, ask));
     this.legality = new LegalityChecker(this.library, this.matcher, this.applicator, this.config);
     this.analyzer = new SequenceAnalyzer(this.library, this.matcher, this.applicator, this.config);
     // The analyzer resolves a SCOPED step against its own subset (see `matchingVariantInfo`), and the
@@ -715,7 +719,7 @@ export class Sequencer {
    * any title that starts with a group word. The board name and the level are read here because they are the
    * sequencer's state, not the reading's.
    */
-  private permissionFor(b: Board, call: string, group: string | null): PermissionResult {
+  private permissionFor(b: Board, call: string, group: string | null, going: Going | null = null): PermissionResult {
     const req: PermissionRequest = {
       call,
       group: group && group !== 'All 8' ? group : 'All 8',
@@ -723,6 +727,9 @@ export class Sequencer {
       // has to match the geometry, and a board built from a formation is named the same way by
       // `recognize` wherever it came from.
       board: this.recognize(b).name,
+      // WHICH BODY, when the ask is about one. Null at the reading boundary (the body is not chosen yet), which is why a
+      // `going`-keyed rule can only fire in the candidate filter.
+      going,
       level: this.activeLevel,
     };
     return evaluatePermissions([...PERMISSION_RULES, ...this.permissionRules], req);
@@ -735,10 +742,13 @@ export class Sequencer {
    * `reason` is the rule's own prose, passed through untouched: a refusal the picker shows and a refusal the engine
    * gives are the same sentence because they are the same rule.
    */
-  private permissionAnswer(board: Board, ask: ApplyAsk): { allowed: boolean; reason?: string } {
+  private permissionAnswer(board: Board, ask: ApplyAsk): { allowed: boolean; reason?: string; bodyKeyed?: boolean } {
     if (this.config.permissionMode !== 'consistent') return { allowed: true };
-    const r = this.permissionFor(board, ask.call, ask.group);
-    return r.allowed ? { allowed: true } : { allowed: false, ...(r.reason ? { reason: r.reason } : {}) };
+    const r = this.permissionFor(board, ask.call, ask.group, ask.going);
+    if (r.allowed) return { allowed: true };
+    // `bodyKeyed` travels so the CANDIDATE FILTER can tell a decision about a body from one about the reading: only the
+    // first may remove a candidate (see `ApplyPermission.bodyKeyed`).
+    return { allowed: false, bodyKeyed: r.rule?.going !== undefined, ...(r.reason ? { reason: r.reason } : {}) };
   }
 
   /**

@@ -6,10 +6,11 @@
 
 import { matchFormations, type FormationMatch, type Matchable } from './match.js';
 import { CallLibrary } from './library.js';
-import { SequencerConfig } from './config.js';
+import { SequencerConfig, type ApplyPermission } from './config.js';
 import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import { findCouplePairs, COUPLE_WIDTH, COUPLE_WIDTH_TOL } from './couples.js';
 import { DEG } from '../core.js';
+import type { Going } from '../going.js';
 import type { CallBundle, DancerSpec, Seg } from '../types.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
 
@@ -225,6 +226,41 @@ export class FormationMatcher {
 
   constructor(private readonly library: CallLibrary, private readonly config: SequencerConfig) {}
 
+  /** The permission predicate, injected by the Sequencer (see `ApplyPermission`). Null means "ask nobody". */
+  private permission: ApplyPermission | null = null;
+
+  /**
+   * Set the permission predicate. Injected rather than imported, exactly like `CallApplicator.setPermissionResolver`, so
+   * the geometry layer owns no policy and this class never learns what a level or a board name means.
+   */
+  setPermissionResolver(fn: ApplyPermission): void {
+    this.permission = fn;
+  }
+
+  /**
+   * Whether the rules admit this BODY, for the candidate filter.
+   *
+   * `going === null` is allowed without asking: a variant whose title names no body has nothing for a body-keyed rule to
+   * match, and asking would only re-ask the reading-level question the boundary already answered.
+   *
+   * THE GROUP IS NULL because the answer is about the BODY, not about who dances it: a group-scoped rule is enforced at
+   * the reading boundary, where the group is actually known.
+   */
+  private goingAllowed(board: Board, callName: string, going: Going | null): boolean {
+    if (!this.permission || going === null) return true;
+    const r = this.permission(board, { call: callName, group: null, going });
+    if (r.allowed) return true;
+    // ONLY A BODY-KEYED RULE FILTERS A BODY. A denial from a reading-level rule was decided at the boundary, with the
+    // group the reading named; honouring it here would refuse every group reading of a call whose `All 8` reading is
+    // suppressed — measured against the shipped `Lead Right` rules, which allow four `Couple #N` readings and deny `All 8`.
+    return r.bodyKeyed !== true;
+  }
+
+  /** `goingAllowed` for a caller that is FILTERING a variant list of its own (`CallApplicator.parallelApply`). */
+  allowsGoing(board: Board, callName: string, going: Going | null): boolean {
+    return this.goingAllowed(board, callName, going);
+  }
+
   clearCaches(): void {
     this.matchMemo.clear();
     this.formationMatchCache.clear();
@@ -239,7 +275,13 @@ export class FormationMatcher {
   findMatchingVariant(board: Board, callName: string, maxError: number): VariantMatch | null {
     // Every authored variant, `sequencer="no"` ones included: filtering them was measured
     // as a change for the worse and is recorded, not applied (CallLibrary.matchableVariants).
-    const variants = this.library.matchableVariants(callName);
+    //
+    // A BODY THE RULES REFUSE IS NOT A CANDIDATE, and it is filtered HERE — before the fit, not after the winner is
+    // chosen. Refusing after the fact would let a denied body win the tie-break and be replaced by a worse one, which is
+    // "the engine silently danced something else"; this way the set the tie-break sees never contains a refused body.
+    // The filter is silent by design: `CallApplicator` owns the refusal SENTENCE, because it is the layer that knows
+    // when every body has been refused and can say so once (`goingRefusal`).
+    const variants = this.library.matchableVariants(callName).filter((v) => this.goingAllowed(board, callName, v.going));
     if (variants.length === 0) return null;
     // Key on the call's position/heading signature. When the call is gender-
     // specific the result depends on the board's GENDER arrangement too; home

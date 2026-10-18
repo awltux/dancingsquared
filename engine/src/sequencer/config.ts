@@ -4,6 +4,7 @@
 // without passing them through each call.
 
 import type { Board } from './types.js';
+import type { Going } from '../going.js';
 
 /** See `SequencerConfig.permissionMode`. */
 export type PermissionMode = 'offer-only' | 'consistent';
@@ -19,6 +20,14 @@ export type PermissionMode = 'offer-only' | 'consistent';
 export interface ApplyAsk {
   readonly call: string;
   readonly group: string | null;
+  /**
+   * WHICH BODY of the call the question is about, or null when it is about the reading and the body is not chosen yet.
+   *
+   * The CANDIDATE filter passes the variant's own going, because that is the only thing that distinguishes bodies which
+   * share a setup exactly. `null` is also the value a variant with no going carries, so a rule keyed on a going can
+   * never fire for one.
+   */
+  readonly going: Going | null;
 }
 
 /**
@@ -29,7 +38,22 @@ export interface ApplyAsk {
  * The Sequencer owns the wiring (`permissionFor`), so the picker and the apply ask the SAME question — which is
  * the entire point of the gate.
  */
-export type ApplyPermission = (board: Board, ask: ApplyAsk) => { allowed: boolean; reason?: string };
+export type ApplyPermission = (
+  board: Board,
+  ask: ApplyAsk,
+) => {
+  allowed: boolean;
+  reason?: string;
+  /**
+   * Whether the rule that decided it named a BODY (`PermissionRule.going`).
+   *
+   * THIS IS WHAT KEEPS A READING-LEVEL DENIAL OUT OF THE CANDIDATE FILTER. A rule that denies the `All 8` reading was
+   * decided at the boundary, with the group the reading named; re-applying it per body would refuse EVERY group reading
+   * of that call (measured: the shipped `Lead Right` rules allow four `Couple #N` readings and deny `All 8`, so a
+   * body-keyed-only filter is the difference between those four working and not).
+   */
+  bodyKeyed?: boolean;
+};
 
 export class SequencerConfig {
   /** Extra matching tolerance (position units) added to the default when

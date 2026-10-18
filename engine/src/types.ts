@@ -1,6 +1,8 @@
 // Normalized runtime types for the dancing-squared engine.
 // The converter (convert.ts) produces these from taminations XML.
 
+import type { Going } from './going.js';
+
 export type Gender = 'boy' | 'girl' | 'phantom';
 
 export type Hands =
@@ -161,6 +163,16 @@ export interface CallBundle {
    * a tam whose only name is `from="Lines"` has declared its setup INLINE and this is `null`.
    */
   formation: string | null;
+  /**
+   * HOW this authoring goes, where the corpus publishes more than one body for a call: `close`, `normal` or `far`,
+   * DERIVED from the title (`going.ts` says why derived, and why it is a label rather than a measurement). `null` when
+   * the title does not say.
+   *
+   * IT IS ON THE VARIANT BECAUSE THAT IS THE THING THAT DIFFERS. Several bodies of one call can share their setup
+   * exactly, so a match has to be able to say WHICH body it chose — and a permission rule has to be able to refuse one
+   * without refusing the call.
+   */
+  going: Going | null;
 }
 
 export interface Pose {

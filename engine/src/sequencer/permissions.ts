@@ -38,6 +38,7 @@
 // while that line was there - TS2304, "Cannot find name". A module that USES a name has to import it, and
 // the public barrel for these is `index.ts`, not this file.
 import { COMBINED_GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES, COUPLE_GROUP_NAMES } from './selection.js';
+import type { Going } from '../going.js';
 
 /** The programme order, weakest first. A rule at a LATER index overrides one at an earlier index.
  *
@@ -93,6 +94,14 @@ export interface PermissionRule {
   /** The FORMATION this rule applies from, when it is formation-specific. Matched against the board's
    *  recognised name (`Sequencer.recognize`). Absent means every board. */
   board?: string;
+  /**
+   * The BODY this rule is about (`going.ts`), when it is body-specific. Absent means every body.
+   *
+   * A request that names NO body (`going` null — a reading-level ask, before a variant is chosen) never matches this, and
+   * that is the safe direction, the same one `board` takes for an unnamed board. Only the candidate filter names a body,
+   * because a body is the only thing that distinguishes authorings which share one setup exactly.
+   */
+  going?: Going;
   level: PermissionLevel;
   decision: PermissionDecision;
   /** Human-readable, and shown when the rule denies. Required on a deny so a refusal can never be a
@@ -100,7 +109,7 @@ export interface PermissionRule {
   reason?: string;
 }
 
-/** A request for permission: a call, optionally for a chosen group, optionally from a named board. */
+/** A request for permission: a call, optionally for a chosen group, optionally from a named board or body. */
 export interface PermissionRequest {
   call: string;
   group?: string | null;
@@ -108,6 +117,9 @@ export interface PermissionRequest {
    *  names a board then does not match, which is the safe direction: an un-named board must not be
    *  treated as if it were the one the rule is about. */
   board?: string | null;
+  /** The BODY the ask is about, or absent/null when the body is not chosen yet. A rule that names a body then does not
+   *  match, for the same reason a board-keyed rule does not match an unnamed board. */
+  going?: Going | null;
   /** The ACTIVE level. Rules above it are not consulted - the app has not registered those calls, so
    *  they could not apply anyway, and honouring them would let an unloaded programme forbid a call. */
   level: PermissionLevel;
@@ -149,6 +161,14 @@ function matches(rule: PermissionRule, req: PermissionRequest): boolean {
   if (rule.board !== undefined) {
     const want = norm(rule.board);
     const got = req.board ? norm(req.board) : '';
+    if (want !== got) return false;
+  }
+  // A RULE ABOUT A BODY DOES NOT MATCH AN ASK THAT NAMES NONE, which is the reading-level ask: the body is not chosen
+  // yet, so a rule written about `far` cannot be the reason a reading is refused. The same direction as `board` above,
+  // and the reason a `going`-keyed rule only bites in the candidate filter.
+  if (rule.going !== undefined) {
+    const want = norm(rule.going);
+    const got = req.going ? norm(req.going) : '';
     if (want !== got) return false;
   }
   return true;

@@ -9,6 +9,7 @@ import { matchFormations, type Matchable } from './match.js';
 import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig, type ApplyPermission } from './config.js';
+import type { Going } from '../going.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, canonicalName, isKnownCouple } from './constants.js';
 import { normAngle } from './identity.js';
 import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
@@ -532,6 +533,9 @@ export class CallApplicator {
     }
 
     const matchTol = rebase ? DEFAULT_MATCH_MAX + this.config.matchMargin : SEARCH_MATCH_MAX + this.config.matchMargin;
+    // BEFORE THE MATCHER, so an all-refused call reports the RULE's reason rather than the geometric no-setup one.
+    const bodyRefused = this.goingRefusal(board, callName);
+    if (bodyRefused !== null) return { board: cloneBoard(board), legal: false, reason: bodyRefused };
     const match = this.matcher.findMatchingVariant(board, callName, matchTol);
     if (!match) {
       const par = this.parallelApply(board, callName, rebase, matchTol);
@@ -640,7 +644,9 @@ export class CallApplicator {
   private permissionRefusal(board: Board, step: ModuleStep): string | null {
     if (!this.permission) return null;
     const ask = (call: string, group: string | null): string | null => {
-      const r = this.permission!(board, { call, group });
+      // THE READING-LEVEL ASK (`going` null): the body is not chosen yet. A rule keyed on a body is applied by the
+      // CANDIDATE filter, which knows which body it is asking about (`FormationMatcher.allowsGoing`).
+      const r = this.permission!(board, { call, group, going: null });
       return r.allowed ? null : (r.reason ?? `not permitted here: ${call}`);
     };
     if (typeof step === 'string') {
@@ -664,6 +670,32 @@ export class CallApplicator {
     }
     if (step.selection) return ask(step.call, step.selection);
     return ask(step.call, null);
+  }
+
+  /**
+   * The refusal the permission layer demands for a call's BODIES, or null.
+   *
+   * WHY THIS EXISTS AS WELL AS THE CANDIDATE FILTER. The filter runs inside the matcher and is silent, so a call whose
+   * every body a rule refuses would report "No setup in this call matches the current formation." — the one message that
+   * hides the fact that a RULE said no.
+   *
+   * ONLY A BODY-KEYED DENIAL COUNTS (`bodyKeyed`), for the reason `FormationMatcher.allowsGoing` records: a rule that
+   * denies the whole `All 8` READING was already decided at the boundary with the group the reading named, and honouring
+   * it here would refuse every group reading of the same call.
+   */
+  private goingRefusal(board: Board, callName: string): string | null {
+    if (!this.permission) return null;
+    const goings = new Set<Going>();
+    for (const v of this.library.matchableVariants(callName)) if (v.going) goings.add(v.going);
+    if (goings.size === 0) return null;
+    let reason: string | null = null;
+    for (const going of goings) {
+      const r = this.permission(board, { call: callName, group: null, going });
+      // ONE SURVIVING BODY IS ENOUGH, and a reading-level answer is not this gate's business.
+      if (r.allowed || r.bodyKeyed !== true) return null;
+      reason = r.reason ?? reason;
+    }
+    return reason ?? `no body of ${callName} is permitted here`;
   }
 
   private applyStepInner(
@@ -1326,7 +1358,9 @@ export class CallApplicator {
   ): (ApplyResult & { error: number }) | null {
     // Every authored variant, `sequencer="no"` ones included — see
     // CallLibrary.matchableVariants for the measurement that keeps this unfiltered.
-    const variants = this.library.matchableVariants(callName);
+    // A REFUSED BODY IS NOT TILED EITHER: the parallel path enumerates variants itself, so it filters them the same way
+    // the whole-board matcher does, or a body the rules refuse could still be danced by tiling the board into groups.
+    const variants = this.library.matchableVariants(callName).filter((v) => this.matcher.allowsGoing(board, callName, v.going));
     if (variants.length === 0) return null;
     const phys = board.dancers.filter((d) => !d.isGhost);
     const n = phys.length;

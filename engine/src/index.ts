@@ -18,6 +18,10 @@ export * from './core.js';
 export * from './handholds.js';
 export * from './matrix.js';
 export * from './moves.js';
+// HOW A CALL GOES: the derived `close`/`normal`/`far` label, exported because a rule or a probe that keys on a body has to
+// be able to enumerate the values and derive one from a title (`going.ts`).
+export { GOING_VALUES, goingOfTitle } from './going.js';
+export type { Going } from './going.js';
 
 export { Engine } from './engine.js';
 export type { HoldMode, HoldEdge, Hand } from './handholds.js';

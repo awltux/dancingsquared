@@ -5,6 +5,7 @@
 // In the browser DOMParser is global. In Node, call `setParser` with
 // @xmldom/xmldom's DOMParser (as the test does).
 
+import { goingOfTitle } from './going.js';
 import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg, SequencerMode, Symmetry } from './types.js';
 
 // ----------------------------------------------------------------- DOMParser
@@ -457,6 +458,10 @@ function buildCallImpl(
     title: tam.title,
     from: tam.from,
     formation: tam.dancers.length === 0 ? tam.formationAttr : null,
+    // HOW this body goes, DERIVED from the title at the one place a CallBundle is born. `going.ts` carries the reason it
+    // is derived rather than authored (these tams are app-exported, so an authored attribute needs the exporter and its
+    // survival gate; a derived label cannot be lost) and the measurement that says it must be a label, not a distance.
+    going: goingOfTitle(tam.title),
     parts: tam.parts,
     taminator: tam.taminator,
     dancers: dancers2,

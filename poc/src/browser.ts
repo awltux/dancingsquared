@@ -18,6 +18,8 @@ import { filterCalls, matchCount } from './call-filter';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import type { Stage } from 'dancing-squared-stage';
+import { displayCouple } from './display-couple';
+import { isZeroSetup } from './zero-formations';
 import { Player } from './player';
 import type { BoardRead } from './sequencer-ui';
 
@@ -538,8 +540,16 @@ export class CallBrowser {
     }
     const dancers = assignHomeIdentity(call.dancers);
     this.dancers = dancers;
-    this.views = dancers.map((d) => new DancerView(d, d.couple ?? 0));
-    this.markers = dancers.map((d) => buildFlatMarker(d.gender, d.couple ?? 0));
+    // THE SAME COLOUR RULE AS THE SEQUENCER, and that is the whole point of `displayCouple` being one
+    // function: the editor and the browse view draw through THIS method, so without the fallback one
+    // board was coloured in the sequence view and grey here, for the same setup. The dancers' `couple`
+    // is untouched - only the colour the avatar is built with.
+    //
+    // ENABLED BY THE SETUP'S NAME, never by the absence of identity: a call editor board IS a start setup
+    // (this is beat 0 of the call being edited), which is the one board whose array order means anything.
+    const zeroOrder = isZeroSetup(call.formation, call.from);
+    this.views = dancers.map((d, i) => new DancerView(d, displayCouple(d, i, zeroOrder)));
+    this.markers = dancers.map((d, i) => buildFlatMarker(d.gender, displayCouple(d, i, zeroOrder)));
     for (let i = 0; i < this.views.length; i++) {
       this.stage.scene.add(this.views[i].group);
       this.stage.scene.add(this.views[i].trail);

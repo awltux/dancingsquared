@@ -120,6 +120,7 @@ import type { KeyBinding } from './keys';
 // STEPPING THE MOVE STRIP IS ITS OWN PURE MODULE, for the reason `scrub-keep.ts` is: the wrap is arithmetic,
 // and a probe can only MEASURE it if it can import it rather than read this panel for the expression.
 import { stepMoveIndex } from './move-nav';
+import { isZeroSetup } from './zero-formations';
 
 export interface EditorUI {
   setActive(a: boolean): void;
@@ -3091,7 +3092,18 @@ export class EditorController implements EditorUI {
       `${call.title} · ${call.dancers.length} dancers · ${show(call.beats)} beats` +
       (n > 1 ? ` · ${n} selected (edits apply to all, each in its own frame)` : '') +
       (this.instanceEdited ? ' · edited' : '') +
-      (unknown === call.dancers.length ? ' · no home identity (not a squared set)' : '');
+      // THE COLOURS ARE STILL DRAWN, AND THAT IS SAID HERE rather than left to be inferred from the table's
+      // "-" column: `displayCouple` numbers a dancer with no home couple by its PAIR IN THE LIST ORDER when
+      // the setup is one of `ZERO_FORMATIONS`, so the board is coloured (and labelled) while the engine's
+      // `couple` stays UNKNOWN. Without the note the two would read as a contradiction - a red dancer whose
+      // couple column says nothing. A setup that is NOT in the list keeps one grey, and the note says which
+      // of the two this board is, because "the colours are missing" and "the colours are missing HERE" are
+      // different reports.
+      (unknown === call.dancers.length
+        ? isZeroSetup(call.formation, call.from)
+          ? ' · no home identity (not a squared set) — colours follow the list order'
+          : ' · no home identity (not a squared set) — one colour, because this setup is not a zero formation'
+        : '');
   }
 
   /**

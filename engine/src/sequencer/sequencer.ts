@@ -4,7 +4,7 @@
 // collaborator that owns that responsibility, so the heavy logic lives in small,
 // focused classes instead of one god-class.
 
-import { SequencerConfig, emptySearchStats, type SearchStats } from './config.js';
+import { SequencerConfig, emptySearchStats, type ApplyAsk, type PermissionMode, type SearchStats } from './config.js';
 import { CallLibrary } from './library.js';
 import { FormationMatcher } from './matcher.js';
 import { CallApplicator, type ApplyResult } from './applicator.js';
@@ -76,6 +76,10 @@ export class Sequencer {
     this.applicator = new CallApplicator(this.library, this.matcher, this.config);
     this.grouping = new Grouping(this.applicator);
     this.applicator.setSelectionResolver((board, selection) => this.grouping.resolveSelection(board, selection));
+    // THE PERMISSION GATE'S WIRING, the same injection shape and for the same reason. The applicator asks; this
+    // class answers with the SAME predicate the picker uses (`permissionFor`), so "the app will not suggest this"
+    // and "the engine refuses this" cannot become two different opinions about one call.
+    this.applicator.setPermissionResolver((board, ask) => this.permissionAnswer(board, ask));
     this.legality = new LegalityChecker(this.library, this.matcher, this.applicator, this.config);
     this.analyzer = new SequenceAnalyzer(this.library, this.matcher, this.applicator, this.config);
     // The analyzer resolves a SCOPED step against its own subset (see `matchingVariantInfo`), and the
@@ -687,27 +691,64 @@ export class Sequencer {
   }
 
   /**
-   * Whether the picker may OFFER `call` for `group` here. Picker-only: this does not gate `apply`, so a
-   * caller who names the call directly still gets it.
+   * Whether the picker may OFFER `call` for `group` here.
    *
-   * The group is normalised so the picker's own vocabulary works: its whole-board entry is `All 8`, and
-   * `null`/absent means the same thing.
-   *
-   * `board` is what a FORMATION-SCOPED rule is checked against. It defaults to the current board, which
-   * is what the picker is offering from.
+   * Whether that also gates APPLYING is `permissionMode`'s decision, not this method's: this one is the question the
+   * picker asks, and it answers from the one predicate (`permissionFor`) either way. The group is normalised so the
+   * picker's own vocabulary works — its whole-board entry is `All 8`, and `null`/absent means the same thing — and
+   * `board` is what a FORMATION-SCOPED rule is checked against, defaulting to the board the picker is offering from.
    */
   mayOffer(call: string, group?: string | null, board?: Board): PermissionResult {
-    const b = board ?? this.board;
+    // THE PICKER'S OWN RESOLUTION, unchanged from before the gate existed: the BASE call plus the group the caller
+    // named, with a selection embedded in the string deliberately NOT lifted out. That is the vocabulary the shipped
+    // rules are written against, and MEASURED neutral for this change — a digest of `legalNext`, `legalCalls` and six
+    // `mayOffer` readings over seven boards is identical with and without the gate.
+    return this.permissionFor(board ?? this.board, splitSelection(call).call, group ?? null);
+  }
+
+  /**
+   * THE ONE PERMISSION PREDICATE. The picker asks it through `mayOffer`, the applicator through
+   * `permissionAnswer`, and nothing else builds a request — which is what makes the two answers agree.
+   *
+   * IT DOES NOT SPLIT THE NAME, and that is deliberate: both callers resolve the reading first (`resolveReading` for a
+   * raw string, the step's own `selection` for a structured one), so splitting again here would undo their answer for
+   * any title that starts with a group word. The board name and the level are read here because they are the
+   * sequencer's state, not the reading's.
+   */
+  private permissionFor(b: Board, call: string, group: string | null): PermissionResult {
     const req: PermissionRequest = {
-      call: splitSelection(call).call,
+      call,
       group: group && group !== 'All 8' ? group : 'All 8',
       // The RECOGNISED name, not the caller's label for the board: a rule that says "Static Square"
       // has to match the geometry, and a board built from a formation is named the same way by
       // `recognize` wherever it came from.
-      board: b ? this.recognize(b).name : null,
+      board: this.recognize(b).name,
       level: this.activeLevel,
     };
     return evaluatePermissions([...PERMISSION_RULES, ...this.permissionRules], req);
+  }
+
+  /**
+   * The same predicate, as an APPLY asks it. Silent unless `permissionMode` is `'consistent'` — see that field for
+   * why the default is still the picker-only contract.
+   *
+   * `reason` is the rule's own prose, passed through untouched: a refusal the picker shows and a refusal the engine
+   * gives are the same sentence because they are the same rule.
+   */
+  private permissionAnswer(board: Board, ask: ApplyAsk): { allowed: boolean; reason?: string } {
+    if (this.config.permissionMode !== 'consistent') return { allowed: true };
+    const r = this.permissionFor(board, ask.call, ask.group);
+    return r.allowed ? { allowed: true } : { allowed: false, ...(r.reason ? { reason: r.reason } : {}) };
+  }
+
+  /**
+   * Whether the engine refuses what the picker will not offer.
+   *
+   * Opt-in, and staged like `bodyCollisionMode`: 'consistent' moves every enumerator at once (`legalCalls`, the
+   * get-out search, the generated FSM asset), so it is flipped for a measurement before it is flipped for good.
+   */
+  setPermissionMode(mode: PermissionMode): void {
+    this.config.permissionMode = mode;
   }
 
   /** The reason the picker is not offering `call` for `group`, or null when it is. For a status line.

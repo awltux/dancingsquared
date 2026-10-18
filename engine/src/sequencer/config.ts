@@ -3,6 +3,34 @@
 // matcher / applicator / solvers, so tuning values flow to every collaborator
 // without passing them through each call.
 
+import type { Board } from './types.js';
+
+/** See `SequencerConfig.permissionMode`. */
+export type PermissionMode = 'offer-only' | 'consistent';
+
+/**
+ * One apply, as the permission layer sees it.
+ *
+ * `group` is the reading the request NAMED — a selector like `Couple #1`, or null for the whole board — and never
+ * a group the engine invented while tiling. That is deliberate: the rules are written about READINGS, and a tiling
+ * has no name to be written about. `CallApplicator.permissionRefusal` says why that keeps the rule layer out of the
+ * per-tiling loop as well as out of the tiling's vocabulary.
+ */
+export interface ApplyAsk {
+  readonly call: string;
+  readonly group: string | null;
+}
+
+/**
+ * The predicate the Sequencer injects, asked once per apply.
+ *
+ * INJECTED, never imported, for the same reason `setSelectionResolver` is: `permissions.ts` is pure and must not
+ * learn about boards, levels or the sequencer, and an import here would make the geometry layer depend on policy.
+ * The Sequencer owns the wiring (`permissionFor`), so the picker and the apply ask the SAME question — which is
+ * the entire point of the gate.
+ */
+export type ApplyPermission = (board: Board, ask: ApplyAsk) => { allowed: boolean; reason?: string };
+
 export class SequencerConfig {
   /** Extra matching tolerance (position units) added to the default when
    * matching a board against a next call's start setup and when checking whether
@@ -52,6 +80,21 @@ export class SequencerConfig {
    * `'off'` skips the check entirely, for callers that need the old cost profile.
    */
   bodyCollisionMode: 'report' | 'guard' | 'off' = 'report';
+
+  /**
+   * Whether the PERMISSION layer constrains APPLYING as well as OFFERING.
+   *
+   * `offer-only` (the default) is today's contract, and `permissions.ts`'s header states it: a rule decides what
+   * the picker SUGGESTS, and a caller who names the call still gets it. It is the right default while the shipped
+   * rules are still being agreed, because every rule is a claim about the corpus and a wrong one would silently
+   * remove a working call from the ENGINE, where no picker can show that it went missing.
+   *
+   * `consistent` makes the engine refuse what the picker will not offer, so the two answers cannot disagree:
+   * `legalNext` and `applyToBoard` are then one predicate (`Sequencer.permissionFor`). It is opt-in and staged
+   * exactly like `bodyCollisionMode` above, because flipping it moves every enumerator at once — `legalCalls`, the
+   * get-out search, and the generated FSM asset — which is a measurement before it is a tidy-up.
+   */
+  permissionMode: PermissionMode = 'offer-only';
 
   /** Injectable random source for the probabilistic selection (tests). */
   rand: () => number = Math.random;

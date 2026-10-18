@@ -5,6 +5,12 @@
 // deliberate - it separates "the app will not suggest this" from "the engine refuses this", which are
 // different claims and were previously conflated.
 //
+// THAT IS STILL THE DEFAULT, AND IT IS NOW A MODE. `SequencerConfig.permissionMode` can make the engine refuse what
+// the picker will not offer (`'consistent'`), which is what keeps the two answers from drifting apart on a reading a
+// rule was written about. The wiring lives in `Sequencer.permissionFor` - ONE predicate, asked by both - and the
+// apply asks it at the READING boundary (`CallApplicator.applyStepInner`), never inside the tiling. This module
+// itself is unchanged by that: it is still a pure rule chain that knows nothing about boards or levels.
+//
 // WHY IT EXISTS. `groupCanPerform` already answered "can this GROUP perform this call", by composing the
 // group and applying it. That is the geometric question, and it cannot express the others:
 //

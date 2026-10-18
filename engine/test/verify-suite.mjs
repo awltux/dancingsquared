@@ -146,6 +146,13 @@ const SUITE = [
   // that an MS deny PLUS contradicts is lifted at PLUS, and that this is PICKER-ONLY - `applyToBoard`
   // still applies the suppressed call. Pure logic plus one board: <1s.
   { h: 'permissions', light: true },
+  // THE PERMISSION LAYER AS AN APPLY GATE, which is the half `permissions.mjs` cannot see. Pins that the DEFAULT is
+  // still the picker-only contract (the engine applies what the picker suppresses), that `permissionMode:
+  // 'consistent'` makes `applyToBoard` refuse it with the RULE's own reason, that a named-GROUP reading the rules
+  // allow still applies (which is what pins the gate at the reading boundary rather than inside the tiling), that
+  // offer and apply agree over a 25-reading sweep (with the `offer-only` disagreement as the negative control), and
+  // that the enumerators and modules inherit the gate. One board, ~1s.
+  { h: 'permission-gate', light: true },
   // PARALLEL CALLS FOR THE REMAINING DANCERS. The `GroupStep` construct already existed and `modules.mjs`
   // pins its rules; this pins what was missing for the reported case ("Sides Promenade Home" with the
   // heads in the path): that the remainder is NAMEABLE (`remainingSelection` derives `All Except X` from

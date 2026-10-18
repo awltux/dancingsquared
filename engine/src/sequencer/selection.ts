@@ -160,6 +160,28 @@ export function selectionGroup(sel: string): string | null {
 }
 
 /**
+ * THE READING a raw call string names: the LIBRARY's own name when it publishes one, otherwise a group plus a base
+ * call.
+ *
+ * WHY THE ORDER MATTERS, and why this is not `splitSelection` with a nicer name. `Heads Pass Thru` is a `<tam
+ * title=...>` in `ms/pass_thru.xml`, so the applicator applies it as a WHOLE-BOARD call; splitting it into `Pass Thru`
+ * for the heads consults a vocabulary nobody authored. `Heads Dosado` is the other case and must still split, because
+ * the catalogue publishes `Dosado` and the scoped form is a reading over it. So the decision is "does the library
+ * publish this name", which is why it is a parameter rather than an import: `selection.ts` owns no library.
+ *
+ * ONE FUNCTION, because two callers (the picker through `Sequencer.mayOffer` and the apply through
+ * `CallApplicator.permissionRefusal`) must not answer that question differently — and before this existed they did.
+ */
+export function resolveReading(
+  raw: string,
+  published: (name: string) => boolean,
+): { call: string; group: string | null } {
+  if (published(raw)) return { call: raw, group: null };
+  const s = splitSelection(raw);
+  return { call: s.call, group: s.selection ?? null };
+}
+
+/**
  * Split a raw call string like "Centers Pass Thru" or "Same 4 Star Thru" into a
  * selection (or null) and the base call. Returns { selection, call }.
  */

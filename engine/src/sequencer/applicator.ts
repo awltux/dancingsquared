@@ -8,12 +8,12 @@ import { dancerBeats, poseFor } from '../core.js';
 import { matchFormations, type Matchable } from './match.js';
 import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
 import { CallLibrary } from './library.js';
-import { SequencerConfig } from './config.js';
+import { SequencerConfig, type ApplyPermission } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, canonicalName, isKnownCouple } from './constants.js';
 import { normAngle } from './identity.js';
 import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
-import { splitSelection } from './selection.js';
+import { splitSelection, resolveReading } from './selection.js';
 import type { Board, CallStep, GroupStep, LaneRun, ModuleStep, SeqDancer, VariantMatch } from './types.js';
 import { isGroupStep, normalizeGroupLane, stepLabel } from './types.js';
 import { applyCodedToSelection, findCodedMove, isDeferredCall } from './coded-moves.js';
@@ -462,6 +462,18 @@ export class CallApplicator {
     this.resolveSelection = fn;
   }
 
+  /** The permission predicate, injected by the Sequencer (see `ApplyPermission`). Null means "ask nobody", which is
+   * the state before the wiring runs and the state a bare `CallApplicator` built by a harness starts in. */
+  private permission: ApplyPermission | null = null;
+
+  /**
+   * Set the permission predicate. Injected rather than imported, exactly like `setSelectionResolver` above, so the
+   * geometry layer owns no policy and `permissions.ts` learns nothing about boards.
+   */
+  setPermissionResolver(fn: ApplyPermission): void {
+    this.permission = fn;
+  }
+
   /** Apply a call (or module) to a COPY of the given board (does not mutate).
    * The interactive apply re-bases the board onto the call's canonical start so
    * margin-based drift doesn't accumulate on the live sequence. Accepts a call
@@ -495,7 +507,15 @@ export class CallApplicator {
         const r = this.applyStepInner(cur, sub, nextStack, rebase, allowParallel);
         if (!r.legal) {
           const label = stepLabel(sub);
-          return { board: cloneBoard(board), legal: false, reason: `Module ${callName}: "${label}" not legal here` };
+          // THE SUB-STEP'S OWN REASON IS CARRIED, not swallowed. A module whose step a permission RULE refused used
+          // to report only "not legal here", which is the one message that hides the fact that a rule (and not the
+          // geometry) said no — the same distinction `permissions.ts`'s header draws. Appended rather than replaced,
+          // so the module and the step are still named first.
+          return {
+            board: cloneBoard(board),
+            legal: false,
+            reason: `Module ${callName}: "${label}" not legal here${r.reason ? ` — ${r.reason}` : ''}`,
+          };
         }
         cur = r.board;
       }
@@ -598,6 +618,54 @@ export class CallApplicator {
     return this.applyStepInner(board, step, [], true);
   }
 
+  /**
+   * THE PERMISSION GATE, IN ONE PLACE, AT THE READING BOUNDARY.
+   *
+   * A "reading" is what a caller asked for: one call, optionally for a named group, or a "while" step whose lanes
+   * each name one. Everything BELOW this method is how the engine makes that true — matching a variant, tiling the
+   * board into groups, falling back to the scoped tam — and none of it is a question the rules were written about.
+   * So the gate belongs here and nowhere else, and that placement is load-bearing in two directions:
+   *
+   *  - A rule that denies the whole-board reading (`All 8`) must not fire again for the SUBSET apply that
+   *    `applySelected` performs internally to answer a named group; that internal apply is the reading's own
+   *    implementation, and asking twice would refuse a group the rules explicitly allow (the shipped `Lead Right`
+   *    rules allow exactly four `Couple #N` readings and deny `All 8`).
+   *  - A rule that denies a MODULE also denies it, transitively: the module expands by calling this method per
+   *    sub-step, so a module holding a suppressed call refuses with that call's own reason. That is the wanted
+   *    direction — a module is not a way around the rule — and it costs one ask per sub-step, not per sample.
+   *
+   * THE REASON IS THE RULE'S, verbatim. `permissions.ts` requires every deny to carry one so a refusal can never be
+   * a bare "no"; passing it through is what makes `legalNext` and `applyToBoard` explain themselves identically.
+   */
+  private permissionRefusal(board: Board, step: ModuleStep): string | null {
+    if (!this.permission) return null;
+    const ask = (call: string, group: string | null): string | null => {
+      const r = this.permission!(board, { call, group });
+      return r.allowed ? null : (r.reason ?? `not permitted here: ${call}`);
+    };
+    if (typeof step === 'string') {
+      // THE READING, resolved by the ONE helper the picker also uses (`resolveReading`): a name the catalogue publishes
+      // ("Heads Pass Thru" is a `<tam title=...>` in `ms/pass_thru.xml`) is applied as a whole-board call, so asking the
+      // rules about "Pass Thru" for the heads would be a question nobody wrote a rule about.
+      const r = resolveReading(step, (n) => this.library.hasCall(n) || this.library.hasModule(n));
+      return ask(r.call, r.group);
+    }
+    if (isGroupStep(step)) {
+      // Every lane's every call, because a lane naming a suppressed call is a suppressed step: the step is atomic
+      // (`applyGroupStep` refuses the whole step if any lane refuses), so the gate has to be too.
+      for (const raw of step.groups) {
+        const g = normalizeGroupLane(raw);
+        for (const call of g.calls) {
+          const why = ask(splitSelection(call).call, g.selection);
+          if (why !== null) return why;
+        }
+      }
+      return null;
+    }
+    if (step.selection) return ask(step.call, step.selection);
+    return ask(step.call, null);
+  }
+
   private applyStepInner(
     board: Board,
     step: ModuleStep,
@@ -605,6 +673,8 @@ export class CallApplicator {
     rebase: boolean,
     allowParallel = true,
   ): ApplyResult {
+    const refused = this.permissionRefusal(board, step);
+    if (refused !== null) return { board: cloneBoard(board), legal: false, reason: refused };
     if (typeof step === 'string') return this.applyToBoardInner(board, step, stack, rebase, allowParallel);
     if (isGroupStep(step)) return this.applyGroupStep(board, step, stack, rebase);
     if (step.selection) return this.applySelected(board, step.selection, step.call, rebase, undefined, stack);

@@ -195,7 +195,7 @@ export {
   type FsmReading,
   type FsmEndKind,
 } from './sequencer/fsm-table.js';
-export { normalizeSelection, selectionGroup, splitSelection } from './sequencer/selection.js';
+export { normalizeSelection, resolveReading, selectionGroup, splitSelection } from './sequencer/selection.js';
 // THE WHOLE GROUP VOCABULARY, as one array: every name the picker can offer, which is also every name a
 // permission rule's `group` may usefully carry. Exported so a consumer names all of them from ONE list
 // rather than re-typing the eight gender spellings - the mistake the Lead Right rules made.

@@ -144,13 +144,23 @@ console.log('\n== (6) a rule ABOVE the active level is not consulted ==');
   seq.setActiveLevel('ms');
 }
 
-console.log('\n== (7) PICKER-ONLY: the engine still applies it ==');
+console.log('\n== (7) PICKER-ONLY BY DEFAULT: the engine still applies it ==');
 // This is the separation the whole design rests on, and it is easy to break by routing the rule into
 // the legality check instead of the picker.
+//
+// AND IT IS NOW A MODE, not an absolute: `permissionMode` defaults to `'offer-only'`, so this section pins the DEFAULT
+// and the line below pins the other side of it. The distinction matters — a future change that flips the default would
+// otherwise read as an engine regression here rather than as the decision it is.
 seq.setActiveLevel('ms');
 check(seq.mayOffer('Dosado', 'All 8').allowed === false, 'the picker does not offer it');
 check(seq.applyToBoard(square, 'Dosado').legal === true, 'but applyToBoard still applies it');
 check(seq.sequenceBeats(['Dosado'], square) > 0, 'and a hand-written sequence can still dance it');
+seq.setPermissionMode('consistent');
+check(seq.applyToBoard(square, 'Dosado').legal === false, 'WHILE `consistent` refuses the same apply — the mode, not the layer, decides this');
+// MEASURED COST OF THAT MODE, which is why it is not the default: with the gate on, `figure-census` reads 3 of 188 figures
+// (116 with it off), the get-out corpus is unchanged, and the generated FSM loses 332 of its 3958 edges.
+seq.setPermissionMode('offer-only');
+check(seq.applyToBoard(square, 'Dosado').legal === true, 'and switching back restores it, so the default is a setting rather than a rewrite');
 
 console.log('\n== (8) the default is ALLOW ==');
 {

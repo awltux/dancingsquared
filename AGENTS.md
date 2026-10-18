@@ -457,6 +457,18 @@ with its measurement, in the same commit that found it.
     replaced is wrong for all 500 of them. **The same walk read each file's FAMILY out of a map that was published AFTER it**,
     so every call's `family` had been empty since the field was added (`0d76cbd^` was already wrong); a latent defect found in
     the same read is fixed in the same commit, not left for its own.
+30. **A FORMATION'S DANCER ORDER IS DATA EVERY CALLER PAIRS ITS PATHS AGAINST, and a diff of `formations.xml` cannot see the
+    callers.** A `<tam>`'s `<path>` list is paired with the formation's dancers BY INDEX (`buildCallImpl`), and a half-set tam
+    pairs its written paths with the WRITTEN dancers while the mirrored half reuses each written dancer's local path. So
+    reordering a formation's dancers without permuting its dependents silently gives every call somebody else's track — and
+    nothing in the files shows it afterwards: the spots are the same, the tams parse, the board still looks like a ring.
+    MEASURED: `Circle`'s authored order was W,N,E,S where a square set is S,E,N,W; reordering it needs the path permutation
+    **[2,3,0,1]** (a half turn shares a local frame, so a path may move to the antipodal dancer), NOT the `[3,2,1,0]` a
+    couple-order reading suggests — that one rotates the dance and moves dancers by up to **3.68** units, where the right one
+    reproduces all **22** dependents to **3.23e-15**. The process is the project skill `.dsh/skills/formation-reorder`, the
+    driver is `scripts/reorder-formation.mjs` (which refuses on a dirty tree and writes nothing unless every dependent's
+    geometry is preserved), and `engine/test/formation-order.mjs` pins the order plus a start-to-end digest that is INVARIANT
+    under a correct conversion and changes when one dependent is left stale. **Do not hand-permute the paths.**
 
 ---
 

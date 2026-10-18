@@ -39,6 +39,15 @@ const SUITE = [
   // is one pass over the assets, and it is the harness that makes "what does a shape of four dancers
   // mean" a fact rather than a geometric guess.
   { h: 'shape-census', light: true },
+  // A NAMED FORMATION'S DANCER ORDER IS DATA, and this is the pin for the formation that was reordered. A
+  // `<tam>`'s paths are paired with a formation's dancers BY INDEX, so moving one dancer in `formations.xml`
+  // gives every dependent call somebody else's track - and nothing in the files shows it: the spots are the
+  // same, the tams parse, the board still looks like a ring. Pinned: the compass order of the couples, the set
+  // of tams that name the formation (by file and title, never by position), and a digest of every dependent's
+  // start-to-end pairs. The digest is INVARIANT under a correct reorder and changes the moment one dependent is
+  // left stale; the control rebuilds the same calls against a deliberately wrong order, so the pin is not a
+  // tautology. ~1s, one pass over `formations.xml` and the 22 dependents.
+  { h: 'formation-order', light: true },
   // WHAT THE EDITOR'S START/END SETUP PICKERS OFFER, which is NOT the library's formation list. The
   // library's key is geometry up to congruence, so keyed on it the picker folded `Columns`, `Columns LH`
   // and `Column RH GBGB` - same spots, but `Columns LH` is the 180-degree rotation - onto one entry, and

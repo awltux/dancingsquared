@@ -4444,3 +4444,53 @@ possessive read "1 dancer' moves" for a single dancer. Both are fixed in this co
 `mirror-moves-probe.mjs` section 5, with a revert control for each. The general lesson is the repo's own §5
 rule, restated because it paid here: a string the press writes is part of the rule, and a source-check suite
 that never drives the control cannot see it.
+
+**A NAMED FORMATION'S DANCER ORDER IS DATA, AND REORDERING ONE IS A REFACTOR OF ITS CALLERS.**
+Reported as: "I have discovered that the Circle formation is out of order. I want to create a formation that
+ensures the dancer index goes in order of a square set (zero Square in FASR terms), [0,1] at the south, [2,3] at
+the east. But I think this will break many calls that inherit the order from the formation." The second
+sentence is the whole difficulty, and it is exact: a `<tam>`'s `<path>` list is paired with the formation's
+dancers **by index** (`convert.ts`'s `buildCallImpl`), and a half-set tam pairs its **written** paths with the
+written dancers while the mirrored half reuses each written dancer's local path. So moving one dancer in
+`formations.xml` gives every call that names the formation somebody else's track — and **nothing in the files
+shows it afterwards**: the spots are the same, the tams parse, the board still looks like a ring.
+
+THE CONVENTION, stated once here because it is now a measurement rather than a preference. A square set's
+couples are numbered 1–4 **counter-clockwise** (FASR's Sequence field already reads the couples this way —
+`fasr.ts` sorts them by `atan2` and calls 1,2,3,4 "in sequence"), so the index order is **S, E, N, W** with the
+boy before the girl inside each couple. MEASURED over `formations.xml`: **139** named formations have their
+consecutive pairs on the compass points, and only **4** are in that order (`Right and Left Grand Static Square`,
+`Wrong Way Grand Static Square`, `Right and Left Grand Circle`, `Wrong Way Grand Circle`). `Circle` was
+**W,N,E,S**; `Static Square` itself is **S,W,N,E**. The corpus has no common convention here, which is why this
+converts ONE formation at a time and leaves the 135 others as separate decisions rather than pretending to a
+rule nobody adopted.
+
+THE PERMUTATION IS NOT THE OBVIOUS ONE. `Circle` completes to eight in the order W boy, W girl, N boy, N girl,
+E boy, E girl, S boy, S girl. Reordering the written half to S,E,N,W needs **`[2,3,0,1]`** — the new S dancer
+takes the old N path, the new E the old W path — because a 180-degree turn about the centre maps a dancer's
+local frame onto its antipode's, so the two share a local track (the same fact `mirrorToFull` relies on). The
+couple-order reading gives `[3,2,1,0]`, and that one is MEASURED WRONG: it rotates the dance and moves dancers
+by up to **3.68 units**. With `[2,3,0,1]` all **22** tams that name `Circle` reproduce their boards to a worst
+sampled position difference of **3.23e-15** over 16 samples per track, 0 mismatches.
+
+THE PROCESS IS A SKILL, because the driver is a decision and the edit is a proof. `.dsh/skills/formation-reorder`
+carries the procedure; `scripts/reorder-formation.mjs` is the driver (it reads the NEW block from the working
+tree and the OLD one from `HEAD`, derives the permutation with the engine's `formationReorderPermutation`,
+**refuses on a dirty tree**, and writes nothing unless `compareGeometry` shows every dependent unmoved before
+AND after the write); `engine/src/formation-order.ts` owns the rules so the driver and the gate import one
+implementation; `engine/test/formation-order.mjs` pins the result. One formation per commit.
+
+WHAT THE PIN IS, and why a digest of start-to-end pairs. There is no local invariant in the data that says
+"these are the right paths for these dancers" — the pairing IS the index, so any permutation produces a valid
+call and only the geometry says whether it is the intended one. The harness therefore pins the compass order,
+the dependent set (file and title, never a position — AGENTS §8 trap 7), and a digest of every dependent's
+`start spot → end spot`. That digest is **identical before and after a correct conversion** (the order changed,
+nobody moved) and **changes the moment one dependent is left stale**. Its control rebuilds the same calls
+against a deliberately wrong order (`1ff72181 → ab84d575`), so the pin is not a tautology.
+
+WHAT IS NOT DONE. The other 135 compass-class formations, including `Static Square`, are still in whatever order
+the corpus wrote them; converting one touches every call that names it, and `Static Square` touches the whole
+catalogue. The editor's `Export <formation>` is the way to PRODUCE a block in a chosen order (reorder the
+dancer table with the swap button, export, paste) — the tool then derives what the callers need, which is the
+part a diff of `formations.xml` cannot tell you.
+

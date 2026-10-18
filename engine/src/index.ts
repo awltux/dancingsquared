@@ -308,3 +308,21 @@ export type { SequencerMode } from './types.js';
 // Search-cost counters: what a getout/getin/fixIt actually cost, in the terms that separate
 // the catalogue-scan term from the (previously quadratic) equivalents term.
 export type { SearchStats } from './sequencer/config.js';
+
+// REORDERING A FORMATION'S DANCER ORDER. A `<tam>`'s paths are paired with a formation's dancers by INDEX,
+// so the order is part of the formation and changing it is a path permutation, not a rewrite: a 180-degree
+// turn about the centre maps a dancer's local frame onto its antipode's, so the two share a local track.
+// `scripts/reorder-formation.mjs` is the driver and `engine/test/formation-order.mjs` pins the result;
+// the rules live here so both - and any probe - import one implementation instead of restating it.
+export {
+  sameSpotUpToHalfTurn,
+  sameSpotExact,
+  formationReorderPermutation,
+  permuteBy,
+  formationCompassOrder,
+  compassLetters,
+  completedFormation,
+  compareGeometry,
+  COMPASS_SEQUENCE,
+} from './formation-order.js';
+export type { CompassPoint, ReorderPlan, ReorderRefusal, GeometryComparison } from './formation-order.js';

@@ -355,8 +355,14 @@ const report = {
 if (json) {
   console.log(JSON.stringify(report, null, 1));
 } else {
-  const letters = (value) => value ?? 'not on the compass';
-  console.log(`${formation}: ${letters(oldLetters)} -> ${letters(newLetters)}  (${oldAuthored.length} written dancers)`);
+  // A LINE HAS ENDS, NOT QUARTERS, so a formation off the compass has no letters to print - and
+  // "not on the compass -> not on the compass" would read as if the reorder did nothing, when what changed
+  // is the ORDER of a board the compass cannot name.
+  const orderText =
+    oldLetters && newLetters
+      ? `${oldLetters} -> ${newLetters}`
+      : 'order changed (not on the compass, so the completed spot list is the order)';
+  console.log(`${formation}: ${orderText}  (${oldAuthored.length} written dancers)`);
   console.log(`path permutation (new index -> old path): [${halfPlan.permutation.join(',')}]  (half-set tams ${report.halfSet}, whole-set ${report.wholeSet})`);
   console.log(`dependents: ${results.length} tams in ${byFile.size} files; ${report.pathed} change and ${noOp} already read the same under this permutation`);
   for (const [file, count] of [...byFile.entries()]) console.log(`  ${file}  ${count}`);

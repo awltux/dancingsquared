@@ -47,15 +47,18 @@ const check = (cond, msg, detail = '') => {
 };
 
 /**
- * THE PIN. `order` is the compass order of the couples in the formation AS IT STANDS, and it is the one
- * field a conversion changes; `dependents` is the surface that has to follow; `digest` is the geometry that
- * must not move - so it is the SAME before and after a correct conversion, which is the property this pin
- * exists to state.
+ * THE PIN. `spots` is the formation's COMPLETED order, index for index - the thing a conversion changes and
+ * the only general way to state it, because `order` (compass letters) only names a board whose couples sit on
+ * the compass points. `dependents` is the surface that has to follow; `digest` is the geometry that must not
+ * move - so it is the SAME before and after a correct conversion, which is the property this pin exists to
+ * state.
  *
- * `pending: true` means the formation's order is still the BASELINE and the conversion is a separate commit:
- * the row is then pinning the state that conversion will change, and the negative control below proves the
- * pin is live while it does. `Circle` was converted in the commit whose message carries the measurement, so
- * its row is the converted order with `pending: false` - and its DIGEST is the one recorded BEFORE the
+ * `order: null` means the formation is NOT compass-class (a line has ends, not quarters), so its order is
+ * pinned by `spots` alone - and the null is itself checked, so a formation that becomes compass-class has to
+ * be reconsidered rather than silently keeping the label.
+ *
+ * `pending: true` would mean the order is still the BASELINE and the conversion is a separate commit. Both
+ * rows here are converted, so both are `pending: false`, and both DIGESTS are the ones recorded BEFORE their
  * conversion, because a correct conversion moves nobody.
  */
 const PINNED = {
@@ -65,8 +68,38 @@ const PINNED = {
     order: 'SENW',
     pending: false,
     written: 4,
+    spots: [
+      [-1, -2.414], [1, -2.414], [2.414, -1], [2.414, 1],
+      [1, 2.414], [-1, 2.414], [-2.414, 1], [-2.414, -1],
+    ],
     dependents: { total: 22, files: { 'ms/allemande.xml': 1, 'ms/circle.xml': 16, 'ms/promenade.xml': 2, 'ms/sashay.xml': 3 } },
     digest: '1ff72181',
+  },
+  'Normal Lines Compact': {
+    // A TWO-FACED LINE HAS NO COMPASS ORDER, so its order is the spot list: index 0-3 are the EAST line from
+    // its SOUTH end northwards (each dancer facing west into the line), and 4-7 the WEST line from its NORTH
+    // end southwards (facing east) - the completion turns each written dancer to its antipode and lists them in
+    // that order. It was west-line-north-first before this conversion, so the order changed and no dancer moved
+    // (the permutation was the IDENTITY: every path stayed on the spot that already had it).
+    order: null,
+    pending: false,
+    written: 4,
+    spots: [
+      [1.5, -3], [1.5, -1], [1.5, 1], [1.5, 3],
+      [-1.5, 3], [-1.5, 1], [-1.5, -1], [-1.5, -3],
+    ],
+    dependents: {
+      total: 27,
+      files: {
+        'c1/cross_and_turn.xml': 1,
+        'c2/circle_to_a_wave.xml': 2,
+        'c2/once_removed_concept.xml': 4,
+        'ms/circle.xml': 16,
+        'ms/sweep_a_quarter.xml': 2,
+        'plus/grand_swing_thru.xml': 2,
+      },
+    },
+    digest: '7d52e304',
   },
 };
 
@@ -135,12 +168,30 @@ for (const [name, pin] of Object.entries(PINNED)) {
   const authored = (formations.get(name) ?? []).map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }));
   const completed = engine.completedFormation(authored);
   const compass = engine.formationCompassOrder(completed);
-  check(!!compass, `"${name}" writes a whole set whose consecutive pairs sit on the compass`);
-  if (compass) {
+
+  // THE ORDER ITSELF, which is what a conversion changes: the completed board, index for index, as
+  // millimetres. This is the general pin - the compass letters below only name a board the compass can name.
+  const observed = completed.map((p) => [Number(p.x.toFixed(3)), Number(p.y.toFixed(3))]);
+  check(
+    JSON.stringify(observed) === JSON.stringify(pin.spots),
+    `"${name}" is ordered ${JSON.stringify(observed)}, pinned as ${JSON.stringify(pin.spots)}`,
+    'the block was reordered without this pin - update the row, or revert the block',
+  );
+
+  // THE COMPASS LABEL IS FOR THE BOARDS THE COMPASS CAN NAME, and `null` is a claim too: a two-faced line has
+  // ENDS rather than quarters, so its order is pinned by the spot list alone. A null that becomes compass-class
+  // has to be reconsidered rather than silently keeping the label.
+  if (pin.order === null) {
     check(
-      engine.compassLetters(compass.order) === pin.order,
-      `"${name}" is ordered ${engine.compassLetters(compass.order)} (worst pairing error ${compass.worst.toFixed(2)} deg), pinned as ${pin.order}`,
-      pin.pending ? 'the conversion is still pending: this pin records the baseline' : 'the formation was reordered without this pin - update the block or revert it',
+      compass === null,
+      `"${name}" is not compass-class, pinned as none`,
+      compass ? `the compass now reads ${engine.compassLetters(compass.order)} - decide what order it should have and pin the letters` : '',
+    );
+  } else {
+    check(
+      compass !== null && engine.compassLetters(compass.order) === pin.order,
+      `"${name}" is ordered ${compass ? engine.compassLetters(compass.order) : 'off the compass'} (worst pairing error ${compass ? compass.worst.toFixed(2) : '-'} deg), pinned as ${pin.order}`,
+      'the formation was reordered without this pin - update the block or revert it',
     );
   }
   check(authored.length === pin.written, `"${name}" writes ${authored.length} dancers, pinned as ${pin.written}`);
@@ -192,22 +243,27 @@ for (const [name, pin] of Object.entries(PINNED)) {
     'and only the EXACT one maps every dancer onto its own spot, which is what a whole-set tam writes',
   );
 
-  // THE NEGATIVE CONTROL: build the dependents against a formation whose pairs are in a WRONG ORDER and leave
-  // their paths where they are - the exact fault a forgotten dependent has, and the one this pin exists to
-  // catch. The digest must change, or the pin is measuring nothing.
+  // THE NEGATIVE CONTROL: move ONE spot of the formation and leave the dependents' paths alone - the exact
+  // fault a forgotten dependent has, and the one this pin exists to catch. The digest must change, or the pin
+  // is measuring nothing.
   //
-  // IT IS THE FORMATION ORDER THAT MOVES, not two raw `<path>` blocks: a call from a rotationally symmetric
-  // board often writes the same local path for every written dancer (`Allemande Left` from `Circle` does), so
-  // swapping two of those is a genuine no-op and would report a false pass.
-  const wrongOrder = new Map(formations);
-  wrongOrder.set(
+  // A MOVE RATHER THAN A REORDER, and the reason is measured: a call from a rotationally symmetric board often
+  // writes the SAME local path for several written dancers (`Allemande Left` from `Circle` does), so rotating
+  // the formation's order is a genuine no-op for those dependents and a rotation control would report a false
+  // pass. Moving a spot changes where a dancer starts and therefore where it ends, whatever the call.
+  //
+  // AND IT IS BUILT FROM THE PARSED DANCERS, not from this file's poses: a formation handed to `buildCall` in
+  // `{x, y, heading}` shape has no `angleDeg`, so every heading becomes NaN - a control that "changes the
+  // digest" by breaking the geometry rather than by moving it.
+  const movedFormation = new Map(formations);
+  movedFormation.set(
     name,
-    [...authored.slice(2), ...authored.slice(0, 2)],
+    formations.get(name).map((d, i) => (i === 0 ? { ...d, x: d.x + 0.5 } : d)),
   );
-  const wrongDigest = geometryDigest(deps, { formationsOverride: wrongOrder }).digest;
+  const movedDigest = geometryDigest(deps, { formationsOverride: movedFormation }).digest;
   check(
-    wrongDigest !== digest,
-    `and building the same calls against "${name}" with its pairs rotated changes the digest (${digest} -> ${wrongDigest}), so the pin is live`,
+    movedDigest !== digest,
+    `and moving one spot of "${name}" half a unit changes the digest (${digest} -> ${movedDigest}), so the pin is live`,
   );
 }
 

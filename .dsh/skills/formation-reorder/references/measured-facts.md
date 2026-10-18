@@ -59,9 +59,37 @@ after a correct conversion** (the order changed, the geometry did not) and **cha
 left stale. Its control builds the same calls against a deliberately wrong order
 (`1ff72181 → ab84d575` on the baseline), so the pin is not a tautology.
 
+## A SECOND CONVERSION: `Normal Lines Compact` — and what it taught
+
+A **two-faced line has no compass order** (it has ends, not quarters), so the pin is the completed spot
+list rather than compass letters, and the tool prints no letters for it. The block the caller wrote is the
+**east line from its south end northwards** (each dancer facing west), completed to the west line from its
+north end southwards: `[[1.5,-3], [1.5,-1], [1.5,1], [1.5,3], [-1.5,3], [-1.5,1], [-1.5,-1], [-1.5,-3]]`.
+
+- **27** tams name it: `c1/cross_and_turn.xml` 1, `c2/circle_to_a_wave.xml` 2,
+  `c2/once_removed_concept.xml` 4, `ms/circle.xml` 16, `ms/sweep_a_quarter.xml` 2,
+  `plus/grand_swing_thru.xml` 2.
+- The path permutation is the **IDENTITY** `[0,1,2,3]`, because the new written four ARE the old written
+  four's antipodes: a half-set tam gives each written dancer the same local path as its antipode, so
+  upending the written half swaps which dancer carries which path without changing what any of them does.
+  **0 of the 27 changed**; worst sampled difference **2.84e-15**; digest **`7d52e304`** before and after.
+- So a conversion can be real (the index order changes, and the harness pins it) while the dependents
+  need no edit at all. That is a measurement, not an absence: the tool reports `0 change and 27 already
+  read the same under this permutation`.
+
+**A control can pass for the wrong reason, twice over.** The harness's first live-check built the calls
+against a formation whose pairs were *rotated*, and it passed — but for two reasons that were both bugs:
+(i) a rotationally symmetric call writes the same local path for several written dancers, so rotating them
+is a genuine no-op; (ii) the rotated "formation" was built from this file's `{x, y, heading}` poses and
+handed to `buildCall`, which reads `angleDeg`, so every heading became `NaN` and the digest changed
+because the geometry had been destroyed rather than because it had moved. The check is now a **spot move**
+built from the parsed dancers, and it is live on both conversions (`1ff72181 → 433c000d`,
+`7d52e304 → 8ec4960a`).
+
 ## What the tool does not do
 
 - It does not choose the order; the block in the working tree is the decision.
-- It does not re-author a tam whose paths cannot be permuted (no such case exists for Circle).
+- It does not re-author a tam whose paths cannot be permuted (no such case has been seen: both conversions
+  needed only a permutation, and one of them was the identity).
 - It does not touch inline formation copies, `actives` tams, or alias names — it reports them.
 - It does not convert more than the one formation it was asked about.

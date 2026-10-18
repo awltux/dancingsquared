@@ -129,6 +129,21 @@ function dependentsOf(name) {
 }
 
 /**
+ * A POSITION AS MILLIMETRES, WITH THE SIGN OF A ZERO NORMALISED.
+ *
+ * `-0.000` AND `0.000` ARE THE SAME MILLIMETRE, but `toFixed(3)` prints them differently for a residue as small as
+ * 1e-17 - and the digest is a hash OF STRINGS, so the sign of nothing changes it. MEASURED on the `Normal Lines`
+ * conversion, whose new written four are the old four's antipodes index for index: the geometry is identical to
+ * 2.66e-15 (the tool's own comparison), yet 25 of the 273 dependents read differently - every one of them
+ * `0.000` against `-0.000` - and the digest moved. With this rounding applied, 0 of the 273 differ. A pin that
+ * reports a movement where a dancer moved 1e-17 is a pin people learn to re-record instead of read.
+ */
+const mm = (v) => {
+  const s = v.toFixed(3);
+  return s === '-0.000' ? '0.000' : s;
+};
+
+/**
  * The geometry digest: for every dependent, every dancer's START spot and END spot, as millimetres, sorted
  * so the board's ORDER does not enter it - the order is pinned separately, and mixing the two would make the
  * digest fail for the very change it is supposed to survive.
@@ -152,7 +167,7 @@ function geometryDigest(deps, opts = {}) {
     for (const d of call.dancers) {
       const s = engine.poseFor(d, 0);
       const e = engine.poseFor(d, call.beats);
-      ends.set(`${s.x.toFixed(3)},${s.y.toFixed(3)}`, `${e.x.toFixed(3)},${e.y.toFixed(3)}`);
+      ends.set(`${mm(s.x)},${mm(s.y)}`, `${mm(e.x)},${mm(e.y)}`);
     }
     pairs.push(`${tamKey(rel, tam)}|${[...ends.entries()].map(([s, e]) => `${s}>${e}`).sort().join(';')}`);
   }

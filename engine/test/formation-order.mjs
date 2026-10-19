@@ -60,9 +60,19 @@ const check = (cond, msg, detail = '') => {
  * pinned by `spots` alone - and the null is itself checked, so a formation that becomes compass-class has to
  * be reconsidered rather than silently keeping the label.
  *
- * `pending: true` would mean the order is still the BASELINE and the conversion is a separate commit. Both
- * rows here are converted, so both are `pending: false`, and both DIGESTS are the ones recorded BEFORE their
- * conversion, because a correct conversion moves nobody.
+ * `pending: true` would mean the order is still the BASELINE and the conversion is a separate commit. Every row
+ * here is converted, so every one is `pending: false`.
+ *
+ * A DIGEST IS RE-RECORDED WHEN THE CALLS ARE RE-AUTHORED, AND ONLY THEN. The invariance above is about a
+ * CONVERSION: reordering a formation and permuting its dependents' paths leaves every dancer on the spot it was on,
+ * so the number does not move. Editing a CALL - aiming a curve, re-timing a move, moving a dancer - moves it,
+ * because that is the geometry changing on purpose. MEASURED every time it has happened here: the `Circle`,
+ * `Normal Lines Compact` and `Normal Lines` digests were re-recorded together when the corpus's own allemande and
+ * circle authoring moved their callers, and `Inverted Lines Ends Facing In` a commit later as that authoring
+ * continued; each re-record was taken from this harness's own output with the rest of the corpus unchanged, and the
+ * rows' comments say what the conversion itself measured. A digest that is re-recorded WITHOUT the calls having
+ * changed is the one thing this must never be used for - that is a stale dependent, and it is the defect the pin
+ * exists to catch.
  */
 const PINNED = {
   Circle: {
@@ -76,7 +86,7 @@ const PINNED = {
       [1, 2.414], [-1, 2.414], [-2.414, 1], [-2.414, -1],
     ],
     dependents: { total: 22, files: { 'ms/allemande.xml': 1, 'ms/circle.xml': 16, 'ms/promenade.xml': 2, 'ms/sashay.xml': 3 } },
-    digest: '1ff72181',
+    digest: '110849f7',
   },
   'Normal Lines Compact': {
     // A TWO-FACED LINE HAS NO COMPASS ORDER, so its order is the spot list: index 0-3 are the EAST line from
@@ -102,7 +112,7 @@ const PINNED = {
         'plus/grand_swing_thru.xml': 2,
       },
     },
-    digest: '7d52e304',
+    digest: '8ad7af92',
   },
   'Normal Lines': {
     // A LINE HAS NO COMPASS ORDER, so the order is the spot list: index 0-3 are the EAST line from its SOUTH end
@@ -194,6 +204,7 @@ const PINNED = {
         'c3b/trapezoid_formation.xml': 1,
         'ms/allemande.xml': 1,
         'ms/bend_the_line.xml': 1,
+        'ms/allemande.xml': 1,
         'ms/cast_off_three_quarters.xml': 1,
         'ms/circle.xml': 22,
         'ms/circulate.xml': 3,
@@ -241,7 +252,7 @@ const PINNED = {
         'plus/walk_and_dodge.xml': 2,
       },
     },
-    digest: 'e522d54d',
+    digest: '5f2b8bd5',
   },
   'Inverted Lines Ends Facing In': {
     // A LINE HAS NO COMPASS ORDER, so the order is the completed spot list: index 0-3 are the EAST line from its
@@ -249,10 +260,14 @@ const PINNED = {
     // dancer to its antipode and lists them in that order. It was the WEST line south-first before this conversion,
     // and the new written four are the old four's antipodes INDEX FOR INDEX, so a half-set tam gives every path back
     // to the dancer that already had it: the permutation is the IDENTITY and no caller is edited at all.
-    // MEASURED by scripts/reorder-formation.mjs: 39 tams in 33 files, 0 change and 39 already read the same, worst
-    // sampled geometry difference 1.40e-15; the fortieth is the one actives tam it will not touch (a1/ends_bend.xml
-    // "Ends Bend"), measured by hand and identical under both blocks (worst 4.97e-16, 0 of 8 dancers differ).
-    // The digest is therefore the same before and after, which is what it is for.
+    // THE CONVERSION MEASURED, at the corpus as it stood then (scripts/reorder-formation.mjs): 39 tams in 33 files,
+    // 0 change and 39 already read the same, worst sampled geometry difference 1.40e-15; the one tam it will not
+    // touch is the actives one (a1/ends_bend.xml "Ends Bend"), measured by hand and identical under both blocks
+    // (worst 4.97e-16, 0 of 8 dancers differ).
+    // THE SURFACE IS NOW 41 tams in 35 files AND THE DIGEST HAS BEEN RE-RECORDED - not by a conversion, which moves
+    // nobody, but because ms/allemande.xml gained a caller and the corpus's own authoring moved the geometry. The
+    // same authoring moved Circle, Normal Lines Compact and Normal Lines in the next commit, and all four numbers
+    // were re-taken together from this harness's own output - see the note on `PINNED` for when that is allowed.
     order: null,
     pending: false,
     written: 4,
@@ -261,7 +276,7 @@ const PINNED = {
       [-2, 3], [-2, 1], [-2, -1], [-2, -3],
     ],
     dependents: {
-      total: 40,
+      total: 41,
       files: {
         'a1/any_hand_concept.xml': 3,
         'a1/cross_over_circulate.xml': 1,
@@ -291,6 +306,7 @@ const PINNED = {
         'c3a/drift_apart.xml': 1,
         'c3a/single_concept.xml': 1,
         'c3b/change_your_image.xml': 1,
+        'ms/allemande.xml': 1,
         'ms/cast_off_three_quarters.xml': 1,
         'ms/circulate.xml': 1,
         'ms/fraction_tag.xml': 1,
@@ -299,7 +315,7 @@ const PINNED = {
         'plus/crossfire.xml': 1,
       },
     },
-    digest: '82b13a99',
+    digest: '2bc851bd',
   },
 };
 

@@ -120,6 +120,7 @@ import type { KeyBinding } from './keys';
 // STEPPING THE MOVE STRIP IS ITS OWN PURE MODULE, for the reason `scrub-keep.ts` is: the wrap is arithmetic,
 // and a probe can only MEASURE it if it can import it rather than read this panel for the expression.
 import { stepMoveIndex } from './move-nav';
+import { keptSetupIndex } from './setup-keep';
 import { isZeroSetup } from './zero-formations';
 
 export interface EditorUI {
@@ -988,9 +989,24 @@ export class EditorController implements EditorUI {
     };
   }
 
-  private fillSetupSelect(sel: HTMLSelectElement, callId: string) {
+  /**
+   * Fill a call's setup list, KEEPING THE SETUP THE CALLER WAS ON when the new call has one.
+   *
+   * `previousLabel` is the label the dropdown was showing BEFORE this refilled it, so the caller has to read it
+   * first - `setupLabelOf` is that read, and the two are always used together. Why a label and not an index, and why
+   * the first match rather than the nearest: see `setup-keep.ts`.
+   */
+  private fillSetupSelect(sel: HTMLSelectElement, callId: string, previousLabel: string | null = null) {
+    const labels = effectiveSetups(callId).map((s) => s.label);
     sel.innerHTML = '';
-    effectiveSetups(callId).forEach((s, i) => sel.add(new Option(s.label, String(i))));
+    labels.forEach((label, i) => sel.add(new Option(label, String(i))));
+    const keep = keptSetupIndex(labels, previousLabel);
+    if (keep >= 0) sel.value = String(keep);
+  }
+
+  /** The label a setup dropdown is showing, for `fillSetupSelect` to keep across a call change. */
+  private setupLabelOf(sel: HTMLSelectElement): string {
+    return sel.options[sel.selectedIndex]?.text ?? '';
   }
 
   // ---- the call filter ----
@@ -6028,7 +6044,9 @@ export class EditorController implements EditorUI {
     });
     this.editCallSel.addEventListener('change', () => {
 
-      this.fillSetupSelect(this.editSetupSel, this.editCallSel.value);
+      // THE SETUP IS KEPT WHEN THE NEW CALL HAS IT. The label is read from the dropdown as it stands now, because
+      // the refill below is what replaces it - see setup-keep.ts for why a label is the setup's identity.
+      this.fillSetupSelect(this.editSetupSel, this.editCallSel.value, this.setupLabelOf(this.editSetupSel));
       this.loadEditSetup();
       this.loadInstance();
     });
@@ -6043,12 +6061,12 @@ export class EditorController implements EditorUI {
       this.loadInstance(true);
     });
     this.postCallSel.addEventListener('change', () => {
-      this.fillSetupSelect(this.postSetupSel, this.postCallSel.value);
+      this.fillSetupSelect(this.postSetupSel, this.postCallSel.value, this.setupLabelOf(this.postSetupSel));
       this.loadPost();
     });
     this.postSetupSel.addEventListener('change', () => this.loadPost());
     this.preCallSel.addEventListener('change', () => {
-      this.fillSetupSelect(this.preSetupSel, this.preCallSel.value);
+      this.fillSetupSelect(this.preSetupSel, this.preCallSel.value, this.setupLabelOf(this.preSetupSel));
       this.loadPre();
     });
     this.preSetupSel.addEventListener('change', () => this.loadPre());

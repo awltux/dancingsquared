@@ -104,7 +104,7 @@ import { el, esc } from './dom';
 // THE MAGNET LIVES IN ITS OWN MODULE so a probe can import the rule rather than mirror it - see
 // `grid-magnet.ts`. The board has two grids, and this file owns neither: it only asks which one is showing.
 import type { GridMode } from 'dancing-squared-stage';
-import { radialArcFit, radialCircleRadii, snapBoard } from 'dancing-squared-stage';
+import { radialArcFit, radialArcSlack, radialCircleRadii, snapBoard } from 'dancing-squared-stage';
 // AND THE START-POSE DRAG'S OWN ARITHMETIC, for the same reason and by the same split: what a drag does to
 // the rest of the selection is a rule a probe has to measure, so it is a pure module rather than a few lines
 // inside the pointer handler. See `board-transform.ts` for the rule and for why it is scale + translation.
@@ -2187,9 +2187,14 @@ export class EditorController implements EditorUI {
     //
     // THE CONDITION IS `radialArcFit`'s, not this file's: the radial grid must be the one on the floor (a
     // caller on the square grid has no circle to fit), the two ends must be on the same DRAWN circle, and the
-    // chord between them must be under half a cell. The chord test is why the control is worth having - over a
-    // chord that short the arc and the straight line differ by a hundredth of a unit, so nobody places the
-    // controls by eye - and it is also why the control cannot get in the way on a long move.
+    // sweep between them must be a quarter turn or less. (The chord limit the request literally asked for was
+    // withdrawn - the corpus's arcs are quarter and eighth turns, not slivers - and this comment said "under
+    // half a cell" for a while after the rule had stopped testing it.)
+    //
+    // HOW FAR OFF THAT CIRCLE AN END MAY STAND IS `radialArcSlack`'s answer, and it is deliberately more than
+    // the magnet's tier: aligning a track's end with its end setup lands the ends a hair inside or outside the
+    // drawn ring, and the control that would fix that was refusing by a thousandth of a unit. See
+    // `RADIAL_ARC_RADIUS_TOL` for the two corpus families that separate cleanly at 2 degrees of arc.
     //
     // IT IS DRAWN IN THE GRID'S OWN GREEN, and offered in BOTH handle modes: it is a property of the CURVE
     // rather than of the two controls or the end point, which is what the mode switches between.
@@ -2507,7 +2512,15 @@ export class EditorController implements EditorUI {
       // THE REFUSAL SAYS WHAT THE RULE ACTUALLY ASKS, which the first version of this message did not: it still
       // described the withdrawn chord limit ("less than half a unit apart"), so a caller whose ends sat on two
       // different rings was told to bring them closer together.
-      this.statusEl.textContent = 'no radial arc to fit here: both ends must sit on one of the drawn circles, within a quarter turn of each other';
+      //
+      // AND IT NAMES THE SLACK, because "both ends must sit on one of the drawn circles" was the sentence a caller
+      // was reading when the tolerance refused a pair 0.13 of a unit off it - which is the report this number
+      // answers. `radialArcSlack` is the same function the rule uses, so the three ways to fail are stated with the
+      // numbers the rule actually applies.
+      const slack = radialArcSlack((Math.hypot(from.x, from.y) + Math.hypot(to.x, to.y)) / 2);
+      this.statusEl.textContent =
+        `no radial arc to fit here: both ends must sit on one of the drawn circles (within ${slack.toFixed(3)} units ` +
+        `of it at this radius), on the SAME circumference, and within a quarter turn of each other`;
       return;
     }
     // THE FIT IS BUILT AT THE TOLERANCE THE RULE OFFERED IT UNDER, which is not a detail: the engine's own default is a

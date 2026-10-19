@@ -205,14 +205,15 @@ export function snapBoard(p: Point, mode: GridMode): Point {
  * ten that are not (112.6deg) are refused.
  *
  * THE OTHER TWO CONDITIONS are refusals rather than nudges. The two ends must be on the SAME circumference
- * (`|r0 - r1| <= tol`), and that circumference must be one the grid DRAWS (within the same tolerance) - the
+ * (`|r0 - r1| <= slack`), and that circumference must be one the grid DRAWS (within the same slack) - the
  * request says "the radial line it's connected to", not "any circle through these two points", and a fit onto a
  * circle nobody can see is the guess this control exists to remove.
  *
- * `tol` DEFAULTS TO THE MAGNET'S HALF TIER, `SNAP_CELL / 8`. That is deliberate rather than convenient: it is
- * the distance within which this app already says a point is "on" a half-position, so a pair of ends the CTRL
- * magnet would have pulled onto the circle is exactly a pair this accepts - and a pair it would have left alone
- * is one this refuses. It is also what makes the workflow work: snap the ends with CTRL, then press the dot.
+ * `tol` DEFAULTS TO THE MAGNET'S HALF TIER, `SNAP_CELL / 8` - the distance within which this app already says a
+ * point is "on" a half-position - and the slack those two conditions are tested with is that tier PLUS
+ * `RADIAL_ARC_RADIUS_TOL` of arc (`radialArcSlack`): the tier covers where the caller meant the point, and the
+ * angle covers a track that has been lined up with an end setup a hair off the drawn ring. The two are stated
+ * separately because they are different claims; see `RADIAL_ARC_RADIUS_TOL` for the measurement that sets it.
  */
 export const RADIAL_ARC_MAX_SWEEP = Math.PI / 2;
 
@@ -268,6 +269,40 @@ export interface RadialArcFit {
   tolRel: number;
 }
 
+/**
+ * THE SLACK ABOUT A DRAWN RING, AS AN ANGLE - and it is a SECOND tolerance, not the magnet's, because the two
+ * answer different questions. `SNAP_HALF_TOL` is how far a placed point may be from where the caller MEANT it; this
+ * is how far the ends may stand off the circle the fit will follow, which is a statement about the WORKFLOW rather
+ * than about intent: a caller lining a track up with its end setup lands the ends a hair inside or outside the
+ * drawn ring, and the control that would fix exactly that was refusing to appear.
+ *
+ * REPORTED as: "when re-aligning the end of a track with an end-setup (I'm working on circle tams with a circle
+ * end setup), the curve snap drag point doesn't enable for that last Move (it's a slightly off curve and its
+ * centrepoint is off centre slightly too much). If I drag the center point of the curve just a few degrees, the
+ * curve snap drag point appears, but by then it's broken the endpoint from the end setup ... Can you widen the
+ * tolerance for the curve snap by 2 degrees each way".
+ *
+ * MEASURED, which is why it is 2 degrees and why it is additive: over the `ms/circle.xml` tams the two refusals
+ * that are NOISE and the one that is a real shape separate cleanly.
+ *
+ *   - the orbit sits at radius **2.63-2.66** while the grid draws a ring at **2.5**, so an end is **0.126-0.163**
+ *     off it - the magnet's tier is 0.125, so these were refused by a thousandth of a unit, and both ends of every
+ *     one of them agree to within 0.085, i.e. they ARE on one circumference;
+ *   - the moves that leave the orbit for the home square go **2.63 -> 3.162**, a RADIAL difference of **0.52**,
+ *     which is not an arc at all and must stay refused (a `Single Circle` move of 0.5 -> 3.0, 2.5 of radial
+ *     difference, likewise).
+ *
+ * 2 degrees of ARC at r = 2.63 is 0.092, and added to the tier it gives 0.217 - past all of the first family and
+ * well short of the second. At r = 1.4 it is 0.049, so the small rings earn a proportionally smaller slack, which
+ * is the point of stating it as an angle: a fixed distance would be a different rule on every ring.
+ */
+export const RADIAL_ARC_RADIUS_TOL = (2 * Math.PI) / 180;
+
+/** How far off a ring of radius `r` an end may stand: the magnet's tier, plus `RADIAL_ARC_RADIUS_TOL` of arc. */
+export function radialArcSlack(r: number, tol = SNAP_HALF_TOL): number {
+  return tol + Math.abs(r) * RADIAL_ARC_RADIUS_TOL;
+}
+
 export function radialArcFit(
   from: Point,
   to: Point,
@@ -278,7 +313,11 @@ export function radialArcFit(
   const r1 = Math.hypot(to.x, to.y);
   // A point at the centre has no circumference to sit on.
   if (!(r0 > 0) || !(r1 > 0)) return null;
-  if (Math.abs(r0 - r1) > tol) return null;
+  // THE SLACK IS TAKEN AT THE RING THESE TWO ENDS ARE ON, which is their mean - see `RADIAL_ARC_RADIUS_TOL` for
+  // the two families of refusal this separates.
+  const mean = (r0 + r1) / 2;
+  const slack = radialArcSlack(mean, tol);
+  if (Math.abs(r0 - r1) > slack) return null;
   const a0 = Math.atan2(from.y, from.x);
   const a1 = Math.atan2(to.y, to.x);
   // THE SHORT WAY ROUND, because that is the arc the caller means between two points on a circle - and the long
@@ -292,10 +331,9 @@ export function radialArcFit(
   // `RADIAL_ARC_SWEEP_TOL` for the two reports this answers and the empty band the slack sits in.
   if (Math.abs(sweep) > RADIAL_ARC_MAX_SWEEP + RADIAL_ARC_SWEEP_TOL) return null;
   // THE GRID'S OWN CIRCLES, nearest first: the fit follows a line the caller can see.
-  const mean = (r0 + r1) / 2;
   let drawn: number | null = null;
   for (const r of radii) {
-    if (Math.abs(mean - r) <= tol && (drawn === null || Math.abs(mean - r) < Math.abs(mean - drawn))) drawn = r;
+    if (Math.abs(mean - r) <= slack && (drawn === null || Math.abs(mean - r) < Math.abs(mean - drawn))) drawn = r;
   }
   if (drawn === null) return null;
   const aMid = a0 + sweep / 2;
@@ -304,7 +342,7 @@ export function radialArcFit(
     radii: [r0, r1],
     mid: { x: drawn * Math.cos(aMid), y: drawn * Math.sin(aMid) },
     sweep,
-    tolRel: tol / mean,
+    tolRel: slack / mean,
   };
 }
 

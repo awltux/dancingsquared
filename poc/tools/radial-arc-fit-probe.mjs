@@ -71,7 +71,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const grid = await import(pathToFileURL(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts')).href);
-const { radialArcFit, radialCircleRadii, SNAP_HALF_TOL, RADIAL_ARC_MAX_SWEEP, RADIAL_ARC_SWEEP_TOL } = grid;
+const { radialArcFit, radialArcSlack, radialCircleRadii, SNAP_HALF_TOL, RADIAL_ARC_RADIUS_TOL, RADIAL_ARC_MAX_SWEEP, RADIAL_ARC_SWEEP_TOL } = grid;
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { arcBezierAbout, bezierPoint, ARC_K } = engine;
 
@@ -143,16 +143,35 @@ console.log('\n== 2. and refuses each condition on its own ==');
   // (b) THE SAME CIRCUMFERENCE. Two ends on different circles are not an arc of either.
   const mixed = radialArcFit(at(2, 10), at(2.4, 20), DRAWN);
   check(mixed === null, 'two ends at radii 2 and 2.4 are refused - they are not on one circumference');
-  // (c) A CIRCLE THE GRID DOES NOT DRAW. r = 2.3 is 0.2 from the nearest drawn ring (2.5) and 0.3 from 2, so a
-  // fit there would follow a line nobody can see; the request says "the radial line it's connected to".
-  const between = radialArcFit(at(2.3, 10), at(2.3, 20), DRAWN);
-  check(between === null, 'ends on the r = 2.3 circle - a circumference the grid does NOT draw - are refused');
-  // ...and the tolerance is the magnet's own half tier, so "on the circle" means here what it means in a drag.
+  // (c) A CIRCLE THE GRID DOES NOT DRAW, which is now the SAME witness as the limit of the widening: an orbit
+  // exactly between two drawn rings. There is no radius farther than a quarter cell from a ring on this grid, so
+  // 2.75 is the worst case there is - 0.25 from 2.5 and 0.25 from 3 - and the slack at that radius (0.125 + 0.096
+  // = 0.221) does not reach it. Reaching it would take about 2.6 degrees, MEASURED; the workspace's own
+  // `ms/circle.xml` carries such an orbit (2.751) and this tolerance deliberately does not reach it, so raising the
+  // number is a decision with a corpus case attached rather than a nudge.
+  const between = radialArcFit(at(2.75, 10), at(2.75, 20), DRAWN);
+  check(between === null, 'ends on the r = 2.75 circle - exactly between two drawn rings - are refused: the slack is a widening, not the end of the rule');
+  // ...and the tolerance is the magnet's half tier PLUS `RADIAL_ARC_RADIUS_TOL` of arc, so "on the circle" means
+  // here what it means in a drag and then a little more.
   const nudged = radialArcFit(at(2 + SNAP_HALF_TOL * 0.4, 10), at(2 - SNAP_HALF_TOL * 0.4, 15), DRAWN);
   check(!!nudged && nudged.radius === 2,
     `while ends within the magnet's own half tier of r = 2 (${SNAP_HALF_TOL} units) ARE accepted - "on the circle" means the same thing here as in a CTRL-drag`);
-  const tooFar = radialArcFit(at(2 + SNAP_HALF_TOL * 1.5, 10), at(2, 15), DRAWN);
-  check(tooFar === null, 'and just past that tier they are not');
+  // THE WIDENING ITSELF, at the radius the report was about: both families are named, and they are what separates
+  // the number from a guess. MEASURED over the ms circle tams, an orbit at 2.609-2.695 with the drawn ring at 2.5
+  // was refused under the old rule and is offered now, while the moves that leave the orbit for the home square
+  // (2.63 -> 3.162, a radial difference of 0.52) are still refused.
+  const orbit = radialArcFit(at(2.652, 10), at(2.695, 20), DRAWN);
+  check(!!orbit && orbit.radius === 2.5,
+    `ends at 2.652 and 2.695 - the slightly-off orbit the report was about, 0.15 from the drawn 2.5 ring - ARE offered the fit on that ring`);
+  const radialMove = radialArcFit(at(2.632, 10), at(3.162, 12), DRAWN);
+  check(radialMove === null, 'while a move that LEAVES the orbit for the home square (2.632 -> 3.162) is still refused - that is a radial move, not an arc');
+  // THE LIMIT OF THE WIDENING, named so that raising the number is a decision rather than a nudge: an orbit that
+  // sits exactly BETWEEN two drawn rings (r = 2.75, 0.25 from both 2.5 and 3) is still refused, because 2 degrees
+  // of arc at that radius is 0.096 and the tier plus that is 0.221. Reaching it would take about 2.6 degrees -
+  // MEASURED, and worth knowing: the workspace's own `ms/circle.xml` carries such an orbit (2.751) and this
+  // tolerance deliberately does not reach it.
+  const tooFar = radialArcFit(at(2.75, 10), at(2.75, 15), DRAWN);
+  check(tooFar === null, 'and an orbit exactly between two drawn rings (r = 2.75, 0.25 from either) is still refused - the slack is a widening, not the end of the rule');
   // (d) DEGENERATE PAIRS: no movement, and a point at the centre.
   check(radialArcFit(at(2, 10), at(2, 10), DRAWN) === null, 'two identical ends are refused - there is no chord to bend');
   check(radialArcFit({ x: 0, y: 0 }, at(2, 10), DRAWN) === null, 'and so is a start at the centre, which is on no circumference at all');
@@ -257,7 +276,11 @@ console.log('\n== 5. the panel offers it, and only where the grid can answer =='
     'the control is one more handle, drawn in the grid\'s own colour');
   check(/if \(id\.endsWith\(':arc'\)\) \{[\s\S]{0,80}?this\.fitRadialArc\(\);/.test(src),
     'and pressing it runs the fit and ends the gesture - it is the one control that acts on a press rather than a drag');
-  check(/private fitRadialArc\(\): void \{[\s\S]{0,1600}?arcBezierAbout\(\{ x: 0, y: 0 \}, from, to, fit\.tolRel\)/.test(src),
+  // THE WINDOW IS A PROXIMITY TEST, not a measurement: it says "this call is inside `fitRadialArc`", and it has to be
+// wide enough to span the method's own preamble. It was 1600 characters and the refusal message grew (it now names
+// the slack, which is a `radialArcSlack` call plus a sentence), so the call moved past the window while nothing
+// about the call changed - the failure was the window, not the wiring.
+check(/private fitRadialArc\(\): void \{[\s\S]{0,3000}?arcBezierAbout\(\{ x: 0, y: 0 \}, from, to, fit\.tolRel\)/.test(src),
     'the fit is the engine\'s `arcBezierAbout` about the SET CENTRE, at the tolerance the RULE offered it under - not a second implementation of an arc in the panel');
   check(/cx1: c1\.lx, cy1: c1\.ly, cx2: c2\.lx, cy2: c2\.ly/.test(src) && /commitMoveChange\(/.test(src),
     'and only the two CONTROL points are written, through the panel\'s own commit path - the ends are left alone');
@@ -349,8 +372,12 @@ console.log('\n== 7. how often the corpus offers it, and the band the slack sits
             const r1 = radiusOf(to);
             // The two ends on ONE circle the grid draws, and on one circumference: the rule's own two
             // conditions, taken before the sweep is considered so the sweep is what is being measured.
-            const near = (r) => DRAWN.some((x) => Math.abs(r - x) <= SNAP_HALF_TOL);
-            if (!near(r0) || !near(r1) || Math.abs(r0 - r1) > SNAP_HALF_TOL) continue;
+            // THE RULE'S OWN SLACK, imported rather than mirrored: it grew by `RADIAL_ARC_RADIUS_TOL` when the
+            // control was widened for the report about circle end setups, and a population filtered with the old
+            // number would measure a set the rule no longer has.
+            const slack = radialArcSlack((r0 + r1) / 2);
+            const near = (r) => DRAWN.some((x) => Math.abs(r - x) <= slack);
+            if (!near(r0) || !near(r1) || Math.abs(r0 - r1) > slack) continue;
             onOneCircle++;
             const fit = radialArcFit(from, to, DRAWN);
             let sweep = (Math.atan2(to.y, to.x) - Math.atan2(from.y, from.x)) / Math.PI * 180;
@@ -372,7 +399,7 @@ console.log('\n== 7. how often the corpus offers it, and the band the slack sits
   const over = sweeps.filter((s) => s > limit);
   const worstNoise = noise[noise.length - 1] ?? 0;
   const narrowestOver = over[0] ?? Infinity;
-  console.log(`    ${moves} moves over ${levels.length} levels: ${onOneCircle} have both ends on one drawn circle within the tier, and ${offered} of those are offered the fit`);
+  console.log(`    ${moves} moves over ${levels.length} levels: ${onOneCircle} have both ends on one drawn circle within the magnet tier plus ${((RADIAL_ARC_RADIUS_TOL * 180) / Math.PI).toFixed(0)}deg of arc, and ${offered} of those are offered the fit`);
   console.log(`    past a right angle: ${noise.length} are authoring noise (up to ${worstNoise.toFixed(3)}deg - a quarter turn the assets cannot write exactly), and ${over.length} are genuinely wider (from ${narrowestOver.toFixed(3)}deg)`);
   console.log(`    the empty band between them is ${(narrowestOver - worstNoise).toFixed(2)}deg wide, and the limit of ${limit.toFixed(0)}deg sits ${(limit - worstNoise).toFixed(2)}deg above the noise and ${(narrowestOver - limit).toFixed(2)}deg below the shapes`);
   check(offered > 1000, `the control is offered on ${offered} curves of the corpus, so it is a working tool rather than a rule nothing reaches`);
@@ -440,8 +467,9 @@ console.log('\n== 8. the reported miss: the middle curve of `Promenade Full` =='
         sweep = Math.abs(sweep);
         const fit = radialArcFit(from, to, DRAWN);
         // ON A RING means both ends on one DRAWN circle within the tier, which is the rule's own two conditions.
-        const onRing = r0 > 0 && r1 > 0 && Math.abs(r0 - r1) <= SNAP_HALF_TOL
-          && DRAWN.some((x) => Math.abs(r0 - x) <= SNAP_HALF_TOL);
+        const ringSlack = radialArcSlack((r0 + r1) / 2);
+        const onRing = r0 > 0 && r1 > 0 && Math.abs(r0 - r1) <= ringSlack
+          && DRAWN.some((x) => Math.abs(r0 - x) <= ringSlack);
         while (rows.length <= k) rows.push({ total: 0, offered: 0, onRing: 0, kinds: [] });
         const row = rows[k];
         row.total++;

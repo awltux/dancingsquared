@@ -243,6 +243,64 @@ const PINNED = {
     },
     digest: 'e522d54d',
   },
+  'Inverted Lines Ends Facing In': {
+    // A LINE HAS NO COMPASS ORDER, so the order is the completed spot list: index 0-3 are the EAST line from its
+    // SOUTH end northwards, and 4-7 the WEST line from its NORTH end southwards - the completion turns each written
+    // dancer to its antipode and lists them in that order. It was the WEST line south-first before this conversion,
+    // and the new written four are the old four's antipodes INDEX FOR INDEX, so a half-set tam gives every path back
+    // to the dancer that already had it: the permutation is the IDENTITY and no caller is edited at all.
+    // MEASURED by scripts/reorder-formation.mjs: 39 tams in 33 files, 0 change and 39 already read the same, worst
+    // sampled geometry difference 1.40e-15; the fortieth is the one actives tam it will not touch (a1/ends_bend.xml
+    // "Ends Bend"), measured by hand and identical under both blocks (worst 4.97e-16, 0 of 8 dancers differ).
+    // The digest is therefore the same before and after, which is what it is for.
+    order: null,
+    pending: false,
+    written: 4,
+    spots: [
+      [2, -3], [2, -1], [2, 1], [2, 3],
+      [-2, 3], [-2, 1], [-2, -1], [-2, -3],
+    ],
+    dependents: {
+      total: 40,
+      files: {
+        'a1/any_hand_concept.xml': 3,
+        'a1/cross_over_circulate.xml': 1,
+        'a1/cycle_and_wheel.xml': 1,
+        'a1/ends_bend.xml': 1,
+        'a1/explode_and_anything.xml': 1,
+        'a1/explode_the_line.xml': 2,
+        'a1/linear_cycle.xml': 1,
+        'a1/mix.xml': 1,
+        'a1/right_roll_to_a_wave.xml': 2,
+        'a1/step_and_slide.xml': 1,
+        'a1/turn_and_deal.xml': 1,
+        'a2/remake.xml': 1,
+        'a2/swing_and_mix.xml': 1,
+        'c1/counter_rotate.xml': 1,
+        'c1/cross_roll.xml': 1,
+        'c1/start.xml': 1,
+        'c1/step_and_flip.xml': 2,
+        'c1/step_and_fold.xml': 1,
+        'c1/tally_ho.xml': 1,
+        'c1/twist_the_line.xml': 1,
+        'c2/sets_in_motion.xml': 1,
+        'c2/sock_it_to_me.xml': 2,
+        'c2/solid_concept.xml': 1,
+        'c2/split_trade_circulate.xml': 1,
+        'c2/turn_to_a_line.xml': 1,
+        'c3a/drift_apart.xml': 1,
+        'c3a/single_concept.xml': 1,
+        'c3b/change_your_image.xml': 1,
+        'ms/cast_off_three_quarters.xml': 1,
+        'ms/circulate.xml': 1,
+        'ms/fraction_tag.xml': 1,
+        'ms/hinge.xml': 1,
+        'plus/acey_deucey.xml': 1,
+        'plus/crossfire.xml': 1,
+      },
+    },
+    digest: '82b13a99',
+  },
 };
 
 /** A caller's identity in the pin: the file and the tam's title (a position is not an identity). */

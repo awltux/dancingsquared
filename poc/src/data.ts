@@ -32,6 +32,8 @@ import type { CallBundle, FormDancer } from 'dancing-squared-engine';
 import movesXml from '@corpus/moves.xml?raw';
 import formationsXml from '@corpus/formations.xml?raw';
 import callsXml from '@corpus/src/calls.xml?raw';
+// The order the call lists are shown in - `<name> <fraction>[ <end>]`, not alphabetical. See `call-order.ts`.
+import { compareCallTitles } from './call-order';
 // How a call is written as a `<tam>`: with an embedded start formation, or naming one the corpus carries.
 import { callTamXml } from './tam-xml';
 // The glob's own key -> the corpus-relative `level/base` identity this module stores in `CallInfo.file`.
@@ -124,7 +126,10 @@ export class Catalog {
 
   private byLevelThenTitle(a: CallInfo, b: CallInfo): number {
     const l = this.levelOrder.indexOf(a.level) - this.levelOrder.indexOf(b.level);
-    return l !== 0 ? l : a.title.localeCompare(b.title);
+    // THE TITLE ORDER IS THE CALLS' OWN, not alphabetical: see `call-order.ts` - a fraction at the end of a title is
+    // part of a turn, so `3/4, 1/2, 1/4` and not `1/2, 1/4, 3/4`, and the `Home` authorings form a group after the
+    // plain ones. Every list in the app is built from this catalog, so this is the one place the order is decided.
+    return l !== 0 ? l : compareCallTitles(a.title, b.title);
   }
 
   private parseCatalogFile(xml: string, file: string): CallInfo[] {

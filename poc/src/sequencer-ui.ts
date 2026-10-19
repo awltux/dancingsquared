@@ -17,6 +17,7 @@ import { corpusFormationsOfSize } from './tam-xml';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import { displayCouple } from './display-couple';
 import { isZeroSetup } from './zero-formations';
+import { compareCallTitles } from './call-order';
 import { el, esc } from './dom';
 import { filterNames } from './call-filter';
 import { stepSource } from './step-source';
@@ -838,7 +839,7 @@ export class SequencerController implements SequencerUI {
     // leave the button or the group selector describing a mode the state has left.
     this.applyParallelChrome();
     const prev = this.callSelect.value;
-    const legal = this.seq.legalNext().sort((a, b) => a.localeCompare(b));
+    const legal = this.seq.legalNext().sort(compareCallTitles);
     // IN PARALLEL MODE THE LIST ANSWERS A DIFFERENT QUESTION: not "what can the chosen group do", but
     // "what can the dancers that group LEFT BEHIND do". The remainder is resolved on the board the first
     // call started from, and the offer is narrowed by composing that selector and applying it - so a
@@ -935,7 +936,7 @@ export class SequencerController implements SequencerUI {
     // below, the parallel lane - takes `callSelect.value` as a call name, so the label is presentation only.
     const board = this.parallel ? this.parallel.board : this.seq.board;
     const addGroup = (groupLabel: string, names: string[], display: (n: string) => string) => {
-      const uniq = [...new Set(names)].sort((a, b) => a.localeCompare(b));
+      const uniq = [...new Set(names)].sort(compareCallTitles);
       if (uniq.length === 0) return;
       const og = document.createElement('optgroup');
       og.label = groupLabel;

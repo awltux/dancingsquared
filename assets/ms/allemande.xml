@@ -22,6 +22,7 @@
 -->
 <tamination title="Allemande Left">
 
+
   <tam title="Allemande Left" from="Facing Couples" formation="Facing Couples Compact"
        sequencer="gender-specific">
     <path>
@@ -36,275 +37,177 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Eight Chain Thru"
+  <!-- CALLERLAB CASE 1 -->
+
+  <tam title="Allemande Left" formation="Eight Chain Thru"
        sequencer="gender-specific">
-    <formation>
-      <dancer gender="boy" x="-3" y="1" angle="0"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-      <dancer gender="boy" x="-1" y="-1" angle="180"/>
-      <dancer gender="girl" x="1" y="-1" angle="0"/>
-    </formation>
     <path>
-      <move select="Forward"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="2" offsetX="1.5" offsetY=".5"/>
+      <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.667" cy2="0" x2="1" y2="0"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.5" cy1="0" cx2="0.6647" cy2="0.6661" x2="0.414" y2="1" cx3="0.3927" cx4="0.5021" cy4="1.0286" x4="0.6524" y4="1.3914"/>
     </path>
     <path>
-      <move select="Extend Right"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="2" offsetX="1.5" offsetY=".5"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-1" x2="1" y2="-1" cx3="1" cx4="1" cy4="-0.4" x4="2" y4="-0.4"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.138" cy1="0" cx2="0.276" cy2="0" x2="0.414" y2="0" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
     </path>
     <path>
-      <move select="Forward"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="2" scaleY=".5"/>
+      <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.667" cy2="0" x2="1" y2="0"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.3333" cy1="-0.138" cx2="0.6667" cy2="-0.276" x2="1" y2="-0.414" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
     </path>
     <path>
-      <move select="Extend Right"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="2" scaleY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="Allemande Left" from="after Dixie Grand"
-       sequencer="gender-specific" display="no">
-    <formation>
-      <dancer gender="boy" x="-3" y="1" angle="0"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-      <dancer gender="boy" x="-1" y="-2" angle="180"/>
-      <dancer gender="girl" x="1" y="-2" angle="0"/>
-    </formation>
-    <path>
-      <move select="Forward"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="2" offsetX="1.5" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Extend Right"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="2" offsetX="1.5" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Extend Right"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="2" scaleY=".5"/>
-    </path>
-    <path>
-      <move select="Forward"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="2" scaleY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="Allemande Left" sequencer="gender-specific" from="Trade By">
-    <formation>
-      <dancer gender="boy" x="-3" y="-1" angle="180"/>
-      <dancer gender="girl" x="-1" y="-1" angle="0"/>
-      <dancer gender="boy" x="1" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="-1" angle="0"/>
-    </formation>
-    <path>
-      <move select="Quarter Right" offsetY="-1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY="1"/>
-    </path>
-    <path>
-      <move select="Extend Right" scaleY=".5" beats="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="1.5"/>
-    </path>
-    <path>
-      <move select="Extend Right" scaleY=".5" beats="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Forward" beats="1.5"/>
-    </path>
-    <path>
-      <move select="Lead Left" beats="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.1"/>
-    </path>
-  </tam>
-
-  <tam title="Allemande Left" sequencer="gender-specific"
-       from="Normal Lines"
-       formation="Normal Lines">
-    <path>
-      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".5" />
-    </path>
-    <path>
-      <move select="Quarter Right" beats="2" offsetX="-.5" offsetY="-1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="1.5" scaleY=".5" />
-    </path>
-    <path>
-      <move select="Lead Left" beats="2" scaleX=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="1.5" scaleY=".5" />
-    </path>
-    <path>
-      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.1" offsetY=".5"/>
-    </path>
-  </tam>
-
-  <tam title="Allemande Left" from="Lines Facing Out"
-       sequencer="gender-specific">
-    <formation>
-      <dancer gender="boy" x="-2" y="1" angle="180"/>
-      <dancer gender="girl" x="-2" y="-1" angle="180"/>
-      <dancer gender="boy" x="-2" y="-3" angle="180"/>
-      <dancer gender="girl" x="2" y="-3" angle="0"/>
-    </formation>
-    <path>
-      <move select="Quarter Right" beats="1" offsetX="-.5" offsetY="-1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" scaleY=".5"/>
-    </path>
-    <path>
-      <move select="Lead Left" beats="1" scaleX=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" scaleY=".5"/>
-    </path>
-    <path>
-      <move select="Quarter Right" beats="1" offsetX="-.5" offsetY="-1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Lead Left" beats="1" scaleX=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1" offsetY="-.5"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-1" x2="1" y2="-1" cx3="1" cx4="1" cy4="-0.4" x4="2" y4="-0.4"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.5" cy1="0" cx2="0.6667" cy2="0.9427" x2="1" y2="1.414" cx3="0.1309" cx4="0.082" cy4="0.2224" x4="0.2029" y4="0.2724"/>
     </path>
   </tam>
 
   <tam title="Allemande Left" sequencer="gender-specific"
        from="Left-Hand Waves">
     <formation>
-      <dancer gender="boy" x="-2" y="1" angle="0"/>
-      <dancer gender="girl" x="-2" y="-3" angle="0"/>
-      <dancer gender="boy" x="-2" y="-1" angle="180"/>
-      <dancer gender="girl" x="2" y="-3" angle="0"/>
+        <dancer gender="boy" x="-2" y="1" angle="0"/>
+        <dancer gender="girl" x="-2" y="-3" angle="0"/>
+        <dancer gender="boy" x="-2" y="-1" angle="180"/>
+        <dancer gender="girl" x="2" y="-3" angle="0"/>
     </formation>
     <path>
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1" offsetY="1.75"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
+      <movement hands="none" beats="1.5" cx1="1" cy1="0.0268" cx2="0.276" cy2="1.1667" x2="0.414" y2="1.75" cx3="0.3927" cx4="0.2932" cy4="0.2664" x4="0.4435" y4="0.6293"/>
     </path>
     <path>
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1" offsetY="-.25"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
+      <movement hands="none" beats="1.5" cx1="0.138" cy1="-0.0833" cx2="0.276" cy2="-0.1667" x2="0.414" y2="-0.25" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
     </path>
     <path>
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Extend Left" beats="1.5" scaleY=".75"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
+      <movement hands="none" beats="1.5" cx1="0.4907" cy1="0.0145" cx2="0.6667" cy2="0.224" x2="1" y2="0.336" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
     </path>
     <path>
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Extend Left" beats="1.5" scaleY=".75"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0.0224" cx2="0.6667" cy2="0.776" x2="1" y2="1.164" cx3="0.1309" cx4="0.1311" cy4="0.1936" x4="0.2521" y4="0.2437"/>
     </path>
   </tam>
 
-  <tam title="Allemande Left" sequencer="gender-specific"
-       from="Left-Hand 3/4 Tag">
-    <formation>
-      <dancer gender="boy" x="-1" y="3" angle="90"/>
-      <dancer gender="girl" x="-3" y="0" angle="270"/>
-      <dancer gender="boy" x="-1" y="0" angle="90"/>
-      <dancer gender="girl" x="-1" y="-3" angle="270"/>
-    </formation>
+  <tam title="Allemande Left" formation="Wrong Way Grand Circle" parts="" sequencer="gender-specific">
     <path>
-      <move select="Quarter Right" offsetX="-0.5" offsetY="-1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" offsetX="1" offsetY="0.5"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="0.75" cx1="0.3726" cy1="0" cx2="0.6272" cy2="0.5" x2="0.9998" y2="0.5"/>
     </path>
     <path>
-      <move select="Swing Left"/>
-      <move select="Extend Left"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="0.75" cx1="0.3726" cy1="0" cx2="0.6272" cy2="0.5" x2="0.9998" y2="0.5"/>
     </path>
     <path>
-      <move select="Swing Left"/>
-      <move select="Extend Left"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="0.75" cx1="0.3726" cy1="0" cx2="0.6272" cy2="0.5" x2="0.9998" y2="0.5"/>
     </path>
     <path>
-      <move select="Quarter Left" offsetX="0.5" offsetY="1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" offsetX="1" offsetY="0.5"/>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="0.75" cx1="0.3726" cy1="0" cx2="0.6272" cy2="0.5" x2="0.9998" y2="0.5"/>
     </path>
   </tam>
+
+<!-- exported by the dancing-squared web app: commit aace058, with uncommitted changes, built 2026-10-19 08:42Z -->
+  <tam title="Allemande Left" from="Alamo Ring - Men Facing In" parts="" sequencer="gender-specific">
+    <formation>
+        <dancer gender="girl" x="1" y="-2.414" angle="-67.5"/>
+        <dancer gender="boy" x="2.414" y="-1" angle="157.5"/>
+        <dancer gender="girl" x="2.414" y="1" angle="22.5"/>
+        <dancer gender="boy" x="1" y="2.414" angle="-112.5"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="1" cx1="0.417" cy1="0.0381" cx2="0.5746" cy2="0.6114" x2="0.3519" y2="1.2625" cx3="0.2618" cx4="0.836" cy4="0.889" x4="0.7056" y4="1.249"/>
+      <movement hands="gripleft" beats="3" cx1="0.3631" cy1="0.0513" cx2="0.5452" cy2="0.4511" x2="0.4912" y2="0.6836"/>
+      <movement hands="none" beats="0.75" cx1="0.253" cy1="0.0153" cx2="0.4392" cy2="0.3031" x2="0.4775" y2="0.5886"/>
+      <movement hands="none" beats="0.75" cx1="0.3309" cy1="0" cx2="0.5672" cy2="0.5221" x2="0.8884" y2="0.4428"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.0668" cy1="0.2746" cx2="0.2456" cy2="0.5359" x2="0.4571" y2="0.7483" cx3="0.2618" cx4="0.7685" cy4="-0.0338" x4="0.9239" y4="0.3827"/>
+      <movement hands="gripleft" beats="3" cx1="0.3314" cy1="-0.0852" cx2="0.6722" cy2="0.0903" x2="0.7068" y2="0.3746"/>
+      <movement hands="none" beats="0.75" cx1="0.2774" cy1="-0.0713" cx2="0.5737" cy2="0.0691" x2="0.6383" y2="0.4551"/>
+      <movement hands="none" beats="0.75" cx1="0.4386" cy1="-0.0623" cx2="0.7847" cy2="0.3612" x2="1.177" y2="0.5418" cx3="0.047" cx4="0.951" cy4="0.0638" x4="0.9975" y4="0.0704"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.417" cy1="0.0381" cx2="0.5746" cy2="0.6114" x2="0.3519" y2="1.2625" cx3="0.2618" cx4="0.836" cy4="0.889" x4="0.7056" y4="1.249"/>
+      <movement hands="gripleft" beats="3" cx1="0.3631" cy1="0.0513" cx2="0.5452" cy2="0.4511" x2="0.4912" y2="0.6836"/>
+      <movement hands="none" beats="0.75" cx1="0.253" cy1="0.0153" cx2="0.4392" cy2="0.3031" x2="0.4775" y2="0.5886"/>
+      <movement hands="none" beats="0.75" cx1="0.3309" cy1="0" cx2="0.5672" cy2="0.5221" x2="0.8884" y2="0.4428"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.0668" cy1="0.2746" cx2="0.2456" cy2="0.5359" x2="0.4571" y2="0.7483" cx3="0.2618" cx4="0.7685" cy4="-0.0338" x4="0.9239" y4="0.3827"/>
+      <movement hands="gripleft" beats="3" cx1="0.3314" cy1="-0.0852" cx2="0.6722" cy2="0.0903" x2="0.7068" y2="0.3746"/>
+      <movement hands="none" beats="0.75" cx1="0.2774" cy1="-0.0713" cx2="0.5737" cy2="0.0691" x2="0.6383" y2="0.4551"/>
+      <movement hands="none" beats="0.75" cx1="0.4386" cy1="-0.0623" cx2="0.7847" cy2="0.3612" x2="1.177" y2="0.5418" cx3="0.047" cx4="0.951" cy4="0.0638" x4="0.9975" y4="0.0704"/>
+    </path>
+  </tam>
+
+  <tam title="Allemande Left" from="Trade By" parts="" sequencer="gender-specific">
+    <formation>
+        <dancer gender="boy" x="-3" y="-1" angle="180"/>
+        <dancer gender="girl" x="-1" y="-1" angle="0"/>
+        <dancer gender="boy" x="1" y="-1" angle="180"/>
+        <dancer gender="girl" x="3" y="-1" angle="0"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.4705" cy2="-0.4652" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="0.3333" cy1="0.362" cx2="0.6666" cy2="0.724" x2="0.9998" y2="1.0859" cx3="0.1309" cx4="0.8598" cy4="0.145" x4="0.9808" y4="0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="-1" x2="1" y2="-1" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="0.6981" cy1="0.0757" cx2="0.6666" cy2="0.9427" x2="0.9998" y2="1.4141" cx3="0.1309" cx4="0.5034" cy4="0.2734" x4="0.6243" y4="0.2233"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0" x2="1" y2="0" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.5358" cy2="1.1431" x2="-0.0271" y2="1.3912"/>
+      <movement hands="none" beats="1.5" cx1="0.3243" cy1="0" cx2="0.6752" cy2="0.137" x2="0.8993" y2="0.3714"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.2967" cy1="0.0226" cx2="0.5548" cy2="0.4406" x2="0.5056" y2="1.0061"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="-0.0071" cx2="0.6771" cy2="0.9929" x2="0.0106" y2="0.9999"/>
+      <movement hands="none" beats="1.5" cx1="0.335" cy1="-0.0341" cx2="0.67" cy2="-0.0682" x2="1.005" y2="-0.1022" cx3="0.1344" cx4="0.8561" cy4="-0.1475" x4="0.9797" y4="-0.2003"/>
+    </path>
+  </tam>
+
+
+
+  <!-- CASE 2-->
 
   <tam title="Allemande Left" sequencer="gender-specific"
        from="Static Square"
        formation="Static Square" >
     <path>
-      <move select="Lead Left" beats="3" offsetX=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="Extend Right" beats="2" offsetY=".5" />
+      <movement hands="none" beats="3" cx1="0.55" cy1="0" cx2="1.5" cy2="0.45" x2="1.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.3333" cy1="0.0287" cx2="0.6667" cy2="0.0573" x2="1" y2="0.086" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
     </path>
     <path>
-      <move select="Lead Right" beats="1.5" offsetX="-.5" />
-      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="Lead Right" beats="2" offsetY=".5" />
+      <movement hands="none" beats="1.5" cx1="0.55" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.275" cy1="0" cx2="0.5" cy2="0.225" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.2164" cy1="0" cx2="0.3312" cy2="-0.3001" x2="0.414" y2="-0.5"/>
     </path>
     <path>
-      <move select="Lead Left" beats="3" offsetX=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="Extend Right" beats="2" offsetY=".5" />
+      <movement hands="none" beats="3" cx1="0.55" cy1="0" cx2="1.5" cy2="0.45" x2="1.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.3333" cy1="0.0287" cx2="0.6667" cy2="0.0573" x2="1" y2="0.086" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
     </path>
     <path>
-      <move select="Lead Right" beats="1.5" offsetX="-.5" />
-      <move select="Hinge Left" scaleX=".5" scaleY=".5" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="Lead Right" beats="2" offsetY=".5" />
+      <movement hands="none" beats="1.5" cx1="0.55" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.275" cy1="0" cx2="0.5" cy2="0.225" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.2164" cy1="0" cx2="0.3312" cy2="-0.3001" x2="0.414" y2="-0.5"/>
     </path>
-  </tam>
-
-  <!-- THE ALLEMANDE POSE, and CALLERLAB names the pattern by name.
-       `Allemande Left` from a Static Square leaves every dancer on its own home spot with the men
-       turned a quarter towards promenade direction and the women the other way - the engine's own
-       result, and the pose it labels `O Trade By`. CALLERLAB's command example is "Allemande Left
-       Your Corner; Dosado Your Partner; Allemande Left Your Corner" (Mainstream definitions,
-       "Allemande Left / Allemande Right"), and Case 2's listed starting formations include a Trade
-       By, so the call MUST be legal again from that pose. It was not: every authored setup is a
-       Static Square with the HOME facings, so the pose matched none of them (measured: every variant
-       NULL even at tolerance 100 with gender required), and three census figures stopped there.
-       NOT `gender-specific`, unlike its siblings, and that is deliberate: the motion belongs to the
-       SLOT, not to the occupant. The same eight slots are occupied by the other genders as soon as
-       the couples have PROGRESSED (`Four Ladies Chain` first, as `figm167`/`figm171` do - measured:
-       six of the eight slots swap gender), and the allemande at a slot is fixed by the pose's
-       geometry - who you face and which arm. Declaring genders here would need two copies of this
-       tam and would still gate on a fact that does not decide the motion.
-
-       WRITTEN OUT IN FULL, so it declares `asymmetric="true"` - the eight dancers are all here and
-       the completion must not supply eight more. That was already the answer, but by GEOMETRY: the
-       pose contains antipodal pairs, so `mirrorToFull` left it alone. The declaration is what makes
-       it the answer for the stated reason rather than by luck, and it is the ONE shipped tam that
-       `engine/test/shape-census.mjs` found building against its declared symmetry. -->
-  <tam title="Allemande Left" from="O Trade By" asymmetric="true">
-    <formation>
-      <dancer gender="boy" x="1" y="3" angle="180"/>
-      <dancer gender="girl" x="-1" y="3" angle="0"/>
-      <dancer gender="boy" x="3" y="-1" angle="90"/>
-      <dancer gender="girl" x="3" y="1" angle="270"/>
-      <dancer gender="boy" x="-1" y="-3" angle="0"/>
-      <dancer gender="girl" x="1" y="-3" angle="180"/>
-      <dancer gender="boy" x="-3" y="1" angle="270"/>
-      <dancer gender="girl" x="-3" y="-1" angle="90"/>
-    </formation>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
-    <path><move select="Stand" beats="2" /></path>
   </tam>
 
   <tam title="Allemande Left" formation="Circle" sequencer="gender-specific">
@@ -332,166 +235,119 @@
     </path>
   </tam>
 
+  <tam title="Allemande Left" sequencer="gender-specific"
+       from="Left-Hand 3/4 Tag">
+    <formation>
+        <dancer gender="boy" x="-1" y="3" angle="90"/>
+        <dancer gender="girl" x="-3" y="0" angle="-90"/>
+        <dancer gender="boy" x="-1" y="0" angle="90"/>
+        <dancer gender="girl" x="-1" y="-3" angle="-90"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="2" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="4" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.3333" cy1="0.362" cx2="0.6666" cy2="0.724" x2="0.9998" y2="1.0859" cx3="0.1309" cx4="0.8598" cy4="0.145" x4="0.9808" y4="0.1951"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="2" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="4" cx1="0.3309" cy1="0.0267" cx2="0.503" cy2="0.2603" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="2" cx1="0.3118" cy1="0.3266" cx2="0.6236" cy2="0.6533" x2="0.9354" y2="0.9799" cx3="0.1082" cx4="0.8843" cy4="-0.1271" x4="0.9869" y4="-0.1616"/>
+    </path>
+    <path>
+      <movement hands="gripleft" beats="2" cx1="0.461" cy1="-0.0069" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="4" cx1="0.2761" cy1="-0.0041" cx2="0.5033" cy2="0.2163" x2="0.5075" y2="0.4924"/>
+      <movement hands="none" beats="2" cx1="0.3337" cy1="0.0236" cx2="0.6674" cy2="0.0473" x2="1.001" y2="0.0709" cx3="0.1259" cx4="0.8652" cy4="0.1413" x4="0.9822" y4="0.1877"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0" cy1="0" cx2="0.5" cy2="1" x2="0.5" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+      <movement hands="gripleft" beats="4" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="2" cx1="0.3333" cy1="-0.0286" cx2="0.6666" cy2="-0.0573" x2="0.9998" y2="-0.0859" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
+    </path>
+  </tam>
+
+  <tam title="Allemande Left" from="Lines Facing Out"
+       sequencer="gender-specific">
+    <formation>
+        <dancer gender="boy" x="-2" y="1" angle="180"/>
+        <dancer gender="girl" x="-2" y="-1" angle="180"/>
+        <dancer gender="boy" x="-2" y="-3" angle="180"/>
+        <dancer gender="girl" x="2" y="-3" angle="0"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.3333" cy1="0.0287" cx2="0.6667" cy2="0.0573" x2="1" y2="0.086" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.3333" cy1="0.3047" cx2="0.6667" cy2="0.6093" x2="1" y2="0.914" cx3="0.1309" cx4="0.8598" cy4="0.145" x4="0.9808" y4="0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.138" cy1="0.5" cx2="0.276" cy2="1" x2="0.414" y2="1.5" cx3="0.3927" cx4="0.6812" cy4="0.1928" x4="0.8315" y4="0.5556"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.138" cy1="-0.1667" cx2="0.276" cy2="-0.3333" x2="0.414" y2="-0.5" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
+    </path>
+  </tam>
+
+  <tam title="Allemande Left" sequencer="gender-specific"
+       from="Facing Lines"
+       formation="Normal Lines">
+    <path>
+      <movement hands="none" beats="2" cx1="1" cy1="0" cx2="1" cy2="-0.5" x2="2" y2="-0.5" cx3="2" cx4="2" cy4="-0.2" x4="4" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="0.3333" cy1="0.362" cx2="0.6666" cy2="0.724" x2="0.9998" y2="1.0859" cx3="0.1309" cx4="0.8598" cy4="0.145" x4="0.9808" y4="0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="0.3333" cy1="0.3047" cx2="0.6666" cy2="0.6094" x2="0.9998" y2="0.9141" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="0.3333" cy1="0.0286" cx2="0.6666" cy2="0.0573" x2="0.9998" y2="0.0859" cx3="0.1309" cx4="0.8598" cy4="0.145" x4="0.9808" y4="0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="1" cy1="0" cx2="1" cy2="-0.5" x2="2" y2="-0.5" cx3="2" cx4="2" cy4="-0.2" x4="4" y4="-0.2"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="0.3333" cy1="-0.0286" cx2="0.6666" cy2="-0.0573" x2="0.9998" y2="-0.0859" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
+    </path>
+  </tam>
+
   <tam title="Allemande Left" from="Thar" sequencer="gender-specific">
     <formation>
-      <dancer gender="boy" x="-1" y="0" angle="90"/>
-      <dancer gender="girl" x="0" y="-3" angle="0"/>
-      <dancer gender="boy" x="0" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="0" angle="90"/>
+        <dancer gender="boy" x="-1" y="0" angle="90"/>
+        <dancer gender="girl" x="0" y="-3" angle="0"/>
+        <dancer gender="boy" x="0" y="-1" angle="180"/>
+        <dancer gender="girl" x="3" y="0" angle="90"/>
     </formation>
     <path>
-      <move select="Swing Left"/>
-      <move select="Forward" beats="2"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.2837" cy1="-0.0102" cx2="0.4803" cy2="0.2603" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="2" cx1="0.3345" cy1="0" cx2="0.692" cy2="-0.0104" x2="0.9949" y2="0.1317"/>
     </path>
     <path>
-      <move select="Swing Left"/>
-      <move select="Extend Left" beats="2" scaleY="2"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3504" cy1="0.0144" cx2="0.4979" cy2="0.2111" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="2" cx1="0.6539" cy1="0.0952" cx2="0.6364" cy2="0.6408" x2="0.9546" y2="0.9612" cx3="0.1148" cx4="0.1551" cy4="0.1437" x4="0.2631" y4="0.1049"/>
     </path>
     <path>
-      <move select="Swing Left"/>
-      <move select="Forward" beats="2"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.2837" cy1="-0.0102" cx2="0.4803" cy2="0.2603" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="2" cx1="0.3345" cy1="0" cx2="0.692" cy2="-0.0104" x2="0.9949" y2="0.1317"/>
     </path>
     <path>
-      <move select="Swing Left"/>
-      <move select="Extend Left" beats="2" scaleY="2"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3504" cy1="0.0144" cx2="0.4979" cy2="0.2111" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="2" cx1="0.6539" cy1="0.0952" cx2="0.6364" cy2="0.6408" x2="0.9546" y2="0.9612" cx3="0.1148" cx4="0.1551" cy4="0.1437" x4="0.2631" y4="0.1049"/>
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Grand Circle" sequencer="gender-specific" display="none">
-    <formation>
-      <dancer gender="boy" x="3" y="1" angle="270"/>
-      <dancer gender="girl" x="1" y="1.5" angle="180"/>
-      <dancer gender="boy" x="-1" y="1.5" angle="0"/>
-      <dancer gender="girl" x="-3" y="1" angle="270"/>
-    </formation>
-    <path>
-      <move select="Extend Right" scaleY=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2"/>
-    </path>
-    <path>
-      <move select="Extend Right" scaleY=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Right 1/2" offsetX="1.1" offsetY="1.5"/>
-    </path>
-    <path>
-      <move select="Extend Right" scaleY=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2" offsetX=".2" offsetY="-.6"/>
-    </path>
-    <path>
-      <move select="Extend Right" scaleY=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Right 1/2" offsetX=".2"/>
-    </path>
-  </tam>
-
-
-  <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
-       `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
-       Basic levels; every other Basic tam is already re-authored here. -->
-<tam title="Allemande Left" from="Eight Chain Thru" formation="Eight Chain Thru"
-       sequencer="gender-specific">
-    <path>
-      <move select="Forward"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="2" offsetX="1.5" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Extend Right"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="2" offsetX="1.5" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Forward"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="2" scaleY=".5"/>
-    </path>
-    <path couples="4 2">
-      <move select="Extend Right"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="2" scaleY=".5"/>
-    </path>
-  </tam>
-
-<tam title="Allemande Left" sequencer="gender-specific"
-       from="Trade By" formation="Trade By">
-    <path couples="1 3">
-      <move select="Lead Left" beats="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1.1"/>
-    </path>
-    <path couples="2 4">
-      <move select="Quarter Right" offsetY="-1"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY="1"/>
-    </path>
-    <path couples="2 4">
-      <move select="Extend Right" scaleY=".5" beats="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Left" beats="1.5"/>
-    </path>
-    <path couples="1 3">
-      <move select="Extend Right" scaleY=".5" beats="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Forward" beats="1.5"/>
-    </path>
-  </tam>
-
-<tam title="Allemande Left" sequencer="gender-specific"
-       from="Left-Hand Waves"
-       formation="Ocean Waves LH GBBG">
-    <path couples="4 2">
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Extend Left" beats="1.5" scaleY=".75"/>
-    </path>
-    <path couples="1 3">
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Eighth Left" beats="1.5" offsetX="1" offsetY="1.75"/>
-    </path>
-    <path couples="2 4">
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Extend Left" beats="1.5" scaleY=".75"/>
-    </path>
-    <path couples="1 3">
-      <move select="Hinge Left" scaleX=".75"/>
-      <move select="Hinge Left" scaleX=".75" scaleY=".75"/>
-      <move select="Eighth Right" beats="1.5" offsetX="1" offsetY="-.25"/>
-    </path>
-  </tam>
-
-<tam title="Allemande Left" from="Circle Left" sequencer="gender-specific">
-    <formation>
-      <dancer gender="boy" x="-2.45" y="1" angle="0"/>
-      <dancer gender="girl" x="-2.45" y="-1" angle="45"/>
-      <dancer gender="boy" x="-1" y="-2.45" angle="90"/>
-      <dancer gender="girl" x="1" y="-2.45" angle="135"/>
-    </formation>
-    <path>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2" beats="2.25" offsetX=".75" offsetY="-.2"/>
-    </path>
-    <path>
-      <move select="Quarter Right"  offsetY="-1" offsetX="-.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2"/>
-      <move select="Quarter Right" offsetX=".9" offsetY="-.1"/>
-    </path>
-    <path>
-      <move select="Eighth Left" beats="1.5" offsetX="1.1" offsetY=".4"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2" beats="2.25" offsetX=".75" offsetY="-.2"/>
-    </path>
-    <path>
-      <move select="Quarter Right"  offsetY="-1" offsetX="-.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Lead Left 1/2"/>
-      <move select="Quarter Right" offsetX=".9" offsetY="-.1"/>
-    </path>
-  </tam>
 
 </tamination>

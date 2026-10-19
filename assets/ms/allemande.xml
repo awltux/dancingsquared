@@ -23,20 +23,6 @@
 <tamination title="Allemande Left">
 
 
-  <tam title="Allemande Left" from="Facing Couples" formation="Facing Couples Compact"
-       sequencer="gender-specific">
-    <path>
-      <move select="Forward" scaleX="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Left" beats="2" offsetX="1.5" offsetY=".5"/>
-    </path>
-    <path>
-      <move select="Extend Right" scaleX="1.5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Eighth Right" beats="2" offsetX="1.5" offsetY=".5"/>
-    </path>
-  </tam>
-
   <!-- CALLERLAB CASE 1 -->
 
   <tam title="Allemande Left" formation="Eight Chain Thru"
@@ -292,6 +278,32 @@
       <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
       <movement hands="none" beats="1" cx1="0.138" cy1="-0.1667" cx2="0.276" cy2="-0.3333" x2="0.414" y2="-0.5" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Left" formation="Inverted Lines Ends Facing In" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="none" beats="1" cx1="1" cy1="0" cx2="1.5" cy2="-0.5" x2="2" y2="-0.5" cx3="0.55" cx4="1.5" cy4="0" x4="2" y4="0"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.2843" cy1="0" cx2="0.5" cy2="0.1924" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3266" cy1="0" cx2="0.5" cy2="0.1927" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="1" cx1="0.492" cy1="0" cx2="0.5453" cy2="0.8976" x2="0.9998" y2="1.0859"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.3333" cy1="0.3047" cx2="0.6666" cy2="0.6094" x2="0.9998" y2="0.9141" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.3333" cy1="0.0286" cx2="0.6666" cy2="0.0573" x2="0.9998" y2="0.0859" cx3="0.1309" cx4="0.8598" cy4="0.145" x4="0.9808" y4="0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="1" cy1="0" cx2="1.5" cy2="-0.5" x2="2" y2="-0.5"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3188" cy1="0" cx2="0.5" cy2="0.1388" x2="0.5" y2="0.5"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3188" cy1="0" cx2="0.5" cy2="0.1388" x2="0.5" y2="0.5"/>
+      <movement hands="none" beats="1" cx1="0.3333" cy1="-0.0286" cx2="0.6666" cy2="-0.0573" x2="0.9998" y2="-0.0859" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
     </path>
   </tam>
 

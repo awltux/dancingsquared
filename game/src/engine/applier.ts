@@ -52,6 +52,23 @@ interface ApplierOptions {
  */
 const READINGS_CACHE_BOARDS = 32;
 
+/**
+ * How many boards' OFFERED lists one applier keeps.
+ *
+ * `offered` IS ONE `applyToBoard` PER REGISTERED TITLE, and it is the GENERATOR's hot loop rather than only the
+ * picker's: a depth-3 Daily asks it for the start, for every frontier board, and again for each candidate's boards.
+ * MEASURED at the shipped level-1 pool (57 titles) it costs 75 ms a board, and a depth-3 generation 5.7 s, where a
+ * 20-title pool generates the same shape in 0.5 s. `readings` beside it has been cached since it was written; this
+ * list was not, and the asymmetry was invisible because the picker's 1.7 s made the smaller list look cheap.
+ *
+ * THE SAME KEY AND THE SAME TRAP AS `readings`: `poseKey`, never `boardSig` — `boardSig` is positions-only
+ * (AGENTS.md §8 trap 11), and a call that changes FACING alone returns the same signature and a different list.
+ *
+ * THE BOUND IS BLUNT AND BIGGER THAN `readings`', because a generator's working set is a whole frontier where the
+ * picker's is one line's boards; a clear costs one recomputation rather than an unbounded map in a tab.
+ */
+const OFFERED_CACHE_BOARDS = 64;
+
 /** The key: every dancer's identity, couple, gender, position and heading, exactly as floats. */
 function poseKey(board: Board): string {
   let key = '';
@@ -69,6 +86,7 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
   seq.setSnapMaxError(0);
   const names = opts.calls.map((c) => c.name);
   const readingCache = new Map<string, MoveReading[]>();
+  const offeredCache = new Map<string, Move[]>();
 
   /**
    * Apply one LINE ELEMENT, which is either a call name or a PARALLEL STEP written the way `stepLabel` writes one
@@ -88,11 +106,19 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
 
   return {
     offered(board: Board): Move[] {
+      // THE LIST IS A FUNCTION OF THE POSE ALONE — the registered titles are fixed for this applier's life — so
+      // the same board must not pay for it twice. Callers treat the result as read-only (every one of them maps,
+      // finds or copies it), which is what makes sharing the array safe.
+      const key = poseKey(board);
+      const cached = offeredCache.get(key);
+      if (cached) return cached;
       const out: Move[] = [];
       for (const name of names) {
         const r = seq.applyToBoard(board, name);
         if (r.legal) out.push({ call: name, board: r.board });
       }
+      if (offeredCache.size >= OFFERED_CACHE_BOARDS) offeredCache.clear();
+      offeredCache.set(key, out);
       return out;
     },
 

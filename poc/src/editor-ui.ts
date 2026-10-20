@@ -98,6 +98,7 @@ import { callTamXml, corpusFormationPoses } from './tam-xml';
 // AND THE FORMATION ITSELF, for `Export <formation>`: the block and its verdict are a pure rule in their own
 // module, so `poc/tools/formation-export-probe.mjs` measures THAT rather than a copy of it.
 import { formationExportXml } from './formation-xml';
+import type { FormationExport } from './formation-xml';
 import type { Stage, CurveSpec, HandleSpec } from 'dancing-squared-stage';
 import { FLOOR_HALF, HANDLE_COLOR } from 'dancing-squared-stage';
 import { el, esc } from './dom';
@@ -121,6 +122,9 @@ import type { KeyBinding } from './keys';
 // and a probe can only MEASURE it if it can import it rather than read this panel for the expression.
 import { stepMoveIndex } from './move-nav';
 import { keptSetupIndex } from './setup-keep';
+// What the End setup row says about the shape the call finishes on, and whether it can be exported - a pure rule, so
+// a probe can measure it rather than read the panel (see end-setup-state.ts).
+import { endSetupState } from './end-setup-state';
 import { isZeroSetup } from './zero-formations';
 
 export interface EditorUI {
@@ -630,6 +634,12 @@ export class EditorController implements EditorUI {
   private startFormationSel = el<HTMLSelectElement>('edStartFormation');
   private connectBtn = el<HTMLButtonElement>('edConnect');
   private endFormationSel = el<HTMLSelectElement>('edEndFormation');
+  // Export <formation> ON THE END ROW: offered only when no formation in the corpus names the shape the call
+  // finishes on, and the board is eight dancers. See end-setup-state.ts for why those two conditions.
+  private exportEndFormationBtn = el<HTMLButtonElement>('edExportEndFormation');
+  /** The end board the last name was computed for, and the name, so a handle drag does not re-walk the corpus. */
+  private endNameKey = '';
+  private endNameValue = '';
   private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
   private placeEndBtn = el<HTMLButtonElement>('edPlaceEnd');
   // The End setup's rotation control: a 45-degree step either way, and the readout between them.
@@ -3001,6 +3011,8 @@ export class EditorController implements EditorUI {
     this.renderSelectRow();
     this.renderCloneChrome();
     this.renderEndTarget();
+    // ...AND WHAT THE ROW SAYS ABOUT THE END ITSELF, which is a different question from the chosen target.
+    this.renderEndSetupState();
     this.refreshCloneInfo();
     this.syncStageSelection();
     // LAST, and it must stay last: the step describes the state this render is SHOWING.
@@ -4902,6 +4914,49 @@ export class EditorController implements EditorUI {
     return this.host.startFormations(call.dancers.length).find((f) => isThatEnd(call, f.poses))?.name ?? '';
   }
 
+  /**
+   * THE CORPUS'S NAME FOR THE SHAPE THE CALL FINISHES ON, or '' when it has none - MEMOISED ON THAT BOARD.
+   *
+   * `namedSetup` walks every formation of the call's size (each one completed and deduplicated before it is
+   * compared), which is far too much to do on every render: a handle drag re-renders this panel many times a
+   * second, and each of those would re-walk the corpus to answer a question whose answer only changes when the
+   * END moves. So the answer is keyed on the end POSES - position, heading and gender of every dancer, at the
+   * call's last beat - and recomputed only when that board is different.
+   */
+  private endSetupName(call: CallBundle): string {
+    const end = boardAtBeat(call, call.beats);
+    const key = `${call.dancers.length}|${end.dancers.map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(4)},${d.gender}`).join(';')}`;
+    if (this.endNameKey !== key) {
+      this.endNameKey = key;
+      this.endNameValue = this.namedSetup(call, 'end');
+    }
+    return this.endNameValue;
+  }
+
+  /**
+   * The End setup row's own state, redrawn with everything else.
+   *
+   * IT WRITES THE PICKER'S PLACEHOLDER, never its selection: the caller may be part-way through choosing a
+   * formation to re-base onto, and a render that re-picked for them would undo that - which is why the SELECTION is
+   * set once, at load (`loadInstance`), and only the option's TEXT is a function of the board here.
+   *
+   * Asked for as: "When selecting a new call, if the existing Setup also exists in the new call, pre-select it" is a
+   * different rule (that one is `setup-keep.ts`); THIS one is about the shape the call ENDS on: "add a check to the
+   * call-changed event that calculates the end setup and looks it up in known formations. Set the End Setup to the
+   * found formation, or show 'Unknown formation'. If the end formation is unknown and it's an 8-dancer board,
+   * provide an 'export <formation>' button on the 'End Setup' row."
+   */
+  private renderEndSetupState() {
+    const call = this.instance;
+    const state = endSetupState(call ? this.endSetupName(call) : '', call ? call.dancers.length : 0);
+    // THE LEADING OPTION IS THE STATEMENT, because it is the entry that means "nothing chosen" - and "nothing
+    // chosen" is exactly "the corpus names no formation for this end". A note beside the control could disagree
+    // with it; this cannot.
+    const first = this.endFormationSel.options[0];
+    if (first && first.value === '' && first.text !== state.placeholder) first.text = state.placeholder;
+    this.exportEndFormationBtn.hidden = !state.canExport;
+  }
+
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
   private doClone() {
     this.loadInstance();
@@ -5801,6 +5856,45 @@ export class EditorController implements EditorUI {
       return;
     }
     void navigator.clipboard?.writeText(buildStamp() + '\n' + result.xml);
+    this.reportFormationExport(result, 'start');
+  }
+
+  /**
+   * EXPORT the shape the call FINISHES on, for the End setup row - the way out of "Unknown formation".
+   *
+   * Asked for as: "If the end formation is unknown and it's an 8-dancer board, provide an 'export <formation>' button
+   * on the 'End Setup' row." The two conditions are the row's own state (`end-setup-state.ts`), and this is the
+   * action: the same block, the same clipboard and the same verdict report as the START export, over the END poses
+   * (`instanceTable`'s `end`, which is the pose each dancer arrives at, not where it set off).
+   *
+   * THE NAME IS THE CALL'S, because an unnamed shape has no name: `formationExportXml` refuses a block without one
+   * (a `<formation>` whose `name` is missing is one `parseFormations` skips), the format has no end-of-call name to
+   * read, and a caller authoring this formation is going to name it in `formations.xml` anyway. Saying that out loud
+   * in the status line is the difference between a placeholder and a guess.
+   */
+  private doExportEndFormation() {
+    const call = this.instance;
+    if (!call) {
+      this.statusEl.textContent = 'nothing to export yet';
+      return;
+    }
+    const spots = instanceTable(call).map((r) => r.end);
+    const result = formationExportXml(call.title, spots, corpusFormationPoses);
+    if (!result) {
+      // The call has a title, so this is the panel's own guard rather than an expected refusal.
+      this.statusEl.textContent = '✗ cannot export the end formation: there is no name to write';
+      return;
+    }
+    void navigator.clipboard?.writeText(buildStamp() + '\n' + result.xml);
+    this.reportFormationExport(result, 'end');
+  }
+
+  /**
+   * THE ONE STATUS LINE BOTH EXPORTS REPORT WITH. The block, and which of four things a paste will be - `add`,
+   * `same`, `reordered` or `changed` - because a block pasted under a name the corpus already carries REPLACES that
+   * entry (`parseFormationsImpl` `map.set`s by name) and therefore re-points every call that names it.
+   */
+  private reportFormationExport(result: FormationExport, which: 'start' | 'end') {
     const n = result.count;
     const corpusN = result.corpusCount;
     // WHAT THE BLOCK IS: the half set - which the reader completes - or every dancer, and the line says which,
@@ -5822,7 +5916,12 @@ export class EditorController implements EditorUI {
               ? ` - the SAME spots in a DIFFERENT ORDER from the corpus's, which is a different setup because a call's paths pair with the ` +
                 `formation's dancers by position: pasting it REPLACES "${result.name}"`
               : ` - ${result.differing} of ${n} spots differ from "${result.name}" in the corpus, so pasting it REPLACES that formation`;
-    this.statusEl.textContent = `exported <formation> "${result.name}" (${written}, copied)${what}`;
+    const whichLabel = which === 'end' ? 'exported the END <formation>' : 'exported <formation>';
+    const whichNote =
+      which === 'end'
+        ? ' - named after the CALL, because no formation in the corpus names this shape: rename the block when you paste it'
+        : '';
+    this.statusEl.textContent = `${whichLabel} "${result.name}" (${written}, copied)${what}${whichNote}`;
   }
 
   /**
@@ -5980,6 +6079,8 @@ export class EditorController implements EditorUI {
     this.saveBtn.addEventListener('click', () => this.doSave());
     this.exportBtn.addEventListener('click', () => this.doExport());
     this.exportFormationBtn.addEventListener('click', () => this.doExportFormation());
+    // The END row's export, which exists only where no corpus formation names the shape the call finishes on.
+    this.exportEndFormationBtn.addEventListener('click', () => this.doExportEndFormation());
     this.exportAllBtn.addEventListener('click', () => this.doExportAll());
     this.showTargetBtn.addEventListener('click', () => this.showTarget());
     this.showEndBtn.addEventListener('click', () => this.showEnd());

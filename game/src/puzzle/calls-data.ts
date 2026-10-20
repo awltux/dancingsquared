@@ -26,7 +26,7 @@
 // A TITLE HERE IS AN IDENTITY, NOT A POSITION: registration in the game is by title, so RE-ORDERING THIS ARRAY
 // renumbers every level's pool — `poolFor` is the first `poolSize` entries — and MUST come with a `POOL_VERSION`
 // bump, because the version is part of what a leaderboard entry means (DESIGN.md §7).
-export const POOL_VERSION = "ms-4";
+export const POOL_VERSION = "ms-5";
 
 export const CALLS_IN_ORDER: readonly string[] = [
   "Circle Left Home",
@@ -37,7 +37,6 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Circle Left 1/4",
   "Circle Left 1/2",
   "Circle Left 3/4",
-  "Circle Left 1/4Home",
   "Circle Right Home",
   "Circle Right 1/4 Home",
   "Circle Right 1/2 Home",
@@ -179,23 +178,27 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Pass Thru",
   "Heads Pass Thru",
   "Sides Pass Thru",
-  "Promenade Home",
-  "Promenade 3/4 Home",
-  "Promenade 1/2 Home",
-  "Promenade 1/4 Home",
+  // THE PROMENADE FAMILY WAS RETITLED IN `ms/promenade.xml`: the tams that STOP at home took the plain name
+  // (`Promenade Home` -> `Promenade`) and the walking ones took a `- Keep Walking` suffix (plain `Promenade` ->
+  // `Promenade - Keep Walking`). These are the SAME FIGURES under their new names, position for position, so
+  // the pools do not renumber and `POOL_VERSION` is unchanged.
   "Promenade",
   "Promenade 3/4",
   "Promenade 1/2",
   "Promenade 1/4",
-  "Single File Promenade Home",
+  "Promenade - Keep Walking",
+  "Promenade 3/4 - Keep Walking",
+  "Promenade 1/2 - Keep Walking",
+  "Promenade 1/4 - Keep Walking",
   "Single File Promenade",
+  "Single File Promenade - Keep Walking",
   "Star Promenade",
-  "Wrong Way Promenade Home",
-  "Wrong Way Promenade 3/4 Home",
-  "Wrong Way Promenade 1/2 Home",
   "Wrong Way Promenade",
   "Wrong Way Promenade 3/4",
   "Wrong Way Promenade 1/2",
+  "Wrong Way Promenade - Keep Walking",
+  "Wrong Way Promenade 3/4 - Keep Walking",
+  "Wrong Way Promenade 1/2 - Keep Walking",
   "Right Pull By",
   "Left Pull By",
   "Recycle",

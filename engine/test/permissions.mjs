@@ -566,5 +566,36 @@ console.log('\n== (17) ONE RULE CAN NAME SEVERAL CALLS, AND MATCHES ANY OF THEM 
   }
 }
 
+console.log('\n== (18) A FOUR-DANCER CALL IS OFFERED ONLY TO FOUR DANCERS ==');
+// THE SHIPPED WHITE LIST FOR `Circle Four`, pinned per READING rather than by rule shape, because the rule is
+// a policy and the policy is what must not drift. The call is authoritative as a four-dancer action:
+// `callerlab-ms.txt`'s "b. Circle of 4 Left/Right (1/4, 1/2, 3/4, Full) / Starting formation: Facing Couples".
+// On a squared set exactly two readings are facing couples of four - the heads and the sides - so those may
+// dance it and the two readings that are the wrong SIZE may not.
+{
+  const CIRCLE_FOUR = [
+    'Circle Four Left', 'Circle Four Left 1/4', 'Circle Four Left 1/2', 'Circle Four Left 3/4',
+    'Circle Four Right', 'Circle Four Right 1/4', 'Circle Four Right 1/2', 'Circle Four Right 3/4',
+  ];
+  const ask = (call, group) => evaluatePermissions(PERMISSION_RULES, { call, group, level: 'ms' }).allowed;
+  const offeredAll8 = CIRCLE_FOUR.filter((c) => ask(c, 'All 8'));
+  check(offeredAll8.length === 0,
+    `no authoring is offered to the whole square - eight dancers cannot circle four (${offeredAll8.join(', ') || 'none'} were)`);
+  const offeredCouple = CIRCLE_FOUR.filter((c) => ask(c, 'Couple #1'));
+  check(offeredCouple.length === 0,
+    `and none to a numbered couple - one couple is half the four (${offeredCouple.join(', ') || 'none'} were)`);
+  const refusedFour = CIRCLE_FOUR.filter((c) => !ask(c, 'Heads') || !ask(c, 'Sides'));
+  check(refusedFour.length === 0,
+    `while Heads and Sides may dance every one (${refusedFour.length} not: ${refusedFour.join(', ') || 'none'})`);
+  // THE NEGATIVE CONTROL IS THE READING ONE STEP TOO WIDE, and it checks the REFUSAL'S OWNER rather than only
+  // its verdict: a default allow would satisfy "not offered" for a call the engine does not know, so the
+  // deciding rule must be the white list's deny.
+  const all8 = evaluatePermissions(PERMISSION_RULES, { call: 'Circle Four Left', group: 'All 8', level: 'ms' });
+  check(all8.rule?.decision === 'deny' && all8.rule?.call?.includes('Circle Four Left'),
+    `and the refusal is the white list's own deny, not the default (${all8.rule?.decision ?? 'default'})`);
+  check(!!all8.reason && all8.reason === all8.rule?.reason,
+    `whose reason is shown verbatim ("${all8.reason}")`);
+}
+
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

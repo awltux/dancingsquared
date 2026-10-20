@@ -258,6 +258,48 @@ export function evaluatePermissions(
  */
 export const PERMISSION_RULES: readonly PermissionRule[] = [
   {
+    // `Circle Four` IS A FOUR-DANCER CALL, so only a four-dancer reading may dance it: the heads or the
+    // sides. THE AUTHORITY IS THE CALL'S OWN FAMILY ENTRY, not a judgement about the corpus:
+    // `callerlab-ms.txt`'s "b. Circle of 4 Left/Right (1/4, 1/2, 3/4, Full) / Starting formation: Facing
+    // Couples", whose command examples include "Circle Four, 1/2 way around" and "In Groups of 4, Circle
+    // Left 3/4 of the way around". Four dancers, from facing couples - which is exactly two of the four
+    // couples on a squared set.
+    //
+    // A WHITE LIST IN THE SHAPE THE `Lead Right` RULES USE: a deny that catches every reading, then an
+    // allow for the readings that survive.
+    //
+    // THE ALLOW NAMES THE TWO READINGS EXPLICITLY RATHER THAN SPREADING A GROUP CONSTANT, and the reason is
+    // what `selection.ts` already records about those constants: `COUPLES_GROUP_NAMES` carries `Couple #1`-
+    // `#4` beside `Heads`/`Sides`, and a numbered couple names ONE couple - half of the four dancers the
+    // call needs, so it is not a reading this call can be danced from. `All 8` is the other mistake: eight
+    // dancers cannot circle four.
+    //
+    // ALL EIGHT AUTHORINGS ARE ONE DECISION, which is what `call` being an array is for: the direction and
+    // the amount are the call's scale, not its choreography, so the white list is stated once rather than
+    // eight times.
+    call: [
+      'Circle Four Left', 'Circle Four Left 1/4', 'Circle Four Left 1/2', 'Circle Four Left 3/4',
+      'Circle Four Right', 'Circle Four Right 1/4', 'Circle Four Right 1/2', 'Circle Four Right 3/4',
+    ],
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'Circle Four is danced by four dancers - the heads or the sides - so the whole square cannot circle '
+      + 'four, and one couple alone cannot either. Choose the Heads or the Sides reading.',
+  },
+  {
+    call: [
+      'Circle Four Left', 'Circle Four Left 1/4', 'Circle Four Left 1/2', 'Circle Four Left 3/4',
+      'Circle Four Right', 'Circle Four Right 1/4', 'Circle Four Right 1/2', 'Circle Four Right 3/4',
+    ],
+    group: ['Heads', 'Sides'],
+    level: 'ms',
+    decision: 'allow',
+    reason:
+      'Circle Four is for four dancers - the heads or the sides - and both of those readings are facing '
+      + 'couples.',
+  },
+  {
     // `Boys Dosado` / `Girls Dosado` FROM A STATIC SQUARE - never, at every programme.
     //
     // WHY THE WHOLE-SET BOYS' AND GIRLS' DOSADO IS A DIFFERENT CASE FROM THE ALL-8 ONE. Every boy faces

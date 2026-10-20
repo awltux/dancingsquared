@@ -326,6 +326,14 @@ the commit that re-measures the depth-3 question.
    questions of the same progression — `dailySpec(level)` applies the mode's depth where a puzzle is generated for
    the mode — so a level does not carry two depths that could drift apart.
 
+6. **A LEVEL'S REQUIREMENT IS ITS FIRST 10×10 ARRAY — 100 DRILLS — AND LATER ARRAYS ARE OPTIONAL CONTENT.**
+   The progress display is the **10×10 block** of §15 Q17 (v), one cell per finished drill, and filling the
+   **first** array is what promotes the player. A level that proves popular may be given **additional 10×10
+   arrays**: their cells record real completions, but a player does not have to fill them to ascend, so extra
+   content can be added to a level without moving the finish line for someone already on it. Q17 carries the
+   rule and the correction it makes to the two entries around it; the SUPPLY side is Q17 (iii)'s — the server
+   keeps adding unique drills — so an array fills from accumulated entries, not from one season's 13.
+
 So the three bullets below stand as the *design's intent*, and the table above is what the corpus supports.
 The gap is recorded rather than papered over: **the design asked for three options at every level, and this ships
 what the corpus can actually generate; it asked for depth to rise to 3, and that is now the Daily's question at
@@ -687,6 +695,15 @@ the code keeps by habit.
 - **A group-only call — one a subset can perform and the set cannot — is legal here too**, and it is the engine's
   harness that builds the case (`engine/test/group-refusal.mjs`), because the squared set at a real level's pool
   offers 35 of its 36 titles whole-board and the situation does not arise within one call of the start.
+
+- **The challenge MAY carry waypoints, and they GUIDE the route rather than gate it.** A Daily can show an
+  ordered sequence of **formations and arrangements** between the start and the goal, and the player is helped,
+  not policed: correctness is still the GOAL BOARD, so a route that reaches it another way still wins. The unit
+  is the **arrangement**, not the name — §9.1 measures why a name cannot key one (all three waypoints of the
+  sample route were `Static Square`) and why the congruence `geometryKey` computes is exactly the equivalence a
+  waypoint wants. The sequence is the generator's own route (`puzzle.path.slice(1, -1)`), so a waypoint cannot
+  disagree with the solution; progress is monotone over the boards the player actually stood on, so an undo
+  rewinds it for free; and a challenge may carry **zero** waypoints at all.
 
 ### 9.1 Can the server solve the Daily outright? Measured, and no — but the measurement says what to do instead
 
@@ -2271,7 +2288,12 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         2 replaced that — *"an unfinished drill doesnt roll over, it just remains uncompleted and prevents them
         ascending to the next level. All drills must be finished to progress to the next level."*
     (v) **A LEVEL IS 100 DRILLS**, shown as a **10×10 block** with a cell per finished drill, "it doesn't need to be
-        fully populated", and more blocks are added as more drills become available — so a block IS a level.
+        fully populated", and more blocks are added as more drills become available — **BUT A LEVEL'S REQUIREMENT IS ITS
+        FIRST BLOCK ONLY.** An extra 10×10 array is content added to a level that proves popular, and a player
+        ascends when the **first** array's last cell fills, so adding a block never moves the finish line for
+        someone already on the level. That corrects the earlier "a block IS a level", which read as one block per
+        level; and (iv)'s "all drills must be finished" is then "all 100 drills of the FIRST block", which is the
+        only reading under which extra arrays can exist without becoming a retroactive requirement.
     (vi) **The server owns the player's level**: finishing all 100 drills of a level promotes them to the next one.
     (vii) **THE BOARD'S KEY HOLDS THE CHALLENGE'S IDENTITY, NOT A TIME PERIOD** — round 3, prompted by the owner asking
         whether a period is needed at all once progress is a 10×10 block. The answer is that the SLOT stays and the

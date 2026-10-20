@@ -26,7 +26,7 @@
 // A TITLE HERE IS AN IDENTITY, NOT A POSITION: registration in the game is by title, so RE-ORDERING THIS ARRAY
 // renumbers every level's pool — `poolFor` is the first `poolSize` entries — and MUST come with a `POOL_VERSION`
 // bump, because the version is part of what a leaderboard entry means (DESIGN.md §7).
-export const POOL_VERSION = "ms-6";
+export const POOL_VERSION = "ms-7";
 
 export const CALLS_IN_ORDER: readonly string[] = [
   "Circle Left Home",
@@ -67,6 +67,10 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Dosado your Corner",
   "Dosado to a Wave",
   "Double Pass Thru",
+  "Left Double Pass Thru",
+  "Boys on a Diagonal Double Pass Thru",
+  "Girls on a Diagonal Double Pass Thru",
+  "On a Diagonal Double Pass Thru",
   "Allemande Left in the Alamo Style",
   "Allemande Left to an Alamo Ring",
   "Adjust to an Alamo",
@@ -102,10 +106,6 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Heads Wheel Around and make an Arch, Sides Dive Thru",
   "Dixie Style to a Wave",
   "Reverse Dixie Style to a Wave",
-  "Left Double Pass Thru",
-  "Boys on a Diagonal Double Pass Thru",
-  "Girls on a Diagonal Double Pass Thru",
-  "On a Diagonal Double Pass Thru",
   "Extend",
   "Face Left",
   "Face Right",

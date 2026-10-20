@@ -110,6 +110,34 @@ export function corpusTamTitles(): string[] {
 }
 
 /**
+ * Every Mainstream file and the titles it authors — the corpus's own FAMILIES.
+ *
+ * WHY A FAMILY IS A FILE. The corpus groups calls one file per family: `circle.xml` authors every Circle
+ * variation, `dosado.xml` every Dosado. It is the only grouping the corpus itself states, and a title's own
+ * name cannot supply one — `Circle Left Home` is a variant of `Circle Left` with no separator, while
+ * `Lead Right - Close` is a variant with one, so a suffix rule sees half the corpus and a leading-word rule
+ * puts `Circle Four` inside `Circle`.
+ *
+ * ITS CALLER IS THE POOL CENSUS (`tools/pool-families.mjs`), which cuts level 1's pool at a FAMILY
+ * BOUNDARY: `poolFor` is a prefix of the teaching order, so a count chosen carelessly teaches half a family
+ * (level 1 at `BASE_POOL` 20 stopped in the middle of Circle Four, which has eight titles). `pool-probe.mjs`
+ * then pins that the shipped boundary is still clean, so a re-ordering of `calls-data.ts` that splits a
+ * family is a red line rather than a silent half-taught level.
+ *
+ * A TITLE IN TWO FILES WOULD MAKE "its family" ambiguous, so the census reports that rather than picking one
+ * here: the files are returned as they are, and the caller is where the decision belongs.
+ */
+export function corpusFamilies(): { file: string; titles: readonly string[] }[] {
+  return corpusFiles().map(({ file, xml }) => {
+    const titles: string[] = [];
+    for (const tam of parseCallXml(xml)) {
+      if (tam.title && !titles.includes(tam.title)) titles.push(tam.title);
+    }
+    return { file, titles };
+  });
+}
+
+/**
  * An applier holding ONLY the first `poolSize` titles of `titles`.
  *
  * THE SLICE IS THE LEVEL. `CallLibrary` treats "the level IS the call set" (engine/README.md), so a sequencer

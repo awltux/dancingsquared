@@ -23,7 +23,9 @@
 //
 // Usage: node game/test/pool-probe.mjs   (engine must be built)
 import { CALLS_IN_ORDER, POOL_VERSION } from '../src/puzzle/calls-data.ts';
-import { applierFor, corpusTamTitles } from '../src/data/corpus-node.ts';
+import { BASE_POOL, levelSpec } from '../src/puzzle/levels.ts';
+import { poolFor } from '../src/puzzle/pool.ts';
+import { applierFor, corpusFamilies, corpusTamTitles } from '../src/data/corpus-node.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -90,6 +92,45 @@ console.log('\n== 3. the level loader can register every title (the two resoluti
   // about the helper rather than about the pool.
   const bogus = unregisterable([...CALLS_IN_ORDER, 'Circle Left Sideways To The Moon']);
   check(bogus.length === missing.length + 1, `NEGATIVE CONTROL: the registerability check sees an invented title too (${bogus.length} vs ${missing.length})`);
+}
+
+console.log('\n== 4. the level-1 pool boundary teaches WHOLE families ==');
+{
+  // A FAMILY IS A CORPUS FILE (see `corpusFamilies`): `circle.xml` authors every Circle variation. `poolFor` is
+  // a PREFIX, so the boundary is a COUNT, and a count can land mid-family. THE DEFECT THIS PINS IS MEASURED:
+  // at `BASE_POOL` 20 level 1 taught `Circle Four Left` and never `Circle Four Right`, because the corpus's
+  // first 24 titles are all Circle. `node game/tools/pool-families.mjs 10` is how the boundary was chosen.
+  //
+  // THE COMPARISON IS AGAINST THE FAMILY'S TITLES THE ORDER CONTAINS, not everything the file authors: the
+  // order deliberately omits 9 of the corpus's 322 titles, and a family with one omitted title could never be
+  // "entirely inside" any prefix. What must never happen is teaching HALF a family the level teaches at all.
+  const orderSet = new Set(CALLS_IN_ORDER);
+  const members = new Map();
+  for (const { file, titles } of corpusFamilies()) {
+    const inOrder = titles.filter((t) => orderSet.has(t));
+    if (inOrder.length) members.set(file, inOrder);
+  }
+  const splitBy = (titles) => {
+    const have = new Set(titles);
+    const split = [];
+    for (const [file, all] of members) {
+      const inside = all.filter((t) => have.has(t)).length;
+      if (inside > 0 && inside < all.length) split.push(`${file} ${inside}/${all.length}`);
+    }
+    return split;
+  };
+  const first = poolFor(levelSpec(1));
+  const split = splitBy(first);
+  check(split.length === 0, `level 1's ${first.length} titles split no family (${split.join(', ') || 'none'})`);
+  // THE OWNER'S RULE AS A CHECK: the first level must teach at least ten CALLS, and a call is a family.
+  const whole = [...members.entries()].filter(([, all]) => all.every((t) => first.includes(t))).length;
+  check(whole >= 10, `and they are ${whole} whole families, at least the ten a first level needs`);
+  check(first.length === BASE_POOL, `the level-1 pool is BASE_POOL (${first.length} vs ${BASE_POOL})`);
+  // NEGATIVE CONTROL: ONE TITLE FEWER MUST SPLIT ONE, or the checks above are vacuous.
+  const shorter = poolFor({ ...levelSpec(1), poolSize: first.length - 1 });
+  const shorterSplit = splitBy(shorter);
+  check(shorterSplit.length > 0,
+    `NEGATIVE CONTROL: ${first.length - 1} titles would split ${shorterSplit.length} family(ies) (${shorterSplit.join(', ')})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

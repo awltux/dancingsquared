@@ -155,8 +155,12 @@ console.log('\n== 5. the levels the corpus can fill ==');
   check(levels.every((level) => poolIsComplete(levelAt(level), MAIN_POOL)), `every published level's pool is complete (${levels.length} levels, 1..${last})`);
   check(!poolIsComplete(beyond, MAIN_POOL), `and the next one is not: level ${last + 1} asks for ${beyond.poolSize} titles and the corpus carries ${MAIN_POOL.order.length}`);
   // NEGATIVE CONTROL: the ladder itself is TOTAL, so a publisher that trusted `levelSpec` alone would publish
-  // forever. MEASURED: level 900 is a level (a pool of 3616 and depth 2) with nothing behind it.
-  check(levelAt(900).poolSize === 3616, `NEGATIVE CONTROL: level 900 is still a level of the ladder (pool ${levelAt(900).poolSize}), which is why the boundary is the POOL and not the ladder`);
+  // forever. THE ASSERTION IS THE RELATIONSHIP, NOT THE NUMBER: this pinned level 900's pool at 3616, which was
+  // `BASE_POOL` 20 + 4*899 and moved the moment the pool grew for the level-1 family boundary. What the check is
+  // FOR is that a deep level is still a level whose pool is far beyond anything the corpus holds.
+  const deep = levelAt(900);
+  check(deep !== null && deep.poolSize > MAIN_POOL.order.length,
+    `NEGATIVE CONTROL: level 900 is still a level of the ladder (pool ${deep?.poolSize} against ${MAIN_POOL.order.length} titles), which is why the boundary is the POOL and not the ladder`);
   check(publishableLevels().length === levels.length, 'and the list is stable across calls');
 }
 

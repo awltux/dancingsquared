@@ -27,7 +27,7 @@
 //
 // 2. DEPTH 3 NEEDS A POOL OF AT LEAST 20, and that is a HARD floor rather than a cost: at pools 10 and 15 there is
 //    no board reachable in exactly three calls from the squared set at all, so the search has no goal to offer.
-//    This is why `BASE_POOL` is 20 and not the 10 the design first proposed: the Daily is asked in three calls
+//    This is why `BASE_POOL` is well above the 10 the design first proposed: the Daily is asked in three calls
 //    (DESIGN.md §9), so every level has to be able to answer in three.
 //
 // 3. DEPTH 3 IS EXPENSIVE — 0.4 s at pool 20 rising to ~4.9 s at pool 55 — and it used to be the reason the ladder
@@ -44,12 +44,19 @@ import type { LevelSpec } from './types.ts';
 /**
  * The pool every level starts from.
  *
- * IT IS 20 BECAUSE DEPTH 3 REQUIRES IT, and the requirement is a measurement: at pools 10 and 15 there is NO board
- * reachable in exactly three calls from the squared set, so a level with a smaller pool cannot carry a Daily at all.
- * The design's original "L1 is 10 calls" was a guess at a comfortable start; the corpus does not support three-call
- * questions there, and a ladder whose first six levels cannot be asked the Daily is not a ladder.
+ * IT IS 57 BECAUSE LEVEL 1 MUST TEACH WHOLE FAMILIES, and 57 is the smallest prefix of `calls-data.ts` that
+ * does. `poolFor` is a PREFIX, so the boundary is a COUNT, and a count can land in the middle of a family —
+ * it did: at 20, level 1 taught `Circle Four Left` and never `Circle Four Right`, because the corpus's first
+ * 24 titles are all Circle. MEASURED by `node game/tools/pool-families.mjs 10`, after the order was grouped so
+ * each corpus file's titles are contiguous: 57 titles is the TENTH whole family — Circle 32, Dosado 5,
+ * Double Pass Thru 5, Alamo Style 3, Allemande 1, Arm Turns 4, Bend the Line 2, Box the Gnat 1,
+ * California Twirl 1, Cast Off 3/4 3. `test/pool-probe.mjs` pins that the shipped boundary splits no family,
+ * so re-curating the order cannot quietly half-teach one again.
+ *
+ * IT IS ALSO WELL ABOVE `DEPTH3_MIN_POOL`, which finding 2 requires: a level that cannot be asked a three-call
+ * question cannot carry the Daily at all, and the design's original "L1 is 10 calls" could not answer one.
  */
-export const BASE_POOL = 20;
+export const BASE_POOL = 57;
 
 /**
  * How much the pool grows per level.
@@ -110,7 +117,12 @@ export function levelSpec(index: number): LevelSpec | null {
   if (!Number.isInteger(index) || index < 1) return null;
   const depth = index === 1 ? 1 : MAX_DEPTH;
   const poolSize = BASE_POOL + POOL_STEP * (index - 1);
-  return { index, poolSize, depth, optionCount: optionCountFor(poolSize) };
+  // LEVEL 1 STAYS A TWO-OPTION QUESTION, and it is pinned rather than derived. `optionCountFor` would give
+  // three here, because the pool is now far above `THREE_OPTION_MIN_POOL` — but the teaching level's shape is
+  // a product decision (one call, a right answer and a wrong one), and letting it change as a SIDE EFFECT of
+  // the pool growing is exactly how a teaching level becomes a three-button question nobody chose.
+  const optionCount = index === 1 ? 2 : optionCountFor(poolSize);
+  return { index, poolSize, depth, optionCount };
 }
 
 /**

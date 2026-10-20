@@ -26,7 +26,7 @@
 // A TITLE HERE IS AN IDENTITY, NOT A POSITION: registration in the game is by title, so RE-ORDERING THIS ARRAY
 // renumbers every level's pool — `poolFor` is the first `poolSize` entries — and MUST come with a `POOL_VERSION`
 // bump, because the version is part of what a leaderboard entry means (DESIGN.md §7).
-export const POOL_VERSION = "ms-5";
+export const POOL_VERSION = "ms-6";
 
 export const CALLS_IN_ORDER: readonly string[] = [
   "Circle Left Home",
@@ -268,14 +268,9 @@ export const CALLS_IN_ORDER: readonly string[] = [
   "Left Square Thru 2 1/2",
   "Left Square Thru 2",
   "Left Square Thru 1 1/2",
-  "Heads Square Thru 2",
-  "Heads Square Thru 3",
-  "Heads Square Thru 4",
-  "Heads Left Square Thru 4",
-  "Sides Square Thru 2",
-  "Sides Square Thru 3",
-  "Sides Square Thru 4",
-  "Sides Left Square Thru 4",
+  // THE `Heads …` / `Sides …` SQUARE THRU TAMS ARE GONE from `ms/square_thru.xml`: the corpus now authors the
+  // call once (`Square Thru 2`/`3`/`4`, `Left Square Thru …`) and the designator is applied at call time, so
+  // those eight titles no longer name anything and are removed here rather than left to fail rule 1.
   "Square Thru 1 1/2",
   "Square Thru 2 1/2",
   "Square Thru 3 1/2",

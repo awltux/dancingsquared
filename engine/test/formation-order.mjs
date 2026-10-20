@@ -385,12 +385,62 @@ function geometryDigest(deps, opts = {}) {
     pairs.push(`${tamKey(rel, tam)}|${[...ends.entries()].map(([s, e]) => `${s}>${e}`).sort().join(';')}`);
   }
   // FNV-1a, 32 bits: a short stable digest for a long string. Nothing here is security-sensitive.
-  let hash = 0x811c9dc5;
-  for (const ch of pairs.sort().join('\n')) {
-    hash ^= ch.codePointAt(0);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
+  const fnv = (text) => {
+    let h = 0x811c9dc5;
+    for (const ch of text) { h ^= ch.codePointAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h.toString(16).padStart(8, '0');
+  };
+  // TWO COARSER REDUCTIONS OF THE SAME PAIRS. The aggregate stays byte-for-byte what it was, so no pin moves; `byTam`
+  // and `byFile` are what let a failure NAME what changed instead of only reporting that the number did. MEASURED, this
+  // is the difference between a red that reads "the digest is ad09460c" (which cost a scratch tool to diagnose) and one
+  // that reads "ms/circle.xml, 16 tams".
+  //
+  // A pair is `file|title|start>end;...`, so the FIRST `|` ends the file and the SECOND ends the tam's key.
+  const byTam = new Map();
+  const filePairs = new Map();
+  for (const pair of pairs) {
+    const first = pair.indexOf('|');
+    const second = pair.indexOf('|', first + 1);
+    const file = pair.slice(0, first);
+    byTam.set(pair.slice(0, second < 0 ? pair.length : second), fnv(pair));
+    if (!filePairs.has(file)) filePairs.set(file, []);
+    filePairs.get(file).push(pair);
   }
-  return { digest: hash.toString(16).padStart(8, '0'), count: pairs.length };
+  const byFile = new Map([...filePairs.entries()].map(([file, list]) => [file, fnv([...list].sort().join('\n'))]));
+  return { digest: fnv(pairs.sort().join('\n')), count: pairs.length, byTam, byFile };
+}
+
+/**
+ * WHAT MOVED, in words: the dependents a red is about.
+ *
+ * The rows carry a per-FILE digest where one has been recorded (`files`), which names the files outright; a row without
+ * them prints the whole per-file table instead, with every tam in it, because a number a reader cannot act on is the
+ * thing this exists to replace. The values are printed in the shape the pin takes, so recording them is a paste.
+ */
+function geometryReport(name, pin, byFile, byTam) {
+  const lines = [];
+  const pinnedFiles = pin.files ?? null;
+  const changed = [];
+  if (pinnedFiles) {
+    for (const [file, digest] of byFile) if (pinnedFiles[file] !== digest) changed.push(file);
+    for (const file of Object.keys(pinnedFiles)) if (!byFile.has(file)) changed.push(file);
+  } else {
+    for (const file of byFile.keys()) changed.push(file);
+  }
+  lines.push(`  ${name}: ${pinnedFiles ? `${changed.length} file(s) differ` : 'no per-file pin recorded; every file listed'}`);
+  for (const file of changed.sort()) {
+    lines.push(`    ${file}  ${byFile.get(file) ?? '(gone)'}`);
+    for (const [key, digest] of [...byTam].sort()) if (key.startsWith(`${file}|`)) lines.push(`        ${key.slice(file.length + 1)}  ${digest}`);
+  }
+  // THE PASTE, for a row that has no per-file pin yet: printed whenever the report runs, so recording the row is a copy
+  // rather than a second scratch tool. It is printed for a row that IS pinned too, because that is how a legitimate move
+  // gets re-recorded.
+  if (changed.length > 0) {
+    lines.push('  files: {');
+    for (const [file, digest] of [...byFile].sort()) lines.push(`    '${file}': '${digest}',`);
+    lines.push('  },');
+  }
+  return '\n' + lines.join('\n');
 }
 
 // ------------------------------------------------------------------ 1. the pinned formations
@@ -442,13 +492,37 @@ for (const [name, pin] of Object.entries(PINNED)) {
   const oddShape = deps.filter(({ tam }) => tam.paths.length !== authored.length && tam.paths.length !== 2 * authored.length);
   check(oddShape.length === 0, `every dependent writes either ${authored.length} paths (half set) or ${2 * authored.length} (whole set)`, oddShape.map(({ rel, tam }) => `${tamKey(rel, tam)}: ${tam.paths.length} paths`).join(', '));
 
-  const { digest, count } = geometryDigest(deps);
+  const { digest, count, byTam, byFile } = geometryDigest(deps);
   check(count === deps.length, `every dependent builds (${count}/${deps.length})`);
   check(
     digest === pin.digest,
     `the dependents' start-to-end geometry digest is ${digest}, pinned as ${pin.digest}` +
       (pin.pending ? '' : ' - a stale dependent moves its dancer and changes this'),
+    digest === pin.digest ? '' : geometryReport(name, pin, byFile, byTam),
   );
+  // AND THE PER-FILE PIN, where the row has one: a coarser question than the aggregate and a much more useful one when it
+  // is red, because it names the file. Rows without `files` are reported by the aggregate above, which still prints every
+  // file and tam — the pin is not required for the diagnosis, only for the one-line answer.
+  if (pin.files) {
+    const moved = [...byFile].filter(([file, d]) => pin.files[file] !== d).map(([file]) => file);
+    for (const file of Object.keys(pin.files)) if (!byFile.has(file)) moved.push(file);
+    check(moved.length === 0, `  per-file geometry holds (${byFile.size} file(s))`, moved.length ? `moved: ${moved.sort().join(', ')}` : '');
+  }
+  // NEGATIVE CONTROL for the report itself, on the first row only: a report that printed nothing would look exactly like a
+  // green pin, so a mutated per-file table has to name the file, the tam and the measurement.
+  if (name === Object.keys(PINNED)[0]) {
+    const report = geometryReport(
+      'probe',
+      { files: { 'x/y.xml': 'deadbeef' } },
+      new Map([['x/y.xml', 'cafebabe']]),
+      new Map([['x/y.xml|Some Call', '0badf00d']]),
+    );
+    check(
+      report.includes('x/y.xml') && report.includes('Some Call') && report.includes('cafebabe') && report.includes('0badf00d'),
+      'NEGATIVE CONTROL: the report names the file, the tam and the measurement',
+      report,
+    );
+  }
 
   // THE TWO PAIRING MODES ARE NOT THE SAME RULE, and the whole-set one has no dependent to exercise it
   // today (every `Circle` caller writes the half set), so it is pinned here on the completed board. A

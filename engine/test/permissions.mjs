@@ -112,8 +112,8 @@ console.log('\n== (4) LEVEL OVERRIDE: a later level lifts an earlier deny ==');
 {
   // The shape the provider described: "if never in MS, it might be overridden in PLUS".
   const chain = [
-    { call: 'Dosado', group: ['All 8'], level: 'ms', decision: 'deny', reason: 'MS says no' },
-    { call: 'Dosado', group: ['All 8'], level: 'plus', decision: 'allow', reason: 'PLUS introduces it' },
+    { call: ['Dosado'], group: ['All 8'], level: 'ms', decision: 'deny', reason: 'MS says no' },
+    { call: ['Dosado'], group: ['All 8'], level: 'plus', decision: 'allow', reason: 'PLUS introduces it' },
   ];
   const atMs = evaluatePermissions(chain, { call: 'Dosado', group: 'All 8', level: 'ms' });
   const atPlus = evaluatePermissions(chain, { call: 'Dosado', group: 'All 8', level: 'plus' });
@@ -126,7 +126,7 @@ console.log('\n== (4) LEVEL OVERRIDE: a later level lifts an earlier deny ==');
 console.log('\n== (5) "never" is just a rule no level overrides ==');
 {
   // Identical machinery, no special case: a lone deny is simply never contradicted.
-  const chain = [{ call: 'Frobnicate', level: 'ssd', decision: 'deny', reason: 'not a real call' }];
+  const chain = [{ call: ['Frobnicate'], level: 'ssd', decision: 'deny', reason: 'not a real call' }];
   for (const lv of ['ssd', 'ms', 'plus', 'c3b']) {
     check(evaluatePermissions(chain, { call: 'Frobnicate', level: lv }).allowed === false,
       `a lone deny holds at ${lv} - there is no level that lifts it`);
@@ -168,7 +168,7 @@ console.log('\n== (8) the default is ALLOW ==');
   check(none.allowed === true, 'no rules at all allows the call');
   check(none.rule === null, 'and reports no deciding rule');
   const unrelated = evaluatePermissions(
-    [{ call: 'SomeOtherCall', level: 'ms', decision: 'deny', reason: 'x' }],
+    [{ call: ['SomeOtherCall'], level: 'ms', decision: 'deny', reason: 'x' }],
     { call: 'Dosado', group: 'All 8', level: 'ms' },
   );
   check(unrelated.allowed === true, 'a rule for a different call does not suppress this one');
@@ -176,11 +176,14 @@ console.log('\n== (8) the default is ALLOW ==');
 
 console.log('\n== (9) the shipped rules are well-formed ==');
 /** THE PREDICATE THE LOOP BELOW USES, named so the control can exercise the real one rather than a copy of
- *  it: a control that restates the rule measures the restatement (AGENTS.md 5). */
-const ruleCallIsPerformable = (r) => r.call === undefined || implemented.has(r.call);
+ *  it: a control that restates the rule measures the restatement (AGENTS.md 5). EVERY name in the list has
+ *  to be performable, because a rule naming three calls and one typo is a rule that partly never fires. */
+const ruleCallIsPerformable = (r) => r.call === undefined || r.call.every((c) => implemented.has(c));
+/** One label for the messages, so an array rule is named by all its calls rather than by "a,b". */
+const ruleLabel = (r) => (r.call ? r.call.join(' / ') : '*');
 for (const r of PERMISSION_RULES) {
-  check(typeof r.level === 'string' && r.level.length > 0, `rule for ${r.call ?? '*'} names a level`);
-  check(r.decision === 'deny' ? !!r.reason : true, `a deny rule (${r.call ?? '*'}) carries a reason`);
+  check(typeof r.level === 'string' && r.level.length > 0, `rule for ${ruleLabel(r)} names a level`);
+  check(r.decision === 'deny' ? !!r.reason : true, `a deny rule (${ruleLabel(r)}) carries a reason`);
   check(PERMISSION_LEVELS.includes(r.level), `rule level "${r.level}" is a known programme`);
   // A CALL THE CORPUS CANNOT PERFORM IS THE SAME FAILURE AS A GROUP TYPO WITH A WORSE FAILURE MODE, and it
   // is the one this section was missing. `GROUP_NAMES` is a fixed list, so a group typo is answerable from
@@ -193,19 +196,24 @@ for (const r of PERMISSION_RULES) {
   // `implementedTitles` is the corpus's own list plus the coded aliases: the widest true answer, rather than
   // a second hand-kept list to drift against (AGENTS.md 4.3).
   if (r.call !== undefined) {
-    check(ruleCallIsPerformable(r), `rule for ${r.call} names a call the catalogue can perform`);
+    check(ruleCallIsPerformable(r), `rule for ${ruleLabel(r)} names calls the catalogue can perform`);
+    // A CALL LIST WITH NOTHING IN IT IS A RULE THAT CAN NEVER FIRE, the same footgun the group list below is
+    // rejected for. "Any call" is still the ABSENT field.
+    check(Array.isArray(r.call) && r.call.length > 0
+      && r.call.every((c) => typeof c === 'string' && c.trim() !== ''),
+      `rule for ${ruleLabel(r)} names no empty call list (${JSON.stringify(r.call)})`);
   }
   // A GROUP NAME THE PICKER CANNOT PRODUCE IS A RULE THAT CANNOT FIRE, so a typo in a shipped rule is a
   // rule that quietly does nothing. `GROUP_NAMES` is the one list of names the picker can offer, and the
   // eight gender spellings are exactly the thing that used to be hand-typed into a rule.
   for (const g of r.group ?? []) {
-    check(GROUP_NAMES.includes(g), `rule for ${r.call ?? '*'} names a group the picker offers ("${g}")`);
+    check(GROUP_NAMES.includes(g), `rule for ${ruleLabel(r)} names a group the picker offers ("${g}")`);
   }
   // A GROUP LIST WITH NOTHING IN IT IS A RULE THAT CAN NEVER FIRE, and "any group" is still the ABSENT
   // field. Rejecting it here is what keeps the two from being confused for each other.
   check(r.group === undefined
     || (Array.isArray(r.group) && r.group.length > 0 && r.group.every((g) => typeof g === 'string' && g.trim() !== '')),
-    `rule for ${r.call ?? '*'} names no empty group list (${JSON.stringify(r.group)})`);
+    `rule for ${ruleLabel(r)} names no empty group list (${JSON.stringify(r.group)})`);
 }
 
 // THE NEGATIVE CONTROL for the call check above, and it is the case that actually happened. It runs the SAME
@@ -215,7 +223,7 @@ for (const r of PERMISSION_RULES) {
 // nothing else here would: sections 13-15 name titles directly and would themselves be asking about a call
 // that does not exist - which is exactly how section 15 came to be failing before this change.
 const STALE_TITLES = ['Lead Left Normal', 'Lead Left Far', 'Lead Right from Lines', 'Lead Right from Close Couples'];
-const acceptedStale = STALE_TITLES.filter((call) => ruleCallIsPerformable({ call, level: 'ms', decision: 'allow' }));
+const acceptedStale = STALE_TITLES.filter((call) => ruleCallIsPerformable({ call: [call], level: 'ms', decision: 'allow' }));
 check(acceptedStale.length === 0,
   `the call check REJECTS the pre-rename spellings (${acceptedStale.length} of ${STALE_TITLES.length} accepted: ${acceptedStale.join(', ') || 'none'})`);
 
@@ -287,8 +295,8 @@ console.log('\n== (13) ALL-8 `Lead Right` FROM A STATIC SQUARE ==');
   // that survive, so an all-8 refusal is now decided by a rule that carries neither a board nor a group. What
   // the check is FOR is unchanged - the refusal is a RULE and not the default - so it asserts that, by name
   // and decision, instead of pinning a board/group pair the new rule does not have.
-  check(r.rule?.call === 'Lead Right' && r.rule?.decision === 'deny',
-    `and a rule decided it, not the default (${r.rule?.call}/${r.rule?.group?.join('+') ?? '*'}/${r.rule?.board ?? '*'})`);
+  check(r.rule?.call?.includes('Lead Right') && r.rule?.decision === 'deny',
+    `and a rule decided it, not the default (${ruleLabel(r.rule ?? {})}/${r.rule?.group?.join('+') ?? '*'}/${r.rule?.board ?? '*'})`);
   // THE REASON IS THE DECIDING RULE'S OWN. The old sentence ("heads or the sides") belongs to the ALLOW rows
   // now, so asserting that text here would pin the wrong rule's wording; what matters to a caller is that a
   // refusal always carries the reason its own rule gave.
@@ -355,22 +363,22 @@ console.log('\n== (14) ONE RULE CAN NAME SEVERAL GROUPS, AND MATCHES ANY OF THEM
 // ANY-OF, NOT ALL-OF: a request is about ONE reading, so a rule naming two groups applies to a request for
 // either - matching only a request that is somehow both would make the field useless.
 {
-  const chain = [{ call: 'Two Groups', group: ['Alpha', 'Beta'], level: 'ms', decision: 'deny', reason: 'either' }];
+  const chain = [{ call: ['Two Groups'], group: ['Alpha', 'Beta'], level: 'ms', decision: 'deny', reason: 'either' }];
   const ask = (group) => evaluatePermissions(chain, { call: 'Two Groups', group, level: 'ms' }).allowed;
   check(ask('Alpha') === false, 'the FIRST named group matches');
   check(ask('Beta') === false, 'and the SECOND does too');
   check(ask('Gamma') === true, 'a group not in the list does not match');
   check(ask(null) === true, 'and neither does a whole-board request, which is the empty group');
-  const reversed = [{ call: 'Two Groups', group: ['Beta', 'Alpha'], level: 'ms', decision: 'deny', reason: 'either' }];
+  const reversed = [{ call: ['Two Groups'], group: ['Beta', 'Alpha'], level: 'ms', decision: 'deny', reason: 'either' }];
   check(evaluatePermissions(reversed, { call: 'Two Groups', group: 'Alpha', level: 'ms' }).allowed === false,
     'order within the list does not matter');
   // The normalisation is per name, so a rule may be written in the caller's own casing and spacing.
-  const scruffy = [{ call: 'Two Groups', group: ['  aLpHa ', 'BETA'], level: 'ms', decision: 'deny', reason: 'either' }];
+  const scruffy = [{ call: ['Two Groups'], group: ['  aLpHa ', 'BETA'], level: 'ms', decision: 'deny', reason: 'either' }];
   check(evaluatePermissions(scruffy, { call: 'Two Groups', group: 'alpha', level: 'ms' }).allowed === false,
     'and each name is normalised the way a single name was');
   // THE EMPTY LIST IS THE FOOTGUN THIS PINS: `[]` matches nothing, which is a rule that can never fire.
   // "Any group" is still the ABSENT field, and section (9) refuses a rule that writes `[]` instead.
-  const empty = [{ call: 'Two Groups', group: [], level: 'ms', decision: 'deny', reason: 'never' }];
+  const empty = [{ call: ['Two Groups'], group: [], level: 'ms', decision: 'deny', reason: 'never' }];
   check(evaluatePermissions(empty, { call: 'Two Groups', group: 'Alpha', level: 'ms' }).allowed === true,
     'an empty list matches nothing - it is not a way to write "any group"');
 }
@@ -378,7 +386,7 @@ console.log('\n== (14) ONE RULE CAN NAME SEVERAL GROUPS, AND MATCHES ANY OF THEM
 // restriction and its reason are the same for the two. Splitting it back into near-duplicate entries would
 // be silently allowed by the type, so the count is pinned rather than left to review.
 {
-  const squareDosado = PERMISSION_RULES.filter((r) => r.call === 'Dosado' && r.board === 'Static Square'
+  const squareDosado = PERMISSION_RULES.filter((r) => r.call?.includes('Dosado') && r.board === 'Static Square'
     && r.group?.some((g) => ['boys', 'girls'].includes(g.trim().toLowerCase())));
   check(squareDosado.length === 1, `ONE rule covers the Boys and Girls square-set Dosado (${squareDosado.length})`);
   check(JSON.stringify(squareDosado[0]?.group) === JSON.stringify(['Boys', 'Girls']),
@@ -492,7 +500,7 @@ console.log('\n== (16) A GOVERNED CALL\'S AUTHORING VARIANTS ARE GOVERNED TOO ==
   // - three DIFFERENT calls, which section 2 leaves alone on purpose. The eight `Circle * - Stop at Home`
   // titles are not asked for either, because their base is not governed: this asks that a family not outgrow
   // its rules, not that every dashed title be ruled on.
-  const governed = new Set(PERMISSION_RULES.map((r) => r.call).filter(Boolean));
+  const governed = new Set(PERMISSION_RULES.flatMap((r) => r.call ?? []));
   const variantBase = (t) => (t.includes(' - ') ? t.slice(0, t.indexOf(' - ')) : null);
   const variants = [...catalogueTitles(assets)].filter((t) => {
     const base = variantBase(t);
@@ -508,6 +516,54 @@ console.log('\n== (16) A GOVERNED CALL\'S AUTHORING VARIANTS ARE GOVERNED TOO ==
   const refused = variants.filter((t) => !seq.mayOffer(t, 'Couple #1', square).allowed);
   check(refused.length === 0,
     `and a numbered couple may still dance each of them (${variants.length - refused.length} of ${variants.length}: ${refused.join(', ') || 'none'} refused)`);
+}
+
+console.log('\n== (17) ONE RULE CAN NAME SEVERAL CALLS, AND MATCHES ANY OF THEM ==');
+// THE ITERATION ITSELF, on a synthetic chain so the shape is pinned independently of the shipped rules - the
+// mirror of section (14) for the field that moved second. ANY-OF, NOT ALL-OF: a request names ONE call, so a
+// rule listing several applies to a request for any of them.
+{
+  const chain = [{ call: ['Alpha Call', 'Beta Call'], level: 'ms', decision: 'deny', reason: 'either' }];
+  const ask = (call) => evaluatePermissions(chain, { call, level: 'ms' }).allowed;
+  check(ask('Alpha Call') === false, 'the FIRST named call matches');
+  check(ask('Beta Call') === false, 'and the SECOND does too');
+  check(ask('Gamma Call') === true, 'a call not in the list does not match');
+  const reversed = [{ call: ['Beta Call', 'Alpha Call'], level: 'ms', decision: 'deny', reason: 'either' }];
+  check(evaluatePermissions(reversed, { call: 'Alpha Call', level: 'ms' }).allowed === false,
+    'order within the list does not matter');
+  // The normalisation is per name, so a rule may be written in the caller's own casing and spacing.
+  const scruffy = [{ call: ['  aLpHa  CALL ', 'BETA CALL'], level: 'ms', decision: 'deny', reason: 'either' }];
+  check(evaluatePermissions(scruffy, { call: 'beta call', level: 'ms' }).allowed === false,
+    'and each name is normalised the way a single name was');
+  // THE EMPTY LIST IS THE FOOTGUN THIS PINS: `[]` matches nothing, which is a rule that can never fire.
+  // "Any call" is still the ABSENT field, and section (9) refuses a rule that writes `[]` instead.
+  const empty = [{ call: [], level: 'ms', decision: 'deny', reason: 'never' }];
+  check(evaluatePermissions(empty, { call: 'Alpha Call', level: 'ms' }).allowed === true,
+    'an empty list matches nothing - it is not a way to write "any call"');
+  // AND THE LIST DOES NOT WEAKEN EXACTNESS, which section 2 pins for a single name: a listed name still does
+  // not cover a LONGER call that merely contains it.
+  check(ask('Alpha Call to a Wave') === true, 'a listed name does not cover a longer call that contains it');
+}
+// THE SHIPPED USE OF IT: the `Lead Right` sibling family is ONE deny and ONE allow naming all three setups,
+// because they are one call at three authored spacings. Splitting it back into per-sibling pairs would be
+// silently allowed by the type, so the count is pinned rather than left to review.
+{
+  const lrSiblings = PERMISSION_RULES.filter((r) => r.call?.includes('Lead Right - Close'));
+  check(lrSiblings.length === 2,
+    `the Lead Right sibling family is ONE deny and ONE allow (${lrSiblings.length} rules)`);
+  const deny = lrSiblings.find((r) => r.decision === 'deny');
+  check(JSON.stringify(deny?.call)
+    === JSON.stringify(['Lead Right - Close', 'Lead Right - Normal', 'Lead Right - Far']),
+  `and the deny names all three setups (${JSON.stringify(deny?.call)})`);
+  // EVERY NAME IN THE LIST MUST STILL DECIDE. A family rule that matched only its FIRST name would leave the
+  // other two undanceable and unrefused, so each sibling is asked separately - the negative control for the
+  // collapse rather than a restatement of the count above.
+  for (const t of ['Lead Right - Close', 'Lead Right - Normal', 'Lead Right - Far']) {
+    check(evaluatePermissions(PERMISSION_RULES, { call: t, group: 'Couple #1', level: 'ms' }).allowed === true,
+      `${t}: a numbered couple may dance it`);
+    check(evaluatePermissions(PERMISSION_RULES, { call: t, group: 'All 8', level: 'ms' }).allowed === false,
+      `${t}: and the whole square may not`);
+  }
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

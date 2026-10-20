@@ -69,13 +69,29 @@ export type PermissionDecision = 'allow' | 'deny';
  * One rule in the chain.
  *
  * A rule matches a REQUEST - a call, optionally performed by a group - when every field it names agrees.
- * An absent field is a wildcard, so `{ call: 'Dosado', level: 'ms' }` covers every group.
+ * An absent field is a wildcard, so `{ call: ['Dosado'], level: 'ms' }` covers every group.
  *
- * `call` is the bare call name. `group` is the READING the request is about - the selector the picker has
- * chosen, or `All 8` for a whole-board reading - and it is matched against the request's own single group.
+ * `call` is the bare call name(s) and `group` is the READING the request is about - the selector the picker
+ * has chosen, or `All 8` for a whole-board reading - and each is matched against the request's own single
+ * value.
  */
 export interface PermissionRule {
-  call?: string;
+  /**
+   * The call names this rule applies to, matched ANY-OF, or absent for every call.
+   *
+   * AN ARRAY RATHER THAN ONE NAME, for the same reason `group` is one. An authoring family is governed by
+   * ONE decision: `Lead Right - Close`, `- Normal` and `- Far` are one call at three authored spacings,
+   * refused for one cause and allowed for one cause, so the family is written once with its reason once
+   * instead of six near-identical entries kept in step by hand.
+   *
+   * IT IS NOT "ALL OF THESE". A request names ONE call, so a rule listing several applies to each of them,
+   * not only to a request that is somehow all of them at once.
+   *
+   * AN EMPTY ARRAY MATCHES NOTHING, which is a rule that can never fire rather than a way to write "any
+   * call" - that is still the absent field, and `test/permissions.mjs` rejects a rule with `[]` so the
+   * difference cannot be lost by accident.
+   */
+  call?: string[];
   /**
    * The groups this rule applies to, matched ANY-OF, or absent for every group.
    *
@@ -140,18 +156,23 @@ const normCall = (s: string): string => norm(s);
  * Whether a rule matches a request.
  *
  * CALL MATCHING IS EXACT ON THE NORMALISED NAME, and deliberately so. A substring or prefix match would
- * make `{ call: 'Dosado' }` also cover `Left Dosado`, `Dosado to a Wave` and `Heads Dosado` - and
+ * make `{ call: ['Dosado'] }` also cover `Left Dosado`, `Dosado to a Wave` and `Heads Dosado` - and
  * `Left Dosado` is LEGAL from a square set while `Dosado` is not, so a fuzzy match would break the very
  * distinction the rule exists to draw.
  *
- * THE GROUP LIST IS ITERATED ANY-OF, and the loop allocates nothing: the request's group is normalised
- * once and compared against each name in turn. This runs for every candidate call when the picker builds
- * its list (`legalNext`), so a `.map`/`.some` over the array per rule per call is the kind of per-call
- * allocation this repository does not spend on a config lookup. An empty list matches nothing, which the
- * harness pins as a rejected rule rather than a silent no-op.
+ * BOTH LISTS ARE ITERATED ANY-OF, and neither loop allocates: the request's value is normalised once and
+ * compared against each name in turn, with `break` on the first hit. This runs for every candidate call
+ * when the picker builds its list (`legalNext`), so a `.map`/`.some` over the array per rule per call is
+ * the kind of per-call allocation this repository does not spend on a config lookup. An empty list matches
+ * nothing, which the harness pins as a rejected rule rather than a silent no-op.
  */
 function matches(rule: PermissionRule, req: PermissionRequest): boolean {
-  if (rule.call !== undefined && normCall(rule.call) !== normCall(req.call)) return false;
+  if (rule.call !== undefined) {
+    const got = normCall(req.call);
+    let hit = false;
+    for (const c of rule.call) if (normCall(c) === got) { hit = true; break; }
+    if (!hit) return false;
+  }
   if (rule.group !== undefined) {
     const got = req.group ? norm(req.group) : '';
     let hit = false;
@@ -257,7 +278,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
     // ONE RULE FOR BOTH GROUPS, because the restriction and its reason are the same for the two: the
     // whole-set form is refused whichever gender is named, and an array is what says so without a second
     // near-identical entry whose prose has to be kept in step with this one. MEASURED for each group.
-    call: 'Dosado',
+    call: ['Dosado'],
     group: ['Boys', 'Girls'],
     board: 'Static Square',
     level: 'ms',
@@ -276,7 +297,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
     // This was stated with no board condition, which would have refused the call from EVERY board - and
     // that is wrong. `Dosado` from a formation where the pairs genuinely face each other is the call
     // working as authored. The reported defect was always the square set specifically.
-    call: 'Dosado',
+    call: ['Dosado'],
     group: ['All 8'],
     board: 'Static Square',
     level: 'ms',
@@ -287,59 +308,34 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'through each other. `Heads Dosado` / `Sides Dosado` are the scoped forms and still available.',
   },
   {
-    call: 'Lead Right - Close',
+    // THE AUTHORING FAMILY AS ONE RULE. `- Close`, `- Normal` and `- Far` are three SETUPS of one couple
+    // call (the separation is the call's scale, not its choreography), so the white list, its refusal and
+    // its reason are one decision three times over - which is what the `call` array is for. The per-sibling
+    // wording of the reason is gone; the CAUSE is not, and section 16 pins that every authoring variant of a
+    // governed call is governed.
+    call: ['Lead Right - Close', 'Lead Right - Normal', 'Lead Right - Far'],
     level: 'ms',
     decision: 'deny',
     reason:
       'START A WHITE LIST FOR LEAD RIGHT',
   },
   {
-    call: 'Lead Right - Close',
+    call: ['Lead Right - Close', 'Lead Right - Normal', 'Lead Right - Far'],
     group: [...COUPLE_GROUP_NAMES],
     level: 'ms',
     decision: 'allow',
     reason:
-      'Lead Right - Close is for a single couple to dance',
+      'Lead Right - Close, - Normal and - Far are each for a single couple to dance',
   },
   {
-    call: 'Lead Right - Normal',
+    call: ['Lead Right'],
     level: 'ms',
     decision: 'deny',
     reason:
       'START A WHITE LIST FOR LEAD RIGHT',
   },
   {
-    call: 'Lead Right - Normal',
-    group: [...COUPLE_GROUP_NAMES],
-    level: 'ms',
-    decision: 'allow',
-    reason:
-      'Lead Right - Normal is for a single couple to dance',
-  },
-  {
-    call: 'Lead Right - Far',
-    level: 'ms',
-    decision: 'deny',
-    reason:
-      'START A WHITE LIST FOR LEAD RIGHT',
-  },
-  {
-    call: 'Lead Right - Far',
-    group: [...COUPLE_GROUP_NAMES],
-    level: 'ms',
-    decision: 'allow',
-    reason:
-      'Lead Right - Far is for a single couple to dance',
-  },
-  {
-    call: 'Lead Right',
-    level: 'ms',
-    decision: 'deny',
-    reason:
-      'START A WHITE LIST FOR LEAD RIGHT',
-  },
-  {
-    call: 'Lead Right',
+    call: ['Lead Right'],
     group: [...COUPLES_GROUP_NAMES],
     board: 'Static Square',
     level: 'ms',
@@ -350,7 +346,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Right',
+    call: ['Lead Right'],
     group: ['All 8', ...COUPLES_GROUP_NAMES],
     board: 'Eight Chain Thru',
     level: 'ms',
@@ -361,7 +357,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Right',
+    call: ['Lead Right'],
     group: ['All 8', ...COUPLES_GROUP_NAMES],
     board: 'Normal Lines',
     level: 'ms',
@@ -372,44 +368,31 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Left - Normal',
+    // THE OTHER DIRECTION'S FAMILY, on the same reasoning: `- Normal` and `- Far` are two setups of one
+    // call, so one deny and one allow carry the whole family.
+    call: ['Lead Left - Normal', 'Lead Left - Far'],
     level: 'ms',
     decision: 'deny',
     reason:
       'START A WHITE LIST FOR LEAD LEFT',
   },
   {
-    call: 'Lead Left - Normal',
+    call: ['Lead Left - Normal', 'Lead Left - Far'],
     group: [...COUPLE_GROUP_NAMES],
     level: 'ms',
     decision: 'allow',
     reason:
-      'Lead Left - Normal is for a single couple to dance',
+      'Lead Left - Normal and - Far are each for a single couple to dance',
   },
   {
-    call: 'Lead Left - Far',
+    call: ['Lead Left'],
     level: 'ms',
     decision: 'deny',
     reason:
       'START A WHITE LIST FOR LEAD LEFT',
   },
   {
-    call: 'Lead Left - Far',
-    group: [...COUPLE_GROUP_NAMES],
-    level: 'ms',
-    decision: 'allow',
-    reason:
-      'Lead Left - Far is for a single couple to dance',
-  },
-  {
-    call: 'Lead Left',
-    level: 'ms',
-    decision: 'deny',
-    reason:
-      'START A WHITE LIST FOR LEAD LEFT',
-  },
-  {
-    call: 'Lead Left',
+    call: ['Lead Left'],
     group: [...COUPLES_GROUP_NAMES],
     board: 'Static Square',
     level: 'ms',
@@ -420,7 +403,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Left',
+    call: ['Lead Left'],
     group: ['All 8', ...COUPLES_GROUP_NAMES],
     board: 'Eight Chain Thru',
     level: 'ms',
@@ -431,7 +414,7 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'the picker applies it as one.',
   },
   {
-    call: 'Lead Left',
+    call: ['Lead Left'],
     group: ['All 8', ...COUPLES_GROUP_NAMES],
     board: 'Normal Lines',
     level: 'ms',

@@ -117,7 +117,7 @@ console.log('\n== 5. the ENUMERATORS agree too (they inherit the gate, and a dup
 
 console.log('\n== 6. a rule keyed on the GROUP is honoured in both directions ==');
 {
-  seq.setPermissionRules([{ call: TITLE, group: ['Couple #1'], level: 'ms', decision: 'deny', reason: 'no couple one here' }]);
+  seq.setPermissionRules([{ call: [TITLE], group: ['Couple #1'], level: 'ms', decision: 'deny', reason: 'no couple one here' }]);
   const one = seq.applyToBoard(board, reading('Couple #1', TITLE));
   const two = seq.applyToBoard(board, reading('Couple #2', TITLE));
   check(one.legal === false && one.reason === 'no couple one here', `the refused group names its own rule ("${one.reason}")`);
@@ -143,10 +143,10 @@ console.log('\n== 8. a SCOPED CATALOGUE TITLE is asked about as ITSELF, not spli
   // A gate that split it into "Pass Thru" for the heads would consult a rule nobody wrote for the name in use — and
   // the check works without the call being legal here, because the gate runs BEFORE any matching.
   seq.registerByTitle('Heads Pass Thru', read('ms/pass_thru.xml'));
-  seq.setPermissionRules([{ call: 'Pass Thru', level: 'ms', decision: 'deny', reason: 'plain Pass Thru is denied' }]);
+  seq.setPermissionRules([{ call: ['Pass Thru'], level: 'ms', decision: 'deny', reason: 'plain Pass Thru is denied' }]);
   const asTitle = seq.applyToBoard(board, 'Heads Pass Thru');
   check(!(asTitle.reason ?? '').includes('plain Pass Thru is denied'), 'a rule about "Pass Thru" does not catch the TITLE "Heads Pass Thru"');
-  seq.setPermissionRules([{ call: 'Heads Pass Thru', level: 'ms', decision: 'deny', reason: 'the title itself is denied' }]);
+  seq.setPermissionRules([{ call: ['Heads Pass Thru'], level: 'ms', decision: 'deny', reason: 'the title itself is denied' }]);
   const byTitle = seq.applyToBoard(board, 'Heads Pass Thru');
   check(byTitle.legal === false && (byTitle.reason ?? '').includes('the title itself is denied'), 'while a rule about the title does');
   seq.setPermissionRules([]);

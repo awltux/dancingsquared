@@ -72,7 +72,7 @@ console.log('\n== 3. CONTROL: a refusal no group can fix keeps the plain reason 
     .find((c) => !seq.mayOffer(c, 'All 8').allowed && !groups.some((g) => seq.groupCanPerform(board, g, c)));
   console.log(`       (a real unperformable call from a squared set: ${real ?? 'none — every refused call has a group'})`);
 
-  seq.setPermissionRules([{ call: 'Dosado', level: 'ms', reason: 'a test rule forbids Dosado outright' }]);
+  seq.setPermissionRules([{ call: ['Dosado'], level: 'ms', reason: 'a test rule forbids Dosado outright' }]);
   try {
     check(seq.mayOffer('Dosado', 'All 8').allowed === false, 'the rule refuses it for the whole board');
     check(seq.groupForCall(board, 'Dosado') === null, 'and groupForCall names no group, because the rule binds every reading');

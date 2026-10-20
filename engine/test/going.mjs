@@ -84,8 +84,8 @@ console.log('\n== 3. a body the rules REFUSE is not a candidate ==');
   // harness first RE-ALLOWS the two authorings it talks about â€” a later rule at the same level wins â€” and then the only
   // question left is which BODY is admitted.
   const allowBoth = [
-    { call: far, level: 'ms', decision: 'allow', reason: 'allowed for this harness' },
-    { call: 'Lead Right - Normal', level: 'ms', decision: 'allow', reason: 'allowed for this harness' },
+    { call: [far], level: 'ms', decision: 'allow', reason: 'allowed for this harness' },
+    { call: ['Lead Right - Normal'], level: 'ms', decision: 'allow', reason: 'allowed for this harness' },
   ];
   s.setPermissionRules(allowBoth);
 
@@ -94,7 +94,7 @@ console.log('\n== 3. a body the rules REFUSE is not a candidate ==');
   check(s.applyToBoard(pair, far).legal, 'and applies');
 
   // A RULE ON THE BODY removes it from the candidate setâ€¦
-  s.setPermissionRules([...allowBoth, { call: far, going: 'far', level: 'ms', decision: 'deny', reason: 'no far lead at ms' }]);
+  s.setPermissionRules([...allowBoth, { call: [far], going: 'far', level: 'ms', decision: 'deny', reason: 'no far lead at ms' }]);
   check(s.findMatchingVariant(pair, far, 1.5) === null, 'a `going`-keyed rule removes the body from the candidate set');
   const refused = s.applyToBoard(pair, far);
   check(refused.legal === false, 'so the call is refused');

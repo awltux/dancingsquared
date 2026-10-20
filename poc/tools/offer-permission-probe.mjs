@@ -58,14 +58,14 @@ const lines = seq.boardForFormation('Normal Lines');
 console.log('== the layer answers for the reported reading ==');
 const denied = seq.mayOffer('Lead Right', 'All 8', square);
 check(denied.allowed === false, 'all-8 `Lead Right` from a Static Square is refused');
-// THE DECIDING RULE MOVED WHEN THE WHITELIST DID, and this probe follows the ENGINE HARNESS rather than the
-// shape it was written against: `a476a4f` replaced the square-set deny with a catch-all deny on the call plus
-// ALLOW rows for the readings that survive, so an all-8 refusal is now decided by a rule carrying neither a
-// board nor a group. What the check is FOR is unchanged - the refusal is a RULE and not the default - and
-// `engine/test/permissions.mjs` section 13 is where the correction and its measurement live. The probe had
-// been red on this since that commit, which is recorded rather than presented as a fresh defect.
-check(denied.rule?.call === 'Lead Right' && denied.rule?.decision === 'deny',
-  `and a rule decided it, not the default (${denied.rule?.call}/${denied.rule?.group ?? '*'}/${denied.rule?.board ?? '*'})`);
+// THE DECIDING RULE HAS MOVED TWICE, and this probe follows the ENGINE HARNESS rather than the shape it was
+// written against: `a476a4f` replaced the square-set deny with a catch-all deny on the call plus ALLOW rows for
+// the readings that survive, and `PermissionRule.call` became an ARRAY when the layer learned to name a whole
+// authoring family in one rule (the `Lead Right - *` siblings are one decision - `permissions.mjs` section 17).
+// What the check is FOR is unchanged - the refusal is a RULE and not the default - and
+// `engine/test/permissions.mjs` sections 13 and 17 are where the corrections and their measurements live.
+check(denied.rule?.call?.includes('Lead Right') && denied.rule?.decision === 'deny',
+  `and a rule decided it, not the default (${(denied.rule?.call ?? []).join(' / ')}/${denied.rule?.group ?? '*'}/${denied.rule?.board ?? '*'})`);
 check(!!denied.reason && denied.reason === denied.rule?.reason,
   `the reason it shows is the deciding rule's own ("${denied.reason}")`);
 check(seq.mayOffer('Dosado', 'All 8', square).allowed === false,

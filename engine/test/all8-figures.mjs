@@ -4,10 +4,12 @@
 // THIS HARNESS IS DELIBERATELY NOT PART OF `verify` OR `verify:light`.
 //
 // It states the FINISH LINE, not the current state: every one of the 188 figures Rich Reel
-// publishes must be fully recognised by the engine. It is kept separate because it is red
-// today and will stay red until the remaining edge cases are fixed - a permanently-failing
-// harness in the pre-commit gate would train everyone to ignore the gate, which is worse than
-// not having the suite at all.
+// publishes MUST be fully recognised by the engine, minus the two that use a call CALLERLAB's 2026
+// definitions removed from Mainstream - `Eight Chain Thru` - which are excluded below with the reason
+// and printed as excluded, because a page fetched in 2025 and a vocabulary that changed in 2026 do not
+// have to agree. It is kept separate because it is red today and will stay red until the remaining edge
+// cases are fixed - a permanently-failing harness in the pre-commit gate would train everyone to ignore
+// the gate, which is worse than not having the suite at all.
 //
 //   run it with:   npm run verify:figures --prefix engine
 //
@@ -53,7 +55,24 @@ const seq = new Sequencer(
   callsByTitle(assets),
 );
 
-const data = loadAll8Figures();
+// ------------------------------------------------------------------ what is OUT OF SCOPE, and why
+//
+// A FIGURE IS DROPPED WHEN A CALL IT USES IS NO LONGER MAINSTREAM. CALLERLAB's 2026 definitions removed
+// `Eight Chain Thru` from Mainstream, so a figure built on it is not a Mainstream figure any more and cannot
+// be part of this suite's finish line. THE FIXTURE STAYS VERBATIM - it is All8's published page, fetched, and
+// rewriting it would destroy the thing the reader is measured against (AGENTS.md §5) - so the exclusion lives
+// HERE, by id, with the call that put each figure out of scope.
+//
+// AND IT IS PRINTED, not silent: two of the 188 figures leave every count below, and a drop nobody reports is
+// the same defect as a check nobody runs (AGENTS.md §4.1). The reader still reads all 188, so the other
+// consumers of it (`all8-format`, the audits) are untouched.
+const OUT_OF_SCOPE = new Map([
+  ['figm9', 'Eight Chain Thru'],
+  ['figm97', 'Eight Chain Thru'],
+]);
+const all = loadAll8Figures();
+const excluded = all.figures.filter((f) => OUT_OF_SCOPE.has(f.id));
+const data = { ...all, figures: all.figures.filter((f) => !OUT_OF_SCOPE.has(f.id)) };
 // ALIASES, not just canonical names. A coded move is one registry entry with several authored
 // spellings, and the applicator resolves every one of them - `findCodedMove` keys on all of them -
 // so `Promenade Home` DANCES today. Listing only `m.name` reported it as a call the engine does not
@@ -68,7 +87,10 @@ const note = (msg) => console.log(`  note  ${msg}`);
 
 console.log(`All8 Mainstream singing-call figures - ${data.source}`);
 console.log(`  ${data.attribution}`);
-console.log(`  ${data.figures.length} published figures, every one starting from ${ALL8_FIGURE_START}`);
+console.log(`  ${all.figures.length} published figures, ${data.figures.length} in scope, every one starting from ${ALL8_FIGURE_START}`);
+for (const f of excluded) {
+  console.log(`  OUT OF SCOPE  ${f.id} uses ${OUT_OF_SCOPE.get(f.id)}, which CALLERLAB's 2026 definitions removed from Mainstream`);
+}
 console.log('  A line across is one complete 64-beat figure; an indented line shares its leading');
 console.log('  calls with a line above it. `(3)`/`(*)` link to All8\'s get-outs from that position.');
 

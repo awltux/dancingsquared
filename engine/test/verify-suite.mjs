@@ -300,9 +300,11 @@ const SUITE = [
   // deliberately rather than absorbed silently.
   { h: 'callerlab-diff', sub: 'tools', light: false, why: 'parses the definitions PDF text and walks the catalogue' },
   // NOT a tier above: a TARGET. `all8-figures` states the finish line ("every one of All8's 188
-  // published Mainstream figures is recognised") and is red until the remaining edge cases are
-  // fixed, so it is excluded from BOTH tiers - a permanently-failing entry in the pre-commit gate
-  // trains everyone to ignore the gate. Run it on its own to see how far off the finish line is.
+  // published Mainstream figures is recognised" - 186 in scope: figm9 and figm97 use `Eight Chain Thru`,
+  // which CALLERLAB's 2026 definitions removed from Mainstream, and the suite prints them as excluded)
+  // and is red until the remaining edge cases are fixed, so it is excluded from BOTH tiers - a
+  // permanently-failing entry in the pre-commit gate trains everyone to ignore the gate. Run it on its
+  // own to see how far off the finish line is.
   { h: 'all8-figures', future: true, why: 'the target suite: red until every published figure is recognised' },
 ];
 

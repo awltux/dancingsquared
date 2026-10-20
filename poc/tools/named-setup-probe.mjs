@@ -3,18 +3,22 @@
 // Asked for as: "Set the start and end setup selectors if the initialised start and end positions are known
 // formations."
 //
-// Two things have to hold, and each has its own negative control:
+// THE TWO ENDS ASK DIFFERENT QUESTIONS, and that is the whole content of this probe:
 //
-//   1. THE RULE, `endsOnFormation`, which is the END-side twin of `startsFromFormation` - INDEX FOR INDEX,
-//      positions, headings and genders. It is not `startsFromFormation` on the end poses: a call that
-//      happens to END on the shape it STARTED from is a different question from one that ends on some
-//      other named shape, and the two are measured to disagree on a real call below.
-//   2. THE PANEL USES IT, read from `editor-ui.ts` (TypeScript under a DOM, so it cannot run here). The
-//      checks are on the source text and each one is shown to fail when the fragment it wants is reverted.
+//   1. THE START is `startsFromFormation` - INDEX FOR INDEX on positions, headings and genders - because a
+//      tam's paths are paired with a formation's dancers BY LIST POSITION.
+//   2. THE END is `endFormationName` - the same SPOTS as a SET, position and heading, gender not required,
+//      with a small facing margin - because the end is only "which named shape is this board?". Reported as:
+//      "If I pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as 'unknown
+//      formation'. Is there a missing step." The step was this rule; the corpus witness for it is section 1.
+//   3. THE REPORTED CALL ITSELF, `Promenade Home` from a Right and Left Grand Static Square, selected by title
+//      and formation rather than by index - the corpus witness for the whole change.
+//   4. THE PANEL USES BOTH, read from `editor-ui.ts` (TypeScript under a DOM, so it cannot run here). Those
+//      checks are on the source text and each is shown to fail when the fragment it wants is reverted.
 //
-// AND THE FAILURE MODE IS PINNED: a name is only ever chosen when the shape really is that formation, so an
-// unknown or merely-close setup leaves the picker on "keep the current". The control for that half perturbs
-// ONE pose of a matching formation and requires the name to go away.
+// AND THE FAILURE MODE IS PINNED: a name is only chosen when the board really is that formation, so an
+// unknown or merely-close setup leaves the picker on "keep the current". The controls for that half perturb
+// one spot of a matching formation - position, facing, and a duplicate - and require the name to go away.
 //
 // WHAT IS NOT PINNED IS HOW MANY CALLS GET A NAME: that is a fact about `formations.xml`, which is content
 // and is regularly mid-edit. The counts are PRINTED, and the assertion is that the instrument is not silent
@@ -84,11 +88,10 @@ function formationsOfSize(n) {
   cache.set(n, kept);
   return kept;
 }
-/** `EditorController.namedSetup`, as the panel reads it. */
-const namedSetup = (call, end) => {
-  const test = end ? engine.endsOnFormation : engine.startsFromFormation;
-  return formationsOfSize(call.dancers.length).find((f) => test(call, f.poses))?.name ?? '';
-};
+/** `EditorController.namedSetup`, as the panel reads it - the same two rules, not a copy of them. */
+const namedSetup = (call, end) => end
+  ? (engine.endFormationName(call, formationsOfSize(call.dancers.length)) ?? '')
+  : (formationsOfSize(call.dancers.length).find((f) => engine.startsFromFormation(call, f.poses))?.name ?? '');
 function* everyCall() {
   for (const level of LEVELS) {
     for (const f of fs.readdirSync(path.join(POC, '../assets', level)).sort()) {
@@ -100,9 +103,13 @@ function* everyCall() {
     }
   }
 }
+const endPosesOf = (call) => {
+  const beats = engine.instanceBeats(call);
+  return call.dancers.map((d) => { const p = engine.poseFor(d, beats); return { x: p.x, y: p.y, heading: p.heading, gender: d.gender }; });
+};
 
 // ---------------------------------------------------------------- 1. the rule
-console.log('== 1. `endsOnFormation` is the start rule, read at the call\'s own end ==');
+console.log('== 1. the end board is compared as a BOARD, with a measuring margin ==');
 {
   // THE WITNESS IS FOUND BY PREDICATE, NOT BY POSITION: the corpus's own "Circle Left - Stop at Home" comes
   // back within 7e-4 of where it began, so it can only separate the start rule from the end rule by its
@@ -128,21 +135,24 @@ console.log('== 1. `endsOnFormation` is the start rule, read at the call\'s own 
   check(!engine.startsFromFormation(solo, one),
     'and NOT as its start formation - the two rules are asked different questions, and this dancer does not end where it began');
   check(engine.endsOnFormation(solo, one.map((p) => ({ ...p, x: p.x + 5e-4 }))),
-    "the exporter's own rounding (5e-4) is inside the tolerance, so a formation that has been through the corpus once still matches");
+    "the exporter's own rounding (5e-4) is inside the POSITION tolerance, so a formation that has been through the corpus once still matches");
   check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, x: p.x + 3e-3 }))),
     'but 3e-3 is not: a shape that is merely CLOSE leaves the picker alone rather than naming the wrong setup');
-  check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, heading: p.heading + 0.1 }))),
-    'a heading that is out by a tenth of a radian is refused too - a setup name is about rotation as well as position');
-  check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' }))),
-    'and so is the same shape held by the other genders: gender is part of the formation');
+  const margin = engine.END_BOARD_TOL.heading;
+  console.log(`    the facing margin is ${fmt(margin)} rad (${fmt(margin * 180 / Math.PI)} deg); the positional tolerance is ${fmt(engine.END_BOARD_TOL.position)}`);
+  check(engine.endsOnFormation(solo, one.map((p) => ({ ...p, heading: p.heading + margin / 2 }))),
+    'a facing drift of half the margin still names the setup: a heading is the SUM of the rotation segments along the path, so an authored end board drifts even where its position does not');
+  check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, heading: p.heading + margin * 2 }))),
+    'and twice the margin does not, so the margin is a bound rather than a preference');
+  check(engine.endsOnFormation(solo, one.map((p) => ({ ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' }))),
+    'the same shape held by the other genders is STILL that board: asked for as "Don\'t compare gender, just position and heading"');
   check(!engine.endsOnFormation(solo, [{ ...one[0], x: -one[0].x, y: -one[0].y, heading: norm(one[0].heading + Math.PI) }]),
-    'and the 180-degree rotation of the shape is a DIFFERENT setup, not the same one spelled another way');
+    'and the 180-degree rotation of the shape is a DIFFERENT board, not the same one spelled another way');
   check(!engine.endsOnFormation(solo, [...one, ...one]),
     'a formation of the wrong SIZE is refused rather than matched spot by spot');
 
-  // THE INDEX RULE, which is why this is not an arrangement comparison: the same set of spots in another
-  // order hands each dancer somebody else's path when the tam is read back. Pathless dancers, so the end
-  // pose IS the start pose and the only thing under test is the pairing.
+  // THE SET RULE, on pathless dancers so the end pose IS the start pose and the only thing under test is
+  // the pairing. A formation of two spots, and the call holds its two dancers in the OTHER order.
   const bare = {
     ...src,
     dancers: [
@@ -153,24 +163,75 @@ console.log('== 1. `endsOnFormation` is the start rule, read at the call\'s own 
   const a = { x: 1, y: 0, heading: 0, gender: bare.dancers[0].gender };
   const b = { x: -1, y: 0, heading: 0, gender: bare.dancers[1].gender };
   check(engine.endsOnFormation(bare, [a, b]), 'a two-dancer witness ends on its own two spots, in order');
-  check(!engine.endsOnFormation(bare, [b, a]),
-    'and the same two spots SWAPPED are refused: the paths would be handed to the wrong dancers');
+  check(engine.endsOnFormation(bare, [b, a]),
+    'and the same two spots SWAPPED are accepted: the end is a board, and where a dancer sits in the call\'s own array is an accident of its tam');
+  check(!engine.endsOnFormation(bare, [a, { ...b, x: 3 }]),
+    'while a spot nobody stands on is refused - so the set rule is still reading the spots, not just their count');
+  check(!engine.endsOnFormation(bare, [a, { ...b, x: a.x, y: a.y, heading: a.heading }]),
+    'and two spots for ONE dancer is refused: set membership needs distinct dancers, or a coincidence would read as an arrangement');
 }
 
-// ---------------------------------------------------------------- 2. the panel uses it
-console.log('\n== 2. the panel names the pickers from it, read from source ==');
+// ---------------------------------------------------------------- 2. the reported case, from the corpus
+console.log('\n== 2. the reported "Promenade Home" ends on a Squared Set ==');
+{
+  // REPORTED AS: "If I pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as
+  // 'unknown formation'. Is there a missing step." Selected BY TITLE AND FORMATION, never by index: the file
+  // holds four tams called "Promenade Home" (trap 7 is about exactly this).
+  const call = engine.normalizeInstance(engine.loadCallFromXml(
+    asset('ms/promenade.xml'), movesXml, formationsXml, { title: 'Promenade Home', formation: 'Right and Left Grand Static Square' }));
+  const squared = formationsOfSize(8).find((f) => f.name === 'Squared Set');
+  check(!!squared, 'the corpus still offers a "Squared Set" at eight dancers');
+  check(!!squared && engine.endsOnFormation(call, squared.poses), 'the reported call\'s END BOARD is a Squared Set, compared as a board');
+  const got = engine.endFormationName(call, formationsOfSize(8));
+  check(got === 'Squared Set', `and it is NAMED "Squared Set" (got ${JSON.stringify(got)})`);
+  // WHY THE OLD RULE NAMED NOTHING, MEASURED rather than asserted: the board is the same set of spots, but
+  // the call's own array order is not the formation file's, so a comparison index for index is out by
+  // whole units. This is the number that made the End setup row read "Unknown formation".
+  const ends = endPosesOf(call);
+  let worstIndexed = 0;
+  for (let i = 0; i < ends.length; i++) {
+    worstIndexed = Math.max(worstIndexed, Math.hypot(ends[i].x - squared.poses[i].x, ends[i].y - squared.poses[i].y));
+  }
+  console.log(`    index for index the same board is out by ${fmt(worstIndexed)} units, against a position tolerance of ${fmt(engine.END_BOARD_TOL.position)}`);
+  check(worstIndexed > 1, 'the call really does hold its dancers in another order - index for index the spots disagree by units, which is what the old rule refused');
+
+  // AND THE MARGIN'S OTHER WITNESS: the same call authored from a Two-Faced Line, whose dancers do end on the
+  // square's spots but with a facing that is out. The drift is measured AFTER the positional correspondence,
+  // because comparing the two arrays index for index measures the ORDER, not the facing - the first version of
+  // this check did exactly that and reported 90.4 degrees, which is one dancer's quarter turn and nothing to
+  // do with the margin.
+  const lines = engine.normalizeInstance(engine.loadCallFromXml(
+    asset('ms/promenade.xml'), movesXml, formationsXml, { title: 'Promenade Home', formation: 'Two-Faced Lines LH' }));
+  const linesEnds = endPosesOf(lines);
+  let worstFacing = 0, placed = 0;
+  for (const spot of squared.poses) {
+    const at = linesEnds.find((p) => Math.hypot(p.x - spot.x, p.y - spot.y) <= engine.END_BOARD_TOL.position);
+    if (!at) continue;
+    placed++;
+    worstFacing = Math.max(worstFacing, Math.abs(norm(at.heading - spot.heading)));
+  }
+  console.log(`    the Two-Faced Lines authoring stands on ${placed} of the square's 8 spots, facing up to ${fmt(worstFacing)} rad (${fmt(worstFacing * 180 / Math.PI)} deg) away`);
+  check(placed === 8, 'it really does finish on the square, spot for spot, so the drift below is a FACING drift and not a different board');
+  check(worstFacing > engine.END_BOARD_TOL.position, 'and that facing drift is outside the XML\'s positional tolerance, so a facing margin is needed on top of the set rule');
+  check(worstFacing < engine.END_BOARD_TOL.heading, 'while it is INSIDE the margin the rule carries, which is the whole reason the margin is not the XML\'s 1e-3');
+  check(engine.endFormationName(lines, formationsOfSize(8)) === 'Squared Set',
+    'and that authoring is named a Squared Set too');
+}
+
+// ---------------------------------------------------------------- 3. the panel uses it
+console.log('\n== 3. the panel names the pickers from it, read from source ==');
 {
   const ui = readSource('src/editor-ui.ts');
   // NO `\b` AFTER THE COMMA: both the comma and the newline are non-word characters, so there is no word
   // boundary there and the check would fail on a correct file.
-  const importLine = /import \{[\s\S]{0,4000}?endsOnFormation,[\s\S]{0,4000}?\} from 'dancing-squared-engine';/.test(ui);
-  check(importLine, '`editor-ui.ts` imports `endsOnFormation` from the engine rather than keeping a private copy');
-  const helper = /private namedSetup\(call: CallBundle, end: 'start' \| 'end'\): string \{[\s\S]{0,400}?\}/.exec(ui);
+  const importLine = /import \{[\s\S]{0,4000}?endFormationName,[\s\S]{0,4000}?\} from 'dancing-squared-engine';/.test(ui);
+  check(importLine, '`editor-ui.ts` imports `endFormationName` from the engine rather than keeping a private copy');
+  const helper = /private namedSetup\(call: CallBundle, end: 'start' \| 'end'\): string \{[\s\S]{0,400}?\n  \}/.exec(ui);
   check(!!helper, 'and has one `namedSetup` that answers for either end');
-  check(!!helper && /end === 'end' \? endsOnFormation : startsFromFormation/.test(helper[0]),
-    'which dispatches to BOTH predicates - the end question is `endsOnFormation`, not the start rule reused');
-  check(!!helper && /this\.host\.startFormations\(call\.dancers\.length\)\.find\(/.test(helper[0]),
-    'and asks for the SAME list the two pickers are filled from, at the call\'s own size');
+  check(!!helper && /end === 'start'/.test(helper[0]) && /endFormationName\(call, formations\)/.test(helper[0]),
+    'which asks the START rule for a start and `endFormationName` for an end - the two are not the same question');
+  check(!!helper && /this\.host\.startFormations\(call\.dancers\.length\)/.test(helper[0]),
+    'and takes the SAME list the two pickers are filled from, at the call\'s own size');
   check(/this\.startFormationSel\.value = this\.namedSetup\(this\.instance, 'start'\);/.test(ui),
     'the Start picker opens on it');
   check(/this\.endFormationSel\.value = this\.namedSetup\(this\.instance, 'end'\);/.test(ui),
@@ -180,20 +241,21 @@ console.log('\n== 2. the panel names the pickers from it, read from source ==');
   const startSet = ui.indexOf("this.startFormationSel.value = this.namedSetup(this.instance, 'start');");
   check(fill >= 0 && startSet > fill, 'and they are named AFTER the options are filled, or the value would not stick');
 
-  // AND THE CHECKS FAIL ON THE FAULT THEY WERE WRITTEN FOR: the old code left both pickers empty.
+  // AND THE CHECKS FAIL ON THE FAULT THEY WERE WRITTEN FOR: the old code left both pickers empty, and the
+  // end side asked the START's question.
   const old = ui.replace(/this\.startFormationSel\.value = this\.namedSetup\(this\.instance, 'start'\);/,
     "this.startFormationSel.value = '';");
   check(old !== ui && !/this\.startFormationSel\.value = this\.namedSetup/.test(old),
     'restoring the old `value = \'\'` fails the Start picker check');
-  const mixed = ui.replace(/end === 'end' \? endsOnFormation : startsFromFormation/, 'startsFromFormation');
-  check(mixed !== ui && !/end === 'end' \? endsOnFormation/.test(mixed),
-    'and using the start rule for the end fails the dispatch check');
+  const mixed = ui.replace(/endFormationName\(call, formations\)/, 'null');
+  check(mixed !== ui && !/endFormationName\(call, formations\)/.test(mixed),
+    'and answering the end from nothing fails the dispatch check');
 }
 
-// ---------------------------------------------------------------- 3. what it names over the corpus
-console.log('\n== 3. over the catalogue: names are correct or absent, never wrong ==');
+// ---------------------------------------------------------------- 4. what it names over the corpus
+console.log('\n== 4. over the catalogue: names are correct or absent, never wrong ==');
 {
-  let calls = 0, startNamed = 0, endNamed = 0, bothNamed = 0, wrongName = 0;
+  let calls = 0, startNamed = 0, endNamed = 0, bothNamed = 0, wrongName = 0, duplicated = 0;
   const startWitness = [], endWitness = [];
   for (const { id, call } of everyCall()) {
     calls++;
@@ -203,24 +265,33 @@ console.log('\n== 3. over the catalogue: names are correct or absent, never wron
     if (e) endNamed++;
     if (s && e) bothNamed++;
     // WHAT "CORRECT" MEANS, checked rather than assumed: the name is one the picker offers at this size AND
-    // the call really is that formation, dancer for dancer - so selecting it would be a no-op re-base.
+    // the call really is that formation - index for index at the start, as a board at the end.
     for (const [name, end] of [[s, false], [e, true]]) {
       if (!name) continue;
       const f = formationsOfSize(call.dancers.length).find((x) => x.name === name);
       const ok = !!f && (end ? engine.endsOnFormation(call, f.poses) : engine.startsFromFormation(call, f.poses));
       if (!ok) { wrongName++; console.log(`    WRONG ${id} :: "${name}" at the ${end ? 'end' : 'start'}`); }
     }
+    // ONE BOARD, TWO NAMES: the corpus really does carry arrangement variants of a single board, and the
+    // namer must pick one of them rather than printing both. A name that is not in the list would already
+    // have been caught above, so what is checked here is that a second name exists at all.
+    if (e) {
+      const f = formationsOfSize(call.dancers.length).find((x) => x.name === e);
+      const rivals = formationsOfSize(call.dancers.length).filter((x) => engine.endsOnFormation(call, x.poses));
+      if (rivals.length > 1) duplicated++;
+      if (!f) wrongName++;
+    }
     if (e && endWitness.length < 4) endWitness.push(`${call.title} -> ${e}`);
     if (s && startWitness.length < 3) startWitness.push(`${call.title} -> ${s}`);
   }
-  console.log(`    ${calls} calls: ${startNamed} named at the start, ${endNamed} at the end, ${bothNamed} at both`);
+  console.log(`    ${calls} calls: ${startNamed} named at the start, ${endNamed} at the end, ${bothNamed} at both; ${duplicated} end boards fit more than one name`);
   console.log(`    start examples: ${startWitness.join(' | ')}`);
   console.log(`    end examples:   ${endWitness.join(' | ')}`);
   check(calls > 0, 'the catalogue was read at all');
-  check(wrongName === 0, `every name offered really is that formation, dancer for dancer (${wrongName} wrong)`);
+  check(wrongName === 0, `every name offered really is that formation (${wrongName} wrong)`);
   // AN INSTRUMENT'S SILENCE IS A BUG: 208 arrangements exist at eight dancers, so a rule that named nothing
-  // would look "clean". The END count is the fragile one - most calls end on an arrangement the corpus has
-  // no name for - so it is the one that needs saying out loud.
+  // would look "clean". The END count is the fragile one - most calls end on a board the corpus has no name
+  // for - so it is the one that needs saying out loud.
   check(startNamed > 0, `the START picker names something (${startNamed} of ${calls})`);
   check(endNamed > 0, `and so does the END picker (${endNamed} of ${calls})`);
 

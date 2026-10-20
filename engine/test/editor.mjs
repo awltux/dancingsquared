@@ -32,6 +32,8 @@ import {
   halfSetReport,
   startsFromFormation,
   endsOnFormation,
+  endFormationName,
+  END_BOARD_TOL,
   rotateFormation,
   callToXmlNamed,
   endPoses,
@@ -1305,15 +1307,22 @@ console.log('\n== a created call can name its start formation (20) ==');
 }
 
 // ---------------------------------------------------------------------------
-// 20b. the END pose can name its formation, and it is not the start's question
+// 20b. the END pose names its formation as a BOARD, which is not the start's question
 // ---------------------------------------------------------------------------
 //
-// The editor opens its End setup picker on the formation a loaded call already lands on, which needs the
-// START rule asked at the call's own length instead of at beat 0 - `endsOnFormation`. Everything else about
-// it is `startsFromFormation` and for the same reasons (index for index, genders included); what has to be
-// measured separately is that it reads the END, because a rule that quietly compared beat 0 would name the
-// start's formation at the end.
-console.log('\n== the end pose can name its formation (20b) ==');
+// The editor opens its End setup picker on the formation a loaded call already lands on, reported as "If I
+// pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as 'unknown formation'. Is
+// there a missing step." The missing step was THIS RULE: the end is a question about the BOARD - does this
+// set of spots, at these facings, spell a named formation? - where the start is a question about a tam's
+// REFERENCE, and a tam's paths are paired with a formation's dancers by list position.
+//
+// SO THE END RULE IS: the same set of spots, position and heading, with the XML's own positional tolerance
+// and a small error margin on the facing (`END_BOARD_TOL` carries the measurement), and GENDER NOT REQUIRED
+// - `endFormationName` prefers the arrangement that agrees, and only falls back when none does. MEASURED
+// over the catalogue's 5432 tams: this names 2829 end boards where index for index named 132. The checks
+// below that a revert to the index rule would turn red are the ORDER and GENDER ones, and they pull in the
+// opposite direction from `startsFromFormation` a few lines up - which refuses both.
+console.log('\n== the end pose names its formation as a BOARD (20b) ==');
 {
   // THE WITNESS IS TRUNCATED BY ONE MOVE, deliberately: "Circle Left - Stop at Home" comes back within
   // 7e-4 of its own start, so it cannot separate the two questions by position at all.
@@ -1326,12 +1335,54 @@ console.log('\n== the end pose can name its formation (20b) ==');
   check(spread > 0.5, `the witness ends ${spread.toFixed(3)} units from where it starts, so the two questions are separable`);
   check(endsOnFormation(cut, end), "the call's own end poses are recognised as its end formation");
   check(!startsFromFormation(cut, end), "and NOT as its start formation: the end is read at the call's own length, not at beat 0");
-  check(endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 5e-4 }))), "while the exporter's own rounding (5e-4) is inside the tolerance here too");
-  check(!endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 3e-3 }))), 'a shape that is merely CLOSE is refused, so the picker stays on "keep the current" rather than naming the wrong setup');
-  check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, heading: p.heading + 0.1 } : p))), 'and so is one whose heading is out: a setup name is about rotation as well as position');
-  check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p))), 'and one whose arrangement (genders) is changed: that is a different setup');
-  check(!endsOnFormation(cut, [end[1], end[0], ...end.slice(2)]), 'and the same spots in another ORDER are refused, because the paths are paired by index');
+  check(endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 5e-4 }))), "the exporter's own rounding (5e-4) is inside the POSITION tolerance, so a formation that has been through the corpus once still matches");
+  check(!endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 3e-3 }))), 'a shape that is merely CLOSE is refused, so the picker stays on "keep the current" rather than naming the wrong setup. The error margin is on the FACING, not on where a dancer stands');
+  const headingMargin = END_BOARD_TOL.heading;
+  check(endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, heading: p.heading + headingMargin / 2 } : p))),
+    `while ${(headingMargin / 2).toFixed(3)} rad of facing drift is INSIDE the margin: a heading is the sum of the rotation segments along the path, so an authored end board drifts even where its position does not`);
+  check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, heading: p.heading + headingMargin * 2 } : p))),
+    'and twice the margin is out, so the margin is a bound rather than a preference');
+  check(endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, gender: p.gender === 'boy' ? 'girl' : 'boy' } : p))),
+    'and the same spots with the arrangement (genders) changed are STILL this board: a formation file\'s arrangement is one authoring of it, and a call\'s end board holds whichever dancers finished where');
+  check(endsOnFormation(cut, [end[1], end[0], ...end.slice(2)]), 'and so are the same spots in another ORDER - the order a call holds its dancers in is an accident of its tam, and a reordered end board is the same board');
   check(!endsOnFormation(cut, end.slice(0, -1)), 'a formation of the wrong SIZE is refused rather than matched spot by spot');
+  check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, x: end[1].x, y: end[1].y, heading: end[1].heading } : p))),
+    'and two dancers claiming ONE spot is refused: set membership needs distinct dancers, or a coincidence would read as an arrangement');
+}
+
+// ---------------------------------------------------------------------------
+// 20b2. WHICH name, when the corpus carries the board under more than one
+// ---------------------------------------------------------------------------
+//
+// The corpus names one board several times over: `Normal Lines` and `Sashayed Lines` are the same eight
+// spots and facings with the boys and girls swapped, and MEASURED over `formations.xml` there are 27 such
+// pairs at eight dancers. A gender-free shape match therefore fits both, so the namer has to CHOOSE, and
+// it chooses the arrangement that agrees - the tie falls to the list order, which the editor passes
+// name-sorted. The synthetic boards here are the rule's, not the corpus's; the corpus witness is
+// `poc/tools/named-setup-probe.mjs`'s.
+console.log('\n== which name, when one board has two arrangement names (20b2) ==');
+{
+  const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  // PATHLESS, so the end board IS the start board and the only thing under test is the naming rule.
+  const board = {
+    ...src,
+    dancers: [
+      { ...src.dancers[0], path: [], x: 1, y: 1, angleDeg: 0, gender: 'boy' },
+      { ...src.dancers[1], path: [], x: -1, y: 1, angleDeg: 0, gender: 'girl' },
+    ],
+  };
+  const two = (g0, g1) => [{ x: 1, y: 1, heading: 0, gender: g0 }, { x: -1, y: 1, heading: 0, gender: g1 }];
+  check(endFormationName(board, [{ name: 'Swapped', poses: two('girl', 'boy') }, { name: 'Agreed', poses: two('boy', 'girl') }]) === 'Agreed',
+    'the name is the arrangement that AGREES with the board, not the first name in the list');
+  check(endFormationName(board, [{ name: 'Agreed', poses: two('boy', 'girl') }, { name: 'Swapped', poses: two('girl', 'boy') }]) === 'Agreed',
+    'and the answer does not depend on the order of the list when an arrangement really agrees');
+  // THE TIE IS REAL: an "Any Hand" call's end board agrees with neither arrangement, so both miss equally
+  // and the first name is taken. Pinned so a change to the fallback is a visible change here.
+  check(endFormationName(board, [{ name: 'First', poses: two('girl', 'girl') }, { name: 'Second', poses: two('boy', 'boy') }]) === 'First',
+    'and when NO arrangement agrees, the tie falls to the list order rather than to nothing');
+  check(endFormationName(board, [{ name: 'Elsewhere', poses: [{ x: 1, y: 1, heading: 0 }, { x: -1, y: 3, heading: 0 }] }]) === null,
+    'a board with no name gets NO NAME rather than the nearest one');
+  check(endFormationName(board, []) === null, 'and an empty list is no name, not a crash');
 }
 
 // ---------------------------------------------------------------------------

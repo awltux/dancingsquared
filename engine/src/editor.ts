@@ -2473,25 +2473,122 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
 }
 
 /**
- * Whether `poses` is the formation `call` ENDS ON, dancer for dancer - the END-side twin of
- * `startsFromFormation`, and the rule behind naming the End setup from a loaded call.
+ * How far the END lookup lets a dancer be from a formation's spot, per axis of the question.
  *
- * THE END POSE IS NOT STORED, it is derived (`poseFor(d, beats)`), so this reads it at the call's own
- * length rather than at 0. Everything else is the start rule and for the same reasons: INDEX FOR INDEX,
- * because a tam's paths are assigned to the formation's dancers BY POSITION IN THE LIST, and GENDER IS
- * PART OF THE FORMATION. The tolerance is the XML's own, as above.
+ * POSITION is the XML's own tolerance, the one `startsFromFormation` uses: the exporter rounds to four
+ * decimals, so a shape that has been through the corpus once comes back within about 1e-4.
+ *
+ * HEADING CARRIES A SMALL ERROR MARGIN, and it is a measurement rather than a preference: a heading is
+ * the SUM of the rotation segments along the path, each exported to four decimals, so the facing drifts
+ * even where the position does not. MEASURED over the catalogue's 5432 tams, the margin each end board
+ * needs before some name fits it: 2780 need none beyond the XML's 1e-3, and the three `Promenade Home`
+ * tams need 0.006, 1.56 and 2.0 DEGREES. 7.5e-2 rad is 4.3 degrees, which names 2829 of the 2831 that
+ * any margin at all names - the two it leaves out are single-file promenades 8.1 and 10.4 degrees out,
+ * which are not standing on a square.
+ *
+ * AND IT CANNOT CONFUSE TWO BOARDS: a facing margin only matters between formations that stand on the
+ * same spots, and MEASURED over `formations.xml` the two closest such boards differ by 89.5 degrees at
+ * eight dancers (89.5 at four, 180 at twelve) - 21 times this margin. The pair that differ by nothing at
+ * all are arrangement variants of ONE board (`Normal Lines` / `Sashayed Lines`), which is what
+ * `endFormationName` sorts out.
  */
-export function endsOnFormation(call: CallBundle, poses: FormDancer[], tol = 1e-3): boolean {
-  if (call.dancers.length !== poses.length) return false;
+export interface EndBoardTolerance {
+  position: number;
+  heading: number;
+}
+export const END_BOARD_TOL: EndBoardTolerance = { position: 1e-3, heading: 7.5e-2 };
+
+/**
+ * The call's END board: the pose of every dancer at the call's own last beat.
+ *
+ * THE END POSE IS NOT STORED, it is derived (`poseFor(d, beats)`), so it is read at the call's length
+ * rather than at 0 - which is the whole difference between this and the start question.
+ */
+function endBoard(call: CallBundle): FormDancer[] {
   const beats = instanceBeats(call);
-  for (let i = 0; i < poses.length; i++) {
-    const d = call.dancers[i];
+  return call.dancers.map((d) => {
     const p = poseFor(d, beats);
-    if (Math.abs(p.x - poses[i].x) > tol || Math.abs(p.y - poses[i].y) > tol) return false;
-    if (Math.abs(normAngleSafe(p.heading - poses[i].heading)) > tol) return false;
-    if (poses[i].gender !== undefined && d.gender !== poses[i].gender) return false;
+    return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
+  });
+}
+
+/**
+ * The end board against ONE formation: the number of spots whose GENDER disagrees, or `null` when the
+ * formation's spots are not this board at all - the wrong size, or a spot nobody stands on.
+ *
+ * POSITION AND HEADING ARE THE MATCH; gender is CONSULTED, never required, which is how the two ends
+ * differ. The board is compared as a SET, so the call's own dancer order is irrelevant.
+ */
+function endBoardGenderMisses(ends: FormDancer[], poses: FormDancer[], tol: EndBoardTolerance): number | null {
+  if (ends.length !== poses.length) return null;
+  // GREEDY IS EXACT HERE: the spots of a named formation are a unit or more apart and the tolerance is a
+  // few hundredths, so no dancer is ever claimable by two spots. `used` is what stops one dancer answering
+  // for two spots and making a coincidence look like an arrangement - the duplicated-spot check in
+  // `editor.mjs` (20b) is the control for it.
+  const used = new Array(ends.length).fill(false);
+  let misses = 0;
+  for (const spot of poses) {
+    let hit = -1;
+    for (let i = 0; i < ends.length; i++) {
+      if (used[i]) continue;
+      const p = ends[i];
+      if (Math.hypot(p.x - spot.x, p.y - spot.y) > tol.position) continue;
+      if (Math.abs(normAngleSafe(p.heading - spot.heading)) > tol.heading) continue;
+      hit = i;
+      break;
+    }
+    if (hit < 0) return null;
+    used[hit] = true;
+    if (spot.gender !== undefined && ends[hit].gender !== spot.gender) misses++;
   }
-  return true;
+  return misses;
+}
+
+/**
+ * Whether `poses` is the SHAPE the call ends on - and the difference from `startsFromFormation` is the
+ * point of it.
+ *
+ * A tam's paths are paired with a formation's dancers BY POSITION IN THE LIST, so the START question has
+ * to be answered dancer for dancer (and on genders). The END question is "which named shape is this
+ * board?", and where a dancer sits in the call's own array is an accident of how that tam was authored.
+ * MEASURED on the corpus: `Promenade Home` (Right and Left Grand Static Square) finishes on a Squared Set
+ * to within 0.006 degrees, and was refused index for index because its end order is S,E,W,N with the
+ * couples swapped against the formation file's S,W,N,E - so the editor's End setup row read "Unknown
+ * formation" for want of this rule.
+ *
+ * GENDER IS NOT PART OF THE ANSWER either: a formation file's arrangement is one authoring of a board,
+ * and the genders on a call's end board are whichever dancers happened to finish there. `endFormationName`
+ * uses the disagreement count only to CHOOSE between arrangement variants.
+ */
+export function endsOnFormation(call: CallBundle, poses: FormDancer[], tol: EndBoardTolerance = END_BOARD_TOL): boolean {
+  return endBoardGenderMisses(endBoard(call), poses, tol) !== null;
+}
+
+/**
+ * THE NAME THE END PICKER OPENS ON: of the named formations whose SHAPE is this board, the one whose
+ * genders agree at the most spots, or `null` when the board has no name.
+ *
+ * MORE THAN ONE NAME CAN FIT, because the corpus carries arrangement variants of a single board - the
+ * same spots and facings with the boys and girls swapped. MEASURED over the catalogue's 5432 tams: 2829
+ * end boards carry a name at `END_BOARD_TOL`, 1092 of them fit more than one, and genders settle 901 of
+ * those uniquely. The remaining 191 fit two arrangement variants equally badly (an "Any Hand" call whose
+ * end board is neither arrangement), and a tie falls to the ORDER OF `formations`, which the editor passes
+ * name-sorted - measured on `a1/any_hand_concept.xml`, whose end fits `Normal Lines` and `Sashayed Lines`
+ * with four disagreements each and is shown as `Normal Lines`.
+ */
+export function endFormationName(
+  call: CallBundle,
+  formations: readonly { name: string; poses: FormDancer[] }[],
+  tol: EndBoardTolerance = END_BOARD_TOL,
+): string | null {
+  const ends = endBoard(call);
+  let best: { name: string; misses: number } | null = null;
+  for (const f of formations) {
+    const misses = endBoardGenderMisses(ends, f.poses, tol);
+    if (misses === null) continue;
+    if (!best || misses < best.misses) best = { name: f.name, misses };
+  }
+  return best?.name ?? null;
 }
 
 /**

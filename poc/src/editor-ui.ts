@@ -67,9 +67,10 @@ import {
   // call can be written as one.
   halfSetReport,
   startsFromFormation,
-  // The END-side twin of `startsFromFormation`, for naming the End picker from the setup the call
-  // already lands on. See `namedSetup`.
-  endsOnFormation,
+  // The END question, which is NOT `startsFromFormation` at the call's last beat: the formation's spots
+  // as a SET, position and heading with a small error margin, and the name chosen among arrangement
+  // variants. For naming the End picker from the setup the call already lands on. See `namedSetup`.
+  endFormationName,
   // The rigid whole-set turn behind the End setup's rotation control: the rule lives in the engine so the
   // probe measures THAT rather than a copy of it, and `DEG` with it, which is the engine's own conversion.
   rotateFormation,
@@ -4900,18 +4901,25 @@ export class EditorController implements EditorUI {
    * or '' for "nothing to name".
    *
    * Asked for as: "Set the start and end setup selectors if the initialised start and end positions are
-   * known formations." `startsFromFormation` / `endsOnFormation` are the whole rule - index for index,
-   * positions, headings and genders - so a name is only ever shown when the shape really is that
-   * formation dancer for dancer and the reference would survive a round trip through the export. THE
-   * FAILURE MODE IS THEREFORE A PICKER LEFT ON "KEEP THE CURRENT", NEVER A WRONG NAME, which is why an
-   * unknown or merely-close setup is not reported as an error here; the Start picker had the same
+   * known formations." The two ends ask DIFFERENT QUESTIONS, and that is the whole reason this has a
+   * branch: `startsFromFormation` is index for index on positions, headings and genders, because a tam's
+   * paths are paired with a formation's dancers by list position; `endFormationName` is the shape of the
+   * board - set membership, position and heading, with a small error margin - because the end is only
+   * "which named shape is this?". A name is therefore only ever shown when selecting it would be a no-op
+   * re-base, and THE FAILURE MODE IS A PICKER LEFT ON "KEEP THE CURRENT", NEVER A WRONG NAME, which is why
+   * an unknown or merely-close setup is not reported as an error here; the Start picker had the same
    * choice to make in `callToXmlNamed` and made it the same way.
+   *
+   * Asked for as: "Don't compare gender, just position and heading", and then "Might need a small error
+   * margin as well" - the margin and the measurements behind it are `END_BOARD_TOL`'s.
    *
    * Both ends ask the SAME list, for the reason `ensureStartFormations` gives.
    */
   private namedSetup(call: CallBundle, end: 'start' | 'end'): string {
-    const isThatEnd = end === 'end' ? endsOnFormation : startsFromFormation;
-    return this.host.startFormations(call.dancers.length).find((f) => isThatEnd(call, f.poses))?.name ?? '';
+    const formations = this.host.startFormations(call.dancers.length);
+    return end === 'start'
+      ? (formations.find((f) => startsFromFormation(call, f.poses))?.name ?? '')
+      : (endFormationName(call, formations) ?? '');
   }
 
   /**

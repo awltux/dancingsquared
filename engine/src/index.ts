@@ -274,6 +274,8 @@ export {
   sameFacing,
   startsFromFormation,
   endsOnFormation,
+  endFormationName,
+  END_BOARD_TOL,
   rotateFormation,
   callToXmlNamed,
   halfSetReport,
@@ -281,7 +283,7 @@ export {
   // of the board's own axes, with the start pose - position AND rotation - left exactly where it was.
   mirrorDancerMoves,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis, EndBoardTolerance } from './editor.js';
 
 export {
   setParser,

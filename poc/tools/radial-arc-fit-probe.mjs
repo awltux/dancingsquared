@@ -433,7 +433,7 @@ console.log('\n== 8. the reported miss: the middle curve of `Promenade Full` =='
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   const variants = engine.buildCallVariants(
     fs.readFileSync(path.join(path0, 'ms', 'promenade.xml'), 'utf8'), movesXml, formationsXml,
-  ).filter((v) => v.title === 'Promenade' || v.title === 'Promenade Home');
+  ).filter((v) => v.title === 'Promenade' || v.title === 'Promenade - Keep Walking');
   // THE FILTER IS BY EXACT TITLE, NOT `startsWith('Promenade')`, AND IT USED TO BE `startsWith('Promenade
   // Full')`. That matched the two full-promenade authorings (`Promenade Full` and `Promenade Full to
   // Home`) and NOTHING ELSE; the rename would have made it match NOTHING AT ALL, so both sections below
@@ -524,7 +524,7 @@ console.log('\n== 9. and a fit leaves every later end point exactly where it was
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   const variants = engine.buildCallVariants(
     fs.readFileSync(path.join(path0, 'ms', 'promenade.xml'), 'utf8'), movesXml, formationsXml,
-  ).filter((v) => v.title === 'Promenade' || v.title === 'Promenade Home');
+  ).filter((v) => v.title === 'Promenade' || v.title === 'Promenade - Keep Walking');
   // THE FILTER IS BY EXACT TITLE, NOT `startsWith('Promenade')`, AND IT USED TO BE `startsWith('Promenade
   // Full')`. That matched the two full-promenade authorings (`Promenade Full` and `Promenade Full to
   // Home`) and NOTHING ELSE; the rename would have made it match NOTHING AT ALL, so both sections below

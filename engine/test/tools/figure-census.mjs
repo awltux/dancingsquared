@@ -118,7 +118,7 @@ for (const [k, e] of [...byCall.entries()].sort((a, b) => b[1].n - a[1].n)) {
 
 // ---- the exact refusal sentences of the derived calls, which IS the specification of the fix
 console.log('\n=== the derived calls\' own sentences, grouped ===');
-for (const target of ['Swing Your Partner', 'Promenade', 'Trade', 'Swing Thru', 'Promenade Home']) {
+for (const target of ['Swing Your Partner', 'Promenade', 'Trade', 'Swing Thru', 'Promenade - Keep Walking']) {
   const rs = runs.filter((r) => r.failed && splitSelection(r.failed.call).call === target);
   if (!rs.length) continue;
   const reasons = new Map();

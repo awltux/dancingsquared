@@ -175,13 +175,14 @@ console.log('== 1. the end board is compared as a BOARD, with a measuring margin
 }
 
 // ---------------------------------------------------------------- 2. the reported case, from the corpus
-console.log('\n== 2. the reported calls: "Promenade Home" ends on a Squared Set, "Alamo Swing Thru" on an Alamo Wave ==');
+console.log('\n== 2. the reported calls: "Promenade" ends on a Squared Set, "Alamo Swing Thru" on an Alamo Wave ==');
 {
   // REPORTED AS: "If I pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as
-  // 'unknown formation'. Is there a missing step." Selected BY TITLE AND FORMATION, never by index: the file
-  // holds four tams called "Promenade Home" (trap 7 is about exactly this).
+  // 'unknown formation'. Is there a missing step." That call is now titled "Promenade" - the tams that STOP at
+  // home took the plain name in the promenade retitling, and the walking ones took a "- Keep Walking" suffix.
+  // Selected BY TITLE AND FORMATION, never by index: the file holds more than one tam under each name (trap 7).
   const call = engine.normalizeInstance(engine.loadCallFromXml(
-    asset('ms/promenade.xml'), movesXml, formationsXml, { title: 'Promenade Home', formation: 'Right and Left Grand Static Square' }));
+    asset('ms/promenade.xml'), movesXml, formationsXml, { title: 'Promenade', formation: 'Right and Left Grand Static Square' }));
   const squared = formationsOfSize(8).find((f) => f.name === 'Squared Set');
   check(!!squared, 'the corpus still offers a "Squared Set" at eight dancers');
   check(!!squared && engine.endsOnFormation(call, squared.poses), 'the reported call\'s END BOARD is a Squared Set, compared as a board');
@@ -204,7 +205,7 @@ console.log('\n== 2. the reported calls: "Promenade Home" ends on a Squared Set,
   // this check did exactly that and reported 90.4 degrees, which is one dancer's quarter turn and nothing to
   // do with the margin.
   const lines = engine.normalizeInstance(engine.loadCallFromXml(
-    asset('ms/promenade.xml'), movesXml, formationsXml, { title: 'Promenade Home', formation: 'Two-Faced Lines LH' }));
+    asset('ms/promenade.xml'), movesXml, formationsXml, { title: 'Promenade', formation: 'Two-Faced Lines LH' }));
   const linesEnds = endPosesOf(lines);
   let worstFacing = 0, placed = 0;
   for (const spot of squared.poses) {

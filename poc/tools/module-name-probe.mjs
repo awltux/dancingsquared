@@ -31,7 +31,7 @@ const movesXml = read('../assets/moves.xml');
 const formationsXml = read('../assets/formations.xml');
 const ui = read('src/sequencer-ui.ts');
 const css = read('src/style.css');
-const CALL = 'Single File Promenade Home';
+const CALL = 'Single File Promenade';
 
 let failures = 0;
 const check = (cond, msg) => {

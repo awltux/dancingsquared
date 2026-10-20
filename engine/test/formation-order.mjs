@@ -85,12 +85,16 @@ const PINNED = {
       [-1, -2.414], [1, -2.414], [2.414, -1], [2.414, 1],
       [1, 2.414], [-1, 2.414], [-2.414, 1], [-2.414, -1],
     ],
+    // RE-RECORDED when `ms/promenade.xml`'s tams were RETITLED (41 titles; `Promenade Home` -> `Promenade` and the
+    // walking ones -> `Promenade - Keep Walking`). The digest is keyed by `file|title`, so a retitle moves it even
+    // though no dancer moved - MEASURED: comparing every tam's start>end pairs with the title stripped gives the
+    // same FNV-1a digest on both sides of the edit (3d4494b4), and 0 of the 43 tams changed a pose.
     dependents: { total: 23, files: { 'ms/allemande.xml': 2, 'ms/circle.xml': 16, 'ms/promenade.xml': 2, 'ms/sashay.xml': 3 } },
-    digest: 'ef540042',
+    digest: 'c6d64422',
     files: {
       'ms/allemande.xml': 'dacf6fc8',
       'ms/circle.xml': 'f3d46f6d',
-      'ms/promenade.xml': 'ef403a24',
+      'ms/promenade.xml': '9e8b3f60',
       'ms/sashay.xml': 'a609f504',
     },
   },

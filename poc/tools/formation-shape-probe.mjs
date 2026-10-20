@@ -5,7 +5,7 @@
 // and lose the `formation` element. The `from` property is useful if the start positions have changes and
 // the formation isnt recognised."
 //
-// The corpus already writes it that way - `<tam title="Promenade Home" formation="Facing Couples
+// The corpus already writes it that way - `<tam title="Promenade" formation="Facing Couples
 // Far">` with no block (that tam was titled `Promenade Full to Home` until the promenade family took
 // the CALLERLAB names) - and the app did not, for two reasons that both live in `tam-xml.ts`:
 //
@@ -96,7 +96,10 @@ const oldPosesOf = (name) => {
 };
 
 const call = engine.loadCallFromXml(read('assets/ms/promenade.xml'), movesXml, formationsXml,
-  { title: 'Promenade Home', formation: 'Facing Couples Far' });
+  // THE FILE NOW HOLDS TWO tams titled Promenade on Facing Couples Far: the one that stops at home
+  // (no `from`, which is the reported case) and the keep-walking variant (`from="Facing Couples Far -
+  // Keep Walking"`). The probe's subject is the EMPTY-`from` one, so it selects by it.
+  { title: 'Promenade', formation: 'Facing Couples Far', from: '' });
 
 console.log(`    the corpus tam: title="${call.title}" from=${JSON.stringify(call.from)} formation=${JSON.stringify(call.formation)} ${call.dancers.length} dancers`);
 check(call.from === '' && call.formation === 'Facing Couples Far',

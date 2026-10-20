@@ -362,4 +362,205 @@
   </tam>
 
 
+
+
+
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" from="Eight Chain Thru" formation="Eight Chain Thru" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.667" cy2="0.5" x2="1" y2="0.5"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3038" cy1="0" cx2="0.5" cy2="-0.1907" x2="0.5" y2="-0.5"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.2808" cy1="0" cx2="0.5" cy2="-0.1593" x2="0.5" y2="-0.5"/>
+      <movement hands="none" beats="2" cx1="0.138" cy1="-0.1667" cx2="0.276" cy2="-0.3333" x2="0.414" y2="-0.5" cx3="0.3927" cx4="0.6812" cy4="0.1928" x4="0.8315" y4="0.5556"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="1" cx4="1" cy4="-0.4" x4="2" y4="-0.4"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
+      <movement hands="none" beats="2" cx1="0.138" cy1="-0.1667" cx2="0.276" cy2="-0.3333" x2="0.414" y2="-0.5" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.667" cy2="0.5" x2="1" y2="0.5"/>
+      <movement hands="gripleft" beats="3" cx1="0.7287" cy1="-0.0309" cx2="0.741" cy2="-1.0021" x2="0" y2="-1"/>
+      <movement hands="none" beats="2" cx1="0.3079" cy1="-0.6507" cx2="0.6158" cy2="-1.3013" x2="0.9237" y2="-1.952" cx3="0.1441" cx4="0.8459" cy4="-0.1541" x4="0.9767" y4="-0.2144"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="1" cx4="1" cy4="-0.4" x4="2" y4="-0.4"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3476" cy1="0.0021" cx2="0.5074" cy2="-0.2438" x2="0.5" y2="-0.5"/>
+      <movement hands="gripleft" beats="1.5" cx1="0.3476" cy1="0.0021" cx2="0.7521" cy2="0.0091" x2="1.0169" y2="-0.4647"/>
+      <movement hands="none" beats="2" cx1="0.3597" cy1="-0.0274" cx2="0.7195" cy2="-0.0549" x2="1.0792" y2="-0.0823" cx3="0.0253" cx4="0.974" cy4="-0.036" x4="0.9993" y4="-0.038"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" from="Right Hand Waves" formation="Ocean Waves RH BGBG" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripright" beats="1.5" cx1="0.2727" cy1="0" cx2="0.5" cy2="-0.1716" x2="0.5" y2="-0.5"/>
+      <movement hands="gripright" beats="1.5" cx1="0.2739" cy1="0" cx2="0.5" cy2="-0.215" x2="0.5" y2="-0.5"/>
+      <movement hands="none" beats="1.5" cx1="0.8953" cy1="-0.054" cx2="0.276" cy2="-1" x2="0.414" y2="-1.5" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.5" cy2="-0.0875" x2="0.5" y2="-0.5"/>
+      <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.4513" cy2="-0.2027" x2="0.5988" y2="-0.4117"/>
+      <movement hands="none" beats="1.5" cx1="0.1017" cy1="-0.485" cx2="0.2035" cy2="-0.97" x2="0.3052" y2="-1.455" cx3="0.3358" cx4="0.6965" cy4="-0.1988" x4="0.8758" y4="-0.4826"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripright" beats="1.5" cx1="0.2683" cy1="0" cx2="0.4858" cy2="-0.2463" x2="0.4858" y2="-0.5501"/>
+      <movement hands="gripright" beats="1.5" cx1="0.2484" cy1="0.0142" cx2="0.4499" cy2="-0.2175" x2="0.4499" y2="-0.4858"/>
+      <movement hands="none" beats="1.5" cx1="0.3344" cy1="-0.0096" cx2="0.6689" cy2="-0.0192" x2="1.0033" y2="-0.0288" cx3="0.1499" cx4="0.8398" cy4="0.1578" x4="0.9748" y4="0.223"/>
+    </path>
+    <path>
+      <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
+      <movement hands="gripright" beats="1.5" cx1="0.3297" cy1="0.0075" cx2="0.5142" cy2="-0.2137" x2="0.5" y2="-0.5"/>
+      <movement hands="gripright" beats="1.5" cx1="0.3297" cy1="0.0075" cx2="0.5142" cy2="-0.2137" x2="0.5" y2="-0.5"/>
+      <movement hands="none" beats="1.5" cx1="0.0993" cy1="0.1955" cx2="0.1985" cy2="0.391" x2="0.2978" y2="0.5865" cx3="0.4409" cx4="0.6809" cy4="0.1868" x4="0.7892" y4="0.6142"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" from="Circle" formation="Circle" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4134" cy2="-0.7649" x2="0.4134" y2="-0.7649" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripright" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
+      <movement hands="none" beats="2.25" cx1="0.4998" cy1="0" cx2="0.4795" cy2="-0.8938" x2="0.8338" y2="-1.2463"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.5" cy2="1" x2="-0.5" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+      <movement hands="gripright" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
+      <movement hands="none" beats="0.75" cx1="0.265" cy1="0" cx2="0.52" cy2="-0.105" x2="0.707" y2="-0.293"/>
+      <movement hands="none" beats="1.5" cx1="0.1178" cy1="0.0206" cx2="0.2356" cy2="0.0412" x2="0.3534" y2="0.0618" cx3="0.2627" cx4="0.7381" cy4="0.1977" x4="0.9234" y4="0.3839"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4134" cy2="-0.7649" x2="0.4134" y2="-0.7649" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
+      <movement hands="gripright" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
+      <movement hands="none" beats="2.25" cx1="0.4998" cy1="0" cx2="0.4795" cy2="-0.8938" x2="0.8338" y2="-1.2463"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.5" cy2="1" x2="-0.5" y2="1" cx3="0.55" cx4="1" cy4="0.45" x4="1" y4="1"/>
+      <movement hands="gripright" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
+      <movement hands="none" beats="0.75" cx1="0.265" cy1="0" cx2="0.52" cy2="-0.105" x2="0.707" y2="-0.293"/>
+      <movement hands="none" beats="1.5" cx1="0.1178" cy1="0.0206" cx2="0.2356" cy2="0.0412" x2="0.3534" y2="0.0618" cx3="0.2627" cx4="0.7381" cy4="0.1977" x4="0.9234" y4="0.3839"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" formation="Right and Left Grand Circle" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.7124" cy2="0.1867" x2="0.9568" y2="0.3032" cx3="0.9184" cx4="1.2119" cy4="-0.152" x4="2" y4="0.2"/>
+      <movement hands="gripright" beats="3" cx1="0.6758" cy1="-0.0185" cx2="0.7099" cy2="-1.0198" x2="-0.0274" y2="-0.9996"/>
+      <movement hands="none" beats="0.75" cx1="0.492" cy1="0" cx2="0.5205" cy2="-0.9122" x2="0.9697" y2="-1.1129"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.8775" cy2="0.812" x2="1.3395" y2="0.6206" cx3="1" cx4="1.1251" cy4="0.5207" x4="2" y4="0.2"/>
+      <movement hands="gripright" beats="3" cx1="0.7" cy1="-0.029" cx2="0.7507" cy2="-0.8824" x2="-0.0414" y2="-0.9991"/>
+      <movement hands="none" beats="0.75" cx1="0.3345" cy1="0" cx2="0.6632" cy2="-0.1978" x2="0.9932" y2="-0.1434"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.7124" cy2="0.1867" x2="0.9568" y2="0.3032" cx3="0.9184" cx4="1.2119" cy4="-0.152" x4="2" y4="0.2"/>
+      <movement hands="gripright" beats="3" cx1="0.6758" cy1="-0.0185" cx2="0.7099" cy2="-1.0198" x2="-0.0274" y2="-0.9996"/>
+      <movement hands="none" beats="0.75" cx1="0.492" cy1="0" cx2="0.5205" cy2="-0.9122" x2="0.9697" y2="-1.1129"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.8775" cy2="0.812" x2="1.3395" y2="0.6206" cx3="1" cx4="1.1251" cy4="0.5207" x4="2" y4="0.2"/>
+      <movement hands="gripright" beats="3" cx1="0.7" cy1="-0.029" cx2="0.7507" cy2="-0.8824" x2="-0.0414" y2="-0.9991"/>
+      <movement hands="none" beats="0.75" cx1="0.3345" cy1="0" cx2="0.6632" cy2="-0.1978" x2="0.9932" y2="-0.1434"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" from="Alamo Wave" parts="" sequencer="gender-specific">
+    <formation>
+        <dancer gender="girl" x="1" y="-2.414" angle="110.966"/>
+        <dancer gender="boy" x="2.414" y="-1" angle="-24.034"/>
+        <dancer gender="girl" x="2.414" y="1" angle="-159.034"/>
+        <dancer gender="boy" x="1" y="2.414" angle="65.966"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="1" cx1="-0.417" cy1="0.0381" cx2="-0.879" cy2="0.6713" x2="-0.6563" y2="1.3224" cx3="-0.2618" cx4="-0.4241" cy4="-0.2013" x4="-0.6011" y4="-0.7391"/>
+      <movement hands="gripright" beats="3" cx1="0.3614" cy1="-0.062" cx2="0.5363" cy2="-0.2925" x2="0.4755" y2="-0.5233"/>
+      <movement hands="none" beats="0.75" cx1="0.2524" cy1="-0.0227" cx2="0.4897" cy2="-0.1931" x2="0.5196" y2="-0.4796"/>
+      <movement hands="none" beats="0.75" cx1="0.3345" cy1="0" cx2="0.6762" cy2="-0.1474" x2="1.0012" y2="-0.0682"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="-0.0668" cy1="0.2746" cx2="-0.1172" cy2="0.7359" x2="-0.3287" y2="0.9483" cx3="-0.2618" cx4="-1.1875" cy4="-0.4401" x4="-0.7784" y4="-1.1031"/>
+      <movement hands="gripright" beats="3" cx1="0.2382" cy1="-0.0271" cx2="0.4615" cy2="-0.3051" x2="0.4291" y2="-0.562"/>
+      <movement hands="none" beats="0.75" cx1="0.2703" cy1="-0.0103" cx2="0.5075" cy2="-0.2993" x2="0.4663" y2="-0.6301"/>
+      <movement hands="none" beats="0.75" cx1="0.4293" cy1="-0.0546" cx2="0.5933" cy2="-0.7718" x2="0.8899" y2="-1.1578" cx3="0.1428" cx4="0.8472" cy4="-0.1533" x4="0.9771" y4="-0.2126"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="-0.417" cy1="0.0381" cx2="-0.879" cy2="0.6713" x2="-0.6563" y2="1.3224" cx3="-0.2618" cx4="-0.4241" cy4="-0.2013" x4="-0.6011" y4="-0.7391"/>
+      <movement hands="gripright" beats="3" cx1="0.3614" cy1="-0.062" cx2="0.5363" cy2="-0.2925" x2="0.4755" y2="-0.5233"/>
+      <movement hands="none" beats="0.75" cx1="0.2524" cy1="-0.0227" cx2="0.4897" cy2="-0.1931" x2="0.5196" y2="-0.4796"/>
+      <movement hands="none" beats="0.75" cx1="0.3345" cy1="0" cx2="0.6762" cy2="-0.1474" x2="1.0012" y2="-0.0682"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="-0.0668" cy1="0.2746" cx2="-0.1172" cy2="0.7359" x2="-0.3287" y2="0.9483" cx3="-0.2618" cx4="-1.1875" cy4="-0.4401" x4="-0.7784" y4="-1.1031"/>
+      <movement hands="gripright" beats="3" cx1="0.2382" cy1="-0.0271" cx2="0.4615" cy2="-0.3051" x2="0.4291" y2="-0.562"/>
+      <movement hands="none" beats="0.75" cx1="0.2703" cy1="-0.0103" cx2="0.5075" cy2="-0.2993" x2="0.4663" y2="-0.6301"/>
+      <movement hands="none" beats="0.75" cx1="0.4293" cy1="-0.0546" cx2="0.5933" cy2="-0.7718" x2="0.8899" y2="-1.1578" cx3="0.1428" cx4="0.8472" cy4="-0.1533" x4="0.9771" y4="-0.2126"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" from="Trade By" parts="" sequencer="gender-specific">
+    <formation>
+        <dancer gender="boy" x="-3" y="-1" angle="180"/>
+        <dancer gender="girl" x="-1" y="-1" angle="0"/>
+        <dancer gender="boy" x="1" y="-1" angle="180"/>
+        <dancer gender="girl" x="3" y="-1" angle="0"/>
+    </formation>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4705" cy2="-0.4652" x2="0.5" y2="-1" cx3="-0.55" cx4="-1" cy4="-0.45" x4="-1" y4="-1"/>
+      <movement hands="gripright" beats="3" cx1="-0.6665" cy1="0" cx2="-0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1.5" cx1="-0.3333" cy1="-0.0286" cx2="-0.6666" cy2="-0.0573" x2="-0.9998" y2="-0.0859" cx3="0.9163" cx4="1.0416" cy4="-0.6301" x4="0.1951" y4="-0.9808"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0" x2="1" y2="0" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
+      <movement hands="gripright" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
+      <movement hands="none" beats="1.5" cx1="0.3333" cy1="0.138" cx2="0.6666" cy2="0.276" x2="0.9998" y2="0.4141" cx3="0.1309" cx4="0.8598" cy4="-0.145" x4="0.9808" y4="-0.1951"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.3854" cy1="0.0143" cx2="0.7173" cy2="1.002" x2="1" y2="1" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
+      <movement hands="gripright" beats="3" cx1="0.6883" cy1="-0.0308" cx2="0.6883" cy2="-1.0021" x2="0" y2="-1"/>
+      <movement hands="none" beats="1.5" cx1="0.5773" cy1="0" cx2="0.3979" cy2="-1.653" x2="0.94" y2="-1.4546"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1.5" cx1="-0.2967" cy1="0.0226" cx2="-0.5548" cy2="0.4406" x2="-0.5056" y2="1.0061"/>
+      <movement hands="gripright" beats="3" cx1="-0.6665" cy1="-0.0071" cx2="-0.6771" cy2="0.9929" x2="-0.0106" y2="0.9999"/>
+      <movement hands="none" beats="1.5" cx1="-0.3392" cy1="0.3564" cx2="-0.6783" cy2="0.7128" x2="-1.0175" y2="1.0693" cx3="0.9199" cx4="1.0434" cy4="0.6391" x4="0.1897" y4="0.9818"/>
+    </path>
+  </tam>
+
+<!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
+  <tam title="Allemande Right" from="Static Square" formation="Static Square" parts="" sequencer="gender-specific">
+    <path>
+      <movement hands="none" beats="2" cx1="0.55" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="2" cx1="0.3231" cy1="-0.0104" cx2="0.4951" cy2="-0.158" x2="0.5" y2="-0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.2847" cy1="-0.0132" cx2="0.4918" cy2="-0.1877" x2="0.4762" y2="-0.5227"/>
+      <movement hands="none" beats="2" cx1="0.4995" cy1="-0.0232" cx2="0.6376" cy2="-0.6397" x2="0.9564" y2="-0.9595" cx3="0.1464" cx4="0.8435" cy4="-0.1556" x4="0.976" y4="-0.2178"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0.55" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.3284" cy1="0" cx2="0.5" cy2="-0.1782" x2="0.5" y2="-0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.3723" cy1="0" cx2="0.5" cy2="-0.1905" x2="0.5" y2="-0.5"/>
+      <movement hands="none" beats="2" cx1="0.5187" cy1="0" cx2="0.2155" cy2="-1.0208" x2="0.414" y2="-1.5"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0.55" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="2" cx1="0.3231" cy1="-0.0104" cx2="0.4951" cy2="-0.158" x2="0.5" y2="-0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.2847" cy1="-0.0132" cx2="0.4918" cy2="-0.1877" x2="0.4762" y2="-0.5227"/>
+      <movement hands="none" beats="2" cx1="0.4995" cy1="-0.0232" cx2="0.6376" cy2="-0.6397" x2="0.9564" y2="-0.9595" cx3="0.1464" cx4="0.8435" cy4="-0.1556" x4="0.976" y4="-0.2178"/>
+    </path>
+    <path>
+      <movement hands="none" beats="2" cx1="0.55" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.3284" cy1="0" cx2="0.5" cy2="-0.1782" x2="0.5" y2="-0.5"/>
+      <movement hands="gripleft" beats="2" cx1="0.3723" cy1="0" cx2="0.5" cy2="-0.1905" x2="0.5" y2="-0.5"/>
+      <movement hands="none" beats="2" cx1="0.5187" cy1="0" cx2="0.2155" cy2="-1.0208" x2="0.414" y2="-1.5"/>
+    </path>
+  </tam>
+
+
 </tamination>

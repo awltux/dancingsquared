@@ -85,8 +85,8 @@ const PINNED = {
       [-1, -2.414], [1, -2.414], [2.414, -1], [2.414, 1],
       [1, 2.414], [-1, 2.414], [-2.414, 1], [-2.414, -1],
     ],
-    dependents: { total: 22, files: { 'ms/allemande.xml': 1, 'ms/circle.xml': 16, 'ms/promenade.xml': 2, 'ms/sashay.xml': 3 } },
-    digest: '110849f7',
+    dependents: { total: 23, files: { 'ms/allemande.xml': 2, 'ms/circle.xml': 16, 'ms/promenade.xml': 2, 'ms/sashay.xml': 3 } },
+    digest: 'ef540042',
   },
   'Normal Lines Compact': {
     // A TWO-FACED LINE HAS NO COMPASS ORDER, so its order is the spot list: index 0-3 are the EAST line from

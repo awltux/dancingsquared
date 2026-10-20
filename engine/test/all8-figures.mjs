@@ -63,12 +63,31 @@ const seq = new Sequencer(
 // rewriting it would destroy the thing the reader is measured against (AGENTS.md §5) - so the exclusion lives
 // HERE, by id, with the call that put each figure out of scope.
 //
-// AND IT IS PRINTED, not silent: two of the 188 figures leave every count below, and a drop nobody reports is
-// the same defect as a check nobody runs (AGENTS.md §4.1). The reader still reads all 188, so the other
-// consumers of it (`all8-format`, the audits) are untouched.
+// AND IT IS PRINTED, not silent: thirteen of the 188 figures leave every count below, and a drop nobody
+// reports is the same defect as a check nobody runs (AGENTS.md §4.1). The reader still reads all 188, so the
+// other consumers of it (`all8-format`, the audits) are untouched.
+//
+// THE FIVE CALLS CALLERLAB'S 2026 DEFINITIONS TOOK OUT OF MAINSTREAM, and what each one costs the page -
+// MEASURED over the fixture, not assumed: `Circle to a Line` 11 figures, `Eight Chain Thru` 2, and
+// `Do Paso`, `See Saw` and `Walk Around the Corner` NONE (their tokens exist in the notation table - `DoPaso`
+// / `DoPaS` / `DoPas`, `SeSaw`, and none at all for `Walk Around the Corner` - but no published figure uses
+// them). They stay on the list because the list is the vocabulary change, not a list of what happens to be
+// on the page today.
+const REMOVED_FROM_MAINSTREAM = ['Circle to a Line', 'Do Paso', 'Eight Chain Thru', 'See Saw', 'Walk Around the Corner'];
 const OUT_OF_SCOPE = new Map([
   ['figm9', 'Eight Chain Thru'],
+  ['figm17', 'Circle to a Line'],
+  ['figm18', 'Circle to a Line'],
+  ['figm86', 'Circle to a Line'],
   ['figm97', 'Eight Chain Thru'],
+  ['figm174', 'Circle to a Line'],
+  ['figm201', 'Circle to a Line'],
+  ['figm215', 'Circle to a Line'],
+  ['figm216', 'Circle to a Line'],
+  ['figm217', 'Circle to a Line'],
+  ['figm218', 'Circle to a Line'],
+  ['figm219', 'Circle to a Line'],
+  ['figm220', 'Circle to a Line'],
 ]);
 const all = loadAll8Figures();
 const excluded = all.figures.filter((f) => OUT_OF_SCOPE.has(f.id));
@@ -84,6 +103,24 @@ let failures = 0;
 const fail = (msg) => { console.log(`  FAIL  ${msg}`); failures++; };
 const ok = (msg) => console.log(`  ok    ${msg}`);
 const note = (msg) => console.log(`  note  ${msg}`);
+
+// THE EXCLUSION WATCHES ITSELF, in BOTH directions: a figure using a removed call that is not in the map
+// above would silently come back into scope (a page re-fetch, a new token), and a map entry naming a figure
+// that does not exist would silently under-report. Both are failed rather than left to the next reader.
+{
+  const stripDesignator = (name) => {
+    for (const p of ['All ', 'Heads ', 'Sides ', 'Centers ', 'Ends ', 'Outsiders ', 'Insides ', 'Boys ', 'Girls ', 'A ', 'B ', 'C ', 'E ', 'G ', 'H ', 'S ']) {
+      if (name.startsWith(p)) return name.slice(p.length);
+    }
+    return name;
+  };
+  const usesRemoved = (f) => f.calls.some((c) => c.names.some((n) => REMOVED_FROM_MAINSTREAM.includes(stripDesignator(n))));
+  const leaked = data.figures.filter(usesRemoved);
+  const phantom = [...OUT_OF_SCOPE.keys()].filter((id) => !all.figures.some((f) => f.id === id));
+  if (leaked.length) fail(`${leaked.length} in-scope figure(s) use a call CALLERLAB removed from Mainstream: ${leaked.map((f) => f.id).join(' ')} - add them to OUT_OF_SCOPE`);
+  else ok(`no in-scope figure uses any of the ${REMOVED_FROM_MAINSTREAM.length} calls CALLERLAB removed from Mainstream`);
+  if (phantom.length) fail(`OUT_OF_SCOPE names figure(s) the page does not carry: ${phantom.join(' ')}`);
+}
 
 console.log(`All8 Mainstream singing-call figures - ${data.source}`);
 console.log(`  ${data.attribution}`);

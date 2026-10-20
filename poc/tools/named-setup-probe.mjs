@@ -8,7 +8,7 @@
 //   1. THE START is `startsFromFormation` - INDEX FOR INDEX on positions, headings and genders - because a
 //      tam's paths are paired with a formation's dancers BY LIST POSITION.
 //   2. THE END is `endFormationName` - the same SPOTS as a SET, position and heading, gender not required,
-//      with a small facing margin - because the end is only "which named shape is this board?". Reported as:
+//      with a small error margin on both - because the end is only "which named shape is this board?". Reported as:
 //      "If I pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as 'unknown
 //      formation'. Is there a missing step." The step was this rule; the corpus witness for it is section 1.
 //   3. THE REPORTED CALL ITSELF, `Promenade Home` from a Right and Left Grand Static Square, selected by title
@@ -135,11 +135,14 @@ console.log('== 1. the end board is compared as a BOARD, with a measuring margin
   check(!engine.startsFromFormation(solo, one),
     'and NOT as its start formation - the two rules are asked different questions, and this dancer does not end where it began');
   check(engine.endsOnFormation(solo, one.map((p) => ({ ...p, x: p.x + 5e-4 }))),
-    "the exporter's own rounding (5e-4) is inside the POSITION tolerance, so a formation that has been through the corpus once still matches");
-  check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, x: p.x + 3e-3 }))),
-    'but 3e-3 is not: a shape that is merely CLOSE leaves the picker alone rather than naming the wrong setup');
+    "the exporter's own rounding (5e-4) is inside the POSITION margin, so a formation that has been through the corpus once still matches");
   const margin = engine.END_BOARD_TOL.heading;
-  console.log(`    the facing margin is ${fmt(margin)} rad (${fmt(margin * 180 / Math.PI)} deg); the positional tolerance is ${fmt(engine.END_BOARD_TOL.position)}`);
+  const posMargin = engine.END_BOARD_TOL.position;
+  console.log(`    the margins are ${fmt(posMargin)} units of position and ${fmt(margin)} rad (${fmt(margin * 180 / Math.PI)} deg) of facing`);
+  check(engine.endsOnFormation(solo, one.map((p) => ({ ...p, x: p.x + posMargin / 2 }))),
+    'positional drift of half the margin is still named: a path is a CHAIN of curves, so the end position drifts as well as the facing (reported as "Alamo Swing thru" from an "Alamo Wave")');
+  check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, x: p.x + posMargin * 2 }))),
+    'and twice it is not, so a dancer visibly off the spot leaves the picker alone rather than naming the wrong setup');
   check(engine.endsOnFormation(solo, one.map((p) => ({ ...p, heading: p.heading + margin / 2 }))),
     'a facing drift of half the margin still names the setup: a heading is the SUM of the rotation segments along the path, so an authored end board drifts even where its position does not');
   check(!engine.endsOnFormation(solo, one.map((p) => ({ ...p, heading: p.heading + margin * 2 }))),
@@ -172,7 +175,7 @@ console.log('== 1. the end board is compared as a BOARD, with a measuring margin
 }
 
 // ---------------------------------------------------------------- 2. the reported case, from the corpus
-console.log('\n== 2. the reported "Promenade Home" ends on a Squared Set ==');
+console.log('\n== 2. the reported calls: "Promenade Home" ends on a Squared Set, "Alamo Swing Thru" on an Alamo Wave ==');
 {
   // REPORTED AS: "If I pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as
   // 'unknown formation'. Is there a missing step." Selected BY TITLE AND FORMATION, never by index: the file
@@ -212,10 +215,40 @@ console.log('\n== 2. the reported "Promenade Home" ends on a Squared Set ==');
   }
   console.log(`    the Two-Faced Lines authoring stands on ${placed} of the square's 8 spots, facing up to ${fmt(worstFacing)} rad (${fmt(worstFacing * 180 / Math.PI)} deg) away`);
   check(placed === 8, 'it really does finish on the square, spot for spot, so the drift below is a FACING drift and not a different board');
-  check(worstFacing > engine.END_BOARD_TOL.position, 'and that facing drift is outside the XML\'s positional tolerance, so a facing margin is needed on top of the set rule');
+  check(worstFacing > 1e-2, 'and that is 10 times the fineness of any rounding the exporter does, so a facing margin is needed on top of the set rule');
   check(worstFacing < engine.END_BOARD_TOL.heading, 'while it is INSIDE the margin the rule carries, which is the whole reason the margin is not the XML\'s 1e-3');
   check(engine.endFormationName(lines, formationsOfSize(8)) === 'Squared Set',
     'and that authoring is named a Squared Set too');
+
+  // AND THE POSITION MARGIN'S OWN REPORT: "Some calls are now matching correctly, but can you see why
+  // Call="Almo Swing thru":Setup="Alamo Wave" doesnt detect an "Alamo Wave" as the end formation?" Its end
+  // board is an Alamo Wave with 0.07 degrees of facing error - so the FACING margin alone could never have
+  // named it - and 0.0023 units of POSITION error, which the XML's own 1e-3 refused.
+  const alamo = engine.normalizeInstance(engine.loadCallFromXml(
+    asset('ms/swing_thru.xml'), movesXml, formationsXml, { title: 'Alamo Swing Thru', formation: 'Alamo Wave' }));
+  const alamoEnds = endPosesOf(alamo);
+  const wave = formationsOfSize(8).find((f) => f.name === 'Alamo Wave');
+  check(!!wave, 'the corpus still offers an "Alamo Wave" at eight dancers');
+  // The error is measured through the POSITIONAL correspondence, because measuring it index for index would
+  // report the order, which is a different question (and the one that used to be asked).
+  let worstSpot = 0, worstWaveFacing = 0, onSpot = 0;
+  for (const spot of wave.poses) {
+    let best = null;
+    for (const p of alamoEnds) {
+      const d = Math.hypot(p.x - spot.x, p.y - spot.y);
+      if (!best || d < best.d) best = { d, h: Math.abs(norm(p.heading - spot.heading)) };
+    }
+    if (!best) continue;
+    if (best.d <= engine.END_BOARD_TOL.position) onSpot++;
+    worstSpot = Math.max(worstSpot, best.d);
+    worstWaveFacing = Math.max(worstWaveFacing, best.h);
+  }
+  console.log(`    "Alamo Swing Thru" ends ${fmt(worstSpot)} units and ${fmt(worstWaveFacing * 180 / Math.PI)} degrees from an Alamo Wave`);
+  check(onSpot === 8, 'all eight dancers stand on the Alamo Wave\'s spots, so it is that board');
+  check(worstSpot > 1e-3, 'and standing 0.0023 units off is MORE than the XML\'s own rounding, which is why the position tolerance alone refused it');
+  check(worstSpot < engine.END_BOARD_TOL.position, 'while it is inside the margin the rule carries');
+  const alamoName = engine.endFormationName(alamo, formationsOfSize(8));
+  check(alamoName === 'Alamo Wave', `so it is NAMED "Alamo Wave" (got ${JSON.stringify(alamoName)})`);
 }
 
 // ---------------------------------------------------------------- 3. the panel uses it

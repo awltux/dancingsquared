@@ -2475,28 +2475,38 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
 /**
  * How far the END lookup lets a dancer be from a formation's spot, per axis of the question.
  *
- * POSITION is the XML's own tolerance, the one `startsFromFormation` uses: the exporter rounds to four
- * decimals, so a shape that has been through the corpus once comes back within about 1e-4.
+ * BOTH CARRY AN ERROR MARGIN, and both are measurements rather than preferences. A path is a CHAIN of
+ * Bezier segments whose rotation parts are exported to four decimals, so the error accumulates along the
+ * chain: the end POSITION drifts as well as the facing, and the 1e-3 that `startsFromFormation` uses - the
+ * XML's own rounding - is too tight for it. Reported as "can you see why Call='Almo Swing thru':
+ * Setup='Alamo Wave' doesnt detect an 'Alamo Wave' as the end formation?" That board stands 0.0023 units
+ * off the spot with 0.07 degrees of facing error, so only a positional margin could have named it.
  *
- * HEADING CARRIES A SMALL ERROR MARGIN, and it is a measurement rather than a preference: a heading is
- * the SUM of the rotation segments along the path, each exported to four decimals, so the facing drifts
- * even where the position does not. MEASURED over the catalogue's 5432 tams, the margin each end board
- * needs before some name fits it: 2780 need none beyond the XML's 1e-3, and the three `Promenade Home`
- * tams need 0.006, 1.56 and 2.0 DEGREES. 7.5e-2 rad is 4.3 degrees, which names 2829 of the 2831 that
- * any margin at all names - the two it leaves out are single-file promenades 8.1 and 10.4 degrees out,
- * which are not standing on a square.
+ * MEASURED over the catalogue's 5432 tams, the residuals these tolerances actually ADMIT: the worst
+ * position is 0.05 units (`As Couples Turn and Deal` from a Tidal Line RH ends on a Normal Lines Compact
+ * with two of its eight dancers 0.05 wide of it) and the worst facing is 3.8 degrees (`Circle Left 1/2
+ * Home` from Normal Lines ends on a Squared Set), against margins of 5e-2 units and 7.5e-2 rad. 2947 tams
+ * get an end name at these margins.
  *
- * AND IT CANNOT CONFUSE TWO BOARDS: a facing margin only matters between formations that stand on the
- * same spots, and MEASURED over `formations.xml` the two closest such boards differ by 89.5 degrees at
- * eight dancers (89.5 at four, 180 at twelve) - 21 times this margin. The pair that differ by nothing at
+ * AND NEITHER MARGIN CAN CONFUSE TWO BOARDS, which is the thing that would make a name WRONG rather than
+ * merely generous. MEASURED over `formations.xml`: the two closest spots of ONE named board are 0.9998
+ * units apart ("Promenade"), so with a 0.05 margin no dancer is within reach of two of them; and with an
+ * exact bottleneck assignment over every pair of different named boards at every size, the closest two
+ * boards are 0.5 UNITS apart (`Box LH` / `Box LH Compact`, `Adjacent Dancers` / `Adjacent Dancers
+ * Compact`), so a board would have to be within 0.25 of both to fit two names - five times this positional
+ * margin. On the facing side the closest two standings on the SAME spots are 89.5 DEGREES apart at eight
+ * dancers (89.5 at four, 180 at twelve), 21 times the facing margin. The pairs that differ by nothing at
  * all are arrangement variants of ONE board (`Normal Lines` / `Sashayed Lines`), which is what
  * `endFormationName` sorts out.
+ *
+ * SELECTING A NAME IS A RE-BASE, so a margin is also how far the end can be nudged by taking one: 5e-2
+ * units is under 1% of the square's own width, which is not something a caller can see on the floor.
  */
 export interface EndBoardTolerance {
   position: number;
   heading: number;
 }
-export const END_BOARD_TOL: EndBoardTolerance = { position: 1e-3, heading: 7.5e-2 };
+export const END_BOARD_TOL: EndBoardTolerance = { position: 5e-2, heading: 7.5e-2 };
 
 /**
  * The call's END board: the pose of every dancer at the call's own last beat.
@@ -2521,10 +2531,11 @@ function endBoard(call: CallBundle): FormDancer[] {
  */
 function endBoardGenderMisses(ends: FormDancer[], poses: FormDancer[], tol: EndBoardTolerance): number | null {
   if (ends.length !== poses.length) return null;
-  // GREEDY IS EXACT HERE: the spots of a named formation are a unit or more apart and the tolerance is a
-  // few hundredths, so no dancer is ever claimable by two spots. `used` is what stops one dancer answering
-  // for two spots and making a coincidence look like an arrangement - the duplicated-spot check in
-  // `editor.mjs` (20b) is the control for it.
+  // GREEDY IS EXACT HERE: the two closest spots of any named board are 0.9998 units apart (measured over
+  // `formations.xml`) and the margin is 0.05, so no dancer is ever claimable by two spots. Two DANCERS can
+  // coincide - a phantom call does - and then either answers for the spot, which is the same answer. `used`
+  // is what stops one dancer answering for TWO spots and making a coincidence look like an arrangement: the
+  // duplicated-spot check in `editor.mjs` (20b) is the control for it.
   const used = new Array(ends.length).fill(false);
   let misses = 0;
   for (const spot of poses) {
@@ -2569,9 +2580,9 @@ export function endsOnFormation(call: CallBundle, poses: FormDancer[], tol: EndB
  * genders agree at the most spots, or `null` when the board has no name.
  *
  * MORE THAN ONE NAME CAN FIT, because the corpus carries arrangement variants of a single board - the
- * same spots and facings with the boys and girls swapped. MEASURED over the catalogue's 5432 tams: 2829
- * end boards carry a name at `END_BOARD_TOL`, 1092 of them fit more than one, and genders settle 901 of
- * those uniquely. The remaining 191 fit two arrangement variants equally badly (an "Any Hand" call whose
+ * same spots and facings with the boys and girls swapped. MEASURED over the catalogue's 5432 tams: 2947
+ * end boards carry a name at `END_BOARD_TOL`, 1134 of them fit more than one, and genders settle 962 of
+ * those uniquely. The remaining 172 fit two arrangement variants equally badly (an "Any Hand" call whose
  * end board is neither arrangement), and a tie falls to the ORDER OF `formations`, which the editor passes
  * name-sorted - measured on `a1/any_hand_concept.xml`, whose end fits `Normal Lines` and `Sashayed Lines`
  * with four disagreements each and is shown as `Normal Lines`.

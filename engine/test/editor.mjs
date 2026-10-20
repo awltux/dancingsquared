@@ -1317,9 +1317,9 @@ console.log('\n== a created call can name its start formation (20) ==');
 // REFERENCE, and a tam's paths are paired with a formation's dancers by list position.
 //
 // SO THE END RULE IS: the same set of spots, position and heading, with the XML's own positional tolerance
-// and a small error margin on the facing (`END_BOARD_TOL` carries the measurement), and GENDER NOT REQUIRED
+// and a small error margin on BOTH axes (`END_BOARD_TOL` carries the measurement), and GENDER NOT REQUIRED
 // - `endFormationName` prefers the arrangement that agrees, and only falls back when none does. MEASURED
-// over the catalogue's 5432 tams: this names 2829 end boards where index for index named 132. The checks
+// over the catalogue's 5432 tams: this names 2947 end boards where index for index named 132. The checks
 // below that a revert to the index rule would turn red are the ORDER and GENDER ones, and they pull in the
 // opposite direction from `startsFromFormation` a few lines up - which refuses both.
 console.log('\n== the end pose names its formation as a BOARD (20b) ==');
@@ -1336,8 +1336,15 @@ console.log('\n== the end pose names its formation as a BOARD (20b) ==');
   check(endsOnFormation(cut, end), "the call's own end poses are recognised as its end formation");
   check(!startsFromFormation(cut, end), "and NOT as its start formation: the end is read at the call's own length, not at beat 0");
   check(endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 5e-4 }))), "the exporter's own rounding (5e-4) is inside the POSITION tolerance, so a formation that has been through the corpus once still matches");
-  check(!endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + 3e-3 }))), 'a shape that is merely CLOSE is refused, so the picker stays on "keep the current" rather than naming the wrong setup. The error margin is on the FACING, not on where a dancer stands');
+  // BOTH AXES CARRY A MARGIN, and both are bounded: a path is a chain of curves whose error accumulates,
+  // so the end POSITION drifts as well as the facing - reported as "Call='Alamo Swing thru':Setup='Alamo
+  // Wave' doesnt detect an 'Alamo Wave'", whose end board stands 0.0023 units off the spot.
+  const positionMargin = END_BOARD_TOL.position;
   const headingMargin = END_BOARD_TOL.heading;
+  check(endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + positionMargin / 2 }))),
+    `while ${(positionMargin / 2).toFixed(3)} units of positional drift is INSIDE the margin, so a board that has accumulated rounding along its curves is still named`);
+  check(!endsOnFormation(cut, end.map((p) => ({ ...p, x: p.x + positionMargin * 2 }))),
+    'and twice the position margin is out: a dancer visibly off the spot must not be named onto it');
   check(endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, heading: p.heading + headingMargin / 2 } : p))),
     `while ${(headingMargin / 2).toFixed(3)} rad of facing drift is INSIDE the margin: a heading is the sum of the rotation segments along the path, so an authored end board drifts even where its position does not`);
   check(!endsOnFormation(cut, end.map((p, i) => (i === 0 ? { ...p, heading: p.heading + headingMargin * 2 } : p))),

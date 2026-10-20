@@ -631,6 +631,13 @@
     <dancer gender="girl" x="-1" y="2.414" angle="112.5"/>
   </formation>
 
+  <formation name="Alamo Wave Inverted">
+    <dancer gender="boy" x="-2.414" y="1" angle="157.5178" />
+    <dancer gender="girl" x="-2.414" y="-1" angle="22.4822" />
+    <dancer gender="boy" x="-1" y="-2.414" angle="-112.4822" />
+    <dancer gender="girl" x="1" y="-2.414" angle="112.4822" />
+  </formation>
+
   <formation name="Two-Faced Lines">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>

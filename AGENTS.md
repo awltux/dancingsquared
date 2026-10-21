@@ -101,7 +101,9 @@ Rules that go with the table:
 
 - **Rebuild the engine when its source changes.** `poc/verify.cjs` and every POC probe run against
   `engine/dist`, so a stale `dist` silently tests the old engine.
-- **Never rebuild `dist` while a suite is running.**
+- **Never rebuild `dist` while a suite is running**, and do not run a probe against a tree whose `dist` is
+  being written: a probe importing `engine/dist` mid-`tsc` fails with `does not provide an export named
+  '<name>'`, which reads as an engine that lost an export rather than as a build in flight (§8 trap 32).
 - **Tiers are subsets, not weaker checks.** `light` and the probe suite's default tier both print what they
   skipped; a green fast run is not a green full run. `verify:figures` is a **red target suite by design** —
   the finish line, not a gate. Never "fix" a red gate by weakening it; if a gate pins a defect, read the
@@ -482,6 +484,14 @@ with its measurement, in the same commit that found it.
     bytes, or skip the tee and let the suite's own stdout carry it (`Select-String` on the console is fine). **An agent that
     pipes a long run through a shell writer must check that the artefact it inspects is text the next reader can parse** —
     "the summary said zero" is a claim about the log's ENCODING until that is ruled out (§4.1).
+32. **A PROBE THAT RUNS WHILE `tsc` IS REWRITING `engine/dist` FAILS AS A MISSING EXPORT, not as a build in
+    flight.** MEASURED: `node poc/tools/<probe>-probe.mjs` started alongside `npm run verify:light --prefix
+    engine` died with `does not provide an export named 'buildCall'` — the engine's own entry point, from a
+    tree whose source was untouched — because `dist` was half-written at that instant. It reads as "someone
+    deleted an export" and sends you into the engine's source for nothing. §3 already forbids rebuilding
+    `dist` while a suite is running; the other half of the rule is that nothing else may READ it either.
+    Wait for the gate's own process to exit (its background job's status), or rebuild and re-run your probe
+    before believing the error.
 
 ---
 

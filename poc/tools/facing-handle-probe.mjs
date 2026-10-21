@@ -17,17 +17,15 @@
 //      the tile already mirrors the format), so a gizmo that makes "the facing controls" draggable
 //      has to expose all five.
 //
-// RED ON PURPOSE IN PART, AND THE OWNER HAS RULED ON THE HARD HALF: the check that a no-op handle touch
-// exports BYTE-IDENTICALLY has never held and is not a corpus staleness. `requireDancer`
-// (`engine/src/editor.ts`) calls `normalizeInstance` whenever any dancer carries `mirror`, so ANY touch
-// rewrites the two mirrored dancers' start pose from `angle="270"` to `angle="-90"` - the SAME angle, on
-// lines that have nothing to do with the move that was edited (MEASURED: 2 of 64 exported lines differ,
-// witness `ms/alamo_style.xml` d0 m3, and the edited move's own numbers are untouched). PLAN.md:3213,
-// `poc/README.md:719` and `square-dancing.md:1724` all claim the whole export is byte-identical, which is
-// what this check was written from. Fixing it is an ENGINE change to the shared entry point for every
-// instance edit, gated by `engine/test/editor.mjs` 257-271 / 342-347 / 500, so the owner chose to LEAVE IT
-// FOR NOW: the red stands as a recorded decision, and the docs above are known to overstate. Do not narrow
-// the check without also correcting those three.
+// THE BYTE-IDENTITY CHECK USED TO BE RED, AND IT IS NOW THE FIX. A no-op handle touch must export
+// BYTE-IDENTICALLY, and it did not: `requireDancer` (`engine/src/editor.ts`) calls `normalizeInstance`
+// whenever any dancer carries `mirror`, so ANY touch re-derived the mirrored dancers' start pose and
+// rewrote `angle="270"` as `angle="-90"` - the SAME facing, on lines that have nothing to do with the move
+// that was edited (MEASURED then: 2 of 64 exported lines differed, witness `ms/alamo_style.xml` d0 m3).
+// The repair is `rfAngle` in the exporter, which writes every dancer angle canonical in [0, 360): the
+// spelling is a function of the geometry rather than of which code path built the bundle. Reverting it
+// turns this check red again, and `engine/test/editor.mjs`'s half-set sweep (486 calls, 481 of them
+// touched) turns red with it, so the rule is gated where it lives as well as here.
 //
 // Run: node tools/facing-handle-probe.mjs   (from poc/)
 import fs from 'node:fs';
@@ -289,6 +287,17 @@ console.log(`\n== 6. a drag of each of the three points ==`);
     // 0.001 is the tolerance `engine/test/editor.mjs` pins for the same round trip.
     check(worst < 0.001, `${which}: the edit survives export + re-parse (worst ${worst.toFixed(6)} < 0.001)`);
   }
+
+  // THE CONTROL, so the check below is not measuring the identity: the witness has to be one a touch
+  // actually re-derives. `requireDancer` normalises a bundle carrying a `mirror` dancer through
+  // `normalizeInstance`, which takes each start heading from `poseFor` - so the population the check can
+  // fail on is exactly the calls whose normalised angle is not already in [0, 360). Measured here rather
+  // than assumed: if the corpus ever stops supplying that spelling, this goes red instead of the check
+  // below passing for the wrong reason (§11.2.2).
+  const norm = engine.normalizeInstance(base);
+  const otherSpelling = norm.dancers.filter((x) => x.angleDeg < 0 || x.angleDeg >= 360).length;
+  check(otherSpelling > 0,
+    `the witness supplies the second spelling: a touch re-derives ${otherSpelling} of its ${norm.dancers.length} start angles outside [0, 360), which is the case the exporter's canonical angle exists for`);
 
   // A drag that ends where it started must leave the XML BYTE-IDENTICAL, or every touch of a handle
   // would dirty a call that was not changed.

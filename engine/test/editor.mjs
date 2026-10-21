@@ -2679,6 +2679,75 @@ console.log('\n== 31. copying a whole trace between two dancers ==');
   check(JSON.stringify(back.dancers[donor].path) === JSON.stringify(back.dancers[target].path),
     'and the two traces are still identical after an export and a re-read, which is what a copy the format cannot carry would break');
 }
+{
+  // A TOUCH IS NOT AN EDIT, ON EVERY HALF-SET CALL IN THE CORPUS - which is what `rfAngle` is for.
+  //
+  // A facing has two spellings and a geometry has one. `requireDancer` normalises a bundle that carries a
+  // MIRRORED dancer on ANY touch, and `normalizeInstance` re-derives each dancer's start heading from
+  // `poseFor`, so the exported angle used to change from the authored spelling to the derived one on lines
+  // with nothing to do with the edit: MEASURED before the fix, witness `ms/alamo_style.xml` dancer 0 move 3
+  // exported `angle="270"` as `angle="-90"` - the same facing - and 2 of the 64 exported lines differed.
+  // `poc/tools/facing-handle-probe.mjs` is the check that caught it; this is the ENGINE-side sweep, because
+  // the rule lives in `callToXml` and one witness is not the population.
+  const LEVELS = ['ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+  let halfSetCalls = 0;
+  let touched = 0;
+  let outOfRange = 0;
+  let anglesWritten = 0;
+  let outOfRangeWritten = 0;
+  const differs = [];
+  let witness = '';
+  for (const lv of LEVELS) {
+    const dir = path.join(__dirname, '../../assets', lv);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.xml')) continue;
+      const xml = read(`../../assets/${lv}/${f}`);
+      // The same gate the POC uses: a file whose tams carry no inline setup is not a call this can load.
+      if (callMeta(xml).setups.length === 0) continue;
+      let call;
+      try { call = loadCallFromXml(xml, movesXml, formationsXml, 0); } catch { continue; }
+      if (!call.dancers.some((d) => d.mirror)) continue;
+      halfSetCalls++;
+      const seg = call.dancers[0].path[0];
+      if (!seg) continue;
+      touched++;
+      // The POPULATION the spelling can differ on: the normalised angles that are not already in [0, 360),
+      // i.e. the ones the raw export would have written negatively. Counted so the sweep cannot pass by
+      // measuring a corpus where no two spellings exist - the `0 of 0` failure §11.2.2 describes.
+      for (const d of normalizeInstance(call).dancers) {
+        if (d.angleDeg < 0 || d.angleDeg >= 360) {
+          outOfRange++;
+          if (!witness) witness = `${lv}/${f}`;
+        }
+      }
+      const same = setMove(call, 0, 0, { ...seg });
+      const a = callToXml(call, call.from);
+      const b = callToXml(same, same.from);
+      if (a !== b) differs.push(`${lv}/${f}`);
+      // The rule itself, stated where it can be read: every angle the exporter writes is in [0, 360). The
+      // byte-identity above is the CONSUMER of it; this is the property a reader of the file relies on.
+      for (const m of a.matchAll(/<dancer\b[^>]*\bangle="([-0-9.]+)"/g)) {
+        const v = Number(m[1]);
+        anglesWritten++;
+        if (!(v >= 0 && v < 360)) outOfRangeWritten++;
+      }
+      for (const m of b.matchAll(/<dancer\b[^>]*\bangle="([-0-9.]+)"/g)) {
+        const v = Number(m[1]);
+        anglesWritten++;
+        if (!(v >= 0 && v < 360)) outOfRangeWritten++;
+      }
+    }
+  }
+  check(halfSetCalls > 0 && touched > 0,
+    `the sweep has a population: ${halfSetCalls} of the corpus's calls carry a MIRRORED dancer, ${touched} touched at dancer 0's first move`);
+  check(outOfRange > 0,
+    `and the two spellings are both in play: ${outOfRange} of the normalised start angles are outside [0, 360), so an uncorrected export writes them in the other spelling (first in ${witness || 'NO FILE'})`);
+  check(outOfRangeWritten === 0 && anglesWritten > 0,
+    `every angle the exporter writes is canonical: ${outOfRangeWritten} of ${anglesWritten} dancer angles are outside [0, 360)`);
+  check(differs.length === 0,
+    `a no-op edit exports BYTE-IDENTICALLY on every one of those calls (${differs.length} of ${touched} differ${differs.length ? `: ${differs.slice(0, 5).join(', ')}` : ''})`);
+}
 
 console.log('\n=================');
 if (failures === 0) console.log('EDITOR TEST PASSED');

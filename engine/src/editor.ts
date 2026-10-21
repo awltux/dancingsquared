@@ -2402,7 +2402,7 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
       const x = d.mirror ? -d.x : d.x;
       const y = d.mirror ? -d.y : d.y;
       const a = d.mirror ? d.angleDeg + 180 : d.angleDeg;
-      return `        <dancer gender="${d.gender}" x="${rf(x)}" y="${rf(y)}" angle="${rf(a)}"/>`;
+      return `        <dancer gender="${d.gender}" x="${rf(x)}" y="${rf(y)}" angle="${rfAngle(a)}"/>`;
     })
     .join('\n');
   const paths = written
@@ -2664,4 +2664,27 @@ function bezRotAttr(b: BezierData): string {
  */
 function rf(n: number): string {
   return (Math.round(n * 1e4) / 1e4).toString();
+}
+/** The angle a dancer is WRITTEN with, canonical in `[0, 360)`.
+ *
+ * A FACING HAS TWO SPELLINGS AND A GEOMETRY HAS ONE, so the exported text must not depend on which code
+ * path built the bundle. `angleDeg` is authored, or derived from a pose, and the two disagree; MEASURED
+ * (witness `ms/alamo_style.xml`, dancer 0, move 3): `requireDancer` normalises a half-set bundle through
+ * `normalizeInstance`, which re-derives each mirrored dancer's start heading from `poseFor` - so a no-op
+ * edit exported `angle="270"` as `angle="-90"`, the SAME facing, on two lines that have nothing to do
+ * with the move that was edited. Two of the 64 exported lines differed and the file was dirtied by a
+ * handle being dropped back where it started (`poc/tools/facing-handle-probe.mjs`).
+ *
+ * The obvious fix - stop `normalizeInstance` re-deriving the angle - is rejected: it is the one function
+ * that rewrites a bundle in full-set coordinates, its output is pinned to one ulp by `editor.mjs`, and a
+ * mirrored dancer's `angleDeg` is its BASE angle, which is not the full-set facing at all. Canonicalising
+ * the WRITTEN value fixes every path at once, including the 15 negative angles the corpus authors
+ * (`angle="-90"` and friends): those re-save as their positive equivalents, same facing, and the
+ * round trip's heading agreement is unchanged because it is measured through `poseFor`, not through text.
+ */
+function rfAngle(deg: number): string {
+  const wrapped = ((deg % 360) + 360) % 360;
+  // 359.9999999999999 is 360 to within the export's own precision, and writing `360` would be out of
+  // range for a reader that expects a half-open interval.
+  return rf(wrapped >= 360 - 5e-5 ? 0 : wrapped);
 }

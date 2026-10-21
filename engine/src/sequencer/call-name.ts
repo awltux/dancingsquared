@@ -142,12 +142,14 @@ function readOne(raw: string, tried: string[]): { title: CallTitle | null; how: 
   }
 
   // THE TRAILING MODIFIER, tried here because it is a spelling of ONE name rather than a second call. See
-  // `MODIFIERS` for the table and the oracle behind each entry.
+  // `MODIFIERS` for the table, the oracle behind each entry, and why the `to home` entry offers TWO candidates.
   const modified = stripTrailingModifier(raw);
   if (modified) {
-    tried.push(`modifier ${JSON.stringify(modified.modifier)} -> ${JSON.stringify(modified.rewritten)}`);
-    const hit = TITLE_BY_FOLDED.get(fold(modified.rewritten));
-    if (hit) return { title: hit, how: 'modifier' };
+    for (const candidate of modified.candidates) {
+      tried.push(`modifier ${JSON.stringify(modified.modifier)} -> ${JSON.stringify(candidate)}`);
+      const hit = TITLE_BY_FOLDED.get(fold(candidate));
+      if (hit) return { title: hit, how: 'modifier' };
+    }
   }
   return { title: null, how: 'none' };
 }
@@ -170,26 +172,32 @@ function readOne(raw: string, tried: string[]): { title: CallTitle | null; how: 
  * `rewrite` returns the whole candidate string, so a modifier can append, substitute or delete. The longest
  * matching phrase wins, so "don't stop, don't slow down" is not read as "don't stop".
  */
-const MODIFIERS: readonly { phrase: string; rewrite: (stem: string) => string }[] = [
-  { phrase: "don't stop, don't slow down", rewrite: (s) => `${s} - keep walking` },
-  { phrase: 'keep walking', rewrite: (s) => `${s} - keep walking` },
-  { phrase: "don't stop", rewrite: (s) => `${s} - keep walking` },
-  { phrase: "don't slow down", rewrite: (s) => `${s} - keep walking` },
-  { phrase: 'to home', rewrite: (s) => `${s} home` },
-  { phrase: 'halfway', rewrite: (s) => `${s} 1/2` },
-  { phrase: 'half', rewrite: (s) => `${s} 1/2` },
-  { phrase: '4/4', rewrite: (s) => s },
-  { phrase: 'full', rewrite: (s) => s },
+const MODIFIERS: readonly { phrase: string; candidates: (stem: string) => string[] }[] = [
+  { phrase: "don't stop, don't slow down", candidates: (s) => [`${s} - keep walking`] },
+  { phrase: 'keep walking', candidates: (s) => [`${s} - keep walking`] },
+  { phrase: "don't stop", candidates: (s) => [`${s} - keep walking`] },
+  { phrase: "don't slow down", candidates: (s) => [`${s} - keep walking`] },
+  // TWO SPELLINGS, because the two families mark the home ending DIFFERENTLY and both are measured in the corpus:
+  // the circle family suffixes ` Home` in the TITLE (`Circle Left Home`), while the promenade family's home-ending
+  // tam is the BARE fraction (`Promenade 3/4` — the retitle in `e02b434`). Offering only `<stem> home` read
+  // `Sides Promenade 3/4 to Home` as `Promenade 3/4 home`, a title nothing authors, and refused it: MEASURED as
+  // five failures in `step-forward.mjs` sections 8 and 9. So the modifier offers BOTH candidates and lets the
+  // title step decide, which is the rule the rest of this module follows.
+  { phrase: 'to home', candidates: (s) => [`${s} home`, s] },
+  { phrase: 'halfway', candidates: (s) => [`${s} 1/2`] },
+  { phrase: 'half', candidates: (s) => [`${s} 1/2`] },
+  { phrase: '4/4', candidates: (s) => [s] },
+  { phrase: 'full', candidates: (s) => [s] },
 ];
 
 /**
- * A trailing modifier and the candidate it rewrites to, or null.
+ * A trailing modifier and the candidates it rewrites to, or null.
  *
  * IT ALSO UNWRAPS PARENTHESES, because "Promenade (Keep Walking)" is how the same modifier is written when it is
  * an aside: the bracketed tail is removed and offered as the modifier, so the phrase table above can answer for
  * it instead of a second table for brackets.
  */
-function stripTrailingModifier(raw: string): { modifier: string; rewritten: string } | null {
+function stripTrailingModifier(raw: string): { modifier: string; candidates: string[] } | null {
   const text = raw.trim().replace(/\s+/g, ' ');
   // A bracketed tail, e.g. "Promenade (Keep Walking)". `[^()]*` keeps it to one level, which is all the corpus
   // and the oracle use; a nested aside is refused rather than mis-split.
@@ -198,8 +206,8 @@ function stripTrailingModifier(raw: string): { modifier: string; rewritten: stri
     const inside = bracketed[2].trim();
     const stem = bracketed[1].trim();
     const known = MODIFIERS.find((m) => fold(m.phrase) === fold(inside));
-    if (known && stem) return { modifier: inside, rewritten: known.rewrite(stem) };
-    return { modifier: inside, rewritten: `${stem} ${inside}` };
+    if (known && stem) return { modifier: inside, candidates: known.candidates(stem) };
+    return { modifier: inside, candidates: [`${stem} ${inside}`] };
   }
   // A comma-separated or space-separated tail, LONGEST PHRASE FIRST.
   for (const mod of [...MODIFIERS].sort((a, b) => b.phrase.length - a.phrase.length)) {
@@ -207,7 +215,7 @@ function stripTrailingModifier(raw: string): { modifier: string; rewritten: stri
       const tail = `${sep}${mod.phrase}`;
       if (fold(text).endsWith(fold(tail))) {
         const stem = text.slice(0, text.length - tail.length).trim();
-        if (stem) return { modifier: mod.phrase, rewritten: mod.rewrite(stem) };
+        if (stem) return { modifier: mod.phrase, candidates: mod.candidates(stem) };
       }
     }
   }

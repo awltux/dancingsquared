@@ -57,6 +57,12 @@ const cases = [
   ['Heads Dosado', 'Dosado', 'Heads', 'selection'],
   ['Heads Promenade to Home', 'Promenade', 'Heads', 'selection'], // selection AND the alias, in one string
   ['Circle Left to Home', 'Circle Left Home', null, 'modifier'], // the circle family's ` Home` title suffix
+  // ...AND THE OTHER SPELLING OF THE SAME MODIFIER. The promenade family's home-ending tam is the BARE fraction
+  // (`e02b434`), so `to Home` there resolves to the STEM, not to `<stem> home`: MEASURED before the table offered
+  // both candidates, `Sides Promenade 3/4 to Home` was read as `Promenade 3/4 home`, a title nothing authors, and
+  // refused — five failures in `step-forward.mjs` sections 8 and 9.
+  ['Promenade 3/4 to Home', 'Promenade 3/4', null, 'modifier'],
+  ['Promenade 1/2 to Home', 'Promenade 1/2', null, 'modifier'],
   ['Promenade Keep Walking', 'Promenade - Keep Walking', null, 'modifier'], // the promenade family's
   // THE MODIFIER TABLE, one case per phrase: CALLERLAB spells these four ways and the corpus spells each one
   // once. `don't stop, don't slow down` is the longest phrase and must not be read as `don't stop`.

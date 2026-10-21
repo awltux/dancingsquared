@@ -1,14 +1,14 @@
 // HOW A CALL GOES: the derived label, and that a body the RULES refuse is never a candidate.
 //
 // WHY THIS IS A GATE. `Lead Right - Close`, `- Normal` and `- Far` start from an IDENTICAL setup (measured: two dancers at
-// (+-1, 0), heading 90deg, every one of them), so nothing about a board selects between them â€” they differ only in the
+// (+-1, 0), heading 90deg, every one of them), so nothing about a board selects between them — they differ only in the
 // motion. That makes the label the ONLY thing a rule can key on, and it means the failure mode is silent: with the tams
 // pooled under one title, the body that runs is whichever sits first in the document, and MEASURED, reversing that order
 // changes the winning body (trailing path 2.000 -> 4.123) and lands FOUR pairs of dancers on shared spots.
 //
 // So this pins three things: the label's derivation (and its control, `Circle Left - Stop at Home`), that the shipped
 // corpus derives it for exactly the authorings that declare it, and that a `going`-keyed rule REMOVES a body from the
-// candidate set â€” including the all-refused case, which must refuse with the rule's own sentence rather than the
+// candidate set — including the all-refused case, which must refuse with the rule's own sentence rather than the
 // geometric "No setup in this call matches".
 //
 // Usage: node engine/test/going.mjs   (engine must be built)
@@ -59,7 +59,7 @@ for (const t of FAMILY) seq.registerByTitle(t, read('ms/lead_right.xml'));
   console.log(`       ${FAMILY.length} titles, ${total} variant(s), ${withGoing} carrying a going`);
   check(total > 0, 'the family registered');
   check(mismatched === 0, `every variant's going is its title's (${mismatched} disagreed)`);
-  check(seq.matchableVariants('Lead Right').every((v) => v.going === null), 'the plain `Lead Right` carries none â€” nothing declares one');
+  check(seq.matchableVariants('Lead Right').every((v) => v.going === null), 'the plain `Lead Right` carries none — nothing declares one');
   check(seq.matchableVariants('Lead Right - Far').every((v) => v.going === 'far'), 'and every `- Far` variant carries `far`');
 }
 
@@ -75,13 +75,13 @@ console.log('\n== 3. a body the rules REFUSE is not a candidate ==');
   s.setPermissionMode('consistent');
 
   // A 2-DANCER BOARD, because these authorings are written for one: measured, NO sibling title has a whole-board fit on
-  // any 8-dancer formation â€” they apply by tiling â€” so a squared set would make every `findMatchingVariant` check here
+  // any 8-dancer formation — they apply by tiling — so a squared set would make every `findMatchingVariant` check here
   // pass for the wrong reason (null already).
   const pair = { dancers: FORMATIONS.get('Adjacent Dancers Close').map((d, i) => ({ id: i + 1, couple: 1, gender: d.gender, x: d.x, y: d.y, heading: d.angleDeg * DEG })) };
   check(pair.dancers.length === 2, 'the witness board is the two dancers these authorings are written for');
 
   // THE SHIPPED RULES ALREADY DENY THESE TITLES' whole-board reading (`START A WHITE LIST FOR LEAD RIGHT`), so the
-  // harness first RE-ALLOWS the two authorings it talks about â€” a later rule at the same level wins â€” and then the only
+  // harness first RE-ALLOWS the two authorings it talks about — a later rule at the same level wins — and then the only
   // question left is which BODY is admitted.
   const allowBoth = [
     { call: [far], level: 'ms', decision: 'allow', reason: 'allowed for this harness' },
@@ -90,10 +90,10 @@ console.log('\n== 3. a body the rules REFUSE is not a candidate ==');
   s.setPermissionRules(allowBoth);
 
   // NEGATIVE CONTROL: with no body rule, the body matches and applies.
-  check(s.findMatchingVariant(pair, far, 1.5) !== null, 'with no body rule the body matches â€” the control');
+  check(s.findMatchingVariant(pair, far, 1.5) !== null, 'with no body rule the body matches — the control');
   check(s.applyToBoard(pair, far).legal, 'and applies');
 
-  // A RULE ON THE BODY removes it from the candidate setâ€¦
+  // A RULE ON THE BODY removes it from the candidate set…
   s.setPermissionRules([...allowBoth, { call: [far], going: 'far', level: 'ms', decision: 'deny', reason: 'no far lead at ms' }]);
   check(s.findMatchingVariant(pair, far, 1.5) === null, 'a `going`-keyed rule removes the body from the candidate set');
   const refused = s.applyToBoard(pair, far);
@@ -101,12 +101,12 @@ console.log('\n== 3. a body the rules REFUSE is not a candidate ==');
   check((refused.reason ?? '').includes('no far lead at ms'), `with the RULE's sentence ("${refused.reason}")`);
   check(!/No setup in this call matches/.test(refused.reason ?? ''), 'not the geometric "No setup" message, which would hide that a rule said no');
 
-  // â€¦AND A BODY-LESS ASK IS NOT DECIDED BY IT. At the reading boundary `going` is null, so the same rule does not refuse
-  // the reading â€” which is exactly why a body rule and a reading rule are different instruments.
+  // …AND A BODY-LESS ASK IS NOT DECIDED BY IT. At the reading boundary `going` is null, so the same rule does not refuse
+  // the reading — which is exactly why a body rule and a reading rule are different instruments.
   check(s.mayOffer(far, null, pair).allowed === true, 'while the READING is still allowed: a body-keyed rule cannot decide a body-less ask');
 
-  // â€¦AND IT DOES NOT LEAK TO ANOTHER BODY.
-  check(s.applyToBoard(pair, 'Lead Right - Normal').legal, 'and the `normal` authoring still applies â€” the rule is about a BODY');
+  // …AND IT DOES NOT LEAK TO ANOTHER BODY.
+  check(s.applyToBoard(pair, 'Lead Right - Normal').legal, 'and the `normal` authoring still applies — the rule is about a BODY');
   check(s.findMatchingVariant(pair, 'Lead Right - Normal', 1.5) !== null, 'its body is still a candidate');
   s.setPermissionRules([]);
 }

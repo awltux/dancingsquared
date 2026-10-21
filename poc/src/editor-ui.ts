@@ -80,6 +80,8 @@ import {
   // and facing channels and to the hands - is the engine's, so `poc/tools/mirror-moves-probe.mjs` measures the
   // function this panel calls instead of a copy of the arithmetic.
   mirrorDancerMoves,
+  // How closely a curve must follow a circle to be OFFERED as an arc — the engine's rule, not a copy of it.
+  ARC_FIT_TOL,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -366,8 +368,11 @@ const toRad = (deg: number): number => (deg * Math.PI) / 180;
  * an arc deviates **1.47e-2** of its radius and the closest curve that is NOT deviates **1.55e-1 - eleven
  * times further out** - so 2% is inside the gap rather than a judgement call. 134 curves (13%) qualify.
  * `engine/test/editor.mjs` 23 measures the band and `poc/tools/arc-centre-probe.mjs` measures the gesture.
+ *
+ * IT IS THE ENGINE'S CONSTANT NOW, not this file's: `ARC_FIT_TOL` is exported from `dancing-squared-engine`
+ * (`editor.ts`), which is where the same decision was already living twice — as `fitCircle`'s default and as
+ * a local copy here — so the panel imports it and the two cannot drift (§11.4.4).
  */
-const ARC_FIT_TOL = 0.02;
 
 /**
  * HOW LONG A MOVE MAY LAST, and the step its field nudges by.

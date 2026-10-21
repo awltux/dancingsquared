@@ -195,7 +195,26 @@ console.log('\n== 3. The other version of the absorb cannot do anything (see `po
 // ---------------------------------------------------------------- 4. the wiring
 console.log('\n== 4. The panel offers the centre only for an arc, in end mode, and drags it by the engine rule ==');
 const src = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
-check(/const ARC_FIT_TOL = 0\.02;/.test(src), 'the panel has ONE tolerance for "closely an arc", inside the corpus\'s empty band (engine/test/editor.mjs 23)');
+// THE TOLERANCE MOVED INTO THE ENGINE, so this check follows it rather than being deleted. It used to read
+// `const ARC_FIT_TOL = 0.02;` out of the panel, which meant "the panel keeps one copy" — and the ENGINE kept
+// another, as `fitCircle`'s default, with nothing comparing them. The rule is now ONE constant in
+// `engine/src/editor.ts`, imported by the panel and by `fitCircle`/`fitCircleRun`, so the wiring check asks
+// three things: the engine declares it exactly once, the panel imports it, and the panel declares none of its
+// own. A re-added local copy fails the third line, which is the failure the old check could not see.
+const engineSrc = fs.readFileSync(path.join(POC_DIR, '..', 'engine', 'src', 'editor.ts'), 'utf8');
+// `\r?$` and not `$`: this checkout is CRLF, and `$` in a multiline regex matches before `\n` only, so the
+// first version of this check was red on a line that was exactly right (§8 trap 2, in a new place).
+//
+// THE COUNT IS OF DECLARATIONS, not of the text `ARC_FIT_TOL = 0.02`: a comment discussing the number is not a
+// second copy of it, and counting occurrences would have failed on the docstring above the constant.
+check(
+  /^export const ARC_FIT_TOL = 0\.02;\r?$/m.test(engineSrc) &&
+    (engineSrc.match(/^(?:export )?const ARC_FIT_TOL\b/gm) ?? []).length === 1,
+  'the engine DECLARES the "closely an arc" tolerance once, and only once',
+);
+check(/\bARC_FIT_TOL,/.test(src) && /from 'dancing-squared-engine';/.test(src),
+  'and the panel imports that constant rather than restating it');
+check(!/ARC_FIT_TOL = 0\.02/.test(src), 'so the panel declares no copy of its own — the drift this check exists to catch');
 check(/if \(this\.handleMode === 'end'\) \{[\s\S]*?fitCircle\(t, ARC_FIT_TOL\)[\s\S]*?id: `d\$\{d\}:cc`/.test(src),
   'the centre handle is drawn in END mode only, and only when the fit says the curve is an arc');
 check(/if \(which === 'cc'\) \{[\s\S]*?this\.coordinatesAgree\('travel'\)[\s\S]*?swingArcAboutStart\(next, dd, this\.moveIndex, base\.theta\)/.test(src),

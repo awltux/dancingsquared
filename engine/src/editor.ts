@@ -351,6 +351,22 @@ export interface CircleFit {
 }
 
 /**
+ * HOW CLOSELY A CUBIC MUST FOLLOW A CIRCLE TO COUNT AS AN ARC — 2% of its own radius.
+ *
+ * IT IS ONE CONSTANT BECAUSE IT WAS THREE. The default here was a literal `0.02`, and `poc/src/editor-ui.ts`
+ * held `ARC_FIT_TOL = 0.02` for the panel's three call sites, and `engine/test/editor.mjs` compared the
+ * corpus's deviations against a third `0.02` printed as "2%". Three copies of one decision, none of them
+ * able to notice the others move — the shape §11.4.4 calls a defect even when all three agree.
+ *
+ * AND THE NUMBER IS A GAP RATHER THAN A GUESS, which is what makes it safe to be exact. MEASURED over the
+ * 234 ms curves that have a centre at all: the worst curve that IS an arc deviates 1.47e-2 of its radius and
+ * the closest curve that is not deviates 4.99e-2, so 0.02 sits in an empty band with a 3.4x margin and the
+ * threshold's exact value does not matter. `engine/test/editor.mjs` pins both sides of that band, so if the
+ * corpus ever fills it the gate says so instead of a curve being quietly reclassified.
+ */
+export const ARC_FIT_TOL = 0.02;
+
+/**
  * THE CIRCLE A CUBIC FOLLOWS, when it follows one - or null.
  *
  * A cubic Bezier does not have a centre, so "this curve is an arc" is a FIT, and the fit is exact where it
@@ -371,7 +387,7 @@ export interface CircleFit {
  * the tolerance has to be a ratio to mean anything. MEASURED over the corpus in
  * `poc/tools/arc-centre-probe.mjs`, which is also where the default comes from.
  */
-export function fitCircle(b: BezierData, tolRel = 0.02): CircleFit | null {
+export function fitCircle(b: BezierData, tolRel = ARC_FIT_TOL): CircleFit | null {
   const p0 = { x: 0, y: 0 };
   const p3 = { x: b.x2, y: b.y2 };
   const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
@@ -789,7 +805,7 @@ function moveEndBeat(dancer: DancerSpec, k: number): number {
  */
 export const RUN_FIT_MAX_DEV = 0.05;
 
-export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo: number, tolRel = 0.02, samplesPerMove = 8): CircleFit | null {
+export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo: number, tolRel = ARC_FIT_TOL, samplesPerMove = 8): CircleFit | null {
   const dancer = call.dancers[index];
   if (!dancer) return null;
   if (kFrom < 0 || kTo >= dancer.path.length || kTo < kFrom) return null;

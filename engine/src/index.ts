@@ -264,6 +264,9 @@ export {
   ARC_K,
   ARC_TOL,
   ARC_ANGLE_TOL,
+  // How closely a cubic must follow a circle to count as an arc: the ONE copy, which `fitCircle`'s and
+  // `fitCircleRun`'s defaults and the POC panel all use (`poc/src/editor-ui.ts` used to hold a second).
+  ARC_FIT_TOL,
   arcBezier,
   arcBezierAbout,
   arcOf,

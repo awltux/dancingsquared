@@ -422,7 +422,12 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     // a second success, which is the rule DESIGN.md 6 and 10 state from two directions.
     const issuedIndex = source.progress?.issued?.index ?? -1;
     const wasFinished = source.progress?.finished.includes(issuedIndex) ?? false;
-    const finishing = source.progress ? finishDrill(source.progress, submission.drillId ?? '') : null;
+    // THE PASS FLAG IS DECIDED BEFORE THE FINISH, because finishing and passing are one write: a run that was
+    // revealed finishes the drill (the player answered it, and leaving them on a question whose answer they have
+    // read would trap them) but it is NOT a pass — that is the distinction the level grid draws, and the one
+    // `finishDrill` is told rather than infers, because only a caller knows whether the help was taken.
+    const revealed = wasRevealed(source.measuredReveals, source.claimedReveals);
+    const finishing = source.progress ? finishDrill(source.progress, submission.drillId ?? '', !revealed) : null;
     if (finishing?.kind === 'refused') return failure(STATUS.conflict, 'stale_drill', finishing.reason);
     // ADVANCING AND COUNTING ARE NOW TWO QUESTIONS, where they used to be one condition (DESIGN.md §15 Q16, A28).
     // A revealed run still FINISHES the drill — the player answered it, and leaving the regime on a question whose
@@ -431,7 +436,6 @@ export async function postRun(request: ApiRequest, deps: Deps): Promise<ApiResul
     // it does not get is the hint credit or a place on the board. `wasFinished` still guards the credit, so a
     // position cannot pay twice; `revealed` guards it for the other reason.
     const advanced = finishing?.kind === 'done' ? finishing.progress : null;
-    const revealed = wasRevealed(source.measuredReveals, source.claimedReveals);
     const counts = advanced !== null && !wasFinished && !revealed ? advanced : null;
 
     const score = scoreWithClaim(source.facts, level, submission.claimedScore);

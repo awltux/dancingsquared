@@ -63,10 +63,22 @@ export interface IssuedDrill {
   readonly resumed: boolean;
 }
 
-/** Where the player is in the regime. */
-export interface RegimeCounts {
-  readonly finished: number;
+/**
+ * Where the player is in the regime: WHICH positions are done, which were PASSED, and how many the level holds.
+ *
+ * IT WAS A PAIR OF COUNTS, and the sets replaced them because the level grid draws one cell per position and a
+ * count can only fill the first N cells — which assumes progress is a prefix, and `drill-regime.ts` records that a
+ * hand-edited row or a republished schedule can produce a gap. The header's count is `.finished.length`.
+ */
+export interface RegimeState {
+  readonly finished: readonly number[];
+  readonly passed: readonly number[];
   readonly length: number;
+}
+
+/** An array of numbers a server sent, read defensively: a build that does not send one is a build with no cells. */
+function numberList(value: unknown): number[] {
+  return Array.isArray(value) ? value.filter((n): n is number => typeof n === 'number') : [];
 }
 
 /** The key the device id lives under. Same namespace as the saved game, and never a secret. */
@@ -286,7 +298,7 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
  * inferring it from a session it may be wrong about (`net/standing.ts`). It was answered and dropped until the
  * sign-in surface existed, which is the shape of gap §11.2's "the app has no sign-in surface" describes.
  */
-export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeCounts; demo: boolean }>> {
+export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeState; demo: boolean }>> {
   const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown }; demo?: unknown }>(deps, '/drill/current', {
     method: 'GET',
     query: { level: String(level) },
@@ -299,7 +311,9 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
   }
   const drill = asIssuedDrill(answer.value.drill);
   if (!drill) return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a drill this app can generate from' } };
-  const regime = answer.value.regime ?? {};
+  // The three fields the grid and the header read, each read defensively: a build that sends none of them is a
+  // build with no cells rather than a reason to refuse the answer.
+  const regime = (answer.value.regime ?? {}) as { finished?: unknown; passed?: unknown; length?: unknown };
   return {
     ok: true,
     value: {
@@ -308,7 +322,8 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
       // flag is one this build cannot claim makes a run unranked, and the standing rule's other facts still apply.
       demo: answer.value.demo === true,
       regime: {
-        finished: typeof regime.finished === 'number' ? regime.finished : 0,
+        finished: numberList(regime.finished),
+        passed: numberList(regime.passed),
         length: typeof regime.length === 'number' ? regime.length : 0,
       },
     },
@@ -580,18 +595,21 @@ export async function spendHint(levelIndex: number, date: string, deps: ApiDeps 
 }
 
 /** `POST /drill/advance` — mark the issued drill finished, so the next request returns the next entry. */
-export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeCounts }>> {
+export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ regime: RegimeState }>> {
   const answer = await apiCall<{ regime?: { finished?: unknown; length?: unknown } }>(deps, '/drill/advance', {
     method: 'POST',
     body: { drillId },
   });
   if (!answer.ok) return answer;
-  const regime = answer.value.regime ?? {};
+  // The three fields the grid and the header read, each read defensively: a build that sends none of them is a
+  // build with no cells rather than a reason to refuse the answer.
+  const regime = (answer.value.regime ?? {}) as { finished?: unknown; passed?: unknown; length?: unknown };
   return {
     ok: true,
     value: {
       regime: {
-        finished: typeof regime.finished === 'number' ? regime.finished : 0,
+        finished: numberList(regime.finished),
+        passed: numberList(regime.passed),
         length: typeof regime.length === 'number' ? regime.length : 0,
       },
     },

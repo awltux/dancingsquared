@@ -97,7 +97,7 @@ const deps = (base, scripted, initial) => {
 
 console.log('== 1. with no base configured, nothing is called at all ==');
 {
-  const wired = deps('', { status: 200, body: { drill: DRILL, regime: { finished: 0, length: 12 } } });
+  const wired = deps('', { status: 200, body: { drill: DRILL, regime: { finished: [], passed: [], length: 12 } } });
   check(apiConfigured() === false, 'the app reports itself as OFFLINE (import.meta.env has no VITE_API_BASE in a probe)');
   const answer = await issueDrill(1, wired.api);
   check(answer.ok === false && answer.failure.code === 'no_api', `and a call refuses without the network (${answer.failure?.code})`);
@@ -113,11 +113,11 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
   // answer and others do not — a difference nobody would find without a check.
   check(normaliseBase('http://127.0.0.1:8090///') === 'http://127.0.0.1:8090', `a base with trailing slashes is normalised (${normaliseBase('http://127.0.0.1:8090///')})`);
   check(normaliseBase(undefined) === '' && normaliseBase('') === '', 'and an unset or empty base stays empty, which is what "offline" is measured as');
-  const wired = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: 4, length: 12 } } });
+  const wired = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: [0, 1, 2, 3], passed: [0, 1], length: 12 } } });
   const answer = await issueDrill(2, wired.api);
   check(answer.ok === true, `a drill is issued (${answer.ok})`);
   check(answer.value.drill.id === '1:3' && answer.value.drill.seed === 42 && answer.value.drill.resumed === false, `and parsed (${answer.value.drill.id}, seed ${answer.value.drill.seed})`);
-  check(answer.value.regime.finished === 4 && answer.value.regime.length === 12, `with the regime counts (${answer.value.regime.finished} of ${answer.value.regime.length})`);
+  check(answer.value.regime.finished.length === 4 && answer.value.regime.length === 12, `with the regime cells (${answer.value.regime.finished.length} done, ${answer.value.regime.passed.length} passed, of ${answer.value.regime.length})`);
   const call = wired.fetch.calls[0];
   check(call.url === 'http://127.0.0.1:8090/drill/current?level=2', `the URL is the path and the query with no double slash (${call.url})`);
   check(call.init.method === 'GET', `and the method is GET (${call.init.method})`);
@@ -134,7 +134,7 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
 
   // IN `dev` THE DEVICE ID **IS** THE IDENTITY, and it must still be minted once and reused: a device id that
   // changed per call would make every request a different player, and the server's whole regime is keyed on it.
-  const dev = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: 4, length: 12 } } });
+  const dev = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: [0, 1, 2, 3], passed: [0, 1], length: 12 } } });
   dev.api.modeOverride = 'dev';
   await issueDrill(2, dev.api);
   const deviceIdSent = dev.fetch.calls[0].init.headers['x-dev-player'];
@@ -150,7 +150,7 @@ console.log('\n== 3. a session, when there is one, replaces the device id ==');
 {
     // THE SESSION IS SEEDED AS THE STORED ITEM session.ts WRITES, so this probe and `auth-client-probe.mjs` cannot
   // disagree about where a token lives — the shape is imported rather than spelled.
-  const wired = deps('http://localhost:8090', { status: 200, body: { drill: DRILL, regime: { finished: 0, length: 3 } } }, { [SESSION_KEY]: JSON.stringify({ accessToken: 'jwt-abc', refreshToken: 'r-1', playerId: 'emu:1', email: 'eve@example.com', expiresAtMs: Date.now() + 3_600_000 }) });
+  const wired = deps('http://localhost:8090', { status: 200, body: { drill: DRILL, regime: { finished: [], passed: [], length: 3 } } }, { [SESSION_KEY]: JSON.stringify({ accessToken: 'jwt-abc', refreshToken: 'r-1', playerId: 'emu:1', email: 'eve@example.com', expiresAtMs: Date.now() + 3_600_000 }) });
   await issueDrill(1, wired.api);
   const headers = wired.fetch.calls[0].init.headers;
   check(headers.authorization === 'Bearer jwt-abc', `the token rides in Authorization (${headers.authorization})`);
@@ -181,21 +181,21 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
   // A MALFORMED DRILL IS NEVER GENERATED FROM. This is the check that protects the player from a wrong puzzle
   // presented as a right one: `asIssuedDrill` refuses a body without a seed, so the caller cannot reach the
   // generator with `undefined`.
-  const partial = deps('http://localhost:8090', { status: 200, body: { drill: { id: '1:0', index: 0, levelIndex: 1 }, regime: { finished: 0, length: 3 } } });
+  const partial = deps('http://localhost:8090', { status: 200, body: { drill: { id: '1:0', index: 0, levelIndex: 1 }, regime: { finished: [], passed: [], length: 3 } } });
   const malformed = await issueDrill(1, partial.api);
   check(malformed.ok === false && malformed.failure.code === 'bad_response', `a drill with no seed is refused (${malformed.failure?.code})`);
   check(malformed.failure.message.includes('generate'), `and the sentence says why it matters (${malformed.failure?.message})`);
 
   // THE COMPLETE REGIME IS ITS OWN ANSWER, not an error with a status: the season being over is a state a screen
   // renders, and the caller needs to tell it apart from a server that is down.
-  const complete = deps('http://localhost:8090', { status: 200, body: { drill: null, regime: { finished: 12, length: 12 } } });
+  const complete = deps('http://localhost:8090', { status: 200, body: { drill: null, regime: { finished: [0,1,2,3,4,5,6,7,8,9,10,11], passed: [], length: 12 } } });
   const over = await issueDrill(1, complete.api);
   check(over.ok === false && over.failure.code === 'regime_complete', `a finished season is reported as such (${over.failure?.code})`);
 
   // A DRILL WITH NO PUZZLE IS REFUSED, and this is the check that moved when the client's generator went: the seed
   // alone used to be enough because `main.ts` could draw from it, and now it cannot. Absent and malformed are the
   // same refusal on purpose — a payload without boards is one nothing on this side can turn into a question.
-  const noPuzzle = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: undefined }, regime: { finished: 0, length: 3 } } });
+  const noPuzzle = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: undefined }, regime: { finished: [], passed: [], length: 3 } } });
   const noPuzzleAnswer = await issueDrill(1, noPuzzle.api);
   check(noPuzzleAnswer.ok === false && noPuzzleAnswer.failure.code === 'bad_response', `a drill with no puzzle at all is refused (${noPuzzleAnswer.failure?.code})`);
 
@@ -207,7 +207,7 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
     [{ ...PUZZLE, steps: [{ ...PUZZLE.steps[0], correctIndex: 5 }] }, 'a correct index past the options'],
     [{ ...PUZZLE, mode: 'challenge' }, 'a mode this app does not know'],
   ]) {
-    const scripted = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: broken }, regime: { finished: 0, length: 3 } } });
+    const scripted = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: broken }, regime: { finished: [], passed: [], length: 3 } } });
     const bad = await issueDrill(1, scripted.api);
     check(bad.ok === false && bad.failure.code === 'bad_response', `a puzzle with ${why} is refused as a bad response (${bad.failure?.code})`);
   }
@@ -251,9 +251,9 @@ console.log('\n== 5. the Daily is a READ of the published challenge ==');
 
 console.log('\n== 6. advancing sends the drill id it is advancing ==');
 {
-  const wired = deps('http://localhost:8090', { status: 200, body: { regime: { finished: 5, length: 12 } } });
+  const wired = deps('http://localhost:8090', { status: 200, body: { regime: { finished: [0,1,2,3,4], passed: [0,1], length: 12 } } });
   const answer = await advanceDrill('1:4', wired.api);
-  check(answer.ok === true && answer.value.regime.finished === 5, `an advance answers with the regime (${answer.value?.regime?.finished})`);
+  check(answer.ok === true && answer.value.regime.finished.length === 5, `an advance answers with the regime (${answer.value?.regime?.finished?.length} done)`);
   const call = wired.fetch.calls[0];
   check(call.url === 'http://localhost:8090/drill/advance', `posted to the path with no query (${call.url})`);
   check(call.init.method === 'POST' && JSON.parse(call.init.body).drillId === '1:4', `with the drill id in the body (${call.init.body})`);

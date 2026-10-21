@@ -194,7 +194,7 @@ try {
     // AND IT BUYS NO STANDING: the board is not a row this endpoint may write, and the Progress row it must not
     // touch is the one the import would have had to invent (A26).
     const after = await call('/drill/current?level=1', { headers: auth });
-    check(after.body.regime.finished === before.body.regime.finished, `and no drill was finished by it (${before.body.regime.finished} then ${after.body.regime.finished})`);
+    check(after.body.regime.finished.length === before.body.regime.finished.length, `and no drill was finished by it (${before.body.regime.finished.length} then ${after.body.regime.finished.length})`);
 
     const malformed = await call('/me/runs:bulk', { method: 'POST', headers: json(auth), body: JSON.stringify({ runs: [{ runId: 'bad', mode: 'solo', levelIndex: 1, score: 1, elapsedSeconds: 1, hintsUsed: 0 }] }) });
     check(malformed.status === 400 && malformed.body.error.code === 'bad_run', `while a malformed ledger is refused (${malformed.status} ${malformed.body.error?.code})`);

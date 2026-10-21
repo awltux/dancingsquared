@@ -243,7 +243,7 @@ console.log('\n== 3. a run lands once: the same runId, and a re-solve of a finis
 
   // AND THE PURE RULE UNDERNEATH IT: an index that is somehow handed out twice lands in the finished set ONCE,
   // which is the fact the credit, the board and "the first unfinished entry" all read.
-  const repeated = finishDrill({ levelIndex: LEVEL, issued: { id: '1:0', index: 0, seed: 1, poolVersion: FIXTURE_POOL_VERSION, issuedAtMs: CLOCK }, finished: [0] }, '1:0');
+  const repeated = finishDrill({ levelIndex: LEVEL, issued: { id: '1:0', index: 0, seed: 1, poolVersion: FIXTURE_POOL_VERSION, issuedAtMs: CLOCK }, finished: [0], passed: [] }, '1:0', false);
   check(repeated.kind === 'done' && repeated.progress.finished.length === 1, `finishing an index that is already finished does not duplicate it (${JSON.stringify(repeated.progress?.finished)})`);
 }
 

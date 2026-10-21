@@ -108,7 +108,7 @@ console.log('== 1. the regime is served in order, and an issued drill is LOCKED 
   // THE LEVEL TRAVELS WITH THE DRILL, which §11's row promises and which a client needs: the schedule can move
   // under a player, and the response's level — not the one the client asked with — is the one to generate from.
   check(drill.levelIndex === LEVEL, `and it names the level it was issued at (${drill.levelIndex})`);
-  check(first.body.regime.finished === 0 && first.body.regime.length === SEEDS.length, `the regime reports 0 of ${SEEDS.length} finished`);
+  check(first.body.regime.finished.length === 0 && first.body.regime.length === SEEDS.length, `the regime reports 0 of ${SEEDS.length} finished`);
 
   const again = await drillCurrent(get('p1'), deps);
   check(again.body.drill.id === drill.id && again.body.drill.seed === drill.seed, 'asking again returns the same drill');
@@ -128,7 +128,7 @@ console.log('== 1. the regime is served in order, and an issued drill is LOCKED 
   check(issueWrites.state.writes === 1, `while issuing a drill performs exactly one (${issueWrites.state.writes})`);
 
   const advanced = await drillAdvance(advance('p1', drill.id), deps);
-  check(advanced.status === STATUS.ok && advanced.body.regime.finished === 1, `advancing it leaves 1 of ${SEEDS.length} finished (${advanced.body.regime?.finished})`);
+  check(advanced.status === STATUS.ok && advanced.body.regime.finished.length === 1, `advancing it leaves 1 of ${SEEDS.length} finished (${advanced.body.regime?.finished?.length})`);
   const next = await drillCurrent(get('p1'), deps);
   check(next.body.drill.id === drillId(LEVEL, 1) && next.body.drill.seed === SEEDS[1], `and the NEXT entry is served (${next.body.drill.id}, seed ${next.body.drill.seed})`);
   check(next.body.drill.issuedAtMs === CLOCK, 'issued at the clock the request was served at');
@@ -171,7 +171,7 @@ console.log('\n== 3. an advance finishes the drill that was ISSUED, not the next
   const repeat = await drillAdvance(advance('p3', third.id), deps);
   check(repeat.status === STATUS.conflict && repeat.body.error.code === 'stale_drill', `a REPEATED advance is refused (${repeat.status} ${repeat.body.error?.code})`);
   const after = (await drillCurrent(get('p3'), deps)).body;
-  check(after.regime.finished === 3, `and nothing changed: 3 of ${SEEDS.length} finished (${after.regime.finished})`);
+  check(after.regime.finished.length === 3, `and nothing changed: 3 of ${SEEDS.length} finished (${after.regime.finished?.length})`);
   check(after.drill.id === drillId(LEVEL, 3), `so the player is on the next drill, entry 3 (${after.drill.id})`);
 
   // NEGATIVE CONTROL, MEASURED: "finish the first unfinished entry" is the plausible wrong rule, and it is
@@ -183,13 +183,22 @@ console.log('\n== 3. an advance finishes the drill that was ISSUED, not the next
     levelIndex: LEVEL,
     issued: { id: drillId(LEVEL, 2), index: 2, seed: SEEDS[2], poolVersion: FIXTURE_POOL_VERSION, issuedAtMs: CLOCK },
     finished: [0, 1],
+    passed: [],
   };
   const wrongOnce = (row) => ({ ...row, issued: null, finished: [...row.finished, nextIndex(regime, row.finished)].sort((a, b) => a - b) });
   check(wrongOnce(wrongOnce(progress)).finished.length === 4, `NEGATIVE CONTROL: the wrong rule reaches 4 finished after the repeat (${wrongOnce(wrongOnce(progress)).finished.length})`);
-  const once = finishDrill(progress, drillId(LEVEL, 2));
-  const twice = once.kind === 'done' ? finishDrill(once.progress, drillId(LEVEL, 2)) : once;
+  const once = finishDrill(progress, drillId(LEVEL, 2), false);
+  const twice = once.kind === 'done' ? finishDrill(once.progress, drillId(LEVEL, 2), false) : once;
   check(once.kind === 'done' && once.progress.finished.length === 3, `where the real rule finishes 3 (${once.progress?.finished.length})`);
   check(twice.kind === 'refused', 'and refuses the repeat rather than finishing anything else');
+  // THE PASS IS THE CALLER'S FACT, NOT AN INFERENCE FROM "FINISHED". Advancing is the SKIP/NEXT path, so it closes a
+  // position without ever passing it; a solved run says so through `POST /runs`. The level grid draws the two
+  // differently ("done" against "done and passed"), so the sets must actually differ.
+  check(once.progress.passed.length === 0, `a skip finishes without passing (${JSON.stringify(once.progress?.passed)})`);
+  const solved = finishDrill({ ...progress, issued: { ...progress.issued } }, drillId(LEVEL, 2), true);
+  check(solved.kind === 'done' && solved.progress.passed.includes(2) && solved.progress.finished.includes(2),
+    `while a solved run passes it as well as finishing it (${JSON.stringify(solved.progress?.passed)})`);
+  check(solved.kind === 'done' && solved.progress.passed.length === 1, 'and the two sets are not copies of each other');
 }
 
 console.log('\n== 4. a drill whose pool has moved is RE-ISSUED, not served ==');
@@ -205,6 +214,7 @@ console.log('\n== 4. a drill whose pool has moved is RE-ISSUED, not served ==');
     levelIndex: LEVEL,
     issued: { id: drillId(LEVEL, 0), index: 0, seed: 7, poolVersion: 'ms-0', scheduleVersion: LOCAL_SCHEDULE_VERSION, issuedAtMs: CLOCK - 90_000 },
     finished: [],
+    passed: [],
   };
   await store.put(progressRow('p4', LEVEL), stale, null);
   const served = (await drillCurrent(get('p4'), deps)).body.drill;
@@ -229,7 +239,7 @@ console.log('\n== 5. a finished regime is COMPLETE, and does not wrap ==');
   const done = await drillCurrent(get('p5'), deps);
   check(done.status === STATUS.ok, `the request is still answered (${done.status})`);
   check(done.body.drill === null, 'with no drill rather than the first entry again');
-  check(done.body.regime.finished === SEEDS.length && done.body.regime.length === SEEDS.length, `and ${SEEDS.length} of ${SEEDS.length} reported finished`);
+  check(done.body.regime.finished.length === SEEDS.length && done.body.regime.length === SEEDS.length, `and ${SEEDS.length} of ${SEEDS.length} reported finished`);
   // NEGATIVE CONTROL: the local FIXTURE wraps (`scheduleEntryFor` modulo), deliberately, so a demo never shows
   // an empty screen. A server that wrapped would re-serve a season the score table already holds, which is why
   // the two rules differ — MEASURED here by the fact that entry 0 has a seed at all to wrap to.
@@ -422,7 +432,7 @@ console.log('\n== 9. the local server, over a real socket ==');
       headers: { ...headers, 'content-type': 'application/json' },
       body: JSON.stringify({ drillId: first.body.drill.id }),
     });
-    check(advanced.status === 200 && advanced.body.regime.finished === 1, `an advance over HTTP lands (${advanced.status}, ${advanced.body.regime?.finished} finished)`);
+    check(advanced.status === 200 && advanced.body.regime.finished.length === 1, `an advance over HTTP lands (${advanced.status}, ${advanced.body.regime?.finished} finished)`);
 
     const second = await call('/drill/current?level=1', { headers });
     check(second.body.drill.id === drillId(LEVEL, 1), `and the next request is the next drill (${second.body.drill.id})`);

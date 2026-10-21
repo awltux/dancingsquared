@@ -13,6 +13,7 @@
 //
 // Usage: node game/test/save-state-probe.mjs
 import { SaveState } from '../src/game/save-state.ts';
+import { emptySave } from '../src/game/store.ts';
 import { EMPTY_LEDGER, recordSuccess } from '../src/puzzle/hints.ts';
 import { HINT_CAP, HINT_SUCCESS_STEP, SAVE_KEY, SCORE_VERSION } from '../src/puzzle/config.ts';
 
@@ -123,6 +124,40 @@ console.log('\n== 1c. a SKIPPED drill is spent and earns NOTHING (DESIGN.md §15
   // meets, so neither can add the position twice.
   state.markSkipped(HINT_SUCCESS_STEP - 1);
   check(state.countSuccess(HINT_SUCCESS_STEP - 1).firstTime === false, 'and skipping it again changes nothing');
+}
+
+console.log('\n== 1d. FINISHED and PASSED are different sets, which is what the level grid draws ==');
+{
+  // THE DEVICE'S HALF OF THE SERVER'S RULE: a skip and a revealed solve both finish a position, and neither is a
+  // pass. The grid shows "done" against "done and passed", so a ledger that called a skip a pass would tell a player
+  // they had learned a drill they moved past.
+  const state = open(memory()).state;
+  state.countSuccess(0);
+  state.markSkipped(1);
+  state.countSuccess(2, { revealed: true });
+  check(state.finishedPositions.join(',') === '0,1,2', `three positions are finished (${state.finishedPositions.join(',')})`);
+  check(state.passedPositions.join(',') === '0', `and only the unaided solve is passed (${state.passedPositions.join(',')})`);
+  // THE GETTERS ARE COPIES: a caller renders them, and must not be able to reorder the record by sorting what it was
+  // handed — sorting the returned array is the first thing a grid does.
+  const copy = [...state.finishedPositions].sort((a, b) => b - a);
+  check(copy.join(',') === '2,1,0' && state.finishedPositions.join(',') === '0,1,2',
+    'the returned lists are copies, so a caller cannot mutate the record');
+  // A RECORD FROM BEFORE THE SPLIT reads as "finished, pass unknown" rather than as a failure. Written the way a real
+  // old record exists: the current one with the field removed, so this is the migration and not a shape I invented.
+  const storage = memory();
+  const raw = { ...emptySave(POOL, 1, 0), finished: [0] };
+  delete raw.passed;
+  storage.map.set(SAVE_KEY, JSON.stringify(raw));
+  const legacy = open(storage).state;
+  check(legacy.finishedPositions.join(',') === '0' && legacy.passedPositions.length === 0,
+    `a record written before the pass set existed still loads (${legacy.finishedPositions.length} finished, ${legacy.passedPositions.length} passed)`);
+  // A HAND-EDITED RECORD THAT PASSES WHAT IT DOES NOT CALL FINISHED is a contradiction; the reader drops the
+  // impossible half rather than inventing a meaning for it.
+  const impossibleStorage = memory();
+  impossibleStorage.map.set(SAVE_KEY, JSON.stringify({ ...emptySave(POOL, 1, 0), finished: [0], passed: [0, 5] }));
+  const impossible = open(impossibleStorage).state;
+  check(impossible.passedPositions.join(',') === '0',
+    `a pass outside the finished set is dropped (${impossible.passedPositions.join(',') || 'none'})`);
 }
 
 console.log('\n== 2. the grant lands on the tenth DISTINCT drill ==');

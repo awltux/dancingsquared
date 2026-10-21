@@ -102,8 +102,11 @@ async function withProgress(
 }
 
 /** Where the player is in the regime, as every successful answer reports it. */
-function regimeCounts(regime: Regime, progress: DrillProgress): { finished: number; length: number } {
-  return { finished: progress.finished.length, length: regime.entries.length };
+function regimeCounts(regime: Regime, progress: DrillProgress): { finished: number[]; passed: number[]; length: number } {
+  // THE SETS, NOT A COUNT. The level grid draws one cell per position and has to know WHICH are done and which
+  // were PASSED — a count fills the first N cells only by assuming progress is a prefix, which `drill-regime.ts`
+  // explicitly says a hand-edited row or a republished schedule can break. The count is `.length` for the header.
+  return { finished: [...progress.finished], passed: [...progress.passed], length: regime.entries.length };
 }
 
 /**
@@ -236,7 +239,9 @@ export async function drillAdvance(request: ApiRequest, deps: Deps): Promise<Api
   if ('refusal' in read) return read.refusal;
 
   return withProgress(deps, progressKey(playerId, parsed.levelIndex), parsed.levelIndex, (progress) => {
-    const outcome = finishDrill(progress, id);
+    // `false`: ADVANCING IS THE SKIP/NEXT PATH, so it finishes a position without ever passing it. A solve comes
+    // through `POST /runs`, which is where the reveal is known.
+    const outcome = finishDrill(progress, id, false);
     if (outcome.kind === 'refused') return { result: failure(STATUS.conflict, 'stale_drill', outcome.reason) };
     return {
       progress: outcome.progress,

@@ -35,7 +35,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeCounts } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -106,7 +106,7 @@ let pressLog: Promise<unknown> = Promise.resolve();
  */
 let revealLog: Promise<unknown> = Promise.resolve();
 /** Where the server says the player is in the regime, for the header and the report of a finished season. */
-let serverRegime: RegimeCounts | null = null;
+let serverRegime: RegimeState | null = null;
 
 /**
  * WHO THE SERVER THINKS IS ASKING, as far as this app can tell (DESIGN.md §11.2).

@@ -135,6 +135,14 @@ export interface SavedGame {
    * could, and a hint is a currency.
    */
   finished: number[];
+  /**
+   * The positions solved WITHOUT help — no reveal, no skip — which the level grid draws differently from "done".
+   *
+   * IT MIRRORS THE SERVER'S `DrillProgress.passed`, and both exist because a skip finishes a drill without teaching
+   * it. The device and the server record the same two sets so the grid says the same thing whichever side a player
+   * is looking at; a record written before this field existed reads as "finished, pass unknown".
+   */
+  passed: number[];
   drillRun: DrillSaved | null;
   daily: DailySaved | null;
   hints: HintLedger;
@@ -160,6 +168,7 @@ export function emptySave(poolVersion: string, levelIndex: number, nowMs: number
     levelIndex,
     drillPosition: 0,
     finished: [],
+    passed: [],
     drillRun: null,
     daily: null,
     hints: { hints: 0, successes: 0 },
@@ -324,6 +333,10 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
       levelIndex,
       drillPosition: intOr(record['drillPosition'], 0, 0),
       finished: intList(record['finished']),
+      // `passed` IS A SUBSET OF `finished`, enforced on read: a record written before the level grid existed has the
+      // finished set and no pass set (read as "finished, pass unknown"), and one that names a pass it does not call
+      // finished is a contradiction the reader refuses to invent a meaning for.
+      passed: intList(record['passed']).filter((p) => intList(record['finished']).includes(p)),
       drillRun: sanitiseDrill(record['drillRun']),
       daily: sanitiseDaily(record['daily']),
       hints: sanitiseLedger(record['hints']),

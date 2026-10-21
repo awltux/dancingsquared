@@ -11,11 +11,22 @@ import { emptyProgress, type DrillProgress, type IssuedDrill } from './drill-reg
 /** A stored row as progress, or null when it is not one this build can read. Absent reads as a fresh record. */
 export function asProgress(stored: StoredItem | null, levelIndex: number): DrillProgress | null {
   if (!stored) return emptyProgress(levelIndex);
-  const value = stored.value as { levelIndex?: unknown; issued?: unknown; finished?: unknown };
+  const value = stored.value as { levelIndex?: unknown; issued?: unknown; finished?: unknown; passed?: unknown };
   if (value.levelIndex !== levelIndex || !Array.isArray(value.finished)) return null;
   for (const index of value.finished) if (typeof index !== 'number') return null;
+  // `passed` IS OPTIONAL ON READ, and that is the migration: a row written before the level grid existed has the
+  // finished set and no pass set, and it means "finished, pass unknown" — NOT an unreadable row. A row that names
+  // a pass it also does not call finished is a corruption finding, because a pass is a way of finishing.
+  const passed: number[] = [];
+  if (value.passed !== undefined) {
+    if (!Array.isArray(value.passed)) return null;
+    for (const index of value.passed) {
+      if (typeof index !== 'number' || !value.finished.includes(index)) return null;
+      passed.push(index);
+    }
+  }
   if (value.issued === null || value.issued === undefined) {
-    return { levelIndex, issued: null, finished: value.finished as number[] };
+    return { levelIndex, issued: null, finished: value.finished as number[], passed };
   }
   const raw = value.issued as { id?: unknown; index?: unknown; seed?: unknown; poolVersion?: unknown; scheduleVersion?: unknown; issuedAtMs?: unknown };
   if (typeof raw.id !== 'string' || typeof raw.index !== 'number' || typeof raw.seed !== 'number'
@@ -28,10 +39,10 @@ export function asProgress(stored: StoredItem | null, levelIndex: number): Drill
     scheduleVersion: raw.scheduleVersion,
     issuedAtMs: raw.issuedAtMs,
   };
-  return { levelIndex, issued, finished: value.finished as number[] };
+  return { levelIndex, issued, finished: value.finished as number[], passed };
 }
 
 /** The stored form of a progress record. */
 export function asProgressItem(progress: DrillProgress): Record<string, unknown> {
-  return { levelIndex: progress.levelIndex, issued: progress.issued, finished: progress.finished };
+  return { levelIndex: progress.levelIndex, issued: progress.issued, finished: progress.finished, passed: progress.passed };
 }

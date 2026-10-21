@@ -75,6 +75,18 @@ export interface DrillProgress {
   readonly levelIndex: number;
   readonly issued: IssuedDrill | null;
   readonly finished: readonly number[];
+  /**
+   * The positions the player SOLVED ON THEIR OWN MERITS — finished without a reveal and without a skip.
+   *
+   * `finished` IS NOT `passed`, and the difference is the level grid's whole reason for wanting both: a skipped
+   * drill advances the position (the player moved past it and must not see it again) but it is not a pass, and a
+   * revealed drill is the same. The grid draws a cell as done-but-not-passed, which is a fact a caller can act on
+   * — "you moved past this one" — where a single finished bit would say the player had learned it.
+   *
+   * IT IS A SUBSET OF `finished`, ALWAYS. Recorded separately rather than as a record per position so a progress
+   * row written before this field existed reads as "finished, pass unknown" rather than as a failure.
+   */
+  readonly passed: readonly number[];
 }
 
 /** The id of the drill at a position. MEANINGFUL RATHER THAN OPAQUE — see `parseDrillId`. */
@@ -98,9 +110,9 @@ export function parseDrillId(id: string): { levelIndex: number; index: number } 
   return { levelIndex: Number(match[1]), index: Number(match[2]) };
 }
 
-/** A player with no progress in a level: nothing issued, nothing finished. */
+/** A player with no progress in a level: nothing issued, nothing finished, nothing passed. */
 export function emptyProgress(levelIndex: number): DrillProgress {
-  return { levelIndex, issued: null, finished: [] };
+  return { levelIndex, issued: null, finished: [], passed: [] };
 }
 
 /**
@@ -205,7 +217,7 @@ export type AdvanceOutcome =
  * A REFUSAL WRITES NOTHING, which is what makes the retry safe and is why the refusal is a value rather than
  * a thrown error: there is no state for the caller to have to roll back.
  */
-export function finishDrill(progress: DrillProgress, id: string): AdvanceOutcome {
+export function finishDrill(progress: DrillProgress, id: string, passed: boolean): AdvanceOutcome {
   const parsed = parseDrillId(id);
   if (!parsed || parsed.levelIndex !== progress.levelIndex) {
     return { kind: 'refused', reason: `${id} is not a drill id for level ${progress.levelIndex}` };
@@ -223,5 +235,12 @@ export function finishDrill(progress: DrillProgress, id: string): AdvanceOutcome
   const finished = progress.finished.includes(issued.index)
     ? [...progress.finished]
     : [...progress.finished, issued.index].sort((a, b) => a - b);
-  return { kind: 'done', progress: { ...progress, issued: null, finished } };
+  // PASSED IS DECIDED BY THE CALLER, because only the caller knows WHY the drill closed: a skip and a revealed
+  // solve both finish a position, and neither is a pass. A pass is monotone — a position already passed stays
+  // passed, and a later skip of the same position cannot take it back.
+  const passedAlready = progress.passed.includes(issued.index);
+  const passedList = !passed || passedAlready
+    ? [...progress.passed]
+    : [...progress.passed, issued.index].sort((a, b) => a - b);
+  return { kind: 'done', progress: { ...progress, issued: null, finished, passed: passedList } };
 }

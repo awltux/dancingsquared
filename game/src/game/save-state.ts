@@ -125,6 +125,21 @@ export class SaveState {
   }
 
   /**
+   * The positions this device has finished, and which of them it PASSED.
+   *
+   * THE GRID'S ONLY INPUT FROM THE LEDGER, and it is a read the record already held: `finished` and `passed` have
+   * been written since the split between solving and skipping existed, so the screen needs no new storage — only a
+   * way to ask. Sorted copies, because a caller renders them and must not be able to reorder the record.
+   */
+  get finishedPositions(): readonly number[] {
+    return [...this.record.finished].sort((a, b) => a - b);
+  }
+
+  get passedPositions(): readonly number[] {
+    return [...this.record.passed].sort((a, b) => a - b);
+  }
+
+  /**
    * The drill that was in flight when the record was written, or null.
    *
    * IT IS A CANDIDATE, NOT AN ANSWER: the caller resumes it only when its position is the drill it just
@@ -176,7 +191,7 @@ export class SaveState {
    * the probe rules the farming out with, and the reason it is reported rather than folded into `granted`.
    */
   countSuccess(position: number, opts: { revealed?: boolean } = {}): { firstTime: boolean; granted: boolean } {
-    if (!this.spend(position)) return { firstTime: false, granted: false };
+    if (!this.spend(position, opts.revealed !== true)) return { firstTime: false, granted: false };
     const granted = opts.revealed === true
       ? { ledger: this.record.hints, granted: false }
       : recordSuccess(this.record.hints);
@@ -195,20 +210,29 @@ export class SaveState {
    * makes it safe to offer at all.
    */
   markSkipped(position: number): void {
-    this.spend(position);
+    this.spend(position, false);
   }
 
   /**
-   * Put `position` in the finished set. False when it was already there.
+   * Put `position` in the finished set, and in the PASSED set when it was solved unaided.
    *
-   * THE ONE WRITER OF THAT SET, so a solve and a skip cannot come to mean different things by accident: they differ in
-   * what they then CREDIT (a solve may grant, a revealed solve and a skip never do), and not in whether the drill is
-   * over.
+   * THE ONE WRITER OF BOTH SETS, so a solve and a skip cannot come to mean different things by accident: they differ
+   * in what they CREDIT (a solve may grant, a revealed solve and a skip never do) and in whether the drill was
+   * PASSED, which is what the level grid draws. A revealed solve finishes without passing, exactly as a skip does.
+   *
+   * A PASS IS MONOTONE: once a position is passed, nothing here takes it back, because a position cannot be served
+   * again after it is finished (`drill-regime.ts` keeps it in the set once).
    */
-  private spend(position: number): boolean {
-    if (this.record.finished.includes(position)) return false;
-    this.record = { ...this.record, finished: [...this.record.finished, position] };
-    return true;
+  private spend(position: number, passed: boolean): boolean {
+    const firstTime = !this.record.finished.includes(position);
+    const finished = firstTime ? [...this.record.finished, position] : [...this.record.finished];
+    const passedList = passed && !this.record.passed.includes(position)
+      ? [...this.record.passed, position]
+      : [...this.record.passed];
+    if (firstTime || passedList.length !== this.record.passed.length) {
+      this.record = { ...this.record, finished, passed: passedList };
+    }
+    return firstTime;
   }
 
   /**

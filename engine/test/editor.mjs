@@ -1987,7 +1987,8 @@ console.log('\n== swinging an arc about its start (24) ==');
 // and its hands; only the shape between its two ends is rewritten. Five things have to hold and each is a
 // separate check, because each fails on its own:
 //   - the run's START does not move at all (the radius is snapped to it, so this is structural);
-//   - the END moves by no more than the FIT'S OWN ERROR - the honest price of snapping a run that was nearly a
+//   - the END moves by no more than the FIT'S OWN ERROR PLUS THE RADIUS SNAP AT THE START — the honest price of
+//     snapping a run that was nearly a
 //     circle onto one exactly;
 //   - the run is a circle afterwards, by two orders of magnitude;
 //   - the turn is preserved AND spread in proportion to beats;
@@ -2039,8 +2040,17 @@ console.log('\n== 25. A run of moves laid on one circle ==');
     const q1 = poseFor(nd, b1);
     worst.start = Math.max(worst.start, Math.hypot(q0.x - p0.x, q0.y - p0.y));
     worst.heading = Math.max(worst.heading, Math.abs(normAngleSafe(q0.heading - p0.heading)));
-    // How far the end moved BEYOND what the fit itself was already out by.
-    worst.endPast = Math.max(worst.endPast, Math.hypot(q1.x - p1.x, q1.y - p1.y) - r.fit.maxDev);
+    // HOW FAR THE END MOVES, against the bound the CONSTRUCTION implies rather than the fit alone. `setRunCircle`
+    // snaps the radius to the START's own distance from the fitted centre, so the end lands its own deviation
+    // (`maxDev`) plus that snap away from where it was — a structural consequence, not slop. MEASURED over the 20
+    // applied runs: the worst excess over `maxDev` alone is 5.64e-5 (the 270deg ring of `ms/circle.xml`, moves
+    // 1..6), and it is EXACTLY the start's radius snap — `endPast - |startR - fit.r|` is -1.76e-15 on every run —
+    // so this two-term bound is tight rather than slack, and the excess below is the whole claim.
+    const startR = Math.hypot(p0.x - r.fit.cx, p0.y - r.fit.cy);
+    worst.endPast = Math.max(
+      worst.endPast,
+      Math.hypot(q1.x - p1.x, q1.y - p1.y) - r.fit.maxDev - Math.abs(startR - r.fit.r),
+    );
     const refit = fitCircleRun(out, r.i, r.s, r.e);
     if (!refit) { worst.refit = Infinity; } else {
       worst.refit = Math.max(worst.refit, refit.relDev);
@@ -2084,7 +2094,7 @@ console.log('\n== 25. A run of moves laid on one circle ==');
   check(applied > 0, `${applied} of the ${fits.length} runs were re-laid on their own circle`);
   check(worst.start < 1e-9, `the run's START does not move (worst ${worst.start.toExponential(1)} units) - the radius is snapped to it, so this is structural rather than lucky`);
   check(worst.heading < 1e-9, `and neither does the heading it sets off on (worst ${(worst.heading * (180 / Math.PI)).toExponential(1)}deg)`);
-  check(worst.endPast < 1e-9, `the END moves by no more than the fit was already out by (worst excess ${worst.endPast.toExponential(1)} units)`);
+  check(worst.endPast < 1e-9, `the END moves by no more than the fit was already out by PLUS the radius snap at the start - the two terms the construction implies (worst excess ${worst.endPast.toExponential(1)} units)`);
   check(worst.refit < 1e-4, `and the run IS a circle afterwards: worst deviation ${worst.refit.toExponential(1)} of the radius, against a 2e-2 tolerance`);
   // The per-move turn is compared against the BEATS, and the two are the same quantity arrived at two ways (the
   // turn the curve carries, and the share of the beats it was given), so radians here are not degrees.
@@ -2313,8 +2323,15 @@ console.log('\n== 27. A full set of paths against a HALF-set formation ==');
         sweep: own ? own.sweep : runTurn(edited, d, 0, to),
       });
     }
-    const xml = callToXmlNamed(edited, edited.from, corpusPoses).match(/<tam[\s\S]*?<\/tam>/)[0];
-    check(/formation="Circle"/.test(xml), 'the export writes the reference it should - the name resolves and the shape matches');
+    // THE NAME IS THE FORMATION, NOT `from`. A `<tam>` names its start formation either with a `formation`
+    // attribute (a reference) or with `from` (an embedded block), and this one uses the first, so
+    // `call.from` is the EMPTY STRING — passing it exported the block and the reference was never written.
+    // `tamName()` in the engine is the same rule: `formationAttr ?? from`. §8 trap 7 in a new place: `from`
+    // is not the identity of a setup, so a check that reads it alone measures a different call.
+    const startName = halfTam.formationAttr || halfTam.from;
+    check(!!startName, `the tam names its start formation (${JSON.stringify(startName)}) - a \`formation\` reference, not \`from\``);
+    const xml = callToXmlNamed(edited, startName, corpusPoses).match(/<tam[\s\S]*?<\/tam>/)[0];
+    check(/formation="Circle"/.test(xml), 'the export writes the reference it should - the name resolves and the shape matches', xml.slice(0, 120).replace(/\s+/g, ' '));
     check((xml.match(/<path/g) ?? []).length === 8, 'and it carries a path for every one of the eight dancers');
     // THE ROUND TRIP, which is the half that was missing. Both mirrorings are read, because the app reads an
     // applied edit with `mirror: false` and the live catalogue with `mirror: true`.

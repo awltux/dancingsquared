@@ -412,7 +412,17 @@ function buildCallImpl(
     // honoured it since they were written (`mirror && tam.symmetry === 2` below); the FORMATION did not, so
     // a tam declaring `asymmetric="true"` beside two written dancers had its formation completed to four
     // while its paths stayed at two - the same tam read two different ways by the two loaders.
-    const full = mirror && tam.symmetry === 2 ? materialiseFull(dancers) : dancers;
+    //
+    // AND THIS COMPLETION IS NOT THE CALLER'S `mirror` TO REFUSE. That flag governs completing the PATHS (the
+    // block below), because an already-expanded instance must not be doubled. Here the evidence is
+    // arithmetical: the tam writes 2N paths for N dancers, so the written dancers ARE half the set whatever
+    // the caller asked for, and pairing them 1:1 throws on the tam's own arithmetic. MEASURED when this was
+    // gated on `mirror`: an edit exported by the app (`callToXmlNamed` -> `formation="Circle"`, FOUR written
+    // dancers, EIGHT paths) read back with `mirror: false` - the mode the app uses for an applied edit -
+    // threw `Path count mismatch for Circle Left Home: 8 paths vs 4 dancers`, while the same XML read with
+    // `mirror: true` was fine. NO SHIPPED TAM IS AFFECTED: of the corpus's 5488 tams, ZERO carry 2N paths
+    // for N dancers at symmetry 2, so this branch only ever fires on editor-authored XML.
+    const full = tam.symmetry === 2 ? materialiseFull(dancers) : dancers;
     if (full.length === resolvedPaths.length) dancers = full;
   }
 

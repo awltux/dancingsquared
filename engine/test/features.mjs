@@ -111,10 +111,16 @@ check(typeof par.legalOnAll === 'boolean', 'parallelApplicable reports legalOnAl
 // to each couple concurrently) instead of failing the whole-board match.
 console.log('== True parallel apply (Single Circle Right Full on 2 Facing Couples) ==');
 const starts = seq.variantStarts('Single Circle Right Full');
-let fSetup = null;
-for (const s of starts) if (!fSetup || s.length < fSetup.length) fSetup = s;
+// THE FOUR-DANCER AUTHORING, chosen BY SIZE rather than by "smallest". The whole `circle.xml` is registered
+// under this one invented name, so its variants are every tam in the file - 123 of them, and MEASURED the
+// smallest is a TWO-dancer setup now that the corpus authors `Facing Dancers` tams there. Taking the smallest
+// built a four-dancer board out of two two-dancer copies, which is why this section read `result has 8 dancers
+// (4)` and why a six-dancer remainder tiled instead of being refused: the witness was not the two-facing-couples
+// board the comment describes.
+const fSetup = starts.find((s) => s.length === 4) ?? null;
+check(!!fSetup, `the corpus authors a FOUR-dancer setup for it (${starts.filter((s) => s.length === 4).length} of ${starts.length} setups are four)`);
 const mkCopy = (tx, idBase, coupleBase) =>
-  fSetup.map((m, i) => ({ id: idBase + i + 1, couple: coupleBase, gender: i % 2 ? 'girl' : 'boy', x: m.x + tx, y: m.y, heading: m.heading }));
+  (fSetup ?? []).map((m, i) => ({ id: idBase + i + 1, couple: coupleBase, gender: i % 2 ? 'girl' : 'boy', x: m.x + tx, y: m.y, heading: m.heading }));
 const twoFC = { dancers: [...mkCopy(-6, 0, 1), ...mkCopy(6, 4, 2)] };
 const parBefore = seq.legalCalls(twoFC);
 const hasCall = parBefore.includes('Single Circle Right Full');
@@ -135,11 +141,13 @@ if (parApply.legal) {
 }
 
 console.log('== Parallel edge cases (§7.2.1) ==');
-// Uneven remainder: 6 dancers can't be split into two 4-dancer subsets of the
-// Facing Couples variant, so parallel apply must refuse (no clean tiling).
-const sixBoard = { dancers: [...mkCopy(-6, 0, 1), ...mkCopy(6, 4, 2)].slice(0, 6) };
-const odd = seq.applyToBoard(sixBoard, 'Single Circle Right Full');
-check(odd.legal === false, `uneven remainder (6 dancers) refuses parallel apply (${odd.legal})`);
+// AN UNEVEN REMAINDER IS REFUSED — and the remainder has to be ONE THE CALL CANNOT TILE. This used to use six
+// dancers, which tiles: MEASURED over 8/7/6/5/4 dancers, the whole-file authoring registered above answers 8, 6
+// and 4 (a 6-dancer board is 4+2) and refuses 7 and 5. Five is the shortest odd remainder, so it is what the
+// check uses, and the measured table is here so the next reader does not re-derive it.
+const fiveBoard = { dancers: [...mkCopy(-6, 0, 1), ...mkCopy(6, 4, 2)].slice(0, 5) };
+const odd = seq.applyToBoard(fiveBoard, 'Single Circle Right Full');
+check(odd.legal === false, `uneven remainder (5 dancers) refuses parallel apply (${odd.legal})`);
 // Partial coverage (a board that divides evenly but whose boxes are not congruent) is gated in
 // `selection.mjs`, which registers the whole catalogue; this harness hand-lists a few calls, so
 // `Box the Gnat` is not available here.

@@ -70,27 +70,37 @@ export class DrillScreen {
     // REBUILT RATHER THAN PATCHED, because the option count comes from the LEVEL and changes between
     // puzzles: a screen that patched labels onto a fixed set of buttons would show three where the level
     // offers two. The count is read from the level, never assumed (P1 measured that levels 1..15 ship two).
+    //
+    // THE ILLEGAL CHOICE SITS AMONG THE OTHERS, at the puzzle's own position, and LOOKS LIKE THEM. It used to be
+    // appended last with its own class and a dashed red border, which was a giveaway twice over: the position was
+    // always the same and the marking said which button to avoid, so the one thing the option exists to teach ("that
+    // cannot be called from here") was learned by looking rather than by pressing. Nothing here marks it — the engine's
+    // refusal is the feedback, and it arrives when the button is pressed (`main.ts`'s `answer`). The two kinds of button
+    // still differ in ONE respect that is invisible before the press: the legal ones carry `data-option` as an index
+    // into `options`, and the illegal one carries `'unknown'` — which is the handler's business, not styling.
     this.els.answers.replaceChildren();
     if (!view.atEnd) {
-      for (let i = 0; i < view.options.length; i++) {
-        const option = view.options[i];
+      const total = view.options.length + (view.unknown ? 1 : 0);
+      // A POSITION THE PAYLOAD DOES NOT CARRY IS THE LAST BUTTON, which is where every earlier build drew it; a position
+      // outside the buttons it must index is clamped for the same reason `block.ts` clamps its sets rather than
+      // throwing: a malformed extra must not take the question off the screen.
+      const unknownAt = view.unknown ? Math.min(Math.max(view.unknownIndex ?? total - 1, 0), total - 1) : -1;
+      let optionIndex = 0;
+      for (let at = 0; at < total; at++) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'answer';
-        button.textContent = option.call;
-        button.dataset['option'] = String(i);
         button.disabled = this.busy;
-        button.addEventListener('click', () => this.choose(i));
-        this.els.answers.append(button);
-      }
-      if (view.unknown) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'answer illegal';
-        button.textContent = view.unknown.call;
-        button.dataset['option'] = 'unknown';
-        button.disabled = this.busy;
-        button.addEventListener('click', () => this.choose('unknown'));
+        if (at === unknownAt) {
+          button.textContent = view.unknown?.call ?? '';
+          button.dataset['option'] = 'unknown';
+          button.addEventListener('click', () => this.choose('unknown'));
+        } else {
+          const i = optionIndex++;
+          button.textContent = view.options[i].call;
+          button.dataset['option'] = String(i);
+          button.addEventListener('click', () => this.choose(i));
+        }
         this.els.answers.append(button);
       }
     }

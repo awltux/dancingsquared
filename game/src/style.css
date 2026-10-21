@@ -538,13 +538,11 @@ body {
   cursor: default;
 }
 
-/* THE ILLEGAL CHOICE IS VISUALLY DISTINCT, because it is a different KIND of answer — the lesson is "that
-   cannot be called from here", and a player who cannot tell it apart cannot learn that. It is marked by a
-   border and a label, never by colour alone, so it survives a colour-vision difference. */
-.answer.illegal {
-  border-style: dashed;
-  border-color: rgba(255, 143, 143, 0.7);
-}
+/* THE ILLEGAL CHOICE HAS NO STYLE OF ITS OWN, and that is the point. It used to be marked with a dashed red border,
+   which told the player which button to avoid before they pressed it — the lesson ("that cannot be called from here")
+   only counts if you find out by asking. So there is deliberately no `.answer.illegal` rule: the button is `.answer`
+   like the rest, and `drill-screen.ts` no longer sets the class. The feedback is the engine's refusal in the verdict
+   line, after the press. */
 
 #foot {
   margin-top: auto;

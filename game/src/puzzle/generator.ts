@@ -369,7 +369,10 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
         if (distinctEndings(offered) < level.optionCount) return `step ${i + 1} offers ${offered.length} calls but fewer than ${level.optionCount} distinct endings`;
       }
       const steps: PuzzleStep[] = [];
-      const unknownPool = applier.candidateCalls(start).slice().sort(byTitle);
+      // SORTED FIRST because the result must not depend on the order a caller handed the titles over in, then SHUFFLED
+      // so the illegal choice is drawn from the whole refused pool rather than from its alphabetical front (see the
+      // comment where it is used).
+      const unknownPool = rng.shuffle(applier.candidateCalls(start).slice().sort(byTitle));
       for (let i = 0; i < path.length - 1; i++) {
         const from = path[i];
         const offered = applier.offered(from).slice().sort(byName);
@@ -428,8 +431,18 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
         const correctIndex = options.findIndex((o) => o.call === chosen.call);
         const step: PuzzleStep = { from, moves: options, correctIndex, after: chosen.board };
 
-        // The illegal choice, only where the design allows one (step 1), and never a call the puzzle's
-        // own path uses. Its refusal is the ENGINE's string, verbatim.
+        // THE ILLEGAL CHOICE, only where the design allows one (step 1), and never a call the puzzle's own path uses. Its
+        // refusal is the ENGINE's string, verbatim.
+        //
+        // THE POOL IS SHUFFLED, because taking the alphabetically-first refused title MEASURED as one call every time:
+        // over 100 level-1 seeds the illegal button was `Adjust to an Alamo` in all of them, which is a button a player
+        // learns to ignore — and the lesson it exists to teach ("that cannot be called from here") is lost with it.
+        // `byTitle` first so the draw cannot depend on the order a caller handed the titles over in, then the attempt's
+        // own rng. The scan is cheap: most of a level's titles are refused from any one board, so it stops almost
+        // immediately.
+        //
+        // AND ITS POSITION IS PART OF THE QUESTION (`unknownIndex`): appended last it was a giveaway before it was
+        // pressed. The screen draws the buttons in this order and marks none of them.
         if (i === 0) {
           const used = new Set<string>([...calls, ...options.map((o) => o.call)]);
           for (const name of unknownPool) {
@@ -437,6 +450,7 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
             const refusal = applier.refusalOf(from, name);
             if (refusal) {
               step.unknown = refusal;
+              step.unknownIndex = rng.int(options.length + 1);
               break;
             }
           }

@@ -217,6 +217,20 @@ export interface PuzzleStep {
    * a dead end placed behind a call that IS legal would punish a player who has reasoned correctly so
    * far (DESIGN.md 7.3). */
   unknown?: Refusal;
+  /**
+   * WHERE THE ILLEGAL CHOICE SITS AMONG THE BUTTONS: a position in `0..moves.length`, inclusive.
+   *
+   * WHY THIS IS DATA AND NOT A SCREEN'S CHOICE. The illegal button must not be recognisable before it is pressed — it
+   * is a call the engine refuses, and a player who can see which one it is has been handed the answer to a question
+   * they were meant to reason about — so it goes among the legal ones. WHICH position is the puzzle's, like everything
+   * else about it: the screen rebuilds its buttons on every render, so a position computed there would be recomputed
+   * each time, and a random one would move under the player's finger between two renders of the same question. Seeded
+   * by the generator it is stable for the puzzle and varies across puzzles.
+   *
+   * ABSENT MEANS BOTH "no illegal choice" and "a payload from a build that did not carry this"; the screen treats the
+   * absent case as the LAST button, which is where every build before this one drew it.
+   */
+  unknownIndex?: number;
   /** The board the intended path is on AFTER this step. Equals `moves[correctIndex].board`. */
   after: Board;
 }

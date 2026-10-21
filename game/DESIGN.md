@@ -586,7 +586,10 @@ The constraints the generator must satisfy, or the seed is rejected:
 - **All three endings must be distinct boards.** A distractor that reaches the goal is **reclassified as
   correct**, not offered as wrong — otherwise the game tells a player who found a genuine alternative that
   they were wrong.
-- **The illegal option's reason is the engine's own string**, displayed verbatim.
+- **The illegal option's reason is the engine's own string**, displayed verbatim — and, since §8's correction, the
+  option itself is **drawn from the whole refused pool and placed by the puzzle** (`PuzzleStep.unknownIndex`) rather
+  than being the alphabetically-first refusal in last position. It must not be tellable from the other buttons: which
+  call is illegal and which slot it sits in are both the puzzle's business, and neither is a constant.
 
 **CORRECTED IN PHASE 1 — the illegal option CANNOT be one of a step's options, and this is provable rather
 than a preference.** An illegal application returns the board *unchanged*, so an illegal option's "ending"
@@ -661,6 +664,17 @@ answers cannot drift between the client and the server, because there is now onl
   to teach and it needs no call-name vocabulary the player may not have.
 - **The illegal option is the lesson.** It stops part-way, and the engine's own refusal reason is shown
   verbatim — the same reason string the Daily shows, from the same `applyToBoard` result (§4.1).
+  **AND IT MUST NOT BE RECOGNISABLE BEFORE IT IS PRESSED**, which is two rules and both were defects once
+  (reported: *"the third drill option always seems to be 'Adjust to an Alamo', and its outline is in red, a dead
+  giveaway"*). (i) **The call is drawn from the whole refused pool** by the puzzle's rng, not from the
+  alphabetically-first refused title: MEASURED over 100 level-1 seeds, that rule produced **one call in every
+  one of them**, which is a button a player learns to ignore rather than a question they reason about — it is
+  now **44 distinct calls over the same 100 seeds** at L1 and 48 at L3. (ii) **Its POSITION is the puzzle's**
+  (`PuzzleStep.unknownIndex`, `0..optionCount`), because the screen used to append it last, so the slot alone
+  gave it away; the positions are now spread across all of them (L1: 42/28/30 across three slots). (iii) **It
+  carries no styling of its own** — there is deliberately no `.answer.illegal` rule and the screen sets no
+  class, so the only feedback is the engine's refusal after the press. `puzzle-core-probe.mjs` §4b pins (i) and
+  (ii) against the rule that shipped; (iii) is CSS and is not probeable, so it is stated here.
 - **The legal-but-wrong option is the discrimination.** It dances a real call that lands somewhere else, so
   the player has to read the end board rather than spot a failure.
 - **A player's position in the regime is theirs** (decision 11). Everyone's first L1 drill is the same

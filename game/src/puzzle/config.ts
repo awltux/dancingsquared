@@ -46,8 +46,13 @@ export const NODE_BUDGET = 50_000;
  * `g2` IS THE START-BOARD CHANGE: the generator now opens on one of the level's own formations, chosen by the
  * seed, instead of always on a squared set — so every seed produces a different puzzle from the one `g1`
  * produced, and a `g1` store would be serving boards whose start this build no longer generates.
+ *
+ * `g3` IS THE ILLEGAL CHOICE: it is now drawn from the whole refused pool rather than from its alphabetical front
+ * (MEASURED before the change: one call, `Adjust to an Alamo`, in 100 of 100 level-1 seeds) and it carries a seeded
+ * position among the buttons (`PuzzleStep.unknownIndex`). Both are part of the puzzle, so a `g2` store would serve a
+ * drill whose fourth button no longer matches what this build draws.
  */
-export const GENERATOR_VERSION = 'g2';
+export const GENERATOR_VERSION = 'g3';
 
 /**
  * The generator configuration for ONE LEVEL, at the budget this build ships.

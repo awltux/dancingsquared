@@ -56,6 +56,14 @@ export interface DrillView {
   optionCount: number;
   /** The illegal choice, when the generator authored one (step 1 only, and only where a refusal exists). */
   unknown?: { call: string; reason: string };
+  /**
+   * WHERE THE ILLEGAL CHOICE GOES among the buttons, `0..options.length` inclusive — the puzzle's own position, so the
+   * order does not move between two renders of one question.
+   *
+   * ABSENT WHEN THERE IS NO ILLEGAL CHOICE, and the screen then appends nothing. It falls back to the last position
+   * when a payload predates the field, which is where every earlier build drew it.
+   */
+  unknownIndex?: number;
   /** Whether the puzzle is solved. */
   atEnd: boolean;
   /**
@@ -139,6 +147,7 @@ export class DrillController {
       options: step.moves,
       optionCount: this.puzzle.level.optionCount,
       ...(step.unknown ? { unknown: step.unknown } : {}),
+      ...(step.unknownIndex !== undefined ? { unknownIndex: step.unknownIndex } : {}),
       atEnd,
       attempts: this.attemptsCount,
     };

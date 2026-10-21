@@ -7,6 +7,10 @@
 // rules out (AGENTS.md 5: every check needs a negative control, and the comment says which check catches
 // which alternative).
 //
+// §4b IS THE ILLEGAL CHOICE, and it is the section that costs the most per check: 20 extra generations at level 3
+// (MEASURED ~10 s of this probe's run) to measure that neither the illegal call nor its position is a constant. That is
+// the price of not being able to see the buttons — the style half of the same report is CSS, and no probe can read it.
+//
 // Usage: node game/test/puzzle-core-probe.mjs   (engine must be built)
 import { sameBoardById } from 'dancing-squared-engine';
 import { generatePuzzle } from '../src/puzzle/generator.ts';
@@ -119,6 +123,37 @@ console.log('\n== 4. the illegal choice carries the ENGINE\'s reason, verbatim =
     check(!p.solution.includes(step.unknown.call), 'the illegal choice is not a call the solution plays');
     check(!step.moves.some((o) => o.call === step.unknown.call), 'nor one of this step\'s own options');
   }
+}
+
+console.log('\n== 4b. the illegal choice is not a giveaway: neither its call nor its place is fixed ==');
+{
+  // REPORTED: "The third drill option always seems to be 'Adjust to an Alamo', and its outline is in red, a dead
+  // giveaway." Both halves were real and both had a cause: the generator took the alphabetically-FIRST refused title in
+  // the level's pool (so one call, always), and the screen appended it last with its own marker class (so one slot,
+  // always, visibly labelled). MEASURED before the fix: 1 distinct call in 100 of 100 level-1 seeds, and every illegal
+  // choice at the last position. The style half is CSS and this probe does not load `src/ui/`; what it CAN pin is that
+  // the puzzle stopped being a constant, which is what made the button learnable in the first place.
+  const SAMPLE = 20;
+  const sample = [];
+  for (let s = 1; s <= SAMPLE; s++) {
+    const r = generatePuzzle(CONFIG, 900000 + s, LEVEL, applier);
+    if (r.ok && r.puzzle.steps[0].unknown) sample.push(r.puzzle.steps[0]);
+  }
+  check(sample.length >= 10, `enough of the sample carries an illegal choice to judge it by (${sample.length} of ${SAMPLE})`);
+  const calls = new Set(sample.map((s) => s.unknown.call));
+  const positions = sample.map((s) => s.unknownIndex);
+  check(calls.size >= 3, `the illegal call comes from the whole refused pool, not its front (${calls.size} distinct over ${sample.length})`);
+  // THE POSITION MUST INDEX THE BUTTONS IT SITS AMONG: the legal ones plus itself, so `0..optionCount` inclusive.
+  check(positions.every((p) => Number.isInteger(p) && p >= 0 && p <= LEVEL.optionCount),
+    `every position is inside the ${LEVEL.optionCount + 1} buttons (${[...new Set(positions)].sort().join(', ')})`);
+  check(new Set(positions).size >= 2, `and no slot is "the illegal one" (${new Set(positions).size} distinct positions)`);
+  check(positions.some((p) => p !== LEVEL.optionCount), 'at least one is NOT the last button, which is where the old screen always drew it');
+  // NEGATIVE CONTROL, stated as the rule that shipped so the checks above cannot pass vacuously: "the alphabetically
+  // first refused title" is measurably narrower than what replaced it, over the same sample.
+  const oldRule = sample.map((s) => [...applier.candidateCalls(s.from)].sort().find((name) => applier.refusalOf(s.from, name) !== null));
+  const oldDistinct = new Set(oldRule.filter((x) => x !== undefined)).size;
+  check(oldDistinct > 0, `NEGATIVE CONTROL: the sorted-first rule does find refusals (${oldDistinct} distinct calls)`);
+  check(oldDistinct < calls.size, `NEGATIVE CONTROL: and it is narrower than the pool draw (${oldDistinct} against ${calls.size})`);
 }
 
 console.log('\n== 5. GENERATION IS REPRODUCIBLE, byte for byte ==');

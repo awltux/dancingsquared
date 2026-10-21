@@ -116,6 +116,12 @@ function asStep(value: unknown): PuzzleStep | null {
   // than refused: it is a teaching extra whose absence costs a line of copy, not a question the player cannot answer.
   if (isRecord(value.unknown) && typeof value.unknown.call === 'string' && typeof value.unknown.reason === 'string') {
     step.unknown = { call: value.unknown.call, reason: value.unknown.reason };
+    // AND ITS POSITION, bounded by the buttons it must index: `0..moves.length` inclusive, because the illegal choice is
+    // one more button beside the legal ones. A position outside that is DROPPED rather than refused, for the reason the
+    // refusal prose is: the screen then draws it last, which is where every build before this field drew it. A position
+    // with no illegal choice is meaningless and is not read at all.
+    const at = value.unknownIndex;
+    if (isFiniteNumber(at) && Number.isInteger(at) && at >= 0 && at <= moves.length) step.unknownIndex = at;
   }
   return step;
 }

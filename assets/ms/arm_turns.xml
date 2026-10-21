@@ -88,6 +88,27 @@
     </path>
   </tam>
 
+  <!-- THE RIGHT-HAND COUNTERPART, authored as the MIRROR of `Left Arm Turn 3/4`: the formation is the mirror
+       of `Ocean Waves LH BGBG` (`Ocean Waves RH GBGB`) and the move is the mirror (`Cast Right` for
+       `Cast Left`). MEASURED before it was written: the completed end board is exactly the mirror of the left
+       call's end board, and every dancer's heading changes by +90 degrees, where the left call changes it by
+       -90 - i.e. 270 degrees the other way. `poc/tools/arm-turn-probe.mjs` pins the pairing. -->
+  <tam title="Right Arm Turn 3/4" group=" "
+       formation="Ocean Waves RH GBGB">
+    <path>
+      <move select="Cast Right"/>
+    </path>
+    <path>
+      <move select="Cast Right"/>
+    </path>
+    <path>
+      <move select="Cast Right"/>
+    </path>
+    <path>
+      <move select="Cast Right"/>
+    </path>
+  </tam>
+
   <tam title="Centers Arm Turn 3/4" group=" "
        formation="Ocean Waves LH BGGB">
     <path>

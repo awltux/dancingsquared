@@ -4,7 +4,7 @@
 // Gate:        `engine/test/call-titles.mjs` (registered in `engine/test/verify-suite.mjs`)
 // Source:      `scripts/call-titles.mjs`, which explains why this exists at all.
 //
-// MEASURED at generation: 2190 distinct titles across 5488 tams in 500 call files.
+// MEASURED at generation: 2191 distinct titles across 5489 tams in 500 call files.
 //
 // HOW TO USE IT, in order of preference. TYPE THE TABLE: a list or record of titles — a season, a finish
 // list, a permission rule's calls — is checked by annotating it `readonly CallTitle[]` or
@@ -1562,6 +1562,7 @@ export const CALL_TITLE = {
   "Reverse the Pass": "Reverse the Pass",
   "Reverse the Top": "Reverse the Top",
   "Revolve to a Wave": "Revolve to a Wave",
+  "Right Arm Turn 3/4": "Right Arm Turn 3/4",
   "Right Gee Whiz": "Right Gee Whiz",
   "Right Hand Star": "Right Hand Star",
   "Right Jay Partner Tag": "Right Jay Partner Tag",

@@ -247,6 +247,31 @@ console.log('\n== 5. the Daily is a READ of the published challenge ==');
   const noRow = deps('http://localhost:8090', { status: 200, body: {} });
   const absent = await dailyChallenge(2, '2026-10-15', noRow.api);
   check(absent.ok === false && absent.failure.code === 'bad_response', `and so is a body with no challenge in it (${absent.failure?.code})`);
+
+  // THE DAILY GETS A LONGER WINDOW THAN EVERYTHING ELSE, because creating one outlives the shared 8 s timeout.
+  // MEASURED: a Daily generation at the shipped level-1 pool is 9.4-15.1 s (DESIGN.md §7.1), so the ordinary first
+  // press of the day expired before the work finished — reported as "the Today's Button seems to hang the app".
+  // MEASURED HERE with a 1 ms window and a stub that answers after 40 ms: the Daily still succeeds, and the same
+  // window still aborts a drill read, which is the NEGATIVE CONTROL — the override is the Daily's, not a global
+  // loosening. THE STUB HONOURS THE SIGNAL, without which neither check measures anything: the probe's own fetch
+  // helper ignores `init.signal`, so a first version of this check passed for both calls and reported the aborted one
+  // as a malformed BODY rather than a timeout.
+  const slowBody = { daily: { ...CHALLENGE } };
+  const slowFetch = (_url, init) =>
+    new Promise((resolve, reject) => {
+      const timer = setTimeout(() => resolve({ ok: true, status: 200, json: async () => slowBody }), 40);
+      init?.signal?.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(new Error('AbortError'));
+      });
+    });
+  const tolerant = deps('http://localhost:8090', slowFetch);
+  const tight = { ...tolerant.api, timeoutMs: 1 };
+  const patient = await dailyChallenge(2, '2026-10-15', tight);
+  check(patient.ok === true && patient.value.seed === CHALLENGE.seed, `a Daily that takes longer than the shared timeout is still allowed to arrive (${patient.ok}, seed ${patient.value?.seed})`);
+  const intolerant = deps('http://localhost:8090', slowFetch);
+  const aborted = await issueDrill(1, { ...intolerant.api, timeoutMs: 1 });
+  check(aborted.ok === false && aborted.failure.code === 'unreachable', `NEGATIVE CONTROL: the same 1 ms window aborts a drill read (${aborted.failure?.code})`);
 }
 
 console.log('\n== 6. advancing sends the drill id it is advancing ==');

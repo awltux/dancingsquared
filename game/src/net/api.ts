@@ -241,7 +241,7 @@ export async function apiCall<T>(
   deps: ApiDeps,
   path: string,
   init: { method: string; query?: Record<string, string>; body?: unknown },
-  options: { readonly anonymous?: boolean } = {},
+  options: { readonly anonymous?: boolean; readonly timeoutMs?: number } = {},
 ): Promise<ApiResult<T>> {
   if (deps.base === '') {
     // THE GUARD EVERY CALLER ALREADY CHECKED, kept because a caller that forgot would otherwise fire a relative
@@ -258,7 +258,10 @@ export async function apiCall<T>(
         ...(init.body === undefined ? {} : { 'content-type': 'application/json' }),
       },
       ...(init.body === undefined ? {} : { body: JSON.stringify(init.body) }),
-      signal: AbortSignal.timeout(deps.timeoutMs),
+      // THE CALLER MAY WIDEN THE WINDOW, and one does: creating a Daily costs seconds on the server (see
+      // `DAILY_TIMEOUT_MS`), which the default handshake-sized timeout cannot cover. Narrowing is never allowed —
+      // a per-call override is for a request that is legitimately slower than the rest, not for impatience.
+      signal: AbortSignal.timeout(options.timeoutMs === undefined ? deps.timeoutMs : Math.max(options.timeoutMs, deps.timeoutMs)),
     });
     if (!response.ok) return { ok: false, failure: await failureFrom(response) };
     return { ok: true, value: (await response.json()) as T };
@@ -397,6 +400,20 @@ export interface DailyChallenge {
 }
 
 /**
+ * HOW LONG THE DAILY'S READ MAY TAKE — and it is NOT the shared timeout, because that one is 8 s and creating a Daily
+ * takes longer than that.
+ *
+ * MEASURED: a Daily generation at the shipped level-1 pool costs **9.4-15.1 s** on the serving side (DESIGN.md §7.1),
+ * and the server generates it on the first read of a day (the stored artefact is the SEED, not the boards). So the
+ * shared 8 s window EXPIRED BEFORE THE WORK FINISHED on the ordinary first press of the day, every time — reported as
+ * "the Today's Daily button seems to hang the app", because the app sat there for eight seconds and then said the
+ * server could not be reached. Thirty seconds is that measurement with room for a cold applier on top (the first
+ * applier for a level costs ~2 s, `api/src/levels.ts`). It is a CEILING on a request the player is watching, not a new
+ * default: every other call keeps the short window, because a handshake that hangs is a different problem.
+ */
+export const DAILY_TIMEOUT_MS = 30_000;
+
+/**
  * `GET /puzzle?mode=daily&level&date` — the challenge for a level and a UTC day.
  *
  * THE ANSWER CARRIES THE PUZZLE, because the client no longer generates (§9's reversal): the server derives the
@@ -406,10 +423,12 @@ export interface DailyChallenge {
  * nobody checked.
  */
 export async function dailyChallenge(level: number, day: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<DailyChallenge>> {
-  const answer = await apiCall<{ daily?: unknown }>(deps, '/puzzle', {
-    method: 'GET',
-    query: { mode: 'daily', level: String(level), date: day },
-  });
+  const answer = await apiCall<{ daily?: unknown }>(
+    deps,
+    '/puzzle',
+    { method: 'GET', query: { mode: 'daily', level: String(level), date: day } },
+    { timeoutMs: DAILY_TIMEOUT_MS },
+  );
   if (!answer.ok) return answer;
   const raw = answer.value.daily;
   if (typeof raw !== 'object' || raw === null) return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a published challenge' } };

@@ -70,6 +70,28 @@ export class DailyScreen {
     };
   }
 
+  /**
+   * The panel while the challenge is being CREATED, which is a state it did not have before.
+   *
+   * REPORTED: "The Today's Daily button seems to hang the app." The request is the server's to answer, and creating a
+   * Daily costs seconds (MEASURED 9.4-15.1 s at the shipped level-1 pool, DESIGN.md §7.1) — while the panel used to
+   * stay EMPTY, every element below left as the previous mode had it, so the app looked frozen rather than busy. This
+   * says what is happening, and clears everything a challenge owns so nothing from a previous day or level is left
+   * standing as if it belonged to this one.
+   */
+  pending(text: string): void {
+    this.els.prompt.textContent = text;
+    for (const clean of [this.els.waypoints, this.els.readout, this.els.offer, this.els.pairHint, this.els.line, this.els.verdict, this.els.result]) {
+      clean.replaceChildren();
+    }
+    this.els.result.hidden = true;
+    // THE ARMED READING AND THE LAST VIEW GO WITH IT: they belong to a challenge that is no longer on screen, and the
+    // next `show` must not redraw from a stale view.
+    this.armed = null;
+    this.lastView = null;
+    this.clockText = null;
+  }
+
   /** Draw the whole panel from the run's view. */
   show(view: DailyView): void {
     this.els.prompt.textContent = view.outcome === 'playing'

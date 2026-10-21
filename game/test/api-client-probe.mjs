@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, recordDrillReveal, replayDrill, spendHint, submitRun, waitForDaily } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, pollDaily, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -274,49 +274,91 @@ console.log('\n== 5. the Daily is a READ of the published challenge ==');
   check(aborted.ok === false && aborted.failure.code === 'unreachable', `NEGATIVE CONTROL: the same 1 ms window aborts a drill read (${aborted.failure?.code})`);
 }
 
-console.log('\n== 5b. the Daily is POLLED until the server has created it ==');
+console.log('\n== 5b. the Daily is POLLED in the BACKGROUND, never awaited as one long request ==');
 {
-  // REPORTED: "the app still hangs … it needs an asynchronous mechanism to poll if Todays Daily is available."
-  // The server answers `202 { ready: false }` while it generates (a read never generates — `api/handlers/puzzle.ts`),
-  // so the client asks again rather than waiting inside one request for the ten-odd seconds a creation costs.
+  // REPORTED TWICE. First: "the app still hangs … it needs an asynchronous mechanism to poll if Todays Daily is
+  // available." Then, of the first fix: "The call to fetchDaily never returns and the UI hangs on the promise … This
+  // fetchDaily should trigger a background job on the server that generates the challenge and then the ui polls it
+  // intermittently." The server side was already the trigger (`202 { ready: false }` + a deferred generation); what was
+  // wrong was the CLIENT, which awaited the whole loop. `pollDaily` now reschedules itself on a timer and returns a
+  // handle, so nothing waits on it.
   const CHALLENGE = { day: '2026-10-15', levelIndex: 2, seed: 1268207204, poolVersion: 'ms-1', publishedAtMs: 1700000000000, playable: true, puzzle: { ...PUZZLE, mode: 'daily', level: { index: 2, poolSize: 15, depth: 1, optionCount: 2 } } };
   const NOT_READY = { ...CHALLENGE, ready: false, puzzle: null, readings: [] };
   const READY = { ...CHALLENGE, ready: true };
+
+  /** Run a poll to completion, collecting every answer it hands over. `stopAfter` cancels it after N answers. */
+  const poll = (api, options, stopAfter = Infinity) =>
+    new Promise((resolve) => {
+      const answers = [];
+      let handle = null;
+      handle = pollDaily(2, '2026-10-15', api, {
+        onAnswer: (answer, state) => {
+          answers.push({ answer, state });
+          if (answers.length >= stopAfter) {
+            handle?.stop();
+            resolve({ answers, stopped: true });
+          } else if (!answer.ok || answer.value.ready || state.gaveUp) {
+            resolve({ answers, stopped: false });
+          }
+        },
+      }, options);
+    });
+
   let asked = 0;
   const notReadyTwice = () => {
     asked++;
     return { status: asked <= 2 ? 202 : 200, body: { daily: asked <= 2 ? NOT_READY : READY } };
   };
   const wired = deps('http://localhost:8090', notReadyTwice);
-  let waited = 0;
-  const answer = await waitForDaily(2, '2026-10-15', wired.api, { attempts: 10, intervalMs: 1, onWait: () => waited++ });
-  check(answer.ok === true && answer.value.ready === true, `the poll returns the challenge once it is ready (${answer.ok}, ready ${answer.value?.ready})`);
-  check(answer.value.puzzle?.steps.length === 1, `with its boards (${answer.value?.puzzle?.steps?.length} step(s))`);
+  const finished = await poll(wired.api, { attempts: 10, intervalMs: 1 });
+  const last = finished.answers[finished.answers.length - 1];
+  check(last.answer.ok === true && last.answer.value.ready === true, `the poll ends on the challenge once it is ready (${last.answer.ok}, ready ${last.answer.value?.ready})`);
+  check(last.answer.value.puzzle?.steps.length === 1, `with its boards (${last.answer.value?.puzzle?.steps?.length} step(s))`);
   check(asked === 3, `it asked THREE times for two "not ready" answers (${asked})`);
-  check(waited === 2, `and reported each wait, which is what the panel's message is driven from (${waited})`);
+  check(finished.answers.length === 3, `and handed over every answer, so the panel can count the wait (${finished.answers.length})`);
+  // THE HANDLE, NOT A PROMISE: the poll returns immediately and the caller owns the lifetime. That is the shape the
+  // report asked for — "the UI polls it intermittently" — and it is what lets a level change cancel it.
+  check(typeof pollDaily(2, '2026-10-15', wired.api, { onAnswer: () => {} }, { attempts: 1, intervalMs: 1 }).stop === 'function',
+    'the poll returns a handle with stop(), so nothing is awaited');
 
   // A REFUSAL IS FINAL AND IS NOT RETRIED: a day nobody published, a foreign pool and an unreachable server all mean
-  // "asking again will not help", and a loop that retried them would spin for a minute before saying so.
+  // "asking again will not help", and a poll that retried them would spin for a minute before saying so.
   let refusedCalls = 0;
   const refuse = () => {
     refusedCalls++;
     return { status: 404, body: { error: { code: 'no_published_daily', message: 'level 2 has no published challenge for 2026-10-16' } } };
   };
   const dead = deps('http://localhost:8090', refuse);
-  const stopped = await waitForDaily(2, '2026-10-16', dead.api, { attempts: 10, intervalMs: 1 });
-  check(stopped.ok === false && stopped.failure.code === 'no_published_daily', `NEGATIVE CONTROL: a refusal comes back as itself (${stopped.failure?.code})`);
+  const refused = await poll(dead.api, { attempts: 10, intervalMs: 1 });
+  const refusal = refused.answers[refused.answers.length - 1];
+  check(refusal.answer.ok === false && refusal.answer.failure.code === 'no_published_daily', `NEGATIVE CONTROL: a refusal comes back as itself (${refusal.answer.failure?.code})`);
   check(refusedCalls === 1, `NEGATIVE CONTROL: and is NOT retried — one request, not ten (${refusedCalls})`);
 
   // THE BUDGET IS BOUNDED: a server that is never ready is given up on rather than polled for ever, and the last answer
-  // is what the caller sees, so the panel can say the server did not finish.
+  // carries `gaveUp` so the panel can say the server did not finish rather than pretending nothing happened.
   let neverReady = 0;
   const stuck = deps('http://localhost:8090', () => {
     neverReady++;
     return { status: 202, body: { daily: NOT_READY } };
   });
-  const gaveUp = await waitForDaily(2, '2026-10-15', stuck.api, { attempts: 3, intervalMs: 1 });
-  check(gaveUp.ok === true && gaveUp.value.ready === false, `a server that never finishes is given up on with its last answer (${gaveUp.value?.ready})`);
+  const gaveUp = await poll(stuck.api, { attempts: 3, intervalMs: 1 });
+  const lastStuck = gaveUp.answers[gaveUp.answers.length - 1];
+  check(lastStuck.state.gaveUp === true && lastStuck.answer.ok === true && lastStuck.answer.value.ready === false,
+    `a server that never finishes is given up on, flagged, with its last answer (gaveUp ${lastStuck.state.gaveUp})`);
   check(neverReady === 3, `after exactly the attempt budget (${neverReady})`);
+
+  // AND stop() ACTUALLY STOPS IT: this is the rule that makes a level change safe, because an answer for the level the
+  // player left must not be applied to the regime they are on now.
+  let afterStop = 0;
+  const endless = deps('http://localhost:8090', () => {
+    afterStop++;
+    return { status: 202, body: { daily: NOT_READY } };
+  });
+  const cancelled = await poll(endless.api, { attempts: 100, intervalMs: 1 }, 2);
+  const stoppedAt = afterStop;
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  check(cancelled.stopped === true, 'the poll can be cancelled by its own caller');
+  check(afterStop === stoppedAt, `NEGATIVE CONTROL: and NO further request follows the cancel (${afterStop} after ${stoppedAt})`);
 }
 
 console.log('\n== 6. advancing sends the drill id it is advancing ==');

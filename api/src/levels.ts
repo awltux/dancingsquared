@@ -144,7 +144,17 @@ export function cachedPuzzle(seed: number, level: LevelSpec, mode: PuzzleMode): 
 export function preparePuzzle(seed: number, level: LevelSpec, mode: PuzzleMode): void {
   if (cachedPuzzle(seed, level, mode)) return;
   setTimeout(() => {
-    puzzleFor(seed, level, mode);
+    try {
+      puzzleFor(seed, level, mode);
+    } catch (error) {
+      // A THROW MUST NOT BECOME "NOT READY FOR EVER". `puzzleFor` normally returns a refusal as a VALUE, so a throw here
+      // is a bug (a broken applier, a bad allocation) — and without this it would be swallowed by the timer, leaving the
+      // read answering 202 at every poll while the client polls its whole budget. That is precisely "the spinner never
+      // stops", which is the report this endpoint exists to answer. Caching the failure turns it into `unplayable_daily`
+      // with its reason, which the client shows.
+      const reason = error instanceof Error ? error.message : String(error);
+      puzzles.set(puzzleKey(seed, level, mode), { ok: false, reason: `the generation threw: ${reason}` });
+    }
   }, 0);
 }
 

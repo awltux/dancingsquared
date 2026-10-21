@@ -466,41 +466,72 @@ export async function dailyChallenge(level: number, day: string, deps: ApiDeps =
 }
 
 /**
- * `dailyChallenge` AS A POLL: today's challenge, asked for until the server has finished creating it.
+ * TODAY'S CHALLENGE, AS A BACKGROUND POLL WITH CALLBACKS — and NOT a promise the shell waits on.
  *
- * WHY A POLL AND NOT ONE LONG REQUEST. The server used to generate the puzzle inside `GET /puzzle`, which cost 9.4-15.1 s
- * (DESIGN.md §7.1) and held that connection open while every other request queued behind it — reported as "the app
- * still hangs" even after the button grew a spinner, because a spinner on a blocked server is a spinner forever. The
- * read now answers `202 { ready: false }` and starts the work, so what the client does is ASK AGAIN rather than WAIT.
+ * REPORTED TWICE, and the second report is this shape's reason: *"The call to fetchDaily never returns and the UI hangs
+ * on the promise … This fetchDaily should trigger a background job on the server that generates the challenge and then
+ * the ui polls it intermittently."* That was exactly right about the first version. It awaited a loop, so the shell held
+ * a pending promise (and a spinning button) for the WHOLE poll budget — up to a minute of "busy" for a wait whose length
+ * nobody controls. The server side was already right: the read answers `202 { ready: false }` and defers the generation,
+ * so the FIRST request is the trigger.
  *
- * EACH ATTEMPT IS A SHORT REQUEST, so `apiCall`'s window is no longer a claim about how long a creation takes: a poll
- * that times out is just a poll to retry. The overall bound is `attempts × interval` and it is deliberately generous —
- * this is a background wait the player is not blocked on (they can play drills, and the button says what is happening).
+ * SO THERE IS NO LONGER A LONG-LIVED PROMISE. `pollDaily` asks once, hands the answer to `onAnswer`, and RESCHEDULES
+ * itself with a timer while the answer says "not ready". The caller does not await anything, the app is free between
+ * ticks, and `stop()` cancels it (a level change, a mode change, a second press).
  *
- * IT STOPS ON THE FIRST ANSWER THAT IS NOT "NOT READY", and that includes a refusal: a day nobody published, a pool this
+ * IT STOPS ON THE FIRST ANSWER THAT IS NOT "NOT READY", and that includes a REFUSAL: a day nobody published, a pool this
  * build cannot play and an unreachable server are all final, and retrying them would spin for ever.
+ *
+ * THE BUDGET IS GENTLE BECAUSE THE WAIT IS FREE: `attempts × intervalMs` is how long the app keeps checking, not how long
+ * a player is held. When it runs out the last answer is handed over with `gaveUp: true`, so the panel can say the server
+ * did not finish rather than pretending nothing happened.
  */
-export async function waitForDaily(
-  level: number,
-  day: string,
-  deps: ApiDeps = browserDeps(),
-  options: { readonly attempts?: number; readonly intervalMs?: number; readonly onWait?: () => void } = {},
-): Promise<ApiResult<DailyChallenge>> {
-  const attempts = options.attempts ?? 40;
-  const intervalMs = options.intervalMs ?? 1500;
-  let last: ApiResult<DailyChallenge> = { ok: false, failure: { code: 'not_ready', message: 'the challenge was never asked for' } };
-  for (let attempt = 0; attempt < attempts; attempt++) {
-    last = await dailyChallenge(level, day, deps);
-    if (!last.ok || last.value.ready) return last;
-    options.onWait?.();
-    await sleep(intervalMs);
-  }
-  return last;
+export interface DailyPollHandlers {
+  /** A fresh answer: ready with boards, or a refusal, or another "not ready". */
+  readonly onAnswer: (answer: ApiResult<DailyChallenge>, state: { readonly attempt: number; readonly gaveUp: boolean }) => void;
 }
 
-/** A delay, named so the poll reads as one and a probe can reason about the interval. */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export function pollDaily(
+  level: number,
+  day: string,
+  deps: ApiDeps,
+  handlers: DailyPollHandlers,
+  options: { readonly attempts?: number; readonly intervalMs?: number } = {},
+): { stop: () => void } {
+  const attempts = options.attempts ?? 90;
+  const intervalMs = options.intervalMs ?? 2000;
+  let attempt = 0;
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const tick = async (): Promise<void> => {
+    if (stopped) return;
+    attempt++;
+    const answer = await dailyChallenge(level, day, deps);
+    if (stopped) return;
+    // A READY ANSWER OR A REFUSAL ENDS THE POLL. `ready` is the server's own flag, so "not ready" is never inferred
+    // from a missing puzzle — that is also what an unplayable challenge looks like.
+    const finished = !answer.ok || answer.value.ready;
+    if (finished) {
+      handlers.onAnswer(answer, { attempt, gaveUp: false });
+      return;
+    }
+    if (attempt >= attempts) {
+      handlers.onAnswer(answer, { attempt, gaveUp: true });
+      return;
+    }
+    handlers.onAnswer(answer, { attempt, gaveUp: false });
+    if (!stopped) timer = setTimeout(() => void tick(), intervalMs);
+  };
+
+  void tick();
+  return {
+    stop: () => {
+      stopped = true;
+      if (timer !== null) clearTimeout(timer);
+      timer = null;
+    },
+  };
 }
 
 /** A completed run, as `POST /runs` takes it. `calls` is the transcript: one call per step for the Drill. */

@@ -36,7 +36,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, waitForDaily, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -1576,16 +1576,19 @@ function startDaily(): void {
 }
 
 /**
- * THE DAILY FETCH IN FLIGHT — which day and level it is for, and the promise, so a second press REUSES it.
+ * THE DAILY POLL IN FLIGHT — which day and level it is for, and the handle that cancels it.
  *
- * WHY THIS IS SHELL STATE AND NOT A SCREEN'S. Creating a challenge is a server round trip that costs seconds
- * (MEASURED 9.4-15.1 s at the shipped level-1 pool, DESIGN.md §7.1), and the tab buttons stay live throughout: a
- * player who presses "Today's Daily", goes back to the drills and presses it again used to start a SECOND generation
- * of the same challenge — two requests, each of which makes the server do the same ten seconds of work, and whichever
- * answered last decided what the panel showed. Reusing the promise means one creation per (day, level) no matter how
- * many times the player looks at it.
+ * WHY THIS IS SHELL STATE AND NOT A SCREEN'S. Creating a challenge costs the server seconds (MEASURED 9.4-15.1 s at the
+ * shipped level-1 pool, DESIGN.md §7.1), and the tab buttons stay live throughout: a player who presses "Today's Daily",
+ * goes back to the drills and presses it again used to start a SECOND generation of the same challenge — two requests,
+ * each making the server do the same ten seconds of work, and whichever answered last decided what the panel showed. One
+ * poll per (day, level), cancelled when it stops being the one to show.
+ *
+ * IT IS A HANDLE AND NOT A PROMISE, which is the correction the second report asked for: *"The call to fetchDaily never
+ * returns and the UI hangs on the promise."* Nothing awaits the poll, so the button's pending state lasts exactly as long
+ * as the poll does and the app is free between ticks.
  */
-let dailyRequest: { day: string; levelIndex: number; promise: Promise<void> } | null = null;
+let dailyPoll: { day: string; levelIndex: number; stop: () => void } | null = null;
 
 /**
  * Show that today's challenge is being CREATED, on the control the player pressed.
@@ -1608,20 +1611,29 @@ function setDailyBusy(busy: boolean): void {
   }
 }
 
+/** Cancel the poll, if there is one. Called when it finishes, when the level changes, and on a fresh issue. */
+function stopDailyPoll(): void {
+  dailyPoll?.stop();
+  dailyPoll = null;
+}
+
 /**
- * The SERVER path: today's PUBLISHED challenge (§9, §11).
+ * The SERVER path: today's PUBLISHED challenge (§9, §11) — TRIGGER, THEN POLL, and never wait.
  *
- * THE SEED IS READ, NOT DERIVED, and the client would compute the same number — the point is that it is the number
- * the boundary job validated and published for everyone at this level, so a day nobody published is a refusal
- * ("no published challenge") rather than a question nobody checked. The PUZZLE comes with it: the client generates
- * nothing (§9), so a playable challenge with no boards is a refusal rather than a seed to draw from.
+ * THE FIRST REQUEST IS THE TRIGGER. `GET /puzzle` never generates inside the request (`api/handlers/puzzle.ts`): on a
+ * miss it starts the generation for after its response and answers `202 { ready: false }`. So this function asks once
+ * and returns; `pollDaily` reschedules itself on a timer while the answer says "not ready". Nothing here awaits a
+ * minute-long loop, and `fetchDaily` — the shape the report pointed at — no longer exists.
  *
- * IT NEVER BLOCKS THE APP, which is the other half of the report this answers. The fetch is a promise the shell does
- * not await, the button carries the pending state while it runs, and the player is free to switch back to the Drill
- * and keep going — `showDaily` then leaves the DRILL's chrome alone because it is not the mode on screen. What the
- * player cannot do is nothing at all while a tab sits empty.
+ * NOTHING HERE TOUCHES `els.loading`, AND THAT IS THE FIX FOR "seems to hang the app". That element is a FULL-SCREEN
+ * OPAQUE OVERLAY (`position: absolute; inset: 0`, style.css) — right for a drill issue that takes a fraction of a
+ * second, and catastrophic for a Daily that takes seconds: MEASURED IN A BROWSER with the read delayed to 6 s, the whole
+ * app was a black page with one centred sentence, so the press looked like a freeze and the tabs could not be reached.
+ *
+ * THE PLAYER IS NOT BLOCKED EITHER WAY: they can switch back to the Drill and keep going, and `showDaily` leaves the
+ * DRILL's chrome alone when the Daily is not the mode on screen.
  */
-async function startServerDaily(): Promise<void> {
+function startServerDaily(): void {
   if (!applier || !level) return;
   const day = utcDay(new Date());
   if (dailyIsCurrent(day)) {
@@ -1629,54 +1641,42 @@ async function startServerDaily(): Promise<void> {
     return;
   }
   const levelIndex = level.index;
-  const inFlight = dailyRequest;
-  if (inFlight && inFlight.day === day && inFlight.levelIndex === levelIndex) {
-    // THE SAME CREATION, ALREADY RUNNING: wait for it rather than starting another. `showDaily` is called by the
-    // request that started it, so there is nothing to do here but not duplicate the work.
-    await inFlight.promise;
-    return;
-  }
+  if (dailyPoll && dailyPoll.day === day && dailyPoll.levelIndex === levelIndex) return; // already polling this one
+  stopDailyPoll();
   setDailyBusy(true);
   // A PENDING PANEL ONLY WHERE A PANEL IS ON SCREEN. In the Drill mode the player is looking at a board and must not
   // have it replaced by a message about the other tab; the button's spinner is the whole indicator there.
   if (mode === 'daily') dailyScreen.pending("Creating today's challenge — this takes a few seconds the first time.");
-  const promise = fetchDaily(day, levelIndex);
-  dailyRequest = { day, levelIndex, promise };
-  try {
-    await promise;
-  } finally {
-    if (dailyRequest?.promise === promise) dailyRequest = null;
-    setDailyBusy(false);
-  }
+  const handle = pollDaily(levelIndex, day, browserDeps(), {
+    onAnswer: (answer, state) => onDailyAnswer(answer, state, day, levelIndex),
+  });
+  dailyPoll = { day, levelIndex, stop: handle.stop };
 }
 
 /**
- * The fetch and its three refusals, split out so that `startServerDaily` owns only the de-duplication and the control's
- * pending state. Every refusal lands in the same place the panel reads, with the server's own sentence.
+ * One poll answer: the challenge, a refusal, "still not ready", or the poll running out of attempts.
+ *
+ * THE ORDER IS THE RULE. A level change cancels first (the answer belongs to a regime the player has left); then a ready
+ * answer is shown; then a refusal is reported; then a give-up; and only then is the wait continued, which is why the
+ * panel's message can count the attempts without the spinner ever lying about being finished.
  */
-async function fetchDaily(day: string, levelIndex: number): Promise<void> {
-  if (!applier) return;
-  // NOTHING HERE TOUCHES `els.loading`, AND THAT IS THE FIX FOR "seems to hang the app". That element is a FULL-SCREEN
-  // OPAQUE OVERLAY (`position: absolute; inset: 0`, style.css) — right for a drill issue that takes a fraction of a
-  // second, and catastrophic for a Daily that takes seconds: MEASURED IN A BROWSER with the read delayed to 6 s, the
-  // whole app was a black page with one centred sentence, so the press looked like a freeze and the tab buttons could
-  // not be reached. What the player gets instead is the button's own pending state (`setDailyBusy`) and, on the Daily
-  // tab, the panel's own message — both of which leave the app VISIBLE and the drills usable.
-  // AND IT IS A POLL, not one long request: the server answers `202 { ready: false }` while it creates the challenge
-  // (a read never generates — `api/handlers/puzzle.ts`), so this asks again every 1.5 s rather than waiting inside a
-  // single request for the ten-odd seconds a creation costs. The player is not blocked either way — they can be playing
-  // a drill while this runs — which is the whole of "allows the user to continue with drills until it's ready".
-  const answer = await waitForDaily(levelIndex, day, browserDeps(), {
-    onWait: () => {
-      // THE PANEL IS UPDATED ONLY WHERE IT IS ON SCREEN: in the Drill mode the player is looking at a board, and the
-      // button's spinner is the whole indicator there.
-      if (mode === 'daily') dailyScreen.pending("Waiting for the server to finish creating today's challenge — you can keep drilling until it is ready.");
-    },
-  });
-  // THE ANSWER IS FOR A LEVEL THE PLAYER MAY HAVE LEFT — a level change while it was in flight — so it is dropped
-  // rather than applied to a regime it does not belong to. The next request for the new level starts its own.
-  if (level?.index !== levelIndex) return;
+function onDailyAnswer(
+  answer: Awaited<ReturnType<typeof dailyChallenge>>,
+  state: { readonly attempt: number; readonly gaveUp: boolean },
+  day: string,
+  levelIndex: number,
+): void {
+  if (level?.index !== levelIndex) {
+    stopDailyPoll();
+    setDailyBusy(false);
+    return;
+  }
+  const finish = (): void => {
+    stopDailyPoll();
+    setDailyBusy(false);
+  };
   if (!answer.ok) {
+    finish();
     daily = null;
     dailyScreen.say(`No Daily from the server: ${answer.failure.message}`, 'bad');
     if (mode === 'daily') {
@@ -1688,6 +1688,7 @@ async function fetchDaily(day: string, levelIndex: number): Promise<void> {
   if (!answer.value.playable) {
     // A CHALLENGE FROM ANOTHER POOL IS NOT A CHALLENGE THIS BUILD CAN PLAY (§7.2), and saying so is better than
     // generating a board the server would refuse to score.
+    finish();
     daily = null;
     dailyScreen.say(`Today's Daily was published against pool ${answer.value.poolVersion}, and this build serves ${MAIN_POOL.version}.`, 'bad');
     if (mode === 'daily') {
@@ -1696,21 +1697,26 @@ async function fetchDaily(day: string, levelIndex: number): Promise<void> {
     }
     return;
   }
-  // A PLAYABLE CHALLENGE WITH NO PUZZLE IS A REFUSAL, not a seed to generate from: the server's own read says this
-  // build may play it, so a missing puzzle is a payload this app cannot use, and drawing one locally would be the
-  // client inventing the question it is about to be scored on (DESIGN.md §9).
+  // A PLAYABLE CHALLENGE WITH NO PUZZLE IS A REFUSAL, not a seed to generate from: the server's own read says this build
+  // may play it, so a missing puzzle is a payload this app cannot use, and drawing one locally would be the client
+  // inventing the question it is about to be scored on (DESIGN.md §9).
   if (!answer.value.puzzle) {
+    finish();
     daily = null;
-    dailyScreen.say("The server's Daily arrived without a puzzle this app can draw.", 'bad');
+    const why = state.gaveUp
+      ? 'the server is still creating it after a couple of minutes — try again in a moment'
+      : 'the server sent no boards for it';
+    dailyScreen.say(`No Daily yet: ${answer.value.ready ? 'the answer carried no puzzle' : why}.`, 'info');
     if (mode === 'daily') {
-      dailyScreen.pending("Today's Daily is unavailable — the server sent no boards for it.");
-      els.regime.textContent = "Today's Daily — unavailable";
+      dailyScreen.pending(`Today's Daily is not ready — ${why}.`);
+      els.regime.textContent = "Today's Daily — not ready yet";
     }
     return;
   }
-  // THE START BOARD'S GROUPED LIST, when the server sent one: it goes into the applier's cache before the first view,
-  // so the picker draws without paying `applicableMoves` for the one board the server had already computed.
-  if (answer.value.readings) applier.seedReadings(answer.value.puzzle.start, answer.value.readings);
+  // READY: the boards first, then the panel — the applier's cache is seeded before the first view so the picker draws
+  // without paying `applicableMoves` for the board the server had already computed.
+  finish();
+  if (answer.value.readings) applier?.seedReadings(answer.value.puzzle.start, answer.value.readings);
   showDaily(answer.value.puzzle, day, answer.value.seed);
 }
 

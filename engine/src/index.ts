@@ -194,6 +194,11 @@ export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SA
 // the call site at compile time instead of leaving a name that resolves to nothing (AGENTS.md §11.2.6).
 export { CALL_TITLE, isCallTitle } from './sequencer/call-titles.js';
 export type { CallTitle } from './sequencer/call-titles.js';
+// What call a RAW STRING names: the title, a description, a spoken name, a selection over a base call, the
+// corpus's two suffix conventions, or All8 shorthand — in that measured order, with a refusal that names what
+// it tried (`engine/test/call-names.mjs` pins every branch).
+export { CALL_ALIAS, readCallName } from './sequencer/call-name.js';
+export type { CallNameHow, CallNameReading } from './sequencer/call-name.js';
 export { applyCodedMove } from './sequencer/coded-moves.js';
 export { normalisedState, orientationDeltaSteps, ORIENTATION_STEP, ORIENTATION_STEPS } from './sequencer/fsm.js';
 export {

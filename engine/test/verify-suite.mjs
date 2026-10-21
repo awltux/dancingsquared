@@ -42,6 +42,13 @@ const SUITE = [
   // nothing, which is how `Promenade Home` cost nine harnesses across five unrelated subsystems (§11.2.6).
   // ~1s, one parse of the corpus.
   { h: 'call-titles', light: true },
+  // A CALL NAME IS READ ONCE, IN ONE PLACE. `readCallName` answers "what call does this string name" for a
+  // title, a description (`Promenade to Home`), a spoken name (`Do Sa Do`), a selection over a base call
+  // (`Heads Dosado`), the corpus's two suffix conventions and All8 shorthand — in a MEASURED order, with a
+  // refusal that says what it tried. Its gate pins one case per branch plus the negatives that matter: a
+  // two-call figure is not a name, a title that begins with a selection word stays a title, and a name another
+  // notation decodes but the corpus lacks is refused while NAMING what it decoded. ~1s, no corpus walk.
+  { h: 'call-names', light: true },
   // The authoring convention for a shape smaller than the set, measured over all 5963 shipped tams and
   // pinned, plus what the formation registry keeps (210 of 273 declared shapes). In `light` because it
   // is one pass over the assets, and it is the harness that makes "what does a shape of four dancers

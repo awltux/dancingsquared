@@ -28,7 +28,7 @@ export function asProgress(stored: StoredItem | null, levelIndex: number): Drill
   if (value.issued === null || value.issued === undefined) {
     return { levelIndex, issued: null, finished: value.finished as number[], passed };
   }
-  const raw = value.issued as { id?: unknown; index?: unknown; seed?: unknown; poolVersion?: unknown; scheduleVersion?: unknown; issuedAtMs?: unknown };
+  const raw = value.issued as { id?: unknown; index?: unknown; seed?: unknown; poolVersion?: unknown; scheduleVersion?: unknown; issuedAtMs?: unknown; replay?: unknown };
   if (typeof raw.id !== 'string' || typeof raw.index !== 'number' || typeof raw.seed !== 'number'
     || typeof raw.poolVersion !== 'string' || typeof raw.scheduleVersion !== 'string' || typeof raw.issuedAtMs !== 'number') return null;
   const issued: IssuedDrill = {
@@ -38,6 +38,14 @@ export function asProgress(stored: StoredItem | null, levelIndex: number): Drill
     poolVersion: raw.poolVersion,
     scheduleVersion: raw.scheduleVersion,
     issuedAtMs: raw.issuedAtMs,
+    // A REATTEMPT IS READ BACK, and losing it here was the first version's bug: the flag is what `isPlayable` reads to
+    // allow a finished index, so a row that dropped it turned every reattempt into a drill the next read replaced.
+    // MEASURED before the fix: `POST /drill/replay` answered position 0 and the very next `GET /drill/current` answered
+    // position 2 — the reattempt existed for exactly one response.
+    //
+    // IT IS ABSENT FOR AN ORDINARY ISSUE rather than written as `false`, so a row stored before this field existed reads
+    // as what it is: an ordinary issue. That is the same shape as `passed` above — the optional field IS the migration.
+    ...(raw.replay === true ? { replay: true as const } : {}),
   };
   return { levelIndex, issued, finished: value.finished as number[], passed };
 }

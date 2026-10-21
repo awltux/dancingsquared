@@ -7,7 +7,7 @@
 //
 // TEXT GOES IN VIA `textContent`, NEVER `innerHTML` (AGENTS.md §6). Every string here is a number or a word this file
 // writes itself, but the rule is the file's, not the data's.
-import { blockCells, blockSummary, type CellState } from '../puzzle/block.ts';
+import { blockCells, blockSummary, isReplayable, type CellState } from '../puzzle/block.ts';
 import { el } from './dom.ts';
 
 /** What the shell knows about the level, as the screen needs it. */
@@ -44,8 +44,8 @@ export class LevelScreen {
   private readonly els: El;
 
   constructor(
-    /** Called when the NEXT cell is pressed — the one cell that starts a drill. */
-    private readonly onPlay: () => void,
+    /** Called when a PLAYABLE cell is pressed — the next drill, or a skipped one to reattempt — with its index. */
+    private readonly onPlay: (index: number) => void,
     /** Called when the level is full and the player takes the way on. */
     private readonly onNextLevel: () => void,
   ) {
@@ -64,10 +64,13 @@ export class LevelScreen {
    * changes between levels, so a screen that patched a fixed set of cells would show four where the publisher wrote
    * a hundred.
    *
-   * ONLY THE NEXT CELL IS A CONTROL. The progress map (DESIGN.md §8) gives a player one drill at a time, and a
-   * finished drill cannot be re-issued: there is no route that asks the server for position N, which is a decision
-   * rather than an omission (the plan's Q18 kept the order the server's). So a done cell is a statement, not a
-   * button — pressing it would need an endpoint that does not exist.
+   * TWO STATES ARE CONTROLS, and the second one is a correction. `next` is the drill the server has issued; a
+   * `done-not-passed` cell is a drill that was closed WITHOUT being passed — skipped, or solved only after the answer
+   * was shown — and it is pressable because the player has to be able to go back and earn the pass. It used to be a
+   * statement, on the recorded decision that no route asked for a position by name (§15 Q25(a)); that decision was the
+   * DEFECT once the block grew a `passed` column, because a skipped drill could never be passed and the column could
+   * never be completed. `POST /drill/replay` is the route, and `isReplayable` (in `puzzle/block.ts`, gated by
+   * `block-probe.mjs`) is the rule that decides which cells offer it — never this file.
    */
   render(view: LevelView): void {
     const cells = blockCells(view);
@@ -78,13 +81,15 @@ export class LevelScreen {
     this.els.block.replaceChildren();
     for (const cell of cells) {
       const wording = `Drill ${cell.index + 1}: ${WORDING[cell.state]}`;
-      if (cell.state === 'next') {
+      if (cell.state === 'next' || isReplayable(cell.state)) {
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'cell next';
+        button.className = `cell ${cell.state}`;
         button.textContent = String(cell.index + 1);
-        button.setAttribute('aria-label', wording);
-        button.addEventListener('click', () => this.onPlay());
+        // A REATTEMPT SAYS SO IN ITS ACCESSIBLE NAME, because the number alone reads as a drill the player has not
+        // done — and the whole point of the cell is that they have.
+        button.setAttribute('aria-label', isReplayable(cell.state) ? `${wording} — reattempt it` : wording);
+        button.addEventListener('click', () => this.onPlay(cell.index));
         this.els.block.append(button);
         continue;
       }

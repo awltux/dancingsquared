@@ -13,7 +13,7 @@
 // status codes are measured rather than assumed.
 //
 // Usage: node api/test/drill-probe.mjs
-import { drillAdvance, drillCurrent } from '../src/handlers/drill.ts';
+import { drillAdvance, drillCurrent, drillReplay } from '../src/handlers/drill.ts';
 import { STATUS } from '../src/status.ts';
 import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDrillId } from '../src/drill-regime.ts';
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
@@ -541,6 +541,88 @@ console.log('\n== 10. the LADDER: the level is the player\'s, and a full block p
   const top = await drillCurrent(get('l4'), deps);
   check(top.status === STATUS.ok && top.body.drill === null, `a full block at the top published level is not promoted into no schedule (${top.status} ${top.body.drill === null ? 'complete' : top.body.drill?.levelIndex})`);
   check((await store.get(ladderKey(devId('l4')))).value.levelIndex === 3, 'and its ladder row is untouched, so the promotion lands the moment level 4 is published');
+}
+
+console.log('\n== 11. a SKIPPED drill can be reattempted, and that is the only position the order gives back ==');
+{
+  const store = new MemoryStore();
+  await seedLocalRegimes(store);
+  const deps = depsFor(store);
+  const replay = (player, index, level = LEVEL) => ({
+    method: 'POST',
+    path: '/drill/replay',
+    query: {},
+    body: { index },
+    headers: player ? { 'x-dev-player': player } : {},
+  });
+  // A ROW WITH TWO SKIPS IN IT: positions 0 and 1 are finished and NEITHER is passed, which is exactly the state a
+  // player is in after pressing skip twice. Written directly, because driving the endpoints would measure the issue.
+  const skippedTwo = { levelIndex: LEVEL, issued: null, finished: [0, 1], passed: [] };
+  await store.put(progressRow('r1', LEVEL), skippedTwo, null);
+
+  // THE DEFECT THIS ANSWERS, measured from the other side first: the ordinary read does NOT give a skipped drill back,
+  // which is why a route had to exist at all.
+  const onThree = await drillCurrent(get('r1'), deps);
+  check(onThree.body.drill?.index === 2, `the ordinary read moves on to position 2, so a skip is not re-offered by the order (${onThree.body.drill?.index})`);
+
+  const back = await drillReplay(replay('r1', 0), deps);
+  check(back.status === STATUS.ok, `a skipped position can be reattempted (${back.status} ${back.body.error ?? ''})`);
+  check(back.body.drill?.index === 0, `and the drill served is the one asked for (${back.body.drill?.index})`);
+  check(back.body.drill?.replay === true, 'and it is stamped as a reattempt, which is what lets a reload resume it rather than move on');
+  check(back.body.drill?.id === drillId(LEVEL, 0), `the id is the position's own, so the two close paths need no change (${back.body.drill?.id})`);
+  check(back.body.drill?.puzzle?.steps?.length === levelSpec(LEVEL).depth, 'and it carries the STORED boards, not a regeneration');
+  check(back.body.regime.finished.length === 2 && back.body.regime.finished.includes(0), 'the finished set is unchanged by issuing a reattempt');
+
+  // A RELOAD RESUMES IT. This is the property the `replay` flag exists for: without it, `isPlayable` refuses a finished
+  // index and the next read would silently replace the reattempt with position 2.
+  const reloaded = await drillCurrent(get('r1'), deps);
+  check(reloaded.body.drill?.index === 0 && reloaded.body.drill?.replay === true, `a reload resumes the reattempt rather than moving on (${reloaded.body.drill?.index}${reloaded.body.drill?.replay ? ', replay' : ''})`);
+  check(reloaded.body.drill?.resumed === true, 'and it says so, so the shell does not re-issue anything');
+
+  // A SECOND PRESS IS A READ, not a compare-and-set: the same reattempt is already the row's issue.
+  const twice = await drillReplay(replay('r1', 0), deps);
+  check(twice.status === STATUS.ok && twice.body.drill?.resumed === true, `a second press is answered from the row (${twice.status}, resumed ${twice.body.drill?.resumed})`);
+
+  // SOLVING IT TAKES THE PASS — the whole point. `POST /runs` closes it through the same `finishDrill`, so the pass is
+  // measured on the pure rule it calls, with the id the reattempt issued.
+  const closed = finishDrill({ ...skippedTwo, issued: { ...back.body.drill, puzzle: undefined } }, drillId(LEVEL, 0), true);
+  check(closed.kind === 'done', 'the reattempt can be closed by the same `finishDrill` the run path uses');
+  if (closed.kind === 'done') {
+    check(closed.progress.passed.includes(0), `and closing it with a pass HELPS: position 0 is now passed (${closed.progress.passed.join(',') || 'none'})`);
+    check(closed.progress.finished.filter((i) => i === 0).length === 1, 'while the finished set still holds it exactly once');
+    check(closed.progress.issued === null, 'and nothing is left in flight');
+  }
+
+  // THE THREE REFUSALS, each its own code because each is a different mistake. A rule written as "any done index" would
+  // pass the first check above and fail the second here.
+  await store.put(progressRow('r2', LEVEL), { levelIndex: LEVEL, issued: null, finished: [0, 1], passed: [0] }, null);
+  const passed = await drillReplay(replay('r2', 0), deps);
+  check(passed.status === STATUS.conflict && passed.body.error?.code === 'already_passed', `a PASSED position is refused (${passed.status} ${passed.body.error?.code})`);
+  const unfinished = await drillReplay(replay('r2', 5), deps);
+  check(unfinished.status === STATUS.conflict && unfinished.body.error?.code === 'not_finished', `an UNFINISHED position is refused, because the order is not the player's to choose (${unfinished.status} ${unfinished.body.error?.code})`);
+  const missing = await drillReplay(replay('r2', 900), deps);
+  check(missing.status === STATUS.conflict && missing.body.error?.code === 'no_entry', `a position the regime does not have is refused (${missing.status} ${missing.body.error?.code})`);
+  const malformed = await drillReplay(replay('r2', 'first'), deps);
+  check(malformed.status === STATUS.badRequest && malformed.body.error?.code === 'bad_index', `a non-numeric position is a bad request (${malformed.status} ${malformed.body.error?.code})`);
+  // AND A REFUSAL WRITES NOTHING: the row still says what it said.
+  const after = await store.get(progressRow('r2', LEVEL));
+  check(after.value.issued === null && JSON.stringify(after.value.passed) === '[0]', 'and no refusal changes the row');
+
+  // A REATTEMPT CANNOT MOVE THE PLAYER'S PLACE IN THE ORDER. `nextIndex` reads `finished` only, so issuing one leaves
+  // the front exactly where it was — which is what stops a replay from becoming a way to choose the next drill.
+  const front = await drillReplay(replay('r1', 1), deps);
+  check(front.body.drill?.index === 1, 'the other skipped position can be asked for by name');
+  check(nextIndex(localRegimes()[LEVEL], skippedTwo.finished) === 2, 'and the first unfinished position is still 2, so a reattempt did not move the order');
+
+  // THE PROMOTION CLAIM, MEASURED. A block closed ENTIRELY BY SKIPS is `finished` and not `passed`, and it promotes:
+  // `levelComplete` reads `finished`, so a skip cannot strand a player on a level (report: "which means the player can
+  // never achieve the next level" — it does not, and this is the check that says so).
+  const allSkipped = { levelIndex: LEVEL, issued: null, finished: Array.from({ length: LEVEL_SIZE }, (_, i) => i), passed: [] };
+  await store.put(progressRow('r3', LEVEL), allSkipped, null);
+  const promoted = await drillCurrent(get('r3'), deps);
+  check(promoted.body.drill?.levelIndex === 2, `a block closed by skips alone still promotes (${promoted.body.drill?.levelIndex})`);
+  const row = await store.get(ladderKey(devId('r3')));
+  check(row?.value.levelIndex === 2, 'and the ladder row says level 2, so skipping is not a dead end');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -36,7 +36,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, spendHint, submitRun, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -954,11 +954,67 @@ function renderLevel(): void {
   levelScreen.render(levelView());
 }
 
-/** The next cell was pressed. The drill is already issued, so this shows it rather than asking again. */
-function levelPlay(): void {
+/**
+ * A cell in the block was pressed, and WHICH cell is what decides what happens.
+ *
+ * TWO KINDS OF PRESS, and they used to be one. The `next` cell shows the drill the server already issued — a reveal of
+ * something in flight, which is why that branch is synchronous and asks nothing. A `done-not-passed` cell is a
+ * REATTEMPT: the position is closed, so nothing is in flight for it and the drill has to be ASKED FOR
+ * (`POST /drill/replay`), which makes that branch asynchronous. The server decides whether it is allowed
+ * (`replayDrill` in `drill-regime.ts`), so a stale grid is answered with the server's own refusal rather than a
+ * client that thought it knew better.
+ *
+ * OFFLINE THERE IS NO SERVER TO ASK: the fixture's entry at that position is baked beside the seeds, so the same press
+ * is the same `startDrill` call the next cell makes, one index over. The local ledger already `markSkipped` that
+ * position, and `countSuccess` still credits a later solve with the PASS even though it cannot credit a hint — which is
+ * exactly the split a reattempt needs (see `save-state.ts`'s `spend`).
+ */
+function levelPlay(index: number): void {
+  if (index !== levelView().next) {
+    // THE VIEW IS SWITCHED BY WHICHEVER PATH SHOWS A DRILL, not here: a refused reattempt must leave the player on the
+    // block with the server's sentence, and switching first would leave them looking at the panel of the previous drill.
+    if (apiConfigured()) void startReplayDrill(index);
+    else {
+      drillView = 'drill';
+      startDrill(index);
+    }
+    return;
+  }
   if (!controller) return;
   drillView = 'drill';
   paintView();
+}
+
+/**
+ * Ask the server for a position the player already closed, and show it.
+ *
+ * A REFUSAL LEAVES THE PLAYER WHERE THEY WERE, because there is nothing to show: the three causes (`not_finished`,
+ * `already_passed`, `no_entry`) all mean "that cell is not what you think it is any more", and the sentence the server
+ * wrote is the honest thing to say. `els.loading` is cleared on the way out so a refused press cannot leave the app
+ * saying that it is still asking.
+ */
+async function startReplayDrill(index: number): Promise<void> {
+  els.loading.hidden = false;
+  els.loading.textContent = `Asking the server for drill ${index + 1} again…`;
+  const answer = await requestReplay(index);
+  if (!answer.ok) {
+    els.loading.hidden = true;
+    drillScreen.say(`That drill cannot be replayed: ${answer.failure.message}`, 'bad');
+    return;
+  }
+  serverDrill = answer.value.drill;
+  serverRegime = answer.value.regime;
+  drillView = 'drill';
+  showDrill({
+    seed: serverDrill.seed,
+    levelIndex: serverDrill.levelIndex,
+    index: serverDrill.index,
+    length: serverRegime.length,
+    issuedAtMs: serverDrill.issuedAtMs,
+    demo: false,
+    puzzle: serverDrill.puzzle,
+  });
+  drillScreen.say(`Drill ${index + 1} again — it was closed without being passed, so solving it now earns the pass.`, 'info');
 }
 
 /**

@@ -62,6 +62,22 @@ export interface IssuedDrill {
    */
   readonly scheduleVersion: string;
   readonly issuedAtMs: number;
+  /**
+   * THIS ISSUE IS A REATTEMPT OF A POSITION THE PLAYER ALREADY CLOSED, not the next one in the order.
+   *
+   * WHY IT HAS TO BE RECORDED RATHER THAN INFERRED. Rule 1 says the order is not the player's to choose and rule 2
+   * says an issued drill is locked, so "the drill in flight" is normally a position that is NOT finished —
+   * `isPlayable` refuses a finished index for exactly that reason. A reattempt is the one legitimate exception: the
+   * player asked for a position they already moved past, and a reload must resume it rather than quietly replacing it
+   * with the real next drill. So the exception is a FLAG ON THE ISSUE, which is the only thing that can tell the two
+   * apart from the row alone.
+   *
+   * IT IS NOT A WAY BACK INTO THE ORDER. A replay can only name a position that is `finished` and NOT `passed`
+   * (`replayDrill` below), it never changes `nextIndex`, and closing one earns nothing: the position is already in
+   * `finished`, so `countSuccess`'s first-time test is false. What it buys is the PASS, which is the only thing a skip
+   * left undone.
+   */
+  readonly replay?: boolean;
 }
 
 /**
@@ -196,8 +212,81 @@ export function currentDrill(regime: Regime, levelIndex: number, progress: Drill
  */
 function isPlayable(issued: IssuedDrill, progress: DrillProgress, currentPoolVersion: string): boolean {
   if (issued.poolVersion !== currentPoolVersion) return false;
-  if (progress.finished.includes(issued.index)) return false;
+  // A REATTEMPT NAMES A FINISHED POSITION ON PURPOSE — see `IssuedDrill.replay`. Everything else is refused, which is
+  // what stops a hand-edited row from re-serving a drill the player has already done.
+  if (!issued.replay && progress.finished.includes(issued.index)) return false;
   return issued.index >= 0;
+}
+
+/** What a request to reattempt a closed position resolved to. */
+export type ReplayOutcome =
+  | {
+      readonly kind: 'drill';
+      readonly drill: IssuedDrill;
+      readonly progress: DrillProgress;
+      /** Whether this needs writing: false when the same reattempt is already in flight (a second press). */
+      readonly changed: boolean;
+    }
+  /** A refusal carries a CODE as well as prose, because the four causes are four different client mistakes. */
+  | { readonly kind: 'refused'; readonly code: 'bad_index' | 'no_entry' | 'not_finished' | 'already_passed'; readonly reason: string };
+
+/**
+ * The drill to reattempt `index`, or the reason it cannot be reattempted — rule 1's one legitimate exception.
+ *
+ * WHY THIS EXISTS AT ALL. A skip closes a position without teaching it (`finished` without `passed`), and before this
+ * the closed position could never be opened again: the level screen drew it as a statement, `isPlayable` refused a
+ * finished index, and no route asked for a position by name. So a player who skipped a drill could never pass it, and
+ * a level's `passed` column could never be completed. That is the DEFECT this function answers — report: "the player
+ * has to be able to reattempt drills that are skipped, currently they are locked off".
+ *
+ * THE THREE CONDITIONS ARE ALL NARROWING ON PURPOSE, and each is a different sentence:
+ *   - the position must exist in the regime, or there is no drill to serve;
+ *   - it must be FINISHED, because an unfinished position belongs to the order (rule 1) — a client naming one is
+ *     asking to choose its next drill, which is the request the order exists to refuse;
+ *   - it must NOT be PASSED, because a pass is monotone and there is nothing left for a reattempt to earn. Allowing it
+ *     would also reopen the one thing the board's "best per player per board" rule is guarding: an endless replay of a
+ *     favourite drill (§6).
+ *
+ * THE ID IS THE POSITION'S OWN (`drillId`), so `finishDrill` finds it in flight and the two paths that close a drill —
+ * `POST /drill/advance` and `POST /runs` — need no change at all. `finishDrill` already puts the index in `finished`
+ * once and adds the pass when it is earned, which is exactly what a reattempt has to do.
+ */
+export function replayDrill(
+  regime: Regime,
+  levelIndex: number,
+  progress: DrillProgress,
+  index: number,
+  nowMs: number,
+): ReplayOutcome {
+  if (!Number.isInteger(index) || index < 0) {
+    return { kind: 'refused', code: 'bad_index', reason: `${JSON.stringify(index)} is not a drill position` };
+  }
+  const entry = regime.entries[index];
+  if (!entry) {
+    return { kind: 'refused', code: 'no_entry', reason: `level ${levelIndex} has no drill at position ${index}` };
+  }
+  if (!progress.finished.includes(index)) {
+    return { kind: 'refused', code: 'not_finished', reason: `position ${index} is not finished, so it is reached through the order rather than reattempted` };
+  }
+  if (progress.passed.includes(index)) {
+    return { kind: 'refused', code: 'already_passed', reason: `position ${index} was already passed, so there is nothing for a reattempt to earn` };
+  }
+  // A SECOND PRESS IS A READ, for the reason `currentDrill` reports `changed`: every reload would otherwise turn a
+  // reattempt into a compare-and-set race to record an issue that is already the row's.
+  const inFlight = progress.issued;
+  if (inFlight && inFlight.replay === true && inFlight.index === index) {
+    return { kind: 'drill', drill: inFlight, progress, changed: false };
+  }
+  const drill: IssuedDrill = {
+    id: drillId(levelIndex, index),
+    index,
+    seed: entry.seed,
+    poolVersion: entry.poolVersion,
+    scheduleVersion: regime.scheduleVersion,
+    issuedAtMs: nowMs,
+    replay: true,
+  };
+  return { kind: 'drill', drill, progress: { ...progress, issued: drill }, changed: true };
 }
 
 /** The result of advancing a drill. A refusal carries prose, because the client shows it. */

@@ -23,6 +23,7 @@ import {
   emptyProgress,
   finishDrill,
   parseDrillId,
+  replayDrill,
   type CurrentOutcome,
   type DrillProgress,
   type Regime,
@@ -247,5 +248,53 @@ export async function drillAdvance(request: ApiRequest, deps: Deps): Promise<Api
       progress: outcome.progress,
       result: { status: STATUS.ok, body: { regime: regimeCounts(read.regime, outcome.progress) } },
     };
+  });
+}
+
+/**
+ * `POST /drill/replay` — reattempt a position the player already closed.
+ *
+ * THE ONE THING THE ORDER LETS A PLAYER CHOOSE, and it is narrow by construction: the position must be FINISHED and
+ * NOT PASSED, so this reopens exactly the drills a skip or a reveal closed and nothing else. `replayDrill` owns those
+ * three conditions and their refusals; this handler is the read/decide/write around them, identical to the other two.
+ *
+ * WHY IT IS A WRITE. The reattempt becomes the drill IN FLIGHT, so a reload resumes it (the `replay` flag on the issue
+ * is what `isPlayable` reads) and the two existing close paths — `POST /drill/advance` and `POST /runs` — work on it
+ * unchanged, because the id is the position's own.
+ *
+ * THE LEVEL IS THE PLAYER'S, read through the ladder like every other Drill request, so a position from another level
+ * cannot be reattempted by naming it.
+ */
+export async function drillReplay(request: ApiRequest, deps: Deps): Promise<ApiResult> {
+  const who = requireIdentity(request, deps);
+  if ('refusal' in who) return who.refusal;
+  const playerId = who.identity.playerId;
+
+  const body = request.body as { index?: unknown } | null;
+  const index = body?.index;
+  if (typeof index !== 'number') return failure(STATUS.badRequest, 'bad_index', 'index must be a number');
+
+  const on = await servableLevel(deps, playerId);
+  if ('refusal' in on) return on.refusal;
+  const levelIndex = on.levelIndex;
+
+  const read = await readRegime(deps, levelIndex);
+  if ('refusal' in read) return read.refusal;
+
+  return withProgress(deps, progressKey(playerId, levelIndex), levelIndex, async (progress) => {
+    const outcome = replayDrill(read.regime, levelIndex, progress, index, deps.clock.nowMs());
+    if (outcome.kind === 'refused') {
+      // A MALFORMED POSITION IS A CLIENT ERROR; the other three are a state the player is no longer in, which is a
+      // conflict rather than a bad request — the same division `drillAdvance` makes with `stale_drill`.
+      const status = outcome.code === 'bad_index' ? STATUS.badRequest : STATUS.conflict;
+      return { result: failure(status, outcome.code, outcome.reason) };
+    }
+    // `!outcome.changed` IS `resumed`: a reattempt that was already in flight is being re-served, not issued, and the
+    // client is told so it does not treat a second press as a fresh drill.
+    const answered = await served({ kind: 'drill', drill: outcome.drill, progress: outcome.progress, changed: outcome.changed }, levelIndex, !outcome.changed, deps);
+    if ('refusal' in answered) return { result: answered.refusal };
+    const body = { ...answered.body, regime: regimeCounts(read.regime, outcome.progress) };
+    if (!outcome.changed) return { result: { status: STATUS.ok, body } };
+    return { progress: outcome.progress, result: { status: STATUS.ok, body } };
   });
 }

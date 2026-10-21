@@ -81,8 +81,30 @@ export function blockCells(input: BlockInput): Cell[] {
   return cells;
 }
 
-/** How the header phrases the block: how many of the published cells are done, and how many were passed. */
-export function blockSummary(cells: readonly Cell[]): { done: number; passed: number; published: number; total: number } {
+/**
+ * Whether the player can go back and try this cell's drill again — the rule behind `done-not-passed` being a control.
+ *
+ * WHY THIS IS HERE AND NOT IN THE SCREEN. It is a rule about the block, and the screen cannot be imported by a probe
+ * (AGENTS.md §8 trap 27: `daily-screen.ts`'s click logic shipped broken while every probe was green). The screen asks
+ * this function; `block-probe.mjs` pins it.
+ *
+ * ONLY `done-not-passed` QUALIFIES, and each of the other four states is excluded for its own reason:
+ *   - `done-passed` was solved on its merits, so there is nothing left to earn and the server refuses it
+ *     (`already_passed`) — a replay of a favourite is exactly the farming the board's one-entry-per-player rule exists
+ *     to make pointless;
+ *   - `next` is the drill already in flight: replaying it would ask the server to re-issue the drill it just issued;
+ *   - `published` is an unfinished position the server has not handed out — an order question, and not the player's to
+ *     choose (`drill-regime.ts` rule 1);
+ *   - `unpublished` has no drill to serve at all.
+ *
+ * THE POSITION IS IMAGE-FREE ON PURPOSE: this takes the STATE rather than a `Cell`, so a caller that has only a state
+ * (a saved run, a test) does not have to invent an index to ask the question.
+ */
+export function isReplayable(state: CellState): boolean {
+  return state === 'done-not-passed';
+}
+
+/** How the header phrases the block: how many of the published cells are done, and how many were passed. */export function blockSummary(cells: readonly Cell[]): { done: number; passed: number; published: number; total: number } {
   let done = 0;
   let passed = 0;
   let published = 0;

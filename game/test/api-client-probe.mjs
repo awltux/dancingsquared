@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, recordDrillReveal, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -261,6 +261,33 @@ console.log('\n== 6. advancing sends the drill id it is advancing ==');
   const refused = deps('http://localhost:8090', { status: 409, body: { error: { code: 'stale_drill', message: 'this player has no drill in flight' } } });
   const again = await advanceDrill('1:4', refused.api);
   check(again.ok === false && again.failure.code === 'stale_drill', `a repeated advance is the server's refusal (${again.failure?.code})`);
+}
+
+console.log('\n== 6b. a REATTEMPT names the position, and reads back as the drill the block offers ==');
+{
+  // THE CLIENT SIDE OF THE SKIPPED-DRILL DEFECT: pressing a `done-not-passed` cell asks for a POSITION BY NUMBER, which
+  // is the one thing the order otherwise refuses. The request shape is pinned here because the press itself is DOM and
+  // this probe does not load `src/ui/`.
+  const wired = deps('http://localhost:8090', {
+    status: 200,
+    body: { drill: { ...DRILL, index: 3, id: '1:3', replay: true, resumed: false }, regime: { finished: [0, 1, 2, 3], passed: [0, 2], length: 12 } },
+  });
+  const answer = await replayDrill(3, wired.api);
+  check(answer.ok === true && answer.value.drill.index === 3, `a reattempt answers with the drill it asked for (${answer.value?.drill?.index})`);
+  check(answer.ok === true && answer.value.drill.replay === true, 'and the answer says it is a reattempt, which is what the shell keys on');
+  check(answer.ok === true && answer.value.regime.passed.length === 2, `and with the regime, whose pass set is what the block draws (${answer.value?.regime?.passed?.length} passed)`);
+  const call = wired.fetch.calls[0];
+  check(call.url === 'http://localhost:8090/drill/replay', `posted to its own path (${call.url})`);
+  check(call.init.method === 'POST' && JSON.parse(call.init.body).index === 3, `with the POSITION in the body, not a drill id (${call.init.body})`);
+  // A REFUSAL IS PASSED THROUGH, not pre-empted: the three causes are the server's own and its sentence is what the
+  // player reads, so a client that filtered locally would be a second implementation of `replayDrill`.
+  const refused = deps('http://localhost:8090', { status: 409, body: { error: { code: 'already_passed', message: 'position 3 was already passed' } } });
+  const again = await replayDrill(3, refused.api);
+  check(again.ok === false && again.failure.code === 'already_passed', `a refused reattempt is the server's code and sentence (${again.failure?.code})`);
+  // AND A MALFORMED DRILL IS REFUSED rather than shown, for the reason every other read here refuses one.
+  const malformed = deps('http://localhost:8090', { status: 200, body: { drill: { id: '1:3', index: 3 }, regime: {} } });
+  const bad = await replayDrill(3, malformed.api);
+  check(bad.ok === false && bad.failure.code === 'bad_response', `a drill with no boards is a bad response (${bad.failure?.code})`);
 }
 
 console.log('\n== 7. a completed run is handed over, and what comes back is what is adopted ==');

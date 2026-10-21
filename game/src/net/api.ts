@@ -61,6 +61,15 @@ export interface IssuedDrill {
    */
   readonly puzzle: Puzzle;
   readonly resumed: boolean;
+  /**
+   * THIS ISSUE IS A REATTEMPT of a position the player already closed, not the next one in the order.
+   *
+   * THE CLIENT READS IT FOR ONE DECISION: whether the drill on screen is the level's progress or a revisit of a
+   * skipped one — which is what decides if "Next drill" means "resume the order" or "back to the block". The server
+   * owns the rule (`drill-regime.ts`'s `replayDrill`); a client that defaulted it to `true` would show a revisit for
+   * every ordinary drill, so it is read as exactly `true` and nothing else.
+   */
+  readonly replay: boolean;
 }
 
 /**
@@ -282,6 +291,7 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
     issuedAtMs: typeof value.issuedAtMs === 'number' ? value.issuedAtMs : Date.now(),
     puzzle,
     resumed: value.resumed === true,
+    replay: value.replay === true,
   };
 }
 
@@ -321,6 +331,40 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
       // THE SERVER'S OWN WORD, defaulted to `false` rather than inferred: an older server that does not send the
       // flag is one this build cannot claim makes a run unranked, and the standing rule's other facts still apply.
       demo: answer.value.demo === true,
+      regime: {
+        finished: numberList(regime.finished),
+        passed: numberList(regime.passed),
+        length: typeof regime.length === 'number' ? regime.length : 0,
+      },
+    },
+  };
+}
+
+/**
+ * `POST /drill/replay` — reattempt a position the player already closed without passing.
+ *
+ * THE ANSWER IS THE SAME SHAPE AS `issueDrill`'s, and that is deliberate rather than convenient: the drill on screen
+ * is the same kind of thing either way — the position in flight, its boards and the regime around it — so the shell
+ * shows one with the same code path and cannot come to render a reattempt differently from a first attempt.
+ *
+ * THE SERVER REFUSES THREE CASES WITH THEIR OWN CODES (`not_finished`, `already_passed`, `no_entry`), and the client
+ * passes them through rather than pre-checking: the grid's own rule says which cells are offerable, but a decision
+ * made from a regime the client holds is exactly the sort of second implementation this module refuses to keep. The
+ * message is shown verbatim, which is why the reasons are sentences.
+ */
+export async function replayDrill(index: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeState }>> {
+  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; passed?: unknown; length?: unknown } }>(deps, '/drill/replay', {
+    method: 'POST',
+    body: { index },
+  });
+  if (!answer.ok) return answer;
+  const drill = asIssuedDrill(answer.value.drill);
+  if (!drill) return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a drill this app can draw' } };
+  const regime = answer.value.regime ?? {};
+  return {
+    ok: true,
+    value: {
+      drill,
       regime: {
         finished: numberList(regime.finished),
         passed: numberList(regime.passed),

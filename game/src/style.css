@@ -140,9 +140,25 @@ body {
   color: rgba(255, 255, 255, 0.55);
 }
 
-/* THE ONE CONTROL IN THE BLOCK. It keeps the 44px touch height the rest of the page uses where it can, but a cell is
-   square and ten of them share the panel's width, so the visual affordance carries the rest: an accent border and the
-   cursor. `min-height` is deliberately NOT set here — it would break the square and the row. */
+/* A SKIPPED DRILL IS A CONTROL TOO, and it has to be distinguishable from the next one at a glance: the block now has
+   two pressable states that mean different things. It keeps the dim fill of a drill that was closed without being
+   passed and gets a solid border and the pointer, where `next` gets the accent colour and bold weight — so "carry on"
+   and "go back and finish that one" cannot be confused by hue alone. */
+#levelBlock button.cell.done-not-passed {
+  border-style: solid;
+  border-width: 2px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+#levelBlock button.cell.done-not-passed:hover {
+  background: #354a58;
+}
+
+/* THE WAY ON: the drill the server has issued. It keeps the 44px touch height the rest of the page uses where it can,
+   but a cell is square and ten of them share the panel's width, so the visual affordance carries the rest: an accent
+   border and the cursor. `min-height` is deliberately NOT set here — it would break the square and the row. (It is no
+   longer the block's ONLY control: a skipped drill is pressable too, and the rule for that is the one just below.) */
 #levelBlock .cell.next {
   border: 2px solid var(--accent);
   background: #22303d;

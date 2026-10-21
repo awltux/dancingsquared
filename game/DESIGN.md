@@ -687,14 +687,17 @@ answers cannot drift between the client and the server, because there is now onl
   shown and stops on the answer; there is no move-by-move play to time beyond that (§6). Replaying the
   options is not penalised separately — the clock already counts it, which is the same "wandering costs
   time" rule the Daily's undo runs on.
-- **THE LEVEL BLOCK IS WHERE THE TAB OPENS, and one cell is the way into a drill.** The tab has TWO VIEWS and still two
+- **THE LEVEL BLOCK IS WHERE THE TAB OPENS, and a cell is the way into a drill.** The tab has TWO VIEWS and still two
   MODES: `drillView: 'level' | 'drill'` sits beside `mode`, and entering The Drill still ISSUES a drill — because
   "which drill is next" is the server's `nextIndex` and the drill it issues IS the next one, so the grid takes `next`
-  as an INPUT and never derives it (§15 Q25(a),(j)). Only the NEXT cell is a link: the progress map gives a player one
-  drill at a time, a finished drill cannot be re-issued (no route asks for position N by design), and unpublished
-  cells are a statement about supply rather than a lock. The rule that decides a cell's state is `puzzle/block.ts`
-  (five states, precedence `unpublished` > `done` > `next` > `published`, so a stale `next` cannot repaint a finished
-  cell), gated by `test/block-probe.mjs`; the screen is left with paint.
+  as an INPUT and never derives it (§15 Q25(a),(j)). **TWO STATES ARE LINKS**: the NEXT cell, and a cell that was
+  closed WITHOUT being passed — a skip or a revealed solve, which `POST /drill/replay` reopens so the player can go back
+  and earn the pass (§15 Q25(a), corrected). Every other cell is a statement: a PASSED drill has nothing left to earn,
+  an unfinished one the server has not handed out is an order question and not the player's to choose, and an
+  unpublished cell is a statement about supply rather than a lock. The rule that decides a cell's state is
+  `puzzle/block.ts` (five states, precedence `unpublished` > `done` > `next` > `published`, so a stale `next` cannot
+  repaint a finished cell) and the rule that decides WHICH states are pressable is `isReplayable` beside it — both gated
+  by `test/block-probe.mjs`; the screen is left with paint.
 
 ---
 
@@ -986,6 +989,7 @@ read-only, then sign in to be ranked*.
 |---|---|---|
 | `GET /drill/current?level` | Drill | **The drill this player is on** — the seed, the level, the generated puzzle and the issue date. The server decides which entry: the first schedule entry the player has not finished, or their locked part-finished one. Not a `GET /puzzle` by seed for this mode, even though the client *could* apply one: the player does not choose their seed, and which entry is next is the server's fact (§8). **THE LEVEL IS THE SERVER'S TOO** (§15 Q17(vi)): for a request the server can name, the level comes from the player's LADDER row (`api/src/ladder.ts`) and `?level=` is not consulted; a caller the server cannot name has no ladder, so a demo is served the level it asks for and that is the only path on which the query is read. |
 | `POST /drill/advance` | Drill | Mark the current drill finished, so the next request for `/drill/current` returns the next schedule entry. **It earns nothing** — no score, no hint — and it is recorded as an abandonment (A25) so a skipped season is visible to the operator rather than a silent gap. **It is also the SKIP the player can choose** (§15 Q5: a mark-and-continue for a drill they cannot solve), which is why the control is offered only where the request can succeed. **The app asks for it only when the server does not already hold the drill as finished** (§15 Q21): a recorded run finishes the drill itself, so an advance after one asks the server to skip a drill that is already skipped — a `409` the endpoint is right to answer, and a refusal that A25 would count against an honest player. |
+| `POST /drill/replay` | Drill | **Reattempt a position the player closed without passing it** — a skip or a revealed solve — which is the one place the ORDER gives a position back (§15 Q25(a)). The position must be finished and NOT passed, so it reopens exactly the cells a skip left behind and nothing else; the issue is stamped `replay` so a reload resumes it, and it earns nothing (the position is already `finished`, so the hint rule's first-time test is false) — what it buys is the PASS. Refusals: `409 not_finished`, `409 already_passed`, `409 no_entry`, `400 bad_index`. |
 | `GET /puzzle?mode=daily&level&date` | Daily | The published challenge for that level and UTC date: the stored seed AND the puzzle it names (generated once, then served from the cache — the client generates nothing, §9). **An identified read also records WHEN this player looked at it** (the attempt row that starts the Daily's clock, A21); a signed-out one records nothing. |
 | `POST /drill/answer` | Drill | One press, recorded as it happens (§11.1 A22): the step and the call the player chose. **The server derives the verdict** from the puzzle it issued and answers with the wrong-try count so far; nothing about the press is taken on trust, and it scores nothing. |
 | `POST /drill/reveal` | Drill | That one step's answer was SHOWN to this player (§15 Q16, A28): the step, and the call the server looks up from the puzzle it issued — the same expression A22's verdict and §11's transcript check use, so one position has one answer. **Recorded as an event and not as a press**, because a reveal is not an answer the player committed; deduplicated by step, because a second press of the same button shows the same call. It scores nothing itself, and it is what stops the run it finishes from counting. |
@@ -1016,11 +1020,20 @@ set the drill was issued from, which is the Drill board's identity** (§15 Q17(v
 `/leaderboard`'s `period` instead of computing a calendar month, and `POST /runs` lands the run on that set's board. `id` is `"<level>:<index>"` — meaningful rather than opaque, because the only check that
 matters ("is this the drill I issued you?") is an exact comparison against the player's Progress row, and an
 opaque token would need a row or an index to resolve. `POST /drill/advance { drillId }` → `200 { regime }`.
-Refusals are `{ error: { code, message } }` with a status: `400 bad_level`/`bad_drill_id`, `401
+**`POST /drill/replay { index }` → `200 { drill, regime }`** reattempts a position the player closed without passing —
+the one place the order gives a position back, and the answer is the same shape `/drill/current` gives because the drill
+on screen is the same kind of thing either way. It requires the position to be **finished and NOT passed**, so it reopens
+exactly what a skip or a reveal closed and nothing else: `409 not_finished` (an unfinished position belongs to the
+order), `409 already_passed` (a pass is monotone, so there is nothing left to earn), `409 no_entry`, `400 bad_index`. The
+issue is stamped `replay: true` so a reload RESUMES it rather than moving on — without that flag `isPlayable` refuses a
+finished index and the reattempt would exist for exactly one response (MEASURED, and that is how the flag was found to be
+missing: the second read answered position 2). Closing one is the two paths that already exist, because the id is the
+position's own: `POST /runs` takes the pass, `POST /drill/advance` does not.
+Refusals are `{ error: { code, message } }` with a status: `400 bad_level`/`bad_drill_id`/`bad_index`, `401
 unauthenticated`, `404 no_schedule` (that level has no published regime — the normal state of a fresh
-deployment), `409 stale_drill` (the id is not the one issued) and `409 contended` (three compare-and-set
-attempts lost), `503 unreadable_progress`/`unreadable_schedule`/`unplayable_drill` (a stored row this build
-cannot read, or a published seed that no longer generates — both operator findings rather than client errors).
+deployment), `409 stale_drill` (the id is not the one issued), the three `409`s above, and `409 contended` (three
+compare-and-set attempts lost), `503 unreadable_progress`/`unreadable_schedule`/`unplayable_drill` (a stored row this
+build cannot read, or a published seed that no longer generates — both operator findings rather than client errors).
 **A refusal never writes**, which is what makes a retry safe.
 
 `GET /puzzle?mode=daily&level=<n>&date=<YYYY-MM-DD>` answers `{ daily: { day, levelIndex, seed, poolVersion,
@@ -2586,9 +2599,19 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     preferences.** Requested: "a screen before the game screen that allows the player to see their progress and select
     the next drill to play", plus "only the first 100 are required to finish the level" and "the daily challenge can
     have waypoint formations/arrangements".
-    **(a) THE ORDER STAYS THE SERVER'S: only the NEXT cell is playable.** The grid is a progress map, not a menu.
-    Re-issuing position N would need a route that does not exist by design, so **replay of a finished drill is NOT
-    wired** — a done cell is a statement, and that is recorded rather than promised.
+    **(a) THE ORDER STAYS THE SERVER'S, AND A SKIPPED CELL IS STILL A WAY BACK IN — CORRECTED.** The grid is a progress
+    map, not a menu, and `next` is the server's. **The original decision here said "replay of a finished drill is NOT
+    wired — a done cell is a statement", and that was the DEFECT once the block grew a `passed` column (b):** a skip
+    closes a position WITHOUT passing it, so a cell drawn as a statement left a drill that could never be passed and a
+    column that could never be completed. Report: "the player has to be able to reattempt drills that are skipped,
+    currently they are locked off". **`POST /drill/replay` is that route**, and the narrowness is the whole of the fix:
+    only a position that is **finished and NOT passed** can be reopened (`replayDrill`, `api/src/drill-regime.ts`), so
+    the order still decides what is NEXT — a reattempt never changes `nextIndex`, never names a seed and never earns a
+    hint. The cell rule is `isReplayable` in `puzzle/block.ts`, gated by `block-probe.mjs`; the issue carries
+    `replay: true` so a reload resumes it (`api/test/drill-probe.mjs` §11).
+    **AND THE STATED CONSEQUENCE WAS MEASURED AND DOES NOT HOLD**: promotion reads `finished`, not `passed`
+    (`levelComplete`), so a level closed entirely by skips still promotes — MEASURED, a full block with an empty pass
+    set is promoted to level 2, which §11's last two checks pin. The defect was the dead cell, not the ladder.
     **(b) `passed` IS A SECOND SET.** A skip and a revealed solve both close a position and neither teaches it, so
     `DrillProgress.passed` (a subset of `finished`, enforced on read) is what lets a cell say "done" against "done and
     passed". The row parser reads an ABSENT set as "finished, pass unknown" — the migration, not a failure.

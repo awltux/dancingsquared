@@ -9,10 +9,11 @@
 //   * a block that returns `length` cells instead of `CELL_COUNT` — caught by section 1 whenever `length` < 100,
 //     which is the ordinary case today (the fixture publishes 4);
 //   * a block that lets a stale `next` paint a FINISHED cell — caught by section 4;
-//   * a block that trusts `passed` over `finished` — caught by section 6.
+//   * a block that trusts `passed` over `finished` — caught by section 6;
+//   * a grid that LOCKS a skipped drill — caught by section 7, which is the rule that made this a defect report.
 //
 // Usage: node game/test/block-probe.mjs
-import { blockCells, blockSummary, CELL_COUNT } from '../src/puzzle/block.ts';
+import { blockCells, blockSummary, isReplayable, CELL_COUNT } from '../src/puzzle/block.ts';
 import { LEVEL_SIZE } from '../src/puzzle/levels.ts';
 
 let failures = 0;
@@ -84,7 +85,31 @@ console.log('\n== 6. `passed` is trusted ONLY where `finished` agrees — the sc
     'NEGATIVE CONTROL: a pass with no finish leaves the cell published');
 }
 
-console.log('\n== 7. degenerate input cannot make a cell that is not a drill ==');
+console.log('\n== 7. A SKIPPED CELL IS A CONTROL: which states offer a reattempt ==');
+{
+  // THE REPORTED DEFECT, as a rule: "the player has to be able to reattempt drills that are skipped, currently they are
+  // locked off". The grid still paints five states; what changed is that one of them is now pressable, and this is the
+  // rule that decides it — so the screen cannot drift from it and the probe is where the decision lives.
+  const cells = blockCells({ length: 6, finished: [0, 1, 2], passed: [0, 2], next: 3 });
+  check(isReplayable(at(cells, 1)), `a skipped cell (done, not passed) offers a reattempt (${at(cells, 1)})`);
+  // EVERY OTHER STATE IS EXCLUDED, each for its own reason (see `isReplayable`'s comment), and these are the negative
+  // controls: a rule written as "anything done" would pass the first check and fail this one at position 0.
+  check(!isReplayable(at(cells, 0)), `a PASSED cell does not — there is nothing left to earn (${at(cells, 0)})`);
+  check(!isReplayable(at(cells, 3)), `nor does the next cell, which is already in flight (${at(cells, 3)})`);
+  check(!isReplayable(at(cells, 4)), `nor an unfinished one the server has not handed out (${at(cells, 4)})`);
+  // A CELL PAST THE PUBLISHED LENGTH, taken from its own block because the one above is six drills long and therefore
+  // has no `unpublished` cell to point at.
+  const short = blockCells({ length: 4, finished: [0], passed: [], next: 1 });
+  check(at(short, 5) === 'unpublished' && !isReplayable(at(short, 5)), `nor an unpublished one, which has no drill at all (${at(short, 5)})`);
+  // NEGATIVE CONTROL for the whole rule: "anything done" is the plausible wrong reading, and it is wrong on exactly two
+  // of the five states. Stated as a count so a rule that widened would be visible as a number rather than a sentence.
+  const everyState = ['done-passed', 'done-not-passed', 'next', 'published', 'unpublished'];
+  check(everyState.filter(isReplayable).length === 1, `exactly one of the five states is replayable (${everyState.filter(isReplayable).length})`);
+  check(everyState.filter((s) => s.startsWith('done')).filter(isReplayable).length === 1,
+    'NEGATIVE CONTROL: "anything done" would be 2 of 2, so the pass set is doing the work');
+}
+
+console.log('\n== 8. degenerate input cannot make a cell that is not a drill ==');
 {
   check(blockCells({ length: 0, finished: [], passed: [], next: null }).every((c) => c.state === 'unpublished'),
     'a level with nothing published is all unpublished');

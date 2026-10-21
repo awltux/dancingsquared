@@ -281,7 +281,13 @@ function paintBalance(): void {
   // hidden rather than merely disabled once the run is over — there is nothing left to be hinted.
   const playing = daily !== null && daily.view(performance.now()).outcome === 'playing';
   els.hint.hidden = mode !== 'daily' || !playing;
-  els.hint.disabled = save.hints.hints <= 0 || !playing;
+  // A SPENT-OUT BALANCE DOES NOT DISABLE IT, and that is a correction rather than an oversight. It used to be
+  // `disabled = hints <= 0 || !playing`, which meant `takeHint`'s own sentence - "You have no hints - one is earned
+  // every ten solved drills" - could NEVER RUN, because a disabled button does not fire a click. REPORTED: "Nothing
+  // happens when I select the Hint button." A control that is visibly there and silently does nothing is the failure
+  // mode this file already refuses twice (Q20's practice offer, Q21's advance): the balance being zero is a fact the
+  // player needs TOLD, and the one place that can tell them is the press.
+  els.hint.disabled = !playing;
 }
 
 // ---------------------------------------------------------------------------------------------- the account

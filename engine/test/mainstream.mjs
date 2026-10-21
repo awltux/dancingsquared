@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
-import { setParser, Sequencer, callMeta } from '../dist/index.js';
+import { setParser, Sequencer } from '../dist/index.js';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -21,19 +21,29 @@ const check = (cond, msg) => {
 const msDir = path.join(__dirname, '../../assets/ms');
 const files = fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'));
 const seq = new Sequencer(movesXml, formationsXml);
+// EVERY TAM BY ITS OWN TITLE, not each FILE by the title of its FIRST tam. `callMeta(xml).title` is the first
+// tam's title, and `ms/circle.xml`'s first tam is `Circle Left Home` — so this registered 273 call names and
+// silently had no `Circle Left` at all: MEASURED, `flatten(['Circle Left'])` cost 0 beats, `fixIt` never offered
+// it, and the `Circle Getout` module built on it was "not legal". Seven failures, one cause, and it is §8 trap 7
+// in the harness (`a position into an authored list is not an identity`). The other harnesses read the corpus
+// through `lib/engine-calls.mjs` for exactly this reason; this one pools the Mainstream files itself because the
+// Mainstream SUBSET is its subject.
 let registered = 0;
 for (const f of files) {
   const xml = read(`../../assets/ms/${f}`);
-  const meta = callMeta(xml);
-  if (!meta.title) continue; // moves/rule file, not a call
-  try {
-    seq.register(meta.title, xml);
-    registered++;
-  } catch {
-    /* skip calls whose data fails to build */
+  for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
+    const title = (block.match(/\btitle="([^"]*)"/) ?? [])[1];
+    if (!title) continue;
+    try {
+      seq.register(title, `<calls>${block}</calls>`);
+      registered++;
+    } catch {
+      /* skip calls whose data fails to build */
+    }
   }
 }
-check(registered >= 50, `Mainstream subset registers ${registered} calls (expect >= 50)`);
+check(registered >= 50, `Mainstream subset registers ${registered} tams (expect >= 50)`);
+check(seq.legalCalls(seq.board).includes('Circle Left'), 'and `Circle Left` is among them, not only its first tam');
 
 console.log('== From Squared Set ==');
 const legal = seq.legalNext();
@@ -100,7 +110,12 @@ check(Array.isArray(fix) && fix.includes('Circle Left'), `fixIt from home keeps 
 
 console.log('== User-defined modules ==');
 seq.reset();
-seq.registerModule('Circle Getout', ['Circle Left']);
+// THE GET-OUT IS `Circle Left HOME`, measured rather than assumed: from a squared set the corpus's plain
+// `Circle Left` ends on its own RING (`isAt('Static Square')` is false), and only the ` Home` authoring returns
+// to the square — the retitle in `e02b434` split one call into those two. The module named `Circle Getout` was
+// built on the one that no longer gets out, so applying it landed somewhere else and the check read as a module
+// bug.
+seq.registerModule('Circle Getout', ['Circle Left Home']);
 check(seq.listModules().includes('Circle Getout'), 'module is registered');
 check(seq.legalCalls(seq.board).includes('Circle Getout'), 'module is legal from Squared Set');
 const modStep = seq.apply('Circle Getout');

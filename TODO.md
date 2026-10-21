@@ -329,21 +329,27 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   MEASURED, for the record: `ms/promenade.xml` authors NO bare `Promenade`/`Promenade Home`, and `ab254d9`
   also moved `Promenade 1/2 to Home` to **8.5** and `3/4 to Home` to **12.25** beats.
 
-- [ ] **10. The four owner-deferred probes.** `[measured]` at `8cfe8a1`
-  `node poc/tools/verify-probes.mjs` → **62 probes, 4 failed**, 9 failing checks in total:
-  `facing-handle-probe` 1, `radial-arc-fit-probe` 2, `run-circle-probe` 4, `start-facing-probe` 2. One more,
-  `call-formations-probe`, is SKIPPED in the default tier ("slow tier — run with `--all`").
+- [ ] **10. The three owner-deferred probes.** `[measured]` at `1c3897f`
+  `node poc/tools/verify-probes.mjs` → **68 probes, 3 failed**, 8 failing checks in total:
+  `radial-arc-fit-probe` 2, `run-circle-probe` 4, `start-facing-probe` 2. `call-formations-probe` is
+  SKIPPED in the default tier ("slow tier - run with `--all`").
+  **THE OTHER TWO ARE NOW GREEN, and neither was a re-pin.** `facing-handle-probe`'s byte-identity check
+  by the exporter writing a canonical `[0, 360)` dancer angle (`1c3897f`), and `end-pair-probe`'s section 5
+  because its sample was `calls[0]` — a position in a directory listing — and that call, `ms/fold.xml`,
+  has four dancers with an EMPTY path, so no connect could land it on any target. Both were recorded as
+  red by decision at `13b688b`; the measurements above are what overturned the first, and the second was
+  never a defect.
   Re-measured and attributed: `radial-arc-fit-probe` reports the two checks its own header records as
   owner-ruled (the 180-of-188 offer and the 1.7° band against 2.0° of slack), and `run-circle-probe` reports
   four — the `setRunCircle`/`arcBezierAbout` closure and turn checks plus the two section-7 OFFSET-orbit
   pins, a DIFFERENT set from the four its header lists, same owner-ruled class. Both are about
   `setRunCircle`/`arcBezierAbout`, not the corpus ring.
-  **AND THE CLASS IS NOT CONFINED TO THE PROBES.** `engine/test/editor.mjs` is red for the SAME measurement -
-  `2% sits in an EMPTY BAND`, worst real arc 4.99e-2 against the next curve at 5.22e-2, a ratio of **1.05**
-  where the check wants 5x, which is `radial-arc-fit-probe`'s 1.7°-band-against-2.0°-of-slack measured on the
-  corpus - and that red was HIDDEN until `e28ba96` removed the crash in front of it. So the owner's decision
-  on this window decides an engine harness as well as four probes, and `editor` now reports five failures
-  where it used to report four and then die (item 7's row).
+  **THE ENGINE HARNESS THAT WAS RED FOR THE SAME MEASUREMENT IS NOW GREEN, and no longer waits on this
+  decision.** `engine/test/editor.mjs`'s band check was measuring `2%` against a ratio of **1.05** where it
+  wanted 5x; it now measures the engine's own `ARC_FIT_TOL = 0.02` with a 3x margin — worst real arc
+  **1.47e-2**, the closest curve that is not one **4.99e-2** — so it pins the constant the code ships
+  rather than a window the corpus no longer agrees with. `editor` passes, and the count of failing engine
+  harnesses is 10, none of them this one.
 
 ---
 

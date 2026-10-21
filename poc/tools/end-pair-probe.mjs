@@ -250,7 +250,20 @@ console.log('\n== 5. The library\'s own recogniser reads the end board ==');
   // of the picker's formations are not curated boards - so the comparison that means something is: where
   // the library names the target formation's own board, does the CONNECTED END read the same name? That is
   // the claim "the call now finishes in this formation", checked by the thing that names formations.
-  const probeCalls = [calls[0], calls[Math.floor(calls.length / 2)], calls[calls.length - 1]];
+  //
+  // THE SAMPLE IS CHOSEN BY WHAT THIS CHECK NEEDS, NOT BY POSITION IN THE DIRECTORY (trap 7 - `calls[0]`
+  // was `ms/fold.xml` and it failed EVERY target below for a reason that is a property of the CALL). A
+  // connect re-aims each dancer's LAST move, so a dancer who never moves has nothing to aim and
+  // `setDancerEnd` refuses LOUDLY ("dancer 0 has no moves to re-aim at an end pose"). MEASURED: 16 of the
+  // 17 ms calls that load as an 8-dancer setup carry a move on every dancer; the exception is
+  // `ms/fold.xml`, whose four idle dancers carry an EMPTY path. Which calls qualify is printed, so the
+  // sample is a denominator rather than an index.
+  const reAimable = calls.filter(({ call }) => call.dancers.every((d) => d.path.length > 0));
+  const notReAimable = calls.filter(({ call }) => !call.dancers.every((d) => d.path.length > 0));
+  console.log(`    ${reAimable.length} of ${calls.length} calls have a move on every dancer, so every end can be re-aimed${notReAimable.length ? `; not sampled: ${notReAimable.map((c) => c.file).join(', ')} (an idle dancer has no last move to aim)` : ''}`);
+  check(reAimable.length >= 3, `the sample has ${reAimable.length} calls to draw from, against ${notReAimable.length} the connect cannot re-aim`);
+  const probeCalls = [reAimable[0], reAimable[Math.floor(reAimable.length / 2)], reAimable[reAimable.length - 1]];
+  console.log(`    sampled: ${probeCalls.map((c) => c.file).join(', ')}`);
   let curated = 0;
   let same = 0;
   let unnamed = 0;

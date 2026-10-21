@@ -229,21 +229,33 @@ console.log('\n== 4. a drill whose pool has moved is RE-ISSUED, not served ==');
 
 console.log('\n== 5. a finished regime is COMPLETE, and does not wrap ==');
 {
+  // LEVEL 1 IS A FULL BLOCK NOW — `LEVEL_SIZE` entries — so finishing it PROMOTES instead of answering "complete":
+  // the ladder's rule is the 10x10 block and the fixture's level 1 is exactly that size. What this section still pins
+  // is that THE SERVER DOES NOT WRAP: the drill served after the last entry is the NEXT LEVEL's, never entry 0 again.
   const store = new MemoryStore();
   await seedLocalRegimes(store);
   const deps = depsFor(store);
+  const levelTwoSeeds = LOCAL_SCHEDULE.filter((entry) => entry.levelIndex === 2).map((entry) => entry.seed);
   for (let index = 0; index < SEEDS.length; index++) {
     const drill = (await drillCurrent(get('p5'), deps)).body.drill;
     await drillAdvance(advance('p5', drill.id), deps);
   }
   const done = await drillCurrent(get('p5'), deps);
   check(done.status === STATUS.ok, `the request is still answered (${done.status})`);
-  check(done.body.drill === null, 'with no drill rather than the first entry again');
-  check(done.body.regime.finished.length === SEEDS.length && done.body.regime.length === SEEDS.length, `and ${SEEDS.length} of ${SEEDS.length} reported finished`);
-  // NEGATIVE CONTROL: the local FIXTURE wraps (`scheduleEntryFor` modulo), deliberately, so a demo never shows
-  // an empty screen. A server that wrapped would re-serve a season the score table already holds, which is why
-  // the two rules differ — MEASURED here by the fact that entry 0 has a seed at all to wrap to.
-  check(localRegimes().find((r) => r.entries[0].levelIndex === LEVEL).entries.length === SEEDS.length, 'NEGATIVE CONTROL: the fixture has an entry to wrap to, and the server does not use it');
+  check(done.body.drill !== null && done.body.drill.levelIndex === 2,
+    `and a full block at level 1 is promoted to level 2 (${done.body.drill?.levelIndex})`);
+  check(done.body.drill.seed === levelTwoSeeds[0],
+    `serving level 2's first seed rather than a wrapped level-1 entry (${done.body.drill.seed})`);
+  check(done.body.regime.finished.length === 0 && done.body.regime.length === levelTwoSeeds.length,
+    `and the regime reported is level 2's, empty (${done.body.regime.finished.length} of ${done.body.regime.length})`);
+  // THE COMPLETE-NOT-WRAPPED CASE NEEDS A LEVEL WHOSE REGIME IS SHORTER THAN THE BLOCK. Levels 2 and 3 have four
+  // entries against a 100-cell block, so a player can exhaust one without filling it: the server answers complete and
+  // does NOT re-serve entry 0, where the local fixture wraps on purpose. That difference is the measurement here.
+  await store.put(ladderKey(devId('p5b')), asLadderItem(2), null);
+  await store.put(progressRow('p5b', 2), { levelIndex: 2, issued: null, finished: levelTwoSeeds.map((_, i) => i) }, null);
+  const exhausted = await drillCurrent(get('p5b'), deps);
+  check(exhausted.body.drill === null,
+    `a regime exhausted while its block is NOT full answers complete (${exhausted.body.drill === null ? 'complete' : `drill at level ${exhausted.body.drill?.levelIndex}`})`);
 }
 
 console.log('\n== 6. the payload carries the puzzle, and it is the server\'s own ==');
@@ -466,8 +478,12 @@ console.log('\n== 9. the local server, over a real socket ==');
     await server.close();
   }
   // THE PROBE'S OWN EXPECTATIONS ABOUT THE FIXTURE, so a change to it fails HERE rather than as a mystery:
-  // level 1's regime is the fixture's four level-1 seeds, in order.
-  check(SEEDS.length === 4 && localRegimes().length === 3, `the fixture is ${localRegimes().length} regimes of ${SEEDS.length} entries at level 1`);
+  // LEVEL 1'S REGIME IS THE FIXTURE'S LEVEL-1 SEEDS, IN ORDER, and the check is the RELATIONSHIP rather than the
+  // count: level 1 holds `LEVEL_SIZE` entries (a full 10x10 block) and levels 2-3 hold four each, so a pin on `4`
+  // would need re-recording whenever the fixture's supply changed. The count is printed, so a change is visible.
+  const levelOne = localRegimes().find((regime) => regime.entries[0].levelIndex === LEVEL);
+  check(levelOne.entries.length === SEEDS.length && localRegimes().length === 3,
+    `the fixture is ${localRegimes().length} regimes, level 1 holding ${SEEDS.length} entries, the same as its level-1 seeds`);
   check(parseDrillId(drillId(LEVEL, 3)).index === 3, 'and a drill id round trips to its position');
   check(emptyProgress(LEVEL).issued === null, 'and a fresh progress record holds nothing');
 }
@@ -508,13 +524,14 @@ console.log('\n== 10. the LADDER: the level is the player\'s, and a full block p
   check(asLadderLevel(rowL2) === 2, 'which is what the reader this build serves with makes of it');
   check(promoted.body.regime.length === seedsOf(2).length, `and the regime reported is level 2's (${promoted.body.regime?.length})`);
 
-  // NEGATIVE CONTROL: ONE CELL SHORT IS NOT A FULL BLOCK. This is the plausible wrong rule — "the regime has no
-  // unfinished entry, so the level is done" — and the fixture is exactly the shape that separates them: its
-  // regimes are 4 entries long, so a player can complete one without filling a 100-cell block.
-  await store.put(progressRow('l3', LEVEL), { levelIndex: LEVEL, issued: null, finished: full.slice(0, LEVEL_SIZE - 1) }, null);
+  // NEGATIVE CONTROL: A REGIME SHORTER THAN THE BLOCK IS NOT A PROMOTION. This is the plausible wrong rule — "the
+  // regime has no unfinished entry, so the level is done" — and levels 2 and 3 are exactly the shape that separates
+  // them from level 1: four entries against a 100-cell block, so a player can exhaust one without filling it.
+  await store.put(ladderKey(devId('l3')), asLadderItem(2), null);
+  await store.put(progressRow('l3', 2), { levelIndex: 2, issued: null, finished: seedsOf(2).map((_, i) => i) }, null);
   const short = await drillCurrent(get('l3'), deps);
-  check(short.status === STATUS.ok && short.body.drill === null, `NEGATIVE CONTROL: ${LEVEL_SIZE - 1} finished leaves the level complete rather than promoted (${short.status})`);
-  check((await store.get(ladderKey(devId('l3')))) === null, 'and NO ladder row is written, so the level it says is still the first one');
+  check(short.status === STATUS.ok && short.body.drill === null, `NEGATIVE CONTROL: level 2's four entries finished leaves it complete rather than promoted (${short.status})`);
+  check((await store.get(ladderKey(devId('l3')))).value.levelIndex === 2, 'and NO promotion is written, so the level it says is still the one the player was on');
 
   // AND THE TOP PUBLISHED LEVEL DOES NOT PROMOTE INTO NOTHING. Level 3 is the highest regime the fixture seeds, so
   // a full block there would move the player to a level with no schedule and answer `404 no_schedule` — for good,

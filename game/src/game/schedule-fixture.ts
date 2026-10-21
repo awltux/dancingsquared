@@ -23,6 +23,7 @@
 // part of the ladder that always generates — three levels, two options, no 3-button question — which keeps
 // "the fixture is what broke" off the list of reasons the app can fail.
 import { POOL_VERSION } from '../puzzle/pool.ts';
+import { LEVEL_SIZE } from '../puzzle/levels.ts';
 import type { ScheduleEntry } from '../puzzle/types.ts';
 
 export type ScheduleFixture = readonly ScheduleEntry[];
@@ -39,19 +40,28 @@ export type ScheduleFixture = readonly ScheduleEntry[];
  */
 export const FIXTURE_POOL_VERSION = POOL_VERSION;
 
+/** `count` seeds from 1, at one level. The seeds are the SAME for every level, and that is what the lint reports. */
+function seeds(levelIndex: number, count: number): ScheduleEntry[] {
+  return Array.from({ length: count }, (_, i) => ({ seed: i + 1, levelIndex, poolVersion: FIXTURE_POOL_VERSION }));
+}
+
+/**
+ * THE FIXTURE: a FULL level 1 (the 10x10 block) and a DEMO of levels 2 and 3.
+ *
+ * LEVEL 1 IS `LEVEL_SIZE` ENTRIES because a level's block is 100 drills and the level screen draws one cell per drill
+ * — a fixture of 4 would make the grid 4% full and the screen would be telling the truth about a demo rather than
+ * about the game. Levels 2 and 3 keep four each: they are there so PROGRESSION is exercisable, and baking 100 at every
+ * level costs ~11 KB of boards each (MEASURED: the 13-puzzle bake is 135 KB, the 108-puzzle one is 1.1 MB) for
+ * content nobody plays offline yet.
+ *
+ * IT IS BUILT FROM A COUNT RATHER THAN SPELLED OUT, which is a change of shape and not of rule: the numbers were
+ * always the measurement's, and `test/schedule-fixture-probe.mjs` still RE-GENERATES every entry and compares it with
+ * the bake, so a seed that stops generating is a red gate rather than a listed entry nobody checks.
+ */
 export const LOCAL_SCHEDULE: ScheduleFixture = [
-  { seed: 1, levelIndex: 1, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 2, levelIndex: 1, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 3, levelIndex: 1, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 4, levelIndex: 1, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 1, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 2, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 3, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 4, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 1, levelIndex: 3, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 2, levelIndex: 3, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 3, levelIndex: 3, poolVersion: FIXTURE_POOL_VERSION },
-  { seed: 4, levelIndex: 3, poolVersion: FIXTURE_POOL_VERSION },
+  ...seeds(1, LEVEL_SIZE),
+  ...seeds(2, 4),
+  ...seeds(3, 4),
 ];
 
 /**

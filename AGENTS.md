@@ -475,6 +475,13 @@ with its measurement, in the same commit that found it.
     driver is `scripts/reorder-formation.mjs` (which refuses on a dirty tree and writes nothing unless every dependent's
     geometry is preserved), and `engine/test/formation-order.mjs` pins the order plus a start-to-end digest that is INVARIANT
     under a correct conversion and changes when one dependent is left stale. **Do not hand-permute the paths.**
+31. **`Tee-Object -FilePath` writes the log as UTF-16LE here, and the script that reads it back then matches NOTHING —
+    which reads as "no failures".** MEASURED on a `verify:light` run teed to `verify-light.log`: a small Node summary over
+    that file with `readFileSync(path, 'utf8')` reported **0 failing harnesses** against a log holding **14**, because every
+    character was separated by a NUL. Two ways out, both used since: read it as `utf16le` when the buffer contains `0x00`
+    bytes, or skip the tee and let the suite's own stdout carry it (`Select-String` on the console is fine). **An agent that
+    pipes a long run through a shell writer must check that the artefact it inspects is text the next reader can parse** —
+    "the summary said zero" is a claim about the log's ENCODING until that is ruled out (§4.1).
 
 ---
 
@@ -566,155 +573,129 @@ waiting state and no check, so the local §3 gate is the only gate either way.
 ## 11. QA — the five properties, and the failure modes that actually bit
 
 **What this section is for.** §0–§10 say what to do; this says *why*, and catalogues the ways this tree has
-already got it wrong. **Every rule below names the instance that produced it**, because a QA rule with no
-incident behind it is decoration and is the first thing skipped under pressure. If a rule here cannot name a
-file, a command or a commit, it does not belong here — and if you disprove one, fix it in the same commit
-(§4.1).
+already got it wrong. **Every rule here names the instance that produced it**, because a QA rule with no
+incident behind it is the first thing skipped under pressure. If you disprove one, fix it in the same commit
+(§4.1). **AND KEEP THIS FILE INSIDE THE LOADER'S 64 KiB BUDGET** — MEASURED: at 65 463 bytes the workspace
+loader truncated it mid-sentence and said nothing, so the last rules were invisible to every agent. Compress or
+split; never let the tail be the thing that goes.
 
 ### 11.1 The five properties, and the mechanism that enforces each
 
-| property | what it means here | the mechanism | stated in |
+| property | what it means here | how it is enforced | stated in |
 |---|---|---|---|
-| **Testability** | a rule is callable from a probe, in process, with no browser, no network and no ambient state | the pure core plus rules extracted into importable modules — `poc/src/board-transform.ts`, `engine/src/sequencer/bodies.ts`, `poc/src/fsm-target.ts`, `game/src/puzzle/arming.ts`; runners `engine/test/verify-suite.mjs` and `poc/tools/verify-probes.mjs` | §5, §4.3 |
-| **Reliability** | a refusal is a VALUE, and a degradation is LOUD | `{ legal, reason }` on every engine entry point (`engine/src/sequencer/types.ts`); ports not globals (`ItemStore`, `Clock`, `IdentityOf`); measurements the server owns (`game/DESIGN.md` §11.1); a tier that prints what it skipped | §5, §6 |
-| **Understandability** | the header is the specification, and the gate is the proof of it | harness headers state the rule, the measurement and the rejected alternative; §1 names ONE authority per concern and the map is corrected when it lies | §4.2, §1 |
-| **Extensibility** | a new case is added by DATA and derived, not by editing N call sites | one corpus path (`vite.corpus.ts`, the `@corpus` alias, `corpusFileOf()`); names derived from the corpus (`catalogueTitles`, `callMeta`); the word lists that ARE the vocabulary (`GROUP_NAMES`, `COUPLE_GROUP_NAMES`, `STANDARD_FINISHES`, `SURVEY_CALLS`); one gate registry per tier | §4.3, §1 |
+| **Testability** | a rule is callable from a probe, in process, with no browser, no network, no ambient state | the pure core and the extraction pattern — `poc/src/board-transform.ts`, `engine/src/sequencer/bodies.ts`, `poc/src/fsm-target.ts`, `game/src/puzzle/arming.ts`; runners in `verify-suite.mjs` and `verify-probes.mjs` | §5, §4.3 |
+| **Reliability** | a refusal is a VALUE, and a degradation is LOUD | `{ legal, reason }` on every engine entry point (`engine/src/sequencer/types.ts`); ports, not globals (`ItemStore`, `Clock`, `IdentityOf`); the server owns its measurements (`game/DESIGN.md` §11.1); a tier that prints what it skipped | §5, §6 |
+| **Understandability** | the header is the specification, and the gate is its proof | headers state the rule, the measurement and the rejected alternative; §1 names ONE authority per concern and is corrected when it lies | §4.2, §1 |
+| **Extensibility** | a new case arrives as DATA and is derived | one corpus path (`vite.corpus.ts`, `@corpus`, `corpusFileOf()`); names derived from the corpus (`catalogueTitles`, `callMeta`); the word lists that ARE the vocabulary (`GROUP_NAMES`, `COUPLE_GROUP_NAMES`, `STANDARD_FINISHES`, `SURVEY_CALLS`); one gate registry per tier | §4.3, §1 |
 | **Implementation quality** | one mechanism per concern, in the module that owns it | the extraction pattern (§4.3); the `KNOWN_*` lists, which make every exception visible and countable | §4.3, §4.5 |
 
-**THE ORDER IS NOT A PREFERENCE: testable, then reliable, then understandable, then extensible, then fast.**
-A rule that cannot be measured cannot be trusted, so losing measurability costs everything below it — which
-is why §4.4 already refuses to trade a measurable correctness property for an unmeasured speed claim, and why
-"it is only a comment" is not a defence (§11.4).
+**THE ORDER IS A DEPENDENCY, NOT A PREFERENCE: testable, then reliable, then understandable, then extensible,
+then fast.** Losing measurability costs everything under it, which is why §4.4 refuses to trade a measurable
+correctness property for an unmeasured speed claim, and why "it is only a comment" is not a defence (§11.4).
 
 ### 11.2 The failure modes, and the rule that prevents each
 
-1. **A GATE THAT THROWS HAS MEASURED NOTHING BELOW THE THROW.** `engine/test/editor.mjs` died with
-   `TypeError: Cannot read properties of undefined (reading 'translate')` and **five failures sat invisible
-   behind it** — they appeared the moment a guard went in. **RULE:** a harness always reaches its summary; a
-   missing witness or an undefined result is a FAIL line that NAMES what is missing, never a crash and never
-   a silent `continue`.
+1. **A GATE THAT THROWS HAS MEASURED NOTHING BELOW THE THROW.** `engine/test/editor.mjs` died on
+   `TypeError: … reading 'translate'` with **five failures invisible behind it**. **RULE:** a harness always
+   reaches its summary; a missing witness is a FAIL line that NAMES it — never a crash, never a `continue`.
 
-2. **A CHECK WHOSE SUBJECT DOES NOT EXIST CANNOT REPORT HONESTLY, IN EITHER DIRECTION.** Two instances,
-   opposite ways: `engine/test/arrangement-picker.mjs` asserts `Columns LH is offered` for a formation that
-   has NEVER existed (the corpus spells it `Columns LH BGBG`), so it is red for ever and the two witnesses
-   beneath it never run; and `poc/tools/radial-arc-fit-probe.mjs` filtered `.startsWith('Promenade Full')`,
-   which a title rename turned into an **empty set** — two sections kept passing while measuring nothing.
-   **RULE:** every check proves its subject EXISTS (a positive control), and a sweep whose sample is empty
-   reports `0 of 0` as a FAILURE, never as a pass.
+2. **A CHECK WHOSE SUBJECT DOES NOT EXIST CANNOT REPORT HONESTLY, EITHER WAY.** `arrangement-picker.mjs`
+   asserted `Columns LH is offered` for a name the corpus never carried, so it was red for ever and the two
+   witnesses under it never ran; `radial-arc-fit-probe.mjs` filtered `.startsWith('Promenade Full')` and a
+   retitle made it an **empty set**, passing while measuring nothing. **RULE:** every check proves its subject
+   EXISTS, and a sweep whose sample is empty reports `0 of 0` as a FAILURE.
 
-3. **THE JUDGE MUST NOT BE A SECOND CALL TO THE PREDICATE UNDER TEST.** `engine/test/matrix-getout.mjs`
-   verified "reaches Static Square" with `seq.isAt(...)`, which is `matchesNamed` — the very predicate that
-   decided the path — so it passed for exactly as long as the defect existed, and failed 7 checks the moment
-   the solver used a stricter rule. **RULE:** the judge is an INDEPENDENT observable (identity, FASR,
-   geometry by id), never a re-ask of the function that produced the answer. If the only way to check a
-   result is to call the rule again, the rule needs an inspection seam.
+3. **THE JUDGE MUST NOT BE A SECOND CALL TO THE PREDICATE UNDER TEST.** `matrix-getout.mjs` verified "reaches
+   Static Square" with `seq.isAt` — the very predicate that chose the path — so it passed for as long as the
+   defect existed and failed 7 checks when the solver tightened. **RULE:** judge with an INDEPENDENT observable
+   (identity, FASR, geometry by id). If the rule can only be checked by re-asking it, it needs an inspection
+   seam.
 
-4. **A HARNESS'S PROSE IS NOT THE SPECIFICATION.** `engine/test/getout-convention.mjs` described its safety
-   property as "every dancer back on its OWN spot and facing, compared by identity". That sentence was read
-   as the definition, the solver was rewritten to match it (`7a172b1`), and the search then found **no
-   get-out at all for 7 alignments** where it had previously found one for every alignment. **RULE:** the
-   gate observes; the ENGINE owns the rule and the gate IMPORTS it (`fasrKey`/`homeFasrKey` are exported for
-   exactly this). §5's "import the rule, never mirror it" extends to the prose — a header describing a
-   STRONGER rule than the code is a trap, not a bonus.
+4. **A HARNESS'S PROSE IS NOT THE SPECIFICATION.** `getout-convention.mjs` described its safety property as
+   "every dancer back on its OWN spot and facing". That sentence was read as the definition, the solver was
+   rewritten to it (`7a172b1`), and the search then found **no get-out for 7 alignments**. **RULE:** the gate
+   IMPORTS the rule the engine owns (`fasrKey`/`homeFasrKey` are exported for exactly this); a header claiming
+   a STRONGER rule than the code is a trap, not a bonus.
 
-5. **A SWEEP THAT SILENTLY SKIPS ITS INPUT MEASURES LESS THAN IT CLAIMS.** `SURVEY_CALLS` in
-   `engine/test/lib/apply-faults.mjs` names the bare `Promenade`; while that name resolved to nothing the
-   sweep skipped it and **two real faults were invisible**, surfacing as 95 → 97 the moment a corpus
-   retitle made the name resolve. **RULE:** a sweep reports what it skipped, by name, and every name in a
-   list is asserted to RESOLVE before it is swept.
+5. **A SWEEP THAT SILENTLY SKIPS ITS INPUT MEASURES LESS THAN IT CLAIMS.** `SURVEY_CALLS` named the bare
+   `Promenade`; while that resolved to nothing the sweep skipped it and **two real faults were invisible**,
+   surfacing as 95 → 97 when a retitle made the name resolve. **RULE:** a sweep reports what it skipped, by
+   name, and asserts every name RESOLVES before sweeping.
 
-6. **A TITLE IS AN API, AND A RENAME IS A MIGRATION.** One corpus retitle broke consumers that had TYPED the
-   name — harness witnesses, the game pool, the FSM asset, two book indexes, `KNOWN_CATALOGUE_GAPS` — and
-   left **8 of 13 `STANDARD_FINISHES` entries naming calls that did not exist** ("8 of them are not in the
-   library", measured; 0 after the circles were renamed). **RULE:** derive names from the corpus and gate the
-   derivation; a name typed in two places is a defect waiting for the rename. §8 trap 30 is the same law for
-   FORMATION ORDER, where the dependents are paired by index and no file shows the damage afterwards.
+6. **A TITLE IS AN API, AND A RENAME IS A MIGRATION.** One retitle broke consumers that had TYPED the name —
+   harness witnesses, the game pool, the FSM asset, two book indexes, `KNOWN_CATALOGUE_GAPS` — and left **8 of
+   13 `STANDARD_FINISHES` entries naming nothing** (measured; 0 after the circles were renamed). **RULE:**
+   derive names from the corpus and gate the derivation. §8 trap 30 is the same law for FORMATION ORDER, whose
+   dependents are paired by index and show no damage in any file.
 
 7. **TWO CONVENTIONS IN ONE TREE IS WORSE THAN A WRONG ONE.** The promenade retitling landed twice with
-   OPPOSITE meanings — `Promenade Home` in one branch and `Promenade - Keep Walking` upstream — leaving
-   `PromH` expanding to a name nothing authors and `getout-conformance` red on a phantom. **RULE:** a
-   convention is decided once and written where the DATA lives (a `KNOWN_*` list, a header, a corpus
-   comment); a second agent does not re-decide it in a parallel branch. When two land, reconciling them is
-   its own commit with the measurement, not a merge resolution.
+   OPPOSITE meanings (`Promenade Home` in one branch, `Promenade - Keep Walking` upstream), leaving `PromH`
+   expanding to a name nothing authors. **RULE:** decide a convention once, where the DATA lives; reconciling
+   two that landed is its own commit with the measurement, never a merge resolution.
 
-8. **A STALE PIN IS A DECISION DEFERRED, AND THERE ARE ONLY THREE KINDS.** Exact equality (a FACT: a count,
-   a digest, an edge list); a CEILING (a budget that may only fall — except when the sweep WIDENS, the one
-   legitimate raise); a NAMED SET (`KNOWN_*`: fails when it shrinks AND when it grows). **RULE:** each pin
-   says which kind it is; re-pinning happens in the commit that re-measures, with the direction stated. A
-   ceiling raised to make a branch green is a gate weakened (§3).
+8. **A STALE PIN IS A DECISION DEFERRED, AND THERE ARE ONLY THREE KINDS.** Exact equality (a FACT: a count, a
+   digest, an edge list); a CEILING (may only fall — except when the sweep WIDENS, the one legitimate raise); a
+   NAMED SET (`KNOWN_*`: fails when it shrinks AND when it grows). **RULE:** each pin says which it is, and
+   re-pinning happens in the commit that re-measures, with the direction stated.
 
-9. **A COPY OF A FACT WITHOUT A GATE GOES STALE IN SILENCE — and the copy is always the one somebody
-   reads.** `assets/fsm-ms.json` sat at schema 2 / 274 catalog entries while the engine was at 3 / 290 for
-   many commits, so the four harnesses that read it were red against a table a schema behind; the corpus
-   itself was duplicated into `game/src/assets/` for a year on a comment about globs that was simply wrong
-   (§8 trap 26). **RULE:** one fact, one place — `vite.corpus.ts` is the model, the corpus's location is
-   written down ONCE. Where a copy is unavoidable, the gate that compares it to the original ships in the
-   same commit, and that gate must sit in a tier a change actually runs.
+9. **A COPY OF A FACT WITH NO GATE GOES STALE IN SILENCE — and the copy is the one somebody reads.**
+   `assets/fsm-ms.json` sat at schema 2 / 274 entries while the engine was at 3 / 290, so four harnesses were
+   red against a table a schema behind (§8 trap 26 is the corpus's version of the same disease). **RULE:** one
+   fact, one place — `vite.corpus.ts` is the model. Where a copy is unavoidable, ship the gate that compares it,
+   in a tier a change actually runs.
 
 10. **A SUMMARY THAT DOES NOT NAME ITS DENOMINATOR CANNOT BE COMPARED, AND THE COMPARISON IS THE CLAIM.**
-    `getout-convention` printed `24 of 28 alignments` before one change and `0 of 5 sampled alignments` after
-    it — different samples, read first as a catastrophe and then as progress. **RULE:** every count prints
-    its denominator AND the sample it came from; a like-for-like comparison is part of the evidence, not
-    decoration.
+    `getout-convention` printed `24 of 28 alignments` and later `0 of 5 sampled alignments` — different
+    samples, read first as a catastrophe and then as progress. **RULE:** every count prints its denominator and
+    its sample; like-for-like is part of the evidence, not decoration.
 
 11. **AN UNMEASURED CLAIM IN A COMMIT MESSAGE IS A GUESS WITH AUTHORITY, AND IT WILL BE BELIEVED.** This
-    session produced at least two: "the pair is the single change most likely to collapse this cluster" (it
-    moved 18 → 3, not to 0), and a `24 of 28` against `1 of 5` comparison presented as before-and-after.
-    **RULE:** the message splits MEASURED from NOT CHECKED (§7, §9); an inference never sits in the measured
-    voice; and a claim about an interaction the message also says was never driven is a hope, not a claim
-    (§8 trap 27).
+    session produced two: "the single change most likely to collapse this cluster" (it moved 18 → 3, not to
+    0), and a `24 of 28`-against-`1 of 5` presented as before-and-after. **RULE:** split MEASURED from NOT
+    CHECKED (§7, §9); an inference never sits in the measured voice; a claim about an interaction the message
+    also says was never driven is a hope (§8 trap 27).
 
 12. **A HALF-APPLIED CHANGE IS WORSE THAN NONE, AND IT IS THE NORMAL FAILURE MODE HERE.** The corpus was
     retitled without its generated artefacts or its consumers; a generated `calls-data.ts` sat dirty and
     blocked a merge; a finish list named eight non-existent titles. **RULE:** the unit of a change is data +
-    derived artefacts + consumers + the gate, landing together. §0's never-batch has this mirror — never
-    half-apply — and if the parts cannot land together, both messages say which part is missing and why.
+    derived artefacts + consumers + the gate, landing together — §0's never-batch has this mirror, never
+    half-apply — and if the parts cannot land together, both messages say which is missing and why.
 
 ### 11.3 The patterns that keep it clean, and where the risk still is
 
-**Adopt these deliberately; they are why the repo is changeable at all.**
-
-- **A PURE CORE AND THIN SHELLS.** The engine has no DOM, no `three`, no I/O, no ambient time or randomness
-  (`config.rand` is injected); every app, probe and API handler is a shell around it. That one decision is
-  simultaneously the testability, the portability and the understandability story.
+- **A PURE CORE AND THIN SHELLS.** No DOM, no `three`, no I/O, no ambient time or randomness (`config.rand` is
+  injected); every app, probe and handler is a shell around it. One decision, and it is the testability, the
+  portability and the understandability story at once.
 - **PORTS OVER GLOBALS.** `ItemStore`, `Clock` and `IdentityOf` are why the api's two stores are measured by
   ONE contract suite, and why a refusal is testable without a container.
-- **ONE IDENTITY FOR A FILE, NOT A PREFIX.** `corpusFileOf()` (`poc/src/corpus-key.ts`) reads the last two
-  segments of ANY glob key, so no call site spells a path and an alias change cannot silently break the
-  lookup (§8 trap 29).
-- **A REFUSAL IS DATA.** `{ legal, reason }` everywhere; a consumer that reads `.board` without checking
-  `.legal` is a crash waiting for a legal-shaped refusal (§11.2.1).
-- **THE TIER IS A COST DECISION, NOT A COVERAGE DECISION.** Every `light: false` harness carries a `why`; a
-  gate that only runs in `all` cannot catch a change-time regression — which is how the FSM asset stayed
-  stale while TODO.md item 37 records that its generator is wired into no npm script.
-- **A RULE IN THE SMALLEST MODULE THAT CAN HOLD IT** — `game/src/puzzle/arming.ts` exists because the rule
-  was unmeasurable inside `daily-screen.ts` (§8 trap 27).
+- **ONE IDENTITY FOR A FILE, NOT A PREFIX.** `corpusFileOf()` reads the last two segments of ANY glob key, so
+  no call site spells a path and an alias change cannot silently break the lookup (§8 trap 29).
+- **A REFUSAL IS DATA.** A consumer that reads `.board` without checking `.legal` is a crash waiting for a
+  legal-shaped refusal (§11.2.1).
+- **THE TIER IS A COST DECISION, NOT A COVERAGE DECISION.** Every `light: false` carries a `why`; a gate that
+  only runs in `all` cannot catch a change-time regression — which is how the FSM asset stayed stale.
+- **A RULE IN THE SMALLEST MODULE THAT CAN HOLD IT** — `game/src/puzzle/arming.ts` exists because the rule was
+  unmeasurable inside `daily-screen.ts` (§8 trap 27).
 
-**Where the risk still is, named so a QA pass can attack it.**
-
-- **Title-keyed facts are spread across six kinds of artefact**: harness witnesses, the game pool, the FSM
-  asset, the book's two indexes, the gap list, the permission rules. One derivation gate would collapse that
-  surface; today each is maintained by hand.
-- **Prose can outrank code** (§11.2.4), because the headers are useful enough to be read as the spec.
-- **Self-confirming judges** (§11.2.3) are invisible: they pass, so nobody looks.
-- **Generated artefacts sit outside the change-time gate** (§11.2.9), so staleness is found by a later
-  session rather than by the one that caused it.
-- **Dead assertions** (§11.2.2) are indistinguishable from live ones in a green run.
+**Where the risk still is, so a QA pass has targets.** Title-keyed facts are spread across six kinds of
+artefact (harness witnesses, the game pool, the FSM asset, the book's two indexes, the gap list, the permission
+rules), each maintained by hand; **prose can outrank code** (§11.2.4) because the headers are good enough to be
+read as the spec; **self-confirming judges** pass, so nobody looks (§11.2.3); **generated artefacts sit outside
+the change-time gate**, so staleness is found by a later session rather than the one that caused it
+(§11.2.9); and **dead assertions are indistinguishable from live ones in a green run** (§11.2.2).
 
 ### 11.4 The overarching rules
 
-1. **ADD THE GATE IN THE SAME COMMIT AS THE RULE.** Corollary: **if you cannot write the gate, you have not
-   specified the rule** — go back to §11.3 and find the seam; do not ship the rule unmeasured.
+1. **ADD THE GATE IN THE SAME COMMIT AS THE RULE.** If you cannot write the gate, you have not specified the
+   rule: find the seam (§11.3) or do not ship it unmeasured.
 2. **A CHANGE IS A MIGRATION.** Data, derived artefacts, consumers and the gate move together; anything left
    behind is named in the message (§11.2.12).
-3. **NAME THE SAMPLE, STATE THE DIRECTION, SPLIT MEASURED FROM INFERRED.** A number without its denominator
-   is not evidence; a delta without its direction is not a result (§11.2.10, §11.2.11).
+3. **NAME THE SAMPLE, STATE THE DIRECTION, SPLIT MEASURED FROM INFERRED** (§11.2.10, §11.2.11).
 4. **ONE MECHANISM PER CONCERN — SEARCH BEFORE YOU ADD.** A second way to do the same thing is a defect even
-   when both work, because the first one to be fixed will be the one nobody is looking at.
+   when both work, because the first one fixed will be the one nobody is looking at.
 5. **A RULE THAT LIVES WHERE A PROBE CANNOT IMPORT IT IS NOT A RULE.** Extract it (§4.3) or state that it is
    unmeasured (§5) — there is no third option.
 6. **NOTHING IN THIS TREE IS "JUST DOCUMENTATION".** A cited path, a pinned number, a stated convention and a
    comment describing a check are all load-bearing, and a stale one is worse than a missing one (§4.5).
-   Verify a citation before building on it: every claim in this section was checked against the file it names.
 7. **WHEN A GATE AND THE ORACLE DISAGREE, THE ORACLE WINS AND THE GATE IS FIXED.** `docs/` is not ours to
    redistribute, and it outranks this file, a header comment and a green run (§2, §6).

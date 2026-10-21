@@ -1,4 +1,5 @@
 // Shared sequencer constants.
+import type { CallTitle } from './call-titles.js';
 
 // Default tolerance for formation matching (matchFormations' maxError) when
 // deciding whether a call is LEGAL from a board. Genuine starts match at ~0.0
@@ -222,13 +223,13 @@ for (const n of [1, 2, 3, 4, 5, 6, 7]) {
 //
 // Order matters only for which finish a search returns first when several apply.
 //
-// `Promenade` STAYS IN THIS LIST and is not danceable right now, which is not a contradiction: this is
-// CALLERLAB's own set of finishes and All8's `--Prom` is one of them, so the list is what a caller
-// WOULD resolve with. Whether the engine can actually take the edge is a separate question, asked
-// where the search applies a call - and it cannot, since the derived rule was removed and no tam
-// authors the bare name yet. Removing the name from here would silently redefine the convention; see
-// `solver.ts`'s header for the measured consequence.
-export const STANDARD_FINISHES = ['Allemande Left', 'Right and Left Grand', 'Promenade'];
+// `Promenade` IS IN THIS LIST AND IS A TITLE THE CORPUS AUTHORS — 5 tams, MEASURED. The note this replaces
+// said the bare name was authored by nothing and was therefore undanceable, which stopped being true when the
+// promenade family was retitled (`e02b434`); the list itself never had to change, and that is the point of
+// typing it `readonly CallTitle[]`: a finish the corpus stops carrying cannot be quietly kept here, it fails
+// the BUILD (MEASURED — adding the phantom `Promenade Home` reports TS2322 against `CallTitle`). Whether the
+// engine can actually take one of these edges is a separate question, asked where the search applies a call.
+export const STANDARD_FINISHES: readonly CallTitle[] = ['Allemande Left', 'Right and Left Grand', 'Promenade'];
 
 /** Resolve a name to its canonical form (checking call and formation synonyms
  * in turn). Non-aliases pass through unchanged, so this is safe to apply to any

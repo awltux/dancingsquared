@@ -34,6 +34,14 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const SUITE = [
   { h: 'gender-audit', light: true },
   { h: 'catalogue', light: true },
+  // THE CORPUS'S CALL VOCABULARY, AS CONSTANTS, IN BOTH DIRECTIONS. `engine/src/sequencer/call-titles.ts` is
+  // generated from every `<tam title>` the corpus carries (2190 of them, MEASURED), and this gate fails when the
+  // corpus gains or loses a title the module never saw, when a constant names a title nothing authors, and when
+  // the committed module is not byte-identical to a fresh render. It is what makes `CALL_TITLE['...']` worth
+  // writing: a retitle then breaks every call site at COMPILE time instead of leaving a name that resolves to
+  // nothing, which is how `Promenade Home` cost nine harnesses across five unrelated subsystems (§11.2.6).
+  // ~1s, one parse of the corpus.
+  { h: 'call-titles', light: true },
   // The authoring convention for a shape smaller than the set, measured over all 5963 shipped tams and
   // pinned, plus what the formation registry keeps (210 of 273 declared shapes). In `light` because it
   // is one pass over the assets, and it is the harness that makes "what does a shape of four dancers

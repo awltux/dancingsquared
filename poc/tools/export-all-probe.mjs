@@ -48,7 +48,10 @@ has(/for \(const s of this\.saved\)/, 'it walks the saved list, so "all the crea
 // has to say `clone`/`update` for exactly the edits `doSave` files as appending/replacing.
 has(/const type = s\.kind === 'fix' \|\| s\.kind === 'instance' \? 'update' : 'clone';/, 'a replacing edit (fix, instance) is typed `update` and an appending one (create, clone) is typed `clone`');
 has(/const replaces = spec\.kind === 'fix' \|\| spec\.kind === 'instance';/, 'and that is the SAME predicate `doSave` already uses to decide whether an edit replaces a setup or adds one');
-has(/filepath: entry \? `poc\/src\/assets\/\$\{entry\.file\}\.xml`/, 'the filepath is built from the catalogue entry the edit came from, not from the edit name');
+// THE PATH IS `assets/…`, which is where the corpus lives since `0d76cbd` moved it to the repo root. This
+// regex used to demand `poc/src/assets/…` — the directory the corpus LEFT — so the probe failed while the app
+// was right, which is the most confusing shape a stale gate can take.
+has(/filepath: entry \? `assets\/\$\{entry\.file\}\.xml`/, 'the filepath is built from the catalogue entry the edit came from, not from the edit name');
 has(/title="\$\{esc\(g\.family \?\? 'Unknown'\)\}"/, 'and the title is the file FAMILY, escaped');
 
 // ============================================================ 2. every file has a family
@@ -111,7 +114,7 @@ for (const [lvl, file] of [['ms', 'circle'], ['ms', 'arm_turns'], ['ms', 'circul
   // READ BACK, which is the half a text check cannot do: the block has to parse into a call again.
   const back = engine.parseCallXml(`<calls>${block}</calls>`);
   const okTam = back.length === 1 && back[0].title === call.title;
-  const okType = /type="clone"/.test(block) && /<tamination title=/.test(block) && /filepath="poc\/src\/assets\//.test(block);
+  const okType = /type="clone"/.test(block) && /<tamination title=/.test(block) && /filepath="assets\//.test(block);
   if (okTam && okType) roundTripped++;
   else check(false, `${full} did not read back (tams ${back.length}, title "${back[0]?.title ?? ''}")`);
 }

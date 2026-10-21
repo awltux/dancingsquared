@@ -23,7 +23,7 @@
 // Usage: node engine/test/call-titles.mjs   (engine must be built: it imports the guard from dist)
 import fs from 'node:fs';
 import { corpusCallTitles, renderCallTitles, MODULE } from '../../scripts/call-titles.mjs';
-import { CALL_TITLE, isCallTitle } from '../dist/index.js';
+import { CALL_SYNONYMS, CALL_TITLE, isCallTitle, PERMISSION_RULES } from '../dist/index.js';
 
 let failures = 0;
 const check = (ok, what, detail = '') => {
@@ -89,6 +89,29 @@ check(Object.keys(CALL_TITLE).length === built.titles.length, `the runtime table
 // The value is what an app passes to the engine, so it must BE the key, not a copy that could drift.
 const mismatched = Object.entries(CALL_TITLE).filter(([k, v]) => k !== v);
 check(mismatched.length === 0, 'every value is its own key, so an escaped title reads back as the XML carried it', list(mismatched.map(([k]) => k)));
+
+// ---------------------------------------------------------------- 5. the engine's OWN tables, against the vocabulary
+//
+// THE SECOND HALF OF THE REVERSE CHECK. A title-keyed statement that resolves to nothing is silent: a
+// permission rule naming a call the corpus dropped can never fire, and a synonym pointing at a dead name keeps
+// mapping its spelling to itself. Both are asked at RUNTIME, and for the synonyms that is a measurement rather
+// than laziness — `CALL_SYNONYMS` gains seven `Eight Chain N` entries from a loop, so `Record<string,
+// CallTitle>` could not describe it without a cast: MEASURED, 7 of its 19 entries are computed. The compiled
+// table is what ships; a type would only see the literal part of it.
+//
+// THE EMITTERS ARE NOT CHECKED HERE. `getout-conformance.mjs` already resolves every token value against the
+// catalogue, the scoped-selection path and `KNOWN_CATALOGUE_GAPS`, and a second implementation of that rule
+// would be a second answer to one question (§11.4.4).
+const deadSynonyms = Object.entries(CALL_SYNONYMS).filter(([, target]) => !isCallTitle(target));
+check(
+  deadSynonyms.length === 0,
+  `every one of the ${Object.keys(CALL_SYNONYMS).length} call synonyms points at a title`,
+  list(deadSynonyms.map(([from, to]) => `${from} -> ${to}`)),
+);
+const ruleCalls = PERMISSION_RULES.flatMap((rule) => rule.call ?? []);
+const deadRuleCalls = ruleCalls.filter((name) => !isCallTitle(name));
+check(ruleCalls.length > 0, `the permission table was read (${PERMISSION_RULES.length} rules, ${ruleCalls.length} call names)`);
+check(deadRuleCalls.length === 0, 'every permission-rule call name is a title — a rule naming a dropped call can never fire', list(deadRuleCalls));
 
 console.log(`\ncall-titles: ${failures === 0 ? 'PASS' : `FAIL (${failures})`}`);
 process.exit(failures === 0 ? 0 : 1);

@@ -6,6 +6,16 @@
 //
 // MEASURED at generation: 2190 distinct titles across 5488 tams in 500 call files.
 //
+// HOW TO USE IT, in order of preference. TYPE THE TABLE: a list or record of titles — a season, a finish
+// list, a permission rule's calls — is checked by annotating it `readonly CallTitle[]` or
+// `Record<string, CallTitle>`, which is one word and no churn. `CALL_TITLE['...']` is for a site that names
+// ONE call: a selector, a comparison, an expectation. A name that arrives at RUNTIME — authored data, a user
+// typing a call — goes through `isCallTitle`.
+//
+// WHY NOT REWRITE EVERY LITERAL. MEASURED before this module existed: 1983 executable title literals in 137
+// files. A blanket rewrite to `CALL_TITLE[...]` would be a 2000-line diff for a guarantee that a type
+// annotation on the few big tables buys outright, so the migration is table-by-table, not site-by-site.
+//
 // WRITE `CALL_TITLE[...]`, NEVER A BARE LITERAL, for any title the CODE names — a harness witness, a
 // finish list, a probe selector, a book index. The key is checked by the compiler, so a retitle in the
 // corpus breaks every call site that still spells the old name, and the broken sites ARE the migration

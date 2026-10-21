@@ -12,7 +12,7 @@
 import { LOCAL_SCHEDULE, FIXTURE_POOL_VERSION, type ScheduleFixture } from 'dancing-squared-game/schedule-fixture';
 import type { ScheduleEntry } from 'dancing-squared-game';
 import type { ItemStore } from './ports.ts';
-import { scheduleKey } from './keys.ts';
+import { publishSeason } from './schedule-publishing.ts';
 import type { Regime } from './drill-regime.ts';
 
 /**
@@ -48,13 +48,11 @@ export function localRegimes(fixture: ScheduleFixture = LOCAL_SCHEDULE): Regime[
  * version and why an issued drill does not read its seed back out of it.
  */
 export async function putRegime(store: ItemStore, levelIndex: number, regime: Regime): Promise<void> {
-  const key = scheduleKey(levelIndex);
-  const value = { scheduleVersion: regime.scheduleVersion, entries: regime.entries };
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const current = await store.get(key);
-    if (await store.put(key, value, current?.rev ?? null)) return;
-  }
-  throw new Error(`could not write ${key.pk}: another writer kept winning`);
+  // IT GOES THROUGH THE PUBLISHER RATHER THAN SPELLING THE WRITE AGAIN, because a published level is now MORE
+  // than its schedule: `publishSeason` writes the drills first and the schedule last, and a second copy of that
+  // order here is how a seeded level ends up announcing drills whose boards were never written. It also means
+  // every probe that seeds a fixture gets stored drills without changing, which is why none of them had to.
+  await publishSeason(store, levelIndex, regime.entries, regime.scheduleVersion);
 }
 
 /** Seed every level of the local fixture, and report which levels now have a regime. */

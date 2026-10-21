@@ -20,6 +20,7 @@
 import { MAIN_POOL, POOL_VERSION, generatorConfigFor, lintSchedule, type ScheduleEntry } from 'dancing-squared-game';
 import { levelAt, publishableLevels, puzzleFor, runtimeFor } from './levels.ts';
 import { scheduleKey } from './keys.ts';
+import { storeDrills } from './stored-drill.ts';
 import type { ItemStore } from './ports.ts';
 
 /**
@@ -110,6 +111,11 @@ export function lintSeason(entries: readonly ScheduleEntry[], levelIndex: number
  * value does not depend on what was there, so a loser of the race writes the same bytes on its next attempt.
  */
 export async function publishSeason(store: ItemStore, levelIndex: number, entries: readonly ScheduleEntry[], version: string): Promise<void> {
+  // THE DRILLS GO FIRST, because the schedule row is what PUBLISHES them: a reader that can see the new schedule
+  // must find the boards it names, so the schedule is the last write. A crash between the two leaves the old
+  // schedule and a few unused drill rows — invisible — where the reverse order leaves a level that refuses
+  // every player until the next publish.
+  await storeDrills(store, levelIndex, entries, version);
   const key = scheduleKey(levelIndex);
   const value = { scheduleVersion: version, entries };
   for (let attempt = 0; attempt < 3; attempt++) {

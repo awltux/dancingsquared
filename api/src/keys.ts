@@ -16,6 +16,18 @@ export const progressKey = (playerId: string, levelIndex: number): ItemKey => ({
 export const scheduleKey = (levelIndex: number): ItemKey => ({ pk: `schedule#${levelIndex}`, sk: 'current' });
 
 /**
+ * ONE DRILL, as published: its seed AND its boards, keyed by the level and the position in the regime.
+ *
+ * ONE ROW PER DRILL rather than one row per level, and the reason is a hard limit: a stored puzzle is ~11 KB,
+ * so 100 of them in one item is ~1.1 MB against DynamoDB's 400 KB item ceiling. A row per drill also makes the
+ * serving read a single `get`, which is what the level grid wants — the grid itself carries no puzzle data.
+ *
+ * THE SORT KEY IS THE POSITION, unpadded, because nothing range-reads this partition: the schedule row owns the
+ * level's LENGTH and its order, and a drill is fetched by the index that order names.
+ */
+export const drillKey = (levelIndex: number, index: number): ItemKey => ({ pk: `drill#${levelIndex}`, sk: `${index}` });
+
+/**
  * THE PLAYER'S LEVEL — the one row that says which level is THEIRS (DESIGN.md §15 Q17(vi)).
  *
  * IT IS A SEPARATE PARTITION FROM `progress#` BECAUSE THE TWO HAVE DIFFERENT CARDINALITIES. Progress is one row

@@ -30,6 +30,22 @@ import type { GeneratorConfig, LevelSpec, PuzzleMode } from './types.ts';
 export const NODE_BUDGET = 50_000;
 
 /**
+ * The version of the GENERATOR itself, stamped on every puzzle a server STORES.
+ *
+ * WHY THIS EXISTS SEPARATELY FROM `POOL_VERSION`. A puzzle is a pure function of `(seed, level, poolVersion)` —
+ * so two builds that share a pool version agree ONLY while the generator's code is identical. A stored drill is
+ * frozen bytes, which is the point of storing it (every player must travel the same progression), and that
+ * makes a generator change INVISIBLE: the store keeps serving yesterday's boards and nothing notices, because a
+ * seed that is no longer regenerable is never regenerated.
+ *
+ * BUMP IT WHEN THE GENERATED PUZZLE CHANGES FOR A FIXED INPUT — a change to the search, the option builder, the
+ * rng draw order or `NODE_BUDGET`. A stored drill whose stamp disagrees is then refused rather than served, and
+ * the publisher refuses to mix stamps within one level, so the failure is loud instead of a level that quietly
+ * runs on two generators.
+ */
+export const GENERATOR_VERSION = 'g1';
+
+/**
  * The generator configuration for ONE LEVEL, at the budget this build ships.
  *
  * WHY THE CONFIG OBJECT IS BUILT HERE AND NOT AT EACH CALL SITE. Every caller used to build it by hand,

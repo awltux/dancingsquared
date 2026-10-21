@@ -17,7 +17,7 @@ import { asProgress, asProgressItem } from '../progress-row.ts';
 import { servableLevel } from '../ladder.ts';
 import { failure, optionalIdentity, requireIdentity, STATUS } from '../status.ts';
 import { levelParam } from '../query.ts';
-import { levelAt, puzzleFor } from '../levels.ts';
+import { readDrill } from '../stored-drill.ts';
 import {
   currentDrill,
   emptyProgress,
@@ -82,7 +82,7 @@ async function withProgress(
   deps: Deps,
   key: ItemKey,
   levelIndex: number,
-  decide: (progress: DrillProgress) => { progress: DrillProgress; result: ApiResult } | { result: ApiResult },
+  decide: (progress: DrillProgress) => { progress: DrillProgress; result: ApiResult } | { result: ApiResult } | Promise<{ progress: DrillProgress; result: ApiResult } | { result: ApiResult }>,
 ): Promise<ApiResult> {
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
     const stored = await deps.store.get(key);
@@ -90,7 +90,11 @@ async function withProgress(
     if (!progress) {
       return failure(STATUS.unavailable, 'unreadable_progress', `the progress row for ${key.pk} is not a record this build can read`);
     }
-    const decision = decide(progress);
+    // THE DECISION MAY BE ASYNCHRONOUS because serving a drill now READS the published boards rather than
+    // regenerating them (`stored-drill.ts`), and which position to read is only known once the progress row has
+    // decided it. Awaiting here keeps the CAS loop's meaning intact: the decision is still a pure function of
+    // the row just read, and a loser re-reads and decides again.
+    const decision = await decide(progress);
     if (!('progress' in decision)) return decision.result;
     if (await deps.store.put(key, asProgressItem(decision.progress), stored?.rev ?? null)) return decision.result;
   }
@@ -110,22 +114,21 @@ function regimeCounts(regime: Regime, progress: DrillProgress): { finished: numb
  * gets a demo, not a wall"). Two copies of this body is how the two come to answer differently for one regime —
  * which is precisely the drift the level field was once missing from.
  */
-function served(
+async function served(
   outcome: CurrentOutcome,
-  level: ReturnType<typeof levelAt>,
   levelIndex: number,
   resumed: boolean,
-): { body: Record<string, unknown> } | { refusal: ApiResult } {
+  deps: Deps,
+): Promise<{ body: Record<string, unknown> } | { refusal: ApiResult }> {
   if (outcome.kind === 'complete') return { body: { drill: null } };
-  const generated = puzzleFor(outcome.drill.seed, level, 'drill');
-  if (!generated.ok) {
-    return {
-      refusal: failure(
-        STATUS.unavailable,
-        'unplayable_drill',
-        `the published drill at level ${levelIndex} entry ${outcome.drill.index} does not generate: ${generated.reason}`,
-      ),
-    };
+  // THE BOARDS ARE READ, NOT REGENERATED (`stored-drill.ts`): every player at this level must be asked the same
+  // question, and a stored row is what makes that a fact about the DATA rather than a promise about the build.
+  // The refusals name their own cause — unpublished, unreadable, stale generator, stale pool — because the
+  // operator's next move differs for each, and folding them into one "unavailable" is how a republish gets
+  // diagnosed as a bug.
+  const stored = await readDrill(deps.store, levelIndex, outcome.drill.index, outcome.drill.poolVersion);
+  if (!stored.ok) {
+    return { refusal: failure(STATUS.unavailable, 'unplayable_drill', stored.reason) };
   }
   // THE LEVEL IS IN THE ANSWER, and it was MISSING until a browser found it: §11's row for this endpoint says the
   // response is "the seed, the level, the option labels and the issue date", and a client that asked for level 1
@@ -141,7 +144,7 @@ function served(
   // names from it, and a key withheld from the browser would be a key the browser can re-derive in ten seconds
   // because it holds the engine and the corpus. What the server keeps to itself is the MEASUREMENT — the clock,
   // the press log, the attempt count — which is §6's rule and the reason this is not a secrecy decision.
-  return { body: { drill: { ...outcome.drill, levelIndex, puzzle: generated.puzzle, resumed } } };
+  return { body: { drill: { ...outcome.drill, levelIndex, puzzle: stored.puzzle, resumed } } };
 }
 
 /**
@@ -155,13 +158,12 @@ function served(
  * player, and a signed-out visitor is deliberately not one (§11.2). The query's level is therefore still
  * VALIDATED on that path, which is where `bad_level` comes from.
  *
- * THE PUZZLE IS GENERATED HERE, from the seed the Progress row holds, because the client no longer has a
- * generator (DESIGN.md §9: "the serving layer generates, the client applies"). It used to return only a
- * cross-check's worth of it — the first step's option labels — and that field was never read by any client.
- * MEASURED, the generation this costs is 167-230 ms at level 1 and 728-1240 ms at levels 2 and 3 on a warm
- * applier (a throwaway script under `api/tools/`, deleted before the commit), against `puzzleFor`'s cache, which
- * makes every later read of the same seed a `Map` lookup — and it is the SAME puzzle `POST /drill/answer` and
- * `POST /runs` score against, so the two sides cannot disagree about the question.
+ * THE PUZZLE IS READ FROM THE STORE, NOT GENERATED HERE (`stored-drill.ts`), because every player must travel
+ * the same progression and a regenerated puzzle is the same question only while the generator's code is
+ * unchanged. The boards are frozen when the level is published, so a drill already handed out cannot change under
+ * a player, and a generator or pool change is REFUSED with its own cause rather than silently serving different
+ * boards. The client still receives the whole `Puzzle` — it draws it and gives instant feedback from it, and the
+ * server still scores against the SAME bytes that it served.
  *
  * A SIGNED-OUT CALLER IS SERVED THE SAME DRILL AND NOTHING IS WRITTEN (§11.1's A20, §11.2's demo). The drill is
  * derived from the published regime and the ORDER alone, so it needs no Progress row to exist and none is read;
@@ -175,11 +177,10 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
   if (!identity) {
     const demoLevel = levelParam(request.query['level']);
     if (demoLevel === null) return failure(STATUS.badRequest, 'bad_level', 'level must be a positive integer');
-    const level = levelAt(demoLevel);
     const read = await readRegime(deps, demoLevel);
     if ('refusal' in read) return read.refusal;
     const outcome = currentDrill(read.regime, demoLevel, emptyProgress(demoLevel), MAIN_POOL.version, deps.clock.nowMs());
-    const answered = served(outcome, level, demoLevel, false);
+    const answered = await served(outcome, demoLevel, false, deps);
     if ('refusal' in answered) return answered.refusal;
     return {
       status: STATUS.ok,
@@ -193,15 +194,14 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
   if ('refusal' in on) return on.refusal;
   const levelIndex = on.levelIndex;
 
-  // A LEVEL IS TOTAL (see `levelAt`): the only thing that can be missing is its published regime.
-  const level = levelAt(levelIndex);
-
+  // A LEVEL IS TOTAL (see `levelAt`): the only thing that can be missing is its published regime, which
+  // `readRegime` refuses for, and its published BOARDS, which `served` refuses for.
   const read = await readRegime(deps, levelIndex);
   if ('refusal' in read) return read.refusal;
 
-  return withProgress(deps, progressKey(identity.playerId, levelIndex), levelIndex, (progress) => {
+  return withProgress(deps, progressKey(identity.playerId, levelIndex), levelIndex, async (progress) => {
     const outcome = currentDrill(read.regime, levelIndex, progress, MAIN_POOL.version, deps.clock.nowMs());
-    const answered = served(outcome, level, levelIndex, outcome.kind === 'drill' && !outcome.changed);
+    const answered = await served(outcome, levelIndex, outcome.kind === 'drill' && !outcome.changed, deps);
     if ('refusal' in answered) return { result: answered.refusal };
     const body = { ...answered.body, regime: regimeCounts(read.regime, outcome.progress) };
     if (outcome.kind === 'complete' || !outcome.changed) return { result: { status: STATUS.ok, body } };

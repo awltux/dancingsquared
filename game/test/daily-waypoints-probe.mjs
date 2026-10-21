@@ -20,6 +20,21 @@
 // with the direction stated — it may not fall further — and the two controls that do not depend on the start set (the
 // goal differs, and there are two intermediate stages) are unchanged and still exact.
 //
+// RE-MEASURED when the drill's options started passing through the permission table. THE SAME 12 SEEDS: **9 before
+// that change, 4 after**; and a wider sample of 24 gives 8, so the rate is about a third where it was three quarters.
+// All 24 still end somewhere different. That is a MEASURED COST of the change, reported rather than buried, and the
+// floor is re-pinned to the wider sample with the direction stated — it may not fall further.
+//
+// WHY IT FELL IS INFERRED, NOT MEASURED: the only functional difference is the option pool, which went from 40 calls to
+// 31 at a squared set, and fewer options is a smaller set of three-call routes for the search to find a distinct
+// arrangement through. The alternative explanation — that the RNG draw order changed because a shorter list is shuffled —
+// is not excluded by anything here, and a seed that generated the same route under both builds would be the way to
+// separate them. Nothing in this probe depends on which of the two it is: the rate is what the player sees.
+//
+// THE FIX THAT WAS CONSIDERED AND NOT TAKEN: make the generator prefer routes whose stages are distinct. It would gate
+// a readout the design makes a guide rather than a gate (DESIGN.md §9.1) and cost the midnight publisher a retry per
+// affected seed. If the rate matters, that is its own change with its own measurement.
+//
 // Usage: node game/test/daily-waypoints-probe.mjs   (engine must be built)
 import { makeSquaredSet } from 'dancing-squared-engine';
 import { generatePuzzle } from '../src/puzzle/generator.ts';
@@ -47,7 +62,11 @@ console.log('== 1. a generated route visits arrangements, and it visits DIFFEREN
   let everyStageNew = 0;
   let goalDiffers = 0;
   let twoWaypoints = 0;
-  for (let i = 1; i <= 12; i++) {
+  // 24 SEEDS, because the rate is now about a third and a 12-seed sample of it is a coin toss: the first twelve read 4
+  // and the wider sample reads 8, which is why the floor is stated over the wider one. The sample was WIDENED in the
+  // commit that re-measured it, which is the one legitimate way a floor is restated upward — the old 9 was a rate over
+  // a different sample, not a stronger claim about this one.
+  for (let i = 1; i <= 24; i++) {
     const built = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec, 'daily'), 2026_10_15 + i, spec, applier);
     if (!built.ok) continue;
     ok++;
@@ -57,14 +76,19 @@ console.log('== 1. a generated route visits arrangements, and it visits DIFFEREN
     if (keys[keys.length - 1] !== keys[0]) goalDiffers++;
     if (puzzle.path.length - 2 >= 2) twoWaypoints++;
   }
-  check(ok === 12, `all 12 seeds generate at level 1 (${ok})`);
+  check(ok === 24, `all 24 seeds generate at level 1 (${ok})`);
   check(goalDiffers === ok, `every route's goal is a DIFFERENT arrangement from its start (${goalDiffers} of ${ok})`);
   // A FLOOR, and it is the one number here that moved: 11 of 12 from a squared set, 9 of 12 once the start is one of
-  // the level's own formations (see the header for the mechanism — a pivot can make a stage repeat). It may not fall
-  // further. The alternative was to make the generator REFUSE a route with a repeated arrangement, which would gate a
-  // readout the design explicitly makes a guide rather than a gate (DESIGN.md §9.1) and would cost the midnight
-  // publisher a retry per affected seed.
-  check(everyStageNew >= 9, `and at least 9 of ${ok} visit a new arrangement at every stage (${everyStageNew}) — the property that makes a waypoint sequence legible rather than three names for one setup`);
+  // the level's own formations, and 8 of 24 (4 of the same 12) once the options went through the permission table. It
+  // may not fall further. The 4 rather than the measured 8 is headroom for the seed-to-seed noise a rate of a third
+  // carries, and the headroom is a measured trade rather than a guess: at p = 1/3 over 24 seeds a floor of 4 fires by
+  // chance 2.0% of the time and a floor of 6 fires 13.8% of the time (the binomial tail, computed rather than
+  // estimated), and against a collapse to a rate of a tenth the floor of 4 fires 78.6% of the time. A floor high enough
+  // to catch a smaller drift would be the guide-as-gate this section refuses.
+  // THE ALTERNATIVE WAS TO MAKE THE GENERATOR REFUSE a route with a repeated arrangement, which would gate a readout
+  // the design explicitly makes a guide rather than a gate (DESIGN.md §9.1) and would cost the midnight publisher a
+  // retry per affected seed.
+  check(everyStageNew >= 4, `and at least 4 of ${ok} visit a new arrangement at every stage (${everyStageNew}) — the property that makes a waypoint sequence legible rather than three names for one setup`);
   // NEGATIVE CONTROL FOR THE WHOLE IDEA: if a three-call Daily had FEWER than two intermediate stages there would be no
   // sequence to show. The Daily's depth is the mode's, not the level's (§9), so this is what the picker relies on.
   check(twoWaypoints === ok, `every route has at least two intermediate arrangements to show (${twoWaypoints} of ${ok})`);

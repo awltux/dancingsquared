@@ -184,8 +184,16 @@ no filtering that could drift (§4.2).
 
 ### 4.2 The valid next moves, and the goal test (both modes)
 
-**Offered moves** are the level's registered titles intersected with `Sequencer.legalNext()` from the
-*current* board. The engine contract this leans on, from the method's own comment
+**Offered moves** are the level's registered titles, filtered TWICE, and the second filter is not optional: a call
+is offered only when it applies to the whole board (`Sequencer.applyToBoard`) **and** `Sequencer.mayOffer(name,
+null, board)` permits that reading. The second is what makes `PERMISSION_RULES` visible to a drill at all —
+MEASURED at the level-1 pool from a squared set, the geometric question answers 40 with the table installed and 40
+without it, so a drill built from legality alone offered `Circle Four Left 3/4` for eight dancers, which the table
+refuses and no body measurement separates. `mayOffer` is asked with the board EXPLICITLY: the applier never calls
+`setBoard`, so leaving it to the default would check a formation-scoped rule against whatever board the sequencer
+was constructed with.
+
+The engine's own `legalNext()` has the same two-part shape and is the contract these lists lean on
 (`engine/src/sequencer/sequencer.ts`):
 
 - it lists a call only when it **actually applies interactively**;

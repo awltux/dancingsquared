@@ -51,8 +51,13 @@ export const NODE_BUDGET = 50_000;
  * (MEASURED before the change: one call, `Adjust to an Alamo`, in 100 of 100 level-1 seeds) and it carries a seeded
  * position among the buttons (`PuzzleStep.unknownIndex`). Both are part of the puzzle, so a `g2` store would serve a
  * drill whose fourth button no longer matches what this build draws.
+ *
+ * `g4` IS THE PERMISSION TABLE: the option list is now drawn from the calls the permission table offers, not from
+ * every geometrically legal one. MEASURED at the level-1 pool from a squared set: 40 offerable titles before, 31
+ * after, the nine removed being the eight `Circle Four` authorings plus `Dosado` - a call the table refuses and
+ * `legalCalls` alone does not. A `g3` store would serve a drill whose button the build now refuses to offer.
  */
-export const GENERATOR_VERSION = 'g3';
+export const GENERATOR_VERSION = 'g4';
 
 /**
  * The generator configuration for ONE LEVEL, at the budget this build ships.

@@ -11,7 +11,8 @@
 //   1. EVERY reading is playable: `refusalOf(board, prefixed)` is null for all of them, at a real level's pool;
 //   2. a GROUP-ONLY reading exists, and its whole-board spelling is REFUSED — so "grouped" is not a relabelling of
 //      the whole-board list (the negative control that makes the first check mean something);
-//   3. the whole-board readings are exactly `offered(board)`, so the two surfaces cannot drift;
+//   3. every call `offered` lists is a whole-board reading here, and the two lists differ by EXACTLY the calls the
+//      permission table refuses (nine at a squared set) — so the surfaces cannot drift apart unnoticed;
 //   4. the applier caches by board and the cached list is the same list — the picker asks on every view.
 //
 // Usage: node game/test/daily-readings-probe.mjs   (engine must be built)
@@ -66,11 +67,23 @@ console.log('\n== 2. a call the SET can do and a GROUP can do are two moves, and
   check(wholeBoard.length > 0 && wholeBoard.every((r) => applier.refusalOf(start, r.call) === null), `while all ${wholeBoard.length} whole-board reading(s) of the start board are legal unprefixed`);
 }
 
-console.log('\n== 3. the whole-board readings ARE `offered()`, so the two surfaces cannot drift ==');
+console.log('\n== 3. `offered` is the whole-board readings minus the permission table\'s refusals, so the two cannot drift ==');
 {
+  // ONE LIST APART BY ONE RULE, not two independently built lists. `offered` (the DRILL's source) asks the permission
+  // table about the whole-board reading; `readings` (the DAILY's) is the engine's `applicableMoves`, which asks the
+  // table only per GROUP and pushes its whole-board reading unconditionally — so the table's refusals survive there.
+  // MEASURED at a squared set: 9 calls are a reading and not an offer, and every one is geometrically legal, which is
+  // why the difference is the table rather than the board. THAT NINE IS THE KNOWN GAP: when the engine's enumeration
+  // learns to filter its own whole-board reading this check fails, and the failure is the signal to delete it.
   const offered = applier.offered(start).map((m) => m.call).sort();
   const whole = readings.filter((r) => r.selection === null).map((r) => r.call).sort();
-  check(JSON.stringify(offered) === JSON.stringify(whole), `\`offered\` and the whole-board readings name the same ${whole.length} call(s)`);
+  const notAReading = offered.filter((c) => !whole.includes(c));
+  check(notAReading.length === 0,
+    `every one of the ${offered.length} call(s) \`offered\` lists is a whole-board reading (${notAReading.length} are not)`);
+  const notOffered = whole.filter((c) => !offered.includes(c));
+  const refusedByTable = notOffered.filter((c) => applier.refusalOf(start, c) === null);
+  check(notOffered.length === 9 && refusedByTable.length === notOffered.length,
+    `and the ${notOffered.length} the readings have and \`offered\` does not are all geometrically legal, so the permission table is what separates the two lists`);
   // NEGATIVE CONTROL: `offered` is a STRICT subset of the readings, or the group pass found nothing and section 2's
   // control would be doing all the work.
   check(readings.length > offered.length, `and the readings are strictly more than it (${readings.length} > ${offered.length})`);

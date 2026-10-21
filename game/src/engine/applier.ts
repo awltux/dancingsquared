@@ -123,6 +123,21 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
       if (cached) return cached;
       const out: Move[] = [];
       for (const name of names) {
+        // THE PERMISSION TABLE COMES FIRST, and it is asked at the WHOLE-BOARD reading (`null`, which `permissionFor`
+        // normalises to `All 8`). Permissions are a different claim from legality - "the app will not
+        // suggest this" versus "the engine refuses this" - so legality alone cannot express them, and until this
+        // asked, `PERMISSION_RULES` had no effect on a drill at all: MEASURED, `legalCalls` answers 40 of the 57
+        // level-1 titles at a squared set with and without the table installed, because it is a geometric question
+        // that never consults a rule. The generator takes its options from this list, so that is where a table the
+        // engine owns has to bite.
+        //
+        // THE BOARD IS PASSED EXPLICITLY, not left to the sequencer: this file never calls `setBoard` (see the
+        // header), so the default would be whatever board the sequencer was constructed with, and a rule that names
+        // a formation would then be checked against the wrong one.
+        //
+        // ASKED BEFORE THE APPLY, because a denied call costs one rule match and a legal one costs a full applicator
+        // run - the order `groupCanPerform` already uses.
+        if (!seq.mayOffer(name, null, board).allowed) continue;
         const r = seq.applyToBoard(board, name);
         if (r.legal) out.push({ call: name, board: r.board });
       }

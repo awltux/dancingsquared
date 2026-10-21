@@ -51,7 +51,22 @@
           </nav>
         </header>
 
-        <section id="drill" aria-live="polite">
+        <!-- THE LEVEL IS THE DRILL TAB'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown
+             BEFORE the question because it says where the player is. The cells come from `puzzle/block.ts`, whose
+             rule is gated by `test/block-probe.mjs`; this markup only gives them somewhere to go. The block is
+             rebuilt on every paint, so it holds no authored cells. -->
+        <section id="level" aria-live="polite">
+          <p id="levelHeading"></p>
+          <div id="levelBlock"></div>
+          <!-- SHOWN ONLY WHEN THE BLOCK IS FULL: the level is over, and the shell re-issues, which is what lets the
+               server promote. A player is never teleported to the next level. -->
+          <button id="levelNext" type="button" hidden>Start the next level</button>
+        </section>
+
+        <section id="drill" aria-live="polite" hidden>
+          <!-- THE WAY BACK. The grid is the destination and the drill is entered from it, so a drill screen with no
+               way back would be a one-way door. -->
+          <button id="toLevel" type="button">Back to the level</button>
           <p id="prompt"></p>
           <div id="answers"></div>
           <div id="verdict" role="status"></div>

@@ -24,7 +24,8 @@
 // never arrived must not silently rank the run. The offline ledger applies the same rule locally
 // (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
 import { utcDay } from './puzzle/daily.ts';
-import { levelSpec } from './puzzle/levels.ts';
+import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
+import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { earningProgress } from './puzzle/hints.ts';
@@ -39,10 +40,11 @@ import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderbo
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
-import { scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
+import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type ViewMode } from './render/stage-view.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
+import { LevelScreen } from './ui/level-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
 import { AccountScreen } from './ui/account-screen.ts';
 import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
@@ -56,6 +58,14 @@ type ReplayOutcome = 'advance' | 'settle';
 
 const PLAYHEAD = new Replay();
 let mode: AppMode = 'drill';
+/**
+ * WHICH OF THE DRILL TAB'S TWO VIEWS IS SHOWING — the level's block, or the drill itself.
+ *
+ * THE DRILL TAB HAS TWO VIEWS AND STILL TWO MODES, which is why this is not a third `AppMode`: a mode is something a
+ * player plays, and the level is where the mode is entered from. The grid is the HOME (a player lands on it, including
+ * after a reload, so the block is visible whenever progress is interesting) and the drill is entered from one cell.
+ */
+let drillView: 'level' | 'drill' = 'level';
 let viewMode: ViewMode = '2d';
 
 /** The level's engine seam. One per level, rebuilt when the level changes, shared by both modes. */
@@ -179,6 +189,8 @@ const els = {
   modeDrill: el<HTMLButtonElement>('modeDrill'),
   modeDaily: el<HTMLButtonElement>('modeDaily'),
   drillPanel: el('drill'),
+  levelPanel: el('level'),
+  toLevel: el<HTMLButtonElement>('toLevel'),
   dailyPanel: el('daily'),
   balance: el('balance'),
   ledger: el('ledger'),
@@ -198,6 +210,7 @@ const els = {
 };
 
 const drillScreen = new DrillScreen(answer);
+const levelScreen = new LevelScreen(levelPlay, levelNextLevel);
 // A PARALLEL STEP IS ONE LINE ELEMENT (`Sides Trade || Heads Dosado`), which the applier reads back with the engine's
 // own `parseStep`, so `playDailyCall` is the whole path: the session applies it, the line records the label and the
 // server replays it. Nothing distinct to record, and nothing to keep in step with the single-call path.
@@ -761,7 +774,12 @@ function applyMode(next: AppMode): void {
   // minutes later would fire on one stray press.
   startOverArmed = false;
   paintStartOver();
-  els.drillPanel.hidden = mode !== 'drill';
+  // A MODE SWITCH RETURNS TO THE LEVEL. The block is the Drill tab's home, so entering the mode shows where the
+  // player is and the drill is entered from a cell — including after a reload, which is the whole point of a
+  // progress screen. The drill is still ISSUED below, because which drill is next is the SERVER's fact and the grid
+  // takes it as an input rather than deriving it (`levelView`).
+  if (mode === 'drill') drillView = 'level';
+  paintView();
   els.dailyPanel.hidden = mode !== 'daily';
   els.modeDrill.setAttribute('aria-pressed', String(mode === 'drill'));
   els.modeDaily.setAttribute('aria-pressed', String(mode === 'daily'));
@@ -849,15 +867,108 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   els.regime.textContent = `The Drill — drill ${position + 1} of ${issued.length}, level ${spec.index}`;
   drillScreen.clearVerdict();
   drillScreen.render(controller);
-  els.review.hidden = false;
-  // THE SKIP IS OFFERED WHERE IT CAN WORK (DESIGN.md §15 Q5), which `skipOffered` owns: it is a WRITE against a
-  // server-issued drill and a local step offline, and it is not offered at all for a demo (Q22) or a practice drill.
-  els.skip.hidden = !skipOffered();
+  // REVIEW AND SKIP ARE `paintView`'s NOW: they belong to the drill view, and whether that view is showing is the
+  // shell's state rather than this function's. `skipOffered` (DESIGN.md §15 Q5) is still the rule for WHETHER a skip
+  // is offered — it is a write against a server-issued drill, and it is not offered for a demo or a practice drill.
   els.next.hidden = true;
   captions(puzzle.start, puzzle.goal);
   paintBalance();
   persist();
   draw();
+  // THE VIEW AND THE BLOCK ARE BOTH REPAINTED WITH EVERY DRILL: issuing is what moves the regime (the answer carries
+  // the two sets and the issued index), and it is also when the footer's drill controls become meaningful — which is
+  // `paintView`'s decision, taken here rather than left to whichever call ran last.
+  paintView();
+  renderLevel();
+}
+
+/**
+ * Show whichever view the Drill tab is on.
+ *
+ * THE PANEL VISIBILITY IS THE SHELL'S, not a screen's — the same rule `applyMode` already applies to the two modes,
+ * one level down: a screen that hid itself could not be shown by the boot.
+ */
+function paintView(): void {
+  const levelShowing = mode === 'drill' && drillView === 'level';
+  const drillShowing = mode === 'drill' && drillView === 'drill';
+  els.levelPanel.hidden = !levelShowing;
+  els.drillPanel.hidden = !drillShowing;
+  // THE FOOTER'S DRILL CONTROLS BELONG TO THE DRILL VIEW, and this is the one place that decides it: on the block
+  // there is no question to reveal or skip, and a control that looks live and does nothing is worse than one that is
+  // absent (`drill-screen.ts` records the same rule for a failed issue). They are re-derived here rather than left as
+  // whichever screen painted last, which is how "Show me the answer" came to sit under a progress grid.
+  els.review.hidden = !drillShowing;
+  els.skip.hidden = !drillShowing || !skipOffered();
+}
+
+/**
+ * What the block should say, from the SERVER's regime when there is one and this device's ledger otherwise.
+ *
+ * THE SERVER'S ANSWER IS THE AUTHORITY for the length and for both sets — they are one read from `GET /drill/current`
+ * — and `next` is the index it ISSUED rather than a rule recomputed here: "the first unfinished position" is
+ * `nextIndex` (`api/src/drill-regime.ts`) and a copy in the browser would be a second implementation of the decision
+ * that says which drill a player is on.
+ *
+ * OFFLINE, THE LEVEL IS ALWAYS 1, because promotion is the SERVER's rule (its ladder row) and an offline player never
+ * moves on. The fixture's positions for level 1 are its first entries, which is what the device ledger records; the
+ * FIXTURE WRAPS, so a position already in the ledger can be the one on screen, and the block says so rather than
+ * hiding the only cell there is to play.
+ */
+function levelView(): {
+  levelIndex: number;
+  length: number;
+  finished: readonly number[];
+  passed: readonly number[];
+  next: number | null;
+  complete: boolean;
+} {
+  if (serverRegime) {
+    const length = serverRegime.length;
+    const finished = serverRegime.finished;
+    const passed = serverRegime.passed;
+    const next = serverDrill?.index ?? null;
+    const cells = blockCells({ length, finished, passed, next });
+    const summary = blockSummary(cells);
+    return {
+      levelIndex: serverDrill?.levelIndex ?? (save.levelIndex || 1),
+      length,
+      finished,
+      passed,
+      next,
+      complete: length > 0 && summary.done >= summary.published,
+    };
+  }
+  const atLevelOne = LOCAL_SCHEDULE.filter((entry) => entry.levelIndex === 1).length;
+  const length = Math.min(LEVEL_SIZE, atLevelOne);
+  const wrapped = save.position < length ? save.position : null;
+  const finished = save.finishedPositions.filter((p) => p < length && p !== wrapped);
+  const passed = save.passedPositions.filter((p) => p < length && p !== wrapped);
+  const next = wrapped;
+  const cells = blockCells({ length, finished, passed, next });
+  const summary = blockSummary(cells);
+  return { levelIndex: 1, length, finished, passed, next, complete: length > 0 && summary.done >= summary.published };
+}
+
+/** Paint the block. Called whenever the regime moves: a boot, an advance, a level change. */
+function renderLevel(): void {
+  levelScreen.render(levelView());
+}
+
+/** The next cell was pressed. The drill is already issued, so this shows it rather than asking again. */
+function levelPlay(): void {
+  if (!controller) return;
+  drillView = 'drill';
+  paintView();
+}
+
+/**
+ * The block is full and the player took the way on. RE-ISSUING IS THE PROMOTION: the server's ladder reads the full
+ * block and answers with the next level's first drill — so this asks, and does not move the player itself.
+ */
+function levelNextLevel(): void {
+  drillView = 'level';
+  paintView();
+  issueCurrentDrill('current');
 }
 
 /** The OFFLINE path: the local fixture's entry at a position, with the puzzle baked beside it. */
@@ -1771,6 +1882,11 @@ function main(): void {
   paintLedger();
 
   els.modeDrill.addEventListener('click', () => setMode('drill'));
+  els.toLevel.addEventListener('click', () => {
+    drillView = 'level';
+    paintView();
+    renderLevel();
+  });
   els.modeDaily.addEventListener('click', () => setMode('daily'));
   els.next.addEventListener('click', () => issueCurrentDrill('advance'));
   els.review.addEventListener('click', review);

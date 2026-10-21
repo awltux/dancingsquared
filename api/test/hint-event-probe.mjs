@@ -27,6 +27,19 @@ import { MAX_HINTS_PER_ATTEMPT } from '../src/handlers/hints.ts';
 import { scoreRun } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
+/**
+ * THE ROW AS THE PUBLISHER WRITES IT: a seed AND the puzzle it names.
+ *
+ * The probe used to write the seed alone, because the read regenerated from it. It does not any more — "the button
+ * should never build the puzzle, only recover an existing puzzle" — so a hand-built row without a puzzle is a row the
+ * server refuses (`daily_not_built`). Building it here is the same call the boundary job makes.
+ */
+const builtDaily = (seed, levelIndex) => {
+  const generated = puzzleFor(seed, levelAt(levelIndex), 'daily');
+  if (!generated.ok) throw new Error(`probe fixture: seed ${seed} at level ${levelIndex} does not generate: ${generated.reason}`);
+  return generated.puzzle;
+};
+
 let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
@@ -62,7 +75,7 @@ async function recordLine(player, level, date, line, deps) {
 
 /** Publish a day at a level with the fixture's first seed, so there is a challenge to hint at. */
 async function publish(store, level, date, seed) {
-  await store.put(publishedDailyKey(level, date), { seed, levelIndex: level, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(level, date), { seed, levelIndex: level, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, level) }, null);
 }
 
 /**

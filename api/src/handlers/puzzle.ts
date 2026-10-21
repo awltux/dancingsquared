@@ -13,13 +13,13 @@
 // freshly derived seed: a server that invented one on demand would serve a challenge that was never validated
 // (§7.2), and the two sides would disagree about it the moment the pool moved. `npm run api:publish-daily` is
 // the fix, and the refusal names the day.
-import { MAIN_POOL, type Puzzle } from 'dancing-squared-game';
+import { MAIN_POOL, parsePuzzle, type Puzzle } from 'dancing-squared-game';
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { attemptKey, publishedDailyKey } from '../keys.ts';
 import { failure, optionalIdentity, STATUS } from '../status.ts';
 import { dayParam, levelParam } from '../query.ts';
 import { asAttempt, asAttemptItem, startAttempt } from '../attempt-row.ts';
-import { cachedPuzzle, levelAt, preparePuzzle, startReadings } from '../levels.ts';
+import { levelAt, startReadings } from '../levels.ts';
 
 /** The one mode this endpoint serves, named so the refusal can say what was asked for instead. */
 const MODE = 'daily';
@@ -50,7 +50,7 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
 
   const stored = await deps.store.get(publishedDailyKey(levelIndex, day));
   if (!stored) return failure(STATUS.notFound, 'no_published_daily', `level ${levelIndex} has no published challenge for ${day}`);
-  const value = stored.value as { seed?: unknown; levelIndex?: unknown; poolVersion?: unknown; publishedAtMs?: unknown };
+  const value = stored.value as { seed?: unknown; levelIndex?: unknown; poolVersion?: unknown; publishedAtMs?: unknown; puzzle?: unknown };
   if (typeof value.seed !== 'number' || typeof value.levelIndex !== 'number' || typeof value.poolVersion !== 'string') {
     return failure(STATUS.unavailable, 'unreadable_daily', `the published challenge for ${day} is not a record this build can read`);
   }
@@ -65,47 +65,25 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
   let puzzle: Puzzle | null = null;
   let readings: ReturnType<typeof startReadings> = [];
   if (playable) {
-    // THE ROW'S LEVEL, not the query's, because the row's is what the answer reports and the seed was validated
-    // against it. A disagreeing row is a corrupt row, and generating at the query's level would publish a puzzle
-    // under a level number it was not generated at — the §7.2 rule the drill's schedule lint exists to enforce.
-    const dailyLevel = levelAt(value.levelIndex);
-    // A READ NEVER GENERATES, and that is the fix for "the app still hangs". MEASURED: a Daily generation costs
-    // 9.4-15.1 s, and doing it inside this request held the connection open for that long while every other request
-    // queued behind it on a single-threaded server. So a miss answers `202 Accepted { ready: false }` and STARTS the
-    // work for after this response, and the client POLLS (`dailyChallenge`'s loop). Nothing here waits.
-    const ready = cachedPuzzle(value.seed, dailyLevel, 'daily');
-    if (!ready) {
-      preparePuzzle(value.seed, dailyLevel, 'daily');
-      if (identity) {
-        const stamped = await stampAttempt(deps, identity.playerId, levelIndex, day);
-        if ('refusal' in stamped) return stamped.refusal;
-      }
-      return {
-        status: STATUS.accepted,
-        body: {
-          daily: {
-            day,
-            levelIndex: value.levelIndex,
-            seed: value.seed,
-            poolVersion: value.poolVersion,
-            publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
-            playable,
-            ready: false,
-            puzzle: null,
-            readings: [],
-          },
-        },
-      };
+    // THE READ RECOVERS, AND NEVER BUILDS. The row carries the puzzle the boundary job built (daily-publishing.ts);
+    // this function does no work beyond parsing it and computing one board's readings. REPORTED, and it is the rule:
+    // "The button should never build the puzzle, only recover an existing puzzle." Building here cost 9.4-15.1 s
+    // (DESIGN.md §7.1) on a request the player is waiting for, which is what made the button look hung.
+    const built = value.puzzle === undefined || value.puzzle === null ? null : parsePuzzle(value.puzzle);
+    if (!built) {
+      // A ROW WITH NO BUILT PUZZLE IS A PUBLISHER THAT DID NOT FINISH, which is an operator finding, and it is a
+      // REFUSAL rather than a wait: the client shows it at once instead of polling for something nothing will build.
+      return failure(
+        STATUS.unavailable,
+        'daily_not_built',
+        `the published challenge for ${day} carries no built puzzle — run the boundary job (npm run api:publish-daily)`,
+      );
     }
-    if (!ready.ok) {
-      return failure(STATUS.unavailable, 'unplayable_daily', `the published challenge for ${day} does not generate: ${ready.reason}`);
-    }
-    puzzle = ready.puzzle;
+    puzzle = built;
     // THE START BOARD'S GROUPED LIST, so the picker draws without the client paying `applicableMoves` first. It is a
-    // pure function of the board and the level's pool, and the applier is already warm from the generation.
-    readings = startReadings(ready.puzzle, dailyLevel);
+    // pure function of the board and the level's pool, and the applier is warm after the first read of the process.
+    readings = startReadings(built, levelAt(value.levelIndex));
   }
-
   if (identity) {
     const stamped = await stampAttempt(deps, identity.playerId, levelIndex, day);
     if ('refusal' in stamped) return stamped.refusal;

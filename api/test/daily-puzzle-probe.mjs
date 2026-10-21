@@ -224,48 +224,52 @@ console.log('\n== 7. the READ is what starts the Daily clock (A21) ==');
   check(unreadable.status === STATUS.unavailable && unreadable.body.error.code === 'unreadable_attempt', `and an attempt row this build cannot read is refused (${unreadable.status} ${unreadable.body.error?.code})`);
 }
 
-console.log('\n== 8. a COLD read says "not ready" and starts the work, instead of holding the request ==');
+console.log('\n== 8. the read RECOVERS a built puzzle and never builds one ==');
 {
-  // REPORTED: "the app still hangs … it needs an asynchronous mechanism to poll if Todays Daily is available."
-  // A Daily generation costs 9.4-15.1 s (DESIGN.md §7.1) and the read used to do it INSIDE the request, so one read
-  // held the connection while every other request queued behind it. The read is now 202 plus a DEFERRED generation.
-  //
-  // GETTING A COLD CACHE IS A MEASUREMENT, NOT A TRICK: the puzzle cache is cleared wholesale at its bound
-  // (`MAX_CACHED_PUZZLES`), so filling it with DRILL puzzles — one call deep and cheap — evicts the Daily. Filling it
-  // with dailies would have taken minutes and proved the same thing.
+  // REPORTED: "The button should never build the puzzle, only recover an existing puzzle." Building on the read cost
+  // 9.4-15.1 s (DESIGN.md §7.1) on a request a player is waiting for, which is what made the button look hung. The
+  // boundary job (`daily-publishing.ts`) now STORES the puzzle in the row and this endpoint only parses and serves it.
   const store = new MemoryStore();
   await publishDay(store, DAY, { levels: [1], nowMs: CLOCK });
   const deps = depsFor(store);
   const query = { mode: 'daily', level: '1', date: DAY };
+  const key = publishedDailyKey(1, DAY);
 
-  // WARM FIRST, so the check below is about the CLEAR rather than about the probe's own ordering.
-  const warm = await getPuzzle(ask(null, query), deps);
-  check(warm.status === STATUS.ok && warm.body.daily.puzzle !== null, `a warm read answers the puzzle (${warm.status})`);
-  check(warm.body.daily.ready === true, 'and says it is ready');
+  const row = await store.get(key);
+  check(row?.value.puzzle !== undefined && row?.value.puzzle !== null, 'the publisher STORES the built puzzle beside the seed');
+  const storedSeed = row.value.puzzle.seed;
 
-  for (let seed = 1; seed <= 70; seed++) puzzleFor(seed, levelAt(1), 'drill');
-  const cold = await getPuzzle(ask(null, query), deps);
-  check(cold.status === STATUS.accepted, `a read after the cache was cleared answers 202 rather than generating (${cold.status})`);
-  check(cold.body.daily.ready === false && cold.body.daily.puzzle === null, 'with ready:false and no puzzle — the flag the poll loop reads');
-  check(cold.body.daily.day === DAY && cold.body.daily.seed > 0, `and it still names the challenge it is waiting for (${cold.body.daily.day}, seed ${cold.body.daily.seed})`);
-  // NEGATIVE CONTROL: this is NOT a refusal, and a client that read it as one would give up on a challenge that is
-  // about to exist. The absence of an error body is what makes it a poll rather than a failure.
-  check(cold.body.error === undefined, 'NEGATIVE CONTROL: and it is not an error body — it is "ask again"');
+  // IT SERVES THE STORED PUZZLE, NOT ONE DERIVED FROM THE SEED — which is the whole of "recovers, never builds". The
+  // row's seed is rewritten to a number that would generate a DIFFERENT puzzle; a read that regenerated would answer
+  // with that one, and a read that recovers answers with the stored one. Nothing about timing is involved.
+  const otherSeed = storedSeed + 1;
+  await store.put(key, { ...row.value, seed: otherSeed }, row.rev);
+  const recovered = await getPuzzle(ask(null, query), deps);
+  check(recovered.status === STATUS.ok, `a row with a built puzzle is served (${recovered.status})`);
+  check(recovered.body.daily.puzzle?.seed === storedSeed,
+    `and the puzzle served is the STORED one, not one regenerated from the row's seed (${recovered.body.daily.puzzle?.seed} against a row seed of ${otherSeed})`);
+  check(recovered.body.daily.seed === otherSeed, 'while the row still reports the seed it carries, so the two fields stay independent');
+  // NEGATIVE CONTROL: the same read, at the seed the row now names, WOULD be a different puzzle — so the check above
+  // cannot pass by both numbers happening to agree.
+  const regenerated = puzzleFor(otherSeed, levelAt(1), 'daily');
+  check(regenerated.ok && regenerated.puzzle.seed === otherSeed && JSON.stringify(regenerated.puzzle.goal) !== JSON.stringify(recovered.body.daily.puzzle.goal),
+    'NEGATIVE CONTROL: generating from the row\'s seed gives a different puzzle, so "recovered" is measurable');
 
-  // THE WORK WAS STARTED FOR AFTER THE RESPONSE: a later read finds it ready. `preparePuzzle` defers on a timer, so the
-  // probe yields the event loop, exactly as a poll a second later would.
-  let landed = 0;
-  for (let spin = 0; spin < 400 && !landed; spin++) {
-    await new Promise((resolve) => setTimeout(resolve, 25));
-    const again = await getPuzzle(ask(null, query), deps);
-    if (again.status === STATUS.ok && again.body.daily.ready === true && again.body.daily.puzzle !== null) {
-      landed = spin + 1;
-      check(true, `the deferred generation lands and the next read answers the puzzle (after ${landed} poll(s))`);
-      check(again.body.daily.puzzle.steps.length > 0, `and it is a real puzzle (${again.body.daily.puzzle.steps.length} step(s))`);
-    }
-  }
-  check(landed > 0, 'the deferred generation landed at all');
+  // A ROW WITH NO BUILT PUZZLE IS A REFUSAL, NOT A WAIT. A publisher that did not finish leaves the seed only; the
+  // client is told at once instead of polling for something nothing is building.
+  await store.put(key, { ...row.value, puzzle: undefined }, row.rev + 1).catch(async () => {
+    const fresh = await store.get(key);
+    await store.put(key, { seed: fresh.value.seed, levelIndex: 1, poolVersion: fresh.value.poolVersion, publishedAtMs: CLOCK }, fresh.rev);
+  });
+  const unbuilt = await getPuzzle(ask(null, query), deps);
+  check(unbuilt.status === STATUS.unavailable && unbuilt.body.error?.code === 'daily_not_built',
+    `a row with no built puzzle is REFUSED rather than built (${unbuilt.status} ${unbuilt.body.error?.code})`);
+  check(typeof unbuilt.body.error?.message === 'string' && unbuilt.body.error.message.includes('publish-daily'),
+    `and the refusal names the boundary job that fixes it (${unbuilt.body.error?.message?.slice(0, 60)}…)`);
+  // NEGATIVE CONTROL: it is not a "not ready, ask again" answer — a client must not poll for it.
+  check(unbuilt.status !== STATUS.accepted, 'NEGATIVE CONTROL: and it is not a 202, so nothing polls it');
 }
+
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

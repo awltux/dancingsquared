@@ -48,8 +48,6 @@ export interface SessionView {
   canRedo: boolean;
   /** Whether the goal has been reached. */
   atGoal: boolean;
-  /** How far the current board is from the goal, or null when it is further than the allowance. */
-  remaining: number | null;
   /** Calls played, and the calls this puzzle allows — what the UI shows as "3 of 4 used". */
   movesUsed: number;
   allowance: number;
@@ -128,7 +126,6 @@ export class PlaySession {
       moves: this.moves,
       canRedo: this.canRedo,
       atGoal: this.atGoal(),
-      remaining: this.remaining(),
       movesUsed: this.movesUsed,
       allowance: this.budget,
       movesLeft: this.movesLeft,
@@ -255,10 +252,6 @@ export class PlaySession {
     }
     const d = table.get(boardSig(board));
     return d === undefined ? null : d;
-  }
-
-  private remaining(): number | null {
-    return this.distanceToGoal(this.board);
   }
 
   /**

@@ -54,6 +54,14 @@ export async function publishDay(store: ItemStore, day: string, options: { level
       levelIndex: entry.levelIndex,
       poolVersion: entry.poolVersion,
       publishedAtMs: options.nowMs,
+      // THE PUZZLE ITSELF, BUILT HERE AND RECOVERED BY THE READ. The boundary job is the only thing that BUILDS a
+      // challenge; GET /puzzle only recovers one, because building costs 9.4-15.1 s (DESIGN.md §7.1) and doing it on
+      // a read held the request open while every other request queued behind it. Storing it is what makes "recover"
+      // possible in a process that never built it — a separate Lambda invocation, or a server restarted since — and it
+      // is the same shape drills already use (stored-drill.ts). The BOARDS are stored and the READINGS are not: the
+      // readings are pplicableMoves for one board (719 ms cold, cached after), and carrying them would put the row
+      // near DynamoDB's 400 KB item limit for no gain.
+      puzzle: generated.puzzle,
     };
     // THE SAME READ-MODIFY-WRITE AS EVERYTHING ELSE, and it converges for the same reason: the row's value does
     // not depend on what was there, so a loser of the race simply writes the same bytes on the next attempt.

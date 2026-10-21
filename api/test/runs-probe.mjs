@@ -28,6 +28,19 @@ import { MAIN_POOL, DAILY_DEPTH, SCORE_VERSION, scoreRun } from 'dancing-squared
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 import { LOCAL_SCHEDULE_VERSION } from '../src/local-regime.ts';
 
+/**
+ * THE ROW AS THE PUBLISHER WRITES IT: a seed AND the puzzle it names.
+ *
+ * The probe used to write the seed alone, because the read regenerated from it. It does not any more — "the button
+ * should never build the puzzle, only recover an existing puzzle" — so a hand-built row without a puzzle is a row the
+ * server refuses (`daily_not_built`). Building it here is the same call the boundary job makes.
+ */
+const builtDaily = (seed, levelIndex) => {
+  const generated = puzzleFor(seed, levelAt(levelIndex), 'daily');
+  if (!generated.ok) throw new Error(`probe fixture: seed ${seed} at level ${levelIndex} does not generate: ${generated.reason}`);
+  return generated.puzzle;
+};
+
 let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
@@ -316,7 +329,7 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   // charged, which is the half of the old rule that let a client buy time it had not paid for.
   const date = DAY;
   const published = puzzleFor(four[0].seed, levelAt(LEVEL), 'daily');
-  await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(four[0].seed, LEVEL) }, null);
   const line = published.puzzle.solution;
   await startDaily(deps, 'r6', LEVEL, date, 30);
   await recordLine(deps, 'r6', LEVEL, date, line);
@@ -337,7 +350,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const { store, deps } = await fresh();
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
   const generated = puzzleFor(seed, levelAt(LEVEL), 'daily');
-  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
 
   await startDaily(deps, 'r7', LEVEL, DAY, 10);
   // THE LINE IS THE SERVER'S NOW (A22's Daily half): it is replayed from the recorded moves, so the probe plays them
@@ -380,7 +393,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   // A DAILY THE SERVER NEVER SAW START CANNOT BE TIMED, so it is refused rather than measured from nothing — and
   // the READ is what makes the same submission scorable, which is the pair this endpoint's contract is.
   const otherDay = '2026-10-16';
-  await store.put(publishedDailyKey(LEVEL, otherDay), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(LEVEL, otherDay), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
   const unread = await postRun(submit('r7', { runId: 'd-6', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(unread.status === STATUS.conflict && unread.body.error.code === 'no_attempt_row', `a Daily nobody read is refused (${unread.status} ${unread.body.error?.code})`);
   await startDaily(deps, 'r7', LEVEL, otherDay, 10);
@@ -392,7 +405,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   // because the Daily is `DAILY_DEPTH` calls at every level (DESIGN.md §9). This used to have to run at level 2
   // because level 1's Daily was a single call; that is no longer possible, which is the point of the change.
   const level2Seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === 2).seed;
-  await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(level2Seed, 2) }, null);
   const twoSteps = puzzleFor(level2Seed, levelAt(2), 'daily');
   check(twoSteps.puzzle.solution.length === DAILY_DEPTH, `the level-2 challenge has a ${DAILY_DEPTH}-call solution (${twoSteps.puzzle.solution.length})`);
   await startDaily(deps, 'r7', 2, DAY, 10);

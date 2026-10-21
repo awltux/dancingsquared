@@ -34,6 +34,19 @@ import { ROUTES, PLANNED_ENDPOINTS } from '../src/routes.ts';
 import { recordSuccess } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
+/**
+ * THE ROW AS THE PUBLISHER WRITES IT: a seed AND the puzzle it names.
+ *
+ * The probe used to write the seed alone, because the read regenerated from it. It does not any more — "the button
+ * should never build the puzzle, only recover an existing puzzle" — so a hand-built row without a puzzle is a row the
+ * server refuses (`daily_not_built`). Building it here is the same call the boundary job makes.
+ */
+const builtDaily = (seed, levelIndex) => {
+  const generated = puzzleFor(seed, levelAt(levelIndex), 'daily');
+  if (!generated.ok) throw new Error(`probe fixture: seed ${seed} at level ${levelIndex} does not generate: ${generated.reason}`);
+  return generated.puzzle;
+};
+
 let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
@@ -222,7 +235,7 @@ console.log('\n== 3. the union of the two sources, because either one alone is a
   // A DAILY IS NOT TAINTED BY A CLAIM, because the Daily has no reveal: there is no "show me the answer" there, and
   // its help is a hint, which is charged. Unranking a real Daily on a meaningless field would be a client muting
   // its own board for nothing.
-  await store.put(publishedDailyKey(LEVEL, DAY), { seed: LOCAL_SCHEDULE[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION }, null);
+  await store.put(publishedDailyKey(LEVEL, DAY), { seed: LOCAL_SCHEDULE[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(LOCAL_SCHEDULE[0].seed, LEVEL) }, null);
   const solution = puzzleFor(LOCAL_SCHEDULE[0].seed, levelAt(LEVEL), 'daily').puzzle.solution;
   await getPuzzle(read('p5'), deps);
   for (const named of solution) await postDailyMove({ method: 'POST', path: '/daily/move', query: {}, body: { levelIndex: LEVEL, date: DAY, move: 'add', call: named }, headers: { 'x-dev-player': 'p5' } }, deps);

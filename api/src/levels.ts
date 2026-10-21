@@ -115,61 +115,8 @@ function puzzleKey(seed: number, level: LevelSpec, mode: PuzzleMode): string {
 }
 
 /**
- * The puzzle ONLY IF IT IS ALREADY IN THE CACHE, or null — the half of `puzzleFor` a READ may ask without paying for a
- * generation.
- *
- * WHY THIS EXISTS. Generating a Daily costs 9.4-15.1 s (MEASURED, DESIGN.md §7.1), and `GET /puzzle` used to generate
- * INSIDE the request: one read held the connection open for that long, and on a single-threaded server every other
- * request queued behind it — reported as "the Today's Daily button … the app still hangs". The read now answers
- * `202 Accepted { ready: false }` and the client POLLS, so the work is started once and observed, never waited on
- * inside one request.
- */
-export function cachedPuzzle(seed: number, level: LevelSpec, mode: PuzzleMode): GenerateResult | null {
-  return puzzles.get(puzzleKey(seed, level, mode)) ?? null;
-}
-
-/**
- * START the generation for a puzzle, without waiting for it, so a `202` can be answered first.
- *
- * THE DEFERRAL IS THE POINT. `puzzleFor` is synchronous CPU work, so a caller that awaited it would block the very
- * response it is trying to send. `setTimeout(0)` puts it after the current turn, which is after the handler has
- * returned and the HTTP layer has flushed — so the client gets its `202` before the work begins.
- *
- * IT IS NOT A QUEUE, and that is deliberate rather than a shortcut: two reads that arrive while nothing is cached both
- * schedule a generation, and the second one is a cache HIT by the time it runs (the first has finished), so at most one
- * generation's worth of work happens. A real queue would have to track in-flight keys and would not make the CPU work
- * any cheaper. What it does NOT do is keep the server responsive DURING the generation — that is a worker thread or a
- * separate process, and is the next step if this still bites (recorded in the commit that added this).
- */
-export function preparePuzzle(seed: number, level: LevelSpec, mode: PuzzleMode): void {
-  if (cachedPuzzle(seed, level, mode)) return;
-  setTimeout(() => {
-    try {
-      puzzleFor(seed, level, mode);
-    } catch (error) {
-      // A THROW MUST NOT BECOME "NOT READY FOR EVER". `puzzleFor` normally returns a refusal as a VALUE, so a throw here
-      // is a bug (a broken applier, a bad allocation) — and without this it would be swallowed by the timer, leaving the
-      // read answering 202 at every poll while the client polls its whole budget. That is precisely "the spinner never
-      // stops", which is the report this endpoint exists to answer. Caching the failure turns it into `unplayable_daily`
-      // with its reason, which the client shows.
-      const reason = error instanceof Error ? error.message : String(error);
-      puzzles.set(puzzleKey(seed, level, mode), { ok: false, reason: `the generation threw: ${reason}` });
-    }
-  }, 0);
-}
-
-/**
  * The start board's grouped move list, for a client that would otherwise have to compute it before it can draw a
- * picker.
- *
- * WHY THE SERVER SHIPS IT. `Sequencer.applicableMoves` is `legalCalls x subsetGroups` applicator runs — MEASURED,
- * 1754 ms at 322 titles on a squared set and 22 ms one call in — and a level's pool is up to 320 titles, so the very
- * first render of a Daily is the expensive one. The server has the applier warm (it generated the puzzle with it) and
- * the list is a pure function of the start board, so it costs this response nothing it was not already paying.
- *
- * IT IS AN OPTIMISATION, NOT A CONTRACT: the client can compute the same list for the same board and does so for
- * every board it reaches after this one. A client that does not receive it is slower for one render, not broken —
- * which is why the field is tolerated as missing on the wire.
+ * picker — the same list `GET /puzzle` carries and the Daily screen groups by reading.
  */
 export function startReadings(puzzle: Puzzle, level: LevelSpec): { call: string; selection: string | null; board: Puzzle['start'] }[] {
   return runtimeFor(level).applier.readings(puzzle.start);

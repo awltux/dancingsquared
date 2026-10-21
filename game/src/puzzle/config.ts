@@ -42,8 +42,12 @@ export const NODE_BUDGET = 50_000;
  * rng draw order or `NODE_BUDGET`. A stored drill whose stamp disagrees is then refused rather than served, and
  * the publisher refuses to mix stamps within one level, so the failure is loud instead of a level that quietly
  * runs on two generators.
+ *
+ * `g2` IS THE START-BOARD CHANGE: the generator now opens on one of the level's own formations, chosen by the
+ * seed, instead of always on a squared set — so every seed produces a different puzzle from the one `g1`
+ * produced, and a `g1` store would be serving boards whose start this build no longer generates.
  */
-export const GENERATOR_VERSION = 'g1';
+export const GENERATOR_VERSION = 'g2';
 
 /**
  * The generator configuration for ONE LEVEL, at the budget this build ships.

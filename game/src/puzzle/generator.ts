@@ -29,13 +29,29 @@
 //    separate field. It is never a call the puzzle's own path uses, so a player cannot be refused for
 //    playing a call the puzzle elsewhere requires.
 //
+// 5. THE START IS ONE OF THE LEVEL'S OWN FORMATIONS, and the seed chooses which. The generator used to
+//    open every question on a squared set, while a level's pool declares dozens of formations — a pool
+//    of 57 titles at level 1 declares 67. MEASURED over the first 100 level-1 seeds, that constant start
+//    produced **1 start board, 5 distinct goal boards and 77 distinct puzzles**: every drill was the same
+//    square with a different pair of buttons, which is the reported "all drills look identical" as a
+//    number. The same seeds over the level's own formations give **15-17 starts, 37 goals and the same 77
+//    puzzles**. The start boards themselves come from the applier (`startBoards`), because which formations
+//    a level's calls declare is engine knowledge; WHICH of them a particular puzzle opens on is a seeded
+//    choice, so it belongs here where a probe can reproduce it.
+//
+//    AND THE VARIETY IS NOT COSMETIC. A squared set offers 40 of level 1's 57 titles; `Bend the Line`,
+//    `California Twirl`, `Cast Off Three Quarters`, `Double Pass Thru`, `Box Circulate` and `Boys Trade`
+//    are never offered from one, because they need a line, a wave, a column or a diamond. So asking every
+//    question from home leaves a third of the level's own vocabulary unteachable — the start set is what
+//    makes the pool's later titles into questions at all.
+//
 // BUDGETS AND REFUSALS ARE REPORTED, NEVER SILENT. `GenerateResult` returns `{ ok: false, reason }`
 // rather than `null`, and the reason counts why each candidate failed, because "no puzzle" and "no
 // puzzle inside the budget" are different findings for a level designer (AGENTS.md 4.1: an
 // instrument's silence is itself a bug).
 
-import { makeSquaredSet, sameBoardById, boardSig, type Board } from 'dancing-squared-engine';
-import { rngFrom } from './rand.ts';
+import { sameBoardById, boardSig, type Board } from 'dancing-squared-engine';
+import { rngFrom, type Rng } from './rand.ts';
 import type { GameApplier, GenerateResult, GeneratorConfig, LevelSpec, Move, Puzzle, PuzzleOption, PuzzleStep } from './types.ts';
 
 /**
@@ -66,6 +82,35 @@ function distinctEndings(moves: readonly Move[]): number {
   return seen.size;
 }
 
+/**
+ * Why `start` cannot open a puzzle at this level, or `null` when it can.
+ *
+ * WHY THIS IS A FUNCTION AND NOT TWO CHECKS. Every candidate start has to be tested before the search
+ * can be ordered (a start that cannot carry the question is not a candidate), and the SAME sentences are
+ * what the refusal report is built from — so the rule exists once, and the filter and the report cannot
+ * disagree about why a formation was skipped. It is also the only place these three statements are made,
+ * so the attempt below does not repeat them: a start that reaches the search has already passed.
+ *
+ * THE THREE RULES, with the alternative each rules out:
+ *  - THE START MUST BE NAMED. It is one of the two pictures the player is shown ("you are here"), so an
+ *    unnamed board is a picture with no caption. This is also why `recognize` and not `knownFormation`
+ *    is the namer: the two disagree on purpose (AGENTS.md trap 10), and the one the screen uses is the
+ *    one that must answer here.
+ *  - IT MUST OFFER `optionCount` LEGAL CALLS, or the question cannot be asked from it at all.
+ *  - THOSE CALLS MUST END SOMEWHERE DIFFERENT, or the step offers two buttons that do the same thing.
+ */
+function startRefusal(start: Board, level: LevelSpec, applier: GameApplier): string | null {
+  if (applier.nameOf(start) === null) return 'the start board has no name';
+  const offered = applier.offered(start);
+  if (offered.length < level.optionCount) {
+    return `the start offers only ${offered.length} legal call(s), fewer than the ${level.optionCount} this configuration needs`;
+  }
+  if (distinctEndings(offered) < level.optionCount) {
+    return `the start offers ${offered.length} calls but fewer than ${level.optionCount} distinct endings`;
+  }
+  return null;
+}
+
 function summarise(counts: Map<string, number>): string {
   if (counts.size === 0) return 'no candidate survived the path checks';
   return [...counts.entries()]
@@ -75,293 +120,367 @@ function summarise(counts: Map<string, number>): string {
     .join('; ');
 }
 
+/**
+ * The start census for one applier at one option count — WHICH of `startBoards()` can open a puzzle —
+ * memoised, because it is a pure function of the applier's registration and costs one `offered` per
+ * declared formation.
+ *
+ * WHY A MEMO AND NOT JUST A BIGGER `offered` CACHE. MEASURED at level 3 (pool 65, 47 declared formations,
+ * 21 of them named): the census is ~45 `offered` calls, and a level's block is 100 drills generated from
+ * ONE applier — so a generator that re-asked it per puzzle paid it 100 times. MEASURED over the first 100
+ * seeds of each level, mean generation time: level 1 **70 -> 41 ms**, level 3 (depth 2) **670 -> 468 ms**,
+ * level 6 (depth 2) **732 -> 488 ms**. The alternative — growing `offered`'s bound until the census is
+ * cache-resident — is a blunt constant changed for one caller, and this is one array of 21 boards.
+ *
+ * KEYED BY THE APPLIER INSTANCE, which is what makes the memo honest: the registered titles cannot change
+ * for an applier's life, so the census cannot either — and an applier that goes away takes its entry with
+ * it. The option count is the second key because it is the level, and two levels may share one applier in
+ * a probe.
+ *
+ * IT IS A MEMO AND NOT A RULE: it returns the same answer the first call computed, so a probe that builds
+ * a fresh applier measures the same thing the server does.
+ */
+const startCensus = new WeakMap<GameApplier, Map<number, { candidates: Board[]; refused: Map<string, number> }>>();
+
+function censusFor(applier: GameApplier, level: LevelSpec): { candidates: Board[]; refused: Map<string, number> } {
+  let perOptionCount = startCensus.get(applier);
+  if (!perOptionCount) {
+    perOptionCount = new Map();
+    startCensus.set(applier, perOptionCount);
+  }
+  const cached = perOptionCount.get(level.optionCount);
+  if (cached) return cached;
+  const candidates: Board[] = [];
+  const refused = new Map<string, number>();
+  for (const board of applier.startBoards()) {
+    const refusal = startRefusal(board, level, applier);
+    if (refusal) refused.set(refusal, (refused.get(refusal) ?? 0) + 1);
+    else candidates.push(board);
+  }
+  const census = { candidates, refused };
+  perOptionCount.set(level.optionCount, census);
+  return census;
+}
+
 export function generatePuzzle(config: GeneratorConfig, seed: number, level: LevelSpec, applier: GameApplier): GenerateResult {
-  // ONE rng for the whole generation, drawn in a fixed order: shuffle the candidates, then the option
-  // order per step, then the `unknown` pick. A second rng (or a `Math.random` fallback anywhere) would
-  // break the property this whole design rests on — that the same inputs give a byte-identical puzzle.
-  const rng = rngFrom(seed ^ Math.imul(level.index, 0x9e3779b1));
-  const start = makeSquaredSet();
-  const startSig = boardSig(start);
+  // ONE BASE MIX FOR EVERY DRAW THIS GENERATION MAKES, so the whole puzzle is a function of `(seed, level)`
+  // and nothing else. A `Math.random` fallback anywhere, or a second independent stream, would break the
+  // property the design rests on — that the same inputs give a byte-identical puzzle.
+  const base = seed ^ Math.imul(level.index, 0x9e3779b1);
 
-  // THE START IS A PLAYED-FROM BOARD TOO, and at `maxDepth === 1` it is the ONLY one — so the ladder's
-  // first level has always exercised this. At depth 2 and above the start becomes an intermediate board
-  // that must still offer three options, and it was the one board the BFS pruning below could not reach
-  // (a frontier is its successors, never itself). MEASURED: without this check the generator reported
-  // "step 1 has no option that reaches the goal" for most depth-2 candidates — a symptom two levels away
-  // from its cause, because the option builder was handed a skeleton whose FIRST board could never carry
-  // it.
-  const startOffered = applier.offered(start);
-  if (startOffered.length < level.optionCount) {
-    return { ok: false, reason: `the start board offers only ${startOffered.length} legal call(s), fewer than the ${level.optionCount} this configuration needs` };
-  }
-  if (distinctEndings(startOffered) < level.optionCount) {
-    return { ok: false, reason: `the start board offers ${startOffered.length} calls but fewer than ${level.optionCount} distinct endings` };
-  }
-
-  // ---- 1. BFS from the start: distance, representative board, predecessor, and alternate-path count.
-  const dist = new Map<string, number>([[startSig, 0]]);
-  const boards = new Map<string, Board>([[startSig, start]]);
-  const prev = new Map<string, { board: Board; call: string }[]>();
-  /** How many EXTRA shortest predecessors a board has, so "reachable by more than one path" is a
-   * measurement rather than a hope. */
-  const extraPredecessors = new Map<string, number>();
-  let frontier: Board[] = [start];
-  let explored = 1; // the start board
-  let hitBudget = false;
-
-  for (let d = 1; d <= config.maxDepth && !hitBudget; d++) {
-    const next: Board[] = [];
-    // AT THE LAST LEVEL WE ENUMERATE GOALS; BELOW IT WE ENUMERATE STEPPING STONES, and a stone is only
-    // useful if it can carry the question: a board on the path needs THREE legal calls from its own
-    // position (three options, pairwise-distinct endings), so a board with fewer is pruned rather than
-    // carried forward. MEASURED, and it is why this is not premature optimisation: at L2 (pool 15) the
-    // start offers 7 calls and the whole depth-2 exploration reaches 30 states collapsing to 10
-    // distinct signatures. At these pools the GATES, not the node budget, decide whether a level has
-    // puzzles at all — so pruning is what keeps the search inside its budget and keeps the candidates
-    // it does find reachable through boards that can carry it.
-    const goals = d === config.maxDepth;
-    for (const board of frontier) {
-      const offered = applier.offered(board).slice().sort(byName);
-      if (!goals && distinctEndings(offered) < level.optionCount) continue;
-      for (const move of offered) {
-        if (explored >= config.nodeBudget) {
-          hitBudget = true;
-          break;
-        }
-        explored++;
-        const sig = boardSig(move.board);
-        const seen = dist.get(sig);
-        if (seen === undefined) {
-          dist.set(sig, d);
-          boards.set(sig, move.board);
-          prev.set(sig, [{ board, call: move.call }]);
-          extraPredecessors.set(sig, 0);
-          next.push(move.board);
-        } else if (seen === d && sig !== startSig) {
-          // AN EARLIER ARRIVAL AT THE SAME DEPTH IS KEPT, not merely counted. Keeping only the first made
-          // every candidate have exactly ONE path to test, and since a path is only usable if every board
-          // it is played from can carry three options, a candidate whose single recorded path failed had
-          // no second chance. MEASURED: depth 2 generated 0/8 at every pool size while every failure was
-          // at a different step, which is the signature of a solver that is not trying enough paths
-          // rather than one whose gates are impossible.
-          const list = prev.get(sig);
-          if (list) list.push({ board, call: move.call });
-          extraPredecessors.set(sig, (extraPredecessors.get(sig) ?? 0) + 1);
-        }
-      }
-      if (hitBudget) break;
-    }
-    frontier = next;
-  }
-
-  // A CANDIDATE HAS TO BE A GOAL, AND BEING AT THE RIGHT DEPTH IS NOT ENOUGH.
+  // ---- 0. WHICH STARTS ARE ON THE TABLE.
   //
-  // MEASURED, and this is the single most important number in this file: at pool 40 / depth 2, 38 of 44
-  // depth-2 boards are UNNAMED; at pool 62 / depth 3 it is 82 of 82. Filtering only by distance therefore
-  // hands the candidate loop targets that no amount of option-building can rescue, and every one of them
-  // is rejected at the naming gate on the next pass. The filter belongs HERE, where it is cheap.
-  //
-  // WHAT THE GOAL NEEDS AND WHAT IT DOES NOT, because getting this wrong cost a working depth 1: the goal
-  // is REACHED, never PLAYED FROM, so it does not need options of its own — requiring three calls from it
-  // rejected every named depth-1 board and turned a level that had generated 8/8 into 0/8. It needs a
-  // NAME (it is the picture the player is shown) and it needs to differ from the start (checked in
-  // `attempt`, with the engine's own rule). The three-options requirement belongs to the boards a step is
-  // played FROM, and `attempt` applies it there.
-  const candidateSigs = [...dist.entries()]
-    .filter(([sig, d]) => d === config.maxDepth && sig !== startSig)
-    .map(([sig]) => sig)
-    .filter((sig) => applier.nameOf(boards.get(sig) as Board) !== null);
-  if (candidateSigs.length === 0) {
+  // THE CHOICE IS WHICH START, NOT WHETHER THERE IS ONE, which is why this is a filtered candidate list and
+  // not a fallback chain: a formation that cannot carry the question is not a weaker candidate, it is not a
+  // candidate, and the report says so by name count rather than by silently trying it.
+  const census = censusFor(applier, level);
+  const candidates = census.candidates;
+  // COPIED, because the attempt failures below are added to this same tally and the census's own map is
+  // memoised — writing to it would make one seed's report depend on which seeds ran before it.
+  const refused = new Map(census.refused);
+  if (candidates.length === 0) {
     return {
       ok: false,
-      reason: hitBudget
-        ? `the exploration hit its ${config.nodeBudget}-node budget after ${explored} states with no board at depth ${config.maxDepth}`
-        : `no board is reachable in exactly ${config.maxDepth} call(s) from a squared set at this level`,
+      reason: `none of the level's ${applier.startBoards().length} declared formation(s) can open a puzzle — ${summarise(refused)}`,
     };
   }
 
-  // ---- 2. Build a path for a candidate, choosing among its ALTERNATE predecessors.
-  //
-  // WHY THIS IS A SEARCH AND NOT A WALK. A path is only usable if every board it is PLAYED FROM can carry
-  // three options — so the freedom to choose which predecessor to walk through is what decides whether a
-  // candidate can become a puzzle at all. A single recorded chain per board gives each candidate exactly
-  // one chance, and MEASURED, that is why depth 2 was generating 0/8: every candidate failed, each at a
-  // different step, which is the signature of too few paths TRIED rather than of gates that cannot be met.
-  const refused = new Map<string, number>();
-  /** Whether a board can hold the question: three legal calls with three distinct endings. Memoised,
-   * because the search asks the same board many times. */
-  const carries = new Map<string, boolean>();
-  const carriesQuestion = (board: Board): boolean => {
-    const sig = boardSig(board);
-    const hit = carries.get(sig);
-    if (hit !== undefined) return hit;
-    const offered = applier.offered(board);
-    const ok = offered.length >= level.optionCount && distinctEndings(offered) >= level.optionCount;
-    carries.set(sig, ok);
-    return ok;
-  };
-  /** (sig, depth) pairs from which no path reaches the start, so the search does not revisit them. */
-  const dead = new Set<string>();
-  /** The search's own guard, so a pathological board graph cannot make generation unbounded. */
-  let pathTries = 0;
-  const PATH_TRY_CAP = 20_000;
+  // THE ORDER THE STARTS ARE TRIED IN IS THE SEEDED DECISION, and it is one draw rather than one per
+  // attempt: the shuffle is what makes a level's whole supply of starts reachable, and drawing it once
+  // keeps the attempt below free to own its own stream.
+  const order = rngFrom(base).shuffle(candidates);
 
-  /** The boards and calls from the start to `goalSig`, or null when no usable path exists. */
-  const findPath = (goalSig: string): { path: Board[]; calls: string[] } | null => {
-    const rec = (sig: string, depth: number): { path: Board[]; calls: string[] } | null => {
-      if (sig === startSig) return { path: [], calls: [] };
-      if (depth > config.maxDepth) return null;
-      const key = `${sig}@${depth}`;
-      if (dead.has(key) || pathTries++ > PATH_TRY_CAP) return null;
-      for (const p of prev.get(sig) ?? []) {
-        // EVERY BOARD EXCEPT THE GOAL IS PLAYED FROM, so it must carry the question. The goal is only
-        // reached, and requiring options from it once cost a working depth 1 (see the candidate filter).
-        if (!carriesQuestion(p.board)) continue;
-        const sub = rec(boardSig(p.board), depth + 1);
-        if (sub) return { path: [...sub.path, p.board], calls: [...sub.calls, p.call] };
-      }
-      dead.add(key);
-      return null;
-    };
-    const found = rec(goalSig, 1);
-    if (!found) return null;
-    const goal = boards.get(goalSig);
-    if (!goal) return null;
-    found.path.push(goal);
-    return found;
-  };
+  // THE BUDGET IS PER GENERATION, NOT PER START — otherwise a level with twenty formations would have
+  // twenty times the budget and a pathological board graph could run for twenty times as long. It is
+  // shared state, which is exactly why it is declared here and not inside `attempt`.
+  let explored = 0;
+  let hitBudget = false;
 
-  const attempt = (goalSig: string): Puzzle | string => {
-    const found = findPath(goalSig);
-    if (!found) return 'no usable path to this candidate (a board on every route cannot carry three options)';
-    const { path, calls } = found;
-    const goal = boards.get(goalSig) as Board;
-    if (path.length !== config.maxDepth + 1) return `the path had ${path.length - 1} call(s), not ${config.maxDepth}`;
+  /**
+   * A puzzle whose start is `start`, or the sentence saying why this start gave none.
+   *
+   * THE RNG IS THE ATTEMPT'S OWN, derived from the seed and the attempt's ORDINAL. A single stream shared
+   * across attempts would make every start's questions depend on how much of it earlier, failed starts
+   * consumed — so a start that newly becomes viable would rewrite the puzzles of the starts after it, and
+   * the pool edit that caused it would be invisible. Deriving it per attempt keeps each start's draws its
+   * own; the ordinal is what makes them different from each other.
+   */
+  const attempt = (start: Board, rng: Rng): Puzzle | string => {
+    const startSig = boardSig(start);
 
-    // GATE: the start and the goal must be tellable apart, or the puzzle is "these look the same".
-    if (sameBoardById(start, goal)) return 'the goal board is the start board';
-    // GATE: the START and the GOAL must be states the engine can NAME, and the reason is narrower than
-    // "every board must be named". These two are the boards the game DRAWS for the player — "you are
-    // here" and "get here" — so an unnamed one is a picture with no caption and, for the goal, no way to
-    // say what is being asked. An UNNAMED INTERMEDIATE is a different thing: it is a legal state the
-    // engine simply has no template for (its own docs say an unrecognised board is not a defect), the
-    // player never sees it named, and refusing it would reject the great majority of real paths.
-    // MEASURED at L2/pool 15: of 10 distinct depth-2 states, MOST are unnamed — so a gate on every board
-    // would have left this level with no puzzles at all, which is a much worse outcome than a path
-    // passing through a state the app does not name.
-    if (applier.nameOf(start) === null) return 'the start board has no name';
-    if (applier.nameOf(goal) === null) return 'the goal board has no name';
+    // ---- 1. BFS from the start: distance, representative board, predecessor, and alternate-path count.
+    const dist = new Map<string, number>([[startSig, 0]]);
+    const boards = new Map<string, Board>([[startSig, start]]);
+    const prev = new Map<string, { board: Board; call: string }[]>();
+    /** How many EXTRA shortest predecessors a board has, so "reachable by more than one path" is a
+     * measurement rather than a hope. */
+    const extraPredecessors = new Map<string, number>();
+    let frontier: Board[] = [start];
+    explored++; // the start board
 
-    // GATE: every board on the intended path must be able to CARRY its step — three legal options with
-    // pairwise-distinct endings. Checked here, before the options are built, because a path through a
-    // board that offers one call can never become a puzzle, and failing fast on it is what keeps the
-    // candidate loop affordable.
-    for (let i = 0; i < path.length - 1; i++) {
-      const offered = applier.offered(path[i]);
-      if (offered.length < level.optionCount) return `step ${i + 1} offers only ${offered.length} legal call(s)`;
-      if (distinctEndings(offered) < level.optionCount) return `step ${i + 1} offers ${offered.length} calls but fewer than ${level.optionCount} distinct endings`;
-    }
-    const steps: PuzzleStep[] = [];
-    const unknownPool = applier.candidateCalls(start).slice().sort(byTitle);
-    for (let i = 0; i < path.length - 1; i++) {
-      const from = path[i];
-      const offered = applier.offered(from).slice().sort(byName);
-      const distanceHere = dist.get(boardSig(from)) as number;
-      const lastStep = i === path.length - 2;
-
-      // WHAT MAKES A MOVE CORRECT, and why this is NOT "a move that reaches the goal" for every step.
-      //
-      // The goal is at distance `d`, and a board at distance `i < d - 1` CANNOT reach it in one call: a
-      // move from distance `i` lands at distance at most `i + 1`, so a one-call route to the goal would
-      // mean the goal was at distance `i + 1 < d`, contradicting the BFS distance. Requiring every step to
-      // have a goal-reaching option is therefore unsatisfiable for every step but the last — and MEASURED,
-      // that single requirement is why depth 2 generated 0/8 at EVERY pool size and option count, with the
-      // generator reporting "step 1 has no option that reaches the goal" for all 41 candidates. The check
-      // was asking for a shorter solution than the puzzle's own distance.
-      //
-      // THE DESIGN'S OWN RULE IS "makes progress", and the distance map already answers it: a correct move
-      // is one that reduces the remaining distance. On the LAST step, `i + 1 === d`, so "reduces the
-      // distance" and "reaches the goal" are the same statement — the two branches below agree there, and
-      // the test is stated per branch so neither can silently become the other.
-      const correctMoves = lastStep
-        ? offered.filter((m) => sameBoardById(m.board, goal))
-        : offered.filter((m) => dist.get(boardSig(m.board)) === distanceHere + 1);
-      if (correctMoves.length === 0) {
-        return lastStep
-          ? `step ${i + 1} has no option that reaches the goal`
-          : `step ${i + 1} has no option that makes progress`;
-      }
-      // THE CORRECT OPTION IS THE PATH'S CALL, and the pick only breaks ties where the path's call is absent. `calls` is
-      // the route the search found and `steps[i + 1].from` is the board it lands on, so an option chosen from a DIFFERENT
-      // correct route would publish an answer key whose steps do not connect: MEASURED, `solution` then named a call the
-      // step's `correctIndex` did not, and playing the solution stopped reaching the goal. It surfaced only when the pool
-      // grew from 62 names to 322 and more options made progress from one board. The path's call is always among
-      // `correctMoves` (a step that makes progress is exactly what the distance map says the next path board is), so
-      // the fallback is a safety net rather than the common case.
-      const onPath = correctMoves.find((m) => m.call === calls[i]);
-      const chosen = onPath ?? (rng.pick(correctMoves) as Move);
-
-      // Distractors: pairwise-distinct endings, never the goal, and never ending where another option
-      // ends. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`, because a
-      // signature collision would otherwise publish two options that are the same board.
-      const endsHere = new Set<string>([boardSig(chosen.board)]);
-      const distractors: Move[] = [];
-      for (const m of rng.shuffle(offered.filter((m) => m.call !== chosen.call))) {
-        const sig = boardSig(m.board);
-        if (endsHere.has(sig)) continue;
-        endsHere.add(sig);
-        distractors.push(m);
-        if (distractors.length === level.optionCount - 1) break;
-      }
-      if (distractors.length < level.optionCount - 1) {
-        return `step ${i + 1} has only ${distractors.length + 1} distinct ending(s), fewer than the ${level.optionCount} this configuration needs`;
-      }
-
-      const options: PuzzleOption[] = rng.shuffle([chosen, ...distractors]).map((m) => ({ call: m.call, board: m.board }));
-      const correctIndex = options.findIndex((o) => o.call === chosen.call);
-      const step: PuzzleStep = { from, moves: options, correctIndex, after: chosen.board };
-
-      // The illegal choice, only where the design allows one (step 1), and never a call the puzzle's
-      // own path uses. Its refusal is the ENGINE's string, verbatim.
-      if (i === 0) {
-        const used = new Set<string>([...calls, ...options.map((o) => o.call)]);
-        for (const name of unknownPool) {
-          if (used.has(name)) continue;
-          const refusal = applier.refusalOf(from, name);
-          if (refusal) {
-            step.unknown = refusal;
+    for (let d = 1; d <= config.maxDepth && !hitBudget; d++) {
+      const next: Board[] = [];
+      // AT THE LAST LEVEL WE ENUMERATE GOALS; BELOW IT WE ENUMERATE STEPPING STONES, and a stone is only
+      // useful if it can carry the question: a board on the path needs THREE legal calls from its own
+      // position (three options, pairwise-distinct endings), so a board with fewer is pruned rather than
+      // carried forward. MEASURED, and it is why this is not premature optimisation: at L2 (pool 15) the
+      // start offers 7 calls and the whole depth-2 exploration reaches 30 states collapsing to 10
+      // distinct signatures. At these pools the GATES, not the node budget, decide whether a level has
+      // puzzles at all — so pruning is what keeps the search inside its budget and keeps the candidates
+      // it does find reachable through boards that can carry it.
+      const goals = d === config.maxDepth;
+      for (const board of frontier) {
+        const offered = applier.offered(board).slice().sort(byName);
+        if (!goals && distinctEndings(offered) < level.optionCount) continue;
+        for (const move of offered) {
+          if (explored >= config.nodeBudget) {
+            hitBudget = true;
             break;
           }
+          explored++;
+          const sig = boardSig(move.board);
+          const seen = dist.get(sig);
+          if (seen === undefined) {
+            dist.set(sig, d);
+            boards.set(sig, move.board);
+            prev.set(sig, [{ board, call: move.call }]);
+            extraPredecessors.set(sig, 0);
+            next.push(move.board);
+          } else if (seen === d && sig !== startSig) {
+            // AN EARLIER ARRIVAL AT THE SAME DEPTH IS KEPT, not merely counted. Keeping only the first made
+            // every candidate have exactly ONE path to test, and since a path is only usable if every board
+            // it is played from can carry three options, a candidate whose single recorded path failed had
+            // no second chance. MEASURED: depth 2 generated 0/8 at every pool size while every failure was
+            // at a different step, which is the signature of a solver that is not trying enough paths
+            // rather than one whose gates are impossible.
+            const list = prev.get(sig);
+            if (list) list.push({ board, call: move.call });
+            extraPredecessors.set(sig, (extraPredecessors.get(sig) ?? 0) + 1);
+          }
         }
+        if (hitBudget) break;
       }
-      steps.push(step);
+      frontier = next;
     }
 
-    return {
-      mode: config.mode,
-      seed,
-      level,
-      poolVersion: config.poolVersion,
-      start,
-      goal,
-      path,
-      steps,
-      solution: calls,
-      shortest: config.maxDepth,
-      alternatePath: path.some((b) => (extraPredecessors.get(boardSig(b)) ?? 0) > 0),
-      explored,
+    // A CANDIDATE HAS TO BE A GOAL, AND BEING AT THE RIGHT DEPTH IS NOT ENOUGH.
+    //
+    // MEASURED, and this is the single most important number in this file: at pool 40 / depth 2, 38 of 44
+    // depth-2 boards are UNNAMED; at pool 62 / depth 3 it is 82 of 82. Filtering only by distance therefore
+    // hands the candidate loop targets that no amount of option-building can rescue, and every one of them
+    // is rejected at the naming gate on the next pass. The filter belongs HERE, where it is cheap.
+    //
+    // WHAT THE GOAL NEEDS AND WHAT IT DOES NOT, because getting this wrong cost a working depth 1: the goal
+    // is REACHED, never PLAYED FROM, so it does not need options of its own — requiring three calls from it
+    // rejected every named depth-1 board and turned a level that had generated 8/8 into 0/8. It needs a
+    // NAME (it is the picture the player is shown) and it needs to differ from the start (checked in
+    // `build`, with the engine's own rule). The three-options requirement belongs to the boards a step is
+    // played FROM, and `build` applies it there.
+    const candidateSigs = [...dist.entries()]
+      .filter(([sig, d]) => d === config.maxDepth && sig !== startSig)
+      .map(([sig]) => sig)
+      .filter((sig) => applier.nameOf(boards.get(sig) as Board) !== null);
+    if (candidateSigs.length === 0) {
+      const from = applier.nameOf(start) ?? 'this start';
+      return hitBudget
+        ? `the exploration hit its ${config.nodeBudget}-node budget after ${explored} states with no board at depth ${config.maxDepth} from ${from}`
+        : `no board is reachable in exactly ${config.maxDepth} call(s) from ${from} at this level`;
+    }
+
+    // ---- 2. Build a path for a candidate, choosing among its ALTERNATE predecessors.
+    //
+    // WHY THIS IS A SEARCH AND NOT A WALK. A path is only usable if every board it is PLAYED FROM can carry
+    // three options — so the freedom to choose which predecessor to walk through is what decides whether a
+    // candidate can become a puzzle at all. A single recorded chain per board gives each candidate exactly
+    // one chance, and MEASURED, that is why depth 2 was generating 0/8: every candidate failed, each at a
+    // different step, which is the signature of too few paths TRIED rather than of gates that cannot be met.
+    const pathRefused = new Map<string, number>();
+    /** Whether a board can hold the question: three legal calls with three distinct endings. Memoised,
+     * because the search asks the same board many times. */
+    const carries = new Map<string, boolean>();
+    const carriesQuestion = (board: Board): boolean => {
+      const sig = boardSig(board);
+      const hit = carries.get(sig);
+      if (hit !== undefined) return hit;
+      const offered = applier.offered(board);
+      const ok = offered.length >= level.optionCount && distinctEndings(offered) >= level.optionCount;
+      carries.set(sig, ok);
+      return ok;
     };
+    /** (sig, depth) pairs from which no path reaches the start, so the search does not revisit them. */
+    const dead = new Set<string>();
+    /** The search's own guard, so a pathological board graph cannot make generation unbounded. */
+    let pathTries = 0;
+    const PATH_TRY_CAP = 20_000;
+
+    /** The boards and calls from the start to `goalSig`, or null when no usable path exists. */
+    const findPath = (goalSig: string): { path: Board[]; calls: string[] } | null => {
+      const rec = (sig: string, depth: number): { path: Board[]; calls: string[] } | null => {
+        if (sig === startSig) return { path: [], calls: [] };
+        if (depth > config.maxDepth) return null;
+        const key = `${sig}@${depth}`;
+        if (dead.has(key) || pathTries++ > PATH_TRY_CAP) return null;
+        for (const p of prev.get(sig) ?? []) {
+          // EVERY BOARD EXCEPT THE GOAL IS PLAYED FROM, so it must carry the question. The goal is only
+          // reached, and requiring options from it once cost a working depth 1 (see the candidate filter).
+          if (!carriesQuestion(p.board)) continue;
+          const sub = rec(boardSig(p.board), depth + 1);
+          if (sub) return { path: [...sub.path, p.board], calls: [...sub.calls, p.call] };
+        }
+        dead.add(key);
+        return null;
+      };
+      const found = rec(goalSig, 1);
+      if (!found) return null;
+      const goal = boards.get(goalSig);
+      if (!goal) return null;
+      found.path.push(goal);
+      return found;
+    };
+
+    const build = (goalSig: string): Puzzle | string => {
+      const found = findPath(goalSig);
+      if (!found) return 'no usable path to this candidate (a board on every route cannot carry three options)';
+      const { path, calls } = found;
+      const goal = boards.get(goalSig) as Board;
+      if (path.length !== config.maxDepth + 1) return `the path had ${path.length - 1} call(s), not ${config.maxDepth}`;
+
+      // GATE: the start and the goal must be tellable apart, or the puzzle is "these look the same".
+      if (sameBoardById(start, goal)) return 'the goal board is the start board';
+      // GATE: the GOAL must be a state the engine can NAME, and the reason is narrower than "every board
+      // must be named". The start and the goal are the boards the game DRAWS for the player — "you are
+      // here" and "get here" — so an unnamed one is a picture with no caption. (The START's name is
+      // `startRefusal`'s first rule, applied once to every candidate rather than per attempt.) An UNNAMED
+      // INTERMEDIATE is a different thing: it is a legal state the engine simply has no template for (its
+      // own docs say an unrecognised board is not a defect), the player never sees it named, and refusing
+      // it would reject the great majority of real paths.
+      // MEASURED at L2/pool 15: of 10 distinct depth-2 states, MOST are unnamed — so a gate on every board
+      // would have left this level with no puzzles at all, which is a much worse outcome than a path
+      // passing through a state the app does not name.
+      if (applier.nameOf(goal) === null) return 'the goal board has no name';
+
+      // GATE: every board on the intended path must be able to CARRY its step — three legal options with
+      // pairwise-distinct endings. Checked here, before the options are built, because a path through a
+      // board that offers one call can never become a puzzle, and failing fast on it is what keeps the
+      // candidate loop affordable.
+      for (let i = 0; i < path.length - 1; i++) {
+        const offered = applier.offered(path[i]);
+        if (offered.length < level.optionCount) return `step ${i + 1} offers only ${offered.length} legal call(s)`;
+        if (distinctEndings(offered) < level.optionCount) return `step ${i + 1} offers ${offered.length} calls but fewer than ${level.optionCount} distinct endings`;
+      }
+      const steps: PuzzleStep[] = [];
+      const unknownPool = applier.candidateCalls(start).slice().sort(byTitle);
+      for (let i = 0; i < path.length - 1; i++) {
+        const from = path[i];
+        const offered = applier.offered(from).slice().sort(byName);
+        const distanceHere = dist.get(boardSig(from)) as number;
+        const lastStep = i === path.length - 2;
+
+        // WHAT MAKES A MOVE CORRECT, and why this is NOT "a move that reaches the goal" for every step.
+        //
+        // The goal is at distance `d`, and a board at distance `i < d - 1` CANNOT reach it in one call: a
+        // move from distance `i` lands at distance at most `i + 1`, so a one-call route to the goal would
+        // mean the goal was at distance `i + 1 < d`, contradicting the BFS distance. Requiring every step to
+        // have a goal-reaching option is therefore unsatisfiable for every step but the last — and MEASURED,
+        // that single requirement is why depth 2 generated 0/8 at EVERY pool size and option count, with the
+        // generator reporting "step 1 has no option that reaches the goal" for all 41 candidates. The check
+        // was asking for a shorter solution than the puzzle's own distance.
+        //
+        // THE DESIGN'S OWN RULE IS "makes progress", and the distance map already answers it: a correct move
+        // is one that reduces the remaining distance. On the LAST step, `i + 1 === d`, so "reduces the
+        // distance" and "reaches the goal" are the same statement — the two branches below agree there, and
+        // the test is stated per branch so neither can silently become the other.
+        const correctMoves = lastStep
+          ? offered.filter((m) => sameBoardById(m.board, goal))
+          : offered.filter((m) => dist.get(boardSig(m.board)) === distanceHere + 1);
+        if (correctMoves.length === 0) {
+          return lastStep
+            ? `step ${i + 1} has no option that reaches the goal`
+            : `step ${i + 1} has no option that makes progress`;
+        }
+        // THE CORRECT OPTION IS THE PATH'S CALL, and the pick only breaks ties where the path's call is absent. `calls` is
+        // the route the search found and `steps[i + 1].from` is the board it lands on, so an option chosen from a DIFFERENT
+        // correct route would publish an answer key whose steps do not connect: MEASURED, `solution` then named a call the
+        // step's `correctIndex` did not, and playing the solution stopped reaching the goal. It surfaced only when the pool
+        // grew from 62 names to 322 and more options made progress from one board. The path's call is always among
+        // `correctMoves` (a step that makes progress is exactly what the distance map says the next path board is), so
+        // the fallback is a safety net rather than the common case.
+        const onPath = correctMoves.find((m) => m.call === calls[i]);
+        const chosen = onPath ?? (rng.pick(correctMoves) as Move);
+
+        // Distractors: pairwise-distinct endings, never the goal, and never ending where another option
+        // ends. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`, because a
+        // signature collision would otherwise publish two options that are the same board.
+        const endsHere = new Set<string>([boardSig(chosen.board)]);
+        const distractors: Move[] = [];
+        for (const m of rng.shuffle(offered.filter((m) => m.call !== chosen.call))) {
+          const sig = boardSig(m.board);
+          if (endsHere.has(sig)) continue;
+          endsHere.add(sig);
+          distractors.push(m);
+          if (distractors.length === level.optionCount - 1) break;
+        }
+        if (distractors.length < level.optionCount - 1) {
+          return `step ${i + 1} has only ${distractors.length + 1} distinct ending(s), fewer than the ${level.optionCount} this configuration needs`;
+        }
+
+        const options: PuzzleOption[] = rng.shuffle([chosen, ...distractors]).map((m) => ({ call: m.call, board: m.board }));
+        const correctIndex = options.findIndex((o) => o.call === chosen.call);
+        const step: PuzzleStep = { from, moves: options, correctIndex, after: chosen.board };
+
+        // The illegal choice, only where the design allows one (step 1), and never a call the puzzle's
+        // own path uses. Its refusal is the ENGINE's string, verbatim.
+        if (i === 0) {
+          const used = new Set<string>([...calls, ...options.map((o) => o.call)]);
+          for (const name of unknownPool) {
+            if (used.has(name)) continue;
+            const refusal = applier.refusalOf(from, name);
+            if (refusal) {
+              step.unknown = refusal;
+              break;
+            }
+          }
+        }
+        steps.push(step);
+      }
+
+      return {
+        mode: config.mode,
+        seed,
+        level,
+        poolVersion: config.poolVersion,
+        start,
+        goal,
+        path,
+        steps,
+        solution: calls,
+        shortest: config.maxDepth,
+        alternatePath: path.some((b) => (extraPredecessors.get(boardSig(b)) ?? 0) > 0),
+        explored,
+      };
+    };
+
+    // Candidates are SHUFFLED, so the choice depends on the seed rather than on BFS discovery order.
+    for (const sig of rng.shuffle(candidateSigs)) {
+      const outcome = build(sig);
+      if (typeof outcome !== 'string') return outcome;
+      pathRefused.set(outcome, (pathRefused.get(outcome) ?? 0) + 1);
+      if (hitBudget) break;
+    }
+
+    return `${candidateSigs.length} board(s) at depth ${config.maxDepth} and none usable — ${summarise(pathRefused)}`;
   };
 
-  // Candidates are SHUFFLED, so the choice depends on the seed rather than on BFS discovery order.
-  for (const sig of rng.shuffle(candidateSigs)) {
-    const outcome = attempt(sig);
+  for (let i = 0; i < order.length; i++) {
+    // THE ATTEMPT'S OWN STREAM — see the comment on `attempt` — mixed from the base and the ORDINAL.
+    const outcome = attempt(order[i], rngFrom(base ^ Math.imul(i + 1, 0x85ebca6b)));
     if (typeof outcome !== 'string') return { ok: true, puzzle: outcome };
     refused.set(outcome, (refused.get(outcome) ?? 0) + 1);
+    if (hitBudget) break;
   }
 
   return {
     ok: false,
-    reason: `${candidateSigs.length} board(s) at depth ${config.maxDepth} and none usable — ${summarise(refused)}`,
+    reason: `${candidates.length} start formation(s) can carry the question and none gave a puzzle — ${summarise(refused)}`,
   };
 }

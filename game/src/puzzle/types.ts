@@ -142,6 +142,30 @@ export interface GameApplier {
    * by legality, and `candidateCalls` is what makes an authorable `unknown` option possible.
    */
   candidateCalls(board: Board): string[];
+  /**
+   * The boards a puzzle may START from: one per formation this level's own calls declare, one per picture.
+   *
+   * WHY THE POOL DECIDES, RATHER THAN A CONSTANT. Every corpus `<tam>` declares the formation its call is
+   * used from, and a pool of 57 titles declares 67 of them — so a generator that always opens on a squared
+   * set asks every one of its questions from the same half-dozen boards and throws that variety away.
+   * MEASURED at level 1 over the first 100 seeds: one start board produced **5 distinct goal boards and 77
+   * distinct puzzles**, which is the "every drill looks the same" report stated as a number.
+   *
+   * WHAT IS **NOT** DERIVED HERE. Whether a board can CARRY a question (three legal calls with distinct
+   * endings), and whether the engine will NAME it, are the generator's gates on the boards a step is played
+   * from and on the pictures the player is shown — so this returns the raw set and the generator applies
+   * them. A filter here would be a second implementation of the level's rules, in the module that does not
+   * own them.
+   *
+   * EVERY BOARD IS EIGHT DANCERS WITH IDENTITY. The engine builds each from `boardForSetup`, which stamps
+   * the couple-to-spot assignment where the registry covers the formation and otherwise numbers the dancers
+   * by array index — so a start can always be compared with a goal by `sameBoardById`, which is the one goal
+   * test the game has (AGENTS.md §4.3: identity is data, never an index).
+   *
+   * THE ORDER IS STABLE AND NOT SEEDED: sorted by the formation's authored name. The generator shuffles it,
+   * so the seeded choice stays in the pure core where a probe can reproduce it.
+   */
+  startBoards(): readonly Board[];
   /** Whether `call` can be applied from `board`, and why not when it cannot. */
   refusalOf(board: Board, call: string): Refusal | null;
   /**
@@ -224,7 +248,9 @@ export interface Puzzle {
   /** Whether the goal was reachable by more than one path of the same length. Attempted, and recorded
    * when it is impossible rather than silently dropped — an instrument's silence is itself a bug. */
   alternatePath: boolean;
-  /** How many states the exploration enumerated, so the measurement is a number rather than a claim. */
+  /** How many states the exploration enumerated, ACROSS THE WHOLE GENERATION — including the attempts at
+   * starts that were refused — so the measurement is a number rather than a claim about the cost of one
+   * start. */
   explored: number;
 }
 

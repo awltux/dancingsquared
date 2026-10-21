@@ -299,33 +299,38 @@ registers in full. The generator is unchanged; `createEngineApplier` is not — 
 TITLE (`registerByTitle`) where it used to register each file as a whole document, so every title used to drag its
 file's sibling variants into the matcher and pay for them on every legality sweep. The old numbers are kept because
 they are what the ladder was DESIGNED against (and the reason the ladder stops at depth 2); the fresh ones are what
-a budget should be set from. `game/src/puzzle/levels.ts`'s header still carries the old table and is corrected in
-the commit that re-measures the depth-3 question.
+a budget should be set from. `game/src/puzzle/levels.ts`'s header now carries both: the old table, labelled as the
+squared-set generator's, and the corrections below.
 
-1. **A three-option question needs a pool of at least 35 titles.** Below that, the reachable board graph has
-   no route from the squared set whose played-from boards all offer three distinct endings. So `optionCount`
-   is a **per-level value**, and levels 1–4 ship with **two** options because the alternative is a level
-   that cannot make a puzzle at all.
+1. **A three-option question needed a pool of 35 — and that was the SQUARED SET's floor, not the pool's.** Below 35 the
+   reachable board graph has no route from home whose played-from boards all offer three distinct endings, which is
+   why `optionCount` became a per-level value. **RE-MEASURED once the generator began drawing its start from the
+   level's own formations (§7): a three-option question generates from a pool of 5** (5 of 5 seeds; 0 of 5 at pool 4,
+   where no start offers the three distinct endings the question needs), so `THREE_OPTION_MIN_POOL` is **5**. The
+   floor was always the START's fan-out rather than the pool's size, and `optionCount` is per-level now only because
+   level 1 ships with two by product decision.
 2. **A three-CALL question needs a pool of at least 20 — and that is a hard floor, not a cost.** MEASURED (5 seeds
-   per cell): at pools 10 and 15 the generator answers "no board is reachable in exactly 3 call(s) from a squared set
-   at this level", i.e. there is no goal to offer at all. At pool 20 it generates every seed in **423 ms**. That is
-   why the ladder's floor is 20 rather than the 10 first proposed: the Daily is asked in three calls (§9), and a
-   level that cannot be asked one is not a level of this game.
+   per cell) and UNMOVED by the start-board change: at pools 10 and 15, 0 of 5 seeds find a named board reachable in
+   exactly 3 calls from ANY of the two named formations those pools declare — there is no goal to offer at all. At
+   pool 20 it generates every seed. That is why the ladder's floor is 20 rather than the 10 first proposed: the Daily
+   is asked in three calls (§9), and a level that cannot be asked one is not a level of this game.
 3. **Depth 3 is affordable now that it is not the client's job.** Its worst case is 0.4 s at pool 20 rising to
-   ~4.9 s at pool 55, and it cost the cap on a browser; generation moved to the serving side (§9), so the cap is
-   kept for the DRILL only (`MAX_DEPTH = 2`, one call at L1) and the Daily is asked in `DAILY_DEPTH = 3` at every
-   level. The earlier 7.2 s figure was measured with the old whole-document registration (see the note under the
-   table above).
-4. **THE LADDER THAT SHIPS: `poolSize(n) = 57 + 4·(n − 1)`, `depth = 1` at L1 and 2 after, `optionCount = 3` once
-   `poolSize ≥ 35` EXCEPT at L1, which is pinned at two.** That is the owner's four-calls-a-level rule (decision 4's
+   ~4.9 s at pool 55 **from a squared set**; re-measured over the level's own starts it is **1.6 s at pool 20, 2.1 s at
+   pool 25 and 4.0 s at the shipped level-1 pool**, because a generation now tries its formations in order until one
+   yields a puzzle. It cost the cap on a browser; generation moved to the serving side (§9) and the Daily's publisher
+   is a midnight trigger, so the cap is kept for the DRILL only (`MAX_DEPTH = 2`, one call at L1) and the Daily is
+   asked in `DAILY_DEPTH = 3` at every level.
+4. **THE LADDER THAT SHIPS: `poolSize(n) = 57 + 4·(n − 1)`, `depth = 1` at L1 and 2 after, `optionCount = 3` above a
+   five-title pool EXCEPT at L1, which is pinned at two.** That is the owner's four-calls-a-level rule (decision 4's
    shape) on the floor finding 2 requires. **`BASE_POOL` MOVED 20 → 57 SO LEVEL 1 TEACHES WHOLE FAMILIES**: the pool is
    a PREFIX of the teaching order, so its boundary is a count, and at 20 the count landed in the middle of Circle Four
    — `Circle Four Left` in, `Circle Four Right` out. MEASURED by `node game/tools/pool-families.mjs 10`: 57 titles is
    the boundary of the TENTH whole family, and reaching it needed the ORDER grouped into contiguous families (as
    curated it had only two clean cut points, 32 and 37). `pool-probe.mjs` pins that the shipped boundary splits no
    family. Consequences, each measured: a **Mainstream-sized pool fills 74 levels** (was 76) by `publishableLevels()`;
-   a Daily costs **~5 s at L1 and ~155 s at L74**, once per (level, day) and cached, where the old 20-title L1 was
-   ~0.5 s — the exponent is the depth, not the constant.
+   a Daily costs **~5 s at L1 and ~155 s at L74** measured from a squared set, and **9.4–15.1 s at L1** re-measured
+   over the level's own starts (§7.1) — the L74 figure is the old regime's and has NOT been re-measured. Either way it
+   is once per (level, day) and cached, and the exponent is the depth, not the constant.
 5. **The Daily is three calls at EVERY level; the Drill is one at L1 and two after.** The two modes ask different
    questions of the same progression — `dailySpec(level)` applies the mode's depth where a puzzle is generated for
    the mode — so a level does not carry two depths that could drift apart.
@@ -457,6 +462,28 @@ establishes.
   (§7.2) is an ordered list of seeds and the serving layer calls `generatePuzzle` on the requested one. The
   same property is what lets the server validate a Daily submission without storing the Daily.
 - **Forward exploration** from the start board under a node budget finds the solvable end boards.
+- **The start board is one of the LEVEL'S OWN FORMATIONS, and the seed chooses which.** Every corpus `<tam>`
+  declares the formation its call is used from, so a level's pool names dozens of starts — a pool of 57 titles at
+  level 1 declares 67, of which the engine builds 44 and can name 20. The generator filters that set with the same
+  gates it applies to any board a step is played from, orders it by the seed, and tries the starts in that order
+  until one yields a puzzle; a formation that cannot carry the question is not a candidate, and the refusal counts
+  it rather than dropping it silently. **MEASURED over the first 100 level-1 seeds: one fixed start gave 5 distinct
+  starts, 5 distinct goals and 77 distinct puzzles; the level's own set gives 15–17 starts, 37 goals and the same
+  77 puzzles**, at the same 100/100 generation rate. That constant start is the reported *"all drills seem
+  identical"*, stated as a number.
+  - **The variety is not cosmetic.** A squared set offers 40 of level 1's 57 titles, so `Bend the Line`,
+    `California Twirl`, `Cast Off Three Quarters`, `Double Pass Thru`, `Box Circulate` and `Boys Trade` are **never
+    offered from it** — a one-start ladder can carry those titles and never ask about them. Asking from the pool's
+    own formations is what turns the rest of the level's vocabulary into questions.
+  - **The "map the authored subset onto an 8-dancer formation" idea is already the engine's, and it does not
+    cover these.** 22 of level 1's declared formations stand up no board at all (`Facing Couples`, `Wave RH`,
+    `Box RH`, `Diamond LH`, `Two-Faced Line RH`, `Single Double Pass Thru`, `Opposite Boy`, …) and **every one is
+    authored as two dancers**. `library.ts`'s `toWholeSet` already completes a formation's authored half to a whole
+    set — four dancers to eight — and deliberately does not double two, because two authored dancers represent a
+    **four**-dancer setup. Two-dancer *call* setups are likewise already matched onto eight-dancer boards (`Dosado`
+    is legal from a squared set through six two-dancer authorings), so there is no second mapping to build and no
+    cache to keep: a two-dancer formation has no eight-dancer board to stand up, and doubling those four through
+    the origin lands back on the same four.
 - **A reverse BFS from the goal** produces the distance-to-goal map. This is what gives all three consumers
   what they need: the Daily's shortest-solution figure and move allowance, the Drill's option filtering, and
   **the hint's "does this move make progress?"** best look-up (§10) — so the hint needs no search of its own
@@ -466,11 +493,14 @@ establishes.
   the L × C refutation).
 - **Quality gates — constraints that reject a seed and retry, never warnings:**
   - the puzzle is solvable, and the shortest solution is exactly `depth`;
-  - every board along the intended path is **named** by `recognize` (an unnamed board is legal — the engine
-    says an unrecognised board is not a defect — but it is unteachable as a puzzle state, and the Daily
-    shows the goal as a picture);
+  - the **start and the goal** boards are **named** by `recognize` — they are the two pictures the player is shown,
+    so an unnamed one is a caption with no name. An unnamed INTERMEDIATE is not refused and must not be: it is a
+    legal state the engine simply has no template for, the player never sees it named, and MEASURED at L2/pool 15
+    most depth-2 states are unnamed, so a gate on every board would leave the level with no puzzles at all;
   - the start and goal boards are distinguishable at a glance, so the puzzle is not solvable by "they look
     the same";
+  - the start offers at least as many legal calls as the question has options, with distinct endings, or the
+    question cannot be asked from it at all;
   - at each step there are at least the number of distinct endings the mode needs (three for the Drill);
   - the goal board is reachable by **more than one** call path where possible (see below).
 
@@ -511,6 +541,17 @@ So the budget is pinned at **50 000 nodes**, and the client's worst case is **~5
 Phase 2's loading state has to cover. The exploration count is far below the budget (194 against 50 000),
 which is why raising the budget changes nothing: what bounds these levels is the **reachability structure**,
 not the search cap. Depth 3 was measured too and is **capped out of the ladder** — see §5's corrections.
+
+**RE-MEASURED after the start-board change (§7), because that is the one thing that made every published level more
+expensive.** Over the first 100 seeds of each level, mean generation time is **41 ms at L1 (depth 1), 468 ms at L3 and
+488 ms at L6 (depth 2)** — against **13 / 56 / 52 ms** for the same seeds with the start forced to a squared set. So
+opening on the level's own formations costs about **8×** on the drill path, and the reason is structural rather than
+wasteful: a start that has to be refused pays for its own exploration first, and refusing one is how a level with
+twenty formations finds the ones that work. Three things keep that in proportion — the population that pays it is the
+**serving** side, where a puzzle is generated once per seed and then cached (`api/src/levels.ts`); a level's 100 drills
+are generated by the SCHEDULE PUBLISHER rather than by a player's press; and the DAILY, at three calls, was re-measured
+in the same sweep at **9.4–15.1 s** against **7.8–13.9 s**, which is inside the cost it already had and is why §9 gives
+it a midnight trigger instead of a request budget.
 
 ### 7.2 Authoring the regime (the schedule pipeline)
 
@@ -682,6 +723,17 @@ The DRILL still plays offline, from a BAKED fixture season (`game/src/game/seaso
 it makes. `game/test/client-generation-probe.mjs` walks the app's import graph and fails if the generator is
 reachable from it at all, so "no puzzle is generated on the client" is a property a gate checks rather than a rule
 the code keeps by habit.
+
+**THE CHALLENGE IS PRODUCED BY A MIDNIGHT TRIGGER, NOT BY A READ.** A scheduled job runs the boundary
+(`api/src/daily-publishing.ts`, `npm run api:publish-daily`) just before the UTC day turns, and that job is what
+generates every level's challenge for the day. It is the right place for the work for three reasons: generating one
+Daily costs seconds — MEASURED at **9.4–15.1 s** at the shipped level-1 pool after the start-board change (§7.1) —
+the challenge is then a batch the operator can validate before anybody plays it, and the cost lands at a boundary
+rather than on a player's first request of the day. `GET /puzzle` still derives the puzzle from the stored seed when
+its own cache is cold, because the stored artefact is a SEED (decision 13) and a read must not depend on the trigger
+having run in this process; what the trigger decides is that the day EXISTS. A day nobody published stays
+`404 no_published_daily` rather than becoming a puzzle invented on demand (§9's "the server never invents a
+challenge").
 
 - **One challenge per UTC day *per level*, issued to every player at that level** (decision 8). The day is
   computed in **UTC** so it flips at the same instant for everyone and a late-night player is not on a

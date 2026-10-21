@@ -87,6 +87,15 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
   const names = opts.calls.map((c) => c.name);
   const readingCache = new Map<string, MoveReading[]>();
   const offeredCache = new Map<string, Move[]>();
+  /**
+   * The start-board set, built once.
+   *
+   * IT IS A PURE FUNCTION OF THE REGISTRATION: the titles are fixed for this applier's life, so the set of
+   * formations they declare cannot change and the built boards cannot either. The generator asks for it on
+   * every puzzle it generates (a level's block is 100 drills), so building it per call would re-run
+   * `boardForSetup` — the FASR enumeration — a hundred times for one answer.
+   */
+  let startCache: Board[] | null = null;
 
   /**
    * Apply one LINE ELEMENT, which is either a call name or a PARALLEL STEP written the way `stepLabel` writes one
@@ -124,6 +133,64 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
 
     candidateCalls(): string[] {
       return [...names];
+    },
+
+    /**
+     * ONE BOARD PER FORMATION THE LEVEL'S CALLS DECLARE, and one per PICTURE — two formations the engine's own
+     * board equality calls equal are one start.
+     *
+     * THE DECLARATION IS THE DATA, and it is the variant's `formation` rather than its `from`: `from` is free
+     * text the corpus's author wrote for a human (`"Lines"`, `"Box"`) and `buildCallImpl` never reads it, while
+     * `formation` is the name resolved against `formations.xml` and is `null` when the tam carried its setup
+     * inline. An inline setup has no name, so it has no formation to stand up from a name — those are skipped
+     * and the level loses nothing, because a formation the corpus does not name is one `recognize` would not
+     * caption either.
+     *
+     * `boardForSetup` RATHER THAN `boardForFormation`, and the difference is the whole point for a board a
+     * player is shown: plain geometry plus declared genders comes back with NO home couple for 129 of the 134
+     * offered formations (its own header carries that measurement), which is a board whose groups cannot be
+     * enumerated. `boardForSetup` puts the canonical couple assignment on top where the registry covers the
+     * name, so the four formations a level asks most questions from (Static Square, Normal Lines, Eight Chain
+     * Thru, Ocean Waves) arrive with real couples.
+     *
+     * TWENTY-TWO OF LEVEL 1'S SIXTY-SEVEN DECLARED FORMATIONS RETURN `null` HERE AND THAT IS NOT A GAP. They
+     * are the half-set authorings — `Facing Couples`, `Wave RH`, `Box RH`, `Diamond LH`, `Two-Faced Line RH`,
+     * `Single Double Pass Thru`, `Opposite Boy`, … — every one authored as TWO dancers, and the engine's
+     * completion rule (`library.ts`'s `toWholeSet`) doubles four to eight and deliberately does not double two,
+     * because two dancers represent a FOUR-dancer setup ("2 dancers in xml is displayed as 4 dancers"). A drill
+     * board is eight dancers, so there is no board to stand up: doubling those four through the origin lands
+     * back on the same four. Measured by class over both shipped pools: all 22 at level 1 and all 34 at level 9
+     * are two-dancer authorings.
+     *
+     * THE RETURNED ARRAY IS SHARED AND CALLERS TREAT IT AS READ-ONLY, exactly as `offered`'s is: the generator
+     * copies it before shuffling, and nothing else writes to it.
+     */
+    startBoards(): Board[] {
+      if (startCache) return startCache;
+      const formations = new Set<string>();
+      for (const name of names) {
+        for (const variant of seq.getVariants(name) ?? []) {
+          if (variant.formation) formations.add(variant.formation);
+        }
+      }
+      // SORTED, so the set does not depend on the order the pool happened to hand its titles over in — the
+      // generator shuffles this, and a shuffled list is only reproducible if the list it shuffled is.
+      const out: Board[] = [];
+      for (const formation of [...formations].sort()) {
+        const board = seq.boardForSetup(formation);
+        if (!board) continue;
+        // DEDUPED WITH THE ENGINE'S OWN BOARD EQUALITY, not with `poseKey`. The two keys differ on purpose: the
+        // caches above must be OVER-sensitive (a heading-only difference changes what is legal, so a shared entry
+        // would serve a wrong list), while this set must not hold two boards that `sameBoardById` calls equal —
+        // those are one picture, and keeping both is a silent double-weighting of that formation in the shuffle.
+        // MEASURED over levels 1, 2, 3, 6, 9 and 12: 1-2 such pairs each (two `Ocean Waves` authorings that differ
+        // only in their declared genders), and in EVERY one of them the two boards offer the same calls — so this
+        // drops a duplicate rather than a variant.
+        if (out.some((kept) => sameBoardById(kept, board))) continue;
+        out.push(board);
+      }
+      startCache = out;
+      return out;
     },
 
     /**

@@ -5,39 +5,50 @@
 // ("L1 is the smallest pool", "depth rises", "the pool grows by 4 a level") and leaves the numbers to the
 // generator, so this file answers the question the prose cannot: WHICH LEVELS CAN ACTUALLY PRODUCE A PUZZLE?
 //
-// MEASURED by `game/tools/measure-ladder.mjs` and by a depth sweep (5 seeds per cell, 50 000-node budget,
-// `optionCount` from `optionCountFor`). Every number below is worst-case wall time for a puzzle at that cell:
+// MEASURED by `game/tools/measure-ladder.mjs` and by a depth sweep (5 seeds per cell, 50 000-node budget). The sweep
+// below is from **the squared-set generator** — the one that opened every question on home — so its timings are that
+// generator's worst-case wall time for one puzzle at the cell. Its option COUNT column is deliberately gone: it was
+// whatever `optionCountFor` returned then, and that floor has since been re-measured (finding 1), so leaving the column
+// would print a number this file no longer agrees with.
 //
-//   pool  depth 2             depth 3
-//   10    2 opts    56 ms     FAILS        <- "no board is reachable in exactly 3 call(s)"
-//   15    2 opts    34 ms     FAILS
-//   20    2 opts   292 ms     2 opts    423 ms   <- depth 3 becomes possible
-//   24    2 opts   494 ms     2 opts   1035 ms
-//   28    2 opts   634 ms     2 opts   1879 ms
-//   32    2 opts   730 ms     2 opts   2662 ms
-//   36    3 opts   834 ms     3 opts   3095 ms   <- 3 options become possible
-//   45    3 opts   971 ms     3 opts   3169 ms
-//   55    3 opts  1442 ms     3 opts   4899 ms
+//   pool  depth 2     depth 3
+//   10        56 ms   FAILS        <- "no board is reachable in exactly 3 call(s)"
+//   15        34 ms   FAILS
+//   20       292 ms   423 ms   <- depth 3 becomes possible
+//   24       494 ms  1035 ms
+//   28       634 ms  1879 ms
+//   32       730 ms  2662 ms
+//   36       834 ms  3095 ms
+//   45       971 ms  3169 ms
+//   55      1442 ms  4899 ms
 //
 // THREE FINDINGS, none of which the design could have known:
 //
-// 1. A 3-OPTION QUESTION NEEDS A POOL OF AT LEAST 35. Below that, the reachable board graph has no route from the
-//    squared set in which every played-from board offers three distinct endings, so the level can only be asked
-//    with TWO options. `optionCount` is therefore a per-level value rather than the constant 3.
+// 1. A 3-OPTION QUESTION NEEDED A POOL OF 35 **ONLY BECAUSE EVERY START WAS A SQUARED SET**, and that was never a
+//    fact about the pool. Below 35 a squared set offers too few calls to carry a three-way question — but the level's
+//    own formations do. RE-MEASURED once the generator began drawing its start from them (`optionCountFor`'s floor is
+//    now a constant again): a three-option question generates from a pool of **5** (5 of 5 seeds) and fails at **4**,
+//    where no start offers three distinct endings. So the floor is the START's fan-out, not the pool's size, and the
+//    per-level `optionCount` survives only because level 1 is pinned to two by product decision.
 //
-// 2. DEPTH 3 NEEDS A POOL OF AT LEAST 20, and that is a HARD floor rather than a cost: at pools 10 and 15 there is
-//    no board reachable in exactly three calls from the squared set at all, so the search has no goal to offer.
-//    This is why `BASE_POOL` is well above the 10 the design first proposed: the Daily is asked in three calls
-//    (DESIGN.md §9), so every level has to be able to answer in three.
+// 2. DEPTH 3 STILL NEEDS A POOL OF AT LEAST 20, and that is a HARD floor rather than a cost — the one finding the
+//    start-board change did NOT move. RE-MEASURED over the same start set: at pools 10 and 15, 0 of 5 seeds find a
+//    named board reachable in exactly three calls from ANY of the level's formations (those pools declare two named
+//    ones); at pool 20, 5 of 5 do. This is why `BASE_POOL` is well above the 10 the design first proposed: the Daily
+//    is asked in three calls (DESIGN.md §9), so every level has to be able to answer in three.
 //
 // 3. DEPTH 3 IS EXPENSIVE — 0.4 s at pool 20 rising to ~4.9 s at pool 55 — and it used to be the reason the ladder
 //    stopped at depth 2, because the CLIENT generated. It does not any more (DESIGN.md §9: the serving layer
-//    generates, the client applies), so depth 3 is a publish-time and per-request cost with a cache in front of
-//    it. WHAT SHIPPED: the Drill keeps `MAX_DEPTH = 2` (its questions are one call at L1 and two after, which is
-//    what a three-button question is for), and the DAILY is asked in `DAILY_DEPTH = 3` calls at every level, which
-//    is the "multi-call, at least three" the mode was specified with.
+//    generates, the client applies), so depth 3 is a publish-time cost with a cache in front of it — and the Daily's
+//    publisher is a midnight trigger (DESIGN.md §9), which is what makes that the right place for it. IT GOT MORE
+//    EXPENSIVE with the start-board change and the re-measurement above says by how much: 5 seeds of 5 at pool 20
+//    worst-case **1.6 s** (was 0.42 s), at pool 25 **2.1 s**, at the shipped level-1 pool **4.0 s** — because a
+//    generation now tries the level's formations in order until one yields a puzzle. WHAT SHIPPED: the Drill keeps
+//    `MAX_DEPTH = 2` (its questions are one call at L1 and two after, which is what a three-button question is for),
+//    and the DAILY is asked in `DAILY_DEPTH = 3` calls at every level, which is the "multi-call, at least three" the
+//    mode was specified with.
 //
-// Both findings are recorded as corrections to DESIGN.md §5, with these numbers.
+// All three findings are recorded as corrections to DESIGN.md §5, with these numbers.
 
 import type { LevelSpec } from './types.ts';
 
@@ -79,10 +90,24 @@ export const MAX_DEPTH = 2;
  */
 export const DAILY_DEPTH = 3;
 
-/** The smallest pool at which a 3-option question generates. See finding 1 above. */
-export const THREE_OPTION_MIN_POOL = 35;
+/**
+ * The smallest pool at which a 3-option question generates. See finding 1 above.
+ *
+ * FIVE, NOT THIRTY-FIVE. The old floor was the SQUARED SET's: from home, a pool below 35 offered too few calls for a
+ * three-way question. The level's own formations do not have that restriction, and RE-MEASURED over them a
+ * three-option question generates from a pool of 5 (5 of 5 seeds) and fails at 4, where no start offers the three
+ * distinct endings the question needs. No shipped level is anywhere near this line — the ladder's floor is
+ * `BASE_POOL` — so this is a documented boundary rather than something a player can reach.
+ */
+export const THREE_OPTION_MIN_POOL = 5;
 
-/** The smallest pool at which a three-call puzzle generates at all. See finding 2 above. */
+/**
+ * The smallest pool at which a three-call puzzle generates at all. See finding 2 above.
+ *
+ * UNMOVED by the start-board change, and re-measured to say so: 0 of 5 seeds at pools 10 and 15 (from any of the two
+ * named formations those pools declare), 5 of 5 at pool 20. This is the floor `BASE_POOL` has to clear, because the
+ * Daily asks three calls at every level.
+ */
 export const DEPTH3_MIN_POOL = 20;
 
 /**

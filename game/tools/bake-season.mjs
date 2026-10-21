@@ -30,11 +30,30 @@ import { applierFor } from '../src/data/corpus-node.ts';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, '..', 'src', 'game', 'season-data.ts');
 
+/**
+ * ONE APPLIER PER LEVEL, built once.
+ *
+ * Constructing a sequencer over a level's calls is the expensive half of generating, and the fixture reuses each
+ * level many times — level 1 a hundred times. MEASURED while this was built inside the loop: the 108-puzzle bake
+ * took **405 s**, against **35 s** with the applier hoisted, and the difference is entirely registration. The probe
+ * that re-generates this file already caches the same way (`test/schedule-fixture-probe.mjs`), so this also keeps
+ * the two runs of the same generation comparable.
+ */
+const runtimes = new Map();
+function runtimeFor(levelIndex) {
+  let entry = runtimes.get(levelIndex);
+  if (!entry) {
+    const level = levelSpec(levelIndex);
+    if (!level) throw new Error(`fixture entry names level ${levelIndex}, which is not a level`);
+    entry = { level, ...applierFor(poolFor(level, MAIN_POOL), level.poolSize) };
+    runtimes.set(levelIndex, entry);
+  }
+  return entry;
+}
+
 const puzzles = [];
 for (const [position, entry] of LOCAL_SCHEDULE.entries()) {
-  const level = levelSpec(entry.levelIndex);
-  if (!level) throw new Error(`fixture entry ${position} names level ${entry.levelIndex}, which is not a level`);
-  const { applier } = applierFor(poolFor(level, MAIN_POOL), level.poolSize);
+  const { level, applier } = runtimeFor(entry.levelIndex);
   const generated = generatePuzzle(generatorConfigFor(FIXTURE_POOL_VERSION, level), entry.seed, level, applier);
   if (!generated.ok) throw new Error(`fixture entry ${position} (level ${entry.levelIndex}, seed ${entry.seed}) does not generate: ${generated.reason}`);
   puzzles.push(generated.puzzle);

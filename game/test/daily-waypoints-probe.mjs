@@ -10,6 +10,16 @@
 // all 12 end in an arrangement different from the start. The expectations below are those numbers, with the control
 // that matters: the route's stages must not be indistinguishable, and the START must not satisfy the goal.
 //
+// RE-MEASURED when the generator started opening on a level's own formations (pool 57, level 1, the same 12 seeds):
+// **9 of 12** visit a new arrangement at every stage, and all 12 still end somewhere different. THE MECHANISM IS NOT A
+// DEFECT and it is the same fact §9.1 records from the other side: a call can leave the SAME arrangement on a different
+// board (a pivot — 49 of 192 legal readings from a squared set), so a three-call route through a start with more of them
+// can pass through one arrangement twice. MEASURED on the three: `Tidal Line RH` → `Bend the Line → Single Circle Left
+// → Single Circle Left 1/2` and `Eight Chain Thru` → `Circle Four Left 1/4` twice. A squared set simply had fewer pivots
+// in its first three calls, which is why the old sample read 11. The floor is therefore re-pinned to the measured value
+// with the direction stated — it may not fall further — and the two controls that do not depend on the start set (the
+// goal differs, and there are two intermediate stages) are unchanged and still exact.
+//
 // Usage: node game/test/daily-waypoints-probe.mjs   (engine must be built)
 import { makeSquaredSet } from 'dancing-squared-engine';
 import { generatePuzzle } from '../src/puzzle/generator.ts';
@@ -49,7 +59,12 @@ console.log('== 1. a generated route visits arrangements, and it visits DIFFEREN
   }
   check(ok === 12, `all 12 seeds generate at level 1 (${ok})`);
   check(goalDiffers === ok, `every route's goal is a DIFFERENT arrangement from its start (${goalDiffers} of ${ok})`);
-  check(everyStageNew >= 10, `and at least 10 of ${ok} visit a new arrangement at every stage (${everyStageNew}) — the property that makes a waypoint sequence legible rather than three names for one setup`);
+  // A FLOOR, and it is the one number here that moved: 11 of 12 from a squared set, 9 of 12 once the start is one of
+  // the level's own formations (see the header for the mechanism — a pivot can make a stage repeat). It may not fall
+  // further. The alternative was to make the generator REFUSE a route with a repeated arrangement, which would gate a
+  // readout the design explicitly makes a guide rather than a gate (DESIGN.md §9.1) and would cost the midnight
+  // publisher a retry per affected seed.
+  check(everyStageNew >= 9, `and at least 9 of ${ok} visit a new arrangement at every stage (${everyStageNew}) — the property that makes a waypoint sequence legible rather than three names for one setup`);
   // NEGATIVE CONTROL FOR THE WHOLE IDEA: if a three-call Daily had FEWER than two intermediate stages there would be no
   // sequence to show. The Daily's depth is the mode's, not the level's (§9), so this is what the picker relies on.
   check(twoWaypoints === ok, `every route has at least two intermediate arrangements to show (${twoWaypoints} of ${ok})`);

@@ -44,10 +44,13 @@ const SUITE = [
   { h: 'call-titles', light: true },
   // A CALL NAME IS READ ONCE, IN ONE PLACE. `readCallName` answers "what call does this string name" for a
   // title, a description (`Promenade to Home`), a spoken name (`Do Sa Do`), a selection over a base call
-  // (`Heads Dosado`), the corpus's two suffix conventions and All8 shorthand — in a MEASURED order, with a
-  // refusal that says what it tried. Its gate pins one case per branch plus the negatives that matter: a
-  // two-call figure is not a name, a title that begins with a selection word stays a title, and a name another
-  // notation decodes but the corpus lacks is refused while NAMING what it decoded. ~1s, no corpus walk.
+  // (`Heads Dosado`), a trailing modifier (`Promenade (Keep Walking)`, `Heads Promenade Half`) and All8
+  // shorthand — in a MEASURED order, with a refusal that says what it tried. `readCallSequence` then answers
+  // for a FIGURE, reading the whole string as one name first so `Head Boys and Side Girls Promenade` stays a
+  // selection while `Girls Swing Thru and Promenade` splits. Its gate pins one case per branch plus the
+  // negatives that matter: a two-call figure is not a NAME, a title that begins with a selection word stays a
+  // title, a name another notation decodes but the corpus lacks is refused while NAMING what it decoded, and a
+  // split with one unreadable part refuses while naming the part. ~1s, no corpus walk.
   { h: 'call-names', light: true },
   // The authoring convention for a shape smaller than the set, measured over all 5963 shipped tams and
   // pinned, plus what the formation registry keeps (210 of 273 declared shapes). In `light` because it

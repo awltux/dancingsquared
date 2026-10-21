@@ -14,8 +14,9 @@
 //      "All 4 Couples Square Thru 2 to a Wave" into a selection plus a base call — and that whole string IS a
 //      corpus title, so a selection-first order would break a published name into a reading nobody authored.
 //      The normalised order is safe: MEASURED, no two of the corpus's 2190 titles collide once case and runs
-//      of whitespace are folded. PUNCTUATION IS KEPT, because titles carry it (`"O" Cross and Turn`,
-//      `Square Thru, on the Second Hand`, `Tidal 3 and 1 Line #1`) and stripping it would lose real names.
+//      of whitespace are folded. PUNCTUATION IS KEPT, because titles carry it — MEASURED, the corpus has titles
+//      with commas, quotes, slashes and brackets (`All Around the Corner, See Saw Your Partner`,
+//      `(From offset columns) "Z" Walk and Dodge`) and folding it away would lose real names.
 //   2. THE ALIAS DICTIONARY (`CALL_ALIAS`) — descriptions that name a call without being its title.
 //   3. THE SPOKEN-NAME TABLE (`CALL_SYNONYMS`, through `canonicalName`) — All8 writes `Do Sa Do` for the
 //      catalogue's `Dosado`. These are DIFFERENTLY NAMED calls, not descriptions, which is why they are a
@@ -23,15 +24,22 @@
 //      shadow a title, and MEASURED, none of the 19 keys is also a title.
 //   4. THE SELECTION (`splitSelection`): "Heads Dosado" is a reading over `Dosado`, and the base call is read
 //      by this same function, recursively, so "Heads Promenade to Home" works as well as "Heads Dosado".
-//   5. THE TWO CORPUS SUFFIXES, structurally. The families spell their modifiers differently and BOTH are
-//      measured in the corpus: the circle family suffixes ` Home` in the TITLE (`Circle Left Home`), while the
-//      promenade family suffixes ` - Keep Walking`. So "Circle Left to Home" finds `Circle Left Home`, and
-//      "Promenade Keep Walking" finds `Promenade - Keep Walking`, without either convention being restated
-//      here — step 1 finds whatever the corpus actually authors.
-//   6. ALL8'S OWN NOTATION (`decodeLine`), last, for a string that is shorthand rather than prose. ONLY WHEN IT
+//   5. THE TRAILING MODIFIER (`MODIFIERS`), for a phrase that changes ONE call rather than adding a second:
+//      `to Home`, `Keep Walking` / `don't stop` / `don't slow down`, `Half`/`Halfway`, `full`/`4/4`, and the
+//      bracketed form `Promenade (Keep Walking)`. Each entry rewrites the stem to the spelling the corpus
+//      authors, so no convention is restated here — step 1 finds whatever the corpus actually has.
+//   6. ALL8'S OWN NOTATION (`decodeLine`), for a string that is shorthand rather than prose. ONLY WHEN IT
 //      YIELDS EXACTLY ONE CALL: `Sw&Pr` is a figure of two calls, not a name, and calling it one would be the
-//      mis-attribution `getout-conformance` exists to prevent.
+//      mis-attribution `getout-conformance` exists to prevent. THE DECODED NAME IS RE-READ by these same
+//      rules, which is what makes `H-Pr1/2` resolve — All8 decodes it to `Heads Promenade 1/2`, a selection
+//      over a title rather than a title.
 //   7. REFUSAL, with what was tried and up to three titles whose words overlap the input.
+//
+// A FIGURE OF SEVERAL CALLS IS A DIFFERENT QUESTION, and `readCallSequence` answers it: it reads the whole
+// string as ONE name first (so `Head Boys and Side Girls Promenade` stays a selection and `All 4 Couples ...`
+// stays a title), and only when that fails does it split — on `;`, on ` and `, and finally through All8's own
+// decoder, which is where `Sw&Pr` becomes `Swing Your Partner; Promenade`. A split is only accepted when EVERY
+// part reads, so a half-understood figure is a refusal rather than a silent truncation.
 //
 // AND A CALL THAT DECODES TO A NAME THE CORPUS LACKS IS A REFUSAL, NOT A MATCH. `SqTh4` decodes to
 // `Square Thru 4`, which `KNOWN_CATALOGUE_GAPS` declares the engine cannot dance; this module reports the
@@ -78,7 +86,7 @@ const SYNONYM_BY_FOLDED = new Map<string, string>();
 for (const [from, to] of Object.entries(CALL_SYNONYMS)) SYNONYM_BY_FOLDED.set(fold(from), to);
 
 /** How a reading was found. Named so a caller can tell a title match from a guess, and a test can pin each. */
-export type CallNameHow = 'title' | 'alias' | 'synonym' | 'selection' | 'suffix' | 'all8' | 'none';
+export type CallNameHow = 'title' | 'alias' | 'synonym' | 'selection' | 'modifier' | 'all8' | 'none';
 
 export interface CallNameReading {
   /** Did this name a call the corpus carries? */
@@ -133,23 +141,77 @@ function readOne(raw: string, tried: string[]): { title: CallTitle | null; how: 
     return { title: canon, how: 'synonym' };
   }
 
-  // THE TWO CORPUS SUFFIXES. `to Home` is the phrase form of the circle family's ` Home` title suffix;
-  // `Keep Walking` is the promenade family's. Neither restates a convention: each retries the TITLE steps
-  // with the spelling the corpus actually uses.
-  for (const [phrase, suffix] of [
-    [' to home', ' home'],
-    [' keep walking', ' - keep walking'],
-  ] as const) {
-    if (!fold(raw).endsWith(phrase)) continue;
-    const base = raw.trim().replace(/\s+/g, ' ');
-    const stem = base.slice(0, base.length - phrase.length);
-    for (const candidate of [`${stem}${suffix}`, stem]) {
-      tried.push(`suffix ${JSON.stringify(candidate)}`);
-      const hit = TITLE_BY_FOLDED.get(fold(candidate));
-      if (hit) return { title: hit, how: 'suffix' };
-    }
+  // THE TRAILING MODIFIER, tried here because it is a spelling of ONE name rather than a second call. See
+  // `MODIFIERS` for the table and the oracle behind each entry.
+  const modified = stripTrailingModifier(raw);
+  if (modified) {
+    tried.push(`modifier ${JSON.stringify(modified.modifier)} -> ${JSON.stringify(modified.rewritten)}`);
+    const hit = TITLE_BY_FOLDED.get(fold(modified.rewritten));
+    if (hit) return { title: hit, how: 'modifier' };
   }
   return { title: null, how: 'none' };
+}
+
+/**
+ * TRAILING MODIFIERS, AS DESCRIPTIONS, mapped onto the spelling this corpus authors — one table for what used to
+ * be two hardcoded suffix rules.
+ *
+ * EVERY ENTRY IS A PHRASE THE ORACLE OR THE CORPUS USES, not an invention:
+ *  - `to home` is the phrase form of the circle family's ` Home` TITLE suffix (`Circle Left Home`), so it
+ *    rewrites to `<stem> home` and lets the title step decide;
+ *  - `keep walking`, `don't stop`, `don't slow down` and the doubled form are CALLERLAB's own words for the
+ *    same command (`callerlab-ms.txt`, Promenade Family: "Promenade, Keep Walking; Promenade, don't stop,
+ *    don't slow down"), and the corpus spells that call `Promenade - Keep Walking`;
+ *  - `half`/`halfway` is the oracle's "Heads Promenade Half (or Halfway)", and the corpus spells the fraction
+ *    `1/2`;
+ *  - `full`/`4/4` is the reverse: a full promenade IS the bare title (the notation table's `Pr4/4` decodes to
+ *    `Promenade` for the same reason), so the modifier is DELETED rather than appended.
+ *
+ * `rewrite` returns the whole candidate string, so a modifier can append, substitute or delete. The longest
+ * matching phrase wins, so "don't stop, don't slow down" is not read as "don't stop".
+ */
+const MODIFIERS: readonly { phrase: string; rewrite: (stem: string) => string }[] = [
+  { phrase: "don't stop, don't slow down", rewrite: (s) => `${s} - keep walking` },
+  { phrase: 'keep walking', rewrite: (s) => `${s} - keep walking` },
+  { phrase: "don't stop", rewrite: (s) => `${s} - keep walking` },
+  { phrase: "don't slow down", rewrite: (s) => `${s} - keep walking` },
+  { phrase: 'to home', rewrite: (s) => `${s} home` },
+  { phrase: 'halfway', rewrite: (s) => `${s} 1/2` },
+  { phrase: 'half', rewrite: (s) => `${s} 1/2` },
+  { phrase: '4/4', rewrite: (s) => s },
+  { phrase: 'full', rewrite: (s) => s },
+];
+
+/**
+ * A trailing modifier and the candidate it rewrites to, or null.
+ *
+ * IT ALSO UNWRAPS PARENTHESES, because "Promenade (Keep Walking)" is how the same modifier is written when it is
+ * an aside: the bracketed tail is removed and offered as the modifier, so the phrase table above can answer for
+ * it instead of a second table for brackets.
+ */
+function stripTrailingModifier(raw: string): { modifier: string; rewritten: string } | null {
+  const text = raw.trim().replace(/\s+/g, ' ');
+  // A bracketed tail, e.g. "Promenade (Keep Walking)". `[^()]*` keeps it to one level, which is all the corpus
+  // and the oracle use; a nested aside is refused rather than mis-split.
+  const bracketed = text.match(/^(.*?)\s*\(([^()]*)\)$/);
+  if (bracketed) {
+    const inside = bracketed[2].trim();
+    const stem = bracketed[1].trim();
+    const known = MODIFIERS.find((m) => fold(m.phrase) === fold(inside));
+    if (known && stem) return { modifier: inside, rewritten: known.rewrite(stem) };
+    return { modifier: inside, rewritten: `${stem} ${inside}` };
+  }
+  // A comma-separated or space-separated tail, LONGEST PHRASE FIRST.
+  for (const mod of [...MODIFIERS].sort((a, b) => b.phrase.length - a.phrase.length)) {
+    for (const sep of [', ', ' ']) {
+      const tail = `${sep}${mod.phrase}`;
+      if (fold(text).endsWith(fold(tail))) {
+        const stem = text.slice(0, text.length - tail.length).trim();
+        if (stem) return { modifier: mod.phrase, rewritten: mod.rewrite(stem) };
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -203,4 +265,59 @@ function read(raw: string, depth: number): CallNameReading {
   }
 
   return { ok: false, title: null, selection: null, how: 'none', tried, suggestions: suggestionsFor(text) };
+}
+
+/** How a sequence was found: as one name, or split by one of the three separators. */
+export type CallSequenceHow = 'single' | ';' | 'and' | 'all8' | 'none';
+
+export interface CallSequenceReading {
+  /** Did EVERY part of this string name a call? */
+  ok: boolean;
+  /** One reading for a single name, or one per part of a figure. Empty on failure. */
+  calls: CallNameReading[];
+  how: CallSequenceHow;
+  /** On failure: every split that was tried, and the part that did not read. */
+  tried: string[];
+}
+
+/**
+ * A FIGURE, READ AS ITS CALLS — one name if that is what it is, several if it is a sequence.
+ *
+ * THE WHOLE STRING IS READ FIRST, and that is the rule that keeps the joins unambiguous. `Head Boys and Side
+ * Girls Promenade` is ONE selection over one call and `Girls Swing Thru and Promenade` is TWO calls; only the
+ * whole-string attempt can tell them apart, because the first reads complete and the second does not. So a
+ * successful single reading always wins, and a split is attempted only when it fails.
+ *
+ * EVERY PART MUST READ. A split that leaves one part unreadable is a REFUSAL that names the part, not a
+ * truncation — "the first three calls of your figure are fine" is exactly the confident-half-answer this repo
+ * keeps paying for (AGENTS.md §11.2.11).
+ *
+ * THE SEPARATORS ARE TRIED IN A FIXED ORDER — `;` (never part of a call name here), then ` and ` (a word that
+ * separates terms as well as calls, which is why the whole-string attempt comes first), then All8's decoder for
+ * shorthand like `Sw&Pr`, which yields the same answer `decodeLine` already publishes.
+ */
+export function readCallSequence(raw: string): CallSequenceReading {
+  const tried: string[] = [];
+  const text = String(raw ?? '').trim();
+  const whole = readCallName(text);
+  if (whole.ok) return { ok: true, calls: [whole], how: 'single', tried: [...whole.tried] };
+  tried.push(...whole.tried);
+
+  const attempts: { how: CallSequenceHow; parts: string[] }[] = [];
+  const semi = text.split(';').map((p) => p.trim()).filter(Boolean);
+  if (semi.length > 1) attempts.push({ how: ';', parts: semi });
+  const and = text.split(/\s+and\s+/i).map((p) => p.trim()).filter(Boolean);
+  if (and.length > 1) attempts.push({ how: 'and', parts: and });
+  const decoded = decodeLine(text);
+  if (decoded.calls.length > 1) attempts.push({ how: 'all8', parts: decoded.calls.map((c) => c.name) });
+
+  for (const attempt of attempts) {
+    const calls = attempt.parts.map((part) => readCallName(part));
+    const bad = calls.map((c, i) => ({ c, part: attempt.parts[i] })).filter((x) => !x.c.ok);
+    tried.push(`split on ${attempt.how} -> ${attempt.parts.length} part(s)${bad.length ? `, ${bad.length} did not read` : ''}`);
+    if (bad.length === 0) return { ok: true, calls, how: attempt.how, tried };
+    for (const x of bad) tried.push(`  part ${JSON.stringify(x.part)} refused`);
+  }
+
+  return { ok: false, calls: [], how: 'none', tried };
 }

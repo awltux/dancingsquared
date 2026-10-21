@@ -9,7 +9,7 @@
 // refusal nobody can act on.
 //
 // Usage: node engine/test/call-names.mjs   (engine must be built: it imports the resolver from dist)
-import { CALL_ALIAS, CALL_SYNONYMS, CALL_TITLE, isCallTitle, readCallName } from '../dist/index.js';
+import { CALL_ALIAS, CALL_SYNONYMS, CALL_TITLE, isCallTitle, readCallName, readCallSequence } from '../dist/index.js';
 
 let failures = 0;
 const check = (ok, what, detail = '') => {
@@ -56,8 +56,19 @@ const cases = [
   ['do sa do', 'Dosado', null, 'synonym'],
   ['Heads Dosado', 'Dosado', 'Heads', 'selection'],
   ['Heads Promenade to Home', 'Promenade', 'Heads', 'selection'], // selection AND the alias, in one string
-  ['Circle Left to Home', 'Circle Left Home', null, 'suffix'], // the circle family's ` Home` title suffix
-  ['Promenade Keep Walking', 'Promenade - Keep Walking', null, 'suffix'], // the promenade family's
+  ['Circle Left to Home', 'Circle Left Home', null, 'modifier'], // the circle family's ` Home` title suffix
+  ['Promenade Keep Walking', 'Promenade - Keep Walking', null, 'modifier'], // the promenade family's
+  // THE MODIFIER TABLE, one case per phrase: CALLERLAB spells these four ways and the corpus spells each one
+  // once. `don't stop, don't slow down` is the longest phrase and must not be read as `don't stop`.
+  ['Promenade, Keep Walking', 'Promenade - Keep Walking', null, 'modifier'], // the comma form of the same thing
+  ['Promenade (Keep Walking)', 'Promenade - Keep Walking', null, 'modifier'], // the bracketed form
+  ["Heads Promenade, don't stop, don't slow down", 'Promenade - Keep Walking', 'Heads', 'selection'],
+  ['Heads Promenade Half', 'Promenade 1/2', 'Heads', 'selection'], // the oracle's "Half (or Halfway)"
+  ['Sides Promenade Halfway', 'Promenade 1/2', 'Sides', 'selection'],
+  ['Promenade 4/4', 'Promenade', null, 'modifier'], // a full promenade IS the bare title, so the modifier deletes
+  ['Promenade Full', 'Promenade', null, 'modifier'],
+  ['Wrong Way Promenade Home', 'Wrong Way Promenade', null, 'alias'],
+  ['Single File Promenade Home', 'Single File Promenade', null, 'alias'],
   ['--AL', 'Allemande Left', null, 'all8'],
   ['SqTh4', 'Square Thru 4', null, 'all8'],
   ['H-Pr1/2', 'Promenade 1/2', 'Heads', 'all8'], // a decoded name that is itself a SELECTION over a title
@@ -102,6 +113,32 @@ console.log('\n== 5. a refusal names its own search ==');
 const refusals = ['Headz Promenade', 'zzz', 'SqTh5'].map((s) => readCallName(s));
 check(refusals.every((r) => r.tried.length >= 2), 'every refusal listed at least two steps it tried', refusals.map((r) => r.tried.length).join(', '));
 check(refusals.every((r) => r.tried[0].startsWith('title ')), 'and every one of them began with the title step', refusals[0].tried[0]);
+
+// ---------------------------------------------------------------- 6. a figure reads as its calls
+console.log('\n== 6. a sequence: the whole string first, then the separators ==');
+const sequences = [
+  // [input, expected how, expected "{title} <selection>" per call]
+  ['Swing Your Partner; Promenade', ';', ['Swing Your Partner', 'Promenade']],
+  ['Girls Swing Thru and Promenade', 'and', ['Swing Thru <Girls>', 'Promenade']],
+  ['Sw&Pr', 'all8', ['Swing Your Partner', 'Promenade']],
+  ['Promenade', 'single', ['Promenade']],
+  // THE AMBIGUITY THAT DECIDES THE ORDER: `and` joins SELECTION TERMS here, so a whole-string reading must win
+  // before any split is attempted. If this ever reports how='and', the rule has been reordered.
+  ['Head Boys and Side Girls Promenade', 'single', ['Promenade <Head Boys and Side Girls>']],
+];
+for (const [input, how, expected] of sequences) {
+  const r = readCallSequence(input);
+  const got = r.calls.map((c) => `${c.title}${c.selection ? ` <${c.selection}>` : ''}`);
+  check(r.ok && r.how === how && JSON.stringify(got) === JSON.stringify(expected), `${JSON.stringify(input)} -> ${JSON.stringify(got)} via ${how}`, JSON.stringify({ ok: r.ok, how: r.how, got }));
+}
+// EVERY PART MUST READ. A split that leaves one part unreadable is a refusal naming the part, never a
+// truncation — "the first call of your figure is fine" is a confident half-answer.
+const half = readCallSequence('Girls Swing Thru and Zzz');
+check(!half.ok && half.tried.some((t) => /part "Zzz" refused/.test(t)),
+  'a figure with one unreadable part refuses and names the part', JSON.stringify(half.tried.slice(-2)));
+// A BRACKETED ASIDE IS NOT NESTED HERE: an inner bracket is refused rather than mis-split, and the refusal says
+// what it tried. Pinned because the bracket rule matches one level on purpose.
+check(!readCallName('Promenade ((Keep Walking))').ok, 'a nested bracketed aside refuses rather than guessing');
 
 console.log(`\ncall-names: ${failures === 0 ? 'PASS' : `FAIL (${failures})`}`);
 process.exit(failures === 0 ? 0 : 1);

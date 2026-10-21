@@ -1953,12 +1953,22 @@ after this phase (floor 20, +4 a level), so the exact figures here are from that
 `api/tools/publish-daily.mjs` runs it (`npm run api:publish-daily`, `--day` and `--levels` to narrow it) and
 `GET /puzzle?mode=daily&level&date` serves what it wrote.
 
-**THE READ GENERATES, ONCE PER SEED.** The clause that used to govern this endpoint — "a read of the published
-artefact, not a generation per request" — was about the CLIENT not generating, and it is superseded by §9's
-reversal: the client generates nothing, so the read has to answer with the boards. `puzzleFor` caches them, so the
-first read of a `(level, day)` pays one generation and every later read is a `Map` lookup; the response is the
-stored seed, level and pool version, a `playable` flag for this build's pool, and the puzzle (null when the pool is
-not this build's). The stored artefact is still the seed, because `POST /runs` re-derives from it to verify.
+**THE READ DOES NOT GENERATE, AND IT NO LONGER HOLDS THE REQUEST.** The clause that used to govern this endpoint —
+"a read of the published artefact, not a generation per request" — was about the CLIENT not generating, and it is
+superseded by §9's reversal: the client generates nothing, so the read has to answer with the boards. It DID generate,
+INSIDE the request, and that is a defect measured from the outside: a Daily generation costs **9.4-15.1 s** (§7.1), so
+one read held a connection open for that long while every other request queued behind it — reported as *"the Today's
+Daily button … the app still hangs"*, then *"it needs an asynchronous mechanism to poll if Todays Daily is available"*.
+So the read now answers **`202 Accepted { daily: { …, ready: false, puzzle: null } }`** and starts the generation for
+AFTER the response (`levels.ts`'s `preparePuzzle` defers it on a timer); the client POLLS (`waitForDaily`, 1.5 s apart
+and bounded), and the answer that carries the puzzle is `200 { ready: true }`. The stored artefact is still the seed,
+because `POST /runs` re-derives from it to verify — one derivation, read by every reader.
+
+**IT DOES NOT KEEP THE SERVER RESPONSIVE WHILE THE GENERATION RUNS**, and that is stated rather than implied: the
+generator is synchronous CPU work, so the process is busy for those seconds once the work starts. What the 202 buys is
+that no REQUEST waits on it — the client's requests are short, the button says what is happening, and the player can
+play drills. The next step, if the residual block still bites, is a worker thread; it is not done here, and the 202 is
+the shape that would not have to change if it were.
 
 **MEASURED, by `api/test/daily-puzzle-probe.mjs`** (39 checks, 5 controls; no DynamoDB needed, because this
 path is a store read and a pure derivation):

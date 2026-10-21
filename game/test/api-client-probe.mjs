@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, recordDrillReveal, replayDrill, spendHint, submitRun, waitForDaily } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -272,6 +272,51 @@ console.log('\n== 5. the Daily is a READ of the published challenge ==');
   const intolerant = deps('http://localhost:8090', slowFetch);
   const aborted = await issueDrill(1, { ...intolerant.api, timeoutMs: 1 });
   check(aborted.ok === false && aborted.failure.code === 'unreachable', `NEGATIVE CONTROL: the same 1 ms window aborts a drill read (${aborted.failure?.code})`);
+}
+
+console.log('\n== 5b. the Daily is POLLED until the server has created it ==');
+{
+  // REPORTED: "the app still hangs … it needs an asynchronous mechanism to poll if Todays Daily is available."
+  // The server answers `202 { ready: false }` while it generates (a read never generates — `api/handlers/puzzle.ts`),
+  // so the client asks again rather than waiting inside one request for the ten-odd seconds a creation costs.
+  const CHALLENGE = { day: '2026-10-15', levelIndex: 2, seed: 1268207204, poolVersion: 'ms-1', publishedAtMs: 1700000000000, playable: true, puzzle: { ...PUZZLE, mode: 'daily', level: { index: 2, poolSize: 15, depth: 1, optionCount: 2 } } };
+  const NOT_READY = { ...CHALLENGE, ready: false, puzzle: null, readings: [] };
+  const READY = { ...CHALLENGE, ready: true };
+  let asked = 0;
+  const notReadyTwice = () => {
+    asked++;
+    return { status: asked <= 2 ? 202 : 200, body: { daily: asked <= 2 ? NOT_READY : READY } };
+  };
+  const wired = deps('http://localhost:8090', notReadyTwice);
+  let waited = 0;
+  const answer = await waitForDaily(2, '2026-10-15', wired.api, { attempts: 10, intervalMs: 1, onWait: () => waited++ });
+  check(answer.ok === true && answer.value.ready === true, `the poll returns the challenge once it is ready (${answer.ok}, ready ${answer.value?.ready})`);
+  check(answer.value.puzzle?.steps.length === 1, `with its boards (${answer.value?.puzzle?.steps?.length} step(s))`);
+  check(asked === 3, `it asked THREE times for two "not ready" answers (${asked})`);
+  check(waited === 2, `and reported each wait, which is what the panel's message is driven from (${waited})`);
+
+  // A REFUSAL IS FINAL AND IS NOT RETRIED: a day nobody published, a foreign pool and an unreachable server all mean
+  // "asking again will not help", and a loop that retried them would spin for a minute before saying so.
+  let refusedCalls = 0;
+  const refuse = () => {
+    refusedCalls++;
+    return { status: 404, body: { error: { code: 'no_published_daily', message: 'level 2 has no published challenge for 2026-10-16' } } };
+  };
+  const dead = deps('http://localhost:8090', refuse);
+  const stopped = await waitForDaily(2, '2026-10-16', dead.api, { attempts: 10, intervalMs: 1 });
+  check(stopped.ok === false && stopped.failure.code === 'no_published_daily', `NEGATIVE CONTROL: a refusal comes back as itself (${stopped.failure?.code})`);
+  check(refusedCalls === 1, `NEGATIVE CONTROL: and is NOT retried — one request, not ten (${refusedCalls})`);
+
+  // THE BUDGET IS BOUNDED: a server that is never ready is given up on rather than polled for ever, and the last answer
+  // is what the caller sees, so the panel can say the server did not finish.
+  let neverReady = 0;
+  const stuck = deps('http://localhost:8090', () => {
+    neverReady++;
+    return { status: 202, body: { daily: NOT_READY } };
+  });
+  const gaveUp = await waitForDaily(2, '2026-10-15', stuck.api, { attempts: 3, intervalMs: 1 });
+  check(gaveUp.ok === true && gaveUp.value.ready === false, `a server that never finishes is given up on with its last answer (${gaveUp.value?.ready})`);
+  check(neverReady === 3, `after exactly the attempt budget (${neverReady})`);
 }
 
 console.log('\n== 6. advancing sends the drill id it is advancing ==');

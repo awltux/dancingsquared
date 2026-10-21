@@ -19,7 +19,7 @@ import { attemptKey, publishedDailyKey } from '../keys.ts';
 import { failure, optionalIdentity, STATUS } from '../status.ts';
 import { dayParam, levelParam } from '../query.ts';
 import { asAttempt, asAttemptItem, startAttempt } from '../attempt-row.ts';
-import { levelAt, puzzleFor, startReadings } from '../levels.ts';
+import { cachedPuzzle, levelAt, preparePuzzle, startReadings } from '../levels.ts';
 
 /** The one mode this endpoint serves, named so the refusal can say what was asked for instead. */
 const MODE = 'daily';
@@ -69,14 +69,41 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
     // against it. A disagreeing row is a corrupt row, and generating at the query's level would publish a puzzle
     // under a level number it was not generated at — the §7.2 rule the drill's schedule lint exists to enforce.
     const dailyLevel = levelAt(value.levelIndex);
-    const generated = puzzleFor(value.seed, dailyLevel, 'daily');
-    if (!generated.ok) {
-      return failure(STATUS.unavailable, 'unplayable_daily', `the published challenge for ${day} does not generate: ${generated.reason}`);
+    // A READ NEVER GENERATES, and that is the fix for "the app still hangs". MEASURED: a Daily generation costs
+    // 9.4-15.1 s, and doing it inside this request held the connection open for that long while every other request
+    // queued behind it on a single-threaded server. So a miss answers `202 Accepted { ready: false }` and STARTS the
+    // work for after this response, and the client POLLS (`dailyChallenge`'s loop). Nothing here waits.
+    const ready = cachedPuzzle(value.seed, dailyLevel, 'daily');
+    if (!ready) {
+      preparePuzzle(value.seed, dailyLevel, 'daily');
+      if (identity) {
+        const stamped = await stampAttempt(deps, identity.playerId, levelIndex, day);
+        if ('refusal' in stamped) return stamped.refusal;
+      }
+      return {
+        status: STATUS.accepted,
+        body: {
+          daily: {
+            day,
+            levelIndex: value.levelIndex,
+            seed: value.seed,
+            poolVersion: value.poolVersion,
+            publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
+            playable,
+            ready: false,
+            puzzle: null,
+            readings: [],
+          },
+        },
+      };
     }
-    puzzle = generated.puzzle;
+    if (!ready.ok) {
+      return failure(STATUS.unavailable, 'unplayable_daily', `the published challenge for ${day} does not generate: ${ready.reason}`);
+    }
+    puzzle = ready.puzzle;
     // THE START BOARD'S GROUPED LIST, so the picker draws without the client paying `applicableMoves` first. It is a
     // pure function of the board and the level's pool, and the applier is already warm from the generation.
-    readings = startReadings(generated.puzzle, dailyLevel);
+    readings = startReadings(ready.puzzle, dailyLevel);
   }
 
   if (identity) {
@@ -94,6 +121,10 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
         poolVersion: value.poolVersion,
         publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
         playable,
+        // `ready` IS THE POLLING FLAG and it is redundant with `puzzle` on purpose: a client that only looked at
+        // `puzzle` could not tell "not generated yet, ask again" from "this build cannot draw it" (the `playable:
+        // false` case, where `puzzle` is null too). Both answers carry a puzzle-less `daily`.
+        ready: true,
         puzzle,
         readings,
       },

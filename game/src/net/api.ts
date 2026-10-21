@@ -397,6 +397,15 @@ export interface DailyChallenge {
    * is parsed leniently and defaulted to null.
    */
   readonly readings: MoveReading[] | null;
+  /**
+   * WHETHER THE PUZZLE IS READY, or the server is still creating it — the flag the poll loop reads.
+   *
+   * THE SERVER ANSWERS `202 Accepted { ready: false }` while it generates, because generating a Daily costs 9.4-15.1 s
+   * (DESIGN.md §7.1) and holding one request open for it stalled every other request behind it on a single-threaded
+   * server. `puzzle` is null in that answer, and ALSO null for a challenge this build cannot play, which is why the two
+   * are told apart by this flag rather than by the puzzle's absence.
+   */
+  readonly ready: boolean;
 }
 
 /**
@@ -447,10 +456,51 @@ export async function dailyChallenge(level: number, day: string, deps: ApiDeps =
       poolVersion: typeof value.poolVersion === 'string' ? value.poolVersion : '',
       publishedAtMs: typeof value.publishedAtMs === 'number' ? value.publishedAtMs : null,
       playable: value.playable !== false,
+      // A SERVER THAT DOES NOT SEND THE FLAG IS ASSUMED READY, which is what every build before this one meant by
+      // sending a puzzle: `ready` is `true` unless the answer says otherwise.
+      ready: value.ready !== false,
       puzzle: value.puzzle === undefined || value.puzzle === null ? null : parsePuzzle(value.puzzle),
       readings: value.readings === undefined || value.readings === null ? null : parseReadings(value.readings),
     },
   };
+}
+
+/**
+ * `dailyChallenge` AS A POLL: today's challenge, asked for until the server has finished creating it.
+ *
+ * WHY A POLL AND NOT ONE LONG REQUEST. The server used to generate the puzzle inside `GET /puzzle`, which cost 9.4-15.1 s
+ * (DESIGN.md §7.1) and held that connection open while every other request queued behind it — reported as "the app
+ * still hangs" even after the button grew a spinner, because a spinner on a blocked server is a spinner forever. The
+ * read now answers `202 { ready: false }` and starts the work, so what the client does is ASK AGAIN rather than WAIT.
+ *
+ * EACH ATTEMPT IS A SHORT REQUEST, so `apiCall`'s window is no longer a claim about how long a creation takes: a poll
+ * that times out is just a poll to retry. The overall bound is `attempts × interval` and it is deliberately generous —
+ * this is a background wait the player is not blocked on (they can play drills, and the button says what is happening).
+ *
+ * IT STOPS ON THE FIRST ANSWER THAT IS NOT "NOT READY", and that includes a refusal: a day nobody published, a pool this
+ * build cannot play and an unreachable server are all final, and retrying them would spin for ever.
+ */
+export async function waitForDaily(
+  level: number,
+  day: string,
+  deps: ApiDeps = browserDeps(),
+  options: { readonly attempts?: number; readonly intervalMs?: number; readonly onWait?: () => void } = {},
+): Promise<ApiResult<DailyChallenge>> {
+  const attempts = options.attempts ?? 40;
+  const intervalMs = options.intervalMs ?? 1500;
+  let last: ApiResult<DailyChallenge> = { ok: false, failure: { code: 'not_ready', message: 'the challenge was never asked for' } };
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    last = await dailyChallenge(level, day, deps);
+    if (!last.ok || last.value.ready) return last;
+    options.onWait?.();
+    await sleep(intervalMs);
+  }
+  return last;
+}
+
+/** A delay, named so the poll reads as one and a probe can reason about the interval. */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /** A completed run, as `POST /runs` takes it. `calls` is the transcript: one call per step for the Drill. */

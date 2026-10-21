@@ -97,7 +97,7 @@ const puzzles = new Map<string, GenerateResult>();
 const MAX_CACHED_PUZZLES = 64;
 
 export function puzzleFor(seed: number, level: LevelSpec, mode: PuzzleMode): GenerateResult {
-  const key = `${mode}:${level.index}:${seed}`;
+  const key = puzzleKey(seed, level, mode);
   const cached = puzzles.get(key);
   if (cached) return cached;
   // THE DAILY IS ASKED IN ITS OWN DEPTH, applied at this boundary: `DAILY_DEPTH` calls at every level, where the
@@ -107,6 +107,45 @@ export function puzzleFor(seed: number, level: LevelSpec, mode: PuzzleMode): Gen
   if (puzzles.size >= MAX_CACHED_PUZZLES) puzzles.clear();
   puzzles.set(key, generated);
   return generated;
+}
+
+/** The cache key for one puzzle: the mode, the level and the seed, as `puzzleFor` documents. */
+function puzzleKey(seed: number, level: LevelSpec, mode: PuzzleMode): string {
+  return `${mode}:${level.index}:${seed}`;
+}
+
+/**
+ * The puzzle ONLY IF IT IS ALREADY IN THE CACHE, or null — the half of `puzzleFor` a READ may ask without paying for a
+ * generation.
+ *
+ * WHY THIS EXISTS. Generating a Daily costs 9.4-15.1 s (MEASURED, DESIGN.md §7.1), and `GET /puzzle` used to generate
+ * INSIDE the request: one read held the connection open for that long, and on a single-threaded server every other
+ * request queued behind it — reported as "the Today's Daily button … the app still hangs". The read now answers
+ * `202 Accepted { ready: false }` and the client POLLS, so the work is started once and observed, never waited on
+ * inside one request.
+ */
+export function cachedPuzzle(seed: number, level: LevelSpec, mode: PuzzleMode): GenerateResult | null {
+  return puzzles.get(puzzleKey(seed, level, mode)) ?? null;
+}
+
+/**
+ * START the generation for a puzzle, without waiting for it, so a `202` can be answered first.
+ *
+ * THE DEFERRAL IS THE POINT. `puzzleFor` is synchronous CPU work, so a caller that awaited it would block the very
+ * response it is trying to send. `setTimeout(0)` puts it after the current turn, which is after the handler has
+ * returned and the HTTP layer has flushed — so the client gets its `202` before the work begins.
+ *
+ * IT IS NOT A QUEUE, and that is deliberate rather than a shortcut: two reads that arrive while nothing is cached both
+ * schedule a generation, and the second one is a cache HIT by the time it runs (the first has finished), so at most one
+ * generation's worth of work happens. A real queue would have to track in-flight keys and would not make the CPU work
+ * any cheaper. What it does NOT do is keep the server responsive DURING the generation — that is a worker thread or a
+ * separate process, and is the next step if this still bites (recorded in the commit that added this).
+ */
+export function preparePuzzle(seed: number, level: LevelSpec, mode: PuzzleMode): void {
+  if (cachedPuzzle(seed, level, mode)) return;
+  setTimeout(() => {
+    puzzleFor(seed, level, mode);
+  }, 0);
 }
 
 /**

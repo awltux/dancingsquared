@@ -14,6 +14,15 @@ import type { ApiRequest, ApiResult, Deps, Identity } from './ports.ts';
 /** The status codes this API uses, named so a probe and a reader agree about them rather than by number. */
 export const STATUS = {
   ok: 200,
+  /**
+   * THE ANSWER IS "ASK AGAIN": the resource exists but is not READY to be served yet.
+   *
+   * ONE CALLER: `GET /puzzle`, which answers 202 while the Daily's puzzle is being generated instead of holding the
+   * request open for it. MEASURED, generating a Daily costs 9.4-15.1 s (DESIGN.md §7.1) — far too long to sit inside a
+   * single request on a server that has other work to do — so the read says "not ready" and the client POLLS. The body
+   * is still a `daily`, with `ready: false` and no puzzle, so a client can show which day and level it is waiting for.
+   */
+  accepted: 202,
   badRequest: 400,
   unauthenticated: 401,
   forbidden: 403,

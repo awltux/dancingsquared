@@ -224,5 +224,48 @@ console.log('\n== 7. the READ is what starts the Daily clock (A21) ==');
   check(unreadable.status === STATUS.unavailable && unreadable.body.error.code === 'unreadable_attempt', `and an attempt row this build cannot read is refused (${unreadable.status} ${unreadable.body.error?.code})`);
 }
 
+console.log('\n== 8. a COLD read says "not ready" and starts the work, instead of holding the request ==');
+{
+  // REPORTED: "the app still hangs … it needs an asynchronous mechanism to poll if Todays Daily is available."
+  // A Daily generation costs 9.4-15.1 s (DESIGN.md §7.1) and the read used to do it INSIDE the request, so one read
+  // held the connection while every other request queued behind it. The read is now 202 plus a DEFERRED generation.
+  //
+  // GETTING A COLD CACHE IS A MEASUREMENT, NOT A TRICK: the puzzle cache is cleared wholesale at its bound
+  // (`MAX_CACHED_PUZZLES`), so filling it with DRILL puzzles — one call deep and cheap — evicts the Daily. Filling it
+  // with dailies would have taken minutes and proved the same thing.
+  const store = new MemoryStore();
+  await publishDay(store, DAY, { levels: [1], nowMs: CLOCK });
+  const deps = depsFor(store);
+  const query = { mode: 'daily', level: '1', date: DAY };
+
+  // WARM FIRST, so the check below is about the CLEAR rather than about the probe's own ordering.
+  const warm = await getPuzzle(ask(null, query), deps);
+  check(warm.status === STATUS.ok && warm.body.daily.puzzle !== null, `a warm read answers the puzzle (${warm.status})`);
+  check(warm.body.daily.ready === true, 'and says it is ready');
+
+  for (let seed = 1; seed <= 70; seed++) puzzleFor(seed, levelAt(1), 'drill');
+  const cold = await getPuzzle(ask(null, query), deps);
+  check(cold.status === STATUS.accepted, `a read after the cache was cleared answers 202 rather than generating (${cold.status})`);
+  check(cold.body.daily.ready === false && cold.body.daily.puzzle === null, 'with ready:false and no puzzle — the flag the poll loop reads');
+  check(cold.body.daily.day === DAY && cold.body.daily.seed > 0, `and it still names the challenge it is waiting for (${cold.body.daily.day}, seed ${cold.body.daily.seed})`);
+  // NEGATIVE CONTROL: this is NOT a refusal, and a client that read it as one would give up on a challenge that is
+  // about to exist. The absence of an error body is what makes it a poll rather than a failure.
+  check(cold.body.error === undefined, 'NEGATIVE CONTROL: and it is not an error body — it is "ask again"');
+
+  // THE WORK WAS STARTED FOR AFTER THE RESPONSE: a later read finds it ready. `preparePuzzle` defers on a timer, so the
+  // probe yields the event loop, exactly as a poll a second later would.
+  let landed = 0;
+  for (let spin = 0; spin < 400 && !landed; spin++) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+    const again = await getPuzzle(ask(null, query), deps);
+    if (again.status === STATUS.ok && again.body.daily.ready === true && again.body.daily.puzzle !== null) {
+      landed = spin + 1;
+      check(true, `the deferred generation lands and the next read answers the puzzle (after ${landed} poll(s))`);
+      check(again.body.daily.puzzle.steps.length > 0, `and it is a real puzzle (${again.body.daily.puzzle.steps.length} step(s))`);
+    }
+  }
+  check(landed > 0, 'the deferred generation landed at all');
+}
+
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

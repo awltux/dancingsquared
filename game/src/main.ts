@@ -36,7 +36,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, fetchLeaderboard, importLedger, issueDrill, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, waitForDaily, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -1662,7 +1662,17 @@ async function fetchDaily(day: string, levelIndex: number): Promise<void> {
   // whole app was a black page with one centred sentence, so the press looked like a freeze and the tab buttons could
   // not be reached. What the player gets instead is the button's own pending state (`setDailyBusy`) and, on the Daily
   // tab, the panel's own message — both of which leave the app VISIBLE and the drills usable.
-  const answer = await dailyChallenge(levelIndex, day);
+  // AND IT IS A POLL, not one long request: the server answers `202 { ready: false }` while it creates the challenge
+  // (a read never generates — `api/handlers/puzzle.ts`), so this asks again every 1.5 s rather than waiting inside a
+  // single request for the ten-odd seconds a creation costs. The player is not blocked either way — they can be playing
+  // a drill while this runs — which is the whole of "allows the user to continue with drills until it's ready".
+  const answer = await waitForDaily(levelIndex, day, browserDeps(), {
+    onWait: () => {
+      // THE PANEL IS UPDATED ONLY WHERE IT IS ON SCREEN: in the Drill mode the player is looking at a board, and the
+      // button's spinner is the whole indicator there.
+      if (mode === 'daily') dailyScreen.pending("Waiting for the server to finish creating today's challenge — you can keep drilling until it is ready.");
+    },
+  });
   // THE ANSWER IS FOR A LEVEL THE PLAYER MAY HAVE LEFT — a level change while it was in flight — so it is dropped
   // rather than applied to a regime it does not belong to. The next request for the new level starts its own.
   if (level?.index !== levelIndex) return;

@@ -9,12 +9,16 @@
 // boards reachable from one another by a rotation are the same SHAPE and different ARRANGEMENTS, and a
 // caller choosing a start is choosing the second thing.
 //
-// MEASURED, and the report that prompted this: `Columns`, `Columns LH`, `Column RH GBGB` and
-// `Column LH GBGB` all stand on the same four spots. `Columns` and `Column RH GBGB` are identical spot
-// for spot; `Columns LH` is the 180-degree rotation of them (every dancer at the antipode, facing the
-// other way); `Column LH GBGB` is `Columns LH` with the genders swapped. The engine's matcher reports
+// MEASURED, and the report that prompted this: `Columns`, `Column RH GBGB`, `Columns LH BGBG` and
+// `Column LH GBGB` all stand on the same eight spots (the corpus writes the half set and the picker
+// completes it), and they are FOUR different arrangements, because the key below carries heading AND
+// gender: no two are equal under it, and none is another's gender swap. The engine's matcher reports
 // `reflect: true`, `rotation: NaN` on these half-set boards and accepts a reflection as a match, so
-// keyed on it the picker offered ONE entry where there are three distinct arrangements.
+// keyed on it the picker offered ONE entry where the corpus names four.
+//
+// AND THE NAMES ARE NOT THE LIBRARY'S, which is how section 4 went wrong before: it asked for
+// `Columns LH`, a name this corpus has never carried, so that check was red for ever and the two
+// witnesses beneath it silently skipped (AGENTS.md §11.2.2).
 //
 // THE KEY IS POSITIONAL - same spot, same heading, same gender - and the counts below are what that
 // keeps. The reimplementation here is deliberate, like `shape-census`'s: a harness that calls the
@@ -83,7 +87,18 @@ console.log('arrangement-picker: the composition of the Start/End setup lists\n'
 
 // ---------------------------------------------------------------- 1. the counts, and the shape of them
 console.log('1. what the list holds, per size');
-const EXPECT = { 2: 6, 4: 48, 6: 1, 8: 201, 16: 0 };
+//
+// RE-PINNED, DIRECTION WIDER. The corpus gained twelve named formations since these counts were pinned
+// (`7cbb693`): 280 formations there, 292 here, and NOTHING was removed (measured). The growth reaches
+// exactly these pins, by size - four 2-dancer (`Adjacent Dancers`, `Close`, `Compact`, `Far`), one
+// 4-dancer (`Corner Dancers Far`) and seven 8-dancer (the two `Right and Left Grand`/`Wrong Way Grand`
+// static squares and circles, `Four Dancer Star Promenade` and its Wrong Way, `Alamo Wave Inverted`):
+// 2 -> 10, 4 -> 49, 8 -> 209.
+//
+// THE EIGHT-DANCER PIN WAS ALREADY ONE BEHIND ITS OWN COMMIT, and that part is NOT attributed: run
+// against `7cbb693`'s own corpus, this file counts 202 where the pin said 201, so the check has been
+// red since the commit that added it. The widening is therefore 201 -> 209, not six additions.
+const EXPECT = { 2: 10, 4: 49, 6: 1, 8: 209, 16: 0 };
 const bySize = new Map();
 for (const size of [2, 4, 6, 8, 16]) {
   const kept = arrangementsOfSize(size);
@@ -114,14 +129,17 @@ for (const [size, kept] of bySize) {
 check(crossSize.length === 0, 'no arrangement is offered at two sizes', crossSize.join(', '));
 
 // ---------------------------------------------------------------- 4. the reported case, exactly
-console.log('\n4. the four names that started this - three arrangements, not one');
+console.log('\n4. the four "Columns" names that started this - four arrangements on one set of spots');
+//
+// MEASURED AND RE-PINNED. The corpus names four formations on those eight spots and the key says they
+// are four arrangements, so ALL FOUR are offered - a fold here would mean the key had stopped carrying
+// gender, which is the bug this harness exists for.
+//
+// THE NAMES ARE THE CONTROL. `Columns LH` is not a formation name; the corpus spells the left-hand
+// family `Columns LH BGBG` and `Column LH GBGB`. Until this list named only real ones, `p('Columns LH')`
+// was `undefined` forever - red for the offered check and silent for the two blocks beneath it.
 const size8 = bySize.get(8);
-const offered = new Set(size8.map((f) => f.name));
-for (const n of ['Columns LH', 'Column RH GBGB', 'Column LH GBGB']) check(offered.has(n), `${n} is offered`);
-// `Columns` is the same board as `Column RH GBGB` under two names, and `Column RH GBGB` wins in name
-// order, so the picker keeps one row and it is that one.
-check(!offered.has('Columns'), 'Columns is folded (same board as Column RH GBGB)');
-
+const COLUMNS = ['Columns', 'Column RH GBGB', 'Columns LH BGBG', 'Column LH GBGB'];
 const posesOf = (name) => {
   const ds = all.get(name);
   return ds ? completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }))) : null;
@@ -129,38 +147,61 @@ const posesOf = (name) => {
 // `parseFormations` is keyed by name including case, and the corpus spells these with a lower-case `l`
 // in "3 and 1 lines" - so a direct `get` is what this needs, and `null` means the name moved.
 const p = (n) => posesOf(n);
-check(p('Columns') !== null && p('Column RH GBGB') !== null, 'the corpus still carries both Columns spellings');
-if (p('Columns') && p('Column RH GBGB')) {
-  check(sameArrangement(p('Columns'), p('Column RH GBGB')), 'Columns == Column RH GBGB, spot for spot');
+const unresolved = COLUMNS.filter((n) => p(n) === null);
+check(unresolved.length === 0, 'all four Columns names resolve to a formation', unresolved.join(', '));
+
+const offered = new Set(size8.map((f) => f.name));
+for (const n of COLUMNS) check(offered.has(n), `${n} is offered`);
+
+const spotSet = (poses) => new Set(poses.map((q) => `${q.x.toFixed(2)},${q.y.toFixed(2)}`));
+const spotsOf = COLUMNS.map((n) => (p(n) ? spotSet(p(n)) : new Set()));
+const [reference] = spotsOf;
+const sameSpots =
+  reference.size > 0 && spotsOf.every((s) => s.size === reference.size && [...s].every((k) => reference.has(k)));
+check(sameSpots, 'all four stand on the same eight spots', spotsOf.map((s) => s.size).join(', '));
+check(reference.size === 8, 'and that set is eight spots, not four', `${reference.size}`);
+
+// THE POINT. Four names, four arrangements: the positional key must not fold any pair.
+const pairs = [];
+for (let i = 0; i < COLUMNS.length; i++) {
+  for (let j = i + 1; j < COLUMNS.length; j++) pairs.push([COLUMNS[i], COLUMNS[j]]);
 }
-if (p('Columns') && p('Columns LH')) {
-  // THE POINT. `Columns LH` stands on the same spots as `Columns` and is still a different board,
-  // because each dancer is at the antipode of the other's spot facing the other way.
-  const a = p('Columns'), b = p('Columns LH');
-  const sameSpots = new Set(a.map((q) => `${q.x.toFixed(2)},${q.y.toFixed(2)}`));
-  const sameSpotSet =
-    b.every((q) => sameSpots.has(`${q.x.toFixed(2)},${q.y.toFixed(2)}`)) &&
-    sameSpots.size === new Set(b.map((q) => `${q.x.toFixed(2)},${q.y.toFixed(2)}`)).size;
-  const headingShift = Math.abs(((b[0].heading - a[0].heading) / DEG + 360) % 360 - 180);
-  check(sameSpotSet, 'Columns and Columns LH stand on the same spots');
-  check(headingShift < 0.001, 'Columns LH is Columns rotated 180 degrees', `heading delta ${headingShift}`);
-  check(!sameArrangement(a, b), 'and they are nevertheless DIFFERENT arrangements');
-}
-if (p('Columns LH') && p('Column LH GBGB')) {
-  check(!sameArrangement(p('Columns LH'), p('Column LH GBGB')), 'Columns LH != Column LH GBGB (genders differ)');
+for (const [a, b] of pairs) {
+  if (!p(a) || !p(b)) {
+    check(false, `${a} != ${b} (a name did not resolve)`);
+    continue;
+  }
+  check(!sameArrangement(p(a), p(b)), `${a} != ${b}`);
 }
 
 // ---------------------------------------------------------------- 5. the rotational families it keeps
 console.log('\n5. rotations the congruence key folded, now kept as separate arrangements');
-// Measured: each of these is a 180-degree rotation of its partner, and the old key kept only one.
+// These four pairs are the SECOND half of the reported defect, and the reason the picker may not be
+// built from the library's congruence key: each pair stands on one set of spots, a half turn apart, and
+// the old key offered only one of each. That claim is MEASURED here rather than stated in a title -
+// "both are offered" alone would pass on any two names and prove nothing about the folding.
+const isHalfTurnApart = (a, b) => {
+  if (!a || !b || a.length !== b.length) return false;
+  const at = new Map(b.map((q) => [`${q.x.toFixed(2)},${q.y.toFixed(2)}`, q]));
+  return a.every((q) => {
+    const m = at.get(`${q.x.toFixed(2)},${q.y.toFixed(2)}`);
+    if (!m) return false;
+    return Math.abs((((m.heading - q.heading) / DEG + 360) % 360) - 180) < 0.01;
+  });
+};
 for (const [a, b] of [
   ['Tidal 3 and 1 Line #1', 'Tidal 3 and 1 Line #5'],
   ['Tidal 3 and 1 Line #2', 'Tidal 3 and 1 Line #6'],
   ['Tidal Wave', 'Tidal Wave LH BGGB'],
   ['Stars RH', 'Stars LH'],
 ]) {
-  if (!offered.has(a) || !offered.has(b)) { check(false, `${a} and ${b} both offered`, `${a}=${offered.has(a)} ${b}=${offered.has(b)}`); continue; }
+  if (!offered.has(a) || !offered.has(b)) {
+    check(false, `${a} and ${b} both offered`, `${a}=${offered.has(a)} ${b}=${offered.has(b)}`);
+    continue;
+  }
   check(true, `${a} and ${b} both offered`);
+  check(isHalfTurnApart(p(a), p(b)), `${a} and ${b} stand on one set of spots, a half turn apart`);
+  check(!sameArrangement(p(a), p(b)), `${a} and ${b} are nevertheless different arrangements`);
 }
 
 // ---------------------------------------------------------------- 6. the library's names are covered
@@ -172,7 +213,12 @@ const calls = readdirSync(msDir)
   .map((f) => ({ name: f.replace(/\.xml$/, ''), xml: readFileSync(new URL(f, msDir), 'utf8') }));
 const seq = new Sequencer(movesXml, formationsXml, calls);
 const libNames = seq.listFormations();
-check(libNames.length === 134, 'the library still holds 134 names', `got ${libNames.length}`);
+// RE-PINNED WITH THE COUNTS ABOVE, SAME WIDENING AND SAME COMMIT. `listFormations()` derives its names
+// from the corpus's formations, so the twelve additions moved it too: 134 -> 138, nothing removed. The
+// four new names are `Four Dancer Star Promenade`, `Right and Left Grand Circle`, `Right and Left Grand
+// Static Square` and `Wrong Way Four Dancer Star Promenade` (measured against `7cbb693`'s corpus; the
+// other eight additions were already known to the library under another name or size).
+check(libNames.length === 138, 'the library still holds 138 names', `got ${libNames.length}`);
 
 // Only folds, no omissions: each library name is either offered or shares a board with one that is.
 const boards = new Map();

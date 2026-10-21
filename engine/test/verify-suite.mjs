@@ -49,12 +49,14 @@ const SUITE = [
   // tautology. ~1s, one pass over `formations.xml` and the 22 dependents.
   { h: 'formation-order', light: true },
   // WHAT THE EDITOR'S START/END SETUP PICKERS OFFER, which is NOT the library's formation list. The
-  // library's key is geometry up to congruence, so keyed on it the picker folded `Columns`, `Columns LH`
-  // and `Column RH GBGB` - same spots, but `Columns LH` is the 180-degree rotation - onto one entry, and
-  // did the same to the four `Tidal 3 and 1 Line #5-#8` and `Promenade 2` against `Promenade`. This pins
-  // the positional key's counts (201 arrangements at eight dancers, 176 under the congruence key), that
-  // every entry has the size the picker asked for, and that the editor accepts all 201. One pass over
-  // `formations.xml`, ~1s.
+  // library's key is geometry up to congruence, so keyed on it the picker folded `Columns`, `Columns LH
+  // BGBG` and `Column RH GBGB` - one set of eight spots, a half turn apart - onto one entry, and did the
+  // same to `Tidal 3 and 1 Line #1`/#2 against #5/#6, and `Promenade 2` against `Promenade`. This pins
+  // the positional key's counts (209 arrangements at eight dancers, where the library holds 138 names),
+  // that every entry has the size the picker asked for, and that the editor accepts all 209. BOTH counts
+  // were re-measured when the corpus gained twelve formations - the sweep widened, nothing was removed,
+  // and the eight-dancer pin was already one behind its own commit before that (the harness says by how
+  // much and refuses to attribute it). One pass over `formations.xml`, ~1s.
   { h: 'arrangement-picker', light: true },
   { h: 'verify', light: true },
   { h: 'sequencer', light: true },

@@ -138,11 +138,25 @@ console.log('\n== 2. a composed step moves both groups ==');
 // ------------------------------------------------------------------ 3. beats are the LONGEST group
 console.log('\n== 3. the step costs the longest group, not the sum ==');
 {
+  // THE GROUPS MUST BE ABLE TO DANCE THEIR OWN CALLS, or the step is refused and its cost is 0 — which reads
+  // like a beats bug and is not one. The witness this replaces asked `All Except Head Boys and Side Girls` (the
+  // head girls plus the side boys) to dance a `Touch a Quarter`: those four are NOT complete couples, so the
+  // couple call cannot be read for them, and `applySelected`'s endpoint check refuses it MEASURED as
+  // `would leave 6 and 7 on the same spot (body gap -0.70)` — a deliberate refusal (its doc block counts 60 of
+  // 381 sweep combinations that leave two bodies in one place). With the refusal the step was unwalkable and
+  // `sequenceBeats` charged **0**, so the check failed for a reason that looked like the bug it was written to
+  // catch. `Heads` and `Sides` are complete couples, so both lanes really dance: MEASURED solo 6 + 2.
   const groups = [
-    { selection: 'Head Boys and Side Girls', call: 'Right and Left Thru' },
-    { selection: 'All Except Head Boys and Side Girls', call: 'Touch a Quarter' },
+    { selection: 'Heads', call: 'Right and Left Thru' },
+    { selection: 'Sides', call: 'Touch a Quarter' },
   ];
   const soloBeats = groups.map((g) => seq.sequenceBeats([`${g.selection} ${g.call}`], square));
+  atSquare();
+  const step = seq.applyStep({ groups });
+  check(step.legal, `the composed step applies (${step.reason ?? 'legal'})`);
+  // THE PREMISE OF THE TEST: the two groups must cost DIFFERENT amounts, or "the longest" and "the sum" and
+  // "either one" are indistinguishable and the check proves nothing (AGENTS.md §11.2.2, the positive control).
+  check(soloBeats[0] !== soloBeats[1], `the witness has lanes of different lengths (${soloBeats.join(' and ')})`);
   const stepBeats = seq.sequenceBeats([{ groups }], square);
   check(stepBeats === Math.max(...soloBeats),
     `simultaneous, so the cost is the longest (${soloBeats.join(' + ')} -> ${stepBeats})`);

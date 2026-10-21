@@ -27,6 +27,7 @@ import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
 import { splitSelection } from './selection.js';
+import { readCallName } from './call-name.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
 import { groupCalls, isGroupStep, stepCall, stepLabel } from './types.js';
@@ -188,7 +189,7 @@ export class SequenceAnalyzer {
       let most = 0;
       for (const g of name.groups) {
         const calls = groupCalls(g);
-        if (calls.length === 1 && isDeferredCall(calls[0])) continue;
+        if (calls.length === 1 && isDeferredCall(this.readStep(calls[0]).call)) continue;
         // THE BOARDS THE CALLS START ON, applied the way the applicator applies them. A lane that the
         // applicator will refuse anyway (`boards.length` short) contributes nothing here; the refusal is
         // the apply's to report, not the timing's.
@@ -205,8 +206,7 @@ export class SequenceAnalyzer {
       }
       return most;
     }
-    const n = typeof name === 'string' ? name : name.call;
-    const spec = splitSelection(n);
+    const spec = this.readStep(name);
     // THE SELECTION GOES TO BOTH LOOKUPS, because both are keyed on the BASE call: a step stored as
     // the composed string `"Head Boys Dosado"` missed the coded `Do Sa Do` AND the catalogue variant,
     // and was charged ZERO BEATS. MEASURED: `stepBeats(board, "Head Boys Dosado") = 0` while
@@ -214,7 +214,7 @@ export class SequenceAnalyzer {
     // answers, and the zero is the one the sequencer stored.
     const coded = findCodedMove(spec.call);
     if (coded && !spec.selection) return coded.beats;
-    const v = this.matchingVariantInfo(board, spec.call, spec.selection);
+    const v = this.matchingVariantInfo(board, spec.call, spec.selection ?? undefined);
     if (v) return v.beats;
     if (coded) return coded.beats;
     return 0;
@@ -243,13 +243,17 @@ export class SequenceAnalyzer {
   ): { beats: number[]; walkable: boolean; reason?: string } {
     const beats: number[] = [];
     for (let i = 0; i < calls.length; i++) {
-      const info = this.matchingVariantInfo(boards[i], calls[i], selection);
-      const coded = findCodedMove(calls[i]);
+      // THE LANE'S CALL IS READ THE WAY THE APPLY READ IT, for the reason `readStep` records: the apply resolved
+      // `Promenade Full` to the corpus's `Promenade`, so a walk that looked for a variant called `Promenade Full`
+      // marked a legal lane unwalkable and charged the whole step 0 beats.
+      const lane = this.readStep(calls[i]);
+      const info = this.matchingVariantInfo(boards[i], lane.call, selection);
+      const coded = findCodedMove(lane.call);
       if (!info && !coded) {
         const which = calls.length === 1 ? calls[i] : `call ${i + 1} of ${calls.length} (${calls[i]})`;
         return { beats, walkable: false, reason: `"${selection} ${calls.join(' then ')}" in a "while" step: ${which} cannot be walked from the board it starts on` };
       }
-      beats.push(info ? info.beats : this.stepBeats(boards[i], { selection, call: calls[i] }));
+      beats.push(info ? info.beats : this.stepBeats(boards[i], { selection, call: lane.call }));
     }
     return { beats, walkable: true };
   }
@@ -445,6 +449,30 @@ export class SequenceAnalyzer {
   }
 
   /**
+   * WHAT A STEP NAMES, read the way the APPLICATOR reads it — the canonical call plus the selection.
+   *
+   * THE WALK MUST AGREE WITH THE APPLICATOR, which is the invariant this whole file is built around, and until
+   * this existed it did not: `matchingVariantInfo` and `findCodedMove` were handed the RAW string while
+   * `applyToBoard` resolved it through `readCallName`. MEASURED, that divergence charged a legal step 0 beats:
+   * `Sides Promenade Full while Heads Star Thru` applied (`Promenade Full` reads to the corpus's own `Promenade`
+   * through the `full` modifier), and the walk then could not find a variant called `Promenade Full`, recorded the
+   * lane as unwalkable, and charged the step nothing — a scrub that freezes on a call that danced, which is the
+   * exact failure the `Step Forward` note above records for the coded case.
+   *
+   * A `CallStep` carries its selection as a FIELD; a string carries it in its words. Both are read here, so the
+   * three call sites below cannot drift from each other or from the applicator.
+   */
+  private readStep(raw: string | CallStep): { call: string; selection: string | null } {
+    if (typeof raw !== 'string') {
+      return { call: raw.call, selection: raw.selection ?? splitSelection(raw.call).selection ?? null };
+    }
+    const read = readCallName(raw);
+    if (read.ok && read.title) return { call: read.title, selection: read.selection };
+    const spec = splitSelection(raw);
+    return { call: spec.call, selection: spec.selection ?? null };
+  }
+
+  /**
    * The REPLAY WALK for one (flat, start board) pair, recorded once and memoised on the CONTENT of
    * both.
    *
@@ -523,14 +551,19 @@ export class SequenceAnalyzer {
       // `findCodedMove("Head Boys Dosado")` is null - the table is keyed on `Do Sa Do` - so a scoped
       // step used to fall straight through to `matchingVariantInfo`, which also could not see a
       // two-dancer subset, and the step was recorded unwalkable with 0 beats.
-      const spec = splitSelection(name);
+      //
+      // AND IT IS READ THE WAY THE APPLICATOR READS IT (`readStep`): a description, a modifier or All8 shorthand
+      // resolves to the same title the apply used, so the walk cannot fail to find the variant the apply matched.
+      const read = this.readStep(raw);
+      const spec = { call: read.call, selection: read.selection ?? undefined };
       // AND THE SELECTION MAY BE A FIELD RATHER THAN PART OF THE NAME. A `CallStep` carries
       // `{ selection, call }`, and this walk read only `raw.call` - so `Heads Step Forward` written that way
       // had no selection here, took the WHOLE-BOARD coded branch below, was refused by the rule (which says a
       // group must be named) and was recorded UNWALKABLE: the apply moved the dancers and the scrub froze.
       // Both forms are the same step, so the selection is read from whichever one carries it. (Measured: the
-      // two forms now produce the same walk, and `step-forward.mjs` section 7 checks both.)
-      const selection = spec.selection ?? (typeof raw === 'string' ? null : raw.selection ?? null);
+      // two forms now produce the same walk, and `step-forward.mjs` section 7 checks both. `readStep` reads both,
+      // which is why `spec.selection` is already the field when there is one.)
+      const selection = spec.selection ?? null;
       const coded = findCodedMove(spec.call);
       // A SELECTION IS HANDLED BY THE CATALOGUE, not by the coded rule: the coded rule is a
       // board-wide transform and would move the whole set, whereas `applySelected` moves only the

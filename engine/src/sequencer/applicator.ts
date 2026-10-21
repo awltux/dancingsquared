@@ -15,6 +15,9 @@ import { normAngle } from './identity.js';
 import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection, resolveReading } from './selection.js';
+import { readCallName } from './call-name.js';
+import type { CallTitle } from './call-titles.js';
+import type { CallNameHow } from './call-name.js';
 import type { Board, CallStep, GroupStep, LaneRun, ModuleStep, SeqDancer, VariantMatch } from './types.js';
 import { isGroupStep, normalizeGroupLane, stepLabel } from './types.js';
 import { applyCodedToSelection, findCodedMove, isDeferredCall } from './coded-moves.js';
@@ -63,6 +66,21 @@ export interface ApplyResult {
    * having to switch behaviour on, which is what makes the count trackable before the guard is enabled.
    */
   bodyCollision?: BodyPair;
+  /**
+   * Set only when the string the caller passed was READ rather than published: the canonical title, the
+   * selection it was read under, and which step of `readCallName` found it.
+   *
+   * IT IS REPORTED BECAUSE A SILENT RENAME IS THE THING THIS REPO KEEPS REGRETTING. `Promenade Full` is not a
+   * title any more, so `applyToBoard(board, 'Promenade Full')` now dances `Promenade` — and a caller that never
+   * learns its name is dead keeps asking for it, keeps getting an answer, and never sees the retitle. With this
+   * field the app can say "read as Promenade", and a harness can assert a stale name was reported rather than
+   * quietly obeyed (AGENTS.md §11.2.6: a title is an API, and a rename is a migration).
+   *
+   * ABSENT WHEN THE LIBRARY PUBLISHED THE NAME, deliberately: a title applied as itself was not read, and a
+   * refusal is not a reading either — `applyToBoard(board, 'Headz Promenade')` refuses with no `readAs`, so
+   * "unknown" never arrives dressed as an interpretation.
+   */
+  readAs?: { title: CallTitle; selection: string | null; how: CallNameHow };
 }
 
 /**
@@ -493,10 +511,40 @@ export class CallApplicator {
 
   private applyToBoardInner(
     board: Board,
-    callName: string,
+    rawCallName: string,
     stack: string[],
     rebase: boolean,
     allowParallel = true,
+  ): ApplyResult {
+    // A NAME THIS LIBRARY PUBLISHES IS APPLIED AS ITSELF, and the reading below only ever runs for a string the
+    // library does NOT publish — the rule `selection.ts` states as "does the library publish this name", and the
+    // reason `Heads Pass Thru` (a TITLE that begins with a selection phrase) is not reread as a reading.
+    //
+    // AND THEN THE READING IS THE ONE PLACE A RAW STRING BECOMES A CALL (`readCallName`): a description, a spoken
+    // name, a selection, a trailing modifier or All8 shorthand. It runs HERE, at the reading boundary, so every
+    // caller that hands the engine a string — the picker, the sequencer panel, the All8 import, a harness — gets
+    // the same interpretation. WHAT IT READ COMES BACK ON THE RESULT as `readAs`, because a silent rename is how
+    // a caller keeps using a dead name for months without noticing.
+    let read: ReturnType<typeof readCallName> | null = null;
+    if (!this.library.hasCall(rawCallName) && !this.library.hasModule(rawCallName)) {
+      const attempt = readCallName(rawCallName);
+      if (attempt.ok && attempt.title && (attempt.title !== rawCallName || attempt.selection)) read = attempt;
+    }
+    const applied = read
+      ? read.selection
+        ? this.applySelected(board, read.selection, read.title!, rebase, undefined, stack)
+        : this.applyToBoardResolved(board, read.title!, stack, rebase, allowParallel)
+      : this.applyToBoardResolved(board, rawCallName, stack, rebase, allowParallel);
+    return read ? { ...applied, readAs: { title: read.title!, selection: read.selection, how: read.how } } : applied;
+  }
+
+  /** The apply itself, once the name is canonical. */
+  private applyToBoardResolved(
+    board: Board,
+    callName: string,
+    stack: string[],
+    rebase: boolean,
+    allowParallel: boolean,
   ): ApplyResult {
     if (this.library.hasModule(callName)) {
       if (stack.includes(callName)) {

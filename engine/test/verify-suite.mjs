@@ -52,6 +52,13 @@ const SUITE = [
   // title, a name another notation decodes but the corpus lacks is refused while NAMING what it decoded, and a
   // split with one unreadable part refuses while naming the part. ~1s, no corpus walk.
   { h: 'call-names', light: true },
+  // THE READING, AT THE APPLY BOUNDARY. `applyToBoard` reads a name the library does not publish and reports what
+  // it read on the result (`readAs`), so `Promenade Home` — a CALLERLAB name this corpus no longer authors —
+  // dances `Promenade` AND says so, while a published title applies as itself with no reading at all and an
+  // unreadable string refuses with the engine's own message and no reading. That pair is the design: an
+  // interpretation that is silent is an interpretation nobody can audit (§11.2.6), and the negative is what makes
+  // "no `readAs`" mean "applied as itself" rather than "we did not look". ~1s, a dozen applies.
+  { h: 'call-reading', light: true },
   // The authoring convention for a shape smaller than the set, measured over all 5963 shipped tams and
   // pinned, plus what the formation registry keeps (210 of 273 declared shapes). In `light` because it
   // is one pass over the assets, and it is the harness that makes "what does a shape of four dancers

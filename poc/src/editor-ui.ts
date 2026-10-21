@@ -82,6 +82,9 @@ import {
   mirrorDancerMoves,
   // How closely a curve must follow a circle to be OFFERED as an arc — the engine's rule, not a copy of it.
   ARC_FIT_TOL,
+  // How a call GOES (`close` / `normal` / `far`), derived from its title. A `CallBundle` carries it, so a bundle
+  // the panel builds itself must be born through the same function as every other one.
+  goingOfTitle,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -1001,6 +1004,10 @@ export class EditorController implements EditorUI {
       forSequencer: true,
       // A still frame is written out dancer by dancer, so it is a WHOLE set: symmetry 1, take the
       // dancers as they stand. The alternative - completing them - would double a four-dancer form.
+      // HOW THE CALL GOES, derived from the title exactly as every other bundle's is. A still frame's title is a
+      // FORMATION name, not a call, so this is null - but the field is part of the bundle's identity and leaving
+      // it off was a type error the compiler had been reporting on a red gate nobody could read.
+      going: goingOfTitle(name),
       symmetry: 1,
     };
   }

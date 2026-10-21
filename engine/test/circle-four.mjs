@@ -26,7 +26,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, findCodedMove } from '../dist/index.js';
+import { Sequencer, setParser, findCodedMove, isCallTitle } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -49,15 +49,31 @@ const seq = new Sequencer(
 );
 const square = seq.boardForFormation('Static Square');
 const HEADS = [5, 6, 1, 2];
-const NAMES = ['Circle Four Left 1/4', 'Circle Four Left 1/2', 'Circle Four Left 3/4', 'Circle Four Left Full',
-  'Circle Four Right 1/4', 'Circle Four Right 1/2', 'Circle Four Right 3/4', 'Circle Four Right Full'];
+// THE EIGHT TITLES THE CORPUS ACTUALLY CARRIES, with the turn each one is. The FULL turn is the BARE name —
+// `Circle Four Left`, not `Circle Four Left Full`, which no tam has ever carried: this file listed the ` Full`
+// spellings, so `getVariants` returned `undefined` for the fourth name, `.length` threw, and EVERY CHECK BELOW
+// THE THROW WAS INVISIBLE (the §11.2.1 failure mode, in the harness that reports it). The list is a table
+// rather than a `split(' ').pop()` lookup because the full turn has no suffix to split off.
+const NAMES = [
+  ['Circle Four Left 1/4', 1],
+  ['Circle Four Left 1/2', 2],
+  ['Circle Four Left 3/4', 3],
+  ['Circle Four Left', 4],
+  ['Circle Four Right 1/4', 1],
+  ['Circle Four Right 1/2', 2],
+  ['Circle Four Right 3/4', 3],
+  ['Circle Four Right', 4],
+];
 
 console.log('== the family is catalogue, not derived ==');
-for (const name of NAMES) {
-  // The corpus spells the halves `1/2`, so the arc is a lookup rather than a number in the title.
-  const arc = { '1/4': 1, '1/2': 2, '3/4': 3, Full: 4 }[name.split(' ').pop()];
+for (const [name, arc] of NAMES) {
+  // THE PREMISE FIRST, so a rename is a FAIL that names the title instead of a crash: `isCallTitle` is the
+  // corpus's own vocabulary (`CALL_TITLE`), and `getVariants` is guarded because it answers `undefined` for a
+  // name the library does not register - which is exactly how this file used to die.
+  check(isCallTitle(name), `${name} is a title the corpus carries`);
   check(findCodedMove(name) === undefined, `${name} is NOT a coded move (the derivation is gone)`);
-  check(seq.getVariants(name).length > 0, `...and the catalogue registers it (${seq.getVariants(name).length} variant(s))`);
+  const variants = seq.getVariants(name)?.length ?? 0;
+  check(variants > 0, `...and the catalogue registers it (${variants} variant(s))`);
   const beats = seq.sequenceBeats([name], square);
   check(beats === 2 * arc, `...charging CALLERLAB's ${2 * arc} beats from a squared set (got ${beats})`);
 }
@@ -67,7 +83,7 @@ for (const boardName of ['Static Square', 'Normal Lines', 'Eight Chain Thru']) {
   const board = seq.boardForFormation(boardName);
   check(!!board, `the start board "${boardName}" is in the library`);
   if (!board) continue;
-  const legal = NAMES.filter((n) => seq.applyToBoard(board, n).legal).length;
+  const legal = NAMES.filter(([n]) => seq.applyToBoard(board, n).legal).length;
   check(legal === NAMES.length, `all ${NAMES.length} titles apply from ${boardName} (${legal} legal)`);
 }
 // THE GROUPING IS MEASURED PER BOARD RATHER THAN GENERALISED. From a squared set the corpus's whole-board
@@ -76,13 +92,15 @@ for (const boardName of ['Static Square', 'Normal Lines', 'Eight Chain Thru']) {
 // tiles the FULL turns as 4+4, and `Eight Chain Thru` applies a FULL turn to the whole board as ONE group of
 // four. Assuming the squared-set shape everywhere would read those as failures of a rule nobody stated.
 {
-  const grouped = NAMES.filter((n) => {
+  const grouped = NAMES.filter(([n]) => {
     const r = seq.applyToBoard(square, n);
     return r.legal && r.parallel && r.parallel.groups.length === 2;
   }).length;
   check(grouped === NAMES.length, `from a squared set every title tiles as two groups of four (${grouped} of ${NAMES.length})`);
   const ln = seq.boardForFormation('Normal Lines');
-  const lnFull = seq.applyToBoard(ln, 'Circle Four Left Full');
+  // THE FULL TURN IS THE BARE TITLE, which is the spelling this harness used to get wrong: `Circle Four Left
+  // Full` is not a tam, so this lookup used to `undefined`-crash three lines into the section.
+  const lnFull = seq.applyToBoard(ln, 'Circle Four Left');
   check(!!lnFull.parallel && lnFull.parallel.groups.map((g) => g.length).join('+') === '4+4',
     `and \`Normal Lines\` tiles the full turn as ${lnFull.parallel ? lnFull.parallel.groups.map((g) => g.length).join('+') : 'no groups'}`);
 }
@@ -121,14 +139,21 @@ console.log('\n== the reported 2x2-ring slot: the gap the removed rule filled, R
   check(applied.legal, 'the reported figure still applies (the catalogue does not refuse the step)');
   const beats = seq.sequenceBeats([step], square);
   check(beats === 12, `and still costs 12 beats - the heads' promenade (got ${beats})`);
-  const lane = applied.lanes.find((l) => l.selection !== 'Heads');
-  const before = lane.boards[1];
-  const after = lane.boards[2];
-  const moved = lane.boards[1].dancers.some((d) => {
-    const e = after.dancers.find((x) => x.id === d.id);
-    return Math.hypot(e.x - d.x, e.y - d.y) > 1e-6 || Math.abs(e.heading - d.heading) > 1e-6;
-  });
-  console.log(`  NOTE  the sides' circle lane ${moved ? 'MOVES - the gap is closed' : 'does NOT move - no tam matches the ring Step Forward leaves, and the owner is authoring tams for these calls'}`);
+  // GUARDED, because a REFUSED step has no lanes and this line used to throw on that - the second crash this
+  // file had, and the reason its own failures could never be listed. It is REPORTED either way: the NOTE says
+  // what the lane does when there is one, and why there is none when there is not.
+  const lane = applied.lanes?.find((l) => l.selection !== 'Heads');
+  if (!lane) {
+    console.log(`  NOTE  nothing to inspect: the step reported no lane${applied.legal ? '' : `, because it was refused — ${applied.reason}`}`);
+  } else {
+    const before = lane.boards[1];
+    const after = lane.boards[2];
+    const moved = lane.boards[1].dancers.some((d) => {
+      const e = after.dancers.find((x) => x.id === d.id);
+      return Math.hypot(e.x - d.x, e.y - d.y) > 1e-6 || Math.abs(e.heading - d.heading) > 1e-6;
+    });
+    console.log(`  NOTE  the sides' circle lane ${moved ? 'MOVES - the gap is closed' : 'does NOT move - no tam matches the ring Step Forward leaves, and the owner is authoring tams for these calls'}`);
+  }
 }
 
 console.log('\n== a board no tam matches is refused, not silently accepted ==');

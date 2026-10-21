@@ -26,7 +26,7 @@ a later reader must not re-open them by accident.
 | 2 | Drill: at each step three options — one correct, one legal-but-wrong, one illegal; a click gives instant feedback. | `DrillPuzzle` and `StepOptions`; the failure taxonomy in §8. |
 | 3 | Daily: the player selects **each call individually** from the moves the sequencer offers, with **undo/redo** until the puzzle is solved. | `PlaySession` with a move stack in §9. |
 | 4 | Failure is instructive: animate the player's own line, say why it failed, then offer a **"show me the answer" replay** of the correct line. | The review/replay flow, shared by both modes. |
-| 5 | Ladder: L1 is 10 calls and a one-call solution; the solution length rises to 3, then **every level adds 4 calls** (`poolSize(n) = 4n + 6`, the owner's rule — see §5). | `LevelSpec` and the level→spec function in §5. |
+| 5 | Ladder: L1's pool is **57 calls** and its Drill is a one-call solution; **every level adds 4 calls** (`poolSize(n) = 57 + 4·(n − 1)` — the owner's rule on the family floor, see §5 finding 4). The design's original "L1 is 10 calls" is superseded by the measurement. | `LevelSpec` and the level→spec function in §5. |
 | 6 | **Cognito User Pools** (email + password, JWT verified in Lambda). Anonymous play is a **read-only demo** that stores nothing; a device's local ledger may be imported only as unranked history (A26, §11.1). **AMENDED** from "anonymous play whose local scores can be claimed on login": the claim survives as history, and it buys no board, no hints and no progress. | Auth, the three identity modes and the bulk-claim endpoint in §11 and §11.2. |
 | 7 | Extract the POC's Three.js stage into a **shared renderer package first**, then build on it, offering **both 2D and 3D** views. | Phase 0 in §13. One package, consumed by the POC and by **both** game modes (§4). |
 | 8 | The daily is seeded from the **UTC date** — one challenge per day — **issued per level to all players**, with the leaderboard partitioned **per level**. | §9: with the challenge now level-scoped, its solution no longer has to be derivable from the level-1 pool. What remains fixed is that every player at a level gets the identical challenge. |
@@ -316,12 +316,16 @@ the commit that re-measures the depth-3 question.
    kept for the DRILL only (`MAX_DEPTH = 2`, one call at L1) and the Daily is asked in `DAILY_DEPTH = 3` at every
    level. The earlier 7.2 s figure was measured with the old whole-document registration (see the note under the
    table above).
-4. **THE LADDER THAT SHIPS: `poolSize(n) = 20 + 4·(n − 1)`, `depth = 1` at L1 and 2 after, `optionCount = 3` once
-   `poolSize ≥ 35` (L5, pool 36).** That is the owner's four-calls-a-level rule (decision 4's shape) on the floor
-   finding 2 requires. What it changes from the formula it replaces (`10 + 5 + 5·floor((n−4)/3)`): three-option
-   questions begin at **L5** instead of L16; a **Mainstream-sized pool fills 76 levels** (pools 20..320 from 322
-   titles) instead of 33 — MEASURED by `publishableLevels()`, which is where the boundary is measured rather than
-   declared; and a Daily costs **0.4 s at L1 rising to ~4.9 s at L76**, once per (level, day) and cached.
+4. **THE LADDER THAT SHIPS: `poolSize(n) = 57 + 4·(n − 1)`, `depth = 1` at L1 and 2 after, `optionCount = 3` once
+   `poolSize ≥ 35` EXCEPT at L1, which is pinned at two.** That is the owner's four-calls-a-level rule (decision 4's
+   shape) on the floor finding 2 requires. **`BASE_POOL` MOVED 20 → 57 SO LEVEL 1 TEACHES WHOLE FAMILIES**: the pool is
+   a PREFIX of the teaching order, so its boundary is a count, and at 20 the count landed in the middle of Circle Four
+   — `Circle Four Left` in, `Circle Four Right` out. MEASURED by `node game/tools/pool-families.mjs 10`: 57 titles is
+   the boundary of the TENTH whole family, and reaching it needed the ORDER grouped into contiguous families (as
+   curated it had only two clean cut points, 32 and 37). `pool-probe.mjs` pins that the shipped boundary splits no
+   family. Consequences, each measured: a **Mainstream-sized pool fills 74 levels** (was 76) by `publishableLevels()`;
+   a Daily costs **~5 s at L1 and ~155 s at L74**, once per (level, day) and cached, where the old 20-title L1 was
+   ~0.5 s — the exponent is the depth, not the constant.
 5. **The Daily is three calls at EVERY level; the Drill is one at L1 and two after.** The two modes ask different
    questions of the same progression — `dailySpec(level)` applies the mode's depth where a puzzle is generated for
    the mode — so a level does not carry two depths that could drift apart.
@@ -341,7 +345,8 @@ every level rather than the Drill's.**
 
 - **L1 = `{ poolSize: 20, depth: 1 }`.** The floor is finding 2's, not a preference.
 - `depth` rises 1 → 2 for the Drill and stays; the Daily is `DAILY_DEPTH` throughout.
-- **`poolSize` grows by 4 PER LEVEL** from a floor of 20 (decision 4).
+- **`poolSize` grows by 4 PER LEVEL** from a floor of 57 (decision 4, as re-measured for the family boundary — §5
+  finding 4).
 - Every level's `Sequencer` is built from **only that level's titles**, so the engine's own legality scan is
   already level-scoped and the "offered moves are limited to the level being played" rule is a property of
   construction, not of a filter that could drift.
@@ -641,6 +646,14 @@ answers cannot drift between the client and the server, because there is now onl
   shown and stops on the answer; there is no move-by-move play to time beyond that (§6). Replaying the
   options is not penalised separately — the clock already counts it, which is the same "wandering costs
   time" rule the Daily's undo runs on.
+- **THE LEVEL BLOCK IS WHERE THE TAB OPENS, and one cell is the way into a drill.** The tab has TWO VIEWS and still two
+  MODES: `drillView: 'level' | 'drill'` sits beside `mode`, and entering The Drill still ISSUES a drill — because
+  "which drill is next" is the server's `nextIndex` and the drill it issues IS the next one, so the grid takes `next`
+  as an INPUT and never derives it (§15 Q25(a),(j)). Only the NEXT cell is a link: the progress map gives a player one
+  drill at a time, a finished drill cannot be re-issued (no route asks for position N by design), and unpublished
+  cells are a statement about supply rather than a lock. The rule that decides a cell's state is `puzzle/block.ts`
+  (five states, precedence `unpublished` > `done` > `next` > `published`, so a stale `next` cannot repaint a finished
+  cell), gated by `test/block-probe.mjs`; the screen is left with paint.
 
 ---
 
@@ -2355,9 +2368,15 @@ Each has a recommendation and the tradeoff, so this does not need another round 
         ladder has moved can therefore be on level 1 in the Drill and level 3 in the Daily. Closing that is a
         client-side change (persist `drill.levelIndex` into the save and let `/puzzle` follow it) and is not in this
         commit.
-      * **NEW: the 10×10 block**, a `game/src/ui/` surface with no new endpoint: the drill answer already carries the
-        regimen's `finished` and `length`, so a cell per finished drill out of the level's 100 needs nothing else. (The
-        same "no probe loads `src/ui/`" rule applies to its check.)
+      * **the 10×10 block IS BUILT, and the note that used to stand here was WRONG.** It said this was "a `game/src/ui/`
+        surface with no new endpoint: the drill answer already carries the regimen's `finished` and `length`, so a cell
+        per finished drill out of the level's 100 needs nothing else." The answer carried `finished.length` — a COUNT —
+        not the set, and a count can only fill the first N cells, which assumes progress is a prefix that a hand-edited
+        row or a republish can break. So the payload was widened to `{ finished: number[], passed: number[], length }`,
+        a `passed` set was added to the progress row (a skip and a revealed solve close a position without teaching it),
+        and the cell rule moved out of the screen into `puzzle/block.ts` with `block-probe.mjs` — a rule that lives only
+        in a screen has no gate (AGENTS.md §8 trap 27). The surface, the five cell states and the browser check are
+        recorded as §15 Q25.
       * **The publisher's job becomes a monthly cadence**: 13 entries per level per season, ADDED rather than replaced,
         which it already supports — `publish-schedule --season N` is a deterministic function of
         `(poolVersion, level, N)` and a LONGER season has the shorter one as its PREFIX, so next month's publication
@@ -2510,6 +2529,47 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     the labelled offer standing; and as the NEGATIVE CONTROL, taking the offer restores the question and three live
     options for the fixture drill. No probe can pin this: `DrillScreen` is DOM, and the game's probe layer does not
     load `src/ui/`.
+
+25. **THE LEVEL SCREEN AND THE 10×10 BLOCK — DECIDED IN TEN PARTS, and two of them were measurements rather than
+    preferences.** Requested: "a screen before the game screen that allows the player to see their progress and select
+    the next drill to play", plus "only the first 100 are required to finish the level" and "the daily challenge can
+    have waypoint formations/arrangements".
+    **(a) THE ORDER STAYS THE SERVER'S: only the NEXT cell is playable.** The grid is a progress map, not a menu.
+    Re-issuing position N would need a route that does not exist by design, so **replay of a finished drill is NOT
+    wired** — a done cell is a statement, and that is recorded rather than promised.
+    **(b) `passed` IS A SECOND SET.** A skip and a revealed solve both close a position and neither teaches it, so
+    `DrillProgress.passed` (a subset of `finished`, enforced on read) is what lets a cell say "done" against "done and
+    passed". The row parser reads an ABSENT set as "finished, pass unknown" — the migration, not a failure.
+    **(c) THE WIRE CARRIES THE SETS**: `regime: { finished: number[], passed: number[], length }`. A COUNT can only fill
+    the first N cells, and `drill-regime.ts` records that a hand-edited row or a republish can produce a gap.
+    **(d) THE SUPPLY IS A FULL BLOCK**: the local fixture bakes `LEVEL_SIZE` level-1 drills (100) plus four each at
+    levels 2-3 — MEASURED 108 puzzles, 858 KB of boards, game bundle 2,932 kB (was 2,279).
+    **(e) THE POOL GREW SO LEVEL 1 TEACHES WHOLE FAMILIES**: `BASE_POOL` 20 → **57**, because 20 stopped mid-family
+    (`Circle Four Left` without `Circle Four Right`). 57 is the boundary of the tenth whole family, the order was
+    grouped into contiguous families to make that boundary exist, and `pool-probe.mjs` pins that the shipped boundary
+    splits none. MEASURED consequence: a Daily at L1 costs ~5 s where the 20-title L1 was ~0.5 s (§5 finding 4).
+    **(f) LEVEL 1 STAYS A TWO-OPTION QUESTION**, pinned rather than derived: with a 57-title pool `optionCountFor`
+    would hand it three, and the teaching level's shape is a product decision, not a consequence of the pool.
+    **(g) THE DRILLS ARE STORED, ONE ROW PER DRILL** (`drill#<level>` / `<index>`) — 100 puzzles in one item would be
+    ~1.1 MB against DynamoDB's 400 KB ceiling. The publisher writes drills BEFORE the schedule (the schedule is what
+    publishes them) and stamps `GENERATOR_VERSION`, so a store built by an older generator is REFUSED rather than
+    silently served: a stale store would otherwise keep serving yesterday's boards with nothing to notice.
+    **(h) THE HINT'S DISTANCE TABLE IS SHARED PER PUZZLE, and that was a defect rather than a refinement.** It lived on
+    the `PlaySession`; the server builds a session per hint spend; ONE build is **79-100 s** at the 57-title pool. So a
+    hint cost a minute and a half every time, and `hint-event-probe` measured **770 s**. A second hint is now **1 ms**.
+    The FIRST build is still ~100 s and is NOT fixed — recorded as the next known cost, whose levers are a
+    hint-specific node budget, a smaller move allowance, or making `offered` cheaper per board.
+    **(i) THE CELL RULE IS A MODULE, NOT A SCREEN** — `puzzle/block.ts` with `block-probe.mjs`, because a rule that
+    lives only in a screen cannot be imported by a probe (AGENTS.md §8 trap 27). Five states, with the precedence
+    `unpublished` > `done` > `next` > `published`, so a stale `next` cannot repaint a finished cell.
+    **(j) THE BLOCK IS THE DRILL TAB'S HOME** — `drillView: 'level' | 'drill'` beside `mode`, and entering the tab still
+    ISSUES a drill so the grid takes `next` as an input rather than deriving the rule.
+    MEASURED IN A BROWSER against the dev API: the block reads "Level 1 — 0 of 100 done, 0 passed" with 100 cells;
+    entering one shows the question and "Back to the level" returns; skipping a drill and then Next produced "2 of 4
+    done, 1 passed" with the skipped cell "done, not passed" and the solved one "solved" (that pair was measured before
+    the fixture grew to 100). NOT CHECKED: the offline (no-API) grid was not driven, and a cell is ~28 px in the 340 px
+    panel — below the 44 px touch target the rest of the page uses, which is a real cost of ten cells across this panel
+    width.
 
 ---
 

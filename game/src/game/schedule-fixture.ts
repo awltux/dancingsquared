@@ -11,17 +11,19 @@
 // `season.ts`. The split is what keeps the 133 KB of boards out of the API's import graph: `api/src/local-regime.ts`
 // imports this file for the seeds, and never the data.
 //
-// THE SEEDS ARE MEASURED, NOT CHOSEN. Every entry below was found by generating it: seeds 1..4 generate at
-// each of levels 1..3, and each carries an illegal option (the `unknown` slot needs a refused call to
-// exist). `game/test/schedule-fixture-probe.mjs` RE-RUNS that generation, so a corpus or generator change
-// that breaks one of these seeds turns the gate red instead of shipping a player a blank board — and it
+// THE SEEDS ARE MEASURED, NOT CHOSEN. Every entry below was found by generating it: seeds 1..100 generate at
+// level 1 and seeds 1..4 at each of levels 2 and 3, and each carries an illegal option (the `unknown` slot needs a
+// refused call to exist). `game/test/schedule-fixture-probe.mjs` RE-RUNS that generation, so a corpus or generator
+// change that breaks one of these seeds turns the gate red instead of shipping a player a blank board — and it
 // compares the result with the baked board, which is what catches a stale `season-data.ts`. The
 // measurement is the probe's, and this comment only records where the numbers came from.
 //
-// LEVELS 1..3 ARE THE POINT. P1 measured that level 1 is depth 1 with two options and levels 2+ are depth 2,
-// and that a three-option question needs a pool of at least 35 titles (L16). So the fixture is exactly the
-// part of the ladder that always generates — three levels, two options, no 3-button question — which keeps
-// "the fixture is what broke" off the list of reasons the app can fail.
+// LEVEL 1 IS A FULL BLOCK AND LEVELS 2-3 ARE A DEMO OF PROGRESSION. Level 1 is `LEVEL_SIZE` entries because the level
+// screen draws one cell per drill and a four-cell block would be a screen telling the truth about a demo; levels 2
+// and 3 keep four entries each, which is enough to exercise the ladder moving a player on. P1 measured that level 1
+// is depth 1 with two options and levels 2+ are depth 2, and that a three-option question needs a pool of at least 35
+// titles — the fixture is the part of the ladder that always generates, which keeps "the fixture is what broke" off
+// the list of reasons the app can fail.
 import { POOL_VERSION } from '../puzzle/pool.ts';
 import { LEVEL_SIZE } from '../puzzle/levels.ts';
 import type { ScheduleEntry } from '../puzzle/types.ts';

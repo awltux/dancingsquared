@@ -409,18 +409,16 @@ export interface DailyChallenge {
 }
 
 /**
- * HOW LONG THE DAILY'S READ MAY TAKE — and it is NOT the shared timeout, because that one is 8 s and creating a Daily
- * takes longer than that.
+/**
+ * HOW LONG ONE DAILY REQUEST MAY TAKE — the shared window, deliberately. The earlier 30 s was a mistake.
  *
- * MEASURED: a Daily generation at the shipped level-1 pool costs **9.4-15.1 s** on the serving side (DESIGN.md §7.1),
- * and the server generates it on the first read of a day (the stored artefact is the SEED, not the boards). So the
- * shared 8 s window EXPIRED BEFORE THE WORK FINISHED on the ordinary first press of the day, every time — reported as
- * "the Today's Daily button seems to hang the app", because the app sat there for eight seconds and then said the
- * server could not be reached. Thirty seconds is that measurement with room for a cold applier on top (the first
- * applier for a level costs ~2 s, `api/src/levels.ts`). It is a CEILING on a request the player is watching, not a new
- * default: every other call keeps the short window, because a handshake that hangs is a different problem.
- */
-export const DAILY_TIMEOUT_MS = 30_000;
+ * THE HISTORY IS THE SHAPE OF THE REPORT. The read used to GENERATE the challenge inside the request (9.4-15.1 s,
+ * DESIGN.md §7.1), so the shared 8 s window expired before the work finished and that looked like a hang; the answer was
+ * 30 s. Then the read stopped generating (202 plus a deferred generation), and the 30 s had no work left to cover — it
+ * only made an UNREACHABLE server take thirty seconds to say so, which is the second report: "If there is not daily then
+ * return with an error, rather than hanging." ONE POLL is now short, and a slow poll is simply retried, so nothing is
+ * lost by the shorter window.
+ */export const DAILY_TIMEOUT_MS = 8_000;
 
 /**
  * `GET /puzzle?mode=daily&level&date` — the challenge for a level and a UTC day.
@@ -498,8 +496,8 @@ export function pollDaily(
   handlers: DailyPollHandlers,
   options: { readonly attempts?: number; readonly intervalMs?: number } = {},
 ): { stop: () => void } {
-  const attempts = options.attempts ?? 90;
-  const intervalMs = options.intervalMs ?? 2000;
+  const attempts = options.attempts ?? 60;
+  const intervalMs = options.intervalMs ?? 800;
   let attempt = 0;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout> | null = null;

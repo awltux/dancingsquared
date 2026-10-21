@@ -60,7 +60,16 @@ export interface SessionView {
 export class PlaySession {
   private readonly history: Played[] = [];
   private readonly redoStack: Played[] = [];
-  private readonly distanceCache = new Map<string, Map<string, number>>();
+  /**
+   * The reverse-BFS tables, keyed by the goal's signature — INJECTABLE, and that is a measured correction.
+   *
+   * THE TABLE IS THE EXPENSIVE PART OF A HINT: it walks the goal's backward cone with `applier.offered` at every
+   * board. MEASURED at the shipped level-1 pool (57 titles), ONE build is **79-91 s**, and the cache used to live
+   * only on this object — so the server, which builds a session per hint spend, rebuilt it for EVERY hint and
+   * `api/test/hint-event-probe.mjs` took 770 s. The session is per-line; the table is per PUZZLE, and a caller
+   * that serves more than one line from the same puzzle has to be able to share it.
+   */
+  private readonly distanceCache: Map<string, Map<string, number>>;
   private readonly puzzle: Puzzle;
   private readonly applier: GameApplier;
   /** How many calls beyond the shortest the player may use. DESIGN.md 9's move allowance. */
@@ -74,10 +83,12 @@ export class PlaySession {
    * alternative is a build step whose output could disagree with what is type-checked, the long form is
    * the one that keeps the source loadable AND checked.
    */
-  constructor(puzzle: Puzzle, applier: GameApplier, allowance?: number) {
+  constructor(puzzle: Puzzle, applier: GameApplier, allowance?: number, distanceCache?: Map<string, Map<string, number>>) {
     this.puzzle = puzzle;
     this.applier = applier;
     this.budget = allowance ?? puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
+    // THE DEFAULT IS A PRIVATE TABLE, which is what a single line wants; a server passes one it keeps per puzzle.
+    this.distanceCache = distanceCache ?? new Map();
   }
 
   // ------------------------------------------------------------------ reading

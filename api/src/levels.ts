@@ -220,8 +220,30 @@ export function replayDailyMoves(level: LevelSpec, puzzle: Puzzle, moves: readon
  * NULL IS AN ANSWER: a board with nothing offered is a state a player can be in (a dead end), and "no call" is the
  * honest name rather than an invented one.
  */
+/**
+ * THE DISTANCE TABLES THE HINT BUILDS, SHARED BY EVERY HINT ON THIS PROCESS.
+ *
+ * THE SESSION OWNS ITS TABLE, AND THAT WAS THE DEFECT: `PlaySession.distanceCache` is per object, while the table
+ * is a property of the PUZZLE (its goal and the allowance). The server builds a session per hint spend
+ * (`sessionWith` replays the recorded moves to find the board), so it rebuilt the reverse BFS for every hint.
+ * MEASURED at the shipped level-1 pool: ONE build is 79-91 s, so a hint cost a minute and a half, every time, and
+ * `api/test/hint-event-probe.mjs` measured 770 s for its eight-odd spends.
+ *
+ * THE KEY IS THE GOAL'S SIGNATURE, INSIDE THE SESSION (the session already keys its cache that way), so one map
+ * serves every puzzle this process names a hint for. The bound is blunt and small for the reason `puzzleFor`'s
+ * gives: a hint answers about the puzzle a player is on, and a clear costs one rebuild rather than an unbounded
+ * map in a long-lived container.
+ */
+const hintDistanceTables = new Map<string, Map<string, number>>();
+const MAX_CACHED_HINT_TABLES = 16;
+
+function sharedHintTables(): Map<string, Map<string, number>> {
+  if (hintDistanceTables.size >= MAX_CACHED_HINT_TABLES) hintDistanceTables.clear();
+  return hintDistanceTables;
+}
+
 export function nameHintFor(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): string | null {
-  return sessionWith(level, puzzle, moves).hint();
+  return sessionWith(level, puzzle, moves, sharedHintTables()).hint();
 }
 
 /**
@@ -261,8 +283,8 @@ export async function publishedPuzzle(
  * THE REPLAY LOOP LIVES HERE ONCE, so the reader that needs the LINE and the reader that needs the BOARD the line
  * leaves cannot drift apart — which is the drift `nameHintFor` exists to remove.
  */
-function sessionWith(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): PlaySession {
-  const session = new PlaySession(puzzle, runtimeFor(level).applier);
+function sessionWith(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[], distanceCache?: Map<string, Map<string, number>>): PlaySession {
+  const session = new PlaySession(puzzle, runtimeFor(level).applier, undefined, distanceCache);
   for (const move of moves) {
     if (move.kind === 'add') session.play(move.call);
     else if (move.kind === 'undo') session.undo();

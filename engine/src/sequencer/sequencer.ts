@@ -42,6 +42,7 @@ import { DEFAULT_MATCH_MAX } from './constants.js';
 import type { Going } from '../going.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
+import { authoredStepWins } from './apply-source.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -112,8 +113,39 @@ export class Sequencer {
    * the transformed board when it applies, or the board unchanged plus the reason
    * when it carries a precondition that this board does not meet. Returns null
    * when `name` is not a coded move at all, so the catalogue can handle it. */
+  /**
+   * THE AUTHORED TAM'S END BOARD for this call and board, or null when no catalog variant applies.
+   *
+   * The applicator is asked directly, and it is catalogue-only: the coded interception lives in this class, so
+   * there is no path from here back into `tryCodedMove`. That is what makes the comparison between the two
+   * sources a comparison of two real results rather than of one result and an assumption.
+   */
+  private authoredEnd(board: Board, call: string): Board | null {
+    const r = this.applicator.applyToBoard(board, call);
+    return r.legal ? r.board : null;
+  }
+
+  /**
+   * WHICH SOURCE SERVES THIS STEP - the rule in `apply-source.ts`, asked with both results in hand.
+   *
+   * TRUE means the authored tam is used, and the only thing that changes is the ROUTE (and the tam's own
+   * beats): the two reach the same board, which is the gate. FALSE means the coded rule keeps the step -
+   * either it is the only source that reads this board, or the two disagree, which is the `Fan the Top` case
+   * the derivation was written to fix.
+   *
+   * SELECTIONS ARE NOT ASKED. `Heads Swing Thru` is a different question - a scoped variant moves only the
+   * named dancers - so the whole-board gate would compare two different motions and answer nonsense. A
+   * designator'd step keeps the rule until its own scoped comparison is measured.
+   */
+  private authoredWins(board: Board, call: string): boolean {
+    return authoredStepWins(board, call, () => this.authoredEnd(board, call));
+  }
+
   private tryCodedMove(board: Board, name: string): { board: Board; legal: boolean; reason?: string } | null {
     const sel = splitSelection(name);
+    // THE AUTHORED TAM WINS WHERE IT AGREES WITH THE RULE - see `apply-source.ts` for the measurement, the
+    // reported "dancers spin" bug it fixes, and the `Fan the Top` case that keeps the gate.
+    if (!sel.selection && this.authoredWins(board, sel.call)) return null;
     // A MULTIPLE OF A CATALOGUE CALL: "Circulate 2" IS the same call applied twice.
     //
     // All8's own key (abbrlist.htm, read in round 19) defines the notation exactly that way -

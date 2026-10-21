@@ -26,6 +26,7 @@ import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from './identity.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
+import { authoredStepWins } from './apply-source.js';
 import { splitSelection } from './selection.js';
 import { readCallName } from './call-name.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
@@ -169,6 +170,14 @@ export class SequenceAnalyzer {
 
   /** Beats of the variant of `name` that matches `board` (0 if none). A coded
    * body-relative move always takes CODED_MOVE_BEATS. */
+  /** THE AUTHORED TAM WINS THIS STEP - one rule, shared with the Sequencer (see `apply-source.ts`). */
+  private authoredWins(board: Board, call: string): boolean {
+    return authoredStepWins(board, call, () => {
+      const r = this.applicator.applyToBoard(board, call);
+      return r.legal ? r.board : null;
+    });
+  }
+
   stepBeats(board: Board, name: ModuleStep): number {
     if (isGroupStep(name)) {
       // SIMULTANEOUS, so the step costs the LONGEST group, not the sum. A "while" is over when its
@@ -213,8 +222,10 @@ export class SequenceAnalyzer {
     // `stepBeats(board, {selection:"Head Boys", call:"Dosado"}) = 4` - the same step, two shapes, two
     // answers, and the zero is the one the sequencer stored.
     const coded = findCodedMove(spec.call);
-    if (coded && !spec.selection) return coded.beats;
-    const v = this.matchingVariantInfo(board, spec.call, spec.selection ?? undefined);
+    // THE AUTHORED TAM'S BEATS WHEN IT WINS THE STEP. The source is decided in ONE place
+    // (`Sequencer.authoredWins`, over `apply-source.ts`'s agreement gate), and this has to charge the same
+    // source the apply and the walk chose - otherwise a step animated from the tam would be timed by the rule.
+    if (coded && !spec.selection && !this.authoredWins(board, spec.call)) return coded.beats;    const v = this.matchingVariantInfo(board, spec.call, spec.selection ?? undefined);
     if (v) return v.beats;
     if (coded) return coded.beats;
     return 0;
@@ -569,7 +580,11 @@ export class SequenceAnalyzer {
       // board-wide transform and would move the whole set, whereas `applySelected` moves only the
       // named dancers. So a scoped step skips the coded branch entirely and goes to the variant
       // lookup below, which resolves it against its own subset.
-      if (coded && !selection) {
+      // THE AUTHORED TAM WINS WHERE IT AGREES WITH THE RULE (`apply-source.ts`): the walk must then record an
+      // ordinary CATALOGUE step, so `evaluateAt` samples the authored paths - which is the point of the rule.
+      // Recorded as coded here, the step would be applied from the tam and ANIMATED from the derived legs,
+      // which is the "dancers spin instead of walking" this was reported as.
+      if (coded && !selection && !this.authoredWins(board, spec.call)) {
         const ok = codedMoveApplies(coded, board);
         if (ok) {
           const after = coded.apply(board);

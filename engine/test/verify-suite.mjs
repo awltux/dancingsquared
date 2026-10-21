@@ -134,6 +134,10 @@ const SUITE = [
   // reproduces, the fractions no tam authors, and the wrong-hand refusal. A few hundred milliseconds, because
   // the harness builds no catalogue - the coded-move path is what it measures.
   { h: 'arm-turn', light: true },
+  // WHICH SOURCE SERVES A STEP: the authored tam where it agrees with the derived rule, the rule where it
+  // does not. The reported spin-instead-of-walk case, the gate that keeps `Fan the Top`, and the comparison
+  // itself. Fast: a handful of boards, no corpus sweep.
+  { h: 'apply-source', light: true },
   // WHICH BOARD IDENTITY A PERMISSION RULE SHOULD MATCH ON — and why it is the recogniser's NAME. Step "3" of
   // the agreed order proposed a geometry/cell key instead; MEASURED, that is backwards. The NAME is a shape
   // identity and survives rotation (a square turned 0/45/90/180 is still `Static Square`), while

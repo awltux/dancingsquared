@@ -1272,6 +1272,12 @@ function serverIssued(): boolean {
  * for the right answer and the wrong reason).
  */
 function skipOffered(): boolean {
+  // A REATTEMPT IS NOT SKIPPABLE, and the reason is that the control could do nothing: the position is already
+  // `finished`, so `POST /drill/advance` would close a drill that is already closed and the block would not move. A
+  // control whose only outcome is "nothing happened" is worse than no control — the same rule Q20's practice offer and
+  // Q21's advance are written to. MEASURED IN A BROWSER (this one was): a skipped drill was reattempted, and "Skip this
+  // drill" was still offered beside it.
+  if (serverIssued() && serverDrill?.replay === true) return false;
   if (serverIssued()) return mayWrite(currentStanding());
   return !apiConfigured();
 }

@@ -220,6 +220,8 @@ export type { CodedMove } from './sequencer/coded-moves.js';
 // (and the gate) can ask the RULE a question rather than infer it from a board.
 export { stepForwardRule, stepForwardAndBackRule, stepForwardSteps, resolveStepForward, STEP_FORWARD_UNITS, STEP_FORWARD_BEATS, STEP_FORWARD_AND_BACK_BEATS } from './sequencer/step-forward.js';
 export type { StepForwardResolution } from './sequencer/step-forward.js';
+export { armTurn, armTurnProblem, ARM_TURN_FRACTIONS } from './sequencer/arm-turn.js';
+export type { ArmTurnHand, ArmTurnFraction } from './sequencer/arm-turn.js';
 export type { CallStep, GroupLane, LegacyGroupLane, GroupStep, ModuleStep } from './sequencer/types.js';
 export { isGroupStep, stepCall, stepSelection, stepLabel, parseStep, groupCalls, normalizeGroupLane } from './sequencer/types.js';
 

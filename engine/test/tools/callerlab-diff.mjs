@@ -93,6 +93,16 @@ for (let i = 0; i < lines.length; i++) {
     parts.push(s);
   }
   const listRaw = parts.join(' ').replace(/\s+/g, ' ').trim();
+  // A CASE LABEL THAT IS ITSELF THE CALL NAME, which is how the document writes a family's members:
+  // "Arm Turn Family / a. Right/Left Arm Turn / Starting formations: ...". The walk above deliberately stops at
+  // the label (it is the nearest line that names the call), and without this it then lands on the family heading
+  // and reports the entry as unattributed - so the FAMILY's members were never measured at all. MEASURED on the
+  // unfixed walk: 50 of the sections could not be attributed, and `a. Right/Left Arm Turn` (the heading that
+  // named the arm-turn gap) was one of them.
+  // ONLY WHEN IT READS LIKE A CALL, or the fallback attributes the document's own page furniture: MEASURED on
+  // the unfiltered version, `(A)` grew to 38 and carried fragments like `2, 3`, `4) Tag` and `(Named Dancers)
+  // Circulate`, which are not call names at all. A call name starts with a letter.
+  if (!call && caseLabel && CALLNAME.test(caseLabel) && /^[A-Za-z]/.test(caseLabel)) call = caseLabel;
   // PARENTHESISED ASIDES ARE REMOVED BEFORE THE LIST IS SPLIT, and the order is the whole fix. The
   // source writes "Facing Dancers (Man and Woman)" and the text has the PDF's split words, so
   // splitting FIRST on `\s+and\s+(?=[A-Z])` produced "Facing Dancers (M an" and "W oman)" - two
@@ -288,7 +298,13 @@ for (const c of extra.slice(0, 25)) console.log(`      ${String(figFreq.get(c)).
 // GRANULARITY rather than absence: `Facing Dancers` is a two-dancer formation (Box the Gnat, Dosado,
 // Pass Thru, Slide Thru, Star Thru, Swing) while the engine's cheapest authorings are four-dancer
 // `Facing Couples`. It is pinned so a movement in either direction is re-pinned deliberately.
-const PINNED = { matched: 11, notASetup: 11, unknown: 9, prose: 11, callNotFormation: 3 };
+// RE-PINNED WHEN THE CASE-LABEL ATTRIBUTION WIDENED THE SWEEP, and this is the one legitimate raise (§11.2.8): the
+// document is now read properly, so every count below rises. MEASURED before -> after: 45 -> 79 call names,
+// 55 -> 118 (call, start) pairs, and the five numbers 11/11/9/11/3 -> 19/18/29/16/7. (A) went 9 -> 20 of 79 for
+// the same reason - the extra names are newly READ, not newly missing - and the one it now reports for this
+// family is the bare `Left Arm Turn` / `Right Arm Turn`, whose fraction CALLERLAB supplies from the next call and
+// a board transform cannot; the fractional forms are performed by the rule in `arm-turn.ts`.
+const PINNED = { matched: 19, notASetup: 18, unknown: 29, prose: 16, callNotFormation: 7 };
 console.log('\n=== the pinned numbers (Phase F\'s anti-drift gate) ===');
 let gateFailures = 0;
 const pin = (label, got, want) => {

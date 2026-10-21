@@ -31,6 +31,7 @@ import { STEP_FORWARD_AND_BACK_BEATS, STEP_FORWARD_BEATS, stepForwardAndBackRule
 import { sweepBox, sweepProblem, sweepCollision } from './sweep.js';
 import { swingThru, swingThruLegs } from './swing-thru.js';
 import { fanTheTop, fanTheTopProblem } from './fan-the-top.js';
+import { armTurnDefs } from './arm-turn.js';
 import type { Board } from './types.js';
 
 /** Timeline length of a coded pivot, in beats. */
@@ -537,6 +538,11 @@ const DEFS: {
     deferredHalf: stepForwardHalf,
     catalogueFallback: true,
   },
+  // THE ARM TURN FAMILY. Every (hand, fraction) the CALLERLAB definitions name, as one rule - see
+  // `arm-turn.ts` for the derivation, the measured sign convention and the starting formation it reads. The
+  // corpus's two authored tams (`Left Arm Turn 3/4`, `Right Arm Turn 3/4`) are the reference the rule is
+  // checked against, not a special case: the table below covers them like any other fraction.
+  ...armTurnDefs(),
 ];
 
 export const CODED_MOVES: CodedMove[] = DEFS.map((d) => ({

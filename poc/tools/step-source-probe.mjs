@@ -106,8 +106,14 @@ const codedAlsoAuthored = engine.CODED_MOVES.filter((m) => seq.library.hasCall(m
 const withFallback = engine.CODED_MOVES.filter((m) => m.catalogueFallback).map((m) => m.name);
 console.log(`    ${engine.CODED_MOVES.length} coded moves; ${codedAlsoAuthored.length} also authored; ${withFallback.length} with a catalogue fallback`);
 console.log(`    authored too: ${codedAlsoAuthored.join(', ')}`);
-check(engine.CODED_MOVES.length === 21, `the coded registry holds ${engine.CODED_MOVES.length} moves`);
-check(codedAlsoAuthored.length === 10, `${codedAlsoAuthored.length} of them ALSO have catalogue authorings`);
+// RE-PINNED 21/10 -> 33/11 when the ARM TURN FAMILY became derived (`arm-turn.ts`): twelve registry entries - three
+// fractions times six spellings times two hands, which is 21 + 12 = 33 - and ONE new overlap, because the corpus
+// authors `Left Arm Turn 3/4` and that is the first alias of the left-hand entry (`Right Arm Turn 3/4` is not any
+// entry's NAME, only an alias, so it is not counted here). Both movements are additions from a widening, which is
+// the one legitimate direction for a count like this to move (§11.2.8); the fallback count stays at 5, and the
+// check below still says so rather than assuming it.
+check(engine.CODED_MOVES.length === 33, `the coded registry holds ${engine.CODED_MOVES.length} moves`);
+check(codedAlsoAuthored.length === 11, `${codedAlsoAuthored.length} of them ALSO have catalogue authorings`);
 check(withFallback.length === 5
   && ['Do Sa Do', 'Swing Thru', 'Left Swing Thru', 'Fan the Top', 'Forward and Back'].every((n) => withFallback.includes(n)),
   `and exactly ${withFallback.length} declare a catalogue fallback: ${withFallback.join(', ')}`);

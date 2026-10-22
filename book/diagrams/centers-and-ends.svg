@@ -23,28 +23,28 @@
 <line x1="0" y1="0" x2="420" y2="0" stroke="#e4e9ec" stroke-width="1"/>
 <line x1="210" y1="0" x2="210" y2="390" stroke="#9fadb5" stroke-width="1.5"/>
 <line x1="0" y1="180" x2="420" y2="180" stroke="#9fadb5" stroke-width="1.5"/>
-<polygon points="165.6,72.0 152.7,80.6 152.7,63.4" fill="#22303a"/>
-<polygon points="165.6,144.0 152.7,152.6 152.7,135.4" fill="#22303a"/>
-<polygon points="165.6,216.0 152.7,224.6 152.7,207.4" fill="#22303a"/>
-<polygon points="165.6,288.0 152.7,296.6 152.7,279.4" fill="#22303a"/>
 <polygon points="254.4,288.0 267.3,279.4 267.3,296.6" fill="#22303a"/>
 <polygon points="254.4,216.0 267.3,207.4 267.3,224.6" fill="#22303a"/>
 <polygon points="254.4,144.0 267.3,135.4 267.3,152.6" fill="#22303a"/>
 <polygon points="254.4,72.0 267.3,63.4 267.3,80.6" fill="#22303a"/>
-<rect x="120.7" y="54.7" width="34.6" height="34.6" transform="rotate(0.0 138.0 72.0)" fill="#1f6f8b" stroke="#22303a" stroke-width="1.4"/>
-<circle cx="138" cy="144" r="17.28" fill="#8a3f6b" stroke="#22303a" stroke-width="1.4"/>
-<rect x="120.7" y="198.7" width="34.6" height="34.6" transform="rotate(0.0 138.0 216.0)" fill="#1f6f8b" stroke="#22303a" stroke-width="1.4"/>
-<circle cx="138" cy="288" r="17.28" fill="#8a3f6b" stroke="#22303a" stroke-width="1.4"/>
+<polygon points="165.6,72.0 152.7,80.6 152.7,63.4" fill="#22303a"/>
+<polygon points="165.6,144.0 152.7,152.6 152.7,135.4" fill="#22303a"/>
+<polygon points="165.6,216.0 152.7,224.6 152.7,207.4" fill="#22303a"/>
+<polygon points="165.6,288.0 152.7,296.6 152.7,279.4" fill="#22303a"/>
 <rect x="264.7" y="270.7" width="34.6" height="34.6" transform="rotate(-180.0 282.0 288.0)" fill="#1f6f8b" stroke="#22303a" stroke-width="1.4"/>
 <circle cx="282" cy="216" r="17.28" fill="#8a3f6b" stroke="#22303a" stroke-width="1.4"/>
 <rect x="264.7" y="126.7" width="34.6" height="34.6" transform="rotate(-180.0 282.0 144.0)" fill="#1f6f8b" stroke="#22303a" stroke-width="1.4"/>
 <circle cx="282" cy="72" r="17.28" fill="#8a3f6b" stroke="#22303a" stroke-width="1.4"/>
-<text x="112" y="76" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">E</text>
-<text x="112" y="148" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">C</text>
-<text x="112" y="220" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">C</text>
-<text x="112" y="292" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">E</text>
+<rect x="120.7" y="54.7" width="34.6" height="34.6" transform="rotate(0.0 138.0 72.0)" fill="#1f6f8b" stroke="#22303a" stroke-width="1.4"/>
+<circle cx="138" cy="144" r="17.28" fill="#8a3f6b" stroke="#22303a" stroke-width="1.4"/>
+<rect x="120.7" y="198.7" width="34.6" height="34.6" transform="rotate(0.0 138.0 216.0)" fill="#1f6f8b" stroke="#22303a" stroke-width="1.4"/>
+<circle cx="138" cy="288" r="17.28" fill="#8a3f6b" stroke="#22303a" stroke-width="1.4"/>
 <text x="308" y="292" text-anchor="start" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">E</text>
 <text x="308" y="220" text-anchor="start" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">C</text>
 <text x="308" y="148" text-anchor="start" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">C</text>
 <text x="308" y="76" text-anchor="start" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">E</text>
+<text x="112" y="76" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">E</text>
+<text x="112" y="148" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">C</text>
+<text x="112" y="220" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">C</text>
+<text x="112" y="292" text-anchor="end" font-family="system-ui, sans-serif" font-size="14" font-weight="600" letter-spacing="0.6" fill="#22303a">E</text>
 </svg>

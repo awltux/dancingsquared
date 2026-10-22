@@ -173,6 +173,41 @@ export interface CallBundle {
    * without refusing the call.
    */
   going: Going | null;
+  /**
+   * SET ONLY ON A SYNTHESISED VARIANT - a subwhole-set authoring placed on a whole-set board. A virtual call
+   * is INVENTED GEOMETRY: every other fact in this tree comes from the corpus, and this is the one kind that
+   * does not. The marker is what keeps it out of every census that counts authored tams (§11.2.4's neighbour:
+   * a number that starts counting boards nobody authored is worse than no number), and it is what lets a
+   * consumer say where the paths came from.
+   *
+   * `undefined` on everything the corpus or the editor produced, so an existing caller cannot observe a change.
+   */
+  virtual?: VirtualCallInfo;
+}
+
+/**
+ * WHERE A VIRTUAL VARIANT CAME FROM. Carried on the bundle rather than inferred from its size, because a
+ * whole-set call and a placed subset can look identical from the outside.
+ */
+export interface VirtualCallInfo {
+  /** The authored title the paths were copied from. The placed bundle keeps it, so a caller can say the name. */
+  sourceTitle: string;
+  /** The formation the SOURCE authoring starts from, or null when it named none. */
+  sourceFormation: string | null;
+  /**
+   * How many dancers the source authoring describes AS PLACED — the normalised size, so a half-set unit written
+   * as two dancers reads 4 here, because that is how many dancers one copy moves.
+   */
+  sourceSize: number;
+  /**
+   * `placement[copy][j]` is the board index that took source dancer `j` of that copy. A `tiled` variant has one
+   * entry per copy and covers the whole board; a `partial` one has exactly one entry and leaves the other
+   * dancers holding. NESTED because a tiled placement puts one source dancer on SEVERAL board dancers — a flat
+   * list silently kept only the last copy, which read as a 4-dancer placement of an 8-dancer call.
+   */
+  placement: number[][];
+  /** `tiled`: every board dancer dances a copy. `partial`: one placement dances and the rest hold. */
+  kind: 'tiled' | 'partial';
 }
 
 export interface Pose {

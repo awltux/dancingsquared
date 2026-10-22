@@ -138,6 +138,15 @@ const SUITE = [
   // does not. The reported spin-instead-of-walk case, the gate that keeps `Fan the Top`, and the comparison
   // itself. Fast: a handful of boards, no corpus sweep.
   { h: 'apply-source', light: true },
+  // THE VIRTUAL CALL: a subwhole-set authoring (2 or 4 written dancers) placed on a whole-set board, gated on the
+  // owner's constraint that it must START and END on a formation the engine NAMES — judged by `knownFormation`
+  // called from the harness, not by anything the resolver reports about itself. Pins the placement arithmetic
+  // (starts exactly where the board is, track verbatim, identity in board order), the two refusals the chooser
+  // makes on purpose (two bodies on one placement; two equal placements on a symmetric board), and four controls
+  // (a namer that names no end, a namer that names no start, determinism, and that resolving registers nothing).
+  // ~9s: it sweeps 20 of the 138 named formations against the 425 titles with a sub-eight-dancer authoring; the
+  // full sweep is `node test/virtual-call.mjs --all` and the default run PRINTS what it skipped.
+  { h: 'virtual-call', light: true },
   // WHICH BOARD IDENTITY A PERMISSION RULE SHOULD MATCH ON — and why it is the recogniser's NAME. Step "3" of
   // the agreed order proposed a geometry/cell key instead; MEASURED, that is backwards. The NAME is a shape
   // identity and survives rotation (a square turned 0/45/90/180 is still `Static Square`), while

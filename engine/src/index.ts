@@ -91,6 +91,19 @@ export {
 export * from './sequencer/types.js';
 export { matchFormations, matchFormationsAll } from './sequencer/match.js';
 export type { FormationMatch, Matchable } from './sequencer/match.js';
+// THE VIRTUAL CALL: a subwhole-set authoring placed on a whole-set board, with the owner's constraint that it
+// must START and END on a formation the engine NAMES. The rule, the policy and the refusal each live in their
+// own function so a harness can pin them apart; `Sequencer.virtualCall` is the thin delegate that supplies the
+// catalogue and the namer.
+export { placeVirtual, resolveVirtual, chooseVirtual } from './sequencer/virtual-call.js';
+export type {
+  FormationNamer,
+  PlacementCopy,
+  VirtualCandidate,
+  VirtualKind,
+  VirtualOptions,
+  VirtualOutcome,
+} from './sequencer/virtual-call.js';
 // The mixed-arity (multi-size) grouping enumeration. Exported for the REPORTER that pins its measured
 // yield — see `partitionsFor` for why it is deliberately wired to nothing else.
 export { partitionsFor, MIXED_PARTITION_CAP } from './sequencer/applicator.js';

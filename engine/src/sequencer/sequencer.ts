@@ -43,6 +43,7 @@ import type { Going } from '../going.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { authoredStepWins } from './apply-source.js';
+import { resolveVirtual, type VirtualOutcome } from './virtual-call.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -597,6 +598,33 @@ export class Sequencer {
 
   knownFormation(board: Board): string | null {
     return this.matcher.knownFormation(board);
+  }
+
+  /**
+   * A subwhole-set call resolved onto `board` as a whole-board VIRTUAL call — the candidates, not a choice.
+   *
+   * The rule is `resolveVirtual`'s and the policy is `chooseVirtual`'s; this method exists to supply the two
+   * things a pure rule cannot reach: the catalogue (`library.matchableVariants`) and the engine's namer
+   * (`knownFormation`). `preferGroup` ("heads", "centers", …) is resolved HERE because the Grouping is the layer
+   * that knows what a group name means — the matcher and the resolver never learn it.
+   *
+   * THE BOARD DOES NOT CHANGE. This asks a question; it does not apply anything. Applying a virtual call to a
+   * sequencing path is a separate decision (TODO item 39), because it moves counts that the permission layer and
+   * the FSM asset pin.
+   */
+  virtualCall(board: Board, callName: string, opts: { preferGroup?: string; matchTol?: number } = {}): VirtualOutcome {
+    const variants = this.library.matchableVariants(callName);
+    if (variants.length === 0) {
+      return { legal: false, reason: `Unknown call: ${callName}`, tried: 'the catalogue' };
+    }
+    const ids = opts.preferGroup ? this.grouping.resolveSelection(board, opts.preferGroup) : null;
+    const preferPlacement = ids
+      ? ids.map((id) => board.dancers.findIndex((d) => d.id === id)).filter((i) => i >= 0)
+      : undefined;
+    return resolveVirtual(board, variants, (b) => this.matcher.knownFormation(b), {
+      matchTol: opts.matchTol,
+      preferPlacement,
+    });
   }
 
   /**

@@ -171,22 +171,34 @@ export function filesRecord(level: string): Record<string, string> {
 }
 
 /**
- * Whether a tam matches a query the way the corpus's own tams are addressed: every key the query names must equal
- * that attribute, and the two FORMATION keys (`from`, `formation`) are one question — a tam declares the formation
- * it is written for in either, and every tam in `ms/circle.xml` uses `formation` alone with `from` empty.
+ * How a tam matches a query the way the corpus's own tams are addressed: every key the query names must equal that
+ * attribute, and the two FORMATION keys (`from`, `formation`) are one question — a tam declares the formation it is
+ * written for in either, and every tam in `ms/circle.xml` uses `formation` alone with `from` empty.
  *
- * This is the rule `book/tools/make-animations.mjs`'s `findTam` applies to `start-formations.json`'s queries, moved
+ * Returns WHICH way it matched, because a caller counts the fallback: `book/tools/make-animations.mjs` prints how
+ * many of its start queries needed the declared-formation reading ("1 matched on a tam's own declared formation"),
+ * and that number is how a corpus that has quietly dropped an attribute shows up instead of being absorbed.
+ *
+ * This is the rule `book/tools/make-animations.mjs`'s `findTam` applied to `start-formations.json`'s queries, moved
  * here so the book, the game and any future caller cannot answer "is this the tam" three ways. Compared against
  * the RAW attributes, which is what the shipped queries are written in.
  */
-export function matchesTamQuery(attrs: Readonly<Record<string, string>>, query: Readonly<Record<string, string>>): boolean {
+export function tamQueryMatch(attrs: Readonly<Record<string, string>>, query: Readonly<Record<string, string>>): 'direct' | 'declared-formation' | null {
   const FORMATION_KEYS = new Set(['from', 'formation']);
+  let declared = false;
   for (const [key, value] of Object.entries(query)) {
     if ((attrs[key] ?? '') === value) continue;
-    if (!FORMATION_KEYS.has(key)) return false;
-    if ((attrs.formation ?? '') === value) continue;
-    if ((attrs.from ?? '') === value) continue;
-    return false;
+    if (!FORMATION_KEYS.has(key)) return null;
+    if ((attrs.formation ?? '') === value || (attrs.from ?? '') === value) {
+      declared = true;
+      continue;
+    }
+    return null;
   }
-  return true;
+  return declared ? 'declared-formation' : 'direct';
+}
+
+/** `tamQueryMatch` as a predicate, for the callers that do not need to know how it matched. */
+export function matchesTamQuery(attrs: Readonly<Record<string, string>>, query: Readonly<Record<string, string>>): boolean {
+  return tamQueryMatch(attrs, query) !== null;
 }

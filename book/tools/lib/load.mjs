@@ -10,6 +10,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { filesOf, tamsOf } from 'dancing-squared-corpus';
+
 export const here = dirname(fileURLToPath(import.meta.url)); // .../book/tools/lib
 export const toolsDir = join(here, '..'); // .../book/tools
 export const root = join(here, '..', '..', '..'); // the repo root
@@ -94,35 +96,25 @@ export function makeEngine(eng) {
  *
  * The corpus's level is NOT membership: it only says where animation data may be found,
  * and a call that moved into Mainstream from Basic may have its only authoring under `b1/`.
+ *
+ * THE READING COMES FROM `packages/corpus` since the consolidation: the same walk the engine's 134 harnesses do,
+ * with the corpus's comments stripped, so a `tamIndex` here addresses the same `<tam>` that `loadCallFromXml`
+ * builds. Before that, the book scanned `<tam>` with a raw regex and paired the resulting index with a DOM parse,
+ * and in the four files that carry a commented-out tam those two disagreed. `eng` is gone from the signature with
+ * that change: the reader needs no engine, and the two call sites pass levels instead.
  */
-export function catalogue(eng, levels = SOURCE_LEVELS) {
+export function catalogue(levels = SOURCE_LEVELS) {
   const byTitle = new Map();
   for (const level of levels) {
-    const dir = join(root, 'assets', level);
-    if (!existsSync(dir)) continue;
-    for (const f of readdirXml(dir)) {
-      const rel = `${level}/${f}`;
-      let tams;
-      try {
-        tams = eng.parseCallXml(readFileSync(join(dir, f), 'utf8'));
-      } catch {
-        continue; // a file that does not parse is not a call
+    for (const file of filesOf(level)) {
+      for (const site of tamsOf(level, file)) {
+        if (!site.title) continue;
+        if (!byTitle.has(site.title)) byTitle.set(site.title, []);
+        byTitle.get(site.title).push({ file: `${level}/${file}`, tamIndex: site.index });
       }
-      tams.forEach((t, i) => {
-        if (!t?.title) return;
-        if (!byTitle.has(t.title)) byTitle.set(t.title, []);
-        const sites = byTitle.get(t.title);
-        if (!sites.some((s) => s.file === rel && s.tamIndex === i)) sites.push({ file: rel, tamIndex: i });
-      });
     }
   }
   return byTitle;
-}
-
-function readdirXml(dir) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { readdirSync } = createRequire(import.meta.url)('node:fs');
-  return readdirSync(dir).filter((f) => f.endsWith('.xml'));
 }
 
 /** Build a call bundle from a corpus site, mirroring the half-set authorings. */

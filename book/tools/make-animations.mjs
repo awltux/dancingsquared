@@ -22,6 +22,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs';
+import { matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, PALETTE, C, writePng } from './lib/raster.mjs';
 
@@ -32,20 +33,20 @@ const INDEX = join(toolsDir, 'animations-index.json');
 /** Start formations the player offers, where the manual lists more than one and the corpus has one. */
 const START_FORMATIONS = join(toolsDir, 'start-formations.json');
 
-/** The attributes of every `<tam>` in a corpus file, in order. */
-function tamsOf(file) {
-  const xml = readFileSync(join(root, 'assets', file), 'utf8');
-  return [...xml.matchAll(/<tam\b[^>]*>/g)].map((m) => {
-    const attrs = {};
-    for (const a of m[0].matchAll(/(\w+)\s*=\s*"([^"]*)"/g)) attrs[a[1]] = a[2];
-    return attrs;
-  });
+/**
+ * A corpus site's file, split into the level and the file name the reader wants — `"ms/promenade.xml"` is
+ * `['ms', 'promenade.xml']`. The book's table names files this way (`start-formations.json`'s `file`), and the one
+ * reader takes them apart because its own argument is a level plus a file.
+ */
+function levelOf(rel) {
+  const at = rel.indexOf('/');
+  return at < 0 ? ['', rel] : [rel.slice(0, at), rel.slice(at + 1)];
 }
 
-/** The `<tam>` BLOCKS of a corpus file, comments removed — what an engine can be handed as a `<calls>` document. */
-function tamBlocksOf(file) {
-  const xml = readFileSync(join(root, 'assets', file), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
-  return xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
+/** Every `<tam>` site of a corpus file named the book's way (`"ms/promenade.xml"`). */
+function sitesOfFile(rel) {
+  const [level, file] = levelOf(rel);
+  return level ? tamsOf(level, file) : [];
 }
 
 /**
@@ -72,8 +73,9 @@ function virtualFor(eng, spec, query) {
   // `Grand Circle` are exactly that case in the 12 outstanding queries.
   const formation = spec?.formation ?? query.formation ?? query.from ?? null;
   if (!formation) return { chosen: null, reason: 'neither the card nor the query names a formation for this start' };
-  const blocks = tamBlocksOf(spec.file ?? query.file ?? '');
-  const own = blocks.filter((b) => (b.match(/\btitle="([^"]*)"/) ?? [])[1] === title);
+  const own = sitesOfFile(spec.file ?? query.file ?? '')
+    .filter((site) => site.title === title)
+    .map((site) => site.xml);
   if (own.length === 0) return { chosen: null, reason: 'no tam in that file carries the title, so there is no authoring to place' };
   let seq;
   try {
@@ -98,32 +100,19 @@ function virtualFor(eng, spec, query) {
  * `formation` is rejected by the caller, because `title` alone spans every formation the authoring
  * was written for and would pin nothing.
  *
- * THE TWO FORMATION ATTRIBUTES ARE ONE QUESTION. A tam declares the formation it is written for in
- * `from`, in `formation`, or -- as every tam in `ms/circle.xml` now does -- in `formation` alone, with
- * `from` left empty. A query naming `from` therefore finds nothing even though the authoring is
- * plainly written for that formation. Both keys are matched against either declaration, and the
- * caller COUNTS how often the fallback was needed, so a corpus that has quietly dropped an attribute
- * shows up in the build output instead of being absorbed in silence. (`tamsOf` reads the raw XML, so
- * the field here is `formation`; `formationAttr` is the name the engine's own parser gives it, and is
- * checked too so this holds whichever shape it is handed.)
+ * THE TWO FORMATION ATTRIBUTES ARE ONE QUESTION, and that rule now lives in `packages/corpus`
+ * (`tamQueryMatch`) rather than here: a tam declares the formation it is written for in `from`, in
+ * `formation`, or -- as every tam in `ms/circle.xml` now does -- in `formation` alone, with `from` left
+ * empty, so a query naming `from` would find nothing even though the authoring is plainly written for
+ * that formation. Both keys are matched against either declaration, and the caller COUNTS how often the
+ * fallback was needed, so a corpus that has quietly dropped an attribute shows up in the build output
+ * instead of being absorbed in silence. The reader hands raw attributes, and `tamQueryMatch` says WHICH
+ * way it matched so that count survives the move.
  */
-const FORMATION_KEYS = new Set(['from', 'formation']);
-const DECLARED_FORMATION_FIELDS = ['formation', 'formationAttr'];
-
-function findTam(tams, query, tally = null) {
-  return tams.findIndex((t) =>
-    Object.entries(query).every(([k, v]) => {
-      if ((t[k] ?? '') === v) return true;
-      if (!FORMATION_KEYS.has(k)) return false;
-      for (const field of DECLARED_FORMATION_FIELDS) {
-        if ((t[field] ?? '') === v) {
-          if (tally) tally.declared++;
-          return true;
-        }
-      }
-      return false;
-    }),
-  );
+function findTam(sites, query, tally = null) {
+  const at = sites.findIndex((s) => matchesTamQuery(s.attrs, query));
+  if (at >= 0 && tally && tamQueryMatch(sites[at].attrs, query) === 'declared-formation') tally.declared++;
+  return at;
 }
 
 /**
@@ -148,7 +137,7 @@ function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolve
     const calls = [];
     const seen = new Set();
     for (const call of spec.calls ?? []) {
-      const tams = cache.get(call.file) ?? tamsOf(call.file);
+      const tams = cache.get(call.file) ?? sitesOfFile(call.file);
       cache.set(call.file, tams);
       for (const query of call.tam_xml_queries ?? []) {
         if (!query.from && !query.formation) {

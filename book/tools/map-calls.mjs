@@ -135,7 +135,7 @@ export function main() {
   const text = readFileSync(CLEANED, 'utf8');
   const units = parseTeachingOrder(text);
   const eng = loadEngine();
-  const byTitle = catalogue(eng);
+  const byTitle = catalogue();
 
   if (process.argv.includes('--titles')) {
     for (const t of [...byTitle.keys()].sort()) console.log(`${t}\t${byTitle.get(t).map((s) => s.file).join(', ')}`);

@@ -130,7 +130,7 @@ export function build() {
   const map = JSON.parse(readFileSync(join(toolsDir, 'call-map.json'), 'utf8'));
   const anims = JSON.parse(readFileSync(join(toolsDir, 'animations-index.json'), 'utf8'));
   const eng = loadEngine();
-  const byTitle = catalogue(eng);
+  const byTitle = catalogue();
   const plus = plusProgramme();
   const plusKeys = new Set(plus.map(normalise));
   const mainstreamFiles = mainstreamCallSet(map);

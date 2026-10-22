@@ -43,7 +43,7 @@ import type { Going } from '../going.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { authoredStepWins } from './apply-source.js';
-import { resolveVirtual, type VirtualOutcome } from './virtual-call.js';
+import type { VirtualOutcome } from './virtual-call.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -613,18 +613,16 @@ export class Sequencer {
    * the FSM asset pin.
    */
   virtualCall(board: Board, callName: string, opts: { preferGroup?: string; matchTol?: number } = {}): VirtualOutcome {
-    const variants = this.library.matchableVariants(callName);
-    if (variants.length === 0) {
-      return { legal: false, reason: `Unknown call: ${callName}`, tried: 'the catalogue' };
-    }
     const ids = opts.preferGroup ? this.grouping.resolveSelection(board, opts.preferGroup) : null;
     const preferPlacement = ids
       ? ids.map((id) => board.dancers.findIndex((d) => d.id === id)).filter((i) => i >= 0)
       : undefined;
-    return resolveVirtual(board, variants, (b) => this.matcher.knownFormation(b), {
-      matchTol: opts.matchTol,
-      preferPlacement,
-    });
+    return this.matcher.virtualCall(board, callName, { matchTol: opts.matchTol, preferPlacement });
+  }
+
+  /** Hit/miss counts for the virtual-call cache, which lives beside the matcher's other two. */
+  virtualCacheStats(): { hits: number; misses: number; size: number } {
+    return this.matcher.virtualCacheStats();
   }
 
   /**

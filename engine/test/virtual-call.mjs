@@ -220,8 +220,59 @@ console.log('\n== 4. The controls: each rule removed, and the check that notices
   check(seq.library.matchableVariants('Promenade 1/2').length === before, `resolving registers nothing (still ${before} variants of that title)`);
 }
 
-// ---------------------------------------------------------------- 5. what this did NOT measure
-console.log('\n== 5. What this run does not cover ==');
+// ---------------------------------------------------------------- 5. the cache
+console.log('\n== 5. The cache: keyed on the pose set, refusals included ==');
+{
+  const square = seq.boardForFormation('Static Square');
+  seq.virtualCall(square, 'Dosado'); // warm the formation scan itself, so the counts below are about THIS cache
+  const before = seq.virtualCacheStats();
+  const one = seq.virtualCall(square, 'Dosado');
+  const twice = seq.virtualCall(square, 'Dosado');
+  const after = seq.virtualCacheStats();
+  check(after.hits > before.hits && after.misses === before.misses, `a second identical question is a HIT (hits ${before.hits} -> ${after.hits}, misses ${after.misses})`);
+  check(JSON.stringify(one) === JSON.stringify(twice), 'and the cached answer is the same answer, byte for byte');
+
+  // A REFUSAL IS CACHED, because a miss costs as much as a hit: `Allemande Left` has no sub-eight-dancer
+  // authoring, so it refuses — and the second refusal must not re-sweep.
+  const refused = seq.virtualCall(square, 'Allemande Left');
+  const m1 = seq.virtualCacheStats().misses;
+  seq.virtualCall(square, 'Allemande Left');
+  const m2 = seq.virtualCacheStats().misses;
+  check(!refused.legal && m2 === m1, `a REFUSAL is cached too: ${refused.legal ? 'it resolved' : 'refused once'} and a second ask cost ${m2 - m1} miss(es)`);
+
+  // THE KEY IS THE POSE SET, NOT THE FORMATION'S NAME — the first thing item 39 says would make this wrong. A
+  // square turned 90 degrees is STILL named `Static Square` by the engine, so a name-keyed cache would answer it
+  // with the unturned board's result and nobody could tell. The MISS is the observable: the two boards have
+  // different pose sets, so they are different questions.
+  //
+  // AND THE PLACEMENT IS EXPECTED TO COME OUT THE SAME, which is why it is not the control. `placement` is a set of
+  // DANCER INDICES, and a rotation of the whole board carries every dancer's geometry round with them — the pair
+  // `{2,6}` is still the pair whose members happen to be at the rotated spots. MEASURED when this was first
+  // written as "the placements must differ": they do not, on any rotation of a square, and the assertion was the
+  // check-whose-subject-does-not-exist mistake. What must hold on the turned board is that the answers are still
+  // valid, judged by the namer here.
+  const turned = { dancers: square.dancers.map((d) => {
+    const c = Math.cos(Math.PI / 2);
+    const s = Math.sin(Math.PI / 2);
+    return { ...d, x: d.x * c - d.y * s, y: d.x * s + d.y * c, heading: norm(d.heading + Math.PI / 2) };
+  }) };
+  check(seq.knownFormation(turned) === 'Static Square', `a square turned 90 degrees is still named Static Square (${seq.knownFormation(turned)})`);
+  const miss0 = seq.virtualCacheStats().misses;
+  const turnedResult = seq.virtualCall(turned, 'Single File Promenade');
+  check(seq.virtualCacheStats().misses === miss0 + 1, 'and asking about it is a MISS, not a stale hit on the pose set it shares a NAME with');
+  check(
+    turnedResult.legal && turnedResult.candidates.every((c) => c.startFormation === 'Static Square' && seq.knownFormation(c.end) === c.endFormation),
+    `and its answer is computed for THIS board: ${turnedResult.legal ? `${turnedResult.candidates.length} candidate(s), every end named` : turnedResult.reason}`,
+  );
+
+  // AND THE CACHE IS CLEARED WHERE THE OTHER TWO ARE, so a new formation or a user-defined one cannot read a stale
+  // answer.
+  seq.registerFormation('Virtual call probe formation', square.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender, couple: d.couple })));
+  check(seq.virtualCacheStats().size === 0, `registering a formation clears it (size ${seq.virtualCacheStats().size})`);
+}
+
+// ---------------------------------------------------------------- 6. what this did NOT measure
+console.log('\n== 6. What this run does not cover ==');
 {
   console.log('    - the book consumer (`make-animations.mjs`) is not exercised here: it reads the engine through');
   console.log('      `book/tools/lib/load.mjs`, and `npm run check:book` is its gate.');

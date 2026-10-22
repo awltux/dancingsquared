@@ -13,6 +13,7 @@ import { DEG } from '../core.js';
 import type { Going } from '../going.js';
 import type { CallBundle, DancerSpec, Seg } from '../types.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
+import { resolveVirtual, type VirtualOptions, type VirtualOutcome } from './virtual-call.js';
 
 /** Two formation matches within this of each other are treated as tied when
  * deciding whether a board IS a given formation (they are the same geometry). */
@@ -219,6 +220,11 @@ export class FormationMatcher {
   // how many callers probe it.
   private formationMatchCache = new Map<string, { f: { name: string; dancers: Matchable[] }; m: FormationMatch; second: number } | null>();
 
+  // Caches a subwhole-set call's resolution onto an exact board, REFUSALS INCLUDED (see `virtualCall`).
+  private virtualCache = new Map<string, VirtualOutcome>();
+  private virtualHits = 0;
+  private virtualMisses = 0;
+
   /** How close two match errors must be to count as a TIE when deciding between a variant that
    * matches directly and one that needs a reflection. Exact equality is too brittle: an authored
    * setup and its mirror can land a rounding step apart. */
@@ -261,9 +267,47 @@ export class FormationMatcher {
     return this.goingAllowed(board, callName, going);
   }
 
+  /**
+   * A subwhole-set call resolved onto this board as a whole-board virtual call, MEMOISED beside the other two
+   * caches.
+   *
+   * THE KEY IS THE BOARD'S EXACT POSE SET (`formationSig`, the same identity `formationMatchCache` keys on), plus
+   * the call and the caller's placement preference — NEVER the formation's name. A name hides rotation and
+   * arrangement, so a name-keyed cache would answer a turned board with the placement it resolved for the
+   * unturned one, silently; TODOs item 39 carries that as the first thing that would make the feature wrong, and
+   * the harness pins it by turning a board 90 degrees and requiring a MISS and a different placement.
+   *
+   * REFUSALS ARE CACHED TOO. A miss on a call that cannot be placed is as expensive as a hit (it sweeps every
+   * variant), and the engine's contract is that a refusal is a VALUE — so `{ legal: false, reason }` is stored
+   * like any other answer. `virtualCacheStats` exists so a gate can prove the cache is used rather than assume it.
+   */
+  virtualCall(board: Board, callName: string, opts: VirtualOptions = {}): VirtualOutcome {
+    const variants = this.library.matchableVariants(callName);
+    if (variants.length === 0) return { legal: false, reason: `Unknown call: ${callName}`, tried: 'the catalogue' };
+    const prefer = opts.preferPlacement ? [...opts.preferPlacement].sort((a, b) => a - b).join(',') : '-';
+    const key = `${opts.matchTol ?? DEFAULT_MATCH_MAX}|${callName}|${prefer}|${this.formationSig(board)}`;
+    const cached = this.virtualCache.get(key);
+    if (cached !== undefined) {
+      this.virtualHits++;
+      return cached;
+    }
+    this.virtualMisses++;
+    const out = resolveVirtual(board, variants, (b) => this.knownFormation(b), opts);
+    this.virtualCache.set(key, out);
+    return out;
+  }
+
+  /** Hit and miss counts for the virtual-call cache. Cleared by `clearCaches`, like the caches themselves. */
+  virtualCacheStats(): { hits: number; misses: number; size: number } {
+    return { hits: this.virtualHits, misses: this.virtualMisses, size: this.virtualCache.size };
+  }
+
   clearCaches(): void {
     this.matchMemo.clear();
     this.formationMatchCache.clear();
+    this.virtualCache.clear();
+    this.virtualHits = 0;
+    this.virtualMisses = 0;
   }
 
   /** The board as a list of matchable dancers. */

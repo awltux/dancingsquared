@@ -274,6 +274,40 @@ console.log('\n== 5. the Daily is a READ of the published challenge ==');
   check(aborted.ok === false && aborted.failure.code === 'unreachable', `NEGATIVE CONTROL: the same 1 ms window aborts a drill read (${aborted.failure?.code})`);
 }
 
+console.log('\n== 5c. a hint spend waits for the write the server is still doing ==');
+{
+  // REPORTED: "I earned a hint, but the hint button doesn't seem to do anything." MEASURED in the dev server's own log:
+  // one `POST /me/hints` answered **200 after 88 295 ms** — the first hint in a process builds the hint's distance table,
+  // which `api/src/levels.ts` measures at 79-91 s — while this client's shared 8 s window had given up long before. That
+  // is worse than a failed request: the spend COMMITTED, so the player paid a hint they never saw, and every press after
+  // it was refused for a balance they no longer held.
+  //
+  // THE WIDER WINDOW IS THE FIX, AND THIS IS THE CHECK: the stub answers well after the shared window and far inside the
+  // hint's own, so a client that used the shared window is aborted and one that widens it arrives. The NEGATIVE CONTROL
+  // is the same stub with a call that does not widen (`issueDrill`), which the identical 1 ms window aborts — so a
+  // global loosening of the timeout would not pass both checks.
+  const slowHint = (_url, init) =>
+    new Promise((resolve, reject) => {
+      const timer = setTimeout(
+        () => resolve({ ok: true, status: 200, json: async () => ({ hints: { hints: 0, successes: 0 }, spent: 1, call: 'Boys Run' }) }),
+        40,
+      );
+      init?.signal?.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(new Error('AbortError'));
+      });
+    });
+  const patient = deps('http://localhost:8090', slowHint);
+  const hintAnswer = await spendHint(1, '2026-10-15', { ...patient.api, timeoutMs: 1 });
+  check(
+    hintAnswer.ok === true && hintAnswer.value.call === 'Boys Run',
+    `a hint spend slower than the shared window still arrives, and names its call (${hintAnswer.ok}, ${hintAnswer.value?.call})`,
+  );
+  const narrow = deps('http://localhost:8090', slowHint);
+  const shortCall = await issueDrill(1, { ...narrow.api, timeoutMs: 1 });
+  check(shortCall.ok === false && shortCall.failure.code === 'unreachable', `NEGATIVE CONTROL: the same 1 ms window aborts a call that did not widen it (${shortCall.failure?.code})`);
+}
+
 console.log('\n== 5b. the Daily is POLLED in the BACKGROUND, never awaited as one long request ==');
 {
   // REPORTED TWICE. First: "the app still hangs … it needs an asynchronous mechanism to poll if Todays Daily is

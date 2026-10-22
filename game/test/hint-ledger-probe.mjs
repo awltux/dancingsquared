@@ -11,7 +11,7 @@
 // purpose: granting on the 11th, accumulating behind the cap, and mutating the input record.
 //
 // Usage: node game/test/hint-ledger-probe.mjs
-import { EMPTY_LEDGER, earningProgress, recordSuccess, spendHint } from '../src/puzzle/hints.ts';
+import { EMPTY_LEDGER, earningProgress, recordSuccess, refusedSpend, spendHint } from '../src/puzzle/hints.ts';
 import { HINT_CAP, HINT_SUCCESS_STEP } from '../src/puzzle/config.ts';
 
 let failures = 0;
@@ -126,6 +126,29 @@ console.log('\n== 7. the ledger survives a full round trip of the rule ==');
   check(ledger.hints === 0 && ledger.successes === 9, `nine more successes are one short of the next hint (${ledger.successes} counted)`);
   ledger = recordSuccess(ledger).ledger;
   check(ledger.hints === 1 && ledger.successes === 0, 'and the tenth earns another, which is the whole loop of the mode');
+}
+
+console.log('\n== 8. a REFUSED spend takes the server\'s balance, and only where the refusal is about it ==');
+{
+  // REPORTED: "I earned a hint, but the hint button doesn't seem to do anything." MEASURED (the dev server's log): a
+  // spend answered 200 after 88 295 ms while the client's 8 s window had given up, so the debit landed, the app never
+  // adopted it, and the footer went on claiming a hint that every later press was refused. `refusedSpend` is the
+  // transition that closes it: `no_hints` from the server IS the balance (A23 — the spend is the server's), so the
+  // copy on the device is corrected rather than left claiming what it cannot spend.
+  const held = { hints: 1, successes: 6 };
+  const none = refusedSpend(held, 'no_hints');
+  check(none.corrected === true && none.ledger.hints === 0, `"no_hints" empties the local balance (${none.ledger.hints} held, corrected ${none.corrected})`);
+  check(none.ledger.successes === 6, `and leaves the progress towards the next one alone (${none.ledger.successes})`);
+  check(held.hints === 1 && held.successes === 6, 'and the record it was given is untouched');
+  // NEGATIVE CONTROL: every OTHER refusal is about something else — no attempt row, an unreadable balance, a challenge
+  // three hints deep, a board with nothing to name — and the player still holds the hint in all of them, so a rule
+  // that zeroed on any code would redden these four checks. A rule that zeroed nothing reddens the first one above.
+  for (const code of ['no_attempt_row', 'hints_exhausted', 'unreadable_hints', 'nothing_to_name', 'unreachable']) {
+    const other = refusedSpend(held, code);
+    check(other.corrected === false && other.ledger.hints === 1, `"${code}" keeps the hint the player holds (${other.ledger.hints} held)`);
+  }
+  const empty = refusedSpend(EMPTY_LEDGER, 'no_hints');
+  check(empty.corrected === false && empty.ledger.hints === 0, 'a refusal with nothing held is not a correction');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

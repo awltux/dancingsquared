@@ -28,15 +28,15 @@ import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
 import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
-import { earningProgress } from './puzzle/hints.ts';
-import { SCORE_VERSION } from './puzzle/config.ts';
+import { earningProgress, refusedSpend } from './puzzle/hints.ts';
+import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -1972,21 +1972,72 @@ function redoDaily(): void {
 }
 
 /**
+ * The hint button's pending state, and the flag that stops a second press spending a second hint.
+ *
+ * A HINT SPEND CAN TAKE A MINUTE AND A HALF, and the press has to say so. MEASURED (the dev server's own log): one
+ * `POST /me/hints` answered **200 after 88 295 ms** — the first hint in a process builds the hint's distance table,
+ * which `HINT_TIMEOUT_MS` in `net/api.ts` carries the measurement for — while the app's shared 8 s handshake window
+ * had already given up on it. The spend landed and this app never saw it, so the presses after it were fast
+ * `409 no_hints` answers under a footer that still claimed a hint: the report "I earned a hint, but the hint button
+ * doesn't seem to do anything".
+ *
+ * THE PRESS NOW GETS THREE THINGS, each one a way for that report to be impossible: a window that covers the work
+ * (`HINT_TIMEOUT_MS`), the same busy affordance the Daily tab carries while a challenge is being created (a spinner,
+ * `aria-busy`, and an accessible name that says what is happening — a ring alone is invisible in a still screenshot
+ * and to a reduced-motion preference), and this guard, because a second press during the wait would charge a second
+ * hint for one intent.
+ */
+let hintInFlight = false;
+
+function setHintBusy(busy: boolean): void {
+  if (busy) {
+    els.hint.dataset['busy'] = 'true';
+    els.hint.setAttribute('aria-busy', 'true');
+    els.hint.setAttribute('aria-label', 'Hint — waiting for the server to name a call…');
+  } else {
+    delete els.hint.dataset['busy'];
+    els.hint.removeAttribute('aria-busy');
+    els.hint.removeAttribute('aria-label');
+  }
+}
+
+/** One server spend, with the button marked busy for exactly as long as the answer takes. */
+async function spendOnServer(levelIndex: number): Promise<ApiResult<HintSpend>> {
+  hintInFlight = true;
+  setHintBusy(true);
+  try {
+    return await spendHint(levelIndex, dailyDay);
+  } finally {
+    hintInFlight = false;
+    setHintBusy(false);
+  }
+}
+
+/**
+ * Say something in the DAILY's status area, and only while the Daily is what is on screen.
+ *
+ * THE ANSWER CAN OUTLIVE THE SCREEN: a spend that takes a minute and a half can land after the player has gone back
+ * to the drills, and writing the Daily's status and boards over the drill's is the failure `showDaily` guards
+ * against for the same reason. The bookkeeping still happens; only the paint is conditional.
+ */
+function sayInDaily(message: string, tone: 'ok' | 'bad' | 'info'): void {
+  if (mode === 'daily') dailyScreen.say(message, tone);
+}
+
+/**
  * Take a hint: the LEDGER is asked first, and only a granted spend charges the run.
  *
- * WITH A SERVER, THE SPEND IS THE SERVER'S (DESIGN.md 11.1, A23): the balance moves there and the run is charged the
- * 60 seconds from what was RECORDED, so this asks for the spend before taking it locally. A refusal — no balance,
- * a challenge nobody read, the bound — is shown and NOTHING is spent, because a hint the server did not record
- * would be a run it refuses (`unrecorded_hints`) and a player who lost the run rather than the hint.
- *
- * THE CALL IT NAMES IS STILL THIS APP'S. §10's look-up runs over the board the player is standing on, and for the
- * Daily that board is the recorded line — `POST /daily/move` is still to come, so the naming stays local and the
- * SPEND is what the server owns (DESIGN.md §11.1's known limit 2 records why the information is not the secret).
+ * WITH A SERVER, BOTH THE BALANCE AND THE NAME ARE THE SERVER'S (DESIGN.md 11.1, A23): `POST /me/hints` debits the
+ * balance, records the event, and names the call from the line it RECORDED — which is the board the player is
+ * actually on, where this app's own look-up runs from the position it believes it is on. A refusal — no balance, a
+ * challenge nobody read, the bound, nothing to name — is shown and NOTHING is spent, because a hint the server did
+ * not record would be a run it refuses (`unrecorded_hints`) and a player who lost the run rather than the hint. A
+ * demo has no such write (A20), so it spends the device's balance and names the call from this app's own look-up.
  */
 async function takeHint(): Promise<void> {
-  if (!daily || PLAYHEAD.isRunning) return;
+  if (!daily || PLAYHEAD.isRunning || hintInFlight) return;
   if (save.hints.hints <= 0) {
-    dailyScreen.say('You have no hints — one is earned every ten solved drills.', 'bad');
+    sayInDaily('You have no hints — one is earned every ten solved drills.', 'bad');
     return;
   }
   // A HINT IS A WRITE TOO (A20), so a demo spends the DEVICE's balance and never asks: `POST /me/hints` would answer
@@ -1997,9 +2048,24 @@ async function takeHint(): Promise<void> {
   let serverNamed: string | null = null;
   if (serverSpend) {
     const levelIndex = daily.view(performance.now()).level.index;
-    const answer = await spendHint(levelIndex, dailyDay);
+    const answer = await spendOnServer(levelIndex);
     if (!answer.ok) {
-      dailyScreen.say(`The server would not record a hint: ${answer.failure.message}`, 'bad');
+      // A REFUSAL THAT IS ABOUT THE BALANCE IS THE BALANCE (`refusedSpend`). Without this the footer went on claiming
+      // a hint the server had already spent — MEASURED, after a spend that answered at 88 s and was given up on at
+      // 8 s: the debit landed, this app never adopted it, and every later press was refused while the footer said "1
+      // of 3". The correction is shown rather than silent, because a balance that moves by itself is its own puzzle.
+      const refusal = refusedSpend(save.hints, answer.failure.code);
+      if (refusal.corrected) {
+        save.adoptHints(refusal.ledger);
+        paintBalance();
+        persist();
+        sayInDaily(
+          `The server holds no hints for you, so nothing was spent — and the balance on this device has been corrected (0 of ${HINT_CAP} held). ${answer.failure.message}`,
+          'bad',
+        );
+        return;
+      }
+      sayInDaily(`The server would not record a hint: ${answer.failure.message}`, 'bad');
       return;
     }
     // THE SERVER'S BALANCE IS THE ONE SHOWN, for the same reason its score is adopted after a run: two ledgers is
@@ -2013,7 +2079,7 @@ async function takeHint(): Promise<void> {
   if (!hint.spent || !hint.call) {
     // The balance allows a spend but there is nothing to name, so the run is NOT charged: a hint that cannot
     // say anything is not a hint (DESIGN.md 10).
-    dailyScreen.say('There is nothing to hint from here.', 'bad');
+    sayInDaily('There is nothing to hint from here.', 'bad');
     return;
   }
   // THE BALANCE WAS CHECKED BEFORE THE RUN WAS TOUCHED, and nothing between that read and this charge can
@@ -2021,8 +2087,11 @@ async function takeHint(): Promise<void> {
   // ONLY WHERE THE SERVER DID NOT ALREADY CHARGE IT: with a recorded spend the balance moved there and adopting it
   // is the whole of the bookkeeping — debiting this device as well would charge one hint twice.
   if (!serverSpend) save.spendHint();
-  dailyScreen.say(`Hint: ${hint.call}. A minute has been added to the clock, and it is not refunded.`, 'info');
-  paintDaily();
+  sayInDaily(`Hint: ${hint.call}. A minute has been added to the clock, and it is not refunded.`, 'info');
+  // THE FOOTER IS SHARED CHROME AND THE PANEL IS THE DAILY'S: the balance is painted either way, and the Daily's
+  // panel is only repainted where the Daily is what the player is looking at.
+  paintBalance();
+  if (mode === 'daily') paintDaily();
   persist();
 }
 

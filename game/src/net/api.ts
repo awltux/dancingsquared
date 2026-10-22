@@ -696,6 +696,25 @@ export async function recordDrillReveal(drillId: string, step: number, deps: Api
   return { ok: true, value: { call: named, recorded: answer.value.recorded === true } };
 }
 
+/**
+ * HOW LONG A HINT SPEND MAY TAKE — the one request this app waits on for a minute, and the window is the server's
+ * work rather than the app's patience.
+ *
+ * THE FIRST HINT IN A SERVER PROCESS BUILDS THE HINT'S DISTANCE TABLE. `POST /me/hints` names the call from the
+ * RECORDED line (A23), which runs `PlaySession.distanceToGoal` — a reverse BFS from the goal with `applicableMoves`
+ * at every board — and MEASURED at the shipped level-1 pool that build is 79-91 s (`api/src/levels.ts`'s
+ * `hintDistanceTables`, which caches it per goal afterwards). The shared 8 s window therefore expired on a spend the
+ * SERVER WENT ON TO COMMIT: MEASURED in the dev server's own log, one `POST /me/hints` answered **200 after
+ * 88 295 ms** while the browser had given up at 8 s — so the balance moved, this app never adopted it, and every
+ * later press was a fast `409 no_hints` under a footer that still claimed a hint. That is the report "I earned a
+ * hint, but the hint button doesn't seem to do anything".
+ *
+ * THE ANSWER IS TO WAIT, NOT TO RETRY. The spend is a WRITE: a retry of a request that already landed spends a
+ * second hint, so a short window is not a cheaper failure here, it is a wrong answer plus a lost balance. Twice the
+ * measured build leaves room for a slower machine and for the cold start that owns the same minutes.
+ */
+export const HINT_TIMEOUT_MS = 180_000;
+
 /** What the server did about a hint: the balance it now holds, how many this challenge has spent, and the CALL. */
 export interface HintSpend {
   readonly hints: { readonly hints: number; readonly successes: number };
@@ -712,7 +731,7 @@ export interface HintSpend {
  * taking the hint locally and does not take it at all if this answers with a refusal.
  */
 export async function spendHint(levelIndex: number, date: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<HintSpend>> {
-  const answer = await apiCall<Record<string, unknown>>(deps, '/me/hints', { method: 'POST', body: { levelIndex, date } });
+  const answer = await apiCall<Record<string, unknown>>(deps, '/me/hints', { method: 'POST', body: { levelIndex, date } }, { timeoutMs: HINT_TIMEOUT_MS });
   if (!answer.ok) return answer;
   const hints = answer.value.hints as Record<string, unknown> | undefined;
   if (typeof hints?.hints !== 'number' || typeof hints.successes !== 'number') {

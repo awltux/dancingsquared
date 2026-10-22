@@ -100,13 +100,17 @@ body {
   font-weight: 600;
 }
 
-/* TODAY'S CHALLENGE IS BEING CREATED. REPORTED: "The Today's Daily button seems to hang the app" — the press is a
-   server round trip that can take seconds the first time (MEASURED 9.4-15.1 s, DESIGN.md §7.1), and the button used to
-   look exactly as it did before the press. So it now carries a spinner, and THREE signals rather than one: the ring
-   animates, `aria-busy` says so to a screen reader, and `main.ts` gives the button an accessible name that says what is
-   happening ("creating today's challenge…") — because a spinner is invisible in a still screenshot, to a reduced-motion
-   preference and to some readers. The label itself is left alone so the control does not change size or meaning. */
-#modes button[data-busy="true"] {
+/* A BUTTON IS WORKING. REPORTED: "The Today's Daily button seems to hang the app" — the press is a server round trip
+   that can take seconds the first time (MEASURED 9.4-15.1 s, DESIGN.md §7.1), and the button used to look exactly as it
+   did before the press. So it carries a spinner, and THREE signals rather than one: the ring animates, `aria-busy` says
+   so to a screen reader, and `main.ts` gives the button an accessible name that says what is happening ("creating
+   today's challenge…") — because a spinner is invisible in a still screenshot, to a reduced-motion preference and to
+   some readers. The label itself is left alone so the control does not change size or meaning.
+
+   IT IS EVERY BUTTON NOW, not the mode tabs alone: the Hint button waits on a server spend that can take a minute and
+   a half (MEASURED 88 295 ms, `HINT_TIMEOUT_MS` in `net/api.ts`), and it needs the same three signals for the same
+   reason. One selector, so the second caller could not have a busy state that looks different from the first. */
+button[data-busy="true"] {
   cursor: progress;
   opacity: 0.85;
   display: flex;
@@ -115,7 +119,7 @@ body {
   gap: 8px;
 }
 
-#modes button[data-busy="true"]::after {
+button[data-busy="true"]::after {
   content: '';
   width: 14px;
   height: 14px;
@@ -133,7 +137,7 @@ body {
 /* A REDUCED-MOTION PREFERENCE GETS AN ELLIPSIS INSTEAD OF A SPINNER, not a frozen ring: "still working" has to survive
    the animation being turned off, which is the same reason the markings elsewhere in this file are never colour alone. */
 @media (prefers-reduced-motion: reduce) {
-  #modes button[data-busy="true"]::after {
+  button[data-busy="true"]::after {
     content: '…';
     animation: none;
     border: none;

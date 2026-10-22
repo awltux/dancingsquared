@@ -67,6 +67,13 @@ export interface SpendResult {
   spent: boolean;
 }
 
+/** The result of a SERVER refusal: the ledger it implies, and whether the balance moved because of it. */
+export interface RefusalResult {
+  ledger: HintLedger;
+  /** True when the refusal was an answer about the balance and the balance it reported was smaller. */
+  corrected: boolean;
+}
+
 /**
  * Spend one hint.
  *
@@ -79,6 +86,31 @@ export interface SpendResult {
 export function spendHint(ledger: HintLedger): SpendResult {
   if (ledger.hints <= 0) return { ledger: { ...ledger }, spent: false };
   return { ledger: { hints: ledger.hints - 1, successes: ledger.successes }, spent: true };
+}
+
+/**
+ * The ledger after the SERVER REFUSED a spend, and whether that answer corrected it.
+ *
+ * THE SERVER'S ANSWER IS THE BALANCE — including when the answer is "you have none". `POST /me/hints` is the spend
+ * (A23), so `no_hints` is not a guess about the balance, it IS the balance: the server looked it up and it was empty.
+ * This app's copy is a preview of the same ledger, and the two can disagree in the direction that strands the player:
+ * MEASURED (the dev server's log) a spend answered **200 after 88 295 ms** while the client's 8 s window had already
+ * given up, so the debit landed and the app never adopted it — the footer went on claiming a hint, and every press
+ * after it was refused for the balance the player no longer held. REPORTED as "I earned a hint, but the hint button
+ * doesn't seem to do anything".
+ *
+ * WHY ONLY `no_hints`. Every other refusal is about something else — no attempt row for the challenge, an unreadable
+ * balance, a challenge already three hints deep, a board with nothing to name — and the player still holds the hint in
+ * those cases, so zeroing the ledger there would destroy a hint instead of reporting on it. It is also why the caller
+ * reads `corrected`: a refusal that says nothing about the balance is not a balance event.
+ *
+ * `successes` IS LEFT ALONE, because the server's refusal does not report it: it is the progress towards the next hint,
+ * it is only ever a display value here (the server credits the grant), and inventing a value for it would be a second
+ * kind of guess.
+ */
+export function refusedSpend(ledger: HintLedger, code: string): RefusalResult {
+  if (code !== 'no_hints' || ledger.hints === 0) return { ledger: { ...ledger }, corrected: false };
+  return { ledger: { hints: 0, successes: ledger.successes }, corrected: true };
 }
 
 /**

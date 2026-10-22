@@ -1004,6 +1004,14 @@ them is one edit.
   *available but unused* either.
 - **The balance lives on the account, and an anonymous player's is claimed with the rest of the ledger**
   (§11), so a signed-out player is not punished for being signed out.
+- **The spend is a server call, and its FIRST answer in a process can take a minute and a half.** `POST /me/hints`
+  names the call from the recorded line (§11.1, A23), which runs the reverse-BFS map of §10.3 in the server — and
+  MEASURED, one build of that map is **79-91 s** at the shipped level-1 pool, cached per goal afterwards
+  (`api/src/levels.ts`). The app therefore waits for the answer with the button marked busy rather than spending its
+  shared 8 s handshake window on it: MEASURED in the dev server's own log, one `POST /me/hints` answered **200 after
+  88 295 ms** while the client had already given up at 8 s — the debit landed, the app never adopted it, and every
+  later press was refused against a balance the player no longer held. A retry would have been the wrong repair: the
+  spend is a write, so retrying a request that already landed costs a second hint.
 
 **3. What a hint reveals — and this needs deciding, so here is the recommendation.** *Recommend: one call
 name, marked in the offering list, valid from wherever the player is.*

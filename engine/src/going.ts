@@ -18,7 +18,7 @@
 // leader path (3.767 against 3.775) and their followers both travel exactly 1.000, so a label named for DISTANCE would
 // have two values that measure the same. The values only have to be distinct and stable.
 
-/** The bodies the corpus distinguishes. Closed on purpose: a dash suffix alone is not a going (`- Stop at Home` is not). */
+/** The bodies the corpus distinguishes. Closed on purpose: a dash suffix alone is not a going (`- Keep Walking` is not). */
 export type Going = 'close' | 'normal' | 'far';
 
 /** The values, for a rule or a probe that has to enumerate them. */
@@ -27,8 +27,11 @@ export const GOING_VALUES: readonly Going[] = ['close', 'normal', 'far'];
 /**
  * The trailing `- Close` / `- Normal` / `- Far` of a title, or null.
  *
- * `Circle Left - Stop at Home` is the control that matters: it is a real shipped title with a dash suffix, and it is NOT
- * one of these — so the suffix list is closed rather than "anything after a dash".
+ * `Promenade - Keep Walking` is the control that matters: it is a real shipped title with a dash suffix, and it is NOT one
+ * of these — so the suffix list is closed rather than "anything after a dash". MEASURED over the catalogue's 2203 titles:
+ * 13 carry a ` - `, five are these three values, and the other eight are the promenade's `- Keep Walking` convention.
+ * (`Circle Left - Stop at Home` served as the control until the corpus renamed it to `Circle Left Home`, at which point the
+ * control was a string matching no title at all - see `engine/test/going.mjs`.)
  */
 export function goingOfTitle(title: string): Going | null {
   // THE DASH IS PART OF THE RULE: without it, a title that is one of the three words (`Far`) would read as a suffix, and

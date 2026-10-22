@@ -579,10 +579,10 @@ export function callMeta(xmlText: string): CallMeta {
  *
  * A POSITION IS NOT A NAME, and the difference matters more than it looks. `circle.xml` holds eighty
  * tams and the order they are written in is an authoring decision that changes whenever the data is
- * reworked - MEASURED, `b83c305` moved `Circle Left - Stop at Home` to the front of that file, and every
- * caller that meant "Circle Left" by loading index 0 silently got the Stop-at-Home variant instead.
- * Nothing failed; the callers simply started testing a different call. Naming the call is what makes a
- * harness survive a data change, which is the whole reason this selector exists.
+ * reworked - MEASURED, `b83c305` moved `Circle Left - Stop at Home` (now `Circle Left Home`) to the front
+ * of that file, and every caller that meant "Circle Left" by loading index 0 silently got the home-ending
+ * variant instead. Nothing failed; the callers simply started testing a different call. Naming the call is
+ * what makes a harness survive a data change, which is the whole reason this selector exists.
  *
  * A TITLE ALONE IS NOT THE NAME. The name is the title PLUS the formation the tam starts from - the
  * `formation` attribute when the tam references a named formation, and `from` when the formation is

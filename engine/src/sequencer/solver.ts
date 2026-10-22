@@ -457,9 +457,13 @@ export class HomeSolver {
    * FOR THE HOME TARGET THIS IS IDENTITY, AND IT USED TO BE THE HOME FASR. `fasrKey` is a RELATIONSHIP
    * key - formation, arrangement, sequence parity, partner and corner - so a squared set ROTATED AS A
    * WHOLE has exactly the same key as home. MEASURED, and it is the defect this replaces: `getout()` from
-   * the `L1p` alignment (`Normal Lines`) returns `[Circle Left - Stop at Home]`, whose end board puts ALL
-   * EIGHT dancers on a DIFFERENT dancer's home spot (`#4` at `(1.00,3.00)` where its home is `(3,1)`), and
-   * `fasrKey` matches home there - so the search called a permuted squared set "home".
+   * the `L1p` alignment (`Normal Lines`) RETURNED `[Circle Left - Stop at Home]` (the title is now
+   * `Circle Left Home`), whose end board puts ALL EIGHT dancers on a DIFFERENT dancer's home spot (`#4` at
+   * `(1.00,3.00)` where its home is `(3,1)`), and `fasrKey` matches home there - so the search called a
+   * permuted squared set "home". THIS PARAGRAPH IS THE INSTANCE THAT MOTIVATED THE RULE, NOT THE CURRENT
+   * ANSWER: MEASURED today, the same query returns `Circle Right Home`, `All 8 Reverse Flutterwheel`,
+   * `Allemande Left`, `Promenade`. The rule itself is pinned by `engine/test/getout-convention.mjs`, which
+   * replays every accepted path against the identity test below rather than against this example.
    *
    * `sameBoardById` against `makeSquaredSet()` is the caller's own test, compared BY DANCER ID, and it is
    * the property `engine/test/getout-convention.mjs` replays every accepted path to enforce ("every dancer

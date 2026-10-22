@@ -241,7 +241,7 @@ console.log('== synthesizeSetupChain ==');{
 console.log('== closure correction (correctEndTo) ==');
 {
   // `b1/circle.xml` held this witness until the Basic levels were retired; `ms/circle.xml`'s first tam
-  // is `Circle Left - Stop at Home`, which is the same full-circle reading.
+  // is `Circle Left Home`, which is the same full-circle reading.
   const circleXml = read('../../assets/ms/circle.xml');
   const circleLeft = loadCallFromXml(circleXml, movesXml, formationsXml, 0, true); // Circle Left (mirrored)
   // Intended end = each dancer's OWN start pose (a full circle returns home).
@@ -1327,7 +1327,7 @@ console.log('\n== a created call can name its start formation (20) ==');
 // opposite direction from `startsFromFormation` a few lines up - which refuses both.
 console.log('\n== the end pose names its formation as a BOARD (20b) ==');
 {
-  // THE WITNESS IS TRUNCATED BY ONE MOVE, deliberately: "Circle Left - Stop at Home" comes back within
+  // THE WITNESS IS TRUNCATED BY ONE MOVE, deliberately: "Circle Left Home" comes back within
   // 7e-4 of its own start, so it cannot separate the two questions by position at all.
   const full = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
   const cut = { ...full, dancers: full.dancers.map((d) => ({ ...d, path: d.path.slice(0, -1) })) };

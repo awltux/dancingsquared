@@ -111,7 +111,7 @@ const endPosesOf = (call) => {
 // ---------------------------------------------------------------- 1. the rule
 console.log('== 1. the end board is compared as a BOARD, with a measuring margin ==');
 {
-  // THE WITNESS IS FOUND BY PREDICATE, NOT BY POSITION: the corpus's own "Circle Left - Stop at Home" comes
+  // THE WITNESS IS FOUND BY PREDICATE, NOT BY POSITION: the corpus's own "Circle Left Home" comes
   // back within 7e-4 of where it began, so it can only separate the start rule from the end rule by its
   // heading and only just. The dancer with the largest travel in the corpus is a measurement rather than an
   // assumption, and the file order is sorted so the witness does not depend on the filesystem.

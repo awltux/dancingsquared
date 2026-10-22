@@ -385,10 +385,16 @@ check(worstTurn < 1, 'and the run keeps the turn it had, so the call still goes 
 // start is pinned, so |start - centre| IS the radius.
 console.log('\n== 7. Do the eight dancers\' orbits come back onto the ring they started on? ==');
 // THE WITNESS IS NAMED, NOT TAKEN BY POSITION. This loop used to take the FIRST tam whose formation is
-// `Circle` and break. That was `Circle Left` when it was written; `ms/circle.xml` now carries SIXTEEN tams
-// with `formation="Circle"` and the first of them is `Circle Left - Stop at Home`, a different call whose
-// moves `fitCircleRun` refuses. `before` was therefore all `null` and line 369's `f.cx` threw, which killed
-// the run before this section's last EIGHT checks - the whole named-centre validation - could execute.
+// `Circle` and break. That was `Circle Left` when it was written; `ms/circle.xml` carries SIXTEEN tams with
+// `formation="Circle"`, and the first of them is the home-ending sibling - `Circle Left - Stop at Home` when
+// this was found, `Circle Left Home` since the corpus renamed it - which is a DIFFERENT call. What that cost
+// was loud and is recorded because it is the reason this loop is written the way it is: `before` came back
+// all `null` (the sibling's first moves were not a circle then) and line 369's `f.cx` threw, which killed the
+// run before this section's last EIGHT checks - the whole named-centre validation - could execute.
+// MEASURED TODAY, AND IT IS NOW THE QUIETER FAILURE: the first three `formation="Circle"` tams are
+// `Circle Left Home` | `Circle Left 3/4 Home` | `Circle Left 1/2 Home`, and `fitCircleRun` ACCEPTS the first
+// (a circle) and refuses the third (`null`). So the position-based loop would no longer crash - it would
+// silently validate the wrong call, which is worse than the throw that exposed it.
 // AGENTS.md §8 trap 7: a position into an authored list is not an identity. The `check` below already
 // names `Circle Left`, so this selects what it names.
 const circleTams = engine.parseCallXml(asset('ms/circle.xml'));

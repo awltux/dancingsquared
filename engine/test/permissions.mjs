@@ -497,9 +497,12 @@ console.log('\n== (16) A GOVERNED CALL\'S AUTHORING VARIANTS ARE GOVERNED TOO ==
   //
   // THE SEPARATOR IS PART OF THE RULE RATHER THAN A CONVENIENCE. A looser measure on `<call> <anything>` was
   // tried and it demands `Dosado to a Wave`, `Dosado your Corner` and `Dosado your Partner` be governed too
-  // - three DIFFERENT calls, which section 2 leaves alone on purpose. The eight `Circle * - Stop at Home`
-  // titles are not asked for either, because their base is not governed: this asks that a family not outgrow
-  // its rules, not that every dashed title be ruled on.
+  // - three DIFFERENT calls, which section 2 leaves alone on purpose. The eight `Circle * Home` titles are not
+  // asked for either, and under this rule they are not VARIANTS of anything at all: the corpus spells the
+  // home-ending siblings with no ` - ` separator, so `variantBase` returns null and the sweep never sees them.
+  // (They were `Circle * - Stop at Home` when this note was written, which is what made the point concrete -
+  // a dashed sibling whose base is not governed.) This asks that a family not outgrow its rules, not that
+  // every sibling title be ruled on.
   const governed = new Set(PERMISSION_RULES.flatMap((r) => r.call ?? []));
   const variantBase = (t) => (t.includes(' - ') ? t.slice(0, t.indexOf(' - ')) : null);
   const variants = [...catalogueTitles(assets)].filter((t) => {

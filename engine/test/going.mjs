@@ -6,7 +6,7 @@
 // pooled under one title, the body that runs is whichever sits first in the document, and MEASURED, reversing that order
 // changes the winning body (trailing path 2.000 -> 4.123) and lands FOUR pairs of dancers on shared spots.
 //
-// So this pins three things: the label's derivation (and its control, `Circle Left - Stop at Home`), that the shipped
+// So this pins three things: the label's derivation (and its control, `Promenade - Keep Walking`), that the shipped
 // corpus derives it for exactly the authorings that declare it, and that a `going`-keyed rule REMOVES a body from the
 // candidate set — including the all-refused case, which must refuse with the rule's own sentence rather than the
 // geometric "No setup in this call matches".
@@ -33,8 +33,14 @@ console.log('== 1. the derivation, and the control that keeps it closed ==');
   check(goingOfTitle('Lead Right - Normal') === 'normal', '"- Normal" -> normal');
   check(goingOfTitle('Lead Right - Far') === 'far', '"- Far" -> far');
   check(goingOfTitle('Lead Right') === null, 'no suffix -> null');
-  // THE CONTROL. A dash suffix alone is not a going, and this is a real shipped title.
-  check(goingOfTitle('Circle Left - Stop at Home') === null, 'CONTROL: "Circle Left - Stop at Home" is NOT a going, so the list is closed');
+  // THE CONTROL. A dash suffix alone is not a going, and this is a real shipped title — `- Keep Walking` is
+  // the promenade's own convention and is deliberately NOT one of the three (`- Close`/`- Normal`/`- Far`),
+  // which is what makes it the strongest instance of the closed list: an authoring suffix the vocabulary
+  // REFUSES rather than one it has never seen. It used to be `Circle Left - Stop at Home`, which stopped
+  // naming anything when the corpus renamed it to `Circle Left Home` — a control whose subject is a string
+  // that matches no title cannot show that the list is closed, only that the function is not a no-op.
+  check(goingOfTitle('Promenade - Keep Walking') === null, 'CONTROL: "Promenade - Keep Walking" is NOT a going, so the list is closed');
+  check(goingOfTitle('Circle Left Home') === null, 'and a title with no suffix at all is not one either');
   check(goingOfTitle('  lead right  -  far ') === 'far', 'tolerates case and spacing');
   check(goingOfTitle('Far') === null, 'a bare word is not a suffix');
   check(GOING_VALUES.length === 3, 'the value set is the three the corpus publishes');

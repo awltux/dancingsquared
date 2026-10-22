@@ -190,7 +190,7 @@ const SUITE = [
   { h: 'permission-gate', light: true },
   // HOW A CALL GOES, and that a body the rules refuse is never a candidate. The label is DERIVED from the title
   // (`- Close` / `- Normal` / `- Far`), because these tams are app-exported and an authored attribute would be dropped by
-  // the next round-trip; `Circle Left - Stop at Home` is the control that keeps the list closed. Pins that the shipped
+  // the next round-trip; `Promenade - Keep Walking` is the control that keeps the list closed. Pins that the shipped
   // corpus derives it for exactly the authorings that declare it, and that a `going`-keyed rule removes that body from the
   // candidate set — while the READING-level ask is deliberately not decided by a body rule. Two boards, ~1s.
   { h: 'going', light: true },

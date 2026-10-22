@@ -181,23 +181,36 @@ console.log('\n== a call defined at several LEVELS: the pool is highest-first, a
 
   // Witness 1b — THE ROUND TRIP, AND WHICH TITLE AUTHORS IT. `ms/circle.xml`'s own section header
   // says `CIRCLE LEFT FAMILY FROM STATIC SQUARE TO CIRCLE`, and the file publishes the round trip
-  // under the sibling title: `Circle Left - Stop at Home` ends exactly where it started, while the
+  // under the sibling title: `Circle Left Home` ends exactly where it started, while the
   // BARE `Circle Left` is authored to end in the `Circle` formation. Both halves are asserted,
   // because a corpus change that made the bare title round-trip is worth seeing - and this is now a
   // CORPUS assertion, not an order one.
+  //
+  // THE SIBLING IS `Circle Left Home`, AND THE NAME IT REPLACED (`Circle Left - Stop at Home`) NAMED
+  // NOTHING. That is how this check came to be red for the whole of the corpus's rename, and the three
+  // checks under it kept printing `ok` while it was: `applyToBoard` hands back the INPUT board with
+  // `legal: false`, so residuals measured on it are zero, its headings are unchanged and it is still the
+  // square - the identity, scored as a perfect round trip. So legality now GATES those three rather than
+  // sitting beside them: a dead title costs four reds that each name the refusal (§11.2.1).
   const square = seq.boardForFormation('Static Square');
-  const cl = seq.applyToBoard(square, 'Circle Left - Stop at Home');
-  check(cl.legal, '`Circle Left - Stop at Home` is legal from a Static Square');
-  const a = byId(square);
-  const b = byId(cl.board);
-  const posResid = Math.max(...a.map((d, i) => Math.hypot(d.x - b[i].x, d.y - b[i].y)));
-  const headResid = Math.max(...a.map((d, i) => Math.abs(normDeg(b[i].heading - d.heading))));
-  check(posResid < 0.01,
-    `and it ROUND-TRIPS (worst position residual ${posResid.toFixed(4)})`);
-  check(headResid < 1,
-    `and leaves every facing where it found it (worst heading residual ${headResid.toFixed(2)} deg)`);
-  check(seq.knownFormation(cl.board) === 'Static Square',
-    `the board after \`Circle Left - Stop at Home\` is named Static Square (got ${seq.knownFormation(cl.board)})`);
+  const cl = seq.applyToBoard(square, 'Circle Left Home');
+  check(cl.legal, `\`Circle Left Home\` is legal from a Static Square (${cl.reason ?? 'ok'})`);
+  if (!cl.legal) {
+    check(false, `and it ROUND-TRIPS - NOT MEASURED: the call was refused (${cl.reason})`);
+    check(false, `and leaves every facing where it found it - NOT MEASURED: the call was refused (${cl.reason})`);
+    check(false, `the board after \`Circle Left Home\` is named Static Square - NOT MEASURED: the call was refused (${cl.reason})`);
+  } else {
+    const a = byId(square);
+    const b = byId(cl.board);
+    const posResid = Math.max(...a.map((d, i) => Math.hypot(d.x - b[i].x, d.y - b[i].y)));
+    const headResid = Math.max(...a.map((d, i) => Math.abs(normDeg(b[i].heading - d.heading))));
+    check(posResid < 0.01,
+      `and it ROUND-TRIPS (worst position residual ${posResid.toFixed(4)})`);
+    check(headResid < 1,
+      `and leaves every facing where it found it (worst heading residual ${headResid.toFixed(2)} deg)`);
+    check(seq.knownFormation(cl.board) === 'Static Square',
+      `the board after \`Circle Left Home\` is named Static Square (got ${seq.knownFormation(cl.board)})`);
+  }
   const bare = seq.applyToBoard(square, 'Circle Left');
   check(bare.legal && seq.knownFormation(bare.board) === 'Circle',
     `while the BARE \`Circle Left\` ends on the Circle formation (got ${bare.legal ? seq.knownFormation(bare.board) : 'illegal'}) - the corpus authors the round trip under the sibling title`);

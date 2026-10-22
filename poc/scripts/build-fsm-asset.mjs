@@ -2,7 +2,7 @@
 // instant (no 12s runtime build). Run: `node poc/scripts/build-fsm-asset.mjs`
 // from repo root. Writes assets/fsm-ms.json (serialised FsmTableData).
 
-import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
@@ -15,17 +15,17 @@ import { DOMParser } from '@xmldom/xmldom';
 // has no reason to go through a package manager to reach its own sibling workspace.
 import { setParser } from '../../engine/dist/index.js';
 import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
+// The corpus walk is the ONE reader's, so this script and the teacher's build cannot disagree about what `ms/`
+// holds — and neither can count a commented-out tam as a call.
+import { corpusRoot, filesRecord } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
-const assetsDir = path.join(root, 'assets');
+const assetsDir = corpusRoot();
 const read = (p) => readFileSync(path.join(assetsDir, p), 'utf8');
 
-const msFiles = {};
-for (const f of readdirSync(path.join(assetsDir, 'ms')).filter((f) => f.endsWith('.xml'))) {
-  msFiles[`ms/${f}`] = read(`ms/${f}`);
-}
+const msFiles = filesRecord('ms');
 const catalog = buildCatalog(msFiles);
 const seq = makeSequencer(read('moves.xml'), read('formations.xml'), catalog);
 

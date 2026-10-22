@@ -6,26 +6,26 @@
 //
 // Run: `node scripts/build-fsm-table.mjs` from poc-teacher/ (or via `npm run build`).
 
-import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
 
 import { buildCatalog, makeSequencer } from '../src/catalog.ts';
+// The corpus walk is the ONE reader's, so this script and the poc's build cannot disagree about what `ms/` holds
+// — and neither can count a commented-out tam as a call.
+import { corpusRoot, filesRecord } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
-const assetsDir = path.join(root, '..', 'assets');
+const assetsDir = corpusRoot();
 const read = (p) => readFileSync(path.join(assetsDir, p), 'utf8');
 
 // The same ms catalog the app loads (mirrors main.ts's import.meta.glob).
-const msFiles = {};
-for (const f of readdirSync(path.join(assetsDir, 'ms')).filter((f) => f.endsWith('.xml'))) {
-  msFiles[`ms/${f}`] = read(`ms/${f}`);
-}
+const msFiles = filesRecord('ms');
 const catalog = buildCatalog(msFiles);
 const seq = makeSequencer(read('moves.xml'), read('formations.xml'), catalog);
 

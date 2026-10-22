@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    // NODE, BECAUSE THIS PACKAGE READS THE FILESYSTEM — the one thing no other `src/` module in the workspace
+    // does. It is in no browser import graph: the Vite apps reach the corpus through the `@corpus` alias, and
+    // this package is what the Node readers share.
+    "types": ["node"],
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "noEmit": true,
+    // THE HARNESSES AND THE BUILD SCRIPTS LOAD THIS SOURCE DIRECTLY under Node's type stripping, so relative
+    // specifiers carry `.ts` — Node's loader does not map `./x.js` onto `x.ts`. Legal only because nothing here
+    // emits. `api/tsconfig.json` records the same convention and its companion constraint: strip-only mode
+    // refuses enums and constructor parameter properties, so this package uses neither.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["*.ts"]
+}

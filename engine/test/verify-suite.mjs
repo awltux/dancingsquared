@@ -152,6 +152,14 @@ const SUITE = [
   // ~9s: it sweeps 20 of the 138 named formations against the 425 titles with a sub-eight-dancer authoring; the
   // full sweep is `node test/virtual-call.mjs --all` and the default run PRINTS what it skipped.
   { h: 'virtual-call', light: true },
+  // THE CORPUS'S CALL INVENTORY, ONCE. `packages/corpus` is now the only reader of the corpus directory; this pins
+  // the facts the consolidation rests on and the two defects that produced it. MEASURED: the engine's parser sees
+  // 2191 titles where the raw `<tam>` scan 134 harnesses used saw 2203, and the 12 that differ exist only inside
+  // `<!-- -->` (pinned as a NAMED SET, so uncommenting one or adding one is a deliberate edit). Eight titles that
+  // are both commented and live lose a phantom second authoring. Every site's index is checked against both
+  // `parseCallXml` and `loadCallFromXml`, which is the reader a consumer actually uses. Also records that sorting a
+  // level's files is NOT free (7 of 11 levels change order), so `filesOf` preserves the directory's. ~5s.
+  { h: 'corpus-inventory', light: true },
   // WHICH BOARD IDENTITY A PERMISSION RULE SHOULD MATCH ON — and why it is the recogniser's NAME. Step "3" of
   // the agreed order proposed a geometry/cell key instead; MEASURED, that is backwards. The NAME is a shape
   // identity and survives rotation (a square turned 0/45/90/180 is still `Static Square`), while

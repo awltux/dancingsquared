@@ -2,10 +2,12 @@
   "name": "dancing-squared",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Square-dance engine + 3D PoC (npm workspaces monorepo)",
   "workspaces": [
     "engine",
     "packages/stage",
+    "packages/corpus",
     "game",
     "api",
     "poc",

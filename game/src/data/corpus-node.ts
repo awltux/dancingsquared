@@ -22,8 +22,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, callMeta, parseCallXml } from 'dancing-squared-engine';
+// THE WALK IS THE ONE READER'S. `filesOf`/`readFile` are `packages/corpus`, so the game, the API, the harnesses,
+// the book and the teacher enumerate the corpus the same way — and none of them can count a commented-out `<tam>`
+// as an authoring. What stays here is the game's own policy: `ms` only, one whole-file `{name, xml}` per title,
+// and the applier seam below.
+import { corpusRoot, filesOf, readFile } from 'dancing-squared-corpus';
 import { createEngineApplier } from '../engine/applier.ts';
-import { CORPUS } from '../../../vite.corpus.ts';
 
 // THE CAST IS THE TWO `Document` DECLARATIONS, NOT A DEPENDENCY CHOICE. `setParser` takes the DOM lib's
 // `typeof DOMParser`; `@xmldom/xmldom`'s returns ITS OWN `Document`, and the compiler names the gap exactly:
@@ -33,7 +37,7 @@ import { CORPUS } from '../../../vite.corpus.ts';
 setParser(DOMParser as unknown as Parameters<typeof setParser>[0]);
 
 /** The corpus directory: the root's `assets/`, from the one place that names it. */
-const ASSETS = CORPUS;
+const ASSETS = corpusRoot();
 
 const movesXml = fs.readFileSync(path.join(ASSETS, 'moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8');
@@ -41,10 +45,9 @@ const formationsXml = fs.readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8
 let cachedCalls: { name: string; xml: string }[] | null = null;
 let cachedTamTitles: string[] | null = null;
 
-/** The Mainstream call files, read once: name and bytes, in the directory's sorted order. */
+/** The Mainstream call files, read once: name and bytes, in the directory's own order. */
 function corpusFiles(): { file: string; xml: string }[] {
-  const dir = path.join(ASSETS, 'ms');
-  return fs.readdirSync(dir).filter((f) => f.endsWith('.xml')).sort().map((file) => ({ file, xml: fs.readFileSync(path.join(dir, file), 'utf8') }));
+  return filesOf('ms').map((file) => ({ file, xml: readFile('ms', file) }));
 }
 
 /**

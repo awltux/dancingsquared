@@ -26,6 +26,7 @@
     "measure": "node tools/measure-ladder.mjs"
   },
   "dependencies": {
+    "dancing-squared-corpus": "file:../packages/corpus",
     "dancing-squared-engine": "file:../engine",
     "dancing-squared-stage": "file:../packages/stage",
     "three": "^0.169.0"

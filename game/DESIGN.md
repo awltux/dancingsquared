@@ -1615,9 +1615,20 @@ findings, each with the measurement that produced it:
    that claim — so the game turns the label off for exactly those dancers, which is why `DancerView`'s `labelled` is
    separate from its `couple`. The POC leaves the label on and gates the fallback by formation name instead, because
    its boards are the ones its editor reads couple numbers off.
+8. **A solved waypoint FLASHES, and a change of pair SLIDES instead of jumping.** REPORTED: "Add a success animation
+   to a waypoint when a waypoint is solved. Currently, there is no feedback other than changing the outline colour.
+   Also, it jumps to the next waypoint instantly, and this is confusing to the player." The jump was a defect in
+   `GameStage.drawMotion`, which ADOPTED the pair the move had already produced while the replay was still running —
+   so when the replay ended the stage believed it had shown the next waypoint, and the change became a repaint at the
+   one moment the player was watching the board. It no longer adopts it, and the next `drawPair` sees the index change
+   and animates it (the slide the arrows already had). The success is `render/celebrate.ts`: `justSolved` compares the
+   two pairs' borders — `next` → `solved` is the transition that means "reached", and **a page is neither**, because
+   the arrows walk boards the player has already earned — and `pulse` is one half-sine over 520 ms, exact at both ends
+   so the border returns to exactly the state it reports, and 1.9 flashes a second, under the photosensitivity bound.
+   The pulse is a multiplier of the border's resting opacity and a mix towards white, plus a 6 % growth of the ring,
+   and **a `prefers-reduced-motion` player gets the flash rather than the slide**: a fade is not a translation.
 
-**And what the browser check could NOT settle:** the 3D view renders the same two boards and the toggle works
-(verified: the button flips and the avatars replace the markers), but at the two-board scale a 2-unit avatar
+**And what the browser check could NOT settle:** the 3D view renders the same two boards and the toggle works (verified: the button flips and the avatars replace the markers), but at the two-board scale a 2-unit avatar
 spans ~1.7 units and the set reads as a tangle rather than as eight figures. A per-view scale was added
 (0.68 in 3D) and it improved but did not finish the job; the camera framing for two boards in an orbit view
 is the open piece. **The 2D view is the verified path** — it is the default, the design asks for it first, and

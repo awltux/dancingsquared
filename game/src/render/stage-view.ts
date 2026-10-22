@@ -27,6 +27,7 @@ import { stillBoard } from '../game/poses.ts';
 import type { WaypointState } from '../puzzle/waypoint-pair.ts';
 import type { SequenceMotion } from '../puzzle/types.ts';
 import { slideOffsets } from './slide-math.ts';
+import { CELEBRATE_MS, justSolved, pulse, type BorderReading, type Pulse } from './celebrate.ts';
 
 /**
  * HOW THE TWO BOARDS ARE SIZED AND PLACED — and the arithmetic is the geometry, not a pair of numbers that
@@ -144,6 +145,10 @@ export const OUTLINE_COLOR: Record<WaypointState, number> = {
 const OUTLINE_HALF = 5.16;
 const OUTLINE_WIDTH = 0.26;
 const OUTLINE_Y = 0.02;
+/** How solid the border is at rest. `celebrate.ts` pulses a MULTIPLIER of this, so the resting look is one number. */
+const OUTLINE_OPACITY = 0.95;
+/** The colour the pulse brightens towards. One instance, because a fresh `THREE.Color` per board per frame is garbage for no gain. */
+const OUTLINE_HIGHLIGHT = new THREE.Color(0xffffff);
 
 /**
  * HOW LONG A CHANGE OF WAYPOINT PAIR TAKES, in milliseconds.
@@ -192,6 +197,8 @@ class BoardView {
   private readonly views: DancerView[] = [];
   private readonly markers: THREE.Group[] = [];
   private readonly outline: THREE.Mesh;
+  /** The state colour the pulse brightens FROM, so a flash cannot lose the colour the border is meant to report. */
+  private readonly baseColor = new THREE.Color(OUTLINE_COLOR.solved);
   private ids: number[] = [];
   private flat = true;
 
@@ -211,7 +218,7 @@ class BoardView {
       new THREE.MeshBasicMaterial({
         color: OUTLINE_COLOR.solved,
         transparent: true,
-        opacity: 0.95,
+        opacity: OUTLINE_OPACITY,
         side: THREE.DoubleSide,
         depthWrite: false,
       }),
@@ -226,7 +233,33 @@ class BoardView {
   /** The waypoint state this board's border reports, or null for no border. See `OUTLINE_COLOR`. */
   setOutline(state: WaypointState | null): void {
     this.outline.visible = state !== null;
-    if (state !== null) (this.outline.material as THREE.MeshBasicMaterial).color.setHex(OUTLINE_COLOR[state]);
+    if (state === null) return;
+    // THE STATE'S COLOUR IS REMEMBERED, not only applied: a pulse brightens towards white and then has to come back
+    // to the colour the state MEANS, and reading it back off the material would read the flash's own colour.
+    this.baseColor.setHex(OUTLINE_COLOR[state]);
+    this.celebrate(null);
+  }
+
+  /**
+   * Apply one instant of the success pulse, or `null` to put the border back at rest.
+   *
+   * THE RING GROWS IN ITS OWN PLANE. The geometry is drawn in XY and the mesh is laid flat by a rotation about X, so
+   * a scale on X and Y grows the square along the floor and a scale on Z would do nothing anyone can see. The growth
+   * is `CELEBRATE_GROW` — MEASURED against the pair's geometry: the ring's half-size is 5.16 board units, 1.06 of it
+   * is 5.47, and two boards' centres are 5.8 world units apart at the 2D scale, so a pulse on one board cannot reach
+   * into the other.
+   */
+  celebrate(state: Pulse | null): void {
+    const material = this.outline.material as THREE.MeshBasicMaterial;
+    if (state === null) {
+      material.opacity = OUTLINE_OPACITY;
+      material.color.copy(this.baseColor);
+      this.outline.scale.set(1, 1, 1);
+      return;
+    }
+    material.opacity = OUTLINE_OPACITY * state.opacity;
+    material.color.copy(this.baseColor).lerp(OUTLINE_HIGHLIGHT, state.whiten);
+    this.outline.scale.set(state.scale, state.scale, 1);
   }
 
   /** Show or hide the whole board, for the slot that waits off-screen between slides. */
@@ -372,6 +405,18 @@ function sameIds(a: readonly number[], b: readonly number[]): boolean {
 }
 
 /**
+ * The four border facts of a pair, in the shape `celebrate.ts` reads.
+ *
+ * THE ADAPTER IS FOUR LINES AND IT EARNS THEM: `StagePair` carries the pair's BOARDS and their STATES, while the rule
+ * about which border just turned solved is arithmetic over four values and is shared with the caption side. Passing
+ * the whole pair would couple that rule to a type that holds `Board`s, and a copy of it here would be a second
+ * implementation of a rule a probe already pins.
+ */
+function reading(pair: StagePair): BorderReading {
+  return { leftIndex: pair.leftIndex, rightIndex: pair.rightIndex, left: pair.leftState, right: pair.rightState };
+}
+
+/**
  * THE TWO BOARDS AND WHAT THEIR BORDERS SAY.
  *
  * A puzzle is a sequence of WAYPOINTS (a waypoint is a formation), so the pair is two adjacent waypoints of ONE
@@ -404,6 +449,15 @@ export class GameStage {
   /** The pair the boards are showing, and the slide in progress if there is one. */
   private pair: StagePair | null = null;
   private slide: { from: StagePair; to: StagePair; direction: 1 | -1; startMs: number } | null = null;
+  /**
+   * The success pulse in flight, if any: WHICH SLOT currently holds the border that just turned solved, and when the
+   * pulse began.
+   *
+   * IT IS A SLOT RATHER THAN A BOARD because the board moves: a solve slides the solved board from the right slot to
+   * the left one, and `commitSlide` moves the pulse with it, so the flash follows the board the player earned instead
+   * of jumping to whatever the new right-hand waypoint is.
+   */
+  private celebration: { slot: 'left' | 'right'; startMs: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     // `floor: false` BECAUSE EACH BOARD BRINGS ITS OWN (see `BoardView`): the stage drawing one too would put
@@ -425,8 +479,10 @@ export class GameStage {
   setMode(mode: ViewMode): void {
     this.mode = mode;
     // A VIEW SWITCH ENDS ANY SLIDE: the geometry it was animating has changed under it, and half a transition in the
-    // other projection would land the boards in slots the new view does not use.
+    // other projection would land the boards in slots the new view does not use. The pulse ends with it, because its
+    // size is a multiplier of a ring in the board's own coordinates and the ring has just been rescaled.
     this.cancelSlide();
+    this.stopCelebration();
     this.stage.setView2D(mode === '2d');
     const flat = mode === '2d';
     const scale = flat ? BOARD_SCALE : BOARD_SCALE_3D;
@@ -459,6 +515,11 @@ export class GameStage {
    *
    * A CALL MADE EVERY FRAME IS THE NORMAL CASE — the shell's `draw()` runs from the animation loop — so a pair equal
    * to the one on screen is a redraw, and a pair whose index has not moved is never a slide.
+   *
+   * AND THE ADVANCE IS CELEBRATED when it is a SUCCESS rather than a page (`celebrate.ts`): the board the player just
+   * reached flashes its border, and because that board is the one the slide moves to the left slot, the flash rides
+   * with it. REPORTED: "there is no feedback other than changing the outline colour ... it jumps to the next waypoint
+   * instantly, and this is confusing".
    */
   drawPair(pair: StagePair): void {
     if (this.slide) {
@@ -469,11 +530,22 @@ export class GameStage {
     }
     const previous = this.pair;
     this.pair = pair;
-    if (previous && previous.leftIndex !== pair.leftIndex && !prefersReducedMotion()) {
-      this.startSlide(previous, pair);
+    const solved = previous === null ? null : justSolved(reading(previous), reading(pair));
+    const advanced = previous !== null && previous.leftIndex !== pair.leftIndex;
+    if (advanced && !prefersReducedMotion()) {
+      // THE SLIDE OWNS THE CELEBRATION. The solved board is still in the RIGHT slot when the slide begins, and
+      // `commitSlide` moves the pulse to the left slot when the roles rotate, so there is one celebration and it does
+      // not restart halfway.
+      this.startSlide(previous, pair, solved === 'left');
       return;
     }
     this.paint(pair.left, pair.right, pair.leftState, pair.rightState);
+    // NO SLIDE TO RIDE: the goal (both indices stay put) or the reduced-motion path, where the pair jumped and the
+    // solved board is already in the slot it belongs in. A reduced-motion preference skips the TRANSLATION, not the
+    // flash: a fade is not motion, one pulse in 520 ms is not a strobe, and the player asked for less movement rather
+    // than for the success to be invisible.
+    if (solved === 'left') this.startCelebration('left', performance.now());
+    if (solved === 'right') this.startCelebration('right', performance.now());
   }
 
   /**
@@ -487,10 +559,16 @@ export class GameStage {
    * THE BORDERS DO NOT MOVE WITH THE REPLAY: they describe the waypoint the pair is showing, which a motion
    * inside one stage does not change. A MOTION CANCELS A SLIDE, because the pair it was animating to is the pair
    * this replay is now about.
+   *
+   * AND THE PAIR IS NOT ADOPTED HERE — the defect this closes. It used to assign `this.pair = pair`, and the pair a
+   * motion is drawn FOR is the one the move has already produced — so by the time the replay ended, the stage
+   * believed it had already shown the next waypoint and the change was a repaint rather than a slide. REPORTED as
+   * "it jumps to the next waypoint instantly": the pair moved with no transition at all, at the one moment the
+   * player was watching the board. Leaving `this.pair` alone is what makes the next `drawPair` see the index change
+   * and animate it.
    */
   drawMotion(motion: SequenceMotion, pair: StagePair, beat: number): void {
     this.cancelSlide();
-    this.pair = pair;
     const frame = motion.at(beat);
     this.left.draw(frame, stillBoard(frame), walkAt(beat));
     this.left.setOutline(pair.leftState);
@@ -499,10 +577,16 @@ export class GameStage {
   }
 
   /**
-   * Advance a slide. Call once per frame, BEFORE `render` — like `updateControls`, this writes the scene graph and
-   * paints nothing, so a frame that skips it leaves the boards frozen mid-transition.
+   * Advance a slide and the success pulse. Call once per frame, BEFORE `render` — like `updateControls`, this writes
+   * the scene graph and paints nothing, so a frame that skips it leaves the boards frozen mid-transition.
    */
   tick(nowMs: number): void {
+    const celebration = this.celebration;
+    if (celebration) {
+      const t = (nowMs - celebration.startMs) / CELEBRATE_MS;
+      if (t >= 1) this.stopCelebration();
+      else this.slotView(celebration.slot).celebrate(pulse(t));
+    }
     const slide = this.slide;
     if (!slide) return;
     const t = Math.min(Math.max((nowMs - slide.startMs) / SLIDE_MS, 0), 1);
@@ -524,6 +608,31 @@ export class GameStage {
   }
 
   /**
+   * Start the success pulse on a slot, replacing any pulse already running.
+   *
+   * THE PULSE OUTLIVES A CANCELLED SLIDE and a motion that interrupts it (`drawMotion` cancels slides every frame, so
+   * a celebration that stopped with the slide would be cancelled by the next move before it was ever seen). It ends
+   * where it should: on its own clock, and when the puzzle changes (`forgetPair`).
+   */
+  private startCelebration(slot: 'left' | 'right', startMs: number): void {
+    this.stopCelebration();
+    this.celebration = { slot, startMs };
+  }
+
+  /** Put every border back at rest and forget the pulse. */
+  private stopCelebration(): void {
+    this.celebration = null;
+    this.left.celebrate(null);
+    this.right.celebrate(null);
+    this.incoming.celebrate(null);
+  }
+
+  /** The board view in a slot, for a pulse that names a slot. */
+  private slotView(slot: 'left' | 'right'): BoardView {
+    return slot === 'left' ? this.left : this.right;
+  }
+
+  /**
    * Forget what was drawn, so the next pair is PAINTED rather than SLID TO.
    *
    * A NEW PUZZLE IS NOT A STEP ALONG THE OLD ROUTE: the two boards of the next drill have no spatial relationship to
@@ -532,6 +641,7 @@ export class GameStage {
    */
   forgetPair(): void {
     this.cancelSlide();
+    this.stopCelebration();
     this.pair = null;
   }
 
@@ -562,19 +672,27 @@ export class GameStage {
    * WHICH BOARD ARRIVES DEPENDS ON THE DIRECTION. Forward, the pair advances by moving LEFT, so the board that comes
    * in is the target's RIGHT one and it enters from off the right. Back, everything mirrors: the board that comes in
    * is the target's LEFT one and it enters from off the LEFT, because the board already on screen is moving right.
+   *
+   * `celebrate` IS THE SUCCESS, and a success is always a FORWARD advance (`celebrate.ts` only reports one when the
+   * arriving board was the pending one), so the board leaving the right slot is the one the player just reached and
+   * its border is painted SOLVED for the whole slide (not the `next` blue of the pair it is arriving from — the state
+   * changed the moment the move landed, and a motion may already have drawn it green, so repainting the old state here
+   * would make the success flicker back to "not yet"). `startMs` is the slide's own start, so the pulse and the
+   * movement begin on the same frame.
    */
-  private startSlide(from: StagePair, to: StagePair): void {
+  private startSlide(from: StagePair, to: StagePair, celebrate: boolean): void {
     const direction: 1 | -1 = to.leftIndex > from.leftIndex ? 1 : -1;
     this.left.draw(from.left, stillBoard(from.left), WALK_STILL);
     this.left.setOutline(from.leftState);
     this.right.draw(from.right, stillBoard(from.right), WALK_STILL);
-    this.right.setOutline(from.rightState);
+    this.right.setOutline(celebrate ? 'solved' : from.rightState);
     const arriving = direction === 1 ? to.right : to.left;
     this.incoming.draw(arriving, stillBoard(arriving), WALK_STILL);
     this.incoming.setOutline(direction === 1 ? to.rightState : to.leftState);
     this.incoming.setVisible(true);
     const startMs = performance.now();
     this.slide = { from, to, direction, startMs };
+    if (celebrate) this.startCelebration('right', startMs);
     this.tick(startMs);
   }
 
@@ -585,6 +703,10 @@ export class GameStage {
    * only their NAMES change. That is why the commit cannot jump: nothing moves. The rotation is the direction's
    * mirror: forward the old RIGHT becomes the left board and the arriving one becomes the right; back, the old LEFT
    * becomes the right board and the arriving one becomes the left.
+   *
+   * THE SUCCESS PULSE RIDES THE ROTATION, which is why it names a SLOT: the solved board has just become the LEFT one,
+   * so a pulse still aimed at the right slot would flash the waypoint the player has NOT reached yet — the opposite of
+   * what it means.
    */
   private commitSlide(): void {
     const slide = this.slide;
@@ -595,6 +717,7 @@ export class GameStage {
       this.left = this.right;
       this.right = this.incoming;
       this.incoming = leaving;
+      if (this.celebration) this.celebration.slot = 'left';
     } else {
       const leaving = this.right;
       this.right = this.left;

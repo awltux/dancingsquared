@@ -154,7 +154,8 @@ console.log('\n== 4. the puzzle still holds its own gates, from a start that is 
   // A non-square start is the new case, so the properties are re-measured on one rather than assumed to carry
   // over: the goal differs from the start, it is named, the recorded solution walks the applier from start to
   // goal, and the first step's options are legal from the board it is offered on.
-  const offHome = sample(1, 40).filter(Boolean).filter((p) => !sameBoardById(p.start, squared));
+  const allPuzzles = sample(1, 40).filter(Boolean);
+  const offHome = allPuzzles.filter((p) => !sameBoardById(p.start, squared));
   check(offHome.length > 0, `the sample contains a puzzle that does not open from home (${offHome.length})`);
   const p = offHome[0];
   if (p) {
@@ -162,7 +163,18 @@ console.log('\n== 4. the puzzle still holds its own gates, from a start that is 
     // "Setup, k of n" either way — so this reports which kind of start it is rather than requiring one.
     const name = applier.nameOf(p.start);
     check(name === null || typeof name === 'string', `that start is ${name ?? 'UNNAMED (the caption is its position)'}`);
-    check(applier.nameOf(p.goal) !== null, `and its goal is named (${applier.nameOf(p.goal)})`);
+    // THE GOAL MUST BE A FORMATION THE CORPUS DEFINES, which is wider than "the recogniser names it": the curated
+    // recogniser is a twenty-odd-name caption vocabulary, and requiring it refused thirteen of this level's 44 start
+    // formations (MEASURED — none of their one-call outcomes was standard-nameable, while all 44 have a corpus
+    // formation one call away). The caption prefers the curated name and falls back to the corpus one.
+    check(applier.formationOf(p.goal) !== null,
+      `and its goal is a formation the corpus defines (${applier.nameOf(p.goal) ?? applier.formationOf(p.goal)})`);
+    // AND THE WIDENING IS REAL: over the sample, at least one goal must be one the curated recogniser CANNOT name, or
+    // the gate would still be the old one wearing a new name.
+    const validButUnnamed = allPuzzles
+      .filter((q) => applier.nameOf(q.goal) === null && applier.formationOf(q.goal) !== null);
+    check(validButUnnamed.length > 0,
+      `with ${validButUnnamed.length} of the ${allPuzzles.length} goals being corpus formations the curated recogniser cannot name`);
     check(!sameBoardById(p.start, p.goal), 'the goal is not the start board');
     check(p.steps.length === LEVEL.depth, `it has ${p.steps.length} step(s), the level's depth (${LEVEL.depth})`);
     let board = p.start;

@@ -321,18 +321,24 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
     //
     // THE LIST IS DEDUPED BY POSE, not by signature — the same board reached by two calls is one candidate, and two
     // boards that differ only in facing are two. See `arrivals`.
+    // A CANDIDATE GOAL MUST BE A FORMATION THE CORPUS DEFINES, which is a wider set than the formations the curated
+    // recogniser names. MEASURED at level 1: thirteen of the 44 start formations offer no one-call board that
+    // `recognize` can name, so gating on the NAME refused those starts outright — and a formation is valid because the
+    // corpus defines it (`formations.xml` or a tam's own setup), not because it is one of the twenty-odd standard
+    // names a caption prefers. `formationOf` answers the validity question against the whole corpus with the same
+    // matcher and threshold; the caption falls back to the same name.
     const candidates: { board: Board; fromSig: string; call: string }[] = [];
     const candidatePoses = new Set<string>([poseKey(start)]);
     for (const arrival of arrivals) {
       if (sameBoardById(arrival.board, start)) continue;
-      if (applier.nameOf(arrival.board) === null) continue;
+      if (applier.formationOf(arrival.board) === null) continue;
       const key = poseKey(arrival.board);
       if (candidatePoses.has(key)) continue;
       candidatePoses.add(key);
       candidates.push(arrival);
     }
     if (candidates.length === 0) {
-      const from = applier.nameOf(start) ?? 'this start';
+      const from = applier.nameOf(start) ?? applier.formationOf(start) ?? 'this start';
       return hitBudget
         ? `the exploration hit its ${config.nodeBudget}-node budget after ${explored} states with no board at depth ${config.maxDepth} from ${from}`
         : `no NAMED board is reachable in exactly ${config.maxDepth} call(s) from ${from} at this level`;
@@ -401,17 +407,13 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
       // from another goal by facing and still be a different picture; a goal that is the START's formation is the
       // puzzle telling the player the answer is where they already are.
       if (arrangementKey(goal) === arrangementKey(start)) return "the goal board is the start board's arrangement, seen another way";
-      // GATE: the GOAL must be a state the engine can NAME, and the reason is narrower than "every board
-      // must be named". The start and the goal are the boards the game DRAWS for the player — "you are
-      // here" and "get here" — so an unnamed one is a picture with no caption. (The START's name is
-      // `startRefusal`'s first rule, applied once to every candidate rather than per attempt.) An UNNAMED
-      // INTERMEDIATE is a different thing: it is a legal state the engine simply has no template for (its
-      // own docs say an unrecognised board is not a defect), the player never sees it named, and refusing
-      // it would reject the great majority of real paths.
-      // MEASURED at L2/pool 15: of 10 distinct depth-2 states, MOST are unnamed — so a gate on every board
-      // would have left this level with no puzzles at all, which is a much worse outcome than a path
-      // passing through a state the app does not name.
-      if (applier.nameOf(goal) === null) return 'the goal board has no name';
+      // GATE: the GOAL must be a FORMATION THE CORPUS DEFINES, which is `formationOf`'s question and not the curated
+      // recogniser's. The old rule was "the goal must be NAMEABLE by `recognize`", justified by the caption; but the
+      // corpus's own answer to "is this arrangement one of ours" is wider than the twenty-odd standard names a caption
+      // prefers, and MEASURED it is what refused thirteen of level 1's 44 start formations. An INTERMEDIATE board needs
+      // no name at all: it is a legal state the engine has no template for, the player never sees it captioned, and
+      // gating every board would leave the level with no puzzles.
+      if (applier.formationOf(goal) === null) return 'the goal board is no formation the corpus defines';
 
       // GATE: every board on the intended path must be able to CARRY its step — three legal options with
       // pairwise-distinct endings. Checked here, before the options are built, because a path through a

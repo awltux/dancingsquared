@@ -1028,6 +1028,17 @@ export class Sequencer {
     return this.matcher.recognize(board);
   }
 
+  /**
+   * Is this board an arrangement the CORPUS defines, and what is it called by the corpus's own list?
+   *
+   * `recognize` is the CAPTION question and is curated to twenty-odd standard names; this is the VALIDITY question,
+   * answered against every formation in `formations.xml`. Both use the same geometry matcher and the same threshold,
+   * so the only difference is how many names are candidates — see `FormationMatcher.corpusFormation`.
+   */
+  corpusFormation(board: Board): { name: string; error: number } | null {
+    return this.matcher.corpusFormation(board);
+  }
+
   formationState(board: Board): { name: string; rot: number; reflect: boolean; cSrc: { x: number; y: number }; cTgt: { x: number; y: number } } | null {
     return this.matcher.formationState(board);
   }

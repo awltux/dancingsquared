@@ -186,6 +186,16 @@ export interface GameApplier {
    * (DESIGN.md 7's quality gates), so the generator refuses it as a puzzle state. */
   nameOf(board: Board): string | null;
   /**
+   * The CORPUS formation this board is, or null when it is no arrangement `formations.xml` defines.
+   *
+   * THE VALIDITY QUESTION, where `nameOf` is the caption question. `recognize` is curated to twenty-odd standard names
+   * so that a board congruent to several does not get a confident wrong label; this asks the wider question the corpus
+   * can answer — "is this arrangement one of ours" — against every formation in `formations.xml`, with the same matcher
+   * and the same threshold. MEASURED at level 1: thirteen of the 44 start formations have no one-call outcome the
+   * curated recogniser can name, and gating the generator on the NAME refused all thirteen.
+   */
+  formationOf(board: Board): string | null;
+  /**
    * The engine's own motion for `calls` played from `board`.
    *
    * ONE CALL AND A WHOLE LINE ARE THE SAME CALL (DESIGN.md 4.3): the Drill passes a one-call list for each

@@ -57,6 +57,9 @@ const applier = {
   },
   boardsMatch: eq,
   nameOf: () => 'Stub Formation',
+  // THE WIDER VALIDITY QUESTION, so the stub can describe GameApplier without pretending: every board it makes is a
+  // named stub formation, and the corpus name beside that is the same string.
+  formationOf: () => 'Stub Formation',
 };
 
 const puzzle = {
@@ -333,6 +336,7 @@ console.log('\n== 7. the waypoints are formations, and undo rewinds the progress
     },
     boardsMatch: (x, y) => x === y,
     nameOf: (b) => (b === A ? 'Squared Set' : b === B ? 'Ocean Wave' : 'Ocean Wave, moved'),
+    formationOf: (b) => (b === A ? 'Squared Set' : b === B ? 'Ocean Wave' : 'Ocean Wave, moved'),
   };
   const p = { ...puzzle, start: A, goal: C, path: [A, B, C], solution: ['go-b', 'go-c'], shortest: 2 };
   const run = new DailyRun(p, stub, 0, 4);

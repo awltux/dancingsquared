@@ -255,6 +255,11 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
       return seq.recognize(board).name;
     },
 
+    /** The wider VALIDITY question: any formation `formations.xml` defines, not the curated caption list. */
+    formationOf(board: Board): string | null {
+      return seq.corpusFormation(board)?.name ?? null;
+    },
+
     /**
      * The engine's own walk of `calls` from `board`: how long it takes, where it stops, and the board at any
      * beat in between.

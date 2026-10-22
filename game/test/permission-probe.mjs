@@ -8,12 +8,16 @@
 // options from `applier.offered`, which asked NONE of them: it walked `applyToBoard` and kept every call the engine
 // did not refuse GEOMETRICALLY. MEASURED at the level-1 pool from a squared set, `legalCalls` answers 40 with the
 // table installed and 40 without it, so no amount of wiring would have changed it - the question was never asked.
-// `offered` now asks `mayOffer(name, null, board)` first, and MEASURED the same list is 31: the eight `Circle Four`
+// `offered` now asks `mayOffer(name, null, board)` first, and MEASURED the list was 31: the eight `Circle Four`
 // authorings and `Dosado`, every one of them geometrically legal from that board.
 //
-// WHAT THIS PROBE PINS. The squared set's list exactly (31), and that each of the nine ABSENT titles is one the
+// THE COUNT IS 23 NOW, AND THE CAUSE IS NOT THIS PROBE'S RULE: `1ddc8df` added a `Single Circle` exclusion to the table,
+// which removes eight more titles from the same board. Re-measured here rather than tracked silently, because a pin
+// that follows a number wherever it goes is not a gate.
+//
+// WHAT THIS PROBE PINS. The squared set's list exactly (23), and that each of the nine ABSENT titles is one the
 // engine does not refuse there - which is the whole point: the drop is a RULE, not a measurement, and a probe that
-// only counted 31 could be satisfied by a list that had shrunk for any reason. It also pins that the DAILY's own
+// only counted 23 could be satisfied by a list that had shrunk for any reason. It also pins that the DAILY's own
 // list agrees (`readings`, which is the engine's `applicableMoves`): that surface used to carry the same nine as
 // whole-board readings, because its whole-board pass asked nobody while its group pass asked `groupCanPerform`.
 // The engine now asks `mayOffer` there too, and this probe checks the two lists agree so the two modes cannot
@@ -47,7 +51,10 @@ const REFUSED_AT_ALL_EIGHT = [
 ];
 
 const offered = offeredAt(sq);
-check(offered.length === 31, `the squared set offers 31 of the ${pool.length} titles (was 40 before the filter)`);
+// 40 -> 31 WAS THIS PROBE'S OWN MEASUREMENT; the list is 23 now because `1ddc8df` added a `Single Circle` exclusion to
+// the table, which takes eight more titles off the same board. Both numbers are named so a future movement is a
+// decision rather than a re-pin: the first drop was this rule, the second was somebody else's.
+check(offered.length === 23, `the squared set offers 23 of the ${pool.length} titles (40 before any rule, 31 before the Single Circle exclusion)`);
 for (const name of REFUSED_AT_ALL_EIGHT) {
   check(!offered.includes(name), `${JSON.stringify(name)} is not offered for the whole square`);
 }
@@ -59,7 +66,7 @@ for (const name of REFUSED_AT_ALL_EIGHT) {
 }
 
 // NEGATIVE CONTROL FOR THE NINE. If `refusalOf` answered `null` for everything, the checks above would be
-// satisfied by a board nothing refuses. It refuses 17 of the 57 titles here (40 - 31 + 8 geometric are offered).
+// satisfied by a board nothing refuses. It refuses 17 of the 57 titles on GEOMETRY alone, whatever the table says.
 const geometricallyRefused = applier.candidateCalls().filter((c) => applier.refusalOf(sq, c) !== null);
 check(geometricallyRefused.length === 17, `and \`refusalOf\` still refuses ${geometricallyRefused.length} other titles here, so its \`null\` is a distinction`);
 

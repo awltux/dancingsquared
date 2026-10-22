@@ -501,22 +501,28 @@ establishes.
   the L × C refutation).
 - **Quality gates — constraints that reject a seed and retry, never warnings:**
   - the puzzle is solvable, and the shortest solution is exactly `depth`;
-  - the **goal** board is **named** by `recognize` — it is the picture the player must recognise, and its caption is
-    the only text that can say what they are aiming at. **THE START DOES NOT HAVE TO BE NAMED** and this used to
-    require it: reported as *"the drills seem to contain many duplicates"*, and MEASURED, 24 of level 1's 44 declared
-    formations have no recogniser name, so the naming gate restricted the whole 100-drill block to 20 starts — and
-    the caption over the start board says "Setup, k of n" either way. An unnamed INTERMEDIATE is not refused and
-    must not be: it is a legal state the engine simply has no template for, the player never sees it named, and
-    MEASURED at L2/pool 15 most depth-2 states are unnamed, so a gate on every board would leave the level with no
-    puzzles at all;
+  - the **goal** board must be a **formation the corpus defines** — not necessarily one the curated recogniser
+    *names*. `recognize` is a caption vocabulary of twenty-odd standard names, deliberately narrow because a board
+    congruent to several corpus formations would otherwise get a confident wrong label; "is this arrangement one of
+    ours" is a different question, and `GameApplier.formationOf` answers it against every formation in `formations.xml`
+    with the same matcher and threshold. MEASURED at level 1: the one-call outcomes accepted as goals go from **91 to
+    206** of 303, **13 start formations go from blocked to usable**, and 24 of 40 sampled goals are formations the
+    curated recogniser cannot name — a formation is valid because the corpus defines it, not because it has a
+    comfortable name. The caption prefers the curated name and falls back to the corpus one. **THE START DOES NOT HAVE
+    TO BE NAMED** and this used to require it: reported as
+    *"the drills seem to contain many duplicates"*, and MEASURED, 24 of level 1's 44 declared formations have no
+    recogniser name, so the naming gate restricted the whole 100-drill block to 20 starts — and the caption over the
+    start board says "Setup, k of n" either way. An unnamed INTERMEDIATE is not refused and must not be: it is a legal
+    state the engine simply has no template for, the player never sees it named, and MEASURED at L2/pool 15 most
+    depth-2 states are unnamed, so a gate on every board would leave the level with no puzzles at all;
   - **a goal candidate is a BOARD, not a `boardSig`**, which was the other half of the reported duplication. `boardSig`
     is positions-only (AGENTS.md §8 trap 11), so two goals that differ only in FACING were one candidate: MEASURED, a
-    level-1 start's named one-call goals are 1..17 by pose and 1..6 by signature, and seeds 1..100 produced 27
-    distinct (start, goal) pictures — **49 after the change**, with 12 starts becoming 29. A player sees the picture,
-    so the picture is the identity. THE SPACE IS STILL FINITE AND SMALL: over 2000 seeds level 1 generates **89**
-    distinct pictures, so a 100-drill block cannot be duplicate-free at this level; a block that were one would need
-    the goal side widened too (an unnamed goal, or more named formations), or a schedule rule that picks seeds
-    against the pictures already used;
+    level-1 start's named one-call goals are 1..17 by pose and 1..6 by signature. A player sees the picture, so the
+    picture is the identity. MEASURED ON ONE ENGINE, seeds 1..100: **37 distinct (start, goal) pictures before this and
+    the validity change, 52 after** — 24 starts becoming 35; over 400 seeds, **60 → 98** pictures and 26 → 41 starts.
+    THE SPACE IS STILL FINITE AND SMALL: 98 distinct pictures at level 1 even over 400 seeds, so a 100-drill block
+    cannot be duplicate-free at this level; a block that were one would need the goal side widened further, or a
+    schedule rule that picks seeds against the pictures already used;
   - the start and goal boards are distinguishable at a glance, so the puzzle is not solvable by "they look
     the same";
   - the start offers at least as many legal calls as the question has options, with distinct endings, or the

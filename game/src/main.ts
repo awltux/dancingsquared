@@ -281,7 +281,10 @@ interface WaypointInfo {
 }
 
 function waypointInfo(): WaypointInfo | null {
-  const name = (b: Board): string => applier?.nameOf(b) ?? '';
+  // THE CAPTION, AND THE CORPUS IS THE AUTHORITY FOR IT: the curated recogniser first (the vocabulary a dancer would
+  // use), then the wider corpus name for an arrangement it does not standardise, and no name at all for a board the
+  // corpus has no template for — which the caption then spells as its position.
+  const name = (b: Board): string => applier?.nameOf(b) ?? applier?.formationOf(b) ?? '';
   if (mode === 'daily' && daily) {
     const view = daily.view(performance.now());
     return {

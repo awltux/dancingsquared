@@ -62,8 +62,15 @@ export const NODE_BUDGET = 50_000;
  * before, 49 after**, and 12 starts before, 29 after. The old identity was positions-only (AGENTS.md §8 trap 11), so
  * a goal that differed only in FACING was the same candidate — MEASURED, a start's named one-call goals are 1..17 by
  * pose and 1..6 by signature. A `g4` store would serve a block whose questions this build no longer generates.
+ *
+ * `g6` IS THE GOAL'S VALIDITY: a goal is now any arrangement the CORPUS defines (`GameApplier.formationOf`, every
+ * formation in `formations.xml`) rather than one the curated recogniser names. MEASURED at level 1: the one-call
+ * outcomes accepted as goals go from **91 to 206** of 303, the starts blocked by that gate go from **13 to 0**, and 24
+ * of 40 sampled goals are formations the curated recogniser cannot name. A goal the player is shown is a picture, and
+ * the corpus's answer to "is this one of ours" is wider than the twenty-odd standard names a caption prefers. A `g5`
+ * store would serve a block whose goals this build no longer picks.
  */
-export const GENERATOR_VERSION = 'g5';
+export const GENERATOR_VERSION = 'g6';
 
 /**
  * The generator configuration for ONE LEVEL, at the budget this build ships.

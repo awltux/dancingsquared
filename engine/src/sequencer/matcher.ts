@@ -561,6 +561,32 @@ export class FormationMatcher {
     return board.dancers.map((d) => `${d.x.toFixed(5)},${d.y.toFixed(5)},${d.heading.toFixed(5)}`).join(';');
   }
 
+  /**
+   * The CORPUS FORMATION this board is, over EVERY formation the library holds rather than the curated standard set.
+   *
+   * WHY IT EXISTS, AND WHY IT IS NOT `recognize`. `recognize` answers "what is this board CALLED" and is deliberately
+   * narrowed to `STANDARD_FORMATIONS`, because a board merely CLOSEST to one of 291 corpus names may be congruent to
+   * several and a confident wrong label is worse than none. This answers a different question — "is this arrangement
+   * one the corpus DEFINES" — which is what a caller needs when the name is only a caption and the arrangement's
+   * validity is the point. MEASURED, the difference is large: at level 1, 13 of the 44 start formations have no
+   * one-call outcome the curated recogniser can name, so a generator gating on the NAME refused them outright.
+   *
+   * THE THRESHOLD IS `recognize`'s OWN, applied to the whole library: the best match under `DEFAULT_MATCH_MAX` plus the
+   * configured margin, or null. So this never accepts a board `recognize` would have called a different formation — it
+   * only stops demanding that the formation be one of the twenty-odd curated names.
+   */
+  corpusFormation(board: Board): { name: string; error: number } | null {
+    const src = this.matchables(board);
+    let best: { name: string; error: number } | null = null;
+    for (const f of this.library.getNamedFormations()) {
+      if (f.dancers.length !== src.length) continue;
+      const m = matchFormations(src, f.dancers);
+      if (m && (best === null || m.error < best.error)) best = { name: f.name, error: m.error };
+    }
+    if (best === null || best.error > DEFAULT_MATCH_MAX + this.config.matchMargin) return null;
+    return best;
+  }
+
   /** Recognize the board against the curated standard formations.
    *
    * A label is only reported when the board genuinely IS that formation: a board

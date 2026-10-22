@@ -21,7 +21,7 @@ import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { applierFor } from '../src/data/corpus-node.ts';
 import { PlaySession } from '../src/puzzle/session.ts';
-import { groupReadings } from '../src/puzzle/readings.ts';
+import { ALL_READINGS, filterReadings, groupReadings, selectionLabel, toggleSelection, WHOLE_BOARD } from '../src/puzzle/readings.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -72,8 +72,9 @@ console.log('\n== 3. the whole-board readings ARE `offered()`, so the two surfac
   // ONE PREDICATE, TWO SURFACES. `offered` (the DRILL's source) and `readings` (the DAILY's, from the engine's
   // `applicableMoves`) both ask `mayOffer` about the whole-board reading now. Before the enumeration asked, this list
   // carried the nine calls the table refuses at a squared set that `offered` had already dropped — the divergence
-  // this check was written to catch, and what it caught. MEASURED after: 33 whole-board readings, 33 offers, the same
-  // names; the 369 readings in all are the whole-board ones plus the group pass.
+  // this check was written to catch, and what it caught. The two counts are PRINTED by the checks below rather than
+  // pinned here: they move with the pool (this comment said 33 whole-board and 369 in all at pool 36, and at pool 73
+  // the same board gives 25 and 279), so a number written down here is a number that goes stale in silence.
   const offered = applier.offered(start).map((m) => m.call).sort();
   const whole = readings.filter((r) => r.selection === null).map((r) => r.call).sort();
   check(JSON.stringify(offered) === JSON.stringify(whole), `\`offered\` and the whole-board readings name the same ${whole.length} call(s)`);
@@ -107,7 +108,7 @@ console.log('\n== 5. the screen groups them, whole board first ==');
 {
   const sections = groupReadings(readings);
   check(sections.length > 1, `${sections.length} section(s) for ${readings.length} reading(s)`);
-  check(sections[0].label === 'All 8', `the whole-board reading is the FIRST section (${sections[0].label})`);
+  check(sections[0].label === WHOLE_BOARD, `the whole-board reading is the FIRST section (${sections[0].label})`);
   check(sections.reduce((n, s) => n + s.readings.length, 0) === readings.length, 'and every reading is in exactly one section');
   // THE SAME CALL UNDER TWO HEADINGS IS TWO MOVES, and it is preserved rather than deduplicated: `Lead Right` for
   // the set and for `Heads` are different dancers doing it.
@@ -125,6 +126,53 @@ console.log('\n== 6. a reading is what the session plays, and the line keeps the
   const verdict = session.play(prefixed(groupReading));
   check(verdict.verdict !== 'illegal', `the session plays a grouped reading ("${prefixed(groupReading)}" -> ${verdict.verdict})`);
   check(session.moves.length === 1 && session.moves[0] === prefixed(groupReading), `and the line holds the group's spelling (${session.moves[0]})`);
+}
+
+console.log('\n== 8. the FILTER narrows the same list: a subset, a query, and nothing hidden by accident ==');
+{
+  // REPORTED: "there are a large number of calls available to the player. Implement a search feature and make the calls
+  // easier to navigate." MEASURED at this level (pool 73): the squared set offers 279 readings over 14 subsets, so scrolling the
+  // list to a call you have in mind is the slow path. The filter is TWO narrowings over the SAME list, and the checks
+  // below are what keep it a view of the engine's enumeration rather than a second list beside it.
+  const all = filterReadings(readings, ALL_READINGS);
+  check(all.length === readings.length, `ALL_READINGS shows every reading (${all.length} of ${readings.length})`);
+  check(JSON.stringify(all.map(prefixed)) === JSON.stringify(readings.map(prefixed)), 'and in the engine\'s own order, because a filter that re-sorted would move a call among names the player already knows');
+  const sections = groupReadings(readings);
+  const biggest = sections.reduce((a, b) => (b.readings.length > a.readings.length ? b : a));
+  const subset = filterReadings(readings, { selection: biggest.label, query: '' });
+  check(subset.length === biggest.readings.length && subset.every((r) => selectionLabel(r) === biggest.label), `a subset shows exactly its own section (${subset.length} of ${readings.length}, "${biggest.label}")`);
+  // NEGATIVE CONTROL: the subset check above only means something if the subsets are SMALLER than the whole list — a
+  // filter that compared the wrong field (say the call) would return everything.
+  check(biggest.readings.length < readings.length, `NEGATIVE CONTROL: the largest subset is smaller than the whole list (${biggest.readings.length} < ${readings.length})`);
+
+  // THE QUERY IS CASE-INSENSITIVE AND MATCHES THE READING'S OWN SPELLING, so the group word is searchable too.
+  const sample = readings[0];
+  const upper = filterReadings(readings, { selection: null, query: sample.call.toUpperCase() });
+  const lower = filterReadings(readings, { selection: null, query: sample.call.toLowerCase() });
+  check(upper.length > 0 && JSON.stringify(upper.map(prefixed)) === JSON.stringify(lower.map(prefixed)), `a query is case-insensitive (${upper.length} match "${sample.call}")`);
+  const groupWord = readings.find((r) => r.selection !== null && r.selection !== WHOLE_BOARD);
+  const byGroup = filterReadings(readings, { selection: null, query: groupWord.selection.toLowerCase() });
+  check(byGroup.length > 0 && byGroup.includes(groupWord), `and it matches the GROUP's word too, because the spelling is "${prefixed(groupWord)}" (${byGroup.length} match "${groupWord.selection}")`);
+
+  // TWO TERMS, IN ANY ORDER: a filter that required them in the typed order would fail on the likeliest typo.
+  const terms = [groupWord.selection.toLowerCase(), groupWord.call.split(' ')[0].toLowerCase()];
+  const forward = filterReadings(readings, { selection: null, query: terms.join(' ') });
+  const backward = filterReadings(readings, { selection: null, query: [...terms].reverse().join(' ') });
+  check(forward.length > 0 && JSON.stringify(forward.map(prefixed)) === JSON.stringify(backward.map(prefixed)), `two terms match in either order (${forward.length} match "${terms.join(' ')}")`);
+
+  // A ZERO IS AN ANSWER, and this one is checked to be a genuine absence rather than a broken sample: the list is
+  // non-empty and a query no spelling contains still finds nothing, which is what the count shows the player.
+  const nothing = filterReadings(readings, { selection: null, query: 'zzzz-no-such-call' });
+  check(nothing.length === 0 && readings.length > 0, `a query no spelling contains matches nothing (${nothing.length} of ${readings.length})`);
+
+  // AND THE TWO NARROWINGS COMPOSE (subset AND query), which is what the picker shows: never a union of them.
+  const composed = filterReadings(readings, { selection: biggest.label, query: groupWord.call.split(' ')[0].toLowerCase() });
+  check(composed.length <= subset.length && composed.every((r) => subset.includes(r)), `a subset and a query compose (${composed.length} of the subset's ${subset.length})`);
+
+  // THE TOGGLE: pressing the pressed subset is the way back to the whole list.
+  check(toggleSelection(null, 'Heads') === 'Heads', 'pressing a subset selects it');
+  check(toggleSelection('Heads', 'Heads') === null, 'and pressing it again shows everything');
+  check(toggleSelection('Heads', 'Sides') === 'Sides', 'while pressing another switches to it');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

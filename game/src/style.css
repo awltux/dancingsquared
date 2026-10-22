@@ -389,6 +389,77 @@ button[data-busy="true"]::after {
   font-variant-numeric: tabular-nums;
 }
 
+/* NARROWING THE OFFERING LIST. REPORTED: "there are a large number of calls available to the player … implement a
+   search feature and make the calls easier to navigate." MEASURED at level 1 (pool 57): 277 readings over 14
+   subsets from the squared set, 306 over 16 from a generated Daily start.
+   The bar is the SEARCH first (the quickest way to one call), then the count, then the subset pills, which wrap: a
+   level with more groups than fit must not hide the last one off the edge. */
+#callFilter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+#callSearch {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: #0d1620;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+}
+
+#callSearch:focus-visible,
+.call-subset:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* THE COUNT IS SMALL AND QUIET, but it is not decoration: "0 of 306 calls" is the difference between a narrowing that
+   hid everything and a board with nothing legal left. Tabular figures so it does not reflow as it counts down. */
+.call-count {
+  color: var(--dim);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.call-subsets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1 1 100%;
+}
+
+/* A SUBSET IS A TOGGLE, and a toggle is told by MORE than colour: `aria-pressed` carries the state for a screen reader,
+   and the pressed pill gets a solid border plus a tick-free but unmistakable fill for everyone else. */
+.call-subset {
+  min-height: 34px;
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: #16222e;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.call-subset:hover {
+  border-color: var(--accent);
+}
+
+.call-subset[aria-pressed="true"] {
+  background: #1d2f3f;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
 /* THE OFFERING LIST AND THE ANSWER BUTTONS SHARE A LOOK — both are "press the call you want" — but the
    offering list is a list of many, so it wraps into a grid rather than stacking full width. */
 #offer {

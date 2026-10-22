@@ -93,6 +93,16 @@
                a two-group step, then pick a call under another group", or "<reading> armed — …". It is not empty while
                the run is playing, because an unannounced gesture does not exist (DESIGN.md §9.2). -->
           <p id="offerPairHint"></p>
+          <!-- NARROWING THE LIST. A level-1 Daily offers 277 readings over 14 subsets from the squared set and 306 over 16 from a generated start, so reaching the call a player
+               has in mind used to mean scrolling a page of buttons. TWO independent narrowings, both stateful: the
+               subset buttons (`aria-pressed`, press the pressed one again to show everything) and the search box,
+               which matches each reading's own spelling. The count says what is left, and `0 of 306` is a real
+               answer rather than an empty list with no explanation. -->
+          <div id="callFilter" class="call-filter">
+            <input id="callSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search calls…" aria-label="Search calls" />
+            <span id="callCount" class="call-count" role="status"></span>
+            <div id="callSubsets" class="call-subsets" role="group" aria-label="Filter by who dances"></div>
+          </div>
           <!-- THE OFFERING LIST IS WHAT IS LEGAL NOW (DESIGN.md 9, decision 9) — not what is still solvable.
                Dead ends are the player's to discover, and the score is what makes discovering them cost. -->
           <div id="offer"></div>

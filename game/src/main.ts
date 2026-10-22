@@ -1672,6 +1672,11 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
     : null;
   waypointCursor = null;
   stage.forgetPair();
+  // A DIFFERENT CHALLENGE IS A DIFFERENT LIST, so the player's search and subset belong to the last one: a query typed
+  // for yesterday's puzzle would open today's already narrowed, which reads as a puzzle with almost no calls. Said here
+  // rather than inferred in the screen, because only the shell knows the challenge changed (`keepDaily` — a mode switch
+  // — must NOT reset, and does not call this).
+  dailyScreen.resetFilters();
   daily = carried ?? new DailyRun(puzzle, applier, performance.now());
   dailyRunId = carried && stored ? stored.runId : newRunId(Date.now());
   dailyScreen.say(

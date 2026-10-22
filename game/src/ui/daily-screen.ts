@@ -18,7 +18,7 @@
 // they are written only when they change — see `writeClock`, which the frame loop calls.
 import type { DailyView } from '../game/daily-run.ts';
 import { decidePick, isArmed } from '../puzzle/arming.ts';
-import { groupReadings, readingSpelling } from '../puzzle/readings.ts';
+import { ALL_READINGS, filterReadings, groupReadings, readingSpelling, toggleSelection, type ReadingFilter } from '../puzzle/readings.ts';
 import type { MoveReading } from '../puzzle/types.ts';
 import { el } from './dom.ts';
 
@@ -31,6 +31,10 @@ interface El {
   verdict: HTMLElement;
   result: HTMLElement;
   pairHint: HTMLElement;
+  callFilter: HTMLElement;
+  callSearch: HTMLInputElement;
+  callCount: HTMLElement;
+  callSubsets: HTMLElement;
 }
 
 export interface DailyCallbacks {
@@ -56,6 +60,15 @@ export class DailyScreen {
   private armed: MoveReading | null = null;
   /** The view the last `show()` was drawn from, so arming can redraw without a new one. */
   private lastView: DailyView | null = null;
+  /**
+   * What the player has narrowed the picker to (a subset and a search query), and IT SURVIVES EVERY REPAINT: the list
+   * is rebuilt on every move, so a filter held in the DOM would be lost the moment the player moved — which is the one
+   * moment they are most likely to be part-way through looking for the next call. Reset when a new challenge arrives
+   * (`resetFilters`) and when a HINT names a call the filter would hide.
+   */
+  private filter: ReadingFilter = ALL_READINGS;
+  /** The hint the last `show()` drew, so a NEW hint can clear the filter and an existing one can leave it alone. */
+  private lastHinted: string | null = null;
 
   constructor(private readonly on: DailyCallbacks) {
     this.els = {
@@ -67,7 +80,32 @@ export class DailyScreen {
       line: el('line'),
       verdict: el('dailyVerdict'),
       result: el('dailyResult'),
+      callFilter: el('callFilter'),
+      callSearch: el<HTMLInputElement>('callSearch'),
+      callCount: el('callCount'),
+      callSubsets: el('callSubsets'),
     };
+    // THE FILTER IS WIRED ONCE, because the input is a PERSISTENT element (index.html) and is never rebuilt: a screen
+    // that re-created it per paint would lose the caret mid-word. Typing repaints the LIST only — never the panel — so
+    // the armed reading, the clock cache and the caret all survive a keystroke.
+    this.els.callSearch.addEventListener('input', () => {
+      this.filter = { ...this.filter, query: this.els.callSearch.value };
+      this.repaintOffers();
+    });
+    // ESCAPE IS THE WAY OUT WITHOUT A MOUSE, and it is what a search box is expected to do: clear, not blur.
+    this.els.callSearch.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || this.els.callSearch.value === '') return;
+      event.preventDefault();
+      this.els.callSearch.value = '';
+      this.filter = { ...this.filter, query: '' };
+      this.repaintOffers();
+    });
+  }
+
+  /** Forget the narrowing: a different challenge is on screen, so the player's search belongs to the last one. */
+  resetFilters(): void {
+    this.clearFilter();
+    this.repaintOffers();
   }
 
   /**
@@ -86,10 +124,16 @@ export class DailyScreen {
     }
     this.els.result.hidden = true;
     // THE ARMED READING AND THE LAST VIEW GO WITH IT: they belong to a challenge that is no longer on screen, and the
-    // next `show` must not redraw from a stale view.
+    // next `show` must not redraw from a stale view. The narrowing goes too, for the same reason — and the filter bar is
+    // hidden until a list exists to narrow.
     this.armed = null;
     this.lastView = null;
+    this.lastHinted = null;
     this.clockText = null;
+    this.els.callFilter.hidden = true;
+    this.els.callSubsets.replaceChildren();
+    this.els.callCount.textContent = '';
+    this.clearFilter();
   }
 
   /** Draw the whole panel from the run's view. */
@@ -127,62 +171,18 @@ export class DailyScreen {
       }
     }
 
-    this.els.offer.replaceChildren();
     // A NEW VIEW CLEARS A HALF-MADE STEP unless the view is the ARMED one being redrawn: `lastView === view` only on the
     // arming click's own re-render, where the board has not moved.
     const redrawing = this.lastView === view;
     if (!redrawing) this.armed = null;
     this.lastView = view;
-    if (view.outcome === 'playing') {
-      // AT THE CAP THE LIST IS DISABLED, not emptied: the player can still see what was legal, and the
-      // readout says the allowance is spent. An empty list would look like a broken puzzle.
-      const spent = view.movesLeft === 0;
-      // GROUPED BY THE READING: one section per subset that can perform something, the whole board first.
-      //
-      // WHY SECTIONS AND NOT A PREFIX IN THE LABEL. The engine's own vocabulary is a GROUP plus a call ("Heads"
-      // + "Dosado"), and prefixed labels made every row a sentence to re-read ("Head Boys Dosado" beside
-      // "Dosado"). A heading says it once, the rows stay the call's own name, and the same call appearing under
-      // two headings is honest: those are two different moves, by different dancers.
-      for (const section of groupReadings(view.readings)) {
-        const heading = document.createElement('h3');
-        heading.className = 'offer-group';
-        heading.textContent = section.label;
-        this.els.offer.append(heading);
-
-        const row = document.createElement('div');
-        row.className = 'offer-row';
-        for (const reading of section.readings) {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.className = 'offer';
-          // THE HINT MARKS THE CALL IN THE LIST, which is what DESIGN.md 10 asks a hint to be: one call name,
-          // marked where the player is already looking. The run drops the marker as soon as they move, so it
-          // can never point at a call that is no longer offered. A hinted call is highlighted in EVERY group it
-          // is legal for, because the hint names a call and not a reading.
-          const armedNow = isArmed(this.armed, reading);
-          if (armedNow) {
-            button.classList.add('armed');
-            button.textContent = `${reading.call} · 1st of two`;
-          } else if (reading.call === view.hintedCall) {
-            button.classList.add('hinted');
-            button.textContent = `${reading.call} · hint`;
-          } else {
-            button.textContent = reading.call;
-          }
-          button.disabled = this.busy || spent;
-          // THE GESTURE IS THE MODE: a plain click plays, a Shift-click arms the first half of a two-group step
-          // (`puzzle/arming.ts` owns the rule, and its probe pins every row of that table).
-          button.addEventListener('click', (event) => this.choose(reading, event.shiftKey));
-          row.append(button);
-        }
-        this.els.offer.append(row);
-      }
-      if (view.readings.length === 0) {
-        const note = document.createElement('p');
-        note.textContent = 'No call is available from here — undo one to back out.';
-        this.els.offer.append(note);
-      }
-    }
+    // A HINT NAMES A CALL, AND A FILTER MUST NOT HIDE IT. The list is a narrowing the player chose; the hint is the game
+    // telling them one call, so a NEW hint clears the narrowing rather than leaving "Hint: Dosado" on screen with no
+    // Dosado in the list below it. An existing hint leaves the filter alone, so a player who searches while a hint is
+    // showing keeps their search.
+    if (view.hintedCall !== null && view.hintedCall !== this.lastHinted) this.clearFilter();
+    this.lastHinted = view.hintedCall;
+    this.renderOffers(view);
 
     // THE INSTRUCTION LINE carries the whole interaction, so it is NOT empty on the ordinary path: with nothing armed
     // it says how to arm one (the gesture is the mode, and a gesture nobody is told about does not exist), and with a
@@ -197,6 +197,124 @@ export class DailyScreen {
     this.els.line.textContent = view.moves.length ? `Your line: ${view.moves.join(' → ')}` : 'Your line: (nothing yet)';
     this.writeClock(view);
     this.showResult(view);
+  }
+
+  /**
+   * The filter bar and the offering list, from the view and this screen's own narrowing.
+   *
+   * SPLIT FROM `show` BECAUSE THE FILTER REPAINTS ON ITS OWN: a keystroke or a subset press must not re-run the whole
+   * panel — a full `show` would clear the ARMED reading on a view it has already drawn, so searching in the middle of a
+   * two-group step would silently disarm it.
+   *
+   * THE SUBSET BUTTONS ARE RE-DERIVED EVERY PAINT, because legality changes with every move: a group with no legal call
+   * on this board has no button and cannot be selected. A selection that has just disappeared is therefore DROPPED
+   * rather than left standing, which would show an empty list with no button pressed and nothing to explain it.
+   */
+  private renderOffers(view: DailyView): void {
+    this.els.callFilter.hidden = view.outcome !== 'playing';
+    this.els.offer.replaceChildren();
+    this.els.callSubsets.replaceChildren();
+    if (view.outcome !== 'playing') {
+      this.els.callCount.textContent = '';
+      return;
+    }
+    const labels = groupReadings(view.readings).map((section) => section.label);
+    if (this.filter.selection !== null && !labels.includes(this.filter.selection)) {
+      this.filter = { ...this.filter, selection: null };
+    }
+    for (const label of labels) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'call-subset';
+      button.textContent = label;
+      // ARIA-PRESSED CARRIES THE STATE, not a colour: a toggle told by colour alone is unreadable for a colour-vision
+      // difference, the same rule the hinted call and the waypoint borders follow.
+      button.setAttribute('aria-pressed', String(this.filter.selection === label));
+      // THE TOGGLE IS `readings.ts`'s RULE rather than a branch here, so "press the pressed one again" is pinned by a
+      // probe instead of by whoever reads this handler.
+      button.addEventListener('click', () => {
+        this.filter = { ...this.filter, selection: toggleSelection(this.filter.selection, label) };
+        this.repaintOffers();
+      });
+      this.els.callSubsets.append(button);
+    }
+    const visible = filterReadings(view.readings, this.filter);
+    // THE COUNT ANSWERS "is this zero a coverage gap or a genuine absence": "0 of 306 calls" says the list exists and the
+    // narrowing hid it, where an unqualified empty list would read like a broken puzzle (AGENTS.md §4.1).
+    this.els.callCount.textContent =
+      visible.length === view.readings.length ? `${visible.length} calls` : `${visible.length} of ${view.readings.length} calls`;
+    if (view.readings.length === 0) {
+      const note = document.createElement('p');
+      note.textContent = 'No call is available from here — undo one to back out.';
+      this.els.offer.append(note);
+      return;
+    }
+    if (visible.length === 0) {
+      const narrowed = `${this.filter.query.trim() ? ` “${this.filter.query.trim()}”` : ''}${this.filter.selection ? ` in ${this.filter.selection}` : ''}`;
+      const note = document.createElement('p');
+      note.textContent = `No call matches${narrowed} — clear the search or pick another group.`;
+      this.els.offer.append(note);
+      return;
+    }
+    // AT THE CAP THE LIST IS DISABLED, not emptied: the player can still see what was legal, and the readout says the
+    // allowance is spent. An empty list would look like a broken puzzle.
+    const spent = view.movesLeft === 0;
+    // GROUPED BY THE READING: one section per subset that can perform something, the whole board first.
+    //
+    // WHY SECTIONS AND NOT A PREFIX IN THE LABEL. The engine's own vocabulary is a GROUP plus a call ("Heads" + "Dosado"),
+    // and prefixed labels made every row a sentence to re-read ("Head Boys Dosado" beside "Dosado"). A heading says it
+    // once, the rows stay the call's own name, and the same call appearing under two headings is honest: those are two
+    // different moves, by different dancers.
+    for (const section of groupReadings(visible)) {
+      const heading = document.createElement('h3');
+      heading.className = 'offer-group';
+      heading.textContent = section.label;
+      this.els.offer.append(heading);
+
+      const row = document.createElement('div');
+      row.className = 'offer-row';
+      for (const reading of section.readings) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'offer';
+        // THE HINT MARKS THE CALL IN THE LIST, which is what DESIGN.md 10 asks a hint to be: one call name, marked where
+        // the player is already looking. The run drops the marker as soon as they move, so it can never point at a call
+        // that is no longer offered. A hinted call is highlighted in EVERY group it is legal for, because the hint names
+        // a call and not a reading.
+        const armedNow = isArmed(this.armed, reading);
+        if (armedNow) {
+          button.classList.add('armed');
+          button.textContent = `${reading.call} · 1st of two`;
+        } else if (reading.call === view.hintedCall) {
+          button.classList.add('hinted');
+          button.textContent = `${reading.call} · hint`;
+        } else {
+          button.textContent = reading.call;
+        }
+        button.disabled = this.busy || spent;
+        // THE GESTURE IS THE MODE: a plain click plays, a Shift-click arms the first half of a two-group step
+        // (`puzzle/arming.ts` owns the rule, and its probe pins every row of that table).
+        button.addEventListener('click', (event) => this.choose(reading, event.shiftKey));
+        row.append(button);
+      }
+      this.els.offer.append(row);
+    }
+  }
+
+  /** Repaint the list from the view already on screen — what a keystroke or a subset press needs. */
+  private repaintOffers(): void {
+    if (this.lastView) this.renderOffers(this.lastView);
+  }
+
+  /**
+   * Forget both narrowings AND the box they were typed in.
+   *
+   * ONE PLACE, because the two must move together: a cleared filter with yesterday's query still in the box would look
+   * like the search was on and doing nothing.
+   */
+  private clearFilter(): void {
+    this.filter = ALL_READINGS;
+    this.els.callSearch.value = '';
   }
 
   /**

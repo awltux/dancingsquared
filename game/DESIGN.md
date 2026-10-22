@@ -808,6 +808,19 @@ challenge").
 - **A group-only call — one a subset can perform and the set cannot — is legal here too**, and it is the engine's
   harness that builds the case (`engine/test/group-refusal.mjs`), because the squared set at a real level's pool
   offers 35 of its 36 titles whole-board and the situation does not arise within one call of the start.
+- **THE LIST IS NARROWED BY TWO INDEPENDENT CONTROLS, and both are the player's rather than the puzzle's.** REPORTED:
+  "there are a large number of calls available to the player. Implement a search feature and make the calls easier to
+  navigate. Perhaps use subsets as stateful filter buttons and a free-form search text entry." MEASURED at level 1
+  (pool 57): **277 readings over 14 subsets, the largest of them 24**, so reaching the call a player has in mind meant
+  scrolling a page every move. The controls are a **subset** (one of the section labels — `All 8` is a subset, not the
+  off state, and pressing the pressed one again shows everything) and a **free-text query** matched against each
+  reading's own SPELLING, so "heads dos" finds the group reading and every whitespace-separated term must occur, in any
+  order and case-insensitively. They compose as an AND, and the filter is a **view over the engine's list**: nothing is
+  re-sorted, deduplicated or relabelled, which is what `filterReadings`' checks assert (`ALL_READINGS` returns the list
+  it was given). Three consequences are part of the rule rather than of the screen: the **count** is shown ("12 of 277
+  calls"), so a zero is an answer rather than an empty list; a subset whose calls are all illegal on the current board
+  has **no button**, and a selection that disappears is dropped rather than left pressed against nothing; and a **new
+  hint clears the narrowing**, because a hint names one call and a filter must not hide it.
 
 - **The challenge MAY carry waypoints, and they GUIDE the route rather than gate it.** A Daily can show an
   ordered sequence of **formations and arrangements** between the start and the goal, and the player is helped,

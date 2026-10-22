@@ -388,7 +388,7 @@ export class GameStage {
   private scale = BOARD_SCALE;
   /** The pair the boards are showing, and the slide in progress if there is one. */
   private pair: StagePair | null = null;
-  private slide: { from: StagePair; to: StagePair; startMs: number } | null = null;
+  private slide: { from: StagePair; to: StagePair; direction: 1 | -1; startMs: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     // `floor: false` BECAUSE EACH BOARD BRINGS ITS OWN (see `BoardView`): the stage drawing one too would put
@@ -495,7 +495,7 @@ export class GameStage {
       this.commitSlide();
       return;
     }
-    const offsets = slideOffsets(t, centreFor(this.scale));
+    const offsets = slideOffsets(t, centreFor(this.scale), slide.direction);
     this.left.setOffset(offsets.left);
     this.right.setOffset(offsets.right);
     this.incoming.setOffset(offsets.incoming);
@@ -543,34 +543,49 @@ export class GameStage {
    * THE THREE BOARDS ARE DRAWN ONCE, at the start: the content is a snapshot for the 320 ms of the animation, and the
    * only thing that changes per frame is where each group sits. Drawing them per frame would rebuild nothing (the
    * dancer ids are stable) but would still re-pose every dancer 20 times for a picture nobody is looking at.
+   *
+   * WHICH BOARD ARRIVES DEPENDS ON THE DIRECTION. Forward, the pair advances by moving LEFT, so the board that comes
+   * in is the target's RIGHT one and it enters from off the right. Back, everything mirrors: the board that comes in
+   * is the target's LEFT one and it enters from off the LEFT, because the board already on screen is moving right.
    */
   private startSlide(from: StagePair, to: StagePair): void {
+    const direction: 1 | -1 = to.leftIndex > from.leftIndex ? 1 : -1;
     this.left.draw(from.left, stillBoard(from.left), WALK_STILL);
     this.left.setOutline(from.leftState);
     this.right.draw(from.right, stillBoard(from.right), WALK_STILL);
     this.right.setOutline(from.rightState);
-    this.incoming.draw(to.right, stillBoard(to.right), WALK_STILL);
-    this.incoming.setOutline(to.rightState);
+    const arriving = direction === 1 ? to.right : to.left;
+    this.incoming.draw(arriving, stillBoard(arriving), WALK_STILL);
+    this.incoming.setOutline(direction === 1 ? to.rightState : to.leftState);
     this.incoming.setVisible(true);
     const startMs = performance.now();
-    this.slide = { from, to, startMs };
+    this.slide = { from, to, direction, startMs };
     this.tick(startMs);
   }
 
   /**
    * Finish a slide: ROTATE THE ROLES rather than copying content, because the boards are already in the right places.
    *
-   * At `t = 1` the board that was in the right slot is exactly in the left slot and the incoming board is exactly in
-   * the right one, so the three views keep their content and only their NAMES change. That is why the commit cannot
-   * jump: nothing moves.
+   * At `t = 1` every board is exactly in the slot the new pair wants it in, so the three views keep their content and
+   * only their NAMES change. That is why the commit cannot jump: nothing moves. The rotation is the direction's
+   * mirror: forward the old RIGHT becomes the left board and the arriving one becomes the right; back, the old LEFT
+   * becomes the right board and the arriving one becomes the left.
    */
   private commitSlide(): void {
-    if (!this.slide) return;
+    const slide = this.slide;
+    if (!slide) return;
     this.slide = null;
-    const leaving = this.left;
-    this.left = this.right;
-    this.right = this.incoming;
-    this.incoming = leaving;
+    if (slide.direction === 1) {
+      const leaving = this.left;
+      this.left = this.right;
+      this.right = this.incoming;
+      this.incoming = leaving;
+    } else {
+      const leaving = this.right;
+      this.right = this.left;
+      this.left = this.incoming;
+      this.incoming = leaving;
+    }
     this.restSlots();
     if (this.pair) this.paint(this.pair.left, this.pair.right, this.pair.leftState, this.pair.rightState);
   }

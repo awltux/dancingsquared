@@ -32,12 +32,20 @@ export function ease(t: number): number {
 /**
  * The three slots at `t`, given the resting distance `centre` of a board from the middle of the canvas.
  *
- * AT REST the slots are `-centre`, `+centre` and `+3·centre`: the two boards on screen, and the incoming one waiting
- * off to the right. ONE SLOT LEFT is `-3·centre`, `-centre` and `+centre` — the same three positions, one slot along,
- * which is why the animation is a translation of three fixed positions rather than a redraw.
+ * THE DIRECTION IS THE PLAYER'S, and getting it wrong is the defect this parameter exists for: both buttons used to
+ * move the pair LEFT, so paging back to an earlier waypoint slid the boards the wrong way — reported as "the left
+ * button should slide the boards to the right, but it currently slides the boards to the left". Going FORWARD is a
+ * step left (the route reads left to right, so the pair advances by moving left), and going BACK is its mirror.
+ *
+ * AT REST the slots are `-centre`, `+centre` and `+3·centre`: the two boards on screen, and the arriving one waiting
+ * off to the right. `direction = 1` (forward) carries them one slot LEFT — `-3·centre`, `-centre`, `+centre` — and
+ * `direction = -1` (back) carries them one slot RIGHT, with the arriving board waiting off to the LEFT instead, at
+ * `-3·centre`. Either way it is a translation of three fixed positions rather than a redraw, and either way the
+ * arriving board ends exactly in a resting slot.
  */
-export function slideOffsets(t: number, centre: number): SlideOffsets {
-  const p = ease(t);
-  const step = 2 * centre * p;
-  return { left: -centre - step, right: centre - step, incoming: 3 * centre - step };
+export function slideOffsets(t: number, centre: number, direction: 1 | -1 = 1): SlideOffsets {
+  const step = 2 * centre * ease(t);
+  return direction === 1
+    ? { left: -centre - step, right: centre - step, incoming: 3 * centre - step }
+    : { left: -centre + step, right: centre + step, incoming: -3 * centre + step };
 }

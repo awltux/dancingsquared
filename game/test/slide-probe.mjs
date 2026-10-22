@@ -1,14 +1,17 @@
-// THE SLIDE, pinned: three board slots moving one place left, from a measured start to an exact end.
+// THE SLIDE, pinned: three board slots moving one place along, from a measured start to an exact end, in EITHER
+// direction.
 //
-// WHY THIS IS A GATE. "The boards slide to the next two waypoints" is a numerical claim, and the two ways to get it
-// wrong are invisible in a screenshot of either end state: a board that does not land EXACTLY in its slot leaves a
-// visible jump at the commit, and a direction that is not monotone makes one board overtake another mid-transition.
-// Both are checked here against the module the stage actually animates with — no copy of the arithmetic.
+// WHY THIS IS A GATE. "The boards slide to the next two waypoints" is a numerical claim, and the ways to get it wrong
+// are invisible in a screenshot of either end state: a board that does not land EXACTLY in its slot leaves a visible
+// jump at the commit; a direction that is not monotone makes one board overtake another mid-transition; and a slide
+// that ignores which button was pressed runs BACKWARDS — which is the reported defect ("the left button should slide
+// the boards to the right, but it currently slides the boards to the left"), reproducible only as motion.
 //
-// THE ENDPOINTS ARE THE CONTRACT. `t = 0` is the resting pair (left board at −centre, right at +centre, incoming
-// parked at +3·centre) and `t = 1` is one slot along (the right board exactly where the left one was, the incoming
-// board exactly where the right one was) — which is what lets the commit ROTATE THE SLOT ROLES without moving
-// anything. `ease` is exact at 0, 0.5 and 1 for the same reason.
+// THE ENDPOINTS ARE THE CONTRACT. Forward, `t = 0` is the resting pair (left board at −centre, right at +centre, the
+// arriving board waiting at +3·centre) and `t = 1` is one slot along (the right board exactly where the left one was,
+// the arriving board exactly where the right one was) — which is what lets the commit ROTATE THE SLOT ROLES without
+// moving anything. Back is the mirror: everything ends one slot to the RIGHT and the arriving board comes from
+// −3·centre. `ease` is exact at 0, 0.5 and 1 for the same reason.
 //
 // Usage: node game/test/slide-probe.mjs
 import { ease, slideOffsets } from '../src/render/slide-math.ts';
@@ -67,6 +70,38 @@ console.log('\n== 4. the slots come from the resting arithmetic, not a second se
   const start = slideOffsets(0, CENTRE);
   check(near(start.right, CENTRE) && near(start.left, -CENTRE), 'the resting slots are ±centre');
   check(near(slideOffsets(1, CENTRE).incoming, start.right), 'and the incoming board ends where the right one started');
+}
+
+console.log('\n== 5. the two directions are mirror images, because the buttons are ==');
+{
+  // FORWARD IS A STEP LEFT AND BACK IS A STEP RIGHT. The arriving board swaps ends with the direction: it waits at
+  // +3·centre for a forward step and at −3·centre for a backward one, because the boards already on screen move the
+  // other way.
+  const fwd = slideOffsets(1, CENTRE, 1);
+  const back = slideOffsets(1, CENTRE, -1);
+  check(near(fwd.left, -3 * CENTRE) && near(back.left, CENTRE),
+    'forward leaves the pair one step left; back leaves it one step RIGHT');
+  check(near(fwd.right, -CENTRE) && near(back.right, 3 * CENTRE),
+    'and the board that was on the right ends in the opposite slot in the two directions');
+  check(near(slideOffsets(0, CENTRE, -1).incoming, -3 * CENTRE),
+    'back: the arriving board waits off the LEFT, the mirror of forward');
+  check(near(back.incoming, -CENTRE), 'and it ends exactly in the LEFT slot');
+
+  // THE CONTROL: THE DEFECT ITSELF. An implementation that ignores the direction returns the forward offsets for a
+  // backward step, so every one of these endpoint checks fails — which is what the report described.
+  const ignoresDirection = (t, centre) => slideOffsets(t, centre, 1);
+  check(!near(ignoresDirection(1, CENTRE).left, back.left),
+    'NEGATIVE CONTROL: a slide that ignores which button was pressed lands the pair on the wrong side, so the direction is measured rather than assumed');
+
+  const samples = [];
+  for (let i = 0; i <= 20; i++) samples.push(slideOffsets(i / 20, CENTRE, -1));
+  const increasing = (key) => samples.every((s, i) => i === 0 || s[key] >= samples[i - 1][key]);
+  check(increasing('left') && increasing('right') && increasing('incoming'),
+    'back: every slot only ever moves right');
+  check(samples.every((s) => s.incoming < s.left && s.left < s.right),
+    'and the arriving board stays left of the pair at every sample, so nothing crosses');
+  check(near(samples[0].left, -CENTRE) && near(samples[0].right, CENTRE),
+    'back starts from the resting pair, so the commit of the previous slide is not undone');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

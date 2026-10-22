@@ -1590,6 +1590,17 @@ findings, each with the measurement that produced it:
    holds solved/next/locked once; the shell copies them into CSS custom properties for the legend beside the boards,
    so the drawn border and the words cannot drift. The border is a flat square annulus in board coordinates — a
    `LineLoop` would be a hairline, and a state told by a hairline is not one a player can read.
+7. **Every board is drawn in FOUR colours, and most of them had none.** The engine knows a dancer's home couple only
+   for the formations it can identify — MEASURED at level 1, **6 of the 44** start boards — so the other 38 came back
+   with `couple: 0` on every dancer and `coupleColor(0)` is one grey: eight dancers nobody can tell apart. Reported as
+   "can the game boards display the dancer couple colours, even if the formations aren't in the start formations
+   list". The board view now colours through `displayCouple` (`packages/stage`, the rule the POC already had, moved
+   there so both apps import ONE implementation), with `enabled: true` for every board; a couple the engine does know
+   wins, because that branch returns it first. **THE NUMBER LABEL IS DRAWN ONLY FOR A KNOWN COUPLE**: `coupleTag`
+   spells a couple "1h"/"2s", which claims a head or a side, and a pair derived from the array order has not earned
+   that claim — so the game turns the label off for exactly those dancers, which is why `DancerView`'s `labelled` is
+   separate from its `couple`. The POC leaves the label on and gates the fallback by formation name instead, because
+   its boards are the ones its editor reads couple numbers off.
 
 **And what the browser check could NOT settle:** the 3D view renders the same two boards and the toggle works
 (verified: the button flips and the avatars replace the markers), but at the two-board scale a 2-unit avatar

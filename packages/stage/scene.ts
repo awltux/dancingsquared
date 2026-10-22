@@ -1298,8 +1298,14 @@ export class DancerView {
    * value for a dancer whose real home couple is unknown. `ghost` marks a
    * non-physical reference dancer: it is the ONLY thing that makes an avatar
    * translucent, so a real dancer whose identity is merely unknown is not drawn
-   * as a phantom. */
-  constructor(spec: DancerSpec, couple = 0, ghost = false) {
+   * as a phantom.
+   *
+   * `labelled` DRAWS THE COUPLE NUMBER beside the avatar, and it is separate from `couple` because the two claims differ:
+   * a caller with a DISPLAY-ONLY couple (a pair derived from the board's own order, see `displayCouple`) has a colour
+   * worth drawing and no number worth asserting - `coupleTag` spells it "1h"/"2s", which names a head or a side. The POC
+   * leaves it on, because its boards are the ones its editor reads couple numbers off; the game turns it off for exactly
+   * those dancers. */
+  constructor(spec: DancerSpec, couple = 0, ghost = false, labelled = true) {
     const color = coupleColor(couple);
     const parts = buildAvatar(color, ghost, spec.gender);
     this.group = parts.group;
@@ -1308,7 +1314,7 @@ export class DancerView {
     // Feet stay at the group origin, and the arm IK is done in local space, so
     // a uniform group scale keeps the whole figure — and its reach — consistent.
     this.group.scale.set(2, 2, 2);
-    if (couple > 0) this.group.add(makeNumberLabel(coupleTag(couple)));
+    if (couple > 0 && labelled) this.group.add(makeNumberLabel(coupleTag(couple)));
 
     this.trail = new THREE.Line(
       new THREE.BufferGeometry(),

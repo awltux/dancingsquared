@@ -15,7 +15,7 @@ import { parseStoredModules } from './stored-modules';
 import { loadUserFormations } from './formations';
 import { corpusFormationsOfSize } from './tam-xml';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
-import { displayCouple } from './display-couple';
+import { displayCouple } from 'dancing-squared-stage';
 import { isZeroSetup } from './zero-formations';
 import { compareCallTitles } from './call-order';
 import { el, esc } from './dom';

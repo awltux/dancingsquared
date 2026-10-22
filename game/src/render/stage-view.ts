@@ -21,7 +21,7 @@
 // which is what the "legs" in the first usable screenshot were. `poc/src/browser.ts` makes the same choice
 // (`v.group.visible = on && !flat`); this module makes it once for two boards.
 import * as THREE from 'three';
-import { DancerView, buildBoardFloor, buildFlatMarker, createStage, type Stage } from 'dancing-squared-stage';
+import { DancerView, buildBoardFloor, buildFlatMarker, createStage, displayCouple, type Stage } from 'dancing-squared-stage';
 import { computeHandholds, type Board, type Pose } from 'dancing-squared-engine';
 import { stillBoard } from '../game/poses.ts';
 import type { WaypointState } from '../puzzle/waypoint-pair.ts';
@@ -330,13 +330,28 @@ class BoardView {
     this.views.length = 0;
     this.markers.length = 0;
     this.ids = board.dancers.map((d) => d.id);
-    for (const d of board.dancers) {
-      const couple = d.couple ?? 0;
+    for (const [i, d] of board.dancers.entries()) {
+      // EVERY BOARD IS DRAWN IN FOUR COLOURS, WHICH IT WAS NOT. The engine knows a dancer's home couple only for the
+      // handful of formations it can identify (MEASURED at level 1: 6 of the 44 start boards, so 38 came back with
+      // `couple: 0` on every dancer and `coupleColor(0)` is one grey) — reported as "can the game boards display the
+      // dancer couple colours, even if the formations aren't in the start formations list".
+      //
+      // `displayCouple` is the SHARED rule (`packages/stage`), and the game passes `enabled: true` for every board:
+      // it draws no couple NUMBER and no head/side letter for an unknown couple (see `labelled` below), so the colour
+      // says only "these two are a pair in this formation's authored order" — and telling eight dancers apart is the
+      // colour's whole job here. Where the engine DOES know the couples they win, because the first branch returns
+      // `d.couple`. The POC gates the same function by formation name because its boards are read for couple numbers,
+      // which is a different screen with a different claim; both call one function rather than keeping two copies.
+      const knownCouple = typeof d.couple === 'number' && d.couple > 0;
+      const couple = displayCouple(d, i, true);
       // `DancerView` READS ONLY `gender` AT CONSTRUCTION — the avatar shape and its colour — so the rest of
       // `DancerSpec` is empty ON PURPOSE. `x`/`y`/`angleDeg` are the pose it is HANDED every frame by
       // `update`, and `path` is the authored track that only a call bundle has; a drill board is a snapshot,
       // not a track. Filling them from the board would be a second, stale copy of the pose.
-      const view = new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, couple);
+      //
+      // THE NUMBER LABEL IS ONLY FOR A COUPLE THE ENGINE ACTUALLY KNOWS. `DancerView` can draw "1h"/"3s" beside an
+      // avatar, and for a pair derived from the array order that would assert a head or a side nobody measured.
+      const view = new DancerView({ gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] }, couple, false, knownCouple);
       // NO TRAIL, AND IT IS SET RATHER THAN LEFT ALONE. `DancerView` builds a trail with an EMPTY geometry,
       // which draws nothing today — but a trail is the PATH a call walks and a drill board is a snapshot with
       // no path, so saying so explicitly means a later change to the view's defaults cannot start drawing a

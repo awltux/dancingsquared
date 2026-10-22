@@ -47,7 +47,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
 
-const { displayCouple } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'display-couple.ts')).href);
+const { displayCouple } = await import(pathToFileURL(path.join(ROOT, 'packages', 'stage', 'display-couple.ts')).href);
 const { completeHalfSet } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 const { ZERO_FORMATIONS, isZeroSetup } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'zero-formations.ts')).href);
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
@@ -162,7 +162,7 @@ const colourBy = (couples, enabled) => couples.map((couple, i) => displayCouple(
   check(/const zeroOrder = isZeroSetup\(call\.formation, call\.from\)/.test(browser), '7a the browse/edit board decides from the call\'s own setup names');
   check(/new DancerView\(d, displayCouple\(d, i, zeroOrder\)\)/.test(browser), '7b ...and builds its avatar (and marker) through `displayCouple`');
   check(!/d\.couple \?\? 0/.test(browser), '7c the grey-avatar shape (`d.couple ?? 0`) is gone from the browse/edit board');
-  check(/import \{ displayCouple \} from '\.\/display-couple'/.test(browser) && /import \{ isZeroSetup \} from '\.\/zero-formations'/.test(browser), '7d ...imported, not restated');
+  check(/import \{ displayCouple \} from 'dancing-squared-stage'/.test(browser) && /import \{ isZeroSetup \} from '\.\/zero-formations'/.test(browser), '7d ...imported from the SHARED stage package (the game imports the same rule), not restated');
   check(/this\.zeroStartFlag = isZeroSetup\(this\.seq\.knownFormation\(start\)\)/.test(sequencer), '7e the sequencer decides from its START board, not the board under the playhead');
   check(/displayCouple\(d, i, zeroOrder\)/.test(sequencer) && !/const displayCouple =/.test(sequencer), '7f ...and draws through the same function, with no private copy left behind');
   check(/isZeroSetup\(call\.formation, call\.from\)/.test(editor), '7g the editor says which of the two kinds of board it is showing');

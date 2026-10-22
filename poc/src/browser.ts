@@ -18,7 +18,7 @@ import { filterCalls, matchCount } from './call-filter';
 import { modulesUsing, startsAwayFromHome } from './modules';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import type { Stage } from 'dancing-squared-stage';
-import { displayCouple } from './display-couple';
+import { displayCouple } from 'dancing-squared-stage';
 import { isZeroSetup } from './zero-formations';
 import { Player } from './player';
 import type { BoardRead } from './sequencer-ui';

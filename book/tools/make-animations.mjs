@@ -21,7 +21,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { toolsDir, root, loadEngine, loadCall } from './lib/load.mjs';
+import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, PALETTE, C, writePng } from './lib/raster.mjs';
 
@@ -40,6 +40,55 @@ function tamsOf(file) {
     for (const a of m[0].matchAll(/(\w+)\s*=\s*"([^"]*)"/g)) attrs[a[1]] = a[2];
     return attrs;
   });
+}
+
+/** The `<tam>` BLOCKS of a corpus file, comments removed — what an engine can be handed as a `<calls>` document. */
+function tamBlocksOf(file) {
+  const xml = readFileSync(join(root, 'assets', file), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+  return xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
+}
+
+/**
+ * CAN THE ENGINE STAND THIS CALL UP AS A WHOLE-BOARD VIRTUAL CALL from the formation the card names?
+ *
+ * A START QUERY THAT MATCHES NO TAM is not necessarily a gap: part of the corpus is authored for HALF the set
+ * (`Promenade` from `Facing Couples Far` writes two dancers), and the engine can place such an authoring on a
+ * whole board — as long as the result STARTS and ENDS on a formation it NAMES (TODO item 39, the owner's
+ * constraint). This asks that question for the one query, from the tams of the ONE FILE the query names (the same
+ * scope `findTam` uses), and returns either the chosen call in a line a reader can act on, or the engine's own
+ * refusal sentence.
+ *
+ * IT IS A REPORT AND NOT A DATA CHANGE. Drawing a virtual call needs a generated `<tam>` the player can fetch by
+ * `(file, tamIndex)`; the player can only load a corpus file, so that is a separate unit with its own artefact.
+ * Printing it here is what makes the 12 unresolved queries actionable instead of a number.
+ */
+function virtualFor(eng, spec, query) {
+  const title = query.title ?? '';
+  if (!title) return { chosen: null, reason: 'the query names no title' };
+  // WHICH BOARD IS THIS START? The table declares `spec.formation` only where the card's own wording needed
+  // translating (99 of its start labels carry no `formation` at all), so the query's own tam attribute is the
+  // second answer: it is the formation the manual names for this start, spelled as the corpus spells it. A name
+  // that stands up no board is reported as such rather than guessed at — `Facing Couples Compact` and
+  // `Grand Circle` are exactly that case in the 12 outstanding queries.
+  const formation = spec?.formation ?? query.formation ?? query.from ?? null;
+  if (!formation) return { chosen: null, reason: 'neither the card nor the query names a formation for this start' };
+  const blocks = tamBlocksOf(spec.file ?? query.file ?? '');
+  const own = blocks.filter((b) => (b.match(/\btitle="([^"]*)"/) ?? [])[1] === title);
+  if (own.length === 0) return { chosen: null, reason: 'no tam in that file carries the title, so there is no authoring to place' };
+  let seq;
+  try {
+    seq = new eng.Sequencer(readAsset('moves.xml'), readAsset('formations.xml'), [{ name: title, xml: `<calls>\n${own.join('\n')}\n</calls>` }]);
+  } catch (err) {
+    return { chosen: null, reason: `the engine could not load those tams: ${String(err.message ?? err)}` };
+  }
+  const board = seq.boardForFormation(formation);
+  if (!board) return { chosen: null, reason: `the engine stands up no board for "${formation}"` };
+  const r = seq.virtualCall(board, title);
+  if (!r.legal) return { chosen: null, reason: r.reason };
+  const pick = eng.chooseVirtual(r.candidates);
+  return pick.chosen
+    ? { chosen: `${pick.chosen.startFormation} to ${pick.chosen.endFormation} (${pick.chosen.kind}, ${r.candidates.length} candidate(s))` }
+    : { chosen: null, reason: pick.reason };
 }
 
 /**
@@ -113,8 +162,14 @@ function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolve
           // count is the only thing that would ever move. MEASURED when this was added: 40 of them, 28 of
           // which were one rename (`Circle * - Stop at Home` -> `Circle * Home` and the three `... Full`
           // titles) and the other 12 still outstanding.
+          const virtual = virtualFor(eng, { ...spec, file: call.file }, query);
           tally.skipped.push(
-            `${id} / ${label}: "${query.title ?? ''}" from "${query.formation ?? query.from ?? ''}" in ${call.file}`,
+            `${id} / ${label}: "${query.title ?? ''}" from "${query.formation ?? query.from ?? ''}" in ${call.file}`
+            + (virtual.chosen
+              ? `\n               VIRTUAL ${virtual.chosen}`
+              : virtual.reason
+                ? `\n               and no virtual variant: ${virtual.reason}`
+                : ''),
           );
           continue;
         }

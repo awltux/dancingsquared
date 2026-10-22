@@ -234,7 +234,7 @@ export type { CodedMove } from './sequencer/coded-moves.js';
 export { stepForwardRule, stepForwardAndBackRule, stepForwardSteps, resolveStepForward, STEP_FORWARD_UNITS, STEP_FORWARD_BEATS, STEP_FORWARD_AND_BACK_BEATS } from './sequencer/step-forward.js';
 export type { StepForwardResolution } from './sequencer/step-forward.js';
 export { armTurn, armTurnProblem, ARM_TURN_FRACTIONS } from './sequencer/arm-turn.js';
-// THE STEP-SOURCE GATE: which of the two sources serves a call on a given board (see pply-source.ts).
+// THE STEP-SOURCE GATE: which of the two sources serves a call on a given board (see `apply-source.ts`).
 export { authoredTamWins, authoredStepWins, sameBoard } from './sequencer/apply-source.js';
 export type { ArmTurnHand, ArmTurnFraction } from './sequencer/arm-turn.js';
 export type { CallStep, GroupLane, LegacyGroupLane, GroupStep, ModuleStep } from './sequencer/types.js';

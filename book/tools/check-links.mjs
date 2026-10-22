@@ -171,7 +171,22 @@ const slashed = (p) => p.split('\\').join('/');
 // gate people learn to skip, so the criterion stays narrow: these sequences cannot occur in honest text.
 const MOJIBAKE_ALLOW = 'mojibake-check:allow';
 const MOJIBAKE = /\u00e2\u20ac|\u00e2\u2020|\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]/;
-const TEXT_FILE = /\.(md|mjs|js|json|css|html|txt)$/;
+/**
+ * Which extensions these two checks read, and the list is the whole of their coverage.
+ *
+ * `.ts` WAS MISSING FROM IT, and this comment exists because that absence is invisible: AGENTS.md §3 says the walk
+ * covers "every `.md`/`.ts`/`.mjs`/`.json`/`.html`/`.css`/`.txt` file that git TRACKS", so the one place that
+ * described the gate described a coverage the gate did not have, and the failure mode was a green run. MEASURED:
+ * before the widening, `npm run check:book` exited 0 on a tree holding THREE control characters in tracked TypeScript
+ * — a BEL in `api/src/daily-publishing.ts` and in `engine/src/index.ts`, and a form feed in
+ * `game/src/game/daily-run.ts`, each the ghost of a backticked identifier an editing helper ate (§8 trap 24) — and
+ * the same run reported them by name once `.ts` was added: three problems, exit 1. A gate that omits the extension
+ * of the language most of this repo is written in is not a narrow gate, it is a gate over the wrong files.
+ *
+ * `.tsx` is listed beside it for the same reason and has no files today: a list that only names what exists is the
+ * list that stops being true when the first one is added.
+ */
+const TEXT_FILE = /\.(md|ts|tsx|mjs|js|json|css|html|txt)$/;
 
 /**
  * The files GIT tracks, because these two checks are about the REPO'S TEXT and not about what is on disk.

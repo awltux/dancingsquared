@@ -313,7 +313,7 @@ export class DailyRun {
       waypoints: this.waypointList.map((board, i) => ({
         board,
         // THE CAPTION, not the test: the curated recogniser's name where it has one, otherwise the CORPUS's own name for
-        // the arrangement (ormationOf — every formation in `formations.xml`, not only the standard names a caption
+        // the arrangement (`formationOf` — every formation in `formations.xml`, not only the standard names a caption
         // prefers), and the waypoint's number where the corpus has no template for the board at all.
         label: this.applier.nameOf(board) ?? this.applier.formationOf(board) ?? `waypoint ${i + 1}`,
       })),

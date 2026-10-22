@@ -92,7 +92,7 @@ function findTam(tams, query, tally = null) {
  * it cannot draw. (The caller of this function keeps that label as the call's home formation, so a
  * card animated from a stand-in formation is still filed under the manual's name for it.)
  */
-function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolved: 0 }) {
+function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolved: 0, skipped: [] }) {
   if (!curated?.starts) return null;
   const out = [];
   for (const [label, spec] of Object.entries(curated.starts)) {
@@ -108,6 +108,14 @@ function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolve
         const tamIndex = findTam(tams, query, tally);
         if (tamIndex < 0) {
           tally.unresolved++;
+          // NAMED, NOT ONLY COUNTED. A bare `12 resolved to nothing` cannot be acted on and cannot be
+          // argued with - and this table is maintained by hand against a corpus that is retitled, so the
+          // count is the only thing that would ever move. MEASURED when this was added: 40 of them, 28 of
+          // which were one rename (`Circle * - Stop at Home` -> `Circle * Home` and the three `... Full`
+          // titles) and the other 12 still outstanding.
+          tally.skipped.push(
+            `${id} / ${label}: "${query.title ?? ''}" from "${query.formation ?? query.from ?? ''}" in ${call.file}`,
+          );
           continue;
         }
         const key = `${call.file}#${tamIndex}`;
@@ -401,7 +409,7 @@ export function build({ gifs = false } = {}) {
    * from one, shows up as a start list that has quietly gone empty -- which is a page with no chooser
    * on it and nothing anywhere saying why.
    */
-  const startTally = { declared: 0, unresolved: 0 };
+  const startTally = { declared: 0, unresolved: 0, skipped: [] };
   const eng = loadEngine();
   const files = new Map();
   const index = { figures: [], noAnimation: [] };
@@ -506,6 +514,7 @@ export function build({ gifs = false } = {}) {
       `  start queries: ${startTally.declared} matched on a tam's own declared formation (its "from" is empty)` +
         `${startTally.unresolved ? `; ${startTally.unresolved} resolved to nothing` : ''}`,
     );
+    for (const line of startTally.skipped) console.log(`    NOT DRAWN  ${line}`);
   }
   return { files, index };
 }

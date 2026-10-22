@@ -651,31 +651,46 @@ body {
   left: calc(var(--panel) + (100% - var(--panel)) * 0.75);
 }
 
-/* THE WAYPOINT PAGING. Two edge buttons over the canvas, because they move what is drawn on it; a touch target
-   of at least 44px, and `disabled` is dimmed rather than hidden so the control does not jump about as the pair
-   reaches either end. `top: 50%` with a translate centres them on the boards whatever the canvas height. */
+/* THE WAYPOINT PAGING. Two edge buttons over the canvas, because they move what is drawn on it.
+   MEASURED AS TOO QUIET at 48 x 72 px in near-black: reported as "not easy to see", and a control that moves the
+   picture has to read as a control rather than as a shadow on the canvas. So they are now the BOARDS' OWN HEIGHT and
+   the accent colour the rest of the interface uses for "this is the thing to press".
+   THE HEIGHT IS VIEWPORT-RELATIVE — `32vh` is the board's own share of an 800 px window, where the two floors were
+   measured spanning ~245 px — with a clamp so a short window does not squash the target and a tall one does not make
+   it a column. `top: 50%` with a translate keeps them centred on the boards at any canvas height.
+   `disabled` is DIMMED rather than hidden, so the control does not jump about as the pair reaches either end, and it
+   keeps the accent border so the player can still see the route has an end. */
 .wp-nav {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 48px;
-  height: 72px;
-  font-size: 1.9rem;
+  width: 64px;
+  height: clamp(220px, 38vh, 420px);
+  font-size: 2.6rem;
+  font-weight: 700;
   line-height: 1;
-  color: var(--ink);
-  background: rgba(8, 13, 19, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 12px;
+  color: var(--accent);
+  background: rgba(255, 209, 102, 0.12);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
   cursor: pointer;
   z-index: 2;
+  transition: background 120ms ease, opacity 120ms ease;
 }
 
 .wp-nav:hover:not(:disabled) {
-  background: rgba(24, 34, 46, 0.92);
+  background: rgba(255, 209, 102, 0.26);
+}
+
+/* A PRESSED CONTROL HAS TO BE VISIBLE AS FOCUSED, not only as hovered: this is a real button and the keyboard reaches
+   it, so the accent fill is not the only signal. */
+.wp-nav:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .wp-nav:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: default;
 }
 

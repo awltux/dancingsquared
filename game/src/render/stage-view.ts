@@ -21,7 +21,7 @@
 // which is what the "legs" in the first usable screenshot were. `poc/src/browser.ts` makes the same choice
 // (`v.group.visible = on && !flat`); this module makes it once for two boards.
 import * as THREE from 'three';
-import { DancerView, buildFlatMarker, createStage, type Stage } from 'dancing-squared-stage';
+import { DancerView, buildBoardFloor, buildFlatMarker, createStage, type Stage } from 'dancing-squared-stage';
 import { computeHandholds, type Board, type Pose } from 'dancing-squared-engine';
 import { stillBoard } from '../game/poses.ts';
 import type { SequenceMotion } from '../puzzle/types.ts';
@@ -36,14 +36,24 @@ import type { SequenceMotion } from '../puzzle/types.ts';
  *
  *     2 · 10s + gutter ≤ 10        with s = 0.42 and gutter = 1.6  →  8.4 + 1.6 = 10.0
  *
- * So the scale is 0.42 and each board's centre sits at ±(10s + gutter)/2 = ±2.9. The first version used 0.45
+ * So the scale is 0.42 and each board's centre sits at ±(10s/2 + gutter/2) = ±2.9. The first version used 0.45
  * with centres at ±2.6, which put each board's inner edge 0.1 units INSIDE the other's outer edge: the two
- * floor grids and both sets of dancers overlapped in the middle of the canvas, which is exactly what "you are
+ * floors and both sets of dancers overlapped in the middle of the canvas, which is exactly what "you are
  * here" and "get here" must never do.
+ *
+ * THE CENTRE FOLLOWS THE SCALE, and that is a defect fixed rather than a refinement. It used to be computed
+ * from the 2D scale once (`BOARD_CENTRE = 2.9`) and used by both views — but the 3D view draws each board at
+ * 0.68, so a board half-width is 3.4 around a centre of 2.9 and the two boards OVERLAPPED by 1.0 unit. That
+ * was invisible while the whole scene shared one stage-wide grid; it stopped being invisible the moment each
+ * board got its own floor, which is why `centreFor` takes the scale.
  */
 const BOARD_SCALE = 0.42;
 const GUTTER = 1.6;
-const BOARD_CENTRE = 5 * BOARD_SCALE + GUTTER / 2;
+
+/** Where a board's centre sits for a given board scale: half a board plus half the gutter. */
+function centreFor(scale: number): number {
+  return 5 * scale + GUTTER / 2;
+}
 
 /**
  * THE SCALE DIFFERS BY VIEW, and the reason is that the two views have different constraints.
@@ -65,16 +75,21 @@ const BOARD_SCALE_3D = 0.68;
  *
  * TWO BOARDS AND THE GUTTER, not one floor: `centre + half a board`. The stage's default frame is one floor
  * plus its own 0.6 pad, which is right for the POC and too small here — MEASURED in the 3D view, the two
- * boards reach 6.3 units against a 5.6-unit frame, so both outer edges and the dancers on them were cropped
+ * boards reached 6.3 units against a 5.6-unit frame, so both outer edges and the dancers on them were cropped
  * off the canvas. The 0.6 here is the same pad the stage uses, and it is deliberate that the 2D arena
  * (2.9 + 2.1 + 0.6) comes out at exactly that default: the flat view was already framed correctly and this
  * must not change it.
+ *
+ * THE 3D ARENA IS NOW 8.2 RATHER THAN 6.3, because `centreFor` follows the scale (see the comment above the
+ * scales): at 0.68 the centres move out to ±4.2, so `4.2 + 3.4 + 0.6 = 8.2`. The old 6.3 was measured against
+ * centres that did not move, which is the overlap the same comment records. A dancer is then ~8.3 % of the 3D
+ * frame against ~7.5 % of the 2D one — still the larger of the two, which is what the 0.68 scale was for.
  */
 const ARENA_PAD = 0.6;
 
 /** The world half-extent a view must show, at the board scale that view uses. */
 function arenaHalf(scale: number): number {
-  return BOARD_CENTRE + 5 * scale + ARENA_PAD;
+  return centreFor(scale) + 5 * scale + ARENA_PAD;
 }
 
 /**
@@ -113,12 +128,28 @@ class BoardView {
   constructor(scene: THREE.Scene, offsetX: number) {
     this.group.position.x = offsetX;
     this.group.scale.set(BOARD_SCALE, BOARD_SCALE, BOARD_SCALE);
+    // THE FLOOR IS THE BOARD'S OWN, added INSIDE this group so it carries the same scale and offset as the
+    // dancers: a grid line and a dancer's position are then the same coordinate by construction, which is the
+    // reported defect ("the background grid is not aligned with the dancer layout") closed rather than
+    // re-tuned. The stage is told `floor: false` for the same reason — one floor across the scene is one
+    // background shared by two boards.
+    this.group.add(buildBoardFloor().group);
     scene.add(this.group);
   }
 
   /** Rescale the board for the view. See BOARD_SCALE_3D for why this is a per-view number. */
   setScale(scale: number): void {
     this.group.scale.set(scale, scale, scale);
+  }
+
+  /**
+   * Move the board to a slot.
+   *
+   * THE SLOT FOLLOWS THE SCALE, not a constant: `centreFor(scale)` is what keeps two boards from overlapping
+   * at the 3D scale, which they did while the centres were computed once from the 2D one.
+   */
+  setOffset(offsetX: number): void {
+    this.group.position.x = offsetX;
   }
 
   /** Which representation to draw. See the module header for why only one may be on at a time. */
@@ -236,11 +267,13 @@ export class GameStage {
   private mode: ViewMode = '2d';
 
   constructor(canvas: HTMLCanvasElement) {
-    this.stage = createStage(canvas);
+    // `floor: false` BECAUSE EACH BOARD BRINGS ITS OWN (see `BoardView`): the stage drawing one too would put
+    // a third grid across both of them, which is the picture this change is fixing.
+    this.stage = createStage(canvas, { floor: false });
     // THE TWO BOARD GROUPS ARE PLACED BY THE SAME ARITHMETIC THAT SETS THE SCALE, so a change to one cannot
     // silently pull them into each other.
-    this.start = new BoardView(this.stage.scene, -BOARD_CENTRE);
-    this.goal = new BoardView(this.stage.scene, BOARD_CENTRE);
+    this.start = new BoardView(this.stage.scene, -centreFor(BOARD_SCALE));
+    this.goal = new BoardView(this.stage.scene, centreFor(BOARD_SCALE));
     // THE FLAT VIEW FIRST, because the design asks for it first and because a Drill question is geometry:
     // "which of these leaves the set where the goal is" reads more clearly on a flat board than through an
     // orbit camera. The 3D view is one button away and shows the same two boards.
@@ -252,10 +285,15 @@ export class GameStage {
     this.stage.setView2D(mode === '2d');
     const flat = mode === '2d';
     const scale = flat ? BOARD_SCALE : BOARD_SCALE_3D;
+    const centre = centreFor(scale);
     for (const board of [this.start, this.goal]) {
       board.setFlat(flat);
       board.setScale(scale);
     }
+    // THE SLOTS ARE RE-DERIVED, not left where the other view put them: at the 3D scale a board is wider than
+    // its 2D slot, so a constant offset overlaps the pair — see `centreFor`.
+    this.start.setOffset(-centre);
+    this.goal.setOffset(centre);
     // THE CAMERA IS TOLD WHAT TO FIT, per view: the two views use different board scales and so reach
     // different distances from the centre. Without this the 3D view is framed for one floor and crops the
     // outer half of each board — see `arenaHalf`.

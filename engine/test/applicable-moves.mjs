@@ -10,6 +10,13 @@
 // resolve to dancers, or that selects everyone, would satisfy "there is a selection" while meaning nothing. So
 // each one is checked against `selectionIds` and against the board's own size.
 //
+// EVERY ENTRY IS A READING THE PICKER MAY OFFER, and section 1 is written to that now. The whole-board pass used to
+// push whatever applied and ask nobody while the group pass asked `groupCanPerform`, so this list carried
+// `Circle Four Left 3/4` for eight dancers — a reading `PERMISSION_RULES` refuses — and that asymmetry is how an
+// illegal option reached a drill. MEASURED at the board below: 263 whole-board readings legal-and-applying, 247
+// permitted. Section 1 therefore asserts both halves, and the control proves the sixteen are a distinction rather
+// than an empty set.
+//
 // Run: node test/applicable-moves.mjs   (engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -39,12 +46,19 @@ const moves = seq.applicableMoves(board);
 const whole = moves.filter((m) => m.selection === null);
 const grouped = moves.filter((m) => m.selection !== null);
 
-console.log('\n== 1. the whole-board readings are exactly what the engine already called legal ==');
+console.log('\n== 1. the whole-board readings are the legal ones the permission layer permits ==');
 {
   const legal = seq.legalCalls(board).filter((c) => seq.applyToBoard(board, c).legal);
+  // THE PICKER'S OWN PREDICATE, imported rather than restated: `mayOffer` is what this list now asks, so a probe
+  // that re-derived the rule would be measuring a copy of it.
+  const permitted = legal.filter((c) => seq.mayOffer(c, null, board).allowed);
+  const refused = legal.filter((c) => !seq.mayOffer(c, null, board).allowed);
   const named = new Set(whole.map((m) => m.call));
-  check(legal.every((c) => named.has(c)), `every legal whole-board call appears (${legal.length} legal, ${named.size} listed)`);
-  check(named.size === legal.length, 'and nothing is listed that the engine did not call legal');
+  check(permitted.every((c) => named.has(c)), `every legal call the table permits appears (${permitted.length} permitted, ${named.size} listed)`);
+  check(named.size === permitted.length, 'and nothing is listed that the engine did not call legal and permit');
+  // NEGATIVE CONTROL: if the table refused nothing here, the two halves above would be one statement about
+  // `legalCalls` and the permission ask could be deleted without a check going red.
+  check(refused.length > 0, `NEGATIVE CONTROL: the table refuses ${refused.length} call(s) the engine calls legal (e.g. ${refused[0]}), so this is a distinction`);
   check(whole.every((m) => m.board !== null), 'each carries the board it produces');
 }
 

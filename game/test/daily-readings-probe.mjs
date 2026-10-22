@@ -11,8 +11,8 @@
 //   1. EVERY reading is playable: `refusalOf(board, prefixed)` is null for all of them, at a real level's pool;
 //   2. a GROUP-ONLY reading exists, and its whole-board spelling is REFUSED — so "grouped" is not a relabelling of
 //      the whole-board list (the negative control that makes the first check mean something);
-//   3. every call `offered` lists is a whole-board reading here, and the two lists differ by EXACTLY the calls the
-//      permission table refuses (nine at a squared set) — so the surfaces cannot drift apart unnoticed;
+//   3. the whole-board readings are exactly `offered(board)` — the engine's enumeration asks the permission layer for
+//      the whole-board reading too, which is what makes the two surfaces one rule rather than two;
 //   4. the applier caches by board and the cached list is the same list — the picker asks on every view.
 //
 // Usage: node game/test/daily-readings-probe.mjs   (engine must be built)
@@ -67,25 +67,21 @@ console.log('\n== 2. a call the SET can do and a GROUP can do are two moves, and
   check(wholeBoard.length > 0 && wholeBoard.every((r) => applier.refusalOf(start, r.call) === null), `while all ${wholeBoard.length} whole-board reading(s) of the start board are legal unprefixed`);
 }
 
-console.log('\n== 3. `offered` is the whole-board readings minus the permission table\'s refusals, so the two cannot drift ==');
+console.log('\n== 3. the whole-board readings ARE `offered()`, so the two surfaces cannot drift ==');
 {
-  // ONE LIST APART BY ONE RULE, not two independently built lists. `offered` (the DRILL's source) asks the permission
-  // table about the whole-board reading; `readings` (the DAILY's) is the engine's `applicableMoves`, which asks the
-  // table only per GROUP and pushes its whole-board reading unconditionally — so the table's refusals survive there.
-  // MEASURED at a squared set: 9 calls are a reading and not an offer, and every one is geometrically legal, which is
-  // why the difference is the table rather than the board. THAT NINE IS THE KNOWN GAP: when the engine's enumeration
-  // learns to filter its own whole-board reading this check fails, and the failure is the signal to delete it.
+  // ONE PREDICATE, TWO SURFACES. `offered` (the DRILL's source) and `readings` (the DAILY's, from the engine's
+  // `applicableMoves`) both ask `mayOffer` about the whole-board reading now. Before the enumeration asked, this list
+  // carried the nine calls the table refuses at a squared set that `offered` had already dropped — the divergence
+  // this check was written to catch, and what it caught. MEASURED after: 33 whole-board readings, 33 offers, the same
+  // names; the 369 readings in all are the whole-board ones plus the group pass.
   const offered = applier.offered(start).map((m) => m.call).sort();
   const whole = readings.filter((r) => r.selection === null).map((r) => r.call).sort();
-  const notAReading = offered.filter((c) => !whole.includes(c));
-  check(notAReading.length === 0,
-    `every one of the ${offered.length} call(s) \`offered\` lists is a whole-board reading (${notAReading.length} are not)`);
-  const notOffered = whole.filter((c) => !offered.includes(c));
-  const refusedByTable = notOffered.filter((c) => applier.refusalOf(start, c) === null);
-  check(notOffered.length === 9 && refusedByTable.length === notOffered.length,
-    `and the ${notOffered.length} the readings have and \`offered\` does not are all geometrically legal, so the permission table is what separates the two lists`);
-  // NEGATIVE CONTROL: `offered` is a STRICT subset of the readings, or the group pass found nothing and section 2's
-  // control would be doing all the work.
+  check(JSON.stringify(offered) === JSON.stringify(whole), `\`offered\` and the whole-board readings name the same ${whole.length} call(s)`);
+  // NEGATIVE CONTROL: the comparison must be able to fail, or it is a statement about `JSON.stringify`. One call
+  // removed stands in for the drift the two surfaces had.
+  check(whole.length > 1 && JSON.stringify(whole.slice(1)) !== JSON.stringify(whole), 'NEGATIVE CONTROL: a list missing one call is caught by the same comparison');
+  // AND `offered` IS A STRICT SUBSET OF THE READINGS, or the group pass found nothing and section 2's control would
+  // be doing all the work.
   check(readings.length > offered.length, `and the readings are strictly more than it (${readings.length} > ${offered.length})`);
 }
 

@@ -13,12 +13,11 @@
 //
 // WHAT THIS PROBE PINS. The squared set's list exactly (31), and that each of the nine ABSENT titles is one the
 // engine does not refuse there - which is the whole point: the drop is a RULE, not a measurement, and a probe that
-// only counted 31 could be satisfied by a list that had shrunk for any reason.
-//
-// WHAT IT DOES NOT PIN, and this is a known gap rather than an oversight: `readings`/`Sequencer.applicableMoves`
-// still carries the whole-board reading for these calls, so the DAILY's picker can still offer one. That is the
-// engine's enumeration and its fix is its own change (`applicableMoves` asks `groupCanPerform` per group but never
-// `mayOffer` for the whole-board reading it pushes unconditionally).
+// only counted 31 could be satisfied by a list that had shrunk for any reason. It also pins that the DAILY's own
+// list agrees (`readings`, which is the engine's `applicableMoves`): that surface used to carry the same nine as
+// whole-board readings, because its whole-board pass asked nobody while its group pass asked `groupCanPerform`.
+// The engine now asks `mayOffer` there too, and this probe checks the two lists agree so the two modes cannot
+// disagree about what a square set may call.
 //
 // Usage: node game/test/permission-probe.mjs   (engine must be built)
 import { makeSquaredSet } from 'dancing-squared-engine';
@@ -68,6 +67,17 @@ check(geometricallyRefused.length === 17, `and \`refusalOf\` still refuses ${geo
 // "Circle" would empty this, and the check above would not notice.
 const circleSurvivors = offered.filter((c) => c.startsWith('Circle') && !c.startsWith('Circle Four'));
 check(circleSurvivors.length > 0, `other Circle calls survive the same filter (${circleSurvivors.length}: ${circleSurvivors.slice(0, 3).join(', ')}...)`);
+
+console.log('\n== the DAILY\'s list agrees, because the engine\'s enumeration asks too ==');
+// THE OTHER MODE'S SOURCE. `readings` is `Sequencer.applicableMoves`, which the Daily's picker draws from; its
+// whole-board pass asked nobody until this change, so the same nine were offered there while the drill had dropped
+// them. Both halves are checked: the nine are absent, and the list is not merely empty.
+const readings = applier.readings(sq);
+const wholeReadings = readings.filter((r) => r.selection === null).map((r) => r.call);
+const leaked = REFUSED_AT_ALL_EIGHT.filter((name) => wholeReadings.includes(name));
+check(leaked.length === 0, `none of the nine is a whole-board reading of the DAILY's list either (${leaked.length} leaked)`);
+check(readings.length > 0 && wholeReadings.length === offered.length,
+  `and it still carries ${readings.length} reading(s), ${wholeReadings.length} whole-board — the same count as \`offered\``);
 
 console.log('\n== the rule\'s SCOPE, over the level\'s own start boards ==');
 const starts = applier.startBoards();

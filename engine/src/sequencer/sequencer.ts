@@ -699,11 +699,24 @@ export class Sequencer {
    * IT IS A PER-BOARD SURFACE, NOT A HOT PATH: the cost is `legalCalls x subsetGroups` applicator runs, which is
    * a picker's or a probe's question and NOT something the generator, which walks thousands of boards, may call.
    * `selectionIds(board, selection)` answers which dancers a returned `selection` claims.
+   *
+   * EVERY ENTRY IS A READING THE PICKER MAY OFFER, which is why the whole-board pass asks `mayOffer` too. It did not,
+   * and the asymmetry was a defect with a long tail: the group pass asked (`groupCanPerform` asks first), the
+   * whole-board pass did not, so this list carried `Circle Four Left 3/4` for eight dancers — a reading the engine's
+   * own `PERMISSION_RULES` refuses — while `legalNext` and the game's drill, which both ask, had already dropped it.
+   * MEASURED at a Static Square with the whole corpus registered: 263 whole-board readings legal-and-applying, 247
+   * after the permission layer removes the sixteen the table refuses there (the eight `Circle Four` authorings,
+   * `Dosado`, and the seven `Lead Right`/`Lead Left` authorings), beside 888 group readings. The mode is not
+   * consulted: `permissionMode` governs what the APPLY will accept, and this is the picker's question, so a reading
+   * missing here is missing whichever mode the caller runs in.
    */
   applicableMoves(board: Board): { call: string; selection: string | null; board: Board }[] {
     const out: { call: string; selection: string | null; board: Board }[] = [];
     const legal = this.legalCalls(board);
     for (const call of legal) {
+      // THE PERMISSION ASK COMES BEFORE THE APPLY, for the reason `groupCanPerform` gives: a denied call costs one
+      // rule match and an applied one costs a full applicator run.
+      if (!this.mayOffer(call, null, board).allowed) continue;
       const res = this.applyToBoard(board, call);
       if (res.legal) out.push({ call, selection: null, board: res.board });
     }

@@ -300,6 +300,15 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'couples.',
   },
   {
+      call: [
+          'Single Circle Left', 'Single Circle Left 1/4', 'Single Circle Left 1/2', 'Single Circle Left 3/4',
+          'Single Circle Right', 'Single Circle Right 1/4', 'Single Circle Right 1/2', 'Single Circle Right 3/4',
+      ],
+      level: 'ms',
+      decision: 'deny',
+      reason: 'START A WHITE LIST',
+  },
+  {
     // `Boys Dosado` / `Girls Dosado` FROM A STATIC SQUARE - never, at every programme.
     //
     // WHY THE WHOLE-SET BOYS' AND GIRLS' DOSADO IS A DIFFERENT CASE FROM THE ALL-8 ONE. Every boy faces

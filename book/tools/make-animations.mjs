@@ -675,8 +675,15 @@ export function main() {
     // The committed catalogue must match what the tools would produce now. A stale index is not a
     // crash: it silently loads the wrong authoring, or fits the floor wrongly, on a page that
     // otherwise passes every link check.
+    //
+    // THE COMPARISON IS ON TEXT, NOT ON LINE ENDINGS. `core.autocrlf=true` is set host-wide here, so a
+    // checkout hands this a CRLF file while the writer above produces LF - MEASURED, the check then
+    // reported DRIFT for `animations-index.json` on a tree whose blob was identical, and the same
+    // defect in `make-diagrams.mjs` did it for 5 of 6 SVGs. A gate that is red on every Windows clone
+    // is a gate nobody reads (AGENTS.md §3), so both sides are normalised before comparing.
+    const sameText = (a, b) => a.replace(/\r\n/g, '\n') === b.replace(/\r\n/g, '\n');
     let drift = 0;
-    if (!existsSync(INDEX) || readFileSync(INDEX, 'utf8') !== JSON.stringify(index, null, 2)) {
+    if (!existsSync(INDEX) || !sameText(readFileSync(INDEX, 'utf8'), JSON.stringify(index, null, 2))) {
       console.error('DRIFT animations-index.json');
       drift++;
     }

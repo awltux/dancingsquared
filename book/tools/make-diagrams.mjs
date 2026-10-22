@@ -523,10 +523,16 @@ export function main() {
   const { files, index } = build();
 
   if (check) {
+    // TEXT, NOT LINE ENDINGS: `core.autocrlf=true` checks these SVGs out as CRLF while the writer
+    // produces LF, so comparing raw strings reported DRIFT for 5 of the 6 on a tree whose content was
+    // byte-identical (MEASURED: same line multiset, 0 lines in a different position). The same defect
+    // is fixed in `make-animations.mjs`, which an `animations-index.json` DRIFT had been hiding - a
+    // gate that is red on every Windows clone is a gate nobody reads (AGENTS.md §3).
+    const sameText = (a, b) => a.replace(/\r\n/g, '\n') === b.replace(/\r\n/g, '\n');
     let drift = 0;
     for (const [name, text] of files) {
       const p = join(OUT_DIR, name);
-      if (!existsSync(p) || readFileSync(p, 'utf8') !== text) {
+      if (!existsSync(p) || !sameText(readFileSync(p, 'utf8'), text)) {
         console.error(`DRIFT ${name}`);
         drift++;
       }

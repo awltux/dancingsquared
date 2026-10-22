@@ -55,7 +55,11 @@ export interface Stage {
    *  ONE OF THE TWO IS ALWAYS DRAWN, which is why this is a mode rather than a visibility flag: a board with
    *  neither would have no reference at all, and a board with both would draw two grids over each other.
    *  The grid is on every board in every panel, so this is NOT scoped to the panel that happens to be on
-   *  screen - unlike the editor's 2D/3D choice. */
+   *  screen - unlike the editor's 2D/3D choice.
+   *
+   *  IT SWITCHES THE STAGE'S OWN FLOOR ONLY. A stage created with `floor: false` (the game) draws no floor of
+   *  its own, so this is a documented no-op there: that host builds a floor per board with `buildBoardFloor`
+   *  and switches each one through the returned object. */
   setGridMode(mode: GridMode): void;
   resize(): void;
   /** TELL THE STAGE HOW MUCH OF THE CANVAS THE FLOATING UI COVERS, in CSS pixels from each canvas edge, so the
@@ -263,7 +267,179 @@ function buildFloorAxes(half: number): THREE.Group {
   return g;
 }
 
-export function createStage(canvas: HTMLCanvasElement): Stage {
+/** One board's floor: the plane, both grids and (when asked) the axis key, in BOARD coordinates. */
+export interface BoardFloor {
+  /**
+   * The floor, its grids and its axes, centred on the origin and spanning ±`FLOOR_HALF`.
+   *
+   * ADD IT TO THE GROUP THAT CARRIES A BOARD, not to the scene, when the host draws more than one board: a board
+   * is scaled and offset by its host, so a floor inside that same group is in the board's own coordinates and a
+   * grid line lands where a dancer stands. MEASURED as the defect this fixes: the game drew ONE stage-wide grid
+   * with the two boards scaled to 0.42 and shifted to ±2.9, so every line the player could see was at an offset
+   * no board's geometry shares — reported as "the background grid looks like it's not aligned with the dancer
+   * layout", with both boards standing on what looked like one floor.
+   */
+  group: THREE.Group;
+  /** Exactly one grid visible, every time. See `Stage.setGridMode`. */
+  setGridMode(mode: GridMode): void;
+}
+
+/**
+ * Build ONE board's floor: the plane, the square and radial grids, the half marks, and optionally the axis key.
+ *
+ * WHY IT IS A BUILDER RATHER THAN PART OF `createStage`. There are two hosts and they need different placements:
+ * the POC shows one board and wants the stage to own its floor, while the game shows two and each one needs its
+ * own. Drawing it once for the whole scene is what made two boards share a background.
+ *
+ * THE AXES ARE OPT-IN, and that is a division the two hosts disagree about on purpose. The POC's editor needs the
+ * compass — `0°/East`, `90°/North` and the four arrows are its coordinate key — while a game board is read as a
+ * picture, where those labels are noise on every one of two boards.
+ *
+ * THE SIZE IS `FLOOR_HALF` AND IS NOT A PARAMETER, because a board IS ten units across: two numbers that agreed
+ * today would be two numbers to keep in step tomorrow, and the grid's divisions come from the shared spec
+ * (`grid-magnet.ts`) exactly as the CTRL-drag magnet does.
+ */
+export function buildBoardFloor(opts: { axes?: boolean } = {}): BoardFloor {
+  const group = new THREE.Group();
+  // Floor grid — a clear reference so dancer positions are readable. Dancers are
+  // placed at integer dance-grid coords (±1, ±2, ±3…), so 1-unit cells over ±10
+  // lets you read where each dancer stands; the centre lines are brighter.
+  //
+  /**
+   * THE HALF MARK, DRAWN TO BE SEEN AND TO BE TOLD APART - and it is ONE material for BOTH grids.
+   *
+   * Asked for twice, in this order: "Add a half grid line for the circles. Make this more subtle than the unit
+   * circles." and then "Add the same subtle half-grid line used by the radial grid to the square grid." The
+   * word doing the work in the second is SAME, so the square grid's half lines and the radial grid's half rings
+   * share this object: two definitions could drift, and a probe that read one of them would still pass.
+   *
+   * WHY IT LOOKS LIKE THIS. The first cut was the UNIT colour at 0.4, which composites to 0x202a35 - a contrast
+   * of 1.27 against the 0x0e141b floor, DIMMER than the 2-unit overlay already on that floor (1.43) and only a
+   * quarter brighter than the floor itself. Reported from use: "I cannot see the half circles on the radial
+   * grid, they are too subtle."
+   *
+   * Brightness alone then left the two families to be told apart by a 1.67-against-1.95 difference, and the
+   * whole palette was ONE HUE - the floor, the divisions and the overlay are all 212 (blue). So the half mark
+   * takes a VIOLET-GREY instead: hue 270 at the same lightness, 58 degrees away from the divisions and still
+   * subtle at this saturation. It is deliberately NOT the teal of the cardinal spokes (hue 159) or the warm of
+   * the axis labels, so the three families on this floor read as three.
+   *
+   * 0x5c5068 at 0.6 composites to 0x3d3849, a contrast of 1.64: above the overlay's 1.43 so the half mark is
+   * not the faintest line in the picture, below the divisions' 1.95 so it is still the weaker family.
+   * `radial-grid-probe.mjs` recomputes the contrast AND the hue gap from this material and the floor - and
+   * checks that BOTH grids draw from it.
+   */
+  const halfMat = new THREE.LineBasicMaterial({ color: 0x5c5068, transparent: true, opacity: 0.6 });
+
+  // THE BOARD HAS TWO GRIDS NOW, and they are ALTERNATIVES rather than layers: the square one below and the
+  // radial one after it, exactly one of which is visible. Both are drawn at the SAME divisions - a line or a
+  // circle every whole unit out to `FLOOR_HALF`, with every second one overlaid at the coarser weight - so
+  // switching changes the SHAPE of the reference and not its scale. `grid-magnet.ts` owns those numbers, so
+  // what is drawn and what the CTRL-drag magnet pulls to cannot drift apart.
+  const squareGroup = new THREE.Group();
+  const grid = new THREE.GridHelper(FLOOR_HALF * 2, FLOOR_HALF * 2, 0x2f9e77, 0x3a4a5c);
+  (grid.material as THREE.Material).transparent = true;
+  (grid.material as THREE.Material).opacity = 0.95;
+  squareGroup.add(grid);
+  // A coarser overlay every 2 units (matching the usual 2-unit dancer spacing).
+  const coarse = new THREE.GridHelper(FLOOR_HALF * 2, FLOOR_HALF, 0x8fd6b5, 0x5b6b7d);
+  (coarse.material as THREE.Material).transparent = true;
+  (coarse.material as THREE.Material).opacity = 0.35;
+  squareGroup.add(coarse);
+  // THE HALF LINES, and they are the SAME MARK the radial grid makes: the same offsets and, below, the same
+  // material. A `LineSegments` rather than a `GridHelper` because a GridHelper divides its span evenly - 40
+  // divisions would put a line at EVERY half unit, overdrawing the divisions the grid already has, where the
+  // half mark is only the positions BETWEEN them (see `squareHalfOffsets`).
+  const halfLinePts: THREE.Vector3[] = [];
+  for (const v of squareHalfOffsets(FLOOR_HALF)) {
+    for (const s of [v, -v]) {
+      // one line along the board's Y (which is -z here) at x = s ...
+      halfLinePts.push(new THREE.Vector3(s, 0, FLOOR_HALF), new THREE.Vector3(s, 0, -FLOOR_HALF));
+      // ... and one along the board's X at y = s
+      halfLinePts.push(new THREE.Vector3(-FLOOR_HALF, 0, s), new THREE.Vector3(FLOOR_HALF, 0, s));
+    }
+  }
+  squareGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(halfLinePts), halfMat));
+  group.add(squareGroup);
+
+  // THE RADIAL GRID: the same floor divided into 16 spokes, a circle at every whole unit, and a FAINT ring
+  // at each half unit between them.
+  //
+  // A SPOKE IS A LINE FROM THE ORIGIN and a circle is a closed polyline; both are ordinary `Line`s on the
+  // floor plane, at y = 0 like `GridHelper` and above the floor at -0.001. Three has no circle primitive, so
+  // a ring is SAMPLED: at 128 segments the chord between two samples is 0.05 units on the outermost ring,
+  // which is well inside a pixel in the flat view.
+  //
+  // THE FOUR CARDINAL SPOKES take the bright centre-line colour the square grid gives x = 0 and y = 0, so
+  // the compass the axis labels mark below is drawn in both grids.
+  //
+  // THE BOARD MAPPING IS (x, 0, -y) - see `placeDancer` - so a board point at angle `a` and radius `r` is
+  // (cos a * r, 0, -sin a * r) here, and the picture turns the same way the data does.
+  const radialGroup = new THREE.Group();
+  const CIRCLE_SEGMENTS = 128;
+  const radialMat = {
+    line: new THREE.LineBasicMaterial({ color: 0x3a4a5c, transparent: true, opacity: 0.95 }),
+    // THE SAME HALF MARK THE SQUARE GRID DRAWS, as rings. One material, `halfMat`, for both.
+    half: halfMat,
+    cardinal: new THREE.LineBasicMaterial({ color: 0x2f9e77, transparent: true, opacity: 0.95 }),
+    coarse: new THREE.LineBasicMaterial({ color: 0x5b6b7d, transparent: true, opacity: 0.35 }),
+  };
+  const ring = (r: number, mat: THREE.LineBasicMaterial) => {
+    const pts: THREE.Vector3[] = [];
+    for (let i = 0; i <= CIRCLE_SEGMENTS; i++) {
+      const a = (i / CIRCLE_SEGMENTS) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * r, 0, -Math.sin(a) * r));
+    }
+    radialGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat));
+  };
+  for (let k = 0; k < RADIAL_SPOKES; k++) {
+    const a = k * RADIAL_SPOKE_STEP;
+    const cardinal = k % RADIAL_CARDINAL_EVERY === 0;
+    const geo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(Math.cos(a) * FLOOR_HALF, 0, -Math.sin(a) * FLOOR_HALF),
+    ]);
+    radialGroup.add(new THREE.Line(geo, cardinal ? radialMat.cardinal : radialMat.line));
+  }
+  const circleRadii = radialCircleRadii(FLOOR_HALF);
+  for (const r of circleRadii.fine) ring(r, radialMat.line);
+  // THE HALF RINGS, drawn faintly so they read as a guide BETWEEN the divisions rather than as divisions of
+  // the same standing. See `radialCircleRadii` for why the radial grid draws them and the square one does
+  // not: a ring between two circles adds a reading, where a line every half unit would lattice the floor.
+  for (const r of circleRadii.halves) ring(r, radialMat.half);
+  for (const r of circleRadii.coarse) ring(r, radialMat.coarse);
+  radialGroup.visible = false;
+  group.add(radialGroup);
+  const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(FLOOR_HALF * 2, FLOOR_HALF * 2),
+    new THREE.MeshStandardMaterial({ color: 0x0e141b, roughness: 1 }),
+  );
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.001;
+  floor.receiveShadow = true;
+  group.add(floor);
+
+  if (opts.axes === true) {
+    // Main X (east–west) and Y (north–south) axes with 90°-increment angle labels.
+    // Heading 0° faces +x (east), 90° faces +y (north, 3D -z), so the labels mark
+    // the compass a dancer heading is measured against.
+    group.add(buildFloorAxes(FLOOR_HALF));
+  }
+
+  return {
+    group,
+    setGridMode: (mode: GridMode) => {
+      // EXACTLY ONE, EVERY TIME. Setting both from one boolean is what stops the two grids ever being drawn
+      // over each other, or the floor being left with no reference at all - there is no state in which the
+      // caller has to turn one off before the other on.
+      const radial = mode === 'radial';
+      squareGroup.visible = !radial;
+      radialGroup.visible = radial;
+    },
+  };
+}
+
+export function createStage(canvas: HTMLCanvasElement, opts: { floor?: boolean } = {}): Stage {
   // THE FLOOR, AND THE FRAME IT IS DRAWN IN.
   /** How much floor is left around the grid inside the frame, in board units - so the outermost line is not
    *  clipped by the screen edge and the axis labels just outside it are still on screen. */
@@ -485,128 +661,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   rim.position.set(-6, 4, -5);
   scene.add(rim);
 
-  // Floor grid — a clear reference so dancer positions are readable. Dancers are
-  // placed at integer dance-grid coords (±1, ±2, ±3…), so 1-unit cells over ±10
-  // lets you read where each dancer stands; the centre lines are brighter.
-  //
-  /**
-   * THE HALF MARK, DRAWN TO BE SEEN AND TO BE TOLD APART - and it is ONE material for BOTH grids.
-   *
-   * Asked for twice, in this order: "Add a half grid line for the circles. Make this more subtle than the unit
-   * circles." and then "Add the same subtle half-grid line used by the radial grid to the square grid." The
-   * word doing the work in the second is SAME, so the square grid's half lines and the radial grid's half rings
-   * share this object: two definitions could drift, and a probe that read one of them would still pass.
-   *
-   * WHY IT LOOKS LIKE THIS. The first cut was the UNIT colour at 0.4, which composites to 0x202a35 - a contrast
-   * of 1.27 against the 0x0e141b floor, DIMMER than the 2-unit overlay already on that floor (1.43) and only a
-   * quarter brighter than the floor itself. Reported from use: "I cannot see the half circles on the radial
-   * grid, they are too subtle."
-   *
-   * Brightness alone then left the two families to be told apart by a 1.67-against-1.95 difference, and the
-   * whole palette was ONE HUE - the floor, the divisions and the overlay are all 212 (blue). So the half mark
-   * takes a VIOLET-GREY instead: hue 270 at the same lightness, 58 degrees away from the divisions and still
-   * subtle at this saturation. It is deliberately NOT the teal of the cardinal spokes (hue 159) or the warm of
-   * the axis labels, so the three families on this floor read as three.
-   *
-   * 0x5c5068 at 0.6 composites to 0x3d3849, a contrast of 1.64: above the overlay's 1.43 so the half mark is
-   * not the faintest line in the picture, below the divisions' 1.95 so it is still the weaker family.
-   * `radial-grid-probe.mjs` recomputes the contrast AND the hue gap from this material and the floor - and
-   * checks that BOTH grids draw from it.
-   */
-  const halfMat = new THREE.LineBasicMaterial({ color: 0x5c5068, transparent: true, opacity: 0.6 });
-
-  // THE BOARD HAS TWO GRIDS NOW, and they are ALTERNATIVES rather than layers: the square one below and the
-  // radial one after it, exactly one of which is visible. Both are drawn at the SAME divisions - a line or a
-  // circle every whole unit out to `FLOOR_HALF`, with every second one overlaid at the coarser weight - so
-  // switching changes the SHAPE of the reference and not its scale. `grid-magnet.ts` owns those numbers, so
-  // what is drawn and what the CTRL-drag magnet pulls to cannot drift apart.
-  const squareGroup = new THREE.Group();
-  const grid = new THREE.GridHelper(FLOOR_HALF * 2, FLOOR_HALF * 2, 0x2f9e77, 0x3a4a5c);
-  (grid.material as THREE.Material).transparent = true;
-  (grid.material as THREE.Material).opacity = 0.95;
-  squareGroup.add(grid);
-  // A coarser overlay every 2 units (matching the usual 2-unit dancer spacing).
-  const coarse = new THREE.GridHelper(FLOOR_HALF * 2, FLOOR_HALF, 0x8fd6b5, 0x5b6b7d);
-  (coarse.material as THREE.Material).transparent = true;
-  (coarse.material as THREE.Material).opacity = 0.35;
-  squareGroup.add(coarse);
-  // THE HALF LINES, and they are the SAME MARK the radial grid makes: the same offsets and, below, the same
-  // material. A `LineSegments` rather than a `GridHelper` because a GridHelper divides its span evenly - 40
-  // divisions would put a line at EVERY half unit, overdrawing the divisions the grid already has, where the
-  // half mark is only the positions BETWEEN them (see `squareHalfOffsets`).
-  const halfLinePts: THREE.Vector3[] = [];
-  for (const v of squareHalfOffsets(FLOOR_HALF)) {
-    for (const s of [v, -v]) {
-      // one line along the board's Y (which is -z here) at x = s ...
-      halfLinePts.push(new THREE.Vector3(s, 0, FLOOR_HALF), new THREE.Vector3(s, 0, -FLOOR_HALF));
-      // ... and one along the board's X at y = s
-      halfLinePts.push(new THREE.Vector3(-FLOOR_HALF, 0, s), new THREE.Vector3(FLOOR_HALF, 0, s));
-    }
-  }
-  squareGroup.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(halfLinePts), halfMat));
-  scene.add(squareGroup);
-
-  // THE RADIAL GRID: the same floor divided into 16 spokes, a circle at every whole unit, and a FAINT ring
-  // at each half unit between them.
-  //
-  // A SPOKE IS A LINE FROM THE ORIGIN and a circle is a closed polyline; both are ordinary `Line`s on the
-  // floor plane, at y = 0 like `GridHelper` and above the floor at -0.001. Three has no circle primitive, so
-  // a ring is SAMPLED: at 128 segments the chord between two samples is 0.05 units on the outermost ring,
-  // which is well inside a pixel in the flat view.
-  //
-  // THE FOUR CARDINAL SPOKES take the bright centre-line colour the square grid gives x = 0 and y = 0, so
-  // the compass the axis labels mark below is drawn in both grids.
-  //
-  // THE BOARD MAPPING IS (x, 0, -y) - see `placeDancer` - so a board point at angle `a` and radius `r` is
-  // (cos a * r, 0, -sin a * r) here, and the picture turns the same way the data does.
-  const radialGroup = new THREE.Group();
-  const CIRCLE_SEGMENTS = 128;
-  const radialMat = {
-    line: new THREE.LineBasicMaterial({ color: 0x3a4a5c, transparent: true, opacity: 0.95 }),
-    // THE SAME HALF MARK THE SQUARE GRID DRAWS, as rings. One material, `halfMat`, for both.
-    half: halfMat,
-    cardinal: new THREE.LineBasicMaterial({ color: 0x2f9e77, transparent: true, opacity: 0.95 }),
-    coarse: new THREE.LineBasicMaterial({ color: 0x5b6b7d, transparent: true, opacity: 0.35 }),
-  };
-  const ring = (r: number, mat: THREE.LineBasicMaterial) => {
-    const pts: THREE.Vector3[] = [];
-    for (let i = 0; i <= CIRCLE_SEGMENTS; i++) {
-      const a = (i / CIRCLE_SEGMENTS) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(a) * r, 0, -Math.sin(a) * r));
-    }
-    radialGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat));
-  };
-  for (let k = 0; k < RADIAL_SPOKES; k++) {
-    const a = k * RADIAL_SPOKE_STEP;
-    const cardinal = k % RADIAL_CARDINAL_EVERY === 0;
-    const geo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(Math.cos(a) * FLOOR_HALF, 0, -Math.sin(a) * FLOOR_HALF),
-    ]);
-    radialGroup.add(new THREE.Line(geo, cardinal ? radialMat.cardinal : radialMat.line));
-  }
-  const circleRadii = radialCircleRadii(FLOOR_HALF);
-  for (const r of circleRadii.fine) ring(r, radialMat.line);
-  // THE HALF RINGS, drawn faintly so they read as a guide BETWEEN the divisions rather than as divisions of
-  // the same standing. See `radialCircleRadii` for why the radial grid draws them and the square one does
-  // not: a ring between two circles adds a reading, where a line every half unit would lattice the floor.
-  for (const r of circleRadii.halves) ring(r, radialMat.half);
-  for (const r of circleRadii.coarse) ring(r, radialMat.coarse);
-  radialGroup.visible = false;
-  scene.add(radialGroup);
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(FLOOR_HALF * 2, FLOOR_HALF * 2),
-    new THREE.MeshStandardMaterial({ color: 0x0e141b, roughness: 1 }),
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.001;
-  floor.receiveShadow = true;
-  scene.add(floor);
-
-  // Main X (east–west) and Y (north–south) axes with 90°-increment angle labels.
-  // Heading 0° faces +x (east), 90° faces +y (north, 3D -z), so the labels mark
-  // the compass a dancer heading is measured against.
-  scene.add(buildFloorAxes(FLOOR_HALF));
+  // THE STAGE'S OWN FLOOR, unless the host draws one per board. `buildBoardFloor` owns the geometry either way;
+  // what changes is the PLACEMENT, and only the host knows whether it is showing one board (the POC) or two (the
+  // game). A host that passes `floor: false` must draw its own, because a stage with neither would show dancers
+  // on nothing — which is why the option is a statement about the host rather than a visibility switch.
+  const ownFloor = opts.floor === false ? null : buildBoardFloor({ axes: true });
+  if (ownFloor) scene.add(ownFloor.group);
 
   /**
    * Size the renderer and BOTH cameras to the canvas as it is RIGHT NOW.
@@ -891,12 +951,14 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       applyControlsEnabled();
     },
     setGridMode: (mode: GridMode) => {
-      // EXACTLY ONE, EVERY TIME. Setting both from one boolean is what stops the two grids ever being drawn
-      // over each other, or the floor being left with no reference at all - there is no state in which the
-      // caller has to turn one off before the other on.
-      const radial = mode === 'radial';
-      squareGroup.visible = !radial;
-      radialGroup.visible = radial;
+      // THE FLOOR ANSWERS, because the floor owns the two grids. `buildBoardFloor`'s own `setGridMode` is where
+      // "exactly one of the two" is enforced, and it is in ONE place because the game now builds a floor per
+      // board: two copies of that rule could disagree about which grid a board is showing.
+      //
+      // A STAGE CREATED WITH `floor: false` HAS NO FLOOR TO SWITCH, so this is a no-op rather than an error: the
+      // host owns its floors and switches its own. Silence is right here because the caller that passes
+      // `floor: false` is the caller that also called `buildBoardFloor`, so there is nothing to report to it.
+      ownFloor?.setGridMode(mode);
     },
     updateControls: () => {
       // BOTH are advanced, not just the one on screen: with damping an orbit keeps gliding for a

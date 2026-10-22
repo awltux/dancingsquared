@@ -103,10 +103,16 @@ console.log('\n== the `actives` attribute is carried, and the shipped data is PI
 //
 // The values are pinned as a literal so the shipped data cannot drift silently, and so that adding
 // a subset-authored tam is a deliberate edit. Counting by VALUE rather than by tam is what makes
-// the pin meaningful: 18 tams say "All" (everyone moves, where the mirror is correct) and 10 name a
+// the pin meaningful: 16 tams say "All" (everyone moves, where the mirror is correct) and 10 name a
 // real subset ("Ends" 4, "Centers" 3, "Heads" 2, "Sides" 1).
+//
+// 28 -> 26, AND THE DIRECTION IS THE POINT. This pin counted 28 while the harness read the corpus with a raw
+// `<tam>` regex: TWO OF THEM ARE COMMENTED OUT - `a1/split_square_thru.xml`'s `Heads Start` and `Sides Start`, both
+// `actives="All"` - so they were never shipped tams, the corpus does not author them and the engine can never
+// build them. The walk now goes through `packages/corpus`, which parses with the engine's own reader, so the two
+// phantom declarations are gone and `All` falls 18 -> 16. NOTHING IN THE CORPUS CHANGED.
 {
-  const EXPECTED = { All: 18, Ends: 4, Centers: 3, Heads: 2, Sides: 1 };
+  const EXPECTED = { All: 16, Ends: 4, Centers: 3, Heads: 2, Sides: 1 };
   const got = new Map();
   let declared = 0;
   for (const { xml } of callsByTitle(assets)) {

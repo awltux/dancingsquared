@@ -22,43 +22,50 @@
 //     `Touch a Quarter` and `Cast Off Three Quarters`. Counting those as gaps would
 //     aim the work at the wrong thing.
 
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { CODED_MOVES, CALL_SYNONYMS } from '../../dist/index.js';
+// THE READING IS NOT DONE HERE ANY MORE. `packages/corpus` owns the walk, the parser and the block slicing, so
+// the harnesses, the book, the teacher and the game cannot come to disagree about what the corpus holds (AGENTS
+// §11.2.12). What stays in THIS module is the engine-facing policy: which levels a harness walks, the
+// highest-first pooling order below, and the title algebra that needs engine values (`CODED_MOVES` aliases,
+// the `<call>` index).
+import { corpusRoot, filesOf, levelPath, pooledXmlOfTitle, titlesOf } from 'dancing-squared-corpus';
 
 export const ASSET_LEVELS = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 
 /**
- * Every call XML under the assets tree: the level folders plus assets/src, in the order
- * given by `levels`.
+ * The corpus root a caller hands in must be THE corpus root. Every harness passes `assets` today, and the one
+ * declaration of where the corpus lives is `vite.corpus.ts` (read by `packages/corpus`); a caller passing some
+ * other directory used to read that other directory silently, which is the failure mode this guard removes.
+ */
+function assertCorpusRoot(assets) {
+  if (path.resolve(assets) !== path.resolve(corpusRoot())) {
+    throw new Error(`engine-calls: ${assets} is not the corpus (it lives at ${corpusRoot()}, declared in vite.corpus.ts)`);
+  }
+}
+
+/**
+ * Every call XML file under the assets tree: the level folders plus assets/src, in the order given by `levels`.
  *
- * The order is a parameter because it is LOAD-BEARING, not cosmetic: the same call title
- * is often defined at several levels, and the engine's tie-break is "first registered
- * wins" (see `FormationMatcher.findMatchingVariant`). See `callsByTitle`.
+ * The order is a parameter because it is LOAD-BEARING, not cosmetic: the same call title is often defined at
+ * several levels, and the engine's tie-break is "first registered wins" (see `FormationMatcher.findMatchingVariant`).
+ * See `callsByTitle`.
  */
 export function callXmlFiles(assets, levels = ASSET_LEVELS) {
+  assertCorpusRoot(assets);
   const files = [];
-  for (const lv of levels) {
-    const dir = path.join(assets, lv);
-    if (!existsSync(dir)) continue;
-    for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) files.push(path.join(dir, f));
-  }
-  const src = path.join(assets, 'src');
-  if (existsSync(src)) {
-    for (const f of readdirSync(src).filter((x) => x.endsWith('.xml'))) files.push(path.join(src, f));
+  for (const lv of [...levels, 'src']) {
+    for (const f of filesOf(lv)) files.push(path.join(levelPath(lv), f));
   }
   return files;
 }
 
 /** The call TITLES the engine can actually perform: every `<tam>` definition. */
 export function catalogueTitles(assets) {
-  const titles = new Set();
-  for (const file of callXmlFiles(assets)) {
-    const xml = readFileSync(file, 'utf8');
-    for (const m of xml.matchAll(/<tam\b[^>]*\btitle="([^"]*)"/g)) titles.add(m[1]);
-  }
-  return titles;
+  assertCorpusRoot(assets);
+  return titlesOf([...ASSET_LEVELS, 'src']);
 }
 
 /**
@@ -119,17 +126,11 @@ export function implementedTitles(assets) {
  * highest-level-only drops 39 of the 188 figures. Pool, highest first.
  */
 export function callsByTitle(assets) {
-  const byTitle = new Map();
-  for (const file of callXmlFiles(assets, [...ASSET_LEVELS].reverse())) {
-    const xml = readFileSync(file, 'utf8');
-    for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
-      const title = (block.match(/title="([^"]*)"/) ?? [])[1];
-      if (!title) continue;
-      if (!byTitle.has(title)) byTitle.set(title, []);
-      byTitle.get(title).push(block);
-    }
-  }
-  return [...byTitle.entries()].map(([name, blocks]) => ({ name, xml: `<calls>${blocks.join('\n')}</calls>` }));
+  assertCorpusRoot(assets);
+  const levels = [...ASSET_LEVELS].reverse().concat('src');
+  // The ORDER of this array is the first-seen title order of the walk, which is what the previous
+  // implementation produced and what `catalogue.mjs`'s offsets are measured against.
+  return [...titlesOf(levels)].map((name) => ({ name, xml: pooledXmlOfTitle(name, levels) }));
 }
 
 /**

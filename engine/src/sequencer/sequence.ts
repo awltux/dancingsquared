@@ -498,6 +498,20 @@ export class SequenceAnalyzer {
    * overrides with `catalogueFallback` is recorded as an ordinary catalogue step instead, because
    * that is how the applicator reads it.
    */
+  /**
+   * WHICH SOURCE SERVED EACH STEP, from the replay walk's own record - one entry per FLAT step, in order.
+   *
+   * This is the panel's marker asking the thing that actually happened rather than guessing from the name:
+   * since `apply-source.ts`, a call with a coded rule can be served by its AUTHORED tam where the two agree, so
+   * a name-level answer ("this call has a derived rule") is no longer the same question as "what animated that
+   * row". The walk already decides it per step - that is what its `coded` field records - so the answer is read
+   * from there and cannot drift from the animation.
+   *
+   * `mixed` is a "while" step: several lanes, and no one source describes the row.
+   */
+  stepSources(flat: ModuleStep[], startBoard?: Board): ('derived' | 'catalogue' | 'mixed')[] {
+    return this.replayWalk(flat, startBoard).map((s) => (s.lanes ? 'mixed' : s.coded ? 'derived' : 'catalogue'));
+  }
   private replayWalk(flat: ModuleStep[], startBoard?: Board): ReplayStep[] {
     const start = this.replayStart(startBoard);
     const key = replayKey(flat, start);

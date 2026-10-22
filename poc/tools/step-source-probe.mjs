@@ -25,7 +25,7 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-const { callSource, stepSource } = await import('./../src/step-source.ts');
+const { callSource, stepSource, rowSources } = await import('./../src/step-source.ts');
 const { callsByTitle } = await import(pathToFileURL(path.join(POC, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 const assets = path.join(POC, '..', 'assets');
 const seq = new engine.Sequencer(
@@ -89,6 +89,36 @@ check(stepSource(oneLane, isModule).source === 'derived+catalogue',
 check(stepSource({ groups: [] }, isModule).source === 'mixed',
   'a step with no lanes at all is `mixed` rather than an invented source');
 
+console.log("\n== the MOTION wins: the walk's record beats the name ==");
+{
+  // THE REPORTED CASE, as the marker sees it. `Swing Thru` HAS a coded rule, so the name-level reading says
+  // `derived+catalogue` - but since `apply-source.ts` the authored tam serves it from an Eight Chain Thru (the
+  // two agree on that board), and the marker must say what ANIMATED the row. That is the whole point of this
+  // section: the badge said D/C while the dancers walked the tam.
+  check(callSource('Swing Thru') === 'derived+catalogue',
+    'the NAME-level reading of `Swing Thru` is `derived+catalogue` (it has a coded rule and a catalogue fallback)');
+  check(stepSource('Swing Thru', isModule, 'catalogue').source === 'catalogue',
+    'and the WALKED reading is `catalogue` where the authored tam served it - the marker the panel draws');
+  check(stepSource('Swing Thru', isModule, 'derived').source === 'derived',
+    'while a board the rule kept says `derived`, so the two boards do not share a badge');
+  // THE FALLBACK IS THE REASON THE NAME-LEVEL RULE IS STILL HERE: a row past the walk's stop has no record.
+  check(stepSource('Swing Thru', isModule, null).source === 'derived+catalogue',
+    'and with NO walked record (a row the walk never reached) it falls back to the name, rather than to nothing');
+  check(stepSource('Pass Thru', isModule, 'derived').source === 'derived',
+    'a walked `derived` is believed even where the name has no coded rule, because the walk is the witness');
+
+  // THE ROW ATTRIBUTION. A module row expands to several flat steps, so the two lists are not the same length.
+  const rowOf = (n) => ({ selection: 'Heads', call: 'Pass Thru', groups: undefined, _n: n });
+  check(JSON.stringify(rowSources(['a', 'b'], () => 1, ['derived', 'catalogue'])) === JSON.stringify(['derived', 'catalogue']),
+    'one flat step per row: the sources pass straight through');
+  check(JSON.stringify(rowSources(['a'], () => 2, ['derived', 'derived'])) === JSON.stringify(['derived']),
+    'a row that expands to two steps with ONE source keeps it');
+  check(JSON.stringify(rowSources(['a'], () => 2, ['derived', 'catalogue'])) === JSON.stringify(['mixed']),
+    'and a row whose several steps disagree is `mixed` - no one badge describes it');
+  check(JSON.stringify(rowSources(['a', 'b'], () => 1, ['derived'])) === JSON.stringify(['derived', null]),
+    'a row the walk never reached has NO source, so the caller falls back to the name instead of inventing one');
+}
+
 console.log('\n== the counts, over the registry itself ==');
 // The three numbers the rule's own header states. A movement in EITHER direction fails, so an overlap that
 // appeared or vanished is re-pinned deliberately rather than absorbed.
@@ -128,9 +158,10 @@ console.log('\n== the wiring, so the badge is actually on the row ==');
 const readSource = (p) => fs.readFileSync(path.join(POC, p), 'utf8').replace(/\r\n/g, '\n');
 const ui = readSource('src/sequencer-ui.ts');
 const css = readSource('src/style.css');
-check(/import \{ stepSource \} from '\.\/step-source';/.test(ui), 'the panel imports the rule');
-check(/private sourceMark\(step: ModuleStep\): string \{/.test(ui), 'and has one method that renders the marker');
-check(/\+ this\.sourceMark\(step\)/.test(ui), 'and every timeline row calls it, so no row is left unmarked');
+check(/import \{ rowSources, stepSource \} from '\.\/step-source';/.test(ui), 'the panel imports the rule');
+check(/private sourceMark\(step: ModuleStep, walked: 'derived' \| 'catalogue' \| 'mixed' \| null\): string \{/.test(ui), 'and has one method that renders the marker, taking WHAT THE WALK SAYS');
+check(/\+ this\.sourceMark\(step, rowSource\[i\]\)/.test(ui), 'and every timeline row calls it with its own walked source, so no row is left unmarked');
+check(/this\.seq\.stepSources\(this\.flat, this\.startBoard\)/.test(ui), "which the panel reads from the engine's own replay walk, not from the call name");
 check(/seq-src \$\{meta\.cls\}/.test(ui), 'the badge carries its source class');
 check(/title="\$\{esc\(label\)\}" aria-label="\$\{esc\(label\)\}"/.test(ui),
   'and both a title and an aria-label, so the badge is readable by hover and by a screen reader');

@@ -385,6 +385,21 @@ export class Sequencer {
    *
    *  A "while" step's LANES come back with it, so a panel building a lane one call at a time can ask where
    *  the next call starts without applying the step again to a board it has already been applied to. */
+  /**
+   * WHICH SOURCE SERVED EACH STEP, from the replay walk's own record - one entry per FLAT step, in order.
+   *
+   * This is the panel's marker asking the thing that actually happened rather than guessing from the name:
+   * since `apply-source.ts`, a call with a coded rule can be served by its AUTHORED tam where the two agree, so
+   * a name-level answer ("this call has a derived rule") is no longer the same question as "what animated that
+   * row". The walk already decides it per step - that is what its `coded` field records - so the answer is read
+   * from there and cannot drift from the animation.
+   *
+   * `mixed` is a "while" step: several lanes, and no one source describes the row.
+   */
+  /** See `SequenceAnalyzer.stepSources` - the walk's own per-step record, delegated so a caller needs one object. */
+  stepSources(flat: ModuleStep[], startBoard?: Board): ('derived' | 'catalogue' | 'mixed')[] {
+    return this.analyzer.stepSources(flat, startBoard);
+  }
   applyToBoard(board: Board, callName: ModuleStep): { board: Board; legal: boolean; reason?: string; lanes?: LaneRun[] } {
     const coded = typeof callName === 'string' ? this.tryCodedMove(board, callName) : null;
     if (coded) return coded;

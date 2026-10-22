@@ -20,7 +20,7 @@ import { isZeroSetup } from './zero-formations';
 import { compareCallTitles } from './call-order';
 import { el, esc } from './dom';
 import { filterNames } from './call-filter';
-import { stepSource } from './step-source';
+import { rowSources, stepSource } from './step-source';
 import type { CallSource } from './step-source';
 import type { KeyBinding } from './keys';
 import type { Stage, WalkCycle } from 'dancing-squared-stage';
@@ -1577,6 +1577,10 @@ export class SequencerController implements SequencerUI {
     this.lastActiveStep = active;
     const badFlat = this.stop ? this.stop.index : -1;
     const badAt = badFlat < 0 ? -1 : this.historyRowOfFlat(badFlat);
+    // THE MARKER SAYS WHAT ANIMATED THE ROW, so the sources come from the engine's own replay walk rather than
+    // from the call's name (see `step-source.ts`: since `apply-source.ts` a coded call can be danced from its
+    // authored tam). One call per row rebuild, and it is the walk the animation already used.
+    const rowSource = rowSources(this.history, (s) => this.seq.flatten([s]).length, this.seq.stepSources(this.flat, this.startBoard));
     const rows = this.history.map((step, i) => {
       const cls = [
         'seq-row',
@@ -1596,7 +1600,7 @@ export class SequencerController implements SequencerUI {
       return `<div class="${cls}" role="listitem" tabindex="0" data-idx="${i}"${i === active ? ' aria-current="step"' : ''} title="${esc(title)}">`
         + `<span class="seq-idx">${i + 1}</span>`
         + (figure ? '<span class="seq-fig-mark" aria-label="figure">⇄</span>' : '')
-        + this.sourceMark(step)
+        + this.sourceMark(step, rowSource[i])
         + `<span class="seq-name">${esc(stepLabel(step))}</span>`
         + `<span class="seq-beats">${perStep[i] > 0 ? `${perStep[i].toFixed(1)} b` : '—'}</span>`
         + `<span class="seq-bar-track"><span class="seq-bar-fill" style="width:${bar}%"></span></span>`
@@ -1613,8 +1617,8 @@ export class SequencerController implements SequencerUI {
    * A `mixed` "while" NAMES ITS LANES, because the row is several calls at once and "mixed" alone is not an
    * answer to the question the marker asks. Everything else is one call, and its badge is the whole answer.
    */
-  private sourceMark(step: ModuleStep): string {
-    const { source, calls } = stepSource(step, (n) => this.seq.isModule(n));
+  private sourceMark(step: ModuleStep, walked: 'derived' | 'catalogue' | 'mixed' | null): string {
+    const { source, calls } = stepSource(step, (n) => this.seq.isModule(n), walked);
     const meta = SequencerController.SOURCE_MARK[source];
     const detail = source === 'mixed'
       ? ` ${calls.map((c) => `${c.call} (${SequencerController.SOURCE_MARK[c.source].mark})`).join(', ')}`

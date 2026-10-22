@@ -56,17 +56,60 @@ export function callSource(name: string): CallSource {
  * names calls, not modules; see `GroupStep`'s own doc), but a lane's call still goes through the same
  * predicate so the two branches cannot disagree.
  */
+/** What the WALK recorded for a step: the source that actually animated it. */
+export type WalkedSource = 'derived' | 'catalogue' | 'mixed';
+
 export function stepSource(
   step: ModuleStep,
   isModule: (name: string) => boolean,
+  walked?: WalkedSource | null,
 ): { source: CallSource; calls: SourcedCall[] } {
   const one = (name: string): CallSource => (isModule(name) ? 'module' : callSource(name));
   const names = isGroupStep(step)
     ? step.groups.flatMap((lane) => groupCalls(lane))
     : [typeof step === 'string' ? step : step.call];
   const calls = names.map((call) => ({ call, source: one(call) }));
+  // THE MOTION WINS, because that is what the marker is asked. `walked` comes from the engine's own replay walk
+  // (`Sequencer.stepSources`), which is the once place that knows, per board, whether the coded rule or the
+  // authored tam served the step - the name alone cannot say: since `apply-source.ts` a call WITH a coded rule
+  // is danced from its tam wherever the two agree. Rows PAST the walk's stop have no record, which is why the
+  // name-level reading below is kept as the fallback rather than deleted.
+  if (walked) {
+    const all = names.map((call) => ({ call, source: walked }));
+    return walked === 'mixed' ? { source: 'mixed', calls } : { source: walked, calls: all };
+  }
   const distinct = new Set(calls.map((c) => c.source));
   // A "while" whose lanes agree is that source; one that does not is `mixed`, and a step with no calls at all
   // is `mixed` too rather than an invented answer.
   return { source: distinct.size === 1 ? calls[0].source : 'mixed', calls };
+}
+
+/**
+ * THE WALK'S PER-STEP SOURCES, ATTRIBUTED TO THE ROWS THE PANEL SHOWS.
+ *
+ * The panel's rows are the HISTORY (calls, figures and the occasional module name), while the walk records one
+ * entry per FLAT step, so the two lists are not the same length: a module row expands to several steps and a
+ * figure row is one. `flatCount` is how many flat steps one row becomes (`seq.flatten([row]).length`), supplied
+ * rather than assumed so this stays a pure rule the probe can drive.
+ *
+ * A ROW THAT EXPANDS TO SEVERAL STEPS WITH DIFFERENT SOURCES IS `mixed`, for the same reason a "while" step is:
+ * no one badge describes it. A row the walk never reached (the sequence stopped before it) is `null`, and the
+ * caller falls back to the name-level reading, because those rows have no motion to report.
+ */
+export function rowSources(
+  history: readonly ModuleStep[],
+  flatCount: (step: ModuleStep) => number,
+  walked: readonly WalkedSource[],
+): (WalkedSource | null)[] {
+  const out: (WalkedSource | null)[] = [];
+  let at = 0;
+  for (const step of history) {
+    const n = Math.max(0, flatCount(step));
+    const slice = walked.slice(at, at + n);
+    at += n;
+    if (slice.length === 0) { out.push(null); continue; }
+    const distinct = new Set(slice);
+    out.push(distinct.size === 1 ? (slice[0] as WalkedSource) : 'mixed');
+  }
+  return out;
 }

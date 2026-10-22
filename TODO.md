@@ -295,12 +295,19 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   | `selection` | all | **RE-PIN — the recorded `REAL` is refuted** | the pin's premise is gone: `22a9eb3` added `Right and Left Grand Static Square`, which the `Face In` board now names exactly, so there is no tied best match left. VERIFIED in this tree: `knownFormation` returns that name while `recognize` still returns null | re-pin to assert the exact identity AND that `recognize` still refuses it |
   | `callerlab-diff` | all | PROVISIONING | `callerlab-ms.txt` is absent in this clone; `callerlab-diff.mjs:46` reads it unguarded → `ENOENT`, exit 1, no summary line. The PDF IS present, so it is one extractor run | provision per §10.1; then decide item 5's `matched 11→12` |
 
-- [ ] **8. `check:book` stops at a stale generated artefact.** `[measured]` at `8cfe8a1`
-  `npm run check:book` → `check-links.mjs` PASSES (108 pages, including its repo-wide encoding walk), then
-  `DRIFT animations-index.json` / `1 file(s) differ`. **VERIFIED PRE-EXISTING**: re-run on a clean tree at
-  `8cfe8a1` it gives the same drift, so it is not caused by any edit in flight. Knowingly stale: **do not
-  regenerate while the corpus is mid-edit** (AGENTS §8 trap 9). Also note the line it prints:
-  `start queries: 0 matched on a tam's own declared formation (its "from" is empty); 11 resolved to nothing`.
+- [x] **8. `check:book` stops at a stale generated artefact.** `[measured]` at `8cfe8a1`, **FIXED at `d704a6a`**
+  The record below is the defect as found. It was TWO defects, and the first hid the second: both `--check`
+  paths compared the bytes they generate (LF) with the file in the working tree, which `core.autocrlf=true`
+  makes CRLF on this clone — so `animations-index.json` "drifted" against a blob that matched the generator
+  exactly, and 5 of the 6 diagrams did too (MEASURED: same line multiset, 0 lines in a different position).
+  Because the chain fails at the first check, that also hid the ONE real drift: `centers-and-ends.svg`, a
+  24-of-50-line reorder of the same four dancers, from a generator that is deterministic (two runs, same
+  SHA-256). Fixed by `f0d8c43` (compare text, not line endings) and `d704a6a` (regenerate that diagram), and
+  the index was regenerated in `1e434f2` with the start table it derives from. `npm run check:book` is GREEN:
+  108 pages, 75 playable calls reproduce and verify (849 pose evaluations), 6 diagrams reproduce.
+  **AND THE START-QUERY LINE IS NOW ACTIONABLE**: `40 resolved to nothing` -> `12`, and each of the 12 is
+  NAMED by the build (`NOT DRAWN  <card> / <label>: "<title>" from "<formation>" in <file>`). All 12 fail on
+  the FORMATION rather than the title — see item 39, which is what they turned out to need.
 
 - [ ] **9. `getout-convention` and `getout-conformance`: NOT one Promenade item.** `[measured]` at `8cfe8a1`
   **THE ENGINE HALF IS FIXED (landed `7a172b1`, TODO item 7's row carries the numbers): the goal test now
@@ -532,3 +539,90 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   the FSM asset (`:45`) and appears in no tier of `engine/test/verify-suite.mjs`, so nothing runs it and
   nothing will notice if it rots. AGENTS §5: "a probe nobody runs is already stale — wire it in or delete
   it." NEXT UNIT: one decision, wire it in with a `why`, or delete it.
+
+---
+
+## P3 — VIRTUAL CALLS: a subwhole-set authoring placed on a whole-set board
+
+- [ ] **39. VIRTUAL CALLS — the resolver, then the chooser, then the cache.** `[recorded]` at `d704a6a`,
+  from the owner's design conversation; **nothing of it exists in the tree yet** (checked: no `mappingCache`
+  anywhere in the history, no branch, no mention in `PLAN.md`/`square-dancing.md`).
+
+  **THE PROBLEM IT ANSWERS.** Part of the corpus is authored for PART of the set, so it cannot be applied
+  from a whole-set board at all. MEASURED (`ms/promenade.xml`): `Promenade` from `Facing Couples Far` builds
+  to **2 dancers**, `Promenade - Keep Walking` from `Two-Faced Lines LH` to **4**, and their start poses are
+  literally slots of a square (`(-2,±1) (-2,±3)`). `deriveFormationMapping` REFUSES this by design
+  ("cannot align 8 dancers to a 4-dancer core — refusing to pair them by array index"), which is why the
+  book's 12 remaining start queries (item 8) cannot resolve: they ask a 2- or 4-dancer authoring to start
+  from an 8-dancer formation.
+
+  **THE OWNER'S DESIGN, as stated.** A cache stores previous resolution searches for calls with dancer
+  subsets (< 8 dancers). It takes the subset CALL NAME and the board's current 8-DANCER FORMATION NAME and
+  returns a "virtual" 8-dancer call variant that starts from the board's formation and carries the subset
+  call's name.
+
+  **THE OWNER'S CONSTRAINT, and it is the acceptance criterion this item is judged by.**
+  > *All virtual 8-dancer variants must start AND end on a KNOWN formation.*
+
+  Concretely, and this is stronger than it sounds: the START is the board's own formation, so it must be
+  NAMED by the engine rather than assumed from the board we happened to be handed (AGENTS §8 trap 10:
+  `knownFormation` will name a board that matches nothing, and on a tie the winner is library scan order);
+  and the END board — the subset's own end poses placed on the same slots, with every other dancer holding —
+  must also be a board a namer NAMES. A variant whose end is a scattered set of spots is NOT admissible,
+  however correct its geometry, because nothing downstream can reason about where the call finishes.
+
+  **WHAT ALREADY EXISTS AND MUST NOT BE DUPLICATED (AGENTS §11.4.4).**
+  - `actives` on a `<tam>` is the corpus's own declaration of which dancers a partial authoring describes —
+    28 shipped tams declare it (`engine/test/catalogue.mjs` pins the count and the values).
+  - `symmetric`/`mirror` half-set tams expand 4 written dancers to 8 by an ANTIPODAL mirror. That is ONE
+    embedding (pairs), not the general subset placement, so it is a special case of this idea and not a
+    substitute for it.
+  - `matchMemo` + `formationMatchCache` (`engine/src/sequencer/matcher.ts`) are already a
+    "(board geometry + call) → variant" memo. The cache here belongs IN that mechanism.
+
+  **THE THREE THINGS THAT WOULD MAKE IT WRONG, in the order they would bite.**
+  1. **A formation NAME is not an identity.** It hides rotation and arrangement, and it can be ambiguous
+     (traps 10 and 11). The cache key must be the quantised POSE SET of the whole board (positions,
+     headings, genders) plus the call plus the selector — a name-keyed cache returns a variant for a board
+     it never resolved, silently.
+  2. **The answer is a SET, not one variant.** Four dancers in an eight-dancer square is `C(8,4) = 70` slot
+     sets × the rotations/reflections congruent with the authoring, and on a symmetric board several are
+     equally good — the same ambiguity `deriveFormationMapping` needed `preferGender` for. So: the RESOLVER
+     returns candidate embeddings each with a validity verdict; a CHOOSER (declared `actives`, arrangement
+     preference, the panel's explicit correction) collapses them; only then is anything cacheable, keyed by
+     the request INCLUDING the selector.
+  3. **Refusals must be cached too**, or every miss re-runs the expensive sweep forever. The engine's
+     contract is that a refusal is a VALUE (§11.3), so "no embedding" is a cacheable answer with a reason.
+
+  **BUILD ORDER (not negotiable): resolver → chooser → cache.** Cache-first freezes an interface before its
+  semantics exist, which is how a cache ends up fast and wrong. Today there is nothing to cache: no function
+  resolves subset × whole-set board.
+
+  **A VIRTUAL VARIANT IS INVENTED GEOMETRY AND MUST SAY SO.** Every derivable fact in this tree comes from
+  the corpus; a synthesised variant is the exception, so it must be MARKED the way `phantom` marks an
+  unknown identity, and no census may count it — `shape-census`, the figure counts and `verify:figures` are
+  cited in the docs and would otherwise start counting boards nobody authored.
+
+  **ACCEPTANCE CRITERIA (each one gateable, none of them "looks right").**
+  1. A probe sweeps every subwhole-set authoring × every whole-set named formation, and reports resolved /
+     refused WITH denominators — no `0 of 0`.
+  2. For every accepted variant: the start board is named by the engine's namer, AND the end board is named
+     by it. **Refuse rather than return an unnamed end.**
+  3. The judge is INDEPENDENT of the resolver (§11.2.3): the namer, not the resolver's own alignment.
+  4. A synthesised variant is distinguishable from an authored one in the type, and a census that counts
+     authored tams is unchanged by it.
+  5. The cache is keyed on the board's pose set, returns a set of candidates or a recorded refusal, and a
+     revert of the chooser turns a check red.
+
+  **MEASURE FIRST (before writing the resolver).** (a) how many (subset title, whole-set formation) pairs
+  have ANY valid embedding — if it is a handful, a short resolver plus a `KNOWN_*` set is the honest shape
+  and a cache buys nothing; (b) how many have MORE THAN ONE equally-good embedding (the ambiguity rate);
+  (c) the cost of one full sweep, before arguing for memoisation. The book's 12 unresolved queries are the
+  first concrete consumers and the cheapest test case: they are 2- and 4-dancer authorings asked to start
+  from a squared set.
+
+  **RELATED, AND THEY ARE NOT THE SAME QUESTION.** Item 26 (active-set tracking, the Ocean Wave Rule) is the
+  layer that says WHICH dancers are acting; that is what a chooser should read rather than infer. Item 24
+  (canonical identity) is the blocker for a stable pose-set key — the same reason a name is not an identity.
+  Both are upstream of a good cache and neither is required for a first resolver.
+

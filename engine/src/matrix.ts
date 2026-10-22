@@ -123,6 +123,12 @@ export function dancerMatricesById(
     const v = poseToVec(s.x, s.y, s.heading);
     const out = apply5(m, v);
     const eh = Math.atan2(out[3], out[2]);
+    // `Math.abs(normAngle(eh - e.heading))`, SPELLED OUT BECAUSE OF AN IMPORT CYCLE: `moves.ts` imports
+    // THIS module for `dancerMatrix`, and this module imports nothing at all, so importing the normaliser
+    // back would make the cycle `matrix -> moves -> matrix` and `moves`'s top-level `const`s (`FaceLeft`,
+    // ...) could be read here before they are initialised. The two are the SAME ARITHMETIC, not a second
+    // rule: `(x % 2PI)` then `2PI - x` is exactly the subtraction `normAngle` makes for a negative angle,
+    // and `engine/test/angle-normalisation.mjs` proves the equality over a sample.
     let dh = Math.abs(eh - e.heading) % (2 * Math.PI);
     if (dh > Math.PI) dh = 2 * Math.PI - dh;
     maxError = Math.max(maxError, Math.hypot(out[0] - e.x, out[1] - e.y) + dh);

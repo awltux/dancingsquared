@@ -23,7 +23,7 @@ import { CallApplicator } from './applicator.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
-import { normAngle } from './identity.js';
+import { normAngle } from '../moves.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
 import { authoredStepWins } from './apply-source.js';

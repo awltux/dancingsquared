@@ -31,6 +31,7 @@
 
 import type { Board, SeqDancer } from './types.js';
 import { isKnownCouple } from './constants.js';
+import { normAngle } from '../moves.js';
 
 /** How far apart the two dancers of a couple stand. The standard separation the engine's formations use. */
 export const COUPLE_WIDTH = 2.0;
@@ -144,9 +145,7 @@ export function findCouplePairs(board: Board): CouplePair[] {
       for (const girl of girls) {
         if (takenGirl.has(girl.id)) continue;
         const dist = Math.hypot(girl.x - boy.x, girl.y - boy.y);
-        const dh = Math.abs(
-          Math.atan2(Math.sin(girl.heading - boy.heading), Math.cos(girl.heading - boy.heading)),
-        );
+        const dh = Math.abs(normAngle(girl.heading - boy.heading));
         if (mode === 'facing') {
           // A facing couple: the two look AT each other, across the authored range, and are FRONT-ON
           // to within a small fraction of the separation. `LATERAL_FRACTION_SLOP` is a fraction so

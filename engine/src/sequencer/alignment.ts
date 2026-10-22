@@ -23,6 +23,7 @@
 
 import type { Board, SeqDancer } from './types.js';
 import { HOME_DANCERS, spotKey } from './identity.js';
+import { normAngle } from '../moves.js';
 import { isKnownCouple } from './constants.js';
 
 /** Callerlab/all8 arrangement number: 0 normal, 5 half-sashayed, 1-4 others. */
@@ -883,9 +884,12 @@ export function centresPassThru(board: Board): { board: Board | null; reason?: s
   const inner = byDistance.slice(0, 4);
   const facing = new Map<number, SeqDancer>();
   for (const d of inner) {
+    // `|wrap(d) - PI| < 0.2` RESTATED: the two headings are within 0.2 of OPPOSITE, which is the same
+    // test as `abs(normAngle(d)) > PI - 0.2` because the distance of `d` from PI and the distance of
+    // `|normAngle(d)|` from PI are one number. Stated this way it uses the rule instead of a fold.
     const opposite = inner.filter((o) => o !== d
       && Math.hypot(o.x - d.x, o.y - d.y) < 2.1
-      && Math.abs(((o.heading - d.heading) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI) < 0.2);
+      && Math.abs(normAngle(o.heading - d.heading)) > Math.PI - 0.2);
     if (opposite.length !== 1) {
       return { board: null, reason: `the centres do not form facing pairs: the inner dancer at (${d.x}, ${d.y}) faces ${opposite.length} of them` };
     }

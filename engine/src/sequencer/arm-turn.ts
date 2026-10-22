@@ -36,6 +36,7 @@
 // document rather than an invented value.
 
 import { computeHandholds } from '../handholds.js';
+import { normAngle } from '../moves.js';
 import type { Board, SeqDancer } from './types.js';
 
 export type ArmTurnHand = 'left' | 'right';
@@ -138,16 +139,10 @@ export function armTurn(board: Board, hand: ArmTurnHand, radians: number): { boa
       const dy = d.y - my;
       d.x = mx + dx * cos - dy * sin;
       d.y = my + dx * sin + dy * cos;
-      d.heading = normalise(d.heading + theta);
+      d.heading = normAngle(d.heading + theta);
     }
   }
   return { board: { dancers: board.dancers.map((d) => byId.get(d.id) ?? d) } };
-}
-
-function normalise(a: number): number {
-  while (a > Math.PI) a -= 2 * Math.PI;
-  while (a <= -Math.PI) a += 2 * Math.PI;
-  return a;
 }
 
 /** Every (hand, fraction) combination as a registry entry: `Right Arm Turn 1/2`, `All`-selectable like any call. */

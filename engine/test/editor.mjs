@@ -39,6 +39,7 @@ import {
   endPoses,
   closureDiscrepancy,
   correctEndTo,
+  normAngle,
   // The call-INSTANCE editor: read an instance as a table, edit its start formation and
   // arrangement, its end formation and its moves, and round-trip it through `<tam>` XML.
   normalizeInstance,
@@ -104,13 +105,9 @@ const nearAng = (a, b, eps = 0.06) => {
   while (d < -Math.PI) d += 2 * Math.PI;
   return Math.abs(d) < eps;
 };
-// The engine's own angle normalization, mirrored here so an EXACTNESS check (`gap === 0`)
-// can compare raw headings without borrowing a tolerance to hide behind.
-const normAngleSafe = (a) => {
-  while (a > Math.PI) a -= 2 * Math.PI;
-  while (a <= -Math.PI) a += 2 * Math.PI;
-  return a;
-};
+// THE ENGINE'S OWN NORMALISER, IMPORTED RATHER THAN MIRRORED (AGENTS.md §5): a harness that restates the
+// rule measures a copy of it, so an EXACTNESS check (`gap === 0`) here can compare raw headings without
+// borrowing a tolerance to hide behind AND without being able to disagree with the engine about the rule.
 
 // HOW FAR A SAMPLE OF A CURVE MAY SIT OUTSIDE THE BOUNDING BOX OF ANOTHER SAMPLE OF THE SAME CURVE.
 // MEASURED worst excursion **6.4e-4** units on the witness that uses it; this is the next round number
@@ -360,7 +357,7 @@ console.log('\n== normalizeInstance is pose-exact (12) ==');
     for (let i = 0; i < a.dancers.length; i++) {
       const p = poseFor(a.dancers[i], t);
       const q = poseFor(b.dancers[i], t);
-      m = Math.max(m, Math.hypot(p.x - q.x, p.y - q.y), Math.abs(normAngleSafe(p.heading - q.heading)));
+      m = Math.max(m, Math.hypot(p.x - q.x, p.y - q.y), Math.abs(normAngle(p.heading - q.heading)));
     }
     return m;
   };
@@ -507,8 +504,8 @@ console.log('\n== instance round trip through <tam> XML (14) ==');
   let worstEnd = 0;
   let worstMove = 0;
   for (let i = 0; i < a.length; i++) {
-    worstStart = Math.max(worstStart, Math.hypot(a[i].start.x - b[i].start.x, a[i].start.y - b[i].start.y), Math.abs(normAngleSafe(a[i].start.heading - b[i].start.heading)));
-    worstEnd = Math.max(worstEnd, Math.hypot(a[i].end.x - b[i].end.x, a[i].end.y - b[i].end.y), Math.abs(normAngleSafe(a[i].end.heading - b[i].end.heading)));
+    worstStart = Math.max(worstStart, Math.hypot(a[i].start.x - b[i].start.x, a[i].start.y - b[i].start.y), Math.abs(normAngle(a[i].start.heading - b[i].start.heading)));
+    worstEnd = Math.max(worstEnd, Math.hypot(a[i].end.x - b[i].end.x, a[i].end.y - b[i].end.y), Math.abs(normAngle(a[i].end.heading - b[i].end.heading)));
     check(a[i].moves.length === b[i].moves.length, `dancer ${i + 1}: move count survives (${a[i].moves.length})`);
     for (let k = 0; k < Math.min(a[i].moves.length, b[i].moves.length); k++) {
       worstMove = Math.max(worstMove, Math.abs(a[i].moves[k].beats - b[i].moves[k].beats));
@@ -840,7 +837,7 @@ console.log('\n== completing the track: one move per dancer (16b) ==');
     for (const t of [tb, tb + 0.5, src.beats]) {
       const a = poseFor(src.dancers[i], t);
       const b = poseFor(connected.dancers[i], t);
-      worstAfter = Math.max(worstAfter, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+      worstAfter = Math.max(worstAfter, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngle(a.heading - b.heading)));
     }
   }
   check(worstAfter < 1e-12, `every pose from the end of move 1 onward is the source's (worst ${worstAfter.toExponential(2)})`);
@@ -973,7 +970,7 @@ console.log('\n== the quarter arc (17) ==');
     let worst = 0;
     for (const p of [{ x: K, y: K, angle: 0 }, { x: 2, y: -1.5, angle: 0.3 }, { x: 0.25, y: 0.25, angle: -2 }, { x: 1, y: 1, angle: Math.PI / 2 }, { x: 0, y: 2, angle: 0 }]) {
       const back = arcOf(arcBezier(p));
-      worst = Math.max(worst, Math.abs(back.x - p.x), Math.abs(back.y - p.y), Math.abs(normAngleSafe(back.angle - p.angle)));
+      worst = Math.max(worst, Math.abs(back.x - p.x), Math.abs(back.y - p.y), Math.abs(normAngle(back.angle - p.angle)));
     }
     check(worst < 1e-15, `arcOf(arcBezier(p)) returns p exactly for five shapes including a degenerate one (worst ${worst.toExponential(2)})`);
     // A curve that is nearly-but-not an arc is NOT reported as one: the panel's lock must not
@@ -1048,8 +1045,8 @@ console.log('\n== the quarter arc (17) ==');
     const facing = setMoveArc(src, 1, 0, 'facing', { x: 1, y: 1, angle: 0 });
     const h0 = poseFor(facing.dancers[1], moveBeatRange(facing.dancers[1], 0).from).heading;
     const h1 = poseFor(facing.dancers[1], moveBeatRange(facing.dancers[1], 0).to).heading;
-    check(Math.abs(Math.abs(normAngleSafe(h1 - h0)) - Math.PI / 2) < 1e-9,
-      `a facing arc turns the dancer EXACTLY a quarter turn (${((Math.abs(normAngleSafe(h1 - h0)) * 180) / Math.PI).toFixed(4)}deg)`);
+    check(Math.abs(Math.abs(normAngle(h1 - h0)) - Math.PI / 2) < 1e-9,
+      `a facing arc turns the dancer EXACTLY a quarter turn (${((Math.abs(normAngle(h1 - h0)) * 180) / Math.PI).toFixed(4)}deg)`);
 
     const xml = callToXml(asArc, asArc.from);
     const rt = buildCall(parseCallXml(xml)[0], parseFormations(formationsXml), parseMoves(movesXml), false);
@@ -1188,13 +1185,13 @@ console.log('\n== a move\'s end facing is the frame the next move is played in (
   const q = (call, j) => poseFor(call.dancers[d], moveBeatRange(call.dancers[d], j).to);
   const edited = setMove(src, d, k, { ...path0[k], rotate: spun });
 
-  const dh = normAngleSafe(bezierAngle(spun, 1) - bezierAngle(r0, 1));
+  const dh = normAngle(bezierAngle(spun, 1) - bezierAngle(r0, 1));
   check(Math.abs(dh - DELTA) < 1e-12, `rotating the final span of the facing curve turns the heading the move ends on by exactly ${(dh / DEG).toFixed(2)}deg`);
   const pEnd = q(src, k);
   const pEndAfter = q(edited, k);
   check(Math.hypot(pEndAfter.x - pEnd.x, pEndAfter.y - pEnd.y) < 1e-12,
     'a facing edit writes no translation, so the position the move itself ends on is bit-identical');
-  check(Math.abs(normAngleSafe(pEndAfter.heading - pEnd.heading) - dh) < 1e-12,
+  check(Math.abs(normAngle(pEndAfter.heading - pEnd.heading) - dh) < 1e-12,
     `and the heading it ends on moves by the whole ${(dh / DEG).toFixed(2)}deg - which is the heading that decides the next move's frame`);
 
   // THE WHOLE REST OF THE CALL, pose by pose: the old pose rigidly rotated by dh about the pose the move
@@ -1208,7 +1205,7 @@ console.log('\n== a move\'s end facing is the frame the next move is played in (
     const vy = a.y - pEnd.y;
     const want = { x: pEnd.x + vx * Math.cos(dh) - vy * Math.sin(dh), y: pEnd.y + vx * Math.sin(dh) + vy * Math.cos(dh) };
     worstRaw = Math.max(worstRaw, Math.hypot(b.x - want.x, b.y - want.y));
-    if (Math.abs(normAngleSafe(b.heading - a.heading) - dh) < 1e-12) headingsTurned++;
+    if (Math.abs(normAngle(b.heading - a.heading) - dh) < 1e-12) headingsTurned++;
   }
   check(worstRaw < 1e-9,
     `THE REST OF THE CALL IS RIGIDLY ROTATED about that pose by the whole ${(dh / DEG).toFixed(0)}deg (worst error ${worstRaw.toExponential(1)} units) - the format's semantics, pinned so that a change here is a decision rather than a drift`);
@@ -1280,7 +1277,7 @@ console.log('\n== a created call can name its start formation (20) ==');
     let worst = 0;
     for (let i = 0; i < endShape.length; i++) {
       const p = poseFor(built.dancers[i], 0);
-      worst = Math.max(worst, Math.hypot(p.x - endShape[i].x, p.y - endShape[i].y), Math.abs(normAngleSafe(p.heading - endShape[i].heading)));
+      worst = Math.max(worst, Math.hypot(p.x - endShape[i].x, p.y - endShape[i].y), Math.abs(normAngle(p.heading - endShape[i].heading)));
     }
     check(worst < 1e-3, `and it starts at EXACTLY the named formation's poses (worst ${worst.toExponential(1)}), so the reference is faithful rather than nearly right`);
     let travelled = 0;
@@ -1414,7 +1411,7 @@ console.log('\n== the end setup can be turned about the board centre (20c) ==');
   const spot = { x: off[0].x * Math.cos(STEP) - off[0].y * Math.sin(STEP), y: off[0].x * Math.sin(STEP) + off[0].y * Math.cos(STEP) };
   check(Math.abs(turned[0].x - spot.x) < 1e-15 && Math.abs(turned[0].y - spot.y) < 1e-15,
     'a step turns the SPOT about the origin by exactly the angle asked for');
-  check(Math.abs(normAngleSafe(turned[0].heading - STEP)) < 1e-15 && Math.abs(normAngleSafe(turned[1].heading - (Math.PI + STEP))) < 1e-15,
+  check(Math.abs(normAngle(turned[0].heading - STEP)) < 1e-15 && Math.abs(normAngle(turned[1].heading - (Math.PI + STEP))) < 1e-15,
     'and turns the FACING by the same angle, so the two never disagree');
   check(turned[0].gender === 'boy' && turned[1].gender === 'girl' && turned.length === off.length,
     'and carries the genders and the length: a turn is a rigid motion of the arrangement, not a new one');
@@ -1441,7 +1438,7 @@ console.log('\n== the end setup can be turned about the board centre (20c) ==');
     for (let i = 0; i < poses.length; i++) {
       spots++;
       if (round[i].heading > -Math.PI && round[i].heading <= Math.PI + 1e-15) inRange++;
-      worst = Math.max(worst, Math.hypot(round[i].x - poses[i].x, round[i].y - poses[i].y), Math.abs(normAngleSafe(round[i].heading - poses[i].heading)));
+      worst = Math.max(worst, Math.hypot(round[i].x - poses[i].x, round[i].y - poses[i].y), Math.abs(normAngle(round[i].heading - poses[i].heading)));
     }
   }
   check(worst < 1e-12, `eight steps return every authored formation to where it started (worst ${worst.toExponential(1)} over ${spots} spots)`);
@@ -1625,11 +1622,11 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
     //    (measured below). The HEADING is what the engine reads, and it comes out identical.
     const a0 = bezierAngle(seg.translate, 1);
     const a1 = bezierAngle(held, 1);
-    const dt = Math.abs(normAngleSafe(a1 - a0));
+    const dt = Math.abs(normAngle(a1 - a0));
     check(dt < 1e-15, `k = ${k + 1}, ${what}: the exit tangent keeps its direction to ${dt.toExponential(1)} rad (one ulp from the subtraction that re-derives the handle), so the frame the next move starts in is not rotated`);
     const endBefore = poseFor(before.dancers[d], moveBeatRange(before.dancers[d], k).to);
     const endAfter = poseFor(after.dancers[d], moveBeatRange(after.dancers[d], k).to);
-    check(Math.abs(normAngleSafe(endAfter.heading - endBefore.heading)) < 1e-15, `k = ${k + 1}: and the heading the move ends on is unchanged (${((normAngleSafe(endAfter.heading - endBefore.heading)) / DEG).toExponential(1)} deg)`);
+    check(Math.abs(normAngle(endAfter.heading - endBefore.heading)) < 1e-15, `k = ${k + 1}: and the heading the move ends on is unchanged (${((normAngle(endAfter.heading - endBefore.heading)) / DEG).toExponential(1)} deg)`);
 
     // 3. THE WHOLE TAIL IS THE OLD TAIL, CARRIED. Every later boundary is the pose it was, translated by
     //    exactly the distance the end point moved - same headings, same shape.
@@ -1640,7 +1637,7 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
     let worstHead = 0;
     for (let j = k + 1; j < b0.length; j++) {
       worstPos = Math.max(worstPos, Math.hypot(b1[j].x - b0[j].x - shift.x, b1[j].y - b0[j].y - shift.y));
-      worstHead = Math.max(worstHead, Math.abs(normAngleSafe(b1[j].heading - b0[j].heading)));
+      worstHead = Math.max(worstHead, Math.abs(normAngle(b1[j].heading - b0[j].heading)));
     }
     check(worstPos < 1e-12 && worstHead < 1e-12,
       `k = ${k + 1}: all ${b0.length - k - 1} later boundaries are the old ones carried by (${shift.x.toFixed(3)}, ${shift.y.toFixed(3)}) - worst position error ${worstPos.toExponential(1)}, worst heading error ${worstHead.toExponential(1)}`);
@@ -1648,10 +1645,10 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
     // 4. THE NEGATIVE CONTROL, and it is TWO different claims depending on which heading is in charge -
     //    which is the whole reason the request mentions a facing override separately.
     const raw = setMove(before, d, k, { ...seg, translate: { ...seg.translate, x2: seg.translate.x2 + DX, y2: seg.translate.y2 + DY } });
-    const da = Math.abs(normAngleSafe(bezierAngle(raw.dancers[d].path[k].translate, 1) - a0));
+    const da = Math.abs(normAngle(bezierAngle(raw.dancers[d].path[k].translate, 1) - a0));
     let rawHead = 0;
     const rb = boundaries(raw, d);
-    for (let j = k + 1; j < rb.length; j++) rawHead = Math.max(rawHead, Math.abs(normAngleSafe(rb[j].heading - b0[j].heading)));
+    for (let j = k + 1; j < rb.length; j++) rawHead = Math.max(rawHead, Math.abs(normAngle(rb[j].heading - b0[j].heading)));
     console.log(`      k = ${k + 1} without the hold: the exit direction turns ${(da / DEG).toFixed(2)}deg; the tail's headings move by up to ${(rawHead / DEG).toFixed(2)}deg`);
     check(da > 0.05, `k = ${k + 1}: without the hold the DIRECTION OF TRAVEL turns ${(da / DEG).toFixed(1)}deg, which is the side effect this operation exists to prevent`);
     if (seg.rotate) {
@@ -1809,7 +1806,7 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
       for (const seg of dancer.path) {
         const x = fitCircle(seg.translate, ARC_FIT_TOL);
         if (!x) continue;
-        const turn = normAngleSafe(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0));
+        const turn = normAngle(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0));
         worstTurn = Math.max(worstTurn, Math.abs(turn - x.sweep));
       }
     }
@@ -1851,13 +1848,13 @@ console.log('\n== swinging an arc about its start (24) ==');
   const THETA = 0.4;
   const dir = (call, i, k, t) => {
     const p = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).from);
-    return normAngleSafe(bezierAngle(call.dancers[i].path[k].translate, t) + p.heading);
+    return normAngle(bezierAngle(call.dancers[i].path[k].translate, t) + p.heading);
   };
   const at = (call, i, k, end) => {
     const r = moveBeatRange(call.dancers[i], k);
     return poseFor(call.dancers[i], end ? r.to : r.from);
   };
-  const jointGap = (call, i, k) => Math.abs(normAngleSafe(dir(call, i, k - 1, 1) - dir(call, i, k, 0)));
+  const jointGap = (call, i, k) => Math.abs(normAngle(dir(call, i, k - 1, 1) - dir(call, i, k, 0)));
 
   for (const wantFacing of [true, false]) {
     const w = witness(wantFacing);
@@ -1878,7 +1875,7 @@ console.log('\n== swinging an arc about its start (24) ==');
     //    caller asked the radius to mean.
     const s0 = at(call, i, k, false);
     const s1 = at(after, i, k, false);
-    check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngleSafe(s1.heading - s0.heading)) < 1e-12, 'the pose the move starts from is untouched');
+    check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngle(s1.heading - s0.heading)) < 1e-12, 'the pose the move starts from is untouched');
     const e0 = at(call, i, k, true);
     const e1 = at(after, i, k, true);
     const r0 = Math.hypot(e0.x - s0.x, e0.y - s0.y);
@@ -1898,7 +1895,7 @@ console.log('\n== swinging an arc about its start (24) ==');
     //    move's own end heading, so it is the thing that has to stay put.
     const h0 = poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).from).heading;
     const h1 = poseFor(after.dancers[i], moveBeatRange(after.dancers[i], k).from).heading;
-    check(Math.abs(normAngleSafe(h1 - h0)) < 1e-12, `the frame the arc is played in is unmoved (${((normAngleSafe(h1 - h0)) / DEG).toExponential(1)}deg of heading), so the swing is not undone by a rotated frame`);
+    check(Math.abs(normAngle(h1 - h0)) < 1e-12, `the frame the arc is played in is unmoved (${((normAngle(h1 - h0)) / DEG).toExponential(1)}deg of heading), so the swing is not undone by a rotated frame`);
     check(!!after.dancers[i].path[k - 1].rotate, `and the previous move's facing is what holds it${wantFacing ? ' (it already had one, untouched)' : ' (it had none, so one is written from its ORIGINAL travel curve, which is the heading profile it already had)'}`);
 
     // 5. THE PREVIOUS MOVE'S PATH ONLY RE-AIMS: its start and its end are where they were.
@@ -1910,7 +1907,7 @@ console.log('\n== swinging an arc about its start (24) ==');
 
     // AND THE NEGATIVE CONTROL: without the re-aim, the arc swings and the joint takes the whole angle.
     const swungOnly = setMove(call, i, k, { ...seg, translate: rotateCurveAboutStart(seg.translate, THETA) });
-    const kinkAfter = Math.abs(normAngleSafe(dir(swungOnly, i, k - 1, 1) - dir(swungOnly, i, k, 0)));
+    const kinkAfter = Math.abs(normAngle(dir(swungOnly, i, k - 1, 1) - dir(swungOnly, i, k, 0)));
     console.log(`    ${wantFacing ? 'facing' : 'no facing'} on the previous move: the joint goes ${((gapBefore * 180) / Math.PI).toFixed(2)}deg -> ${((kinkAfter * 180) / Math.PI).toFixed(2)}deg without the re-aim, and stays ${((gapAfter * 180) / Math.PI).toFixed(2)}deg with it`);
     check(Math.abs(kinkAfter - gapBefore) > THETA / 2, 'the negative control really kinks: a rigid swing alone turns the joint by the swing angle, which is what the previous move\'s exit is turned to prevent');
   }
@@ -1931,7 +1928,7 @@ console.log('\n== swinging an arc about its start (24) ==');
   for (let j = 0; j < w.call.dancers.length; j++) {
     const a = poseFor(same.dancers[j], same.beats);
     const b = poseFor(w.call.dancers[j], w.call.beats);
-    worstSame = Math.max(worstSame, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+    worstSame = Math.max(worstSame, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngle(a.heading - b.heading)));
   }
   check(worstSame < 1e-12, 'and a zero-angle swing leaves the whole call exactly where it was');
 
@@ -1975,7 +1972,7 @@ console.log('\n== swinging an arc about its start (24) ==');
       `the move before is UNTOUCHED - no direction invented, no facing added (worst number moved ${worstPrev.toExponential(1)}; ${w2.file} dancer ${w2.i + 1} move ${w2.k})`);
     const s0 = poseFor(w2.call.dancers[w2.i], moveBeatRange(w2.call.dancers[w2.i], w2.k).from);
     const s1 = poseFor(after.dancers[w2.i], moveBeatRange(after.dancers[w2.i], w2.k).from);
-    check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngleSafe(s1.heading - s0.heading)) < 1e-12,
+    check(Math.hypot(s1.x - s0.x, s1.y - s0.y) < 1e-12 && Math.abs(normAngle(s1.heading - s0.heading)) < 1e-12,
       'and the arc still swings exactly as it does everywhere else: the start and the frame are still what they were');
   }
 }
@@ -2039,7 +2036,7 @@ console.log('\n== 25. A run of moves laid on one circle ==');
     const q0 = poseFor(nd, b0);
     const q1 = poseFor(nd, b1);
     worst.start = Math.max(worst.start, Math.hypot(q0.x - p0.x, q0.y - p0.y));
-    worst.heading = Math.max(worst.heading, Math.abs(normAngleSafe(q0.heading - p0.heading)));
+    worst.heading = Math.max(worst.heading, Math.abs(normAngle(q0.heading - p0.heading)));
     // HOW FAR THE END MOVES, against the bound the CONSTRUCTION implies rather than the fit alone. `setRunCircle`
     // snaps the radius to the START's own distance from the fitted centre, so the end lands its own deviation
     // (`maxDev`) plus that snap away from where it was — a structural consequence, not slop. MEASURED over the 20
@@ -2060,7 +2057,7 @@ console.log('\n== 25. A run of moves laid on one circle ==');
     const totalBeats = d.path.slice(r.s, r.e + 1).reduce((a, g) => a + g.beats, 0);
     for (let k = r.s; k <= r.e; k++) {
       const seg = nd.path[k];
-      const turn = Math.abs(normAngleSafe(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0)));
+      const turn = Math.abs(normAngle(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0)));
       const share = d.path[k].beats / totalBeats;
       worst.ratio = Math.max(worst.ratio, Math.abs(turn - Math.abs(r.fit.sweep) * share));
       facingChecked++;
@@ -2087,7 +2084,7 @@ console.log('\n== 25. A run of moves laid on one circle ==');
     };
     for (let k = r.s + 1; k <= r.e; k++) {
       const bb = moveBeatRange(nd, k - 1).to;
-      const corner = Math.abs(normAngleSafe(dirOf(nd, bb + 1e-3, bb) - dirOf(nd, bb, bb - 1e-3)));
+      const corner = Math.abs(normAngle(dirOf(nd, bb + 1e-3, bb) - dirOf(nd, bb, bb - 1e-3)));
       worst.corner = Math.max(worst.corner, Math.min(corner, 2 * Math.PI - corner) * (180 / Math.PI));
     }
   }
@@ -2207,11 +2204,11 @@ console.log('\n== 26. The arc that is meant, and the fit that says nothing ==');
     check(chord < 0.1 && !!bare && (Math.abs(bare.sweep) * 180) / Math.PI < 5,
       `the MINOR arc through its ends is almost nothing (${bare ? ((Math.abs(bare.sweep) * 180) / Math.PI).toFixed(2) : '?'}deg for a chord of ${chord.toFixed(3)} on a radius of ${own.r.toFixed(3)}) - which is the collapse`);
     // THE CONTRACT: the sweep is congruent to the endpoints' own base angle, so the arc passes through BOTH
-    // ends, and it is the congruent value NEAREST the turn given. `normAngleSafe` is the engine's own, so a
+    // ends, and it is the congruent value NEAREST the turn given. `normAngle` is the engine's own, so a
     // sweep of 361deg and one of 1deg are the same arc and this says so.
     for (const turn of [own.sweep, 3 * Math.PI, -5 * Math.PI]) {
       const told = circleThrough(p0, p1, own.r, 1, turn);
-      const congruent = Math.abs(normAngleSafe(told.sweep - bare.sweep)) < 1e-9;
+      const congruent = Math.abs(normAngle(told.sweep - bare.sweep)) < 1e-9;
       const nearest = Math.abs(told.sweep - turn) <= Math.PI + 1e-9;
       check(congruent && nearest,
         `told the run turns ${(turn * 180) / Math.PI}deg it lays the arc the ends allow and nearest that turn: ${((told.sweep * 180) / Math.PI).toFixed(1)}deg`);
@@ -2233,7 +2230,7 @@ console.log('\n== 26. The arc that is meant, and the fit that says nothing ==');
     const q1 = poseFor(d, moveBeatRange(d, ring.s + threeLen - 1).to);
     const bare = circleThrough(q0, q1, quarter.r, 1);
     const told = circleThrough(q0, q1, quarter.r, 1, quarter.sweep);
-    check(Math.abs(normAngleSafe(told.sweep - bare.sweep)) < 1e-9 && Math.abs(told.sweep - quarter.sweep) <= Math.PI + 1e-9 && Math.abs(told.sweep) > Math.PI,
+    check(Math.abs(normAngle(told.sweep - bare.sweep)) < 1e-9 && Math.abs(told.sweep - quarter.sweep) <= Math.PI + 1e-9 && Math.abs(told.sweep) > Math.PI,
       `and the ${((quarter.sweep * 180) / Math.PI).toFixed(1)}deg turn (${threeLen} of the ring's ${ring.len} moves) is laid as an arc past half a turn (${((told.sweep * 180) / Math.PI).toFixed(1)}deg) through the same two ends, not as the ${((bare.sweep * 180) / Math.PI).toFixed(1)}deg arc the ends alone would give`);
   } else {
     check(false, `three quarters of the ring is itself a fittable arc (${ring ? `moves ${ring.s}..${ring.s + threeLen - 1}` : 'no ring'})`);
@@ -2244,7 +2241,7 @@ console.log('\n== 26. The arc that is meant, and the fit that says nothing ==');
   // degrees over eight moves because the frames rotate as it goes.
   if (ring) {
     const t = runTurn(circleCall, 0, ring.s, ring.e);
-    check(Math.abs(normAngleSafe(t - own.sweep)) < 0.2,
+    check(Math.abs(normAngle(t - own.sweep)) < 0.2,
       `runTurn agrees with the fit to within a few degrees, which is all a choice between arcs 360deg apart needs (${((t * 180) / Math.PI).toFixed(1)} against ${((own.sweep * 180) / Math.PI).toFixed(1)}deg)`);
   }
 
@@ -2349,7 +2346,7 @@ console.log('\n== 27. A full set of paths against a HALF-set formation ==');
       for (let d = 0; d < 8; d++) {
         const a = poseFor(edited.dancers[d], 0);
         const b = poseFor(back.dancers[d], 0);
-        worstStart = Math.max(worstStart, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+        worstStart = Math.max(worstStart, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngle(a.heading - b.heading)));
         const ra = fitCircleRun(edited, d, 0, to);
         const rb = fitCircleRun(back, d, 0, to);
         if (ra && rb) worstOrbit = Math.max(worstOrbit, Math.abs(ra.r - rb.r), Math.abs(ra.cx - rb.cx), Math.abs(ra.cy - rb.cy));
@@ -2438,7 +2435,7 @@ console.log('\n== 29. writing the HALF set instead of the whole one (29) ==');
   for (let d = 0; d < 8; d++) {
     const a = poseFor(wholeSet.dancers[d], 0);
     const b = poseFor(back.dancers[d], 0);
-    worstBack = Math.max(worstBack, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+    worstBack = Math.max(worstBack, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngle(a.heading - b.heading)));
   }
   check(worstBack < 1e-3, `and every dancer stands where it did (worst ${worstBack.toExponential(1)}, the export's own rounding)`);
   const plain = loadCallFromXml(`<calls>\n${halfXml}\n</calls>`, movesXml, formationsXml, 0, false);
@@ -2463,7 +2460,7 @@ console.log('\n== 29. writing the HALF set instead of the whole one (29) ==');
   for (let d = 0; d < 8; d++) {
     const a = poseFor(lopsided.dancers[d], 0);
     const b = poseFor(backBad.dancers[d], 0);
-    worstBad = Math.max(worstBad, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+    worstBad = Math.max(worstBad, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngle(a.heading - b.heading)));
   }
   check(worstBad < 1e-3, `and THAT fallback reads back intact anyway (worst ${worstBad.toExponential(1)}) - the refusal costs the caller nothing but the size of the text`);
 
@@ -2494,7 +2491,7 @@ console.log('\n== 29. writing the HALF set instead of the whole one (29) ==');
   for (let d = 0; d < 6; d++) {
     const a = poseFor(six.dancers[d], 0);
     const b = poseFor(sixBack.dancers[d], 0);
-    worstSix = Math.max(worstSix, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngleSafe(a.heading - b.heading)));
+    worstSix = Math.max(worstSix, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(normAngle(a.heading - b.heading)));
   }
   check(sixBack.dancers.length === 6 && worstSix < 1e-3,
     `and the six come back where they were (${sixBack.dancers.length} dancers, worst ${worstSix.toExponential(1)})`);
@@ -2541,7 +2538,7 @@ console.log('\n== a facing edit holds the following trace (30) ==');
     const a = q(src, j);
     const b = q(held, j);
     worstPos = Math.max(worstPos, Math.hypot(b.x - a.x, b.y - a.y));
-    worstHead = Math.max(worstHead, Math.abs(normAngleSafe(b.heading - a.heading - DELTA)));
+    worstHead = Math.max(worstHead, Math.abs(normAngle(b.heading - a.heading - DELTA)));
   }
   check(worstPos < 1e-9,
     `every later boundary stands exactly where it did (worst ${worstPos.toExponential(1)} units), so the call's floor geometry - and its end formation - is unchanged`);
@@ -2563,11 +2560,11 @@ console.log('\n== a facing edit holds the following trace (30) ==');
   //    departure direction as `heading + bezierAngle(translate, 0)`, so that is what this uses.
   const dirOf = (call, j) => poseFor(call.dancers[d], moveBeatRange(call.dancers[d], j).from).heading
     + bezierAngle(call.dancers[d].path[j].translate, 0);
-  const gap = (call) => normAngleSafe(q(call, k + 1).heading - dirOf(call, k + 1));
+  const gap = (call) => normAngle(q(call, k + 1).heading - dirOf(call, k + 1));
   const g0 = gap(src);
-  check(Math.abs(normAngleSafe(gap(held) - g0) - DELTA) < 1e-9,
+  check(Math.abs(normAngle(gap(held) - g0) - DELTA) < 1e-9,
     `the facing-versus-follow-direction angle moves by the edit when the trace is held (${((g0 / DEG)).toFixed(2)}deg -> ${((gap(held) / DEG)).toFixed(2)}deg)`);
-  check(Math.abs(normAngleSafe(gap(edited) - g0)) < 1e-9,
+  check(Math.abs(normAngle(gap(edited) - g0)) < 1e-9,
     `and does NOT move at all without the hold (${((gap(edited) / DEG)).toFixed(2)}deg) - which is why the facing controls could not author it`);
 
   // 4. A ZERO EDIT IS THE IDENTITY, so a drag that has not moved cannot dirty a call.
@@ -2605,8 +2602,8 @@ console.log('\n== a facing edit holds the following trace (30) ==');
       const hBefore = poseFor(after.dancers[w.i], moveBeatRange(after.dancers[w.i], w.k).from).heading;
       const back = normalizeInstance(loadCallFromXml(`<calls>\n${callToXml(after, after.from)}\n</calls>`, movesXml, formationsXml, 0));
       const hAfter = poseFor(back.dancers[w.i], moveBeatRange(back.dancers[w.i], w.k).from).heading;
-      check(Math.abs(normAngleSafe(hAfter - hBefore)) < 1e-3,
-        `and the frame the arc is played in SURVIVES the export (${((normAngleSafe(hAfter - hBefore)) / DEG).toExponential(1)}deg), which it did not before`);
+      check(Math.abs(normAngle(hAfter - hBefore)) < 1e-3,
+        `and the frame the arc is played in SURVIVES the export (${((normAngle(hAfter - hBefore)) / DEG).toExponential(1)}deg), which it did not before`);
     }
   }
 }

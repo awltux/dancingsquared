@@ -3,16 +3,11 @@
 // changes, regardless of where a call moves the dancers.
 
 import { DEG } from '../core.js';
+import { normAngle } from '../moves.js';
 import { matchFormations, type Matchable } from './match.js';
 import { isKnownCouple } from './constants.js';
 import type { Board, SeqDancer } from './types.js';
 import type { DancerSpec } from '../types.js';
-
-export const normAngle = (a: number) => {
-  while (a > Math.PI) a -= 2 * Math.PI;
-  while (a < -Math.PI) a += 2 * Math.PI;
-  return a;
-};
 
 export interface HomeDancer {
   id: number;

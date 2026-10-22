@@ -540,6 +540,40 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   nothing will notice if it rots. AGENTS §5: "a probe nobody runs is already stale — wire it in or delete
   it." NEXT UNIT: one decision, wire it in with a `why`, or delete it.
 
+- [ ] **40. ANGLE NORMALISATION — what was left, and the TIE-BREAK THIS FOUND.** `[measured]`
+  The engine's 21 expressions in seven interval conventions became one (`moves.ts`'s `normAngle`, gated by
+  `engine/test/angle-normalisation.mjs`). Two loose ends, one inside the engine and one outside:
+  - **`core.ts`'s mirrored-half heading still spells `atan2(sin(h + PI), cos(h + PI))`** — the one substitution
+    that was reverted, because replacing it MOVED A GEOMETRIC TIE-BREAK. `behaviour-audit`'s two 45-degree-offset
+    checks went from the identity mapping to a two-step cyclic shift `[6,7,0,1,2,3,4,5]`, and the audit's own
+    FAIL/PASS counts moved 149/2 → 147/4. **BISECTED file by file**: restoring `core.ts` alone restores the
+    mapping; the while-vs-modulo choice of the rule's body does NOT (measured — the loop body still flipped it).
+    Restoring `core.ts`'s atan2 spelling restored 149/2. So the survivor is on the record with its measurement,
+    and the finding underneath is worth its own unit:
+  - **THE 45-DEGREE ALIGNMENT TIE-BREAK IS DECIDED BY ONE ULP.** Two alignments of a rotated squared set are
+    equally exact — the mirrored dancers' headings differ in the last bit and the winner moves — so
+    `deriveFormationMapping`'s `bestErr` comparison should break near-ties EXPLICITLY, the way `match.ts`'s
+    `TIE_EPS` (1e-9) already does for formation matching, instead of letting a rounding decide. Not done here:
+    it is a behaviour change, and this unit's intent was to consolidate with NO behaviour change. Witness and
+    probes to re-run: `behaviour-audit`'s "Index independence: editor joins ignore array order" section, and
+    `poc/tools/end-pair-probe.mjs` (2278 pairings).
+  What is still OUTSIDE the engine, with the reason each was left:
+  - **`poc/src`, 5 sites** — `formation-xml.ts:91` and `editor-ui.ts:364` (`atan2(sin, cos)`), `editor-ui.ts`
+    (a while-loop pair), and two inline `atan2`s. Left because **~30 `poc/tools` probes read `poc/src` as SOURCE
+    TEXT and assert what it spells** (`end-spin-probe.mjs`, `move-nav-probe.mjs`, `named-setup-probe.mjs`,
+    `mirror-moves-probe.mjs`, `start-pose-drag-probe.mjs`'s "Mirrored from `editor-ui.ts`"), so changing the
+    panel is a migration of those audits rather than a substitution. The panel CAN import the engine's
+    `normAngle` (it already imports the engine by package name); the audits are the work.
+  - **`book/tools`, 1 site** — `make-formations.mjs:293`. Left because the engine export list is ASSERTED in
+    `book/tools/lib/load.mjs` (`REQUIRED`) and `check:book` compares GENERATED figures: a last-bit change is a
+    figure re-generation, which §11.2.9 says not to do while something else is being adjudicated.
+  - **The probes' own copies (~26 in `poc/tools`, plus `game/test` and `engine/test/tools`)** — deliberate per
+    §5 self-containment: a probe that imports the rule cannot be the independent judge of it.
+  - **DEGREE moduli** (`poc/src/tam-xml.ts`, `book/tools/lib/squared-set.mjs`, `book/tools/make-diagrams.mjs`,
+    `poc/tools/dosado-facing-fit.mjs`, and four in `engine/src`: `editor.ts:2684`, `formation-order.ts:160/163`,
+    `alignment.ts:1123/1131`) — codomain `[0, 360)` or `[-180, 180)`, not `(-PI, PI]`; converting through radians
+    would change their arithmetic for nothing. They are not this rule.
+
 ---
 
 ## P3 — VIRTUAL CALLS: a subwhole-set authoring placed on a whole-set board

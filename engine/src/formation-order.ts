@@ -36,6 +36,7 @@
 // impose one: the caller chooses the order and this module only asks whether the spots are the same.
 
 import { poseFor } from './core.js';
+import { normAngle } from './moves.js';
 import type { CallBundle } from './types.js';
 // `FormDancer` is declared with the editor's instance model; `CallBundle` is a core type. Both are
 // type-only imports, so this module adds nothing to the runtime graph but `poseFor`.
@@ -54,7 +55,6 @@ const COMPASS_ANGLE: Record<CompassPoint, number> = { south: 270, east: 0, north
 const TOL = 1e-3;
 
 const DEG = Math.PI / 180;
-const norm = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 
 /**
  * Are these the same spot, allowing a 180-degree turn about the set centre - i.e. the same LOCAL frame?
@@ -64,9 +64,9 @@ const norm = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
  * the one this module uses to move a path between a dancer and its antipode without touching a curve.
  */
 export function sameSpotUpToHalfTurn(a: FormDancer, b: FormDancer, tol = TOL): boolean {
-  const exact = Math.abs(a.x - b.x) <= tol && Math.abs(a.y - b.y) <= tol && Math.abs(norm(a.heading - b.heading)) <= tol;
+  const exact = Math.abs(a.x - b.x) <= tol && Math.abs(a.y - b.y) <= tol && Math.abs(normAngle(a.heading - b.heading)) <= tol;
   if (exact) return genderOk(a, b);
-  const turned = Math.abs(a.x + b.x) <= tol && Math.abs(a.y + b.y) <= tol && Math.abs(norm(a.heading - (b.heading + Math.PI))) <= tol;
+  const turned = Math.abs(a.x + b.x) <= tol && Math.abs(a.y + b.y) <= tol && Math.abs(normAngle(a.heading - (b.heading + Math.PI))) <= tol;
   return turned && genderOk(a, b);
 }
 
@@ -75,7 +75,7 @@ export function sameSpotExact(a: FormDancer, b: FormDancer, tol = TOL): boolean 
   return (
     Math.abs(a.x - b.x) <= tol &&
     Math.abs(a.y - b.y) <= tol &&
-    Math.abs(norm(a.heading - b.heading)) <= tol &&
+    Math.abs(normAngle(a.heading - b.heading)) <= tol &&
     genderOk(a, b)
   );
 }
@@ -219,7 +219,7 @@ export function compareGeometry(
     const start = poseFor(dancer, 0);
     const match = before.dancers.find((other) => {
       const p = poseFor(other, 0);
-      return Math.abs(p.x - start.x) <= tol && Math.abs(p.y - start.y) <= tol && Math.abs(norm(p.heading - start.heading)) <= tol;
+      return Math.abs(p.x - start.x) <= tol && Math.abs(p.y - start.y) <= tol && Math.abs(normAngle(p.heading - start.heading)) <= tol;
     });
     if (!match) {
       unmatched++;

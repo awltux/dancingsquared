@@ -11,7 +11,7 @@ import { CallLibrary } from './library.js';
 import { SequencerConfig, type ApplyPermission } from './config.js';
 import type { Going } from '../going.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX, canonicalName, isKnownCouple } from './constants.js';
-import { normAngle } from './identity.js';
+import { normAngle } from '../moves.js';
 import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection, resolveReading } from './selection.js';

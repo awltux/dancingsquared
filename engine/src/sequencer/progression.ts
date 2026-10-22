@@ -26,6 +26,7 @@
 // convention is applied where it is needed instead of globally.
 
 import { isKnownCouple } from './constants.js';
+import { normAngle } from '../moves.js';
 import type { SeqDancer } from './types.js';
 
 /** How far apart the two dancers of a PHYSICAL couple stand, and the tolerance on that. */
@@ -142,7 +143,7 @@ function pairFromFloor(phys: SeqDancer[], arrangement: 'beside' | 'facing'): Map
       const vy = o.y - d.y;
       if (arrangement === 'beside') {
         if (Math.abs(Math.hypot(vx, vy) - PAIR_WIDTH) > PAIR_WIDTH_TOL) continue;
-        if (Math.abs(Math.atan2(Math.sin(o.heading - d.heading), Math.cos(o.heading - d.heading))) > 0.2) continue;
+        if (Math.abs(normAngle(o.heading - d.heading)) > 0.2) continue;
       } else {
         const dist = Math.hypot(vx, vy);
         if (dist < FACING_MIN || dist > FACING_MAX) continue;

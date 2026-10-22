@@ -23,6 +23,8 @@ import {
   // index-independence (feature: index_independence)
   deriveFormationMapping, alignFormationToCore, synthesizeSetup, correctEndTo,
   loadCallFromXml, poseFor, endPoses,
+  // the ONE radian normaliser, imported rather than mirrored (AGENTS.md §5)
+  normAngle,
 } from '../dist/index.js';
 
 setParser(DOMParser);
@@ -600,8 +602,8 @@ console.log('\n== One variant per authored setup (feature: formation_states) =='
 
 console.log('\n== Index independence: matching ignores array order (feature: index_independence) ==');
 {
-  // Angle difference normalised to (-pi, pi].
-  const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  // Angle difference normalised to (-pi, pi] — the engine's own rule, not a second spelling of it.
+  const angDiff = (a, b) => Math.abs(normAngle(a - b));
   seq.reset();
   const home = seq.startBoard();
   const call = [...seq.legalCalls(home)][0];

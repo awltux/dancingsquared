@@ -64,13 +64,8 @@ function bearing(a: D, b: D): number {
   return Math.atan2(-dx * s + dy * c, dx * c + dy * s);
 }
 
-/** Angular difference in [0, pi]. */
-function angDiff(a: number, b: number): number {
-  let d = (a - b) % (2 * Math.PI);
-  if (d < -Math.PI) d += 2 * Math.PI;
-  if (d > Math.PI) d -= 2 * Math.PI;
-  return Math.abs(d);
-}
+/** Angular difference in [0, pi] — the rule, not a copy of it. */
+const angDiff = (a: number, b: number): number => Math.abs(normAngle(a - b));
 
 /** `a` and `b` hold hands: each has the other at its side, mutually, within `HAND_MAX`. */
 function handHold(a: D, b: D): boolean {

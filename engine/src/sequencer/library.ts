@@ -6,7 +6,8 @@
 import { DEG } from '../core.js';
 import { buildCall, parseCallXml, parseFormations, parseMoves } from '../convert.js';
 import { matchFormations, type Matchable } from './match.js';
-import { assignHomeIdentity, normAngle } from './identity.js';
+import { assignHomeIdentity } from './identity.js';
+import { normAngle } from '../moves.js';
 import { canonicalName } from './constants.js';
 import type { Module, ModuleStep } from './types.js';
 import { groupCalls, isGroupStep } from './types.js';

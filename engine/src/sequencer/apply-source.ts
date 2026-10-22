@@ -36,6 +36,7 @@
 // decides the source, rather than being assumed for the whole call.
 
 import { applyCodedMove, findCodedMove } from './coded-moves.js';
+import { normAngle } from '../moves.js';
 import type { Board } from './types.js';
 
 /** Same eight (or n) dancers, by ID, on position and heading. */
@@ -46,7 +47,7 @@ export function sameBoard(a: Board, b: Board, tol = 1e-6): boolean {
     const o = byId.get(d.id);
     if (!o) return false;
     if (Math.hypot(d.x - o.x, d.y - o.y) > tol) return false;
-    if (Math.abs(normalise(d.heading - o.heading)) > tol) return false;
+    if (Math.abs(normAngle(d.heading - o.heading)) > tol) return false;
   }
   return true;
 }
@@ -80,10 +81,4 @@ export function authoredStepWins(
   const derived = applyCodedMove(board, call);
   if (!derived || !derived.legal) return false;
   return authoredTamWins(derived.board, appliedEnd(), tol);
-}
-
-function normalise(a: number): number {
-  while (a > Math.PI) a -= 2 * Math.PI;
-  while (a <= -Math.PI) a += 2 * Math.PI;
-  return a;
 }

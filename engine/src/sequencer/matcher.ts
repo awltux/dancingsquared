@@ -10,6 +10,7 @@ import { SequencerConfig, type ApplyPermission } from './config.js';
 import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import { findCouplePairs, COUPLE_WIDTH, COUPLE_WIDTH_TOL } from './couples.js';
 import { DEG } from '../core.js';
+import { normAngle } from '../moves.js';
 import type { Going } from '../going.js';
 import type { CallBundle, DancerSpec, Seg } from '../types.js';
 import type { Board, RecognizedFormation, VariantMatch } from './types.js';
@@ -158,7 +159,7 @@ function slotPartners(v: CallBundle, j: number): number[] {
     if (o === j) continue;
     const dist = Math.hypot(v.dancers[j].x - v.dancers[o].x, v.dancers[j].y - v.dancers[o].y);
     if (Math.abs(dist - COUPLE_WIDTH) > COUPLE_WIDTH_TOL) continue;
-    const dh = Math.abs(normAngleWrap(heading(o) - heading(j)));
+    const dh = Math.abs(normAngle(heading(o) - heading(j)));
     if (dh <= 0.05 || Math.abs(dh - Math.PI) <= 0.05) out.push(o);
   }
   return out;
@@ -646,7 +647,7 @@ export function rebasedPose(pose: { x: number; y: number; heading: number }, m: 
   if (m.reflect) x = -x;
   const rx = x * Math.cos(m.rot) - y * Math.sin(m.rot);
   const ry = x * Math.sin(m.rot) + y * Math.cos(m.rot);
-  return { x: rx + m.cSrc.x, y: ry + m.cSrc.y, heading: normAngleWrap(pose.heading + m.rot + (m.reflect ? Math.PI : 0)) };
+  return { x: rx + m.cSrc.x, y: ry + m.cSrc.y, heading: normAngle(pose.heading + m.rot + (m.reflect ? Math.PI : 0)) };
 }
 
 /**
@@ -679,10 +680,4 @@ export function localMotion(from: { x: number; y: number; heading: number }, to:
   const s = Math.sin(-from.heading);
   const local = { x: dx * c - dy * s, y: dx * s + dy * c };
   return reflect ? { x: local.x, y: -local.y } : local;
-}
-
-function normAngleWrap(a: number): number {
-  while (a > Math.PI) a -= 2 * Math.PI;
-  while (a < -Math.PI) a += 2 * Math.PI;
-  return a;
 }

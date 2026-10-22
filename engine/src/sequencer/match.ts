@@ -7,6 +7,7 @@
 // the current formation" and "apply this call's setup".
 
 import { isKnownCouple } from './constants.js';
+import { normAngle } from '../moves.js';
 
 export interface Matchable {
   x: number;
@@ -64,12 +65,8 @@ const ROTS = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (-3 * Mat
 // floating-point ties that are geometrically equivalent.
 const TIE_EPS = 1e-9;
 
-const angDiff = (a: number, b: number) => {
-  let d = (a - b) % (2 * Math.PI);
-  if (d < -Math.PI) d += 2 * Math.PI;
-  if (d > Math.PI) d -= 2 * Math.PI;
-  return Math.abs(d);
-};
+/** The unsigned angle between two headings, in [0, PI] — the rule, not a copy of it. */
+const angDiff = (a: number, b: number) => Math.abs(normAngle(a - b));
 
 function center(ds: Matchable[]): { x: number; y: number } {
   let cx = 0;

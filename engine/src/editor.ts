@@ -21,12 +21,10 @@ import { swapLR } from './convert.js';
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
 // stage next to it.
 import { assignHomeIdentity } from './sequencer/identity.js';
-
-function normAngleSafe(a: number): number {
-  while (a > Math.PI) a -= 2 * Math.PI;
-  while (a <= -Math.PI) a += 2 * Math.PI;
-  return a;
-}
+// THE ONE RADIAN NORMALISER. This module used to carry its own `normAngleSafe` — the while-loop spelling of
+// the same (-PI, PI] rule `moves.ts` defines — and the two differed only in the last ulp. A rule with two
+// spellings in one engine is a rule whose owner cannot be found, so the local copy is gone.
+import { normAngle } from './moves.js';
 
 export interface FormDancer {
   x: number;
@@ -127,7 +125,7 @@ export function rotateFormation(poses: FormDancer[], theta: number): FormDancer[
   return poses.map((p) => ({
     x: p.x * cos - p.y * sin,
     y: p.x * sin + p.y * cos,
-    heading: normAngleSafe(p.heading + theta),
+    heading: normAngle(p.heading + theta),
     gender: p.gender,
   }));
 }
@@ -191,7 +189,7 @@ export function deriveFormationMapping(
     // wrapping the candidate here is a real change to the answer - MEASURED by `poc/tools/end-pair-probe.mjs`,
     // it flips one index-for-index agreement (82 -> 81 of 2208) and two (call, formation) pairings (1727 ->
     // 1729 on the wrong gender) on near-ties, for no gain: the comparison below wraps the DIFFERENCE anyway
-    // (`normAngleSafe(moved - h)`), so the two forms are the same rule and differ only in the last ulp.
+    // (`normAngle(moved - h)`), so the two forms are the same rule and differ only in the last ulp.
     const rotated: FormDancer[] = formation.map((f) => ({
       x: f.x * cos - f.y * sin,
       y: f.x * sin + f.y * cos,
@@ -312,7 +310,7 @@ function greedyAssignEditor(
         const h = core[i].heading;
         const dx = moved[j].x - core[i].x;
         const dy = moved[j].y - core[i].y;
-        const dh = h === undefined ? 0 : Math.abs(normAngleSafe(moved[j].heading - h)) * 0.5;
+        const dh = h === undefined ? 0 : Math.abs(normAngle(moved[j].heading - h)) * 0.5;
         const d = Math.hypot(dx, dy) + dh;
         if (d < bestD) {
           bestD = d;
@@ -420,9 +418,7 @@ export function fitCircle(b: BezierData, tolRel = ARC_FIT_TOL): CircleFit | null
       if (best === null || relDev < best.relDev) {
         const a = Math.atan2(p0.y - cy, p0.x - cx);
         const c = Math.atan2(p3.y - cy, p3.x - cx);
-        let sweep = c - a;
-        while (sweep > Math.PI) sweep -= 2 * Math.PI;
-        while (sweep <= -Math.PI) sweep += 2 * Math.PI;
+        const sweep = normAngle(c - a);
         best = { cx, cy, r, maxDev, relDev, sweep };
       }
     }
@@ -696,7 +692,7 @@ export function runTurn(call: CallBundle, index: number, kFrom: number, kTo: num
   let total = 0;
   for (let k = Math.max(0, kFrom); k <= kTo && k < dancer.path.length; k++) {
     const t = dancer.path[k].translate;
-    total += normAngleSafe(bezierAngle(t, 1) - bezierAngle(t, 0));
+    total += normAngle(bezierAngle(t, 1) - bezierAngle(t, 0));
   }
   return total;
 }
@@ -759,7 +755,11 @@ export function circleThrough(
   //
   // With no `turn` the minor arc is returned, which is the old behaviour and the right default for a run that
   // has no turn of its own to keep.
-  const base = normAngleSafe(a1 - a0);
+  //
+  // THE LINE BELOW IS NOT A NORMALISER, and must not be "consolidated" into `normAngle`: it picks the 2PI-
+  // CONGRUENT VALUE NEAREST `turn`, which is what keeps a 3/4 turn a 3/4 turn instead of -1/4. `normAngle`
+  // collapses into (-PI, PI] and cannot say 270 degrees at all.
+  const base = normAngle(a1 - a0);
   const sweep = Number.isFinite(turn) ? base + Math.round(((turn as number) - base) / (2 * Math.PI)) * 2 * Math.PI : base;
   return { cx, cy, r, sweep };
 }
@@ -857,7 +857,7 @@ export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo
   let prev = Math.atan2(pts[0].y - cy, pts[0].x - cx);
   for (let i = 1; i < pts.length; i++) {
     const ang = Math.atan2(pts[i].y - cy, pts[i].x - cx);
-    sweep += normAngleSafe(ang - prev);
+    sweep += normAngle(ang - prev);
     prev = ang;
   }
   return { cx, cy, r, maxDev, relDev, sweep };
@@ -971,7 +971,7 @@ export function padSegment(from: { x: number; y: number; heading: number }, to: 
     x2: d.x,
     y2: d.y,
   };
-  const a = normAngleSafe(to.heading - from.heading);
+  const a = normAngle(to.heading - from.heading);
   // Rotation Bezier, same construction as taminations Movement.fromTransform.
   const dx = Math.abs(a) / 3;
   const rotate: BezierData = {
@@ -1198,7 +1198,7 @@ export function closureDiscrepancy(call: CallBundle, target: FormDancer[]): Clos
   let maxHeadingErr = 0;
   for (let i = 0; i < actual.length && i < ordered.length; i++) {
     const pe = Math.hypot(actual[i].x - ordered[i].x, actual[i].y - ordered[i].y);
-    const he = Math.abs(normAngleSafe(actual[i].heading - ordered[i].heading));
+    const he = Math.abs(normAngle(actual[i].heading - ordered[i].heading));
     if (pe > maxPosErr) maxPosErr = pe;
     if (he > maxHeadingErr) maxHeadingErr = he;
   }
@@ -1505,7 +1505,7 @@ export function placeDancerEnd(call: CallBundle, index: number, pose: FormDancer
   // THE LOCAL FRAME, the way `padSegment` builds it: the dancer's own facing is local +X, so the target is
   // turned back by `pre.heading` and the departure handle lies along +X.
   const local = rot(-pre.heading, { x: to.x - pre.x, y: to.y - pre.y });
-  const turn = normAngleSafe(to.heading - pre.heading);
+  const turn = normAngle(to.heading - pre.heading);
   const handle = Math.hypot(local.x, local.y) / 3;
   if (last.rotate === null && handle >= 1e-9) {
     seg = {
@@ -1812,7 +1812,7 @@ function assignStartSlots(call: CallBundle, formation: FormDancer[]): number[] {
         if (pass === 0 && g !== undefined && g !== wants) continue;
         const d =
           Math.hypot(cur[i].x - formation[s].x, cur[i].y - formation[s].y) +
-          Math.abs(normAngleSafe(cur[i].heading - formation[s].heading)) * 0.5;
+          Math.abs(normAngle(cur[i].heading - formation[s].heading)) * 0.5;
         if (d < bestD) {
           bestD = d;
           best = s;
@@ -1832,7 +1832,7 @@ function poseIs(pose: Pose, target: { x: number; y: number; heading: number }): 
   return (
     Math.abs(pose.x - target.x) <= 1e-9 &&
     Math.abs(pose.y - target.y) <= 1e-9 &&
-    Math.abs(normAngleSafe(pose.heading - target.heading)) <= 1e-9
+    Math.abs(normAngle(pose.heading - target.heading)) <= 1e-9
   );
 }
 
@@ -1904,7 +1904,7 @@ export function endPoseError(a: CallBundle, b: CallBundle): { pos: number; headi
     const p = poseFor(a.dancers[i], a.beats);
     const q = poseFor(b.dancers[i], b.beats);
     pos = Math.max(pos, Math.hypot(p.x - q.x, p.y - q.y));
-    heading = Math.max(heading, Math.abs(normAngleSafe(p.heading - q.heading)));
+    heading = Math.max(heading, Math.abs(normAngle(p.heading - q.heading)));
   }
   return { pos, heading };
 }
@@ -1986,9 +1986,7 @@ export function arcBezierAbout(
   const a1 = Math.atan2(to.y - centre.y, to.x - centre.x);
   // THE SHORT WAY ROUND, because that is the arc a caller means between two close points - and the
   // long one would be the rest of the circle.
-  let sweep = a1 - a0;
-  while (sweep > Math.PI) sweep -= 2 * Math.PI;
-  while (sweep < -Math.PI) sweep += 2 * Math.PI;
+  const sweep = normAngle(a1 - a0);
   if (Math.abs(sweep) < ARC_EPS) return null;
   const reach = r * (4 / 3) * Math.tan(Math.abs(sweep) / 4);
   // The tangent at each end, in the direction of travel: for a POSITIVE (anticlockwise) sweep the
@@ -2227,7 +2225,7 @@ export function sameFacing(a: BezierData | null, b: BezierData | null, tolDeg = 
   for (let i = 0; i <= 8; i++) {
     const t = i / 8;
     const d = bezierAngle(a, t) - bezierAngle(b, t);
-    if (Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) > tol) return false;
+    if (Math.abs(normAngle(d)) > tol) return false;
   }
   return true;
 }
@@ -2341,7 +2339,7 @@ export function halfSetReport(call: CallBundle, tol = 1e-3): HalfSetReport {
     const pa = poseFor(a, 0);
     const want = antipode(pa);
     const pb = poseFor(b, 0);
-    const gap = Math.max(Math.abs(pb.x - want.x), Math.abs(pb.y - want.y), Math.abs(normAngleSafe(pb.heading - want.heading)));
+    const gap = Math.max(Math.abs(pb.x - want.x), Math.abs(pb.y - want.y), Math.abs(normAngle(pb.heading - want.heading)));
     if (gap > tol) {
       return { ok: false, half, reason: `dancer ${i + half + 1} is not dancer ${i + 1} turned 180 degrees about the centre (it is ${gap.toFixed(2)} off)` };
     }
@@ -2483,7 +2481,7 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
     const d = call.dancers[i];
     const p = poseFor(d, 0);
     if (Math.abs(p.x - poses[i].x) > tol || Math.abs(p.y - poses[i].y) > tol) return false;
-    if (Math.abs(normAngleSafe(p.heading - poses[i].heading)) > tol) return false;
+    if (Math.abs(normAngle(p.heading - poses[i].heading)) > tol) return false;
     // GENDER IS PART OF THE FORMATION rather than decoration: it is the arrangement the call's
     // gender gates read, so a reference to a shape with the boys and girls swapped is a different
     // setup, and the block has to be written out instead.
@@ -2564,7 +2562,7 @@ function endBoardGenderMisses(ends: FormDancer[], poses: FormDancer[], tol: EndB
       if (used[i]) continue;
       const p = ends[i];
       if (Math.hypot(p.x - spot.x, p.y - spot.y) > tol.position) continue;
-      if (Math.abs(normAngleSafe(p.heading - spot.heading)) > tol.heading) continue;
+      if (Math.abs(normAngle(p.heading - spot.heading)) > tol.heading) continue;
       hit = i;
       break;
     }

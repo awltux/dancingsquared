@@ -103,6 +103,17 @@ const SUITE = [
   // cannot separate, and that the four-axis separating-axis answer is exact rather than an axis-aligned
   // approximation (which overstates clearance by 0.596 in the case pinned). Pure arithmetic, ~0s.
   { h: 'bodies', light: true },
+  // ONE RADIAN NORMALISER, AND A GATE ON THE TREE RATHER THAN ON A FUNCTION. `moves.ts`'s `normAngle` is the
+  // engine's only angle normaliser; before this harness the tree carried 21 such expressions in SEVEN interval
+  // conventions (an `atan2(sin, cos)` pair, two `[-PI, PI]` while loops, six `(-PI, PI]` ones, a `[0, 2PI)` bucket
+  // key, a distance-from-PI test and a 2PI-congruent-nearest one), so the same call could differ in the last bits
+  // depending on which copy ran. MEASURED: `atan2` returns -PI where the rule returns +PI — it is the CLOSED
+  // interval in disguise — and it drifts 4.8e-14 by 50 rad where the modulo is exact. Pins the interval, both
+  // endpoints, idempotence and periodicity as facts, rules out the three alternatives with one check each, proves
+  // the two kept survivors are different FUNCTIONS (and that `matrix.ts`'s cycle-bound fold is `abs(normAngle)`
+  // exactly), and fails if a second while-loop or `atan2(sin,` spelling appears anywhere in `engine/src`.
+  // Pure arithmetic plus one directory walk: ~0s.
+  { h: 'angle-normalisation', light: true },
   // ARE THESE TWO BOARDS THE SAME BOARD? `sameBoardById` compares by dancer IDENTITY with a position
   // and heading tolerance, and it is the engine's only facing-aware equality: `boardSig` is
   // positions-only by design and `reorderLike` fixes an order rather than testing one. The harness

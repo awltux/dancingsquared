@@ -81,6 +81,9 @@ export function geometryKey(dancers: Matchable[]): string {
         const rx = x * cos - y * sin;
         const ry = x * sin + y * cos;
         let h = d.heading + th + (reflect ? Math.PI : 0);
+        // A BUCKET KEY, NOT A NORMALISER — folded to [0, 2PI) and then quantised to CELL_ROUND for the
+        // sorted string key below. `normAngle` is (-PI, PI], so a heading of -0.5 keys as 5.783 here and
+        // as -0.5 there: a different lattice, not a different spelling of the same one.
         h = ((h % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         return [Math.round(rx / CELL_ROUND), Math.round(ry / CELL_ROUND), Math.round(h / CELL_ROUND)];
       });

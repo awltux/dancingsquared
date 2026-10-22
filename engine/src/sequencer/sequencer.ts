@@ -25,6 +25,7 @@ import {
   FSM_TABLE_SCHEMA_VERSION,
 } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
+import { normAngle } from '../moves.js';
 import { bodyGap, worstBodyGap, BODY_OVERLAP_EPS, type BodyPair } from './bodies.js';
 import {
   evaluatePermissions,
@@ -1074,9 +1075,7 @@ export class Sequencer {
     for (const [id, sd] of sm) {
       const ed = em.get(id);
       if (!ed) continue;
-      let d = ed.heading - sd.heading;
-      d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      if (d > Math.PI) d -= 2 * Math.PI;
+      const d = normAngle(ed.heading - sd.heading);
       sum += d;
       count++;
     }

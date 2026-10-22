@@ -21,7 +21,7 @@ const check = (cond, msg) => {
 };
 
 /** One dancer is enough: the session and the run never inspect a second one, and a distinct `x` per board
- * is what lets the exact `boardsMatch` tell them apart. */
+ * is what lets the exact `reachesGoal` tell them apart. */
 const board = (x) => ({ dancers: [{ id: 1, couple: 1, gender: 'boy', x, y: 0, heading: 0 }] });
 
 const A = board(0);
@@ -55,7 +55,7 @@ const applier = {
     if (!out) throw new Error(`apply(${call}) was refused after refusalOf said it applies`);
     return out;
   },
-  boardsMatch: eq,
+  reachesGoal: eq,
   nameOf: () => 'Stub Formation',
   // THE WIDER VALIDITY QUESTION, so the stub can describe GameApplier without pretending: every board it makes is a
   // named stub formation, and the corpus name beside that is the same string.
@@ -334,7 +334,7 @@ console.log('\n== 7. the waypoints are formations, and undo rewinds the progress
       if (!out) throw new Error(`apply(${call}) was refused after refusalOf said it applies`);
       return out;
     },
-    boardsMatch: (x, y) => x === y,
+    reachesGoal: (x, y) => x === y,
     nameOf: (b) => (b === A ? 'Squared Set' : b === B ? 'Ocean Wave' : 'Ocean Wave, moved'),
     formationOf: (b) => (b === A ? 'Squared Set' : b === B ? 'Ocean Wave' : 'Ocean Wave, moved'),
   };

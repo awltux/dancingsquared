@@ -78,7 +78,7 @@ console.log('\n== 2. the answer key still works after the wire ==');
     }
     board = applier.apply(board, call);
   }
-  check(applier.boardsMatch(board, parsed.goal), 'playing the parsed solution from the parsed start reaches the parsed goal');
+  check(applier.reachesGoal(board, parsed.goal), 'playing the parsed solution from the parsed start reaches the parsed goal');
   const stepKey = parsed.steps.every((step) => sameBoardById(step.moves[step.correctIndex].board, step.after));
   check(stepKey, 'and every step\'s correct option still ends on its own `after` board, which is what a press is scored on');
   // THE ILLEGAL OPTION'S PROSE IS THE ENGINE'S, so it has to survive the wire too: a drill's fourth choice is shown

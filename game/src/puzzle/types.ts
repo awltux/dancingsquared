@@ -175,13 +175,18 @@ export interface GameApplier {
    */
   apply(board: Board, call: string): Board;
   /**
-   * Whether two boards are the same board — the engine's `sameBoardById`, passed through rather than
-   * re-derived. WHY IT RIDES ON THE APPLIER: the goal test is the engine's rule and there is exactly
-   * one implementation of it (AGENTS.md 5: import the rule, never mirror it). A session that imported
-   * `sameBoardById` directly from the engine would be a second import site free to drift from the
-   * applier's, and it would make a stub-driven probe unable to express "these reach the same board".
+   * Whether `board` has REACHED `goal`: THE ARRANGEMENT RULE, not identity.
+   *
+   * `puzzle/arrangement.ts`'s `reachedGoal` is the one implementation of it — the same equivalence a waypoint tick
+   * uses (the engine's eight rotations and the reflection, which is what its matcher calls "congruent"), so the last
+   * waypoint of a route cannot demand more than the ones before it. MEASURED over 40 generated level-1 Dailies: 9
+   * offer a call whose board is congruent to the goal but not identical, and identity refused all nine.
+   *
+   * WHY IT RIDES ON THE APPLIER: the goal test is the engine's judgement of two boards, and a session that imported
+   * the engine directly would be a second import site free to drift from the applier's — and a stub-driven probe could
+   * not express "these reach the same board" on an abstract graph at all.
    */
-  boardsMatch(a: Board, b: Board): boolean;
+  reachesGoal(board: Board, goal: Board): boolean;
   /** Whether the engine NAMES this board (`recognize`). An unnamed board is legal but unteachable
    * (DESIGN.md 7's quality gates), so the generator refuses it as a puzzle state. */
   nameOf(board: Board): string | null;

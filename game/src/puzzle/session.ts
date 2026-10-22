@@ -117,7 +117,7 @@ export class PlaySession {
   }
 
   atGoal(): boolean {
-    return this.applier.boardsMatch(this.board, this.puzzle.goal);
+    return this.applier.reachesGoal(this.board, this.puzzle.goal);
   }
 
   view(): SessionView {

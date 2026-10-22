@@ -45,7 +45,7 @@ console.log(`== 1. every reading is a move the player can play (${readings.lengt
   check(refused.length === 0, `all ${readings.length} are legal when played as their own spelling${refused.length ? ` — refused: ${refused.map(prefixed).join(', ')}` : ''}`);
   // AND EACH ONE LANDS WHERE THE READING SAYS. A reading carries the board the move produces, and the picker draws
   // that board's name, so a mismatch would caption one move as another.
-  const misplaced = readings.filter((r) => !applier.boardsMatch(applier.apply(start, prefixed(r)), r.board));
+  const misplaced = readings.filter((r) => !applier.reachesGoal(applier.apply(start, prefixed(r)), r.board));
   check(misplaced.length === 0, `and every reading's board is the board its own spelling reaches${misplaced.length ? ` — ${misplaced.map(prefixed).join(', ')}` : ''}`);
 }
 
@@ -60,7 +60,7 @@ console.log('\n== 2. a call the SET can do and a GROUP can do are two moves, and
   check(shared.length > 0, `${shared.length} reading(s) share their call with a whole-board reading (e.g. "${shared.length ? prefixed(shared[0]) : '—'}")`);
   const differs = shared.filter((r) => {
     const whole = readings.find((w) => w.selection === null && w.call === r.call);
-    return !applier.boardsMatch(whole.board, r.board);
+    return !applier.reachesGoal(whole.board, r.board);
   });
   check(differs.length > 0, `NEGATIVE CONTROL: ${differs.length} of them end on a DIFFERENT board from the whole-board reading of the same call (e.g. "${differs.length ? prefixed(differs[0]) : '—'}"), so the group reading is a different move rather than a label`);
   const wholeBoard = readings.filter((r) => r.selection === null);

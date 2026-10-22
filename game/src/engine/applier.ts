@@ -24,6 +24,7 @@
 // in the pose, and `sameBoardById` would then disagree with the engine's own recogniser about whether
 // the player arrived. Turning it off makes the goal exactly what the calls produce.
 import { Sequencer, parseStep, sameBoardById, type Board } from 'dancing-squared-engine';
+import { reachedGoal } from '../puzzle/arrangement.ts';
 import { poseKey } from '../puzzle/pose-key.ts';
 import type { GameApplier, Move, MoveReading, Refusal, SequenceMotion } from '../puzzle/types.ts';
 
@@ -248,8 +249,13 @@ export function createEngineApplier(opts: ApplierOptions): GameApplier {
       return r.board;
     },
 
-    /** The engine's own goal test, passed through — no local tolerance, no second opinion. */
-    boardsMatch: sameBoardById,
+    /**
+     * THE GOAL IS THE ARRANGEMENT, not the identical board: `puzzle/arrangement.ts`'s `reachedGoal` is the same
+     * equivalence the waypoint tick uses (the engine's eight rotations and the reflection, i.e. what its matcher calls
+     * congruent), so a rotated or reflected goal IS the goal. MEASURED over 40 generated level-1 Dailies: 9 offer a
+     * call whose board is congruent to the goal but not identical, and identity refused all nine.
+     */
+    reachesGoal: reachedGoal,
 
     nameOf(board: Board): string | null {
       return seq.recognize(board).name;

@@ -61,7 +61,7 @@ const named = boards.filter((b) => applier.nameOf(b) !== null);
   // have lost the start the ladder teaches first, and nothing else here would notice.
   check(named.some((b) => applier.nameOf(b) === 'Static Square'), 'a squared set is among them, so the ladder still opens from home');
   // THE IDENTITY EVERY GOAL TEST DEPENDS ON: `sameBoardById` refuses a board whose ids are not unique, and
-  // `boardsMatch` is the ONE goal test the game has — so a start that failed this could never be told apart
+  // `reachesGoal` is the ONE goal test the game has — so a start that failed this could never be told apart
   // from its own goal.
   const badIdentity = named.filter((b) => b.dancers.length !== 8 || new Set(b.dancers.map((d) => d.id)).size !== 8);
   check(badIdentity.length === 0, `every named start is eight dancers with eight distinct identities (${badIdentity.length} without)`);

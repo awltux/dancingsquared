@@ -24,7 +24,7 @@
 //
 // Usage: node game/test/waypoint-probe.mjs   (engine must be built: arrangement.ts imports geometryKey)
 import { makeSquaredSet } from 'dancing-squared-engine';
-import { arrangementKey, waypointBoards } from '../src/puzzle/arrangement.ts';
+import { arrangementKey, reachedGoal, waypointBoards } from '../src/puzzle/arrangement.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -107,6 +107,29 @@ console.log('\n== 5. the invariants hold over a family of routes, and the check 
   const raw = [A, A2];
   check(keysOf(raw).some((k, i) => i > 0 && k === keysOf(raw)[i - 1]),
     'NEGATIVE CONTROL: the same formation twice, uncollapsed, IS adjacent-equal — so the test above is a distinction');
+}
+
+console.log('\n== 6. REACHING the goal is the same equivalence as standing on a waypoint ==');
+{
+  // REPORTED: "Each Waypoint might have multiple solutions. A waypoint has been passed when the dancers are in the setup
+  // described by the waypoint, regardless of what calls were used to get there. I have managed to get the dancers in
+  // the position of the waypoint, but the game has refused it as a solution. I can only assume it is also expecting a
+  // specific move." The assumption was right, and the bug was that the two halves of the game disagreed: a waypoint
+  // tick asked `arrangementKey`, while the GOAL asked identity (`sameBoardById`). MEASURED over 40 generated level-1
+  // Dailies (all one step): 9 of them offer a call whose board is congruent to the goal but not identical to it, so
+  // nearly a quarter of the puzzles had a solution the game refused.
+  check(reachedGoal(A2, A), 'a quarter-turned board HAS reached a goal congruent to it');
+  check(reachedGoal(A3, A), 'and so has the same set standing a unit to the right');
+  check(reachedGoal(A, A), 'and a board has reached itself');
+  check(!reachedGoal(B, A), 'NEGATIVE CONTROL: one dancer moved has NOT — the rule is congruence, not a tolerance');
+  // AND THE FACINGS ARE STILL PART OF THE SETUP, which is what keeps this from being a positions-only comparison:
+  // turning the whole set half a turn leaves every dancer where they stand and is a different formation to the engine
+  // (`cells.ts`: a positions-only key conflates a squared set with `Static Facing Out`, four formations on one key).
+  const facingOut = { dancers: A.dancers.map((d) => ({ ...d, heading: d.heading + Math.PI })) };
+  check(arrangementKey(facingOut) !== arrangementKey(A), 'the same positions facing the other way is a different key');
+  check(!reachedGoal(facingOut, A), 'NEGATIVE CONTROL: so it has NOT reached the goal, even though every dancer is in the same place');
+  // ONE FUNCTION, so the goal rule and the waypoint rule cannot drift: the two answers above are the key comparison.
+  check(reachedGoal(A2, A) === (arrangementKey(A2) === arrangementKey(A)), 'and `reachedGoal` is exactly the key comparison, not a second rule beside it');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

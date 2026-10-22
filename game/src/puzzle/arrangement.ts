@@ -27,6 +27,32 @@ export function arrangementKey(board: Board): string {
 }
 
 /**
+ * Whether `board` has REACHED `goal` — the same equivalence a waypoint uses, and not a stricter one.
+ *
+ * REPORTED: "Each Waypoint might have multiple solutions. A waypoint has been passed when the dancers are in the setup
+ * described by the waypoint, regardless of what calls were used to get there. I have managed to get the dancers in the
+ * position of the waypoint, but the game has refused it as a solution. I can only assume it is also expecting a
+ * specific move." THE ASSUMPTION WAS RIGHT, and the inconsistency was here: the waypoint tick asked
+ * `arrangementKey`'s equivalence (the eight rotations and the reflection) while the GOAL asked `sameBoardById`, which
+ * is identity. So a player who reached the goal's ARRANGEMENT rotated or reflected was told the set was not on the
+ * goal board, and the only way to satisfy the game was to find the one call that landed the identical board.
+ * MEASURED over 40 generated level-1 Dailies (all one step): **9 of the 40 offer a call from the start whose board is
+ * congruent to the goal but not identical to it**, so nearly a quarter of the puzzles at that level had a solution the
+ * game refused.
+ *
+ * WHY CONGRUENCE IS THE RIGHT TEST AND IDENTITY IS NOT. The engine's own matcher quotients by exactly these eight
+ * symmetries when it asks whether a board is a formation (`cells.ts`: "two boards share a key precisely when the
+ * matcher would call them congruent"), so a rotated squared set IS the formation the goal names — and a puzzle whose
+ * own waypoints are judged that way cannot then demand more of its last one. The alternative, loosening further to
+ * POSITIONS ONLY, is refused and was already measured against: a positions-only key conflates a squared set with
+ * `Static Facing Out` and with both `Static MiniWaves` (`cells.ts`), which are four different formations, and the
+ * player's board would be "in the goal" while facing the wrong way.
+ */
+export function reachedGoal(board: Board, goal: Board): boolean {
+  return arrangementKey(board) === arrangementKey(goal);
+}
+
+/**
  * THE PUZZLE'S WAYPOINTS: the route's boards, with CONSECUTIVE EQUAL FORMATIONS COLLAPSED.
  *
  * A WAYPOINT IS A FORMATION, so a step that leaves the set in the arrangement it was already in has not reached

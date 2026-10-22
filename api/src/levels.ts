@@ -169,7 +169,7 @@ export function registeredFor(level: LevelSpec): number {
  *
  * IT APPLIES EACH CALL RATHER THAN TRUSTING A FINAL BOARD, because the final board is exactly what a modified
  * client would forge. A line that reaches the goal BY A DIFFERENT ROUTE than the generator's is legitimate and
- * scores the same — the goal test is `boardsMatch`, never a comparison with `puzzle.solution`.
+ * scores the same — the goal test is `reachesGoal`, never a comparison with `puzzle.solution`.
  */
 export function lineReachesGoal(level: LevelSpec, puzzle: Puzzle, calls: readonly string[]): { ok: true } | { ok: false; reason: string } {
   const applier = runtimeFor(level).applier;
@@ -179,7 +179,7 @@ export function lineReachesGoal(level: LevelSpec, puzzle: Puzzle, calls: readonl
     if (refusal) return { ok: false, reason: `"${call}" cannot be made from that board: ${refusal.reason}` };
     board = applier.apply(board, call);
   }
-  if (!applier.boardsMatch(board, puzzle.goal)) return { ok: false, reason: 'the line does not leave the set on the goal board' };
+  if (!applier.reachesGoal(board, puzzle.goal)) return { ok: false, reason: 'the line does not leave the set on the goal board' };
   return { ok: true };
 }
 

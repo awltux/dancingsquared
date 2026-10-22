@@ -653,6 +653,13 @@ rendered ahead of time:
   cache; with the engine on the client there is nothing to survive.)
 - **Correctness is the goal board** (§4.2) for the same reason it is in the Daily: an option that reaches
   the goal by any legal route is correct, and the generator's chosen route does not decide the answer.
+  **MEASURED, AND THE IMPLEMENTATION DOES NOT YET HONOUR THIS SENTENCE**: `DrillController.answer` decides by
+  `choice === step.correctIndex`, so a second option that is ALSO a route to the goal (reachable in the remaining
+  allowance) is answered "legal, but it does not leave the set on the goal board". MEASURED over 20 generated puzzles at
+  each of levels 3, 5 and 8: **1, 2 and 1 of the 20 non-last steps** offer such an option. REPORTED by the owner as
+  "it is also expecting a specific move". The fix is a route check in three places that share one rule — the
+  controller's verdict, `POST /drill/answer`'s press log and `POST /runs`' verification — and it is the next change,
+  not this one.
 - **The endings are precomputed when the entry loads**, not when a button is pressed, so the interaction is
   instant and the presentation scope stays open: a thumbnail of each ending, a caption naming the call, a
   replay of all three back to back, or a reveal in sequence are all available from the same data with no
@@ -830,6 +837,20 @@ challenge").
   waypoint wants. The sequence is the generator's own route (`puzzle.path.slice(1, -1)`), so a waypoint cannot
   disagree with the solution; progress is monotone over the boards the player actually stood on, so an undo
   rewinds it for free; and a challenge may carry **zero** waypoints at all.
+- **THE GOAL IS ONE OF THOSE WAYPOINTS, AND IT IS JUDGED THE SAME WAY.** REPORTED: "Each Waypoint might have
+  multiple solutions. A waypoint has been passed when the dancers are in the setup described by the waypoint,
+  regardless of what calls were used to get there. I have managed to get the dancers in the position of the waypoint,
+  but the game has refused it as a solution. I can only assume it is also expecting a specific move." The assumption
+  was right, and the inconsistency was ours: the waypoint tick asked the **arrangement** equivalence (`arrangementKey`,
+  the engine's eight rotations and the reflection) while the goal asked **identity** (`sameBoardById`), so a player who
+  reached the goal's arrangement rotated or reflected was told the set was not on the goal board — and only the one
+  call that landed the identical board counted. MEASURED over 40 generated level-1 Dailies (all one step): **9 of the
+  40 offer a call from the start whose board is congruent to the goal but not identical to it**, so nearly a quarter
+  of the puzzles had a solution the game refused. One rule now answers both questions (`puzzle/arrangement.ts`'s
+  `reachedGoal`, which the applier exposes as `reachesGoal` so the client and the server cannot disagree), and
+  loosening further to POSITIONS ONLY is refused with its own measurement: `cells.ts` records that a positions-only key
+  conflates a squared set with `Static Facing Out` and with both `Static MiniWaves` — four formations on one key — so a
+  player facing the wrong way would be told they had arrived.
 
 ### 9.1 Can the server solve the Daily outright? Measured, and no — but the measurement says what to do instead
 

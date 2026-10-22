@@ -51,7 +51,7 @@
 // instrument's silence is itself a bug).
 
 import { sameBoardById, boardSig, type Board } from 'dancing-squared-engine';
-import { arrangementKey } from './arrangement.ts';
+import { arrangementKey, reachedGoal } from './arrangement.ts';
 import { poseKey } from './pose-key.ts';
 import { rngFrom, type Rng } from './rand.ts';
 import type { GameApplier, GenerateResult, GeneratorConfig, LevelSpec, Move, Puzzle, PuzzleOption, PuzzleStep } from './types.ts';
@@ -450,7 +450,7 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
         // distance" and "reaches the goal" are the same statement — the two branches below agree there, and
         // the test is stated per branch so neither can silently become the other.
         const correctMoves = lastStep
-          ? offered.filter((m) => sameBoardById(m.board, goal))
+          ? offered.filter((m) => reachedGoal(m.board, goal))
           : offered.filter((m) => dist.get(boardSig(m.board)) === distanceHere + 1);
         if (correctMoves.length === 0) {
           return lastStep
@@ -467,12 +467,14 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
         const onPath = correctMoves.find((m) => m.call === calls[i]);
         const chosen = onPath ?? (rng.pick(correctMoves) as Move);
 
-        // Distractors: pairwise-distinct endings, never the goal, and never ending where another option
-        // ends. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`, because a
-        // signature collision would otherwise publish two options that are the same board.
+        // Distractors: pairwise-distinct endings, NEVER THE GOAL (by the goal's own rule, `reachedGoal` — a rotated or
+        // reflected goal board is the goal, so a positions signature is not enough to exclude it), and never ending
+        // where another option ends. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`,
+        // because a signature collision would otherwise publish two options that are the same board.
         const endsHere = new Set<string>([boardSig(chosen.board)]);
         const distractors: Move[] = [];
         for (const m of rng.shuffle(offered.filter((m) => m.call !== chosen.call))) {
+          if (reachedGoal(m.board, goal)) continue;
           const sig = boardSig(m.board);
           if (endsHere.has(sig)) continue;
           endsHere.add(sig);

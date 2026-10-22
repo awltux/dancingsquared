@@ -23,7 +23,7 @@
 //     to undo, whether or not the call they pressed was legal too.
 //
 // THE STUB IS THE POINT (AGENTS.md 4.3/5: the core is pure over an injected `GameApplier`, and a probe
-// substitutes one rather than importing the real engine applier). The stub's `boardsMatch` is an EXACT
+// substitutes one rather than importing the real engine applier). The stub's `reachesGoal` is an EXACT
 // field comparison rather than a tolerance, so "reached the goal" is decidable here by construction.
 //
 // Usage: node game/test/session-undo-probe.mjs   (engine must be built: session.ts imports boardSig)
@@ -37,7 +37,7 @@ const check = (cond, msg) => {
 
 // ---------------------------------------------------------------- the stub graph, four boards: A -> B -> D and A -> C -> D
 /** One dancer is enough: the session never inspects a second one, and a distinct `x` per board is what
- * lets the exact `boardsMatch` tell them apart. */
+ * lets the exact `reachesGoal` tell them apart. */
 const board = (id, x, heading = 0) => ({
   dancers: [{ id, couple: 1, gender: 'boy', x, y: 0, heading }],
 });
@@ -91,7 +91,7 @@ const applier = {
     if (!out) throw new Error(`apply(${call}) was refused after refusalOf said it applies`);
     return out;
   },
-  boardsMatch: eq,
+  reachesGoal: eq,
   nameOf() {
     return null;
   },

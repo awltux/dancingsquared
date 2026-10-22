@@ -218,7 +218,7 @@ console.log('\n== 8. THE SEMANTIC CHECK, and what a reused seed is NOT ==');
   }
   check(dualSeed !== null, `a seed in 1..${SEED_TRIES} generates at BOTH L${L1.index} and L${L3.index}`);
   check(
-    dualSeed !== null && !applier15.boardsMatch(p1.goal, p3.goal),
+    dualSeed !== null && !applier15.reachesGoal(p1.goal, p3.goal),
     `the same seed reaches a DIFFERENT goal at L${L3.index} than at L${L1.index}, so a reused seed is not a reused puzzle`,
   );
 

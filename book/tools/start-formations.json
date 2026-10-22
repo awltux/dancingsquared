@@ -52,19 +52,19 @@
 
 
               {
-                "title": "Circle Left - Stop at Home",
+                "title": "Circle Left Home",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Left 1/4 - Stop at Home",
+                "title": "Circle Left 1/4 Home",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Left 1/2 - Stop at Home",
+                "title": "Circle Left 1/2 Home",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Left 3/4 - Stop at Home",
+                "title": "Circle Left 3/4 Home",
                 "formation": "Static Square"
               },
 
@@ -91,19 +91,19 @@
 
 
               {
-                "title": "Circle Right - Stop at Home",
+                "title": "Circle Right Home",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Right 1/4 - Stop at Home",
+                "title": "Circle Right 1/4 Home",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Right 1/2 - Stop at Home",
+                "title": "Circle Right 1/2 Home",
                 "formation": "Static Square"
               },
               {
-                "title": "Circle Right 3/4 - Stop at Home",
+                "title": "Circle Right 3/4 Home",
                 "formation": "Static Square"
               }
             ]
@@ -135,19 +135,19 @@
 
 
               {
-                "title": "Circle Left - Stop at Home",
+                "title": "Circle Left Home",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Left 1/4 - Stop at Home",
+                "title": "Circle Left 1/4 Home",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Left 1/2 - Stop at Home",
+                "title": "Circle Left 1/2 Home",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Left 3/4 - Stop at Home",
+                "title": "Circle Left 3/4 Home",
                 "formation": "Circle"
               },
 
@@ -171,19 +171,19 @@
 
 
               {
-                "title": "Circle Right - Stop at Home",
+                "title": "Circle Right Home",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Right 1/4 - Stop at Home",
+                "title": "Circle Right 1/4 Home",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Right 1/2 - Stop at Home",
+                "title": "Circle Right 1/2 Home",
                 "formation": "Circle"
               },
               {
-                "title": "Circle Right 3/4 - Stop at Home",
+                "title": "Circle Right 3/4 Home",
                 "formation": "Circle"
               }
             ]
@@ -213,19 +213,19 @@
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Left - Stop at Home",
+                "title": "Circle Left Home",
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Left 3/4 - Stop at Home",
+                "title": "Circle Left 3/4 Home",
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Left 1/2 - Stop at Home",
+                "title": "Circle Left 1/2 Home",
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Left 1/4 - Stop at Home",
+                "title": "Circle Left 1/4 Home",
                 "formation": "Normal Lines"
               },
 
@@ -247,19 +247,19 @@
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Right - Stop at Home",
+                "title": "Circle Right Home",
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Right 3/4 - Stop at Home",
+                "title": "Circle Right 3/4 Home",
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Right 1/2 - Stop at Home",
+                "title": "Circle Right 1/2 Home",
                 "formation": "Normal Lines"
               },
               {
-                "title": "Circle Right 1/4 - Stop at Home",
+                "title": "Circle Right 1/4 Home",
                 "formation": "Normal Lines"
               }
 
@@ -279,7 +279,7 @@
             "file": "ms/circle.xml",
             "tam_xml_queries": [
               {
-                "title": "Circle Four Left Full",
+                "title": "Circle Four Left",
                 "formation": "Facing Couples"
               },
               {
@@ -295,7 +295,7 @@
                 "formation": "Facing Couples"
               },
               {
-                "title": "Circle Four Right Full",
+                "title": "Circle Four Right",
                 "formation": "Facing Couples"
               },
               {
@@ -326,7 +326,7 @@
             "file": "ms/circle.xml",
             "tam_xml_queries": [
               {
-                "title": "Single Circle Left Full",
+                "title": "Single Circle Left",
                 "formation": "Facing Dancers"
               },
               {
@@ -342,7 +342,7 @@
                 "formation": "Facing Dancers"
               },
               {
-                "title": "Single Circle Right Full",
+                "title": "Single Circle Right",
                 "formation": "Facing Dancers"
               },
               {
@@ -447,19 +447,19 @@
             "file": "ms/promenade.xml",
             "tam_xml_queries": [
               {
-                "title": "All 4 Couples Promenade Full",
+                "title": "Promenade",
                 "formation": "Static Square"
               },
               {
-                "title": "All 4 Couples Promenade 1/4",
+                "title": "Promenade 1/4",
                 "formation": "Static Square"
               },
               {
-                "title": "All 4 Couples Promenade 1/2",
+                "title": "Promenade 1/2",
                 "formation": "Static Square"
               },
               {
-                "title": "All 4 Couples Promenade 3/4",
+                "title": "Promenade 3/4",
                 "formation": "Static Square"
               }
             ]
@@ -514,19 +514,19 @@
             "file": "ms/promenade.xml",
             "tam_xml_queries": [
               {
-                "title": "All 4 Couples Wrong Way Promenade Full",
+                "title": "Wrong Way Promenade",
                 "formation": "Static Square"
               },
               {
-                "title": "All 4 Couples Wrong Way Promenade 1/4",
+                "title": "Wrong Way Promenade 1/4",
                 "formation": "Static Square"
               },
               {
-                "title": "All 4 Couples Wrong Way Promenade 1/2",
+                "title": "Wrong Way Promenade 1/2",
                 "formation": "Static Square"
               },
               {
-                "title": "All 4 Couples Wrong Way Promenade 3/4",
+                "title": "Wrong Way Promenade 3/4",
                 "formation": "Static Square"
               }
             ]

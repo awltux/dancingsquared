@@ -895,6 +895,9 @@ function setMode(next: AppMode): void {
 function applyMode(next: AppMode): void {
   mode = next;
   waypointCursor = null;
+  // A HALF-FINISHED SLIDE BELONGS TO THE PUZZLE THE PLAYER JUST LEFT, so it is stopped rather than carried across —
+  // and the pair is FORGOTTEN, so the next mode's boards are painted rather than slid to from this one's.
+  stage.forgetPair();
   PLAYHEAD.cancel();
   replay = null;
   // A MODE SWITCH DISARMS "START OVER": it is the clearest sign the player has moved on, and a control still armed
@@ -944,6 +947,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // side. `startOver` clears it too, because that path can end without a drill being shown at all.
   serverRecordedRun = false;
   waypointCursor = null;
+  stage.forgetPair();
   position = issued.index;
   // THE SERVER'S OWN WORD ABOUT THIS RUN, taken before anything can paint: `currentStanding` reads it to decide
   // whether the run may be submitted at all, and it is set on every issued drill (false for the offline path, where
@@ -1664,6 +1668,7 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
     ? DailyRun.resume(puzzle, applier, performance.now(), stored, { gapMs: wallGapMs(stored.savedAtMs, Date.now()) })
     : null;
   waypointCursor = null;
+  stage.forgetPair();
   daily = carried ?? new DailyRun(puzzle, applier, performance.now());
   dailyRunId = carried && stored ? stored.runId : newRunId(Date.now());
   dailyScreen.say(
@@ -2146,6 +2151,9 @@ function frame(nowMs: number): void {
   // a frame that poses views and never renders shows a blank canvas. That is exactly what the first version of
   // this loop did: it rendered nothing while idle, so the boards were black until an option was clicked.
   stage.updateControls();
+  // A SLIDE IS ADVANCED FROM THE SAME LOOP THAT PAINTS THE FRAME, before the render: `tick` only writes the slot
+  // positions, and the stage owns no clock of its own.
+  stage.tick(nowMs);
   stage.render();
   requestAnimationFrame(frame);
 }

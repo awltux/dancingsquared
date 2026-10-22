@@ -26,6 +26,7 @@ import { computeHandholds, type Board, type Pose } from 'dancing-squared-engine'
 import { stillBoard } from '../game/poses.ts';
 import type { WaypointState } from '../puzzle/waypoint-pair.ts';
 import type { SequenceMotion } from '../puzzle/types.ts';
+import { slideOffsets } from './slide-math.ts';
 
 /**
  * HOW THE TWO BOARDS ARE SIZED AND PLACED — and the arithmetic is the geometry, not a pair of numbers that
@@ -144,6 +145,26 @@ const OUTLINE_HALF = 5.16;
 const OUTLINE_WIDTH = 0.26;
 const OUTLINE_Y = 0.02;
 
+/**
+ * HOW LONG A CHANGE OF WAYPOINT PAIR TAKES, in milliseconds.
+ *
+ * 320 is long enough to read as MOVEMENT rather than a redraw and short enough that a player answering a drill's
+ * steps is not waiting on it: at 200 the two frames blur together, and beyond ~400 the second board has visibly
+ * arrived before the first has left. It is also well under one second, the threshold above which an interface is
+ * reported as slow.
+ */
+const SLIDE_MS = 320;
+
+/**
+ * Whether the player has asked the system for less motion.
+ *
+ * THE SLIDE IS SKIPPED ENTIRELY when they have, rather than shortened: a translation of two boards is exactly the
+ * kind of movement `prefers-reduced-motion` exists to remove, and the pair is still shown correctly at once.
+ */
+function prefersReducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 /** A square frame with a square hole, in the shape's XY plane, ready to be laid on the floor. */
 function outlineGeometry(): THREE.ShapeGeometry {
   const outer = new THREE.Shape();
@@ -206,6 +227,11 @@ class BoardView {
   setOutline(state: WaypointState | null): void {
     this.outline.visible = state !== null;
     if (state !== null) (this.outline.material as THREE.MeshBasicMaterial).color.setHex(OUTLINE_COLOR[state]);
+  }
+
+  /** Show or hide the whole board, for the slot that waits off-screen between slides. */
+  setVisible(visible: boolean): void {
+    this.group.visible = visible;
   }
 
   /** Rescale the board for the view. See BOARD_SCALE_3D for why this is a per-view number. */
@@ -348,21 +374,33 @@ export interface StagePair {
   rightState: WaypointState;
 }
 
-/** The whole game's view: the stage, the two boards, and the 2D/3D switch — shared by both modes. */
+/** The whole game's view: the stage, the boards, and the 2D/3D switch — shared by both modes. */
 export class GameStage {
   private readonly stage: Stage;
-  private readonly left: BoardView;
-  private readonly right: BoardView;
+  /**
+   * THE THREE SLOTS. Two are the pair on screen and the third waits off to the right for a slide; the ROLES rotate
+   * on commit, so these are not `readonly` even though each one is created once.
+   */
+  private left: BoardView;
+  private right: BoardView;
+  private incoming: BoardView;
   private mode: ViewMode = '2d';
+  private scale = BOARD_SCALE;
+  /** The pair the boards are showing, and the slide in progress if there is one. */
+  private pair: StagePair | null = null;
+  private slide: { from: StagePair; to: StagePair; startMs: number } | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     // `floor: false` BECAUSE EACH BOARD BRINGS ITS OWN (see `BoardView`): the stage drawing one too would put
     // a third grid across both of them, which is the picture this change is fixing.
     this.stage = createStage(canvas, { floor: false });
-    // THE TWO BOARD GROUPS ARE PLACED BY THE SAME ARITHMETIC THAT SETS THE SCALE, so a change to one cannot
-    // silently pull them into each other.
-    this.left = new BoardView(this.stage.scene, -centreFor(BOARD_SCALE));
-    this.right = new BoardView(this.stage.scene, centreFor(BOARD_SCALE));
+    // THE BOARD GROUPS ARE PLACED BY THE SAME ARITHMETIC THAT SETS THE SCALE, so a change to one cannot silently
+    // pull them into each other.
+    const centre = centreFor(BOARD_SCALE);
+    this.left = new BoardView(this.stage.scene, -centre);
+    this.right = new BoardView(this.stage.scene, centre);
+    this.incoming = new BoardView(this.stage.scene, 3 * centre);
+    this.incoming.setVisible(false);
     // THE FLAT VIEW FIRST, because the design asks for it first and because a Drill question is geometry:
     // "which of these leaves the set where the waypoint is" reads more clearly on a flat board than through an
     // orbit camera. The 3D view is one button away and shows the same two boards.
@@ -371,11 +409,15 @@ export class GameStage {
 
   setMode(mode: ViewMode): void {
     this.mode = mode;
+    // A VIEW SWITCH ENDS ANY SLIDE: the geometry it was animating has changed under it, and half a transition in the
+    // other projection would land the boards in slots the new view does not use.
+    this.cancelSlide();
     this.stage.setView2D(mode === '2d');
     const flat = mode === '2d';
     const scale = flat ? BOARD_SCALE : BOARD_SCALE_3D;
+    this.scale = scale;
     const centre = centreFor(scale);
-    for (const board of [this.left, this.right]) {
+    for (const board of [this.left, this.right, this.incoming]) {
       board.setFlat(flat);
       board.setScale(scale);
     }
@@ -383,6 +425,7 @@ export class GameStage {
     // its 2D slot, so a constant offset overlaps the pair — see `centreFor`.
     this.left.setOffset(-centre);
     this.right.setOffset(centre);
+    this.incoming.setOffset(3 * centre);
     // THE CAMERA IS TOLD WHAT TO FIT, per view: the two views use different board scales and so reach
     // different distances from the centre. Without this the 3D view is framed for one floor and crops the
     // outer half of each board — see `arenaHalf`.
@@ -395,15 +438,27 @@ export class GameStage {
    * Draw the pair: the two boards and the border each one carries.
    *
    * THE PAIR IS THE ONLY DRAWING ENTRY POINT, because the two boards are two WAYPOINTS of one puzzle rather than a
-   * start and a goal — the left one is where the player stands (and, at the front, their own board) and the right
-   * one is the waypoint to reach. `leftIndex`/`rightIndex` travel with the boards so a later change is a SLIDE
-   * rather than a redraw; see `slide-math.ts`.
+   * start and a goal — the left one is where the player stands (and, at the front, their own board) and the right one
+   * is the waypoint to reach. When the LEFT INDEX CHANGES the pair SLIDES rather than jumping (`slide-math.ts`): the
+   * left board leaves, the right one takes its place, and the next waypoint arrives from the right.
+   *
+   * A CALL MADE EVERY FRAME IS THE NORMAL CASE — the shell's `draw()` runs from the animation loop — so a pair equal
+   * to the one on screen is a redraw, and a pair whose index has not moved is never a slide.
    */
   drawPair(pair: StagePair): void {
-    this.left.draw(pair.left, stillBoard(pair.left), WALK_STILL);
-    this.right.draw(pair.right, stillBoard(pair.right), WALK_STILL);
-    this.left.setOutline(pair.leftState);
-    this.right.setOutline(pair.rightState);
+    if (this.slide) {
+      // DURING A SLIDE THE TARGET WINS ONLY IF IT IS THE SAME TARGET; a pair that has moved AGAIN inside 320 ms has
+      // no sensible in-between, so the newer one is committed at once rather than queued.
+      if (pair.leftIndex === this.slide.to.leftIndex) return;
+      this.cancelSlide();
+    }
+    const previous = this.pair;
+    this.pair = pair;
+    if (previous && previous.leftIndex !== pair.leftIndex && !prefersReducedMotion()) {
+      this.startSlide(previous, pair);
+      return;
+    }
+    this.paint(pair.left, pair.right, pair.leftState, pair.rightState);
   }
 
   /**
@@ -415,14 +470,109 @@ export class GameStage {
    * must settle on; at `beat = 0` it draws the board the list starts from.
    *
    * THE BORDERS DO NOT MOVE WITH THE REPLAY: they describe the waypoint the pair is showing, which a motion
-   * inside one stage does not change.
+   * inside one stage does not change. A MOTION CANCELS A SLIDE, because the pair it was animating to is the pair
+   * this replay is now about.
    */
   drawMotion(motion: SequenceMotion, pair: StagePair, beat: number): void {
+    this.cancelSlide();
+    this.pair = pair;
     const frame = motion.at(beat);
     this.left.draw(frame, stillBoard(frame), walkAt(beat));
-    this.right.draw(pair.right, stillBoard(pair.right), WALK_STILL);
     this.left.setOutline(pair.leftState);
+    this.right.draw(pair.right, stillBoard(pair.right), WALK_STILL);
     this.right.setOutline(pair.rightState);
+  }
+
+  /**
+   * Advance a slide. Call once per frame, BEFORE `render` — like `updateControls`, this writes the scene graph and
+   * paints nothing, so a frame that skips it leaves the boards frozen mid-transition.
+   */
+  tick(nowMs: number): void {
+    const slide = this.slide;
+    if (!slide) return;
+    const t = Math.min(Math.max((nowMs - slide.startMs) / SLIDE_MS, 0), 1);
+    if (t >= 1) {
+      this.commitSlide();
+      return;
+    }
+    const offsets = slideOffsets(t, centreFor(this.scale));
+    this.left.setOffset(offsets.left);
+    this.right.setOffset(offsets.right);
+    this.incoming.setOffset(offsets.incoming);
+  }
+
+  /** Stop any slide where it is, putting the boards back in their resting slots. */
+  cancelSlide(): void {
+    if (!this.slide) return;
+    this.slide = null;
+    this.restSlots();
+  }
+
+  /**
+   * Forget what was drawn, so the next pair is PAINTED rather than SLID TO.
+   *
+   * A NEW PUZZLE IS NOT A STEP ALONG THE OLD ROUTE: the two boards of the next drill have no spatial relationship to
+   * the two of this one, so animating from one pair to the other would claim a continuity that does not exist. Every
+   * path that puts a different puzzle on screen calls this, and only a change of waypoint inside one puzzle slides.
+   */
+  forgetPair(): void {
+    this.cancelSlide();
+    this.pair = null;
+  }
+
+  /** The two resting slots, and the incoming board parked off to the right and hidden. */
+  private restSlots(): void {
+    const centre = centreFor(this.scale);
+    this.left.setOffset(-centre);
+    this.right.setOffset(centre);
+    this.incoming.setOffset(3 * centre);
+    this.incoming.setVisible(false);
+  }
+
+  /** Draw one board in each slot, with its border. */
+  private paint(left: Board, right: Board, leftState: WaypointState, rightState: WaypointState): void {
+    this.left.draw(left, stillBoard(left), WALK_STILL);
+    this.left.setOutline(leftState);
+    this.right.draw(right, stillBoard(right), WALK_STILL);
+    this.right.setOutline(rightState);
+  }
+
+  /**
+   * Begin a slide from `from` to `to`: three boards drawn, then the slots moved.
+   *
+   * THE THREE BOARDS ARE DRAWN ONCE, at the start: the content is a snapshot for the 320 ms of the animation, and the
+   * only thing that changes per frame is where each group sits. Drawing them per frame would rebuild nothing (the
+   * dancer ids are stable) but would still re-pose every dancer 20 times for a picture nobody is looking at.
+   */
+  private startSlide(from: StagePair, to: StagePair): void {
+    this.left.draw(from.left, stillBoard(from.left), WALK_STILL);
+    this.left.setOutline(from.leftState);
+    this.right.draw(from.right, stillBoard(from.right), WALK_STILL);
+    this.right.setOutline(from.rightState);
+    this.incoming.draw(to.right, stillBoard(to.right), WALK_STILL);
+    this.incoming.setOutline(to.rightState);
+    this.incoming.setVisible(true);
+    const startMs = performance.now();
+    this.slide = { from, to, startMs };
+    this.tick(startMs);
+  }
+
+  /**
+   * Finish a slide: ROTATE THE ROLES rather than copying content, because the boards are already in the right places.
+   *
+   * At `t = 1` the board that was in the right slot is exactly in the left slot and the incoming board is exactly in
+   * the right one, so the three views keep their content and only their NAMES change. That is why the commit cannot
+   * jump: nothing moves.
+   */
+  private commitSlide(): void {
+    if (!this.slide) return;
+    this.slide = null;
+    const leaving = this.left;
+    this.left = this.right;
+    this.right = this.incoming;
+    this.incoming = leaving;
+    this.restSlots();
+    if (this.pair) this.paint(this.pair.left, this.pair.right, this.pair.leftState, this.pair.rightState);
   }
 
   resize(): void {

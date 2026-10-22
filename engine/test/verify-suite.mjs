@@ -134,6 +134,11 @@ const SUITE = [
   // reproduces, the fractions no tam authors, and the wrong-hand refusal. A few hundred milliseconds, because
   // the harness builds no catalogue - the coded-move path is what it measures.
   { h: 'arm-turn', light: true },
+  // A TIDAL WAVE IS TWO WAVES: the partition of a long wave into the groups of four the definition says the
+  // call is danced in, and the measurement that no dancer crosses the Tidal Wave's centre. The corpus's two
+  // Tidal Wave tams are the reference, and a plain Ocean Wave is the control that a wave of four still trades.
+  // Fast: five boards, no sweep.
+  { h: 'swing-thru', light: true },
   // WHICH SOURCE SERVES A STEP: the authored tam where it agrees with the derived rule, the rule where it
   // does not. The reported spin-instead-of-walk case, the gate that keeps `Fan the Top`, and the comparison
   // itself. Fast: a handful of boards, no corpus sweep.

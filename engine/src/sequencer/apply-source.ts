@@ -18,9 +18,17 @@
 // call titles, and only **34 of those 47 agree with the rule on the end board** (1e-6). The 13 that do not
 // include ALL FOUR `Fan the Top` authorings - 2.0 to 6.8 units and 180 degrees apart - which is exactly the
 // case the derivation was shipped to FIX (`6afbc16`, "fixing a measured wave defect"). Preferring the tam
-// there would reinstate the defect the rule removed. Two `Swing Thru` authorings disagree the same way (the
-// `Tidal Wave RH/LH BGGB` pair, 1.0 and 3.0 units) and are recorded as an open adjudication rather than
-// settled here.
+// there would reinstate the defect the rule removed. Two `Swing Thru` authorings disagreed the same way (the
+// `Tidal Wave RH/LH BGGB` pair, 1.0 and 3.0 units) and were recorded here as an open adjudication.
+//
+// THAT ADJUDICATION IS CLOSED, AND THE RULE WAS THE WRONG SIDE. CALLERLAB's Tidal Wave note is explicit -
+// "no dancers cross the center of the Tidal Wave" - and the project owner ruled "The tam is the correct
+// version". The rule's fault was mechanical: it read each part off the board as it stood, so after part 1 the
+// inner dancers of the two halves stood 1.0 apart facing each other and part 2 paired them ACROSS the seam.
+// `swing-thru.ts`'s `waveGroups` now keeps both trades inside the halves, the rule reproduces that tam to
+// 0.000 units over 8 dancers, and the two authorings are no longer dissenters: the gate serves them from the
+// catalogue, which is what `engine/test/swing-thru.mjs` measures (it also proves the 0.000 against a revert).
+// The corpus-wide disagreement counts above were measured before this and were NOT re-swept with it.
 //
 // SO THE SWITCH IS GATED ON AGREEMENT: the authored paths are used when the two compute the SAME BOARD, and
 // the rule keeps every case where they disagree. The gate is a board comparison, which is the same observable

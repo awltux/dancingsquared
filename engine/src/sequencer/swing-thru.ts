@@ -92,19 +92,104 @@ function sideNeighbour(board: Board, d: D, side: 'left' | 'right', maxDist = Inf
 /**
  * `dancersHoldingRightHands` / `dancersHoldingLeftHands`: a MUTUAL same-side pair — both dancers have
  * the other as their nearest dancer on that side (within 3.0, the reference's `minDistance`).
+ *
+ * `group` KEEPS EVERY PAIR INSIDE ONE WAVE, and it is passed only where the caller already knows the
+ * partition (`waveTrades`). The Tidal Wave needs it: see `waveGroups`.
  */
-function handPairs(board: Board, side: 'left' | 'right'): [D, D][] {
+function handPairs(board: Board, side: 'left' | 'right', group?: Map<number, number>): [D, D][] {
   const out: [D, D][] = [];
   const used = new Set<number>();
   for (const d of physical(board)) {
     if (used.has(d.id)) continue;
     const w = sideNeighbour(board, d, side, 3.0);
     if (!w) continue;
+    if (group && group.get(d.id) !== group.get(w.id)) continue;
     const back = sideNeighbour(board, w, side, 3.0);
     if (!back || back.id !== d.id) continue;
     used.add(d.id);
     used.add(w.id);
     out.push([d, w]);
+  }
+  return out;
+}
+
+/**
+ * THE WAVES THE CALL IS DANCED IN — "active dancers form one or more groups of four dancers each".
+ *
+ * WHY THIS EXISTS. A Tidal Wave is TWO Ocean Waves end to end, and CALLERLAB is explicit about what that
+ * means for this call: "From a Tidal Wave, Swing Thru is danced in the Ocean Wave on each half; NO DANCERS
+ * CROSS THE CENTER of the Tidal Wave." MEASURED before this partition existed, from the corpus's `Right-Hand
+ * Tidal Wave` board (one line of eight, y = -3.5 .. -0.5 and +0.5 .. +3.5): part 1 traded correctly inside
+ * the halves and part 2 then paired the inner dancers of the two halves - 1.0 apart and facing opposite ways,
+ * which is geometrically indistinguishable from a real hand-pair - so TWO dancers crossed the centre, against
+ * the definition. The authored tam crosses none; the project owner adjudicated "The tam is the correct version".
+ *
+ * THE SEAM IS NOT VISIBLE ON THE STARTING BOARD, which is what makes this a partition rather than a search.
+ * A wave's neighbours alternate: `#4` faces 0 and `#8` faces 180 across the centre exactly as `#3` and `#4` do
+ * 1.0 apart inside a half, and the eight are evenly spaced, so NO local test tells the seam from an interior
+ * join. The only information is the count: eight dancers, groups of four. So the wave is read as a CHAIN and
+ * cut into consecutive fours from an end of it. MEASURED on the corpus's Tidal Wave: from `#1` the chain is
+ * `1 2 3 4 8 7 6 5`, giving `{1,2,3,4} {5,6,7,8}`, and from `#5` the chain is `5 6 7 8 4 3 2 1`, giving the
+ * SAME two sets - so the choice of end does not matter for the only Tidal Wave the corpus carries. It would
+ * matter for twelve, which is why the cut is taken from the first endpoint the component scan meets and this
+ * comment does not claim otherwise.
+ *
+ * A component of four or fewer is already ONE group. A LONGER one that is not a simple chain, or whose length
+ * is not a multiple of four, is also left as ONE group: the partition then restricts nothing, which is exactly
+ * the behaviour before this existed.
+ */
+export function waveGroups(board: Board): Map<number, number> {
+  const ds = physical(board);
+  // TWO DANCERS ARE WAVE NEIGHBOURS when they are a MUTUAL HAND-HOLD of either hand - the reference's own
+  // wave relation, and the only one that does not also link a dancer to the one BEYOND its neighbour: in the
+  // corpus's Tidal Wave `#1` and `#4` stand 3.0 apart, side by side and facing opposite ways, so a bare
+  // distance test makes every dancer a triple junction and yields no chain at all (MEASURED - one group).
+  const nbr = new Map<number, number[]>(ds.map((d) => [d.id, []]));
+  for (const side of ['left', 'right'] as const) {
+    for (const [a, b] of handPairs(board, side)) {
+      nbr.get(a.id)?.push(b.id);
+      nbr.get(b.id)?.push(a.id);
+    }
+  }
+  /** The component as an ordered chain, or null when it is not a simple path. */
+  const chainOf = (comp: number[]): number[] | null => {
+    const ends = comp.filter((id) => (nbr.get(id) ?? []).length === 1);
+    if (ends.length !== 2) return null;
+    const chain: number[] = [];
+    let prev = -1;
+    let cur = ends[0];
+    for (;;) {
+      chain.push(cur);
+      const next = (nbr.get(cur) ?? []).find((w) => w !== prev);
+      if (next === undefined) break;
+      prev = cur;
+      cur = next;
+    }
+    return chain.length === comp.length ? chain : null;
+  };
+  const out = new Map<number, number>();
+  const seen = new Set<number>();
+  let group = 0;
+  for (const d of ds) {
+    if (seen.has(d.id)) continue;
+    const comp: number[] = [];
+    const stack = [d.id];
+    seen.add(d.id);
+    while (stack.length > 0) {
+      const id = stack.pop() as number;
+      comp.push(id);
+      for (const w of nbr.get(id) ?? []) if (!seen.has(w)) { seen.add(w); stack.push(w); }
+    }
+    const chain = comp.length > 4 && comp.length % 4 === 0 ? chainOf(comp) : null;
+    if (chain) {
+      for (let i = 0; i < chain.length; i += 4) {
+        for (const id of chain.slice(i, i + 4)) out.set(id, group);
+        group++;
+      }
+    } else {
+      for (const id of comp) out.set(id, group);
+      group++;
+    }
   }
   return out;
 }
@@ -120,10 +205,21 @@ function exchangePairs(board: Board, pairs: [D, D][]): Board {
   return { dancers: board.dancers.map((d) => { const s = swap.get(d.id); return s ? { ...d, ...s } : d; }) };
 }
 
-/** The two trades, in the order the definition names them. */
-function twoTrades(board: Board, first: 'left' | 'right'): Board {
-  const after1 = exchangePairs(board, handPairs(board, first));
-  return exchangePairs(after1, handPairs(after1, first === 'left' ? 'right' : 'left'));
+/** The two trades, in the order the definition names them, or null when the board is not a wave.
+ *
+ *  BOTH TRADES STAY INSIDE THE WAVES READ OFF THE STARTING BOARD (`waveGroups`). Part 1 needs nothing there,
+ *  but part 2 does: after part 1 the two inner dancers of a Tidal Wave stand 1.0 apart facing each other,
+ *  which is exactly what a real hand-pair looks like, so a part 2 that reads the board afresh pairs them
+ *  ACROSS THE SEAM and two dancers cross the centre of the Tidal Wave - measured at 2 before this existed. */
+function waveTrades(board: Board, first: 'left' | 'right', second: 'left' | 'right'): [Board, Board] | null {
+  const group = waveGroups(board);
+  const touched = new Set<number>();
+  for (const side of ['left', 'right'] as const) {
+    for (const [a, b] of handPairs(board, side, group)) { touched.add(a.id); touched.add(b.id); }
+  }
+  if (!covers(board, touched)) return null;
+  const after1 = exchangePairs(board, handPairs(board, first, group));
+  return [after1, exchangePairs(after1, handPairs(after1, second, group))];
 }
 
 /**
@@ -143,14 +239,8 @@ export function swingThruLegs(board: Board, isLeft = false): Board[] | null {
   const first: 'left' | 'right' = isLeft ? 'left' : 'right';
   const second: 'left' | 'right' = isLeft ? 'right' : 'left';
   // Arm 1, an existing wave.
-  {
-    const touched = new Set<number>();
-    for (const side of ['left', 'right'] as const) for (const [a, b] of handPairs(board, side)) { touched.add(a.id); touched.add(b.id); }
-    if (covers(board, touched)) {
-      const after1 = exchangePairs(board, handPairs(board, first));
-      return [after1, exchangePairs(after1, handPairs(after1, second))];
-    }
-  }
+  const existing = waveTrades(board, first, second);
+  if (existing) return existing;
   // Arm 2, facing couples via the Facing Couples Rule: step into the momentary wave, then the same.
   const boxes = findBoxes(board);
   if (boxes.length > 0) {
@@ -164,8 +254,7 @@ export function swingThruLegs(board: Board, isLeft = false): Board[] | null {
     }
     if (waves.length > 0 && covers(board, members)) {
       const stepped: Board = { dancers: board.dancers.map((d) => waves.find((w) => w.id === d.id) ?? d) };
-      const after1 = exchangePairs(stepped, handPairs(stepped, first));
-      return [after1, exchangePairs(after1, handPairs(after1, second))];
+      return waveTrades(stepped, first, second);
     }
   }
   return null;
@@ -286,17 +375,15 @@ const covers = (board: Board, picked: Set<number>): boolean =>
  */
 export function swingThru(board: Board, isLeft = false): { board: Board; reason?: string } {
   const first: 'left' | 'right' = isLeft ? 'left' : 'right';
+  const second: 'left' | 'right' = isLeft ? 'right' : 'left';
   const ds = physical(board);
   if (ds.length < 4) return { board, reason: 'Swing Thru needs at least four dancers' };
 
-  // ARM 1 — an existing wave. The union of the two hand-hold relations must cover the dancers, which
-  // is what makes this a wave rather than a stray adjacent pair; the parts themselves need no
+  // ARM 1 — an existing wave. `waveTrades` refuses a board whose two hand-hold relations do not cover the
+  // dancers, which is what makes this a wave rather than a stray adjacent pair; the parts themselves need no
   // coverage rule, because the definition is "those who CAN turn".
-  {
-    const touched = new Set<number>();
-    for (const side of ['left', 'right'] as const) for (const [a, b] of handPairs(board, side)) { touched.add(a.id); touched.add(b.id); }
-    if (covers(board, touched)) return { board: twoTrades(board, first) };
-  }
+  const existing = waveTrades(board, first, second);
+  if (existing) return { board: existing[1] };
 
   // ARM 2 — facing couples, via the Facing Couples Rule: step into a momentary wave, then the same
   // two trades. The boxes must cover the board: a call acts on everyone it applies to, and a board
@@ -313,7 +400,8 @@ export function swingThru(board: Board, isLeft = false): { board: Board; reason?
     }
     if (waves.length > 0 && covers(board, members)) {
       const stepped: Board = { dancers: board.dancers.map((d) => waves.find((w) => w.id === d.id) ?? d) };
-      return { board: twoTrades(stepped, first) };
+      const steppedTrades = waveTrades(stepped, first, second);
+      if (steppedTrades) return { board: steppedTrades[1] };
     }
   }
 

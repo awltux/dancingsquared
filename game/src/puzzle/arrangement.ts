@@ -27,6 +27,39 @@ export function arrangementKey(board: Board): string {
 }
 
 /**
+ * THE PUZZLE'S WAYPOINTS: the route's boards, with CONSECUTIVE EQUAL FORMATIONS COLLAPSED.
+ *
+ * A WAYPOINT IS A FORMATION, so a step that leaves the set in the arrangement it was already in has not reached
+ * a new waypoint — it has done something else (turned the set, swapped the couples, pivoted). The route is a list
+ * of CALLS' boards; the waypoints are the formations along it, and the two are not the same length:
+ *
+ * MEASURED over the 24 level-1 Daily seeds `daily-waypoints-probe.mjs` generates: **16 of 24 routes repeat a
+ * formation in consecutive stages**, and in that sample EVERY repeat is a consecutive one, so the same 16 routes
+ * are the 16 whose board count exceeds their waypoint count. The waypoint count is 2..4 for a three-call Daily,
+ * with the start and the end included — which is the smallest a puzzle can be, and why "the smallest puzzle has a
+ * start and an end waypoint" is the floor here rather than a special case.
+ *
+ * CONSECUTIVE ONLY, DELIBERATELY. A route that RETURNS to an earlier formation (A → B → A) has three waypoints,
+ * not two: the player must stand in the earlier arrangement again to have passed through it the second time, which
+ * is what `waypointReached` asks for and what makes a round trip cost something. Collapsing by SET MEMBERSHIP would
+ * quietly delete that requirement.
+ *
+ * THE START IS ALWAYS WAYPOINT 1, and this returns the boards themselves rather than keys or names: a caller wants
+ * the picture to show. The keys are recomputable with `arrangementKey`, which is what progress is counted against.
+ */
+export function waypointBoards(path: readonly Board[]): Board[] {
+  const out: Board[] = [];
+  let last: string | null = null;
+  for (const board of path) {
+    const key = arrangementKey(board);
+    if (key === last) continue;
+    out.push(board);
+    last = key;
+  }
+  return out;
+}
+
+/**
  * How many of `waypoints`, IN ORDER, the player has stood on.
  *
  * IN ORDER IS THE RULE, and it is what makes the sequence a sequence rather than a set: a route may revisit an

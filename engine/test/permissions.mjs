@@ -600,5 +600,37 @@ console.log('\n== (18) A FOUR-DANCER CALL IS OFFERED ONLY TO FOUR DANCERS ==');
     `whose reason is shown verbatim ("${all8.reason}")`);
 }
 
+//  (19) THE SINGLE CIRCLE WHITE LIST says WHY, and the reason is a sentence a caller can read
+//
+console.log('\n== (19) THE SINGLE CIRCLE WHITE LIST, AND ITS REASON ==');
+// A `deny` carries the sentence the app SHOWS. This one was committed as `START A WHITE LIST`, which is a
+// note-to-self and not an explanation, so the reason is checked for the SHAPE of a sentence rather than pinned
+// word for word: the wording is meant to change as exceptions are curated, and pinning the exact string would
+// make the next honest rewording a red gate (AGENTS §4.2: pin the relationship, not the count that drifts).
+{
+  const SINGLE_CIRCLE = [
+    'Single Circle Left', 'Single Circle Left 1/4', 'Single Circle Left 1/2', 'Single Circle Left 3/4',
+    'Single Circle Right', 'Single Circle Right 1/4', 'Single Circle Right 1/2', 'Single Circle Right 3/4',
+  ];
+  const ask = (call, level) => evaluatePermissions(PERMISSION_RULES, { call, level });
+  const deniedMs = SINGLE_CIRCLE.filter((c) => !ask(c, 'ms').allowed);
+  check(deniedMs.length === SINGLE_CIRCLE.length,
+    `all ${SINGLE_CIRCLE.length} Single Circle titles are withheld at Mainstream (${deniedMs.length} were)`);
+  // "NEVER" SEMANTICS, MEASURED: a deny at MS that no later level contradicts holds at every later level, so a
+  // caller cannot reach the family by switching programme.
+  const leaked = SINGLE_CIRCLE.filter((c) => PERMISSION_LEVELS.slice(PERMISSION_LEVELS.indexOf('ms')).some((l) => ask(c, l).allowed));
+  check(leaked.length === 0, `and no later programme lifts it (${leaked.join(', ') || 'none'} did)`);
+  // THE CONTROL: the rule is specific to the family, so a neighbouring ring call is still offered.
+  check(ask('Circle Left', 'ms').allowed, 'while `Circle Left` is still offered - the rule is the family, not the ring');
+  // THE REASON ITSELF. A placeholder is ALL CAPS and short; a sentence has lower-case prose and ends in a full
+  // stop. Both halves are needed: `START A WHITE LIST` fails the first, and a one-word lower-case stub would
+  // fail the second.
+  const decided = ask('Single Circle Left', 'ms');
+  const reason = String(decided.reason ?? '');
+  check(reason === (decided.rule?.reason ?? null), `the refusal shows the rule's own reason ("${reason}")`);
+  check(reason.length >= 40 && reason !== reason.toUpperCase() && /\.$/.test(reason.trim()),
+    'and that reason is a SENTENCE a caller can act on, not a note-to-self: lower case, long enough, and closed with a full stop');
+}
+
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

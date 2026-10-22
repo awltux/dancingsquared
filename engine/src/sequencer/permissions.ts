@@ -18,8 +18,15 @@
 //     case is all-8 `Dosado` from a `Static Square`: the coded `Do Sa Do` rule returns the right answer
 //     ("#5 has no dancer directly in front of it"), but the parallel tiling manufactures the call anyway
 //     by pairing dancers six apart, and the result walks bodies through each other. No body-overlap
-//     threshold can separate it from the perfectly legal `Single Circle Left Full` - measured, every
-//     candidate criterion refused one or the other - so the distinction is a RULE, not a measurement.
+//     threshold can separate it from `Single Circle Left` - measured, every candidate criterion refused one
+//     or the other - so the distinction is a RULE, not a measurement.
+//
+//     AND THE EXAMPLE IS HISTORY, NOT A CLAIM ABOUT WHAT IS LEGAL NOW. Both sides of it are rules today: the
+//     Single Circle family is itself withheld at Mainstream (see the white-list rule below), and the title the
+//     measurement was written against, `Single Circle Left Full`, is not a corpus title any more - the corpus
+//     spells the BARE title as the full turn (`Single Circle Left`, and `... 1/2`, `1/4`, `3/4` beside it). The
+//     measurement still says what it was cited for: no geometry criterion could tell those two apart, which is
+//     why a rule exists at all.
 //
 //   * and a rule is LEVEL-SCOPED, because the programmes differ. A restriction that holds at MS may be
 //     lifted later: **a later level OVERRIDES an earlier one.**
@@ -300,13 +307,27 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       + 'couples.',
   },
   {
-      call: [
-          'Single Circle Left', 'Single Circle Left 1/4', 'Single Circle Left 1/2', 'Single Circle Left 3/4',
-          'Single Circle Right', 'Single Circle Right 1/4', 'Single Circle Right 1/2', 'Single Circle Right 3/4',
-      ],
-      level: 'ms',
-      decision: 'deny',
-      reason: 'START A WHITE LIST',
+    // THE SINGLE CIRCLE FAMILY, WITHHELD AT MAINSTREAM - a white list started and not finished, so the reason says
+    // what is MEASURED rather than pretending to be a dance rule.
+    //
+    // WHY IT IS NOT A RULE ABOUT THE DANCE. MEASURED over `ms/circle.xml`: all SIXTEEN authorings write TWO
+    // dancers (`formation="Facing Dancers"` or `Facing Dancers Far`), fifteen of them declaring
+    // `asymmetric="true"`, so every variant builds to two dancers. `applyToBoard` from a squared set therefore
+    // reaches them only by TILING - the whole-board reading needs a variant with as many dancers as the board -
+    // and a tiling chooses WHICH dancers circle. The corpus does not say who: NONE of those sixteen declares
+    // `actives`, while 28 shipped tams elsewhere do, so the attribute is present in the corpus and simply absent
+    // here. Withholding the family while those readings are curated is the honest answer, and this rule is where
+    // an exception goes when one is curated.
+    call: [
+      'Single Circle Left', 'Single Circle Left 1/4', 'Single Circle Left 1/2', 'Single Circle Left 3/4',
+      'Single Circle Right', 'Single Circle Right 1/4', 'Single Circle Right 1/2', 'Single Circle Right 3/4',
+    ],
+    level: 'ms',
+    decision: 'deny',
+    reason:
+      'Single Circle is authored two dancers at a time and names no actives, so a whole-square reading has to '
+      + 'choose which dancers circle and the corpus does not say. Withheld at Mainstream until those readings are '
+      + 'curated, and an exception belongs here when one is.',
   },
   {
     // `Boys Dosado` / `Girls Dosado` FROM A STATIC SQUARE - never, at every programme.

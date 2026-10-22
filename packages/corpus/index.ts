@@ -43,7 +43,7 @@ import { filesOf, readFile } from './files.ts';
 
 // The path half is re-exported from the root entry so a caller needs ONE specifier; `./files` stays available for
 // the callers that only want bytes (the teacher's build script, the game's whole-file loader).
-export { corpusRoot, filesOf, levelPath, readFile } from './files.ts';
+export { corpusRoot, filesOf, levelPath, levelsAvailable, readFile } from './files.ts';
 
 /** One `<tam>` in the corpus: its identity, its position, and its own text. */
 export interface TamSite {

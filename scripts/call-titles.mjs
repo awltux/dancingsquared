@@ -27,7 +27,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DOMParser } from '@xmldom/xmldom';
+
+import { filesOf, levelsAvailable, tamsOf } from 'dancing-squared-corpus';
 
 /** The corpus, located ONCE for this script — the apps read it through `vite.corpus.ts`. */
 export const CORPUS = fileURLToPath(new URL('../assets/', import.meta.url));
@@ -35,43 +36,35 @@ export const CORPUS = fileURLToPath(new URL('../assets/', import.meta.url));
 /** Where the generated module lives. A constant of this script, not of the caller: there is one module. */
 export const MODULE = fileURLToPath(new URL('../engine/src/sequencer/call-titles.ts', import.meta.url));
 
-/** Files in the corpus root that are not calls. They carry no `<tam>`, so the walk would skip them anyway. */
-const NOT_CALLS = new Set(['moves.xml', 'formations.xml']);
-
-function* callFiles(dir) {
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const p = path.join(dir, entry.name);
-    if (entry.isDirectory()) yield* callFiles(p);
-    else if (entry.name.endsWith('.xml')) yield p;
-  }
-}
-
 /**
  * Every `<tam title>` the corpus carries, deduplicated and sorted by code point.
  *
  * CODE-POINT ORDER, NOT `localeCompare`: the sort decides the generated file's line order, so it has to be the
  * same in every locale or the gate's byte comparison reports a change that is only an environment difference.
+ *
+ * THE WALK IS `packages/corpus`'s, since the consolidation: the same one the engine's harnesses, the book, the
+ * teacher and the game read, so the generated module cannot describe a corpus that a consumer does not see. The
+ * LEVELS are discovered (`levelsAvailable`) rather than listed, because this file is the one caller that must never
+ * fall behind a new programme directory; the corpus is flat (two root files, one directory per level), so
+ * "every level directory" is the whole tree and the root's `moves.xml`/`formations.xml` are outside the walk by
+ * construction rather than by an exclusion list. A file that does not parse throws with its level and name.
  */
-export function corpusCallTitles(root = CORPUS) {
-  const parser = new DOMParser();
-  const titles = new Set();
+export function corpusCallTitles() {
   let files = 0;
   let tams = 0;
   let untitled = 0;
-  for (const file of callFiles(root)) {
-    const rel = path.relative(root, file).split(path.sep).join('/');
-    if (NOT_CALLS.has(rel)) continue;
-    files++;
-    const doc = parser.parseFromString(fs.readFileSync(file, 'utf8'), 'text/xml');
-    const nodes = doc.getElementsByTagName('tam');
-    for (let i = 0; i < nodes.length; i++) {
-      tams++;
-      const title = nodes[i].getAttribute('title');
-      if (title === null || title === '') {
-        untitled++;
-        continue;
+  const titles = new Set();
+  for (const level of levelsAvailable()) {
+    for (const file of filesOf(level)) {
+      files++;
+      for (const site of tamsOf(level, file)) {
+        tams++;
+        if (!site.title) {
+          untitled++;
+          continue;
+        }
+        titles.add(site.title);
       }
-      titles.add(title);
     }
   }
   const sorted = [...titles].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));

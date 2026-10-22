@@ -23,6 +23,24 @@ export function levelPath(level: string): string {
   return path.join(CORPUS, level);
 }
 
+/**
+ * The LEVELS the corpus actually has, as its immediate subdirectories, IN THE DIRECTORY'S OWN ORDER.
+ *
+ * Derived rather than listed, for the one caller that must not keep a list: `scripts/call-titles.mjs` walks the whole
+ * corpus to generate `CALL_TITLE`, and a hand-kept level list there would silently stop seeing a new level — the
+ * generated module would then claim to hold "every title the corpus carries" while missing a programme's.
+ *
+ * The corpus is ONE FLAT LEVEL of directories over `moves.xml`/`formations.xml` (MEASURED: ten level directories and
+ * no nesting), so "immediate subdirectory" IS "level"; a nested directory would be a corpus layout change and this
+ * function is where it would show up.
+ */
+export function levelsAvailable(): string[] {
+  return fs
+    .readdirSync(CORPUS, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+}
+
 const fileCache = new Map<string, string[]>();
 
 /**

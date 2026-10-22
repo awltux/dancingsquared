@@ -544,9 +544,48 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
 
 ## P3 — VIRTUAL CALLS: a subwhole-set authoring placed on a whole-set board
 
-- [ ] **39. VIRTUAL CALLS — the resolver, then the chooser, then the cache.** `[recorded]` at `d704a6a`,
-  from the owner's design conversation; **nothing of it exists in the tree yet** (checked: no `mappingCache`
-  anywhere in the history, no branch, no mention in `PLAN.md`/`square-dancing.md`).
+- [ ] **39. VIRTUAL CALLS — the resolver, then the chooser, then the cache.** `[measured]` at `b5ebc93`;
+  **THE RESOLVER, THE CHOOSER AND THE CACHE HAVE LANDED** (`a8d77a3` engine, `d3a30b3` cache, `b5ebc93` the book's
+  report). The design record below is kept, because it is what the implementation is judged against.
+
+  **WHAT LANDED.** `engine/src/sequencer/virtual-call.ts` — `placeVirtual`, `resolveVirtual`, `chooseVirtual` —
+  `Sequencer.virtualCall`/`virtualCacheStats`, and `engine/test/virtual-call.mjs` in the LIGHT tier (45 harnesses
+  now, still the same 8 red). MEASURED, full sweep (`node engine/test/virtual-call.mjs --all`): **58,650
+  (formation, title) pairs in 45.9 s — 1,828 resolve to a single call, 85 resolve but are ambiguous, 56,737 refuse
+  with a reason**, and **425 of the catalogue's 2,203 titles have a sub-eight-dancer authoring** (24 at two, 388 at
+  four, 13 at six). The default run sweeps 20 of the 138 named formations in ~12 s and prints what it skipped.
+
+  **THE CONSTRAINT IS LOAD-BEARING, NOT DECORATION.** With a namer that names the board but no end, the same call
+  REFUSES (pinned); over the full sweep **4,264 placements were dropped for an unnamed end**. A REFLECTED placement
+  is refused BY NAME (**526 pairs**) because the track would have to be mirrored about a line that is not the
+  dancer's own axis — the format's limit, AGENTS §8 trap 18 — and the placed path is otherwise the source path
+  verbatim, pinned move for move.
+
+  **TWO REFUSALS THE CHOOSER MAKES ON PURPOSE, both MEASURED**: `Promenade` from a Static Square has two BODIES on
+  one placement (`Promenade` vs `Static Square`, both at error 0), and `Single File Promenade` has two equally good
+  placements (the boys' pair and the girls' pair) — naming the dancers settles the second, which is what
+  `preferGroup` is for.
+
+  **THE CACHE** is the matcher's third Map: keyed on the board's exact POSE SET + call + tolerance + placement
+  preference (never the formation's NAME), storing REFUSALS as values, with `virtualCacheStats()`. Pinned: a square
+  turned 90 degrees is still named `Static Square` and is a MISS with its own answer; a refusal is a hit;
+  `registerFormation` clears it.
+
+  **WHAT REMAINS, in the order to take it.**
+  (a) **DRAWING a virtual call in the book.** `book/assets/player.js` fetches `../assets/calls/<file>` and loads by
+      `(file, tamIndex)`, so a virtual call needs a generated `<tam>` file, an index field, a copy rule and a
+      `--check`. The build now REPORTS resolvability (`b5ebc93`): of its 12 unresolved start queries **5 resolve as
+      virtual calls, 3 are refused by the engine for a reason, 1 has no authoring at all and 3 name a start the
+      engine has no board for**.
+  (b) **APPLYING a virtual call to a sequencing path** (`legalNext`, the picker, the FSM) — deliberately untouched
+      here, because it moves counts that `permissions`, `level-census` and the FSM asset pin.
+  (c) **THE TWO BODIES OF `Promenade`** are an adjudication, not a bug: the corpus authors one that ends on
+      `Static Square` and one that ends on `Promenade`, both placing on a squared set's slots at error 0.
+  (d) **`Wrong Way Promenade 1/4` HAS NO AUTHORING** — the corpus publishes `Wrong Way Promenade`, `1/2` and `3/4`.
+      The book's table asks for `1/4`; that is a corpus gap the table has been waiting on.
+  (e) **`tamsOf` DOES NOT STRIP XML COMMENTS** (`book/tools/make-animations.mjs`), so in the four corpus files that
+      carry a commented-out tam its index can disagree with the DOM parse `loadCall` uses; fixing it shifts
+      `tamIndex` in the index and needs its own commit plus a regeneration (recorded in `b5ebc93`).
 
   **THE PROBLEM IT ANSWERS.** Part of the corpus is authored for PART of the set, so it cannot be applied
   from a whole-set board at all. MEASURED (`ms/promenade.xml`): `Promenade` from `Facing Couples Far` builds
@@ -594,9 +633,9 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   3. **Refusals must be cached too**, or every miss re-runs the expensive sweep forever. The engine's
      contract is that a refusal is a VALUE (§11.3), so "no embedding" is a cacheable answer with a reason.
 
-  **BUILD ORDER (not negotiable): resolver → chooser → cache.** Cache-first freezes an interface before its
-  semantics exist, which is how a cache ends up fast and wrong. Today there is nothing to cache: no function
-  resolves subset × whole-set board.
+  **BUILD ORDER (followed): resolver → chooser → cache.** Cache-first freezes an interface before its semantics
+  exist, which is how a cache ends up fast and wrong — and the order is why the first unit could be judged with
+  nothing memoised.
 
   **A VIRTUAL VARIANT IS INVENTED GEOMETRY AND MUST SAY SO.** Every derivable fact in this tree comes from
   the corpus; a synthesised variant is the exception, so it must be MARKED the way `phantom` marks an
@@ -614,12 +653,18 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   5. The cache is keyed on the board's pose set, returns a set of candidates or a recorded refusal, and a
      revert of the chooser turns a check red.
 
-  **MEASURE FIRST (before writing the resolver).** (a) how many (subset title, whole-set formation) pairs
-  have ANY valid embedding — if it is a handful, a short resolver plus a `KNOWN_*` set is the honest shape
-  and a cache buys nothing; (b) how many have MORE THAN ONE equally-good embedding (the ambiguity rate);
-  (c) the cost of one full sweep, before arguing for memoisation. The book's 12 unresolved queries are the
-  first concrete consumers and the cheapest test case: they are 2- and 4-dancer authorings asked to start
-  from a squared set.
+  **MEASURED FIRST, AND THE ANSWER CHANGED THE PLAN.** The three questions item 39 asked before any code:
+  (a) how many pairs embed at all — **1,828 of 58,650** over the full sweep, and 426 of 8,500 on the sampled one, so
+  it is a real minority rather than a handful OR a majority; (b) the ambiguity rate — **85 of 1,913 resolved
+  pairs**, which is why the chooser's refusals are affordable; (c) the cost of one sweep — **45.9 s** full, ~12 s
+  sampled, which is why the harness samples in `light` and prints what it skipped. The book's 12 unresolved queries
+  were the cheapest first consumer and are reported by `b5ebc93`.
+
+  **ACCEPTANCE, as it stands.** 1 (sweep with denominators) done, both tiers. 2 (start and end named) done, judged by
+  `knownFormation` called from the harness. 3 (independent judge) done. 4 (marker) done — `CallBundle.virtual`, and
+  resolving registers nothing. 5 (cache keyed on the pose set, refusals recorded, a chooser revert red) done: the
+  cache section pins the pose-set key, the cached refusal and the cleared cache, and the chooser's two refusals are
+  pinned by their own checks.
 
   **RELATED, AND THEY ARE NOT THE SAME QUESTION.** Item 26 (active-set tracking, the Ocean Wave Rule) is the
   layer that says WHICH dancers are acting; that is what a chooser should read rather than infer. Item 24

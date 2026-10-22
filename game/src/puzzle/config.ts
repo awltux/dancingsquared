@@ -56,8 +56,14 @@ export const NODE_BUDGET = 50_000;
  * every geometrically legal one. MEASURED at the level-1 pool from a squared set: 40 offerable titles before, 31
  * after, the nine removed being the eight `Circle Four` authorings plus `Dosado` - a call the table refuses and
  * `legalCalls` alone does not. A `g3` store would serve a drill whose button the build now refuses to offer.
+ *
+ * `g5` IS THE QUESTION SPACE: a goal candidate is a BOARD rather than a `boardSig`, and the start no longer has to be
+ * a formation the recogniser can name. MEASURED at level 1 over seeds 1..100: **27 distinct (start, goal) pictures
+ * before, 49 after**, and 12 starts before, 29 after. The old identity was positions-only (AGENTS.md §8 trap 11), so
+ * a goal that differed only in FACING was the same candidate — MEASURED, a start's named one-call goals are 1..17 by
+ * pose and 1..6 by signature. A `g4` store would serve a block whose questions this build no longer generates.
  */
-export const GENERATOR_VERSION = 'g4';
+export const GENERATOR_VERSION = 'g5';
 
 /**
  * The generator configuration for ONE LEVEL, at the budget this build ships.

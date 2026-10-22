@@ -24,6 +24,7 @@
 // in the pose, and `sameBoardById` would then disagree with the engine's own recogniser about whether
 // the player arrived. Turning it off makes the goal exactly what the calls produce.
 import { Sequencer, parseStep, sameBoardById, type Board } from 'dancing-squared-engine';
+import { poseKey } from '../puzzle/pose-key.ts';
 import type { GameApplier, Move, MoveReading, Refusal, SequenceMotion } from '../puzzle/types.ts';
 
 interface ApplierOptions {
@@ -69,12 +70,8 @@ const READINGS_CACHE_BOARDS = 32;
  */
 const OFFERED_CACHE_BOARDS = 64;
 
-/** The key: every dancer's identity, couple, gender, position and heading, exactly as floats. */
-function poseKey(board: Board): string {
-  let key = '';
-  for (const d of board.dancers) key += `${d.id},${d.couple},${d.gender},${d.x},${d.y},${d.heading};`;
-  return key;
-}
+// THE KEY IS `poseKey` FROM `puzzle/pose-key.ts` AND NOT A LOCAL COPY, because the generator needs the same identity:
+// a second spelling of "the full pose" is how two files come to disagree about whether two boards are the same one.
 
 export function createEngineApplier(opts: ApplierOptions): GameApplier {
   // A CALL IS ITS TITLE, AND ITS VARIANTS ARE THE TAMS THAT CARRY IT. The constructor registers each pair as a

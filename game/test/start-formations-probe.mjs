@@ -89,6 +89,14 @@ console.log('\n== 2. the generator opens on them — and a constant start is the
   const variedGoals = distinctBoards(generated.map((p) => p.goal));
   check(variedStarts >= 5, `those seeds open on at least five different boards (${variedStarts}, over ${generated.length} puzzles)`);
   check(variedGoals >= 5, `and reach at least five different goals (${variedGoals})`);
+  // THE QUESTION IS THE PAIR OF PICTURES, and this is the reported defect as a floor: "the drills seem to contain many
+  // duplicates". The candidate key was `boardSig` — POSITIONS ONLY — so goals that differed only in facing were one
+  // candidate; MEASURED, the 100-drill block asked 27 distinct questions before the change and 49 after, and the
+  // whole level-1 space (2000 seeds) is 89. A floor of 20 over these 40 seeds is above what the old key could reach
+  // and well below the 28 measured today.
+  const pictures = new Set(generated.map((p) => `${poseOf(p.start)}//${poseOf(p.goal)}`));
+  check(pictures.size >= 20,
+    `so they ask at least twenty different QUESTIONS — a (start, goal) pair of pictures — over ${generated.length} seeds (${pictures.size})`);
   // NEGATIVE CONTROL: the same seeds against the constant start the generator used to hardcode. This is the
   // check a revert turns red — the other checks in this section stay green with one start, because a
   // constant start still generates a legal puzzle for every seed.
@@ -108,9 +116,17 @@ console.log('\n== 2. the generator opens on them — and a constant start is the
   const other = generatePuzzle(CONFIG, 424243, LEVEL, applier);
   check(other.ok && !sameBoardById(other.puzzle.start, a.puzzle.start), 'a neighbouring seed opens on a different board');
 
-  // THE GENERATOR MAY NOT INVENT A START: whatever it opens on has to be one of the census's boards.
-  const strangers = generated.filter((p) => !named.some((b) => sameBoardById(b, p.start)));
-  check(strangers.length === 0, `every generated start is one of the census's boards (${strangers.length} stranger(s))`);
+  // THE GENERATOR MAY NOT INVENT A START: whatever it opens on has to be one of the census's boards — and the
+  // census is now EVERY buildable formation, not only the named ones. The naming gate was the rule that made the
+  // drills repeat: MEASURED at this level, 24 of the 44 declared formations have no recogniser name, so the block
+  // could only ever open on 20 of them, and the caption rule bought nothing a generic "Setup, k of n" cannot say.
+  const strangers = generated.filter((p) => !boards.some((b) => sameBoardById(b, p.start)));
+  check(strangers.length === 0, `every generated start is one of the ${boards.length} declared boards (${strangers.length} stranger(s))`);
+  // AND THE UNNAMED ONES ARE REACHABLE, which is the change itself rather than its side effect: a probe that only
+  // widened the stranger check would pass on a generator that still refused every unnamed start.
+  const unnamedStarts = generated.filter((p) => applier.nameOf(p.start) === null);
+  check(unnamedStarts.length > 0,
+    `some of those seeds open on a formation the engine does not NAME (${unnamedStarts.length} of ${generated.length}), which the old census refused`);
 
   // THE MODE IS NOT A GATE ON THE START. The Daily asks the same generator at depth 3, and a Daily and a Drill
   // that disagreed about WHICH formation a seed opens on would be two rules for one question. Measured at the
@@ -142,8 +158,10 @@ console.log('\n== 4. the puzzle still holds its own gates, from a start that is 
   check(offHome.length > 0, `the sample contains a puzzle that does not open from home (${offHome.length})`);
   const p = offHome[0];
   if (p) {
+    // THE START'S NAME IS A CAPTION, NOT A GATE. It may be null now, and the caption over the boards says
+    // "Setup, k of n" either way — so this reports which kind of start it is rather than requiring one.
     const name = applier.nameOf(p.start);
-    check(name !== null, `that start is named (${name})`);
+    check(name === null || typeof name === 'string', `that start is ${name ?? 'UNNAMED (the caption is its position)'}`);
     check(applier.nameOf(p.goal) !== null, `and its goal is named (${applier.nameOf(p.goal)})`);
     check(!sameBoardById(p.start, p.goal), 'the goal is not the start board');
     check(p.steps.length === LEVEL.depth, `it has ${p.steps.length} step(s), the level's depth (${LEVEL.depth})`);

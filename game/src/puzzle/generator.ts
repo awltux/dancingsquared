@@ -51,6 +51,8 @@
 // instrument's silence is itself a bug).
 
 import { sameBoardById, boardSig, type Board } from 'dancing-squared-engine';
+import { arrangementKey } from './arrangement.ts';
+import { poseKey } from './pose-key.ts';
 import { rngFrom, type Rng } from './rand.ts';
 import type { GameApplier, GenerateResult, GeneratorConfig, LevelSpec, Move, Puzzle, PuzzleOption, PuzzleStep } from './types.ts';
 
@@ -100,7 +102,14 @@ function distinctEndings(moves: readonly Move[]): number {
  *  - THOSE CALLS MUST END SOMEWHERE DIFFERENT, or the step offers two buttons that do the same thing.
  */
 function startRefusal(start: Board, level: LevelSpec, applier: GameApplier): string | null {
-  if (applier.nameOf(start) === null) return 'the start board has no name';
+  // THE START DOES NOT HAVE TO BE NAMED, and it did. The rule was "the start and the goal are the two pictures the
+  // player is shown, so an unnamed one is a picture with no caption" — but the start is shown with the player
+  // STANDING ON IT, so its caption is "Setup, k of n" and the name is an aside. MEASURED what the rule cost: at level
+  // 1, 24 of the 44 declared formations have no recogniser name, so the level could only ever open on 20 of them —
+  // and the same naming gate is what leaves the 100-drill block opening on 12.
+  //
+  // THE GOAL KEEPS ITS NAME (`build` refuses an unnamed one): it is the picture the player must RECOGNISE, and the
+  // caption over it is the only text that can say what they are aiming at.
   const offered = applier.offered(start);
   if (offered.length < level.optionCount) {
     return `the start offers only ${offered.length} legal call(s), fewer than the ${level.optionCount} this configuration needs`;
@@ -212,6 +221,32 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
     const dist = new Map<string, number>([[startSig, 0]]);
     const boards = new Map<string, Board>([[startSig, start]]);
     const prev = new Map<string, { board: Board; call: string }[]>();
+    /**
+     * EVERY BOARD ARRIVED AT THE LAST DEPTH, as a BOARD and the edge that reached it.
+     *
+     * THE CANDIDATE GOALS ARE BOARDS, NOT SIGNATURES, and the difference was a reported defect rather than a
+     * theoretical one: "the drills seem to contain many duplicates". `boardSig` is POSITIONS-ONLY (AGENTS.md §8 trap
+     * 11), so a goal that differs from another only in FACING is one signature — MEASURED at level 1, the named goal
+     * boards reachable in one call from a start are 1..17 per start and collapse to 1..6 by signature, and 500 seeds
+     * produced 33 distinct (start, goal) pictures with the commonest repeated 34 times. A player sees the picture, so
+     * the picture is the identity.
+     *
+     * IT COSTS NOTHING HERE AND ALMOST NOTHING DEEPER: the frontier is expanded once per signature (which is what
+     * keeps the search affordable), and this records what each expansion actually ARRIVED at, so a deeper level gains
+     * the same variety for the memory of one list.
+     */
+    const arrivals: { board: Board; fromSig: string; call: string }[] = [];
+    /**
+     * THE DISTANCE TO EACH PICTURE, which is not the distance to each signature.
+     *
+     * `dist` is keyed by `boardSig`, so a board whose POSITIONS match one already reached at a nearer depth is
+     * treated as that near — and it was being dropped as a candidate even when it is a different picture a call
+     * away. MEASURED at level 1 after the arrival recording landed but before this map: 500 seeds gave 59 distinct
+     * (start, goal) pictures and `Static Square` reached 4 of its 15 named one-call goals, because the other 11
+     * return the square's own positions with different facings. With this map the candidate filter asks the
+     * question it means: is THIS PICTURE exactly `maxDepth` calls away.
+     */
+    const poseDist = new Map<string, number>([[poseKey(start), 0]]);
     /** How many EXTRA shortest predecessors a board has, so "reachable by more than one path" is a
      * measurement rather than a hope. */
     const extraPredecessors = new Map<string, number>();
@@ -240,6 +275,13 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
           explored++;
           const sig = boardSig(move.board);
           const seen = dist.get(sig);
+          // THE ARRIVAL IS RECORDED BEFORE THE SIGNATURE BOOKKEEPING, because a board at the right depth is a goal
+          // candidate whether or not its signature is new: that is exactly the case the signature was hiding.
+          const picture = poseKey(move.board);
+          if (!poseDist.has(picture)) poseDist.set(picture, d);
+          if (goals && poseDist.get(picture) === d) {
+            arrivals.push({ board: move.board, fromSig: boardSig(board), call: move.call });
+          }
           if (seen === undefined) {
             dist.set(sig, d);
             boards.set(sig, move.board);
@@ -276,15 +318,24 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
     // NAME (it is the picture the player is shown) and it needs to differ from the start (checked in
     // `build`, with the engine's own rule). The three-options requirement belongs to the boards a step is
     // played FROM, and `build` applies it there.
-    const candidateSigs = [...dist.entries()]
-      .filter(([sig, d]) => d === config.maxDepth && sig !== startSig)
-      .map(([sig]) => sig)
-      .filter((sig) => applier.nameOf(boards.get(sig) as Board) !== null);
-    if (candidateSigs.length === 0) {
+    //
+    // THE LIST IS DEDUPED BY POSE, not by signature — the same board reached by two calls is one candidate, and two
+    // boards that differ only in facing are two. See `arrivals`.
+    const candidates: { board: Board; fromSig: string; call: string }[] = [];
+    const candidatePoses = new Set<string>([poseKey(start)]);
+    for (const arrival of arrivals) {
+      if (sameBoardById(arrival.board, start)) continue;
+      if (applier.nameOf(arrival.board) === null) continue;
+      const key = poseKey(arrival.board);
+      if (candidatePoses.has(key)) continue;
+      candidatePoses.add(key);
+      candidates.push(arrival);
+    }
+    if (candidates.length === 0) {
       const from = applier.nameOf(start) ?? 'this start';
       return hitBudget
         ? `the exploration hit its ${config.nodeBudget}-node budget after ${explored} states with no board at depth ${config.maxDepth} from ${from}`
-        : `no board is reachable in exactly ${config.maxDepth} call(s) from ${from} at this level`;
+        : `no NAMED board is reachable in exactly ${config.maxDepth} call(s) from ${from} at this level`;
     }
 
     // ---- 2. Build a path for a candidate, choosing among its ALTERNATE predecessors.
@@ -338,15 +389,18 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
       return found;
     };
 
-    const build = (goalSig: string): Puzzle | string => {
-      const found = findPath(goalSig);
-      if (!found) return 'no usable path to this candidate (a board on every route cannot carry three options)';
-      const { path, calls } = found;
-      const goal = boards.get(goalSig) as Board;
+    const build = (goal: Board, path: Board[], calls: string[]): Puzzle | string => {
       if (path.length !== config.maxDepth + 1) return `the path had ${path.length - 1} call(s), not ${config.maxDepth}`;
 
       // GATE: the start and the goal must be tellable apart, or the puzzle is "these look the same".
       if (sameBoardById(start, goal)) return 'the goal board is the start board';
+      // AND TELLABLE APART AS AN ARRANGEMENT, which is the same rule at the grain a player reads. `arrangementKey`
+      // is the engine's congruence — positions and headings, quotiented by the eight rotations and both reflections —
+      // so a ROTATED copy of the start arrives here as the same formation. MEASURED, this is exactly what widening the
+      // candidates to boards exposed: 2 of 24 Daily routes ended in their own start's arrangement. A goal may differ
+      // from another goal by facing and still be a different picture; a goal that is the START's formation is the
+      // puzzle telling the player the answer is where they already are.
+      if (arrangementKey(goal) === arrangementKey(start)) return "the goal board is the start board's arrangement, seen another way";
       // GATE: the GOAL must be a state the engine can NAME, and the reason is narrower than "every board
       // must be named". The start and the goal are the boards the game DRAWS for the player — "you are
       // here" and "get here" — so an unnamed one is a picture with no caption. (The START's name is
@@ -474,15 +528,23 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
       };
     };
 
-    // Candidates are SHUFFLED, so the choice depends on the seed rather than on BFS discovery order.
-    for (const sig of rng.shuffle(candidateSigs)) {
-      const outcome = build(sig);
+    // Candidates are SHUFFLED, so the choice depends on the seed rather than on BFS discovery order. THE PATH IS
+    // FOUND PER CANDIDATE — the candidate is a BOARD, and the chain to it is its predecessor's chain plus the call
+    // that arrived, so the last edge is the one the exploration actually took rather than one re-derived from a
+    // signature.
+    for (const candidate of rng.shuffle(candidates)) {
+      const sub = findPath(candidate.fromSig);
+      if (!sub) {
+        pathRefused.set('no usable path to this candidate (a board on every route cannot carry three options)', 0);
+        continue;
+      }
+      const outcome = build(candidate.board, [...sub.path, candidate.board], [...sub.calls, candidate.call]);
       if (typeof outcome !== 'string') return outcome;
       pathRefused.set(outcome, (pathRefused.get(outcome) ?? 0) + 1);
       if (hitBudget) break;
     }
 
-    return `${candidateSigs.length} board(s) at depth ${config.maxDepth} and none usable — ${summarise(pathRefused)}`;
+    return `${candidates.length} board(s) at depth ${config.maxDepth} and none usable — ${summarise(pathRefused)}`;
   };
 
   for (let i = 0; i < order.length; i++) {

@@ -18,6 +18,7 @@
 // has been answered correctly.
 
 import { sameBoardById, type Board } from 'dancing-squared-engine';
+import { arrangementKey, waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
 import type { Puzzle, PuzzleOption, PuzzleStep } from '../puzzle/types.ts';
 
 export type AnswerKind = 'correct' | 'wrong' | 'illegal';
@@ -67,6 +68,18 @@ export interface DrillView {
   /** Whether the puzzle is solved. */
   atEnd: boolean;
   /**
+   * THE WAYPOINTS: the puzzle's route as FORMATIONS, start first and goal last (`puzzle/arrangement.ts`), so the
+   * stage can show two adjacent ones instead of a start and a goal. The boards are the route's own.
+   */
+  waypoints: readonly Board[];
+  /**
+   * How many waypoints, IN ORDER, the answers so far have reached — 0 is the start alone.
+   *
+   * IT IS NOT `stepIndex`, AND THE TWO CAN DIFFER: a call that leaves the set in the arrangement it was already in
+   * advances the step and not the waypoint. MEASURED over 24 generated routes, 16 have at least one such stage.
+   */
+  progress: number;
+  /**
    * How many answers this puzzle has taken that were NOT correct — the Drill's `attempts`, which is the one
    * factor of the score that only this mode has (DESIGN.md 6). Counted here because it is a rule of the
    * machine rather than of a screen.
@@ -76,6 +89,15 @@ export interface DrillView {
 
 export class DrillController {
   private readonly puzzle: Puzzle;
+  private readonly waypointList: readonly Board[];
+  /**
+   * The waypoint the player is on AFTER each step, indexed by step (`0` is the start, `steps.length` is the end).
+   *
+   * PRECOMPUTED, because `view()` is asked once per animation frame by the shell's `draw()`: a `geometryKey` over
+   * every waypoint and every route board per frame would be work the picture cannot need, and it would be repeated
+   * for a value that only changes when the step does.
+   */
+  private readonly progressAtStep: readonly number[];
   private index = 0;
   private attemptsCount = 0;
   /**
@@ -114,6 +136,17 @@ export class DrillController {
     for (const step of opts.revealed ?? []) {
       if (Number.isInteger(step) && step >= 0 && step < puzzle.steps.length) this.revealedSteps.add(step);
     }
+    // THE WAYPOINTS COME FROM THE ROUTE, and the progress table from the same route: a waypoint is a FORMATION, so
+    // a stage that does not change the formation does not gain one. The drill only accepts the correct option, so
+    // the boards the player has stood on after `i` steps are exactly `path.slice(0, i + 1)`.
+    this.waypointList = waypointBoards(puzzle.path);
+    const waypointKeys = this.waypointList.map(arrangementKey);
+    const routeKeys = puzzle.path.map(arrangementKey);
+    const progressAtStep: number[] = [];
+    for (let i = 0; i <= puzzle.steps.length; i++) {
+      progressAtStep.push(waypointReached(waypointKeys.slice(1), routeKeys.slice(0, i + 1)));
+    }
+    this.progressAtStep = progressAtStep;
   }
 
   /**
@@ -149,6 +182,8 @@ export class DrillController {
       ...(step.unknown ? { unknown: step.unknown } : {}),
       ...(step.unknownIndex !== undefined ? { unknownIndex: step.unknownIndex } : {}),
       atEnd,
+      waypoints: this.waypointList,
+      progress: this.progressAtStep[Math.min(this.index, this.progressAtStep.length - 1)],
       attempts: this.attemptsCount,
     };
   }

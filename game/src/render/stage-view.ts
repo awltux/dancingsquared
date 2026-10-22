@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { DancerView, buildBoardFloor, buildFlatMarker, createStage, type Stage } from 'dancing-squared-stage';
 import { computeHandholds, type Board, type Pose } from 'dancing-squared-engine';
 import { stillBoard } from '../game/poses.ts';
+import type { WaypointState } from '../puzzle/waypoint-pair.ts';
 import type { SequenceMotion } from '../puzzle/types.ts';
 
 /**
@@ -117,11 +118,59 @@ function walkAt(beat: number): { phase: number } {
 
 export type ViewMode = '2d' | '3d';
 
+/**
+ * THE BORDER PALETTE, and it is three STATES rather than three shades: solved, next, locked.
+ *
+ * GREEN AND RED ARE THE GAME'S OWN `--ok` AND `--bad`, so a border reads as the same signal as the verdict text;
+ * BLUE IS NEW and is the colour the palette did not have. The shell copies these into CSS custom properties for the
+ * legend, so the drawn border and the swatch beside it cannot drift.
+ */
+export const OUTLINE_COLOR: Record<WaypointState, number> = {
+  solved: 0x7fe3a1,
+  next: 0x6fb7ff,
+  locked: 0xff8f8f,
+};
+
+/**
+ * HOW THE BORDER IS DRAWN: a flat square ANNULUS just outside the floor's edge, in board coordinates.
+ *
+ * A `LineLoop` would be a hairline — WebGL ignores `linewidth` — and a border that disappears at one pixel is not a
+ * state a player can read. A mesh has a thickness in BOARD units, so it scales with the board in both views.
+ *
+ * IT SITS OUTSIDE `FLOOR_HALF` (5.16 against 5) rather than on the grid's outermost line, so it never hides one, and
+ * at y = 0.02 it clears the floor (-0.001) and the grid (0) without z-fighting either.
+ */
+const OUTLINE_HALF = 5.16;
+const OUTLINE_WIDTH = 0.26;
+const OUTLINE_Y = 0.02;
+
+/** A square frame with a square hole, in the shape's XY plane, ready to be laid on the floor. */
+function outlineGeometry(): THREE.ShapeGeometry {
+  const outer = new THREE.Shape();
+  const inner = new THREE.Path();
+  const o = OUTLINE_HALF;
+  const i = OUTLINE_HALF - OUTLINE_WIDTH;
+  outer.moveTo(-o, -o);
+  outer.lineTo(o, -o);
+  outer.lineTo(o, o);
+  outer.lineTo(-o, o);
+  outer.closePath();
+  // THE HOLE IS WOUND THE OTHER WAY, which is what makes it a hole rather than a second face over the first.
+  inner.moveTo(-i, -i);
+  inner.lineTo(-i, i);
+  inner.lineTo(i, i);
+  inner.lineTo(i, -i);
+  inner.closePath();
+  outer.holes.push(inner);
+  return new THREE.ShapeGeometry(outer);
+}
+
 /** One board: its own group, one dancer view per dancer, one flat marker per dancer. */
 class BoardView {
   private readonly group = new THREE.Group();
   private readonly views: DancerView[] = [];
   private readonly markers: THREE.Group[] = [];
+  private readonly outline: THREE.Mesh;
   private ids: number[] = [];
   private flat = true;
 
@@ -134,7 +183,29 @@ class BoardView {
     // re-tuned. The stage is told `floor: false` for the same reason — one floor across the scene is one
     // background shared by two boards.
     this.group.add(buildBoardFloor().group);
+    // THE BORDER IS IN THE SAME GROUP AND HIDDEN UNTIL A STATE ARRIVES, so a board with no waypoint state yet shows
+    // no border at all rather than a default colour that would have to be explained.
+    this.outline = new THREE.Mesh(
+      outlineGeometry(),
+      new THREE.MeshBasicMaterial({
+        color: OUTLINE_COLOR.solved,
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
+    );
+    this.outline.rotation.x = -Math.PI / 2;
+    this.outline.position.y = OUTLINE_Y;
+    this.outline.visible = false;
+    this.group.add(this.outline);
     scene.add(this.group);
+  }
+
+  /** The waypoint state this board's border reports, or null for no border. See `OUTLINE_COLOR`. */
+  setOutline(state: WaypointState | null): void {
+    this.outline.visible = state !== null;
+    if (state !== null) (this.outline.material as THREE.MeshBasicMaterial).color.setHex(OUTLINE_COLOR[state]);
   }
 
   /** Rescale the board for the view. See BOARD_SCALE_3D for why this is a per-view number. */
@@ -259,11 +330,29 @@ function sameIds(a: readonly number[], b: readonly number[]): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
+/**
+ * THE TWO BOARDS AND WHAT THEIR BORDERS SAY.
+ *
+ * A puzzle is a sequence of WAYPOINTS (a waypoint is a formation), so the pair is two adjacent waypoints of ONE
+ * puzzle: the left is where the player stands — their own board while the pair is live — and the right is the
+ * waypoint to reach. The indices travel with the boards because a change of pair is a SLIDE rather than a redraw.
+ */
+export interface StagePair {
+  /** The board in the left slot: the player's board, or an in-progress motion frame during a replay. */
+  left: Board;
+  /** The waypoint to reach. */
+  right: Board;
+  leftIndex: number;
+  rightIndex: number;
+  leftState: WaypointState;
+  rightState: WaypointState;
+}
+
 /** The whole game's view: the stage, the two boards, and the 2D/3D switch — shared by both modes. */
 export class GameStage {
   private readonly stage: Stage;
-  private readonly start: BoardView;
-  private readonly goal: BoardView;
+  private readonly left: BoardView;
+  private readonly right: BoardView;
   private mode: ViewMode = '2d';
 
   constructor(canvas: HTMLCanvasElement) {
@@ -272,10 +361,10 @@ export class GameStage {
     this.stage = createStage(canvas, { floor: false });
     // THE TWO BOARD GROUPS ARE PLACED BY THE SAME ARITHMETIC THAT SETS THE SCALE, so a change to one cannot
     // silently pull them into each other.
-    this.start = new BoardView(this.stage.scene, -centreFor(BOARD_SCALE));
-    this.goal = new BoardView(this.stage.scene, centreFor(BOARD_SCALE));
+    this.left = new BoardView(this.stage.scene, -centreFor(BOARD_SCALE));
+    this.right = new BoardView(this.stage.scene, centreFor(BOARD_SCALE));
     // THE FLAT VIEW FIRST, because the design asks for it first and because a Drill question is geometry:
-    // "which of these leaves the set where the goal is" reads more clearly on a flat board than through an
+    // "which of these leaves the set where the waypoint is" reads more clearly on a flat board than through an
     // orbit camera. The 3D view is one button away and shows the same two boards.
     this.setMode('2d');
   }
@@ -286,14 +375,14 @@ export class GameStage {
     const flat = mode === '2d';
     const scale = flat ? BOARD_SCALE : BOARD_SCALE_3D;
     const centre = centreFor(scale);
-    for (const board of [this.start, this.goal]) {
+    for (const board of [this.left, this.right]) {
       board.setFlat(flat);
       board.setScale(scale);
     }
     // THE SLOTS ARE RE-DERIVED, not left where the other view put them: at the 3D scale a board is wider than
     // its 2D slot, so a constant offset overlaps the pair — see `centreFor`.
-    this.start.setOffset(-centre);
-    this.goal.setOffset(centre);
+    this.left.setOffset(-centre);
+    this.right.setOffset(centre);
     // THE CAMERA IS TOLD WHAT TO FIT, per view: the two views use different board scales and so reach
     // different distances from the centre. Without this the 3D view is framed for one floor and crops the
     // outer half of each board — see `arenaHalf`.
@@ -302,24 +391,38 @@ export class GameStage {
   }
 
 
-  /** Draw both boards at rest. */
-  drawStill(startBoard: Board, goalBoard: Board): void {
-    this.start.draw(startBoard, stillBoard(startBoard), WALK_STILL);
-    this.goal.draw(goalBoard, stillBoard(goalBoard), WALK_STILL);
+  /**
+   * Draw the pair: the two boards and the border each one carries.
+   *
+   * THE PAIR IS THE ONLY DRAWING ENTRY POINT, because the two boards are two WAYPOINTS of one puzzle rather than a
+   * start and a goal — the left one is where the player stands (and, at the front, their own board) and the right
+   * one is the waypoint to reach. `leftIndex`/`rightIndex` travel with the boards so a later change is a SLIDE
+   * rather than a redraw; see `slide-math.ts`.
+   */
+  drawPair(pair: StagePair): void {
+    this.left.draw(pair.left, stillBoard(pair.left), WALK_STILL);
+    this.right.draw(pair.right, stillBoard(pair.right), WALK_STILL);
+    this.left.setOutline(pair.leftState);
+    this.right.setOutline(pair.rightState);
   }
 
   /**
-   * Draw the left board MID-MOTION at `beat`, with the goal board still.
+   * Draw the left board MID-MOTION at `beat`, with the right-hand waypoint still.
    *
    * THE FRAME COMES FROM THE ENGINE, not from an interpolation here: `motion.at(beat)` is the engine's own
    * walk of the calls, so the picture and the verdict are computed from the same evaluation (DESIGN.md 4.3).
    * At `beat = motion.beats` this draws the board the whole list ends on, which is what a finished replay
    * must settle on; at `beat = 0` it draws the board the list starts from.
+   *
+   * THE BORDERS DO NOT MOVE WITH THE REPLAY: they describe the waypoint the pair is showing, which a motion
+   * inside one stage does not change.
    */
-  drawMotion(motion: SequenceMotion, goalBoard: Board, beat: number): void {
+  drawMotion(motion: SequenceMotion, pair: StagePair, beat: number): void {
     const frame = motion.at(beat);
-    this.start.draw(frame, stillBoard(frame), walkAt(beat));
-    this.goal.draw(goalBoard, stillBoard(goalBoard), WALK_STILL);
+    this.left.draw(frame, stillBoard(frame), walkAt(beat));
+    this.right.draw(pair.right, stillBoard(pair.right), WALK_STILL);
+    this.left.setOutline(pair.leftState);
+    this.right.setOutline(pair.rightState);
   }
 
   resize(): void {

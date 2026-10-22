@@ -42,7 +42,8 @@ import { mayWrite, signInOffered, standingOf, type Standing } from './net/standi
 import { SaveState } from './game/save-state.ts';
 import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { seasonPuzzleFor } from './game/season.ts';
-import { GameStage, type ViewMode } from './render/stage-view.ts';
+import { GameStage, OUTLINE_COLOR, type StagePair, type ViewMode } from './render/stage-view.ts';
+import { waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
 import { LevelScreen } from './ui/level-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
@@ -162,6 +163,17 @@ let replay: SequenceMotion | null = null;
 let replayOutcome: ReplayOutcome = 'settle';
 
 /**
+ * WHICH TWO WAYPOINTS THE STAGE IS SHOWING, when the player has paged away from the front, or `null` to follow the
+ * player. `puzzle/waypoint-pair.ts` owns what the pair means; this is only the shell's memory of where the player
+ * left it.
+ *
+ * IT RESETS ON EVERY PLAY ACTION — a move, an undo, a redo, an answer, a new puzzle, a mode switch — because paging
+ * is a look at the route and the next move means the player is done looking. Without that the boards would keep
+ * showing a preview while the panel offered calls from a board the player could no longer see.
+ */
+let waypointCursor: number | null = null;
+
+/**
  * THE SAVED GAME — the record, the balance, the run ledger and the finished set, behind `SaveState`
  * (`game/save-state.ts`), which owns the rules over them. It is opened in `main()` before anything is issued;
  * the shell only ever reads it or calls one of its transitions, and `persist()` below is the one writer.
@@ -185,6 +197,9 @@ let lastFrameMs = 0;
 const els = {
   labelHere: el('labelHere'),
   labelGoal: el('labelGoal'),
+  waypointPrev: el<HTMLButtonElement>('waypointPrev'),
+  waypointNext: el<HTMLButtonElement>('waypointNext'),
+  waypointLegend: el('waypointLegend'),
   regime: el('regime'),
   modeDrill: el<HTMLButtonElement>('modeDrill'),
   modeDaily: el<HTMLButtonElement>('modeDaily'),
@@ -246,13 +261,118 @@ function useLevel(next: LevelSpec): void {
   }
 }
 
-/** The board captions, from the engine's own names (DESIGN.md 15 Q10 — display only, never a correctness test). */
-function captions(here: Board, goal: Board): void {
+/**
+ * THE WAYPOINTS THE STAGE IS SHOWING, as boards, captions and a progress index — or null when there is nothing to
+ * show (no drill on screen, no Daily). ONE READER FOR BOTH MODES, because the pair means the same thing in each: the
+ * left board is the setup the player is on, the right one the waypoint to reach.
+ *
+ * THE ENGINE'S NAMES ARE CAPTIONS, NEVER TESTS (DESIGN.md 15 Q10). They are rotation-invariant and cannot tell two
+ * waypoints apart, which is why the numbered caption carries the position and the name is an aside.
+ */
+interface WaypointInfo {
+  /** The puzzle's waypoints, start first and goal last (`puzzle/arrangement.ts`). */
+  boards: readonly Board[];
+  /** One caption per waypoint: the engine's name where it has one, empty where it has not. */
+  labels: readonly string[];
+  /** How many waypoints the player has reached, in order — what `waypointPair` clamps the front to. */
+  progress: number;
+  /** The player's own board, which is the left board while the pair is live. */
+  here: Board;
+}
+
+function waypointInfo(): WaypointInfo | null {
   const name = (b: Board): string => applier?.nameOf(b) ?? '';
-  const hereName = name(here);
-  const goalName = name(goal);
-  els.labelHere.textContent = hereName ? `You are here — ${hereName}` : 'You are here';
-  els.labelGoal.textContent = goalName ? `Get here — ${goalName}` : 'Get here';
+  if (mode === 'daily' && daily) {
+    const view = daily.view(performance.now());
+    return {
+      boards: view.waypoints.map((waypoint) => waypoint.board),
+      labels: view.waypoints.map((waypoint) => waypoint.label),
+      progress: view.progress,
+      here: view.board,
+    };
+  }
+  if (controller) {
+    const view = controller.view();
+    return {
+      boards: view.waypoints,
+      labels: view.waypoints.map(name),
+      progress: view.progress,
+      here: view.from,
+    };
+  }
+  return null;
+}
+
+/** The pair the stage draws: the two boards and the state each border reports. */
+function currentPair(): { stage: StagePair; pair: WaypointPair; info: WaypointInfo } | null {
+  const info = waypointInfo();
+  if (!info) return null;
+  const pair = waypointPair(info.boards.length, info.progress, waypointCursor);
+  return {
+    stage: {
+      // THE LIVE PAIR'S LEFT BOARD IS THE PLAYER'S OWN, not the waypoint's: the Daily lets them leave the route, and
+      // showing a waypoint they are not standing in as "where you are" would be the lie this display avoids.
+      left: pair.live ? info.here : (info.boards[pair.leftIndex] ?? info.here),
+      right: info.boards[pair.rightIndex] ?? info.here,
+      leftIndex: pair.leftIndex,
+      rightIndex: pair.rightIndex,
+      leftState: pair.left,
+      rightState: pair.right,
+    },
+    pair,
+    info,
+  };
+}
+
+/**
+ * The captions over the boards, the paging buttons and the legend — from the SAME pair the stage draws, so the words
+ * and the pictures cannot disagree about which waypoint is which.
+ */
+function paintWaypoints(): void {
+  const current = currentPair();
+  if (!current) {
+    els.labelHere.textContent = 'Setup';
+    els.labelGoal.textContent = 'Next waypoint';
+    els.waypointPrev.hidden = true;
+    els.waypointNext.hidden = true;
+    els.waypointLegend.hidden = true;
+    return;
+  }
+  const { pair, info } = current;
+  const count = info.boards.length;
+  const caption = (index: number, role: string): string => {
+    const label = info.labels[index];
+    return label ? `${role}, ${index + 1} of ${count} — ${label}` : `${role}, ${index + 1} of ${count}`;
+  };
+  els.labelHere.textContent = caption(pair.leftIndex, pair.live ? 'Setup' : 'Waypoint');
+  els.labelGoal.textContent = caption(pair.rightIndex, pair.rightIndex === count - 1 ? 'Goal' : 'Next waypoint');
+  // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the arrows are HIDDEN rather than shown disabled:
+  // the smallest puzzle is two waypoints, and two grey arrows would advertise a route that does not exist.
+  const paged = count > 2;
+  els.waypointPrev.hidden = !paged;
+  els.waypointNext.hidden = !paged;
+  els.waypointPrev.disabled = !pair.canPrev;
+  els.waypointNext.disabled = !pair.canNext;
+  // THE LEGEND IS NOT DECORATION: the border states are colour, and a state told by colour alone is unreadable for a
+  // colour-blind player. It appears with the arrows because a one-pair puzzle has only "you are here" and "next".
+  els.waypointLegend.hidden = !paged;
+}
+
+/**
+ * Page the pair along the waypoints, and return to the live pair when the front is reached.
+ *
+ * THE FRONT IS NOT A CURSOR VALUE: it is wherever the player is (`min(progress, last pair)`), so paging back to it
+ * has to clear the cursor rather than store an index that a later move would leave stale.
+ */
+function pageWaypoints(delta: number): void {
+  const info = waypointInfo();
+  if (!info) return;
+  const pair = waypointPair(info.boards.length, info.progress, waypointCursor);
+  const front = Math.min(info.progress, Math.max(info.boards.length - 2, 0));
+  const next = Math.min(Math.max(pair.leftIndex + delta, 0), Math.max(info.boards.length - 2, 0));
+  waypointCursor = next === front ? null : next;
+  paintWaypoints();
+  draw();
 }
 
 /**
@@ -774,6 +894,7 @@ function setMode(next: AppMode): void {
 /** Put the app in `next`, whatever it was in before. */
 function applyMode(next: AppMode): void {
   mode = next;
+  waypointCursor = null;
   PLAYHEAD.cancel();
   replay = null;
   // A MODE SWITCH DISARMS "START OVER": it is the clearest sign the player has moved on, and a control still armed
@@ -822,6 +943,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // "Next drill" a read of a drill the server still holds in flight, which is the same dead panel from the other
   // side. `startOver` clears it too, because that path can end without a drill being shown at all.
   serverRecordedRun = false;
+  waypointCursor = null;
   position = issued.index;
   // THE SERVER'S OWN WORD ABOUT THIS RUN, taken before anything can paint: `currentStanding` reads it to decide
   // whether the run may be submitted at all, and it is set on every issued drill (false for the offline path, where
@@ -877,7 +999,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // shell's state rather than this function's. `skipOffered` (DESIGN.md §15 Q5) is still the rule for WHETHER a skip
   // is offered — it is a write against a server-issued drill, and it is not offered for a demo or a practice drill.
   els.next.hidden = true;
-  captions(puzzle.start, puzzle.goal);
+  paintWaypoints();
   paintBalance();
   persist();
   draw();
@@ -1162,6 +1284,7 @@ function startPractice(): void {
 /** Answer the current step. */
 function answer(choice: number | 'unknown'): void {
   if (!controller || !applier || PLAYHEAD.isRunning) return;
+  waypointCursor = null;
   let result;
   // THE STEP IS READ BEFORE THE ANSWER, because a correct answer ADVANCES the machine — reading it afterwards would
   // file the press against the next question, which is a wrong count the server would then score on (A22).
@@ -1320,7 +1443,7 @@ function skipDrill(): void {
 function settleDrill(): void {
   if (!controller) return;
   drillScreen.render(controller);
-  captions(controller.view().from, controller.puzzleRef.goal);
+  paintWaypoints();
 }
 /**
  * The last answer was correct: stop the clock, score the run, and record ONE drill success.
@@ -1383,7 +1506,7 @@ function finishDrill(): void {
   if (apiConfigured() && serverIssued() && mayWrite(currentStanding())) void submitSolvedRun(score, clockSeconds);
   else creditLocally();
   drillScreen.render(controller);
-  captions(controller.view().from, controller.puzzleRef.goal);
+  paintWaypoints();
   paintBalance();
   // ONE RUN, RECORDED ONCE, keyed on the id issued with the drill — so a repaint after the solve appends
   // nothing. The seed comes from the issued drill (the server's, or the fixture's) and is the one the puzzle was
@@ -1503,7 +1626,6 @@ function keepDaily(): void {
   // above the Daily's own panel.
   if (!daily) return;
   els.regime.textContent = dailyRegime();
-  captions(daily.board, daily.view(performance.now()).goal);
   paintDaily();
   draw();
 }
@@ -1541,6 +1663,7 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   const carried = stored && stored.day === day && stored.levelIndex === level.index
     ? DailyRun.resume(puzzle, applier, performance.now(), stored, { gapMs: wallGapMs(stored.savedAtMs, Date.now()) })
     : null;
+  waypointCursor = null;
   daily = carried ?? new DailyRun(puzzle, applier, performance.now());
   dailyRunId = carried && stored ? stored.runId : newRunId(Date.now());
   dailyScreen.say(
@@ -1557,7 +1680,6 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   // paints all of it on the next switch into the mode.
   if (mode === 'daily') {
     els.regime.textContent = dailyRegime();
-    captions(daily.board, daily.view(performance.now()).goal);
     paintDaily();
     draw();
   }
@@ -1575,6 +1697,7 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
  * already names the mode).
  */
 function startDaily(): void {
+  waypointCursor = null;
   daily = null;
   els.loading.hidden = true;
   dailyScreen.say("The Daily Challenge needs the game server: a challenge is published for a level and a day, and this build has no API configured.", 'info');
@@ -1798,6 +1921,7 @@ function logDailyMove(move: 'add' | 'undo' | 'redo', call: string | null = null)
 
 function playDailyCall(call: string): void {
   if (!daily || !applier || PLAYHEAD.isRunning) return;
+  waypointCursor = null;
   const from = daily.board;
   const result = daily.play(call, performance.now());
   if (result.verdict === 'illegal' || result.verdict === 'over') {
@@ -1820,6 +1944,7 @@ function playDailyCall(call: string): void {
 function undoDaily(): void {
   if (!daily || PLAYHEAD.isRunning) return;
   if (!daily.undo()) return;
+  waypointCursor = null;
   logDailyMove('undo');
   dailyScreen.say('Undone — and the clock kept running, and any hint is still spent.', 'info');
   paintDaily();
@@ -1830,6 +1955,7 @@ function undoDaily(): void {
 function redoDaily(): void {
   if (!daily || PLAYHEAD.isRunning) return;
   if (!daily.redo()) return;
+  waypointCursor = null;
   logDailyMove('redo');
   dailyScreen.say('Redone.', 'info');
   paintDaily();
@@ -1922,6 +2048,9 @@ function cap(text: string): string {
 
 function paintDaily(): void {
   if (!daily) return;
+  // THE BOARD PAIR AND ITS CAPTIONS ARE PART OF THE DAILY'S PAINT, because the waypoint the player is on is what
+  // this paint is about: a move that changed it has to move the boards, the borders and the words together.
+  paintWaypoints();
   const view = daily.view(performance.now());
   dailyScreen.show(view);
   // A SOLVED RUN IS RECORDED FROM HERE, and recording is idempotent on `dailyRunId` — so this can live in a
@@ -1947,28 +2076,18 @@ function paintDaily(): void {
   paintBalance();
 }
 
-function goalBoard(): Board | null {
-  if (mode === 'daily') return daily ? daily.view(performance.now()).goal : null;
-  return controller ? controller.puzzleRef.goal : null;
-}
-
 function draw(): void {
-  const stageNow = stage;
+  const current = currentPair();
+  if (!current) return;
   if (replay) {
-    const goal = goalBoard();
-    if (goal) {
-      // A REPLAY IS DRAWN FROM THE ENGINE'S OWN WALK, sampled at the playhead's beat — and a FINISHED one
-      // keeps its landing board on screen, because that is the whole teaching content of a wrong answer:
-      // where the call you chose actually leaves the set.
-      stageNow.drawMotion(replay, goal, PLAYHEAD.beat);
-      return;
-    }
+    // A REPLAY IS DRAWN FROM THE ENGINE'S OWN WALK, sampled at the playhead's beat — and a FINISHED one
+    // keeps its landing board on screen, because that is the whole teaching content of a wrong answer:
+    // where the call you chose actually leaves the set. The right-hand waypoint stays still, and the borders
+    // describe the pair rather than the motion.
+    stage.drawMotion(replay, current.stage, PLAYHEAD.beat);
+    return;
   }
-  if (mode === 'daily' && daily) stageNow.drawStill(daily.board, daily.view(performance.now()).goal);
-  else if (controller) {
-    const view = controller.view();
-    stageNow.drawStill(view.from, view.goal);
-  }
+  stage.drawPair(current.stage);
 }
 
 /** Start a replay of `motion`, and what finishing it means. */
@@ -2033,6 +2152,13 @@ function frame(nowMs: number): void {
 
 function main(): void {
   stage.setMode(viewMode);
+  // THE LEGEND'S SWATCHES ARE THE STAGE'S OWN COLOURS, copied rather than restated: `OUTLINE_COLOR` defines the
+  // three states once and these custom properties are what `style.css` reads, so a border and the key beside it
+  // cannot drift apart.
+  const css = document.documentElement.style;
+  for (const [state, colour] of Object.entries(OUTLINE_COLOR)) {
+    css.setProperty(`--wp-${state}`, `#${colour.toString(16).padStart(6, '0')}`);
+  }
   els.view.textContent = 'Switch to 3D';
   els.loading.hidden = true;
 
@@ -2064,6 +2190,8 @@ function main(): void {
   els.skip.addEventListener('click', skipDrill);
   els.undo.addEventListener('click', undoDaily);
   els.redo.addEventListener('click', redoDaily);
+  els.waypointPrev.addEventListener('click', () => pageWaypoints(-1));
+  els.waypointNext.addEventListener('click', () => pageWaypoints(1));
   els.hint.addEventListener('click', () => void takeHint());
   els.giveUp.addEventListener('click', giveUpDaily);
   els.replayMine.addEventListener('click', () => replayLine('mine'));

@@ -14,13 +14,24 @@
       <canvas id="stage"></canvas>
 
       <!-- THE BOARD CAPTIONS SIT OVER THE CANVAS, centred on each board's half of the frame. Without them
-           the two floor grids read as ONE board with dancers scattered across it — the two-board framing is
-           invisible until you say which side is which. They are `pointer-events: none` so a drag on the
-           board still reaches the camera controls underneath. Their TEXT is written by the app, because the
-           engine can name the board a player is standing on and naming it is a teaching aid (DESIGN.md 15,
-           Q10) — never the correctness test, which is the board itself. -->
-      <p class="board-label" id="labelHere">You are here</p>
-      <p class="board-label" id="labelGoal">Get here</p>
+           the two boards read as ONE set with dancers scattered across it. They are `pointer-events: none` so a
+           drag on the board still reaches the camera controls underneath. Their TEXT is written by the app: the
+           pair is two WAYPOINTS of one puzzle, so each caption says which waypoint and where it sits in the
+           sequence, and the engine's name is an aside (DESIGN.md 15, Q10 — display only, never the correctness
+           test, which is the board itself). -->
+      <p class="board-label" id="labelHere">Setup</p>
+      <p class="board-label" id="labelGoal">Next waypoint</p>
+
+      <!-- THE WAYPOINT PAGING. A puzzle is a sequence of waypoints and the boards show two adjacent ones; these
+           walk that window along the route so the player can look ahead or back. Hidden when the puzzle has only
+           the start and the end, because then there is nothing between to page through. Real buttons, because a
+           touch has to be able to hit them. -->
+      <button id="waypointPrev" class="wp-nav wp-prev" type="button" aria-label="Previous waypoints" hidden>‹</button>
+      <button id="waypointNext" class="wp-nav wp-next" type="button" aria-label="Next waypoints" hidden>›</button>
+      <!-- WHAT THE BORDERS MEAN. The states are colour, and a state told by colour alone is unreadable for a
+           colour-blind player, so the words are here and the swatches take their colours from the same constants
+           the stage draws with (main.ts copies them into these custom properties). -->
+      <p id="waypointLegend" hidden><span class="wp-key wp-key-solved">✓</span> solved · <span class="wp-key wp-key-next">●</span> next · <span class="wp-key wp-key-locked">✕</span> locked</p>
 
       <main id="panel">
         <header id="head">

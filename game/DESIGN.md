@@ -662,7 +662,12 @@ a seed, and the serving layer sends the boards it generates from that seed; the 
 stage it already needs. Nothing is pre-rendered, so the presentation is data rather than media (§7.4), and the
 answers cannot drift between the client and the server, because there is now only ONE derivation — the server's.
 
-- **Two boards on screen — "you are here" and "get here" — and three answer buttons.** Pressing one *dances*
+- **Two boards on screen — the current WAYPOINT and the next one — and three answer buttons.** A puzzle is a
+  sequence of waypoints and a waypoint is a formation (§9.1), so the pair is two adjacent entries of that sequence:
+  the left board is where the player stands (their own board, which can leave the generated route in the Daily) and
+  the right board is the waypoint to reach. Each carries a **border** — green solved, blue next, red locked — and a
+  **paging arrow** at each edge walks the window along the route when there is one to walk; a start-and-end puzzle
+  has a single pair and no arrows. Pressing one *dances*
   that option, then gives its verdict. The player can replay an option as often as they like before
   committing, which is the presentation room the engine buys (§7.4): a replay, a caption, a slow pass and a
   side-by-side are all the same data.
@@ -835,15 +840,24 @@ positions AND headings, taken over all eight rotations and both reflections — 
 the matcher would call them congruent", which is exactly the equivalence a waypoint wants. So the shape of the mode
 that survives this measurement is:
 
-**THE FIRST SLICE OF THAT IS BUILT** (`game/src/puzzle/arrangement.ts`, `DailyRun.view().waypoints`, the route line in
-the Daily panel):
+**THE SEQUENCE IS BUILT** (`game/src/puzzle/arrangement.ts`, `puzzle/waypoint-pair.ts`, `DailyRun.view().waypoints`,
+`DrillView.waypoints`, the route line in the Daily panel, and the two boards themselves):
 
-- `arrangementKey(board)` is `geometryKey(boardMatchables(board))` — the engine's own congruence — and the route's
-  waypoints are `puzzle.path.slice(1, -1)`, so the sequence is the generator's own route rather than a second one.
-- progress is `waypointReached(waypoints, keysPlayed)`: a monotone count over the boards the player actually stood on,
-  derived from the move stack, so an undo rewinds it for free and it cannot disagree with the line the server replays.
-- the panel shows the route as text (`✓ Ocean Wave → · Lines Facing Out → goal`), the recogniser's name as a caption
-  and the stage number where it has none. It is a readout, not a gate: correctness is still the goal board.
+- `arrangementKey(board)` is `geometryKey(boardMatchables(board))` — the engine's own congruence — and the puzzle's
+  waypoints are derived from `puzzle.path` by `waypointBoards`, so the sequence is the generator's own route rather
+  than a second one.
+- **A WAYPOINT IS A FORMATION, so consecutive equal formations collapse.** A call that leaves the set in the
+  arrangement it was already in reaches no new waypoint. MEASURED over 24 generated level-1 routes: **16 of 24 repeat
+  a formation in consecutive stages** and every repeat in the sample is a consecutive one, so the waypoint count is
+  **2..4** where the board count is 4. A RETURN is still a new waypoint (A → B → A is three), which is what makes a
+  round trip cost a call.
+- progress is `waypointReached(waypoints.slice(1), boardsStoodOnInOrder)`: a monotone count over the formations the
+  player actually stood in, derived from the move stack in the Daily and from the route prefix in the Drill — so an
+  undo rewinds it for free and it cannot disagree with the line the server replays.
+- **the boards ARE the sequence**: the stage shows two adjacent waypoints with a border on each (`waypoint-pair.ts`
+  decides which two and what each says), the arrows page the window along the route, and the panel shows the same
+  list as text. It is a readout, not a gate: correctness is still the goal board, and no call is refused because a
+  waypoint is ahead.
 
 MEASURED, and it is the number that justifies the arrangement being the unit: from a squared set, **143 of 192 readings
 leave a different arrangement and 49 leave the SAME arrangement on a DIFFERENT board** — a quarter of the legal moves
@@ -1549,7 +1563,21 @@ findings, each with the measurement that produced it:
 4. **The two boards' scale and offsets are arithmetic, not taste.** The stage frames a 10-unit floor, a board
    IS 10 units across, so `2·10s + gutter ≤ 10` fixes `s = 0.42` and centres at ±2.9. The first attempt
    (0.45 at ±2.6) put each board's inner edge INSIDE the other's, so both grids and both sets of dancers
-   overlapped in the middle — the one thing "you are here" and "get here" must never do.
+   overlapped in the middle — the one thing two boards must never do. **AND THE CENTRE FOLLOWS THE SCALE**
+   (`centreFor(scale) = 5·scale + gutter/2`), which closed a second overlap that one shared grid had hidden: at the
+   3D scale 0.68 a board's half-width is 3.4 around a centre of 2.9, so the two 3D boards OVERLAPPED by 1.0 unit.
+   The arena is 8.2 in 3D (was 6.3) and 5.6 in 2D — the stage's own default, reached by arithmetic rather than luck.
+5. **Each board carries its own floor and grid, and the game draws no axis labels.** The stage built ONE floor for
+   the whole scene, so two boards stood on one background and no line was in a board's own coordinates — reported as
+   "the background grid looks like it's not aligned with the dancer layout" and "two boards on a single background".
+   `buildBoardFloor()` returns a floor in BOARD coordinates and `BoardView` adds it inside the board's group, where
+   the dancers already live, so a grid line and a dancer's position are the same coordinate by construction. Its
+   axis key (`0°/East`, the four arrows) is OPT-IN and the game does not ask for it: it is the editor's coordinate
+   reading, and on a game board it would be noise on every one of two boards.
+6. **A waypoint's state is a border, and its colour is one definition.** `OUTLINE_COLOR` in `render/stage-view.ts`
+   holds solved/next/locked once; the shell copies them into CSS custom properties for the legend beside the boards,
+   so the drawn border and the words cannot drift. The border is a flat square annulus in board coordinates — a
+   `LineLoop` would be a hairline, and a state told by a hairline is not one a player can read.
 
 **And what the browser check could NOT settle:** the 3D view renders the same two boards and the toggle works
 (verified: the button flips and the avatars replace the markers), but at the two-board scale a 2-unit avatar

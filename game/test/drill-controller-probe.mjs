@@ -11,6 +11,7 @@
 // right in a screenshot — the buttons would disable and a verdict would appear.
 //
 // Usage: node game/test/drill-controller-probe.mjs   (engine must be built)
+import { makeSquaredSet } from 'dancing-squared-engine';
 import { DrillController } from '../src/game/drill.ts';
 let failures = 0;
 const check = (cond, msg) => {
@@ -204,6 +205,49 @@ console.log('\n== the drill resumes where it was issued ==');
   check(clamped.revealed.length === 1 && clamped.revealed[0] === 0, `and a revealed step outside this puzzle is dropped (${JSON.stringify(clamped.revealed)})`);
   const fresh = new DrillController(twoStep);
   check(!fresh.atEnd && fresh.view().stepIndex === 0 && fresh.view().attempts === 0 && fresh.revealed.length === 0, 'and no options is the fresh state every other probe here uses');
+}
+
+console.log('\n== the waypoints: a puzzle is a sequence of FORMATIONS, not of steps ==');
+{
+  // ONE-DANCER BOARDS ARE ENOUGH FOR THE MACHINE AND USELESS FOR A WAYPOINT: `geometryKey` normalises position and
+  // rotation, so every one-dancer board is the same arrangement. These are real squared sets. `nudge` changes the
+  // formation; `shift` moves the same one elsewhere on the floor, which is NOT a new waypoint.
+  const A = makeSquaredSet();
+  const B = { dancers: A.dancers.map((d, i) => (i === 0 ? { ...d, x: d.x + 0.5 } : d)) };
+  const B2 = { dancers: B.dancers.map((d) => ({ ...d, x: d.x + 1 })) };
+  const D = { dancers: A.dancers.map((d, i) => (i === 0 ? { ...d, x: d.x + 1.5 } : d)) };
+  /** A two-step puzzle along `[A, middle, end]`, with the answer buttons the controller reads. */
+  const twoStep = (middle, end) => ({
+    ...puzzle,
+    start: A,
+    goal: end,
+    path: [A, middle, end],
+    steps: [
+      { from: A, moves: [{ call: 'First', board: middle }], correctIndex: 0, after: middle },
+      { from: middle, moves: [{ call: 'Second', board: end }], correctIndex: 0, after: end },
+    ],
+    solution: ['First', 'Second'],
+    shortest: 2,
+  });
+
+  const collapse = new DrillController(twoStep(B, B2));
+  const v0 = collapse.view();
+  check(v0.waypoints.length === 2, `three route boards, TWO waypoints — the end is the formation the middle already was (${v0.waypoints.length})`);
+  check(v0.waypoints[0] === A && v0.waypoints[1] === B, 'and each is the route’s own board, for the picture');
+  check(v0.progress === 0, 'the start is waypoint 1, so nothing is behind the player yet');
+  collapse.answer(0);
+  check(collapse.view().stepIndex === 1 && collapse.view().progress === 1, 'a step that changes the formation advances the waypoint');
+  collapse.answer(0);
+  check(collapse.view().atEnd, 'the second answer solves the puzzle');
+  check(collapse.view().progress === 1, `and reaches NO new waypoint, because it ends in the formation it was in (${collapse.view().progress})`);
+
+  // THE CONTROL: the same two steps with the formations kept distinct read TWO waypoints, so the count follows the
+  // formations rather than ignoring the step index.
+  const distinct = new DrillController(twoStep(B, D));
+  distinct.answer(0);
+  distinct.answer(0);
+  check(distinct.view().progress === 2, `NEGATIVE CONTROL: with a distinct end formation the same two steps reach two (${distinct.view().progress})`);
+  check(distinct.view().waypoints.length === 3, 'and the list is three long, one per formation');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

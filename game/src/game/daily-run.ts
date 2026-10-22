@@ -21,7 +21,7 @@
 
 import type { Board } from 'dancing-squared-engine';
 import { elapsedSeconds, scoreRun, type RunScore } from '../puzzle/score.ts';
-import { arrangementKey, waypointReached } from '../puzzle/arrangement.ts';
+import { arrangementKey, waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
 import { PlaySession, type Verdict } from '../puzzle/session.ts';
 import type { GameApplier, LevelSpec, Move, MoveReading, Puzzle } from '../puzzle/types.ts';
 import { Stopwatch } from './clock.ts';
@@ -41,20 +41,27 @@ export interface DailyView {
    */
   goalName: string | null;
   /**
-   * THE WAYPOINTS, and how far through them the player is.
+   * THE WAYPOINTS, and how far through them the player is — the two boards the stage shows and their borders.
    *
    * WHY THE MODE HAS THEM AT ALL (DESIGN.md §9.1, and the measurement that put them there): a full enumeration of a
    * Daily at pool 20 is 2 546 477 distinct three-call lines of which exactly ONE reaches the goal, so "warn about a
-   * dead end" cannot be done by enumerating lines — but the ARRANGEMENTS a route passes through are few, distinct
-   * along a generated route (MEASURED, 11 of 12 routes visit a new one at every stage), and identical for two
-   * different calls that land in the same setup. So the sequence is the legible thing, and the picker can say which
-   * stage the player is on without any graph at all.
+   * dead end" cannot be done by enumerating lines — but the FORMATIONS a route passes through are few, and identical
+   * for two different calls that land in the same setup. So the sequence is the legible thing, and the picker can say
+   * which waypoint the player is on without any graph at all.
    *
-   * THE LABEL IS A CAPTION: the recogniser's name when it has one, otherwise the stage number. It is NEVER the test —
-   * the names are rotation-invariant and cannot tell the stages apart (all three of one measured route are
-   * "Static Square"), while `arrangementKey` can.
+   * THE BOARD IS CARRIED BECAUSE THE DISPLAY IS A PICTURE: "the next waypoint" is a set to stand in, not a name.
+   * THE LABEL IS A CAPTION — the recogniser's name where it has one, otherwise the waypoint's number. It is NEVER
+   * the test: the names are rotation-invariant and cannot tell the waypoints apart (all three of one measured route
+   * are "Static Square"), while `arrangementKey` can.
    */
-  waypoints: { label: string; reached: boolean }[];
+  waypoints: { board: Board; label: string }[];
+  /**
+   * How many waypoints the player has reached, IN ORDER (`waypointReached`) — 0 is the start alone.
+   *
+   * IT IS DERIVED FROM THE MOVE STACK, not stored, so an undo rewinds it for free and it cannot disagree with the
+   * line the server replays. This is the index `waypointPair` turns into the two boards and their three states.
+   */
+  progress: number;
   /**
    * EVERY legal move from `board` right now, with the reading that makes it legal — the offering list
    * (DESIGN.md 9, "what is legal now"), grouped by the dancers who can perform it.
@@ -93,14 +100,15 @@ export class DailyRun {
   private readonly puzzle: Puzzle;
   private readonly applier: GameApplier;
   /**
-   * The WAYPOINTS: the intended route's intermediate boards, minus the start and the goal.
+   * THE WAYPOINTS: one per FORMATION the route passes through, the start first and the goal last.
    *
-   * THEY ARE `path.slice(1, -1)` RATHER THAN A SECOND GENERATED FIELD, and that is a decision rather than a
+   * THEY ARE DERIVED FROM `puzzle.path` RATHER THAN A SECOND GENERATED FIELD, and that is a decision rather than a
    * shortcut: the path IS the generator's route, so a waypoint list generated separately could describe a route the
-   * puzzle's own solution does not take. A board per stage, plus its arrangement key (computed once), is all the view
-   * needs.
+   * puzzle's own solution does not take. `waypointBoards` collapses consecutive equal formations, because a call
+   * that leaves the set in the arrangement it was already in has reached no new waypoint — MEASURED, 16 of 24
+   * level-1 routes do that at least once.
    */
-  private readonly waypointBoards: readonly Board[];
+  private readonly waypointList: readonly Board[];
   private readonly waypointKeys: readonly string[];
   private readonly clock = new Stopwatch();
   private hintsUsed = 0;
@@ -117,8 +125,8 @@ export class DailyRun {
   constructor(puzzle: Puzzle, applier: GameApplier, nowMs: number, allowance?: number) {
     this.puzzle = puzzle;
     this.applier = applier;
-    this.waypointBoards = puzzle.path.slice(1, -1);
-    this.waypointKeys = this.waypointBoards.map(arrangementKey);
+    this.waypointList = waypointBoards(puzzle.path);
+    this.waypointKeys = this.waypointList.map(arrangementKey);
     this.session = new PlaySession(puzzle, applier, allowance);
     this.clock.start(nowMs);
   }
@@ -292,20 +300,22 @@ export class DailyRun {
     const clockSeconds = this.clock.elapsedSeconds(nowMs);
     const session = this.session.view();
     // THE WAYPOINT PROGRESS IS DERIVED FROM THE MOVE STACK, never stored: an undo therefore rewinds it for free, and
-    // the count cannot disagree with the line the server will replay.
-    const waypointKeys = this.waypointKeys;
+    // the count cannot disagree with the line the server will replay. THE START IS NOT SEARCHED FOR — waypoint 1 is
+    // the start by definition and is reached by standing on it, so what counts here is how many of the waypoints
+    // AFTER it the player has stood in, in order.
     const played = this.session.playedBoards().map(arrangementKey);
-    const reached = waypointReached(waypointKeys, played);
+    const reached = waypointReached(this.waypointKeys.slice(1), played);
     return {
       level: this.puzzle.level,
       board: this.board,
       goal: this.puzzle.goal,
       goalName: this.applier.nameOf(this.puzzle.goal),
-      waypoints: this.waypointBoards.map((board, i) => ({
-        // THE CAPTION, not the test: the recogniser's name where it has one, the stage number where it does not.
-        label: this.applier.nameOf(board) ?? `arrangement ${i + 1}`,
-        reached: i < reached,
+      waypoints: this.waypointList.map((board, i) => ({
+        board,
+        // THE CAPTION, not the test: the recogniser's name where it has one, the waypoint's number where it has not.
+        label: this.applier.nameOf(board) ?? `waypoint ${i + 1}`,
       })),
+      progress: reached,
       readings: this.outcome === 'playing' ? this.session.readings() : [],
       moves: session.moves,
       canUndo: this.outcome === 'playing' && session.movesUsed > 0,

@@ -11,6 +11,7 @@
 // charge is refunded by an undo. Both are printed in the summary of the commit that added this file.
 //
 // Usage: node game/test/daily-run-probe.mjs   (engine must be built: session.ts imports boardSig)
+import { makeSquaredSet } from 'dancing-squared-engine';
 import { DailyRun } from '../src/game/daily-run.ts';
 
 let failures = 0;
@@ -308,6 +309,53 @@ console.log('\n== 9. a record that no longer applies is REFUSED, not repaired ==
   // moves are the truth and the outcome has to agree with them.
   const contradictory = DailyRun.resume(puzzle, applier, 20000, { ...saved, outcome: 'solved' }, {});
   check(contradictory === null, 'nor does a record claiming a solve its own moves do not reach');
+}
+
+console.log('\n== 7. the waypoints are formations, and undo rewinds the progress ==');
+{
+  // ONE-DANCER BOARDS ARE ENOUGH FOR THE RUN AND USELESS FOR A WAYPOINT: `geometryKey` normalises translation and
+  // rotation, so every one-dancer board is the same arrangement. These are real squared sets; `nudge` changes the
+  // formation and `shift` moves the same one, which is the distinction `puzzle/arrangement.ts` is built on.
+  const A = makeSquaredSet();
+  const B = { dancers: A.dancers.map((d, i) => (i === 0 ? { ...d, x: d.x + 0.5 } : d)) };
+  const C = { dancers: B.dancers.map((d) => ({ ...d, x: d.x + 1 })) };
+  const ROUTE = new Map([[A, { 'go-b': B }], [B, { 'go-c': C }], [C, {}]]);
+  /** The same stub surface as above, over the real boards and by IDENTITY, which is exact for these. */
+  const stub = {
+    ...applier,
+    offered: (b) => Object.entries(ROUTE.get(b) ?? {}).map(([call, board]) => ({ call, board })),
+    readings: (b) => Object.entries(ROUTE.get(b) ?? {}).map(([call, board]) => ({ call, selection: null, board })),
+    refusalOf: (b, call) => (call in (ROUTE.get(b) ?? {}) ? null : { call, reason: 'no' }),
+    apply: (b, call) => {
+      const out = ROUTE.get(b)?.[call];
+      if (!out) throw new Error(`apply(${call}) was refused after refusalOf said it applies`);
+      return out;
+    },
+    boardsMatch: (x, y) => x === y,
+    nameOf: (b) => (b === A ? 'Squared Set' : b === B ? 'Ocean Wave' : 'Ocean Wave, moved'),
+  };
+  const p = { ...puzzle, start: A, goal: C, path: [A, B, C], solution: ['go-b', 'go-c'], shortest: 2 };
+  const run = new DailyRun(p, stub, 0, 4);
+  const v = run.view(0);
+  check(v.waypoints.length === 2, `three route boards, TWO waypoints — C is the formation B already was (${v.waypoints.length})`);
+  check(v.waypoints[0].board === A && v.waypoints[1].board === B, 'and each carries the route’s own board, for the picture');
+  check(v.waypoints[0].label === 'Squared Set' && v.waypoints[1].label === 'Ocean Wave',
+    `with the recogniser's name as the caption (${v.waypoints.map((w) => w.label).join(' → ')})`);
+  check(v.progress === 0, 'the start is waypoint 1, so nothing is behind the player yet');
+
+  run.play('go-b', 1000);
+  check(run.view(1000).progress === 1, 'a move into a new formation advances the waypoint');
+
+  // THE USER'S RULE, MEASURED: "the existing undo/redo buttons should update these states" — progress is derived
+  // from the move stack, so it rewinds and re-advances with it and cannot disagree with the line. This is done
+  // BEFORE the solve, because a finished run closes the stack (section 3 pins that).
+  check(run.undo() === true && run.view(1500).progress === 0, 'undo rewinds the waypoint to the start');
+  check(run.redo() === true && run.view(1500).progress === 1, 'and redo brings it back');
+
+  run.play('go-c', 2000);
+  check(run.view(2000).outcome === 'solved', 'the second move reaches the goal board');
+  check(run.view(2000).progress === 1, `and reaches NO new waypoint, because it ends in the formation it was already in (${run.view(2000).progress})`);
+  check(run.undo() === false, 'a solved run closes the stack, so that state cannot be unwound by accident');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

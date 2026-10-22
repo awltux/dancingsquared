@@ -100,31 +100,31 @@ export class DailyScreen {
         ? 'Solved. That is the run.'
         : 'Given up — you can still replay both lines below.';
 
-    // THE WAYPOINT SEQUENCE, as text: what the route passes through, which stages are behind the player, and which is
-    // next. A "✓" is a stage whose arrangement the player has stood in — not a call they made, because many calls land
-    // in the same arrangement and the route is a sequence of ARRANGEMENTS (puzzle/arrangement.ts).
+    // THE WAYPOINT SEQUENCE, as text: the formations the puzzle passes through, which of them the player has stood
+    // in, and which is next. A "✓" is a WAYPOINT reached IN ORDER — not a call they made, because many calls land in
+    // the same formation and a call that leaves the set where it already was does not reach a new one
+    // (puzzle/arrangement.ts owns the rule, and `waypoint-pair.ts` the states the board borders draw).
+    //
+    // THE NUMBER IS PART OF THE LABEL because the captions over the boards say "waypoint 2 of 4" and the two have to
+    // be read as the same list.
     this.els.waypoints.replaceChildren();
     if (view.waypoints.length > 0) {
       const label = document.createElement('span');
       label.textContent = 'Route: ';
       this.els.waypoints.append(label);
-      for (const [i, stage] of view.waypoints.entries()) {
+      for (const [i, waypoint] of view.waypoints.entries()) {
         if (i > 0) {
           const arrow = document.createElement('span');
           arrow.className = 'waypoint-arrow';
           arrow.textContent = ' → ';
           this.els.waypoints.append(arrow);
         }
+        const reached = i <= view.progress;
         const mark = document.createElement('span');
-        mark.className = stage.reached ? 'waypoint reached' : 'waypoint';
-        mark.textContent = `${stage.reached ? '✓' : '·'} ${stage.label}`;
+        mark.className = reached ? 'waypoint reached' : 'waypoint';
+        mark.textContent = `${reached ? '✓' : '·'} ${i + 1}. ${waypoint.label}`;
         this.els.waypoints.append(mark);
       }
-      const arrow = document.createElement('span');
-      arrow.className = 'waypoint-arrow';
-      // THE GOAL CLOSES THE SEQUENCE and is named by the prompt above, so it is marked rather than captioned twice.
-      arrow.textContent = ' → goal';
-      this.els.waypoints.append(arrow);
     }
 
     this.els.offer.replaceChildren();

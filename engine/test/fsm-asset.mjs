@@ -74,9 +74,18 @@ const check = (cond, msg) => {
 // `node poc/scripts/build-fsm-asset.mjs` ("built in 55867ms: 70 states, 3958 edges"): catalog 274 -> 290
 // (+10 at `d3c0800`, +4 at `ab254d9`, +2 at `a476a4f`), states 65 -> 70, edges 2308 -> 3958. The five
 // extra states are the formations the new calls declare; nothing about the SCOPE rule above changed.
-const EXPECTED_STATES = 70;
-const EXPECTED_EDGES = 3958;
-const EXPECTED_CATALOG = 290;
+//
+// 290 / 70 / 3958 -> 291 / 68 / 3934 IS THE RETITLING, AND IT IS THE RE-PIN THAT PROVES THE STALENESS WAS
+// THE WHOLE RED. Measured before this re-pin, with the asset at 290/70/3958 and a rebuild at 291/68/3934:
+// 68 of the 70 stored states differed, and the stored state NAMES were the pre-retitle titles
+// (`Circle Left - Stop at Home` where the corpus now says `Circle Left Home`) - so the shipped FSM view was
+// labelling nodes with names the corpus no longer carries. The catalogue GREW by one call while the table
+// SHRANK by two states: the Circle family's `… - Stop at Home` variants were renamed rather than added, and
+// eight `… and Roll` star authorings were commented out of `ms/star.xml`, which removes two start setups the
+// table used to hold. Regenerated in `agent/one-fsm-asset` ("built in 85106ms: 68 states, 3934 edges").
+const EXPECTED_STATES = 68;
+const EXPECTED_EDGES = 3934;
+const EXPECTED_CATALOG = 291;
 
 const msFiles = {};
 for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
@@ -196,7 +205,24 @@ const freshEdges = fresh.edges ?? {};
   // where the identity change moved only `whole`. `out-of-scope` FALLS 17 -> 14 and `novel` 640 -> 346,
   // which is the direction the graph says it should: more of the catalogue is now admitted from a named
   // state, so fewer edges land nowhere.
-  const PINNED = { whole: 1643, 'full-tiling': 1186, partial: 1129, state: 3598, 'out-of-scope': 14, novel: 346 };
+  //
+  // AND 1643/1186/1129/3598/14/346 -> 1652/1145/1137/3594/12/328 IS THE RETITLING RE-PIN, and the two sums
+  // still balance (`1652 + 1145 + 1137 = 3934`, `3594 + 12 + 328 = 3934`).
+  //
+  // WHERE THE MOVEMENT COMES FROM, MEASURED by diffing the stale asset against this one edge by edge:
+  //   * TWO STATES DISAPPEAR AND NONE IS ADDED — `@embed#68` and `@embed#69`, the anonymous start setups of
+  //     authorings the corpus no longer carries (the eight `… and Roll` star variants are comment-only now, and
+  //     `engine/test/corpus-inventory.mjs` pins that set);
+  //   * and `@embed#N` IS AN INDEX, NOT AN IDENTITY, so removing two renumbers every later one: the old-vs-new
+  //     diff shows `@embed#49 -> @embed#48`, `@embed#56 -> @embed#55` and so on. That is what moves the
+  //     END-KIND histogram, and it is why the counts are re-pinned rather than reasoned about.
+  //   * on the 3934 edges the two tables share, `reading` moves on 55 (24 full-tiling->partial, 23
+  //     partial->whole, 8 whole->partial) and `endKind` on 103 (50 novel->state, 46 state->novel, 4
+  //     out-of-scope->state, 3 out-of-scope->novel). Witnesses: `Double Pass Thru` / `Square Thru 2`,
+  //     `T-Bone DLDL` / `Square Thru 3` and `@embed#46` / `Dosado` all go full-tiling -> partial.
+  // So this is a DATA change (a state set that renumbered), not a rule change, and the next re-pin should
+  // expect the same shape whenever an `@embed#N` state is added or removed near the front of the list.
+  const PINNED = { whole: 1652, 'full-tiling': 1145, partial: 1137, state: 3594, 'out-of-scope': 12, novel: 328 };
   let moved = 0;
   for (const [k, want] of Object.entries(PINNED)) {
     const got = reading[k] ?? kind[k];

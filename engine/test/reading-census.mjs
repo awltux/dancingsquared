@@ -117,11 +117,18 @@ console.log('== the call set, reproduced from the generator ==');
   // asset's `catalogCount` and so has to move whenever either does. Both sides are 290 now that
   // `node poc/scripts/build-fsm-asset.mjs` has been re-run; the constant would have been the only thing
   // failing, and the message above it would have read "290 ... built from 290" while it did.
+  //
+  // 290 -> 291 IS THE SAME PIN MOVING WITH THE SAME REGENERATION (`agent/one-fsm-asset`): the live
+  // catalogue is 291 and the asset was rebuilt from 291, so both sides agree and only the constant was
+  // stale. MEASURED on the stale asset, this harness failed FOUR checks; on the regenerated one it fails
+  // three, and the two it cleared are the point: `102 build edge(s) were NOT reproducible` -> 0, and
+  // `9 edge(s) disagree about the reading` -> 3 (the three that remain are a live engine-vs-table question,
+  // not staleness, and the multi-arity pool pin below is corpus drift - neither is this change's subject).
   const pinnedAsset = JSON.parse(read('fsm-ms.json'));
   const byTitle = new Map();
   for (const e of entries) byTitle.set(e.name, (byTitle.get(e.name) ?? 0) + 1);
   const dupes = [...byTitle].filter(([, n]) => n > 1);
-  check(entries.length === 290 && pinnedAsset.catalogCount === 290,
+  check(entries.length === 291 && pinnedAsset.catalogCount === 291,
     `${entries.length} ms catalog entries, and the stored asset was built from ${pinnedAsset.catalogCount}`);
   check(titles.length === byTitle.size,
     `${titles.length} registered titles for ${byTitle.size} distinct titles` +

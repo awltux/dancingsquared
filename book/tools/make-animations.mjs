@@ -30,7 +30,7 @@ import { loadRoots, makeResolver } from './lib/variants.mjs';
 import { corpusRoot, matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, writePng } from './lib/raster.mjs';
-import { PALETTE, C, MARKER_UNITS, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, displayIdOf, trailSlot } from './lib/board-style.mjs';
+import { PALETTE, C, MARKER_UNITS, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, trailSlot } from './lib/board-style.mjs';
 
 const MAP = join(toolsDir, 'call-map.json');
 const ANIM_DIR = join(toolsDir, '..', 'animations');
@@ -346,12 +346,6 @@ function drawDancers(canvas, view, dancers, poses) {
       width: ink,
       nose: halfW * NOSE_HALF_OF_SIDE,
     });
-    const num = displayIdOf(i);
-    // The number stands OUTSIDE the body, because a body 0.45 deep has no room for a legible digit.
-    if (num) {
-      const s = Math.max(1, Math.min(8, Math.round(halfW * 0.2)));
-      canvas.digit(num, Math.round(cx - 1.5 * s), Math.round(cy + halfW * 0.95), s, C.ink);
-    }
   });
 }
 /** Render one call to a list of index frames. */

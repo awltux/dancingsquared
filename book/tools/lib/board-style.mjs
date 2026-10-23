@@ -119,20 +119,7 @@ export function hexOf(index) {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-/**
- * THE BOOK'S IDENTITY IS THE START FORMATION'S DANCER INDEX - there is no home identity on a page.
- *
- * Home identity belongs to the POC's sequencer, which has to keep a dancer across a whole tip. A call page shows
- * ONE call from ONE start formation, so the only stable identity is the position in that formation's own dancer
- * order: dancer `i` (0-based) is number `i + 1`, and its couple is `floor(i / 2) + 1` - dancers 1+2, 3+4, 5+6,
- * 7+8. MEASURED before this rule: `assignHomeIdentity` gives a couple to only 8 of the 74 animated boards (a
- * line, a wave, a column and a T-bone are not a squared set), so the page was colouring 66 of them by gender and
- * numbering none. The index always exists, it is what the tam's own paths are paired with, and the number follows
- * the dancer through the animation because the poses come back in the same order.
- */
-export function displayIdOf(index) {
-  return index + 1;
-}
+
 
 /** The couple a dancer belongs to on the book's rule: `floor(index / 2) + 1`. */
 export function displayCoupleOf(index) {

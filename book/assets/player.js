@@ -18,7 +18,7 @@ import {
   DANCER_WIDTH,
   DANCER_DEPTH,
 } from '../lib/index.js';
-import { C, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, bodySupport, displayIdOf, trailSlot, hexOf } from '../lib/board-style.js';
+import { C, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, bodySupport, trailSlot, hexOf } from '../lib/board-style.js';
 
 // THE PALETTE AND THE MARKER SIZE ARE NOT THIS FILE'S. `board-style.mjs` owns them, because the Node figures
 // draw the same board and the two must not drift - it also carries the body the marker is drawn to, and the
@@ -144,16 +144,8 @@ function drawBoard(ctx, size, view, state, beat) {
     ctx.fill();
     ctx.restore();
 
-    // THE NUMBER STANDS OUTSIDE THE BODY, because a body 0.45 deep has no room for a legible digit. It is drawn
-    // upright (outside the rotation) below the dancer and in ink, so it is readable at every facing.
-    const num = displayIdOf(i);
-    if (num) {
-      ctx.fillStyle = INK;
-      ctx.font = `bold ${Math.round(halfW * 0.85)}px system-ui, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-      ctx.fillText(String(num), cx, cy + halfW * 0.95);
-    }
+    // NO NUMBER: a couple colour and a body shape say which dancer is which; a digit on a 0.45-deep
+    // body sat under the nose and read as clutter.
   });
 }
 

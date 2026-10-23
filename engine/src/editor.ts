@@ -16,7 +16,10 @@ import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg, Symm
 import { DEG, bezierAngle, bezierPoint, poseFor } from './core.js';
 // THE HAND STATE'S MIRROR, imported rather than restated: `mirrorDancerMoves` swaps left for right exactly
 // as the converter's own `reflect="-1"` does, and this is the one definition of that rule.
-import { swapLR } from './convert.js';
+// `esc` comes from the same module for the same reason: it is the XML escape rule, this module writes `<tam>`
+// XML, and it used to carry a BYTE-IDENTICAL copy of that one-line lambda (the two were compared character by
+// character when they were collapsed). `poc/tools/escape-probe.mjs` pins the rule's character set.
+import { esc, swapLR } from './convert.js';
 // The DERIVED identity of an edited start formation: `assignHomeIdentity` is the same
 // read the renderer colours by, so the editor's `couple` column cannot disagree with the
 // stage next to it.
@@ -2390,7 +2393,6 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
   const halfReport = opts.symmetry === 2 ? halfSetReport(call) : null;
   const halfSet = halfReport?.ok === true;
   const written = halfSet ? call.dancers.slice(0, halfReport.half) : call.dancers;
-  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   // A mirrored (half-set) dancer is authored at base (x,y,a) and rendered 180deg
   // about the origin. The XML format has no `mirror` attribute, so serialize it
   // as the equivalent NON-mirror dancer (base -x,-y,a+180 with the same path) so

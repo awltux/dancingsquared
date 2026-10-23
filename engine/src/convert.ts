@@ -28,6 +28,24 @@ function parseXML(xml: string): Document {
 
 // ----------------------------------------------------------------- XML helpers
 
+/**
+ * THE XML ESCAPE RULE, and it is deliberately NARROWER than the HTML one.
+ *
+ * `&`, `<` and `"` are escaped; `>` and `'` are not. That is correct for THIS target rather than a
+ * tidiness choice: every attribute this engine writes is DOUBLE-quoted (so `"` is the quote to break),
+ * XML requires only `&` and `<` in text, `>` is legal raw everywhere except inside `]]>`, and `'` needs
+ * escaping only in a SINGLE-quoted attribute. Escaping them anyway would change the bytes the exporter
+ * writes — and those bytes are what the corpus round-trip gates compare — for no safety.
+ *
+ * SO DO NOT "UNIFY" THIS WITH `poc/src/dom.ts`'s `esc`. That one is the HTML rule (`& < > " '`), which is
+ * wider because HTML attributes may be single-quoted and because it feeds `innerHTML`. Two targets, two
+ * rules, one implementation each: this function is the XML one, and `poc/tools/escape-probe.mjs` pins both
+ * sets and the fact that they differ.
+ */
+export function esc(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}
+
 function num(el: Element, attr: string): number {
   const v = el.getAttribute(attr);
   if (v == null) throw new Error(`Missing attribute ${attr}`);
@@ -530,7 +548,6 @@ export interface CallMeta {
  * degrees, because that is what `parseFormations` reads back.
  */
 export function formationToXml(name: string, dancers: { x: number; y: number; heading: number; gender?: Gender }[]): string {
-  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const r = (n: number) => (Math.round(n * 1e4) / 1e4).toString();
   const lines = dancers.map(
     (d) => `    <dancer gender="${esc(d.gender ?? 'boy')}" x="${r(d.x)}" y="${r(d.y)}" angle="${r((d.heading * 180) / Math.PI)}" />`,

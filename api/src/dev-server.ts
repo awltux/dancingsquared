@@ -21,7 +21,7 @@ import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { utcDay } from 'dancing-squared-game';
 import { authRefusal, configFromEnv, devServerRefusal, type AuthMode, type Config } from './config.ts';
-import { publishDay } from './daily-publishing.ts';
+import { publishDay, type PublishReport } from './daily-publishing.ts';
 import { SERVED_LEVELS } from './schedule-publishing.ts';
 import { MemoryStore } from './store/memory.ts';
 import { openStore, type OpenedStore } from './store/open.ts';
@@ -171,6 +171,13 @@ export interface DevServer {
   readonly store: ItemStore;
   readonly label: string;
   close(): Promise<void>;
+  /**
+   * Publish the UTC day the clock now reports, if it is not the one already published — the rollover the interval
+   * calls, exposed so a probe can drive it with an injected clock instead of waiting a minute for a timer.
+   *
+   * NULL WHEN THERE IS NOTHING TO DO, which is the ordinary answer: one publish per day, not one per tick.
+   */
+  publishDueDay(): Promise<PublishReport | null>;
 }
 
 /** How a probe or a stack script starts this server. Every field is optional; the defaults are the local run. */
@@ -190,7 +197,23 @@ export interface DevServerOptions {
   readonly corsOrigin?: string | null;
   readonly cognitoVerify?: (token: string) => JwtClaims | null;
   readonly announce?: (message: string) => void;
+  /**
+   * The clock the ROLLOVER reads, in milliseconds. Injected for the same reason `publishDay`'s `nowMs` is: a probe
+   * that had to wait for a real midnight could not test the rollover at all.
+   */
+  readonly nowMs?: () => number;
+  /**
+   * Which levels the local publisher seeds and rolls over. The dev default is the served three; a probe narrows it to
+   * keep its own run quick, because generating a day costs about two seconds per level.
+   */
+  readonly dailyLevels?: readonly number[];
 }
+
+/**
+ * HOW OFTEN THE ROLLOVER LOOKS. A minute is far below the cost of a missed day and far above the cost of a tick: the
+ * guard makes a tick a string comparison, so a server that runs for a week pays 10 080 of them and one publish.
+ */
+const ROLLOVER_MS = 60_000;
 
 /**
  * Start the server over an opened store, seeded with the local fixture.
@@ -201,6 +224,10 @@ export interface DevServerOptions {
 export async function startDevServer(options: DevServerOptions = {}): Promise<DevServer> {
   const opened: OpenedStore = options.opened ?? { store: new MemoryStore(), label: 'memory' };
   const auth: AuthMode = options.auth ?? 'dev';
+  // ONE CHANNEL FOR EVERY PUBLISH LINE, defaulting to the console: `startFromEnv` injects no `announce`, so a
+  // rollover that only spoke through the option would publish a whole day in silence and the operator would see
+  // yesterday's date in the log forever.
+  const announce = options.announce ?? ((message: string) => console.log(message));
   const levels = options.seed === false ? [] : await seedLocalRegimes(opened.store);
   // AND TODAY'S DAILY, because the in-memory store is PER PROCESS: the boundary job publishes into a shared store,
   // so a separate `api:publish-daily` run could never reach this one. This is the local stand-in for BOTH
@@ -211,11 +238,17 @@ export async function startDevServer(options: DevServerOptions = {}): Promise<De
   // and 3 (DESIGN.md 7.1's census), but ~2.5 minutes at a deep level, so seeding the whole ladder would be an hour
   // of boot. MEASURED: the three levels add about 2 s to the dev server's start.
   //
-  // A SERVER LEFT RUNNING ACROSS MIDNIGHT SERVES YESTERDAY'S SEED AS UNPUBLISHED, which is the honest behaviour:
-  // the boundary is a scheduled job's business, and the client is told `no_published_daily` rather than being
-  // handed a challenge nobody validated.
-  const day = utcDay(new Date());
-  const daily = options.seed === false ? null : await publishDay(opened.store, day, { levels: [...SERVED_LEVELS], nowMs: Date.now() });
+  // AND IT ROLLS OVER AT MIDNIGHT, which this server did not do and then did not pretend to: REPORTED by the owner as
+  // "There is no Todays Daily published. Why hasn't the daily create been triggered?" — a server left running across
+  // the UTC boundary went on serving yesterday's day and answered every read for today with `no_published_daily`,
+  // because the only publisher here was the BOOT. The stand-in for the scheduled boundary job has to keep standing in
+  // for it, so `publishDueDay` below publishes the new day the first time it notices one; the handler still refuses a
+  // day nobody published, which is what keeps the production rule ("the read recovers, never builds") intact.
+  const nowMs = options.nowMs ?? (() => Date.now());
+  const dailyLevels = options.dailyLevels ?? [...SERVED_LEVELS];
+  const day = utcDay(new Date(nowMs()));
+  const daily = options.seed === false ? null : await publishDay(opened.store, day, { levels: dailyLevels, nowMs: nowMs() });
+  let publishedDay: string | null = options.seed === false ? null : day;
   const clock = { nowMs: () => Date.now() };
   const identity = identityFor({
     auth,
@@ -293,13 +326,48 @@ export async function startDevServer(options: DevServerOptions = {}): Promise<De
     });
   });
 
-  if (levels.length) console.log(`dev:api seeded the local fixture for level(s) ${levels.join(', ')}`);
-  if (daily) console.log(`dev:api published ${daily.day} for level(s) ${daily.published.map((entry) => entry.levelIndex).join(', ')}`);
+  if (levels.length) announce(`dev:api seeded the local fixture for level(s) ${levels.join(', ')}`);
+  if (daily) announce(`dev:api published ${daily.day} for level(s) ${daily.published.map((entry) => entry.levelIndex).join(', ')}`);
+
+  /**
+   * THE BOUNDARY JOB'S OTHER HALF: publish the day the clock has moved to, once, when it moves.
+   *
+   * THE READ STILL REFUSES AN UNPUBLISHED DAY (`handlers/puzzle.ts`: no identity, no seed, `no_published_daily`), so
+   * this is not "the read builds after all" — it is the local stand-in for the schedule that publishes ahead of the
+   * day, and it exists because a server left running across midnight used to go dark instead of rolling over.
+   *
+   * A REFUSED LEVEL IS ANNOUNCED rather than swallowed: `publishDay` reports each level it could not generate, and an
+   * operator who sees the day "published" with one level missing needs that line.
+   */
+  const publishDueDay = async (): Promise<PublishReport | null> => {
+    const today = utcDay(new Date(nowMs()));
+    if (today === publishedDay) return null;
+    const report = await publishDay(opened.store, today, { levels: dailyLevels, nowMs: nowMs() });
+    publishedDay = today;
+    const served = report.published.map((entry) => entry.levelIndex).join(', ');
+    announce(`dev:api published ${today} for level(s) ${served}`);
+    for (const refusal of report.refused) announce(`dev:api REFUSED level ${refusal.levelIndex} for ${today}: ${refusal.reason}`);
+    return report;
+  };
+  // THE TIMER IS UNREF'D, so a process whose server has been closed still exits: a background rollover is not a reason
+  // to keep a test run alive.
+  const rollover = setInterval(() => {
+    void publishDueDay().catch((error: unknown) => {
+      announce(`dev:api could not publish today's Daily: ${error instanceof Error ? error.message : String(error)}`);
+    });
+  }, ROLLOVER_MS);
+  rollover.unref();
+
   return {
     port,
     store: opened.store,
     label: opened.label,
-    close: () => new Promise<void>((resolve) => server.close(() => resolve())),
+    publishDueDay,
+    close: () =>
+      new Promise<void>((resolve) => {
+        clearInterval(rollover);
+        server.close(() => resolve());
+      }),
   };
 }
 

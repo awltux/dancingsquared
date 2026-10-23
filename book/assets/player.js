@@ -308,8 +308,8 @@ async function mount(host) {
     <label class="dsq-speed">speed
       <select class="dsq-rate">
         <option value="0.25">1/4</option>
-        <option value="0.5" selected>1/2</option>
-        <option value="1">full</option>
+        <option value="0.5">1/2</option>
+        <option value="1" selected>full</option>
       </select>
     </label>`;
 

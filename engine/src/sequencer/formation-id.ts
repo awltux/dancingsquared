@@ -61,10 +61,10 @@
 // panel displays the All8 code beside this id when the board has one), and the id is a pure function of the
 // geometry: the canonical serialisation below, digested to SIX BASE-36 CHARACTERS behind a scheme version.
 //
-// WHY BASE 36 WITH A LOWERCASE PAYLOAD - `F2-a3k9m2`. An id is retyped by hand into `PERMISSION_RULES`, so it
-// has to be told apart from itself character by character, and the two pairs that ruin a hand copy are `0`/`O`
-// and `1`/`l`. Making the PAYLOAD lower case and keeping the digits makes both unambiguous: a `0` is never an
-// `o`, a `1` is never an `l`. The version marker stays upper case (`F2-`) so it stands out as not-payload.
+// THE ALPHABET, THE WIDTH AND THE DIGESTS ARE NOT THIS MODULE'S. `id-code.ts` owns them, with the ambiguity rule
+// that keeps a payload lower case, the width arithmetic that gives six characters to a 32-bit digest, and the
+// hashes. What stays here is what is specific to a FORMATION: the quantisation, the canonicalisation, and the
+// population that sizes the width.
 //
 // WHY SIX CHARACTERS AND NOT FIVE. 36^6 is 2,176,782,336 against 26^5's 11,881,376 - 183x the space - and it is
 // the widest base a six-character id can use inside the 32-bit digest below while staying typeable: 40^6 =
@@ -73,10 +73,9 @@
 // authoring variants plus the 138 named formations collapses to 410 distinct shapes - the birthday risk is
 // 0.0039% (1 in 26,000), against 0.71% for 26^5, and 0 collisions are observed at 36^6 or any wider base.
 //
-// THE 32-BIT DIGEST IS STILL THE CEILING, and it is not a power of 36, so the encoding is not exactly uniform:
-// 2^32 / 36^6 = 1.973, which gives 97.31% of codes two hash preimages and the rest one. MEASURED, the effect
-// on the collision probability is a factor of 1.01 - the birthday figures above stand - so the digest is left
-// at 32 bits FNV-1a. A base above 40, or a seventh character, would need a 64-bit hash before it could be used.
+// WHY 32 BITS IS ENOUGH HERE, and why it is not enough for an eight-character scheme, is `id-code.ts`'s
+// arithmetic: 36^6 sits under 2^32, so six characters are fully used by a 32-bit digest; 36^7 does not, so a
+// wider scheme digests with 64 bits. This scheme is six.
 //
 // THE VERSION PREFIX IS NOT DECORATION: ids are persisted in `PERMISSION_RULES`, so a change to the
 // quantisation, the canonicalisation OR THE ENCODING must produce a string that cannot be mistaken for an old
@@ -84,6 +83,7 @@
 // `F2-` re-keyed no rule.
 
 import type { Board } from './types.js';
+import { encodeId, fnv1a32, isIdOf } from './id-code.js';
 
 /** The scheme marker every id starts with. Bump it when the canonicalisation, the quantisation or the encoding
  *  changes (`F1-` was 26^5 upper case; `F2-` is base 36 with a lower-case payload). */
@@ -144,22 +144,7 @@ export function formationCanonical(board: Board): string {
   return `${spots.length}|${best ?? ''}`;
 }
 
-/** FNV-1a, 32 bit. The digest is only ever compared with itself, so a simple stable hash is the requirement. */
-function fnv1a(s: string): number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 0x01000193) >>> 0;
-  }
-  return h >>> 0;
-}
-
-/** THE ALPHABET IS BASE 36 WITH A LOWERCASE PAYLOAD: the digits, then the letters in lower case, so `0` can never
- *  be read as `o` and `1` never as `l` when the id is retyped into a rule. */
-const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
-const ID_BASE = ALPHABET.length;
 const ID_WIDTH = 6;
-const ID_SPACE = ID_BASE ** ID_WIDTH;
 
 /**
  * The board's formation id: `F2-` and six base-36 characters, the payload lower case.
@@ -169,13 +154,7 @@ const ID_SPACE = ID_BASE ** ID_WIDTH;
  * other dancer: a phantom is part of the formation the engine matched").
  */
 export function formationId(board: Board): string {
-  let v = fnv1a(formationCanonical(board)) % ID_SPACE;
-  let out = '';
-  for (let i = 0; i < ID_WIDTH; i++) {
-    out = ALPHABET[v % ID_BASE] + out;
-    v = Math.floor(v / ID_BASE);
-  }
-  return FORMATION_ID_VERSION + out;
+  return encodeId(FORMATION_ID_VERSION, fnv1a32(formationCanonical(board)), ID_WIDTH);
 }
 
 /**
@@ -187,5 +166,5 @@ export function formationId(board: Board): string {
  * value that passes one check and fails the other.
  */
 export function isFormationId(s: string): boolean {
-  return new RegExp(`^${FORMATION_ID_VERSION}[0-9a-z]{${ID_WIDTH}}$`, 'i').test(s);
+  return isIdOf(FORMATION_ID_VERSION, ID_WIDTH, s);
 }

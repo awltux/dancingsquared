@@ -85,6 +85,10 @@ export {
   FORMATION_ID_GRID,
   FORMATION_ID_HEADING_STEP,
 } from './sequencer/formation-id.js';
+// THE ID ENCODING, shared by every derived identity in the tree (`F2-`, and the `A1-`/`V1-` schemes beside it).
+// Exported so a harness can pin the width arithmetic against the SAME implementation the ids are built from: a
+// second copy of "36^width, reduced, rendered low case" is one edit away from measuring nothing.
+export { ID_ALPHABET, ID_BASE, idSpace, encodeId, isIdOf, fnv1a32, fnv1a64 } from './sequencer/id-code.js';
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold
 // the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
 export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';

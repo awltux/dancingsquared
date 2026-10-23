@@ -179,6 +179,15 @@ const SUITE = [
   // chain and a cycle, and - the whole point of the root - that a formation edit re-keys the FORMATION id while
   // the variant id does not move, with the raw-id call beside it as the negative control. Milliseconds.
   { h: 'call-variant-id', light: true },
+  // THE FORMATION-ROOTS LEDGER'S RULES, which are pure and therefore cheap: a new shape is appended rooted at
+  // itself, a committed line is never dropped when a shape vanishes, an alias resolves the NEW id to the OLD
+  // root, a chain resolves to its end, and an already-rooted id is not re-rooted. The corpus half of the same
+  // gate is `formation-roots` below, which costs a walk.
+  { h: 'formation-roots-merge', light: true },
+  // The ledger itself: `assets/formation-roots.json` must be byte-identical to a fresh render, keep every line it
+  // ever had, and every alias must name two formation ids that exist. The variant id's stability across a
+  // formation edit is delegated to this file, so a stale one is a silently re-keyed reference.
+  { h: 'formation-roots', sub: 'tools', light: false, why: 're-derives every start shape through the engine (~4 min)' },
   // THE VIRTUAL CALL: a subwhole-set authoring (2 or 4 written dancers) placed on a whole-set board, gated on the
   // owner's constraint that it must START and END on a formation the engine NAMES — judged by `knownFormation`
   // called from the harness, not by anything the resolver reports about itself. Pins the placement arithmetic

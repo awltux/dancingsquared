@@ -7,11 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer, matchFormations, matchFormationsAll } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => readFileSync(path.join(__dirname, p), 'utf8');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -19,9 +20,9 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const movesXml = read('../../assets/moves.xml');
-const formationsXml = read('../../assets/formations.xml');
-const ms = (name) => read(`../../assets/ms/${name}.xml`);
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
+const ms = (name) => read(`ms/${name}.xml`);
 
 const seq = new Sequencer(movesXml, formationsXml, [
   { name: 'Circle Left', xml: ms('circle') },

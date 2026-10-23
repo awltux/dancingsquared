@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -114,7 +115,7 @@ console.log('  (a family SHOULD have one shape: arrangement/sequence/relationshi
 
 // --------------------------------------------------------------- the engine
 
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 const calls = [];
 for (const lv of levels) {

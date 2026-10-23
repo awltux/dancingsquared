@@ -19,11 +19,11 @@ import {
   GROUP_NAMES, SUBSET_GROUP_NAMES, SINGLES_GROUP_NAMES, COUPLES_GROUP_NAMES, COMBINED_GROUP_NAMES,
 } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 
 let failures = 0;
 const check = (cond, msg) => {

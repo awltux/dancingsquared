@@ -4,10 +4,10 @@ import { fileURLToPath } from "node:url";
 import { DOMParser } from "@xmldom/xmldom";
 import { Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from "../../dist/index.js";
 import { callsByTitle } from "../lib/engine-calls.mjs";
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, "..", "..", "..");
-const assets = path.join(root, "poc", "src", "assets");
+const assets = corpusRoot();
 const seq = new Sequencer(readFileSync(path.join(assets, "moves.xml"), "utf8"), readFileSync(path.join(assets, "formations.xml"), "utf8"), callsByTitle(assets));
 const tpl = (l) => { for (const n of FORMATIONS_FOR_LETTER[l] ?? []) { const b = seq.boardForFormation(n); if (b) return b; } return null; };
 const show = (label, b) => {

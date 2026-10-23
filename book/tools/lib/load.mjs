@@ -10,7 +10,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { filesOf, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
 
 export const here = dirname(fileURLToPath(import.meta.url)); // .../book/tools/lib
 export const toolsDir = join(here, '..'); // .../book/tools
@@ -63,7 +63,7 @@ export function loadEngine() {
 }
 
 export function assetPath(...parts) {
-  const p = join(root, 'assets', ...parts);
+  const p = join(corpusRoot(), ...parts);
   if (!existsSync(p)) throw new Error(`missing asset: ${p}`);
   return p;
 }
@@ -119,6 +119,6 @@ export function catalogue(levels = SOURCE_LEVELS) {
 
 /** Build a call bundle from a corpus site, mirroring the half-set authorings. */
 export function loadCall(eng, site) {
-  const xml = readFileSync(join(root, 'assets', site.file), 'utf8');
+  const xml = readFileSync(join(corpusRoot(), site.file), 'utf8');
   return eng.loadCallFromXml(xml, readAsset('moves.xml'), readAsset('formations.xml'), site.tamIndex, true);
 }

@@ -30,11 +30,11 @@ import { setParser, Sequencer } from '../dist/index.js';
 import { splitSelection } from '../dist/sequencer/selection.js';
 import { catalogueTitles, implementedTitles, indexedTitles, engineNameFor, callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..', '..');
 // Optional argument: run against an alternative corpus file.
 const FIXTURE = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, 'fixtures', 'all8-getouts.json');
 
@@ -75,7 +75,7 @@ if (fixture.failures?.length) {
 
 // ------------------------------------------------------- the engine catalogue
 
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 // The catalogue must include assets/src/calls.xml (the resolve and concept calls)
 // and must be read by TITLE - see lib/engine-calls.mjs for why both matter.
 // The IMPLEMENTED catalogue is the `<tam>` titles PLUS the geometry-derived calls the

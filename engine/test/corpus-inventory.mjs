@@ -25,20 +25,19 @@
 // offsets that depend on it), and the per-consumer level lists (each consumer's own gate pins those).
 //
 // Usage: node engine/test/corpus-inventory.mjs
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { DOMParser } from '@xmldom/xmldom';
 
 import { loadCallFromXml, parseCallXml, setParser } from '../dist/index.js';
-import { filesOf, readFile, tamsOf, titlesOf, sitesOfTitle, tamAttrs } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, readFile, tamsOf, titlesOf, sitesOfTitle, tamAttrs } from 'dancing-squared-corpus';
 import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 
 let failures = 0;
 const check = (ok, msg) => {

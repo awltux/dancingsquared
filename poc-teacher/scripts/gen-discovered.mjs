@@ -8,10 +8,11 @@
 import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..'); // repo root (poc and poc-teacher are siblings)
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const outDir = path.join(assets, 'discovered');
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 

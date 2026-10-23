@@ -25,10 +25,11 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, findCodedMove, loadCallFromXml, normalizeInstance, instanceBeats, poseFor, setParser, waveGroups } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');

@@ -8,7 +8,6 @@
 import { DOMParser } from '@xmldom/xmldom';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import {
   setParser,
   Sequencer,
@@ -19,10 +18,10 @@ import {
   parseFormations,
 } from '../../dist/index.js';
 import { callsByTitle, callXmlFiles } from '../lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.join(__dirname, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');

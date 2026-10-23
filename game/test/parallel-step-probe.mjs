@@ -16,7 +16,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, makeSquaredSet, parseCallXml, setParser } from 'dancing-squared-engine';
 import { createEngineApplier } from '../src/engine/applier.ts';
 import { parallelLabel } from '../src/puzzle/readings.ts';
-import { CORPUS } from '../../vite.corpus.ts';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -27,7 +27,7 @@ const check = (cond, msg) => {
 };
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS = CORPUS;
+const ASSETS = corpusRoot();
 void HERE;
 const read = (p) => fs.readFileSync(path.join(ASSETS, p), 'utf8');
 const movesXml = read('moves.xml');

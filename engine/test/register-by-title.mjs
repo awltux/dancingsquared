@@ -14,9 +14,9 @@
 // Run: node test/register-by-title.mjs   (engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer, parseCallXml, callMeta } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 let failures = 0;
@@ -25,8 +25,7 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS = path.resolve(HERE, '..', '..', 'assets');
+const ASSETS = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(ASSETS, p), 'utf8');
 const moves = read('moves.xml');
 const formations = read('formations.xml');

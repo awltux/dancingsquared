@@ -18,6 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
@@ -112,7 +113,7 @@ console.log('\n== the default is a level the catalogue really carries ==');
 const levelOrder = engine.PERMISSION_LEVELS;
 const def = /const DEFAULT_LEVEL = '([^']+)'/.exec(src['editor-ui.ts'])?.[1] ?? '';
 const offersLevel = (lv) => {
-  const dir = path.join(POC_DIR, '../assets', lv);
+  const dir = path.join(corpusRoot(), lv);
   return levelOrder.includes(lv) && fs.existsSync(dir) && fs.readdirSync(dir).some((f) => f.endsWith('.xml'));
 };
 // AND THE APP STILL USES THAT ONE ORDER rather than a second copy of it. This is what the deleted regex was

@@ -35,11 +35,12 @@ import { startBoardFor } from './lib/all8-boards.mjs';
 // Deep import, like bind-audit.mjs does for internal collaborators: boardSig is deliberately NOT
 // part of the package's public surface.
 import { boardSig } from '../dist/sequencer/board.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),

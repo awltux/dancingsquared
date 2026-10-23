@@ -1,0 +1,236 @@
+// THE CORPUS LOCATION IS WRITTEN ONCE — and this is the gate that keeps it that way.
+//
+// THE RULE. `vite.corpus.ts` at the repository root is the one place the corpus's location exists. A Node
+// reader learns it from `corpusRoot()` in `dancing-squared-corpus` (which imports that constant); a Vite app
+// reaches it through the `@corpus` alias the same file builds. Nothing else may spell it.
+//
+// WHY A GATE RATHER THAN A CONVENTION. A hand-built path is a `../` count, and one `../` too few is SILENT:
+// MEASURED (AGENTS.md §8 trap 26), the corpus was duplicated into `game/src/assets/` for a year because a glob
+// one short compiled to `{}` and nothing failed. The failure mode is not a wrong answer — it is an EMPTY
+// answer, which every check downstream reads as "nothing to do".
+//
+// MEASURED when this landed. A census over the tracked source tree found 211 files spelling a corpus path in
+// code (engine/test, poc/tools 49+, poc-matrix, scripts, poc-teacher, book/tools, poc 1); a second pass with
+// the broader literal rule below found 21 MORE that carried the path only as a `../`-chained call-site literal
+// (`read('../../assets/moves.xml')`), which the construction shapes could not see. The change touched 222
+// files: engine/test 155, poc/tools 55, scripts 3, poc-matrix 3, book/tools 2, poc-teacher 3, game/test 1.
+// It leaves 309 `corpusRoot()` call sites and this list of 12 files that may still spell an `assets`
+// directory. The set is EXACT: it fails when it grows (a new hand-built path) and when it shrinks (a pin that
+// has silently stopped matching is worse than none — §11.2.8).
+
+//
+// WHAT THIS GATE IS NOT. It is a SPELLING census, not a resolution proof: it shows the location is not
+// written twice, not that every path built from it points somewhere real. The two are different
+// measurements, and the second one belongs to the harnesses that actually read the bytes.
+//
+// THE ALTERNATIVE REJECTED: a `git grep` one-liner cannot express "comment lines excluded, and exactly this
+// file set", and a per-line allowlist would let a real spelling hide behind a file that also names an
+// unrelated `assets/` directory (the book's published one, the teacher's deleted FSM copy).
+//
+// Usage: node engine/test/corpus-location.mjs   (from anywhere; reads source text, no engine build needed)
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const REPO = path.join(here, '..', '..');
+
+let failures = 0;
+const check = (cond, msg) => {
+  console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
+  if (!cond) failures++;
+};
+
+// ONE SPELLING SHAPE, deliberately: a string or template LITERAL whose path begins with an optional `../`
+// chain and then `assets` as a directory (`'assets'`, `'assets/ms/circle.xml'`, `'../assets/moves.xml'`,
+// `` `assets/${level}` ``, `'../../assets/'`). That is the common form of all six shapes the sweeps found —
+// a hand-built join, a chained argument, a call-site prefix, a template, a URL base and a bare segment — and
+// a pattern per construction would have to be extended every time a new one appears. The one-`../`-short trap
+// (AGENTS.md §8 trap 26) is this shape with a shorter chain, which is why the chain is a `*`.
+const PATTERNS = [
+  ['path-literal', /['"`](?:\.\.\/)*assets(?:\/|['"`])/],
+];
+
+// THE PIN. Every entry is a file that may name an `assets` directory, with the reason it is not the corpus.
+// A `..`-chain to a file under `book/assets/` is the published book's own directory; `poc-teacher/src/assets`
+// was the deleted second FSM copy; the exported `filepath="assets/…"` is DATA inside an XML block, not a
+// location on disk. A pin that covers a whole mixed file is a real cost — a new corpus path could hide in it
+// — so each one names what the file is allowed to spell.
+const PINNED = new Map([
+  ['vite.corpus.ts', 'the one place the location is written — this gate exists to keep the list at this'],
+  ['book/assets/player.js', "the published book site's OWN assets/ directory (browser fetch of ../assets/calls/…)"],
+  ['poc/tools/escape-probe.mjs', 'reads book/assets/player.js, the book escaper copy'],
+  ['poc/verify.cjs', 'CommonJS: the corpus package exports no require condition (MEASURED ERR_PACKAGE_PATH_NOT_EXPORTED)'],
+  ['book/tools/build-site.mjs', "writes and refers to the site's own assets/; its corpus reads go through corpusRoot()"],
+  ['poc/tools/corpus-key-probe.mjs', 'its SUBJECT is the corpus key shapes (./assets/…, ../assets/…, bare assets/…)'],
+  ['poc/tools/export-all-probe.mjs', 'writes a corpus-RELATIVE filepath="assets/…" into exported XML (data, not a location)'],
+  ['engine/test/fsm-asset-freshness.mjs', 'asserts the deleted poc-teacher/src/assets/fsm-table.json stays deleted'],
+  ['poc/src/browser.ts', 'PROSE in a user-facing template literal that begins with the path (not a construction)'],
+  ['poc/src/editor-ui.ts', 'the corpus-RELATIVE filepath `assets/<file>.xml` written into exported XML (data)'],
+  ['scripts/reorder-formation.mjs', 'git pathspecs (HEAD:assets/…) and messages RELATIVE TO THE ROOT; the root itself is corpusRoot()'],
+  ['game/test/config-probe.mjs', "a directory NAME in the probe's own walk skip-list, not the corpus location"],
+]);
+
+
+// THE ONE ACCESSOR. `CORPUS` from `vite.corpus.ts` may be imported by the package that wraps it, by the two
+// Vite configs the alias exists for, and by the probe whose subject is that agreement — nowhere else.
+const IMPORT_PINNED = new Map([
+  ['packages/corpus/files.ts', 'imports CORPUS; this is the one module that reads the constant'],
+  ['poc/vite.config.ts', 'builds the @corpus alias from corpusAlias'],
+  ['game/vite.config.ts', 'builds the @corpus alias from corpusAlias'],
+  ['poc-teacher/vite.config.ts', 'builds the @corpus alias from corpusAlias'],
+  ['poc/tools/corpus-key-probe.mjs', 'measures that CORPUS and corpusRoot() are the same directory'],
+]);
+
+const ROOTS = [
+  'engine/src', 'engine/test', 'poc', 'poc-teacher', 'poc-matrix', 'book/tools', 'book/assets',
+  'scripts', 'game/src', 'game/test', 'game/tools', 'game/vite.config.ts', 'api', 'packages',
+  'features', 'vite.corpus.ts',
+];
+const SOURCE = /\.(ts|mjs|cjs|js)$/;
+const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.vite', 'coverage']);
+// SCRATCH IS NOT SOURCE. `_*.mjs` is the repo's own scratch convention (`poc/tools/verify-probes.mjs` skips
+// the same names, and AGENTS.md §5 says a scratch probe is throwaway), and those files are untracked. The one
+// other exclusion is THIS file: its subject is spelling shapes, so its samples and patterns are spellings —
+// gating them would make the census report itself. The `check` below keeps that exclusion honest.
+const SKIP_FILES = new Set(['engine/test/corpus-location.mjs']);
+const isScratch = (rel) => path.posix.basename(rel).startsWith('_');
+
+function walk(target, out) {
+  const abs = path.join(REPO, target);
+  let stat;
+  try {
+    stat = fs.statSync(abs);
+  } catch {
+    return out; // a root that does not exist is reported by the caller, not silently skipped
+  }
+  if (stat.isFile()) {
+    if (SOURCE.test(target) && !SKIP_FILES.has(target) && !isScratch(target)) out.push(target);
+    return out;
+  }
+  for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (SKIP_DIRS.has(entry.name)) continue;
+      walk(path.posix.join(target, entry.name), out);
+    } else if (SOURCE.test(entry.name)) {
+      const rel = path.posix.join(target, entry.name);
+      if (!SKIP_FILES.has(rel) && !isScratch(rel)) out.push(rel);
+    }
+  }
+  return out;
+}
+
+const scanned = ROOTS.flatMap((root) => walk(root, []));
+const text = new Map();
+for (const rel of scanned) {
+  try {
+    text.set(rel, fs.readFileSync(path.join(REPO, rel), 'utf8'));
+  } catch {
+    text.set(rel, '');
+  }
+}
+
+// A line that is ENTIRELY a comment cannot spell a path in code. This is deliberately crude and deliberately
+// stated: prose about `assets/formations.xml` is not a path, and a trailing comment on a code line is left to
+// the patterns above, which want the construction rather than the word.
+const COMMENT_LINE = /^\s*(\/\/|\*|\/\*)/;
+
+function spellingsOf(src) {
+  const hits = [];
+  const stripped = src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
+  for (const [label, re] of PATTERNS) {
+    const g = new RegExp(re.source, 'g');
+    let m;
+    while ((m = g.exec(stripped))) {
+      hits.push({ label, text: m[0].replace(/\s+/g, ' ') });
+      if (m.index === g.lastIndex) g.lastIndex++;
+    }
+  }
+  return hits;
+}
+
+console.log('corpus-location: the corpus directory is spelled once\n');
+console.log(`== 1. every scanned root exists (a missing root would make the census vacuous) ==`);
+for (const root of ROOTS) {
+  check(fs.existsSync(path.join(REPO, root)), `root ${root} exists`);
+}
+
+console.log(`\n== 2. the files carrying an \`assets\` spelling are exactly the pinned set ==`);
+const found = new Map();
+for (const [rel, src] of text) {
+  const hits = spellingsOf(src);
+  if (hits.length) found.set(rel, hits);
+}
+console.log(`  measured over ${scanned.length} source files; ${found.size} carry a spelling, ${PINNED.size} are pinned`);
+const unexpected = [...found.keys()].filter((rel) => !PINNED.has(rel)).sort();
+const vanished = [...PINNED.keys()].filter((rel) => !found.has(rel)).sort();
+check(scanned.length > 400, `the walk found the tree (${scanned.length} source files; a zero here is a FAILURE, not a pass)`);
+check(fs.existsSync(path.join(REPO, 'engine/test/corpus-location.mjs')),
+  'the one excluded file is this gate itself, and it exists (an exclusion that names nothing excludes nothing)');
+check(found.size > 0, `the census is not vacuous (${found.size} files)`);
+for (const rel of unexpected) {
+  console.log(`     NEW SPELLING ${rel}`);
+  for (const h of found.get(rel).slice(0, 4)) console.log(`       [${h.label}] ${h.text.slice(0, 130)}`);
+}
+for (const rel of vanished) console.log(`     PIN NO LONGER MATCHES ${rel} — fix the pin in the commit that removed it`);
+check(unexpected.length === 0, `no new file spells the corpus directory (${unexpected.length} unexpected)`);
+check(vanished.length === 0, `every pin still matches something (${vanished.length} stale)`);
+
+// The file the one spelling SHOULD be in, and the exact shape it should have: if `vite.corpus.ts` ever stops
+// spelling it, the location has moved rather than been consolidated, and every pin above is measuring a
+// location nothing reads.
+const viteCorpus = text.get('vite.corpus.ts') ?? '';
+check(/export const CORPUS = path\.join\(here, 'assets'\);/.test(viteCorpus),
+  "vite.corpus.ts still defines CORPUS as path.join(here, 'assets') — the one spelling");
+
+console.log(`\n== 3. CORPUS is imported from vite.corpus.ts by exactly the pinned files ==`);
+const importers = new Set();
+for (const [rel, src] of text) {
+  const stripped = src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
+  if (/from\s+['"][^'"]*vite\.corpus\.ts['"]|import\([^)]*vite\.corpus\.ts/.test(stripped)) importers.add(rel);
+}
+const badImporters = [...importers].filter((rel) => !IMPORT_PINNED.has(rel)).sort();
+const missingImporters = [...IMPORT_PINNED.keys()].filter((rel) => !importers.has(rel)).sort();
+for (const rel of badImporters) console.log(`     UNPINNED IMPORTER ${rel} — read corpusRoot() instead`);
+for (const rel of missingImporters) console.log(`     PIN NO LONGER IMPORTS ${rel}`);
+check(badImporters.length === 0, `nothing outside the pinned set imports CORPUS directly (${importers.size} importers)`);
+check(missingImporters.length === 0, 'every pinned importer still imports it');
+
+console.log(`\n== 4. the reader is used, not merely declared ==`);
+let callSites = 0;
+for (const src of text.values()) {
+  const stripped = src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
+  callSites += (stripped.match(/\bcorpusRoot\(\)/g) ?? []).length;
+}
+console.log(`  corpusRoot() call sites in the tree: ${callSites}`);
+check(callSites > 150, `the consolidation is in place (${callSites} call sites; MEASURED 200+ when it landed)`);
+
+console.log(`\n== 5. the pattern itself, and the negative controls ==`);
+// POSITIVE: every historical shape must still be caught, INCLUDING the one-`../`-short form, which is the
+// trap this rule exists for (§8 trap 26). A sample here that stopped matching would be the gate going blind
+// while staying green.
+const SAMPLES = [
+  "path.join(root, 'assets')",
+  "path.resolve(here, '..', '..', 'assets')",
+  "path.resolve(here, '..', 'assets')", // ONE SHORT — the trap
+  "path.join(POC_DIR, '../assets', p)",
+  "path.join(__dirname, '../../assets/ms')",
+  "read('assets/ms/circle.xml')",
+  "read('../../assets/moves.xml')",
+  'path.join(root, `assets/${level}`)',
+  "new URL('../../assets/', import.meta.url)",
+];
+for (const sample of SAMPLES) {
+  check(spellingsOf(sample).length > 0, `catches ${sample}`);
+}
+// NEGATIVE: a path built from the package's own constant is NOT a spelling (that is the fix, not the defect),
+// and a mention of the directory mid-sentence is not one either. What the rule CANNOT tell apart is a path
+// literal from a data string that happens to begin with one (`filepath="assets/…"`, a bare `'assets'` in a
+// skip-list): those are the four prose/data pins above, each excluded by a reason rather than by a pattern.
+check(spellingsOf('path.join(CORPUS, level)').length === 0, 'does not flag the package API join(CORPUS, level)');
+check(spellingsOf("console.log('use the package, not a ../ count, for assets')").length === 0,
+  'does not flag the directory named mid-sentence');
+check(spellingsOf("const assets = corpusRoot();").length === 0, 'does not flag the fix itself');
+
+console.log(`\ncorpus-location: ${failures === 0 ? 'PASS' : `FAIL (${failures})`}`);
+process.exit(failures ? 1 : 0);

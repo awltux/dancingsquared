@@ -17,13 +17,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 
@@ -50,7 +51,7 @@ const floorToLocal = (f, x, y) => {
 // ---------------------------------------------------------------- 1. it IS the engine's frame
 console.log('== 1. the board pair agrees with the pose the engine composes ==');
 {
-  const dir = path.join(POC_DIR, '../assets/ms');
+  const dir = path.join(corpusRoot(), 'ms');
   let calls = 0;
   let moves = 0;
   let worstStart = 0;

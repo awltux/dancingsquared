@@ -21,10 +21,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, makeSquaredSet, setParser } from '../dist/index.js';
-import { CORPUS } from '../../vite.corpus.ts';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
-const read = (p) => fs.readFileSync(path.join(CORPUS, p), 'utf8');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {

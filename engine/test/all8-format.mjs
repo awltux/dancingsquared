@@ -34,6 +34,7 @@ import {
 } from '../dist/index.js';
 import { DOMParser } from '@xmldom/xmldom';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -205,7 +206,7 @@ console.log('\n== 5. a [FASR] setup code derives the board All8\'s own diagram d
 // All8's OWN diagram for the same alignment, so this compares the code path against the drawing
 // path rather than against itself.
 {
-  const assets = path.resolve(root, '../assets');
+  const assets = corpusRoot();
   const seq = new Sequencer(
     readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
     readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

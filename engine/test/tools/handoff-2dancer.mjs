@@ -18,15 +18,15 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser } from '../../dist/index.js';
 import { matchFormations } from '../../dist/sequencer/match.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const TITLE = 'Single Circle Right Full';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 // ---- the tams, scoped by their own title attribute ----------------------------------------------
-const raw = read('assets/ms/circle.xml');
+const raw = read('ms/circle.xml');
 const blocks = raw.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 console.log(`=== SCOPING ===`);
@@ -42,7 +42,7 @@ for (const [i, t] of tams.entries()) {
   console.log(`    [${i}] formation="${form}" from="${from}" asymmetric="${asym}" paths=${paths} movements=${moves}`);
 }
 
-const seq = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'),
+const seq = new Sequencer(read('moves.xml'), read('formations.xml'),
   [{ name: TITLE, xml: `<calls>\n${tams.join('\n')}\n</calls>` }]);
 
 // ---- STEP 1: what the library holds -------------------------------------------------------------

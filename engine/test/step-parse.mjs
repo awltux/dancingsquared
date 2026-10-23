@@ -16,15 +16,14 @@
 // Usage: node engine/test/step-parse.mjs   (the engine must be built)
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { parseStep, Sequencer, setParser, stepLabel } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS = path.join(HERE, '..', '..', 'assets');
+const ASSETS = corpusRoot();
 
 let failures = 0;
 const check = (cond, msg) => {

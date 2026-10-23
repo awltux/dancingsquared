@@ -31,11 +31,12 @@ import { Sequencer, setParser } from '../../dist/index.js';
 import { STANDARD_FORMATIONS } from '../../dist/sequencer/constants.js';
 import { callsByTitle, implementedTitles, catalogueTitles, engineNameFor } from '../lib/engine-calls.mjs';
 import { figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
-const assets = path.resolve(root, 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

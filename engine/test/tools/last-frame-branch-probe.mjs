@@ -18,11 +18,12 @@ import { Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '.
 import { DEFAULT_MATCH_MAX } from '../../dist/sequencer/constants.js';
 import { findCodedMove } from '../../dist/sequencer/coded-moves.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

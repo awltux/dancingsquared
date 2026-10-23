@@ -68,15 +68,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const movesXml = fs.readFileSync(path.join(POC_DIR, '../assets/moves.xml'), 'utf8');
-const formationsXml = fs.readFileSync(path.join(POC_DIR, '../assets/formations.xml'), 'utf8');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
+const movesXml = fs.readFileSync(path.join(corpusRoot(), 'moves.xml'), 'utf8');
+const formationsXml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8');
+const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -97,7 +98,7 @@ const normAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
  *  end up big enough that a single skipped call cannot make any of the checks vacuous, which section 1 pins. */
 function* calls() {
   for (const level of LEVELS) {
-    const dir = path.join(POC_DIR, '../assets', level);
+    const dir = path.join(corpusRoot(), level);
     for (const f of fs.readdirSync(dir)) {
       if (!f.endsWith('.xml')) continue;
       let call;

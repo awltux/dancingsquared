@@ -30,12 +30,13 @@ import {
   removeMove,
   callToXml,
 } from '../../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('../../../assets/moves.xml');
-const formationsXml = read('../../../assets/formations.xml');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 const moves = parseMoves(movesXml);
 const formations = parseFormations(formationsXml);
 
@@ -68,7 +69,7 @@ function poseGap(a, b, t) {
 
 // The "half set" witness was `b1/circle.xml`, removed with the Basic levels; `ms/circle.xml` carries
 // asymmetric tams of its own (the `Single Circle Left/Right …` family), so the case stays reachable.
-for (const [label, file] of [['full set', '../../../assets/ms/circle.xml'], ['half set', '../../../assets/ms/circle.xml'], ['sashay', '../../../assets/ms/sashay.xml']]) {
+for (const [label, file] of [['full set', 'ms/circle.xml'], ['half set', 'ms/circle.xml'], ['sashay', 'ms/sashay.xml']]) {
   const call = loadCallFromXml(read(file), movesXml, formationsXml, 0, true);
   dump(label, call);
   const norm = normalizeInstance(call);
@@ -80,7 +81,7 @@ for (const [label, file] of [['full set', '../../../assets/ms/circle.xml'], ['ha
 }
 
 // ---- 2. mutators ----
-const circle = loadCallFromXml(read('../../../assets/ms/circle.xml'), movesXml, formationsXml, 0, true);
+const circle = loadCallFromXml(read('ms/circle.xml'), movesXml, formationsXml, 0, true);
 const base = instanceTable(circle);
 const baseEnd = base.map((r) => r.end);
 const baseBeats = circle.beats;
@@ -123,7 +124,7 @@ const swapped = setDancerGender(circle, 0, 'girl');
 console.log(`   setDancerGender(#1, girl): couple read ${instanceTable(swapped)[0].couple} (was ${base[0].couple})`);
 
 // ---- 3. XML fidelity ----
-const noTam = parseCallXml(read('../../../assets/a1/ends_bend.xml')).find((t) => t.sequencerMode === 'no');
+const noTam = parseCallXml(read('a1/ends_bend.xml')).find((t) => t.sequencerMode === 'no');
 if (noTam) {
   const b = buildCall(noTam, formations, moves, true);
   const xml = callToXml(b);
@@ -132,7 +133,7 @@ if (noTam) {
     `\n== XML fidelity ==\n   ${noTam.title}: seq ${noTam.sequencerMode} -> xml has sequencer=${/<tam [^>]*sequencer="([^"]*)"/.exec(xml)?.[1]} -> reparse ${back.sequencerMode} forSequencer=${back.forSequencer}`,
   );
 }
-const tamator = parseCallXml(read('../../../assets/a1/cast_a_shadow.xml')).find((t) => t.taminator);
+const tamator = parseCallXml(read('a1/cast_a_shadow.xml')).find((t) => t.taminator);
 if (tamator) {
   const b = buildCall(tamator, formations, moves, true);
   const back = buildCall(parseCallXml(callToXml(b))[0], formations, moves, false);

@@ -5,12 +5,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('../../assets/moves.xml');
-const formationsXml = read('../../assets/formations.xml');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -18,7 +19,7 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const msDir = path.join(__dirname, '../../assets/ms');
+const msDir = path.join(corpusRoot(), 'ms');
 const files = fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'));
 const seq = new Sequencer(movesXml, formationsXml);
 // EVERY TAM BY ITS OWN TITLE, not each FILE by the title of its FIRST tam. `callMeta(xml).title` is the first
@@ -30,7 +31,7 @@ const seq = new Sequencer(movesXml, formationsXml);
 // Mainstream SUBSET is its subject.
 let registered = 0;
 for (const f of files) {
-  const xml = read(`../../assets/ms/${f}`);
+  const xml = read(`ms/${f}`);
   for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
     const title = (block.match(/\btitle="([^"]*)"/) ?? [])[1];
     if (!title) continue;

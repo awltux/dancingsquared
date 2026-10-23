@@ -86,12 +86,13 @@ import {
   setRunCircle,
   RUN_FIT_MAX_DEV,
 } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('../../assets/moves.xml');
-const formationsXml = read('../../assets/formations.xml');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -117,7 +118,7 @@ const BBOX_SLACK = 1e-3;
 
 // Pick a full-set mainstream setup (no mirrored half). Circle Left from a
 // squared set is authored for all 8 dancers.
-const circleXml = read('../../assets/ms/circle.xml');
+const circleXml = read('ms/circle.xml');
 const core = loadCallFromXml(circleXml, movesXml, formationsXml, 0, true);
 console.log(`== core: ${core.title} (${core.dancers.length} dancers, beats ${core.beats}) ==`);
 check(core.dancers.length === 8, 'core loads to a full 8-dancer set');
@@ -239,7 +240,7 @@ console.log('== closure correction (correctEndTo) ==');
 {
   // `b1/circle.xml` held this witness until the Basic levels were retired; `ms/circle.xml`'s first tam
   // is `Circle Left Home`, which is the same full-circle reading.
-  const circleXml = read('../../assets/ms/circle.xml');
+  const circleXml = read('ms/circle.xml');
   const circleLeft = loadCallFromXml(circleXml, movesXml, formationsXml, 0, true); // Circle Left (mirrored)
   // Intended end = each dancer's OWN start pose (a full circle returns home).
   const target = circleLeft.dancers.map((d) => {
@@ -283,7 +284,7 @@ console.log('== closure correction (correctEndTo) ==');
 // formation must match the original (so the sequencer can register it).
 console.log('== callToXml mirror round-trip ==');
 {
-  const circleXml = read('../../assets/ms/circle.xml');
+  const circleXml = read('ms/circle.xml');
   const cl = loadCallFromXml(circleXml, movesXml, formationsXml, 0, true);
   const xml = callToXml(cl, cl.title);
   const rt = buildCall(parseCallXml(xml)[0], parseFormations(formationsXml), parseMoves(movesXml), true);
@@ -303,7 +304,7 @@ console.log('== callToXml mirror round-trip ==');
 // them. The editor's second job is to edit that instance DIRECTLY. This section pins the
 // read; the sections after it pin each edit and the XML round trip.
 console.log('\n== call-instance table (11) ==');
-const circleMs = read('../../assets/ms/circle.xml');
+const circleMs = read('ms/circle.xml');
 // THE HALF-SET WITNESS MOVED INTO `ms/circle.xml`. It used to be `b1/circle.xml`, removed with the
 // Basic levels; `ms/circle.xml` carries 15 `asymmetric="true"` tams of its own (the `Single Circle
 // Left …` family), so the half-set read keeps its coverage rather than being reduced to the same tam
@@ -340,7 +341,7 @@ check(instanceBeats(inst) === inst.beats, `instanceBeats == the call's beats (${
 {
   // A 4-dancer formation that is NOT a home-like set declares no identity, and the table
   // must say null rather than invent one from array position (the §5 identity rule).
-  const sashay = loadCallFromXml(read('../../assets/ms/sashay.xml'), movesXml, formationsXml, 0, true);
+  const sashay = loadCallFromXml(read('ms/sashay.xml'), movesXml, formationsXml, 0, true);
   const rows = instanceTable(sashay);
   check(rows.length === 4 && rows.every((r) => r.couple === null && r.id === null), `Facing Couples declares no home identity (${rows.length} rows, all null)`);
 }
@@ -530,7 +531,7 @@ console.log('\n== the XML keeps the declarations that change behaviour (14b) =='
   // A fix or a created position is registered into the sequencer from `callToXml`, so an
   // export that dropped `sequencer` would re-open the demonstration hole the flag exists
   // to close - an edit of the `sequencer="no"` half of a call would come back matchable.
-  const endsBend = parseCallXml(read('../../assets/a1/ends_bend.xml')).find((t) => t.sequencerMode === 'no');
+  const endsBend = parseCallXml(read('a1/ends_bend.xml')).find((t) => t.sequencerMode === 'no');
   check(!!endsBend, 'witness: a tam declaring sequencer="no"');
   if (endsBend) {
     const b = buildCall(endsBend, parseFormations(formationsXml), parseMoves(movesXml), true);
@@ -538,14 +539,14 @@ console.log('\n== the XML keeps the declarations that change behaviour (14b) =='
     const back = buildCall(parseCallXml(callToXml(b))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
     check(back.sequencerMode === 'no' && back.forSequencer === false, `sequencer="no" survives the export (${back.sequencerMode}, forSequencer ${back.forSequencer})`);
   }
-  const actives = parseCallXml(read('../../assets/ms/split_the_outside_couple.xml')).find((t) => t.actives);
+  const actives = parseCallXml(read('ms/split_the_outside_couple.xml')).find((t) => t.actives);
   check(!!actives, 'witness: a tam declaring actives');
   if (actives) {
     const b = buildCall(actives, parseFormations(formationsXml), parseMoves(movesXml), true);
     const back = buildCall(parseCallXml(callToXml(b))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
     check(back.actives === actives.actives, `actives="${actives.actives}" survives the export (${back.actives})`);
   }
-  const tamator = parseCallXml(read('../../assets/a1/cast_a_shadow.xml')).find((t) => t.taminator);
+  const tamator = parseCallXml(read('a1/cast_a_shadow.xml')).find((t) => t.taminator);
   check(!!tamator, 'witness: a tam carrying a <taminator> note');
   if (tamator) {
     const b = buildCall(tamator, parseFormations(formationsXml), parseMoves(movesXml), true);
@@ -568,7 +569,7 @@ console.log('\n== the facing curve cannot express its first control point\'s y (
   // Measured on a real call rather than argued: a cy1 of 0.5 turns the dancer 331deg mid-move and
   // re-parses as the authored curve exactly. The heading change at t=1 is NOT the place to measure
   // it - that is atan2 of the last derivative span, (x2 - cx2, y2 - cy2), which contains no C1.
-  const witness = buildCall(parseCallXml(read('../../assets/ms/allemande.xml'))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
+  const witness = buildCall(parseCallXml(read('ms/allemande.xml'))[0], parseFormations(formationsXml), parseMoves(movesXml), false);
   let d = -1;
   let k = -1;
   for (let i = 0; i < witness.dancers.length && d < 0; i++) {
@@ -752,7 +753,7 @@ const src = normalizeInstance(inst);
 {
   // A real, different, EIGHT-dancer setup out of the assets - the same kind of thing the
   // picker offers, without needing a Sequencer in a `light`-tier harness.
-  const dpt = loadCallFromXml(read('../../assets/ms/double_pass_thru.xml'), movesXml, formationsXml, 1, true);
+  const dpt = loadCallFromXml(read('ms/double_pass_thru.xml'), movesXml, formationsXml, 1, true);
   const formation = dpt.dancers.map((d) => {
     const p = poseFor(d, 0);
     return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
@@ -815,7 +816,7 @@ const src = normalizeInstance(inst);
 
 console.log('\n== completing the track: one move per dancer (16b) ==');
 {
-  const dpt = loadCallFromXml(read('../../assets/ms/double_pass_thru.xml'), movesXml, formationsXml, 1, true);
+  const dpt = loadCallFromXml(read('ms/double_pass_thru.xml'), movesXml, formationsXml, 1, true);
   const formation = dpt.dancers.map((d) => {
     const p = poseFor(d, 0);
     return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
@@ -1064,7 +1065,7 @@ console.log('\n== the quarter arc (17) ==');
     let lockable = 0;
     const blocked = { 'no-handle-length': 0, 'handles-not-perpendicular': 0, 'starts-backwards': 0 };
     for (const lv of levels) {
-      const dir = path.join(__dirname, '../../assets', lv);
+      const dir = path.join(corpusRoot(), lv);
       if (!fs.existsSync(dir)) continue;
       for (const f of fs.readdirSync(dir)) {
         if (!f.endsWith('.xml')) continue;
@@ -1463,11 +1464,11 @@ console.log('\n== the correspondence can keep the formation\'s arrangement (21) 
 {
   // REAL WITNESSES: every ms-level call's own start against its own END (a real board with real genders),
   // plus the same ends with the arrangements deliberately broken.
-  const msDir = path.join(__dirname, '../../assets/ms');
+  const msDir = path.join(corpusRoot(), 'ms');
   const pairs = [];
   for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
     try {
-      const call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0));
+      const call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
       if (call.dancers.length !== 8) continue;
       pairs.push({
         file: f,
@@ -1579,7 +1580,7 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
   // of it used to hand `-1` to the loop below, which then read `path[-1].translate` and died with a
   // TypeError instead of reporting. `ms/promenade.xml`'s first tam is the second witness: its moves read
   // `R---R`, so its step 2 carries no facing curve and has three moves after it.
-  const plain = normalizeInstance(loadCallFromXml(read('../../assets/ms/promenade.xml'), movesXml, formationsXml, 0));
+  const plain = normalizeInstance(loadCallFromXml(read('ms/promenade.xml'), movesXml, formationsXml, 0));
   const boundaries = (call, i) => call.dancers[i].path.map((_, k) => poseFor(call.dancers[i], moveBeatRange(call.dancers[i], k).to));
 
   // WHICH MOVES ARE WORTH MEASURING: one with a facing curve and one without, and both must have something
@@ -1676,13 +1677,13 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
 
   // THE CORPUS COUNT, so the degenerate case cannot be dismissed as rare - and so the sweep that found it is
   // pinned rather than retold.
-  const msDir = path.join(__dirname, '../../assets/ms');
+  const msDir = path.join(corpusRoot(), 'ms');
   let moves = 0;
   let degenerate = 0;
   for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
-      call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0));
+      call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
     } catch {
       continue;
     }
@@ -1757,13 +1758,13 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
   check(fitCircle(quarter, 1e-5) === null, 'the tolerance really refuses: the same arc is null at 1e-5 even though its error is only 2.72e-4');
 
   // AND THE DEFAULT COMES FROM THE CORPUS, with the empty band the rest of this project picks windows from.
-  const msDir = path.join(__dirname, '../../assets/ms');
+  const msDir = path.join(corpusRoot(), 'ms');
   const devs = [];
   let totalCurves = 0;
   for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
-      call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0));
+      call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
     } catch {
       continue;
     }
@@ -1797,7 +1798,7 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
   for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
-      call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0));
+      call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
     } catch {
       continue;
     }
@@ -1826,12 +1827,12 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
 // that does nothing).
 console.log('\n== swinging an arc about its start (24) ==');
 {
-  const msDir = path.join(__dirname, '../../assets/ms');
+  const msDir = path.join(corpusRoot(), 'ms');
   const witness = (wantFacingOnPrev) => {
     for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
       let call;
       try {
-        call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0));
+        call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
       } catch {
         continue;
       }
@@ -1943,7 +1944,7 @@ console.log('\n== swinging an arc about its start (24) ==');
     for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
       let call;
       try {
-        call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0));
+        call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
       } catch {
         continue;
       }
@@ -1992,7 +1993,7 @@ console.log('\n== swinging an arc about its start (24) ==');
 //   - everything outside the run is untouched, the facing curves survive, and the joints still join.
 console.log('\n== 25. A run of moves laid on one circle ==');
 {
-  const msDir = path.join(__dirname, '../../assets/ms');
+  const msDir = path.join(corpusRoot(), 'ms');
   const fits = [];
   for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
     let call;
@@ -2249,7 +2250,7 @@ console.log('\n== 26. The arc that is meant, and the fit that says nothing ==');
   // relative tolerance on a huge enough circle, and then the radius is meaningless.
   const gs = (() => {
     try {
-      return normalizeInstance(loadCallFromXml(fs.readFileSync(path.join(__dirname, '../../assets/ms/grand_spin.xml'), 'utf8'), movesXml, formationsXml, 0));
+      return normalizeInstance(loadCallFromXml(fs.readFileSync(path.join(corpusRoot(), 'ms/grand_spin.xml'), 'utf8'), movesXml, formationsXml, 0));
     } catch { return null; }
   })();
   check(!!gs, 'ms/grand_spin.xml carries the witness: two moves that go STRAIGHT, which Kasa fitted as a circle of radius 28');
@@ -2370,7 +2371,7 @@ console.log('\n== 27. A full set of paths against a HALF-set formation ==');
 // by something that need not be a formation at all.
 console.log('\n== 28. A setup is named by its formation ==');
 {
-  const read = (p) => fs.readFileSync(path.join(__dirname, '../../assets', p), 'utf8');
+  const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
   // A witness where the two genuinely disagree, and one where `from` is empty and only `formation` speaks.
   const allemande = callMeta(read('ms/allemande.xml')).setups;
   const differing = allemande.filter((s) => s.from && s.label !== s.from);
@@ -2382,7 +2383,7 @@ console.log('\n== 28. A setup is named by its formation ==');
   let blankNamed = 0;
   let blankDefault = 0;
   for (const lv of ['ms', 'a1', 'a2', 'c1', 'c2', 'plus']) {
-    const dir = path.join(__dirname, '../../assets', lv);
+    const dir = path.join(corpusRoot(), lv);
     if (!fs.existsSync(dir)) continue;
     for (const f of fs.readdirSync(dir)) {
       if (!f.endsWith('.xml')) continue;
@@ -2576,11 +2577,11 @@ console.log('\n== a facing edit holds the following trace (30) ==');
   //    `bezRotAttr` emits only cx3/cx4/cy4/x4/y4), so the frozen joint was lost the moment the file was
   //    re-read - while `poc/tools/facing-handle-probe.mjs` asserts every facing in the corpus has cy1 === 0.
   {
-    const msDir = path.join(__dirname, '../../assets/ms');
+    const msDir = path.join(corpusRoot(), 'ms');
     let w = null;
     for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
       let call;
-      try { call = normalizeInstance(loadCallFromXml(read(`../../assets/ms/${f}`), movesXml, formationsXml, 0)); } catch { continue; }
+      try { call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0)); } catch { continue; }
       if (call.dancers.length !== 8) continue;
       for (let i = 0; i < 8 && !w; i++) {
         for (let kk = 1; kk < call.dancers[i].path.length; kk++) {
@@ -2695,11 +2696,11 @@ console.log('\n== 31. copying a whole trace between two dancers ==');
   const differs = [];
   let witness = '';
   for (const lv of LEVELS) {
-    const dir = path.join(__dirname, '../../assets', lv);
+    const dir = path.join(corpusRoot(), lv);
     if (!fs.existsSync(dir)) continue;
     for (const f of fs.readdirSync(dir)) {
       if (!f.endsWith('.xml')) continue;
-      const xml = read(`../../assets/${lv}/${f}`);
+      const xml = read(`${lv}/${f}`);
       // The same gate the POC uses: a file whose tams carry no inline setup is not a call this can load.
       if (callMeta(xml).setups.length === 0) continue;
       let call;

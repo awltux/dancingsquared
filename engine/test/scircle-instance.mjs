@@ -38,6 +38,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const TITLE = 'Single Circle Left Full';
 const FROM = 'Normal Lines';
@@ -48,8 +49,7 @@ const SEARCH_MATCH_MAX = 6.0;
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -61,7 +61,7 @@ const check = (cond, msg) => {
 // `poc/src/data.ts` `registrationXml` indexes with `entry.tamIndices`. The comments are stripped
 // because the app strips them (`afaae4a`) - a raw-text read here would be indexing a list the app
 // never builds.
-const circleXml = read('assets/ms/circle.xml');
+const circleXml = read('ms/circle.xml');
 const blocks = circleXml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 const formOf = (x) => (x.match(/formation="([^"]*)"/) ?? [])[1];
@@ -81,7 +81,7 @@ check(formOf(tams[0]) === 'Facing Dancers Far', `[0] is the "Facing Dancers Far"
 check(formOf(tams[1]) === 'Facing Dancers', `[1] is the plain "Facing Dancers" stance (got "${formOf(tams[1])}")`);
 
 const mkSeq = (xml) =>
-  new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'),
+  new Sequencer(read('moves.xml'), read('formations.xml'),
     [{ name: TITLE, xml: `<calls>\n${xml}\n</calls>` }]);
 
 // The app registers BOTH setups under one title, in file order - Far first.

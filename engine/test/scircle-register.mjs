@@ -27,12 +27,12 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const TITLE = 'Single Circle Left Full';
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -41,7 +41,7 @@ const check = (cond, msg) => {
 };
 
 // The two authored setups, from the app's own comment-stripped index list.
-const circleXml = read('assets/ms/circle.xml');
+const circleXml = read('ms/circle.xml');
 const blocks = circleXml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 const formOf = (x) => (x.match(/formation="([^"]*)"/) ?? [])[1];
@@ -50,7 +50,7 @@ tams.forEach((t, i) => console.log(`  [${i}] formation="${formOf(t)}"`));
 check(tams.length === 2, `the corpus still authors it twice (found ${tams.length})`);
 if (tams.length !== 2) { console.log('\n1 CHECK(S) FAILED'); process.exit(1); }
 
-const seq = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), []);
+const seq = new Sequencer(read('moves.xml'), read('formations.xml'), []);
 const asXml = (t) => `<calls>\n${t}\n</calls>`;
 
 // TWO register CALLS, one authored setup each - the shape that loses data.
@@ -74,7 +74,7 @@ check(
 
 // ONE register call carrying both - the shape the app actually produces today.
 console.log(`\n== register("${TITLE}", ...) called ONCE carrying both setups ==`);
-const seq2 = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), []);
+const seq2 = new Sequencer(read('moves.xml'), read('formations.xml'), []);
 seq2.register(TITLE, `<calls>\n${tams.join('\n')}\n</calls>`);
 const both = seq2.matchableVariants(TITLE).map((v) => v.formation);
 console.log(`  variants: [${both.join(', ')}]`);
@@ -82,7 +82,7 @@ check(both.length === 2, `one call carrying both keeps both (got ${both.length})
 
 // Re-registering the SAME setup twice must not accumulate duplicates.
 console.log(`\n== register called twice with the SAME setup ==`);
-const seq3 = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), []);
+const seq3 = new Sequencer(read('moves.xml'), read('formations.xml'), []);
 seq3.register(TITLE, asXml(tams[1]));
 seq3.register(TITLE, asXml(tams[1]));
 const dup = seq3.matchableVariants(TITLE);

@@ -59,18 +59,18 @@ import {
   FORMATION_LETTER,
   REFERENCE_PAIR_SPOTS,
 } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..', '..');
 let failures = 0;
 const fail = (msg) => { console.log(`  FAIL  ${msg}`); failures++; };
 const ok = (msg) => console.log(`  ok    ${msg}`);
 
 // ------------------------------------------------------------------ the engine
 
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 // Register by CALL TITLE, not by file basename. The basename trick used elsewhere
 // makes `Pass Thru` unregistered (the file is pass_thru.xml), and this test applies
 // named calls to constructed boards. All variants of a title are pooled so a call

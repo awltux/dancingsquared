@@ -25,8 +25,7 @@ import { callsByTitle } from '../lib/engine-calls.mjs';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
@@ -37,6 +36,7 @@ const templateFor = (letter) => {
   return null;
 };
 import { FORMATIONS_FOR_LETTER } from '../../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const headingDiff = (a, b) => { let d = Math.abs(a - b) % (2 * Math.PI); return d > Math.PI ? 2 * Math.PI - d : d; };

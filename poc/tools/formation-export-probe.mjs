@@ -39,6 +39,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -61,7 +62,7 @@ const check = (cond, msg) => {
 
 const readSource = (rel) => fs.readFileSync(path.join(POC_DIR, rel), 'utf8').replace(/\r\n/g, '\n');
 
-const ASSETS = path.join(POC_DIR, '..', 'assets');
+const ASSETS = corpusRoot();
 const formationsXml = fs.readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8');
 const corpus = engine.parseFormations(formationsXml);
 const TOL = 1e-3;

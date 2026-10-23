@@ -7,13 +7,13 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, setParser, boardAtBeat } from '../../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 const here = path.dirname(new URL(import.meta.url).pathname.replace(/^\//, ''));
-const root = path.resolve(here, '..', '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 const TITLE = 'Single Circle Left Full';
 
-const xml = read('assets/ms/circle.xml');
+const xml = read('ms/circle.xml');
 const blocks = xml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 console.log(`tams: ${tams.length}`);
@@ -26,7 +26,7 @@ tams.forEach((t, i) => {
 });
 
 for (const [i, t] of tams.entries()) {
-  const seq = new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'), [
+  const seq = new Sequencer(read('moves.xml'), read('formations.xml'), [
     { name: TITLE, xml: `<calls>\n${t}\n</calls>` },
   ]);
   const v = seq.library.matchableVariants(TITLE)[0];

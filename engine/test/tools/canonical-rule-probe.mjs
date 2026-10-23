@@ -23,11 +23,12 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, setParser, boardsForAlignment, boardFromDiagram, parseAlignmentId, FORMATIONS_FOR_LETTER, REFERENCE_PAIR_SPOTS, arrangementFor, sequenceFor } from '../../dist/index.js';
 import { HOME_DANCERS } from '../../dist/sequencer/identity.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

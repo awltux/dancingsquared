@@ -54,11 +54,11 @@ import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer, STANDARD_FINISHES } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),

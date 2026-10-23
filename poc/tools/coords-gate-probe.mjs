@@ -24,6 +24,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -31,7 +32,7 @@ const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 
@@ -115,7 +116,7 @@ console.log(`    witness ${callId}: ${src.dancers.length} dancers, ${src.dancers
 
 // The panel's clone path: re-base onto another start formation, then complete the track. The formation
 // list comes from a Sequencer over the whole pooled catalogue, exactly as the app builds it.
-const assets = path.join(POC_DIR, '..', 'assets');
+const assets = corpusRoot();
 const seq = new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets));
 const target = seq
   .listFormations()

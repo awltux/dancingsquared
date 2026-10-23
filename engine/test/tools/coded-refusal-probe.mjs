@@ -25,15 +25,14 @@
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, findCodedMove, codedMoveApplies, CODED_MOVE_NAMES } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
-const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

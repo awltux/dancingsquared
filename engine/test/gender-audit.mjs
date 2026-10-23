@@ -24,19 +24,16 @@
 
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer, parseFormations } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
-const assets = 'assets';
-const movesXml = read(`${assets}/moves.xml`);
-const formationsXml = read(`${assets}/formations.xml`);
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 
 /** Dancer counts of a setup, ignoring phantoms when deciding balance. */
 function tally(genders) {
@@ -84,7 +81,7 @@ console.log('\n== Call setups (every <tam> with <dancer> elements) ==');
 const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let tams = 0;
 for (const lv of levels) {
-  const dir = path.join(root, assets, lv);
+  const dir = path.join(corpusRoot(), lv);
   if (!existsSync(dir)) continue;
   for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
     const xml = readFileSync(path.join(dir, f), 'utf8');
@@ -105,7 +102,7 @@ console.log('\n== Boards ==');
 // Registered with the full catalog so formation boards resolve.
 const calls = [];
 for (const lv of levels) {
-  const dir = path.join(root, assets, lv);
+  const dir = path.join(corpusRoot(), lv);
   if (!existsSync(dir)) continue;
   for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });

@@ -49,10 +49,11 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, buildCellLattice } from '../../dist/index.js';
 import { buildCatalog, makeSequencer } from '../../../poc-teacher/src/catalog.ts';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

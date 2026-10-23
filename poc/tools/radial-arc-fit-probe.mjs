@@ -68,6 +68,7 @@
 // Run: node poc/tools/radial-arc-fit-probe.mjs   (from anywhere; build the engine first)
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const grid = await import(pathToFileURL(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts')).href);
@@ -342,7 +343,7 @@ console.log('\n== 7. how often the corpus offers it, and the band the slack sits
   // other corpus-driven probe uses.
   const { DOMParser } = await import('@xmldom/xmldom');
   engine.setParser(DOMParser);
-  const path0 = path.join(POC_DIR, '..', 'assets');
+  const path0 = corpusRoot();
   const movesXml = fs.readFileSync(path.join(path0, 'moves.xml'), 'utf8');
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   let moves = 0;
@@ -428,7 +429,7 @@ console.log('\n== 8. the reported miss: the middle curve of `Promenade Full` =='
   const fs = await import('node:fs');
   const { DOMParser } = await import('@xmldom/xmldom');
   engine.setParser(DOMParser);
-  const path0 = path.join(POC_DIR, '..', 'assets');
+  const path0 = corpusRoot();
   const movesXml = fs.readFileSync(path.join(path0, 'moves.xml'), 'utf8');
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   const variants = engine.buildCallVariants(
@@ -519,7 +520,7 @@ console.log('\n== 9. and a fit leaves every later end point exactly where it was
   const fs = await import('node:fs');
   const { DOMParser } = await import('@xmldom/xmldom');
   engine.setParser(DOMParser);
-  const path0 = path.join(POC_DIR, '..', 'assets');
+  const path0 = corpusRoot();
   const movesXml = fs.readFileSync(path.join(path0, 'moves.xml'), 'utf8');
   const formationsXml = fs.readFileSync(path.join(path0, 'formations.xml'), 'utf8');
   const variants = engine.buildCallVariants(

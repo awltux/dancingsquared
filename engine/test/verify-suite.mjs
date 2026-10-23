@@ -28,6 +28,7 @@
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -219,6 +220,15 @@ const SUITE = [
   // `parseCallXml` and `loadCallFromXml`, which is the reader a consumer actually uses. Also records that sorting a
   // level's files is NOT free (7 of 11 levels change order), so `filesOf` preserves the directory's. ~5s.
   { h: 'corpus-inventory', light: true },
+  // THE CORPUS DIRECTORY IS NAMED ONCE, and this is the gate that keeps it that way. MEASURED at the
+  // consolidation: 211 files spelled a corpus path in code and 21 more carried it as a `../`-chained
+  // call-site literal; the change left 309 `corpusRoot()` call sites and 12 files that may still spell an
+  // `assets` directory, each pinned with the reason (the book's own published `assets/`, the teacher's deleted
+  // FSM copy, an exported `filepath="assets/…"`, and the one place the location is written). The pin is EXACT:
+  // a 13th file is a new hand-built path and a 12th-minus-one is a pin that stopped matching — both red. It
+  // also pins the ONE ACCESSOR (only `packages/corpus` and the two Vite configs import `CORPUS`). ~0.3s:
+  // 545 source files read as text, no engine build. The rule and the six shapes it replaces are in its header.
+  { h: 'corpus-location', light: true },
   // WHICH BOARD IDENTITY A PERMISSION RULE SHOULD MATCH ON — and why it is the recogniser's NAME. Step "3" of
   // the agreed order proposed a geometry/cell key instead; MEASURED, that is backwards. The NAME is a shape
   // identity and survives rotation (a square turned 0/45/90/180 is still `Static Square`), while
@@ -451,10 +461,14 @@ if (mode === 'light') {
 // that way (AGENTS.md trap 3), and why this reads no output of its own. An empty file list means the corpus
 // is the committed tree; a list means these numbers belong to an uncommitted state.
 const repoRoot = path.resolve(here, '..', '..');
+// THE PATHSPEC IS DERIVED, not spelled: `git status` takes a path relative to the repo root and the corpus is
+// not always two `..` from here (it is `corpusRoot()` and nothing else — `engine/test/corpus-location.mjs`
+// enforces that). A hand-written `assets` here would be the one spelling the rest of the tree no longer keeps.
+const corpusPathspec = path.relative(repoRoot, corpusRoot());
 console.log('verify-suite: corpus revision (git prints it; a file list means assets is DIRTY, so the');
 console.log('  numbers below belong to that uncommitted state and must not be compared with a committed run):');
 spawnSync('git', ['-C', repoRoot, 'rev-parse', '--short', 'HEAD'], { stdio: 'inherit' });
-spawnSync('git', ['-C', repoRoot, 'status', '--porcelain', '--', 'assets'], { stdio: 'inherit' });
+spawnSync('git', ['-C', repoRoot, 'status', '--porcelain', '--', corpusPathspec], { stdio: 'inherit' });
 
 const results = [];
 let failed = null;

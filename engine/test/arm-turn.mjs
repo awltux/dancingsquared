@@ -20,14 +20,13 @@
 // Run: node test/arm-turn.mjs   (from engine/; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, armTurn, armTurnProblem, ARM_TURN_FRACTIONS, loadCallFromXml, normalizeInstance, instanceBeats, poseFor, setParser } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
-const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');

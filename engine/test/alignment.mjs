@@ -58,6 +58,7 @@ import {
   HOME_RING_ORDER,
 } from '../dist/index.js';
 import { HOME_DANCERS } from '../dist/sequencer/identity.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -235,7 +236,7 @@ console.log('  (0->5 is the half-sashay complement: the reason a reflection must
 
 // --------------------------------------------- 3. the engine's own templates
 
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 const calls = [];
 for (const lv of levels) {
@@ -246,7 +247,7 @@ for (const lv of levels) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }
 }
-const seq = new Sequencer(read(path.join('assets/moves.xml')), read(path.join('assets/formations.xml')), calls);
+const seq = new Sequencer(readFileSync(path.join(assets, 'moves.xml'), 'utf8'), readFileSync(path.join(assets, 'formations.xml'), 'utf8'), calls);
 
 console.log('\n== 3. engine templates classify as arrangement 0 ==');
 const TEMPLATES = [

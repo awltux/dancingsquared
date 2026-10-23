@@ -20,15 +20,18 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
-const ui = read('src/sequencer-ui.ts');
-const css = read('src/style.css');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8').replace(/\r\n/g, '\n');
+/** The app's own source is NOT the corpus — a separate reader, so the two cannot be confused. */
+const readApp = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
+const ui = readApp('src/sequencer-ui.ts');
+const css = readApp('src/style.css');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -38,7 +41,7 @@ const check = (cond, msg) => {
 
 console.log('== 1. the removal itself, through the engine ==');
 {
-  const seq = new engine.Sequencer(read('../assets/moves.xml'), read('../assets/formations.xml'));
+  const seq = new engine.Sequencer(read('moves.xml'), read('formations.xml'));
   const NAME = 'Probe Module';
   seq.registerModule(NAME, ['Pass Thru']);
   check(seq.isModule(NAME), 'a registered module IS a module');
@@ -64,7 +67,7 @@ console.log('== 1. the removal itself, through the engine ==');
 
 console.log('\n== 2. and it cannot take anything it should not ==');
 {
-  const seq = new engine.Sequencer(read('../assets/moves.xml'), read('../assets/formations.xml'));
+  const seq = new engine.Sequencer(read('moves.xml'), read('formations.xml'));
   seq.registerModule('Keep Me', ['Pass Thru']);
   seq.unregisterModule('Something Never Registered');
   check(seq.isModule('Keep Me'), 'deleting an unknown name removes NOTHING else');

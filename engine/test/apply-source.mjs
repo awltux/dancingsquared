@@ -22,15 +22,14 @@
 // Run: node test/apply-source.mjs   (from engine/; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, authoredTamWins, findCodedMove, loadCallFromXml, normalizeInstance, instanceBeats, poseFor, setParser } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
-const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');

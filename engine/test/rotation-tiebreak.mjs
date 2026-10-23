@@ -32,6 +32,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer, matchFormations } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 let failures = 0;
@@ -46,7 +47,7 @@ const DEG = 180 / Math.PI;
 // repo root when the file is run by hand -- so it worked standalone and failed in the gate. Anchor it.
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
-const read = (p) => fs.readFileSync(path.join(ROOT, 'assets', p), 'utf8');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const seq = new Sequencer(read('moves.xml'), read('formations.xml'), []);
 const names = seq.listFormations();
 const board = (name) => seq.boardForFormation(name);

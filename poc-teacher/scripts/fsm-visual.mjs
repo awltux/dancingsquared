@@ -13,20 +13,21 @@ import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
 // THE HTML ESCAPER IS IMPORTED FROM THE POC, which owns the rule (`poc/src/dom.ts`). This script carried its own
 // four-character copy — a second spelling of one security rule — and the file it writes is HTML like any other.
 import { esc } from '../../poc/src/dom.ts';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
-const assets = path.join(root, 'assets');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
+const assets = corpusRoot();
 
 const msFiles = {};
 for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
-  msFiles[`ms/${f}`] = read(`assets/ms/${f}`);
+  msFiles[`ms/${f}`] = read(`ms/${f}`);
 }
 const catalog = buildCatalog(msFiles);
 const familyMap = new Map(catalog.map((c) => [c.title, c.family ?? '']));
-const seq = makeSequencer(read('assets/moves.xml'), read('assets/formations.xml'), catalog);
+const seq = makeSequencer(read('moves.xml'), read('formations.xml'), catalog);
 const fsm = seq.transitionTable();
 
 const states = fsm.states();

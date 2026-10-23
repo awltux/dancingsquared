@@ -48,11 +48,11 @@ import {
   GROUP_NAMES,
 } from '../dist/index.js';
 import { callsByTitle, catalogueTitles, implementedTitles } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..');
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 
 /** Every name the corpus can actually PERFORM: the `<tam>` titles plus the coded-move aliases. The list a
  *  shipped rule's `call` has to be in, and the reason it cannot be a hand-kept array like `GROUP_NAMES`. */

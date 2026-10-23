@@ -23,6 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
@@ -62,7 +63,7 @@ console.log('\n== 1. which setup a refilled list selects ==');
 
 // ---------------------------------------------------------------- 2. the corpus this is for
 console.log('\n== 2. the corpus: how often the workflow exists ==');
-const assets = path.join(ROOT, 'assets');
+const assets = corpusRoot();
 const calls = []; // { rel, title, setups: string[] }
 for (const level of fs.readdirSync(assets, { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== 'src')

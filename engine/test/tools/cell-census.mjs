@@ -33,10 +33,11 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, buildCellLattice, geometryKey, CELL_ROUND, boardForFasrCode, matchFormations } from '../../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

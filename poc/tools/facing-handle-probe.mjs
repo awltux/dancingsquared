@@ -31,6 +31,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 // Resolved from THIS FILE, so the probe runs from anywhere and not only from poc/.
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -39,7 +40,7 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 // Half the floor grid, so "the drawn curve stays on the board" is a number rather than an impression.
 const FLOOR_HALF_ASSUMED = 5;
 const movesXml = asset('moves.xml');
@@ -68,7 +69,7 @@ let explicitSegs = 0;
 let totalSegs = 0;
 const firstWithRotate = { call: null, seg: null };
 for (const lv of levels) {
-  const dir = path.join(POC_DIR, '../assets', lv);
+  const dir = path.join(corpusRoot(), lv);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir)) {
     if (!f.endsWith('.xml')) continue;

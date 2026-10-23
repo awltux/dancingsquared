@@ -18,11 +18,12 @@
 // root is that one definition exists (`engine/src/sequencer/call-variant-id.ts`).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { catalogue, loadCall, root } from './load.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
+import { catalogue, loadCall } from './load.mjs';
 
 /** The append-only ledger of formation roots, as a plain `formation id -> root` object. */
 export function loadRoots() {
-  return JSON.parse(readFileSync(join(root, 'assets', 'formation-roots.json'), 'utf8')).roots ?? {};
+  return JSON.parse(readFileSync(join(corpusRoot(), 'formation-roots.json'), 'utf8')).roots ?? {};
 }
 
 /** The board a bundle starts from, carrying each dancer's gender - what both derived ids are functions of. */

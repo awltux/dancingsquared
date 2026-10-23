@@ -30,7 +30,6 @@
 
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { CODED_MOVES, Sequencer, setParser } from '../dist/index.js';
@@ -44,10 +43,10 @@ import {
   toReferenceSequence,
   unreadCells,
 } from './lib/all8-figures.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
-const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),

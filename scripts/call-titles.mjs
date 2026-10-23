@@ -30,9 +30,6 @@ import { fileURLToPath } from 'node:url';
 
 import { filesOf, levelsAvailable, tamsOf } from 'dancing-squared-corpus';
 
-/** The corpus, located ONCE for this script — the apps read it through `vite.corpus.ts`. */
-export const CORPUS = fileURLToPath(new URL('../assets/', import.meta.url));
-
 /** Where the generated module lives. A constant of this script, not of the caller: there is one module. */
 export const MODULE = fileURLToPath(new URL('../engine/src/sequencer/call-titles.ts', import.meta.url));
 

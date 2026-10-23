@@ -31,10 +31,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer, makeSquaredSet, cloneBoard, boardSig, sameBoardById, callMeta, SAME_BOARD_TOL } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -109,12 +110,12 @@ console.log('== 6. the whole thing against REAL boards from the engine ==');
   // witness is DISCOVERED rather than named (AGENTS.md §8 trap 7: never pin a position or a basename
   // where the property you need is what matters — the property here is "some legal call moves someone").
   // Registration is by TITLE, taken from `callMeta`, which is the same registry the app builds.
-  const movesXml = read('../../assets/moves.xml');
-  const formationsXml = read('../../assets/formations.xml');
-  const msDir = path.join(__dirname, '../../assets/ms');
+  const movesXml = read('moves.xml');
+  const formationsXml = read('formations.xml');
+  const msDir = path.join(corpusRoot(), 'ms');
   const calls = [];
   for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
-    const xml = read(`../../assets/ms/${f}`);
+    const xml = read(`ms/${f}`);
     const title = callMeta(xml).title;
     if (title) calls.push({ name: title, xml });
   }

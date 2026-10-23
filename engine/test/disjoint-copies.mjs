@@ -55,9 +55,10 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, chooseVirtual } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => fs.readFileSync(p, 'utf8');
 
 setParser(DOMParser);

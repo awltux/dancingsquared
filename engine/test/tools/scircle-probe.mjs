@@ -26,6 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, boardAtBeat } from '../../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const TITLE = 'Single Circle Left Full';
 const FROM = 'Normal Lines';
@@ -36,11 +37,10 @@ const SEARCH_MATCH_MAX = 6.0;  // animator grouping + every sub-apply (rebase=fa
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 // ---- the app's own registration input -----------------------------------------------------------
-const circleXml = read('assets/ms/circle.xml');
+const circleXml = read('ms/circle.xml');
 const blocks = circleXml.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) || [];
 const tams = blocks.filter((b) => new RegExp(`title="${TITLE}"`).test(b));
 if (tams.length !== 2) {
@@ -52,7 +52,7 @@ console.log(`== the app's registration list for "${TITLE}" (in order) ==`);
 tams.forEach((t, i) => console.log(`  [${i}] formation="${formOf(t)}"`));
 
 const mkSeq = (labels) =>
-  new Sequencer(read('assets/moves.xml'), read('assets/formations.xml'),
+  new Sequencer(read('moves.xml'), read('formations.xml'),
     labels.map(([name, xml]) => ({ name, xml: `<calls>\n${xml}\n</calls>` })));
 
 // The app at runtime: BOTH setups under one title, Far first.

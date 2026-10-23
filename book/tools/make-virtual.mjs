@@ -41,13 +41,13 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { filesOf, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
 
 import { loadEngine, readAsset, root, toolsDir } from './lib/load.mjs';
 
 const PLACEMENTS = join(toolsDir, 'virtual-placements.json');
-const OUT_XML = join(root, 'assets', 'virtual', 'tams.xml');
-const OUT_INDEX = join(root, 'assets', 'virtual', 'index.json');
+const OUT_XML = join(corpusRoot(), 'virtual', 'tams.xml');
+const OUT_INDEX = join(corpusRoot(), 'virtual', 'index.json');
 
 /** The levels an authoring may come from; the same two the book draws on. */
 const LEVELS = ['ms', 'plus'];

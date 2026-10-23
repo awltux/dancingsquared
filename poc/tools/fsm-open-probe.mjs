@@ -14,6 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -25,7 +26,7 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const assets = path.join(POC_DIR, '..', 'assets');
+const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
 // ============================================================ 1. the rule, called

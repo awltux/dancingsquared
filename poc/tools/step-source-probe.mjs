@@ -13,6 +13,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -27,7 +28,7 @@ const check = (cond, msg) => {
 
 const { callSource, stepSource, rowSources } = await import('./../src/step-source.ts');
 const { callsByTitle } = await import(pathToFileURL(path.join(POC, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
-const assets = path.join(POC, '..', 'assets');
+const assets = corpusRoot();
 const seq = new engine.Sequencer(
   fs.readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   fs.readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

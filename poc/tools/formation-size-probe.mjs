@@ -25,16 +25,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
 
 const DEG = Math.PI / 180;
 const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -69,13 +70,13 @@ const check = (cond, msg) => {
 
 function* everyCall() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(POC_DIR, '../assets', level))) {
+    for (const f of fs.readdirSync(path.join(corpusRoot(), level))) {
       if (!f.endsWith('.xml')) continue;
       try {
         yield {
           level, f,
           call: engine.normalizeInstance(engine.loadCallFromXml(
-            fs.readFileSync(path.join(POC_DIR, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0)),
+            fs.readFileSync(path.join(corpusRoot(), level, f), 'utf8'), movesXml, formationsXml, 0)),
         };
       } catch { /* a call that will not load is another probe's business */ }
     }

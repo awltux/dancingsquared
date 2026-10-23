@@ -29,14 +29,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const movesXml = fs.readFileSync(path.join(POC_DIR, '../assets/moves.xml'), 'utf8');
-const formationsXml = fs.readFileSync(path.join(POC_DIR, '../assets/formations.xml'), 'utf8');
+const movesXml = fs.readFileSync(path.join(corpusRoot(), 'moves.xml'), 'utf8');
+const formationsXml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8');
 const uiSrc = fs.readFileSync(path.join(POC_DIR, 'src/editor-ui.ts'), 'utf8');
 const htmlSrc = fs.readFileSync(path.join(POC_DIR, 'index.html'), 'utf8');
 const cssSrc = fs.readFileSync(path.join(POC_DIR, 'src/style.css'), 'utf8');
@@ -48,7 +49,7 @@ const check = (cond, msg) => {
 };
 
 const load = (file) =>
-  engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, '../assets', file), 'utf8'), movesXml, formationsXml, 0));
+  engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(corpusRoot(), file), 'utf8'), movesXml, formationsXml, 0));
 
 // ------------------------------------------------------------------ 1. the wiring
 console.log('== 1. both buttons exist, are wired, and are guarded the same way ==');

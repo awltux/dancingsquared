@@ -30,10 +30,11 @@ import { Sequencer, setParser } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
 import { ALL8_FIGURE_START } from '../lib/all8-figures.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),
@@ -42,7 +43,7 @@ const seq = new Sequencer(
 const HOME = 'Static Square';
 
 // ---------------------------------------------------------------- the table, exactly as the view uses it
-const blob = JSON.parse(readFileSync(path.join(here, '..', '..', '..', 'assets', 'fsm-ms.json'), 'utf8'));
+const blob = JSON.parse(readFileSync(path.join(corpusRoot(), 'fsm-ms.json'), 'utf8'));
 const states = blob.table.states;
 const edges = blob.table.edges;
 const idx = new Map(states.map((s, i) => [s, i]));

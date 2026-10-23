@@ -26,6 +26,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
@@ -75,13 +76,13 @@ const WANTED = [
 // ---------------------------------------------------------------- 2 & 3. the real corpus
 console.log('\n== 2. the corpus: a total order over every title the app lists ==');
 const titles = new Set();
-for (const level of fs.readdirSync(path.join(ROOT, 'assets'), { withFileTypes: true })
+for (const level of fs.readdirSync(path.join(corpusRoot()), { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== 'src')
   .map((d) => d.name)) {
-  for (const f of fs.readdirSync(path.join(ROOT, 'assets', level)).filter((x) => x.endsWith('.xml'))) {
+  for (const f of fs.readdirSync(path.join(corpusRoot(), level)).filter((x) => x.endsWith('.xml'))) {
     let tams;
     try {
-      tams = engine.parseCallXml(fs.readFileSync(path.join(ROOT, 'assets', level, f), 'utf8'));
+      tams = engine.parseCallXml(fs.readFileSync(path.join(corpusRoot(), level, f), 'utf8'));
     } catch {
       continue;
     }

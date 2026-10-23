@@ -19,16 +19,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -49,10 +50,10 @@ console.log("== 1. the moves run on the call's own clock, and the lead-in and le
   let worstEnd = 0;
   let worstAt = '';
   let callsThatReachTheEnd = 0;
-  for (const level of LEVELS) for (const f of fs.readdirSync(path.join(POC_DIR, '../assets', level)).filter((x) => x.endsWith('.xml'))) {
+  for (const level of LEVELS) for (const f of fs.readdirSync(path.join(corpusRoot(), level)).filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
-      call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(POC_DIR, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0));
+      call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(corpusRoot(), level, f), 'utf8'), movesXml, formationsXml, 0));
     } catch { continue; }
     calls++;
     if (call.leadin || call.leadout) { withDead++; deadBeats += call.leadin + call.leadout; }

@@ -30,11 +30,11 @@ import { fileURLToPath } from 'node:url';
 
 import { FSM_TABLE_SCHEMA_VERSION, FsmTable } from '../dist/index.js';
 import { buildCatalog } from '../../poc-teacher/src/catalog.ts';
-import { filesRecord } from 'dancing-squared-corpus';
+import { corpusRoot, filesRecord } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..', '..');
-const assetPath = path.join(root, 'assets', 'fsm-ms.json');
+const assetPath = path.join(corpusRoot(), 'fsm-ms.json');
 
 let failures = 0;
 const check = (cond, msg, detail) => {

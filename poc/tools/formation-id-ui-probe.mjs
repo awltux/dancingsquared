@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -28,7 +29,7 @@ const check = (cond, msg, detail) => {
   else { failures++; console.log('  FAIL ' + msg + (detail ? '\n        ' + detail : '')); }
 };
 
-const assets = path.join(POC, '..', 'assets');
+const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const { callsByTitle } = await import('../../engine/test/lib/engine-calls.mjs');
 const seq = new engine.Sequencer(asset('moves.xml'), asset('formations.xml'), callsByTitle(assets));

@@ -20,17 +20,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const read = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
-const movesXml = read('../assets/moves.xml');
-const formationsXml = read('../assets/formations.xml');
-const ui = read('src/editor-ui.ts');
-const css = read('src/style.css');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8').replace(/\r\n/g, '\n');
+/** The app's own source is NOT the corpus — a separate reader, so the two cannot be confused. */
+const readApp = (p) => fs.readFileSync(path.join(POC_DIR, p), 'utf8').replace(/\r\n/g, '\n');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
+const ui = readApp('src/editor-ui.ts');
+const css = readApp('src/style.css');
 
 let failures = 0;
 const check = (cond, msg) => {

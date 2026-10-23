@@ -23,13 +23,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const read = (rel) => fs.readFileSync(path.join(POC, '..', 'assets', rel), 'utf8');
+const read = (rel) => fs.readFileSync(path.join(corpusRoot(), rel), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');
 const armTurnsXml = read('ms/arm_turns.xml');

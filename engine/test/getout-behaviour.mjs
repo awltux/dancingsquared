@@ -47,16 +47,16 @@ import {
 import { decodeLine } from './lib/getout-decode.mjs';
 import { callsByTitle, engineNameFor } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..', '..');
 let failures = 0;
 const fail = (msg) => { console.log(`  FAIL  ${msg}`); failures++; };
 
 // ------------------------------------------------------------------ the engine
 
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const seq = new Sequencer(
   readFileSync(path.join(assets, 'moves.xml'), 'utf8'),
   readFileSync(path.join(assets, 'formations.xml'), 'utf8'),

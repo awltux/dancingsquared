@@ -11,13 +11,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..', '..');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
-const movesXml = read('assets/moves.xml');
-const formationsXml = read('assets/formations.xml');
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 
 // Load the full catalog so every call used in a tip is registered. Calls are
 // keyed by their <tam> TITLE (e.g. "Circle Left"), not the file basename, so
@@ -27,11 +27,11 @@ const tamBlocks = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
 const attr = (b, n) => (b.match(new RegExp(`${n}="([^"]*)"`)) || [])[1] ?? '';
 const isHidden = (b) => /display="(no|none)"/.test(b.slice(0, b.indexOf('>') + 1));
 for (const level of ['ms', 'a1', 'a2', 'plus', 'c1', 'c2']) {
-  const dir = path.join(root, `assets/${level}`);
+  const dir = path.join(corpusRoot(), level);
   let files = [];
   try { files = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }
   for (const f of files) {
-    const xml = read(`assets/${level}/${f}`);
+    const xml = read(`${level}/${f}`);
     const byTitle = new Map();
     for (const b of tamBlocks(xml)) {
       if (isHidden(b)) continue;

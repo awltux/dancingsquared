@@ -13,9 +13,10 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const { renderFsmHtml } = await import('./../src/fsm-view.ts');
 
 const fsm = JSON.parse(readFileSync(path.join(assets, 'fsm-ms.json'), 'utf8'));

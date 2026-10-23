@@ -16,13 +16,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const assets = path.join(POC_DIR, '..', 'assets');
+const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
@@ -73,7 +74,7 @@ for (const lvl of fs.readdirSync(assets, { withFileTypes: true }).filter((e) => 
       families.set(title, (families.get(title) ?? 0) + 1);
       // The family is a FILE's title, and `filepath` names that file - so the two have to agree, and the file
       // has to be where the path says it is.
-      const p = path.join(POC_DIR, '..', 'assets', lvl, f);
+      const p = path.join(corpusRoot(), lvl, f);
       if (!fs.existsSync(p)) noFamily.push(`${lvl}/${f}`);
     } else noFamily.push(`${lvl}/${f}`);
   }

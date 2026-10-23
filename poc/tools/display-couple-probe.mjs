@@ -43,6 +43,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
@@ -112,7 +113,7 @@ const colourBy = (couples, enabled) => couples.map((couple, i) => displayCouple(
 {
   const { DOMParser } = await import('@xmldom/xmldom');
   engine.setParser(DOMParser);
-  const formations = engine.parseFormations(fs.readFileSync(path.join(ROOT, 'assets', 'formations.xml'), 'utf8'));
+  const formations = engine.parseFormations(fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8'));
   const DEG = Math.PI / 180;
   const missing = ZERO_FORMATIONS.filter((z) => ![...formations.keys()].some((n) => n.toLowerCase() === z.toLowerCase()));
   check(ZERO_FORMATIONS.length > 0 && missing.length === 0, `5a every listed name is a formation formations.xml carries (${ZERO_FORMATIONS.length} listed${missing.length ? `, missing: ${missing.join(', ')}` : ''})`);
@@ -174,7 +175,7 @@ const colourBy = (couples, enabled) => couples.map((couple, i) => displayCouple(
   const DEG = Math.PI / 180;
   const { DOMParser } = await import('@xmldom/xmldom');
   engine.setParser(DOMParser);
-  const xml = fs.readFileSync(path.join(ROOT, 'assets', 'formations.xml'), 'utf8');
+  const xml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8');
   const formations = engine.parseFormations(xml);
   const named = (n) => completeHalfSet(formations.get(n).map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
   // `isZeroSetup` takes the NAMES a call carries, so what matters is that it answers YES for the two spellings
@@ -197,7 +198,7 @@ const colourBy = (couples, enabled) => couples.map((couple, i) => displayCouple(
 {
   const { DOMParser } = await import('@xmldom/xmldom');
   engine.setParser(DOMParser);
-  const formations = engine.parseFormations(fs.readFileSync(path.join(ROOT, 'assets', 'formations.xml'), 'utf8'));
+  const formations = engine.parseFormations(fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8'));
   const DEG = Math.PI / 180;
   const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
   const passes = (dancers) => {

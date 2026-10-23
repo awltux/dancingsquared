@@ -29,10 +29,11 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, stepLabel, isGroupStep, splitSelection } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.join(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => readFileSync(path.join(assets, p), 'utf8');
 
 let failures = 0;

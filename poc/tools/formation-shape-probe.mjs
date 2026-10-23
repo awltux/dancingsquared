@@ -27,6 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -42,11 +43,11 @@ const check = (cond, msg) => {
 const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 /** The app's TypeScript is checked in with CRLF; this file is LF, so a multi-line match needs this. */
 const readSource = (rel) => fs.readFileSync(path.join(POC, rel), 'utf8').replace(/\r\n/g, '\n');
-/** The corpus is the repository's ONE copy at `assets/` in the root — one level ABOVE the POC, not beside it. */
-const read = (rel) => fs.readFileSync(path.join(POC, '..', rel), 'utf8');
+/** The corpus is the repository's ONE copy at `assets/` in the root, reached through the package that owns it. */
+const read = (rel) => fs.readFileSync(path.join(corpusRoot(), rel), 'utf8');
 
-const movesXml = read('assets/moves.xml');
-const formationsXml = read('assets/formations.xml');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 const formats = engine.parseFormations(formationsXml);
 const moves = engine.parseMoves(movesXml);
 
@@ -95,7 +96,7 @@ const oldPosesOf = (name) => {
   return null;
 };
 
-const call = engine.loadCallFromXml(read('assets/ms/promenade.xml'), movesXml, formationsXml,
+const call = engine.loadCallFromXml(read('ms/promenade.xml'), movesXml, formationsXml,
   // THE FILE NOW HOLDS TWO tams titled Promenade on Facing Couples Far: the one that stops at home
   // (no `from`, which is the reported case) and the keep-walking variant (`from="Facing Couples Far -
   // Keep Walking"`). The probe's subject is the EMPTY-`from` one, so it selects by it.

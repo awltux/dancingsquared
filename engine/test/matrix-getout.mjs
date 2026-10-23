@@ -6,14 +6,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, sameBoardById, makeSquaredSet } from '../dist/index.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const root = path.join(__dirname, '..', '..');
-const movesXml = read('../../assets/moves.xml');
-const formationsXml = read('../../assets/formations.xml');
-const msDir = path.join(root, 'assets/ms');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
+const msDir = path.join(corpusRoot(), 'ms');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -25,7 +25,7 @@ const check = (cond, msg) => {
 // Left) are available and legal from home.
 const files = {};
 for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
-  files[`ms/${f}`] = read(`../../assets/ms/${f}`);
+  files[`ms/${f}`] = read(`ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');
 const seq = makeSequencer(movesXml, formationsXml, buildCatalog(files));

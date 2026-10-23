@@ -23,7 +23,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs';
 import { loadRoots, makeResolver } from './lib/variants.mjs';
-import { matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, PALETTE, C, writePng } from './lib/raster.mjs';
 
@@ -34,7 +34,7 @@ const INDEX = join(toolsDir, 'animations-index.json');
 /** Start formations the player offers, where the manual lists more than one and the corpus has one. */
 const START_FORMATIONS = join(toolsDir, 'start-formations.json');
 /** The whole-set instances of calls the corpus authors only as subset units - generated, never edited. */
-const VIRTUAL_INDEX = join(root, 'assets', 'virtual', 'index.json');
+const VIRTUAL_INDEX = join(corpusRoot(), 'virtual', 'index.json');
 
 /**
  * A corpus site's file, split into the level and the file name the reader wants — `"ms/promenade.xml"` is

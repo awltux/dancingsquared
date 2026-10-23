@@ -36,6 +36,7 @@ import {
   robotsTxt,
   offlineHtml,
 } from './lib/app.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const BOOK = join(toolsDir, '..');
 /** The build output directory: `book/dancingsquared_book/`. Renamed from `book/site/`, and reached
@@ -1083,7 +1084,7 @@ export function main() {
   // arrive on.
   cpSync(join(BOOK, 'assets', 'offline.js'), join(SITE, 'assets', 'offline.js'));
   for (const name of ['moves.xml', 'formations.xml']) {
-    cpSync(join(BOOK, '..', 'assets', name), join(SITE, 'assets', name));
+    cpSync(join(corpusRoot(), name), join(SITE, 'assets', name));
   }
 
   // Only the call authorings a page actually plays, not the whole corpus: the one each figure starts
@@ -1100,7 +1101,7 @@ export function main() {
     for (const file of needed.keys()) {
       const dest = join(SITE, 'assets', 'calls', file);
       mkdirSync(dirname(dest), { recursive: true });
-      cpSync(join(BOOK, '..', 'assets', file), dest);
+      cpSync(join(corpusRoot(), file), dest);
     }
   }
   const callMap = JSON.parse(readFileSync(join(toolsDir, 'call-map.json'), 'utf8'));

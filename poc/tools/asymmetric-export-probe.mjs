@@ -29,6 +29,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const POC = path.join(DIR, '..');
@@ -40,20 +41,22 @@ const {
 } = engine;
 setParser(DOMParser);
 
-const read = (p) => fs.readFileSync(path.join(POC, p), 'utf8');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
+/** The app's own source is NOT the corpus — a separate reader, so the two cannot be confused. */
+const readApp = (p) => fs.readFileSync(path.join(POC, p), 'utf8');
 let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? `  ok    ${msg}` : `  FAIL  ${msg}`);
   if (!cond) failures++;
 };
 
-const formationsXml = read('../assets/formations.xml');
-const movesXml = read('../assets/moves.xml');
+const formationsXml = read('formations.xml');
+const movesXml = read('moves.xml');
 
 // ---------------------------------------------------------------- 1. the control, and where it goes
 console.log('== 1. the control, and where it goes ==');
 {
-  const html = read('index.html');
+  const html = readApp('index.html');
   const input = html.match(/<input[^>]*id="edAsym"[^>]*>/)?.[0] ?? '';
   check(input !== '', 'index.html carries an `#edAsym` input');
   check(/type="checkbox"/.test(input), 'and it is a checkbox');
@@ -79,7 +82,7 @@ console.log('== 1. the control, and where it goes ==');
 // ---------------------------------------------------------------- 2. the wiring, read from the source
 console.log('\n== 2. the value reaches the exporter ==');
 {
-  const ui = read('src/editor-ui.ts');
+  const ui = readApp('src/editor-ui.ts');
   check(/asymCb = el<HTMLInputElement>\('edAsym'\)/.test(ui), 'the panel holds the input');
   check(/this\.asymCb\.checked \? 1 : 2/.test(ui),
     'and maps it to the format\'s own vocabulary: 1 = whole set + `asymmetric="true"`, 2 = the half set');
@@ -94,11 +97,11 @@ console.log('\n== 2. the value reaches the exporter ==');
   // so the literal cannot come back.
   check(/writes all \$\{call\.dancers\.length\} dancers/.test(ui),
     'and the count it reports is the board\'s own, not a hardcoded eight');
-  const tam = read('src/tam-xml.ts');
+  const tam = readApp('src/tam-xml.ts');
   check(/symmetry \? \{ symmetry \} : \{\}/.test(tam), '`tam-xml.ts` forwards it to `callToXmlNamed`');
   // THE OTHER HALF OF THE ROUND TRIP, and the one that would silently break: a half-set tam is FOUR
   // dancers in the text, so a reader that is not allowed to complete it returns four.
-  const data = read('src/data.ts');
+  const data = readApp('src/data.ts');
   check(/return buildCall\(tam, this\.formationsMap, this\.movesMap, true\);/.test(data),
     'and `rebuildInstance` lets the DECLARATION decide the size, so a half-set export reads back whole');
 }
@@ -108,7 +111,7 @@ console.log('\n== 3. the two forms, measured on a mirror-completed call ==');
 {
   // `ms/circle.xml` tam 0 is `Circle Left`, whose `Circle` the corpus authors with FOUR dancers - so the
   // engine completes the second half by rotating it 180 degrees, which is exactly what a half-set tam is.
-  const tams = parseCallXml(read('../assets/ms/circle.xml'));
+  const tams = parseCallXml(read('ms/circle.xml'));
   const call = normalizeInstance(buildCall(tams[0], parseFormations(formationsXml), parseMoves(movesXml), true));
   check(call.dancers.length === 8, `the witness builds to a whole set (${call.dancers.length} dancers)`);
   const rep = halfSetReport(call);
@@ -156,8 +159,8 @@ console.log('\n== 3. the two forms, measured on a mirror-completed call ==');
 // ---------------------------------------------------------------- 4. and the panel REFUSES
 console.log('\n== 4. the panel refuses an export it cannot honour, and says why ==');
 {
-  const ui = read('src/editor-ui.ts');
-  const css = read('src/style.css').replace(/\/\*[\s\S]*?\*\//g, ' ');
+  const ui = readApp('src/editor-ui.ts');
+  const css = readApp('src/style.css').replace(/\/\*[\s\S]*?\*\//g, ' ');
 
   // THE ONE DECISION, and the refusal in it.
   check(/private exportSymmetry\(call: CallBundle, name\?: string\): Symmetry \{/.test(ui),

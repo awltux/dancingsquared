@@ -15,13 +15,14 @@ import {
   fitRigidMatrix,
   applyRigidToPose,
 } from '../dist/matrix.js';
+import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const read = (p) => fs.readFileSync(path.join(__dirname, p), 'utf8');
-const movesXml = read('../../assets/moves.xml');
-const formationsXml = read('../../assets/formations.xml');
-const msDir = path.join(__dirname, '../../assets/ms');
+const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
+const msDir = path.join(corpusRoot(), 'ms');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -50,7 +51,7 @@ console.log('\n== Matrix module: rigid fit ==');
 // Use the full teacher catalog so calls that genuinely move the set are legal.
 const files = {};
 for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
-  files[`ms/${f}`] = read(`../../assets/ms/${f}`);
+  files[`ms/${f}`] = read(`ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');
 const seq = makeSequencer(movesXml, formationsXml, buildCatalog(files));

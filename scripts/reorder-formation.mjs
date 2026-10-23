@@ -49,6 +49,7 @@ import { pathToFileURL } from 'node:url';
 // THE BLOCK RULE IS IMPORTED, NOT RESTATED - see `tam-blocks.mjs`. A commented-out tam is not a tam, and
 // addressing a tam by position without that rule edits the wrong call.
 import { liveTamBlocks, titlePattern } from './tam-blocks.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const USAGE = `usage: node scripts/reorder-formation.mjs --formation <Name> [--write] [--json] [--check]
 
@@ -87,7 +88,7 @@ const engine = await import(pathToFileURL(path.join(root, 'engine', 'dist', 'ind
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const FORMATIONS = path.join(root, 'assets', 'formations.xml');
+const FORMATIONS = path.join(corpusRoot(), 'formations.xml');
 const readText = (file) => fs.readFileSync(file, 'utf8');
 const DEG = Math.PI / 180;
 
@@ -165,7 +166,7 @@ const wholePlan = engine.formationReorderPermutation(
 );
 
 // ---- every tam that names the formation
-const assets = path.join(root, 'assets');
+const assets = corpusRoot();
 const wanted = engine.canonicalName(formation);
 const movesXml = readText(path.join(assets, 'moves.xml'));
 const moves = engine.parseMoves(movesXml);

@@ -29,9 +29,10 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, setParser, poseFor, dancerBeats } from '../../dist/index.js';
 import { ASSET_LEVELS, callXmlFiles, callsByTitle } from '../lib/engine-calls.mjs';
 import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const VERBOSE = process.argv.includes('--verbose');
 setParser(DOMParser);
 

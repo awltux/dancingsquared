@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 // RESOLVED FROM THIS FILE, NOT THE WORKING DIRECTORY: every probe here reads the POC's assets or its
 // source, and `process.cwd()` made them runnable only from `poc/` - so `node poc/tools/x.mjs` from the
@@ -22,7 +23,7 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 

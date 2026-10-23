@@ -32,12 +32,12 @@ import {
   removeAt,
   replaceAt,
 } from './src/teacher.ts';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, '..');
-const assets = path.join(root, 'assets');
-const read = (p) => readFileSync(path.join(root, p), 'utf8');
+const assets = corpusRoot();
+const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -45,12 +45,12 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const movesXml = read('assets/moves.xml');
-const formationsXml = read('assets/formations.xml');
+const movesXml = read('moves.xml');
+const formationsXml = read('formations.xml');
 
 const files = {};
 for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
-  files[`ms/${f}`] = read(`assets/ms/${f}`);
+  files[`ms/${f}`] = read(`ms/${f}`);
 }
 const catalog = buildCatalog(files);
 const seq = makeSequencer(movesXml, formationsXml, catalog);

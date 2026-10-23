@@ -35,6 +35,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
@@ -146,7 +147,7 @@ console.log('\n== 4. the corpus directory is named once, in vite.corpus.ts');
 
 check(path.basename(CORPUS) === 'assets',
   `CORPUS is named \`${path.basename(CORPUS)}\`, which is the directory this probe walked - the one thing \`corpus-key.ts\` needs and must not restate`);
-check(fs.realpathSync(CORPUS) === fs.realpathSync(path.join(ROOT, 'assets')),
+check(fs.realpathSync(CORPUS) === fs.realpathSync(path.join(corpusRoot())),
   'and it IS the repository-root `assets/`, so the corpus the app globs is the corpus measured here');
 check(!/assets/.test(fs.readFileSync(path.join(POC_DIR, 'src', 'corpus-key.ts'), 'utf8')
   .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '')),

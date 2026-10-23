@@ -35,11 +35,9 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { loadCallFromXml, setParser, formationId, formationRootOf, isFormationId, allPoses } from '../../dist/index.js';
-import { filesOf, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-// engine/test/tools -> repo root -> assets
-const assets = path.resolve(here, '..', '..', '..', 'assets');
+const assets = corpusRoot();
 const ROOTS = path.join(assets, 'formation-roots.json');
 const ALIASES = path.join(assets, 'formation-aliases.json');
 

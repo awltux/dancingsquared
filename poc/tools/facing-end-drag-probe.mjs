@@ -32,18 +32,19 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-const movesXml = fs.readFileSync(path.join(POC_DIR, '../assets/moves.xml'), 'utf8');
-const formationsXml = fs.readFileSync(path.join(POC_DIR, '../assets/formations.xml'), 'utf8');
-const LEVELS = fs.readdirSync(path.join(POC_DIR, '../assets')).filter((d) => !d.includes('.') && d !== 'src');
+const movesXml = fs.readFileSync(path.join(corpusRoot(), 'moves.xml'), 'utf8');
+const formationsXml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8');
+const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
 /** Every `.xml` under the level directories - the corpus's own count, so coverage can be an EQUALITY. */
 const CALL_FILES = LEVELS.reduce((n, level) => n
-  + fs.readdirSync(path.join(POC_DIR, '../assets', level)).filter((f) => f.endsWith('.xml')).length, 0);
+  + fs.readdirSync(path.join(corpusRoot(), level)).filter((f) => f.endsWith('.xml')).length, 0);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -58,13 +59,13 @@ const check = (cond, msg) => {
 const filesVisited = new Set();
 function* everyRotate() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(POC_DIR, '../assets', level))) {
+    for (const f of fs.readdirSync(path.join(corpusRoot(), level))) {
       if (!f.endsWith('.xml')) continue;
       filesVisited.add(`${level}/${f}`);
       let call;
       try {
         call = engine.normalizeInstance(engine.loadCallFromXml(
-          fs.readFileSync(path.join(POC_DIR, '../assets', level, f), 'utf8'), movesXml, formationsXml, 0));
+          fs.readFileSync(path.join(corpusRoot(), level, f), 'utf8'), movesXml, formationsXml, 0));
       } catch { continue; }
       for (const d of call.dancers) {
         for (const s of d.path) if (s.rotate) yield { where: `${level}/${f}`, r: s.rotate };

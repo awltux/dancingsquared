@@ -23,6 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(here, '..', '..');
@@ -34,7 +35,7 @@ engine.setParser(DOMParser);
 const { liveTamBlocks } = await import(pathToFileURL(path.join(ROOT, 'scripts', 'tam-blocks.mjs')).href);
 
 const DEG = Math.PI / 180;
-const assets = path.join(ROOT, 'assets');
+const assets = corpusRoot();
 const formationsXml = fs.readFileSync(path.join(assets, 'formations.xml'), 'utf8');
 const movesXml = fs.readFileSync(path.join(assets, 'moves.xml'), 'utf8');
 const formations = engine.parseFormations(formationsXml);

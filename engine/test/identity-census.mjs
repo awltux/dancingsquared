@@ -33,11 +33,11 @@ import {
   loadCallFromXml, setParser, formationId, arrangementId, allPoses,
   callVariantId, callVariantCanonical, formationRootOf, isCallVariantId,
 } from '../dist/index.js';
-import { filesOf, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');

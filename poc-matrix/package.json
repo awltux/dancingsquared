@@ -11,6 +11,7 @@
     "dancing-squared-engine": "file:../engine"
   },
   "devDependencies": {
-    "@xmldom/xmldom": "^0.9.11"
+    "@xmldom/xmldom": "^0.9.11",
+    "dancing-squared-corpus": "file:../packages/corpus"
   }
 }

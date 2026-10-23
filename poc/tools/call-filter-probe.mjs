@@ -11,6 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -24,7 +25,7 @@ const check = (cond, msg) => {
 };
 
 const { filterCalls, matchCount, filterNames } = await import('./../src/call-filter.ts');
-const assets = path.join(POC, '..', 'assets');
+const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
 console.log('== the rule ==');

@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -26,7 +27,7 @@ const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 
-const asset = (p) => fs.readFileSync(path.join(POC_DIR, '../assets', p), 'utf8');
+const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const DEG = 180 / Math.PI;
@@ -52,7 +53,7 @@ const sameMotion = (a, b, tol, tolDeg) =>
 const fmt = (m) => `(${m.x.toFixed(4)}, ${m.y.toFixed(4)}) @ ${(m.heading * DEG).toFixed(2)}deg`;
 
 const src = engine.normalizeInstance(engine.loadCallFromXml(asset('ms/circle.xml'), movesXml, formationsXml, 0));
-const assets = path.join(POC_DIR, '..', 'assets');
+const assets = corpusRoot();
 const seq = new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets));
 const names = seq.listFormations().filter((n) => (seq.boardForFormation(n)?.dancers.length ?? 0) === src.dancers.length);
 // The anchor: the pose the ancestor's own track resumes from, per dancer. This is the walk-in's target.

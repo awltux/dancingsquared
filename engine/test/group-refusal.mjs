@@ -12,10 +12,10 @@
 //
 // Run: node test/group-refusal.mjs   (engine must be built)
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -25,8 +25,7 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS = path.resolve(HERE, '..', '..', 'assets');
+const ASSETS = corpusRoot();
 const seq = new Sequencer(
   (await import('node:fs')).readFileSync(path.join(ASSETS, 'moves.xml'), 'utf8'),
   (await import('node:fs')).readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8'),

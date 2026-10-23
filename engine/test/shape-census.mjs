@@ -48,10 +48,11 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, buildCall, callToXml, parseCallXml, parseFormations, parseMoves, setParser } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
+import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const assets = path.resolve(here, '..', '..', 'assets');
+const assets = corpusRoot();
 
 let failures = 0;
 const check = (cond, msg) => {

@@ -68,6 +68,15 @@ export interface DrillView {
   /** Whether the puzzle is solved. */
   atEnd: boolean;
   /**
+   * Whether the step being ASKED is the last one — the step whose answer must leave the set on the goal board, and the
+   * only step where "does not leave the set on the goal board" is a true sentence about a wrong answer.
+   *
+   * IT IS NOT `stepCount === 1`. A two-step drill's final step asks the same question a one-step drill asks, and this
+   * field is what the screen's prompt and the wrong-answer sentence switch on, so the two sentences cannot disagree
+   * about which step the player is looking at. False once the puzzle is solved (`atEnd` is the state then).
+   */
+  finalStep: boolean;
+  /**
    * THE WAYPOINTS: the puzzle's route as FORMATIONS, start first and goal last (`puzzle/arrangement.ts`), so the
    * stage can show two adjacent ones instead of a start and a goal. The boards are the route's own.
    */
@@ -182,6 +191,7 @@ export class DrillController {
       ...(step.unknown ? { unknown: step.unknown } : {}),
       ...(step.unknownIndex !== undefined ? { unknownIndex: step.unknownIndex } : {}),
       atEnd,
+      finalStep: this.index === this.puzzle.steps.length - 1,
       waypoints: this.waypointList,
       progress: this.progressAtStep[Math.min(this.index, this.progressAtStep.length - 1)],
       attempts: this.attemptsCount,

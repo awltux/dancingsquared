@@ -653,13 +653,21 @@ rendered ahead of time:
   cache; with the engine on the client there is nothing to survive.)
 - **Correctness is the goal board** (§4.2) for the same reason it is in the Daily: an option that reaches
   the goal by any legal route is correct, and the generator's chosen route does not decide the answer.
-  **MEASURED, AND THE IMPLEMENTATION DOES NOT YET HONOUR THIS SENTENCE**: `DrillController.answer` decides by
-  `choice === step.correctIndex`, so a second option that is ALSO a route to the goal (reachable in the remaining
-  allowance) is answered "legal, but it does not leave the set on the goal board". MEASURED over 20 generated puzzles at
-  each of levels 3, 5 and 8: **1, 2 and 1 of the 20 non-last steps** offer such an option. REPORTED by the owner as
-  "it is also expecting a specific move". The fix is a route check in three places that share one rule — the
-  controller's verdict, `POST /drill/answer`'s press log and `POST /runs`' verification — and it is the next change,
-  not this one.
+  **AND THE PUZZLE NOW MAKES THAT SENTENCE TRUE.** REPORTED: "I have managed to get the dancers in the position of
+  the waypoint, but the game has refused it as a solution. I can only assume it is also expecting a specific
+  move." In the drill it was exactly that: the distractors were drawn from every legal call that ended somewhere
+  new, INCLUDING calls that were themselves routes to the goal, while the verdict is `choice === step.correctIndex`
+  — so a second legitimate route was graded wrong. MEASURED with the old filter, same sample and predicate:
+  **11 of 120 steps** at levels 3, 5 and 8 offered one; the distractor loop now skips any option whose board can
+  still reach the goal in the calls the player has left (`reachesWithin`), and the same sweep is **0 of 120**
+  (`game/test/puzzle-core-probe.mjs` §3b pins it, over 20 seeds rather than one puzzle). The verdict stayed
+  `correctIndex` — which is now sound, because the puzzle guarantees a unique correct option among the buttons.
+  TWO SENTENCES WERE ALSO WRONG, and they are why the refusal read as "it wants a specific move": a two-step
+  drill's first answer never leaves the set on the goal board — not even when it is RIGHT — so telling a player a
+  wrong answer "does not leave the set on the goal board" described a rule the question was not using, and the
+  prompt asked the goal question only for one-step puzzles, never for the final step of a longer one. Both now read
+  `DrillView.finalStep`, the machine's own answer to "which step is being asked"
+  (`game/test/drill-controller-probe.mjs` pins it, including that a solved puzzle is not on a final step).
 - **The endings are precomputed when the entry loads**, not when a button is pressed, so the interaction is
   instant and the presentation scope stays open: a thumbnail of each ending, a caption naming the call, a
   replay of all three back to back, or a reveal in sequence are all available from the same data with no

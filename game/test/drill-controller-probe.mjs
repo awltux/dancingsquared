@@ -66,8 +66,31 @@ console.log('== the shape of a step the UI draws ==');
   check(view.unknown && view.unknown.call === 'Cannot Be Called', 'and it names the refused call');
   check(view.stepIndex === 0 && view.stepCount === 1, `the view reports step ${view.stepIndex + 1} of ${view.stepCount}`);
   check(!view.atEnd, 'and that the puzzle is not yet solved');
+  // THE ONE-STEP PUZZLE'S ONLY STEP IS ITS LAST, so the screen asks the goal question and the wrong-answer sentence
+  // may claim the goal test. The two-step case is the one that used to lie (the next section).
+  check(view.finalStep === true, 'and that this is the FINAL step, which is what the prompt and the sentence switch on');
   check(drill.isGoal(GOAL), 'the controller agrees the goal board IS the goal (the engine\'s own rule)');
   check(!drill.isGoal(WRONG_END), 'and that the wrong ending is not');
+}
+
+console.log('== finalStep is the LAST step, not the only step (the sentence that used to lie) ==');
+{
+  // REPORTED: "it is also expecting a specific move". Part of that was a WRONG SENTENCE: a two-step drill's first
+  // answer never leaves the set on the goal board — not even when it is right — so a wrong answer told the player it
+  // "does not leave the set on the goal board", which is a rule the question is not using. The prompt switched on
+  // `stepCount === 1`, so it asked the goal question for one-step puzzles only, and never for the FINAL step of a
+  // longer one. `finalStep` is the machine's own answer, and both sentences now read it.
+  const last = { from: GOAL, moves: [{ call: 'Last Way', board: GOAL }], correctIndex: 0, after: GOAL };
+  const twoStep = { ...puzzle, steps: [step, last], path: [START, GOAL, GOAL], solution: ['Right Way', 'Last Way'], shortest: 2 };
+  const drill = new DrillController(twoStep);
+  check(drill.view().stepCount === 2 && drill.view().finalStep === false, `step 1 of 2 is NOT the final step (${drill.view().finalStep})`);
+  // NEGATIVE CONTROL: the last step of the SAME puzzle is, so the field is a position rather than a constant.
+  const answered = new DrillController(twoStep);
+  answered.answer(1);
+  const lastView = answered.view();
+  check(lastView.stepIndex === 1 && lastView.finalStep === true, `step 2 of 2 IS the final step (index ${lastView.stepIndex}, finalStep ${lastView.finalStep})`);
+  check(answered.answer(0).kind === 'correct' && answered.view().atEnd === true, 'and answering it solves the puzzle');
+  check(answered.view().finalStep === false, 'a solved puzzle is not "on" a final step — `atEnd` is the state then');
 }
 
 console.log('== a WRONG answer must NOT advance ==');

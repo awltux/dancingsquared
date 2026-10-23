@@ -85,6 +85,26 @@ function distinctEndings(moves: readonly Move[]): number {
 }
 
 /**
+ * Whether `board` can still reach `goal` in `calls` more calls — the DRILL's "is this option a route to the goal?"
+ *
+ * A DRILL OPTION MUST NOT BE A SECOND CORRECT ANSWER. The mode's question is "which call makes progress", its verdict
+ * is `choice === step.correctIndex`, and the distractors used to be drawn from every legal call that ended somewhere
+ * new — including calls that were ALSO routes to the goal, which the drill then called wrong. REPORTED as "I can only
+ * assume it is also expecting a specific move", and MEASURED over 20 generated puzzles at each of levels 3, 5 and 8:
+ * **1, 2 and 1 of the 20 non-last steps** offered such an option.
+ *
+ * WHY THE LAST STEP IS THE `reachesGoal` BRANCH rather than the same search with `calls = 0`: no calls remain after it,
+ * so "reaches the goal now" is the whole requirement, and stating it through the same function keeps one rule.
+ *
+ * IT IS BOUNDED BY THE PUZZLE'S OWN DEPTH, which is at most `MAX_DEPTH` (2), so the recursion is at most two `offered`
+ * scans and is only paid while the options are being chosen.
+ */
+function reachesWithin(applier: GameApplier, board: Board, goal: Board, calls: number): boolean {
+  if (calls <= 0) return reachedGoal(board, goal);
+  return applier.offered(board).some((move) => reachesWithin(applier, move.board, goal, calls - 1));
+}
+
+/**
  * Why `start` cannot open a puzzle at this level, or `null` when it can.
  *
  * WHY THIS IS A FUNCTION AND NOT TWO CHECKS. Every candidate start has to be tested before the search
@@ -467,14 +487,17 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
         const onPath = correctMoves.find((m) => m.call === calls[i]);
         const chosen = onPath ?? (rng.pick(correctMoves) as Move);
 
-        // Distractors: pairwise-distinct endings, NEVER THE GOAL (by the goal's own rule, `reachedGoal` — a rotated or
-        // reflected goal board is the goal, so a positions signature is not enough to exclude it), and never ending
-        // where another option ends. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`,
+        // Distractors: pairwise-distinct endings, NEVER A SECOND ROUTE TO THE GOAL, and never ending where another
+        // option ends. The route test is `reachesWithin` with the calls the player has left AFTER this step (a
+        // distractor that still reaches the goal is a correct answer the drill would grade wrong — `reachesWithin`'s
+        // header carries the measurement), which also covers the old `boardSig`-vs-goal test: a board equal to the goal
+        // reaches it in zero calls. Distinctness is by `boardSig` (cheap) and is then CONFIRMED by `sameBoardById`,
         // because a signature collision would otherwise publish two options that are the same board.
         const endsHere = new Set<string>([boardSig(chosen.board)]);
+        const callsAfter = path.length - 1 - (i + 1);
         const distractors: Move[] = [];
         for (const m of rng.shuffle(offered.filter((m) => m.call !== chosen.call))) {
-          if (reachedGoal(m.board, goal)) continue;
+          if (reachesWithin(applier, m.board, goal, callsAfter)) continue;
           const sig = boardSig(m.board);
           if (endsHere.has(sig)) continue;
           endsHere.add(sig);

@@ -1344,7 +1344,18 @@ function answer(choice: number | 'unknown'): void {
   } else {
     // A WRONG ANSWER STATES WHERE IT WENT, not just that it was wrong. The ending board is on screen by the
     // time this is read, so the sentence and the picture say the same thing.
-    drillScreen.say(`${result.call} is legal, but it does not leave the set on the goal board.`, 'bad');
+    //
+    // THE SENTENCE DEPENDS ON WHICH STEP IS ASKED, and the old one was FALSE at every step but the last: a two-step
+    // drill's first answer never leaves the set on the goal board — not even when it is RIGHT — so telling a player it
+    // "does not leave the set on the goal board" describes a rule the question is not using. REPORTED as "it is also
+    // expecting a specific move", which is what that sentence reads like. `finalStep` is the machine's own answer to
+    // which question is being asked, and it is the same field the screen's prompt switches on.
+    drillScreen.say(
+      controller.view().finalStep
+        ? `${result.call} is legal, but it does not leave the set on the goal board.`
+        : `${result.call} is legal, but the set is no closer to the goal — one more call from there does not reach it.`,
+      'bad',
+    );
     startReplay(applier.motion([result.call], result.replayFrom as Board), 'settle');
   }
   persist();

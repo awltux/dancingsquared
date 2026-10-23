@@ -63,7 +63,7 @@ export class DrillScreen {
 
     this.els.prompt.textContent = view.atEnd
       ? 'Solved. That is the way to the goal board.'
-      : view.stepCount === 1
+      : view.finalStep
         ? 'Which call takes the set to the goal board?'
         : `Step ${view.stepIndex + 1} of ${view.stepCount}: which call makes progress towards the goal board?`;
 

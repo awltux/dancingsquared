@@ -19,6 +19,7 @@ import { firstLevels, levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { boardSig } from 'dancing-squared-engine';
 import { applierFor } from '../src/data/corpus-node.ts';
+import { reachedGoal } from '../src/puzzle/arrangement.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -106,6 +107,37 @@ console.log('\n== 3. THE CORRECT OPTION IS CORRECT, and the wrong ones are not =
       check(!sameBoardById(step.moves[j].board, p.goal), `step ${i + 1}: wrong option "${step.moves[j].call}" does NOT reach the goal`);
     }
   }
+}
+
+console.log('\n== 3b. NO WRONG OPTION IS A SECOND ROUTE TO THE GOAL ==');
+{
+  // REPORTED: "I have managed to get the dancers in the position of the waypoint, but the game has refused it as a
+  // solution. I can only assume it is also expecting a specific move." In the DRILL it was: the distractors were drawn
+  // from every legal call that ended somewhere new, INCLUDING calls that were themselves routes to the goal, and the
+  // verdict is `choice === step.correctIndex` — so a second legitimate route was graded wrong. MEASURED with the old
+  // filter, same sample and predicate: **11 of 120 steps** at levels 3, 5 and 8 offered one; with `reachesWithin` in
+  // the distractor loop, **0 of 120**.
+  //
+  // THE SWEEP IS OVER SEEDS, not the one puzzle above, so the check fails when the rule is reverted instead of
+  // depending on one puzzle's luck; and it reports its denominator either way (AGENTS.md §5, §11.2.2).
+  const SAMPLE = 20;
+  let steps = 0;
+  let secondRoutes = 0;
+  for (let s = 1; s <= SAMPLE; s++) {
+    const g = generatePuzzle(CONFIG, s, LEVEL, applier);
+    if (!g.ok) continue;
+    const puzzle = g.puzzle;
+    for (const [i, step] of puzzle.steps.entries()) {
+      steps++;
+      const remaining = puzzle.steps.length - 1 - i;
+      const routes = step.moves.filter((option) => remaining === 0
+        ? reachedGoal(option.board, puzzle.goal)
+        : applier.offered(option.board).some((move) => reachedGoal(move.board, puzzle.goal)));
+      if (routes.length > 1) secondRoutes++;
+    }
+  }
+  check(steps > 0, `${steps} step(s) over ${SAMPLE} seed(s), so the sweep measured something`);
+  check(secondRoutes === 0, `and none of them offers two options that reach the goal (${secondRoutes} of ${steps})`);
 }
 
 console.log('\n== 4. the illegal choice carries the ENGINE\'s reason, verbatim ==');

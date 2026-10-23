@@ -1,5 +1,4 @@
-// The replay playhead: how a click becomes a motion, and what happens when it lands — and, since a completed puzzle
-// became replayable, how a scrub moves a playhead that is not running.
+// The replay playhead: how a click becomes a motion, and what happens when it lands.
 //
 // IT MEASURES BEATS, NOT A FRACTION, and that changed in Phase 3 with the thing it draws. While a replay was
 // a straight line from one board to the next, a fraction was the honest unit — there was nothing else to be a
@@ -9,9 +8,8 @@
 //
 // IT IS NOT THE POC'S `Player`, and the difference is the point. `poc/src/player.ts` is a state machine over
 // a call's BEATS — lead-in hold, play, end hold, speed multiplier, seek — because the browse view lets a
-// caller scrub a call's timeline. This playhead now has a SEEK too, but only because a solved puzzle's replay
-// is something a player drives: the transcript is a line of calls, and the scrub is how they walk back through it.
-// What it still does NOT have is a speed control, and that is deliberate: nothing in the game teaches faster.
+// caller scrub a call's timeline. Here the clock only ever runs forward: DESIGN.md §8's Drill is "watch the
+// option, then answer", not an editor, so there is no speed control and no scrubbing.
 //
 // IT DRIVES NOTHING ITSELF. `main.ts` owns the one rAF loop that calls `advance` and then draws, so there is
 // a single place that knows about time — a second loop inside this class is how two clocks end up
@@ -34,28 +32,20 @@ export class Replay {
   /**
    * The beat to draw.
    *
-   * ZERO BEFORE ANY REPLAY HAS BEEN ASKED FOR — `spec === null` — and the walk's total once it has finished.
-   * Those are two different states and the first version of this class conflated them: a playhead that has
-   * nothing to show must report the START, while a finished one must report the LANDING.
-   *
-   * IT IS READ FROM `elapsedMs` RATHER THAN FROM `running`, and that is what a SEEK needs: a paused playhead is
-   * neither "nothing asked" nor "finished", and the old `!running ⇒ beats` rule would report the end for a
-   * scrubbed-to-the-second-call line. `elapsedMs` is CLAMPED to the total on the finish edge, so "finished"
-   * still reads as exactly the walk's total.
+   * ZERO BEFORE ANY REPLAY HAS BEEN ASKED FOR — `spec === null` — and the whole walk's beats after one has
+   * finished. Those are two different states and the first version of this class conflated them: a playhead
+   * that has nothing to show must report the START, while a finished one must report the LANDING. Reporting
+   * the end for both drew the ending board before any option had been chosen.
    */
   get beat(): number {
     if (!this.asked) return 0;
+    if (!this.running) return this.beats;
     return Math.min(this.beats, this.elapsedMs / MS_PER_BEAT);
   }
 
   /** How many beats the motion that is playing (or last played) was charged. */
   get totalBeats(): number {
     return this.beats;
-  }
-
-  /** Whether the playhead is parked at the end of the motion it was given — where a replay starts again from 0. */
-  get isAtEnd(): boolean {
-    return this.asked && this.elapsedMs >= this.totalMs;
   }
 
   /**
@@ -76,38 +66,6 @@ export class Replay {
     this.totalMs = totalBeats * MS_PER_BEAT;
     this.elapsedMs = 0;
     this.running = true;
-  }
-
-  /** Stop where we are. The beat stays, so the picture stays and a `resume` continues from it. */
-  pause(): void {
-    this.running = false;
-  }
-
-  /**
-   * Continue a paused motion. Returns whether there was anywhere to continue to.
-   *
-   * A FINISHED MOTION CANNOT RESUME — the caller restarts it (`start`) — and a fresh playhead has never been given
-   * anything, so both answer false rather than pretending to run. `main.ts` uses the answer to decide whether the
-   * same press means "play" or "play again".
-   */
-  resume(): boolean {
-    if (!this.asked || this.isAtEnd) return false;
-    this.running = true;
-    return true;
-  }
-
-  /**
-   * Park the playhead at `beat` and stop. A negative or over-long beat is CLAMPED, so the scrub cannot take the
-   * picture off the walk it belongs to: the ends of the range are the start board and the landing board.
-   *
-   * IT DOES NOTHING BEFORE ANY MOTION HAS BEEN ASKED FOR. A scrub is drawn from a line that is already on screen;
-   * a seek from a stale event after a puzzle changed must not resurrect a motion the shell has cancelled.
-   */
-  seek(beat: number): void {
-    if (!this.asked) return;
-    const clamped = Math.min(Math.max(beat, 0), this.beats);
-    this.elapsedMs = clamped * MS_PER_BEAT;
-    this.running = false;
   }
 
   /**
@@ -131,7 +89,6 @@ export class Replay {
     this.running = false;
     this.asked = false;
     this.elapsedMs = 0;
-    this.totalMs = 0;
     this.beats = 0;
   }
 }

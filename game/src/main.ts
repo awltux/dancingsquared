@@ -45,8 +45,7 @@ import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedul
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, OUTLINE_COLOR, type StagePair, type ViewMode } from './render/stage-view.ts';
 import { waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
-import { replayLine, startsAt, totalBeats, type ReplayLine } from './puzzle/replay-line.ts';
-import { ReplayControls } from './ui/replay-controls.ts';
+import { ReplayList } from './ui/replay-list.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
 import { LevelScreen } from './ui/level-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
@@ -166,22 +165,20 @@ let replay: SequenceMotion | null = null;
 let replayOutcome: ReplayOutcome = 'settle';
 
 /**
- * THE REVIEW — a recorded line being WATCHED, once the run is over: the calls, the engine's walk of them, and the
- * playhead that scrubs it.
+ * WHICH LINE'S CALLS THE PANEL IS SHOWING, as a key (`which:call>call>…`), or null while nothing is listed. The list is
+ * rebuilt only when that key changes, because `paintDaily` runs on every event and the list is DOM.
  *
- * IT IS NOT `replay` ABOVE, and the two are different states of the screen. `replay` is the TRANSIENT motion of one
- * click: it clears itself when it lands, because its job is to show where that call left the set. A review is
- * PERSISTENT — the player drives it with a scrub and a play/pause, and it stays until they leave the puzzle — which is
- * why it is a second field rather than a flag on the first.
+ * IT IS NOT `replay` ABOVE: `replay` is the TRANSIENT motion of one press, which clears itself when it lands. The list is
+ * a record — the same calls, as text — and it stays until the player leaves the puzzle.
  */
-let watching: { line: ReplayLine; motion: SequenceMotion; key: string } | null = null;
-/** Which line the transport is showing: the player's own, or the generator's shortest. */
+let shownCalls: string | null = null;
+/** Which line the panel is showing: the player's own, or the generator's shortest. */
 let reviewWhich: 'mine' | 'shortest' = 'mine';
 
 /**
- * THE DRILL BEING WATCHED, when a completed cell was opened from the block: its position, its level, and the calls that
- * solved it. Non-null means the drill panel is in WATCHING state — there is no question to answer and nothing may be
- * submitted — and the transport in the footer is playing this position's line.
+ * THE DRILL BEING WATCHED, when a completed cell was opened from the block: its position and its level. Non-null means
+ * the drill panel is in WATCHING state — there is no question to answer and nothing may be submitted — and the footer
+ * lists the calls that solved it.
  */
 let watchingDrill: { index: number; levelIndex: number; passed: boolean } | null = null;
 
@@ -253,9 +250,9 @@ const levelScreen = new LevelScreen(levelPlay, levelNextLevel);
 // own `parseStep`, so `playDailyCall` is the whole path: the session applies it, the line records the label and the
 // server replays it. Nothing distinct to record, and nothing to keep in step with the single-call path.
 const dailyScreen = new DailyScreen({ play: playDailyCall, parallel: playDailyCall });
-// THE TRANSPORT'S TWO ANSWERS ARE THE SHELL'S: the screen reports "the button was pressed" and "the scrub moved to
+// THE LIST IS THE SHELL'S TO FILL: the screen holds only the DOM, and `main.ts` decides which line is listed and
 // call k", and `main.ts` decides, because it owns the one playhead and the review's line.
-const replayControls = new ReplayControls({ onToggle: toggleReview, onSeek: seekReview });
+const replayList = new ReplayList();
 const accountScreen = new AccountScreen({
   signIn: (email, password) => void doSignIn(email, password),
   signUp: (email, password) => void doSignUp(email, password),
@@ -931,9 +928,9 @@ function applyMode(next: AppMode): void {
   replay = null;
   // A REVIEW OR A WATCHED DRILL BELONGS TO THE PUZZLE THE PLAYER JUST LEFT, like the walk it samples: its line is that
   // puzzle's, so it goes with the motion rather than being carried into the next mode's footer.
-  watching = null;
+  shownCalls = null;
   watchingDrill = null;
-  replayControls.hide();
+  replayList.hide();
   // A MODE SWITCH DISARMS "START OVER": it is the clearest sign the player has moved on, and a control still armed
   // minutes later would fire on one stray press.
   startOverArmed = false;
@@ -981,10 +978,10 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // side. `startOver` clears it too, because that path can end without a drill being shown at all.
   serverRecordedRun = false;
   // A REAL DRILL REPLACES WHATEVER WAS BEING WATCHED: this function is every path that puts a different drill on screen,
-  // so the watching state and the transport's line — the previous position's — go with it.
+  // so the watching state and the listed calls — the previous position's — go with it.
   watchingDrill = null;
-  watching = null;
-  replayControls.hide();
+  shownCalls = null;
+  replayList.hide();
   waypointCursor = null;
   stage.forgetPair();
   position = issued.index;
@@ -1080,15 +1077,15 @@ function paintView(): void {
   // whichever screen painted last, which is how "Show me the answer" came to sit under a progress grid.
   els.review.hidden = !drillShowing || watchingDrill !== null;
   els.skip.hidden = !drillShowing || watchingDrill !== null || !skipOffered();
-  // THE TRANSPORT'S SOURCE BUTTONS ARE THE DAILY'S TWO LINES; a watched drill has exactly one, so they go.
+  // THE SOURCE BUTTONS ARE THE DAILY'S TWO LINES; a watched drill has exactly one, so they go.
   const drillWatching = watchingDrill !== null;
   if (drillWatching || !drillShowing) {
     els.replayMine.hidden = true;
     els.replayShortest.hidden = true;
   }
-  // THE TRANSPORT BELONGS TO A PUZZLE, so on the block there is nothing to scrub. The Daily's own paint shows it again
+  // THE LIST BELONGS TO A PUZZLE, so on the block there is nothing to read back. The Daily's own paint shows it again
   // when the Daily is the mode on screen.
-  if (!drillShowing) replayControls.hide();
+  if (!drillShowing) replayList.hide();
 }
 
 /**
@@ -1161,10 +1158,10 @@ function renderLevel(): void {
  */
 function levelPlay(index: number): void {
   if (index !== levelView().next) {
-    // TWO KINDS OF CLOSED CELL, TWO QUESTIONS. A PASSED position is WATCHED — the calls that solved it, read back with a
-    // scrub and a play/pause — and a finished-but-unpassed one is REATTEMPTED, which reopens it so the pass can be
-    // earned. REPORTED as "Allow completed levels to be replayed, not re-solved": before this, a passed cell went to the
-    // reattempt and the server answered `already_passed`, so a completed level could not be opened at all.
+    // TWO KINDS OF CLOSED CELL, TWO QUESTIONS. A PASSED position is WATCHED — its calls read back as a list — and a
+    // finished-but-unpassed one is REATTEMPTED, which reopens it so the pass can be earned. REPORTED as "Allow completed
+    // levels to be replayed, not re-solved": before this, a passed cell went to the reattempt and the server answered
+    // `already_passed`, so a completed level could not be opened at all.
     if (levelView().passed.includes(index)) {
       void openDrillReplay(index);
       return;
@@ -1216,7 +1213,7 @@ async function openDrillReplay(index: number): Promise<void> {
 }
 
 /**
- * Show a completed position in the drill panel, with its calls on the transport.
+ * Show a completed position in the drill panel, with its calls listed.
  *
  * NO RUN IS STARTED: `showDrill` opens a clock and a run id, and a replay is neither — it must not be scored, timed or
  * submitted. The CONTROLLER is built anyway, because the waypoint pair, the route and the captions come from it (`drill`
@@ -1243,16 +1240,9 @@ function showDrillReplay(info: { index: number; levelIndex: number; puzzle: Puzz
   );
   paintView();
   paintWaypoints();
-  // THE LINE IS PARKED AT ITS END, so the panel opens on the position's own goal board and the button reads "Play again":
-  // a rewatch opens at the answer, and the scrub is how the player walks back through it.
-  const built = buildLine(calls, info.puzzle.start, `watch:${info.index}:${calls.join('>')}`);
-  if (built) {
-    watching = built;
-    replayControls.show(built.line, `${info.index + 1}. ${calls.length} call${calls.length === 1 ? '' : 's'} — the solve`);
-    PLAYHEAD.start(totalBeats(built.line));
-    PLAYHEAD.seek(totalBeats(built.line));
-    replayControls.render(PLAYHEAD.beat, PLAYHEAD.isRunning, PLAYHEAD.isAtEnd);
-  }
+  // THE CALLS ARE THE PANEL: a rewatch is read back as text, which is what the owner asked for ("the list of calls and
+  // the 'your line' button are actually enough … remove the play button and the scrub bar").
+  replayList.show(calls, `Drill ${info.index + 1} — the ${calls.length} call${calls.length === 1 ? '' : 's'} that solve${calls.length === 1 ? 's' : ''} it`);
   draw();
 }
 
@@ -1669,30 +1659,21 @@ function finishDrill(): void {
   // built on.
   recordDrillRun(issuedSeed(), score.elapsedSeconds, score.score);
   persist();
-  // AND THE CONTROLS APPEAR NOW, exactly as they do on a solved Daily: the calls the solve consisted of, on the same
-  // transport, parked at the end so the button reads "Play again". A drill has one line — the correct option at each
-  // step — so the source buttons stay hidden.
-  showSolvedLine();
+  // AND THE CALLS APPEAR NOW, as a list, exactly as they do on a solved Daily. A drill has one line — the correct
+  // option at each step — so the source buttons stay hidden.
+  showSolvedCalls();
 }
 
 /**
- * Put the solved drill's own calls on the transport.
+ * Put the solved drill's own calls in the panel.
  *
  * THE LINE IS THE CORRECT OPTION AT EACH STEP, and that is what "the calls that were made to solve it" means in this
- * mode: a drill is one right answer per step, so the answer key IS the solve. Parked at the end, because the run has
- * just finished and the board on screen is the one it ended on.
+ * mode: a drill is one right answer per step, so the answer key IS the solve.
  */
-function showSolvedLine(): void {
+function showSolvedCalls(): void {
   if (!controller) return;
-  const puzzle = controller.puzzleRef;
-  const calls = correctCalls(puzzle);
-  const built = buildLine(calls, puzzle.start, `solved:${position}:${calls.join('>')}`);
-  if (!built) return;
-  watching = built;
-  replayControls.show(built.line, `Drill ${position + 1} — the ${calls.length} call${calls.length === 1 ? '' : 's'} that solved it`);
-  PLAYHEAD.start(totalBeats(built.line));
-  PLAYHEAD.seek(totalBeats(built.line));
-  replayControls.render(PLAYHEAD.beat, PLAYHEAD.isRunning, PLAYHEAD.isAtEnd);
+  const calls = correctCalls(controller.puzzleRef);
+  replayList.show(calls, `Drill ${position + 1} — the ${calls.length} call${calls.length === 1 ? '' : 's'} that solved it`);
 }
 
 /** The seed the drill on screen was generated from — the server's, or the fixture's at this position. */
@@ -1851,10 +1832,10 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   // — must NOT reset, and does not call this).
   dailyScreen.resetFilters();
   daily = carried ?? new DailyRun(puzzle, applier, performance.now());
-  // A DIFFERENT CHALLENGE IS A DIFFERENT LINE, so the transport's line and the playhead that was scrubbing it both go:
+  // A DIFFERENT CHALLENGE IS A DIFFERENT LINE, so the listed calls and the playhead that was showing them both go:
   // paintDaily rebuilds them from the new run, and paintDaily is called below.
-  watching = null;
-  replayControls.hide();
+  shownCalls = null;
+  replayList.hide();
   PLAYHEAD.cancel();
   dailyRunId = carried && stored ? stored.runId : newRunId(Date.now());
   dailyScreen.say(
@@ -2306,11 +2287,16 @@ function giveUpDaily(): void {
 }
 
 /**
- * Put one of the run's two recorded lines on the transport and start it from the beginning.
+ * Put one of the run's two recorded lines in the panel and START it.
  *
  * THE TWO SOURCES ARE DIFFERENT FACTS AND THE HEADING SAYS WHICH: `mine` is the calls the player actually made, in the
- * order they made them, and `shortest` is the generator's own route — which is the same board sequence only when they
- * played it perfectly. A given-up run may have an empty line, and then there is nothing to scrub.
+ * order they made them, and `shortest` is the generator's own route — the same board sequence only when they played it
+ * perfectly.
+ *
+ * THE LIST IS THE PANEL AND `Play` IS THE PLAYBACK. The owner's call: "the list of calls and the 'your line' button are
+ * actually enough in the control panel. Remove the play button and the scrub bar", so the scrub, the pause and the
+ * per-frame position readout are gone and one press plays the line through the engine's walk — the same one-shot motion
+ * a move has always used (`startReplay`), which stops on its landing board.
  */
 function startReview(which: 'mine' | 'shortest'): void {
   if (!daily || !applier) return;
@@ -2321,75 +2307,9 @@ function startReview(which: 'mine' | 'shortest'): void {
     dailyScreen.say(which === 'mine' ? 'There is no line of your own to replay yet.' : 'There is no solution recorded.', 'bad');
     return;
   }
-  const built = buildReview(which, calls);
-  if (!built) return;
-  watching = built;
-  replayControls.show(built.line, which === 'mine' ? 'Your line — the calls you made' : 'The shortest line — the generator\'s route');
-  // FROM THE BEGINNING, and that is what this button means: the two source buttons are "show me that line", so a press
-  // starts it rather than resuming wherever the previous line was parked.
-  PLAYHEAD.start(totalBeats(built.line));
-  replayControls.render(PLAYHEAD.beat, PLAYHEAD.isRunning, PLAYHEAD.isAtEnd);
-  draw();
+  replayList.show(calls, which === 'mine' ? 'The calls you played' : 'The shortest line — the generator\'s route');
+  startReplay(applier.motion(calls, daily.start), 'settle');
 }
-
-/**
- * The line as the transport needs it: one motion per call, from the board the previous call left.
- *
- * WHY PER CALL: the applier reports a line's beats as a TOTAL only, and the scrub is indexed by call, so the boundaries
- * have to be measured. MEASURED over 8 generated level-1 Dailies the parts add up to the whole (8 of 8), and
- * `game/test/replay-line-probe.mjs` re-measures it rather than trusting this sentence.
- *
- * THE BOARDS ARE WALKED WITH `apply`, which is the same function the session plays a call through, so a line the
- * player could not have played cannot be drawn as if they had.
- */
-function buildLine(calls: readonly string[], start: Puzzle['start'], key: string): { line: ReplayLine; motion: SequenceMotion; key: string } | null {
-  if (!applier) return null;
-  const perCall: number[] = [];
-  let board = start;
-  for (const call of calls) {
-    perCall.push(applier.motion([call], board).beats);
-    board = applier.apply(board, call);
-  }
-  return { line: replayLine(calls, perCall), motion: applier.motion(calls, start), key };
-}
-
-/** The Daily's own two lines, built from the run it is reviewing. */
-function buildReview(which: 'mine' | 'shortest', calls: readonly string[]): { line: ReplayLine; motion: SequenceMotion; key: string } | null {
-  if (!daily) return null;
-  return buildLine(calls, daily.start, `${which}:${calls.join('>')}`);
-}
-
-/**
- * The transport's one button: play, pause, or play again.
- *
- * THE THIRD STATE IS ITS OWN, and it is the reason the playhead reports `isAtEnd`: a finished motion does not resume
- * (`Replay.resume` answers false), so a button that said "Play" at the end would be a control that does nothing. A
- * playhead whose length is not this line's is also started rather than resumed — that is a review that was built for a
- * different line, or cancelled by a mode switch, and resuming it would play the wrong walk.
- */
-function toggleReview(): void {
-  if (!watching) return;
-  const total = totalBeats(watching.line);
-  if (PLAYHEAD.isRunning) PLAYHEAD.pause();
-  else if (PLAYHEAD.isAtEnd || PLAYHEAD.totalBeats !== total) PLAYHEAD.start(total);
-  else PLAYHEAD.resume();
-  draw();
-  renderReview();
-}
-
-/** The scrub: park the playhead where call `call` begins, and show the board the line is on there. */
-function seekReview(call: number): void {
-  if (!watching) return;
-  PLAYHEAD.seek(startsAt(watching.line, call));
-  draw();
-  renderReview();
-}
-
-/** Keep the transport's labels and list in step with the playhead. Cheap enough for a frame, guarded inside the screen. */
-function renderReview(): void {
-  replayControls.render(PLAYHEAD.beat, PLAYHEAD.isRunning, PLAYHEAD.isAtEnd);
-}
-
 /** The engine's refusal prose, tidied for a sentence. The string itself is never reworded. */
 function cap(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -2416,10 +2336,10 @@ function paintDaily(): void {
       if (apiConfigured() && mayWrite(currentStanding())) void submitSolvedDaily(daily);
     }
   }
-  // THE REVIEW BUTTONS APPEAR WHEN THE RUN IS OVER (DESIGN.md 9: "on solving, or on giving up, the player can
-  // replay their own line and the generator's shortest line"), and the transport they feed is built ONCE PER LINE —
-  // a line costs one engine walk per call, and this paint runs on every event. `key` is the line itself, so a resumed
-  // run, a solve or a different source rebuilds it and nothing else does.
+  // THE PLAY BUTTONS APPEAR WHEN THE RUN IS OVER (DESIGN.md 9: "on solving, or on giving up, the player can replay
+  // their own line and the generator's shortest line"), and so does the LIST of the calls the chosen line is made of.
+  // `reviewWhich` is the shell's memory of which of the two is on screen; the list is rebuilt only when the line itself
+  // changes, because this paint runs on every event.
   const over = view.outcome !== 'playing';
   els.replayMine.hidden = !over;
   els.replayShortest.hidden = !over;
@@ -2429,31 +2349,17 @@ function paintDaily(): void {
   if (over) {
     const { mine, shortest } = daily.review();
     const calls = reviewWhich === 'mine' ? mine : shortest;
-    const key = `${reviewWhich}:${calls.join('>')}`;
     if (calls.length === 0) {
-      // A GIVEN-UP RUN WITH NO MOVES HAS NO LINE OF ITS OWN: it says so rather than showing an empty scrub, and the
+      // A GIVEN-UP RUN WITH NO MOVES HAS NO LINE OF ITS OWN: it says so rather than showing an empty list, and the
       // shortest line is one press away on the button beside it.
-      watching = null;
-      replayControls.hide();
-    } else if (!watching || watching.key !== key) {
-      watching = buildReview(reviewWhich, calls);
-      if (watching) {
-        replayControls.show(watching.line, reviewWhich === 'mine' ? 'Your line — the calls you made' : 'The shortest line — the generator\'s route');
-        // THE PLAYHEAD IS PARKED AT THE END, so the board on screen stays the one the run finished on and the button
-        // reads "Play again". Built at beat 0 it would repaint the START board the moment the winning move's animation
-        // ended, taking the board the player had just reached off the screen.
-        const total = totalBeats(watching.line);
-        if (PLAYHEAD.totalBeats !== total) {
-          PLAYHEAD.start(total);
-          PLAYHEAD.seek(total);
-        }
-        replayControls.render(PLAYHEAD.beat, PLAYHEAD.isRunning, PLAYHEAD.isAtEnd);
-        draw();
-      }
+      replayList.hide();
+    } else if (shownCalls !== `${reviewWhich}:${calls.join('>')}`) {
+      shownCalls = `${reviewWhich}:${calls.join('>')}`;
+      replayList.show(calls, reviewWhich === 'mine' ? 'The calls you played' : 'The shortest line — the generator\'s route');
     }
   } else {
-    watching = null;
-    replayControls.hide();
+    shownCalls = null;
+    replayList.hide();
   }
   paintBalance();
 }
@@ -2467,13 +2373,6 @@ function draw(): void {
     // where the call you chose actually leaves the set. The right-hand waypoint stays still, and the borders
     // describe the pair rather than the motion.
     stage.drawMotion(replay, current.stage, PLAYHEAD.beat);
-    return;
-  }
-  // A REVIEW IS THE SAME SAMPLING OVER A WHOLE LINE, and it is drawn whether the playhead is running, paused or parked
-  // by the scrub: that is what makes the board under a paused replay the board the player scrubbed to, rather than the
-  // one their last click left behind.
-  if (watching) {
-    stage.drawMotion(watching.motion, current.stage, PLAYHEAD.beat);
     return;
   }
   stage.drawPair(current.stage);
@@ -2505,32 +2404,24 @@ function frame(nowMs: number): void {
   if (PLAYHEAD.isRunning) {
     const finished = PLAYHEAD.advance(dt);
     draw();
-    renderReview();
     if (finished) {
-      // A REVIEW STOPS AT ITS LANDING AND STAYS THERE. It must not run the one-click finish path below, which clears
-      // the motion and settles a drill: the transport's button becomes "Play again" and the line stays scrubbable, so
-      // the review is the puzzle's until the player leaves it.
-      if (watching) {
-        renderReview();
-      } else {
-        setBusy(false);
-        const outcome = replayOutcome;
-        replay = null;
-        replayOutcome = 'settle';
-        if (mode === 'drill') {
-          // A CORRECT ANSWER SETTLES ON ITS LANDING BOARD AND THEN THE STEP ADVANCES, so the player sees where
-          // the call left the set — which is the state the NEXT question is asked from. A WRONG answer keeps its
-          // message and its landing board, which is why it only redraws. A REVIEWED answer advances the step and
-          // is scored for nothing.
-          if (outcome === 'advance') {
-            if (controller?.atEnd) finishDrill();
-            else settleDrill();
-          } else settleDrill();
-        } else if (mode === 'daily') {
-          paintDaily();
-        }
-        draw();
+      setBusy(false);
+      const outcome = replayOutcome;
+      replay = null;
+      replayOutcome = 'settle';
+      if (mode === 'drill') {
+        // A CORRECT ANSWER SETTLES ON ITS LANDING BOARD AND THEN THE STEP ADVANCES, so the player sees where
+        // the call left the set — which is the state the NEXT question is asked from. A WRONG answer keeps its
+        // message and its landing board, which is why it only redraws. A REVIEWED answer advances the step and
+        // is scored for nothing.
+        if (outcome === 'advance') {
+          if (controller?.atEnd) finishDrill();
+          else settleDrill();
+        } else settleDrill();
+      } else if (mode === 'daily') {
+        paintDaily();
       }
+      draw();
     }
   } else if (mode === 'daily' && daily) {
     // THE CLOCK IS DRAWN FROM THE FRAME LOOP because it runs whether or not anything is moving, and only the

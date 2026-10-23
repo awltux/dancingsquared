@@ -90,42 +90,5 @@ console.log('\n== 5. cancel() abandons a motion without reporting ==');
   check(p.advance(MS_PER_BEAT) === false, 'so nothing more is reported from the abandoned walk');
 }
 
-console.log('\n== 6. a PAUSED playhead keeps its beat, and a SEEK moves it ==');
-{
-  // THE TRANSPORT'S HALF OF THE CLASS: a solved puzzle's replay is driven by the player (play / pause / scrub), so
-  // "not running" no longer means "at the end". MEASURED as the defect this replaces: `beat` was `!running ? beats`,
-  // so a pause on call 2 of 5 would have repainted the LANDING board while the transport said call 2.
-  const p = new Replay();
-  p.start(8);
-  p.advance(3 * MS_PER_BEAT);
-  p.pause();
-  check(p.isRunning === false, 'a pause stops the motion');
-  check(p.beat === 3, `and holds the beat where it stopped (${p.beat})`);
-  check(p.isAtEnd === false, 'while not claiming to be at the end');
-  check(p.advance(5 * MS_PER_BEAT) === false && p.beat === 3, 'and frames pass without moving it');
-
-  p.resume();
-  check(p.isRunning === true, 'resume continues from the same beat');
-  check(p.advance(MS_PER_BEAT) === false && p.beat === 4, `and the next beat is the one after the pause (${p.beat})`);
-
-  p.seek(6.5);
-  check(p.isRunning === false, 'a seek stops the motion — scrubbing is not playing');
-  check(p.beat === 6.5, `and parks the playhead exactly there (${p.beat})`);
-  p.seek(-3);
-  check(p.beat === 0, `and a negative seek clamps to the start rather than throwing (${p.beat})`);
-  p.seek(99);
-  check(p.beat === 8 && p.isAtEnd === true, `and a seek past the end lands on the landing board (${p.beat})`);
-  check(p.resume() === false, 'a playhead parked at the end does not resume — the transport restarts it instead');
-
-  // AND A CANCELLED PLAYHEAD IGNORES A SEEK, so a stale scrub event cannot resurrect the motion it belonged to.
-  p.cancel();
-  p.seek(4);
-  check(p.beat === 0 && p.totalBeats === 0, 'a seek on a cancelled playhead is ignored, so a stale event draws nothing');
-  check(p.resume() === false, 'and it cannot be resumed either');
-
-  // NEGATIVE CONTROL for the pause: the rule `!running ⇒ beats` (the pre-transport one) reports the LANDING after the
-  // pause, which is exactly the check above — `holds the beat where it stopped` — and nothing else in this probe.
-}
-
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');
 process.exit(failures ? 1 : 0);

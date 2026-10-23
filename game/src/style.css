@@ -815,10 +815,11 @@ button[data-busy="true"]::after {
 .wp-key-locked {
   color: var(--wp-locked, #ff8f8f);
 }
-/* THE REPLAY TRANSPORT — the calls a line was made of, a scrub, and the one Play/Pause button.
-   WRAPPED CALLS RATHER THAN CHIPS, because the list is a SENTENCE the player reads back ("what did I actually do?")
-   and an ordered list is what makes it one; the playhead's position is marked by a border and a bold weight as well as
-   by colour, the same rule the route line and the hinted call follow. */
+
+/* THE REPLAY LIST — the calls a solved line was made of, as text. WRAPPED RATHER THAN CHIPS, because the list is a
+   SENTENCE the player reads back ("what did I actually do?") and an ordered list is what makes it one. It is bounded in
+   height and scrolls: a deep Daily line is ten calls, and a panel that grew with it would push the footer's controls
+   off a phone. */
 #replayBox {
   margin: 0 0 10px;
   text-align: left;
@@ -835,49 +836,11 @@ button[data-busy="true"]::after {
 }
 
 #replayCalls {
-  margin: 0 0 8px;
+  margin: 0;
   padding-left: 1.4em;
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--dim);
   max-height: 9.5em;
   overflow-y: auto;
-}
-
-#replayCalls li.played {
-  opacity: 0.55;
-  text-decoration: line-through;
-}
-
-#replayCalls li.now {
-  color: var(--ink);
-  font-weight: 700;
-  border-left: 3px solid var(--accent);
-  margin-left: -0.5em;
-  padding-left: 0.4em;
-}
-
-.replay-transport {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.replay-transport input[type="range"] {
-  flex: 1 1 8em;
-  min-width: 6em;
-  accent-color: var(--accent);
-}
-
-#replayPosition {
-  font-size: 0.85rem;
-  color: var(--dim);
-  white-space: nowrap;
-}
-
-#replayToggle[data-playing="true"] {
-  border-color: var(--accent);
-  border-style: double;
-  border-width: 4px;
 }

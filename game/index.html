@@ -142,20 +142,14 @@
           <button id="undo" type="button" hidden>Undo</button>
           <button id="redo" type="button" hidden>Redo</button>
           <button id="giveUp" type="button" hidden>Give up</button>
-          <!-- THE REPLAY TRANSPORT: a completed puzzle is WATCHED, not re-solved. The list is the calls the line was
-               made of, the slider scrubs over them, and ONE button says Play, Pause or Play again depending on where
-               the playhead is — one button because the state is the playhead's, so two would be two controls to keep
-               in step with one fact. The two buttons after it choose WHICH line, and appear once a line exists. -->
+          <!-- THE REPLAY LIST: the calls a solved line was made of, as text. It is READ BACK, not played from here —
+               the owner's call ("the list of calls and the 'your line' button are actually enough"), which is what
+               took the play/pause and the scrub out. The two buttons after it choose WHICH line, once one exists. -->
           <div id="replayBox" hidden>
             <p id="replayHeading"></p>
             <ol id="replayCalls"></ol>
-            <div class="replay-transport">
-              <button id="replayToggle" type="button">Play</button>
-              <input id="replayScrub" type="range" min="0" max="0" step="1" value="0" aria-label="Replay position" />
-              <span id="replayPosition"></span>
-            </div>
           </div>
-          <button id="replayMine" type="button" hidden>Your line</button>
+          <button id="replayMine" type="button" hidden>Play</button>
           <button id="replayShortest" type="button" hidden>The shortest line</button>
           <button id="view" type="button">Switch to 2D</button>
           <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order

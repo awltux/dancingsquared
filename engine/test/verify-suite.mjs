@@ -169,6 +169,19 @@ const SUITE = [
   // ~9s: it sweeps 20 of the 138 named formations against the 425 titles with a sub-eight-dancer authoring; the
   // full sweep is `node test/virtual-call.mjs --all` and the default run PRINTS what it skipped.
   { h: 'virtual-call', light: true },
+  // THE SAME QUESTION ASKED OF BOTH DISJOINT-COPY SEARCHES, because nothing compared them. `parallelApply`
+  // (`partition`/`partitionPartial`: lowest-unplaced anchor, first full tiling in index order, partial packs as many
+  // groups as fit) and `virtualCall` (`matchFormationsAll`: every subset, best-error-first greedy packing, ONE copy
+  // for the partial reading, plus the owner's reflected-and-unnamed-end refusals) both cut a board into copies of a
+  // k-dancer setup and disagree about who dances what. MEASURED over 1140 (board, title) pairs: 954 both-refuse,
+  // 43 agree, 76 are whole-board readings (not this question), and 67 DISAGREE — 43 dropped by the resolver's
+  // naming constraint, 18 where it finds no placement at all, 4 where its partial reading is one copy by
+  // construction, and 2 where both place four dancers and pick DIFFERENT fours (`Quarter Tag` / `Left Square Thru
+  // 3 1/2`: A `[2,3,6,7]`, B `[0,1,4,5]`). Pins every bucket, the class histogram and a digest of the whole
+  // disagreement set, with four comparator controls so a green run cannot mean the comparator is blind. The point is
+  // the DECISION (§TODO 41), not a merge: two searches that disagree this often cannot be merged as a refactor.
+  // ~4s: 20 of the 138 named formations x 59 of the 409 sub-eight titles, both every 7th and printed.
+  { h: 'disjoint-copies', light: true },
   // THE CORPUS'S CALL INVENTORY, ONCE. `packages/corpus` is now the only reader of the corpus directory; this pins
   // the facts the consolidation rests on and the two defects that produced it. MEASURED: the engine's parser sees
   // 2191 titles where the raw `<tam>` scan 134 harnesses used saw 2203, and the 12 that differ exist only inside

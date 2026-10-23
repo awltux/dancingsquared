@@ -705,3 +705,30 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   (canonical identity) is the blocker for a stable pose-set key — the same reason a name is not an identity.
   Both are upstream of a good cache and neither is required for a first resolver.
 
+- [ ] **41. THE TWO DISJOINT-COPY SEARCHES DISAGREE ABOUT WHO DANCES WHAT, and the numbers are now pinned.**
+  `[measured]` by `engine/test/disjoint-copies.mjs` (LIGHT, ~4 s: 20 of the 138 named formations x 59 of the 409
+  sub-eight titles, both every 7th and printed). MEASURED: **1140 (board, title) pairs — 954 both-refuse, 43 agree,
+  76 are WHOLE-BOARD readings (a different question: counted, not compared), and 67 DISAGREE**, digest
+  `87de7fd0acdeaa49`. The 67 split by the dimension they come from, and the split is the finding:
+  - **43 / constraint** — the resolver found placements and dropped every one because its END was unnamed. That is
+    item 39's own start-and-end-named constraint working; the picker has no such test, so it applies where the
+    resolver refuses. BY DESIGN, and the cost of that constraint is now a number.
+  - **18 / B-searches-nothing** — no placement at all, where `partitionPartial` found a group. A real difference in
+    the two searches at the SAME tolerance (both paths run at `DEFAULT_MATCH_MAX`, because `applyToBoard` applies
+    with `rebase = true`), and the class a merge would have to reconcile first. Witness: `3 and 1 lines #1` /
+    `Chase the Tag`, A `1x4` covering `{1,2,5,6}`, B nothing.
+  - **4 / partial-copies** — the resolver's partial reading is ONE copy BY CONSTRUCTION (`virtual-call.ts`), while
+    `partitionPartial` packs as many groups as fit. Witness: `3 and 1 lines #1` / `Single Circle Left 1/2`,
+    A `{1,6}|{2,5}` (two copies), B `{1,6}` (one). BY DESIGN.
+  - **2 / search** — **THE ROW THIS ITEM EXISTS FOR**: both place ONE group of four, covering four dancers, and each
+    picks a DIFFERENT four. Witness: `Quarter Tag` / `Left Square Thru 3 1/2`, A `{2,3,6,7}`, B `{0,1,4,5}`. Two
+    search orders breaking a symmetric tie differently — the same law as `AGENTS.md` §8 trap 30 ("who stands where
+    is data"), one level up: WHO DANCES WHAT.
+  **THE DECISION THIS ENABLES, and it is the owner's.** Merging the two searches moves at least 24 of 1140 pairs
+  even after the two by-design classes are set aside, so it cannot ride in as a refactor. Cheapest first:
+  (a) keep both searches and leave this harness as the record, aligning nothing; (b) align only the
+  `B-searches-nothing` class — 18 pairs, and it is where one search genuinely misses a group the other finds;
+  (c) one search, which moves all 67 and needs `parallel-calls.mjs`, `virtual-call.mjs` and
+  `poc/tools/end-pair-probe.mjs` (the 2278-pair pairing census) re-measured. **The next unit is the owner's choice
+  between (a), (b) and (c)** — do not merge on the strength of this item alone.
+

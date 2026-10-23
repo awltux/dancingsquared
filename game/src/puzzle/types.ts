@@ -265,21 +265,32 @@ export interface Puzzle {
    * The shortest-path boards, in order: `path[0] === start` and `path[path.length - 1] === goal`, so
    * there is exactly ONE MORE board than there are steps. A step's "board after this move" is
    * `path[i + 1]`, and it is not stored twice.
+   *
+   * THE DAILY'S PATH IS ITS WAYPOINTS: `arrangementKey` over these boards, with consecutive equal arrangements
+   * collapsed (`puzzle/arrangement.ts`), IS the sequence the screen shows and the rule the run is won by. The walk
+   * that builds it never puts the set in the same arrangement twice in a row, so the count is exact.
    */
   path: Board[];
-  /** The intended path, one step per call: `steps.length === level.depth`. */
+  /**
+   * THE DRILL'S QUESTION, one step per call: `steps.length === level.depth`.
+   *
+   * THE DAILY'S IS EMPTY, deliberately. A Drill step is three buttons of which one makes progress; the Daily's answer
+   * is any reading that moves the set toward the next waypoint, which is the readings list the picker draws and not
+   * an option list at all. Carrying a fabricated option array for it would be a second, unchosen question.
+   */
   steps: PuzzleStep[];
   /** The intended solution's call names, for `par` and for "show me the answer". */
   solution: string[];
-  /** The shortest solution length in calls that the generator KNOWS. Equals `level.depth` because the
-   * search is a BFS, so this is the true shortest rather than an assertion (DESIGN.md 7's gate). */
+  /** The shortest solution length in calls that the generator KNOWS. Equals `level.depth` in both regimes — the
+   * Drill's BFS distance, and the Daily's walk, which is the fewest calls that can pass every waypoint because a call
+   * stands the set in one arrangement at a time. */
   shortest: number;
-  /** Whether the goal was reachable by more than one path of the same length. Attempted, and recorded
-   * when it is impossible rather than silently dropped — an instrument's silence is itself a bug. */
+  /** Whether the puzzle had more than one route of that length. A Drill records whether some board on the path was
+   * reachable by a second shortest predecessor; a Daily records whether any step of the walk offered a choice. */
   alternatePath: boolean;
   /** How many states the exploration enumerated, ACROSS THE WHOLE GENERATION — including the attempts at
    * starts that were refused — so the measurement is a number rather than a claim about the cost of one
-   * start. */
+   * start. A Daily counts the boards it asked for their calls, which is its whole cost. */
   explored: number;
 }
 
@@ -289,13 +300,15 @@ export interface GeneratorConfig {
   /** The pool version stamped on every puzzle this configuration generates. */
   poolVersion: string;
   /**
-   * WHICH MODE the puzzle is generated for. The Drill's questions and the Daily's challenge are the same
-   * generator over the same seed and level, and this is the only field that tells the two apart — so it
-   * belongs in the configuration rather than being inferred by whoever reads the puzzle later.
+   * WHICH MODE the puzzle is generated for, AND THEREFORE WHICH REGIME: a Drill is a bounded SEARCH for a board
+   * `maxDepth` calls away with three-option steps, and a Daily is a seeded WALK through `maxDepth + 1` arrangements
+   * (`generator.ts`). They share a seed, a level and a pool, and this is the only field that tells the two apart — so
+   * it belongs in the configuration rather than being inferred by whoever reads the puzzle later.
    */
   mode: PuzzleMode;
-  /** The longest solution to look for. The caller passes the level's depth; this is the ceiling the
-   * search will enumerate to, so it bounds the work rather than the answer. */
+  /** The puzzle's answer length in calls. For the Drill it is the search's ceiling (the solution is EXACTLY this
+   * long — a shorter one is at a different depth and is refused); for the Daily it is the walk's length, which is
+   * exactly the number of waypoints minus one. */
   maxDepth: number;
   /**
    * The cap on states enumerated across the WHOLE generation, not per level.

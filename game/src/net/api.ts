@@ -700,18 +700,20 @@ export async function recordDrillReveal(drillId: string, step: number, deps: Api
  * HOW LONG A HINT SPEND MAY TAKE — the one request this app waits on for a minute, and the window is the server's
  * work rather than the app's patience.
  *
- * THE FIRST HINT IN A SERVER PROCESS BUILDS THE HINT'S DISTANCE TABLE. `POST /me/hints` names the call from the
- * RECORDED line (A23), which runs `PlaySession.distanceToGoal` — a reverse BFS from the goal with `applicableMoves`
- * at every board — and MEASURED at the shipped level-1 pool that build is 79-91 s (`api/src/levels.ts`'s
- * `hintDistanceTables`, which caches it per goal afterwards). The shared 8 s window therefore expired on a spend the
- * SERVER WENT ON TO COMMIT: MEASURED in the dev server's own log, one `POST /me/hints` answered **200 after
- * 88 295 ms** while the browser had given up at 8 s — so the balance moved, this app never adopted it, and every
+ * THE WINDOW WAS SIZED BY A 79-91 s BUILD, and that build is gone. `POST /me/hints` names the call from the RECORDED
+ * line (A23), which used to run `PlaySession.distanceToGoal` — a reverse BFS from the goal with `applicableMoves` at
+ * every board — and MEASURED at the shipped level-1 pool that table took 79-91 s, while the shared 8 s window expired
+ * on a spend the SERVER WENT ON TO COMMIT: MEASURED in the dev server's own log, one `POST /me/hints` answered **200
+ * after 88 295 ms** while the browser had given up at 8 s — so the balance moved, this app never adopted it, and every
  * later press was a fast `409 no_hints` under a footer that still claimed a hint. That is the report "I earned a
  * hint, but the hint button doesn't seem to do anything".
  *
+ * THE HINT FOLLOWS THE NEXT WAYPOINT NOW (a forward search that stops on the target, MEASURED 0-650 ms on a route and
+ * ~1.0 s for the first press off it), so this window is a safety margin rather than the expected cost.
+ *
  * THE ANSWER IS TO WAIT, NOT TO RETRY. The spend is a WRITE: a retry of a request that already landed spends a
  * second hint, so a short window is not a cheaper failure here, it is a wrong answer plus a lost balance. Twice the
- * measured build leaves room for a slower machine and for the cold start that owns the same minutes.
+ * old build leaves room for a slower machine and for the cold start that owns the same minutes.
  */
 export const HINT_TIMEOUT_MS = 180_000;
 

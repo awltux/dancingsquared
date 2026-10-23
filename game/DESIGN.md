@@ -320,14 +320,18 @@ squared-set generator's, and the corrections below.
 2. **A three-CALL question needs a pool of at least 20 — and that is a hard floor, not a cost.** MEASURED (5 seeds
    per cell) and UNMOVED by the start-board change: at pools 10 and 15, 0 of 5 seeds find a named board reachable in
    exactly 3 calls from ANY of the two named formations those pools declare — there is no goal to offer at all. At
-   pool 20 it generates every seed. That is why the ladder's floor is 20 rather than the 10 first proposed: the Daily
-   is asked in three calls (§9), and a level that cannot be asked one is not a level of this game.
+   pool 20 it generates every seed. That is why the ladder's floor was pushed well above the 10 first proposed while the
+   Daily was asked in three calls. **IT NO LONGER CONSTRAINS ANYTHING**: the Daily is a waypoint WALK (§9), nothing else
+   searches to depth 3, and `DEPTH3_MIN_POOL` was deleted in the commit that made the walk.
 3. **Depth 3 is affordable now that it is not the client's job.** Its worst case is 0.4 s at pool 20 rising to
    ~4.9 s at pool 55 **from a squared set**; re-measured over the level's own starts it is **1.6 s at pool 20, 2.1 s at
    pool 25 and 4.0 s at the shipped level-1 pool**, because a generation now tries its formations in order until one
    yields a puzzle. It cost the cap on a browser; generation moved to the serving side (§9) and the Daily's publisher
-   is a midnight trigger, so the cap is kept for the DRILL only (`MAX_DEPTH = 2`, one call at L1) and the Daily is
-   asked in `DAILY_DEPTH = 3` at every level.
+   is a midnight trigger, so the cap is kept for the DRILL only (`MAX_DEPTH = 2`, one call at L1).
+   **AND THE SEARCH DOES NOT SCALE PAST DEPTH 3, WHICH IS WHY THE DAILY IS NOT ONE**: MEASURED on 5 level-1 seeds,
+   depth 4 costs **4.9 s/seed**, depth 5 **35 s/seed**, and depth 6 **did not finish inside ten minutes** — and even
+   that would have given at most six waypoints after the collapse. The Daily is a walk of one arrangement per call
+   instead (§9), whose measured cost is **p50 0.9 s, p90 2.9 s, mean 1.4 s** over 60 level-1 seeds.
 4. **THE LADDER THAT SHIPS: `poolSize(n) = 57 + 4·(n − 1)`, `depth = 1` at L1 and 2 after, `optionCount = 3` above a
    five-title pool EXCEPT at L1, which is pinned at two.** That is the owner's four-calls-a-level rule (decision 4's
    shape) on the floor finding 2 requires. **`BASE_POOL` MOVED 20 → 57 SO LEVEL 1 TEACHES WHOLE FAMILIES**: the pool is
@@ -336,12 +340,12 @@ squared-set generator's, and the corrections below.
    the boundary of the TENTH whole family, and reaching it needed the ORDER grouped into contiguous families (as
    curated it had only two clean cut points, 32 and 37). `pool-probe.mjs` pins that the shipped boundary splits no
    family. Consequences, each measured: a **Mainstream-sized pool fills 74 levels** (was 76) by `publishableLevels()`;
-   a Daily costs **~5 s at L1 and ~155 s at L74** measured from a squared set, and **9.4–15.1 s at L1** re-measured
-   over the level's own starts (§7.1) — the L74 figure is the old regime's and has NOT been re-measured. Either way it
-   is once per (level, day) and cached, and the exponent is the depth, not the constant.
-5. **The Daily is three calls at EVERY level; the Drill is one at L1 and two after.** The two modes ask different
-   questions of the same progression — `dailySpec(level)` applies the mode's depth where a puzzle is generated for
-   the mode — so a level does not carry two depths that could drift apart.
+   the Daily's generation is the walk's cost above, once per (level, day).
+5. **The Daily is a WAYPOINT SEQUENCE — 5 waypoints at L1, one more every four levels, capped at 10 — and the Drill is
+   one call at L1 and two after.** The two modes ask different questions of the same progression: the Drill searches
+   for a board it can ask about, the Daily WALKS a route of arrangements (`levels.ts`'s `dailyWaypointsFor`,
+   `dailySpec` applying the length where a puzzle is generated for the mode), so a level does not carry two lengths
+   that could drift apart.
 
 6. **A LEVEL'S REQUIREMENT IS ITS FIRST 10×10 ARRAY — 100 DRILLS — AND LATER ARRAYS ARE OPTIONAL CONTENT.**
    The progress display is the **10×10 block** of §15 Q17 (v), one cell per finished drill, and filling the
@@ -353,11 +357,12 @@ squared-set generator's, and the corrections below.
 
 So the three bullets below stand as the *design's intent*, and the table above is what the corpus supports.
 The gap is recorded rather than papered over: **the design asked for three options at every level, and this ships
-what the corpus can actually generate; it asked for depth to rise to 3, and that is now the Daily's question at
-every level rather than the Drill's.**
+what the corpus can actually generate; it asked for depth to rise to 3, and the Daily answers with a waypoint
+sequence instead of a deeper search.**
 
 - **L1 = `{ poolSize: 20, depth: 1 }`.** The floor is finding 2's, not a preference.
-- `depth` rises 1 → 2 for the Drill and stays; the Daily is `DAILY_DEPTH` throughout.
+- `depth` rises 1 → 2 for the Drill and stays; the Daily's length is its waypoint count minus one
+  (`dailyWaypointsFor(level)`), from 5 waypoints at L1 to 10 at L21.
 - **`poolSize` grows by 4 PER LEVEL** from a floor of 57 (decision 4, as re-measured for the family boundary — §5
   finding 4).
 - Every level's `Sequencer` is built from **only that level's titles**, so the engine's own legality scan is
@@ -577,7 +582,9 @@ twenty formations finds the ones that work. Three things keep that in proportion
 **serving** side, where a puzzle is generated once per seed and then cached (`api/src/levels.ts`); a level's 100 drills
 are generated by the SCHEDULE PUBLISHER rather than by a player's press; and the DAILY, at three calls, was re-measured
 in the same sweep at **9.4–15.1 s** against **7.8–13.9 s**, which is inside the cost it already had and is why §9 gives
-it a midnight trigger instead of a request budget.
+it a midnight trigger instead of a request budget. **THE DAILY IS A WALK NOW AND THAT MEASUREMENT IS HISTORY**: its
+generation is one `offered` per waypoint plus a few reconsidered steps, MEASURED at **p50 0.9 s, p90 2.9 s, mean
+1.4 s** over 60 level-1 seeds — and the same midnight trigger, for the same reason.
 
 ### 7.2 Authoring the regime (the schedule pipeline)
 
@@ -837,14 +844,39 @@ challenge").
   has **no button**, and a selection that disappears is dropped rather than left pressed against nothing; and a **new
   hint clears the narrowing**, because a hint names one call and a filter must not hide it.
 
-- **The challenge MAY carry waypoints, and they GUIDE the route rather than gate it.** A Daily can show an
-  ordered sequence of **formations and arrangements** between the start and the goal, and the player is helped,
-  not policed: correctness is still the GOAL BOARD, so a route that reaches it another way still wins. The unit
-  is the **arrangement**, not the name — §9.1 measures why a name cannot key one (all three waypoints of the
-  sample route were `Static Square`) and why the congruence `geometryKey` computes is exactly the equivalence a
-  waypoint wants. The sequence is the generator's own route (`puzzle.path.slice(1, -1)`), so a waypoint cannot
-  disagree with the solution; progress is monotone over the boards the player actually stood on, so an undo
-  rewinds it for free; and a challenge may carry **zero** waypoints at all.
+- **The challenge's waypoints GATE the route, and the count is the level's.** This REVERSES an earlier entry here
+  ("they GUIDE the route rather than gate it"), and the report is why: **"The last generated daily was only 2
+  waypoints. Thats not challenging enough for a daily. It should be from 5 to 10 waypoints."** MEASURED on the day
+  reported (2026-10-23, level 1, seed 286105477): 3 calls, the arrangements `Tidal Line RH` then `Eight Chain Thru`
+  three times running, so **2 waypoints — and the goal was ONE call from the start** (`Cast Off Three Quarters` and
+  then `Box the Gnat` twice). The mode was a one-call question with two extra presses. Over 24 level-1 seeds the old
+  regime gave **2 waypoints on 1, 3 on 4 and 4 on 19**, because the count was a SIDE EFFECT of asking for a board
+  exactly three calls away.
+  Two rules changed together, because either alone leaves the mode lying about itself:
+  1. **The Daily is a WALK, not a search** (`generator.ts`'s `walkDaily`): the level asks for `n` waypoints
+     (`levels.ts`'s `dailyWaypointsFor`: **5 at L1**, one more every four levels, **capped at 10** — reaching the cap
+     at L21 of the 65 the corpus fills, `publishableLevels()` MEASURED at 1..65), and the walk takes one call per
+     waypoint beyond the first, each landing in an arrangement the set is not already in. The count is then exact
+     rather than hoped for, and `shortest` is exact with it: a call stands the set in one arrangement, so `n` waypoints
+     need at least `n − 1` calls and the route uses precisely that. MEASURED over 60 level-1 seeds: **60 of 60
+     generate**, 7 boards explored at the median (max 33), **p50 0.9 s / p90 2.9 s / mean 1.4 s**; the depth-4 and
+     depth-5 SEARCHES that would have been needed instead cost 4.9 s and 35 s a seed (§5 finding 3). THE DRILL SEASON
+     IS UNTOUCHED — the regime is gated on `mode`, and re-running `game/tools/bake-season.mjs` rewrites
+     `season-data.ts` with no content change (verified: the worktree blob equals `HEAD`'s).
+  2. **The sequence is the WIN, not a hint** (`PlaySession.atGoal`): the board must be the goal's arrangement AND every
+     waypoint must have been passed in order, which is the rule `waypointReached` already counted. Without it a walk
+     is decoration — MEASURED, seed 5131's goal arrangement is reachable in **two calls** (`Double Pass Thru` →
+     `California Twirl`) while its route is four, so a shortcut would have won a four-waypoint Daily. Both halves are
+     pinned by `game/test/daily-waypoints-probe.mjs`, which fails both ways: if the count stops being the ladder's, and
+     if a shortcut wins.
+  **AND THE HINT FOLLOWS THE SEQUENCE**: it names a call into the NEXT waypoint's arrangement rather than towards the
+  goal (`PlaySession.hint`), because advice aimed at the final board walks PAST the waypoint the player still has to
+  stand in. That also deleted the reverse BFS from the goal — the 79–91 s table build of §10 — for a forward search
+  that stops on the target: MEASURED **0–650 ms** from a position on the route and **~1.0 s** for the first press one
+  call off it.
+  The unit is still the **arrangement**, not the name: §9.1 measures why a name cannot key one (all three waypoints of
+  the sample route were `Static Square`) and why the congruence `geometryKey` computes is exactly the equivalence a
+  waypoint wants. Progress is monotone over the boards the player actually stood on, so an undo rewinds it for free.
 - **THE GOAL IS ONE OF THOSE WAYPOINTS, AND IT IS JUDGED THE SAME WAY.** REPORTED: "Each Waypoint might have
   multiple solutions. A waypoint has been passed when the dancers are in the setup described by the waypoint,
   regardless of what calls were used to get there. I have managed to get the dancers in the position of the waypoint,
@@ -907,17 +939,19 @@ that survives this measurement is:
   waypoints are derived from `puzzle.path` by `waypointBoards`, so the sequence is the generator's own route rather
   than a second one.
 - **A WAYPOINT IS A FORMATION, so consecutive equal formations collapse.** A call that leaves the set in the
-  arrangement it was already in reaches no new waypoint. MEASURED over 24 generated level-1 routes: **16 of 24 repeat
-  a formation in consecutive stages** and every repeat in the sample is a consecutive one, so the waypoint count is
-  **2..4** where the board count is 4. A RETURN is still a new waypoint (A → B → A is three), which is what makes a
-  round trip cost a call.
+  arrangement it was already in reaches no new waypoint. The collapse is still the definition — but the Daily's walk
+  REFUSES such a step, so a generated Daily's list is exactly the ladder's count (5..10) and there is nothing left to
+  collapse. Under the old three-call search it was doing real work: MEASURED over 24 level-1 routes, **16 repeated a
+  formation in consecutive stages** and the count was **2..4** where the board count was 4 — the reported defect. A
+  RETURN is still a new waypoint (A → B → A is three), which is what makes a round trip cost a call.
 - progress is `waypointReached(waypoints.slice(1), boardsStoodOnInOrder)`: a monotone count over the formations the
   player actually stood in, derived from the move stack in the Daily and from the route prefix in the Drill — so an
   undo rewinds it for free and it cannot disagree with the line the server replays.
 - **the boards ARE the sequence**: the stage shows two adjacent waypoints with a border on each (`waypoint-pair.ts`
   decides which two and what each says), the arrows page the window along the route, and the panel shows the same
-  list as text. It is a readout, not a gate: correctness is still the goal board, and no call is refused because a
-  waypoint is ahead.
+  list as text. IT IS A GATE NOW, not only a readout: the last waypoint is the goal, and `PlaySession.atGoal` requires
+  every one of them in order before the run is won — so a call is never refused by the sequence, but a run that skips
+  it does not finish.
 
 MEASURED, and it is the number that justifies the arrangement being the unit: from a squared set, **143 of 192 readings
 leave a different arrangement and 49 leave the SAME arrangement on a DIFFERENT board** — a quarter of the legal moves
@@ -935,11 +969,13 @@ change the setup without changing the stage. A call-name rule cannot see that; a
   start at pool 20), and a repeated ARRANGEMENT is visible in the waypoint state — a line that returns to a waypoint
   it has already satisfied is exactly the case the sequence is there to make impossible.
 
-**What is NOT built, and should not be re-derived.** Waypoints are not yet a CORRECTNESS test (the goal board is), and
-the generator does not yet REQUIRE distinct arrangements — it does so by luck, 11 routes in 12. Making the sequence
-gating is the next step, and it is a generator change with a re-bake, not a display change. And the numbers above are
-why "solve it on the server" should not be attempted again: 23 minutes for the cheapest level, one solution, and a
-display name that cannot tell its own route apart.
+**What is NOT built, and should not be re-derived.** The generator now DOES require distinct arrangements (a walk step
+that stays in its own arrangement is refused) and the sequence IS the correctness test (`PlaySession.atGoal` and the
+server's `lineSolvesDaily`), so the two "next steps" this paragraph used to name are done — and the `section 9` entry
+above records what they cost. The one thing deliberately still open is the DEAD-END WARNING: a picker could say "no
+move advances a waypoint" from the local offer list, and that would be a display change on top of the sequence rather
+than a graph (the measurement above is why the graph is not shipped: 23 minutes for the cheapest level, one solution,
+and a display name that cannot tell its own route apart).
 
 ### 9.2 Parallel calls for two subsets: measured, and why they are not a client change
 

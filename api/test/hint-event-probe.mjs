@@ -24,7 +24,7 @@ import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { asAttempt, asAttemptItem } from '../src/attempt-row.ts';
 import { MAX_HINTS_PER_ATTEMPT } from '../src/handlers/hints.ts';
-import { scoreRun } from 'dancing-squared-game';
+import { GENERATOR_VERSION, scoreRun } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
 /**
@@ -75,7 +75,7 @@ async function recordLine(player, level, date, line, deps) {
 
 /** Publish a day at a level with the fixture's first seed, so there is a challenge to hint at. */
 async function publish(store, level, date, seed) {
-  await store.put(publishedDailyKey(level, date), { seed, levelIndex: level, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, level) }, null);
+  await store.put(publishedDailyKey(level, date), { seed, levelIndex: level, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(seed, level) }, null);
 }
 
 /**

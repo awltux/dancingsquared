@@ -5,15 +5,16 @@
 // client no longer generates anything, so the seed alone is not playable — this endpoint generates the puzzle the
 // seed names (through `puzzleFor`'s cache, so a re-read is a `Map` lookup) and answers with it.
 //
-// WHAT IS STILL STORED IS THE SEED, NOT THE PUZZLE, and the difference is deliberate: `POST /runs` re-derives the
-// puzzle from the seed to verify a submission, so a stored board would be a second copy that a corrupt or edited
-// row could disagree with. One derivation, used by every reader, is the stronger property.
+// WHAT IS STORED IS THE PUZZLE AND THE STAMP THAT NAMES ITS GENERATOR, and not only the seed: `POST /runs` re-derives
+// the puzzle from the seed to verify a submission, so a build whose generator no longer produces these boards must say
+// so rather than score a solved run as unsolved. That is what `generatorVersion` on the row is for, and the drills have
+// carried the same stamp since they were frozen (`stored-drill.ts`).
 //
 // A DAY NOBODY PUBLISHED IS THE BOUNDARY JOB'S ABSENCE, and it is reported as such rather than answered with a
 // freshly derived seed: a server that invented one on demand would serve a challenge that was never validated
 // (§7.2), and the two sides would disagree about it the moment the pool moved. `npm run api:publish-daily` is
 // the fix, and the refusal names the day.
-import { MAIN_POOL, parsePuzzle, type Puzzle } from 'dancing-squared-game';
+import { GENERATOR_VERSION, MAIN_POOL, parsePuzzle, type Puzzle } from 'dancing-squared-game';
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { attemptKey, publishedDailyKey } from '../keys.ts';
 import { failure, optionalIdentity, STATUS } from '../status.ts';
@@ -50,14 +51,20 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
 
   const stored = await deps.store.get(publishedDailyKey(levelIndex, day));
   if (!stored) return failure(STATUS.notFound, 'no_published_daily', `level ${levelIndex} has no published challenge for ${day}`);
-  const value = stored.value as { seed?: unknown; levelIndex?: unknown; poolVersion?: unknown; publishedAtMs?: unknown; puzzle?: unknown };
+  const value = stored.value as { seed?: unknown; levelIndex?: unknown; poolVersion?: unknown; generatorVersion?: unknown; publishedAtMs?: unknown; puzzle?: unknown };
   if (typeof value.seed !== 'number' || typeof value.levelIndex !== 'number' || typeof value.poolVersion !== 'string') {
     return failure(STATUS.unavailable, 'unreadable_daily', `the published challenge for ${day} is not a record this build can read`);
   }
   // A POOL THIS BUILD DOES NOT HAVE CANNOT BE PLAYED, and saying so here is cheaper than letting the client
   // generate a board the server would then refuse to score (`stale_pool`). It is the same rule as §7.2's: a
   // seed is only meaningful against the pool it was validated at.
-  const playable = value.poolVersion === MAIN_POOL.version;
+  //
+  // AND NEITHER CAN A PUZZLE FROM ANOTHER GENERATOR: the row carries the boards, so a build whose generator produces a
+  // different puzzle from the same seed would serve this one and then refuse a submission on ITS OWN boards — the
+  // player's solved run, scored as unsolved. `stale_pool`'s answer is reused rather than a second refusal code: what
+  // the client needs to know is "this build cannot play it", and the sentence says which stamp disagreed.
+  const generatorVersion = typeof value.generatorVersion === 'string' ? value.generatorVersion : null;
+  const playable = value.poolVersion === MAIN_POOL.version && generatorVersion === GENERATOR_VERSION;
 
   // ONLY A PLAYABLE CHALLENGE HAS A PUZZLE THIS BUILD CAN DRAW, and generating a foreign seed's puzzle here would
   // hand the client a board the server would refuse to score — the worst of the three answers, because it looks

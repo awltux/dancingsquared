@@ -16,14 +16,18 @@
 // reusing a stale sequencer.
 
 import {
+  GENERATOR_VERSION,
   MAIN_POOL,
   PlaySession,
+  arrangementKey,
   dailySpec,
   generatePuzzle,
   generatorConfigFor,
   levelSpec,
   poolFor,
   poolIsComplete,
+  waypointBoards,
+  waypointReached,
   type GenerateResult,
   type LevelSpec,
   type Puzzle,
@@ -76,7 +80,7 @@ export function runtimeFor(level: LevelSpec): Runtime {
  * **0.0 ms** each — below the timer's resolution, because the work is a `Map` lookup.
  *
  * THE RETURNED PUZZLE IS SHARED BETWEEN CALLERS. Every reader today only reads (the per-step correct option,
- * `lineReachesGoal`'s walk, and — now that the client generates nothing — the `GET /drill/current` and
+ * `lineSolvesDaily`'s walk, and — now that the client generates nothing — the `GET /drill/current` and
  * `GET /puzzle` bodies), so this is safe, but a caller that mutated one would change what every later request is
  * scored against. **A HANDLER MUST NOT MUTATE IT**: the served body holds a reference to this object, and a
  * projection that edited it in place would rewrite the answer key the press log and the run scoring read back.
@@ -100,8 +104,9 @@ export function puzzleFor(seed: number, level: LevelSpec, mode: PuzzleMode): Gen
   const key = puzzleKey(seed, level, mode);
   const cached = puzzles.get(key);
   if (cached) return cached;
-  // THE DAILY IS ASKED IN ITS OWN DEPTH, applied at this boundary: `DAILY_DEPTH` calls at every level, where the
-  // Drill's depth is the level's (DESIGN.md §9, and `game/src/puzzle/levels.ts` on why the two differ).
+  // THE DAILY IS ASKED IN ITS OWN LENGTH, applied at this boundary: `dailyWaypointsFor(level) - 1` calls, which is one
+  // per waypoint beyond the first, where the Drill's depth is the level's (DESIGN.md §9, and
+  // `game/src/puzzle/levels.ts` on why the two differ).
   const spec = mode === 'daily' ? dailySpec(level) : level;
   const generated = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec, mode), seed, spec, runtimeFor(level).applier);
   if (puzzles.size >= MAX_CACHED_PUZZLES) puzzles.clear();
@@ -133,10 +138,11 @@ export function startReadings(puzzle: Puzzle, level: LevelSpec): { call: string;
  * Every level the corpus can actually fill, lowest first.
  *
  * THE LADDER IS TOTAL AND THE POOL IS NOT, which is the whole of this function: `levelSpec` answers for any
- * positive integer (its pool widens by five every three levels from L4) while the corpus carries a fixed number
- * of titles. MEASURED: that is levels 1..33, and level 34 asks for 65 titles where the corpus carries 62. The
- * loop stops at the first level the corpus cannot fill and terminates by construction, because `poolSize` grows
- * monotonically — so "how far does the game go" is a measurement, not a constant.
+ * positive integer (its pool widens by four every level from L1) while the corpus carries a fixed number of titles.
+ * MEASURED, re-measured when the pool grew: that is **levels 1..65**, where level 65 asks for 313 titles and level 66
+ * asks for 317 — one more than the pool carries. The loop stops at the first level the corpus cannot fill and terminates
+ * by construction, because `poolSize` grows monotonically — so "how far does the game go" is a measurement, not a
+ * constant, and the numbers here are corrected by re-running this function rather than by trusting the sentence.
  *
  * IT LIVES HERE BECAUSE TWO JOBS NEED IT: the Daily's boundary job publishes a challenge per level, and the
  * schedule publisher authors a season per level, and both must refuse a level nobody can play rather than
@@ -158,28 +164,38 @@ export function registeredFor(level: LevelSpec): number {
 }
 
 /**
- * Whether a move list, played from the puzzle's start board, actually reaches its goal.
+ * Whether a move list, played from the puzzle's start board, actually SOLVES the Daily.
  *
- * THIS IS THE DAILY'S VERIFICATION. The Drill re-derives which option was correct at each step, which needs
- * only the generated puzzle; the Daily's submission is a LINE the player built, so it has to be walked — and
- * walking it is the engine's job, through the same applier the client walked (DESIGN.md 4.4: "the client
- * sequencer is the same sequencer the server used"). A refusal carries the engine's own reason verbatim, or a
- * sentence of this function's for the two cases the engine cannot have an opinion about (a line that stops
- * short of the goal, and one that is longer than the allowance the level allows).
+ * THIS IS THE DAILY'S VERIFICATION, and the rule is the run's: every waypoint in order, and the board left on the
+ * goal's arrangement (`PlaySession.atGoal`, which is the same rule the client's session applies). The goal board alone
+ * was the rule until the Daily became a sequence, and that was the reported defect in its other half: a line could jump
+ * to the last waypoint's arrangement without passing the ones before it — MEASURED, a generated level-1 Daily whose goal
+ * was TWO calls from the start while its route was four, so the "challenge" was a shortcut. A submission that took that
+ * line at the old rule scored.
  *
  * IT APPLIES EACH CALL RATHER THAN TRUSTING A FINAL BOARD, because the final board is exactly what a modified
- * client would forge. A line that reaches the goal BY A DIFFERENT ROUTE than the generator's is legitimate and
- * scores the same — the goal test is `reachesGoal`, never a comparison with `puzzle.solution`.
+ * client would forge. A line that reaches the sequence BY A DIFFERENT ROUTE than the generator's is legitimate and
+ * scores the same — every test here is an arrangement, never a comparison with `puzzle.solution`.
  */
-export function lineReachesGoal(level: LevelSpec, puzzle: Puzzle, calls: readonly string[]): { ok: true } | { ok: false; reason: string } {
+export function lineSolvesDaily(level: LevelSpec, puzzle: Puzzle, calls: readonly string[]): { ok: true } | { ok: false; reason: string } {
   const applier = runtimeFor(level).applier;
+  const waypointKeys = waypointBoards(puzzle.path).map(arrangementKey);
+  const played: string[] = [arrangementKey(puzzle.start)];
   let board = puzzle.start;
   for (const call of calls) {
     const refusal = applier.refusalOf(board, call);
     if (refusal) return { ok: false, reason: `"${call}" cannot be made from that board: ${refusal.reason}` };
     board = applier.apply(board, call);
+    played.push(arrangementKey(board));
   }
   if (!applier.reachesGoal(board, puzzle.goal)) return { ok: false, reason: 'the line does not leave the set on the goal board' };
+  // THE SEQUENCE IS THE WIN, and a route whose waypoints are only its goal (a puzzle with one board, or none) has nothing
+  // more to ask — the same split `PlaySession.atGoal` makes.
+  if (waypointKeys.length <= 2) return { ok: true };
+  const reached = waypointReached(waypointKeys.slice(1), played);
+  if (reached < waypointKeys.length - 1) {
+    return { ok: false, reason: `the line passed ${reached} of the ${waypointKeys.length - 1} waypoint(s), and the challenge is the whole sequence` };
+  }
   return { ok: true };
 }
 
@@ -214,32 +230,16 @@ export function replayDailyMoves(level: LevelSpec, puzzle: Puzzle, moves: readon
  * where the client names from the position IT believes it is on — which can lag by a move that has not landed.
  *
  * NULL IS AN ANSWER: a board with nothing offered is a state a player can be in (a dead end), and "no call" is the
- * honest name rather than an invented one.
- */
-/**
- * THE DISTANCE TABLES THE HINT BUILDS, SHARED BY EVERY HINT ON THIS PROCESS.
+ * honest name rather than an invented one. So is a spent allowance, which is the other state in which the session
+ * refuses to name a call the run could not play.
  *
- * THE SESSION OWNS ITS TABLE, AND THAT WAS THE DEFECT: `PlaySession.distanceCache` is per object, while the table
- * is a property of the PUZZLE (its goal and the allowance). The server builds a session per hint spend
- * (`sessionWith` replays the recorded moves to find the board), so it rebuilt the reverse BFS for every hint.
- * MEASURED at the shipped level-1 pool: ONE build is 79-91 s, so a hint cost a minute and a half, every time, and
- * `api/test/hint-event-probe.mjs` measured 770 s for its eight-odd spends.
- *
- * THE KEY IS THE GOAL'S SIGNATURE, INSIDE THE SESSION (the session already keys its cache that way), so one map
- * serves every puzzle this process names a hint for. The bound is blunt and small for the reason `puzzleFor`'s
- * gives: a hint answers about the puzzle a player is on, and a clear costs one rebuild rather than an unbounded
- * map in a long-lived container.
+ * AND THERE IS NO TABLE TO SHARE ANY MORE. The hint used to build a reverse BFS from the goal and cache it per puzzle
+ * here (`hintDistanceTables`), because ONE build cost 79-91 s at the shipped level-1 pool. The search follows the NEXT
+ * WAYPOINT now and costs a fraction of a second, so the cache was deleted with it: one mechanism, and the expensive one
+ * is gone rather than cached.
  */
-const hintDistanceTables = new Map<string, Map<string, number>>();
-const MAX_CACHED_HINT_TABLES = 16;
-
-function sharedHintTables(): Map<string, Map<string, number>> {
-  if (hintDistanceTables.size >= MAX_CACHED_HINT_TABLES) hintDistanceTables.clear();
-  return hintDistanceTables;
-}
-
 export function nameHintFor(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): string | null {
-  return sessionWith(level, puzzle, moves, sharedHintTables()).hint();
+  return sessionWith(level, puzzle, moves).hint();
 }
 
 /**
@@ -259,12 +259,24 @@ export async function publishedPuzzle(
   if (!stored) {
     return { ok: false, status: 404, code: 'no_published_daily', message: `level ${levelIndex} has no published challenge for ${day}` };
   }
-  const value = stored.value as { seed?: unknown; poolVersion?: unknown };
+  const value = stored.value as { seed?: unknown; poolVersion?: unknown; generatorVersion?: unknown };
   if (typeof value.seed !== 'number' || typeof value.poolVersion !== 'string') {
     return { ok: false, status: 503, code: 'unreadable_daily', message: `the published challenge for ${day} is not a record this build can read` };
   }
   if (value.poolVersion !== MAIN_POOL.version) {
     return { ok: false, status: 409, code: 'stale_pool', message: `the challenge was published against pool ${value.poolVersion}, and this build serves ${MAIN_POOL.version}` };
+  }
+  // THE SAME TWO STAMPS THE READ CHECKS, for the same reason: this module regenerates the puzzle from the seed, so a seed
+  // whose generator has changed names a puzzle that no longer exists. `handlers/puzzle.ts` answers `playable: false` for
+  // it; a WRITE (a hint's name, a recorded move) cannot be answered that way, so it is refused.
+  const generatorVersion = typeof value.generatorVersion === 'string' ? value.generatorVersion : null;
+  if (generatorVersion !== GENERATOR_VERSION) {
+    return {
+      ok: false,
+      status: 409,
+      code: 'stale_generator',
+      message: `the challenge was generated by ${generatorVersion ?? 'a build before the stamp'} and this build is ${GENERATOR_VERSION} — republish the day (npm run api:publish-daily)`,
+    };
   }
   const generated = puzzleFor(value.seed, levelAt(levelIndex), 'daily');
   if (!generated.ok) {
@@ -279,8 +291,8 @@ export async function publishedPuzzle(
  * THE REPLAY LOOP LIVES HERE ONCE, so the reader that needs the LINE and the reader that needs the BOARD the line
  * leaves cannot drift apart — which is the drift `nameHintFor` exists to remove.
  */
-function sessionWith(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[], distanceCache?: Map<string, Map<string, number>>): PlaySession {
-  const session = new PlaySession(puzzle, runtimeFor(level).applier, undefined, distanceCache);
+function sessionWith(level: LevelSpec, puzzle: Puzzle, moves: readonly DailyMove[]): PlaySession {
+  const session = new PlaySession(puzzle, runtimeFor(level).applier);
   for (const move of moves) {
     if (move.kind === 'add') session.play(move.call);
     else if (move.kind === 'undo') session.undo();

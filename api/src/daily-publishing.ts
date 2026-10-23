@@ -11,7 +11,7 @@
 // that does not generate is a day where every player at that level gets a refusal, so the refusal is reported at
 // the boundary instead — and the day's other levels still publish, because one broken level is not a reason to
 // serve nobody a Daily.
-import { POOL_VERSION, dailyEntry, isUtcDay, type ScheduleEntry } from 'dancing-squared-game';
+import { GENERATOR_VERSION, POOL_VERSION, dailyEntry, isUtcDay, type ScheduleEntry } from 'dancing-squared-game';
 import { levelAt, publishableLevels, puzzleFor } from './levels.ts';
 import { publishedDailyKey } from './keys.ts';
 import type { ItemStore } from './ports.ts';
@@ -53,6 +53,14 @@ export async function publishDay(store: ItemStore, day: string, options: { level
       seed: entry.seed,
       levelIndex: entry.levelIndex,
       poolVersion: entry.poolVersion,
+      /**
+       * WHICH GENERATOR BUILT THESE BOARDS, so a build that no longer generates them can say so instead of serving
+       * them. The row stores the PUZZLE, not just the seed, so a generator change is invisible until something
+       * disagrees — and the disagreement would be a run refused for "not solved" on a challenge the player actually
+       * solved. `stored-drill.ts` has stamped this fact since the drills were frozen; the Daily gained it with `g7`,
+       * the change that made a Daily's seed mean something else (a walk through 5-10 waypoints).
+       */
+      generatorVersion: GENERATOR_VERSION,
       publishedAtMs: options.nowMs,
       // THE PUZZLE ITSELF, BUILT HERE AND RECOVERED BY THE READ. The boundary job is the only thing that BUILDS a
       // challenge; GET /puzzle only recovers one, because building costs 9.4-15.1 s (DESIGN.md §7.1) and doing it on

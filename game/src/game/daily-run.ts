@@ -105,8 +105,10 @@ export class DailyRun {
    * THEY ARE DERIVED FROM `puzzle.path` RATHER THAN A SECOND GENERATED FIELD, and that is a decision rather than a
    * shortcut: the path IS the generator's route, so a waypoint list generated separately could describe a route the
    * puzzle's own solution does not take. `waypointBoards` collapses consecutive equal formations, because a call
-   * that leaves the set in the arrangement it was already in has reached no new waypoint — MEASURED, 16 of 24
-   * level-1 routes do that at least once.
+   * that leaves the set in the arrangement it was already in has reached no new waypoint — a collapse the walk in
+   * `puzzle/generator.ts` never gives it the chance to make, because a Daily's step is filtered to land somewhere new.
+   * MEASURED, the old three-call SEARCH produced such a step on 16 of 24 level-1 seeds, which is where the reported
+   * two-waypoint Daily came from.
    */
   private readonly waypointList: readonly Board[];
   private readonly waypointKeys: readonly string[];
@@ -201,6 +203,17 @@ export class DailyRun {
   /** The board the challenge was issued on, which is what a review of a whole line starts from. */
   get start(): Board {
     return this.puzzle.start;
+  }
+
+  /**
+   * The board the run ends on — the LAST waypoint, and the arrangement the whole sequence has to arrive at.
+   *
+   * IT IS A GETTER BESIDE `start` rather than something a caller digs out of `view()`: `view()` builds the readings
+   * list for the picker, which MEASURED is 150 ms a board at the shipped pool, so a sentence that only needs the goal
+   * board must not pay for a whole panel.
+   */
+  get goal(): Board {
+    return this.puzzle.goal;
   }
 
   /**
@@ -302,7 +315,9 @@ export class DailyRun {
     // THE WAYPOINT PROGRESS IS DERIVED FROM THE MOVE STACK, never stored: an undo therefore rewinds it for free, and
     // the count cannot disagree with the line the server will replay. THE START IS NOT SEARCHED FOR — waypoint 1 is
     // the start by definition and is reached by standing on it, so what counts here is how many of the waypoints
-    // AFTER it the player has stood in, in order.
+    // AFTER it the player has stood in, in order. THE LAST OF THEM WINS THE RUN (`PlaySession.atGoal`): the goal board
+    // alone would let a shortcut past the sequence, which is the half of the Daily's rule this display was already
+    // showing and the run was not requiring.
     const played = this.session.playedBoards().map(arrangementKey);
     const reached = waypointReached(this.waypointKeys.slice(1), played);
     return {

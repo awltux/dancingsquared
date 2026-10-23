@@ -13,6 +13,10 @@
 // actually guarantees.
 export * from './types.ts';
 export * from './levels.ts';
+// THE WAYPOINT RULE, exported because the SERVER applies it too: `POST /runs` verifies a Daily's line against the same
+// arrangement sequence the client's session uses (`api/src/levels.ts`), and a server-side copy of "did this line pass
+// the waypoints" would be the second implementation AGENTS.md §5 forbids.
+export * from './arrangement.ts';
 export * from './pool.ts';
 export * from './rand.ts';
 export * from './config.ts';

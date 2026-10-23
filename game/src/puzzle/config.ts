@@ -11,23 +11,37 @@
 import type { GeneratorConfig, LevelSpec, PuzzleMode } from './types.ts';
 
 /**
- * The states a single search may enumerate — read by the GENERATOR, and by the hint's reverse BFS.
+ * The states a single search may enumerate — read by the GENERATOR, and by nothing else since the hint stopped
+ * searching from the goal.
  *
  * CHOSEN, and then bounded by measurement: the ladder census prints the explored count and the wall time
  * per level, so this number is revisited from data rather than from taste. It exists because the state
  * space is exponential in `depth` and the pool, and an unbounded search is how a browser tab stops
- * responding — and the two readers now run in DIFFERENT PLACES, which is why this stays one constant with a
- * stated reason. `PlaySession.distanceToGoal` (the hint) still runs on the CLIENT (DESIGN.md 10), so its
- * budget has to fit a browser; the generator runs on the SERVING side and at bake time (DESIGN.md §9: the
- * client generates nothing), where a few seconds is a loading state rather than a hung tab.
+ * responding. The generator runs on the SERVING side and at bake time (DESIGN.md §9: the client generates
+ * nothing), where a few seconds is a loading state rather than a hung tab.
  *
- * ONE NUMBER FOR TWO SEARCHES, deliberately: both are "a bounded search over boards inside one frame's
- * worth of patience", and they are the same order of work, so a playtest that moves one is a reason to
- * look at the other. They are NOT the same budget — the hint's is additionally bounded by the move
- * allowance — which is why the hint search would be the reader to give its own constant if the two ever
- * want different values.
+ * THE HINT'S SEARCH HAS ITS OWN, SMALLER BUDGET (`HINT_SEARCH_NODES`), because it is the one that runs in a browser
+ * while a player waits for a press.
  */
 export const NODE_BUDGET = 50_000;
+
+/**
+ * THE HINT'S SEARCH: how many Calls away it will look, and how many Boards it may expand before giving up.
+ *
+ * BOTH ARE SMALL, and the reason is where the search runs: a player presses the hint and the work happens in the
+ * browser (DESIGN.md 10), so the worst case is a pause the player feels. MEASURED at the shipped level-1 pool, one
+ * `offered` on a board the applier has not cached is ~66-75 ms — so the bound that matters is the BOARD count, and the
+ * depth is capped because a target three calls away needs more boards than a press is worth.
+ *
+ * MEASURED, the first version: the reverse BFS from the goal spent the whole of `NODE_BUDGET` and cost **79-91 s for one
+ * table**. The search that replaced it stops at the next waypoint, which is one call away in the ordinary case — a hit
+ * at depth 1 expands NO board — and the cost is paid only by a player who has wandered off the route. MEASURED over the
+ * positions a generated level-1 route passes through: a hint costs **0-650 ms** and names the route's own call (or
+ * another call into the same arrangement), and a player one call off the route costs **~1.0 s** for the first press
+ * from that board.
+ */
+export const HINT_SEARCH_DEPTH = 2;
+export const HINT_SEARCH_NODES = 48;
 
 /**
  * The version of the GENERATOR itself, stamped on every puzzle a server STORES.
@@ -69,8 +83,14 @@ export const NODE_BUDGET = 50_000;
  * of 40 sampled goals are formations the curated recogniser cannot name. A goal the player is shown is a picture, and
  * the corpus's answer to "is this one of ours" is wider than the twenty-odd standard names a caption prefers. A `g5`
  * store would serve a block whose goals this build no longer picks.
+ *
+ * `g7` IS THE DAILY'S REGIME: a Daily is now a seeded WALK through 5-10 waypoint arrangements (`generator.ts`,
+ * `levels.ts`'s `dailyWaypointsFor`) rather than a board exactly three calls away, so the same seed is a DIFFERENT
+ * puzzle — a longer one, ending somewhere else, with no option steps. THE DRILL IS UNTOUCHED: it still generates the
+ * same boards from the same seed at the same level, which is why this is a Daily-shaped change and not a re-season.
+ * A `g6` store would serve a Daily whose waypoints this build does not have and whose steps it does not draw.
  */
-export const GENERATOR_VERSION = 'g6';
+export const GENERATOR_VERSION = 'g7';
 
 /**
  * The generator configuration for ONE LEVEL, at the budget this build ships.

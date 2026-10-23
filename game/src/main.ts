@@ -24,6 +24,7 @@
 // never arrived must not silently rank the run. The offline ledger applies the same rule locally
 // (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
 import { utcDay } from './puzzle/daily.ts';
+import { arrangementKey } from './puzzle/arrangement.ts';
 import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
 import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
@@ -1693,7 +1694,7 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   dailyScreen.say(
     carried
       ? 'Picked up where you left off — the time the page was away is on the clock.'
-      : 'Add calls until the set is on the goal board. Undo is free; the allowance is not.',
+      : 'Pass each waypoint in order, ending on the goal board. Undo is free; the allowance is not.',
     'info',
   );
   // THE SHARED CHROME IS PAINTED ONLY WHERE THE DAILY IS THE MODE ON SCREEN. The header, the board captions, the board
@@ -1958,8 +1959,17 @@ function playDailyCall(call: string): void {
     paintDaily();
     return;
   }
-  if (result.verdict === 'wrong') dailyScreen.say(`${call} is legal, but the set is not on the goal board yet.`, 'info');
-  else dailyScreen.say(`${call} — that is the goal board.`, 'ok');
+  if (result.verdict === 'wrong') {
+    // A LINE CAN SIT ON THE GOAL'S ARRANGEMENT AND STILL NOT WIN, because the run is the WHOLE SEQUENCE: the sentence
+    // says which of the two happened rather than telling a player who is on the goal board that they are not.
+    const onGoal = arrangementKey(result.board) === arrangementKey(daily.goal);
+    dailyScreen.say(
+      onGoal
+        ? `${call} — that is the goal's setup, but the waypoints are passed in order, so the run is not finished.`
+        : `${call} is legal, but the set is not on the goal board yet.`,
+      'info',
+    );
+  } else dailyScreen.say(`${call} — every waypoint passed, and that is the goal board.`, 'ok');
   logDailyMove('add', call);
   persist();
   startReplay(applier.motion([call], from), result.verdict === 'correct' ? 'advance' : 'settle');

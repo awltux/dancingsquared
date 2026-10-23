@@ -57,13 +57,15 @@ export function reachedGoal(board: Board, goal: Board): boolean {
  *
  * A WAYPOINT IS A FORMATION, so a step that leaves the set in the arrangement it was already in has not reached
  * a new waypoint — it has done something else (turned the set, swapped the couples, pivoted). The route is a list
- * of CALLS' boards; the waypoints are the formations along it, and the two are not the same length:
+ * of CALLS' boards; the waypoints are the formations along it, and the two are not the same length UNLESS the route
+ * was built for the count:
  *
- * MEASURED over the 24 level-1 Daily seeds `daily-waypoints-probe.mjs` generates: **16 of 24 routes repeat a
- * formation in consecutive stages**, and in that sample EVERY repeat is a consecutive one, so the same 16 routes
- * are the 16 whose board count exceeds their waypoint count. The waypoint count is 2..4 for a three-call Daily,
- * with the start and the end included — which is the smallest a puzzle can be, and why "the smallest puzzle has a
- * start and an end waypoint" is the floor here rather than a special case.
+ * MEASURED, and it is why the Daily's generator walks instead of searching: when the route came from a search for "a
+ * board exactly three calls away", **16 of 24 level-1 routes repeated a formation in consecutive stages**, so the
+ * waypoint count was **2..4** where the board count was 4 — the reported two-waypoint Daily. `generator.ts`'s
+ * `walkDaily` now REFUSES a step that stays in its own arrangement, so a generated Daily's list is exactly the
+ * level's ladder (`levels.ts`'s `dailyWaypointsFor`, 5..10) and this function has nothing left to collapse. It stays
+ * because the collapse is the definition of a waypoint, not a workaround for a loose generator.
  *
  * CONSECUTIVE ONLY, DELIBERATELY. A route that RETURNS to an earlier formation (A → B → A) has three waypoints,
  * not two: the player must stand in the earlier arrangement again to have passed through it the second time, which

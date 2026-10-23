@@ -191,11 +191,180 @@ function censusFor(applier: GameApplier, level: LevelSpec): { candidates: Board[
   return census;
 }
 
+/**
+ * How many boards one Daily attempt may ask for their calls before it is abandoned for the next start.
+ *
+ * A BACKTRACKING WALK CAN IN PRINCIPLE TOUR A WHOLE FRONTIER, and asking one board for its calls is the expensive
+ * step: MEASURED at the shipped level-1 pool, one `offered` is ~75 ms on a cache miss (and ~0.02 ms when the
+ * applier's 64-board cache holds it), and `game/src/engine/applier.ts` records the same cost from the generator's
+ * side. Sixty-four is that cache's bound, so the budget is the memory the applier already holds rather than a number
+ * of its own.
+ */
+const WALK_BOARD_BUDGET = 64;
+
+/**
+ * THE DAILY'S PUZZLE: a WALK from the start, one new arrangement per call — not a search for a board N calls away.
+ *
+ * WHY NOT A SEARCH. REPORTED: "The last generated daily was only 2 waypoints. Thats not challenging enough for a
+ * daily. It should be from 5 to 10 waypoints." The count was a SIDE EFFECT of the search: the Daily asked for a board
+ * exactly three calls away and then derived its waypoints from that route, so consecutive equal arrangements collapsed
+ * it to whatever was left — MEASURED over 24 level-1 seeds, **2 waypoints on 1, 3 on 4 and 4 on 19**, and the reported
+ * day (2026-10-23, level 1) was the two: `Tidal Line RH`, then `Eight Chain Thru` for all three calls. Deepening the
+ * search does not fix it either — MEASURED at the shipped level-1 pool, depth 4 costs 4.9 s/seed, depth 5 costs
+ * 35 s/seed, depth 6 did not finish in ten minutes, and even then the collapse would eat some of the gain.
+ *
+ * SO THE COUNT IS THE QUESTION AND THE ROUTE IS BUILT TO IT. The level says how many waypoints
+ * (`levels.ts`'s `dailyWaypointsFor`), the walk produces exactly that many arrangements, and the length in calls is
+ * `config.maxDepth` — one per waypoint beyond the first. EVERY STEP IS FILTERED to land in an arrangement the set is
+ * not already in, so no two consecutive waypoints collapse and the count is exact rather than hoped for.
+ *
+ * `shortest` IS THEN EXACT, not a search result: a call can stand the set in one arrangement at a time, so passing
+ * `n` waypoints in order takes at least `n - 1` calls and the walk uses exactly that. That is the par the score's
+ * waste factor divides by, so a player who follows the waypoints and a player who finds a different line to each one
+ * are priced the same.
+ *
+ * WHY A WALK AND NOT "ANY ROUTE THAT ENDS AT A NICE BOARD": the goal must be a formation the corpus defines, and one
+ * that is not the start's own arrangement — a puzzle whose answer is "you are already there" is the thing `build`
+ * refuses for the Drill. Both are checked on the LAST step only, because an intermediate arrangement is a legal state
+ * the engine need not have a template for (`build`'s goal gate says the same).
+ *
+ * WHAT IT REFUSES, LOUDLY: a step whose every offered call stays in the arrangement the set is already in, and a last
+ * step with no corpus-defined goal. A DEAD END BACKTRACKS ONE STEP rather than shortening the route or starting over,
+ * and only a start whose whole tree is exhausted is abandoned for the next one — the reasons are tallied, because "no
+ * puzzle" and "no puzzle from this start" are different findings.
+ *
+ * WHY IT BACKTRACKS, MEASURED. The first version restarted from the next start on any dead end, and the failure rate is
+ * high — a board whose every offered call is a pivot (or that offers two calls, both pivots) ends a route — so a
+ * level-1 Daily cost **2.3 s on average and 18 s at worst** over 24 seeds, and level 13 reached 24-57 s: each restarted
+ * attempt pays `offered` on a fresh set of boards, and MEASURED `offered` is ~75 ms a board at the level-1 pool and
+ * several times that at level 13. Backtracking re-uses the candidate lists already computed, so the work is the route
+ * plus a handful of reconsidered steps instead of a new route per failure: MEASURED over 60 level-1 seeds, **p50 0.9 s,
+ * p90 2.9 s, mean 1.4 s, max 11.8 s**, and 60 of 60 generated.
+ */
+function walkDaily(config: GeneratorConfig, seed: number, base: number, level: LevelSpec, applier: GameApplier): GenerateResult {
+  const census = censusFor(applier, level);
+  // COPIED, so the memoised census cannot pick up one seed's refusals — the same reason `generatePuzzle` copies it.
+  const refused = new Map(census.refused);
+  if (census.candidates.length === 0) {
+    return {
+      ok: false,
+      reason: `none of the level's ${applier.startBoards().length} declared formation(s) can open a puzzle — ${summarise(refused)}`,
+    };
+  }
+  const order = rngFrom(base).shuffle(census.candidates);
+
+  for (let i = 0; i < order.length; i++) {
+    const start = order[i];
+    // THE ATTEMPT'S OWN STREAM, mixed from the base and the ordinal, exactly as the Drill's is: a start's walk must
+    // not depend on how much of the stream earlier, failed starts consumed.
+    const rng = rngFrom(base ^ Math.imul(i + 1, 0x85ebca6b));
+    const startKey = arrangementKey(start);
+    /**
+     * THE LINE UNDER CONSTRUCTION, one entry per board — the start at index 0 and the goal at `config.maxDepth`.
+     *
+     * Each entry keeps its own SEEDED candidate list and a cursor into it, which is what makes backtracking cheap: a
+     * dead end pops the last entry and resumes the one before it at the next candidate, and no `offered` is asked
+     * twice.
+     */
+    const line: { board: Board; key: string; call: string | null; candidates: Move[]; next: number }[] = [];
+    // HOW MANY BOARDS WERE ASKED FOR THEIR CALLS — the walk's own cost, reported in the puzzle the same way the
+    // search's `explored` is.
+    let explored = 0;
+    // WHETHER ANY STEP HAD A CHOICE, which is this regime's honest reading of `alternatePath`: a route with a choice
+    // at some step is one of many, where a route with none was forced by the board it stood on.
+    let choice = false;
+    let refusal: string | null = null;
+
+    /** The calls from `board` that leave the arrangement `key`, seeded — or `[]` for the goal, which is not walked from. */
+    const forwardFrom = (board: Board, key: string, index: number): Move[] => {
+      // THE GOAL IS REACHED, NEVER PLAYED FROM, so asking for its calls would be work nobody reads (`build`'s goal
+      // gate says the same for the Drill).
+      if (index === config.maxDepth) return [];
+      const lastStep = index === config.maxDepth - 1;
+      explored++;
+      const offered = applier.offered(board).slice().sort(byName);
+      const forward = offered.filter((move) => {
+        const next = arrangementKey(move.board);
+        // A CALL THAT LEAVES THE SET IN THE ARRANGEMENT IT WAS ALREADY IN IS NOT A WAYPOINT (`arrangement.ts` said so
+        // first, and the whole count depends on it here).
+        if (next === key) return false;
+        if (!lastStep) return true;
+        // THE GOAL'S TWO GATES, exactly as `build` applies them to a Drill's goal: not the start's own arrangement
+        // (the puzzle would be telling the player the answer is where they already are) and a formation the corpus
+        // defines (it is the picture the player is working towards).
+        if (next === startKey) return false;
+        return applier.formationOf(move.board) !== null;
+      });
+      if (forward.length > 1) choice = true;
+      // SEEDED, not alphabetical: the route is the puzzle, so which forward call it takes is the seed's decision, and
+      // `byName` has already made the list independent of the applier's own registration order.
+      return rng.shuffle(forward);
+    };
+
+    line.push({ board: start, key: startKey, call: null, candidates: forwardFrom(start, startKey, 0), next: 0 });
+
+    while (line.length > 0) {
+      if (line.length === config.maxDepth + 1) break;
+      if (explored > WALK_BOARD_BUDGET) {
+        refusal = `the walk from ${applier.nameOf(start) ?? 'this start'} ran out of its ${WALK_BOARD_BUDGET}-board budget at ${line.length - 1} of ${config.maxDepth} call(s)`;
+        line.length = 0;
+        break;
+      }
+      const top = line[line.length - 1];
+      if (top.next >= top.candidates.length) {
+        // DEAD END: the board's calls are used up, so the step before it must choose again.
+        line.pop();
+        continue;
+      }
+      const move = top.candidates[top.next++];
+      const key = arrangementKey(move.board);
+      line.push({ board: move.board, key, call: move.call, candidates: forwardFrom(move.board, key, line.length), next: 0 });
+    }
+
+    if (line.length === 0) {
+      const why = refusal ?? `no route of ${config.maxDepth} call(s) from ${applier.nameOf(start) ?? 'this start'} reaches a goal`;
+      refused.set(why, (refused.get(why) ?? 0) + 1);
+      continue;
+    }
+    const path = line.map((entry) => entry.board);
+    const calls = line.slice(1).map((entry) => entry.call as string);
+    return {
+      ok: true,
+      puzzle: {
+        mode: 'daily',
+        seed,
+        level,
+        poolVersion: config.poolVersion,
+        start,
+        goal: path[path.length - 1],
+        path,
+        // THE DAILY HAS NO OPTION STEPS: its question is "which call moves the set toward the next waypoint", which
+        // is the readings list, not three buttons. `types.ts` says so on the field.
+        steps: [],
+        solution: calls,
+        shortest: config.maxDepth,
+        alternatePath: choice,
+        explored,
+      },
+    };
+  }
+
+  return {
+    ok: false,
+    reason: `${order.length} start formation(s) could open a Daily and none could walk one — ${summarise(refused)}`,
+  };
+}
+
 export function generatePuzzle(config: GeneratorConfig, seed: number, level: LevelSpec, applier: GameApplier): GenerateResult {
   // ONE BASE MIX FOR EVERY DRAW THIS GENERATION MAKES, so the whole puzzle is a function of `(seed, level)`
   // and nothing else. A `Math.random` fallback anywhere, or a second independent stream, would break the
   // property the design rests on — that the same inputs give a byte-identical puzzle.
   const base = seed ^ Math.imul(level.index, 0x9e3779b1);
+
+  // THE DAILY IS A WALK; THE DRILL IS A SEARCH. The mode decides the REGIME rather than a parameter of one algorithm,
+  // because the two are different questions: a Drill asks "which call makes progress towards this board", which needs
+  // a distance map from a goal, and a Daily asks "pass these waypoints", which needs a route and no map at all.
+  if (config.mode === 'daily') return walkDaily(config, seed, base, level, applier);
 
   // ---- 0. WHICH STARTS ARE ON THE TABLE.
   //

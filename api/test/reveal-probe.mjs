@@ -31,7 +31,7 @@ import { seedLocalRegimes, LOCAL_SCHEDULE_VERSION } from '../src/local-regime.ts
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { ROUTES, PLANNED_ENDPOINTS } from '../src/routes.ts';
-import { recordSuccess } from 'dancing-squared-game';
+import { GENERATOR_VERSION, recordSuccess } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
 /**
@@ -235,7 +235,7 @@ console.log('\n== 3. the union of the two sources, because either one alone is a
   // A DAILY IS NOT TAINTED BY A CLAIM, because the Daily has no reveal: there is no "show me the answer" there, and
   // its help is a hint, which is charged. Unranking a real Daily on a meaningless field would be a client muting
   // its own board for nothing.
-  await store.put(publishedDailyKey(LEVEL, DAY), { seed: LOCAL_SCHEDULE[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(LOCAL_SCHEDULE[0].seed, LEVEL) }, null);
+  await store.put(publishedDailyKey(LEVEL, DAY), { seed: LOCAL_SCHEDULE[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(LOCAL_SCHEDULE[0].seed, LEVEL) }, null);
   const solution = puzzleFor(LOCAL_SCHEDULE[0].seed, levelAt(LEVEL), 'daily').puzzle.solution;
   await getPuzzle(read('p5'), deps);
   for (const named of solution) await postDailyMove({ method: 'POST', path: '/daily/move', query: {}, body: { levelIndex: LEVEL, date: DAY, move: 'add', call: named }, headers: { 'x-dev-player': 'p5' } }, deps);

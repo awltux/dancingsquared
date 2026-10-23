@@ -138,8 +138,12 @@ export class DailyScreen {
 
   /** Draw the whole panel from the run's view. */
   show(view: DailyView): void {
+    // THE PROMPT NAMES THE SEQUENCE, not just the goal board: the run is won by passing every waypoint IN ORDER and
+    // ending on the last, so "reach the goal board" describes a rule the mode no longer has (a shortcut to the final
+    // arrangement does not finish). The count comes from the view so the sentence cannot drift from the sequence.
+    const goal = view.goalName ? ` — the goal is ${view.goalName}` : '';
     this.els.prompt.textContent = view.outcome === 'playing'
-      ? `Reach the goal board${view.goalName ? ` — the goal is ${view.goalName}` : ''}.`
+      ? `Pass all ${view.waypoints.length} waypoints in order, ending on the goal board${goal}.`
       : view.outcome === 'solved'
         ? 'Solved. That is the run.'
         : 'Given up — you can still replay both lines below.';

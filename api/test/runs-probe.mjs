@@ -24,7 +24,7 @@ import { localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.t
 import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { finishDrill } from '../src/drill-regime.ts';
-import { MAIN_POOL, DAILY_DEPTH, SCORE_VERSION, scoreRun } from 'dancing-squared-game';
+import { GENERATOR_VERSION, MAIN_POOL, SCORE_VERSION, dailyWaypointsFor, scoreRun } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 import { LOCAL_SCHEDULE_VERSION } from '../src/local-regime.ts';
 
@@ -329,7 +329,7 @@ console.log('\n== 6. the two hint rules, from the server side ==');
   // charged, which is the half of the old rule that let a client buy time it had not paid for.
   const date = DAY;
   const published = puzzleFor(four[0].seed, levelAt(LEVEL), 'daily');
-  await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(four[0].seed, LEVEL) }, null);
+  await store.put(publishedDailyKey(LEVEL, date), { seed: four[0].seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(four[0].seed, LEVEL) }, null);
   const line = published.puzzle.solution;
   await startDaily(deps, 'r6', LEVEL, date, 30);
   await recordLine(deps, 'r6', LEVEL, date, line);
@@ -350,7 +350,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const { store, deps } = await fresh();
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
   const generated = puzzleFor(seed, levelAt(LEVEL), 'daily');
-  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
+  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
 
   await startDaily(deps, 'r7', LEVEL, DAY, 10);
   // THE LINE IS THE SERVER'S NOW (A22's Daily half): it is replayed from the recorded moves, so the probe plays them
@@ -393,7 +393,7 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   // A DAILY THE SERVER NEVER SAW START CANNOT BE TIMED, so it is refused rather than measured from nothing — and
   // the READ is what makes the same submission scorable, which is the pair this endpoint's contract is.
   const otherDay = '2026-10-16';
-  await store.put(publishedDailyKey(LEVEL, otherDay), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
+  await store.put(publishedDailyKey(LEVEL, otherDay), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
   const unread = await postRun(submit('r7', { runId: 'd-6', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(unread.status === STATUS.conflict && unread.body.error.code === 'no_attempt_row', `a Daily nobody read is refused (${unread.status} ${unread.body.error?.code})`);
   await startDaily(deps, 'r7', LEVEL, otherDay, 10);
@@ -401,13 +401,24 @@ console.log('\n== 7. the Daily: walked, priced on its line, timed by the READ, a
   const read = await postRun(submit('r7', { runId: 'd-6b', mode: 'daily', levelIndex: LEVEL, date: otherDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
   check(read.status === STATUS.ok, `while the same run is scorable after the read that starts it (${read.status})`);
 
+  // A DAY PUBLISHED BY ANOTHER BUILD IS REFUSED HERE, and the refusal is the WRITE side of the read's `playable: false`.
+  // The row carries the boards, so this build regenerates a different puzzle from the same seed: scoring the line on
+  // boards the player never saw would refuse a solved run for "not solved", which is the worst answer available. The
+  // check runs BEFORE the attempt row is looked at, so a player who never read it still learns the right reason.
+  const oldBuildDay = '2026-10-17';
+  await store.put(publishedDailyKey(LEVEL, oldBuildDay), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: 'g6', puzzle: builtDaily(seed, LEVEL) }, null);
+  const oldBuild = await postRun(submit('r7', { runId: 'd-6c', mode: 'daily', levelIndex: LEVEL, date: oldBuildDay, elapsedSeconds: 10, hintsUsed: 0, calls: generated.puzzle.solution }), deps);
+  check(oldBuild.status === STATUS.conflict && oldBuild.body.error.code === 'stale_generator', `a day published by another generator is refused, naming the stamp (${oldBuild.status} ${oldBuild.body.error?.code})`);
+  check((oldBuild.body.error?.message ?? '').includes('publish-daily'), `and the message names the job that fixes it (${oldBuild.body.error?.message?.slice(0, 40)}…)`);
+
   // A LINE THAT STOPS SHORT needs a puzzle with more than one call in its solution — and NOW EVERY DAILY HAS ONE,
-  // because the Daily is `DAILY_DEPTH` calls at every level (DESIGN.md §9). This used to have to run at level 2
-  // because level 1's Daily was a single call; that is no longer possible, which is the point of the change.
+  // because a level's Daily is `dailyWaypointsFor(level) - 1` calls: five waypoints at level 1, which is four calls
+  // (DESIGN.md §9). This used to have to run at level 2 because level 1's Daily was a single call; that is no longer
+  // possible, which is the point of the change.
   const level2Seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === 2).seed;
-  await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(level2Seed, 2) }, null);
+  await store.put(publishedDailyKey(2, DAY), { seed: level2Seed, levelIndex: 2, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(level2Seed, 2) }, null);
   const twoSteps = puzzleFor(level2Seed, levelAt(2), 'daily');
-  check(twoSteps.puzzle.solution.length === DAILY_DEPTH, `the level-2 challenge has a ${DAILY_DEPTH}-call solution (${twoSteps.puzzle.solution.length})`);
+  check(twoSteps.puzzle.solution.length === dailyWaypointsFor(levelAt(2)) - 1, `the level-2 challenge has a ${dailyWaypointsFor(levelAt(2)) - 1}-call route, one per waypoint beyond the first (${twoSteps.puzzle.solution.length})`);
   await startDaily(deps, 'r7', 2, DAY, 10);
   // THE RECORDED LINE IS THE SHORT ONE, so the claim below matches the log and the refusal comes from the WALK: the
   // line really does stop short of the goal. That is this check's original purpose, with the line the server holds.

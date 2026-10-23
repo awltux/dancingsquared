@@ -34,19 +34,31 @@
 // 2. DEPTH 3 STILL NEEDS A POOL OF AT LEAST 20, and that is a HARD floor rather than a cost — the one finding the
 //    start-board change did NOT move. RE-MEASURED over the same start set: at pools 10 and 15, 0 of 5 seeds find a
 //    named board reachable in exactly three calls from ANY of the level's formations (those pools declare two named
-//    ones); at pool 20, 5 of 5 do. This is why `BASE_POOL` is well above the 10 the design first proposed: the Daily
-//    is asked in three calls (DESIGN.md §9), so every level has to be able to answer in three.
+//    ones); at pool 20, 5 of 5 do. That is why `BASE_POOL` is well above the 10 the design first proposed: while the
+//    Daily was a three-call SEARCH, every level had to be able to answer in three.
+//
+//    THE FLOOR NO LONGER HAS A READER, and it is recorded rather than kept. When the Daily became a WAYPOINT WALK
+//    (see `DAILY_WAYPOINTS_MIN` below) nothing in the tree searches to depth 3 any more — the Drill's `MAX_DEPTH` is
+//    2 — so the exported `DEPTH3_MIN_POOL` was deleted in the same commit: a fact nothing reads is a fact that goes
+//    stale in silence, and this paragraph is where the measurement now lives if the Daily ever returns to a search.
 //
 // 3. DEPTH 3 IS EXPENSIVE — 0.4 s at pool 20 rising to ~4.9 s at pool 55 — and it used to be the reason the ladder
 //    stopped at depth 2, because the CLIENT generated. It does not any more (DESIGN.md §9: the serving layer
-//    generates, the client applies), so depth 3 is a publish-time cost with a cache in front of it — and the Daily's
-//    publisher is a midnight trigger (DESIGN.md §9), which is what makes that the right place for it. IT GOT MORE
+//    generates, the client applies), so depth 3 was a publish-time cost with a cache in front of it — and the Daily's
+//    publisher is a midnight trigger (DESIGN.md §9), which is what made that the right place for it. IT GOT MORE
 //    EXPENSIVE with the start-board change and the re-measurement above says by how much: 5 seeds of 5 at pool 20
 //    worst-case **1.6 s** (was 0.42 s), at pool 25 **2.1 s**, at the shipped level-1 pool **4.0 s** — because a
-//    generation now tries the level's formations in order until one yields a puzzle. WHAT SHIPPED: the Drill keeps
-//    `MAX_DEPTH = 2` (its questions are one call at L1 and two after, which is what a three-button question is for),
-//    and the DAILY is asked in `DAILY_DEPTH = 3` calls at every level, which is the "multi-call, at least three" the
-//    mode was specified with.
+//    generation tries the level's formations in order until one yields a puzzle. WHAT SHIPPED AT THE TIME: the Drill
+//    keeps `MAX_DEPTH = 2` (its questions are one call at L1 and two after, which is what a three-button question is
+//    for), and the Daily was asked in `DAILY_DEPTH = 3` calls at every level, which was the "multi-call, at least
+//    three" the mode was specified with. `DAILY_DEPTH` IS GONE; the Daily's length is a waypoint count now.
+//
+//    AND THE SEARCH DOES NOT SCALE PAST IT, which is why the Daily is a walk now rather than a deeper search.
+//    MEASURED on the same 5 seeds at the shipped level-1 pool: depth 3 generates 5 of 5 in ~0.2 s, **depth 4 in
+//    4.9 s/seed** (5 of 5), **depth 5 in 35 s/seed** (5 of 5), and depth 6 did not finish inside a ten-minute cap.
+//    Those are also the lengths a 5-10 waypoint Daily would need if it stayed "a board exactly N calls away" — and
+//    even at 35 s per level the deepest of them would give at most six waypoints once consecutive repeats collapse.
+//    So the Daily is not a search at all: `generator.ts` WALKS the route, one arrangement at a time.
 //
 // All three findings are recorded as corrections to DESIGN.md §5, with these numbers.
 
@@ -64,8 +76,9 @@ import type { LevelSpec } from './types.ts';
  * California Twirl 1, Cast Off 3/4 3. `test/pool-probe.mjs` pins that the shipped boundary splits no family,
  * so re-curating the order cannot quietly half-teach one again.
  *
- * IT IS ALSO WELL ABOVE `DEPTH3_MIN_POOL`, which finding 2 requires: a level that cannot be asked a three-call
- * question cannot carry the Daily at all, and the design's original "L1 is 10 calls" could not answer one.
+ * IT IS ALSO WELL ABOVE THE 20-TITLE FLOOR A THREE-CALL SEARCH NEEDED (finding 2), which the Daily no longer performs
+ * — but a ladder whose floor needed 20 for a reason that has since gone away is still a ladder the corpus can fill,
+ * and moving it is a teaching decision, not a leftover.
  */
 export const BASE_POOL = 57;
 
@@ -82,13 +95,37 @@ export const POOL_STEP = 4;
 export const MAX_DEPTH = 2;
 
 /**
- * The deepest solution the DAILY asks for, at EVERY level — "always multi-call, at least three" (DESIGN.md §9).
+ * THE DAILY'S LENGTH, IN WAYPOINTS: 5 at level 1, one more every `DAILY_WAYPOINTS_PER_LEVEL` levels, capped at 10.
  *
- * IT IS NOT ON THE LEVEL, deliberately: a level's `depth` is the Drill's question length, and the Daily's is a
- * property of the mode. Two numbers on one type would be two things to keep in step, and the one that drifted would
- * be the Daily's silently.
+ * REPORTED: "The last generated daily was only 2 waypoints. Thats not challenging enough for a daily. It should be
+ * from 5 to 10 waypoints." THE COUNT WAS A SIDE EFFECT, and that is the defect: the Daily asked for a board exactly
+ * three calls away and then DERIVED its waypoints from that route, so the length was whatever the collapse of
+ * consecutive equal arrangements left — MEASURED over 24 level-1 seeds: **2 waypoints on 1, 3 on 4, 4 on 19**, and the
+ * day that was reported (2026-10-23, level 1) was the two: `Tidal Line RH`, then `Eight Chain Thru` three times
+ * running, with the goal ONE call from the start (`Cast Off Three Quarters` and then `Box the Gnat` twice). Rising the
+ * call depth cannot fix it — see finding 3 above: 4.9 s/seed at depth 4, 35 s/seed at depth 5, and depth 6 unfinished
+ * in ten minutes, for at most six waypoints.
+ *
+ * SO THE COUNT IS NOW THE QUESTION AND THE ROUTE IS BUILT TO IT (generator.ts's walk): the ladder says how many
+ * waypoints, the walk produces exactly that many distinct arrangements, and `depth` is the implied CALL count
+ * (waypoints - 1), which is also `puzzle.shortest` — the fewest calls that can pass every waypoint in order, because a
+ * call can stand the set in one arrangement at a time.
+ *
+ * WHY IT GROWS BY LEVEL RATHER THAN BEING A SEEDED DRAW IN 5..10. A seed-drawn count would make the same level a
+ * five-waypoint puzzle on Monday and a nine on Tuesday, which prices two players' Dailies against the same board on
+ * different amounts of work; the level is the one number every player at a level shares, so the length belongs to it.
+ * `PER_LEVEL` IS CHOSEN, not measured: one more waypoint every four levels reaches the cap at level 21, which is a
+ * third of the 65 levels the corpus can fill (`api/src/levels.ts`'s `publishableLevels`, MEASURED at 1..65), so the
+ * top of the ladder has room to be the top.
  */
-export const DAILY_DEPTH = 3;
+export const DAILY_WAYPOINTS_MIN = 5;
+export const DAILY_WAYPOINTS_MAX = 10;
+export const DAILY_WAYPOINTS_PER_LEVEL = 4;
+
+/** How many waypoints a level's Daily asks for. Total and closed-form, like the rest of the ladder. */
+export function dailyWaypointsFor(level: LevelSpec): number {
+  return Math.min(DAILY_WAYPOINTS_MAX, DAILY_WAYPOINTS_MIN + Math.floor((level.index - 1) / DAILY_WAYPOINTS_PER_LEVEL));
+}
 
 /**
  * The smallest pool at which a 3-option question generates. See finding 1 above.
@@ -100,15 +137,6 @@ export const DAILY_DEPTH = 3;
  * `BASE_POOL` — so this is a documented boundary rather than something a player can reach.
  */
 export const THREE_OPTION_MIN_POOL = 5;
-
-/**
- * The smallest pool at which a three-call puzzle generates at all. See finding 2 above.
- *
- * UNMOVED by the start-board change, and re-measured to say so: 0 of 5 seeds at pools 10 and 15 (from any of the two
- * named formations those pools declare), 5 of 5 at pool 20. This is the floor `BASE_POOL` has to clear, because the
- * Daily asks three calls at every level.
- */
-export const DEPTH3_MIN_POOL = 20;
 
 /**
  * How many drills a level holds — the whole of a level's block, 10×10 (DESIGN.md §15 Q17(v)).
@@ -151,16 +179,20 @@ export function levelSpec(index: number): LevelSpec | null {
 }
 
 /**
- * The level as the DAILY asks it: the same pool, `DAILY_DEPTH` calls.
+ * The level as the DAILY asks it: the same pool, one call per waypoint beyond the first.
  *
  * WHY A FUNCTION RATHER THAN A FIELD OR A SECOND LADDER. The Daily and the Drill are one progression — a player's
- * level is one number — but they ask different-length questions, and the generator takes the depth from the spec it
- * is handed. So the depth is applied at the boundary where a puzzle is generated for a mode, which is also where
- * the seed and the cache key are decided (`api/src/levels.ts`), rather than being carried on the level for every
- * reader to ignore.
+ * level is one number — but they ask different questions, and the generator takes the length from the spec it is
+ * handed. So the length is applied at the boundary where a puzzle is generated for a mode, which is also where the
+ * seed and the cache key are decided (`api/src/levels.ts`), rather than being carried on the level for every reader
+ * to ignore.
+ *
+ * `depth` IS THE ROUTE'S CALL COUNT IN BOTH MODES, which is what keeps one field honest for two regimes: a Drill's
+ * depth is the number of one-call steps, and a Daily's is the number of waypoints minus one — the calls a walk of
+ * that many arrangements takes, and the fewest that can pass them all.
  */
 export function dailySpec(level: LevelSpec): LevelSpec {
-  return { ...level, depth: DAILY_DEPTH };
+  return { ...level, depth: dailyWaypointsFor(level) - 1 };
 }
 
 /** The first `n` levels, for a census or a UI. Stops where `levelSpec` would return null. */

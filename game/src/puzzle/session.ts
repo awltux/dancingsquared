@@ -2,9 +2,17 @@
 // goal has been reached.
 //
 // PURE OVER ITS INPUTS. The session holds no sequencer; it asks an injected `GameApplier` for the moves
-// available from a board, and it asks the engine's rule (`sameBoardById`) whether a board is the goal.
-// That is what lets a probe drive a whole session with a stub and no corpus, and it is why the numbers
-// here carry no timing or I/O.
+// available from a board, and it asks the rule (`reachesGoal` for the board, `waypointReached` for the sequence)
+// whether the run is won. That is what lets a probe drive a whole session with a stub and no corpus, and it is
+// why the numbers here carry no timing or I/O.
+//
+// THE DAILY IS WON BY THE WAYPOINTS, NOT BY THE FINAL BOARD. The goal board alone was the rule until the Daily
+// became a sequence: the puzzle's goal is the LAST waypoint, and a line that reaches that arrangement without
+// standing in the ones before it has not solved it — REPORTED, after a generated Daily turned out to be two
+// waypoints with the goal one call from the start, so the "challenge" was a single call and two presses of the same
+// call. So `atGoal` requires both: the board is the goal's arrangement AND every waypoint was passed IN ORDER. The
+// count is derived from the move stack (`playedBoards`), so an undo rewinds it and it cannot disagree with the line
+// the server replays.
 //
 // WHAT IS DELIBERATELY NOT HERE:
 //   * No SCORE. Scoring is `score.ts`'s, and the session does not know about time or hints — it records
@@ -12,15 +20,14 @@
 //   * No HINT STATE. `hint()` computes a suggestion; whether the player took it is the game's business
 //     (and the server's, per DESIGN.md 10's ledger), not the session's.
 //
-// THE DISTANCE MAP IS BFS FROM THE GOAL, per board, memoised. DESIGN.md 7 describes the generator's
-// forward BFS as the source of the distance map, and for the INTENDED PATH it is — but the player may
-// stand on a board the generator never visited, and a hint has to be right from THERE. A reverse BFS
-// from the goal answers for any board, and it is bounded by the allowance: anything further away than
-// the allowance cannot be on a winning line anyway, so the search stops rather than exploring a
-// corridor of states nobody can use.
+// THE HINT AIMS AT THE NEXT WAYPOINT. It used to run a reverse BFS from the goal, which both cost 79-91 s for the
+// table (ONE build at the level-1 pool) and, once the sequence gated the run, could name a call that walked PAST the
+// waypoint the player still had to stand in. See `hint` for the search that replaced it.
 
-import { boardSig, type Board } from 'dancing-squared-engine';
-import { MOVE_ALLOWANCE_CUSHION, NODE_BUDGET } from './config.ts';
+import type { Board } from 'dancing-squared-engine';
+import { arrangementKey, waypointBoards, waypointReached } from './arrangement.ts';
+import { HINT_SEARCH_DEPTH, HINT_SEARCH_NODES, MOVE_ALLOWANCE_CUSHION } from './config.ts';
+import { poseKey } from './pose-key.ts';
 import type { GameApplier, Move, MoveReading, Puzzle, Refusal } from './types.ts';
 
 /** One move the player made, with the board it was played from, so an undo can restore exactly. */
@@ -59,15 +66,13 @@ export class PlaySession {
   private readonly history: Played[] = [];
   private readonly redoStack: Played[] = [];
   /**
-   * The reverse-BFS tables, keyed by the goal's signature — INJECTABLE, and that is a measured correction.
+   * THE SEQUENCE THE RUN IS WON BY: the puzzle's route as ARRANGEMENTS, the start first and the goal last.
    *
-   * THE TABLE IS THE EXPENSIVE PART OF A HINT: it walks the goal's backward cone with `applier.offered` at every
-   * board. MEASURED at the shipped level-1 pool (57 titles), ONE build is **79-91 s**, and the cache used to live
-   * only on this object — so the server, which builds a session per hint spend, rebuilt it for EVERY hint and
-   * `api/test/hint-event-probe.mjs` took 770 s. The session is per-line; the table is per PUZZLE, and a caller
-   * that serves more than one line from the same puzzle has to be able to share it.
+   * DERIVED FROM `puzzle.path` RATHER THAN A SECOND FIELD, and collapsed by `waypointBoards` for the reason that
+   * function gives: a call that leaves the set in the arrangement it was already in has reached no new waypoint. A
+   * generated Daily never produces such a step, so its list is exactly as long as the level asked for.
    */
-  private readonly distanceCache: Map<string, Map<string, number>>;
+  private readonly waypointKeys: string[];
   private readonly puzzle: Puzzle;
   private readonly applier: GameApplier;
   /** How many calls beyond the shortest the player may use. DESIGN.md 9's move allowance. */
@@ -81,12 +86,11 @@ export class PlaySession {
    * alternative is a build step whose output could disagree with what is type-checked, the long form is
    * the one that keeps the source loadable AND checked.
    */
-  constructor(puzzle: Puzzle, applier: GameApplier, allowance?: number, distanceCache?: Map<string, Map<string, number>>) {
+  constructor(puzzle: Puzzle, applier: GameApplier, allowance?: number) {
     this.puzzle = puzzle;
     this.applier = applier;
     this.budget = allowance ?? puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
-    // THE DEFAULT IS A PRIVATE TABLE, which is what a single line wants; a server passes one it keeps per puzzle.
-    this.distanceCache = distanceCache ?? new Map();
+    this.waypointKeys = waypointBoards(puzzle.path).map(arrangementKey);
   }
 
   // ------------------------------------------------------------------ reading
@@ -116,8 +120,28 @@ export class PlaySession {
     return Math.max(0, this.budget - this.history.length);
   }
 
+  /**
+   * Whether the run is WON: the board is the goal's arrangement AND every waypoint has been passed, in order.
+   *
+   * THE SECOND HALF IS THE SEQUENCE, and it is what makes a Daily a route rather than a target: a line that lands on
+   * the last waypoint's arrangement from somewhere else has skipped the puzzle. `waypointReached` counts the
+   * arrangements `playedBoards()` has stood in, monotonically, so a player who wanders off and comes back keeps what
+   * they passed — which is what free undo and a wasted-call price are for.
+   *
+   * A PUZZLE WHOSE ROUTE IS ONLY ITS GOAL (`keys.length <= 2`, which includes a `path` of one board or none) says
+   * nothing more than "reach the goal board", so that is the whole of the rule there — the same test as before the
+   * sequence existed. A generated Daily always has at least 5 waypoints, so this is the hand-built case.
+   */
   atGoal(): boolean {
-    return this.applier.reachesGoal(this.board, this.puzzle.goal);
+    if (!this.applier.reachesGoal(this.board, this.puzzle.goal)) return false;
+    const keys = this.waypointKeys;
+    if (keys.length <= 2) return true;
+    return waypointReached(keys.slice(1), this.keysPlayed()) === keys.length - 1;
+  }
+
+  /** The arrangements the set has stood in, in order — the start first, then each move's arrival. */
+  private keysPlayed(): string[] {
+    return this.playedBoards().map(arrangementKey);
   }
 
   view(): SessionView {
@@ -215,62 +239,88 @@ export class PlaySession {
     return true;
   }
 
-  // ------------------------------------------------------------------ distance and the hint
+  // ------------------------------------------------------------------ the hint
 
   /**
-   * The distance from `board` to the goal, or null when it is further than the allowance.
+   * The arrangement the run must reach next, or null when the sequence is complete (or the puzzle has none).
    *
-   * WHY A REVERSE BFS RATHER THAN THE GENERATOR'S MAP. `boardSig` is positions-only, so the
-   * generator's map cannot distinguish two facing-different boards that share a signature — and the
-   * engine's own goal test does. A distance looked up from a signature map could therefore report a
-   * board as "one away" when its FACING is wrong. This search keys on the signature too (it must, or it
-   * would not terminate on a continuous state space), but it stops at the allowance and it is only ever
-   * a HINT, never the correctness test — `atGoal` is the engine's rule.
+   * THE START IS WAYPOINT 1 AND IS REACHED BY STANDING ON IT, so what counts here is the waypoints after it — the same
+   * `slice(1)` the Daily's progress readout uses. A complete sequence returns null rather than the goal, because a
+   * player who has passed every waypoint has nowhere further to be told to go.
    */
-  distanceToGoal(board: Board = this.board): number | null {
-    const goalSig = boardSig(this.puzzle.goal);
-    let table = this.distanceCache.get(goalSig);
-    if (!table) {
-      table = new Map<string, number>([[goalSig, 0]]);
-      let frontier: Board[] = [this.puzzle.goal];
-      let budget = NODE_BUDGET;
-      for (let d = 1; d <= this.allowance && frontier.length && budget > 0; d++) {
-        const next: Board[] = [];
-        for (const b of frontier) {
-          for (const move of this.applier.offered(b)) {
-            if (budget-- <= 0) break;
-            const sig = boardSig(move.board);
-            if (table.has(sig)) continue;
-            table.set(sig, d);
-            next.push(move.board);
-          }
-          if (budget <= 0) break;
-        }
-        frontier = next;
-      }
-      this.distanceCache.set(goalSig, table);
-    }
-    const d = table.get(boardSig(board));
-    return d === undefined ? null : d;
+  private nextWaypointKey(): string | null {
+    const keys = this.waypointKeys;
+    if (keys.length === 0) return null;
+    const reached = waypointReached(keys.slice(1), this.keysPlayed());
+    return reached + 1 < keys.length ? keys[reached + 1] : null;
   }
 
   /**
-   * A call that makes progress, chosen from what is offered NOW: the offered move whose ending is one
-   * step closer to the goal.
+   * A call that moves the set towards the arrangement `target`, or null when none was found inside the budget.
    *
-   * TIES BREAK BY THE OFFER ORDER, which the applier defines and which the generator sorts by name —
-   * so the same board and the same level give the same hint on both sides of the wire, which is what
-   * lets the server check a claimed hint instead of trusting it (DESIGN.md 11). A tie broken by object
-   * iteration order would make that check impossible.
+   * A FORWARD BREATH-FIRST WALK THAT STOPS ON THE TARGET, and its cost is why: the common case is that the next
+   * waypoint is ONE call away — that is where the generator put it — so the first pass answers from the offer list
+   * that `hint` had to compute anyway, and the traversal is never entered. MEASURED at the shipped level-1 pool: one
+   * `offered` is ~1.7 ms, so one pass is [the p60 of the hint's own measurement] and the fallback budget below is
+   * what bounds a player who has wandered far from the route.
+   *
+   * THE SEARCH KEYS BOARDS BY `poseKey`, never `boardSig`: positions-only is trap 11, and MEASURED the first version of
+   * this search deduped by signature — so the route's own next board, which shares its POSITIONS with a sibling and
+   * differs only in FACING, was dropped as a duplicate and the search walked on until its budget ran out (4621 ms for a
+   * hint that was one call away). The target test is `arrangementKey`, the same equivalence a waypoint uses, so the
+   * answer cannot be a call that satisfies the display and not the sequence.
+   */
+  private stepToward(target: string, offered: readonly Move[]): string | null {
+    // THE FIRST CALL IS PART OF THE ANSWER, so the frontier carries it rather than re-deriving a path at the end.
+    const seen = new Set<string>();
+    let frontier: { first: string; board: Board }[] = [];
+    for (const move of offered) {
+      const pose = poseKey(move.board);
+      if (seen.has(pose)) continue;
+      seen.add(pose);
+      frontier.push({ first: move.call, board: move.board });
+    }
+    let expanded = 0;
+    for (let depth = 1; depth <= Math.min(this.movesLeft, HINT_SEARCH_DEPTH) && frontier.length > 0; depth++) {
+      const next: { first: string; board: Board }[] = [];
+      for (const node of frontier) {
+        if (arrangementKey(node.board) === target) return node.first;
+        if (expanded++ >= HINT_SEARCH_NODES) return null;
+        for (const move of this.applier.offered(node.board)) {
+          const pose = poseKey(move.board);
+          if (seen.has(pose)) continue;
+          seen.add(pose);
+          next.push({ first: node.first, board: move.board });
+        }
+      }
+      frontier = next;
+    }
+    return null;
+  }
+
+  /**
+   * A call that makes progress towards the NEXT WAYPOINT, chosen from what is offered NOW.
+   *
+   * WHY THE TARGET IS THE NEXT WAYPOINT AND NOT THE GOAL: the run is won by passing the waypoints in order, so a hint
+   * aimed at the goal board can name a call that walks PAST the one the player still has to stand in — advice that
+   * makes the puzzle longer. REPORTED together with the sequence rule itself.
+   *
+   * TIES BREAK BY THE OFFER ORDER, which the applier defines and which the generator sorts by name — so the same board
+   * and the same level give the same hint on both sides of the wire, which is what lets the server check a claimed
+   * hint instead of trusting it (DESIGN.md 11). A tie broken by object iteration order would make that check
+   * impossible, and `stepToward` inherits the order from the list it was handed.
+   *
+   * NULL IS AN ANSWER in two states, both honest: nothing is offered (a dead end), and the allowance is spent (no call
+   * may be played, so naming one would point at a button that refuses). Otherwise the first offered call is the
+   * fallback, because a legal call is a better answer than none.
    */
   hint(): string | null {
-    const here = this.distanceToGoal();
     const offered = this.offered();
-    if (offered.length === 0) return null;
-    if (here === null) return offered[0].call;
-    for (const move of offered) {
-      if (this.distanceToGoal(move.board) === here - 1) return move.call;
-    }
-    return offered[0].call;
+    if (offered.length === 0 || this.movesLeft === 0) return null;
+    const target = this.nextWaypointKey();
+    // NO TARGET LEFT: every waypoint has been passed, which is a run that has already been won — so a hint has nothing
+    // to point at and the first legal call is the honest answer.
+    if (target === null) return offered[0].call;
+    return this.stepToward(target, offered) ?? offered[0].call;
   }
 }

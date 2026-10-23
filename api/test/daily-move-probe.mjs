@@ -24,7 +24,7 @@ import { MemoryStore } from '../src/store/memory.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { asAttempt } from '../src/attempt-row.ts';
 import { MAX_DAILY_MOVES } from '../src/daily-line.ts';
-import { PlaySession } from 'dancing-squared-game';
+import { GENERATOR_VERSION, PlaySession } from 'dancing-squared-game';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
 
 /**
@@ -68,7 +68,7 @@ async function fresh() {
   const store = new MemoryStore();
   await seedLocalRegimes(store);
   const seed = LOCAL_SCHEDULE.find((entry) => entry.levelIndex === LEVEL).seed;
-  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
+  await store.put(publishedDailyKey(LEVEL, DAY), { seed, levelIndex: LEVEL, poolVersion: FIXTURE_POOL_VERSION, generatorVersion: GENERATOR_VERSION, puzzle: builtDaily(seed, LEVEL) }, null);
   const generated = puzzleFor(seed, levelAt(LEVEL), 'daily');
   if (!generated.ok) throw new Error(`the probe's seed does not generate: ${generated.reason}`);
   return { store, deps: depsFor(store), puzzle: generated.puzzle, line: generated.puzzle.solution };

@@ -170,10 +170,10 @@ const SUITE = [
   // run beside it, and that the arrangement canonicalisation is the formation one plus a suffix - which is what
   // keeps them one mechanism. Milliseconds: synthetic boards only.
   { h: 'arrangement-id', light: true },
-  // The corpus figures `arrangement-id.ts` cites, measured rather than asserted: 198 shapes against 242
-  // arrangements, 18 of 1,730 groups split by gender, and 115 authorings that end on their own shape in a
-  // different arrangement - the number a formation-only state model cannot see.
-  { h: 'arrangement-census', light: false, why: 'builds every authoring start in ms+plus (1,771 calls, ~4 min)' },
+  // The three identities over the whole corpus: 198 shapes, 242 arrangements, 1,730 variants (38 authored more
+  // than once), every start shape covered by the roots ledger, and NO two variants minting one id. This is the
+  // only place the key space exists as a whole, so it is the only place a collision could be seen.
+  { h: 'identity-census', light: false, why: 'builds every authoring start in ms+plus (1,771 calls, ~4 min)' },
   // THE CALL-VARIANT IDENTITY: (level, call title, formation ROOT). Pins the three inputs, the fold (case and
   // whitespace only, with a fraction-stripping fold run beside it as the control), the ledger walk including a
   // chain and a cycle, and - the whole point of the root - that a formation edit re-keys the FORMATION id while

@@ -120,12 +120,25 @@ const STEPS = 16;
  * alone, and a board's dancers are the same shapes in whatever order they arrived in.
  */
 export function formationCanonical(board: Board): string {
+  return canonicalOf(board);
+}
+
+/**
+ * The same serialisation with ONE ADDITIONAL SYMBOL PER DANCER, which is how the arrangement id shares this
+ * mechanism rather than copying it (see `arrangement-id.ts`).
+ *
+ * THE EXTRA SYMBOL IS A SUFFIX, AND THE SORT IS BY GEOMETRY FIRST. Sorting the record *with* its suffix would
+ * let a gender reorder two spots that share a coordinate, and then "the arrangement with gender stripped"
+ * would no longer be the formation - a property `test/arrangement-id.mjs` pins, because it is what keeps the
+ * two schemes one mechanism instead of two that drift.
+ */
+export function canonicalOf(board: Board, extra?: (d: Board['dancers'][number]) => string): string {
   const step = (h: number): number => {
     const k = Math.round(h / FORMATION_ID_HEADING_STEP) % STEPS;
     return (k + STEPS) % STEPS;
   };
   const q = (v: number): number => Math.round(v / FORMATION_ID_GRID);
-  const spots = board.dancers.map((d) => ({ x: q(d.x), y: q(d.y), h: step(d.heading) }));
+  const spots = board.dancers.map((d) => ({ x: q(d.x), y: q(d.y), h: step(d.heading), extra: extra ? extra(d) : '' }));
   let best: string | null = null;
   for (let turn = 0; turn < 4; turn++) {
     const turned = spots.map(({ x, y, h }) => {
@@ -136,7 +149,12 @@ export function formationCanonical(board: Board): string {
     });
     const minX = Math.min(...turned.map((p) => p.x));
     const minY = Math.min(...turned.map((p) => p.y));
-    const key = turned.map((p) => `${p.x - minX},${p.y - minY},${p.h}`).sort().join('|');
+    const records = turned.map((p, i) => ({
+      geom: `${p.x - minX},${p.y - minY},${p.h}`,
+      extra: spots[i].extra,
+    }));
+    records.sort((a, b) => (a.geom < b.geom ? -1 : a.geom > b.geom ? 1 : a.extra < b.extra ? -1 : a.extra > b.extra ? 1 : 0));
+    const key = records.map((r) => (r.extra ? `${r.geom},${r.extra}` : r.geom)).join('|');
     if (best === null || key < best) best = key;
   }
   // THE DANCER COUNT IS PART OF THE KEY, so a four-dancer corner and an eight-dancer set cannot collide by

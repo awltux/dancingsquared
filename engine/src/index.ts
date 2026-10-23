@@ -80,6 +80,10 @@ export type {
 export {
   formationId,
   formationCanonical,
+  // The canonicaliser the arrangement id shares rather than copies: `canonicalOf(board)` is
+  // `formationCanonical(board)`, and `canonicalOf(board, d => symbol)` is the arrangement's. Exported so a
+  // harness can check that the second IS the first plus a suffix, instead of trusting two implementations.
+  canonicalOf,
   isFormationId,
   FORMATION_ID_VERSION,
   FORMATION_ID_GRID,
@@ -89,6 +93,16 @@ export {
 // Exported so a harness can pin the width arithmetic against the SAME implementation the ids are built from: a
 // second copy of "36^width, reduced, rendered low case" is one edit away from measuring nothing.
 export { ID_ALPHABET, ID_BASE, idSpace, encodeId, isIdOf, fnv1a32, fnv1a64 } from './sequencer/id-code.js';
+// THE ARRANGEMENT IDENTITY: the shape AND where the genders stand. A formation id deliberately ignores gender,
+// which is right for a SHAPE and wrong for every question a gender-specific call asks; see `arrangement-id.ts`
+// for the measurements that size the difference, and `arrangementFor` for the All8 number this is NOT.
+export {
+  arrangementId,
+  arrangementCanonical,
+  isArrangementId,
+  ARRANGEMENT_ID_VERSION,
+  ARRANGEMENT_ID_WIDTH,
+} from './sequencer/arrangement-id.js';
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold
 // the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
 export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';

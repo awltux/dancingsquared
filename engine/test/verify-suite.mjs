@@ -165,6 +165,15 @@ const SUITE = [
   // prefix escaping, and the width fact that forces a 64-bit digest - 36^7 > 2^32, MEASURED as "every 32-bit
   // eight-character id begins with 0" against the 64-bit ids that do not. Milliseconds: no corpus sweep.
   { h: 'id-code', light: true },
+  // THE ARRANGEMENT IDENTITY: the shape AND where the genders stand. Pins the format, the invariances, the two
+  // SPLITS (a gender relabelling, and a permutation that keeps the multiset), each with the plausible wrong rule
+  // run beside it, and that the arrangement canonicalisation is the formation one plus a suffix - which is what
+  // keeps them one mechanism. Milliseconds: synthetic boards only.
+  { h: 'arrangement-id', light: true },
+  // The corpus figures `arrangement-id.ts` cites, measured rather than asserted: 198 shapes against 242
+  // arrangements, 18 of 1,730 groups split by gender, and 115 authorings that end on their own shape in a
+  // different arrangement - the number a formation-only state model cannot see.
+  { h: 'arrangement-census', light: false, why: 'builds every authoring start in ms+plus (1,771 calls, ~4 min)' },
   // THE VIRTUAL CALL: a subwhole-set authoring (2 or 4 written dancers) placed on a whole-set board, gated on the
   // owner's constraint that it must START and END on a formation the engine NAMES — judged by `knownFormation`
   // called from the harness, not by anything the resolver reports about itself. Pins the placement arithmetic

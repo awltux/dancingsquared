@@ -15,11 +15,10 @@ import {
   allPoses,
   computeHandholds,
   sampleTrail,
-  assignHomeIdentity,
   DANCER_WIDTH,
   DANCER_DEPTH,
 } from '../lib/index.js';
-import { C, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, bodySupport, trailSlot, hexOf } from '../lib/board-style.js';
+import { C, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, bodySupport, displayIdOf, trailSlot, hexOf } from '../lib/board-style.js';
 
 // THE PALETTE AND THE MARKER SIZE ARE NOT THIS FILE'S. `board-style.mjs` owns them, because the Node figures
 // draw the same board and the two must not drift - it also carries the body the marker is drawn to, and the
@@ -32,8 +31,8 @@ const AXIS = hexOf(C.axis);
 
 const BEATS_PER_SECOND = 128 / 60; // the program's standard tempo; speeds below slow it down
 
-const colourOf = (d) => hexOf(bodySlot(d));
-const trailOf = (d) => hexOf(trailSlot(d));
+const colourOf = (i) => hexOf(bodySlot(i));
+const trailOf = (i) => hexOf(trailSlot(i));
 
 /**
  * The number drawn on a dancer, from couple and gender.
@@ -94,7 +93,7 @@ function drawBoard(ctx, size, view, state, beat) {
   ctx.lineCap = 'round';
   state.trails.forEach((pts, i) => {
     const upTo = Math.max(1, Math.round(pts.length * fraction));
-    ctx.strokeStyle = trailOf(state.dancers[i]);
+    ctx.strokeStyle = trailOf(i);
     ctx.beginPath();
     for (let k = 0; k < upTo; k++) {
       const p = pts[k];
@@ -137,7 +136,7 @@ function drawBoard(ctx, size, view, state, beat) {
     if (!pose) return;
     const cx = px(pose.x);
     const cy = py(pose.y);
-    const colour = colourOf(d);
+    const colour = colourOf(i);
 
     // THE BODY IS THE ENGINE'S, drawn as the POC and the game draw it: a rectangle for a boy, an ellipse for a
     // girl, DANCER_WIDTH across the facing and DANCER_DEPTH along it, with a white half-disc nose on the front.
@@ -164,7 +163,7 @@ function drawBoard(ctx, size, view, state, beat) {
 
     // THE NUMBER STANDS OUTSIDE THE BODY, because a body 0.45 deep has no room for a legible digit. It is drawn
     // upright (outside the rotation) below the dancer and in ink, so it is readable at every facing.
-    const num = displayId(d);
+    const num = displayIdOf(i);
     if (num) {
       ctx.fillStyle = INK;
       ctx.font = `bold ${Math.round(halfW * 0.85)}px system-ui, sans-serif`;
@@ -218,7 +217,8 @@ async function mount(host) {
   const use = async (file, tamIndex, fit) => {
     bundle = await bundleFor(file, tamIndex);
     if (fit) view = { scale: fit.scale, units: fit.units };
-    dancers = assignHomeIdentity(bundle.dancers);
+    // NO HOME IDENTITY ON A PAGE: the start formation's own dancer order is the identity (board-style.mjs).
+    dancers = bundle.dancers;
     beats = bundle.beats > 0 ? bundle.beats : 1;
     state = { bundle, dancers, beats, trails: bundle.dancers.map((d) => sampleTrail(d, 80)) };
   };

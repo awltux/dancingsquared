@@ -120,20 +120,31 @@ export function hexOf(index) {
 }
 
 /**
- * WHICH COLOUR a dancer's body is drawn in: its home couple where the board has one, and otherwise its gender.
+ * THE BOOK'S IDENTITY IS THE START FORMATION'S DANCER INDEX - there is no home identity on a page.
  *
- * THE GENDER FALLBACK IS THE BOOK'S, NOT THE STAGE'S. `display-couple.ts` answers a pair number for a board with
- * no home identity, which is right for an app you are reading couple numbers off. A teaching page is not: on a
- * board the engine cannot name couples for, "this one is a boy" is the fact the page is about, so that is what
- * the colour says.
+ * Home identity belongs to the POC's sequencer, which has to keep a dancer across a whole tip. A call page shows
+ * ONE call from ONE start formation, so the only stable identity is the position in that formation's own dancer
+ * order: dancer `i` (0-based) is number `i + 1`, and its couple is `floor(i / 2) + 1` - dancers 1+2, 3+4, 5+6,
+ * 7+8. MEASURED before this rule: `assignHomeIdentity` gives a couple to only 8 of the 74 animated boards (a
+ * line, a wave, a column and a T-bone are not a squared set), so the page was colouring 66 of them by gender and
+ * numbering none. The index always exists, it is what the tam's own paths are paired with, and the number follows
+ * the dancer through the animation because the poses come back in the same order.
  */
-export function bodySlot(d) {
-  if (d.couple && C.couple[d.couple]) return C.couple[d.couple];
-  return d.gender === 'girl' ? C.girl : C.boy;
+export function displayIdOf(index) {
+  return index + 1;
 }
 
-/** The trail a dancer leaves: its couple's trail where it has one, the axis colour otherwise. */
-export function trailSlot(d) {
-  if (d.couple && C.trail[d.couple]) return C.trail[d.couple];
-  return C.axis;
+/** The couple a dancer belongs to on the book's rule: `floor(index / 2) + 1`. */
+export function displayCoupleOf(index) {
+  return Math.floor(index / 2) + 1;
+}
+
+/** WHICH COLOUR a dancer's body is drawn in: its couple's, from the start formation's index. */
+export function bodySlot(index) {
+  return C.couple[displayCoupleOf(index)] ?? C.boy;
+}
+
+/** The trail a dancer leaves: its couple's trail, from the same index. */
+export function trailSlot(index) {
+  return C.trail[displayCoupleOf(index)] ?? C.axis;
 }

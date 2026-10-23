@@ -30,7 +30,7 @@ import { loadRoots, makeResolver } from './lib/variants.mjs';
 import { corpusRoot, matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, writePng } from './lib/raster.mjs';
-import { PALETTE, C, MARKER_UNITS, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, trailSlot } from './lib/board-style.mjs';
+import { PALETTE, C, MARKER_UNITS, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, displayIdOf, trailSlot } from './lib/board-style.mjs';
 
 const MAP = join(toolsDir, 'call-map.json');
 const ANIM_DIR = join(toolsDir, '..', 'animations');
@@ -265,7 +265,7 @@ function drawTrails(canvas, view, trails, dancers, fraction) {
   for (let i = 0; i < trails.length; i++) {
     const pts = trails[i];
     const upTo = Math.max(1, Math.round(pts.length * fraction));
-    const colour = trailSlot(dancers[i]);
+    const colour = trailSlot(i);
     for (let k = 0; k + 1 < upTo; k++) {
       canvas.strokeLine(px(view, pts[k].x), py(view, pts[k].y), px(view, pts[k + 1].x), py(view, pts[k + 1].y), 1.8, colour);
     }
@@ -341,12 +341,12 @@ function drawDancers(canvas, view, dancers, poses) {
     const cy = py(view, pose.y);
     canvas.orientedBody(cx, cy, halfW, halfD, -pose.heading, {
       shape: bodyShapeOf(d.gender),
-      colour: bodySlot(d),
+      colour: bodySlot(i),
       outline: C.ink,
       width: ink,
       nose: halfW * NOSE_HALF_OF_SIDE,
     });
-    const num = displayId(d);
+    const num = displayIdOf(i);
     // The number stands OUTSIDE the body, because a body 0.45 deep has no room for a legible digit.
     if (num) {
       const s = Math.max(1, Math.min(8, Math.round(halfW * 0.2)));
@@ -356,7 +356,8 @@ function drawDancers(canvas, view, dancers, poses) {
 }
 /** Render one call to a list of index frames. */
 function framesFor(eng, bundle, site) {
-  const dancers = eng.assignHomeIdentity(bundle.dancers);
+  // NO HOME IDENTITY IN THE BOOK: the start formation's own dancer order is the identity.
+const dancers = bundle.dancers;
   const trails = bundle.dancers.map((d) => eng.sampleTrail(d, SAMPLES));
   const beats = bundle.beats > 0 ? bundle.beats : 1;
   const frames = [];

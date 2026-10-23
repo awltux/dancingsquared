@@ -161,6 +161,18 @@ export const SUITE = [
   // chain and a cycle, and - the whole point of the root - that a formation edit re-keys the FORMATION id while
   // the variant id does not move, with the raw-id call beside it as the negative control. Milliseconds.
   { h: 'call-variant-id', light: true },
+  // WHERE A CURVE HAS A DIRECTION AND WHERE ITS DERIVATIVE HAS NONE. `poseFor` reads a facing curve as a turn,
+  // `angle(t) - departureAngle`, and `bezierAngle` is `atan2` of the derivative — which is `atan2(0, 0) = 0` by
+  // CONVENTION wherever the derivative vanishes (C1 = P0 at a start, C2 = P3 at an end). The datum used to be that
+  // 0, so a curve that starts or ends at rest and points anywhere but +X was read as turning by pi: MEASURED, a
+  // hold (what a partial virtual placement gives every dancer it leaves standing) mirrored about the dancer's own Y
+  // axis read 90, -90 … -90, 90 where a reflection of a no-turn curve must not move it at all. This pins the
+  // constructed witness (the hold, both ends, both axes), the discriminator that separates this rule from "a rested
+  // curve has no turn" (a from-rest curve that really does sweep 135 degrees), the limit against a direction
+  // SAMPLED just inside each end, and a census over every movement curve in the corpus — with the honest half
+  // stated: the corpus cannot exhibit the defect, because all ten of its degenerate-end curves point +X there.
+  // ~1s: 3,301 curves read as text, no engine build and no boards.
+  { h: 'departure-angle', light: true },
   // THE FORMATION-ROOTS LEDGER'S RULES, which are pure and therefore cheap: a new shape is appended rooted at
   // itself, a committed line is never dropped when a shape vanishes, an alias resolves the NEW id to the OLD
   // root, a chain resolves to its end, and an already-rooted id is not re-rooted. The corpus half of the same

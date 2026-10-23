@@ -392,12 +392,17 @@ check(backward + sideways > 0, 'a dancer really does travel while NOT facing the
 // not a restatement of the code. The heading side is the one that matters, because it is where the facing
 // channel and the path tangent meet.
 //
-// THE SECOND TERM IS ZERO FOR EVERY SHIPPED CURVE - all 4128 facing curves and all 5860 moves with no facing
-// start at exactly 0 (`tools/start-facing-probe.mjs`) - so it costs this probe nothing and the corpus cannot
-// say whether it is there. It is there because the two channels are read the same way and MEAN different
-// things: a `rotate` curve is the turn the move makes, a `translate` curve is the direction it departs in,
-// and only the first of those starts at zero. Without it a move with no facing SNAPS to face its own
-// departure direction - 180 degrees for a back-up - instead of continuing the heading it arrived with.
+// THE SECOND TERM IS THE DATUM, and it is READ FROM THE ENGINE rather than restated here, because restating it is
+// how this probe came to agree with a defect. `bezierAngle` is `atan2` of the derivative, so it is
+// `atan2(0, 0) = 0` BY CONVENTION wherever the derivative vanishes — at an end whose control point sits on that
+// end (C1 = P0 for a start at rest, C2 = P3 for an arrival with no exit handle) — and the direction there is the
+// LIMIT, which `departureAngle` / `arrivalAngle` / `curveAngle` compute (`engine/src/core.ts`, pinned against
+// sampled directions by `engine/test/departure-angle.mjs`). MEASURED with this line written the old way
+// (`bezierAngle(b, t) - bezierAngle(b, 0)`): 135 degrees of disagreement at the LAST instant of
+// `c2/wheel_the_ocean.xml` dancer 1 move 3, because the engine applies the move's whole turn there where this
+// prediction applied none. What is checked here is the COMPOSITION — that the stored local curves and (boundary
+// pose + world curve) carry the same information — and that is not a restatement: the truth side composes the
+// chain, the prediction side assumes one rigid frame per move.
 console.log('\n== 6. Is the local (stored) form an exact restatement of the world path? ==');
 let worstPos = 0;
 let worstHead = 0;
@@ -417,10 +422,10 @@ for (const { level, file, call } of calls) {
         const lp = engine.bezierPoint(seg.translate, t);
         const pred = { x: start.x + cos * lp.x - sin * lp.y, y: start.y + sin * lp.x + cos * lp.y };
         const dp = Math.hypot(pred.x - truth.x, pred.y - truth.y);
-        // The predicted heading is the frame's heading plus the local angle profile of the FACING curve,
-        // read as a TURN - see the note above on why its own angle at t=0 is subtracted.
+        // The predicted heading is the frame's heading plus the local angle profile of the FACING curve, read as a
+        // TURN - see the note above on why its datum is subtracted, and why that datum comes from the engine.
         const b = seg.rotate ?? seg.translate;
-        const predHead = norm(start.heading + engine.bezierAngle(b, t) - engine.bezierAngle(b, 0));
+        const predHead = norm(start.heading + engine.curveAngle(b, t) - engine.departureAngle(b));
         const dh = Math.abs(norm(predHead - truth.heading));
         samples++;
         if (dp > worstPos) worstPos = dp;

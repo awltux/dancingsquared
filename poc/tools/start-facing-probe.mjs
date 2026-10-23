@@ -16,11 +16,17 @@
 // sidestep that is a 90 degree flick at the move's start; for a back-up it is 180 degrees, and the dancer
 // ends the move facing backwards having walked backwards, which is the opposite of the dance.
 //
-// THE FIX IS ONE TERM: `bezierAngle(facing, t) - bezierAngle(facing, 0)`. Section 1 measures the property
+// THE FIX IS ONE TERM: `angle(facing, t) - <the direction the curve departs in>`. Section 1 measures the property
 // that makes it a no-op on every shipped call, section 2 proves the corpus is bit-identical under it, and
 // section 3 measures the snap it removes. Section 4 pins the invariant that comes free with it: ticking the
 // panel's `explicit` box - which seeds the new facing curve by COPYING the travel curve - no longer changes
 // the animation, which is what makes that seed defensible.
+//
+// THE DATUM IS `departureAngle`, NOT `bezierAngle(..., 0)`, and that came later: `bezierAngle` is `atan2` of the
+// derivative, so where a curve's derivative VANISHES - an end whose control point sits on that end - it answers
+// 0 by convention whatever the curve does. MEASURED, a curve shaped like a hold read a turn of pi once mirrored
+// (`engine/src/core.ts`, `engine/test/departure-angle.mjs`, which owns that rule and pins it against sampled
+// directions). This probe's section 6 asserts the SOURCE text, so it is the check that has to move with it.
 //
 // RED ON PURPOSE, AND THE OWNER HAS RULED: the two failing checks below assert that NO shipped heading
 // moves - "the corpus only ever walks forward along +X" - and the 2026-10-09 re-authoring of
@@ -237,12 +243,16 @@ console.log('\n== 5. `travel` heading mode is untouched, because absolute IS wha
 console.log('\n== 6. the rule in the source ==');
 {
   const core = fs.readFileSync(path.join(POC_DIR, '..', 'engine/src/core.ts'), 'utf8');
-  check(/const facing = s\.rotate \?\? s\.translate;\s*\n\s*const a = bezierAngle\(facing, tt\) - bezierAngle\(facing, 0\);/.test(core),
-    '`poseFor` reads the facing as a turn: the curve\'s angle at t, less its own angle at t=0');
+  check(/const facing = s\.rotate \?\? s\.translate;\s*\n\s*const a = curveAngle\(facing, tt\) - departureAngle\(facing\);/.test(core),
+    '`poseFor` reads the facing as a turn: the curve\'s angle at t, less the direction the curve departs in');
   check(/A FACING CURVE IS A TURN, AND A TURN STARTS AT ZERO/.test(core),
     'and says so, with the reason the corpus could not tell the difference');
   check(!/const a = bezierAngle\(s\.rotate \?\? s\.translate, tt\);/.test(core),
     'the raw-tangent reading is gone, not merely shadowed');
+  // AND THE DATUM IS NOT A RAW `bezierAngle(..., 0)`: that is the `atan2(0, 0)` the departure rule replaced, and a
+  // curve at rest is exactly what a hold is (`engine/test/departure-angle.mjs`).
+  check(!/const a = .*bezierAngle\(facing, 0\)/.test(core),
+    'and the datum is the departure rule, not `bezierAngle(facing, 0)` - which is `atan2(0, 0)` on a curve at rest');
 }
 
 console.log('\n=================');

@@ -34,7 +34,7 @@ const { callsByTitle } = await import('../../engine/test/lib/engine-calls.mjs');
 const seq = new engine.Sequencer(asset('moves.xml'), asset('formations.xml'), callsByTitle(assets));
 seq.setActiveLevel('ms');
 
-const ID = /^F2-[0-9a-z]{6}$/;
+const ID = /^F3-[0-9a-z]{8}$/;
 
 /** An authored `<tam>`'s START board - the setups `formations.xml` does not carry. */
 const authoringStart = (title, from) => {
@@ -54,7 +54,7 @@ console.log('== 1. the value the panel shows is the engine\'s own ==');
   const keys = seq.boardIdentity(square);
   check(keys.id === engine.formationId(square), `a named board: boardIdentity.id IS formationId(board) (${keys.id})`);
   check(keys.name === 'Static Square', `and it still carries the name (${JSON.stringify(keys.name)})`);
-  check(ID.test(keys.id), 'and the id is the "F2-" six-character shape the panel will print');
+  check(ID.test(keys.id), 'and the id is the "F3-" eight-character shape the panel will print');
 }
 
 console.log('\n== 2. the case the id exists for: a board with no name ==');

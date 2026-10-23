@@ -29,18 +29,16 @@
 // consumer that named the old id keeps resolving. Excluding the title would make two different calls share an
 // id, which is worse than a migration.
 //
-// WHY `V1-` AND EIGHT CHARACTERS. Same reasoning as `arrangement-id.ts`: eight characters need a 64-bit digest
-// (`id-code.ts` carries the arithmetic), and the version marker means a change to the normalisation or the
-// encoding cannot be mistaken for an old id.
+// WHY `V1-` AND EIGHT CHARACTERS. Eight characters is the tree's one payload width since the identity schemes
+// were made consistent (`id-code.ts` owns it), and this scheme is the one that needed it: 1,730 variants today, over
+// ms+plus alone, and the population grows with every level registered. The version marker means a change to the
+// normalisation or the encoding cannot be mistaken for an old id.
 
-import { encodeId, fnv1a64, isIdOf } from './id-code.js';
+import { encodeId, fnv1a64, isIdOf, ID_SCHEMES } from './id-code.js';
 
-/** The scheme marker every call-variant id starts with. Bump it when the normalisation or the encoding changes. */
-export const CALL_VARIANT_ID_VERSION = 'V1-';
-
-/** Payload width. Eight, for the same reason the arrangement id is eight: this population is the largest of the
- *  three, and `id-code.ts`'s arithmetic makes eight characters cost one 64-bit digest rather than a wider base. */
-export const CALL_VARIANT_ID_WIDTH = 8;
+/** The scheme marker every call-variant id starts with. `id-code.ts` owns the table; a change to the
+ *  normalisation or the encoding bumps it there. */
+export const CALL_VARIANT_ID_VERSION = ID_SCHEMES.variant;
 
 /**
  * The append-only ledger of formation roots: every formation id ever minted, mapped to the id the shape was first
@@ -87,17 +85,17 @@ export function callVariantCanonical(level: string, title: string, formationRoot
 }
 
 /**
- * The variant's id: `V1-` and eight base-36 characters.
+ * The variant's id: the scheme's prefix and the tree's one eight-character payload.
  *
  * `formationRoot` is a ROOT, not a formation id - `formationRootOf(formationId(board), roots)` is the call that
  * produces it. Passing a raw formation id is the one mistake this signature cannot catch, which is why the
  * name says root and the ledger gate checks that every referenced root exists.
  */
 export function callVariantId(level: string, title: string, formationRoot: string): string {
-  return encodeId(CALL_VARIANT_ID_VERSION, fnv1a64(callVariantCanonical(level, title, formationRoot)), CALL_VARIANT_ID_WIDTH);
+  return encodeId('variant', fnv1a64(callVariantCanonical(level, title, formationRoot)));
 }
 
 /** Whether a string is a call-variant id this module produced. Case-insensitive, like its siblings. */
 export function isCallVariantId(s: string): boolean {
-  return isIdOf(CALL_VARIANT_ID_VERSION, CALL_VARIANT_ID_WIDTH, s);
+  return isIdOf('variant', s);
 }

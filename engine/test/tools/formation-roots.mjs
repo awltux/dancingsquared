@@ -9,7 +9,7 @@
 // authors, read through the engine's own `formationId`, so it cannot disagree with the id scheme. The
 // DECISIONS about what a new id succeeds are not generated and never can be: a generator sees an id vanish and
 // another appear, and cannot know whether that is a correction of one shape or one shape replaced by another.
-// So `formation-aliases.json` is HAND-WRITTEN (`{"F2-new": "F2-old"}`), usually empty, and it is what a corpus
+// So `formation-aliases.json` is HAND-WRITTEN (`{"F3-newnewnew": "F3-oldoldol"}`), usually empty, and it is what a corpus
 // edit adds when it corrects a formation.
 //
 // WHAT `--check` REFUSES, and each is a different failure:
@@ -34,7 +34,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { loadCallFromXml, setParser, formationId, formationRootOf, allPoses } from '../../dist/index.js';
+import { loadCallFromXml, setParser, formationId, formationRootOf, isFormationId, allPoses } from '../../dist/index.js';
 import { filesOf, tamsOf } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -119,7 +119,9 @@ export function check() {
     // hand-written, so the note has to live somewhere and must not be validated as a pair of ids.
     if (from.startsWith('_')) continue;
     if (from === to) problems.push(`alias ${from} points at itself`);
-    if (!/^F2-[0-9a-z]{6}$/i.test(from) || !/^F2-[0-9a-z]{6}$/i.test(to)) problems.push(`alias ${from} -> ${to} is not a pair of formation ids`);
+    // THE SHAPE COMES FROM THE SCHEME, not from a regex copied into this tool: a second copy of the width is one
+    // edit away from accepting an id the engine would never mint.
+    if (!isFormationId(from) || !isFormationId(to)) problems.push(`alias ${from} -> ${to} is not a pair of formation ids`);
   }
 
   console.log(`== the ledger ==`);

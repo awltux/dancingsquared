@@ -14,9 +14,9 @@
 // board it does not fit.
 //
 // WHAT IT IS. The formation canonicalisation with one extra symbol per dancer - `B` boy, `g` girl, `p` phantom -
-// appended to that dancer's record, digested with the 64-bit hash because the payload is eight characters
-// (`id-code.ts` carries the arithmetic). Rotation, translation, array order and the dancer count all drop out
-// exactly as they do for the formation id, and for the same reason: one mechanism, two schemes.
+// appended to that dancer's record, digested to the same eight-character payload every scheme in this tree uses
+// (`id-code.ts` owns the width and the hash). Rotation, translation, array order and the dancer count all drop
+// out exactly as they do for the formation id, and for the same reason: one mechanism, two schemes.
 //
 // WHAT IT MUST NOT DO: NORMALISE GENDER AWAY. `Facing Couples` and `Sashayed Couples` are ONE shape and TWO
 // arrangements, and that pair is the negative control in `test/arrangement-id.mjs` - an id invariant under a
@@ -38,17 +38,11 @@
 import type { Board } from './types.js';
 import type { Gender } from '../types.js';
 import { canonicalOf } from './formation-id.js';
-import { encodeId, fnv1a64, isIdOf } from './id-code.js';
+import { encodeId, fnv1a64, isIdOf, ID_SCHEMES } from './id-code.js';
 
-/** The scheme marker every arrangement id starts with. Bump it when the canonicalisation or the encoding changes. */
-export const ARRANGEMENT_ID_VERSION = 'A1-';
-
-/**
- * Payload width. EIGHT, not the formation id's six: the arrangement population is a superset of the shapes and
- * grows with every gender layout authored, and `id-code.ts`'s arithmetic makes eight characters cost one 64-bit
- * digest rather than a wider alphabet.
- */
-export const ARRANGEMENT_ID_WIDTH = 8;
+/** The scheme marker every arrangement id starts with. `id-code.ts` owns the table; a change to the
+ *  canonicalisation or the encoding bumps it there. */
+export const ARRANGEMENT_ID_VERSION = ID_SCHEMES.arrangement;
 
 /**
  * The symbol a dancer contributes to the key. Upper `B` and lower `g`/`p` is All8's own convention in the
@@ -67,16 +61,16 @@ export function arrangementCanonical(board: Board): string {
 }
 
 /**
- * The board's arrangement id: `A1-` and eight base-36 characters.
+ * The board's arrangement id: the scheme's prefix and the tree's one eight-character payload.
  *
  * A dancer whose gender is not one of the union's three gets `?`, which is a value no real arrangement can
  * produce, so an unknown gender is visible in the key rather than silently equal to a boy.
  */
 export function arrangementId(board: Board): string {
-  return encodeId(ARRANGEMENT_ID_VERSION, fnv1a64(arrangementCanonical(board)), ARRANGEMENT_ID_WIDTH);
+  return encodeId('arrangement', fnv1a64(arrangementCanonical(board)));
 }
 
 /** Whether a string is an arrangement id this module produced. Case-insensitive, like `isFormationId`. */
 export function isArrangementId(s: string): boolean {
-  return isIdOf(ARRANGEMENT_ID_VERSION, ARRANGEMENT_ID_WIDTH, s);
+  return isIdOf('arrangement', s);
 }

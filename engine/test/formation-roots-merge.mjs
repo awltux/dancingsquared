@@ -25,29 +25,29 @@ const check = (cond, msg, detail) => {
 const shapes = (...ids) => new Map(ids.map((id) => [id, `example ${id}`]));
 
 console.log('== 1. a new shape is appended, rooted at itself ==');
-const first = renderLedger(null, {}, shapes('F2-aaa'));
-check(first.roots['F2-aaa'] === 'F2-aaa', 'the first render roots a shape at its own id');
+const first = renderLedger(null, {}, shapes('F3-aaaaaaaa'));
+check(first.roots['F3-aaaaaaaa'] === 'F3-aaaaaaaa', 'the first render roots a shape at its own id');
 check(first.version === 1, 'the ledger carries its version');
 
 console.log('== 2. an existing line is never dropped ==');
-const committed = { version: 1, roots: { 'F2-aaa': 'F2-aaa', 'F2-old': 'F2-old' } };
-const vanished = renderLedger(committed, {}, shapes('F2-aaa'));
-check(vanished.roots['F2-old'] === 'F2-old', 'a shape that no longer appears keeps its line');
+const committed = { version: 1, roots: { 'F3-aaaaaaaa': 'F3-aaaaaaaa', 'F3-00000000': 'F3-00000000' } };
+const vanished = renderLedger(committed, {}, shapes('F3-aaaaaaaa'));
+check(vanished.roots['F3-00000000'] === 'F3-00000000', 'a shape that no longer appears keeps its line');
 check(Object.keys(vanished.roots).length === 2, 'and the render is still a superset of the committed ledger');
 
 console.log('== 3. an alias resolves the NEW id to the OLD root ==');
-const corrected = renderLedger(committed, { 'F2-new': 'F2-old' }, shapes('F2-aaa', 'F2-new'));
-check(corrected.roots['F2-new'] === 'F2-old', 'the alias makes the new id share the old root');
-check(corrected.roots['F2-new'] !== 'F2-new', 'CONTROL: without the alias the new id would be its own root, and every variant keyed on it would re-key');
-check(renderLedger(committed, {}, shapes('F2-aaa', 'F2-new')).roots['F2-new'] === 'F2-new', 'the same render without the alias is the wrong answer this rules out');
+const corrected = renderLedger(committed, { 'F3-newnwnew': 'F3-00000000' }, shapes('F3-aaaaaaaa', 'F3-newnwnew'));
+check(corrected.roots['F3-newnwnew'] === 'F3-00000000', 'the alias makes the new id share the old root');
+check(corrected.roots['F3-newnwnew'] !== 'F3-newnwnew', 'CONTROL: without the alias the new id would be its own root, and every variant keyed on it would re-key');
+check(renderLedger(committed, {}, shapes('F3-aaaaaaaa', 'F3-newnwnew')).roots['F3-newnwnew'] === 'F3-newnwnew', 'the same render without the alias is the wrong answer this rules out');
 
 console.log('== 4. a chain resolves through to the end ==');
-const chained = renderLedger({ version: 1, roots: { 'F2-old': 'F2-old' } }, { 'F2-mid': 'F2-old', 'F2-new': 'F2-mid' }, shapes('F2-mid', 'F2-new'));
-check(chained.roots['F2-new'] === 'F2-old', 'the newest id lands on the original root, not on the middle hop', JSON.stringify(chained.roots));
+const chained = renderLedger({ version: 1, roots: { 'F3-00000000': 'F3-00000000' } }, { 'F3-midmidmid': 'F3-00000000', 'F3-newnwnew': 'F3-midmidmid' }, shapes('F3-midmidmid', 'F3-newnwnew'));
+check(chained.roots['F3-newnwnew'] === 'F3-00000000', 'the newest id lands on the original root, not on the middle hop', JSON.stringify(chained.roots));
 
 console.log('== 5. an already-rooted id is left alone ==');
-const steady = renderLedger({ version: 1, roots: { 'F2-new': 'F2-old', 'F2-old': 'F2-old' } }, { 'F2-new': 'F2-old2' }, shapes('F2-new'));
-check(steady.roots['F2-new'] === 'F2-old', 'a committed line is not re-rooted because an alias was edited afterwards');
+const steady = renderLedger({ version: 1, roots: { 'F3-newnwnew': 'F3-00000000', 'F3-00000000': 'F3-00000000' } }, { 'F3-newnwnew': 'F3-11111111' }, shapes('F3-newnwnew'));
+check(steady.roots['F3-newnwnew'] === 'F3-00000000', 'a committed line is not re-rooted because an alias was edited afterwards');
 
 console.log('');
 if (failures) { console.log(`${failures} FAILURE(S)`); process.exit(1); }

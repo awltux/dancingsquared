@@ -160,10 +160,11 @@ const SUITE = [
   // topology-only key, each measured to collapse exactly the pairs it must not), plus the embedded authoring
   // setups no formation file names. Fast: no corpus sweep beyond the 138 boards.
   { h: 'formation-id', light: true },
-  // THE ID ENCODING ITSELF, shared by every derived identity (`F2-`, `A1-`, `V1-`): that the formation id is
+  // THE ID ENCODING ITSELF, shared by every derived identity (`F3-`, `A1-`, `V1-`): that the formation id is
   // produced BY the encoder rather than by a copy of it (the anti-drift check), the ends of a payload space, the
-  // prefix escaping, and the width fact that forces a 64-bit digest - 36^7 > 2^32, MEASURED as "every 32-bit
-  // eight-character id begins with 0" against the 64-bit ids that do not. Milliseconds: no corpus sweep.
+  // scheme table as the one place a prefix lives, the prefix escaping, and the width fact that forces a 64-bit
+  // digest - 36^8 needs more than 32 bits, MEASURED as "every 32-bit eight-character id begins with 0" against the
+  // 64-bit ids that do not. Milliseconds: no corpus sweep.
   { h: 'id-code', light: true },
   // THE ARRANGEMENT IDENTITY: the shape AND where the genders stand. Pins the format, the invariances, the two
   // SPLITS (a gender relabelling, and a permutation that keeps the multiset), each with the plausible wrong rule

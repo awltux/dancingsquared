@@ -53,13 +53,13 @@ check(overEager('Tag the Line') === overEager('3/4 Tag the Line'), 'CONTROL: a f
 check(callVariantCanonical('ms', 'Swing', shapeNow) === `ms|swing|${shapeNow}`, 'the canonical form is level|title|root, folded');
 
 console.log('== 4. the ledger walk ==');
-check(formationRootOf('F2-never', {}) === 'F2-never', 'an unseen formation root is itself (a shape minted since the census)');
+check(formationRootOf('F3-aaaaaaaa', {}) === 'F3-aaaaaaaa', 'an unseen formation root is itself (a shape minted since the census)');
 check(formationRootOf(shapeAfter, roots) === shapeNow, 'an aliased id resolves to its root');
 check(formationRootOf(shapeNow, roots) === shapeNow, 'and a root resolves to itself');
-const chain = { 'F2-a': 'F2-b', 'F2-b': 'F2-c', 'F2-c': 'F2-c' };
-check(formationRootOf('F2-a', chain) === 'F2-c', 'a chain is followed to its end');
-const cycle = { 'F2-a': 'F2-b', 'F2-b': 'F2-a' };
-check(formationRootOf('F2-a', cycle) === 'F2-a', 'a cycle terminates instead of hanging (a ledger defect the census reports)');
+const chain = { 'F3-aaaaaaaa': 'F3-bbbbbbbb', 'F3-bbbbbbbb': 'F3-cccccccc', 'F3-cccccccc': 'F3-cccccccc' };
+check(formationRootOf('F3-aaaaaaaa', chain) === 'F3-cccccccc', 'a chain is followed to its end');
+const cycle = { 'F3-aaaaaaaa': 'F3-bbbbbbbb', 'F3-bbbbbbbb': 'F3-aaaaaaaa' };
+check(formationRootOf('F3-aaaaaaaa', cycle) === 'F3-aaaaaaaa', 'a cycle terminates instead of hanging (a ledger defect the census reports)');
 
 console.log('== 5. the root is what survives a formation edit (the negative control) ==');
 const before = callVariantId('ms', 'Swing', formationRootOf(shapeNow, roots));

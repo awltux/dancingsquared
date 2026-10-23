@@ -89,10 +89,14 @@ export {
   FORMATION_ID_GRID,
   FORMATION_ID_HEADING_STEP,
 } from './sequencer/formation-id.js';
-// THE ID ENCODING, shared by every derived identity in the tree (`F2-`, and the `A1-`/`V1-` schemes beside it).
-// Exported so a harness can pin the width arithmetic against the SAME implementation the ids are built from: a
-// second copy of "36^width, reduced, rendered low case" is one edit away from measuring nothing.
-export { ID_ALPHABET, ID_BASE, idSpace, encodeId, isIdOf, fnv1a32, fnv1a64 } from './sequencer/id-code.js';
+// THE ID ENCODING, shared by every derived identity in the tree (`F3-`, and the `A1-`/`V1-` schemes beside it):
+// one alphabet, ONE width, one digest, and the table of prefixes. Exported so a harness can pin the encoding
+// against the SAME implementation the ids are built from - a second copy of "36^width, reduced, rendered low
+// case" is one edit away from measuring nothing.
+export {
+  ID_ALPHABET, ID_BASE, ID_WIDTH, ID_SPACE, ID_SCHEMES, encodeId, isIdOf, fnv1a64,
+} from './sequencer/id-code.js';
+export type { IdSchemeName } from './sequencer/id-code.js';
 // THE ARRANGEMENT IDENTITY: the shape AND where the genders stand. A formation id deliberately ignores gender,
 // which is right for a SHAPE and wrong for every question a gender-specific call asks; see `arrangement-id.ts`
 // for the measurements that size the difference, and `arrangementFor` for the All8 number this is NOT.
@@ -101,7 +105,6 @@ export {
   arrangementCanonical,
   isArrangementId,
   ARRANGEMENT_ID_VERSION,
-  ARRANGEMENT_ID_WIDTH,
 } from './sequencer/arrangement-id.js';
 // THE CALL-VARIANT IDENTITY: (level, call title, formation ROOT). The root is the first formation id ever
 // minted for a shape, carried forward through the checked-in ledger - so this is the one key that survives a
@@ -112,7 +115,6 @@ export {
   isCallVariantId,
   formationRootOf,
   CALL_VARIANT_ID_VERSION,
-  CALL_VARIANT_ID_WIDTH,
 } from './sequencer/call-variant-id.js';
 export type { FormationRoots } from './sequencer/call-variant-id.js';
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold

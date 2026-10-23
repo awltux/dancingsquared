@@ -67,9 +67,9 @@ check(formationId(swapped) === formationId(home), 'the swap keeps the shape (the
 check(arrangementId(swapped) !== id, 'and changes the arrangement');
 // The plausible wrong rule: the shape plus the gender multiset, sorted, with no positions. It cannot tell
 // this swap from `home`, which is exactly the distinction a gender-specific call needs.
-const multisetId = (b) => encodeId(ARRANGEMENT_ID_VERSION, fnv1a64(
+const multisetId = (b) => encodeId('arrangement', fnv1a64(
   formationCanonical(b) + '|' + b.dancers.map((d) => d.gender).sort().join(''),
-), 8);
+));
 check(multisetId(swapped) === multisetId(home), 'CONTROL: a gender-multiset id collides on the swap, which is why position is in the key');
 check(multisetId(home) !== id, 'and the real id does not agree with it');
 

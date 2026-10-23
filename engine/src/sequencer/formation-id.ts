@@ -59,35 +59,32 @@
 // Tag` are none of the seven). A four-letter extension of that slot would LOOK like an All8 code and would
 // not be one, which is the "two conventions in one tree" trap. So the letters stay where the oracle is (the
 // panel displays the All8 code beside this id when the board has one), and the id is a pure function of the
-// geometry: the canonical serialisation below, digested to SIX BASE-36 CHARACTERS behind a scheme version.
+// geometry: the canonical serialisation below, digested to the scheme's characters.
 //
-// THE ALPHABET, THE WIDTH AND THE DIGESTS ARE NOT THIS MODULE'S. `id-code.ts` owns them, with the ambiguity rule
-// that keeps a payload lower case, the width arithmetic that gives six characters to a 32-bit digest, and the
-// hashes. What stays here is what is specific to a FORMATION: the quantisation, the canonicalisation, and the
-// population that sizes the width.
+// THE ALPHABET, THE WIDTH AND THE DIGEST ARE NOT THIS MODULE'S. `id-code.ts` owns them - one width for all three
+// schemes, a lower-case payload, the 64-bit hash, and the table of prefixes - and its header says why eight
+// characters replaced the two widths this scheme used to have. What stays here is what is specific to a
+// FORMATION: the quantisation and the canonicalisation.
 //
-// WHY SIX CHARACTERS AND NOT FIVE. 36^6 is 2,176,782,336 against 26^5's 11,881,376 - 183x the space - and it is
-// the widest base a six-character id can use inside the 32-bit digest below while staying typeable: 40^6 =
-// 4,096,000,000 is the largest base that fits under 2^32, but 40 symbols would need punctuation (or mixed
-// case, which is the ambiguity this avoids). MEASURED at the corpus's own population - every one of the 5,493
-// authoring variants plus the 138 named formations collapses to 410 distinct shapes - the birthday risk is
-// 0.0039% (1 in 26,000), against 0.71% for 26^5, and 0 collisions are observed at 36^6 or any wider base.
-//
-// WHY 32 BITS IS ENOUGH HERE, and why it is not enough for an eight-character scheme, is `id-code.ts`'s
-// arithmetic: 36^6 sits under 2^32, so six characters are fully used by a 32-bit digest; 36^7 does not, so a
-// wider scheme digests with 64 bits. This scheme is six.
+// WHY EIGHT CHARACTERS IS MORE THAN THIS POPULATION NEEDS, AND WHY IT IS STILL THE RIGHT WIDTH. MEASURED: every one
+// of the 5,493 authoring variants plus the 138 named formations collapses to 410 distinct shapes, and at 36^8 =
+// 2,821,109,907,456 the birthday risk over that population is 0.0000030% (1 in 33 million). Six characters covered
+// it at 0.0039%, so the width is not chosen for the shapes - it is chosen so that one encoding serves all three
+// schemes, and the one that needs it (variants, 1,730 today and growing with every level) gets it without a
+// second convention. `test/formation-id.mjs` still pins the property that matters: no two corpus shapes collide.
 //
 // THE VERSION PREFIX IS NOT DECORATION: ids are persisted in `PERMISSION_RULES`, so a change to the
 // quantisation, the canonicalisation OR THE ENCODING must produce a string that cannot be mistaken for an old
-// one. `F1-` was five upper-case letters (26^5); nothing shipped under it named a `boardId`, so the move to
-// `F2-` re-keyed no rule.
+// one. `F1-` was five upper-case letters (26^5), `F2-` was six base-36 characters over a 32-bit digest, and `F3-`
+// is the tree's one eight-character scheme: no rule and no ledger alias cited an `F2-` id, so that move re-keyed
+// nothing.
 
 import type { Board } from './types.js';
-import { encodeId, fnv1a32, isIdOf } from './id-code.js';
+import { encodeId, fnv1a64, isIdOf, ID_SCHEMES } from './id-code.js';
 
 /** The scheme marker every id starts with. Bump it when the canonicalisation, the quantisation or the encoding
- *  changes (`F1-` was 26^5 upper case; `F2-` is base 36 with a lower-case payload). */
-export const FORMATION_ID_VERSION = 'F2-';
+ *  changes; the value lives in `ID_SCHEMES`, which is the one place a prefix is written down. */
+export const FORMATION_ID_VERSION = ID_SCHEMES.formation;
 
 /**
  * Positions are quantised to this many units. A QUARTER of the 1.0-unit must-reject difference, because the
@@ -162,17 +159,15 @@ export function canonicalOf(board: Board, extra?: (d: Board['dancers'][number]) 
   return `${spots.length}|${best ?? ''}`;
 }
 
-const ID_WIDTH = 6;
-
 /**
- * The board's formation id: `F2-` and six base-36 characters, the payload lower case.
+ * The board's formation id: the scheme's prefix and the tree's one eight-character payload, lower case.
  *
  * GHOSTS ARE PART OF THE SHAPE. A phantom occupies a spot the set's dancers are avoiding, so a board with
  * one is a different formation - the same rule `sameBoardById` states ("Ghost dancers ARE compared, like any
  * other dancer: a phantom is part of the formation the engine matched").
  */
 export function formationId(board: Board): string {
-  return encodeId(FORMATION_ID_VERSION, fnv1a32(formationCanonical(board)), ID_WIDTH);
+  return encodeId('formation', fnv1a64(formationCanonical(board)));
 }
 
 /**
@@ -184,5 +179,5 @@ export function formationId(board: Board): string {
  * value that passes one check and fails the other.
  */
 export function isFormationId(s: string): boolean {
-  return isIdOf(FORMATION_ID_VERSION, ID_WIDTH, s);
+  return isIdOf('formation', s);
 }

@@ -117,11 +117,22 @@ console.log('== 1. every board gets an id in one format ==');
 const formations = named();
 {
   check(formations.length === 138, `the corpus carries 138 named eight-dancer formations (got ${formations.length})`);
-  const bad = formations.filter(({ board }) => !isFormationId(formationId(board)));
-  check(bad.length === 0, `all ${formations.length} ids are "${FORMATION_ID_VERSION}" and five letters`,
+  // THE SHAPE IS PINNED LITERALLY, not derived from the constants: `F2-` and six characters of base 36 in LOWER
+  // case. A change to the alphabet or the width is a deliberate edit of this check, and the reason it is
+  // lower case is the reader's: `0` is not `o` and `1` is not `l` when an id is retyped into a rule.
+  const SHAPE = /^F2-[0-9a-z]{6}$/;
+  const bad = formations.filter(({ board }) => !SHAPE.test(formationId(board)));
+  check(bad.length === 0, `all ${formations.length} ids are "${FORMATION_ID_VERSION}" plus six lower-case base-36 characters `
+    + `(e.g. ${formationId(formations[0].board)}, ${formationId(formations[1].board)})`,
     bad.slice(0, 5).map((f) => `${f.name}: ${formationId(f.board)}`).join(', '));
+  // THE TWO GRAMMARS THE MATCHER ACTUALLY ACCEPTS. `evaluatePermissions` normalises case on both sides of a
+  // `boardId`, so a rule retyped in upper case is the same id - and `isFormationId` must agree with that rather
+  // than pass a value the matcher reads differently. The `F1-` shape (five upper-case letters) is NOT an id.
+  const sample = formationId(formations[0].board);
+  check(isFormationId(sample.toUpperCase()), 'an id retyped in upper case is still recognised (the matcher is case-insensitive too)');
+  check(!isFormationId('F1-ABCDE') && !isFormationId('F2-abc12'), 'while the old five-character shape and a short payload are not');
   const starts = [startBoard('Swing Thru', 'Right-Hand Wave'), startBoard('Box the Gnat', 'Facing Couples')];
-  check(starts.every((b) => b && isFormationId(formationId(b))),
+  check(starts.every((b) => b && SHAPE.test(formationId(b))),
     'and so do the embedded authoring setups, which no formation file names',
     'a missing starter is a FAILURE, not a skip');
 }

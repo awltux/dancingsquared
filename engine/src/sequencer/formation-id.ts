@@ -59,20 +59,35 @@
 // Tag` are none of the seven). A four-letter extension of that slot would LOOK like an All8 code and would
 // not be one, which is the "two conventions in one tree" trap. So the letters stay where the oracle is (the
 // panel displays the All8 code beside this id when the board has one), and the id is a pure function of the
-// geometry: the canonical serialisation below, digested to FIVE base-26 letters behind a scheme version.
+// geometry: the canonical serialisation below, digested to SIX BASE-36 CHARACTERS behind a scheme version.
 //
-// FIVE AND NOT FOUR: 26^4 is 456,976 and 26^5 is 11.9M. MEASURED over 243 sampled boards (the 138 formations
-// plus the authoring starts of 20 calls) there are 169 distinct shapes and ZERO collisions at four, five and
-// six letters - but a collision is a SILENT wrong rule match, so four letters carries roughly 3% risk at that
-// population and five roughly 0.1%. The harness pins zero collisions over the corpus; five is the insurance.
+// WHY BASE 36 WITH A LOWERCASE PAYLOAD - `F2-a3k9m2`. An id is retyped by hand into `PERMISSION_RULES`, so it
+// has to be told apart from itself character by character, and the two pairs that ruin a hand copy are `0`/`O`
+// and `1`/`l`. Making the PAYLOAD lower case and keeping the digits makes both unambiguous: a `0` is never an
+// `o`, a `1` is never an `l`. The version marker stays upper case (`F2-`) so it stands out as not-payload.
+//
+// WHY SIX CHARACTERS AND NOT FIVE. 36^6 is 2,176,782,336 against 26^5's 11,881,376 - 183x the space - and it is
+// the widest base a six-character id can use inside the 32-bit digest below while staying typeable: 40^6 =
+// 4,096,000,000 is the largest base that fits under 2^32, but 40 symbols would need punctuation (or mixed
+// case, which is the ambiguity this avoids). MEASURED at the corpus's own population - every one of the 5,493
+// authoring variants plus the 138 named formations collapses to 410 distinct shapes - the birthday risk is
+// 0.0039% (1 in 26,000), against 0.71% for 26^5, and 0 collisions are observed at 36^6 or any wider base.
+//
+// THE 32-BIT DIGEST IS STILL THE CEILING, and it is not a power of 36, so the encoding is not exactly uniform:
+// 2^32 / 36^6 = 1.973, which gives 97.31% of codes two hash preimages and the rest one. MEASURED, the effect
+// on the collision probability is a factor of 1.01 - the birthday figures above stand - so the digest is left
+// at 32 bits FNV-1a. A base above 40, or a seventh character, would need a 64-bit hash before it could be used.
 //
 // THE VERSION PREFIX IS NOT DECORATION: ids are persisted in `PERMISSION_RULES`, so a change to the
-// quantisation or the canonicalisation must produce a string that cannot be mistaken for an old one.
+// quantisation, the canonicalisation OR THE ENCODING must produce a string that cannot be mistaken for an old
+// one. `F1-` was five upper-case letters (26^5); nothing shipped under it named a `boardId`, so the move to
+// `F2-` re-keyed no rule.
 
 import type { Board } from './types.js';
 
-/** The scheme marker every id starts with. Bump it when the canonicalisation or the quantisation changes. */
-export const FORMATION_ID_VERSION = 'F1-';
+/** The scheme marker every id starts with. Bump it when the canonicalisation, the quantisation or the encoding
+ *  changes (`F1-` was 26^5 upper case; `F2-` is base 36 with a lower-case payload). */
+export const FORMATION_ID_VERSION = 'F2-';
 
 /**
  * Positions are quantised to this many units. A QUARTER of the 1.0-unit must-reject difference, because the
@@ -139,13 +154,15 @@ function fnv1a(s: string): number {
   return h >>> 0;
 }
 
-/** Five base-26 letters, so an id is one word of uppercase with no case-folding ambiguity. */
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const ID_WIDTH = 5;
-const ID_SPACE = 26 ** ID_WIDTH;
+/** THE ALPHABET IS BASE 36 WITH A LOWERCASE PAYLOAD: the digits, then the letters in lower case, so `0` can never
+ *  be read as `o` and `1` never as `l` when the id is retyped into a rule. */
+const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
+const ID_BASE = ALPHABET.length;
+const ID_WIDTH = 6;
+const ID_SPACE = ID_BASE ** ID_WIDTH;
 
 /**
- * The board's formation id: `F1-` and five letters.
+ * The board's formation id: `F2-` and six base-36 characters, the payload lower case.
  *
  * GHOSTS ARE PART OF THE SHAPE. A phantom occupies a spot the set's dancers are avoiding, so a board with
  * one is a different formation - the same rule `sameBoardById` states ("Ghost dancers ARE compared, like any
@@ -155,14 +172,20 @@ export function formationId(board: Board): string {
   let v = fnv1a(formationCanonical(board)) % ID_SPACE;
   let out = '';
   for (let i = 0; i < ID_WIDTH; i++) {
-    out = LETTERS[v % 26] + out;
-    v = Math.floor(v / 26);
+    out = ALPHABET[v % ID_BASE] + out;
+    v = Math.floor(v / ID_BASE);
   }
   return FORMATION_ID_VERSION + out;
 }
 
-/** Whether a string is a formation id this module produced. An id and a name are both strings, so the two need
- *  telling apart at any boundary that accepts either. */
+/**
+ * Whether a string is a formation id this module produced. An id and a name are both strings, so the two need
+ * telling apart at any boundary that accepts either.
+ *
+ * CASE-INSENSITIVE, because `evaluatePermissions` normalises both sides of a `boardId` before comparing them -
+ * an id retyped in upper case is the same id to the matcher, so it must be the same id here rather than a
+ * value that passes one check and fails the other.
+ */
 export function isFormationId(s: string): boolean {
-  return new RegExp(`^${FORMATION_ID_VERSION}[A-Z]{${ID_WIDTH}}$`).test(s);
+  return new RegExp(`^${FORMATION_ID_VERSION}[0-9a-z]{${ID_WIDTH}}$`, 'i').test(s);
 }

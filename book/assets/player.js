@@ -16,11 +16,13 @@ import {
   computeHandholds,
   sampleTrail,
   assignHomeIdentity,
+  DANCER_WIDTH,
+  DANCER_DEPTH,
 } from '../lib/index.js';
-import { C, MARKER_UNITS, bodySlot, trailSlot, hexOf } from '../lib/board-style.js';
+import { C, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, bodySupport, trailSlot, hexOf } from '../lib/board-style.js';
 
 // THE PALETTE AND THE MARKER SIZE ARE NOT THIS FILE'S. `board-style.mjs` owns them, because the Node figures
-// draw the same board and the two must not drift - it also carries the measurement behind `MARKER_UNITS`. What
+// draw the same board and the two must not drift - it also carries the body the marker is drawn to, and the
 // stays here is the CANVAS: how a pose becomes pixels in a browser.
 const INK = hexOf(C.ink);
 const FLOOR = hexOf(C.floor);
@@ -51,33 +53,6 @@ const displayId = (d) =>
  * board units, the same as the positions. Below two radii the markers touch and there is no gap
  * left to fill, so the line is left alone rather than drawn backwards through the bodies.
  */
-function betweenEdges(a, b, r) {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy) || 1;
-  if (len <= r * 2) return [a, b];
-  return [
-    { x: a.x + (dx / len) * r, y: a.y + (dy / len) * r },
-    { x: b.x - (dx / len) * r, y: b.y - (dy / len) * r },
-  ];
-}
-
-let shared = null;
-async function engineInputs() {
-  if (!shared) {
-    const url = (p) => new URL(p, import.meta.url).href;
-    shared = (async () => {
-      const [moves, formations] = await Promise.all([
-        fetch(url('../assets/moves.xml')).then((r) => r.text()),
-        fetch(url('../assets/formations.xml')).then((r) => r.text()),
-      ]);
-      const engine = new Engine(moves, formations);
-      return { engine, moves, formations };
-    })();
-  }
-  return shared;
-}
-
 function drawBoard(ctx, size, view, state, beat) {
   const { scale, units } = view;
   const ox = size / 2;
@@ -110,9 +85,11 @@ function drawBoard(ctx, size, view, state, beat) {
   ctx.stroke();
 
   const fraction = state.beats > 0 ? beat / state.beats : 1;
-  // Line widths follow the markers: on a call fitted to a wide floor the dancers are small, and a
-  // fixed 1.8px trail would draw over them.
-  const marker = MARKER_UNITS * scale;
+  // THE BODY IS THE ENGINE'S, and the line widths follow it: a dancer is DANCER_WIDTH across the facing and
+  // DANCER_DEPTH along it (`bodies.ts`), so `halfW` is the widest a body gets and what a trail must not swallow.
+  const halfW = (DANCER_WIDTH / 2) * scale;
+  const halfD = (DANCER_DEPTH / 2) * scale;
+  const marker = halfW;
   ctx.lineWidth = Math.max(1.1, marker * 0.09);
   ctx.lineCap = 'round';
   state.trails.forEach((pts, i) => {
@@ -137,48 +114,23 @@ function drawBoard(ctx, size, view, state, beat) {
     const a = poses[h.i];
     const b = poses[h.j];
     if (!a || !b) continue;
-    const [p, q] = betweenEdges(a, b, MARKER_UNITS);
+    // A GRIP RUNS FROM BODY EDGE TO BODY EDGE, so each end is trimmed by that dancer's own support in the
+    // direction of the other. One radius would leave a gap at a deep body and reach inside a wide one.
+    const theta = Math.atan2(b.y - a.y, b.x - a.x);
+    const ra = bodySupport(state.dancers[h.i].gender, theta - a.heading, DANCER_DEPTH / 2, DANCER_WIDTH / 2);
+    const rb = bodySupport(state.dancers[h.j].gender, theta + Math.PI - b.heading, DANCER_DEPTH / 2, DANCER_WIDTH / 2);
+    const len = Math.hypot(b.x - a.x, b.y - a.y);
+    if (!(len > ra + rb)) continue;
+    const ux = (b.x - a.x) / len;
+    const uy = (b.y - a.y) / len;
     ctx.beginPath();
-    ctx.moveTo(px(p.x), py(p.y));
-    ctx.lineTo(px(q.x), py(q.y));
+    ctx.moveTo(px(a.x + ux * ra), py(a.y + uy * ra));
+    ctx.lineTo(px(b.x - ux * rb), py(b.y - uy * rb));
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
 
-  const r = marker;
-  const ink = Math.max(1, Math.min(1.4, r / 13));
-  const inset = Math.max(1, r * 0.05);
-
-  // ---- EVERY FACING NOSE FIRST, THEN EVERY BODY.
-  //
-  // The order matters. Drawn per dancer, one dancer's nose is painted after the previous dancer's
-  // body, so wherever two dancers pass close the nose lands ON the neighbour and they appear to stab
-  // one another. Drawn in two passes, an intruding nose is covered by the body it intrudes on, which
-  // reads as one dancer behind another -- and no nose can ever cover a body or a number.
-  //
-  // The nose is INK, not the dancer's own colour: a same-coloured bump on a coloured body over a
-  // pale floor is not readable at a glance, which is the whole job of this mark. White would be
-  // worse, because the part that shows is the part over the floor. It is also as wide as the body
-  // where it leaves it, so it reads as a beak rather than a sliver.
-  //
-  // Proportional to the marker, so it cannot span the gap to a neighbouring SQUARE: the tip is 0.77
-  // of a unit from the centre, against a 2-unit wave spacing and 1.41 units at the tightest
-  // formation in the program (a thar, and there the facings are oblique).
-  ctx.fillStyle = INK;
-  poses.forEach((pose) => {
-    if (!pose) return;
-    const cx = px(pose.x);
-    const cy = py(pose.y);
-    const hx = Math.cos(pose.heading);
-    const hy = -Math.sin(pose.heading);
-    const tip = r * 1.6;
-    ctx.beginPath();
-    ctx.moveTo(cx + hx * tip, cy + hy * tip);
-    ctx.lineTo(cx + hx * (r * 0.85) - hy * (r * 0.5), cy + hy * (r * 0.85) + hx * (r * 0.5));
-    ctx.lineTo(cx + hx * (r * 0.85) + hy * (r * 0.5), cy + hy * (r * 0.85) - hx * (r * 0.5));
-    ctx.closePath();
-    ctx.fill();
-  });
+  const ink = Math.max(1, Math.min(1.4, marker / 13));
 
   state.dancers.forEach((d, i) => {
     const pose = poses[i];
@@ -187,36 +139,38 @@ function drawBoard(ctx, size, view, state, beat) {
     const cy = py(pose.y);
     const colour = colourOf(d);
 
+    // THE BODY IS THE ENGINE'S, drawn as the POC and the game draw it: a rectangle for a boy, an ellipse for a
+    // girl, DANCER_WIDTH across the facing and DANCER_DEPTH along it, with a white half-disc nose on the front.
+    // Board +y is north and canvas +y is down, so the facing (cos h, -sin h) is a canvas rotation of -h.
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-pose.heading);
+    ctx.beginPath();
+    if (bodyShapeOf(d.gender) === 'ellipse') ctx.ellipse(0, 0, halfD, halfW, 0, 0, Math.PI * 2);
+    else ctx.rect(-halfD, -halfW, 2 * halfD, 2 * halfW);
     ctx.fillStyle = colour;
-    if (d.gender === 'girl') {
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = INK;
-      ctx.lineWidth = ink;
-      ctx.stroke();
-    } else {
-      // THE BOY'S MARKER TURNS WITH THE DANCER. A square is the only marker whose orientation can be
-      // seen, and axis-aligned it stayed put while the dancer turned, so a Boy read as sliding round
-      // the floor rather than travelling. Board +y is north and canvas +y is down, so the facing
-      // direction (cos h, -sin h) is a canvas rotation of -h. The number is drawn outside this
-      // transform, so it stays upright.
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(-pose.heading);
-      ctx.fillRect(-r + inset, -r + inset, 2 * r - 2 * inset, 2 * r - 2 * inset);
-      ctx.strokeStyle = INK;
-      ctx.lineWidth = ink;
-      ctx.strokeRect(-r + inset, -r + inset, 2 * r - 2 * inset, 2 * r - 2 * inset);
-      ctx.restore();
-    }
+    ctx.fill();
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = ink;
+    ctx.stroke();
+    // The nose is INSIDE the body (scene.ts's marker), so it cannot cover a neighbour and needs no two-pass order.
+    const nose = halfW * NOSE_HALF_OF_SIDE;
+    ctx.beginPath();
+    ctx.arc(0, 0, nose, -Math.PI / 2, Math.PI / 2);
+    ctx.closePath();
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.restore();
+
+    // THE NUMBER STANDS OUTSIDE THE BODY, because a body 0.45 deep has no room for a legible digit. It is drawn
+    // upright (outside the rotation) below the dancer and in ink, so it is readable at every facing.
     const num = displayId(d);
     if (num) {
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `bold ${Math.round(r * 1.05)}px system-ui, sans-serif`;
+      ctx.fillStyle = INK;
+      ctx.font = `bold ${Math.round(halfW * 0.85)}px system-ui, sans-serif`;
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(String(num), cx, cy + 0.5);
+      ctx.textBaseline = 'top';
+      ctx.fillText(String(num), cx, cy + halfW * 0.95);
     }
   });
 }

@@ -22,11 +22,15 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs';
+// THE BODY THE MARKER IS DRAWN TO is the engine's (`bodies.ts`), not a book constant: a dancer is
+// DANCER_WIDTH across the facing and DANCER_DEPTH along it, and the picture must not disagree with the
+// body the contact rules measure.
+const { DANCER_WIDTH, DANCER_DEPTH } = loadEngine();
 import { loadRoots, makeResolver } from './lib/variants.mjs';
 import { corpusRoot, matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, writePng } from './lib/raster.mjs';
-import { PALETTE, C, MARKER_UNITS, bodySlot, trailSlot } from './lib/board-style.mjs';
+import { PALETTE, C, MARKER_UNITS, NOSE_HALF_OF_SIDE, bodyShapeOf, bodySlot, trailSlot } from './lib/board-style.mjs';
 
 const MAP = join(toolsDir, 'call-map.json');
 const ANIM_DIR = join(toolsDir, '..', 'animations');
@@ -314,28 +318,7 @@ function drawHold(canvas, view, holds, poses) {
   }
 }
 
-/**
- * The facing nose alone, in INK.
- *
- * Ink rather than the dancer's own colour: a same-coloured bump on a coloured body over a pale floor
- * cannot be read at a glance, which is the whole job of this mark, and white would be worse because
- * the part that shows is the part over the floor. Proportional to the marker, so it cannot span the
- * gap to a neighbouring square: 0.77 of a unit against a 2-unit wave spacing.
- */
-function drawNose(canvas, view, pose, r) {
-  const cx = px(view, pose.x);
-  const cy = py(view, pose.y);
-  const hx = Math.cos(pose.heading);
-  const hy = -Math.sin(pose.heading);
-  canvas.fillPolygon(
-    [
-      [cx + hx * (r * 1.6), cy + hy * (r * 1.6)],
-      [cx + hx * (r * 0.85) - hy * (r * 0.5), cy + hy * (r * 0.85) + hx * (r * 0.5)],
-      [cx + hx * (r * 0.85) + hy * (r * 0.5), cy + hy * (r * 0.85) - hx * (r * 0.5)],
-    ],
-    C.ink,
-  );
-}
+
 
 /**
  * The bodies and the numbers: one pass AFTER every nose has been drawn.
@@ -346,38 +329,31 @@ function drawNose(canvas, view, pose, r) {
  * intrudes on -- which reads as one dancer behind another, and can never cover a number.
  */
 function drawDancers(canvas, view, dancers, poses) {
-  const r = MARKER_UNITS * view.scale;
+  // THE BODY IS THE ENGINE'S: DANCER_WIDTH across the facing and DANCER_DEPTH along it, a rectangle for a
+  // boy and an ellipse for a girl, with a white half-disc nose - the marker `packages/stage/scene.ts` draws.
+  const halfW = (DANCER_WIDTH / 2) * view.scale;
+  const halfD = (DANCER_DEPTH / 2) * view.scale;
+  const ink = Math.max(1, Math.min(1.4, halfW / 13));
   dancers.forEach((d, i) => {
-    if (poses[i]) drawNose(canvas, view, poses[i], r);
+    const pose = poses[i];
+    if (!pose) return;
+    const cx = px(view, pose.x);
+    const cy = py(view, pose.y);
+    canvas.orientedBody(cx, cy, halfW, halfD, -pose.heading, {
+      shape: bodyShapeOf(d.gender),
+      colour: bodySlot(d),
+      outline: C.ink,
+      width: ink,
+      nose: halfW * NOSE_HALF_OF_SIDE,
+    });
+    const num = displayId(d);
+    // The number stands OUTSIDE the body, because a body 0.45 deep has no room for a legible digit.
+    if (num) {
+      const s = Math.max(1, Math.min(8, Math.round(halfW * 0.2)));
+      canvas.digit(num, Math.round(cx - 1.5 * s), Math.round(cy + halfW * 0.95), s, C.ink);
+    }
   });
-  dancers.forEach((d, i) => drawMarker(canvas, view, d, poses[i], r));
 }
-
-function drawMarker(canvas, view, dancer, pose, r) {
-  if (!pose) return;
-  const colour = bodySlot(dancer);
-  const cx = px(view, pose.x);
-  const cy = py(view, pose.y);
-  const ink = Math.max(1, Math.min(1.4, r / 13));
-  const inset = Math.max(1, r * 0.05);
-  if (dancer.gender === 'girl') {
-    canvas.fillCircle(cx, cy, r, colour);
-    canvas.strokeCircle(cx, cy, r, ink, C.ink);
-  } else {
-    // The square TURNS WITH THE DANCER. Axis-aligned it stayed put while the dancer turned, so a
-    // Boy read as sliding round the floor rather than travelling; the Girl's circle has no
-    // orientation to show. The number is drawn afterwards, upright.
-    canvas.orientedSquare(cx, cy, r - inset, pose.heading, { colour, outline: C.ink, width: ink });
-  }
-  const num = displayId(dancer);
-  // The digit is a 3x5 bitmap, so its height is 5 x scale and must stay inside the marker's
-  // diameter. 0.21r makes it about as tall as the marker's radius, at every zoom.
-  if (num) {
-    const s = Math.max(1, Math.min(8, Math.round(r * 0.21)));
-    canvas.digit(num, Math.round(cx - 1.5 * s), Math.round(cy - 2.5 * s), s, C.white);
-  }
-}
-
 /** Render one call to a list of index frames. */
 function framesFor(eng, bundle, site) {
   const dancers = eng.assignHomeIdentity(bundle.dancers);

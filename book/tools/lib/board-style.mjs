@@ -74,8 +74,44 @@ export const C = {
  * Sizing it in units fixes both: the marker is a square of floor, and it shrinks with the zoom instead of
  * swallowing its neighbours. A hair under a full square, so the tightest spacing in the program - a tidal wave's
  * one unit - still reads as two dancers rather than one blob.
+ *
+ * IT IS NOW THE GRIP TRIM AND THE LINE WIDTHS, not the body: the body is the engine's own, below.
  */
 export const MARKER_UNITS = 0.48;
+
+/**
+ * THE BODY THE MARKER IS DRAWN TO, and it is the one the CONTACT RULES measure: a dancer is `DANCER_WIDTH` (0.95)
+ * across the facing and `DANCER_DEPTH` (0.45) along it - `engine/src/sequencer/bodies.ts`'s own constants, passed
+ * in by each caller rather than copied. A boy is a RECTANGLE and a girl an ELLIPSE with a white half-disc "nose" on
+ * the front: the same flat marker `packages/stage/scene.ts` builds for the POC and the game, so the book's picture
+ * is the body the collision model measures rather than a decorative dot.
+ *
+ * WHY THE SHAPE IS NOT DECORATION (`scene.ts` states it, and it is the reason to match): `bodyGap` measures two
+ * BODIES, and a body is wider than it is deep. A round marker makes every dancer look like the point the collision
+ * code explicitly is not using, and the nose is where a facing reads without a number.
+ */
+export const NOSE_HALF_OF_SIDE = 0.4;
+
+/** A boy is a rectangle, a girl an ellipse - the rule `scene.ts` draws the flat marker by. */
+export function bodyShapeOf(gender) {
+  return gender === 'girl' ? 'ellipse' : 'rectangle';
+}
+
+/**
+ * HOW FAR A DANCER'S BODY REACHES from its centre in a direction `theta` measured from its own facing, in board
+ * units. Used to trim a handhold to the two bodies it joins, so a grip starts at the edge of a body rather than at
+ * a radius that happens to suit a circle.
+ */
+export function bodySupport(gender, theta, halfDepth, halfWidth) {
+  const c = Math.abs(Math.cos(theta));
+  const s = Math.abs(Math.sin(theta));
+  if (bodyShapeOf(gender) === 'rectangle') {
+    const along = c < 1e-9 ? Infinity : halfDepth / c;
+    const across = s < 1e-9 ? Infinity : halfWidth / s;
+    return Math.min(along, across);
+  }
+  return Math.hypot(halfDepth * c, halfWidth * s);
+}
 
 /** A palette entry as the CSS colour the canvas wants. */
 export function hexOf(index) {

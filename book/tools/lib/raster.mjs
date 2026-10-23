@@ -90,6 +90,48 @@ export class Canvas {
     }
   }
 
+  /**
+   * A DANCER'S BODY in its facing: a rectangle or an ellipse, `halfWidth` across the facing and `halfDepth`
+   * along it, with a white half-disc nose on the front - the flat marker `packages/stage/scene.ts` builds for
+   * the POC and the game, so a figure shows the body the contact rules measure (`DANCER_WIDTH` 0.95 across,
+   * `DANCER_DEPTH` 0.45 along).
+   *
+   * `angle` is the CANVAS angle (board +y is up, this surface's +y is down, so a caller passes `-heading`).
+   * The body is a polygon here rather than a per-pixel special case: 24 sides on an ellipse is smooth at every
+   * zoom this book draws, and the rectangle is the same code with four.
+   */
+  orientedBody(cx, cy, halfWidth, halfDepth, angle, { shape = 'rectangle', colour, outline = 0, width = 1, nose = 0 } = {}) {
+    const sides = shape === 'ellipse' ? 24 : 4;
+    const points = [];
+    for (let i = 0; i < sides; i++) {
+      const a = (i / sides) * Math.PI * 2;
+      // local +x is the facing, so the DEPTH runs along it and the WIDTH across
+      const lx = Math.cos(a) * halfDepth;
+      const ly = Math.sin(a) * halfWidth;
+      points.push([cx + lx * Math.cos(angle) - ly * Math.sin(angle), cy + lx * Math.sin(angle) + ly * Math.cos(angle)]);
+    }
+    this.fillPolygon(points, colour);
+    if (outline) {
+      for (let i = 0; i < points.length; i++) {
+        const a = points[i];
+        const b = points[(i + 1) % points.length];
+        this.strokeLine(a[0], a[1], b[0], b[1], width, outline);
+      }
+    }
+    if (nose > 0) {
+      // the half-disc dome toward local +x, flat edge across the width - inside the body, as `scene.ts` draws it
+      const arc = 10;
+      const half = [];
+      for (let i = 0; i <= arc; i++) {
+        const a = -Math.PI / 2 + (i / arc) * Math.PI;
+        const lx = Math.cos(a) * nose;
+        const ly = Math.sin(a) * nose;
+        half.push([cx + lx * Math.cos(angle) - ly * Math.sin(angle), cy + lx * Math.sin(angle) + ly * Math.cos(angle)]);
+      }
+      this.fillPolygon(half, 11);
+    }
+  }
+
   /** A filled polygon by even-odd scanline, which is all a facing nose or a marker needs. */
   fillPolygon(points, colour) {
     if (points.length < 3) return;

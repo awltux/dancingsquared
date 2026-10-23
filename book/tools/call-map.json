@@ -26,17 +26,13 @@
             {
               "file": "ms/circle.xml",
               "tamIndex": 24
-            },
-            {
-              "file": "ms/circle.xml",
-              "tamIndex": 104
             }
           ]
         },
         {
           "letter": "b",
           "title": "Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)",
-          "corpusTitle": "Circle Four Left Full",
+          "corpusTitle": "Circle Four Left",
           "how": "alias",
           "sites": [
             {
@@ -49,23 +45,27 @@
             },
             {
               "file": "ms/circle.xml",
-              "tamIndex": 76
+              "tamIndex": 73
+            },
+            {
+              "file": "ms/circle.xml",
+              "tamIndex": 77
             }
           ]
         },
         {
           "letter": "c",
           "title": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
-          "corpusTitle": "Single Circle Left Full",
+          "corpusTitle": "Single Circle Left",
           "how": "alias",
           "sites": [
             {
               "file": "ms/circle.xml",
-              "tamIndex": 88
+              "tamIndex": 89
             },
             {
               "file": "ms/circle.xml",
-              "tamIndex": 92
+              "tamIndex": 93
             }
           ]
         }
@@ -99,27 +99,11 @@
             },
             {
               "file": "ms/dosado.xml",
-              "tamIndex": 8
-            },
-            {
-              "file": "ms/dosado.xml",
               "tamIndex": 10
             },
             {
               "file": "ms/dosado.xml",
               "tamIndex": 12
-            },
-            {
-              "file": "ms/dosado.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "ms/dosado.xml",
-              "tamIndex": 14
-            },
-            {
-              "file": "ms/dosado.xml",
-              "tamIndex": 18
             }
           ]
         }
@@ -132,12 +116,28 @@
         {
           "letter": "a",
           "title": "Couples Promenade",
-          "corpusTitle": "All 4 Couples Promenade Full",
+          "corpusTitle": "Promenade",
           "how": "alias",
           "sites": [
             {
               "file": "ms/promenade.xml",
-              "tamIndex": 11
+              "tamIndex": 0
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 12
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 24
             }
           ]
         },
@@ -149,7 +149,19 @@
           "sites": [
             {
               "file": "ms/promenade.xml",
-              "tamIndex": 14
+              "tamIndex": 28
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 29
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 33
+            },
+            {
+              "file": "ms/promenade.xml",
+              "tamIndex": 35
             }
           ]
         },
@@ -161,19 +173,19 @@
           "sites": [
             {
               "file": "ms/promenade.xml",
-              "tamIndex": 15
+              "tamIndex": 36
             }
           ]
         },
         {
           "letter": "d",
           "title": "Wrong Way Promenade",
-          "corpusTitle": "All 4 Couples Wrong Way Promenade Full",
-          "how": "alias",
+          "corpusTitle": "Wrong Way Promenade",
+          "how": "exact",
           "sites": [
             {
               "file": "ms/promenade.xml",
-              "tamIndex": 27
+              "tamIndex": 37
             }
           ]
         }
@@ -243,26 +255,6 @@
             {
               "file": "ms/allemande.xml",
               "tamIndex": 11
-            },
-            {
-              "file": "ms/allemande.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "ms/allemande.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "ms/allemande.xml",
-              "tamIndex": 14
-            },
-            {
-              "file": "ms/allemande.xml",
-              "tamIndex": 15
-            },
-            {
-              "file": "ms/allemande.xml",
-              "tamIndex": 16
             }
           ]
         }
@@ -280,15 +272,23 @@
           "sites": [
             {
               "file": "ms/star.xml",
-              "tamIndex": 0
+              "tamIndex": 2
             },
             {
               "file": "ms/star.xml",
-              "tamIndex": 1
+              "tamIndex": 3
             },
             {
               "file": "ms/star.xml",
-              "tamIndex": 22
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/star.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/star.xml",
+              "tamIndex": 26
             }
           ]
         }
@@ -577,6 +577,38 @@
             {
               "file": "ms/swing.xml",
               "tamIndex": 0
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 1
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 2
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 3
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 4
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 5
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 6
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 7
+            },
+            {
+              "file": "ms/swing.xml",
+              "tamIndex": 8
             }
           ]
         }
@@ -853,19 +885,15 @@
           "sites": [
             {
               "file": "ms/lead_right.xml",
-              "tamIndex": 0
+              "tamIndex": 3
             },
             {
               "file": "ms/lead_right.xml",
-              "tamIndex": 1
+              "tamIndex": 4
             },
             {
               "file": "ms/lead_right.xml",
-              "tamIndex": 2
-            },
-            {
-              "file": "ms/lead_right.xml",
-              "tamIndex": 10
+              "tamIndex": 5
             }
           ]
         }
@@ -1223,14 +1251,6 @@
           "sites": [
             {
               "file": "ms/square_thru.xml",
-              "tamIndex": 12
-            },
-            {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 13
-            },
-            {
-              "file": "ms/square_thru.xml",
               "tamIndex": 14
             },
             {
@@ -1251,7 +1271,15 @@
             },
             {
               "file": "ms/square_thru.xml",
-              "tamIndex": 78
+              "tamIndex": 19
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 20
+            },
+            {
+              "file": "ms/square_thru.xml",
+              "tamIndex": 21
             }
           ]
         }
@@ -1615,19 +1643,15 @@
           "sites": [
             {
               "file": "ms/dosado.xml",
+              "tamIndex": 14
+            },
+            {
+              "file": "ms/dosado.xml",
               "tamIndex": 15
             },
             {
               "file": "ms/dosado.xml",
               "tamIndex": 16
-            },
-            {
-              "file": "ms/dosado.xml",
-              "tamIndex": 17
-            },
-            {
-              "file": "ms/dosado.xml",
-              "tamIndex": 19
             }
           ]
         },

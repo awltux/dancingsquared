@@ -12,16 +12,16 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 
 | Unit | Call | Starts from | Beats |
 |---|---|---|---|
-| M1a | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 16 |
-| M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 8 |
+| M1a | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 16 |
+| M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 8 |
 | M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 8 |
 | M2 | [Dosado](../04-calls/m02-dosado.md) | — | 6 |
-| M3a | [Couples Promenade](../04-calls/m03-promenade-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 12 |
-| M3b | [Single File Promenade](../04-calls/m03-promenade-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 13 |
+| M3a | [Couples Promenade](../04-calls/m03-promenade-family.md) | — | 16 |
+| M3b | [Single File Promenade](../04-calls/m03-promenade-family.md) | — | 16 |
 | M3c | [Star Promenade](../04-calls/m03-promenade-family.md) | — | 12 |
-| M3d | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 12 |
+| M3d | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) | — | 12 |
 | M4a | [Right/Left Arm Turn](../04-calls/m04-arm-turn-family.md) | — | — |
-| M4b | [Allemande Left/Right](../04-calls/m04-arm-turn-family.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 6 |
+| M4b | [Allemande Left/Right](../04-calls/m04-arm-turn-family.md) | — | 6 |
 | M5 | [Star Right/Left](../04-calls/m05-star-right-left.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 7.5 |
 | M6a | [Right and Left Grand](../04-calls/m06-right-and-left-grand-family.md) | [Grand Circle](../02-language/formations.md) | 13 |
 | M6b | [Weave the Ring](../04-calls/m06-right-and-left-grand-family.md) | — | 13 |
@@ -42,7 +42,7 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | M15a | [Separate](../04-calls/m15-separate-family.md) | — | 3 |
 | M15b | [Separate Around 1 or 2 to a Line](../04-calls/m15-separate-family.md) | — | 2 |
 | M15c | [Separate Around 1 or 2 into the middle](../04-calls/m15-separate-family.md) | — | 4 |
-| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
+| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) | — | 4 |
 | M17 | [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 2 |
 | M18 | [Star Thru](../04-calls/m18-star-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
 | M19a | [Couples Circulate](../04-calls/m19-circulate-family.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 4 |
@@ -61,7 +61,7 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | M28 | [Slide Thru](../04-calls/m28-slide-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
 | M29 | [Dive Thru](../04-calls/m29-dive-thru.md) | — | 5 |
 | M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
-| M31a | [Alamo Style](../04-calls/m31-ocean-wave-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 6.85 |
+| M31a | [Alamo Style](../04-calls/m31-ocean-wave-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
 | M31b | [Balance](../04-calls/m31-ocean-wave-family.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 4 |
 | M31c | [Step to a Wave](../04-calls/m31-ocean-wave-family.md) | [Facing Dancers](../02-language/formations.md#facing-dancers) | 2 |
 | M31d | [Dosado to a Wave](../04-calls/m31-ocean-wave-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 6 |

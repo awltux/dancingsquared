@@ -564,7 +564,7 @@
     {
       "id": "m01b",
       "call": "Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)",
-      "corpusTitle": "Circle Four Left Full",
+      "corpusTitle": "Circle Four Left",
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
@@ -675,7 +675,7 @@
     {
       "id": "m01c",
       "call": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
-      "corpusTitle": "Single Circle Left Full",
+      "corpusTitle": "Single Circle Left",
       "file": "ms/circle.xml",
       "level": "ms",
       "fileName": "circle.xml",
@@ -912,17 +912,17 @@
     {
       "id": "m03a",
       "call": "Couples Promenade",
-      "corpusTitle": "All 4 Couples Promenade Full",
+      "corpusTitle": "Promenade",
       "file": "ms/promenade.xml",
       "level": "ms",
       "fileName": "promenade.xml",
-      "tamIndex": 11,
+      "tamIndex": 0,
       "from": "",
-      "beats": 4,
+      "beats": 16,
       "frames": 0,
       "view": {
-        "scale": 36.182,
-        "units": 4.312
+        "scale": 36.278,
+        "units": 4.3
       }
     },
     {
@@ -932,32 +932,14 @@
       "file": "ms/promenade.xml",
       "level": "ms",
       "fileName": "promenade.xml",
-      "tamIndex": 14,
-      "from": "Two-Faced Lines LH",
-      "beats": 8,
+      "tamIndex": 28,
+      "from": "",
+      "beats": 16,
       "frames": 0,
       "view": {
-        "scale": 35.849,
-        "units": 4.352
-      },
-      "starts": [
-        {
-          "label": "Squared Set",
-          "calls": [
-            {
-              "title": "Single File Promenade",
-              "file": "ms/promenade.xml",
-              "tamIndex": 14,
-              "from": "Two-Faced Lines LH",
-              "beats": 8,
-              "view": {
-                "scale": 35.849,
-                "units": 4.352
-              }
-            }
-          ]
-        }
-      ]
+        "scale": 36.279,
+        "units": 4.3
+      }
     },
     {
       "id": "m03c",
@@ -966,29 +948,29 @@
       "file": "ms/promenade.xml",
       "level": "ms",
       "fileName": "promenade.xml",
-      "tamIndex": 15,
-      "from": "Two-Faced Lines LH",
-      "beats": 4,
+      "tamIndex": 36,
+      "from": "",
+      "beats": 12,
       "frames": 0,
       "view": {
-        "scale": 35.844,
-        "units": 4.352
+        "scale": 36.279,
+        "units": 4.3
       }
     },
     {
       "id": "m03d",
       "call": "Wrong Way Promenade",
-      "corpusTitle": "All 4 Couples Wrong Way Promenade Full",
+      "corpusTitle": "Wrong Way Promenade",
       "file": "ms/promenade.xml",
       "level": "ms",
       "fileName": "promenade.xml",
-      "tamIndex": 27,
+      "tamIndex": 37,
       "from": "",
-      "beats": 5.2,
+      "beats": 12,
       "frames": 0,
       "view": {
-        "scale": 34.497,
-        "units": 4.522
+        "scale": 32.139,
+        "units": 4.854
       }
     },
     {
@@ -1785,32 +1767,14 @@
       "file": "ms/lead_right.xml",
       "level": "ms",
       "fileName": "lead_right.xml",
-      "tamIndex": 0,
-      "from": "Adjacent Dancers",
+      "tamIndex": 3,
+      "from": "",
       "beats": 4,
       "frames": 0,
       "view": {
         "scale": 43.333,
         "units": 3.6
-      },
-      "starts": [
-        {
-          "label": "Couple",
-          "calls": [
-            {
-              "title": "Lead Right / Lead Left",
-              "file": "ms/lead_right.xml",
-              "tamIndex": 0,
-              "from": "Adjacent Dancers",
-              "beats": 4,
-              "view": {
-                "scale": 43.333,
-                "units": 3.6
-              }
-            }
-          ]
-        }
-      ]
+      }
     },
     {
       "id": "m17",

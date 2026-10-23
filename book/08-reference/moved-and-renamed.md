@@ -85,9 +85,6 @@ These are **not taught in this book** and are not Plus calls either. They may ap
 - Centers Arm Turn 3/4
 - Centers Quarter Thru
 - Centers Run and Roll
-- Centers Split Two
-- Centers Split the Outside Couple, Separate, Go Around One to a Line
-- Centers Split the Outside Couple
 - Centers Step Thru
 - Chase Right and Roll
 - Clover and Lock It
@@ -182,6 +179,7 @@ These are **not taught in this book** and are not Plus calls either. They may ap
 - Recycle and Roll (from Left-Hand Waves)
 - Recycle and Roll
 - Reverse Flutterwheel and Roll
+- Right Arm Turn 3/4
 - Right and Left Thru and Roll
 - Scoot Back and Roll
 - Shoot the Star 3/4 to an Alamo Ring
@@ -222,10 +220,9 @@ Where the name this book teaches differs from an older name you may know. This b
 | Unit | 2026 name (taught here) | Older name |
 |---|---|---|
 | M1a | Circle Left/Right (1/4, 1/2, 3/4, Full) | Circle Left |
-| M1b | Circle of 4 Left/Right (1/4, 1/2, 3/4, Full) | Circle Four Left Full |
-| M1c | Single Circle Left/Right (1/4, 1/2, 3/4, Full) | Single Circle Left Full |
-| M3a | Couples Promenade | All 4 Couples Promenade Full |
-| M3d | Wrong Way Promenade | All 4 Couples Wrong Way Promenade Full |
+| M1b | Circle of 4 Left/Right (1/4, 1/2, 3/4, Full) | Circle Four Left |
+| M1c | Single Circle Left/Right (1/4, 1/2, 3/4, Full) | Single Circle Left |
+| M3a | Couples Promenade | Promenade |
 | M4b | Allemande Left/Right | Allemande Left |
 | M5 | Star Right/Left | Right Hand Star |
 | M8 | Wheel Around / Reverse Wheel Ar. | Wheel Around |

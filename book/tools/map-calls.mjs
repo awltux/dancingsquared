@@ -40,15 +40,21 @@ export function normalise(s) {
  * Exact bridges between the manual's name and the corpus's title, each one VERIFIED against
  * the corpus's own title list rather than guessed. A name difference only -- geometry is
  * settled by the reconciliation step, never here.
+ *
+ * FOUR OF THESE NAMED A TITLE THE CORPUS NO LONGER CARRIES, and `map-calls.mjs` says so in its own report
+ * (`!! alias "..." -> "..." but the corpus has no such title`) rather than resolving them to nothing quietly.
+ * MEASURED: the 2026-10-20 retitle dropped the `... Full` suffix from the four calls below, so the manual's
+ * `Full` name now bridges to the bare title - the fraction variants (`Circle Four Left 1/4`, ...) are separate
+ * tams carrying their own titles, not suffixes of one.
  */
 export const TITLE_ALIASES = {
   circleleftright: 'Circle Left',
-  circleof4leftright: 'Circle Four Left Full',
-  singlecircleleftright: 'Single Circle Left Full',
-  couplespromenade: 'All 4 Couples Promenade Full',
+  circleof4leftright: 'Circle Four Left',
+  singlecircleleftright: 'Single Circle Left',
+  couplespromenade: 'Promenade',
   singlefilepromenade: 'Single File Promenade',
   starpromenade: 'Star Promenade',
-  wrongwaypromenade: 'All 4 Couples Wrong Way Promenade Full',
+  wrongwaypromenade: 'Wrong Way Promenade',
   allemandeleftright: 'Allemande Left',
   starrightleft: 'Right Hand Star',
   weavethering: 'Weave the Ring',

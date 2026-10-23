@@ -1,82 +1,92 @@
 {
-  "m01b": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 0,
-    "title": "Circle Four Left",
-    "board": "Static Square",
-    "kind": "tiled",
-    "startFormation": "Static Square",
-    "endFormation": "Static Square",
-    "why": "The manual starts it from Facing Couples; a square is the smallest whole-set board whose four facing-couple pairs carry the ring, and the placement is unambiguous there."
+  "version": 1,
+  "placements": {
+    "m01b": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 0,
+      "title": "Circle Four Left",
+      "board": "Static Square",
+      "kind": "partial",
+      "reading": "Sides",
+      "permission": "Circle Four is for four dancers - the heads or the sides - and both of those readings are facing couples.",
+      "startFormation": "Static Square",
+      "endFormation": "Static Square",
+      "why": "Circle Four is a FOUR-dancer call: `PERMISSION_RULES` denies the All 8 reading and allows Heads and Sides, so the placement taken is the PARTIAL one covering the Sides - four dancers circle while the other four hold. The tiled placement on the same board also stands up geometrically and is exactly the illegal picture that rule exists to prevent."
+    },
+    "m02": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 1,
+      "title": "Dosado",
+      "board": "Normal Lines",
+      "kind": "tiled",
+      "reading": "All 8",
+      "permission": "the All 8 reading is permitted from Normal Lines",
+      "startFormation": "Normal Lines",
+      "endFormation": "Normal Lines",
+      "why": "The manual's own start is the square set, and the All 8 reading THERE is denied ('a Static Square is not Facing Dancers ... the tiling can pair them six apart, but only by walking the bodies through each other'). Facing lines is the board where the whole-square Dosado is a legal reading, so the card is drawn from there."
+    },
+    "m03d": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 2,
+      "title": "Wrong Way Promenade",
+      "board": "Static Square",
+      "kind": "tiled",
+      "reading": "All 8",
+      "permission": "the All 8 reading is permitted from Static Square",
+      "startFormation": "Static Square",
+      "endFormation": "Static Square",
+      "why": "The manual's first start is Squared Set; a square places it tiled and starts and ends on Static Square, and the All 8 reading is permitted."
+    },
+    "m11": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 3,
+      "title": "Swing Your Partner",
+      "board": "Static Square",
+      "kind": "tiled",
+      "reading": "All 8",
+      "permission": "the All 8 reading is permitted from Static Square",
+      "startFormation": "Static Square",
+      "endFormation": "Static Square",
+      "why": "Four couples swing in place; a square holds four of them, and the All 8 reading is permitted. Eight Chain Thru and Double Pass Thru are REFUSED by chooseVirtual for this call (equally good placements), which is why the board is named here."
+    },
+    "m16": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 4,
+      "title": "Lead Right",
+      "board": "Static Square",
+      "kind": "partial",
+      "reading": "Sides",
+      "permission": "Lead Right is danced by one couple - the heads or the sides - so the whole square cannot lead right. `Heads Lead Right` and `Sides Lead Right` are the scoped forms, and choosing a group in the picker applies it as one.",
+      "startFormation": "Static Square",
+      "endFormation": "Eight Chain Thru",
+      "why": "The only placement on a square is PARTIAL over the Sides, which the Lead Right white list allows ('each for a single couple to dance'); the whole-square reading is denied by the rule that starts that white list."
+    },
+    "m19e": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 5,
+      "title": "Box Circulate",
+      "board": "Double Pass Thru",
+      "kind": "tiled",
+      "reading": "All 8",
+      "permission": "the All 8 reading is permitted from Double Pass Thru",
+      "startFormation": "Double Pass Thru",
+      "endFormation": "Completed Double Pass Thru",
+      "why": "Two boxes are what a Double Pass Thru carries; the placement is tiled over All 8, ends on Completed Double Pass Thru, and the All 8 reading is permitted."
+    },
+    "m30": {
+      "file": "virtual/tams.xml",
+      "tamIndex": 6,
+      "title": "Box the Gnat",
+      "board": "Eight Chain Thru",
+      "kind": "tiled",
+      "reading": "All 8",
+      "permission": "the All 8 reading is permitted from Eight Chain Thru",
+      "startFormation": "Eight Chain Thru",
+      "endFormation": "Eight Chain Thru",
+      "why": "Four facing couples place Box the Gnat tiled over All 8 and end on Eight Chain Thru, with the All 8 reading permitted. Static Square also places it, but PARTIALLY and onto a T-Bone whose pair no group name covers."
+    }
   },
-  "m01c": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 1,
-    "title": "Single Circle Left",
-    "board": "Static Square",
-    "kind": "tiled",
-    "startFormation": "Static Square",
-    "endFormation": "Static Square",
-    "why": "The manual starts it from Facing Dancers; four pairs on a square place the ring, and the square is the only whole-set board where the placement is unambiguous."
-  },
-  "m02": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 2,
-    "title": "Dosado",
-    "board": "Static Square",
-    "kind": "tiled",
-    "startFormation": "Static Square",
-    "endFormation": "Static Square",
-    "why": "The manual's own start label is 'Opposite dancers from a Static Square', so the board is the manual's, not a stand-in."
-  },
-  "m03d": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 3,
-    "title": "Wrong Way Promenade",
-    "board": "Static Square",
-    "kind": "tiled",
-    "startFormation": "Static Square",
-    "endFormation": "Static Square",
-    "why": "The manual's first start is Squared Set; a square places it tiled and starts and ends on Static Square."
-  },
-  "m11": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 4,
-    "title": "Swing Your Partner",
-    "board": "Static Square",
-    "kind": "tiled",
-    "startFormation": "Static Square",
-    "endFormation": "Static Square",
-    "why": "Four couples swing in place; a square holds four of them. Eight Chain Thru and Double Pass Thru are REFUSED by chooseVirtual for this call (equally good placements), which is why the board is named here."
-  },
-  "m16": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 5,
-    "title": "Lead Right",
-    "board": "Static Square",
-    "kind": "partial",
-    "startFormation": "Static Square",
-    "endFormation": "Eight Chain Thru",
-    "why": "The manual starts it from a Couple; a square places two couples leading right and ends on Eight Chain Thru, a named formation."
-  },
-  "m19e": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 6,
-    "title": "Box Circulate",
-    "board": "Double Pass Thru",
-    "kind": "tiled",
-    "startFormation": "Double Pass Thru",
-    "endFormation": "Completed Double Pass Thru",
-    "why": "Two boxes are what a Double Pass Thru carries; the placement is tiled and ends on Completed Double Pass Thru."
-  },
-  "m30": {
-    "file": "virtual/tams.xml",
-    "tamIndex": 7,
-    "title": "Box the Gnat",
-    "board": "Eight Chain Thru",
-    "kind": "tiled",
-    "startFormation": "Eight Chain Thru",
-    "endFormation": "Eight Chain Thru",
-    "why": "Four facing couples place Box the Gnat tiled and end on Eight Chain Thru. Static Square also places it, but PARTIALLY and onto an unnamed-facing T-Bone, which is why the board is named here."
+  "refusals": {
+    "m01c": "tiled/All 8: Single Circle is authored two dancers at a time and names no actives, so a whole-square reading has to choose which dancers circle and the corpus does not say. Withheld at Mainstream until those readings are curated, and an exception belongs here when one is."
   }
 }

@@ -985,6 +985,34 @@ export class Sequencer {
     return this.keepProperSubsets(board, SUBSET_GROUP_NAMES);
   }
 
+  /**
+   * THE READING A SET OF DANCERS NAMES, or null when no group names exactly them.
+   *
+   * WHY IT EXISTS. A virtual call is placed by DANCERS - `VirtualCandidate.placement[copy][j]` is a board index -
+   * and the permission layer is written in READINGS ("Heads", "Couple #2", "All 8"). Something has to translate
+   * one into the other, and the translation belongs beside `subsetGroups` and `resolveSelection`, which are where
+   * the vocabulary lives: a consumer that re-derived it would be a second copy of the group names, and the first
+   * copy to be corrected would be the one nobody was looking at (AGENTS.md §11.4.4).
+   *
+   * THE WHOLE BOARD IS `All 8`, which is not a selection - `mayOffer` normalises an absent group to it, and
+   * `subsetGroups` deliberately never returns it because every name it holds is a PROPER subset.
+   *
+   * `ids` are DANCER ids (`d.id`), not array indices, which is what `resolveSelection` answers with. A subset no
+   * name covers returns null rather than the nearest name: the caller's next question is a permission, and a
+   * permission asked about the wrong dancers is worse than a refusal.
+   */
+  readingOf(board: Board, ids: readonly number[]): string | null {
+    const want = [...ids].sort((a, b) => a - b);
+    if (want.length === board.dancers.length) return 'All 8';
+    for (const group of this.subsetGroups(board)) {
+      const got = this.grouping.resolveSelection(board, group);
+      if (!got) continue;
+      const sorted = [...got].sort((a, b) => a - b);
+      if (sorted.length === want.length && sorted.every((v, i) => v === want[i])) return group;
+    }
+    return null;
+  }
+
 
   parallelLegalCalls(board: Board): { name: string; board: Board }[] {
     return this.legality.parallelLegalCalls(board);

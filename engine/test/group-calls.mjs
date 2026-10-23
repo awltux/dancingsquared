@@ -131,5 +131,25 @@ console.log('\n== THE GROUP VOCABULARY IS ONE LIST ==');
   console.log(`    ${names.length} name(s); ${offered.size} of them offered somewhere in the corpus; ${unreachable.length} unreachable`);
 }
 
+console.log('\n== A SET OF DANCERS READS AS ONE NAME, OR AS NONE ==');
+// `readingOf` is what turns a VIRTUAL placement - which is a set of board indices - into the READING a
+// permission rule is written against. It is the translation `make-virtual.mjs` needs, and the thing that makes
+// the all-8 `Circle Four` refusal reachable: the rule denies that reading, and before this the book had no way
+// to ask which reading a placement was.
+{
+  const all = board.dancers.map((d) => d.id);
+  check(seq.readingOf(board, all) === 'All 8', `the whole board reads as All 8 (${seq.readingOf(board, all)})`);
+  const heads = board.dancers.filter((d) => d.couple === 1 || d.couple === 3).map((d) => d.id);
+  check(seq.readingOf(board, heads) === 'Heads', `the head couples read as Heads (${seq.readingOf(board, heads)})`);
+  const couple1 = board.dancers.filter((d) => d.couple === 1).map((d) => d.id);
+  check(seq.readingOf(board, couple1) === 'Couple #1', `one couple reads as Couple #1 (${seq.readingOf(board, couple1)})`);
+  // THE NEGATIVE CONTROL: a set no name covers is NULL, not the nearest name. Without this, a placement of
+  // dancers 1 and 3 would be asked about as "Heads" and a permission for four dancers would answer a question
+  // about two - the failure mode a "closest match" reading would have and this one must not.
+  const two = [all[0], all[2]];
+  check(seq.readingOf(board, two) === null, `dancers ${two.join('+')} have no reading (${seq.readingOf(board, two)})`);
+  check(seq.readingOf(board, couple1) !== 'Heads', 'CONTROL: the two-dancer couple is not answered as Heads');
+}
+
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

@@ -10,13 +10,12 @@ Every call in this book that moves, and the few that do not move yet. Each one i
 
 ## Calls you can watch move
 
-75 calls, each with a player on its own call page. The call name links to it.
+74 calls, each with a player on its own call page. The call name links to it.
 
 | Unit | Call |
 |---|---|
 | M01A | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
 | M01B | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
-| M01C | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
 | M02 | [Dosado](../04-calls/m02-dosado.md) |
 | M03A | [Couples Promenade](../04-calls/m03-promenade-family.md) |
 | M03B | [Single File Promenade](../04-calls/m03-promenade-family.md) |
@@ -96,6 +95,7 @@ These are taught from the definition alone. A blank space would tell you nothing
 
 | Unit | Call |
 |---|---|
+| M01C | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
 | M04A | [Right/Left Arm Turn](../04-calls/m04-arm-turn-family.md) |
 | M14B | [Backtrack](../04-calls/m14-turn-back-family.md) |
 | M32C | [Right/Left Hand Trade](../04-calls/m32-trade-family.md) |

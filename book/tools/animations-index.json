@@ -578,29 +578,8 @@
       },
       "virtual": {
         "board": "Static Square",
-        "kind": "tiled",
-        "startFormation": "Static Square",
-        "endFormation": "Static Square"
-      }
-    },
-    {
-      "id": "m01c",
-      "call": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
-      "corpusTitle": "Single Circle Left",
-      "file": "virtual/tams.xml",
-      "level": "virtual",
-      "fileName": "tams.xml",
-      "tamIndex": 1,
-      "from": "Static Square",
-      "beats": 8,
-      "frames": 0,
-      "view": {
-        "scale": 36.279,
-        "units": 4.3
-      },
-      "virtual": {
-        "board": "Static Square",
-        "kind": "tiled",
+        "kind": "partial",
+        "reading": "Sides",
         "startFormation": "Static Square",
         "endFormation": "Static Square"
       }
@@ -612,19 +591,20 @@
       "file": "virtual/tams.xml",
       "level": "virtual",
       "fileName": "tams.xml",
-      "tamIndex": 2,
-      "from": "Static Square",
-      "beats": 8,
+      "tamIndex": 1,
+      "from": "Normal Lines",
+      "beats": 6,
       "frames": 0,
       "view": {
-        "scale": 36.279,
-        "units": 4.3
+        "scale": 32.5,
+        "units": 4.8
       },
       "virtual": {
-        "board": "Static Square",
+        "board": "Normal Lines",
         "kind": "tiled",
-        "startFormation": "Static Square",
-        "endFormation": "Static Square"
+        "reading": "All 8",
+        "startFormation": "Normal Lines",
+        "endFormation": "Normal Lines"
       }
     },
     {
@@ -700,7 +680,7 @@
       "file": "virtual/tams.xml",
       "level": "virtual",
       "fileName": "tams.xml",
-      "tamIndex": 3,
+      "tamIndex": 2,
       "from": "Static Square",
       "beats": 12,
       "frames": 0,
@@ -711,6 +691,7 @@
       "virtual": {
         "board": "Static Square",
         "kind": "tiled",
+        "reading": "All 8",
         "startFormation": "Static Square",
         "endFormation": "Static Square"
       }
@@ -1192,7 +1173,7 @@
       "file": "virtual/tams.xml",
       "level": "virtual",
       "fileName": "tams.xml",
-      "tamIndex": 4,
+      "tamIndex": 3,
       "from": "Static Square",
       "beats": 9,
       "frames": 0,
@@ -1203,6 +1184,7 @@
       "virtual": {
         "board": "Static Square",
         "kind": "tiled",
+        "reading": "All 8",
         "startFormation": "Static Square",
         "endFormation": "Static Square"
       }
@@ -1486,7 +1468,7 @@
       "file": "virtual/tams.xml",
       "level": "virtual",
       "fileName": "tams.xml",
-      "tamIndex": 5,
+      "tamIndex": 4,
       "from": "Static Square",
       "beats": 4,
       "frames": 0,
@@ -1497,6 +1479,7 @@
       "virtual": {
         "board": "Static Square",
         "kind": "partial",
+        "reading": "Sides",
         "startFormation": "Static Square",
         "endFormation": "Eight Chain Thru"
       }
@@ -1734,7 +1717,7 @@
       "file": "virtual/tams.xml",
       "level": "virtual",
       "fileName": "tams.xml",
-      "tamIndex": 6,
+      "tamIndex": 5,
       "from": "Double Pass Thru",
       "beats": 4,
       "frames": 0,
@@ -1745,6 +1728,7 @@
       "virtual": {
         "board": "Double Pass Thru",
         "kind": "tiled",
+        "reading": "All 8",
         "startFormation": "Double Pass Thru",
         "endFormation": "Completed Double Pass Thru"
       }
@@ -2131,7 +2115,7 @@
       "file": "virtual/tams.xml",
       "level": "virtual",
       "fileName": "tams.xml",
-      "tamIndex": 7,
+      "tamIndex": 6,
       "from": "Eight Chain Thru",
       "beats": 4,
       "frames": 0,
@@ -2142,6 +2126,7 @@
       "virtual": {
         "board": "Eight Chain Thru",
         "kind": "tiled",
+        "reading": "All 8",
         "startFormation": "Eight Chain Thru",
         "endFormation": "Eight Chain Thru"
       }
@@ -3269,6 +3254,11 @@
     }
   ],
   "noAnimation": [
+    {
+      "id": "m01c",
+      "call": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
+      "reason": "no legal whole-set placement: tiled/All 8: Single Circle is authored two dancers at a time and names no actives, so a whole-square reading has to choose which dancers circle and the corpus does not say. Withheld at Mainstream until those readings are curated, and an exception belongs here when one is."
+    },
     {
       "id": "m04a",
       "call": "Right/Left Arm Turn",

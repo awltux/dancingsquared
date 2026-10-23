@@ -1,11 +1,24 @@
 // THE WHOLE-SET INSTANCES OF CALLS THE CORPUS ONLY AUTHORS AS SUBSET UNITS.
 //
 // WHY THIS EXISTS. `make-animations.mjs` plays whole-set instances only (its `WHOLE_SET` note carries the
-// measurement: 48 of 75 cards used to play a 2- or 4-dancer authoring). Eight calls have NO eight-dancer
+// measurement: 48 of 75 cards used to play a 2- or 4-dancer authoring). Some calls have NO eight-dancer
 // authoring in the corpus, so their cards have no picture. The engine's answer to a subwhole authoring is the
 // VIRTUAL call (`engine/src/sequencer/virtual-call.ts`): place the written unit on a whole board and keep the
-// placement only if it STARTS and ENDS on a formation the namer recognises. This tool materialises the chosen
+// placement only if it STARTS and ENDS on a formation the namer recognises. This tool materialises a chosen
 // placement as a `<tam>`, so the player can fetch it by `(file, tamIndex)` like any other authoring.
+//
+// A PLACEMENT MUST ALSO BE LEGAL, AND THAT IS THE PERMISSION LAYER'S QUESTION, NOT GEOMETRY'S. A placement says
+// WHICH DANCERS dance (`VirtualCandidate.placement[copy][j]` is a board index); `PERMISSION_RULES` is written in
+// READINGS ("Heads", "Sides", "Couple #2", "All 8"). `Sequencer.readingOf` translates one into the other and
+// `Sequencer.mayOffer` answers, which is the same predicate the POC's picker uses - MEASURED on this tool's first
+// run, the tiled `Circle Four Left` on a Static Square reads as `All 8` and is refused by name: "Circle Four is
+// danced by four dancers - the heads or the sides - so the whole square cannot circle four". Its PARTIAL
+// placement reads as `Sides` and is allowed, which is the picture the book should show.
+//
+// SO CANDIDATES ARE FILTERED BY PERMISSION BEFORE ONE IS CHOSEN, in `chooseVirtual`'s own preference order (a
+// tiled placement before a partial one, then the lower placement error, then the placement key). A call with no
+// allowed reading anywhere is RECORDED AS REFUSED, with the rule's sentence, rather than drawn illegally: the
+// index carries a `refusals` section and `make-animations.mjs` puts that sentence on the card.
 //
 // THE SEARCH IS NOT IN THE BUILD, AND THAT IS THE POINT. `virtual-call.ts` keeps "no cache and no ambient
 // state", so a placement is a SEARCH over boards. Running that search over every call and every formation is
@@ -16,22 +29,20 @@
 // it when the engine disagrees. `--discover=<title>` is a person's aid for writing a row, and nothing else runs
 // it.
 //
-// THE FOUR REFUSALS, and each is a different mistake:
+// THE REFUSALS, each a different mistake:
 //   - the declared board does not stand up (`boardForFormation` returns null);
 //   - the placement is illegal for that call (the source does not fit the board at all);
-//   - the placement is AMBIGUOUS (`chooseVirtual` refuses: equally good placements, or one placement reaching
-//     two different named ends - "nothing in the geometry chooses between them");
-//   - the serialised `<tam>` does not reproduce the placed bundle when read back. That last one is the check
-//     that makes the artefact trustworthy: the player loads the TEXT, so a text that plays differently from the
-//     placement it claims is worse than no animation.
-//
-// AND ONE MORE, in `--check` only: a row whose card has since gained an eight-dancer CORPUS authoring is dead
-// weight - the catalogue prefers the corpus - so it must be deleted rather than left shipping a tam nothing
-// plays.
+//   - no placement on that board carries an ALLOWED reading (permission);
+//   - the placement is AMBIGUOUS (`chooseVirtual` would refuse it: equally good placements, or one placement
+//     reaching two different named ends);
+//   - a row marked `refused` whose call DOES have an allowed reading - the claim is false, so declare it;
+//   - the serialised `<tam>` does not reproduce the placed bundle when read back;
+//   - in `--check` only, a row whose card has since gained an eight-dancer CORPUS authoring, which is dead
+//     weight because the catalogue prefers the corpus.
 //
 // THE OUTPUT IS TWO TRACKED FILES, both generated:
-//   assets/virtual/tams.xml    the `<tam>` elements, one per row, in card order
-//   assets/virtual/index.json  card id -> {file, tamIndex, title, board, kind, start, end, why}
+//   assets/virtual/tams.xml    the `<tam>` elements, one per placement, in card order
+//   assets/virtual/index.json  { placements: card -> {...}, refusals: card -> the rule's sentence }
 // `assets/` is where the player's `assets/calls/<file>` copy comes from, and `virtual/` is not a corpus level,
 // so `catalogue()` and the variant census never see these tams.
 //
@@ -78,8 +89,8 @@ function tamsByTitle() {
 }
 
 /**
- * Place `title` on `board`, or explain why it cannot be. Returns the engine's chosen candidate - which is a
- * whole-board `CallBundle` plus the placement it came from - or a sentence naming the refusal.
+ * Place `title` on `board`, or explain why it cannot be: the engine's candidate list, or a sentence naming the
+ * geometric refusal. Permission is asked separately, per candidate, by `chooseLegal`.
  */
 function place(eng, byTitle, title, boardName) {
   const written = byTitle.get(title) ?? [];
@@ -96,9 +107,42 @@ function place(eng, byTitle, title, boardName) {
   if (!board) return { error: `the engine stands up no board for "${boardName}"` };
   const outcome = seq.virtualCall(board, title);
   if (!outcome.legal) return { error: outcome.reason };
-  const pick = eng.chooseVirtual(outcome.candidates);
-  if (!pick.chosen) return { error: pick.reason };
-  return { chosen: pick.chosen, candidates: outcome.candidates.length };
+  return { seq, board, candidates: outcome.candidates };
+}
+
+/** `chooseVirtual`'s own preference: a tiled placement first, then the lower error, then the placement key. */
+const placementKey = (c) => c.placement.map((copy) => copy.join('+')).join('/');
+const preference = (a, b) =>
+  (a.kind === 'tiled' ? 0 : 1) - (b.kind === 'tiled' ? 0 : 1) ||
+  a.error - b.error ||
+  placementKey(a).localeCompare(placementKey(b));
+
+/**
+ * The first placement whose READING the permission layer allows, with the reading and the rule's answer.
+ *
+ * A candidate whose dancers no group names is skipped with that reason recorded: the permission question cannot
+ * be asked about dancers nobody has a word for, and asking it about the nearest name would be a different call.
+ */
+function chooseLegal(seq, board, title, candidates) {
+  const denied = [];
+  for (const candidate of [...candidates].sort(preference)) {
+    const ids = [...new Set(candidate.placement.flat())].map((i) => board.dancers[i].id);
+    const reading = seq.readingOf(board, ids);
+    if (!reading) {
+      denied.push(`${candidate.kind} placement moves dancers ${ids.join(',')}, which no reading names`);
+      continue;
+    }
+    const verdict = seq.mayOffer(title, reading, board);
+    if (verdict.allowed) {
+      return {
+        chosen: candidate,
+        reading,
+        permission: verdict.reason ?? `the ${reading} reading is permitted from ${candidate.startFormation}`,
+      };
+    }
+    denied.push(`${candidate.kind}/${reading}: ${verdict.reason ?? 'denied'}`);
+  }
+  return { denied };
 }
 
 /** Every sampled pose of a bundle, row for row - the shape the round-trip comparison walks. */
@@ -142,7 +186,8 @@ export function render() {
   const eng = loadEngine();
   const byTitle = tamsByTitle();
   const tams = [];
-  const index = {};
+  const entries = {};
+  const refusals = {};
   const problems = [];
 
   for (const id of Object.keys(placements).filter((k) => !k.startsWith('$')).sort()) {
@@ -152,16 +197,31 @@ export function render() {
       problems.push(`${id}: ${placed.error}`);
       continue;
     }
-    const { chosen } = placed;
+    const legal = chooseLegal(placed.seq, placed.board, row.title, placed.candidates);
+    if (row.refused) {
+      // A REFUSAL IS A CLAIM TOO, and the check that it is true is that no placement on this board is allowed.
+      if (legal.chosen) {
+        problems.push(`${id}: marked refused, but a legal placement exists (${legal.chosen.kind}/${legal.chosen.reading}) - declare it instead`);
+      } else {
+        refusals[id] = legal.denied[0] ?? `no placement of "${row.title}" on ${row.board}`;
+      }
+      continue;
+    }
+    if (!legal.chosen) {
+      problems.push(`${id}: no placement on ${row.board} has an allowed reading - ${legal.denied.join(' | ')}`);
+      continue;
+    }
+    const { chosen } = legal;
     const tamIndex = tams.length;
-    const xml = eng.callToXml(chosen.bundle);
-    tams.push(xml);
-    index[id] = {
+    tams.push(eng.callToXml(chosen.bundle));
+    entries[id] = {
       file: 'virtual/tams.xml',
       tamIndex,
       title: chosen.bundle.title,
       board: chosen.startFormation,
       kind: chosen.kind,
+      reading: legal.reading,
+      permission: legal.permission,
       startFormation: chosen.startFormation,
       endFormation: chosen.endFormation,
       why: row.why,
@@ -178,8 +238,8 @@ export function render() {
   // THE ROUND TRIP, against the file that will actually ship. A tam's paths are paired with the formation's
   // dancers BY INDEX, so a text that re-reads to a different set of poses is a wrong picture, not a format
   // nuance - and the tolerance is the XML's own rounding, not a fudge factor.
-  for (const id of Object.keys(index).sort()) {
-    const entry = index[id];
+  for (const id of Object.keys(entries).sort()) {
+    const entry = entries[id];
     let back;
     try {
       back = eng.loadCallFromXml(file, readAsset('moves.xml'), readAsset('formations.xml'), entry.tamIndex, true);
@@ -191,20 +251,20 @@ export function render() {
       problems.push(`${id}: the generated tam re-reads as ${back?.dancers?.length ?? 0} dancers, not 8`);
       continue;
     }
-    const placed = place(loadEngine(), byTitle, entry.title, entry.board).chosen;
-    const drift = placed ? poseDrift(eng, placed.bundle, back) : Infinity;
+    const placed = place(loadEngine(), byTitle, entry.title, entry.board);
+    const legal = placed.error ? null : chooseLegal(placed.seq, placed.board, entry.title, placed.candidates).chosen;
+    const drift = legal ? poseDrift(eng, legal.bundle, back) : Infinity;
     if (!(drift <= ROUND_TRIP_TOL)) {
       problems.push(`${id}: the generated tam plays differently from the placement it claims (worst pose drift ${drift.toExponential(2)}, tolerance ${ROUND_TRIP_TOL})`);
     }
   }
 
-  return { file, index, problems, placements };
+  return { file, index: { version: 1, placements: entries, refusals }, problems, placements };
 }
 
-/** Cards that still have no eight-dancer corpus authoring, so a row is still needed (or one is dead). */
+/** A row whose card has since gained an eight-dancer corpus authoring is dead weight - the catalogue prefers it. */
 function rowsStillNeeded() {
   const placements = JSON.parse(readFileSync(PLACEMENTS, 'utf8'));
-  const map = JSON.parse(readFileSync(join(toolsDir, 'call-map.json'), 'utf8'));
   const eng = loadEngine();
   const byTitle = tamsByTitle();
   const dead = [];
@@ -222,7 +282,6 @@ function rowsStillNeeded() {
     }
     if (anyEight) dead.push(`${id}: "${row.title}" now has an eight-dancer corpus authoring, so this row is dead - delete it`);
   }
-  void map;
   return dead;
 }
 
@@ -240,7 +299,16 @@ export function main() {
     }
     for (const board of DISCOVER_BOARDS) {
       const placed = place(eng, byTitle, title, board);
-      console.log(`${board}: ${placed.error ? `REFUSED (${placed.error})` : `PLACES ${placed.chosen.startFormation} to ${placed.chosen.endFormation} (${placed.chosen.kind}, ${placed.candidates} candidate(s))`}`);
+      if (placed.error) {
+        console.log(`${board}: REFUSED (${placed.error})`);
+        continue;
+      }
+      const legal = chooseLegal(placed.seq, placed.board, title, placed.candidates);
+      console.log(
+        `${board}: ${legal.chosen
+          ? `PLACES ${legal.chosen.startFormation} to ${legal.chosen.endFormation} (${legal.chosen.kind}/${legal.reading}, ALLOWED)`
+          : `no allowed reading (${legal.denied[0] ?? 'no candidates'})`}`,
+      );
     }
     return 0;
   }
@@ -270,18 +338,22 @@ export function main() {
       console.error(`\n${drift} file(s) differ. Re-run without --check.`);
       return 1;
     }
-    console.log(`${Object.keys(index).length} virtual placement(s) reproduce exactly.`);
+    console.log(
+      `${Object.keys(index.placements).length} virtual placement(s) reproduce exactly`
+      + `, ${Object.keys(index.refusals).length} refusal(s) still true.`,
+    );
     return 0;
   }
 
   mkdirSync(dirname(OUT_XML), { recursive: true });
   writeFileSync(OUT_XML, file, 'utf8');
   writeFileSync(OUT_INDEX, indexText, 'utf8');
-  for (const id of Object.keys(index).sort()) {
-    const e = index[id];
-    console.log(`  ${id}  ${e.title}  from ${e.board}  (${e.kind}, ends on ${e.endFormation})  -> ${e.file}#${e.tamIndex}`);
+  for (const id of Object.keys(index.placements).sort()) {
+    const e = index.placements[id];
+    console.log(`  ${id}  ${e.title}  from ${e.board}  (${e.kind}/${e.reading}, ends on ${e.endFormation})  -> ${e.file}#${e.tamIndex}`);
   }
-  console.log(`${Object.keys(index).length} virtual placement(s) -> ${OUT_XML}`);
+  for (const id of Object.keys(index.refusals).sort()) console.log(`  ${id}  REFUSED: ${index.refusals[id]}`);
+  console.log(`${Object.keys(index.placements).length} placement(s), ${Object.keys(index.refusals).length} refusal(s) -> ${OUT_XML}`);
   return 0;
 }
 

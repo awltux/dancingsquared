@@ -48,7 +48,7 @@ The formation a call *finishes in* is not listed — it belongs to the call's de
 
 ### Normal Lines
 
-[Dosado to a Wave](../04-calls/m31-ocean-wave-family.md), [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md), [Sweep a Quarter](../04-calls/m38-sweep-a-quarter.md)
+[Dosado](../04-calls/m02-dosado.md), [Dosado to a Wave](../04-calls/m31-ocean-wave-family.md), [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md), [Sweep a Quarter](../04-calls/m38-sweep-a-quarter.md)
 
 ### Right-Hand 1/4 Tag
 
@@ -72,7 +72,7 @@ The formation a call *finishes in* is not listed — it belongs to the call's de
 
 ### Static Square
 
-[Alamo Style](../04-calls/m31-ocean-wave-family.md), [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md), [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md), [Dosado](../04-calls/m02-dosado.md), [Four Ladies Chain, (Chain 3/4)](../04-calls/m12-ladies-chain-family.md), [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md), [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md), [Swing](../04-calls/m11-swing.md), [Wrong Way Promenade](../04-calls/m03-promenade-family.md)
+[Alamo Style](../04-calls/m31-ocean-wave-family.md), [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md), [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md), [Four Ladies Chain, (Chain 3/4)](../04-calls/m12-ladies-chain-family.md), [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md), [Swing](../04-calls/m11-swing.md), [Wrong Way Promenade](../04-calls/m03-promenade-family.md)
 
 ### Trade By
 

@@ -20,23 +20,23 @@ The formation a call *finishes in* is not listed — it belongs to the call's de
 
 ### Completed Double Pass Thru
 
-[Centers In](../04-calls/m44-centers-in.md)
+[Centers In](../04-calls/m44-centers-in.md), [Zoom](../04-calls/m41-zoom.md)
 
-### Couples Facing Out
+### Double Pass Thru
 
-[Courtesy Turn](../04-calls/m09-courtesy-turn.md)
+[Double Pass Thru](../04-calls/m24-double-pass-thru.md)
 
-### Facing Couples
+### Eight Chain Thru
 
-[Box the Gnat](../04-calls/m30-box-the-gnat.md), [California Twirl](../04-calls/m27-california-twirl.md), [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md), [Dosado to a Wave](../04-calls/m31-ocean-wave-family.md), [Flutterwheel / Reverse Flutterwheel](../04-calls/m37-flutterwheel-reverse-flutterwheel.md), [Half Sashay](../04-calls/m13-half-sashay-family.md), [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md), [Partner Trade](../04-calls/m32-trade-family.md), [Pass the Ocean](../04-calls/m35-pass-the-ocean.md), [Pass Thru](../04-calls/m07-pass-thru.md), [Right and Left Thru](../04-calls/m10-right-and-left-thru.md), [Rollaway](../04-calls/m13-half-sashay-family.md), [Run / Cross Run](../04-calls/m34-run-cross-run.md), [Single Circle to a Wave](../04-calls/m31-ocean-wave-family.md), [Slide Thru](../04-calls/m28-slide-thru.md), [Square Thru / Left Square Thru](../04-calls/m21-square-thru.md), [Star Right/Left](../04-calls/m05-star-right-left.md), [Star Thru](../04-calls/m18-star-thru.md), [Sweep a Quarter](../04-calls/m38-sweep-a-quarter.md), [Swing](../04-calls/m11-swing.md), [Touch a Quarter](../04-calls/m42-touch-a-quarter.md), [U-Turn Back](../04-calls/m14-turn-back-family.md), [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md), [Wheel Around / Reverse Wheel Ar.](../04-calls/m08-wheel-around.md)
-
-### Facing Dancers
-
-[Step to a Wave](../04-calls/m31-ocean-wave-family.md)
+[Single Circle to a Wave](../04-calls/m31-ocean-wave-family.md), [Square Thru / Left Square Thru](../04-calls/m21-square-thru.md), [Star Right/Left](../04-calls/m05-star-right-left.md), [Step to a Wave](../04-calls/m31-ocean-wave-family.md), [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md)
 
 ### Grand Circle
 
 [Right and Left Grand](../04-calls/m06-right-and-left-grand-family.md), [Wrong Way Grand](../04-calls/m06-right-and-left-grand-family.md)
+
+### Lines
+
+[(Named Dancers) Trade](../04-calls/m32-trade-family.md), [Flutterwheel / Reverse Flutterwheel](../04-calls/m37-flutterwheel-reverse-flutterwheel.md), [Half Sashay](../04-calls/m13-half-sashay-family.md), [Pass the Ocean](../04-calls/m35-pass-the-ocean.md), [Pass Thru](../04-calls/m07-pass-thru.md), [Right and Left Thru](../04-calls/m10-right-and-left-thru.md), [Rollaway](../04-calls/m13-half-sashay-family.md), [Run / Cross Run](../04-calls/m34-run-cross-run.md), [Slide Thru](../04-calls/m28-slide-thru.md), [Star Thru](../04-calls/m18-star-thru.md), [Touch a Quarter](../04-calls/m42-touch-a-quarter.md), [U-Turn Back](../04-calls/m14-turn-back-family.md), [Wheel Around / Reverse Wheel Ar.](../04-calls/m08-wheel-around.md)
 
 ### Lines Facing In
 
@@ -44,47 +44,31 @@ The formation a call *finishes in* is not listed — it belongs to the call's de
 
 ### Lines Facing Out
 
-[Fold / Cross Fold](../04-calls/m48-fold-cross-fold.md)
+[California Twirl](../04-calls/m27-california-twirl.md), [Courtesy Turn](../04-calls/m09-courtesy-turn.md), [Fold / Cross Fold](../04-calls/m48-fold-cross-fold.md), [Fraction (1/4, 1/2, 3/4) Tag](../04-calls/m49-tag-the-line-family.md), [Partner Trade](../04-calls/m32-trade-family.md)
+
+### Normal Lines
+
+[Dosado to a Wave](../04-calls/m31-ocean-wave-family.md), [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md), [Sweep a Quarter](../04-calls/m38-sweep-a-quarter.md)
 
 ### Right-Hand 1/4 Tag
 
 [Extend](../04-calls/m36-extend.md)
 
-### Right-Hand Box
-
-[Box/Split Circulate](../04-calls/m19-circulate-family.md), [Scoot Back](../04-calls/m47-scoot-back.md), [Zoom](../04-calls/m41-zoom.md)
-
 ### Right-Hand Columns
 
 [Single File (Column) Circulate](../04-calls/m19-circulate-family.md)
 
-### Right-Hand Two-Faced Line
-
-[Bend the Line](../04-calls/m20-bend-the-line.md), [Couples Hinge](../04-calls/m43-hinge-family.md), [Couples Trade](../04-calls/m32-trade-family.md), [Fraction (1/4, 1/2, 3/4) Tag](../04-calls/m49-tag-the-line-family.md), [Wheel and Deal](../04-calls/m26-wheel-and-deal.md)
-
 ### Right-Hand Two-Faced Lines
 
-[Couples Circulate](../04-calls/m19-circulate-family.md)
-
-### Right-Hand Wave
-
-[Cast Off Three-Quarters](../04-calls/m45-cast-off-three-quarters.md), [Recycle (from Waves only)](../04-calls/m50-recycle.md), [Single Hinge](../04-calls/m43-hinge-family.md), [Spin the Top](../04-calls/m46-spin-the-top.md), [Swing Thru / Left Swing Thru](../04-calls/m33-swing-thru.md)
-
-### Right-Hand Wave, Boys Center
-
-[(Named Dancers) Trade](../04-calls/m32-trade-family.md)
+[Bend the Line](../04-calls/m20-bend-the-line.md), [Couples Circulate](../04-calls/m19-circulate-family.md), [Couples Hinge](../04-calls/m43-hinge-family.md), [Couples Trade](../04-calls/m32-trade-family.md), [Wheel and Deal](../04-calls/m26-wheel-and-deal.md)
 
 ### Right-Hand Waves
 
-[Balance](../04-calls/m31-ocean-wave-family.md)
+[Balance](../04-calls/m31-ocean-wave-family.md), [Cast Off Three-Quarters](../04-calls/m45-cast-off-three-quarters.md), [Recycle (from Waves only)](../04-calls/m50-recycle.md), [Scoot Back](../04-calls/m47-scoot-back.md), [Single Hinge](../04-calls/m43-hinge-family.md), [Spin the Top](../04-calls/m46-spin-the-top.md), [Swing Thru / Left Swing Thru](../04-calls/m33-swing-thru.md)
 
 ### Right-Handed Two-Faced Lines
 
 [Ferris Wheel](../04-calls/m40-ferris-wheel.md)
-
-### Single Column
-
-[Double Pass Thru](../04-calls/m24-double-pass-thru.md)
 
 ### Static Square
 
@@ -94,7 +78,11 @@ The formation a call *finishes in* is not listed — it belongs to the call's de
 
 [Trade By](../04-calls/m39-trade-by.md)
 
-### Two-Faced Line
+### Two-Faced Lines
 
 [Chain Down the Line](../04-calls/m12-ladies-chain-family.md)
+
+### Two-Faced Lines LH
+
+[Couples Promenade](../04-calls/m03-promenade-family.md)
 

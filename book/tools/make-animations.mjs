@@ -171,6 +171,9 @@ function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolve
         } catch {
           continue; // this authoring does not build; try the next query
         }
+        // THE PICKER OFFERS WHOLE-SET INSTANCES ONLY, for the reason `WHOLE_SET` records below: a half-set
+        // authoring is a legitimate corpus unit and not a picture of what the reader is being taught.
+        if (!isWholeSet(bundle)) continue;
         seen.add(key);
         const view = viewFor(eng, bundle);
         calls.push({
@@ -190,6 +193,27 @@ function resolveStarts(eng, id, curated, cache, tally = { declared: 0, unresolve
 }
 
 const SIZE = 340;
+/**
+ * THE BOOK PLAYS WHOLE-SET INSTANCES ONLY.
+ *
+ * MEASURED before this rule was applied: 48 of the book's 75 animations loaded an authoring that builds FEWER
+ * than eight dancers - two for `Single Circle Left`, `Swing Your Partner`, `Single File Promenade` and `Dosado`,
+ * four for most of the rest - because the corpus routinely authors a call for PART of the set and lets the
+ * sequencer mirror it onto the whole board. A half-set authoring is a legitimate corpus unit and a legitimate
+ * thing to SEQUENCE; it is not what a reader watching a call on a board expects, and a two-dancer `Single File
+ * Promenade` is indistinguishable from a broken picture.
+ *
+ * SO A CANDIDATE MUST BUILD THE WHOLE SET, and a call whose authorings are ALL subsets is not drawn at all
+ * rather than drawn as a fragment. The engine's answer to those is the VIRTUAL call - `placeVirtual` places a
+ * subwhole authoring on a whole board, and `resolveVirtual`/`chooseVirtual` search the formations for one whose
+ * start and end are NAMED (`engine/src/sequencer/virtual-call.ts`). Playing one needs a generated `<tam>` the
+ * player can fetch by `(file, tamIndex)` - a separate artefact with its own generator, which is why this filter
+ * NAMES the calls it cannot draw instead of manufacturing one. There is NO cached map from a subset call to a
+ * virtual call: the module is deliberately cache-free, and the search is exactly what the owner warned could
+ * explode on a call as unconstrained as `Dancer Turn Right`.
+ */
+const WHOLE_SET = 8;
+const isWholeSet = (bundle) => bundle.dancers.length === WHOLE_SET;
 /**
  * Marker width: ONE GRID SQUARE of the board, which is the unit the background grid measures.
  *
@@ -461,6 +485,8 @@ export function build({ gifs = false } = {}) {
   const roots = loadRoots();
   const bindings = makeResolver(eng, roots);
   const unresolvedBindings = [];
+  /** Every candidate skipped because it is a half-set authoring, named so the count can be acted on. */
+  const subsetSkipped = [];
   const files = new Map();
   const index = { figures: [], noAnimation: [] };
 
@@ -489,30 +515,45 @@ export function build({ gifs = false } = {}) {
           unresolvedBindings.push(`${id}: ${r.binding.variantId} (${r.binding.level} "${r.binding.title}")`);
         }
       }
-      const first = resolved.find((r) => r.site)?.site ?? null;
-      const site = starts ? { file: starts[0].calls[0].file, tamIndex: starts[0].calls[0].tamIndex } : first;
+      // THE CANDIDATES, in order: the manual's own first start, then the map's bindings. THE FIRST ONE THAT
+      // BUILDS THE WHOLE SET WINS; a subset authoring is skipped rather than drawn (`WHOLE_SET` above), and if
+      // every candidate is a subset the card is NAMED instead of shown as a fragment.
+      const candidates = [];
+      if (starts?.[0]?.calls?.length) {
+        candidates.push({ file: starts[0].calls[0].file, tamIndex: starts[0].calls[0].tamIndex });
+      }
+      for (const r of resolved) if (r.site) candidates.push(r.site);
+
+      let site = null;
+      let bundle = null;
+      const failures = [];
+      for (const candidate of candidates) {
+        if (candidate.file === undefined) continue;
+        if (site && candidate.file === site.file && candidate.tamIndex === site.tamIndex) continue;
+        try {
+          const c = loadCall(eng, candidate);
+          if (!c || !c.dancers.length) throw new Error('built no dancers');
+          if (!isWholeSet(c)) {
+            subsetSkipped.push(`${id}: ${candidate.file}#${candidate.tamIndex} builds ${c.dancers.length} dancers ("${c.title}")`);
+            continue;
+          }
+          site = candidate;
+          bundle = c;
+          break;
+        } catch (err) {
+          failures.push(`${candidate.file}#${candidate.tamIndex}: ${err.message}`);
+        }
+      }
       if (!site) {
         index.noAnimation.push({
           id,
           call: e.title,
-          reason: e.sites.length
-            ? 'the map binds a variant the corpus no longer authors'
-            : 'no corpus title',
+          reason: !e.sites.length
+            ? 'no corpus title'
+            : failures.length
+              ? `no authoring builds: ${failures[0]}`
+              : `every authoring of this call is a subset of the set; a whole-set instance needs a virtual call`,
         });
-        continue;
-      }
-
-      let bundle = null;
-      const failures = [];
-      try {
-        const c = loadCall(eng, site);
-        if (!c || !c.dancers.length) throw new Error('built no dancers');
-        bundle = c;
-      } catch (err) {
-        failures.push(`${site.file}#${site.tamIndex}: ${err.message}`);
-      }
-      if (!bundle) {
-        index.noAnimation.push({ id, call: e.title, reason: `corpus authoring does not build: ${failures[0] ?? ''}` });
         continue;
       }
       let frameCount = 0;
@@ -583,6 +624,13 @@ export function build({ gifs = false } = {}) {
         `${startTally.unresolved ? `; ${startTally.unresolved} resolved to nothing` : ''}`,
     );
     for (const line of startTally.skipped) console.log(`    NOT DRAWN  ${line}`);
+  }
+  // WHAT WAS SKIPPED FOR BEING A FRAGMENT, named rather than counted: a card with no animation because its only
+  // authorings are half-set is a card waiting for a virtual-call artefact, and that is a work item, not a gap.
+  if (subsetSkipped.length) {
+    console.log(`  subset authorings skipped (the book plays whole-set instances only): ${subsetSkipped.length}`);
+    for (const line of subsetSkipped.slice(0, 12)) console.log(`    NOT PLAYED  ${line}`);
+    if (subsetSkipped.length > 12) console.log(`    ... and ${subsetSkipped.length - 12} more`);
   }
   // A REFERENCE THAT NO LONGER RESOLVES IS A FAILURE, not a card that quietly loses its animation. The map names
   // variants; when one is gone, either the corpus moved under a stale map (regenerate it) or the call was

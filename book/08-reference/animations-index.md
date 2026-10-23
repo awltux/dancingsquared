@@ -10,18 +10,14 @@ Every call in this book that moves, and the few that do not move yet. Each one i
 
 ## Calls you can watch move
 
-75 calls, each with a player on its own call page. The call name links to it.
+67 calls, each with a player on its own call page. The call name links to it.
 
 | Unit | Call |
 |---|---|
 | M01A | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
-| M01B | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
-| M01C | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
-| M02 | [Dosado](../04-calls/m02-dosado.md) |
 | M03A | [Couples Promenade](../04-calls/m03-promenade-family.md) |
 | M03B | [Single File Promenade](../04-calls/m03-promenade-family.md) |
 | M03C | [Star Promenade](../04-calls/m03-promenade-family.md) |
-| M03D | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) |
 | M04B | [Allemande Left/Right](../04-calls/m04-arm-turn-family.md) |
 | M05 | [Star Right/Left](../04-calls/m05-star-right-left.md) |
 | M06A | [Right and Left Grand](../04-calls/m06-right-and-left-grand-family.md) |
@@ -31,7 +27,6 @@ Every call in this book that moves, and the few that do not move yet. Each one i
 | M08 | [Wheel Around / Reverse Wheel Ar.](../04-calls/m08-wheel-around.md) |
 | M09 | [Courtesy Turn](../04-calls/m09-courtesy-turn.md) |
 | M10 | [Right and Left Thru](../04-calls/m10-right-and-left-thru.md) |
-| M11 | [Swing](../04-calls/m11-swing.md) |
 | M12A | [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md) |
 | M12B | [Four Ladies Chain, (Chain 3/4)](../04-calls/m12-ladies-chain-family.md) |
 | M12C | [Chain Down the Line](../04-calls/m12-ladies-chain-family.md) |
@@ -42,14 +37,12 @@ Every call in this book that moves, and the few that do not move yet. Each one i
 | M15A | [Separate](../04-calls/m15-separate-family.md) |
 | M15B | [Separate Around 1 or 2 to a Line](../04-calls/m15-separate-family.md) |
 | M15C | [Separate Around 1 or 2 into the middle](../04-calls/m15-separate-family.md) |
-| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) |
 | M17 | [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) |
 | M18 | [Star Thru](../04-calls/m18-star-thru.md) |
 | M19A | [Couples Circulate](../04-calls/m19-circulate-family.md) |
 | M19B | [(Named Dancers) Circulate](../04-calls/m19-circulate-family.md) |
 | M19C | [All Eight Circulate](../04-calls/m19-circulate-family.md) |
 | M19D | [Single File (Column) Circulate](../04-calls/m19-circulate-family.md) |
-| M19E | [Box/Split Circulate](../04-calls/m19-circulate-family.md) |
 | M20 | [Bend the Line](../04-calls/m20-bend-the-line.md) |
 | M21 | [Square Thru / Left Square Thru](../04-calls/m21-square-thru.md) |
 | M22 | [Split Two](../04-calls/m22-split-two.md) |
@@ -60,7 +53,6 @@ Every call in this book that moves, and the few that do not move yet. Each one i
 | M27 | [California Twirl](../04-calls/m27-california-twirl.md) |
 | M28 | [Slide Thru](../04-calls/m28-slide-thru.md) |
 | M29 | [Dive Thru](../04-calls/m29-dive-thru.md) |
-| M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) |
 | M31A | [Alamo Style](../04-calls/m31-ocean-wave-family.md) |
 | M31B | [Balance](../04-calls/m31-ocean-wave-family.md) |
 | M31C | [Step to a Wave](../04-calls/m31-ocean-wave-family.md) |
@@ -96,6 +88,14 @@ These are taught from the definition alone. A blank space would tell you nothing
 
 | Unit | Call |
 |---|---|
+| M01B | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
+| M01C | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) |
+| M02 | [Dosado](../04-calls/m02-dosado.md) |
+| M03D | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) |
 | M04A | [Right/Left Arm Turn](../04-calls/m04-arm-turn-family.md) |
+| M11 | [Swing](../04-calls/m11-swing.md) |
 | M14B | [Backtrack](../04-calls/m14-turn-back-family.md) |
+| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) |
+| M19E | [Box/Split Circulate](../04-calls/m19-circulate-family.md) |
+| M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) |
 | M32C | [Right/Left Hand Trade](../04-calls/m32-trade-family.md) |

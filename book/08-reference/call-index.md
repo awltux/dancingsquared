@@ -13,80 +13,80 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | Unit | Call | Starts from | Beats |
 |---|---|---|---|
 | M1a | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 16 |
-| M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 8 |
-| M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | 8 |
-| M2 | [Dosado](../04-calls/m02-dosado.md) | — | 6 |
-| M3a | [Couples Promenade](../04-calls/m03-promenade-family.md) | — | 16 |
+| M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | — |
+| M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | — |
+| M2 | [Dosado](../04-calls/m02-dosado.md) | — | — |
+| M3a | [Couples Promenade](../04-calls/m03-promenade-family.md) | [Two-Faced Lines LH](../02-language/formations.md#lines) | 16 |
 | M3b | [Single File Promenade](../04-calls/m03-promenade-family.md) | — | 16 |
 | M3c | [Star Promenade](../04-calls/m03-promenade-family.md) | — | 12 |
-| M3d | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) | — | 12 |
+| M3d | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) | — | — |
 | M4a | [Right/Left Arm Turn](../04-calls/m04-arm-turn-family.md) | — | — |
 | M4b | [Allemande Left/Right](../04-calls/m04-arm-turn-family.md) | — | 6 |
-| M5 | [Star Right/Left](../04-calls/m05-star-right-left.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 7.5 |
+| M5 | [Star Right/Left](../04-calls/m05-star-right-left.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 7.5 |
 | M6a | [Right and Left Grand](../04-calls/m06-right-and-left-grand-family.md) | [Grand Circle](../02-language/formations.md) | 13 |
 | M6b | [Weave the Ring](../04-calls/m06-right-and-left-grand-family.md) | — | 13 |
 | M6c | [Wrong Way Grand](../04-calls/m06-right-and-left-grand-family.md) | [Grand Circle](../02-language/formations.md) | 13 |
-| M7 | [Pass Thru](../04-calls/m07-pass-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 2 |
-| M8 | [Wheel Around / Reverse Wheel Ar.](../04-calls/m08-wheel-around.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 3 |
-| M9 | [Courtesy Turn](../04-calls/m09-courtesy-turn.md) | [Couples Facing Out](../02-language/formations.md) | 3 |
-| M10 | [Right and Left Thru](../04-calls/m10-right-and-left-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 6 |
-| M11 | [Swing](../04-calls/m11-swing.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 9 |
-| M12a | [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 8 |
+| M7 | [Pass Thru](../04-calls/m07-pass-thru.md) | [Lines](../02-language/formations.md#lines) | 2 |
+| M8 | [Wheel Around / Reverse Wheel Ar.](../04-calls/m08-wheel-around.md) | [Lines](../02-language/formations.md#lines) | 3 |
+| M9 | [Courtesy Turn](../04-calls/m09-courtesy-turn.md) | [Lines Facing Out](../02-language/formations.md#lines) | 3 |
+| M10 | [Right and Left Thru](../04-calls/m10-right-and-left-thru.md) | [Lines](../02-language/formations.md#lines) | 6 |
+| M11 | [Swing](../04-calls/m11-swing.md) | — | — |
+| M12a | [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md) | [Normal Lines](../02-language/formations.md) | 8 |
 | M12b | [Four Ladies Chain, (Chain 3/4)](../04-calls/m12-ladies-chain-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
-| M12c | [Chain Down the Line](../04-calls/m12-ladies-chain-family.md) | [Two-Faced Line](../02-language/formations.md#lines) | 7.5 |
-| M13a | [Half Sashay](../04-calls/m13-half-sashay-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
-| M13b | [Rollaway](../04-calls/m13-half-sashay-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 3 |
+| M12c | [Chain Down the Line](../04-calls/m12-ladies-chain-family.md) | [Two-Faced Lines](../02-language/formations.md#lines) | 7.5 |
+| M13a | [Half Sashay](../04-calls/m13-half-sashay-family.md) | [Lines](../02-language/formations.md#lines) | 4 |
+| M13b | [Rollaway](../04-calls/m13-half-sashay-family.md) | [Lines](../02-language/formations.md#lines) | 3 |
 | M13c | [Ladies In, Men Sashay](../04-calls/m13-half-sashay-family.md) | [Circle Left](../02-language/formations.md#circle) | 4.2 |
-| M14a | [U-Turn Back](../04-calls/m14-turn-back-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 3 |
+| M14a | [U-Turn Back](../04-calls/m14-turn-back-family.md) | [Lines](../02-language/formations.md#lines) | 3 |
 | M14b | [Backtrack](../04-calls/m14-turn-back-family.md) | — | — |
 | M15a | [Separate](../04-calls/m15-separate-family.md) | — | 3 |
 | M15b | [Separate Around 1 or 2 to a Line](../04-calls/m15-separate-family.md) | — | 2 |
 | M15c | [Separate Around 1 or 2 into the middle](../04-calls/m15-separate-family.md) | — | 4 |
-| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) | — | 4 |
-| M17 | [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 2 |
-| M18 | [Star Thru](../04-calls/m18-star-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
+| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) | — | — |
+| M17 | [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 2 |
+| M18 | [Star Thru](../04-calls/m18-star-thru.md) | [Lines](../02-language/formations.md#lines) | 4 |
 | M19a | [Couples Circulate](../04-calls/m19-circulate-family.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 4 |
 | M19b | [(Named Dancers) Circulate](../04-calls/m19-circulate-family.md) | [Lines Facing In](../02-language/formations.md) | 4 |
 | M19c | [All Eight Circulate](../04-calls/m19-circulate-family.md) | [Lines Facing In](../02-language/formations.md) | 4 |
 | M19d | [Single File (Column) Circulate](../04-calls/m19-circulate-family.md) | [Right-Hand Columns](../02-language/formations.md#columns) | 3 |
-| M19e | [Box/Split Circulate](../04-calls/m19-circulate-family.md) | [Right-Hand Box](../02-language/formations.md#box) | 4 |
-| M20 | [Bend the Line](../04-calls/m20-bend-the-line.md) | [Right-Hand Two-Faced Line](../02-language/formations.md#lines) | 4 |
-| M21 | [Square Thru / Left Square Thru](../04-calls/m21-square-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 10 |
+| M19e | [Box/Split Circulate](../04-calls/m19-circulate-family.md) | — | — |
+| M20 | [Bend the Line](../04-calls/m20-bend-the-line.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 4 |
+| M21 | [Square Thru / Left Square Thru](../04-calls/m21-square-thru.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 7.5 |
 | M22 | [Split Two](../04-calls/m22-split-two.md) | — | 2 |
 | M23 | [Grand Square](../04-calls/m23-grand-square.md) | [Butterfly](../02-language/formations.md) | 32 |
-| M24 | [Double Pass Thru](../04-calls/m24-double-pass-thru.md) | [Single Column](../02-language/formations.md#columns) | 4 |
+| M24 | [Double Pass Thru](../04-calls/m24-double-pass-thru.md) | [Double Pass Thru](../02-language/formations.md#double-pass-thru) | 4 |
 | M25 | [First Couple Go Left/Right, Next Couple Go Right/Left](../04-calls/m25-first-couple-go.md) | — | 4 |
-| M26 | [Wheel and Deal](../04-calls/m26-wheel-and-deal.md) | [Right-Hand Two-Faced Line](../02-language/formations.md#lines) | 4 |
-| M27 | [California Twirl](../04-calls/m27-california-twirl.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 3 |
-| M28 | [Slide Thru](../04-calls/m28-slide-thru.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
+| M26 | [Wheel and Deal](../04-calls/m26-wheel-and-deal.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 4 |
+| M27 | [California Twirl](../04-calls/m27-california-twirl.md) | [Lines Facing Out](../02-language/formations.md#lines) | 3 |
+| M28 | [Slide Thru](../04-calls/m28-slide-thru.md) | [Lines](../02-language/formations.md#lines) | 4 |
 | M29 | [Dive Thru](../04-calls/m29-dive-thru.md) | — | 5 |
-| M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
+| M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) | — | — |
 | M31a | [Alamo Style](../04-calls/m31-ocean-wave-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
 | M31b | [Balance](../04-calls/m31-ocean-wave-family.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 4 |
-| M31c | [Step to a Wave](../04-calls/m31-ocean-wave-family.md) | [Facing Dancers](../02-language/formations.md#facing-dancers) | 2 |
-| M31d | [Dosado to a Wave](../04-calls/m31-ocean-wave-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 6 |
-| M31e | [Single Circle to a Wave](../04-calls/m31-ocean-wave-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
-| M32a | [Couples Trade](../04-calls/m32-trade-family.md) | [Right-Hand Two-Faced Line](../02-language/formations.md#lines) | 6 |
-| M32b | [(Named Dancers) Trade](../04-calls/m32-trade-family.md) | [Right-Hand Wave, Boys Center](../02-language/formations.md#waves) | 4 |
+| M31c | [Step to a Wave](../04-calls/m31-ocean-wave-family.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 2 |
+| M31d | [Dosado to a Wave](../04-calls/m31-ocean-wave-family.md) | [Normal Lines](../02-language/formations.md) | 6 |
+| M31e | [Single Circle to a Wave](../04-calls/m31-ocean-wave-family.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 4 |
+| M32a | [Couples Trade](../04-calls/m32-trade-family.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 6 |
+| M32b | [(Named Dancers) Trade](../04-calls/m32-trade-family.md) | [Lines](../02-language/formations.md#lines) | 3 |
 | M32c | [Right/Left Hand Trade](../04-calls/m32-trade-family.md) | — | — |
-| M32d | [Partner Trade](../04-calls/m32-trade-family.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 3 |
-| M33 | [Swing Thru / Left Swing Thru](../04-calls/m33-swing-thru.md) | [Right-Hand Wave](../02-language/formations.md#waves) | 6 |
-| M34 | [Run / Cross Run](../04-calls/m34-run-cross-run.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
-| M35 | [Pass the Ocean](../04-calls/m35-pass-the-ocean.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 4 |
+| M32d | [Partner Trade](../04-calls/m32-trade-family.md) | [Lines Facing Out](../02-language/formations.md#lines) | 3 |
+| M33 | [Swing Thru / Left Swing Thru](../04-calls/m33-swing-thru.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 6 |
+| M34 | [Run / Cross Run](../04-calls/m34-run-cross-run.md) | [Lines](../02-language/formations.md#lines) | 4 |
+| M35 | [Pass the Ocean](../04-calls/m35-pass-the-ocean.md) | [Lines](../02-language/formations.md#lines) | 4 |
 | M36 | [Extend](../04-calls/m36-extend.md) | [Right-Hand 1/4 Tag](../02-language/formations.md#tag-formations) | 2 |
-| M37 | [Flutterwheel / Reverse Flutterwheel](../04-calls/m37-flutterwheel-reverse-flutterwheel.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 8 |
-| M38 | [Sweep a Quarter](../04-calls/m38-sweep-a-quarter.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 2 |
+| M37 | [Flutterwheel / Reverse Flutterwheel](../04-calls/m37-flutterwheel-reverse-flutterwheel.md) | [Lines](../02-language/formations.md#lines) | 8 |
+| M38 | [Sweep a Quarter](../04-calls/m38-sweep-a-quarter.md) | [Normal Lines](../02-language/formations.md) | 2 |
 | M39 | [Trade By](../04-calls/m39-trade-by.md) | [Trade By](../02-language/formations.md) | 4 |
 | M40 | [Ferris Wheel](../04-calls/m40-ferris-wheel.md) | [Right-Handed Two-Faced Lines](../02-language/formations.md#lines) | 4 |
-| M41 | [Zoom](../04-calls/m41-zoom.md) | [Right-Hand Box](../02-language/formations.md#box) | 6 |
-| M42 | [Touch a Quarter](../04-calls/m42-touch-a-quarter.md) | [Facing Couples](../02-language/formations.md#facing-couples) | 2 |
-| M43a | [Single Hinge](../04-calls/m43-hinge-family.md) | [Right-Hand Wave](../02-language/formations.md#waves) | 2 |
-| M43b | [Couples Hinge](../04-calls/m43-hinge-family.md) | [Right-Hand Two-Faced Line](../02-language/formations.md#lines) | 3 |
+| M41 | [Zoom](../04-calls/m41-zoom.md) | [Completed Double Pass Thru](../02-language/formations.md#double-pass-thru) | 4 |
+| M42 | [Touch a Quarter](../04-calls/m42-touch-a-quarter.md) | [Lines](../02-language/formations.md#lines) | 2 |
+| M43a | [Single Hinge](../04-calls/m43-hinge-family.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 2 |
+| M43b | [Couples Hinge](../04-calls/m43-hinge-family.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 3 |
 | M44 | [Centers In](../04-calls/m44-centers-in.md) | [Completed Double Pass Thru](../02-language/formations.md#double-pass-thru) | 2 |
-| M45 | [Cast Off Three-Quarters](../04-calls/m45-cast-off-three-quarters.md) | [Right-Hand Wave](../02-language/formations.md#waves) | 4.5 |
-| M46 | [Spin the Top](../04-calls/m46-spin-the-top.md) | [Right-Hand Wave](../02-language/formations.md#waves) | 7.5 |
-| M47 | [Scoot Back](../04-calls/m47-scoot-back.md) | [Right-Hand Box](../02-language/formations.md#box) | 6 |
+| M45 | [Cast Off Three-Quarters](../04-calls/m45-cast-off-three-quarters.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 4.5 |
+| M46 | [Spin the Top](../04-calls/m46-spin-the-top.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 7.5 |
+| M47 | [Scoot Back](../04-calls/m47-scoot-back.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 6 |
 | M48 | [Fold / Cross Fold](../04-calls/m48-fold-cross-fold.md) | [Lines Facing Out](../02-language/formations.md#lines) | 2 |
 | M49a | [Tag the Line (In / Out / Left / Right)](../04-calls/m49-tag-the-line-family.md) | [Lines Facing In](../02-language/formations.md) | 5.5 |
-| M49b | [Fraction (1/4, 1/2, 3/4) Tag](../04-calls/m49-tag-the-line-family.md) | [Right-Hand Two-Faced Line](../02-language/formations.md#lines) | 3.5 |
-| M50 | [Recycle (from Waves only)](../04-calls/m50-recycle.md) | [Right-Hand Wave](../02-language/formations.md#waves) | 4 |
+| M49b | [Fraction (1/4, 1/2, 3/4) Tag](../04-calls/m49-tag-the-line-family.md) | [Lines Facing Out](../02-language/formations.md#lines) | 4 |
+| M50 | [Recycle (from Waves only)](../04-calls/m50-recycle.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 4 |

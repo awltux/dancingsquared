@@ -60,6 +60,13 @@ interface HistorySnapshot {
 export interface BoardRead {
   name: string | null;
   curated: string | null;
+  /**
+   * The board's FORMATION ID (`formation-id.ts`) - the one identity that always exists, because it is
+   * computed from the geometry rather than looked up. Shown beside the name, and shown INSTEAD of it where
+   * no namer answers, which is the case it exists for: a rule can be keyed on an id and cannot be keyed on a
+   * board with no name.
+   */
+  id: string;
   /** The All8 formation letter, when the board's formation maps to one. */
   letter: string | null;
   /** The Callerlab arrangement number (0 normal, 5 half-sashayed), when it can be read. */
@@ -437,6 +444,9 @@ export class SequencerController implements SequencerUI {
     return {
       name,
       curated,
+      // FROM `boardIdentity`, the same call the permission layer makes, so the id a caller READS here is the
+      // id a rule is keyed on. A second computation would be a second answer to one question.
+      id: this.seq.boardIdentity(board).id,
       letter: f.alignment.letter,
       arrangement: f.alignment.arrangement,
       sequence: f.alignment.sequence,
@@ -1719,8 +1729,11 @@ export class SequencerController implements SequencerUI {
     const from = this.startBoard ?? this.seq.startBoard();
     const name = this.seq.recognize(from)?.name ?? 'Static Square';
     const code = this.fasrooCode(from);
+    // THE ID IS ALWAYS THERE, so it is shown whatever the name says: it is the one answer to "which board is
+    // this" that does not depend on a namer, and it is what a permission rule on an unnamed board is keyed by.
+    const id = this.seq.boardIdentity(from).id;
     this.boardChipEl.innerHTML =
-      `<b>${esc(name)}</b>${code ? ` · ${esc(code.code)}` : ''}`;
+      `<b>${esc(name)}</b>${code ? ` · ${esc(code.code)}` : ''} · ${esc(id)}`;
   }
 
   /**

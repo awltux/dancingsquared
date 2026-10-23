@@ -155,6 +155,10 @@ export class CallBrowser {
       const bits: string[] = [];
       if (applied.name) {
         bits.push(`<b>${esc(applied.name)}</b>${read.userDefined ? ' <i>(user-defined)</i>' : ''}`);
+        // THE ID SITS BESIDE THE NAME rather than in a tooltip: it is what a permission rule can be keyed on,
+        // and a caller reading the app is the person writing that rule. `esc` because it goes into markup,
+        // like every other authored value on this line.
+        bits.push(`<code>${esc(read.id)}</code>`);
         if (read.curated && read.curated !== applied.name) bits.push(`labels as ${esc(read.curated)}`);
         bits.push(esc(read.notation));
         if (read.arrangement !== null) bits.push(`arrangement ${read.arrangement}`);
@@ -168,9 +172,11 @@ export class CallBrowser {
           );
         }
       } else {
-        // NOT NAMED. Say what IS known: the size, the gender pattern, and the notation with its
+        // NOT NAMED. Say what IS known: THE ID, which is the one identity a board has without a name and the
+        // only thing a rule can be keyed on here; then the size, the gender pattern, and the notation with its
         // unknowns left as `?` rather than filled in.
         bits.push('<span style="color:#ffb454">not named</span>');
+        bits.push(`<code>${esc(read.id)}</code>`);
         bits.push(`${read.dancers} dancers`);
         bits.push(`genders ${read.genderPattern}`);
         if (read.notation.includes('?')) bits.push(esc(read.notation));

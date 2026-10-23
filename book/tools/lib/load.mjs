@@ -28,6 +28,10 @@ const REQUIRED = [
   'dancerBeats',
   'computeHandholds',
   'assignHomeIdentity',
+  // The family a corpus file files itself under — read off the root `<tamination title="…">` by
+  // `make-virtual.mjs`, so a generated instance carries the same root element and family as the file it sits
+  // beside rather than a second convention.
+  'parseTaminationTitle',
   // The squared-set arrangement figure is drawn from the engine's own arrangement table, so
   // that the six patterns are the ones the engine classifies boards into rather than a
   // transcription of them. The sequence figure goes further and asks the engine to STAND THE

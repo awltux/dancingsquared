@@ -34,24 +34,7 @@ const BEATS_PER_SECOND = 128 / 60; // the program's standard tempo; speeds below
 const colourOf = (i) => hexOf(bodySlot(i));
 const trailOf = (i) => hexOf(trailSlot(i));
 
-/**
- * The number drawn on a dancer, from couple and gender.
- *
- * NOT `dancer.id`: the engine's home ids put 1,2 on the NORTH couple (its couple 3) and 5,6 on the
- * SOUTH couple (couple 1), which is a rotation of the scheme a dancer reads off the floor, where the
- * couple with their backs to the caller is Couple 1 and is numbered first. Couple and gender are the
- * engine's own data, so this is a re-labelling, not an invented identity.
- */
-const displayId = (d) =>
-  d.couple && (d.gender === 'boy' || d.gender === 'girl')
-    ? (d.couple - 1) * 2 + (d.gender === 'boy' ? 1 : 2)
-    : null;
 
-/**
- * Trim a line back to the marker edges, so a handhold is not a pair of very long arms. `r` is in
- * board units, the same as the positions. Below two radii the markers touch and there is no gap
- * left to fill, so the line is left alone rather than drawn backwards through the bodies.
- */
 function drawBoard(ctx, size, view, state, beat) {
   const { scale, units } = view;
   const ox = size / 2;
@@ -174,6 +157,21 @@ function drawBoard(ctx, size, view, state, beat) {
   });
 }
 
+let shared = null;
+async function engineInputs() {
+  if (!shared) {
+    const url = (p) => new URL(p, import.meta.url).href;
+    shared = (async () => {
+      const [moves, formations] = await Promise.all([
+        fetch(url('../assets/moves.xml')).then((r) => r.text()),
+        fetch(url('../assets/formations.xml')).then((r) => r.text()),
+      ]);
+      const engine = new Engine(moves, formations);
+      return { engine, moves, formations };
+    })();
+  }
+  return shared;
+}
 async function mount(host) {
   const size = Number(host.dataset.size ?? 340);
   const firstFile = host.dataset.file;

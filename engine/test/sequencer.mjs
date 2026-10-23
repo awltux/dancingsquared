@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance, faceInOutStates } from '../dist/index.js';
+import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance, faceInOutStates, makeSquaredSet, boardSig } from '../dist/index.js';
 import { roleUniformMotions, segsEqual } from '../dist/sequencer/matcher.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -1404,6 +1404,47 @@ console.log('\n== a 4-dancer call applied twice whose turn is a FULL one still a
   }
   check(worst > 0.5,
     `AND THE DANCERS MOVE the whole way round (worst ${worst.toFixed(3)} units off their own start), so the 8 beats it reserves are not a standstill`);
+}
+
+// ---------------------------------------------------------------------------
+//  CLOSENESS TO HOME IS A FUNCTION OF THE FACING, SO ITS CACHE KEY HAS TO BE ONE
+// ---------------------------------------------------------------------------
+//
+// `closenessToHome` is `homeScore`, and `homeScore` orders the get-out search's candidate list (higher is
+// closer). Its value is a `matchFormations` error against `Static Square` - and that error includes the FACINGS -
+// plus an in/out-of-sequence term, so two boards with the same positions and one dancer TURNED are not the same
+// score. MEASURED: the home squared set scores 10, and the same board with dancer 1 turned a quarter scores
+// -68.53981633974483.
+//
+// The memo was keyed on `boardSig`, which is positions only (AGENTS.md §8 trap 11), so the second board was
+// answered with the first board's value: MEASURED on one Sequencer, `closenessToHome(home)` then
+// `closenessToHome(turned)` returned 10 twice. The search then ordered its candidates by a score belonging to a
+// different board, so its answer depended on which boards had been scored before it in the same process
+// (`homeScoreCache` is not cleared per search; `getoutInner` clears only `canGetoutMemo`). MEASURED, with the key
+// fixed: the `2W2p` alignment gains a three-call get-out at `budget: 1600` that the stale score lost, and its path
+// at 60 and 400 changes. The same failure is already recorded for the match cache, one section above.
+//
+// THE NEGATIVE CONTROL IS THE SECOND CHECK: if the two boards scored the same, the first check would pass for a
+// cache that is right for the wrong reason, having nothing to conflate. So the section proves the scores DIFFER
+// before asking whether each board gets its own.
+console.log('\n== closeness to home is scored per board, not per position class ==');
+{
+  const fresh = () => new Sequencer(movesXml, formationsXml, callsByTitle(path.resolve(corpusRoot())));
+  const home = makeSquaredSet();
+  const turnedBoard = { dancers: home.dancers.map((d, i) => (i === 0 ? { ...d, heading: d.heading + Math.PI / 2 } : { ...d })) };
+  check(boardSig(home) === boardSig(turnedBoard),
+    'the two boards have the SAME boardSig, which is what let one answer for the other');
+  // Each board's true score, measured in its own Sequencer so no cache can answer for it.
+  const trueHome = fresh().closenessToHome(home);
+  const trueTurned = fresh().closenessToHome(turnedBoard);
+  check(trueHome !== trueTurned,
+    `and one turned facing is a DIFFERENT score (${trueHome} vs ${trueTurned}) - so the two are not interchangeable`);
+  // One Sequencer, asked in that order: each board must get its OWN score back.
+  const s = fresh();
+  const gotHome = s.closenessToHome(home);
+  const gotTurned = s.closenessToHome(turnedBoard);
+  check(gotHome === trueHome && gotTurned === trueTurned,
+    `so one Sequencer answers each board with its own score (home ${gotHome}, turned ${gotTurned}) rather than the first one twice`);
 }
 
 console.log('\n=================');

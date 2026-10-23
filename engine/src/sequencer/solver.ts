@@ -92,17 +92,12 @@ export class HomeSolver {
    * one standard finish closes it, or null when it is not a goal.
    *
    * That is the caller convention, applied at the goal test rather than only at the
-   * end of the returned path. Memoised by board signature: the DFS asks this for every
+   * end of the returned path. Memoised on `poseKey`: the DFS asks this for every
    * candidate edge, and each answer costs up to one apply per finish.
    */
   private finishToHome(board: Board): string[] | null {
     if (this.reachesTarget(board, 'Static Square')) return [];
-    // Keyed on the FULL pose including headings: whether a finish is legal depends on
-    // facing, and `boardSig` is positions only, so keying on it would let two boards
-    // that differ only by facing share an answer.
-    const sig = board.dancers
-      .map((d) => `${d.id},${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
-      .join(';');
+    const sig = this.poseKey(board);
     const cached = this.finishCache.get(sig);
     if (cached !== undefined) return cached;
     let result: string[] | null = null;
@@ -418,8 +413,27 @@ export class HomeSolver {
     return this.homeScore(board);
   }
 
+  /**
+   * A board's FULL pose as a cache key: every dancer's id, spot and FACING.
+   *
+   * THE FACING IS THE WHOLE POINT. `boardSig` is positions only (AGENTS.md §8 trap 11) and `canonicalOf` is
+   * facing-free by construction, so a value that depends on which way a dancer is turned must not be cached under
+   * either - two boards that differ only by a facing would share one answer. `homeScore` scores a board against
+   * `Static Square` through `matchFormations`, whose error includes the facings, so it is such a value; so is
+   * whether a standard finish is LEGAL from the board, which is what `finishCache` holds. One key, three caches:
+   * `homeScoreCache`, `finishCache` and `canGetoutMemo`.
+   *
+   * THE 0.001 QUANTISATION IS THE EXISTING CONVENTION, not a new shortcut: `finishCache` and `canGetoutMemo`
+   * already keyed on `x.toFixed(3)` and `heading.toFixed(3)` before this existed. What those three caches guard is
+   * one heuristic score and two legality answers, and a difference below 0.001 units or radians cannot change
+   * either.
+   */
+  private poseKey(board: Board): string {
+    return board.dancers.map((d) => `${d.id},${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`).join(';');
+  }
+
   private homeScore(board: Board): number {
-    const sig = boardSig(board);
+    const sig = this.poseKey(board);
     const cached = this.homeScoreCache.get(sig);
     if (cached !== undefined) return cached;
     let s = 0;
@@ -480,9 +494,7 @@ export class HomeSolver {
   }
 
   private canGetoutFrom(board: Board, target: string, depth: number): boolean {
-    const key = `${target}|${depth}|${board.dancers
-      .map((d) => `${d.id},${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(3)}`)
-      .join(';')}`;
+    const key = `${target}|${depth}|${this.poseKey(board)}`;
     const memo = this.canGetoutMemo.get(key);
     if (memo !== undefined) return memo;
     // A board is "already a getout" under the caller convention when a standard

@@ -17,7 +17,7 @@ import { renderFsmHtml, mergeFsmTables, type FsmEdgeData } from './fsm-view';
 import { el } from './dom';
 import { rememberLastSession } from './remember';
 
-// Precomputed FSM table asset(s) written by `node poc/scripts/build-fsm-asset.mjs`.
+// Precomputed FSM table asset(s) written by `node scripts/build-fsm-asset.mjs`.
 //
 // The edge type is `FsmEdgeData` rather than a local copy: schema 2 added `reading` and `endKind`, and a
 // second, narrower declaration here would silently strip them before the renderer ever saw them - the
@@ -266,7 +266,7 @@ function renderFsm() {
   const level = fsmLevel.value;
   const chosen = level === FSM_ALL ? [...fsmByLevel.values()] : [fsmByLevel.get(level)].filter((b) => !!b);
   if (chosen.length === 0) {
-    fsmTitle.textContent = `no precomputed FSM for ${level.toUpperCase() || '(none)'} — run poc/scripts/build-fsm-asset.mjs`;
+    fsmTitle.textContent = `no precomputed FSM for ${level.toUpperCase() || '(none)'} — run scripts/build-fsm-asset.mjs`;
     fsmFrame.srcdoc = '<p>No FSM asset found for that level.</p>';
     return;
   }

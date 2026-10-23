@@ -16,6 +16,8 @@
   ],
   "scripts": {
     "build:engine": "npm run build -w dancing-squared-engine",
+    "build:fsm": "node scripts/build-fsm-asset.mjs",
+    "check:fsm": "node scripts/build-fsm-asset.mjs --check",
     "build": "npm run build -w dancing-squared-engine && npm run build -w dancing-squared-poc",
     "dev": "npm run dev -w dancing-squared-poc",
     "preview": "npm run preview -w dancing-squared-poc",

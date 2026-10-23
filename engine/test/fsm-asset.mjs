@@ -71,7 +71,7 @@ const check = (cond, msg) => {
 // the asset, which that file's own comment says is done in the same change; the asset sat at schema 2 /
 // 274 calls for every commit since, so this harness could not tell a real table change from the staleness
 // and the shipped FSM view could not label the tam behind an `@embed` node. MEASURED after
-// `node poc/scripts/build-fsm-asset.mjs` ("built in 55867ms: 70 states, 3958 edges"): catalog 274 -> 290
+// `node scripts/build-fsm-asset.mjs` ("built in 55867ms: 70 states, 3958 edges"): catalog 274 -> 290
 // (+10 at `d3c0800`, +4 at `ab254d9`, +2 at `a476a4f`), states 65 -> 70, edges 2308 -> 3958. The five
 // extra states are the formations the new calls declare; nothing about the SCOPE rule above changed.
 //

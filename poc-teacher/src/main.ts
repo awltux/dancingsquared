@@ -3,12 +3,16 @@
 // Students, Tips) with a large bottom navigation, built to be easy to read and
 // tap on a phone for an older user.
 
-import movesXml from '../../assets/moves.xml?raw';
-import formationsXml from '../../assets/formations.xml?raw';
+// THE CORPUS IS READ THROUGH THE `@corpus` ALIAS, NOT BY COUNTING `../`. This file used to spell
+// `../../assets/...` five times, which is the class of path that produced the removed `game/src/assets/` copy and
+// its `--check` gate (AGENTS §8 trap 26: a glob one `../` short compiles to `{}` in SILENCE). `vite.corpus.ts` is
+// the one place the corpus location is written down, and `vite.config.ts` spreads its alias in.
+import movesXml from '@corpus/moves.xml?raw';
+import formationsXml from '@corpus/formations.xml?raw';
 
 import { buildCatalog, makeSequencer } from './catalog';
 import type { CatalogCall } from './catalog';
-import type { FsmTableData } from 'dancing-squared-engine';
+import { FSM_TABLE_SCHEMA_VERSION, type FsmTableData } from 'dancing-squared-engine';
 import type { CallRef, ClassInstance, SessionPlan, Tip, TipConfig } from './teacher';
 import { parseProgramme } from './programme';
 import type { Programme } from './programme';
@@ -23,29 +27,65 @@ import { parseModules } from './modules';
 
 // ---------------------------------------------------------------- catalog
 
-const msFiles = import.meta.glob<string>('../../assets/ms/*.xml', {
+const msFiles = import.meta.glob<string>('@corpus/ms/*.xml', {
   query: '?raw',
   import: 'default',
   eager: true,
 });
 // Discovered calls (home squared-set setups for plain call names) are folded in
 // so they're available alongside the main ms catalog.
-const discoveredFiles = import.meta.glob<string>('../../assets/discovered/*.xml', {
+const discoveredFiles = import.meta.glob<string>('@corpus/discovered/*.xml', {
   query: '?raw',
   import: 'default',
   eager: true,
 });
-const catalog: CatalogCall[] = buildCatalog({ ...msFiles, ...discoveredFiles });
+// THE TWO PARTS ARE BUILT SEPARATELY ON PURPOSE: the FSM table is generated from the `ms` catalogue ALONE, so
+// its `catalogCount` is comparable with `msCatalog.length` and with nothing else. Building them in one call would
+// leave the freshness guard below comparing two different populations.
+const msCatalog: CatalogCall[] = buildCatalog(msFiles);
+const catalog: CatalogCall[] = [...msCatalog, ...buildCatalog(discoveredFiles)];
 const seq = makeSequencer(movesXml, formationsXml, catalog);
 
-// The FSM transition table is PRECOMPUTED at build time (scripts/build-fsm-table.mjs,
-// run as part of `npm run build`) and shipped as a static asset. The app just
-// loads it — it never builds the table at runtime.
-import fsmTableBlob from './assets/fsm-table.json';
-if (seq.loadFsmTable(fsmTableBlob.table as FsmTableData)) {
+// THE FSM TRANSITION TABLE IS THE REPOSITORY'S ONE ASSET, READ THROUGH THE SAME ALIAS.
+//
+// This app used to ship its OWN copy (`src/assets/fsm-table.json`) built by its OWN script
+// (`scripts/build-fsm-table.mjs`) from the same catalogue with the same two helpers — a second copy of one fact,
+// and it had gone stale into a SCHEMA THE ENGINE REFUSES (`1` against `3`), so `loadFsmTable` returned false on
+// every boot, the app logged "will be built on demand", and 77.5 KB of dead data rode in the bundle while the
+// runtime build it exists to avoid ran anyway. Its `catalogFingerprint` was computed by the builder and read by
+// nobody. Now: one builder (`scripts/build-fsm-asset.mjs`, `npm run build:fsm`), one asset, one gate
+// (`engine/test/fsm-asset.mjs` for the deep equality, `engine/test/fsm-asset-freshness.mjs` for the cheap facts).
+//
+// A GLOB RATHER THAN A PLAIN `@corpus/…json` IMPORT, because a plain import of an aliased JSON needs a tsconfig
+// `paths` entry, and that would spell the corpus location a second time. `vite/client` already types
+// `import.meta.glob`, so this needs no config at all — and it is exactly how `poc/src/main.ts` reads
+// `@corpus/fsm-*.json`.
+const fsmAssets = import.meta.glob<{ level?: string; catalogCount?: number; builtAt?: string; table: FsmTableData }>(
+  '@corpus/fsm-ms.json',
+  { eager: true, import: 'default' },
+);
+const fsmBlob = Object.values(fsmAssets)[0];
+
+// THE FRESHNESS GUARD, AND IT IS LOUD (AGENTS §11.1: a degradation is LOUD). Two failures have actually happened
+// in this tree and each is named separately, because a bare "could not load" tells the next reader nothing:
+//   * the asset never reached the bundle — an alias that did not resolve compiles the glob to `{}` SILENTLY, and
+//     nothing on screen would say so (§8 trap 26);
+//   * the asset is stale — a schema the engine refuses, or a catalogue count that disagrees with the ms one. That
+//     is the state this app's own copy sat in for weeks.
+// It WARNS rather than throwing: the app must still start, and the on-demand build is the documented fallback.
+const fsmProblem = !fsmBlob
+  ? 'the asset did not reach the bundle, so the @corpus alias did not resolve'
+  : fsmBlob.table?.schemaVersion !== FSM_TABLE_SCHEMA_VERSION
+    ? `its schema is ${fsmBlob.table?.schemaVersion} and the engine reads ${FSM_TABLE_SCHEMA_VERSION}`
+    : fsmBlob.catalogCount !== msCatalog.length
+      ? `it was built from ${fsmBlob.catalogCount} ms catalog entries and this app has ${msCatalog.length}`
+      : null;
+if (fsmProblem) {
+  console.warn(`[fsm] STALE assets/fsm-ms.json — ${fsmProblem}. Run \`npm run build:fsm\` at the repo root; this session builds the table on demand.`);
+} else if (seq.loadFsmTable(fsmBlob.table)) {
   console.log(`[fsm] loaded precomputed transition table (${seq.transitionTable().stateCount()} states, ${seq.transitionTable().edgeCount()} edges)`);
 } else {
-  console.warn('[fsm] precomputed transition table failed to load — will be built on demand.');
+  console.warn('[fsm] the precomputed transition table failed to load — will be built on demand.');
 }
 
 const findCall = (title: string): CatalogCall | undefined => catalog.find((c) => c.title === title);

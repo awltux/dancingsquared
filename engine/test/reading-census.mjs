@@ -115,7 +115,7 @@ console.log('== the call set, reproduced from the generator ==');
   // 274 -> 290 IS THE CORPUS GROWING, and it is re-pinned HERE rather than left to the asset's own
   // staleness check (`fsm-asset.mjs`), because this check compares the LIVE catalogue against the STORED
   // asset's `catalogCount` and so has to move whenever either does. Both sides are 290 now that
-  // `node poc/scripts/build-fsm-asset.mjs` has been re-run; the constant would have been the only thing
+  // `node scripts/build-fsm-asset.mjs` has been re-run; the constant would have been the only thing
   // failing, and the message above it would have read "290 ... built from 290" while it did.
   //
   // 290 -> 291 IS THE SAME PIN MOVING WITH THE SAME REGENERATION (`agent/one-fsm-asset`): the live

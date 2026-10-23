@@ -146,7 +146,7 @@ for (const lv of ORDER) {
   for (const n of perLevelNames.get(lv) ?? []) cumMs.add(n);
 }
 // The cross-check is against `ms/` ITSELF, because that is the call set the sequencer (and therefore
-// the shipped asset) is built from - `poc/scripts/build-fsm-asset.mjs` reads only `ms/*.xml`. The
+// the shipped asset) is built from - `scripts/build-fsm-asset.mjs` reads only `ms/*.xml`. The
 // cumulative figure is reported next to it because it is NOT the same: the app's own `sequencerCallsUpTo
 // ('ms')` pools ms and everything below, which is 99 names and one more title than the asset sees. The
 // two are compared below by title count rather than conflated.

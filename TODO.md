@@ -266,7 +266,13 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   **DEFECT, not a knowingly-stale artefact**, and the shipped FSM view cannot label the tam behind an
   `@embed` node because of it. **A REGENERATION ALONE CLEARS NONE OF THE FOUR HARNESSES THAT READ IT**: each
   also pins numbers measured from the LIVE engine, which the asset cannot move, and `cell-census` is not even
-  the same asset. `node poc/scripts/build-fsm-asset.mjs` is the only writer and is wired into NO npm script.
+  the same asset. `node scripts/build-fsm-asset.mjs` is the only writer and is wired into NO npm script.
+  **UPDATE (`agent/one-fsm-asset`): the asset is REGENERATED (291 catalog / 68 states / 3934 edges) and the
+  "clears none of the four" claim above was MEASURED and corrected** — `fsm-asset` went 7 FAILED → all green,
+  `level-census` red → all green, `reading-census` 4 → 2 FAILED (the two it cleared were `102 build edges NOT
+  reproducible` and 6 of its 9 reading mismatches), and only `cell-census` is unmoved (identical on both
+  assets, so its reds are corpus drift). Item 37 is closed with the numbers; the pins that remain are item 7's
+  census, not this.
 
   | harness | tier | class | the cause, named | next unit |
   |---|---|---|---|---|
@@ -525,15 +531,26 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
     `Array.from({length: 9.5}).length` is **9** — so with the corpus's new 8.5-beat promenade `trace[8.5]` is
     `undefined`. A re-pin alone cannot clear those two checks; the sampling must take half beats.
 
-- [ ] **37. THE FSM ASSET'S STALENESS IS INVISIBLE TO EVERY CHANGE-TIME GATE.** `[measured]` at `8cfe8a1`.
-  `assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed stale for the many commits
-  since, and the reason is structural rather than accidental: `node poc/scripts/build-fsm-asset.mjs` (the
-  only writer) is wired into **NO npm script**, and the one gate that checks freshness — `fsm-asset.mjs` — is
-  `light: false`, as are `reading-census`, `cell-census` and `level-census`. So `verify:light`, the gate a
-  change is supposed to run, structurally cannot see it. This is AGENTS §4.3's "a generated artefact needs
-  the gate that fails when it goes stale" with the gate present but unrun. NEXT UNIT: wire the generator into
-  a script AND add a cheap freshness check (the asset's `schemaVersion`/`catalogCount` against the engine's)
-  that a LIGHT run can afford — after item 7's regeneration, not before (trap 9).
+- [x] **37. THE FSM ASSET'S STALENESS IS INVISIBLE TO EVERY CHANGE-TIME GATE.** `[measured]` at `8cfe8a1`;
+  **CLOSED in `agent/one-fsm-asset`.** `assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed
+  stale for the many commits since, and the reason was structural rather than accidental: the writer
+  (`node scripts/build-fsm-asset.mjs`) was wired into **NO npm script**, and the one gate that checks freshness —
+  `fsm-asset.mjs` — is `light: false`, as are `reading-census`, `cell-census` and `level-census`. So
+  `verify:light`, the gate a change is supposed to run, structurally could not see it.
+  **WHAT CLOSED IT, in two commits.** (1) The asset is REGENERATED: 290 catalog / 70 states / 3958 edges →
+  **291 / 68 / 3934**, and `fsm-asset.mjs` is GREEN for the first time in ~20 commits — MEASURED per harness, the
+  regeneration cleared `fsm-asset` (7 FAILED → all green), `level-census` (was red → all green) and
+  `reading-census`'s two asset-shaped failures (`102 build edges NOT reproducible` → 0, `9 readings disagree` →
+  3); its remaining 2 and `cell-census`'s 4 are IDENTICAL on both assets, so they are corpus drift and are left
+  red for item 7's census. (2) The gate exists in the tier a change runs: `engine/test/fsm-asset-freshness.mjs`
+  (`light: true`, ~0.3 s) asserts the two facts that actually drifted (schema, catalogue count), that the table
+  is not empty, and that there is ONE copy. The generator is now `npm run build:fsm` / `npm run check:fsm`, and
+  `scripts/build-fsm-asset.mjs --check` proves a stale asset by name — MEASURED against the two real stale
+  artefacts: the old 290-title asset (`catalogCount 290 vs 291, states 70 vs 68, edges 3958 vs 3934`) and the
+  teacher's dead schema-1 copy (`schemaVersion 1 vs 3, 154 vs 68 states, 803 vs 3934 edges`), both exit 1.
+  **The second victim is gone too**: `poc-teacher/src/assets/fsm-table.json` + its builder are deleted and the
+  app reads `@corpus/fsm-ms.json`; its own copy had gone UNLOADABLE (schema 1 against 3), so it was 77.5 KB of
+  dead data while the app built the table at runtime.
 
 - [ ] **38. `engine/test/tools/fsm-getout-audit.mjs` IS IN NO SUITE.** `[measured]` at `8cfe8a1`. It reads
   the FSM asset (`:45`) and appears in no tier of `engine/test/verify-suite.mjs`, so nothing runs it and

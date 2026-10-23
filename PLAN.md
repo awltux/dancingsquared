@@ -48,7 +48,7 @@ Three external oracles, plus one derived artefact:
 | **get-out corpus** | All8's published get-out lines (`getout.htm`) | `test/lib/getout-decode.mjs` + `test/getout-behaviour.mjs` |
 | **figure corpus** | all 188 published Mainstream singing-call figures (`fig_m.htm`) | `test/lib/all8-figures.mjs` + `test/all8-figures.mjs` |
 | **CALLERLAB** | the Mainstream definitions PDF (`docs/New_Mainstream_Definitions_26-03-29.pdf`) | `test/tools/extract-pdf-text.mjs` + `callerlab-diff.mjs` |
-| **the FSM** | the resolve state machine built from the catalogue | `test/tools/fsm-getout-audit.mjs`; view asset via `poc/scripts/build-fsm-asset.mjs` |
+| **the FSM** | the resolve state machine built from the catalogue | `test/tools/fsm-getout-audit.mjs`; view asset via `scripts/build-fsm-asset.mjs` |
 
 Analyses (tools, not gates): `figure-census.mjs`, `figure-trace.mjs`, `facing-audit.mjs`,
 `setup-split.mjs`, `setup-coverage.mjs`, `fsm-getout-audit.mjs`, `callerlab-diff.mjs`,
@@ -1743,7 +1743,7 @@ measured, they are **UNCHANGED across six figures gained**, because completing a
 So this is the scoreboard for **route-finding**, not for the figure work — do not schedule it against
 the census. Gate: 0 `nohome` states, or a recorded reason per state; the 19 `@embed#N` inline setups
 named or explicitly excluded (a dead node with no name is not actionable); the FSM view asset
-regenerated (`poc/scripts/build-fsm-asset.mjs`, which now imports the workspace engine **by path** —
+regenerated (`scripts/build-fsm-asset.mjs`, which now imports the workspace engine **by path** —
 `poc/node_modules/dancing-squared-engine` is a stale pnpm copy, not a link).
 
 **Open item found while fixing the FSM:** the coded-first dispatch and the catalogue disagree on where
@@ -1983,7 +1983,7 @@ pooled "ms" is 99 — the extra one, `T-Bone Couples`, is referenced at a level 
 **ONE RECORDED INCONSISTENCY, NOT FIXED HERE.** The shipped `fsm-ms.json` is built from `ms/*.xml`
 alone (274 catalog entries), while the APP's own "Mainstream" is `sequencerCallsUpTo('ms')`, which pools
 every level at or below ms and is **18 titles more**. So the FSM view has never shown the sequencer's
-own Mainstream call set. `poc/scripts/build-fsm-asset.mjs` is left as it is deliberately — changing the
+own Mainstream call set. `scripts/build-fsm-asset.mjs` is left as it is deliberately — changing the
 call set inside Stage 0b would put two changes in one measurement — and it is recorded here as its own
 decision to take, with the number (18 titles, 273 → 291) already measured.
 

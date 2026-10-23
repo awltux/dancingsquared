@@ -39,11 +39,12 @@ import { HOME_DANCERS } from './identity.js';
 import { identifyByAssignment } from './identity.js';
 import { matchFormations } from './match.js';
 import { mul5, dancerMatrix, type Mat5 } from '../matrix.js';
-import { DEFAULT_MATCH_MAX } from './constants.js';
+import { DEFAULT_MATCH_MAX, SAME_BOARD_TOL } from './constants.js';
 import type { Going } from '../going.js';
 import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf } from '../moves.js';
 import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { authoredStepWins } from './apply-source.js';
+import { formationId } from './formation-id.js';
 import type { VirtualOutcome } from './virtual-call.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
@@ -73,6 +74,8 @@ export class Sequencer {
   private readonly grouping: Grouping;
   private readonly fsmStore: FsmStore;
   private fsmTable: FsmTable | null = null;
+  /** `boardIdentity`'s memo, keyed on the board OBJECT. See that method for why it is needed. */
+  private readonly boardIdentityCache = new WeakMap<Board, { name: string | null; id: string }>();
 
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
@@ -807,13 +810,19 @@ export class Sequencer {
    * sequencer's state, not the reading's.
    */
   private permissionFor(b: Board, call: string, group: string | null, going: Going | null = null): PermissionResult {
+    // THE BOARD'S OWN TWO KEYS, from ONE place (`boardIdentity`), so the picker's ask and the apply's ask
+    // cannot describe the same board with different names. Both are supplied on every ask: a rule keyed on
+    // either field matches, and a rule that names neither is a rule about every board.
+    const key = this.boardIdentity(b);
     const req: PermissionRequest = {
       call,
       group: group && group !== 'All 8' ? group : 'All 8',
       // The RECOGNISED name, not the caller's label for the board: a rule that says "Static Square"
       // has to match the geometry, and a board built from a formation is named the same way by
       // `recognize` wherever it came from.
-      board: this.recognize(b).name,
+      board: key.name,
+      // …and the identity, for the boards no name reaches (see `boardIdentity` and `formation-id.ts`).
+      boardId: key.id,
       // WHICH BODY, when the ask is about one. Null at the reading boundary (the body is not chosen yet), which is why a
       // `going`-keyed rule can only fire in the candidate filter.
       going,
@@ -1042,6 +1051,41 @@ export class Sequencer {
 
   formationState(board: Board): { name: string; rot: number; reflect: boolean; cSrc: { x: number; y: number }; cTgt: { x: number; y: number } } | null {
     return this.matcher.formationState(board);
+  }
+
+  /**
+   * THE TWO KEYS A BOARD HAS for the permission layer: the NAME a rule can read, and the IDENTITY it can key
+   * on when there is no name.
+   *
+   * WHY BOTH, AND WHY THE NAME STILL COMES FIRST. `recognize` is a curated caption and MEASURED names 16 of
+   * the corpus's 138 eight-dancer formations; `corpusFormation` is the permissive namer behind it and names
+   * all 138, exactly, by their own names. So the name falls back to the corpus's own answer - but ONLY when
+   * the match is EXACT (`error` at `SAME_BOARD_TOL`), because naming a board one unit off is the near-miss
+   * trap 10 records, and a rule keyed on a near-miss is a rule about a board that was never there. MEASURED:
+   * `recognize` and `corpusFormation` never disagree where both answer, on all 138, so every rule written
+   * against a curated name matches exactly the boards it matched before this fallback existed.
+   *
+   * AND WHEN EVEN THAT DECLINES - the 2- and 4-dancer setups an embedded `<tam>` carries, which
+   * `formations.xml` does not hold - the id is still there (`formation-id.ts`), because it is computed from
+   * the board and consults no library at all.
+   *
+   * MEMOISED ON THE BOARD OBJECT, and it has to be: `legalNext` asks once per candidate call against ONE
+   * board, and each of the two name scans walks the whole formation library (MEASURED 745 us per board for
+   * `recognize` alone). The id itself is cheap (25 us), but the corpus scan it sits behind is not. The memo
+   * assumes the board object is not mutated in place, which is the same assumption every caller in this file
+   * makes - a board is replaced, never patched.
+   */
+  boardIdentity(board: Board): { name: string | null; id: string } {
+    const cached = this.boardIdentityCache.get(board);
+    if (cached) return cached;
+    let name = this.recognize(board).name;
+    if (name === null) {
+      const corpus = this.corpusFormation(board);
+      if (corpus && Math.abs(corpus.error) <= SAME_BOARD_TOL) name = corpus.name;
+    }
+    const out = { name, id: formationId(board) };
+    this.boardIdentityCache.set(board, out);
+    return out;
   }
 
   fasr(): Fasr {

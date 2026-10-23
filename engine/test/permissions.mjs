@@ -26,6 +26,11 @@
 //       eight onto one spot
 //  (16) the rules do not outgrow the corpus: every `<call> - <variant>` authoring of a GOVERNED call is
 //       governed too, and a numbered couple can still dance each of them
+//  (17) one rule may name SEVERAL CALLS - the authoring family of one call - and matches any of them
+//  (18) a FOUR-DANCER call is offered only to four dancers (the `Circle Four` white list)
+//  (19) the Single Circle white list, and the reason it gives
+//  (20) a rule may name a board by its FORMATION ID, for the boards no name reaches - and the name fallback
+//       this layer gained beside it (a board the curated namer cannot name now still has a keyable name)
 //
 // Usage: node engine/test/permissions.mjs
 import { readFileSync } from 'node:fs';
@@ -630,6 +635,57 @@ console.log('\n== (19) THE SINGLE CIRCLE WHITE LIST, AND ITS REASON ==');
   check(reason === (decided.rule?.reason ?? null), `the refusal shows the rule's own reason ("${reason}")`);
   check(reason.length >= 40 && reason !== reason.toUpperCase() && /\.$/.test(reason.trim()),
     'and that reason is a SENTENCE a caller can act on, not a note-to-self: lower case, long enough, and closed with a full stop');
+}
+
+console.log('\n== (20) A RULE MAY NAME A BOARD BY ITS FORMATION ID ==');
+// WHY THIS EXISTS. `board` is matched against `recognize`'s name, and that namer is a curated caption:
+// MEASURED, it names 16 of the corpus's 138 eight-dancer formations, and nothing names the setups an embedded
+// `<tam>` carries. `boardId` is the key for those - computed from the board, so it always exists.
+{
+  seq.setActiveLevel('ms');
+  seq.setPermissionRules([]);
+  const diamonds = seq.boardForFormation('Diamonds');
+  const waves = seq.boardForFormation('Ocean Waves');
+  const id = seq.boardIdentity(diamonds).id;
+
+  // THE ID IS THE BOARD'S, and it survives a rotation - so the rule follows the board round the floor, which
+  // is what a name already does and what a rule written for one orientation would get wrong.
+  const turned = { dancers: diamonds.dancers.map((d) => ({ ...d, x: -d.y, y: d.x, heading: d.heading + Math.PI / 2 })) };
+  check(seq.boardIdentity(turned).id === id, `a rotation of the board reports the same id (${id})`);
+
+  const rule = { call: ['Dosado'], group: ['All 8'], boardId: id, level: 'ms', decision: 'deny', reason: 'not from this shape' };
+  const ask = (boardId) => evaluatePermissions([rule], { call: 'Dosado', group: 'All 8', boardId, level: 'ms' });
+  check(ask(id).allowed === false && ask(id).rule === rule, 'an id-keyed deny refuses the board it names, and says which rule did it');
+  check(ask(seq.boardIdentity(waves).id).allowed === true, 'and does not refuse another formation (the control: the id is a key, not a wildcard)');
+  // THE SAFE DIRECTION, the same one a name-keyed rule has (section 12): an ask that carries NO id cannot be
+  // governed by an id-keyed rule, because nothing said which board it was about.
+  check(ask(null).allowed === true && ask(undefined).allowed === true,
+    'and an ask with no id is not governed by it, rather than being treated as every board');
+
+  // THE WIRING, which is what makes the field reachable at all: the Sequencer's own ask supplies `boardId`.
+  // Without it this check is the one that goes red, and every engine-level check above would still pass.
+  seq.setPermissionRules([rule]);
+  check(seq.mayOffer('Dosado', 'All 8', diamonds).allowed === false,
+    'and `mayOffer` refuses it, so the id is filled into the request the picker makes');
+  check(seq.mayOffer('Dosado', 'All 8', waves).allowed === true, 'while the other formation is still offered');
+  seq.setPermissionRules([]);
+
+  // THE NAME FALLBACK, which is the other half of "a key for the boards no name reaches": `Diamonds` is one of
+  // the 122 boards the curated namer declines, and it still gets the corpus's own name.
+  check(seq.recognize(diamonds).name === null && seq.boardIdentity(diamonds).name === 'Diamonds',
+    'the curated namer declines `Diamonds`, and the corpus\'s own name is used instead');
+  const byName = { call: ['Dosado'], group: ['All 8'], board: 'Diamonds', level: 'ms', decision: 'deny', reason: 'not from this shape' };
+  seq.setPermissionRules([byName]);
+  check(seq.mayOffer('Dosado', 'All 8', diamonds).allowed === false,
+    'so a rule keyed on that name reaches the board too - it could not before the fallback existed');
+  check(seq.boardIdentity(square).name === 'Static Square',
+    'and a board the curated namer DOES name keeps its own name, so the fallback cannot re-point a shipped rule');
+  seq.setPermissionRules([]);
+
+  // THE SHIPPED TABLE IS UNTOUCHED by this: not one entry names an id, so every refusal measured above still
+  // reads the rule it read before.
+  const withIds = PERMISSION_RULES.filter((r) => r.boardId !== undefined);
+  check(withIds.length === 0, `no shipped rule names a board id (${withIds.length} do), so nothing was re-pointed`);
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

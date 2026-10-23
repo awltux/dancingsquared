@@ -154,6 +154,12 @@ const SUITE = [
   // does not. The reported spin-instead-of-walk case, the gate that keeps `Fan the Top`, and the comparison
   // itself. Fast: a handful of boards, no corpus sweep.
   { h: 'apply-source', light: true },
+  // A BOARD'S FORMATION IDENTITY, where no name reaches it: the id is derived from spots and facings alone, so it
+  // survives rotation, translation and array order, ignores gender and couple numbers, and separates every one of
+  // the 138 named eight-dancer formations. Two negative controls run beside it (a reflection-invariant key and a
+  // topology-only key, each measured to collapse exactly the pairs it must not), plus the embedded authoring
+  // setups no formation file names. Fast: no corpus sweep beyond the 138 boards.
+  { h: 'formation-id', light: true },
   // THE VIRTUAL CALL: a subwhole-set authoring (2 or 4 written dancers) placed on a whole-set board, gated on the
   // owner's constraint that it must START and END on a formation the engine NAMES — judged by `knownFormation`
   // called from the harness, not by anything the resolver reports about itself. Pins the placement arithmetic

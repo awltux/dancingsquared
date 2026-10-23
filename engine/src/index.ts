@@ -75,6 +75,16 @@ export type {
   PermissionResult,
   PermissionRule,
 } from './sequencer/permissions.js';
+// THE FORMATION IDENTITY: a board's key where no name reaches it. See `formation-id.ts` for what it is and
+// what it deliberately ignores, and `Sequencer.boardIdentity` for the name-then-id pair the layer uses.
+export {
+  formationId,
+  formationCanonical,
+  isFormationId,
+  FORMATION_ID_VERSION,
+  FORMATION_ID_GRID,
+  FORMATION_ID_HEADING_STEP,
+} from './sequencer/formation-id.js';
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold
 // the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
 export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';

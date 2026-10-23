@@ -118,6 +118,19 @@ export interface PermissionRule {
    *  recognised name (`Sequencer.recognize`). Absent means every board. */
   board?: string;
   /**
+   * The board's FORMATION ID (`formation-id.ts`), for a board no name reaches.
+   *
+   * WHY BOTH FIELDS EXIST. A name is the readable key, and it is the one to use wherever there is one - but
+   * `recognize` is a CURATED caption and names 16 of the corpus's 138 eight-dancer formations, and nothing
+   * names the setups an embedded `<tam>` carries ("Facing Dancers Close", "Right-Hand Wave"). An id is
+   * computed from the board, so it always exists, and it is as coarse as a name on purpose: the same shape
+   * up to rotation, whatever genders or couple numbers stand where.
+   *
+   * They match INDEPENDENTLY, and a rule may name both - a rule that names `board` still matches only the
+   * name, which is what keeps every rule written before this field existed meaning exactly what it did.
+   */
+  boardId?: string;
+  /**
    * The BODY this rule is about (`going.ts`), when it is body-specific. Absent means every body.
    *
    * A request that names NO body (`going` null — a reading-level ask, before a variant is chosen) never matches this, and
@@ -140,6 +153,10 @@ export interface PermissionRequest {
    *  names a board then does not match, which is the safe direction: an un-named board must not be
    *  treated as if it were the one the rule is about. */
   board?: string | null;
+  /** The board's formation id, or absent/null when the caller did not supply one. An id-keyed rule then does
+   *  not match, for the same reason an id-less board never matches a name: the direction that cannot
+   *  misfire is "this ask is not about the thing the rule describes". */
+  boardId?: string | null;
   /** The BODY the ask is about, or absent/null when the body is not chosen yet. A rule that names a body then does not
    *  match, for the same reason a board-keyed rule does not match an unnamed board. */
   going?: Going | null;
@@ -189,6 +206,13 @@ function matches(rule: PermissionRule, req: PermissionRequest): boolean {
   if (rule.board !== undefined) {
     const want = norm(rule.board);
     const got = req.board ? norm(req.board) : '';
+    if (want !== got) return false;
+  }
+  // THE SAME DIRECTION FOR THE ID, and the same exact-equality rule: an id is a KEY, not a name, so there is
+  // nothing to normalise beyond the case and no prefix that means anything.
+  if (rule.boardId !== undefined) {
+    const want = norm(rule.boardId);
+    const got = req.boardId ? norm(req.boardId) : '';
     if (want !== got) return false;
   }
   // A RULE ABOUT A BODY DOES NOT MATCH AN ASK THAT NAMES NONE, which is the reading-level ask: the body is not chosen

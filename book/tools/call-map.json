@@ -12,20 +12,28 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 8
+              "variantId": "V1-ls58gd0i",
+              "level": "ms",
+              "title": "Circle Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 12
+              "variantId": "V1-1opjv4f2",
+              "level": "ms",
+              "title": "Circle Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 16
+              "variantId": "V1-0jplw57i",
+              "level": "ms",
+              "title": "Circle Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 24
+              "variantId": "V1-mo625sx7",
+              "level": "ms",
+              "title": "Circle Left",
+              "file": "ms/circle.xml"
             }
           ]
         },
@@ -36,20 +44,28 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 64
+              "variantId": "V1-xeatm9rx",
+              "level": "ms",
+              "title": "Circle Four Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 72
+              "variantId": "V1-xnbpkvcd",
+              "level": "ms",
+              "title": "Circle Four Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 73
+              "variantId": "V1-zthm8ztz",
+              "level": "ms",
+              "title": "Circle Four Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 77
+              "variantId": "V1-zbtn5sbq",
+              "level": "ms",
+              "title": "Circle Four Left",
+              "file": "ms/circle.xml"
             }
           ]
         },
@@ -60,12 +76,16 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 89
+              "variantId": "V1-e73lfzsx",
+              "level": "ms",
+              "title": "Single Circle Left",
+              "file": "ms/circle.xml"
             },
             {
-              "file": "ms/circle.xml",
-              "tamIndex": 93
+              "variantId": "V1-e4a5o8d0",
+              "level": "ms",
+              "title": "Single Circle Left",
+              "file": "ms/circle.xml"
             }
           ]
         }
@@ -82,28 +102,40 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 0
+              "variantId": "V1-jtgzks2s",
+              "level": "ms",
+              "title": "Dosado",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 2
+              "variantId": "V1-qkpyyb71",
+              "level": "ms",
+              "title": "Dosado",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 4
+              "variantId": "V1-49lv99t2",
+              "level": "ms",
+              "title": "Dosado",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 6
+              "variantId": "V1-1xdchdsj",
+              "level": "ms",
+              "title": "Dosado",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 10
+              "variantId": "V1-qg3v0odw",
+              "level": "ms",
+              "title": "Dosado",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 12
+              "variantId": "V1-peh2xrxo",
+              "level": "ms",
+              "title": "Dosado",
+              "file": "ms/dosado.xml"
             }
           ]
         }
@@ -120,24 +152,34 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 0
+              "variantId": "V1-why9dgii",
+              "level": "ms",
+              "title": "Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 4
+              "variantId": "V1-why9dgii",
+              "level": "ms",
+              "title": "Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 12
+              "variantId": "V1-9je1conf",
+              "level": "ms",
+              "title": "Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 20
+              "variantId": "V1-x7juklyw",
+              "level": "ms",
+              "title": "Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 24
+              "variantId": "V1-qzflttdq",
+              "level": "ms",
+              "title": "Promenade",
+              "file": "ms/promenade.xml"
             }
           ]
         },
@@ -148,20 +190,28 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 28
+              "variantId": "V1-4jzmnbvz",
+              "level": "ms",
+              "title": "Single File Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 29
+              "variantId": "V1-iwsh79sb",
+              "level": "ms",
+              "title": "Single File Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 33
+              "variantId": "V1-2e9y49v6",
+              "level": "ms",
+              "title": "Single File Promenade",
+              "file": "ms/promenade.xml"
             },
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 35
+              "variantId": "V1-g1gzs1ez",
+              "level": "ms",
+              "title": "Single File Promenade",
+              "file": "ms/promenade.xml"
             }
           ]
         },
@@ -172,8 +222,10 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 36
+              "variantId": "V1-s93hosm7",
+              "level": "ms",
+              "title": "Star Promenade",
+              "file": "ms/promenade.xml"
             }
           ]
         },
@@ -184,8 +236,10 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/promenade.xml",
-              "tamIndex": 37
+              "variantId": "V1-74eepkhw",
+              "level": "ms",
+              "title": "Wrong Way Promenade",
+              "file": "ms/promenade.xml"
             }
           ]
         }
@@ -209,52 +263,76 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 0
+              "variantId": "V1-ewmdvdeo",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 1
+              "variantId": "V1-lm96zmat",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 2
+              "variantId": "V1-2uec4fln",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 3
+              "variantId": "V1-w7yhjatr",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 4
+              "variantId": "V1-h5a6qh8v",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 5
+              "variantId": "V1-nynictk3",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 6
+              "variantId": "V1-1wnbfkmb",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 7
+              "variantId": "V1-1kn9iblu",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 8
+              "variantId": "V1-utcsz9an",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 9
+              "variantId": "V1-sfyehv90",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 10
+              "variantId": "V1-8bmv0xuu",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             },
             {
-              "file": "ms/allemande.xml",
-              "tamIndex": 11
+              "variantId": "V1-hz1897it",
+              "level": "ms",
+              "title": "Allemande Left",
+              "file": "ms/allemande.xml"
             }
           ]
         }
@@ -271,24 +349,34 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/star.xml",
-              "tamIndex": 2
+              "variantId": "V1-lt8zya27",
+              "level": "ms",
+              "title": "Right Hand Star",
+              "file": "ms/star.xml"
             },
             {
-              "file": "ms/star.xml",
-              "tamIndex": 3
+              "variantId": "V1-187zaoqz",
+              "level": "ms",
+              "title": "Right Hand Star",
+              "file": "ms/star.xml"
             },
             {
-              "file": "ms/star.xml",
-              "tamIndex": 4
+              "variantId": "V1-16fzrje5",
+              "level": "ms",
+              "title": "Right Hand Star",
+              "file": "ms/star.xml"
             },
             {
-              "file": "ms/star.xml",
-              "tamIndex": 5
+              "variantId": "V1-1buj779l",
+              "level": "ms",
+              "title": "Right Hand Star",
+              "file": "ms/star.xml"
             },
             {
-              "file": "ms/star.xml",
-              "tamIndex": 26
+              "variantId": "V1-zq2okqo7",
+              "level": "ms",
+              "title": "Right Hand Star",
+              "file": "ms/star.xml"
             }
           ]
         }
@@ -305,56 +393,82 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 0
+              "variantId": "V1-ashcgerz",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 1
+              "variantId": "V1-2zb70lnp",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 2
+              "variantId": "V1-rxo3r5m6",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 3
+              "variantId": "V1-slx9w1jg",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 4
+              "variantId": "V1-jt0756et",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 5
+              "variantId": "V1-wpd3x0vv",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 6
+              "variantId": "V1-ejz0c04k",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 7
+              "variantId": "V1-rt5y1st6",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 8
+              "variantId": "V1-thro5tmv",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 9
+              "variantId": "V1-8twsga1k",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 10
+              "variantId": "V1-h136xp17",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 11
+              "variantId": "V1-rfaih1ai",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 12
+              "variantId": "V1-9tr2xq4k",
+              "level": "ms",
+              "title": "Right and Left Grand",
+              "file": "ms/right_and_left_grand.xml"
             }
           ]
         },
@@ -365,8 +479,10 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 13
+              "variantId": "V1-o7tnlusm",
+              "level": "ms",
+              "title": "Weave the Ring",
+              "file": "ms/right_and_left_grand.xml"
             }
           ]
         },
@@ -377,44 +493,64 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 14
+              "variantId": "V1-6irbtwyx",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 15
+              "variantId": "V1-ozeza8be",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 16
+              "variantId": "V1-atgfqc14",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 17
+              "variantId": "V1-0e287qfl",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 18
+              "variantId": "V1-bcmlue0n",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 19
+              "variantId": "V1-hy9yz8kw",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 20
+              "variantId": "V1-1n09nzta",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 21
+              "variantId": "V1-lukklkvv",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 22
+              "variantId": "V1-dmnarvck",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             },
             {
-              "file": "ms/right_and_left_grand.xml",
-              "tamIndex": 23
+              "variantId": "V1-0x0rcn2m",
+              "level": "ms",
+              "title": "Wrong Way Grand",
+              "file": "ms/right_and_left_grand.xml"
             }
           ]
         }
@@ -431,24 +567,34 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/pass_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-l9ghnmx2",
+              "level": "ms",
+              "title": "Pass Thru",
+              "file": "ms/pass_thru.xml"
             },
             {
-              "file": "ms/pass_thru.xml",
-              "tamIndex": 1
+              "variantId": "V1-jxq651dg",
+              "level": "ms",
+              "title": "Pass Thru",
+              "file": "ms/pass_thru.xml"
             },
             {
-              "file": "ms/pass_thru.xml",
-              "tamIndex": 2
+              "variantId": "V1-9ve6m9co",
+              "level": "ms",
+              "title": "Pass Thru",
+              "file": "ms/pass_thru.xml"
             },
             {
-              "file": "ms/pass_thru.xml",
-              "tamIndex": 3
+              "variantId": "V1-buztzo9i",
+              "level": "ms",
+              "title": "Pass Thru",
+              "file": "ms/pass_thru.xml"
             },
             {
-              "file": "ms/pass_thru.xml",
-              "tamIndex": 4
+              "variantId": "V1-winxeepz",
+              "level": "ms",
+              "title": "Pass Thru",
+              "file": "ms/pass_thru.xml"
             }
           ]
         }
@@ -465,24 +611,34 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/wheel_around.xml",
-              "tamIndex": 0
+              "variantId": "V1-2eu1tayu",
+              "level": "ms",
+              "title": "Wheel Around",
+              "file": "ms/wheel_around.xml"
             },
             {
-              "file": "ms/wheel_around.xml",
-              "tamIndex": 1
+              "variantId": "V1-piz26pyl",
+              "level": "ms",
+              "title": "Wheel Around",
+              "file": "ms/wheel_around.xml"
             },
             {
-              "file": "ms/wheel_around.xml",
-              "tamIndex": 2
+              "variantId": "V1-r0rqrxeg",
+              "level": "ms",
+              "title": "Wheel Around",
+              "file": "ms/wheel_around.xml"
             },
             {
-              "file": "ms/wheel_around.xml",
-              "tamIndex": 3
+              "variantId": "V1-t0de5cba",
+              "level": "ms",
+              "title": "Wheel Around",
+              "file": "ms/wheel_around.xml"
             },
             {
-              "file": "ms/wheel_around.xml",
-              "tamIndex": 9
+              "variantId": "V1-e1a5zf18",
+              "level": "ms",
+              "title": "Wheel Around",
+              "file": "ms/wheel_around.xml"
             }
           ]
         }
@@ -499,16 +655,22 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/courtesy_turn.xml",
-              "tamIndex": 0
+              "variantId": "V1-hlu97k5m",
+              "level": "ms",
+              "title": "Courtesy Turn",
+              "file": "ms/courtesy_turn.xml"
             },
             {
-              "file": "ms/courtesy_turn.xml",
-              "tamIndex": 1
+              "variantId": "V1-a3lc8qgi",
+              "level": "ms",
+              "title": "Courtesy Turn",
+              "file": "ms/courtesy_turn.xml"
             },
             {
-              "file": "ms/courtesy_turn.xml",
-              "tamIndex": 2
+              "variantId": "V1-puwawcpp",
+              "level": "ms",
+              "title": "Courtesy Turn",
+              "file": "ms/courtesy_turn.xml"
             }
           ]
         }
@@ -525,40 +687,58 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-qoy16ktl",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 1
+              "variantId": "V1-k05vx47w",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 2
+              "variantId": "V1-bwfx34qb",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 3
+              "variantId": "V1-3ouj8nbo",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 4
+              "variantId": "V1-bdwcy50b",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 5
+              "variantId": "V1-t4c0dpn1",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 6
+              "variantId": "V1-k5ac9q9o",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 7
+              "variantId": "V1-w844dj5m",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             },
             {
-              "file": "ms/right_and_left_thru.xml",
-              "tamIndex": 13
+              "variantId": "V1-royn3i2z",
+              "level": "ms",
+              "title": "Right and Left Thru",
+              "file": "ms/right_and_left_thru.xml"
             }
           ]
         }
@@ -575,40 +755,58 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 0
+              "variantId": "V1-c3oi2gd8",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 1
+              "variantId": "V1-gi2akfrv",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 2
+              "variantId": "V1-gi2akfrv",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 3
+              "variantId": "V1-o0eq7gmm",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 4
+              "variantId": "V1-9bv3ec9o",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 5
+              "variantId": "V1-3k57k0kp",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 6
+              "variantId": "V1-jwbczqtm",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 7
+              "variantId": "V1-oohf4bjb",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             },
             {
-              "file": "ms/swing.xml",
-              "tamIndex": 8
+              "variantId": "V1-c3oi2gd8",
+              "level": "ms",
+              "title": "Swing Your Partner",
+              "file": "ms/swing.xml"
             }
           ]
         }
@@ -625,24 +823,34 @@
           "how": "normalised",
           "sites": [
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 0
+              "variantId": "V1-fvx5xfi7",
+              "level": "ms",
+              "title": "Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 1
+              "variantId": "V1-1y36nb4p",
+              "level": "ms",
+              "title": "Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 2
+              "variantId": "V1-jmw8ktnz",
+              "level": "ms",
+              "title": "Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 23
+              "variantId": "V1-i6cqk4vp",
+              "level": "ms",
+              "title": "Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 24
+              "variantId": "V1-i8ks3vn1",
+              "level": "ms",
+              "title": "Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             }
           ]
         },
@@ -653,12 +861,16 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 12
+              "variantId": "V1-bwzus0xy",
+              "level": "ms",
+              "title": "Four Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 13
+              "variantId": "V1-uur99trz",
+              "level": "ms",
+              "title": "Four Ladies Chain",
+              "file": "ms/ladies_chain.xml"
             }
           ]
         },
@@ -669,32 +881,46 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 16
+              "variantId": "V1-8rk0f4dk",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 17
+              "variantId": "V1-kug61cnv",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 18
+              "variantId": "V1-70n6pqti",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 19
+              "variantId": "V1-fsl3dvj3",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 20
+              "variantId": "V1-z60anbcb",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 21
+              "variantId": "V1-iscxvrz4",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             },
             {
-              "file": "ms/ladies_chain.xml",
-              "tamIndex": 22
+              "variantId": "V1-w0nd5ybx",
+              "level": "ms",
+              "title": "Chain Down the Line",
+              "file": "ms/ladies_chain.xml"
             }
           ]
         }
@@ -711,20 +937,28 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 0
+              "variantId": "V1-0lgruazu",
+              "level": "ms",
+              "title": "Half Sashay",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 1
+              "variantId": "V1-d5svetpo",
+              "level": "ms",
+              "title": "Half Sashay",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 2
+              "variantId": "V1-ez0eoged",
+              "level": "ms",
+              "title": "Half Sashay",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 12
+              "variantId": "V1-j66pgra0",
+              "level": "ms",
+              "title": "Half Sashay",
+              "file": "ms/sashay.xml"
             }
           ]
         },
@@ -735,28 +969,40 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 7
+              "variantId": "V1-7izuy3r5",
+              "level": "ms",
+              "title": "Rollaway",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 8
+              "variantId": "V1-9b5sv39k",
+              "level": "ms",
+              "title": "Rollaway",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 9
+              "variantId": "V1-x0y4jf7h",
+              "level": "ms",
+              "title": "Rollaway",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 10
+              "variantId": "V1-r4xth7e4",
+              "level": "ms",
+              "title": "Rollaway",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 11
+              "variantId": "V1-v0rof660",
+              "level": "ms",
+              "title": "Rollaway",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 13
+              "variantId": "V1-2f441wxd",
+              "level": "ms",
+              "title": "Rollaway",
+              "file": "ms/sashay.xml"
             }
           ]
         },
@@ -767,12 +1013,16 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 5
+              "variantId": "V1-7cn1gzzp",
+              "level": "ms",
+              "title": "Ladies In, Men Sashay",
+              "file": "ms/sashay.xml"
             },
             {
-              "file": "ms/sashay.xml",
-              "tamIndex": 6
+              "variantId": "V1-7cn1gzzp",
+              "level": "ms",
+              "title": "Ladies In, Men Sashay",
+              "file": "ms/sashay.xml"
             }
           ]
         }
@@ -789,36 +1039,52 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 0
+              "variantId": "V1-25umqdw8",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 1
+              "variantId": "V1-25umqdw8",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 2
+              "variantId": "V1-44hpucor",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 3
+              "variantId": "V1-9ofvs73m",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 4
+              "variantId": "V1-sx0qty8j",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 5
+              "variantId": "V1-1ouwjf6l",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 6
+              "variantId": "V1-jos96f69",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             },
             {
-              "file": "ms/turn_back.xml",
-              "tamIndex": 12
+              "variantId": "V1-i9tij1zu",
+              "level": "ms",
+              "title": "U-Turn Back",
+              "file": "ms/turn_back.xml"
             }
           ]
         },
@@ -842,8 +1108,10 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/separate.xml",
-              "tamIndex": 0
+              "variantId": "V1-o7ww8bp1",
+              "level": "ms",
+              "title": "Heads Separate",
+              "file": "ms/separate.xml"
             }
           ]
         },
@@ -854,8 +1122,10 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/separate.xml",
-              "tamIndex": 10
+              "variantId": "V1-qnjg6y6r",
+              "level": "ms",
+              "title": "Around One to a Line",
+              "file": "ms/separate.xml"
             }
           ]
         },
@@ -866,8 +1136,10 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/separate.xml",
-              "tamIndex": 12
+              "variantId": "V1-ku04oy4m",
+              "level": "ms",
+              "title": "Around One and Come Into the Middle",
+              "file": "ms/separate.xml"
             }
           ]
         }
@@ -884,16 +1156,22 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/lead_right.xml",
-              "tamIndex": 3
+              "variantId": "V1-hbburjic",
+              "level": "ms",
+              "title": "Lead Right",
+              "file": "ms/lead_right.xml"
             },
             {
-              "file": "ms/lead_right.xml",
-              "tamIndex": 4
+              "variantId": "V1-c5x9448c",
+              "level": "ms",
+              "title": "Lead Right",
+              "file": "ms/lead_right.xml"
             },
             {
-              "file": "ms/lead_right.xml",
-              "tamIndex": 5
+              "variantId": "V1-y5f0ghkn",
+              "level": "ms",
+              "title": "Lead Right",
+              "file": "ms/lead_right.xml"
             }
           ]
         }
@@ -910,32 +1188,46 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 0
+              "variantId": "V1-n4u8ce5r",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             },
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 1
+              "variantId": "V1-82ha2wyq",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             },
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 2
+              "variantId": "V1-qoh631b3",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             },
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 3
+              "variantId": "V1-3p93dixr",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             },
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 4
+              "variantId": "V1-wwij94cm",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             },
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 5
+              "variantId": "V1-s1a9r5s9",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             },
             {
-              "file": "ms/veer.xml",
-              "tamIndex": 12
+              "variantId": "V1-0drbph51",
+              "level": "ms",
+              "title": "Veer Left",
+              "file": "ms/veer.xml"
             }
           ]
         }
@@ -952,28 +1244,40 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/star_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-h0nokagx",
+              "level": "ms",
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml"
             },
             {
-              "file": "ms/star_thru.xml",
-              "tamIndex": 1
+              "variantId": "V1-h0nokagx",
+              "level": "ms",
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml"
             },
             {
-              "file": "ms/star_thru.xml",
-              "tamIndex": 2
+              "variantId": "V1-bpsm879f",
+              "level": "ms",
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml"
             },
             {
-              "file": "ms/star_thru.xml",
-              "tamIndex": 3
+              "variantId": "V1-bpsm879f",
+              "level": "ms",
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml"
             },
             {
-              "file": "ms/star_thru.xml",
-              "tamIndex": 4
+              "variantId": "V1-hx1uavqd",
+              "level": "ms",
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml"
             },
             {
-              "file": "ms/star_thru.xml",
-              "tamIndex": 6
+              "variantId": "V1-8m8yafc3",
+              "level": "ms",
+              "title": "Star Thru",
+              "file": "ms/star_thru.xml"
             }
           ]
         }
@@ -990,20 +1294,22 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 48
+              "variantId": "V1-4ojkhac6",
+              "level": "ms",
+              "title": "Couples Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 49
+              "variantId": "V1-fq5rrftb",
+              "level": "ms",
+              "title": "Couples Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 50
-            },
-            {
-              "file": "ms/circulate.xml",
-              "tamIndex": 58
+              "variantId": "V1-o5ae1mam",
+              "level": "ms",
+              "title": "Couples Circulate",
+              "file": "ms/circulate.xml"
             }
           ]
         },
@@ -1014,24 +1320,34 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 32
+              "variantId": "V1-u11e9o4e",
+              "level": "ms",
+              "title": "Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 33
+              "variantId": "V1-ypd11xdc",
+              "level": "ms",
+              "title": "Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 34
+              "variantId": "V1-i4t4d4so",
+              "level": "ms",
+              "title": "Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 35
+              "variantId": "V1-bng0vxbz",
+              "level": "ms",
+              "title": "Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 36
+              "variantId": "V1-zospvs7z",
+              "level": "ms",
+              "title": "Circulate",
+              "file": "ms/circulate.xml"
             }
           ]
         },
@@ -1042,68 +1358,100 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 16
+              "variantId": "V1-1fewitus",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 17
+              "variantId": "V1-mo79pz78",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 18
+              "variantId": "V1-7u2ylc8w",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 19
+              "variantId": "V1-m5m3pxrg",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 20
+              "variantId": "V1-8b5gm0vv",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 21
+              "variantId": "V1-bqig8tvo",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 22
+              "variantId": "V1-puh4dwo3",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 23
+              "variantId": "V1-eb4haqwe",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 24
+              "variantId": "V1-sc5em2xx",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 25
+              "variantId": "V1-s1n5dtx8",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 26
+              "variantId": "V1-xn3g52m1",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 27
+              "variantId": "V1-m87p0bd9",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 28
+              "variantId": "V1-onyr4uuy",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 29
+              "variantId": "V1-wq4jh3lv",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 30
+              "variantId": "V1-ajlmtxa6",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 31
+              "variantId": "V1-78xs2vcj",
+              "level": "ms",
+              "title": "All 8 Circulate",
+              "file": "ms/circulate.xml"
             }
           ]
         },
@@ -1114,20 +1462,28 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 51
+              "variantId": "V1-lbrecq96",
+              "level": "ms",
+              "title": "Column Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 52
+              "variantId": "V1-i6fkfi8w",
+              "level": "ms",
+              "title": "Column Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 53
+              "variantId": "V1-4bolwhnv",
+              "level": "ms",
+              "title": "Column Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 54
+              "variantId": "V1-1cl9v93k",
+              "level": "ms",
+              "title": "Column Circulate",
+              "file": "ms/circulate.xml"
             }
           ]
         },
@@ -1138,48 +1494,70 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 0
+              "variantId": "V1-e6opdjb6",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 1
+              "variantId": "V1-98lcdrtv",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 2
+              "variantId": "V1-1ot3g25s",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 3
+              "variantId": "V1-s1xefgrv",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 4
+              "variantId": "V1-gqnvklow",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 5
+              "variantId": "V1-91228vnu",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 6
+              "variantId": "V1-smt0wffe",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 7
+              "variantId": "V1-dab0zdzw",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 8
+              "variantId": "V1-s1hevosi",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 9
+              "variantId": "V1-4msrxkob",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             },
             {
-              "file": "ms/circulate.xml",
-              "tamIndex": 57
+              "variantId": "V1-gbol7srd",
+              "level": "ms",
+              "title": "Box Circulate",
+              "file": "ms/circulate.xml"
             }
           ]
         }
@@ -1196,44 +1574,64 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 0
+              "variantId": "V1-4m7rpvpg",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 1
+              "variantId": "V1-lfakqq7r",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 2
+              "variantId": "V1-ppkyl2r4",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 3
+              "variantId": "V1-yrdyq7pt",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 4
+              "variantId": "V1-3j7uwr77",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 5
+              "variantId": "V1-2i0fzyby",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 6
+              "variantId": "V1-vlom5ejw",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 7
+              "variantId": "V1-h5fuybrr",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 8
+              "variantId": "V1-jrxsk8nn",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             },
             {
-              "file": "ms/bend_the_line.xml",
-              "tamIndex": 9
+              "variantId": "V1-ddxf7vq7",
+              "level": "ms",
+              "title": "Bend the Line",
+              "file": "ms/bend_the_line.xml"
             }
           ]
         }
@@ -1250,36 +1648,52 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 14
+              "variantId": "V1-f8hhms20",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 15
+              "variantId": "V1-x8v8tf4a",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 16
+              "variantId": "V1-l3fdhn1p",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 17
+              "variantId": "V1-mqwjjmzd",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 18
+              "variantId": "V1-rrhmd29g",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 19
+              "variantId": "V1-n33ln7du",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 20
+              "variantId": "V1-yxu2ow3x",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             },
             {
-              "file": "ms/square_thru.xml",
-              "tamIndex": 21
+              "variantId": "V1-gb0in68f",
+              "level": "ms",
+              "title": "Square Thru 4",
+              "file": "ms/square_thru.xml"
             }
           ]
         }
@@ -1296,8 +1710,10 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/split_the_outside_couple.xml",
-              "tamIndex": 3
+              "variantId": "V1-cncqzt1a",
+              "level": "ms",
+              "title": "Split Two",
+              "file": "ms/split_the_outside_couple.xml"
             }
           ]
         }
@@ -1314,12 +1730,16 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/grand_square.xml",
-              "tamIndex": 5
+              "variantId": "V1-abpn3zgb",
+              "level": "ms",
+              "title": "Grand Square",
+              "file": "ms/grand_square.xml"
             },
             {
-              "file": "ms/grand_square.xml",
-              "tamIndex": 6
+              "variantId": "V1-vzw7nqpq",
+              "level": "ms",
+              "title": "Grand Square",
+              "file": "ms/grand_square.xml"
             }
           ]
         }
@@ -1336,24 +1756,34 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/double_pass_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-73219ig3",
+              "level": "ms",
+              "title": "Double Pass Thru",
+              "file": "ms/double_pass_thru.xml"
             },
             {
-              "file": "ms/double_pass_thru.xml",
-              "tamIndex": 1
+              "variantId": "V1-sqr0zpvv",
+              "level": "ms",
+              "title": "Double Pass Thru",
+              "file": "ms/double_pass_thru.xml"
             },
             {
-              "file": "ms/double_pass_thru.xml",
-              "tamIndex": 2
+              "variantId": "V1-ve9sjazr",
+              "level": "ms",
+              "title": "Double Pass Thru",
+              "file": "ms/double_pass_thru.xml"
             },
             {
-              "file": "ms/double_pass_thru.xml",
-              "tamIndex": 3
+              "variantId": "V1-sy6fdjz8",
+              "level": "ms",
+              "title": "Double Pass Thru",
+              "file": "ms/double_pass_thru.xml"
             },
             {
-              "file": "ms/double_pass_thru.xml",
-              "tamIndex": 4
+              "variantId": "V1-4bmp4jll",
+              "level": "ms",
+              "title": "Double Pass Thru",
+              "file": "ms/double_pass_thru.xml"
             }
           ]
         }
@@ -1370,12 +1800,16 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/first_couple_go.xml",
-              "tamIndex": 0
+              "variantId": "V1-rp8kv12f",
+              "level": "ms",
+              "title": "First Couple Go Left, Next Couple Go Right",
+              "file": "ms/first_couple_go.xml"
             },
             {
-              "file": "ms/first_couple_go.xml",
-              "tamIndex": 4
+              "variantId": "V1-rp8kv12f",
+              "level": "ms",
+              "title": "First Couple Go Left, Next Couple Go Right",
+              "file": "ms/first_couple_go.xml"
             }
           ]
         }
@@ -1392,52 +1826,76 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 0
+              "variantId": "V1-eksy625s",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 1
+              "variantId": "V1-zxzm6mqr",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 2
+              "variantId": "V1-uojuo5sz",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 3
+              "variantId": "V1-6k7op70f",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 4
+              "variantId": "V1-zqc4b999",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 5
+              "variantId": "V1-cayrxp5z",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 6
+              "variantId": "V1-atp3x576",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 7
+              "variantId": "V1-v42zrevo",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 8
+              "variantId": "V1-x5q8g654",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 9
+              "variantId": "V1-dl8l4fxf",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 10
+              "variantId": "V1-v3idvg7b",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             },
             {
-              "file": "ms/wheel_and_deal.xml",
-              "tamIndex": 11
+              "variantId": "V1-3ffuk3nv",
+              "level": "ms",
+              "title": "Wheel and Deal",
+              "file": "ms/wheel_and_deal.xml"
             }
           ]
         }
@@ -1454,20 +1912,28 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/california_twirl.xml",
-              "tamIndex": 0
+              "variantId": "V1-1mh8wr98",
+              "level": "ms",
+              "title": "California Twirl",
+              "file": "ms/california_twirl.xml"
             },
             {
-              "file": "ms/california_twirl.xml",
-              "tamIndex": 1
+              "variantId": "V1-oxkzpsh1",
+              "level": "ms",
+              "title": "California Twirl",
+              "file": "ms/california_twirl.xml"
             },
             {
-              "file": "ms/california_twirl.xml",
-              "tamIndex": 2
+              "variantId": "V1-6e3iue5l",
+              "level": "ms",
+              "title": "California Twirl",
+              "file": "ms/california_twirl.xml"
             },
             {
-              "file": "ms/california_twirl.xml",
-              "tamIndex": 3
+              "variantId": "V1-ys77hxrb",
+              "level": "ms",
+              "title": "California Twirl",
+              "file": "ms/california_twirl.xml"
             }
           ]
         }
@@ -1484,36 +1950,52 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-97igwcx8",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 1
+              "variantId": "V1-ywl73okm",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 2
+              "variantId": "V1-97igwcx8",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 3
+              "variantId": "V1-wmr7phli",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 4
+              "variantId": "V1-wmr7phli",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 5
+              "variantId": "V1-h6g2n6j4",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 6
+              "variantId": "V1-3uj9yssp",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             },
             {
-              "file": "ms/slide_thru.xml",
-              "tamIndex": 7
+              "variantId": "V1-wmr7phli",
+              "level": "ms",
+              "title": "Slide Thru",
+              "file": "ms/slide_thru.xml"
             }
           ]
         }
@@ -1530,8 +2012,10 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/dive_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-fst3e6rn",
+              "level": "ms",
+              "title": "Dive Thru",
+              "file": "ms/dive_thru.xml"
             }
           ]
         }
@@ -1548,24 +2032,34 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/box_the_gnat.xml",
-              "tamIndex": 0
+              "variantId": "V1-1q3joxd4",
+              "level": "ms",
+              "title": "Box the Gnat",
+              "file": "ms/box_the_gnat.xml"
             },
             {
-              "file": "ms/box_the_gnat.xml",
-              "tamIndex": 1
+              "variantId": "V1-86cgtbi1",
+              "level": "ms",
+              "title": "Box the Gnat",
+              "file": "ms/box_the_gnat.xml"
             },
             {
-              "file": "ms/box_the_gnat.xml",
-              "tamIndex": 2
+              "variantId": "V1-61oiu6ju",
+              "level": "ms",
+              "title": "Box the Gnat",
+              "file": "ms/box_the_gnat.xml"
             },
             {
-              "file": "ms/box_the_gnat.xml",
-              "tamIndex": 3
+              "variantId": "V1-2frsnpzh",
+              "level": "ms",
+              "title": "Box the Gnat",
+              "file": "ms/box_the_gnat.xml"
             },
             {
-              "file": "ms/box_the_gnat.xml",
-              "tamIndex": 4
+              "variantId": "V1-4aerjzpm",
+              "level": "ms",
+              "title": "Box the Gnat",
+              "file": "ms/box_the_gnat.xml"
             }
           ]
         }
@@ -1582,8 +2076,10 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/alamo_style.xml",
-              "tamIndex": 0
+              "variantId": "V1-o2pqru1g",
+              "level": "ms",
+              "title": "Allemande Left in the Alamo Style",
+              "file": "ms/alamo_style.xml"
             }
           ]
         },
@@ -1594,16 +2090,22 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 8
+              "variantId": "V1-lrgs7skp",
+              "level": "ms",
+              "title": "Balance",
+              "file": "ms/ocean_wave.xml"
             },
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 9
+              "variantId": "V1-on48rcgl",
+              "level": "ms",
+              "title": "Balance",
+              "file": "ms/ocean_wave.xml"
             },
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 10
+              "variantId": "V1-bfa45rcv",
+              "level": "ms",
+              "title": "Balance",
+              "file": "ms/ocean_wave.xml"
             }
           ]
         },
@@ -1614,24 +2116,34 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 0
+              "variantId": "V1-89sc8iov",
+              "level": "ms",
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml"
             },
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 1
+              "variantId": "V1-1g6x81dj",
+              "level": "ms",
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml"
             },
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 2
+              "variantId": "V1-6ersnwhz",
+              "level": "ms",
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml"
             },
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 3
+              "variantId": "V1-vbnsugu9",
+              "level": "ms",
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml"
             },
             {
-              "file": "ms/ocean_wave.xml",
-              "tamIndex": 16
+              "variantId": "V1-5jbcid9p",
+              "level": "ms",
+              "title": "Step to a Wave",
+              "file": "ms/ocean_wave.xml"
             }
           ]
         },
@@ -1642,16 +2154,22 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 14
+              "variantId": "V1-6aco4uz5",
+              "level": "ms",
+              "title": "Dosado to a Wave",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 15
+              "variantId": "V1-09nvodar",
+              "level": "ms",
+              "title": "Dosado to a Wave",
+              "file": "ms/dosado.xml"
             },
             {
-              "file": "ms/dosado.xml",
-              "tamIndex": 16
+              "variantId": "V1-3qscyy9h",
+              "level": "ms",
+              "title": "Dosado to a Wave",
+              "file": "ms/dosado.xml"
             }
           ]
         },
@@ -1662,16 +2180,22 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/single_circle_to_a_wave.xml",
-              "tamIndex": 0
+              "variantId": "V1-9fi55ua9",
+              "level": "ms",
+              "title": "Single Circle to a Wave",
+              "file": "ms/single_circle_to_a_wave.xml"
             },
             {
-              "file": "ms/single_circle_to_a_wave.xml",
-              "tamIndex": 1
+              "variantId": "V1-6tilgde3",
+              "level": "ms",
+              "title": "Single Circle to a Wave",
+              "file": "ms/single_circle_to_a_wave.xml"
             },
             {
-              "file": "ms/single_circle_to_a_wave.xml",
-              "tamIndex": 2
+              "variantId": "V1-fwmggqul",
+              "level": "ms",
+              "title": "Single Circle to a Wave",
+              "file": "ms/single_circle_to_a_wave.xml"
             }
           ]
         }
@@ -1688,52 +2212,76 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 46
+              "variantId": "V1-xz563yzp",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 47
+              "variantId": "V1-uhjqpb26",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 48
+              "variantId": "V1-m13tkzeu",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 49
+              "variantId": "V1-8y482czu",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 50
+              "variantId": "V1-qmlldxg4",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 51
+              "variantId": "V1-vdoo9oid",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 52
+              "variantId": "V1-piqe4o82",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 53
+              "variantId": "V1-4gj81uy3",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 54
+              "variantId": "V1-yw3qv17d",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 55
+              "variantId": "V1-ws84r0vu",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 56
+              "variantId": "V1-rg7hrcty",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 57
+              "variantId": "V1-hrsik7y6",
+              "level": "ms",
+              "title": "Couples Trade",
+              "file": "ms/trade.xml"
             }
           ]
         },
@@ -1744,52 +2292,76 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 0
+              "variantId": "V1-090ikjhe",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 1
+              "variantId": "V1-090ikjhe",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 2
+              "variantId": "V1-5pvznu73",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 3
+              "variantId": "V1-5pvznu73",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 4
+              "variantId": "V1-1m4z218x",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 5
+              "variantId": "V1-q6k1r36a",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 6
+              "variantId": "V1-ix2o39tl",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 7
+              "variantId": "V1-syyhy8rk",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 8
+              "variantId": "V1-g0ta3u7q",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 9
+              "variantId": "V1-vdg09e27",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 10
+              "variantId": "V1-2pmjrwpi",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 11
+              "variantId": "V1-2pmjrwpi",
+              "level": "ms",
+              "title": "Boys Trade",
+              "file": "ms/trade.xml"
             }
           ]
         },
@@ -1807,32 +2379,46 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 34
+              "variantId": "V1-tymsk6nw",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 35
+              "variantId": "V1-l8utv56n",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 36
+              "variantId": "V1-y0ah3l39",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 37
+              "variantId": "V1-8a4i28y8",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 38
+              "variantId": "V1-5bd6jbbj",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 39
+              "variantId": "V1-v6qynvtt",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             },
             {
-              "file": "ms/trade.xml",
-              "tamIndex": 58
+              "variantId": "V1-tg1pqw3a",
+              "level": "ms",
+              "title": "Partner Trade",
+              "file": "ms/trade.xml"
             }
           ]
         }
@@ -1849,60 +2435,88 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 0
+              "variantId": "V1-t9ony5i8",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 1
+              "variantId": "V1-wlhojmnj",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 2
+              "variantId": "V1-9ywcnr4p",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 3
+              "variantId": "V1-6wi5ydib",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 4
+              "variantId": "V1-w8ubrl7p",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 5
+              "variantId": "V1-j0yyl5ps",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 6
+              "variantId": "V1-qxdqa7qg",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 7
+              "variantId": "V1-f0xf6hr2",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 8
+              "variantId": "V1-prvb6kfa",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 9
+              "variantId": "V1-ie6yzp6p",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 10
+              "variantId": "V1-kwtesown",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 11
+              "variantId": "V1-od6g0fd2",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 12
+              "variantId": "V1-1jw3dw7b",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             },
             {
-              "file": "ms/swing_thru.xml",
-              "tamIndex": 26
+              "variantId": "V1-2vmcw47z",
+              "level": "ms",
+              "title": "Swing Thru",
+              "file": "ms/swing_thru.xml"
             }
           ]
         }
@@ -1919,72 +2533,106 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/run.xml",
-              "tamIndex": 0
+              "variantId": "V1-uzuj5shw",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 1
+              "variantId": "V1-w30m05gd",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 2
+              "variantId": "V1-w30m05gd",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 3
+              "variantId": "V1-91k1m5ns",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 4
+              "variantId": "V1-91k1m5ns",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 5
+              "variantId": "V1-jtx3q45z",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 6
+              "variantId": "V1-fet4fgpx",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 7
+              "variantId": "V1-fet4fgpx",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 8
+              "variantId": "V1-vz0nl0pg",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 9
+              "variantId": "V1-vz0nl0pg",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 10
+              "variantId": "V1-7b1n918e",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 11
+              "variantId": "V1-8dmqfea9",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 12
+              "variantId": "V1-w4kh08n1",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 13
+              "variantId": "V1-j6zgjxng",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 14
+              "variantId": "V1-go3j6o86",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 15
+              "variantId": "V1-pridsk6x",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             },
             {
-              "file": "ms/run.xml",
-              "tamIndex": 71
+              "variantId": "V1-penjn1jy",
+              "level": "ms",
+              "title": "Boys Run",
+              "file": "ms/run.xml"
             }
           ]
         }
@@ -2001,32 +2649,46 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 0
+              "variantId": "V1-rxrozj3m",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             },
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 1
+              "variantId": "V1-7ugvyq7c",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             },
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 2
+              "variantId": "V1-q5sl9alg",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             },
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 3
+              "variantId": "V1-09c0viai",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             },
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 4
+              "variantId": "V1-zr7v07aj",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             },
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 5
+              "variantId": "V1-i7w82sep",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             },
             {
-              "file": "ms/pass_the_ocean.xml",
-              "tamIndex": 8
+              "variantId": "V1-k16n2ba8",
+              "level": "ms",
+              "title": "Pass the Ocean",
+              "file": "ms/pass_the_ocean.xml"
             }
           ]
         }
@@ -2043,92 +2705,136 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 0
+              "variantId": "V1-7y9t75ku",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 1
+              "variantId": "V1-zf7sbyo1",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 2
+              "variantId": "V1-a8lndnkr",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 3
+              "variantId": "V1-hor149lu",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 4
+              "variantId": "V1-0nbrkmt2",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 5
+              "variantId": "V1-9bcnjpyy",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 6
+              "variantId": "V1-ioktjiyk",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 7
+              "variantId": "V1-dsuimw1g",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 8
+              "variantId": "V1-di76b5ou",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 9
+              "variantId": "V1-cl0wakfc",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 10
+              "variantId": "V1-12di74db",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 11
+              "variantId": "V1-2we902yn",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 12
+              "variantId": "V1-s8y1164p",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 13
+              "variantId": "V1-04uxcl1g",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 14
+              "variantId": "V1-d8jjdoud",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 15
+              "variantId": "V1-anyv7qwt",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 16
+              "variantId": "V1-q5kwalsi",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 17
+              "variantId": "V1-cs81eo2g",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 18
+              "variantId": "V1-k6k79il1",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 19
+              "variantId": "V1-puls7qtt",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 20
+              "variantId": "V1-2h91k447",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             },
             {
-              "file": "ms/extend.xml",
-              "tamIndex": 21
+              "variantId": "V1-z2gy7fqa",
+              "level": "ms",
+              "title": "Extend",
+              "file": "ms/extend.xml"
             }
           ]
         }
@@ -2145,28 +2851,40 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/flutterwheel.xml",
-              "tamIndex": 0
+              "variantId": "V1-7h2exv9j",
+              "level": "ms",
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml"
             },
             {
-              "file": "ms/flutterwheel.xml",
-              "tamIndex": 1
+              "variantId": "V1-00gbvo7h",
+              "level": "ms",
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml"
             },
             {
-              "file": "ms/flutterwheel.xml",
-              "tamIndex": 2
+              "variantId": "V1-3kxf7g7a",
+              "level": "ms",
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml"
             },
             {
-              "file": "ms/flutterwheel.xml",
-              "tamIndex": 3
+              "variantId": "V1-poic70i9",
+              "level": "ms",
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml"
             },
             {
-              "file": "ms/flutterwheel.xml",
-              "tamIndex": 4
+              "variantId": "V1-vrns1uhj",
+              "level": "ms",
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml"
             },
             {
-              "file": "ms/flutterwheel.xml",
-              "tamIndex": 11
+              "variantId": "V1-8k0ob2jh",
+              "level": "ms",
+              "title": "Flutterwheel",
+              "file": "ms/flutterwheel.xml"
             }
           ]
         }
@@ -2183,16 +2901,22 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/sweep_a_quarter.xml",
-              "tamIndex": 11
+              "variantId": "V1-qd5h3eb9",
+              "level": "ms",
+              "title": "Sweep a Quarter Right",
+              "file": "ms/sweep_a_quarter.xml"
             },
             {
-              "file": "ms/sweep_a_quarter.xml",
-              "tamIndex": 12
+              "variantId": "V1-jwciyd6y",
+              "level": "ms",
+              "title": "Sweep a Quarter Right",
+              "file": "ms/sweep_a_quarter.xml"
             },
             {
-              "file": "ms/sweep_a_quarter.xml",
-              "tamIndex": 13
+              "variantId": "V1-u4hvpolt",
+              "level": "ms",
+              "title": "Sweep a Quarter Right",
+              "file": "ms/sweep_a_quarter.xml"
             }
           ]
         }
@@ -2209,16 +2933,22 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/trade_by.xml",
-              "tamIndex": 0
+              "variantId": "V1-g1vx1ike",
+              "level": "ms",
+              "title": "Trade By",
+              "file": "ms/trade_by.xml"
             },
             {
-              "file": "ms/trade_by.xml",
-              "tamIndex": 1
+              "variantId": "V1-2ttqalj2",
+              "level": "ms",
+              "title": "Trade By",
+              "file": "ms/trade_by.xml"
             },
             {
-              "file": "ms/trade_by.xml",
-              "tamIndex": 2
+              "variantId": "V1-vt5f26aw",
+              "level": "ms",
+              "title": "Trade By",
+              "file": "ms/trade_by.xml"
             }
           ]
         }
@@ -2235,28 +2965,34 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/ferris_wheel.xml",
-              "tamIndex": 0
+              "variantId": "V1-oyqhx26p",
+              "level": "ms",
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml"
             },
             {
-              "file": "ms/ferris_wheel.xml",
-              "tamIndex": 1
+              "variantId": "V1-oyqhx26p",
+              "level": "ms",
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml"
             },
             {
-              "file": "ms/ferris_wheel.xml",
-              "tamIndex": 2
+              "variantId": "V1-mu7o59ho",
+              "level": "ms",
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml"
             },
             {
-              "file": "ms/ferris_wheel.xml",
-              "tamIndex": 3
+              "variantId": "V1-xw6vzvsh",
+              "level": "ms",
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml"
             },
             {
-              "file": "ms/ferris_wheel.xml",
-              "tamIndex": 4
-            },
-            {
-              "file": "ms/ferris_wheel.xml",
-              "tamIndex": 5
+              "variantId": "V1-i44j1lw4",
+              "level": "ms",
+              "title": "Ferris Wheel",
+              "file": "ms/ferris_wheel.xml"
             }
           ]
         }
@@ -2273,32 +3009,46 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 0
+              "variantId": "V1-stcsbidw",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             },
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 1
+              "variantId": "V1-r430trvp",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             },
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 2
+              "variantId": "V1-xtv0bsi4",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             },
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 3
+              "variantId": "V1-5qln5hen",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             },
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 4
+              "variantId": "V1-evakte71",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             },
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 5
+              "variantId": "V1-i69n6367",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             },
             {
-              "file": "ms/zoom.xml",
-              "tamIndex": 6
+              "variantId": "V1-0vzvebr0",
+              "level": "ms",
+              "title": "Zoom",
+              "file": "ms/zoom.xml"
             }
           ]
         }
@@ -2315,24 +3065,34 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/touch_a_quarter.xml",
-              "tamIndex": 0
+              "variantId": "V1-2xx23g54",
+              "level": "ms",
+              "title": "Touch a Quarter",
+              "file": "ms/touch_a_quarter.xml"
             },
             {
-              "file": "ms/touch_a_quarter.xml",
-              "tamIndex": 1
+              "variantId": "V1-sio8rczh",
+              "level": "ms",
+              "title": "Touch a Quarter",
+              "file": "ms/touch_a_quarter.xml"
             },
             {
-              "file": "ms/touch_a_quarter.xml",
-              "tamIndex": 2
+              "variantId": "V1-0e15lzwy",
+              "level": "ms",
+              "title": "Touch a Quarter",
+              "file": "ms/touch_a_quarter.xml"
             },
             {
-              "file": "ms/touch_a_quarter.xml",
-              "tamIndex": 3
+              "variantId": "V1-r7p1iy04",
+              "level": "ms",
+              "title": "Touch a Quarter",
+              "file": "ms/touch_a_quarter.xml"
             },
             {
-              "file": "ms/touch_a_quarter.xml",
-              "tamIndex": 8
+              "variantId": "V1-roadtchm",
+              "level": "ms",
+              "title": "Touch a Quarter",
+              "file": "ms/touch_a_quarter.xml"
             }
           ]
         }
@@ -2349,60 +3109,88 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 0
+              "variantId": "V1-629q50aq",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 1
+              "variantId": "V1-p7qmuion",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 2
+              "variantId": "V1-sh5w7rsm",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 3
+              "variantId": "V1-5oq5898b",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 4
+              "variantId": "V1-3h2jd2yn",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 5
+              "variantId": "V1-cvh7pxpa",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 6
+              "variantId": "V1-bn0t2dhr",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 7
+              "variantId": "V1-xa67ergr",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 8
+              "variantId": "V1-89rcklub",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 9
+              "variantId": "V1-dpe8xlq1",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 10
+              "variantId": "V1-7f6h4e0z",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 11
+              "variantId": "V1-iej8a95a",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 12
+              "variantId": "V1-ac1k96fg",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 13
+              "variantId": "V1-uwqrq61k",
+              "level": "ms",
+              "title": "Hinge",
+              "file": "ms/hinge.xml"
             }
           ]
         },
@@ -2413,52 +3201,76 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 29
+              "variantId": "V1-043cc0eg",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 30
+              "variantId": "V1-wjrqu53v",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 31
+              "variantId": "V1-hc68d3pb",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 32
+              "variantId": "V1-t44q6cre",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 33
+              "variantId": "V1-95sg4qkg",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 34
+              "variantId": "V1-5j58qkh7",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 35
+              "variantId": "V1-13fsr11x",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 36
+              "variantId": "V1-7ekzfuik",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 37
+              "variantId": "V1-1yrkqum7",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 38
+              "variantId": "V1-xj0f2sir",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 39
+              "variantId": "V1-95sg4qkg",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             },
             {
-              "file": "ms/hinge.xml",
-              "tamIndex": 40
+              "variantId": "V1-5j58qkh7",
+              "level": "ms",
+              "title": "Couples Hinge",
+              "file": "ms/hinge.xml"
             }
           ]
         }
@@ -2475,20 +3287,28 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/centers_in.xml",
-              "tamIndex": 0
+              "variantId": "V1-vprnge2y",
+              "level": "ms",
+              "title": "Centers In",
+              "file": "ms/centers_in.xml"
             },
             {
-              "file": "ms/centers_in.xml",
-              "tamIndex": 1
+              "variantId": "V1-350p7npn",
+              "level": "ms",
+              "title": "Centers In",
+              "file": "ms/centers_in.xml"
             },
             {
-              "file": "ms/centers_in.xml",
-              "tamIndex": 2
+              "variantId": "V1-m6h3bk9z",
+              "level": "ms",
+              "title": "Centers In",
+              "file": "ms/centers_in.xml"
             },
             {
-              "file": "ms/centers_in.xml",
-              "tamIndex": 3
+              "variantId": "V1-ney53s0n",
+              "level": "ms",
+              "title": "Centers In",
+              "file": "ms/centers_in.xml"
             }
           ]
         }
@@ -2505,148 +3325,220 @@
           "how": "normalised",
           "sites": [
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 0
+              "variantId": "V1-mo2pj671",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 1
+              "variantId": "V1-h72hc8ou",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 2
+              "variantId": "V1-gd1rdzxy",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 3
+              "variantId": "V1-d0l13fuj",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 4
+              "variantId": "V1-xi0iobvw",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 5
+              "variantId": "V1-rl5bp4si",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 6
+              "variantId": "V1-vqqhjxp3",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 7
+              "variantId": "V1-xy4m6wt9",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 8
+              "variantId": "V1-hzufvgpm",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 9
+              "variantId": "V1-67c4axpv",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 10
+              "variantId": "V1-se8atkgi",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 11
+              "variantId": "V1-3ezjgx0e",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 12
+              "variantId": "V1-6wi3ubnz",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 13
+              "variantId": "V1-abc0zmq3",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 14
+              "variantId": "V1-24mmuwss",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 15
+              "variantId": "V1-02jk8rq0",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 16
+              "variantId": "V1-1pa8fq26",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 17
+              "variantId": "V1-tu6j0o1i",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 18
+              "variantId": "V1-scz93ag1",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 19
+              "variantId": "V1-qzpuqfj6",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 20
+              "variantId": "V1-h0h28agh",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 21
+              "variantId": "V1-3bmfifwy",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 22
+              "variantId": "V1-dscoeuvn",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 23
+              "variantId": "V1-um71s1a1",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 24
+              "variantId": "V1-pllxlbnn",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 25
+              "variantId": "V1-ai58ac26",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 26
+              "variantId": "V1-wl8r2lkw",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 27
+              "variantId": "V1-t3orfcfn",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 28
+              "variantId": "V1-eboz22g2",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 29
+              "variantId": "V1-vu5ss6ii",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 30
+              "variantId": "V1-2bh1rfbh",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 31
+              "variantId": "V1-bhnuka1a",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 32
+              "variantId": "V1-tny0x3w5",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 33
+              "variantId": "V1-9fb7zlqo",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 34
+              "variantId": "V1-noasdu5z",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             },
             {
-              "file": "ms/cast_off_three_quarters.xml",
-              "tamIndex": 35
+              "variantId": "V1-jxzu6lli",
+              "level": "ms",
+              "title": "Cast Off Three Quarters",
+              "file": "ms/cast_off_three_quarters.xml"
             }
           ]
         }
@@ -2663,44 +3555,64 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 0
+              "variantId": "V1-rjnfau03",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 1
+              "variantId": "V1-y316xequ",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 2
+              "variantId": "V1-4sudjkug",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 3
+              "variantId": "V1-jkm7wbjk",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 4
+              "variantId": "V1-3a8yl2zn",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 5
+              "variantId": "V1-jnnwf0uj",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 6
+              "variantId": "V1-ybw35mkp",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 7
+              "variantId": "V1-gqwxr431",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 8
+              "variantId": "V1-jr3b7cte",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             },
             {
-              "file": "ms/spin_the_top.xml",
-              "tamIndex": 9
+              "variantId": "V1-t541qnwc",
+              "level": "ms",
+              "title": "Spin the Top",
+              "file": "ms/spin_the_top.xml"
             }
           ]
         }
@@ -2717,68 +3629,100 @@
           "how": "exact",
           "sites": [
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 0
+              "variantId": "V1-d6716024",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 1
+              "variantId": "V1-eblrh0n1",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 2
+              "variantId": "V1-i099megl",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 3
+              "variantId": "V1-zyja02sy",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 4
+              "variantId": "V1-lszkyy5s",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 5
+              "variantId": "V1-1q5zmzrx",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 6
+              "variantId": "V1-6sabwp84",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 7
+              "variantId": "V1-xnv0qbxg",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 8
+              "variantId": "V1-emimtmad",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 9
+              "variantId": "V1-aep55jtj",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 10
+              "variantId": "V1-hkwpoy38",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 11
+              "variantId": "V1-8x9ndkcy",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 12
+              "variantId": "V1-pbl6llb7",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 13
+              "variantId": "V1-apkk7ubq",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 14
+              "variantId": "V1-7pfouj83",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             },
             {
-              "file": "ms/scoot_back.xml",
-              "tamIndex": 15
+              "variantId": "V1-tl8grc1d",
+              "level": "ms",
+              "title": "Scoot Back",
+              "file": "ms/scoot_back.xml"
             }
           ]
         }
@@ -2795,12 +3739,16 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/fold.xml",
-              "tamIndex": 0
+              "variantId": "V1-jmi092kh",
+              "level": "ms",
+              "title": "Boys Fold",
+              "file": "ms/fold.xml"
             },
             {
-              "file": "ms/fold.xml",
-              "tamIndex": 1
+              "variantId": "V1-k0fczwbz",
+              "level": "ms",
+              "title": "Boys Fold",
+              "file": "ms/fold.xml"
             }
           ]
         }
@@ -2817,44 +3765,64 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 0
+              "variantId": "V1-jly59zh3",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 1
+              "variantId": "V1-v3b053bs",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 2
+              "variantId": "V1-l5egbt2o",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 3
+              "variantId": "V1-2lhqwa2x",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 4
+              "variantId": "V1-663a98rb",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 5
+              "variantId": "V1-l5postue",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 6
+              "variantId": "V1-08cms618",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 7
+              "variantId": "V1-n660qx0t",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 8
+              "variantId": "V1-bur2c1q8",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             },
             {
-              "file": "ms/tag.xml",
-              "tamIndex": 9
+              "variantId": "V1-aox7qcvc",
+              "level": "ms",
+              "title": "Tag the Line",
+              "file": "ms/tag.xml"
             }
           ]
         },
@@ -2865,92 +3833,136 @@
           "how": "alias",
           "sites": [
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 6
+              "variantId": "V1-ul87yigp",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 7
+              "variantId": "V1-btwdlqai",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 8
+              "variantId": "V1-b18oti8a",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 9
+              "variantId": "V1-5kcy2qaf",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 10
+              "variantId": "V1-nb0v5he0",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 11
+              "variantId": "V1-zvkzaahd",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 12
+              "variantId": "V1-2hr0g7j2",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 13
+              "variantId": "V1-g6ue4hvr",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 14
+              "variantId": "V1-r5wjv2zy",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 15
+              "variantId": "V1-l5yvzasy",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 16
+              "variantId": "V1-xlxyhoym",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 17
+              "variantId": "V1-zc11knim",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 18
+              "variantId": "V1-wotyy2w1",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 19
+              "variantId": "V1-90l0fqrm",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 20
+              "variantId": "V1-sdixp8bl",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 21
+              "variantId": "V1-c72fw3f8",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 22
+              "variantId": "V1-gjh8y4tv",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 23
+              "variantId": "V1-je1gz0oq",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 24
+              "variantId": "V1-b97vttp7",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 25
+              "variantId": "V1-6ztar9y7",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 26
+              "variantId": "V1-1mg3nd3h",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             },
             {
-              "file": "ms/fraction_tag.xml",
-              "tamIndex": 27
+              "variantId": "V1-htab6qeq",
+              "level": "ms",
+              "title": "Half Tag",
+              "file": "ms/fraction_tag.xml"
             }
           ]
         }
@@ -2967,32 +3979,46 @@
           "how": "normalised",
           "sites": [
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 0
+              "variantId": "V1-to7jlb70",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             },
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 1
+              "variantId": "V1-fi320nb1",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             },
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 2
+              "variantId": "V1-0vxyuqdg",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             },
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 3
+              "variantId": "V1-hzdcgy50",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             },
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 4
+              "variantId": "V1-n6amj00y",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             },
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 5
+              "variantId": "V1-0fhxhlqi",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             },
             {
-              "file": "ms/recycle.xml",
-              "tamIndex": 6
+              "variantId": "V1-8j6mto74",
+              "level": "ms",
+              "title": "Recycle",
+              "file": "ms/recycle.xml"
             }
           ]
         }

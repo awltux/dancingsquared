@@ -17,7 +17,8 @@
 //   node book/tools/map-calls.mjs --titles  # print every corpus title and its sites
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { toolsDir, loadEngine, catalogue } from './lib/load.mjs';
+import { toolsDir, loadEngine, catalogue, loadCall } from './lib/load.mjs';
+import { loadRoots, levelOf, variantOf } from './lib/variants.mjs';
 
 const CLEANED = join(toolsDir, '.cache', 'mainstream.cleaned.txt');
 const OUT = join(toolsDir, 'call-map.json');
@@ -142,6 +143,7 @@ export function main() {
   const units = parseTeachingOrder(text);
   const eng = loadEngine();
   const byTitle = catalogue();
+  const roots = loadRoots();
 
   if (process.argv.includes('--titles')) {
     for (const t of [...byTitle.keys()].sort()) console.log(`${t}\t${byTitle.get(t).map((s) => s.file).join(', ')}`);
@@ -193,7 +195,23 @@ export function main() {
       } else if (viaAlias) {
         how = `alias-missing(${viaAlias})`;
       }
-      return { ...e, corpusTitle, how, sites: corpusTitle ? byTitle.get(corpusTitle) ?? [] : [] };
+      // A SITE IS A VARIANT ID, NOT A POSITION. `{file, tamIndex}` is a position into an authored list, and the
+      // corpus moves those; the id is level + title + formation root, so a retitle or a reorder cannot re-point
+      // it. The level, title and file travel beside it because they are what narrows a later lookup to a
+      // handful of candidate authorings and what the reference pages report; the id is what decides.
+      const sites = (corpusTitle ? byTitle.get(corpusTitle) ?? [] : [])
+        .map((site) => {
+          try {
+            const bundle = loadCall(eng, site);
+            const level = levelOf(site.file);
+            const { variantId } = variantOf(eng, bundle, level, roots);
+            return { variantId, level, title: bundle.title, file: site.file };
+          } catch {
+            return null;
+          }
+        })
+        .filter(Boolean);
+      return { ...e, corpusTitle, how, sites };
     });
 
     out.units.push({ n: u.n, title: u.title, entries: resolved });
@@ -201,8 +219,7 @@ export function main() {
       report.push(
         `M${String(u.n).padStart(2)}${r.letter ?? ' '}  ${r.sites.length ? 'OK ' : '-- '} ${r.title}` +
           `${r.corpusTitle && r.corpusTitle !== r.title ? `  -> ${r.corpusTitle}` : ''}` +
-          `${r.sites.length ? `  [${r.sites.map((s) => s.file).join(', ')}]` : ''}  (${r.how})`,
-      );
+          `${r.sites.length ? `  [${r.sites.map((s) => `${s.level} ${s.variantId}`).join(', ')}]` : ''}  (${r.how})`,      );
     }
   }
 

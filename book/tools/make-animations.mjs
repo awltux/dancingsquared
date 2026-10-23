@@ -22,6 +22,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs';
+import { loadRoots, makeResolver } from './lib/variants.mjs';
 import { matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, PALETTE, C, writePng } from './lib/raster.mjs';
@@ -455,6 +456,11 @@ export function build({ gifs = false } = {}) {
    */
   const startTally = { declared: 0, unresolved: 0, skipped: [] };
   const eng = loadEngine();
+  // A BINDING NAMES A VARIANT, NOT A POSITION. See `lib/variants.mjs` for why the id replaced `{file, tamIndex}`
+  // and why the title travels beside it as a hint.
+  const roots = loadRoots();
+  const bindings = makeResolver(eng, roots);
+  const unresolvedBindings = [];
   const files = new Map();
   const index = { figures: [], noAnimation: [] };
 
@@ -470,22 +476,40 @@ export function build({ gifs = false } = {}) {
       // The book's terminology is the manual's, so no start is ever labelled with the engine's name
       // for an authoring. Where the manual's own first start is not the authoring the corpus happened
       // to list first, the page plays the manual's -- so the picker always agrees with what is on
-      // screen before anyone touches it. A card with no start list is unchanged: e.sites[0].
+      // screen before anyone touches it. A card with no start list is the map's first binding.
       const curated = startTable[id];
       const starts = curated ? resolveStarts(eng, id, curated, tamCache, startTally) : null;
-      const site = starts ? { file: starts[0].calls[0].file, tamIndex: starts[0].calls[0].tamIndex } : e.sites[0];
+      // THE MAP'S BINDING IS A VARIANT ID, AND IT IS RESOLVED RATHER THAN TRUSTED. When it does not resolve, the
+      // card is NAMED and gets no animation: substituting another authoring because the named one is gone is
+      // exactly how a wrong call reached a reader (MEASURED, 7 of 75 cards before `e199c42`), and the map is
+      // regenerated from the corpus anyway, so an unresolved binding means the corpus moved under a stale map.
+      const resolved = e.sites.map((binding) => ({ binding, site: bindings.resolve(binding) }));
+      for (const r of resolved) {
+        if (!r.site) {
+          unresolvedBindings.push(`${id}: ${r.binding.variantId} (${r.binding.level} "${r.binding.title}")`);
+        }
+      }
+      const first = resolved.find((r) => r.site)?.site ?? null;
+      const site = starts ? { file: starts[0].calls[0].file, tamIndex: starts[0].calls[0].tamIndex } : first;
+      if (!site) {
+        index.noAnimation.push({
+          id,
+          call: e.title,
+          reason: e.sites.length
+            ? 'the map binds a variant the corpus no longer authors'
+            : 'no corpus title',
+        });
+        continue;
+      }
 
       let bundle = null;
       const failures = [];
-      for (const candidate of [site, ...e.sites]) {
-        try {
-          const c = loadCall(eng, candidate);
-          if (!c || !c.dancers.length) throw new Error('built no dancers');
-          bundle = c;
-          break;
-        } catch (err) {
-          failures.push(`${candidate.file}#${candidate.tamIndex}: ${err.message}`);
-        }
+      try {
+        const c = loadCall(eng, site);
+        if (!c || !c.dancers.length) throw new Error('built no dancers');
+        bundle = c;
+      } catch (err) {
+        failures.push(`${site.file}#${site.tamIndex}: ${err.message}`);
       }
       if (!bundle) {
         index.noAnimation.push({ id, call: e.title, reason: `corpus authoring does not build: ${failures[0] ?? ''}` });
@@ -559,6 +583,17 @@ export function build({ gifs = false } = {}) {
         `${startTally.unresolved ? `; ${startTally.unresolved} resolved to nothing` : ''}`,
     );
     for (const line of startTally.skipped) console.log(`    NOT DRAWN  ${line}`);
+  }
+  // A REFERENCE THAT NO LONGER RESOLVES IS A FAILURE, not a card that quietly loses its animation. The map names
+  // variants; when one is gone, either the corpus moved under a stale map (regenerate it) or the call was
+  // retired (decide what the card should show). Both are decisions a person makes, so the build stops here and
+  // prints every one rather than picking a stand-in.
+  if (unresolvedBindings.length) {
+    throw new Error(
+      `${unresolvedBindings.length} binding(s) name a variant the corpus does not author:\n`
+        + unresolvedBindings.map((line) => `  ${line}`).join('\n')
+        + '\n  regenerate with: node book/tools/map-calls.mjs',
+    );
   }
   return { files, index };
 }
@@ -698,8 +733,12 @@ export function main() {
     const eng = loadEngine();
     const entry = map.units.flatMap((u) => u.entries.map((e) => ({ u, e }))).find((x) => `m${String(x.u.n).padStart(2, '0')}${x.e.letter ?? ''}` === id);
     if (!entry || !entry.e.sites.length) throw new Error(`no corpus data for ${id}`);
-    const bundle = loadCall(eng, entry.e.sites[0]);
-    const frames = framesFor(eng, bundle, entry.e.sites[0]);
+    // The map's site is a VARIANT ID, so the preview resolves it exactly as the build does rather than
+    // reaching for a position that no longer exists.
+    const resolved = makeResolver(eng, loadRoots()).resolve(entry.e.sites[0]);
+    if (!resolved) throw new Error(`the map's binding for ${id} does not resolve against the corpus`);
+    const bundle = loadCall(eng, resolved);
+    const frames = framesFor(eng, bundle, resolved);
     const at = Math.floor(frames.length / 2);
     const canvas = new Canvas(SIZE, SIZE);
     canvas.px.set(frames[at]);

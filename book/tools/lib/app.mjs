@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Canvas, PALETTE, writePng } from './raster.mjs';
+import { escapeXml } from './escape.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -365,6 +366,8 @@ you have visited before, or reconnect and try again.</p>
 `;
 }
 
-function escapeXml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
-}
+// THE XML RULE IS THE BOOK'S SHARED ONE (`lib/escape.mjs`, imported at the top), and it is the SAME SET the
+// engine's exporter uses (`engine/src/convert.ts`): `& < "`. This file used to escape `'` as `&apos;` too —
+// harmless in XML, but a third spelling of one rule, and the sitemap it builds is not a
+// single-quoted-attribute document.
+

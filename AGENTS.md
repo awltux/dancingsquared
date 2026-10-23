@@ -203,10 +203,15 @@ review**: workspace-local, licence-clean, justified in the commit message, with 
   local engine. No remote call, telemetry beacon or external font without an explicit decision in the commit
   message. **`api/` is the other side of that boundary** — the one component that talks to AWS by design; the game
   stays offline-first because `VITE_API_BASE` unset is today's behaviour.
-- **Escape anything that goes into `innerHTML`.** `esc()` from `poc/src/dom.ts` is the one rule, in one place,
-  because authored data — a call's `from` label, a formation's name, a module name — must not become markup.
-  Prefer `textContent`; never `eval`, `new Function`, `srcdoc` or `javascript:`. **`el()` over `querySelector`**
-  for panel elements: the id is a compile-time contract.
+- **Escape anything that goes into `innerHTML`.** There are TWO rules, one per TARGET, and one implementation of
+  each: **HTML** is `esc()` in `poc/src/dom.ts` (`& < > " '` — the teacher re-exports it, the book's tools import
+  `book/tools/lib/escape.mjs`, and `book/assets/player.js` is the one copy that ships as text because it runs in a
+  browser with no bundler), and **XML** is `esc()` in `engine/src/convert.ts` (`& < "` — double-quoted attributes,
+  `>` legal raw). They differ ON PURPOSE and must not be merged; `poc/tools/escape-probe.mjs` pins both sets,
+  requires exactly four files in the tree to contain an escaper, and fails if the two rules ever agree on `>`. The
+  invariant is that authored data — a call's `from` label, a formation's name, a module name — must not become
+  markup. Prefer `textContent`; never `eval`, `new Function`, `srcdoc` or `javascript:`. **`el()` over
+  `querySelector`** for panel elements: the id is a compile-time contract.
 - **Licences are constraints.** The engine is AGPL-3.0, the tamination animation data GPL/AGPL: do not relicense,
   do not copy code from `taminations-flutter/`, keep attribution. `docs/` and the extracted `callerlab-ms.txt` are
   **deliberately untracked** — never add them. **One gate already depends on them** (`callerlab-diff`, `all` tier,

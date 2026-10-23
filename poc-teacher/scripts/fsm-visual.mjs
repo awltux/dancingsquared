@@ -10,6 +10,9 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
 import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
+// THE HTML ESCAPER IS IMPORTED FROM THE POC, which owns the rule (`poc/src/dom.ts`). This script carried its own
+// four-character copy — a second spelling of one security rule — and the file it writes is HTML like any other.
+import { esc } from '../../poc/src/dom.ts';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -117,7 +120,8 @@ for (const p of pos) { p.x = 100 + (p.x - minX) * S; p.y = 100 + (p.y - minY) * 
 // family of an edge (for colour/filter)
 const famOf = (call) => familyMap.get(call) ?? '';
 
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+
 
 const FILL = { home: '#0a7d33', ok: '#3a9a5f', nohome: '#e8950c', dead: '#d63a3a' };
 const STROKE = { home: '#064d1e', ok: '#2f7a49', nohome: '#b97608', dead: '#a52828' };

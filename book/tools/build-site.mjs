@@ -21,6 +21,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statS
 import { createHash } from 'node:crypto';
 import { dirname, join, relative } from 'node:path';
 import { toolsDir } from './lib/load.mjs';
+import { escapeHtml } from './lib/escape.mjs';
 import { buildOrder } from './make-nav.mjs';
 import { parseBlocks, render, inline } from './lib/markdown.mjs';
 import {
@@ -414,8 +415,10 @@ footer.page .stamp { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
 }
 `;
 
-const esc = (s) =>
-  String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+// THE HTML RULE IS THE BOOK'S SHARED ONE, in `lib/escape.mjs` — this file carried its own copy of the
+// five-character class, and `lib/markdown.mjs` carried a second. `escapeHtml` keeps the local name `esc` because
+// that is what the twelve interpolations in this file call it.
+const esc = escapeHtml;
 
 /**
  * The name the book carries when it is INSTALLED as an app, rather than read as a website.

@@ -5,6 +5,12 @@
 // SVG rendering, plus the event wiring for its overlay.
 
 import type { Sequencer } from 'dancing-squared-engine';
+// THE ONE HTML ESCAPER, and this file is why it is worth having exactly one: `callAt` returns
+// `sequenceInfo().name`, the CALLER's call-name string from the programme being previewed, and it was
+// interpolated RAW into `innerHTML` — the one place in this app where the invariant rested on the matcher
+// refusing a hostile name rather than on the rule. The same value in a `textContent` (below) is left alone,
+// because the browser escapes there.
+import { esc } from './util';
 
 interface PreviewState {
   titles: string[];
@@ -63,7 +69,7 @@ export class Preview {
         <div class="preview-controls">
           <button class="big preview-play" data-prevplay>${p.playing ? '⏸' : '▶'}</button>
         </div>
-        <div class="preview-call" id="previewCall">${this.callAt(p.titles, p.beat)}</div>
+        <div class="preview-call" id="previewCall">${esc(this.callAt(p.titles, p.beat))}</div>
         <button class="big primary" data-prevclose style="margin-top:12px">Close</button>
       </div>
     </div>`;

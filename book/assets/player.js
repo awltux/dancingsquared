@@ -323,7 +323,12 @@ async function mount(host) {
   // Built as a pair and referenced directly, never looked up afterwards: the first cut gave a chooser's
   // label and its select the same class, so `querySelector` found the LABEL and the options were
   // written into it with `innerHTML`, replacing the select. See makeChooser below.
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  // THE HTML ESCAPE RULE, and this is the ONE copy in the book that cannot be shared: this file is copied
+  // verbatim into the published site (`book/tools/build-site.mjs`'s `cpSync`) and runs in a browser with no
+  // bundler, so it cannot import `book/tools/lib/escape.mjs`. Its character class must therefore match that
+  // module's `escapeHtml` — `& < > " '` — and `poc/tools/escape-probe.mjs` reads this source and fails if it
+  // drifts, which is the only way a gate can see a copy that ships as text.
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const fitOf = (call) =>
     Number.isFinite(Number(call[3])) && Number.isFinite(Number(call[4]))
       ? { scale: Number(call[3]), units: Number(call[4]) }

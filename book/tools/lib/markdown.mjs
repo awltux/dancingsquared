@@ -14,8 +14,8 @@ export function anchorOf(text) {
     .replace(/\s+/g, '-');
 }
 
-const escapeHtml = (s) =>
-  String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+// THE HTML RULE IS THE BOOK'S SHARED ONE (`lib/escape.mjs`); this file carried a byte-identical copy of it.
+import { escapeHtml } from './escape.mjs';
 
 /** A .md link becomes a .html one; everything else is left alone. */
 export function rewriteHref(href) {

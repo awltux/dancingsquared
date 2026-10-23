@@ -115,3 +115,20 @@ export function isReplayable(state: CellState): boolean {
   }
   return { done, passed, published, total: cells.length };
 }
+
+/**
+ * Whether a cell is one the player may WATCH BACK: a position they PASSED.
+ *
+ * IT IS NOT `isReplayable`, AND THE DIFFERENCE IS THE QUESTION — the same split the server makes between
+ * `GET /drill/replay` (a READ: the boards, the calls that solved it, nothing written) and `POST /drill/replay` (a WRITE:
+ * reopen a skipped position so the pass can be earned). The paragraph above refuses a passed position a REATTEMPT
+ * because there is nothing left to earn, and that is still right — it is not an argument against a REWATCH, which earns
+ * nothing. REPORTED as "Allow completed levels to be replayed, not re-solved": the cell was a plain label, so a completed
+ * drill could not be opened at all.
+ *
+ * THE TWO STATES ARE DISJOINT, which is why two functions can both make a cell pressable without overlapping: a cell is
+ * `done-passed` or `done-not-passed`, never both (`blockCells`' own rule, pinned by `block-probe.mjs`).
+ */
+export function isWatchable(state: CellState): boolean {
+  return state === 'done-passed';
+}

@@ -13,7 +13,7 @@
 //   * a grid that LOCKS a skipped drill — caught by section 7, which is the rule that made this a defect report.
 //
 // Usage: node game/test/block-probe.mjs
-import { blockCells, blockSummary, isReplayable, CELL_COUNT } from '../src/puzzle/block.ts';
+import { blockCells, blockSummary, isReplayable, isWatchable, CELL_COUNT } from '../src/puzzle/block.ts';
 import { LEVEL_SIZE } from '../src/puzzle/levels.ts';
 
 let failures = 0;
@@ -107,6 +107,16 @@ console.log('\n== 7. A SKIPPED CELL IS A CONTROL: which states offer a reattempt
   check(everyState.filter(isReplayable).length === 1, `exactly one of the five states is replayable (${everyState.filter(isReplayable).length})`);
   check(everyState.filter((s) => s.startsWith('done')).filter(isReplayable).length === 1,
     'NEGATIVE CONTROL: "anything done" would be 2 of 2, so the pass set is doing the work');
+
+  // AND THE CONTROL A COMPLETED CELL GETS: WATCHING, which is a READ and therefore not the same question.
+  // REPORTED as "Allow completed levels to be replayed, not re-solved" — the passed cell used to be a plain label, so a
+  // completed drill could not be opened at all.
+  check(isWatchable(at(cells, 0)), `a PASSED cell offers a WATCH (${at(cells, 0)})`);
+  check(!isWatchable(at(cells, 1)), `while a skipped one does not — it is offered the reattempt instead (${at(cells, 1)})`);
+  check(everyState.filter(isWatchable).length === 1, `exactly one of the five states is watchable (${everyState.filter(isWatchable).length})`);
+  // THE TWO RULES ARE DISJOINT, which is why both can make a cell pressable without a cell being both: a state that
+  // satisfied both would be offered an attempt AND a rewatch, and the two endpoints answer different questions.
+  check(everyState.every((state) => !(isReplayable(state) && isWatchable(state))), 'NEGATIVE CONTROL: no state is both reattemptable and watchable');
 }
 
 console.log('\n== 8. degenerate input cannot make a cell that is not a drill ==');

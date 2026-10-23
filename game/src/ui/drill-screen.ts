@@ -106,6 +106,19 @@ export class DrillScreen {
     }
   }
 
+  /**
+   * The WATCHING state: a closed position is being replayed, so there is no question to answer.
+   *
+   * IT IS A STATE AND NOT "no drill" (`render(null)`), because the two look alike on purpose and mean opposite things:
+   * one is a panel that failed to get a drill, the other is a drill that is over and being watched back. The options are
+   * REMOVED rather than disabled — a disabled button under a replay still reads as the question — and the shell keeps the
+   * answering handlers inert while this is up.
+   */
+  renderWatching(prompt: string): void {
+    this.els.prompt.textContent = prompt;
+    this.els.answers.replaceChildren();
+  }
+
   /** Disable the buttons while a motion plays, so a second click cannot race the first. */
   setBusy(busy: boolean): void {
     this.busy = busy;

@@ -377,6 +377,51 @@ export async function replayDrill(index: number, deps: ApiDeps = browserDeps()):
   };
 }
 
+/** A finished drill, read to WATCH back: its position, the level it belongs to, and the boards the level published. */
+export interface DrillToWatch {
+  readonly index: number;
+  readonly levelIndex: number;
+  readonly seed: number;
+  readonly poolVersion: string;
+  /** Whether the player PASSED it — a skipped drill is watchable too, and the panel says which it was. */
+  readonly passed: boolean;
+  readonly puzzle: Puzzle;
+}
+
+/**
+ * `GET /drill/replay?index=` — a closed position, READ rather than reopened.
+ *
+ * IT IS NOT `replayDrill` ABOVE, and the two answer different questions: that one reopens a skip or a reveal so the
+ * player can earn the pass, and it refuses a position that was already passed ("nothing for a reattempt to earn"). A
+ * completed cell still has something to show — the calls that solved it — so this endpoint writes nothing and returns
+ * the published boards, which is what "allow completed levels to be replayed, not re-solved" asked for.
+ *
+ * THE SERVER'S REFUSALS ARE PASSED THROUGH (`not_finished`, `no_entry`, `bad_index`): the block's own rule decides
+ * which cells are offerable, and a client-side copy of it would be the second implementation this module refuses.
+ */
+export async function fetchDrillReplay(index: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<DrillToWatch>> {
+  const answer = await apiCall<{ replay?: Record<string, unknown> }>(deps, `/drill/replay?index=${index}`, { method: 'GET' });
+  if (!answer.ok) return answer;
+  const replay = answer.value.replay;
+  if (!replay) return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a drill to watch back' } };
+  const puzzle = parsePuzzle(replay['puzzle']);
+  if (!puzzle) return { ok: false, failure: { code: 'bad_response', message: 'the drill to watch back came without boards this app can draw' } };
+  if (typeof replay['index'] !== 'number' || typeof replay['levelIndex'] !== 'number' || typeof replay['seed'] !== 'number' || typeof replay['poolVersion'] !== 'string') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the drill to watch back is missing its position, level, seed or pool version' } };
+  }
+  return {
+    ok: true,
+    value: {
+      index: replay['index'],
+      levelIndex: replay['levelIndex'],
+      seed: replay['seed'],
+      poolVersion: replay['poolVersion'],
+      passed: replay['passed'] === true,
+      puzzle,
+    },
+  };
+}
+
 /** The published Daily challenge: a seed, the level it was validated at, whether this build can play it, and —
  * now that the client generates nothing — the puzzle that seed names. */
 export interface DailyChallenge {

@@ -24,6 +24,7 @@ import {
   finishDrill,
   parseDrillId,
   replayDrill,
+  watchDrill,
   type CurrentOutcome,
   type DrillProgress,
   type Regime,
@@ -297,4 +298,63 @@ export async function drillReplay(request: ApiRequest, deps: Deps): Promise<ApiR
     if (!outcome.changed) return { result: { status: STATUS.ok, body } };
     return { progress: outcome.progress, result: { status: STATUS.ok, body } };
   });
+}
+
+/**
+ * `GET /drill/replay?index=N` — a FINISHED position, opened to WATCH rather than to re-solve.
+ *
+ * WHY IT IS NOT `POST /drill/replay`. That endpoint is a WRITE: the reattempt becomes the drill in flight so a later
+ * solve can close it, and it refuses a PASSED position with `already_passed` — correct for an attempt, wrong for a
+ * rewatch. REPORTED as "Allow completed levels to be replayed, not re-solved": a completed cell should be openable
+ * read-only, showing the calls that solved it.
+ *
+ * SO THIS WRITES NOTHING: no `issued`, no progress revision, no press log, no score. The puzzle is the one the level
+ * PUBLISHED (`stored-drill.ts`, exactly as `GET /drill/current` serves it, and refused with the same causes), so the
+ * boards a player watches back are the boards they were asked.
+ *
+ * IT REFUSES A POSITION THIS PLAYER HAS NOT FINISHED, because the block offers only closed cells and a caller asking for
+ * the next one would be reading a question ahead of the order (DESIGN.md §8's "the order is not the player's to
+ * choose").
+ */
+export async function drillReplayRead(request: ApiRequest, deps: Deps): Promise<ApiResult> {
+  const who = requireIdentity(request, deps);
+  if ('refusal' in who) return who.refusal;
+  const playerId = who.identity.playerId;
+
+  const raw = request.query['index'];
+  const index = raw === undefined ? Number.NaN : Number(raw);
+  if (!Number.isInteger(index) || index < 0) return failure(STATUS.badRequest, 'bad_index', 'index must be a drill position');
+
+  const on = await servableLevel(deps, playerId);
+  if ('refusal' in on) return on.refusal;
+  const levelIndex = on.levelIndex;
+
+  const read = await readRegime(deps, levelIndex);
+  if ('refusal' in read) return read.refusal;
+
+  const stored = await deps.store.get(progressKey(playerId, levelIndex));
+  const progress = asProgress(stored, levelIndex);
+  if (!progress) {
+    return failure(STATUS.unavailable, 'unreadable_progress', `the progress row for level ${levelIndex} is not a record this build can read`);
+  }
+  const decision = watchDrill(read.regime, levelIndex, progress, index);
+  if (decision.kind === 'refused') {
+    const status = decision.code === 'bad_index' ? STATUS.badRequest : STATUS.conflict;
+    return failure(status, decision.code, decision.reason);
+  }
+  const drill = await readDrill(deps.store, levelIndex, index, decision.entry.poolVersion);
+  if (!drill.ok) return failure(STATUS.unavailable, 'unplayable_drill', drill.reason);
+  return {
+    status: STATUS.ok,
+    body: {
+      replay: {
+        index,
+        levelIndex,
+        seed: decision.entry.seed,
+        poolVersion: decision.entry.poolVersion,
+        passed: decision.passed,
+        puzzle: drill.puzzle,
+      },
+    },
+  };
 }

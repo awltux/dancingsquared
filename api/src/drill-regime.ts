@@ -333,3 +333,33 @@ export function finishDrill(progress: DrillProgress, id: string, passed: boolean
     : [...progress.passed, issued.index].sort((a, b) => a - b);
   return { kind: 'done', progress: { ...progress, issued: null, finished, passed: passedList } };
 }
+
+/**
+ * Whether a FINISHED position can be WATCHED — the read behind `GET /drill/replay`.
+ *
+ * IT IS NOT `replayDrill`, AND THE DIFFERENCE IS THE QUESTION. `replayDrill` above REOPENS a position: it is a write, it
+ * makes the position the drill in flight, and it refuses one that was PASSED — "nothing for a reattempt to earn". That
+ * refusal is right for an ATTEMPT and wrong for a REWATCH, which is the reported ask: "Allow completed levels to be
+ * replayed, not re-solved." So this one asks only whether the position is CLOSED, and answers with what to draw: the
+ * entry, and whether the player passed it, so the panel can say which it was rather than pretending a skip was a solve.
+ *
+ * IT WRITES NOTHING. No `issued`, no revision, no press log — a rewatch that touched the row would be a replay the
+ * player could be charged for, which is the opposite of what the block's own cells offer.
+ */
+export type WatchOutcome =
+  | { readonly kind: 'watch'; readonly entry: ScheduleEntry; readonly passed: boolean }
+  | { readonly kind: 'refused'; readonly code: string; readonly reason: string };
+
+export function watchDrill(regime: Regime, levelIndex: number, progress: DrillProgress, index: number): WatchOutcome {
+  if (!Number.isInteger(index) || index < 0) {
+    return { kind: 'refused', code: 'bad_index', reason: `${JSON.stringify(index)} is not a drill position` };
+  }
+  const entry = regime.entries[index];
+  if (!entry) {
+    return { kind: 'refused', code: 'no_entry', reason: `level ${levelIndex} has no drill at position ${index}` };
+  }
+  if (!progress.finished.includes(index)) {
+    return { kind: 'refused', code: 'not_finished', reason: `position ${index} is not finished, so there is nothing to watch back` };
+  }
+  return { kind: 'watch', entry, passed: progress.passed.includes(index) };
+}

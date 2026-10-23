@@ -142,8 +142,21 @@
           <button id="undo" type="button" hidden>Undo</button>
           <button id="redo" type="button" hidden>Redo</button>
           <button id="giveUp" type="button" hidden>Give up</button>
-          <button id="replayMine" type="button" hidden>Replay my line</button>
-          <button id="replayShortest" type="button" hidden>Replay the shortest</button>
+          <!-- THE REPLAY TRANSPORT: a completed puzzle is WATCHED, not re-solved. The list is the calls the line was
+               made of, the slider scrubs over them, and ONE button says Play, Pause or Play again depending on where
+               the playhead is — one button because the state is the playhead's, so two would be two controls to keep
+               in step with one fact. The two buttons after it choose WHICH line, and appear once a line exists. -->
+          <div id="replayBox" hidden>
+            <p id="replayHeading"></p>
+            <ol id="replayCalls"></ol>
+            <div class="replay-transport">
+              <button id="replayToggle" type="button">Play</button>
+              <input id="replayScrub" type="range" min="0" max="0" step="1" value="0" aria-label="Replay position" />
+              <span id="replayPosition"></span>
+            </div>
+          </div>
+          <button id="replayMine" type="button" hidden>Your line</button>
+          <button id="replayShortest" type="button" hidden>The shortest line</button>
           <button id="view" type="button">Switch to 2D</button>
           <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order
                is not the season's, so it is offered by name rather than substituted quietly, and the label says what

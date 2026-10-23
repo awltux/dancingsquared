@@ -7,7 +7,7 @@
 //
 // TEXT GOES IN VIA `textContent`, NEVER `innerHTML` (AGENTS.md §6). Every string here is a number or a word this file
 // writes itself, but the rule is the file's, not the data's.
-import { blockCells, blockSummary, isReplayable, type CellState } from '../puzzle/block.ts';
+import { blockCells, blockSummary, isReplayable, isWatchable, type CellState } from '../puzzle/block.ts';
 import { el } from './dom.ts';
 
 /** What the shell knows about the level, as the screen needs it. */
@@ -81,14 +81,20 @@ export class LevelScreen {
     this.els.block.replaceChildren();
     for (const cell of cells) {
       const wording = `Drill ${cell.index + 1}: ${WORDING[cell.state]}`;
-      if (cell.state === 'next' || isReplayable(cell.state)) {
+      // THREE STATES ARE CONTROLS: the issued drill, a skipped one to REATTEMPT, and a PASSED one to WATCH BACK. The
+      // last is what makes a completed level openable — the same split the server makes between the write that reopens a
+      // skipped position and the read that shows a passed one.
+      if (cell.state === 'next' || isReplayable(cell.state) || isWatchable(cell.state)) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `cell ${cell.state}`;
         button.textContent = String(cell.index + 1);
-        // A REATTEMPT SAYS SO IN ITS ACCESSIBLE NAME, because the number alone reads as a drill the player has not
-        // done — and the whole point of the cell is that they have.
-        button.setAttribute('aria-label', isReplayable(cell.state) ? `${wording} — reattempt it` : wording);
+        // EACH CONTROL SAYS WHICH IT IS IN ITS ACCESSIBLE NAME, because the number alone reads as a drill the player has
+        // not done — and the whole point of both closed cells is that they have.
+        button.setAttribute(
+          'aria-label',
+          isReplayable(cell.state) ? `${wording} — reattempt it` : isWatchable(cell.state) ? `${wording} — watch it back` : wording,
+        );
         button.addEventListener('click', () => this.onPlay(cell.index));
         this.els.block.append(button);
         continue;

@@ -51,7 +51,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, STANDARD_FINISHES } from '../dist/index.js';
+import { setParser, Sequencer, STANDARD_FINISHES, sameBoardById } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { startBoardFor } from './lib/all8-boards.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -74,18 +74,32 @@ const ok = (msg) => console.log(`  ok    ${msg}`);
 const HOME = seq.startBoard();
 const homeById = new Map(HOME.dancers.map((d) => [d.id, d]));
 
-/** Every dancer on its OWN home spot (position and facing), compared by identity. */
+/**
+ * Every dancer on its OWN home spot (position and facing), by identity.
+ *
+ * THE VERDICT IS THE ENGINE'S OWN RULE, NOT A COPY OF IT. `sameBoardById` is what `reachesTarget` uses to decide
+ * a board is home, so this asks it rather than restating a tolerance - and it is asked on ONE DANCER AT A TIME
+ * only to name the offender in the message.
+ *
+ * MEASURED, and the reason this replaced a local loop: the local loop compared headings as
+ * `Math.abs(d.heading - h.heading) > 1e-6`, which is NOT angle-wrapped. Home's dancers 1 and 2 face `3*pi/2`
+ * and `[Circle Left Home, Allemande Left, Promenade]` from `L1p` leaves them at `-pi/2` - the same facing, a raw
+ * difference of `-6.283185` - so this file reported `dancer 1 is not facing home` for a path the engine's own
+ * identity test calls home, and section 1 and the 5b sweep were red for it. `board.ts`'s private `headingDelta`
+ * does the wrap; `sameBoardById` is the exported way to ask it. The negative control is any board that really is
+ * one facing off, which `sameBoardById` still rejects.
+ */
 function onHome(board) {
+  if (sameBoardById(board, HOME)) return null;
   if (board.dancers.length !== HOME.dancers.length) return `dancer count ${board.dancers.length}`;
   for (const d of board.dancers) {
     const h = homeById.get(d.id);
     if (!h) return `no home dancer ${d.id}`;
-    if (Math.abs(d.x - h.x) > 1e-6 || Math.abs(d.y - h.y) > 1e-6) {
-      return `dancer ${d.id} at (${d.x.toFixed(2)},${d.y.toFixed(2)}), home is (${h.x},${h.y})`;
+    if (!sameBoardById({ dancers: [d] }, { dancers: [h] })) {
+      return `dancer ${d.id} at (${d.x.toFixed(2)},${d.y.toFixed(2)}) facing ${d.heading.toFixed(4)}, home is (${h.x},${h.y}) facing ${h.heading.toFixed(4)}`;
     }
-    if (Math.abs(d.heading - h.heading) > 1e-6) return `dancer ${d.id} is not facing home`;
   }
-  return null;
+  return 'not the home board';
 }
 
 /** Play a path the way a caller's next click does: through the Sequencer. */
@@ -109,6 +123,24 @@ function acceptPath(label, start, path) {
 }
 
 const boardFor = (id) => startBoardFor(seq, corpus.alignments.find((a) => a.id === id)).board;
+
+// ------------------------------- 0. the home test itself, in both directions
+//
+// THE POSITIVE CONTROL IS THE BUG THIS FILE HAD: a heading is an angle on a circle, so `-pi/2` and `3*pi/2` are
+// one facing. Shifting one dancer of the home board by exactly -2*pi changes nothing about where it faces, and the
+// home test must say so - a raw `Math.abs(a - b)` says otherwise, and did, for a path the engine had already
+// accepted. The NEGATIVE control is the plausible wrong rule ("any board is home"): one dancer a quarter turn off
+// must be refused, which is why the positive control alone cannot pass this section.
+console.log('== 0. the home test accepts a wrapped facing and refuses a turned one ==');
+{
+  const [first] = HOME.dancers;
+  const wrapped = { dancers: HOME.dancers.map((d) => (d.id === first.id ? { ...d, heading: d.heading - 2 * Math.PI } : { ...d })) };
+  const turned = { dancers: HOME.dancers.map((d) => (d.id === first.id ? { ...d, heading: d.heading + Math.PI / 2 } : { ...d })) };
+  if (onHome(wrapped) !== null) fail(`the home test rejects a facing shifted by -2*pi: ${onHome(wrapped)}`);
+  else ok('a facing shifted by -2*pi is the same facing');
+  if (onHome(turned) === null) fail('the home test accepts a dancer a quarter turn off');
+  else ok('a dancer a quarter turn off is refused');
+}
 
 // ------------------------------------------- 1. a finish is a usable final edge
 

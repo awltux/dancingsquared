@@ -1948,6 +1948,10 @@ function playDailyCall(call: string): void {
   if (!daily || !applier || PLAYHEAD.isRunning) return;
   waypointCursor = null;
   const from = daily.board;
+  // THE COUNT BEFORE THE MOVE, so "did this pass a waypoint" is a DELTA rather than a state: a board that is already
+  // two waypoints in could otherwise be announced as a third. `view()` is the paint's own call and the applier caches
+  // readings by board pose, so this is not a second computation of the offering list.
+  const passedBefore = daily.view(performance.now()).progress;
   const result = daily.play(call, performance.now());
   if (result.verdict === 'illegal' || result.verdict === 'over') {
     // THE ENGINE'S REASON IS SHOWN VERBATIM (DESIGN.md 4.1) and the budget's is the run's own prose, so only
@@ -1960,13 +1964,19 @@ function playDailyCall(call: string): void {
     return;
   }
   if (result.verdict === 'wrong') {
-    // A LINE CAN SIT ON THE GOAL'S ARRANGEMENT AND STILL NOT WIN, because the run is the WHOLE SEQUENCE: the sentence
-    // says which of the two happened rather than telling a player who is on the goal board that they are not.
+    // THREE SENTENCES, because a legal non-winning move can be three things and the player needs to know which: it
+    // PASSED a waypoint (the only one that is good news), it landed on the goal's own setup without the ones before it,
+    // or it did neither. The middle case is the rule the whole sequence exists for; the first is the case a
+    // two-sentence version got WRONG ON A PAGE — a call that advanced the strip to "waypoint 2 of 5" was announced as
+    // "the set is not on the goal board yet", which is true and useless.
+    const view = daily.view(performance.now());
     const onGoal = arrangementKey(result.board) === arrangementKey(daily.goal);
     dailyScreen.say(
-      onGoal
-        ? `${call} — that is the goal's setup, but the waypoints are passed in order, so the run is not finished.`
-        : `${call} is legal, but the set is not on the goal board yet.`,
+      view.progress > passedBefore && !onGoal
+        ? `${call} — that is waypoint ${view.progress + 1} of ${view.waypoints.length}.`
+        : onGoal
+          ? `${call} — that is the goal's setup, but the waypoints are passed in order, so the run is not finished.`
+          : `${call} is legal, but the set is not on the goal board yet.`,
       'info',
     );
   } else dailyScreen.say(`${call} — every waypoint passed, and that is the goal board.`, 'ok');

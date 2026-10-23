@@ -103,6 +103,18 @@ export {
   ARRANGEMENT_ID_VERSION,
   ARRANGEMENT_ID_WIDTH,
 } from './sequencer/arrangement-id.js';
+// THE CALL-VARIANT IDENTITY: (level, call title, formation ROOT). The root is the first formation id ever
+// minted for a shape, carried forward through the checked-in ledger - so this is the one key that survives a
+// formation edit, which is the difference between a reference and a content address. See `call-variant-id.ts`.
+export {
+  callVariantId,
+  callVariantCanonical,
+  isCallVariantId,
+  formationRootOf,
+  CALL_VARIANT_ID_VERSION,
+  CALL_VARIANT_ID_WIDTH,
+} from './sequencer/call-variant-id.js';
+export type { FormationRoots } from './sequencer/call-variant-id.js';
 // The constants that decide when motion is refused, exported so an instrument cannot report a threshold
 // the engine does not enforce. `body-collision-scan.mjs` reads them rather than restating them.
 export { BODY_PATH_CLEARANCE, BODY_COLLISION_MIN } from './sequencer/applicator.js';

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/src/sequencer/swing-thru.ts.
 // DIAGNOSE `Swing Thru` from `Ocean Waves` - the worst combination the usage-filtered survey found
 // that real choreography actually uses (0.00 units between two dancers mid-call).
 //

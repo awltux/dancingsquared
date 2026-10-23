@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // WHAT DOES ALL8's [S] ARRANGEMENT TABLE ACTUALLY SAY, COLUMN BY COLUMN?
 //
 // `fetch-arrangements.mjs` DROPS every printed row whose six gender cells cannot be read as

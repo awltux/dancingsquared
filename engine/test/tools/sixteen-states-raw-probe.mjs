@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // STEP 3, ITEM 7, SECOND SOURCE: do all8's 16com pages carry a couple-numbered GRID, or only labels?
 //
 // The canonical-board rule measured on the get-out corpus (sequence 1 -> relabel +3, 2 -> +2, 3/4 -> 0,

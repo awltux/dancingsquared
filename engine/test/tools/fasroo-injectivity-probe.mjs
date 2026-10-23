@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // INJECTIVITY OF FASROO, on the boards a code actually admits.
 //
 // All8's own worked pair says `[0P1cH+]` and `[0P1cH']` are DIFFERENT setups that share formation,

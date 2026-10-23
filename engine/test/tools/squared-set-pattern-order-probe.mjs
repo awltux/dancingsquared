@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // WHAT ARE THE ENGINE'S ARRANGEMENT PATTERNS FOR A SQUARED SET, IN WHICH ORDER?
 //
 // The source page draws the square in one frame and the engine stores it in another, and the two are

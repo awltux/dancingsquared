@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // CEDER-7046 IN THE SEQUENCER: two reported defects, reproduced headlessly.
 //
 //   1. Playing the LAST call ("Right & Left Grand Resolve to a Right & Left Grand") walks the dancers

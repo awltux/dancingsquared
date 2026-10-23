@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // THE LAST FRAME MUST NOT RE-ORDER THE DANCERS. Corpus scan for the reported flip.
 //
 // Reported (POC): "The Module works fine, but if I apply a Promenade to the end, this is when the

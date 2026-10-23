@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Tip-to-FSM mapper: walk realistic square-dance tips over the Sequencer and the
 // FSM transition table, reporting any call step whose (formation -> next) edge is
 // not defined in the table. The goal is to find calls/formations that occur in

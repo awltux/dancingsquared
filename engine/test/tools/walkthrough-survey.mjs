@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // SURVEY: which calls actually make dancers walk through each other?
 //
 // The `Right and Left Thru` collapse and the `Promenade` one had different causes but ONE symptom -

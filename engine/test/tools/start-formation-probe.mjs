@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHAT DO THE CORPUS'S `startFormation` VALUES ACTUALLY MEAN IN ENGINE FORMATIONS?
 //
 // `poc/src/ceder-modules.ts` hands `validCederModules()` only `{ name, steps }`, so the corpus's

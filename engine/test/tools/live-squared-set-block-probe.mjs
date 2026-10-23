@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Print the LIVE [S] block of all8's arrangement page BOTH ways, so the two renderings can be
 // compared rather than confused: the raw `<pre>` source (which carries the printed columns) and the
 // normalized text `fetch-arrangements.mjs` itself parses. They disagree for [S], and a transcription

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // WHY does the (arrangement, sequence, relationship) filter return nothing for [S]?
 // Usage: node engine/test/tools/squared-set-sequence-probe.mjs
 

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // THE ORIENTATION CONSTRUCTION, part 2: read it in All8's OWN frame.
 //
 // Part 1 found the two candidate rules disagree and neither reproduces All8's worked `[0P1cH+]`:

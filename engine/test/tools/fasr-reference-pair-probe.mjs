@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // PIN [0W] AND [0F] TO SPOTS, from All8's own reference-pair diagrams (fasr.htm, "Reference Pair
 // shown in RED").
 //

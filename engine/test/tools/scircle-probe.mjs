@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/scircle-instance.mjs.
 // SETTLED: which authored instance of `Single Circle Left Full` the sequencer uses, at which
 // tolerance, and where the resulting circle centres land.
 //

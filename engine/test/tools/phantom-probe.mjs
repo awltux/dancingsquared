@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // ONE PHANTOM, CHECKED BY HAND.
 //
 // `anim-convergence.mjs` reports 2466 (board, call) pairs where `applyToBoard` REFUSES the call but

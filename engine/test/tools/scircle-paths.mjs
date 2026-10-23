@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // THE TWO AUTHORED PATHS, AS DATA.
 //
 // Both renderers agree on the trajectory, so the trajectory is what is left to examine. This prints

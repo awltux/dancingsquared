@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // TWO QUESTIONS, MEASURED.
 //
 // (1) HOW A 2-DANCER SETUP IS TILED ONTO EIGHT DANCERS. Forced onto the 2-dancer variants alone (the

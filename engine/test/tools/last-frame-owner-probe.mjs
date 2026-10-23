@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHO ACTUALLY OWNS THE LAST-FRAME JUMP? NOT THE LAST CALL.
 //
 // This probe exists because the previous three asked the wrong question. They took the LAST flat step

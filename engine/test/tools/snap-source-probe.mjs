@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS THE LAST-FRAME JUMP THE SNAP? Turn the snap OFF and see whether the jump survives.
 //
 // `setSnapMaxError(0)` disables `snapBoard` outright (`matcher.ts`: `if (snapMaxError <= 0) return

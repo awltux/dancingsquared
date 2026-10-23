@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // ANALYSIS TOOL (not a harness): which FIGURES carry a call the engine reports as `Unknown call`?
 //
 // `figure-census.mjs` reports this cause only in aggregate ("6 unknown call (no catalogue entry)")

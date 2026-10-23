@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // PHASE A ANALYSIS TOOL (not a harness): where do All8's 188 published figures actually fail?
 //
 // `all8-figures.mjs` reports the stop CALLS; this attributes each one to a CAUSE and to the board it

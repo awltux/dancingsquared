@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHY DOES EACH `Zero Box` MODULE STOP WHERE IT DOES?
 //
 // `test/tools/zero-box-probe.mjs` measured that 54 of the corpus's 324 `Zero Box` modules replay all the

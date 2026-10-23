@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // STEP 1 PROBE, PART A: the full-rectangle guard is what refuses a ring, and nothing else.
 //
 // A squared set is eight points on a 4x4 lattice - the opposite corners of each row and column are

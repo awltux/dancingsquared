@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/src/sequencer/alignment.ts.
 // STEP 2 PROBE: after [S] is in the module, does the engine read the home square, and what does it
 // say about home's whole FASR(OO)?
 //

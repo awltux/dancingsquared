@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: square-dancing.md.
 // WHAT IS THE REFERENCE PAIR FOR [P] (Beginning Double Pass Thru)?
 //
 // The plan's open item: `fasrooOf` refused [P] because `REFERENCE_PAIR_RULES` had no entry for it, and

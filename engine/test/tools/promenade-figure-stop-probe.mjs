@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHICH FIGURE STOPS AT A PROMENADE, AND WHY? The witness hunt for the facing-pair read.
 //
 // `all8-figures.mjs` reports how many of the 188 published figures run end-to-end and, of those that

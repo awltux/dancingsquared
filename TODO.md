@@ -552,10 +552,25 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   app reads `@corpus/fsm-ms.json`; its own copy had gone UNLOADABLE (schema 1 against 3), so it was 77.5 KB of
   dead data while the app built the table at runtime.
 
-- [ ] **38. `engine/test/tools/fsm-getout-audit.mjs` IS IN NO SUITE.** `[measured]` at `8cfe8a1`. It reads
-  the FSM asset (`:45`) and appears in no tier of `engine/test/verify-suite.mjs`, so nothing runs it and
-  nothing will notice if it rots. AGENTS §5: "a probe nobody runs is already stale — wire it in or delete
-  it." NEXT UNIT: one decision, wire it in with a `why`, or delete it.
+- [x] **38. `engine/test/tools/fsm-getout-audit.mjs` IS IN NO SUITE.** `[measured]` at `8cfe8a1`, **CLOSED by the
+  R2 triage**. MEASURED: it runs in 113.8 s, prints a table and **no check lines, and exits 0 on any input** — it
+  is a REPORT, not a gate, so "wire it in" was the wrong half of the choice: a gate that cannot fail is not a
+  gate, and 114 s in the pre-commit tier to print a census nobody compares is the cost §11.3 warns about. Its
+  claim (the FSM's 155 states / 92 home / 43 nohome / 19 dead `@embed#N`) is recorded in `PLAN.md` §2, and the
+  file now says on line 1 that it is a one-shot diagnostic and points there. **The class it belongs to is now
+  enforced**: every file under `engine/test/` is either registered in `engine/test/suite.mjs` or stamped, and
+  `engine/test/harness-registry.mjs` fails when one is neither — so this TODO cannot recur silently.
+
+- [ ] **41. TWO UNREGISTERED INSTRUMENTS ARE ALREADY ROTTED.** `[measured]` by the R2 triage, which ran every
+  unregistered probe that is gate-shaped (checks + a non-zero exit; 17 of them). Two fail today, and neither is
+  registered, so nothing has noticed:
+  - **`engine/test/tools/setup-path-probe.mjs`** — exit 1 in 30.3 s: "1 PIN(S) MOVED".
+  - **`engine/test/tools/swing-thru-rule.mjs`** — exit 1 in 4.1 s: "SWING THRU RULE: 1 check(s) FAILED".
+    Its header says the rule was "kept as a tool rather than thrown away" — the transcribed rule and the engine
+    have since diverged, which is exactly the stale-copy shape AGENTS §11.2.9 describes. A decision is owed:
+    re-pin it to today's behaviour (and say what moved), or retire it. It was NOT registered as a red gate: a
+    permanently-failing entry trains everyone to ignore the tier. Both are stamped `Recorded: TODO.md` until
+    decided.
 
 - [ ] **40. ANGLE NORMALISATION — what was left, and the TIE-BREAK THIS FOUND.** `[measured]`
   The engine's 21 expressions in seven interval conventions became one (`moves.ts`'s `normAngle`, gated by

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // Is `Right and Left Thru` from `3 and 1 lines #1` a REAL combination?
 //
 // The walk-through survey flagged it as the worst single case (closest pair 0.00, destination sound),

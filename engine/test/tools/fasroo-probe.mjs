@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: poc/README.md.
 // DOES FASROO SAY THE RIGHT THING FOR A BOARD WE ALREADY KNOW?
 //
 // `fasrooOf` reads All8's full setup description: FASR plus Orientation (H/R/O/L) and Occupation

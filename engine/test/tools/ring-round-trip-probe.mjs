@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // STEP 1 PROBE: rings must be representable, and nothing already representable may move.
 //
 // Part A is the behaviour freeze: every formation the module already has a table for is built from

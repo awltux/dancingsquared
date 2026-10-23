@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 ﻿// P16 ANALYSIS TOOL, step 2: split the "catalogue tam has no setup for this board"
 // failures into the two things that actually need different work.
 //

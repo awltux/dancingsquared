@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // IS ceder-7046 VALID FROM ITS OWN START FORMATION, AND ONLY BROKEN FROM HOME?
 //
 // `modules/zero_line/static_set/7046.json` declares `"startFormation": "Zero Line"`, but

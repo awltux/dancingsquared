@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // FIND A WORKING PRIMITIVE WITNESS for "a selection step animates only the selected dancers".
 //
 // `behaviour-audit` needs a (board, selection step) pair that APPLIES and moves only part of the board.

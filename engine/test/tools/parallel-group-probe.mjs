@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHICH GROUPING DOES THE ANIMATOR THINK IT IS FOLLOWING, AND IS IT THE ONE THAT WAS APPLIED?
 //
 // `evaluateParallelAt` animates the board GROUP BY GROUP, following each group's authored path. The

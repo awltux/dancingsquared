@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Probe: how often is a call's END board actually nameable, and what does the FASROO read?
 //
 // This is the instrument behind the browse panel's end-formation field: the field can only offer

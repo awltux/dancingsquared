@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // DOES THE LAST FRAME'S BOARD HAVE A DIFFERENT `dancers` ARRAY ORDER?
 //
 // Reported: "the sequence keeps them in the danced sequence, but then they flip to what seems like the

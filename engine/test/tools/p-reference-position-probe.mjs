@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // [P] REFERENCE POSITION, part 2: All8's convention says to read relationship in the [0B] reached by
 // mentally passing the centres thru. That fixes a pair of DANCERS; the question this probe answers is
 // whether they also occupy a consistent POSITION on the [P] board itself (which is what a

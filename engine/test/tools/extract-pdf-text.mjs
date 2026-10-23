@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Extract the text of a PDF, dependency-free, so an authoritative external document can be
 // analysed with the same care as a fixture.
 //

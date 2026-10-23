@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS THE PLAN'S RECORDED `[L1p]` CONFLICT STILL TRUE?
 //
 // PLAN.md records, as an unresolved disagreement: "all8's text diagram for [L1p] has FACING couple-pairs

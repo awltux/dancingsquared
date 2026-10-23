@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // DID THE PRE-`afaae4a` INDEX SHIFT ACTUALLY CAUSE THE REPORTED WRONG INSTANCE?
 //
 // `poc/src/data.ts` `registrationXml` indexed tams with a RAW-TEXT regex while `entry.tamIndices`

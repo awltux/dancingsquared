@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHY SOME CALLS APPLIED BUT COULD NOT BE ANIMATED.
 //
 // A CODED move (`findCodedMove`) refuses a board whose shape its derived rule does not cover. When

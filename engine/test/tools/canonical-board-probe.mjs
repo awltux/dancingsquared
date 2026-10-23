@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // STEP 3, ITEM 7: WHICH OF THE FOUR BOARDS A CODE ADMITS IS ALL8'S CANONICAL ONE?
 //
 // Every FASR code admits four boards - the four orientations, related by a cyclic relabelling of the

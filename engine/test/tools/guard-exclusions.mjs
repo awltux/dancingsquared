@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: TODO.md.
 // WHICH MODULES DOES THE BODY GUARD REFUSE, AND ARE THEY VALID?
 //
 // The guard can only ever remove capability, so every module it refuses is a claim that the corpus asks

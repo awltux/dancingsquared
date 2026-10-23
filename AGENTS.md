@@ -37,7 +37,7 @@ in the NEXT commit is not green standalone — say so in both messages.
 
 | Path | What it is | Lives in a gate? |
 |---|---|---|
-| `engine/` | **The thing under test.** `dancing-squared-engine`, TypeScript → `dist/`, renderer-agnostic. `src/sequencer/` holds matcher, applicator, legality, solver, analyser, FSM, alignment. | `engine/test/verify-suite.mjs` |
+| `engine/` | **The thing under test.** `dancing-squared-engine`, TypeScript → `dist/`, renderer-agnostic. `src/sequencer/` holds matcher, applicator, legality, solver, analyser, FSM, alignment. | `engine/test/suite.mjs` (the registry) → `engine/test/verify-suite.mjs` (the runner) |
 | `packages/stage/` | `dancing-squared-stage`: the shared render stage — `scene.ts` (Three adapter) and `grid-magnet.ts` (the pure square/radial grid + magnet rule). Exported as **source**, not `dist/`. | via the POC gate |
 | `packages/corpus/` | `dancing-squared-corpus`: the corpus's bytes and call inventory — `files.ts` (where it is, a level's files, one file's text) and `index.ts` (`<tam>` blocks, titles, pooled XML). No dependencies, not even the engine: it is a byte reader, and the engine's parser is its judge. Exported as **source**. | `engine/test/corpus-inventory.mjs` (light) |
 | `assets/`, `vite.corpus.ts` | **The corpus, ONCE.** Every programme's tamination XML (`ms/`, `plus/`, `a1/`, `a2/`, `c1/`, `c2/`, `c3a/`, `c3b/`, `discovered/`, `src/`), plus `moves.xml`, `formations.xml` and the generated `fsm-ms.json`. `vite.corpus.ts` at the root is **the only place its location is written down**: the Vite apps glob it through the `@corpus` alias and every Node reader reaches the same constant through `packages/corpus` (`corpusRoot()`). §8 trap 26 records why the old `game/src/assets/` copy was never needed. | every gate that reads the corpus |
@@ -163,9 +163,15 @@ review**: workspace-local, licence-clean, justified in the commit message, with 
 
 ## 5. Testability — the probes and harnesses are the contract
 
-- **Engine harnesses**: one entry in `engine/test/verify-suite.mjs` — a `light` field and a `why` for anything not
-  in `light`. There is nowhere else to register one, deliberately: two lists is how a harness gets added to one and
-  forgotten in the other. Add the gate **in the same commit** as the fix.
+- **Engine harnesses**: one entry in `engine/test/suite.mjs` — the ONE registry (the runner imports it; the list
+  used to sit inside `verify-suite.mjs`, where importing it to read the list would have run the suite) — a `light`
+  field and a `why` for anything not in `light`. There is nowhere else to register one, deliberately: two lists is
+  how a harness gets added to one and forgotten in the other. Add the gate **in the same commit** as the fix.
+- **An analysis tool is not a gate, and says so**: `engine/test/tools/` is the measurement archive, and every file
+  there is either registered (above) or starts on line 1 with
+  `// TIER: none — one-shot diagnostic; nothing runs it. Recorded: <path>.` — a real path that NAMES the tool.
+  `engine/test/harness-registry.mjs` enforces it both ways (see `tools/README.md`), so a new instrument cannot land
+  silently. A tool that can fail is a gate: register it, or retire it — do not leave it unrun.
 - **POC probes**: `poc/tools/<concern>-probe.mjs`. **The list is the directory**, so registration cannot be
   forgotten and deletion cannot leave a dangling entry; `_*.mjs` are scratch. Each probe is self-contained, ends
   in `process.exit(failures ? 1 : 0)`, and prints one line per check.

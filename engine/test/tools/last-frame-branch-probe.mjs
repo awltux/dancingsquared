@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // WHICH BRANCH DID EACH SIDE TAKE? The animator and the applicator disagree on 83 of the 86
 // last-frame jumps, and the snap is not the owner (`snap-source-probe.mjs`). `evaluateCallAt` picks
 // its branch from `findMatchingVariant` alone; `applyToBoardInner` picks it from the same match PLUS a

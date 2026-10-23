@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: TODO.md.
 // WHAT SETUP DOES EACH INITIAL-FORMATION PATH ACTUALLY PRODUCE?
 //
 // Reported: "when I apply a module or a Call to a sequence and it is the first item in the sequence,

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/fixtures/README.md.
 // Author-time refresh for fixtures/all8-16-states.json.
 //
 // All8 publishes, per formation, the complete table of the 16 possible FASR states

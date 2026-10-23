@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // STEP 2 PROBE: the [S] arrangement table in the MODULE, checked cell for cell against the engine's
 // own home square and against the source page's printed columns.
 //

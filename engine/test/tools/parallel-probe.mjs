@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // WHY THE PARALLEL PATH SENDS TWO GROUPS THROUGH THE SAME POINT.
 //
 // `SequenceAnalyzer.evaluateParallelAt` partitions the board into the groups `parallelApply` would

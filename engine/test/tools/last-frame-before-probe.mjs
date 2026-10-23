@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS MY PROBE'S "before" BOARD THE WALK'S "before" BOARD?
 //
 // `last-frame-branch-probe.mjs` reported 77 offenders where the animator finds NO whole-board match

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // DIAGNOSE `Right and Left Thru` from a Static Square: the sequencer reports dancers walking all
 // over each other in the middle.
 //

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // DOES A PROMENADE WHEEL THE PAIRS THAT ARE ACTUALLY THERE? The item-2 instrument.
 //
 // The report: "they travel in different directions". On MS ceder-7046's end ring the dancers are in an

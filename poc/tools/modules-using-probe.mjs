@@ -1,9 +1,11 @@
 // VERIFY the browse view's "which modules use this call?" lookup.
 //
-// A probe rather than a harness: `poc/src/modules.ts` cannot be imported here because
-// `ceder-modules.ts` uses Vite's `import.meta.glob`, so this reads the `modules/**/*.json` corpus
-// directly and applies the SAME filter and the SAME name key. What it checks is the part that can
-// be wrong without the browser complaining:
+// A POC PROBE, AND IT LIVES HERE BECAUSE ITS SUBJECT IS THE APP'S. `poc/src/modules.ts` cannot be imported
+// (its `ceder-modules.ts` uses Vite's `import.meta.glob`), so this reads the `modules/**/*.json` corpus
+// directly and applies the SAME filter and the SAME name key. It was in `engine/test/tools/`, which runs
+// nothing and is not the POC's gate; the R2 triage moved it to the directory that IS its registry — every
+// `*-probe.mjs` here is run by `poc/tools/verify-probes.mjs`. What it checks is the part that can be wrong
+// without the browser complaining:
 //
 //   1. the corpus loads and the "replayable" filter behaves as `validCederModules` documents
 //      (success === true, and no ALLEMANDE_LEFT terminal marker);
@@ -11,16 +13,18 @@
 //      that selection-stripping and canonicalisation agree across the two vocabularies;
 //   3. the reported INDEX is the first occurrence, and opening there is meaningful (in range).
 //
-// Usage: node engine/test/tools/modules-using-probe.mjs
+// Run: node poc/tools/modules-using-probe.mjs   (from anywhere; reads engine/dist, so build the engine first)
 
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { canonicalName, splitSelection } from '../../dist/index.js';
-
-const here = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(here, '..', '..', '..');
+/** The POC root — the probes reach the engine through its BUILT dist, as every probe here does. */
+const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
+const { canonicalName, splitSelection } = engine;
+/** The repo root: `modules/` is a sibling of `poc/`. */
+const root = path.join(POC_DIR, '..');
 
 /** The same filter `ceder-modules.ts` applies. */
 function loadCorpus() {

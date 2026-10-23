@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Probe: what does the editor's "different start Setup" actually offer, and does the
 // clone construction hold?
 //

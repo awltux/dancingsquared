@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // THE LAST FRAME IS DRAWN TWICE, FROM TWO DIFFERENT BOARDS.
 //
 // `SequencerUI.renderPlayhead` draws the board `evaluateSequence` returns, and then:

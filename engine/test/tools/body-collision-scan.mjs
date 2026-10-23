@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/src/index.ts.
 // DOES THE CORPUS WALK DANCERS THROUGH EACH OTHER? Corpus-wide, both body models side by side.
 //
 // WHY THIS TOOL EXISTS. `sequence-anim-collision-scan.mjs` asks the same question with a

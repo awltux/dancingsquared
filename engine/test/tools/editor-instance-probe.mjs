@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Probe: what does the call-instance editor actually see?
 //
 // Prints, for a full-set call (ms/circle.xml) and a half-set one (b1/circle.xml):

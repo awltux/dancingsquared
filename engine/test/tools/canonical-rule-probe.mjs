@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // STEP 3, ITEM 7: WHICH BOARD IS ALL8'S? - testing rules that USE the reference pair.
 //
 // The previous probe measured WHERE all8's board sits in the enumeration (index, and the cyclic

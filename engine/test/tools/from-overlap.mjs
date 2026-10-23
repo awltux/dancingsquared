@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // PHASE J ANALYSIS TOOL (not a harness): which multi-level titles author the SAME `from` twice,
 // and disagree about the motion?
 //

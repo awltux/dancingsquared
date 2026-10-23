@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // P16 ANALYSIS TOOL: the (call, board, scale) triples behind "the catalogue tam has no setup for this
 // board" - the single largest owner in the figure census.
 //

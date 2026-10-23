@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // STEP 2 PROBE: does [S] work through `boardsForAlignment` / `boardForAlignment`?
 //
 // This is the mechanism Step 3's setup primitive will sit on, so [S] refusing there matters. The

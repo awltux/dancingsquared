@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHAT IS THE AUTHORED-vs-APPLIED ERROR FIELD? The last-frame jump is `appliedEnd - authoredEnd` per
 // dancer, so its STRUCTURE names the cause:
 //   - every dancer's delta EQUAL          -> a translation (the rebase lands the variant elsewhere)

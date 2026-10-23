@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // The two probes above disagree about which board `boardForFasrCode('L1p')` returns and what its
 // facing pairs are, so this prints ONE board completely: every dancer's position, heading, couple and
 // home identity, plus the facing pair of each dancer computed one step at a time.

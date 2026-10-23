@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // WHAT DOES `L1o` ACTUALLY STAND UP? ceder-7046's start.
 //
 // Reported: "When I apply ceder-7046 module, it starts with a very odd arrangement with Normal lines

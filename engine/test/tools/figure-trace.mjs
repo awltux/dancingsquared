@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // ANALYSIS TOOL (not a harness): step ONE figure, or a few, call by call.
 //
 // `figure-census.mjs` answers "where does the corpus fail, in aggregate". This answers the

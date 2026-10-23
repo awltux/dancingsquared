@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // PHASE B ANALYSIS TOOL (not a harness): the FSM's "no getout" nodes, and whether anything can
 // falsify them.
 //

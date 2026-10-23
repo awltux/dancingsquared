@@ -50,19 +50,22 @@ Three external oracles, plus one derived artefact:
 | **CALLERLAB** | the Mainstream definitions PDF (`docs/New_Mainstream_Definitions_26-03-29.pdf`) | `test/tools/extract-pdf-text.mjs` + `callerlab-diff.mjs` |
 | **the FSM** | the resolve state machine built from the catalogue | `test/tools/fsm-getout-audit.mjs`; view asset via `scripts/build-fsm-asset.mjs` |
 
-Analyses (tools, not gates): `figure-census.mjs`, `figure-trace.mjs`, `facing-audit.mjs`,
-`setup-split.mjs`, `setup-coverage.mjs`, `fsm-getout-audit.mjs`, `callerlab-diff.mjs`,
-`unknown-calls.mjs`, `spin-the-top-probe.mjs`, `from-overlap.mjs`. Gates: `test/verify-suite.mjs`
-(`light` ≈ 15 s, `all` ≈ 500 s, **21 harnesses**) and `figures`, which is a **red target suite by
+Analyses (tools, not gates) live in `test/tools/` — 99 of its 109 files — and each says so on line 1: `TIER: none —
+one-shot diagnostic; nothing runs it. Recorded: <path>`, naming the document that records the answer. They are
+NOT a hand-kept list any more: `test/harness-registry.mjs` (light) fails when a file under `test/` is neither
+registered nor stamped, so the set cannot drift behind a paragraph. Gates: `test/verify-suite.mjs` runs the one
+registry, `test/suite.mjs` (`light` = 57 harnesses, `all` = 78) and `figures`, which is a **red target suite by
 design** (the finish line, not a gate).
 
-**One tool is deliberately NOT a gate, and it is the only one on disk that is not registered:**
-`test/map-tips.mjs`. It is a GENERATOR, not a check — it walks tips and writes the missing FSM edges
-into `assets/discovered/` — and Phase G already says to run it by hand whenever the FSM is
-touched. Recorded here because "a file in `test/` that the suite does not run" is exactly the shape that
-hid the staleness in `getout-convention` (`GETOUT_SWEEP`), and the answer here is that there is no
-second one: `process.env` appears in exactly ONE place in the whole engine, and every other skip in
-`test/` is either the `light` tier's explicit message or an exactly-pinned list (`catalogue.mjs`'s
+**"A file in `test/` that the suite does not run" is exactly the shape that hid the staleness in
+`getout-convention` (`GETOUT_SWEEP`), and the R2 triage MEASURED how big that shape was: 104 of the 113 files in
+`test/tools/` were in no tier.** The answer is no longer prose about one generator: `test/map-tips.mjs` (a
+GENERATOR — it walks tips and writes the missing FSM edges into `assets/discovered/`) carries the stamp and points
+here, and every analysis does the same. Three instruments whose answer was already recorded elsewhere were deleted
+and one was registered (`setup-registry-probe`, the one unregistered gate that passes and is not covered); the 23
+whose question was never written down are listed and counted in `test/tools/README.md`, and the two that have
+rotted are TODO item 41. `process.env` still appears in exactly ONE place in the whole engine, and every other
+skip in `test/` is either the `light` tier's explicit message or an exactly-pinned list (`catalogue.mjs`'s
 `KNOWN_SKIPS`).
 
 ---

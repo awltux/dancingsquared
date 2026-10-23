@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // Author-time refresh for fixtures/all8-arrangements.json.
 //
 // Parses All8's per-formation arrangement tables (which positions are occupied by

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // THE [S] TABLE, BUILT FROM THE SOURCE'S TOKEN STREAM AND THE ENGINE'S OWN HOME SQUARE.
 //
 // Two things are known independently and do not need deriving:

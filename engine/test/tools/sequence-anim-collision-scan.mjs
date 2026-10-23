@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // DOES THE CONVERGENCE RESIDUAL COLLIDE ANYONE? Corpus-wide, before/after.
 //
 // `evaluateSequence` now corrects every branch by the residual

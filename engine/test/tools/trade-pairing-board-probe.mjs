@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/src/sequencer/coded-moves.ts.
 // DOES THE WAVE `Trade`'s PAIRING MATTER AT ALL? - comparing the BOARDS, not just the formation.
 //
 // `tradeRule`'s parity rule admits two pairings from a wave (same-column 2 apart, cross-column 4 apart)

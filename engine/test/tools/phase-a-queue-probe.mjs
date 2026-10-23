@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 ﻿// PHASE A, the current blocked-and-poisoned queue: diagnose the entries the plan has NOT yet
 // adjudicated. Reach alone is a superset (it counts figures that pass through a legitimately unnamed
 // board, like the allemande pose or a Fold), so the queue is the INTERSECTION of "blocked" and

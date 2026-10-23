@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHY `Swing Thru` HAS NO BEATS ON THE BOARD ceder-7046 REACHES.
 //
 // ceder-7046 is `Right and Left Thru / Flutterwheel / Star Thru / Swing Thru / Right and Left Grand`

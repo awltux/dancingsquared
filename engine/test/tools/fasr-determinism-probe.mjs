@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS THE FASR CODE UNDER-DETERMINED, AND IS `boards[0]` AN ARBITRARY PICK?
 //
 // The report: Taminations indexes dancers incrementally, and the engine may have assumed that the

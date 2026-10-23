@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS FASR INJECTIVE? Does a code name a board, or a class of boards?
 //
 // The user's question: "when the FASROO indicates out of sequence dancers, there is no exact way to

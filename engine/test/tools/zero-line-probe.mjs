@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHICH [L] FASR CODE IS THE ZERO LINE ceder-7046 IS WRITTEN FOR?
 //
 // `boardForFormation('Normal Lines')` is `[L0]` by its GENDER pattern, but it carries NO identity -

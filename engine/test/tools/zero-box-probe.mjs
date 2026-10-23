@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS `Zero Box` = `[B1c]` WHAT ALL8 SAYS IT IS, AND WHAT WOULD THE APP LOAD?
 //
 // The plan records All8's own naming, verbatim from its get-out diagram: "[B1c] ... Facing Corners /

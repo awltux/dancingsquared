@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // ANALYSIS TOOL (not a harness): is a `no setup matches` refusal a COVERAGE gap or a BODY error?
 //
 // The census ranks by the call that STOPPED, and that call can be entirely correct. `Pass Thru` is the

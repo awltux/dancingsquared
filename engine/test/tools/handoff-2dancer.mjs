@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // HOW A 2-DANCER CALL IS MAPPED ONTO EIGHT DANCERS - `Single Circle Right Full`, measured end to end.
 //
 // SCOPING, and this is the trap this file exists to avoid: `CallLibrary.register(name, xml)` keys the

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/src/sequencer/applicator.ts.
 // DIFFERENTIAL CAPTURE FOR `CallApplicator.partition`.
 //
 // `partition` searches for a tiling and returns the FIRST one it finds, so a refactor that preserves

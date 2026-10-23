@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // STEP 3, ITEM 7, SECOND SOURCE: all8's "16 Possible Pairings" pages, as identity-carrying boards.
 //
 // The canonical-board rule measured on the get-out corpus - the cyclic relabelling from boards[0] to

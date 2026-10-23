@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // SOLVE THE TILE ORDER of the 16-state page, decisively.
 //
 // The identity (and every rectangle symmetry) reads the four states that BOTH All8 sources draw

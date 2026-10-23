@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // DOES THE APP'S LABEL -> BOARD PATH RESOLVE EVERY START FORMATATION IT CLAIMS?
 //
 // `poc/src/sequencer-ui.ts` resolves a module's `startFormation` label through

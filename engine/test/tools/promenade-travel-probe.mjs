@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHAT DOES THE CALL'S OWN TRAVEL DO TO THE ANIMATION? Measured over every board the coded ring
 // move APPLIES to, because the corpus-wide collision scan cannot see this change.
 //

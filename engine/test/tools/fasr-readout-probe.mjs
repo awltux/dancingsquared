@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // DOES THE FASR READOUT SAY THE RIGHT THING?
 //
 // The POC now shows the board's All8 FASR code next to the formation. This replicates that readout

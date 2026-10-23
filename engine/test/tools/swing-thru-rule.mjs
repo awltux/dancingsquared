@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: TODO.md.
 // The transcribed `Swing Thru` rule, and the evidence that it is right — kept as a tool rather than
 // thrown away with the probe that produced it, because PLAN.md Phase 9e-2 rests on it.
 //

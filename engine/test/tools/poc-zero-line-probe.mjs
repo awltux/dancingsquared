@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // IS THE POC'S "ZERO LINE" START BOARD STILL THE BOARD ITS OWN COMMENT CLAIMS?
 //
 // `poc/src/sequencer-ui.ts` loads the `Zero Line` label by calling

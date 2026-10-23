@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // THE LAST FRAME FLIPS THE DANCERS WHEN A PROMENADE IS APPLIED TO THE END OF A MODULE.
 //
 // Reported (POC): "The Module works fine, but if I apply a Promenade to the end, this is when the

@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // DOES THE ENGINE MODEL ARRANGEMENTS, OR ONLY FORMATIONS?
 //
 // The question, from a report about `ceder-7046` (which declares `startFormation: "Zero Line"` and

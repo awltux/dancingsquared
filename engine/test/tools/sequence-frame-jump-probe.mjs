@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // ceder-7046, FRAME BY FRAME: where does a dancer move further in one frame than the frame's normal
 // motion? The POC advances the playhead by dt/MS_PER_BEAT and draws `evaluateSequence` at each step, so
 // a discontinuity the final instant does not show can still be visible one frame earlier.

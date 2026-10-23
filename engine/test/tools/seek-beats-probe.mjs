@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/tools/README.md.
 // VERIFY the sequencer list's SEEK arithmetic (not a harness - a probe for a UI change that
 // cannot be exercised here, because the dev server needs esbuild and the sandbox blocks it).
 //

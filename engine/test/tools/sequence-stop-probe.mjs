@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHAT `sequenceStop` REPORTS, on the two configurations that differ.
 //
 // From home, `ceder-7046`'s `Right and Left Grand` cannot be played and the animation ends on the

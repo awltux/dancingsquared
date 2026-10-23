@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // HOW MANY MODULES END WITH A FLIP? The final frame is drawn from the board the LAST CALL STORES
 // (`evaluateSequence` at the total returns `step.after`), while every frame before it is the call's
 // interpolated path. If those two differ, the dancers move on the last frame while the rest of the

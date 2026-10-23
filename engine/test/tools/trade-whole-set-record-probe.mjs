@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // A WHOLE-SET `Trade` WAS ATTEMPTED AND REVERTED - here is everything it was measured against.
 //
 // The attempt's evidence looked sufficient and was not, so this keeps the whole argument in one place

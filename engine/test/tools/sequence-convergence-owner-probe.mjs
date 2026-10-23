@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHO OWNS THE LAST-FRAME JUMP? Classify every corpus offender by the interpolation BRANCH that
 // produced the frame before it, before touching any of them.
 //

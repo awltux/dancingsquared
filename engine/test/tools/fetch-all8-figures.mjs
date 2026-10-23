@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: engine/test/lib/all8-figures.mjs.
 // Build the All8 figure fixtures from Rich Reel's own pages (verbatim, attributed).
 //
 // Not part of `verify`: this regenerates committed fixtures from the live site, so it is run by hand

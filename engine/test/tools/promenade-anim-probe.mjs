@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // DIAGNOSE the Promenade animation after MS `ceder-10530`.
 //
 // The report: the module ends in a formation the engine cannot NAME, but `Promenade` is still legal

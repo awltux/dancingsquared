@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // ANALYSIS TOOL (not a harness): what does `Spin the Top` actually produce?
 //
 // Round 25 root-caused a defect here to "the catalogue authors an 8-dancer Spin the Top that merges

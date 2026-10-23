@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // WHAT THE FLOOR-PAIR READ CHANGES, when it costs no figure: the ROTATION a promenade reads.
 //
 // `promenadeFraction` ends the ring at the home ring turned by (the ring's own rotation + the

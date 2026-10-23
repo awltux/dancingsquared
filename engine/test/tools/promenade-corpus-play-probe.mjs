@@ -1,3 +1,4 @@
+// TIER: none — one-shot diagnostic; nothing runs it. Recorded: PLAN.md.
 // DOES THE CORPUS'S `Promenade` EVER ANIMATE?
 //
 // The corpus-wide collision scan (`sequence-anim-collision-scan.mjs`) returned byte-identical numbers

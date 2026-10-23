@@ -562,6 +562,72 @@
       ]
     },
     {
+      "id": "m01b",
+      "call": "Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)",
+      "corpusTitle": "Circle Four Left",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 0,
+      "from": "Static Square",
+      "beats": 8,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Static Square",
+        "kind": "tiled",
+        "startFormation": "Static Square",
+        "endFormation": "Static Square"
+      }
+    },
+    {
+      "id": "m01c",
+      "call": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
+      "corpusTitle": "Single Circle Left",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 1,
+      "from": "Static Square",
+      "beats": 8,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Static Square",
+        "kind": "tiled",
+        "startFormation": "Static Square",
+        "endFormation": "Static Square"
+      }
+    },
+    {
+      "id": "m02",
+      "call": "Dosado",
+      "corpusTitle": "Dosado",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 2,
+      "from": "Static Square",
+      "beats": 8,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Static Square",
+        "kind": "tiled",
+        "startFormation": "Static Square",
+        "endFormation": "Static Square"
+      }
+    },
+    {
       "id": "m03a",
       "call": "Couples Promenade",
       "corpusTitle": "Promenade",
@@ -625,6 +691,28 @@
       "view": {
         "scale": 36.279,
         "units": 4.3
+      }
+    },
+    {
+      "id": "m03d",
+      "call": "Wrong Way Promenade",
+      "corpusTitle": "Wrong Way Promenade",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 3,
+      "from": "Static Square",
+      "beats": 12,
+      "frames": 0,
+      "view": {
+        "scale": 32.139,
+        "units": 4.854
+      },
+      "virtual": {
+        "board": "Static Square",
+        "kind": "tiled",
+        "startFormation": "Static Square",
+        "endFormation": "Static Square"
       }
     },
     {
@@ -1098,6 +1186,28 @@
       ]
     },
     {
+      "id": "m11",
+      "call": "Swing",
+      "corpusTitle": "Swing Your Partner",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 4,
+      "from": "Static Square",
+      "beats": 9,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Static Square",
+        "kind": "tiled",
+        "startFormation": "Static Square",
+        "endFormation": "Static Square"
+      }
+    },
+    {
       "id": "m12a",
       "call": "Ladies Chain, (Ladies Chain 3/4)",
       "corpusTitle": "Ladies Chain",
@@ -1370,6 +1480,28 @@
       }
     },
     {
+      "id": "m16",
+      "call": "Lead Right / Lead Left",
+      "corpusTitle": "Lead Right",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 5,
+      "from": "Static Square",
+      "beats": 4,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Static Square",
+        "kind": "partial",
+        "startFormation": "Static Square",
+        "endFormation": "Eight Chain Thru"
+      }
+    },
+    {
       "id": "m17",
       "call": "Veer Left / Veer Right",
       "corpusTitle": "Veer Left",
@@ -1594,6 +1726,28 @@
           ]
         }
       ]
+    },
+    {
+      "id": "m19e",
+      "call": "Box/Split Circulate",
+      "corpusTitle": "Box Circulate",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 6,
+      "from": "Double Pass Thru",
+      "beats": 4,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Double Pass Thru",
+        "kind": "tiled",
+        "startFormation": "Double Pass Thru",
+        "endFormation": "Completed Double Pass Thru"
+      }
     },
     {
       "id": "m20",
@@ -1968,6 +2122,28 @@
       "view": {
         "scale": 29.435,
         "units": 5.3
+      }
+    },
+    {
+      "id": "m30",
+      "call": "Box the Gnat",
+      "corpusTitle": "Box the Gnat",
+      "file": "virtual/tams.xml",
+      "level": "virtual",
+      "fileName": "tams.xml",
+      "tamIndex": 7,
+      "from": "Eight Chain Thru",
+      "beats": 4,
+      "frames": 0,
+      "view": {
+        "scale": 36.279,
+        "units": 4.3
+      },
+      "virtual": {
+        "board": "Eight Chain Thru",
+        "kind": "tiled",
+        "startFormation": "Eight Chain Thru",
+        "endFormation": "Eight Chain Thru"
       }
     },
     {
@@ -3094,54 +3270,14 @@
   ],
   "noAnimation": [
     {
-      "id": "m01b",
-      "call": "Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
-      "id": "m01c",
-      "call": "Single Circle Left/Right (1/4, 1/2, 3/4, Full)",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
-      "id": "m02",
-      "call": "Dosado",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
-      "id": "m03d",
-      "call": "Wrong Way Promenade",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
       "id": "m04a",
       "call": "Right/Left Arm Turn",
       "reason": "no corpus title"
     },
     {
-      "id": "m11",
-      "call": "Swing",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
       "id": "m14b",
       "call": "Backtrack",
       "reason": "no corpus title"
-    },
-    {
-      "id": "m16",
-      "call": "Lead Right / Lead Left",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
-      "id": "m19e",
-      "call": "Box/Split Circulate",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
-    },
-    {
-      "id": "m30",
-      "call": "Box the Gnat",
-      "reason": "every authoring of this call is a subset of the set; a whole-set instance needs a virtual call"
     },
     {
       "id": "m32c",

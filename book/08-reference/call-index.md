@@ -13,13 +13,13 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | Unit | Call | Starts from | Beats |
 |---|---|---|---|
 | M1a | [Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 16 |
-| M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | — |
-| M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | — | — |
-| M2 | [Dosado](../04-calls/m02-dosado.md) | — | — |
+| M1b | [Circle of 4 Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
+| M1c | [Single Circle Left/Right (1/4, 1/2, 3/4, Full)](../04-calls/m01-circle-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
+| M2 | [Dosado](../04-calls/m02-dosado.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
 | M3a | [Couples Promenade](../04-calls/m03-promenade-family.md) | [Two-Faced Lines LH](../02-language/formations.md#lines) | 16 |
 | M3b | [Single File Promenade](../04-calls/m03-promenade-family.md) | — | 16 |
 | M3c | [Star Promenade](../04-calls/m03-promenade-family.md) | — | 12 |
-| M3d | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) | — | — |
+| M3d | [Wrong Way Promenade](../04-calls/m03-promenade-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 12 |
 | M4a | [Right/Left Arm Turn](../04-calls/m04-arm-turn-family.md) | — | — |
 | M4b | [Allemande Left/Right](../04-calls/m04-arm-turn-family.md) | — | 6 |
 | M5 | [Star Right/Left](../04-calls/m05-star-right-left.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 7.5 |
@@ -30,7 +30,7 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | M8 | [Wheel Around / Reverse Wheel Ar.](../04-calls/m08-wheel-around.md) | [Lines](../02-language/formations.md#lines) | 3 |
 | M9 | [Courtesy Turn](../04-calls/m09-courtesy-turn.md) | [Lines Facing Out](../02-language/formations.md#lines) | 3 |
 | M10 | [Right and Left Thru](../04-calls/m10-right-and-left-thru.md) | [Lines](../02-language/formations.md#lines) | 6 |
-| M11 | [Swing](../04-calls/m11-swing.md) | — | — |
+| M11 | [Swing](../04-calls/m11-swing.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 9 |
 | M12a | [Ladies Chain, (Ladies Chain 3/4)](../04-calls/m12-ladies-chain-family.md) | [Normal Lines](../02-language/formations.md) | 8 |
 | M12b | [Four Ladies Chain, (Chain 3/4)](../04-calls/m12-ladies-chain-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
 | M12c | [Chain Down the Line](../04-calls/m12-ladies-chain-family.md) | [Two-Faced Lines](../02-language/formations.md#lines) | 7.5 |
@@ -42,14 +42,14 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | M15a | [Separate](../04-calls/m15-separate-family.md) | — | 3 |
 | M15b | [Separate Around 1 or 2 to a Line](../04-calls/m15-separate-family.md) | — | 2 |
 | M15c | [Separate Around 1 or 2 into the middle](../04-calls/m15-separate-family.md) | — | 4 |
-| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) | — | — |
+| M16 | [Lead Right / Lead Left](../04-calls/m16-lead-right-lead-left.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 4 |
 | M17 | [Veer Left / Veer Right](../04-calls/m17-veer-left-veer-right.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 2 |
 | M18 | [Star Thru](../04-calls/m18-star-thru.md) | [Lines](../02-language/formations.md#lines) | 4 |
 | M19a | [Couples Circulate](../04-calls/m19-circulate-family.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 4 |
 | M19b | [(Named Dancers) Circulate](../04-calls/m19-circulate-family.md) | [Lines Facing In](../02-language/formations.md) | 4 |
 | M19c | [All Eight Circulate](../04-calls/m19-circulate-family.md) | [Lines Facing In](../02-language/formations.md) | 4 |
 | M19d | [Single File (Column) Circulate](../04-calls/m19-circulate-family.md) | [Right-Hand Columns](../02-language/formations.md#columns) | 3 |
-| M19e | [Box/Split Circulate](../04-calls/m19-circulate-family.md) | — | — |
+| M19e | [Box/Split Circulate](../04-calls/m19-circulate-family.md) | [Double Pass Thru](../02-language/formations.md#double-pass-thru) | 4 |
 | M20 | [Bend the Line](../04-calls/m20-bend-the-line.md) | [Right-Hand Two-Faced Lines](../02-language/formations.md#lines) | 4 |
 | M21 | [Square Thru / Left Square Thru](../04-calls/m21-square-thru.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 7.5 |
 | M22 | [Split Two](../04-calls/m22-split-two.md) | — | 2 |
@@ -60,7 +60,7 @@ Every call in the 2026 Mainstream program, in the order this book teaches them, 
 | M27 | [California Twirl](../04-calls/m27-california-twirl.md) | [Lines Facing Out](../02-language/formations.md#lines) | 3 |
 | M28 | [Slide Thru](../04-calls/m28-slide-thru.md) | [Lines](../02-language/formations.md#lines) | 4 |
 | M29 | [Dive Thru](../04-calls/m29-dive-thru.md) | — | 5 |
-| M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) | — | — |
+| M30 | [Box the Gnat](../04-calls/m30-box-the-gnat.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 4 |
 | M31a | [Alamo Style](../04-calls/m31-ocean-wave-family.md) | [Static Square](../02-language/formations.md#squared-set-and-static-square) | 8 |
 | M31b | [Balance](../04-calls/m31-ocean-wave-family.md) | [Right-Hand Waves](../02-language/formations.md#waves) | 4 |
 | M31c | [Step to a Wave](../04-calls/m31-ocean-wave-family.md) | [Eight Chain Thru](../02-language/formations.md#eight-chain-thru) | 2 |

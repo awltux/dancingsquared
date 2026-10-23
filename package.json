@@ -38,12 +38,13 @@
     "build:game": "npm run build -w dancing-squared-game",
     "preview:game": "npm run preview -w dancing-squared-game",
     "measure:ladder": "npm run measure -w dancing-squared-game",
-    "build:book": "node book/tools/make-animations.mjs && node book/tools/make-formations.mjs && node book/tools/make-diagrams.mjs && node book/tools/make-reference.mjs && node book/tools/make-nav.mjs && node book/tools/build-site.mjs",
+    "build:book": "node book/tools/make-virtual.mjs && node book/tools/make-animations.mjs && node book/tools/make-formations.mjs && node book/tools/make-diagrams.mjs && node book/tools/make-reference.mjs && node book/tools/make-nav.mjs && node book/tools/build-site.mjs",
+    "build:book:virtual": "node book/tools/make-virtual.mjs",
     "build:book:anims": "node book/tools/make-animations.mjs",
     "build:book:gifs": "node book/tools/make-animations.mjs --gifs",
     "build:book:site": "node book/tools/build-site.mjs",
     "serve:book": "node book/tools/serve-site.mjs",
-    "check:book": "node book/tools/check-links.mjs && node book/tools/make-animations.mjs --check && node book/tools/make-animations.mjs --verify && node book/tools/make-diagrams.mjs --check",
+    "check:book": "node book/tools/make-virtual.mjs --check && node book/tools/check-links.mjs && node book/tools/make-animations.mjs --check && node book/tools/make-animations.mjs --verify && node book/tools/make-diagrams.mjs --check",
     "deploy:book": "node scripts/deploy-book.mjs"
   }
 }

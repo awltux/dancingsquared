@@ -1,0 +1,43 @@
+{
+  "$comment": "PLACEMENTS FOR CALLS WHOSE ONLY CORPUS AUTHORINGS ARE SUBSET UNITS. One row per book card: which WHOLE-SET board the call is placed on, and why. A row is a CLAIM, not a switch: `book/tools/make-virtual.mjs` re-derives the placement, refuses an ambiguous one, and refuses a row whose card has since gained an eight-dancer authoring. See the generator's header for why this table is the answer to 'a search across the available formations' rather than a build-time search.",
+  "m01b": {
+    "title": "Circle Four Left",
+    "board": "Static Square",
+    "why": "The manual starts it from Facing Couples; a square is the smallest whole-set board whose four facing-couple pairs carry the ring, and the placement is unambiguous there."
+  },
+  "m01c": {
+    "title": "Single Circle Left",
+    "board": "Static Square",
+    "why": "The manual starts it from Facing Dancers; four pairs on a square place the ring, and the square is the only whole-set board where the placement is unambiguous."
+  },
+  "m02": {
+    "title": "Dosado",
+    "board": "Static Square",
+    "why": "The manual's own start label is 'Opposite dancers from a Static Square', so the board is the manual's, not a stand-in."
+  },
+  "m03d": {
+    "title": "Wrong Way Promenade",
+    "board": "Static Square",
+    "why": "The manual's first start is Squared Set; a square places it tiled and starts and ends on Static Square."
+  },
+  "m11": {
+    "title": "Swing Your Partner",
+    "board": "Static Square",
+    "why": "Four couples swing in place; a square holds four of them. Eight Chain Thru and Double Pass Thru are REFUSED by chooseVirtual for this call (equally good placements), which is why the board is named here."
+  },
+  "m16": {
+    "title": "Lead Right",
+    "board": "Static Square",
+    "why": "The manual starts it from a Couple; a square places two couples leading right and ends on Eight Chain Thru, a named formation."
+  },
+  "m19e": {
+    "title": "Box Circulate",
+    "board": "Double Pass Thru",
+    "why": "Two boxes are what a Double Pass Thru carries; the placement is tiled and ends on Completed Double Pass Thru."
+  },
+  "m30": {
+    "title": "Box the Gnat",
+    "board": "Eight Chain Thru",
+    "why": "Four facing couples place Box the Gnat tiled and end on Eight Chain Thru. Static Square also places it, but PARTIALLY and onto an unnamed-facing T-Bone, which is why the board is named here."
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "m01b": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 0,
+    "title": "Circle Four Left",
+    "board": "Static Square",
+    "kind": "tiled",
+    "startFormation": "Static Square",
+    "endFormation": "Static Square",
+    "why": "The manual starts it from Facing Couples; a square is the smallest whole-set board whose four facing-couple pairs carry the ring, and the placement is unambiguous there."
+  },
+  "m01c": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 1,
+    "title": "Single Circle Left",
+    "board": "Static Square",
+    "kind": "tiled",
+    "startFormation": "Static Square",
+    "endFormation": "Static Square",
+    "why": "The manual starts it from Facing Dancers; four pairs on a square place the ring, and the square is the only whole-set board where the placement is unambiguous."
+  },
+  "m02": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 2,
+    "title": "Dosado",
+    "board": "Static Square",
+    "kind": "tiled",
+    "startFormation": "Static Square",
+    "endFormation": "Static Square",
+    "why": "The manual's own start label is 'Opposite dancers from a Static Square', so the board is the manual's, not a stand-in."
+  },
+  "m03d": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 3,
+    "title": "Wrong Way Promenade",
+    "board": "Static Square",
+    "kind": "tiled",
+    "startFormation": "Static Square",
+    "endFormation": "Static Square",
+    "why": "The manual's first start is Squared Set; a square places it tiled and starts and ends on Static Square."
+  },
+  "m11": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 4,
+    "title": "Swing Your Partner",
+    "board": "Static Square",
+    "kind": "tiled",
+    "startFormation": "Static Square",
+    "endFormation": "Static Square",
+    "why": "Four couples swing in place; a square holds four of them. Eight Chain Thru and Double Pass Thru are REFUSED by chooseVirtual for this call (equally good placements), which is why the board is named here."
+  },
+  "m16": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 5,
+    "title": "Lead Right",
+    "board": "Static Square",
+    "kind": "partial",
+    "startFormation": "Static Square",
+    "endFormation": "Eight Chain Thru",
+    "why": "The manual starts it from a Couple; a square places two couples leading right and ends on Eight Chain Thru, a named formation."
+  },
+  "m19e": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 6,
+    "title": "Box Circulate",
+    "board": "Double Pass Thru",
+    "kind": "tiled",
+    "startFormation": "Double Pass Thru",
+    "endFormation": "Completed Double Pass Thru",
+    "why": "Two boxes are what a Double Pass Thru carries; the placement is tiled and ends on Completed Double Pass Thru."
+  },
+  "m30": {
+    "file": "virtual/tams.xml",
+    "tamIndex": 7,
+    "title": "Box the Gnat",
+    "board": "Eight Chain Thru",
+    "kind": "tiled",
+    "startFormation": "Eight Chain Thru",
+    "endFormation": "Eight Chain Thru",
+    "why": "Four facing couples place Box the Gnat tiled and end on Eight Chain Thru. Static Square also places it, but PARTIALLY and onto an unnamed-facing T-Bone, which is why the board is named here."
+  }
+}

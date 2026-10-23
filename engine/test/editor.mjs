@@ -1308,6 +1308,39 @@ console.log('\n== a created call can name its start formation (20) ==');
 }
 
 // ---------------------------------------------------------------------------
+// 19c. `extraAttrs`: the writer owns the ATTRIBUTE rules for a caller's own convention
+// ---------------------------------------------------------------------------
+//
+// ONE CALLER: `book/tools/make-virtual.mjs` writes `parent_id="V1-…"` on a generated whole-set instance, naming the
+// call variant it was placed from. It must go through the writer, because the writer is where the two rules for an
+// attribute already live — the VALUE is escaped (`esc`: `& < "`), and the NAME is refused when it is not an XML
+// name, which no escaper can protect.
+{
+  // A REAL call from the corpus, so the tag under test is the one a writer produces rather than a stub.
+  const call = buildCall(parseCallXml(read('ms/circle.xml'))[0], parseFormations(formationsXml), parseMoves(movesXml), true);
+  const written = (opts) => callToXml(call, call.from, opts);
+  const xml = written({ extraAttrs: { parent_id: 'V1-01234567' } });
+  const tag = (xml.match(/<tam\b[^>]*>/) ?? [''])[0];
+  check(/parent_id="V1-01234567"/.test(tag), 'extraAttrs writes the attribute on the <tam> tag');
+  check(tag.indexOf('parent_id') > tag.indexOf('title="'), 'and it is written LAST, after every attribute the writer owns');
+  check(!written().includes('parent_id'), 'while a caller that passes none gets none: the option is opt-in');
+  // A VALUE THAT WOULD BREAK THE TAG IS ESCAPED, by the XML escaper, which is NOT the HTML one (`>` stays legal raw:
+  // AGENTS §6 keeps the two rules apart on purpose).
+  const hostile = written({ extraAttrs: { parent_id: 'a"b<c&d>e' } });
+  check(hostile.includes('parent_id="a&quot;b&lt;c&amp;d>e"'),
+    'a value containing a quote, a `<` and an `&` is escaped by the XML escaper, and `>` is left raw as that rule says');
+  // AND THE NAME IS REFUSED RATHER THAN ESCAPED. The check is the throw, and the message says why: an escaper
+  // protects a value, and nothing protects a name injected into a tag.
+  let refused = '';
+  try {
+    written({ extraAttrs: { 'not a name': 'x' } });
+  } catch (err) {
+    refused = String(err.message ?? err);
+  }
+  check(refused.includes('not an XML attribute name'), `an attribute NAME that is not an XML name is REFUSED (${refused || 'no error thrown'})`);
+}
+
+// ---------------------------------------------------------------------------
 // 20b. the END pose names its formation as a BOARD, which is not the start's question
 // ---------------------------------------------------------------------------
 //

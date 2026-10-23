@@ -44,10 +44,11 @@
 // of 444 diagonal facings unrepresentable). So this module REFUSES a reflected placement BY NAME instead of
 // approximating one, and the sweep reports how often that is the only placement available.
 
-import { poseFor } from '../core.js';
+import { allPoses, poseFor } from '../core.js';
 import { normalizeInstance, padSegment } from '../editor.js';
 import { matchFormations, matchFormationsAll, type Matchable } from './match.js';
 import { boardMatchables } from './cells.js';
+import { formationId } from './formation-id.js';
 import { DEFAULT_MATCH_MAX, UNKNOWN_COUPLE } from './constants.js';
 import type { Board, SeqDancer } from './types.js';
 import type { CallBundle, DancerSpec, Seg, VirtualCallInfo } from '../types.js';
@@ -156,6 +157,11 @@ export function placeVirtual(
   const info: VirtualCallInfo = {
     sourceTitle: source.title,
     sourceFormation: source.formation,
+    // THE AUTHORING'S OWN START, priced from the source's first poses. `formationCanonical` reads x, y and
+    // heading and nothing else - its header says so ("WHAT IT IGNORES, DELIBERATELY: gender, and every slot of
+    // home identity") - which is why `FormationBoard` accepts a bare pose list: a virtual call's source has no
+    // dancer identity to carry, and inventing one would be inventing identity for a digest that ignores it.
+    sourceStart: formationId({ dancers: allPoses(source, 0) }),
     sourceSize: source.dancers.length,
     placement,
     kind,

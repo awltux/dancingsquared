@@ -17,9 +17,13 @@
 //       `tamIndex` (raw scan) and the DOM parse it was paired with disagreed — a look-up by index addressed the
 //       wrong `<tam>`. Every site's `index` is now checked against `parseCallXml` AND against
 //       `loadCallFromXml(xml, …, index)`, which is the consumer's own reader.
-//   (4) SORTING THE FILES IS FREE, which is why `filesOf` sorts. A directory's order is a filesystem accident and
-//       the engine resolves an equal match error by array order, so a title's block order has to be a property of
-//       the corpus rather than of the machine. MEASURED here over every title before the sort is relied on.
+//   (4) THE FILE ORDER, AND WHY IT IS NOT SORTED. A directory's order is a filesystem accident, and the engine
+//       resolves an equal match error by array order — but SORTING IS NOT FREE: MEASURED below, it moves the walk
+//       order in **7 of the 11** level directories, which would move the pooling offsets `catalogue.mjs` pins. So
+//       `filesOf` preserves the directory's order and this harness pins that it does.
+//   (5) THE GENERATED INSTANCES ARE NOT AUTHORINGS. `<level>/<family>.virtual.xml` holds the whole-set instances
+//       the book's `make-virtual.mjs` places, and the suffix is the exclusion (`packages/corpus/virtual.ts`). This
+//       harness pins the split, the layout AND the `parent_id` each one carries.
 //
 // WHAT IT DOES NOT CHECK, on purpose: the pooled XML's wrapper (`engine/test/catalogue.mjs` pins the Circulate
 // offsets that depend on it), and the per-consumer level lists (each consumer's own gate pins those).
@@ -31,8 +35,8 @@ import { fileURLToPath } from 'node:url';
 
 import { DOMParser } from '@xmldom/xmldom';
 
-import { loadCallFromXml, parseCallXml, setParser } from '../dist/index.js';
-import { corpusRoot, filesOf, readFile, tamsOf, titlesOf, sitesOfTitle, tamAttrs } from 'dancing-squared-corpus';
+import { allPoses, callVariantId, formationId, formationRootOf, isCallVariantId, loadCallFromXml, normalizeInstance, parseCallXml, setParser } from '../dist/index.js';
+import { corpusRoot, filesOf, isVirtualFile, readFile, tamsOf, tamAttrs, titlesOf, sitesOfTitle, VIRTUAL_SUFFIX, virtualFilesOf } from 'dancing-squared-corpus';
 import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
@@ -68,6 +72,10 @@ function rawTitles() {
       continue;
     }
     for (const file of files) {
+      // THE LEGACY READER HAD NO GENERATED FILES TO SEE: they arrived with the `.virtual.xml` convention, and its
+      // measurement is of authored tams. Counting them here would compare a scan of authored + generated against a
+      // parse of authored, which is a different measurement and not this one.
+      if (isVirtualFile(file)) continue;
       const xml = readFileSync(path.join(dir, file), 'utf8');
       for (const m of xml.matchAll(/<tam\b[^>]*\btitle="([^"]*)"/g)) titles.add(decode(m[1]));
     }
@@ -198,7 +206,9 @@ console.log('\n== The file order, and why it is not sorted ==');
   for (const level of LEVELS) {
     let dirOrder;
     try {
-      dirOrder = readdirSync(path.join(assets, level)).filter((f) => f.endsWith('.xml'));
+      // THE SAME POPULATION `filesOf` RETURNS, read raw: the generated instances are not authored files, and
+      // this measurement is of the AUTHORED walk order (the reader it compares against never saw them).
+      dirOrder = readdirSync(path.join(assets, level)).filter((f) => f.endsWith('.xml') && !isVirtualFile(f));
     } catch {
       dirOrder = [];
     }
@@ -214,7 +224,7 @@ console.log('\n== The file order, and why it is not sorted ==');
   for (const level of LEVELS) {
     let dirOrder;
     try {
-      dirOrder = readdirSync(path.join(assets, level)).filter((f) => f.endsWith('.xml'));
+      dirOrder = readdirSync(path.join(assets, level)).filter((f) => f.endsWith('.xml') && !isVirtualFile(f));
     } catch {
       continue;
     }
@@ -238,6 +248,108 @@ console.log('\n== The file order, and why it is not sorted ==');
     'sorting the returned list throws, and leaves the cached order unchanged');
   check(filesOf('ssd').length === 0 && Array.isArray(filesOf('ssd')),
     'a level with no directory is an empty list, not an error (the levels `PERMISSION_LEVELS` names but no assets carry)');
+}
+
+// -----------------------------------------------------------------------------------------------------------
+// THE GENERATED INSTANCES, AND THE SUFFIX THAT KEEPS THEM OUT OF EVERY CENSUS.
+//
+// `<level>/<family>.virtual.xml` holds the whole-set instances `book/tools/make-virtual.mjs` places for calls the
+// corpus authors only as subset units; `packages/corpus/virtual.ts` states the convention and the measurement
+// that moved them beside their family (three gates counted the old `assets/virtual/` directory that was not a
+// level). FOUR things must hold here, and each is a different failure:
+//
+//   (a) THE READER SPLITS THEM: `filesOf` does not return them and `virtualFilesOf` does. Without that, every
+//       count in this file — and every consumer that walks a level — sees invented geometry as an authoring.
+//       MEASURED when the files first landed: `make-virtual.mjs`'s own dead-row check read its SEVEN tams as new
+//       eight-dancer authorings and declared every placement row obsolete.
+//   (b) EACH SITS BESIDE ITS FAMILY: `ms/circle.virtual.xml` is only beside its family if `ms/circle.xml` is in
+//       the same level, which is the whole reason for the layout.
+//   (c) EACH CARRIES ONE `parent_id` THAT IS A CALL-VARIANT ID.
+//   (d) THAT ID IS ONE THE CORPUS MINTS — the variant of the authoring the instance was placed FROM, judged by
+//       building every authoring of that call and re-deriving its id, not by asking the tool that wrote the file
+//       (AGENTS §11.2.3). "Generated from" is the SOURCE authoring — `Dosado` written for two dancers — so the
+//       board a generated instance STARTS from is the placement board and is deliberately not what is checked.
+console.log('\n== The generated instances: excluded from the census, and naming the authoring they came from ==');
+{
+  const EXPECTED = [
+    'ms/box_the_gnat.virtual.xml',
+    'ms/circle.virtual.xml',
+    'ms/circulate.virtual.xml',
+    'ms/dosado.virtual.xml',
+    'ms/lead_right.virtual.xml',
+    'ms/promenade.virtual.xml',
+    'ms/swing.virtual.xml',
+  ];
+  const roots = JSON.parse(readFileSync(path.join(assets, 'formation-roots.json'), 'utf8')).roots ?? {};
+  const movesXml = readFileSync(path.join(assets, 'moves.xml'), 'utf8');
+  const formationsXml = readFileSync(path.join(assets, 'formations.xml'), 'utf8');
+  /** Every call-variant id the corpus mints for a title, against the site that minted it. One build per title. */
+  const byTitle = new Map();
+  const variantsOf = (title) => {
+    if (byTitle.has(title)) return byTitle.get(title);
+    const out = new Map();
+    for (const site of sitesOfTitle(title, LEVELS)) {
+      let call;
+      try {
+        call = loadCallFromXml(readFile(site.level, site.file), movesXml, formationsXml, site.index, true);
+      } catch {
+        continue; // an authoring that does not build mints no id (`identity-census` counts those by name)
+      }
+      if (!call?.dancers?.length) continue;
+      // THE SAME ARITHMETIC THE BOOK AND `placeVirtual` USE: the start poses of the NORMALISED instance.
+      const shape = formationId({ dancers: allPoses(normalizeInstance(call), 0) });
+      out.set(callVariantId(site.level, title, formationRootOf(shape, roots)), site);
+    }
+    byTitle.set(title, out);
+    return out;
+  };
+  const seen = [];
+  const wrong = [];
+  const provenance = [];
+  for (const level of LEVELS) {
+    for (const file of virtualFilesOf(level)) {
+      seen.push(`${level}/${file}`);
+      if (filesOf(level).includes(file)) {
+        wrong.push(`${level}/${file}: \`filesOf\` returns it — the exclusion is gone`);
+        continue;
+      }
+      const family = `${path.posix.basename(file).slice(0, -VIRTUAL_SUFFIX.length)}.xml`;
+      if (!filesOf(level).includes(family)) wrong.push(`${level}/${file}: its family ${family} is not in ${level}`);
+      const xml = readFile(level, file);
+      // THE ENGINE'S PARSER COUNTS THE TAMS, and the corpus reader supplies the attributes it keeps RAW — the two
+      // readers this harness already compares for every file in the population section above.
+      const count = parseCallXml(xml).length;
+      if (count !== 1) {
+        wrong.push(`${level}/${file}: carries ${count} <tam>(s), and one file holds one instance`);
+        continue;
+      }
+      const [site] = tamsOf(level, file);
+      const parentId = site.attrs.parent_id ?? '';
+      if (!isCallVariantId(parentId)) {
+        wrong.push(`${level}/${file}: parent_id "${parentId}" is not a call-variant id`);
+        continue;
+      }
+      const options = variantsOf(site.title);
+      const from = options.get(parentId);
+      if (!from) {
+        wrong.push(`${level}/${file}: parent_id "${parentId}" is not minted by any corpus authoring of "${site.title}" (${options.size} candidate id(s) over ${LEVELS.length} levels)`);
+        continue;
+      }
+      provenance.push(`${level}/${file}  <-  ${from.level}/${from.file}#${from.index}  (${site.title})`);
+    }
+  }
+  const extra = seen.filter((f) => !EXPECTED.includes(f)).sort();
+  const missing = EXPECTED.filter((f) => !seen.includes(f)).sort();
+  for (const f of extra) console.log(`     NEW INSTANCE ${f} — add it to this pin, or delete the file`);
+  for (const f of missing) console.log(`     INSTANCE GONE ${f} — delete its pin, or regenerate it`);
+  for (const w of wrong) console.log(`     ${w}`);
+  for (const p of provenance) console.log(`     ${p}`);
+  console.log(`    ${seen.length} generated instance(s) in ${new Set(seen.map((f) => f.split('/')[0])).size} level(s)`);
+  check(missing.length === 0 && extra.length === 0,
+    `the generated instances are exactly the ${EXPECTED.length} files this pin names (${extra.length} new, ${missing.length} gone)`);
+  check(wrong.length === 0, `every one carries the variant id of a corpus authoring of its own call (${wrong.length} wrong)`);
+  check(provenance.length === EXPECTED.length,
+    `every generated instance resolved to the authoring it came from (${provenance.length} of ${EXPECTED.length})`);
 }
 
 // The pooling fact `catalogue.mjs` pins by offset: Circulate pools the HIGHER level first.

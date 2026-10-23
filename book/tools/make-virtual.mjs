@@ -36,29 +36,50 @@
 //   - the placement is AMBIGUOUS (`chooseVirtual` would refuse it: equally good placements, or one placement
 //     reaching two different named ends);
 //   - a row marked `refused` whose call DOES have an allowed reading - the claim is false, so declare it;
+//   - a row whose `level` does not author a call with its `title`, which is a mistake in the ROW rather than a
+//     geometric refusal and must not read as one;
 //   - the serialised `<tam>` does not reproduce the placed bundle when read back;
+//   - an `assets/<level>/*.virtual.xml` that no row produces: a writing run DELETES it, and `--check` FAILS on
+//     it, because a generated file left behind is read as an authored one by anything that forgot the suffix;
 //   - in `--check` only, a row whose card has since gained an eight-dancer CORPUS authoring, which is dead
 //     weight because the catalogue prefers the corpus.
 //
-// THE OUTPUT IS TWO TRACKED FILES, both generated:
-//   assets/virtual/tams.xml    the `<tam>` elements, one per placement, in card order
-//   assets/virtual/index.json  { placements: card -> {...}, refusals: card -> the rule's sentence }
-// `assets/` is where the player's `assets/calls/<file>` copy comes from, and `virtual/` is not a corpus level,
-// so `catalogue()` and the variant census never see these tams.
+// THE OUTPUT IS ONE GENERATED FILE BESIDE EACH CALL'S OWN FAMILY, plus one generated index:
+//   assets/<level>/<family>.virtual.xml   the `<tam>`s for the placements whose source lives in that family
+//   book/tools/virtual-index.json         { placements: card -> {...}, refusals: card -> the rule's sentence }
+//
+// THE TAM LIVES BESIDE ITS FAMILY, AND THAT IS A CORPUS RULE RATHER THAN A TIDINESS ONE. A generated whole-set
+// instance of `Circle Four Left` belongs next to `ms/circle.xml` — the file that authors the call — so a reader
+// walking the corpus sees the family and its generated instances together, and so an integration that resolves
+// a call by its FILE has the same answer for the authored and the generated authoring. It used to live in
+// `assets/virtual/tams.xml`, a directory that was not a level: MEASURED, that cost three gates (`call-titles`
+// counted its tams, `poc/tools/corpus-key-probe.mjs` counted eleven level directories, and
+// `poc/tools/mirror-moves-probe.mjs` reached a degenerate facing curve the corpus authors but never loads).
+//
+// SO `filesOf` EXCLUDES THESE FILES BY NAME (`.virtual.xml`), and `virtualFilesOf` is how a caller asks for
+// them. THE GENERATED FILES ARE NOT AUTHORED DATA: no census of authored tams may count them, which is why the
+// exclusion lives in the one corpus reader rather than in each census.
+//
+// EACH TAM NAMES THE VARIANT IT WAS PLACED FROM, as `parent_id`. The value is the engine's call-variant id —
+// `callVariantId(level, title, formationRootOf(sourceStart, roots))` — where `sourceStart` is the formation id
+// of the board the SOURCE authoring starts from (`VirtualCallInfo.sourceStart`, computed in `placeVirtual`).
+// That is the identity a consumer dedupes on: several authorings of one variant share it BY DESIGN, so two
+// generated instances of the same call from the same start shape carry the same `parent_id`.
 //
 // Run: node book/tools/make-virtual.mjs            (regenerate)
-//      node book/tools/make-virtual.mjs --check    (verify the committed artefact)
+//      node book/tools/make-virtual.mjs --check    (verify the committed artefacts)
 //      node book/tools/make-virtual.mjs --discover=Dosado
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, levelsAvailable, tamsOf, VIRTUAL_SUFFIX, virtualFilesOf } from 'dancing-squared-corpus';
 
-import { loadEngine, readAsset, root, toolsDir } from './lib/load.mjs';
+import { loadEngine, readAsset, toolsDir } from './lib/load.mjs';
 
 const PLACEMENTS = join(toolsDir, 'virtual-placements.json');
-const OUT_XML = join(corpusRoot(), 'virtual', 'tams.xml');
-const OUT_INDEX = join(corpusRoot(), 'virtual', 'index.json');
+const OUT_INDEX = join(toolsDir, 'virtual-index.json');
+// `VIRTUAL_SUFFIX` is IMPORTED: the corpus package owns the convention (`packages/corpus/virtual.ts`), and a
+// second spelling here is the two-conventions trap the suffix exists to avoid.
 
 /** The levels an authoring may come from; the same two the book draws on. */
 const LEVELS = ['ms', 'plus'];
@@ -73,19 +94,31 @@ const DISCOVER_BOARDS = [
   'Two-Faced Lines', 'Eight Chain Thru', 'Double Pass Thru', 'Completed Double Pass Thru', 'Columns',
 ];
 
-/** Every `<tam>` in ms+plus, by title, as XML - the source the placements are built from. */
-function tamsByTitle() {
+/**
+ * Every `<tam>` in ms+plus, by title, as XML — the source the placements are built from — AND the file that
+ * authors each title in a level, which is where that family's generated instances belong.
+ *
+ * THE FAMILY IS THE FIRST FILE IN THE DIRECTORY'S OWN ORDER that carries the title, which is a measurement
+ * rather than a rule about names: `Circle Four Left` is authored in `ms/circle.xml`, and for the seven
+ * placements this book has, the first authoring file's basename is the call's own family in every case. A title
+ * authored in two levels is two families, so the key is `level|title` and the row's `level` (default `ms`)
+ * chooses - the same key the book's variant resolver uses.
+ */
+function sources() {
   const byTitle = new Map();
+  const familyOf = new Map();
   for (const level of LEVELS) {
     for (const file of filesOf(level)) {
       for (const tam of tamsOf(level, file)) {
         if (!tam.title) continue;
         if (!byTitle.has(tam.title)) byTitle.set(tam.title, []);
         byTitle.get(tam.title).push(tam.xml);
+        const key = `${level}|${tam.title}`;
+        if (!familyOf.has(key)) familyOf.set(key, file);
       }
     }
   }
-  return byTitle;
+  return { byTitle, familyOf };
 }
 
 /**
@@ -178,20 +211,30 @@ function poseDrift(eng, a, b) {
 }
 
 /**
- * The whole render, in memory: the file text, the index object, and every refusal. Pure apart from the engine,
- * so `--check` and a writing run compare the same thing.
+ * The whole render, in memory: each generated file's text, the index object, and every refusal. Pure apart from
+ * the engine, so `--check` and a writing run compare the same thing.
  */
 export function render() {
   const placements = JSON.parse(readFileSync(PLACEMENTS, 'utf8'));
   const eng = loadEngine();
-  const byTitle = tamsByTitle();
-  const tams = [];
+  const roots = JSON.parse(readFileSync(join(corpusRoot(), 'formation-roots.json'), 'utf8')).roots ?? {};
+  const { byTitle, familyOf } = sources();
+  /** corpus-relative path -> the `<tam>` texts it carries, in placement order (a family may host two). */
+  const tams = new Map();
   const entries = {};
   const refusals = {};
   const problems = [];
 
   for (const id of Object.keys(placements).filter((k) => !k.startsWith('$')).sort()) {
     const row = placements[id];
+    const level = row.level ?? 'ms';
+    // THE FAMILY IS NAMED BEFORE THE PLACEMENT IS TRIED, because a row whose level does not author its own
+    // title is a MISTAKE IN THE ROW rather than a geometric refusal, and the two must not read the same.
+    const family = familyOf.get(`${level}|${row.title}`) ?? null;
+    if (!family) {
+      problems.push(`${id}: level "${level}" authors no call titled "${row.title}" - name the level that does (rows default to ms)`);
+      continue;
+    }
     const placed = place(eng, byTitle, row.title, row.board);
     if (placed.error) {
       problems.push(`${id}: ${placed.error}`);
@@ -212,12 +255,28 @@ export function render() {
       continue;
     }
     const { chosen } = legal;
-    const tamIndex = tams.length;
-    tams.push(eng.callToXml(chosen.bundle));
+    // THE VARIANT THE INSTANCE WAS PLACED FROM, priced from the SOURCE's own start board. The root comes from
+    // the ledger, so a geometry correction re-keys the formation id but not this id (the ledger aliases it).
+    const sourceStart = chosen.bundle.virtual?.sourceStart ?? '';
+    const parentId = sourceStart
+      ? eng.callVariantId(level, chosen.bundle.title, eng.formationRootOf(sourceStart, roots))
+      : '';
+    if (!eng.isCallVariantId(parentId)) {
+      problems.push(`${id}: the engine minted no call-variant id for "${chosen.bundle.title}" from ${level} (sourceStart "${sourceStart}")`);
+      continue;
+    }
+    // BESIDE THE FAMILY, inside the FAMILY'S OWN LEVEL: `ms/circle.xml` -> `ms/circle.virtual.xml`, so the
+    // generated instance is addressed by the same `level/<file>#tamIndex` every other authoring is.
+    const file = `${level}/${family.replace(/\.xml$/, VIRTUAL_SUFFIX)}`;
+    const tamIndex = tams.get(file)?.length ?? 0;
+    if (!tams.has(file)) tams.set(file, []);
+    tams.get(file).push(eng.callToXml(chosen.bundle, undefined, { extraAttrs: { parent_id: parentId } }));
     entries[id] = {
-      file: 'virtual/tams.xml',
+      file,
       tamIndex,
       title: chosen.bundle.title,
+      parentId,
+      level,
       board: chosen.startFormation,
       kind: chosen.kind,
       reading: legal.reading,
@@ -228,21 +287,27 @@ export function render() {
     };
   }
 
-  const file =
-    '<?xml version="1.0"?>\n' +
-    '<!-- GENERATED by book/tools/make-virtual.mjs from virtual-placements.json - do not edit by hand. -->\n' +
-    '<taminations>\n' +
-    tams.join('\n') +
-    '\n</taminations>\n';
+  const files = new Map();
+  for (const [file, list] of [...tams].sort(([a], [b]) => a.localeCompare(b))) {
+    files.set(
+      file,
+      '<?xml version="1.0"?>\n'
+      + '<!-- GENERATED by book/tools/make-virtual.mjs from virtual-placements.json - do not edit by hand. -->\n'
+      + '<taminations>\n'
+      + list.join('\n')
+      + '\n</taminations>\n',
+    );
+  }
 
   // THE ROUND TRIP, against the file that will actually ship. A tam's paths are paired with the formation's
   // dancers BY INDEX, so a text that re-reads to a different set of poses is a wrong picture, not a format
   // nuance - and the tolerance is the XML's own rounding, not a fudge factor.
   for (const id of Object.keys(entries).sort()) {
     const entry = entries[id];
+    const text = files.get(entry.file);
     let back;
     try {
-      back = eng.loadCallFromXml(file, readAsset('moves.xml'), readAsset('formations.xml'), entry.tamIndex, true);
+      back = eng.loadCallFromXml(text, readAsset('moves.xml'), readAsset('formations.xml'), entry.tamIndex, true);
     } catch (err) {
       problems.push(`${id}: the generated tam does not re-read: ${String(err.message ?? err)}`);
       continue;
@@ -259,14 +324,27 @@ export function render() {
     }
   }
 
-  return { file, index: { version: 1, placements: entries, refusals }, problems, placements };
+  return { files, index: { version: 1, placements: entries, refusals }, problems, placements };
+}
+
+/**
+ * Every `*.virtual.xml` in the corpus, as corpus-relative paths — the population a writing run must reconcile
+ * against what it produced, so a placement deleted from the JSON does not leave its artefact behind to be read
+ * as an authored file by something that forgot the suffix.
+ *
+ * THE LIST COMES FROM THE READER, not from a walk of its own: `filesOf` excludes that name and `virtualFilesOf`
+ * is the other half of the same decision (`packages/corpus/virtual.ts`), so a private `readdirSync` here would be
+ * a second spelling of the suffix test — the one thing the corpus package exists to prevent.
+ */
+function virtualFilesOnDisk() {
+  return levelsAvailable().flatMap((level) => virtualFilesOf(level).map((name) => `${level}/${name}`)).sort();
 }
 
 /** A row whose card has since gained an eight-dancer corpus authoring is dead weight - the catalogue prefers it. */
 function rowsStillNeeded() {
   const placements = JSON.parse(readFileSync(PLACEMENTS, 'utf8'));
   const eng = loadEngine();
-  const byTitle = tamsByTitle();
+  const { byTitle } = sources();
   const dead = [];
   for (const id of Object.keys(placements).filter((k) => !k.startsWith('$'))) {
     const row = placements[id];
@@ -292,7 +370,7 @@ export function main() {
   if (discover) {
     const title = discover.includes('=') ? discover.split('=')[1] : '';
     const eng = loadEngine();
-    const byTitle = tamsByTitle();
+    const { byTitle } = sources();
     if (!byTitle.has(title)) {
       console.error(`no corpus authoring carries the title "${title}"`);
       return 1;
@@ -313,8 +391,15 @@ export function main() {
     return 0;
   }
 
-  const { file, index, problems } = render();
+  const { files, index, problems } = render();
   problems.push(...rowsStillNeeded());
+
+  // AN ARTEFACT WITH NO ROW IS A LIE WAITING TO BE READ: a placement deleted from the JSON would leave its
+  // `.virtual.xml` behind, and the corpus reader excludes that name while a reader that walks the directory
+  // does not. So the population on disk is reconciled here - deleted by a writing run, and a FAILURE in
+  // `--check`, where nothing may be written.
+  const written = new Set(files.keys());
+  const orphans = virtualFilesOnDisk().filter((f) => !written.has(f));
 
   if (problems.length) {
     for (const p of problems) console.error(`  ${p}`);
@@ -326,12 +411,19 @@ export function main() {
   if (check) {
     const sameText = (a, b) => a.replace(/\r\n/g, '\n') === b.replace(/\r\n/g, '\n');
     let drift = 0;
-    if (!existsSync(OUT_XML) || !sameText(readFileSync(OUT_XML, 'utf8'), file)) {
-      console.error('DRIFT assets/virtual/tams.xml');
-      drift++;
+    for (const [file, text] of files) {
+      const full = join(corpusRoot(), file);
+      if (!existsSync(full) || !sameText(readFileSync(full, 'utf8'), text)) {
+        console.error(`DRIFT assets/${file}`);
+        drift++;
+      }
     }
     if (!existsSync(OUT_INDEX) || !sameText(readFileSync(OUT_INDEX, 'utf8'), indexText)) {
-      console.error('DRIFT assets/virtual/index.json');
+      console.error(`DRIFT ${OUT_INDEX}`);
+      drift++;
+    }
+    for (const file of orphans) {
+      console.error(`UNCLAIMED assets/${file} - no placement row produces it; delete it`);
       drift++;
     }
     if (drift) {
@@ -339,21 +431,24 @@ export function main() {
       return 1;
     }
     console.log(
-      `${Object.keys(index.placements).length} virtual placement(s) reproduce exactly`
+      `${Object.keys(index.placements).length} virtual placement(s) reproduce exactly in ${files.size} file(s)`
       + `, ${Object.keys(index.refusals).length} refusal(s) still true.`,
     );
     return 0;
   }
 
-  mkdirSync(dirname(OUT_XML), { recursive: true });
-  writeFileSync(OUT_XML, file, 'utf8');
+  for (const [file, text] of files) writeFileSync(join(corpusRoot(), file), text, 'utf8');
+  for (const file of orphans) {
+    unlinkSync(join(corpusRoot(), file));
+    console.error(`  DELETED assets/${file} - no placement row produces it`);
+  }
   writeFileSync(OUT_INDEX, indexText, 'utf8');
   for (const id of Object.keys(index.placements).sort()) {
     const e = index.placements[id];
-    console.log(`  ${id}  ${e.title}  from ${e.board}  (${e.kind}/${e.reading}, ends on ${e.endFormation})  -> ${e.file}#${e.tamIndex}`);
+    console.log(`  ${id}  ${e.title}  from ${e.board}  (${e.kind}/${e.reading}, ends on ${e.endFormation})  ${e.parentId}  -> ${e.file}#${e.tamIndex}`);
   }
   for (const id of Object.keys(index.refusals).sort()) console.log(`  ${id}  REFUSED: ${index.refusals[id]}`);
-  console.log(`${Object.keys(index.placements).length} placement(s), ${Object.keys(index.refusals).length} refusal(s) -> ${OUT_XML}`);
+  console.log(`${Object.keys(index.placements).length} placement(s) in ${files.size} file(s), ${Object.keys(index.refusals).length} refusal(s) -> assets/ + ${OUT_INDEX}`);
   return 0;
 }
 

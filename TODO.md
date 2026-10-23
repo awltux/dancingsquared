@@ -638,9 +638,17 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   `registerFormation` clears it.
 
   **WHAT REMAINS, in the order to take it.**
-  (a) **DRAWING a virtual call in the book.** `book/assets/player.js` fetches `../assets/calls/<file>` and loads by
-      `(file, tamIndex)`, so a virtual call needs a generated `<tam>` file, an index field, a copy rule and a
-      `--check`. The build now REPORTS resolvability (`b5ebc93`): of its 12 unresolved start queries **5 resolve as
+  (a) **DRAWING a virtual call in the book — DONE, and the artefact moved.** `book/assets/player.js` fetches
+      `../assets/calls/<file>` and loads by `(file, tamIndex)`, so a virtual call needed a generated `<tam>` file,
+      an index field, a copy rule and a `--check`; all four landed, and the file now lives BESIDE ITS FAMILY as
+      `<level>/<family>.virtual.xml` (`ms/circle.virtual.xml` next to `ms/circle.xml`) instead of in an
+      `assets/virtual/` directory that was not a level — MEASURED, that directory cost three gates
+      (`call-titles`, `poc/tools/corpus-key-probe.mjs`, `poc/tools/mirror-moves-probe.mjs`). The suffix is the
+      exclusion (`packages/corpus/virtual.ts`: `filesOf` omits them, `virtualFilesOf` returns them; the two Vite
+      globs filter their keys by the same predicate), each tam carries `parent_id` — the call-variant id of the
+      authoring it was placed FROM, from `VirtualCallInfo.sourceStart` — and `engine/test/corpus-inventory.mjs`
+      pins the layout, the exclusion and the provenance by building every authoring of each call again.
+      The build REPORTS resolvability (`b5ebc93`): of its 12 unresolved start queries **5 resolve as
       virtual calls, 3 are refused by the engine for a reason, 1 has no authoring at all and 3 name a start the
       engine has no board for**.
   (b) **APPLYING a virtual call to a sequencing path** (`legalNext`, the picker, the FSM) — deliberately untouched

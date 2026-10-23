@@ -12,6 +12,7 @@
 // Node for the probes. Keeping it here makes the split a property of the import graph rather than a
 // convention someone has to remember.
 import { parseCallXml } from 'dancing-squared-engine';
+import { isVirtualFile } from 'dancing-squared-corpus/virtual';
 
 const MOVES = import.meta.glob('@corpus/moves.xml', { query: '?raw', import: 'default', eager: true });
 const FORMATIONS = import.meta.glob('@corpus/formations.xml', { query: '?raw', import: 'default', eager: true });
@@ -43,7 +44,12 @@ export function corpusCalls(): { name: string; xml: string }[] {
   const seen = new Set<string>();
   // ONE PAIR PER TAM TITLE, not one per file — the twin of `corpus-node.ts`'s walk, and of its measurement: 62
   // names became 322, and level 1 went from registering one of its ten titles to registering its pool.
-  for (const path of Object.keys(CALL_FILES).sort()) {
+  //
+  // THE GENERATED INSTANCES ARE SKIPPED BY KEY. `ms/circle.virtual.xml` holds a whole-set instance the BOOK's
+  // generator placed, not an authored call: registering it would put invented geometry into the game's pool. The
+  // Node loader gets the same exclusion from `filesOf`; this glob is a SECOND enumeration (Vite's), so it applies
+  // the same predicate — imported from the corpus package, never restated (AGENTS §11.4.4, §1).
+  for (const path of Object.keys(CALL_FILES).filter((p) => !isVirtualFile(p)).sort()) {
     const xml = String(CALL_FILES[path]);
     for (const tam of parseCallXml(xml)) {
       if (!tam.title || seen.has(tam.title)) continue;

@@ -12,6 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { CORPUS } from '../../vite.corpus.ts';
+import { isVirtualFile } from './virtual.ts';
 
 /** The repository's one copy of the tamination corpus. */
 export function corpusRoot(): string {
@@ -41,10 +42,39 @@ export function levelsAvailable(): string[] {
     .map((entry) => entry.name);
 }
 
-const fileCache = new Map<string, readonly string[]>();
+/** ONE DIRECTORY'S LISTING, in the directory's own order, split by the `.virtual.xml` convention. */
+interface Listing {
+  /** The AUTHORED files: what `filesOf` returns, and the only ones a census of the corpus may count. */
+  authored: readonly string[];
+  /** The GENERATED whole-set instances (`virtual.ts` says what they are and why they are excluded). */
+  virtual: readonly string[];
+}
+
+const fileCache = new Map<string, Listing>();
+
+/** An empty listing, shared, frozen — a level with no directory. */
+const NO_FILES: Listing = { authored: Object.freeze([] as string[]), virtual: Object.freeze([] as string[]) };
+
+function listingOf(level: string): Listing {
+  const dir = levelPath(level);
+  const cached = fileCache.get(dir);
+  if (cached) return cached;
+  if (!fs.existsSync(dir)) {
+    fileCache.set(dir, NO_FILES);
+    return NO_FILES;
+  }
+  const xml = fs.readdirSync(dir).filter((f) => f.endsWith('.xml'));
+  const listing: Listing = Object.freeze({
+    authored: Object.freeze(xml.filter((f) => !isVirtualFile(f))),
+    virtual: Object.freeze(xml.filter((f) => isVirtualFile(f))),
+  });
+  fileCache.set(dir, listing);
+  return listing;
+}
 
 /**
- * The `<call>` XML files of one level, IN THE DIRECTORY'S OWN ORDER, or [] when the level has no directory.
+ * The AUTHORED `<call>` XML files of one level, IN THE DIRECTORY'S OWN ORDER, or [] when the level has no
+ * directory.
  *
  * NOT SORTED, AND THAT IS A MEASUREMENT RATHER THAN A PREFERENCE. The order a level's files are walked decides the
  * order a multi-authoring title's `<tam>` blocks are pooled, and the engine resolves an EQUAL match error by array
@@ -58,23 +88,31 @@ const fileCache = new Map<string, readonly string[]>();
  * `ssd` and `discovered`, which have no asset directory, and a reader that threw would make every caller
  * carry a list of the levels that happen to exist today.
  *
+ * THE GENERATED INSTANCES ARE EXCLUDED, which is the whole reason this function exists rather than each caller
+ * walking the directory: `<level>/<family>.virtual.xml` is generated geometry (`virtual.ts`), and a census that
+ * counted it would be counting boards nobody authored. MEASURED when they moved into the level directories:
+ * without the exclusion, `make-virtual.mjs`'s own dead-row check saw its SEVEN generated tams as new eight-dancer
+ * authorings and declared every placement row obsolete.
+ *
  * THE RETURNED ARRAY IS FROZEN, because it is the cached one: `filesOf(lv).sort()` would silently reorder the
  * walk for EVERY later reader in the process, and the order is load-bearing (paragraph above). MEASURED before
  * this rule: the one caller that sorted in place was `poc/tools/named-setup-probe.mjs`, which ran before the
  * harnesses that pin pooling offsets. A caller sorts a copy (`[...filesOf(lv)].sort()`, as that probe now does).
  */
 export function filesOf(level: string): readonly string[] {
-  const dir = levelPath(level);
-  const cached = fileCache.get(dir);
-  if (cached) return cached;
-  if (!fs.existsSync(dir)) {
-    const empty = Object.freeze([] as string[]);
-    fileCache.set(dir, empty);
-    return empty;
-  }
-  const files = Object.freeze(fs.readdirSync(dir).filter((f) => f.endsWith('.xml')));
-  fileCache.set(dir, files);
-  return files;
+  return listingOf(level).authored;
+}
+
+/**
+ * The GENERATED whole-set instances of one level, in the directory's own order.
+ *
+ * This is the reader for the population `filesOf` excludes, so a caller that NEEDS them (the book's
+ * `make-animations.mjs` resolves one by `level/<file>#tamIndex`; `book/tools/make-virtual.mjs` reconciles what it
+ * wrote against what is on disk) asks for them by name rather than walking the directory and re-stating the
+ * suffix. Excluded from `filesOf` and available here is one decision, made once (`virtual.ts`).
+ */
+export function virtualFilesOf(level: string): readonly string[] {
+  return listingOf(level).virtual;
 }
 
 /** One level's file, as text. Throws (loudly, with the path) rather than returning '' for a missing file. */

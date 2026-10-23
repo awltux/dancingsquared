@@ -2273,6 +2273,18 @@ export interface CallXmlOptions {
    * written instead, which is always correct.
    */
   symmetry?: Symmetry;
+  /**
+   * Attributes written LAST on the `<tam>`, for a caller whose own convention records something the format
+   * does not name.
+   *
+   * ONE CALLER: `book/tools/make-virtual.mjs` writes `parent_id="V1-…"` on a generated whole-set instance,
+   * naming the call variant it was placed FROM — the identity `VirtualCallInfo.sourceStart` makes derivable.
+   * It goes through the writer rather than a hand-built tag because the writer owns both rules the attribute
+   * needs: the VALUE is escaped with the XML escaper (`esc`: `& < "`, AGENTS §6), and the NAME is refused when
+   * it is not an XML name, which no escaper can protect — a bad name produces a file whose parse error names
+   * something else entirely.
+   */
+  extraAttrs?: Readonly<Record<string, string>>;
 }
 
 /** Whether a call can be written as a HALF set, and what stops it when it cannot. */
@@ -2364,6 +2376,9 @@ export function halfSetReport(call: CallBundle, tol = 1e-3): HalfSetReport {
   return { ok: true, half };
 }
 
+/** An XML NAME (what a tag or attribute may be called): a letter, `_` or `:` to start, then name characters. */
+const XML_ATTRIBUTE_NAME = /^[A-Za-z_:][-A-Za-z0-9_:.]*$/;
+
 /** Serialize an arbitrary call bundle as a taminations-style `<tam>` XML string.
  *
  * EVERY DECLARATION THE BUNDLE CARRIES IS WRITTEN BACK OUT, and the three attributes that
@@ -2454,6 +2469,12 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
     // being TOLD to perform, so `mirror: true` and `mirror: false` agree about it only once the text
     // says which - which is why `data.ts` now reads the declaration instead of passing `false`.
     reference || halfSet ? '' : 'asymmetric="true"',
+    ...Object.entries(opts.extraAttrs ?? {}).map(([name, value]) => {
+      if (!XML_ATTRIBUTE_NAME.test(name)) {
+        throw new Error(`callToXml: "${name}" is not an XML attribute name, and an escaper cannot protect a NAME injected into the tag`);
+      }
+      return `${name}="${esc(value)}"`;
+    }),
   ]
     .filter((a) => a !== '')
     .join(' ');

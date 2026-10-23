@@ -22,7 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, chooseVirtual, resolveVirtual } from '../dist/index.js';
+import { allPoses, callVariantId, formationId, isCallVariantId, Sequencer, setParser, chooseVirtual, resolveVirtual } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -161,6 +161,20 @@ console.log('\n== 2. The placement: the board is where it starts, and the track 
       check(held.length === 0, `a tiled placement moves every dancer (${b.dancers.length} of them), so nothing holds`);
     }
     check(b.virtual !== undefined, `the bundle is MARKED as synthesised (source "${b.virtual?.sourceTitle}", ${b.virtual?.sourceSize} dancers)`);
+    // THE SOURCE'S OWN START IS PRICED, so a consumer can name the variant the instance was placed FROM:
+    // `callVariantId(level, sourceTitle, formationRootOf(sourceStart, roots))`. `sourceFormation` is a NAME and is
+    // null on every inline authoring, which is most of the corpus - so without this field there is nothing to hold.
+    // NOTHING CAN DERIVE IT AFTER THE PLACEMENT: the placed bundle's own start is the BOARD it was placed on, and
+    // that is a different board (`Promenade 1/2` is authored from Facing Couples Far and placed here on a square).
+    if (source) {
+      const expected = formationId({ dancers: allPoses(source, 0) });
+      check(b.virtual?.sourceStart === expected,
+        `sourceStart is the formation id of the AUTHORING's start board (${b.virtual?.sourceStart} = ${expected})`);
+      check(b.virtual?.sourceStart !== formationId(board),
+        'and it is NOT the board it was placed on — that is the variant the instance IS, not the one it came from');
+      check(isCallVariantId(callVariantId('ms', b.virtual.sourceTitle, b.virtual.sourceStart ?? '')),
+        'and it is the input the call-variant id takes, so the parent id is derivable without rebuilding the authoring');
+    }
   }
 }
 

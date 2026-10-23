@@ -195,6 +195,22 @@ export interface VirtualCallInfo {
   /** The formation the SOURCE authoring starts from, or null when it named none. */
   sourceFormation: string | null;
   /**
+   * THE FORMATION ID OF THE BOARD THE SOURCE STARTS FROM — the identity of the authoring this variant was
+   * placed FROM, in the form `formationRootOf` takes.
+   *
+   * WHY IT IS HERE AND NOT DERIVED BY THE CALLER. `sourceFormation` is a NAME, and it is null on every inline
+   * authoring (`convert.ts`: an embedded `<formation>` says no name), which is most of the corpus — so a
+   * consumer that wants to say WHICH authoring a virtual instance came from has nothing to hold. The id is
+   * computed where the source board still exists, and it is the whole input of the variant identity:
+   * `callVariantId(level, sourceTitle, formationRootOf(sourceStart, roots))`.
+   *
+   * A FORMATION ID RATHER THAN A `Board`, because that is exactly what the consumer needs and the board would
+   * be re-typed by the caller anyway: the id is a pure content address of the source's start poses
+   * (`formation-id.ts` reads x, y and heading and ignores gender, couple and id), so carrying the board would
+   * carry the same fact three ways.
+   */
+  sourceStart: string;
+  /**
    * How many dancers the source authoring describes AS PLACED — the normalised size, so a half-set unit written
    * as two dancers reads 4 here, because that is how many dancers one copy moves.
    */

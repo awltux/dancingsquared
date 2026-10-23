@@ -38,6 +38,8 @@ import { compareCallTitles } from './call-order';
 import { callTamXml } from './tam-xml';
 // The glob's own key -> the corpus-relative `level/base` identity this module stores in `CallInfo.file`.
 import { corpusFileOf } from './corpus-key';
+// The generated whole-set instances are not authorings, and the panel must not offer them as calls.
+import { isVirtualFile } from 'dancing-squared-corpus/virtual';
 
 // Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
 // into the main bundle). loadCatalog() fetches them all and reports real
@@ -220,7 +222,11 @@ export class Catalog {
   loadCatalog(onProgress?: (phase: 'download' | 'parse', frac: number) => void): Promise<void> {
     if (!this.loadPromise) {
       this.loadPromise = (async () => {
-        const paths = Object.keys(levelLoaders).sort();
+        // A GLOB'S KEY ENDS WITH THE FILE'S OWN NAME, so the suffix test applies to it directly. The generated
+        // whole-set instances (`ms/circle.virtual.xml`) are the BOOK's artefacts, not authorings: offering one in
+        // the call list would put invented geometry in the catalogue. The Node readers get the same exclusion from
+        // `filesOf`, and this is the browser's second enumeration — so it applies the same predicate, imported.
+        const paths = Object.keys(levelLoaders).filter((p) => !isVirtualFile(p)).sort();
         const xmlMap = new Map<string, string>();
         const POOL = 6;
         const total = paths.length;

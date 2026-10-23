@@ -79,7 +79,6 @@
 // is the tree's one eight-character scheme: no rule and no ledger alias cited an `F2-` id, so that move re-keyed
 // nothing.
 
-import type { Board } from './types.js';
 import { encodeId, fnv1a64, isIdOf, ID_SCHEMES } from './id-code.js';
 
 /** The scheme marker every id starts with. Bump it when the canonicalisation, the quantisation or the encoding
@@ -116,8 +115,24 @@ const STEPS = 16;
  * IT IS NOT SORTED BY DANCER IDENTITY and cannot be: the serialisation has to be a function of the geometry
  * alone, and a board's dancers are the same shapes in whatever order they arrived in.
  */
-export function formationCanonical(board: Board): string {
+export function formationCanonical(board: FormationBoard): string {
   return canonicalOf(board);
+}
+
+/**
+ * THE GEOMETRY THE DIGEST IS A FUNCTION OF: one spot and one facing per dancer, and nothing else.
+ *
+ * A `Board` is one of these, and the identity slots it also carries (`id`, `couple`, `gender`) are deliberately
+ * NOT read — this type states that rather than leaving it to a cast. The caller that needs it is
+ * `VirtualCallInfo.sourceStart`: a virtual call reports the formation id of the board its SOURCE starts from, and
+ * that board is a call's start poses (`allPoses(bundle, 0)`), with no dancer identity to carry. Inventing an id
+ * and a couple per dancer would be inventing identity (AGENTS §4.3) for a digest that ignores it.
+ */
+export type FormationShape = ReadonlyArray<{ x: number; y: number; heading: number }>;
+
+/** A board reduced to what the digest reads — any object whose `dancers` carry a spot and a facing. */
+export interface FormationBoard {
+  readonly dancers: FormationShape;
 }
 
 /**
@@ -129,7 +144,10 @@ export function formationCanonical(board: Board): string {
  * would no longer be the formation - a property `test/arrangement-id.mjs` pins, because it is what keeps the
  * two schemes one mechanism instead of two that drift.
  */
-export function canonicalOf(board: Board, extra?: (d: Board['dancers'][number]) => string): string {
+export function canonicalOf<D extends FormationShape[number]>(
+  board: { readonly dancers: readonly D[] },
+  extra?: (d: D) => string,
+): string {
   const step = (h: number): number => {
     const k = Math.round(h / FORMATION_ID_HEADING_STEP) % STEPS;
     return (k + STEPS) % STEPS;
@@ -166,7 +184,7 @@ export function canonicalOf(board: Board, extra?: (d: Board['dancers'][number]) 
  * one is a different formation - the same rule `sameBoardById` states ("Ghost dancers ARE compared, like any
  * other dancer: a phantom is part of the formation the engine matched").
  */
-export function formationId(board: Board): string {
+export function formationId(board: FormationBoard): string {
   return encodeId('formation', fnv1a64(formationCanonical(board)));
 }
 

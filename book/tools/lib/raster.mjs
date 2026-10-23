@@ -4,44 +4,11 @@
 // shapes, so crisp edges are what the format wants anyway. Text is limited to the dancer numbers
 // 1-8, drawn from a hand-written 3x5 bitmap, which is all the board needs.
 //
-// The palette is the BOOK's light palette, not the POC's dark one. The POC's colours are tuned for
-// a lit 3D scene; on a page of white HTML the same board in the same colours as the SVG figures is
-// what makes the animation look like it belongs to the chapter it illustrates.
-
+// The palette is NOT here: `board-style.mjs` owns the sixteen colours, the marker size and which colour a dancer
+// is drawn in, because the page player draws the same board and the two must not drift. This module is the
+// SURFACE - an indexed-colour canvas and a PNG writer - and knows nothing about dancers.
 import zlib from 'node:zlib';
 
-export const PALETTE = [
-  [0xf7, 0xf9, 0xfa], // 0  floor
-  [0xe4, 0xe9, 0xec], // 1  grid, minor
-  [0xcd, 0xd6, 0xdb], // 2  grid, major
-  [0x9f, 0xad, 0xb5], // 3  axes
-  [0xb2, 0x18, 0x2b], // 4  couple 1
-  [0x21, 0x66, 0xac], // 5  couple 2
-  [0x1b, 0x78, 0x37], // 6  couple 3
-  [0x8c, 0x6d, 0x1f], // 7  couple 4
-  [0x1f, 0x6f, 0x8b], // 8  anonymous boy
-  [0x8a, 0x3f, 0x6b], // 9  anonymous girl
-  [0x22, 0x30, 0x3a], // 10 ink
-  [0xff, 0xff, 0xff], // 11 white
-  [0xea, 0xc2, 0xc8], // 12 trail, couple 1
-  [0xb8, 0xd0, 0xe2], // 13 trail, couple 2
-  [0xba, 0xd9, 0xc0], // 14 trail, couple 3
-  [0xde, 0xd2, 0xac], // 15 trail, couple 4
-  [0xc3, 0xcc, 0xd2], // 16 muted -- a dancer the figure is NOT about, the same grey the
-  //                       annotated position diagrams use for the couples they are not asking about
-];
-
-export const C = {
-  floor: 0,
-  gridMinor: 1,
-  gridMajor: 2,
-  axis: 3,
-  ink: 10,
-  white: 11,
-  muted: 16,
-  trail: { 1: 12, 2: 13, 3: 14, 4: 15 },
-  couple: { 1: 4, 2: 5, 3: 6, 4: 7 },
-};
 
 const GLYPHS = {
   1: ['010', '110', '010', '010', '111'],

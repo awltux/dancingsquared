@@ -17,21 +17,21 @@ import {
   sampleTrail,
   assignHomeIdentity,
 } from '../lib/index.js';
+import { C, MARKER_UNITS, bodySlot, trailSlot, hexOf } from '../lib/board-style.js';
 
-const COUPLE_COLOUR = { 1: '#b2182b', 2: '#2166ac', 3: '#1b7837', 4: '#8c6d1f' };
-const TRAIL_COLOUR = { 1: '#eac2c8', 2: '#b8d0e2', 3: '#bad9c0', 4: '#ded2ac' };
-const BOY = '#1f6f8b';
-const GIRL = '#8a3f6b';
-const INK = '#22303a';
-const FLOOR = '#f7f9fa';
-const GRID_MINOR = '#e4e9ec';
-const GRID_MAJOR = '#cdd6db';
-const AXIS = '#9fadb5';
+// THE PALETTE AND THE MARKER SIZE ARE NOT THIS FILE'S. `board-style.mjs` owns them, because the Node figures
+// draw the same board and the two must not drift - it also carries the measurement behind `MARKER_UNITS`. What
+// stays here is the CANVAS: how a pose becomes pixels in a browser.
+const INK = hexOf(C.ink);
+const FLOOR = hexOf(C.floor);
+const GRID_MINOR = hexOf(C.gridMinor);
+const GRID_MAJOR = hexOf(C.gridMajor);
+const AXIS = hexOf(C.axis);
 
 const BEATS_PER_SECOND = 128 / 60; // the program's standard tempo; speeds below slow it down
 
-const colourOf = (d) => (d.couple && COUPLE_COLOUR[d.couple]) || (d.gender === 'girl' ? GIRL : BOY);
-const trailOf = (d) => (d.couple && TRAIL_COLOUR[d.couple]) || AXIS;
+const colourOf = (d) => hexOf(bodySlot(d));
+const trailOf = (d) => hexOf(trailSlot(d));
 
 /**
  * The number drawn on a dancer, from couple and gender.
@@ -45,19 +45,6 @@ const displayId = (d) =>
   d.couple && (d.gender === 'boy' || d.gender === 'girl')
     ? (d.couple - 1) * 2 + (d.gender === 'boy' ? 1 : 2)
     : null;
-
-/**
- * The marker's half-width in BOARD UNITS -- one grid square of the floor, which is the unit the
- * background grid measures. Shared by the marker itself and by the handhold trim, so the two can
- * never disagree about where a dancer's edge is.
- *
- * A fixed pixel radius was the reason the dancers overlapped in the waves. The board puts dancers
- * two units apart in a squared set, an ocean wave or a column, but only ONE unit apart in a tidal
- * wave and a promenade -- and since the floor is fitted to the call, a fixed radius also grew
- * exactly when the view zoomed out. Sizing it in units makes the marker a square of floor at every
- * zoom. A hair under a full square, so a tidal wave's one-unit spacing still reads as two dancers.
- */
-const MARKER_UNITS = 0.48;
 
 /**
  * Trim a line back to the marker edges, so a handhold is not a pair of very long arms. `r` is in

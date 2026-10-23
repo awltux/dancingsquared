@@ -25,7 +25,8 @@ import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs'
 import { loadRoots, makeResolver } from './lib/variants.mjs';
 import { corpusRoot, matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
-import { Canvas, PALETTE, C, writePng } from './lib/raster.mjs';
+import { Canvas, writePng } from './lib/raster.mjs';
+import { PALETTE, C, MARKER_UNITS, bodySlot, trailSlot } from './lib/board-style.mjs';
 
 const MAP = join(toolsDir, 'call-map.json');
 const ANIM_DIR = join(toolsDir, '..', 'animations');
@@ -216,21 +217,6 @@ const SIZE = 340;
  */
 const WHOLE_SET = 8;
 const isWholeSet = (bundle) => bundle.dancers.length === WHOLE_SET;
-/**
- * Marker width: ONE GRID SQUARE of the board, which is the unit the background grid measures.
- *
- * A FIXED PIXEL RADIUS WAS WRONG TWICE OVER. The board puts dancers two units apart in a squared
- * set, an ocean wave or a column -- but only ONE unit apart in a tidal wave, a promenade and a
- * couple, and transiently closer than that whenever two dancers pass (Dosado reaches 1.0 units,
- * Star Thru 0.9). And because a call that travels far is fitted to a wider floor, a fixed radius
- * grew relative to the dancers exactly when the view zoomed out: at radius 21 px a call fitted to
- * 9.5 units drew markers 2.5 squares wide, which is the overlap that could be seen in the waves.
- *
- * Sizing it in units fixes both: the marker is a square of floor, and it shrinks with the zoom
- * instead of swallowing its neighbours. A hair under a full square, so the tightest spacing in the
- * program -- a tidal wave's one unit -- still reads as two dancers rather than one blob.
- */
-const MARKER_UNITS = 0.48;
 const HOLD_START = 3;
 const STEPS = 18;
 const HOLD_END = 10;
@@ -258,15 +244,6 @@ function makeView(points) {
 const px = (view, v) => view.ox + v * view.scale;
 const py = (view, v) => view.oy - v * view.scale; // screen y grows downward; board +y is up
 
-function coupleIndex(d) {
-  if (d.couple && C.trail[d.couple]) return 3 + d.couple;
-  return d.gender === 'girl' ? 9 : 8;
-}
-function trailIndex(d) {
-  if (d.couple && C.trail[d.couple]) return C.trail[d.couple];
-  return C.axis;
-}
-
 function drawGrid(canvas, view) {
   const n = Math.ceil(view.units) + 1;
   for (let i = -n; i <= n; i++) {
@@ -284,7 +261,7 @@ function drawTrails(canvas, view, trails, dancers, fraction) {
   for (let i = 0; i < trails.length; i++) {
     const pts = trails[i];
     const upTo = Math.max(1, Math.round(pts.length * fraction));
-    const colour = trailIndex(dancers[i]);
+    const colour = trailSlot(dancers[i]);
     for (let k = 0; k + 1 < upTo; k++) {
       canvas.strokeLine(px(view, pts[k].x), py(view, pts[k].y), px(view, pts[k + 1].x), py(view, pts[k + 1].y), 1.8, colour);
     }
@@ -378,7 +355,7 @@ function drawDancers(canvas, view, dancers, poses) {
 
 function drawMarker(canvas, view, dancer, pose, r) {
   if (!pose) return;
-  const colour = coupleIndex(dancer);
+  const colour = bodySlot(dancer);
   const cx = px(view, pose.x);
   const cy = py(view, pose.y);
   const ink = Math.max(1, Math.min(1.4, r / 13));

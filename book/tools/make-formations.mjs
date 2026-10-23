@@ -19,7 +19,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, readAsset, loadEngine } from './lib/load.mjs';
-import { Canvas, PALETTE, C, writePng } from './lib/raster.mjs';
+import { Canvas, writePng } from './lib/raster.mjs';
+import { PALETTE, C } from './lib/board-style.mjs';
 import { completeSet, couples } from './lib/squared-set.mjs';
 
 // Re-exported because `make-positions.mjs` used to import it from here; the two tools now share the

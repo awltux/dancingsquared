@@ -7,7 +7,8 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Canvas, PALETTE, writePng } from './raster.mjs';
+import { Canvas, writePng } from './raster.mjs';
+import { PALETTE } from './board-style.mjs';
 import { escapeXml } from './escape.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

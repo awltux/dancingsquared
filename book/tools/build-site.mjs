@@ -1079,6 +1079,10 @@ export function main() {
   }
   mkdirSync(join(SITE, 'assets'), { recursive: true });
   cpSync(join(BOOK, 'assets', 'player.js'), join(SITE, 'assets', 'player.js'));
+  // THE BOARD'S STYLE, the one module the page and the Node figures share: the palette, the marker size and
+  // which colour a dancer is drawn in. It travels beside the engine in `lib/` because that is where the player
+  // already looks for its modules, and it is copied as `.js` because it ships to a browser.
+  cpSync(join(BOOK, 'tools', 'lib', 'board-style.mjs'), join(SITE, 'lib', 'board-style.js'));
   // The offline downloader travels with every page, unlike the player: the front door is where a
   // reader decides to save the book, and the one page that must never be missing it is the one they
   // arrive on.

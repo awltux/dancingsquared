@@ -25,7 +25,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -113,7 +113,7 @@ const valueEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 console.log('\n== 2. Does the clone make the whole trace the same? ==');
 const files = [];
 for (const lvl of ['ms', 'a1', 'a2', 'plus']) {
-  for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) files.push([lvl, f]);
+  for (const f of filesOf(lvl).filter((x) => x.endsWith('.xml'))) files.push([lvl, f]);
 }
 let pairs = 0;
 let cloned = 0;

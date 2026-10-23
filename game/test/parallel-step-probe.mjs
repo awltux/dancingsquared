@@ -16,7 +16,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { Sequencer, makeSquaredSet, parseCallXml, setParser } from 'dancing-squared-engine';
 import { createEngineApplier } from '../src/engine/applier.ts';
 import { parallelLabel } from '../src/puzzle/readings.ts';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -37,7 +37,7 @@ const formationsXml = read('formations.xml');
 // working from the same registrations.
 const pairs = [];
 const seen = new Set();
-for (const file of fs.readdirSync(path.join(ASSETS, 'ms')).filter((f) => f.endsWith('.xml'))) {
+for (const file of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   const xml = read(path.join('ms', file));
   for (const tam of parseCallXml(xml)) {
     if (!tam.title || seen.has(tam.title)) continue;

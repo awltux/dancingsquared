@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -84,7 +84,7 @@ check(JSON.stringify(filterNames(names, 'thru', '')) === JSON.stringify(['Swing 
 console.log('\n== against the real catalogue ==');
 // The same walk `data.ts` does, so the sample is the catalogue rather than four invented rows.
 const real = [];
-for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
   let tams;
   try { tams = engine.parseCallXml(asset(`ms/${f}`)); } catch { continue; }
   for (const t of tams) {

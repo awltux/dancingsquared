@@ -63,13 +63,13 @@
 // if the call set is the same. `test/catalogue.mjs` pins the same census for `actives`.
 // ============================================================================================
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, matchFormations, partitionsFor, CODED_MOVE_NAMES } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -83,7 +83,7 @@ const check = (cond, msg) => {
 };
 
 // ---------------------------------------------------------------- the ms catalogue, as generated
-const MS_FILES = readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'));
+const MS_FILES = filesOf('ms').filter((f) => f.endsWith('.xml'));
 const tamBlocks = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
 const attr = (b, n) => (b.match(new RegExp(`${n}="([^"]*)"`)) ?? [])[1] ?? '';
 /** Only a hidden `<tam>` is excluded; `display` on a child `<formation>` hides one setup only. */

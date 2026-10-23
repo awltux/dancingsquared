@@ -33,7 +33,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -73,7 +73,7 @@ const gap = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 /** Every move of every call in MS that HAS a move before it, with the frame it is played from. */
 function* cases() {
-  for (const f of fs.readdirSync(path.join(corpusRoot(), 'ms')).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     const call = callAt('ms', f);
     if (!call) continue;
     for (let i = 0; i < call.dancers.length; i++) {
@@ -281,7 +281,7 @@ console.log('\n== 3. a copy belongs to the move it was taken from, and only that
   let rebaseCases = 0;
   let rebaseKept = 0;
   let rebaseRewroteEveryMove = 0;
-  for (const level of LEVELS) for (const f of fs.readdirSync(path.join(corpusRoot(), level)).filter((x) => x.endsWith('.xml'))) {
+  for (const level of LEVELS) for (const f of filesOf(level).filter((x) => x.endsWith('.xml'))) {
     const call = callAt(level, f);
     if (!call) continue;
     calls++;

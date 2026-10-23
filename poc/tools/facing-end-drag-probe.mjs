@@ -32,7 +32,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -44,7 +44,7 @@ const formationsXml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'),
 const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
 /** Every `.xml` under the level directories - the corpus's own count, so coverage can be an EQUALITY. */
 const CALL_FILES = LEVELS.reduce((n, level) => n
-  + fs.readdirSync(path.join(corpusRoot(), level)).filter((f) => f.endsWith('.xml')).length, 0);
+  + filesOf(level).filter((f) => f.endsWith('.xml')).length, 0);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -59,7 +59,7 @@ const check = (cond, msg) => {
 const filesVisited = new Set();
 function* everyRotate() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(corpusRoot(), level))) {
+    for (const f of filesOf(level)) {
       if (!f.endsWith('.xml')) continue;
       filesVisited.add(`${level}/${f}`);
       let call;

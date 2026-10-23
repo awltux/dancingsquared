@@ -58,7 +58,7 @@ import {
   HOME_RING_ORDER,
 } from '../dist/index.js';
 import { HOME_DANCERS } from '../dist/sequencer/identity.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -242,8 +242,7 @@ const calls = [];
 for (const lv of levels) {
   const dir = path.join(assets, lv);
   if (!existsSync(dir)) continue;
-  const { readdirSync } = await import('node:fs');
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }
 }

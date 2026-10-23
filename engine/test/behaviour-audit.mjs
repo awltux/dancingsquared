@@ -12,7 +12,7 @@
 // The full catalog is loaded from the filesystem (the poc app uses Vite globs
 // which do not run in Node). Unknown/unparseable files are skipped.
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,7 +26,7 @@ import {
   // the ONE radian normaliser, imported rather than mirrored (AGENTS.md §5)
   normAngle,
 } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -42,7 +42,7 @@ const calls = [];
 for (const level of levels) {
   const dir = path.join(corpusRoot(), level);
   let files = [];
-  try { files = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }
+  try { files = filesOf(level).filter((f) => f.endsWith('.xml')); } catch { continue; }
   for (const f of files) {
     const base = f.replace(/\.xml$/, '');
     try { calls.push({ name: base, xml: read(`${level}/${f}`) }); } catch { /* skip */ }

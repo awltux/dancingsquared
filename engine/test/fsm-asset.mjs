@@ -26,14 +26,14 @@
 // the same module, so the parser both of them install is the same parser.
 // ============================================================================================
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser } from '../dist/index.js';
 import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -89,7 +89,7 @@ const EXPECTED_EDGES = 3934;
 const EXPECTED_CATALOG = 291;
 
 const msFiles = {};
-for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   msFiles[`ms/${f}`] = read(`ms/${f}`);
 }
 

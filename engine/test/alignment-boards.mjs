@@ -38,7 +38,7 @@
 // ones. `[P]` is the fifth entry and the one All8 leaves to a reduction rather than
 // an agreed pair - section 5b gates it.
 
-import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
@@ -59,7 +59,7 @@ import {
   FORMATION_LETTER,
   REFERENCE_PAIR_SPOTS,
 } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -79,7 +79,7 @@ const byTitle = new Map();
 for (const lv of ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b']) {
   const dir = path.join(assets, lv);
   if (!existsSync(dir)) continue;
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     const xml = readFileSync(path.join(dir, f), 'utf8');
     for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
       const title = (block.match(/title="([^"]*)"/) ?? [])[1];

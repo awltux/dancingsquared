@@ -54,7 +54,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -151,7 +151,7 @@ function groupCircle(call, targets, from, to, radius, side, centre = null) {
 console.log('\n== 3. Does the GROUP rule work for all eight at once? ==');
 const files = [];
 for (const lvl of ['ms', 'a2', 'c2']) {
-  for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) files.push([lvl, f]);
+  for (const f of filesOf(lvl).filter((x) => x.endsWith('.xml'))) files.push([lvl, f]);
 }
 let groupTried = 0;
 let groupAll = 0;

@@ -22,7 +22,7 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, boardForFasrCode, canonicalName } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -63,7 +63,7 @@ const implementedTitles = (assetDir) => {
   for (const lv of levels) {
     const d = path.join(assetDir, lv);
     let names;
-    try { names = readdirSync(d); } catch { continue; }
+    try { names = filesOf(lv); } catch { continue; }
     for (const f of names) {
       if (!f.endsWith('.xml')) continue;
       try {

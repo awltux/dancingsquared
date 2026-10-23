@@ -49,7 +49,7 @@ import { pathToFileURL } from 'node:url';
 // THE BLOCK RULE IS IMPORTED, NOT RESTATED - see `tam-blocks.mjs`. A commented-out tam is not a tam, and
 // addressing a tam by position without that rule edits the wrong call.
 import { liveTamBlocks, titlePattern } from './tam-blocks.mjs';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const USAGE = `usage: node scripts/reorder-formation.mjs --formation <Name> [--write] [--json] [--check]
 
@@ -173,7 +173,7 @@ const moves = engine.parseMoves(movesXml);
 const dependents = [];
 const reported = [];
 for (const dir of fs.readdirSync(assets, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
-  for (const file of fs.readdirSync(path.join(assets, dir)).filter((f) => f.endsWith('.xml'))) {
+  for (const file of filesOf(dir).filter((f) => f.endsWith('.xml'))) {
     const rel = `${dir}/${file}`;
     const text = readText(path.join(assets, rel));
     let tams;

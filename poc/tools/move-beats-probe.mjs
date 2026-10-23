@@ -27,7 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -45,7 +45,7 @@ const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes
 // which 495 build, and the difference is exactly these four.
 const NOT_CALLS = new Set(['moves.xml', 'facing_couples_rule.xml', 'ocean_wave_rule.xml', 'passing_rule.xml']);
 const CALL_FILES = LEVELS.reduce((n, level) => n
-  + fs.readdirSync(path.join(corpusRoot(), level)).filter((f) => f.endsWith('.xml') && !NOT_CALLS.has(f)).length, 0);
+  + filesOf(level).filter((f) => f.endsWith('.xml') && !NOT_CALLS.has(f)).length, 0);
 const callAt = (level, f) => {
   try {
     return engine.normalizeInstance(engine.loadCallFromXml(
@@ -54,7 +54,7 @@ const callAt = (level, f) => {
 };
 function* everyCall() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(corpusRoot(), level))) {
+    for (const f of filesOf(level)) {
       if (!f.endsWith('.xml')) continue;
       const call = callAt(level, f);
       if (call) yield { level, f, call };

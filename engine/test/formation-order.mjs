@@ -23,7 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(here, '..', '..');
@@ -502,7 +502,7 @@ function dependentsOf(name) {
   const wanted = engine.canonicalName(name);
   const out = [];
   for (const dir of fs.readdirSync(assets, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
-    for (const file of fs.readdirSync(path.join(assets, dir)).filter((f) => f.endsWith('.xml'))) {
+    for (const file of filesOf(dir).filter((f) => f.endsWith('.xml'))) {
       const rel = `${dir}/${file}`;
       let tams;
       try {
@@ -759,7 +759,7 @@ console.log('\n== 2. every tam a reorder must edit is addressable by the index t
   const overCounted = [];
   const census = { files: 0, raw: 0, live: 0, parsed: 0 };
   for (const dir of fs.readdirSync(assets, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort()) {
-    for (const file of fs.readdirSync(path.join(assets, dir)).filter((f) => f.endsWith('.xml'))) {
+    for (const file of filesOf(dir).filter((f) => f.endsWith('.xml'))) {
       const rel = `${dir}/${file}`;
       const text = fs.readFileSync(path.join(assets, rel), 'utf8');
       let tams;

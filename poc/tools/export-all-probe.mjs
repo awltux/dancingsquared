@@ -16,7 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -65,7 +65,7 @@ let withFamily = 0;
 const families = new Map();
 const noFamily = [];
 for (const lvl of fs.readdirSync(assets, { withFileTypes: true }).filter((e) => e.isDirectory() && e.name !== 'src').map((e) => e.name)) {
-  for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lvl).filter((x) => x.endsWith('.xml'))) {
     files++;
     let title = null;
     try { title = engine.parseTaminationTitle(asset(`${lvl}/${f}`)); } catch { /* not a call file */ }

@@ -17,7 +17,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -59,7 +59,7 @@ console.log('== 1. the board pair agrees with the pose the engine composes ==');
   let worstStartAt = '';
   let worstEndAt = '';
   let rotFrames = 0;
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
       call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(dir, f), 'utf8'), movesXml, formationsXml, 0));

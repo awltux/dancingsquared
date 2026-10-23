@@ -23,7 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -62,7 +62,7 @@ const calls = [];
 for (const level of fs.readdirSync(assets, { withFileTypes: true }).filter((e) => e.isDirectory() && e.name !== 'src').map((e) => e.name)) {
   const dir = path.join(assets, level);
   let built = 0;
-  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(level).filter((x) => x.endsWith('.xml'))) {
     let variants = [];
     try {
       variants = engine.parseCallXml(fs.readFileSync(path.join(dir, f), 'utf8')).map((tam) => engine.buildCall(tam, formations, moves, true));

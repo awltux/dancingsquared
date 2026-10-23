@@ -28,7 +28,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -95,7 +95,10 @@ const namedSetup = (call, end) => end
   : (formationsOfSize(call.dancers.length).find((f) => engine.startsFromFormation(call, f.poses))?.name ?? '');
 function* everyCall() {
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(corpusRoot(), level)).sort()) {
+    // SORT A COPY, NEVER THE LIST `filesOf` RETURNED: it hands back the cached array, and sorting it in place
+    // would reorder every later reader's walk in this process — the order `FormationMatcher` resolves equal match
+    // errors by (AGENTS.md §8 trap 7 is the same law for positions).
+    for (const f of [...filesOf(level)].sort()) {
       if (!f.endsWith('.xml')) continue;
       try {
         yield { id: `${level}/${f}`, call: engine.normalizeInstance(engine.loadCallFromXml(

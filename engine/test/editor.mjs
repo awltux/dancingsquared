@@ -86,7 +86,7 @@ import {
   setRunCircle,
   RUN_FIT_MAX_DEV,
 } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -1067,7 +1067,7 @@ console.log('\n== the quarter arc (17) ==');
     for (const lv of levels) {
       const dir = path.join(corpusRoot(), lv);
       if (!fs.existsSync(dir)) continue;
-      for (const f of fs.readdirSync(dir)) {
+      for (const f of filesOf(lv)) {
         if (!f.endsWith('.xml')) continue;
         const x = fs.readFileSync(path.join(dir, f), 'utf8');
         if (callMeta(x).setups.length === 0) continue;
@@ -1466,7 +1466,7 @@ console.log('\n== the correspondence can keep the formation\'s arrangement (21) 
   // plus the same ends with the arrangements deliberately broken.
   const msDir = path.join(corpusRoot(), 'ms');
   const pairs = [];
-  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     try {
       const call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
       if (call.dancers.length !== 8) continue;
@@ -1680,7 +1680,7 @@ console.log('\n== moving an end point holds the direction the dancer leaves on (
   const msDir = path.join(corpusRoot(), 'ms');
   let moves = 0;
   let degenerate = 0;
-  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
       call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
@@ -1761,7 +1761,7 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
   const msDir = path.join(corpusRoot(), 'ms');
   const devs = [];
   let totalCurves = 0;
-  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
       call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
@@ -1795,7 +1795,7 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
   // THE FIT AGREES WITH THE CURVE'S OWN TURN, which is an independent read of the same geometry: a circular
   // arc turns by exactly its sweep. Anything else means the fitted circle is not the one the curve follows.
   let worstTurn = 0;
-  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
       call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
@@ -1829,7 +1829,7 @@ console.log('\n== swinging an arc about its start (24) ==');
 {
   const msDir = path.join(corpusRoot(), 'ms');
   const witness = (wantFacingOnPrev) => {
-    for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
       let call;
       try {
         call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
@@ -1941,7 +1941,7 @@ console.log('\n== swinging an arc about its start (24) ==');
   {
     let deg = 0;
     let degWitness = null;
-    for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
       let call;
       try {
         call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0));
@@ -1995,7 +1995,7 @@ console.log('\n== 25. A run of moves laid on one circle ==');
 {
   const msDir = path.join(corpusRoot(), 'ms');
   const fits = [];
-  for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
       call = normalizeInstance(loadCallFromXml(fs.readFileSync(path.join(msDir, f), 'utf8'), movesXml, formationsXml, 0));
@@ -2385,7 +2385,7 @@ console.log('\n== 28. A setup is named by its formation ==');
   for (const lv of ['ms', 'a1', 'a2', 'c1', 'c2', 'plus']) {
     const dir = path.join(corpusRoot(), lv);
     if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir)) {
+    for (const f of filesOf(lv)) {
       if (!f.endsWith('.xml')) continue;
       let meta;
       try { meta = callMeta(fs.readFileSync(path.join(dir, f), 'utf8')); } catch { continue; }
@@ -2579,7 +2579,7 @@ console.log('\n== a facing edit holds the following trace (30) ==');
   {
     const msDir = path.join(corpusRoot(), 'ms');
     let w = null;
-    for (const f of fs.readdirSync(msDir).filter((x) => x.endsWith('.xml'))) {
+    for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
       let call;
       try { call = normalizeInstance(loadCallFromXml(read(`ms/${f}`), movesXml, formationsXml, 0)); } catch { continue; }
       if (call.dancers.length !== 8) continue;
@@ -2698,7 +2698,7 @@ console.log('\n== 31. copying a whole trace between two dancers ==');
   for (const lv of LEVELS) {
     const dir = path.join(corpusRoot(), lv);
     if (!fs.existsSync(dir)) continue;
-    for (const f of fs.readdirSync(dir)) {
+    for (const f of filesOf(lv)) {
       if (!f.endsWith('.xml')) continue;
       const xml = read(`${lv}/${f}`);
       // The same gate the POC uses: a file whose tams carry no inline setup is not a call this can load.

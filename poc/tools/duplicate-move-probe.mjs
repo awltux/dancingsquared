@@ -27,7 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -60,7 +60,7 @@ console.log('\n== 1. the insert: `addMove` CLONES the move it is given, so a cop
   let calls = 0, insertedIsFresh = 0, copyEqualsSource = 0, originalKept = 0, laterKept = 0, laterCount = 0;
   let headFresh = 0, tailFresh = 0, otherDancersKept = 0, sourceUnmutated = 0, countsGrew = 0;
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(corpusRoot(), level))) {
+    for (const f of filesOf(level)) {
       if (!f.endsWith('.xml')) continue;
       const call = get(level, f);
       if (!call || !call.dancers[0].path.length) continue;
@@ -175,7 +175,7 @@ console.log('\n== 3. the sweep: on every move of every dancer, the copy lands on
 {
   let subjects = 0, leftOk = 0, rightOk = 0, freshOk = 0, sameOk = 0, neighboursOk = 0, cursorOk = 0;
   for (const level of LEVELS) {
-    for (const f of fs.readdirSync(path.join(corpusRoot(), level))) {
+    for (const f of filesOf(level)) {
       if (!f.endsWith('.xml')) continue;
       const call = get(level, f);
       if (!call) continue;

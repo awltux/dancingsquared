@@ -222,6 +222,22 @@ console.log('\n== The file order, and why it is not sorted ==');
     if (dirOrder.some((f, i) => f !== sorted[i])) wouldMove.push(level);
   }
   console.log(`    sorting the files WOULD change the walk order in ${wouldMove.length} of ${LEVELS.length} level(s): ${wouldMove.join(', ') || 'none'}`);
+  // THE LIST `filesOf` RETURNS IS THE CACHED ONE, so a caller that sorted it IN PLACE would reorder the walk for
+  // every later reader in the same process — and the walk order is exactly what the check above pins. MEASURED
+  // when the reader gained its last callers: `poc/tools/named-setup-probe.mjs` did `filesOf(level).sort()`. The
+  // list is frozen now, so a recurrence THROWS at the mutation rather than moving a pooling offset silently.
+  const before = [...filesOf('ms')];
+  check(Object.isFrozen(filesOf('ms')), 'filesOf returns a frozen list (no caller can reorder the cache in place)');
+  let sortThrew = false;
+  try {
+    filesOf('ms').sort();
+  } catch {
+    sortThrew = true;
+  }
+  check(sortThrew && before.every((f, i) => filesOf('ms')[i] === f),
+    'sorting the returned list throws, and leaves the cached order unchanged');
+  check(filesOf('ssd').length === 0 && Array.isArray(filesOf('ssd')),
+    'a level with no directory is an empty list, not an error (the levels `PERMISSION_LEVELS` names but no assets carry)');
 }
 
 // The pooling fact `catalogue.mjs` pins by offset: Circulate pools the HIGHER level first.

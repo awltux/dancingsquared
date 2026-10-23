@@ -31,7 +31,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer, makeSquaredSet, cloneBoard, boardSig, sameBoardById, callMeta, SAME_BOARD_TOL } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -114,7 +114,7 @@ console.log('== 6. the whole thing against REAL boards from the engine ==');
   const formationsXml = read('formations.xml');
   const msDir = path.join(corpusRoot(), 'ms');
   const calls = [];
-  for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
     const xml = read(`ms/${f}`);
     const title = callMeta(xml).title;
     if (title) calls.push({ name: title, xml });

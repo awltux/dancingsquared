@@ -35,7 +35,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
@@ -62,7 +62,7 @@ const LEVEL_DIRS = fs.readdirSync(CORPUS, { withFileTypes: true })
   .filter((d) => d.isDirectory())
   .map((d) => d.name)
   .sort();
-const FILES = LEVEL_DIRS.flatMap((level) => fs.readdirSync(path.join(CORPUS, level))
+const FILES = LEVEL_DIRS.flatMap((level) => filesOf(level)
   .filter((f) => f.endsWith('.xml'))
   .map((f) => ({ level, base: f.slice(0, -'.xml'.length) })));
 

@@ -19,7 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -58,7 +58,7 @@ const sameCurve = (a, b, curve) =>
 
 // The corpus: every call in the ms level, whole-set only.
 const calls = [];
-for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
   try {
     const call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(assets, 'ms', f), 'utf8'), movesXml, formationsXml, 0));
     if (call.dancers.length === 8) calls.push({ file: f, call });
@@ -143,7 +143,7 @@ console.log('\n== 2b. The boys and girls cycle: all -> odd positions -> even pos
   // is not an eight-dancer call, so it lands on 16 calls; this asks the first three setups and takes the first
   // that loads as a full set. The section above is left exactly as it was, so its published numbers stand.
   const phaseCalls = [];
-  for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
     const xml = fs.readFileSync(path.join(assets, 'ms', f), 'utf8');
     for (let idx = 0; idx < 3; idx++) {
       try {

@@ -27,13 +27,13 @@
 // hidden.
 // ============================================================================================
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, buildCellLattice, geometryKey, CELL_ROUND, boardForFasrCode, matchFormations } from '../../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -46,7 +46,7 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const MS_FILES = readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'));
+const MS_FILES = filesOf('ms').filter((f) => f.endsWith('.xml'));
 const tamBlocks = (xml) => xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
 const attr = (b, n) => (b.match(new RegExp(`${n}="([^"]*)"`)) ?? [])[1] ?? '';
 const isHiddenTam = (b) => {

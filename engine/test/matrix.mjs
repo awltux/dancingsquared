@@ -15,7 +15,7 @@ import {
   fitRigidMatrix,
   applyRigidToPose,
 } from '../dist/matrix.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -50,7 +50,7 @@ check(Math.hypot(roundTrip[0] - v[0], roundTrip[1] - v[1]) < 1e-10, 'M^-1 * M = 
 console.log('\n== Matrix module: rigid fit ==');
 // Use the full teacher catalog so calls that genuinely move the set are legal.
 const files = {};
-for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   files[`ms/${f}`] = read(`ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');

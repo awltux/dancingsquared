@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer, parseCallXml, callMeta } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 let failures = 0;
@@ -30,7 +30,7 @@ const read = (p) => fs.readFileSync(path.join(ASSETS, p), 'utf8');
 const moves = read('moves.xml');
 const formations = read('formations.xml');
 const msDir = path.join(ASSETS, 'ms');
-const files = fs.readdirSync(msDir).filter((f) => f.endsWith('.xml')).sort()
+const files = filesOf('ms').filter((f) => f.endsWith('.xml')).sort()
   .map((f) => ({ f, xml: fs.readFileSync(path.join(msDir, f), 'utf8') }));
 
 // BEFORE: one name per FILE, the whole document (the unchanged default).

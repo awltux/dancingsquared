@@ -4,7 +4,7 @@
 // Run: `node poc-teacher/scripts/fsm-visual.mjs [out.html]` from repo root.
 // Writes a self-contained HTML file (default poc-teacher/fsm-visual.html).
 
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
@@ -13,7 +13,7 @@ import { buildCatalog, makeSequencer } from '../../poc-teacher/src/catalog.ts';
 // THE HTML ESCAPER IS IMPORTED FROM THE POC, which owns the rule (`poc/src/dom.ts`). This script carried its own
 // four-character copy — a second spelling of one security rule — and the file it writes is HTML like any other.
 import { esc } from '../../poc/src/dom.ts';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,7 +22,7 @@ const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 const assets = corpusRoot();
 
 const msFiles = {};
-for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   msFiles[`ms/${f}`] = read(`ms/${f}`);
 }
 const catalog = buildCatalog(msFiles);

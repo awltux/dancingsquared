@@ -10,18 +10,18 @@
 //   4. composition (matrix multiply) and inversion (get-out).
 // Run: node poc.mjs
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 const files = {};
-for (const f of readdirSync(path.join(corpusRoot(), 'ms')).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   files[`ms/${f}`] = read(`ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../poc-teacher/src/catalog.ts');

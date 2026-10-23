@@ -9,12 +9,12 @@
 //      many getout paths — the sequences worth pre-compiling into shared macro-edges.
 //
 // Run: node analysis.mjs   (after `npm run build:engine`; ~1-3 min at CAP=6000)
-import { readFileSync, readdirSync, appendFileSync } from 'node:fs';
+import { readFileSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const PROGRESS_FILE = 'analysis-progress.log';
@@ -23,7 +23,7 @@ const report = (l) => appendFileSync(PROGRESS_FILE, `${l}\n`);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 const files = {};
-for (const f of readdirSync(path.join(corpusRoot(), 'ms')).filter((f) => f.endsWith('.xml'))) files[`ms/${f}`] = read(`ms/${f}`);
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) files[`ms/${f}`] = read(`ms/${f}`);
 const { buildCatalog, makeSequencer } = await import('../poc-teacher/src/catalog.ts');
 const seq = makeSequencer(read('moves.xml'), read('formations.xml'), buildCatalog(files));
 

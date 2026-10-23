@@ -23,7 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
@@ -68,7 +68,7 @@ const calls = []; // { rel, title, setups: string[] }
 for (const level of fs.readdirSync(assets, { withFileTypes: true })
   .filter((d) => d.isDirectory() && d.name !== 'src')
   .map((d) => d.name)) {
-  for (const f of fs.readdirSync(path.join(assets, level)).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(level).filter((x) => x.endsWith('.xml'))) {
     const rel = `${level}/${f}`;
     let tams;
     try {

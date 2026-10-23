@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setParser, splitSelection } from 'dancing-squared-engine';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 import { DOMParser } from '@xmldom/xmldom';
 setParser(DOMParser);
 
@@ -32,7 +32,7 @@ function loadCatalogTitles() {
   for (const level of ['ms', 'a1', 'a2', 'plus']) {
     const dir = path.join(corpusRoot(), level);
     let fs = [];
-    try { fs = readdirSync(dir).filter((f) => f.endsWith('.xml')); } catch { continue; }
+    try { fs = filesOf(level).filter((f) => f.endsWith('.xml')); } catch { continue; }
     for (const f of fs) {
       const xml = readFileSync(path.join(dir, f), 'utf8');
       for (const b of tamBlocks(xml)) {

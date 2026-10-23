@@ -18,13 +18,13 @@
 //
 // Run: `npm run build && node test/all8-formation-map.mjs` from engine/.
 
-import { readFileSync, readdirSync, existsSync, writeFileSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -121,7 +121,7 @@ const calls = [];
 for (const lv of levels) {
   const dir = path.join(assets, lv);
   if (!existsSync(dir)) continue;
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }
 }

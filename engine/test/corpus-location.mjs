@@ -4,6 +4,10 @@
 // reader learns it from `corpusRoot()` in `dancing-squared-corpus` (which imports that constant); a Vite app
 // reaches it through the `@corpus` alias the same file builds. Nothing else may spell it.
 //
+// THE SAME LAW ONE LEVEL DOWN lives here as §6: a level's FILE LIST is enumerated once, by `filesOf`. The
+// location and the listing were both spelled by hand in dozens of files, and both fail the same way — silently,
+// by reading a different corpus than the reader beside them.
+//
 // WHY A GATE RATHER THAN A CONVENTION. A hand-built path is a `../` count, and one `../` too few is SILENT:
 // MEASURED (AGENTS.md §8 trap 26), the corpus was duplicated into `game/src/assets/` for a year because a glob
 // one short compiled to `{}` and nothing failed. The failure mode is not a wrong answer — it is an EMPTY
@@ -134,10 +138,11 @@ for (const rel of scanned) {
 // stated: prose about `assets/formations.xml` is not a path, and a trailing comment on a code line is left to
 // the patterns above, which want the construction rather than the word.
 const COMMENT_LINE = /^\s*(\/\/|\*|\/\*)/;
+const stripComments = (src) => src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
 
 function spellingsOf(src) {
   const hits = [];
-  const stripped = src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
+  const stripped = stripComments(src);
   for (const [label, re] of PATTERNS) {
     const g = new RegExp(re.source, 'g');
     let m;
@@ -186,7 +191,7 @@ check(/export const CORPUS = path\.join\(here, 'assets'\);/.test(viteCorpus),
 console.log(`\n== 3. CORPUS is imported from vite.corpus.ts by exactly the pinned files ==`);
 const importers = new Set();
 for (const [rel, src] of text) {
-  const stripped = src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
+  const stripped = stripComments(src);
   if (/from\s+['"][^'"]*vite\.corpus\.ts['"]|import\([^)]*vite\.corpus\.ts/.test(stripped)) importers.add(rel);
 }
 const badImporters = [...importers].filter((rel) => !IMPORT_PINNED.has(rel)).sort();
@@ -199,7 +204,7 @@ check(missingImporters.length === 0, 'every pinned importer still imports it');
 console.log(`\n== 4. the reader is used, not merely declared ==`);
 let callSites = 0;
 for (const src of text.values()) {
-  const stripped = src.split(/\r?\n/).map((line) => (COMMENT_LINE.test(line) ? '' : line)).join('\n');
+  const stripped = stripComments(src);
   callSites += (stripped.match(/\bcorpusRoot\(\)/g) ?? []).length;
 }
 console.log(`  corpusRoot() call sites in the tree: ${callSites}`);
@@ -231,6 +236,81 @@ check(spellingsOf('path.join(CORPUS, level)').length === 0, 'does not flag the p
 check(spellingsOf("console.log('use the package, not a ../ count, for assets')").length === 0,
   'does not flag the directory named mid-sentence');
 check(spellingsOf("const assets = corpusRoot();").length === 0, 'does not flag the fix itself');
+
+// -----------------------------------------------------------------------------------------------------------
+// THE SECOND RULE THIS GATE OWNS: a level's FILE LIST is enumerated once, by `filesOf`.
+//
+// WHY IT IS A RULE. `filesOf` is where the order a level's files are walked is decided, and that order is
+// load-bearing — it pools a multi-authoring title's `<tam>` blocks, and the engine resolves an EQUAL match error
+// by array order (`FormationMatcher.findMatchingVariant`). MEASURED when this census landed: **61 files carried
+// 79 private walks** of a level's `.xml` list (`fs.readdirSync(path.join(assets, lv)).filter((f) =>
+// f.endsWith('.xml'))`, and the unfiltered `readdirSync(dir)` whose loop then skipped non-XML). Each was a
+// second opinion about which files exist, invisible to any change made to `filesOf` — including the one that
+// could have hidden a file from every reader at once. They are now `filesOf(lv)`; five remain, below.
+//
+// A LEVEL ENUMERATION IS NOT ONE: `readdirSync(assets, { withFileTypes: true }).filter((d) => d.isDirectory())`
+// asks which DIRECTORIES exist (`levelsAvailable` owns that question and is not what this census measures), so
+// the shape test below excludes it. That exclusion is a measurement, not a convenience: without it the census
+// reports the six level walks in this tree, whose statement runs on into the file walk beneath them.
+const WALK_PINNED = new Map([
+  ['packages/corpus/files.ts', { count: 1, why: 'the one reader itself — this IS `filesOf`, and the census is of its callers' }],
+  ['engine/test/corpus-inventory.mjs', { count: 3, why: 'its SUBJECT is each level directory\'s order and contents, so it must list them itself: it is the judge of `filesOf`, not a caller' }],
+  ['poc/verify.cjs', { count: 1, why: 'CommonJS: the corpus package exports no `require` condition (MEASURED ERR_PACKAGE_PATH_NOT_EXPORTED, pinned above), so it cannot reach `filesOf`' }],
+]);
+
+const PRIVATE_WALK = /readdirSync\(/;
+/** Every `readdirSync(` whose OWN statement (`;`-terminated) then tests for `.xml`. */
+function privateWalksOf(stripped) {
+  const out = [];
+  const g = new RegExp(PRIVATE_WALK.source, 'g');
+  let m;
+  while ((m = g.exec(stripped))) {
+    const rest = stripped.slice(m.index, m.index + 400);
+    const end = rest.search(/;\s*\r?\n/);
+    const statement = end === -1 ? rest.slice(0, 200) : rest.slice(0, end + 1);
+    if (/\.xml/.test(statement) && !/withFileTypes|isDirectory\(\)/.test(statement)) {
+      out.push({ line: stripped.slice(0, m.index).split('\n').length, statement: statement.replace(/\s+/g, ' ') });
+    }
+    if (m.index === g.lastIndex) g.lastIndex++;
+  }
+  return out;
+}
+
+console.log(`\n== 6. a level's file list is enumerated once, by filesOf ==`);
+const walks = new Map();
+for (const [rel, src] of text) {
+  const found = privateWalksOf(stripComments(src));
+  if (found.length) walks.set(rel, found);
+}
+const walkTotal = [...walks.values()].reduce((n, list) => n + list.length, 0);
+const unpinnedWalks = [...walks.keys()].filter((rel) => !WALK_PINNED.has(rel)).sort();
+const staleWalkPins = [...WALK_PINNED.keys()].filter((rel) => (walks.get(rel)?.length ?? 0) !== WALK_PINNED.get(rel).count).sort();
+console.log(`  measured over ${scanned.length} source files: ${walkTotal} private level-file walks in ${walks.size} files, ${WALK_PINNED.size} pinned (exact counts)`);
+for (const rel of unpinnedWalks) {
+  console.log(`     NEW PRIVATE WALK ${rel} — read it with filesOf(level)`);
+  for (const w of walks.get(rel).slice(0, 4)) console.log(`       :${w.line} ${w.statement.slice(0, 130)}`);
+}
+for (const rel of staleWalkPins) {
+  console.log(`     PIN COUNT MOVED ${rel}: pinned ${WALK_PINNED.get(rel).count}, measured ${walks.get(rel)?.length ?? 0}`);
+}
+check(unpinnedWalks.length === 0, `no unpinned private level-file walk (${unpinnedWalks.length} unpinned)`);
+check(staleWalkPins.length === 0, `every pinned count still matches (${staleWalkPins.length} moved)`);
+
+let reads = 0;
+for (const src of text.values()) reads += (stripComments(src).match(/\bfilesOf\(/g) ?? []).length;
+console.log(`  filesOf() call sites in the tree: ${reads}`);
+check(reads > 60, `the one reader is USED, not merely declared (${reads} call sites; MEASURED 91 when this census landed, 79 of them from the sweep)`);
+
+// POSITIVE: both historical forms, which is every shape the sweep found.
+check(privateWalksOf("const files = readdirSync(dir).filter((f) => f.endsWith('.xml'));").length === 1,
+  "catches the filter form: readdirSync(dir).filter((f) => f.endsWith('.xml'))");
+check(privateWalksOf('for (const f of readdirSync(dir)) {\n  if (!f.endsWith(\'.xml\')) continue;\n}').length === 1,
+  'catches the loop form: readdirSync(dir) then a per-file .xml skip');
+// NEGATIVE: the fix itself, and the level enumeration that is a different question.
+check(privateWalksOf("for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {\n}").length === 0,
+  'does not flag the reader that replaces it');
+check(privateWalksOf("const levels = readdirSync(assets, { withFileTypes: true }).filter((d) => d.isDirectory());").length === 0,
+  'does not flag a LEVEL enumeration (which directories exist, not which files)');
 
 console.log(`\ncorpus-location: ${failures === 0 ? 'PASS' : `FAIL (${failures})`}`);
 process.exit(failures ? 1 : 0);

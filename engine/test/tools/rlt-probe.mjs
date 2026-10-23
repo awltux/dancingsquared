@@ -4,13 +4,13 @@
 //
 // Usage: node engine/test/tools/rlt-probe.mjs
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, poseFor, dancerBeats } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const assets = corpusRoot();
@@ -169,7 +169,7 @@ const blocks = [];
 for (const lv of ['ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2']) {
   const dir = path.join(assets, lv);
   let files = [];
-  try { files = readdirSync(dir).filter((f) => f === 'right_and_left_thru.xml'); } catch { continue; }
+  try { files = filesOf(lv).filter((f) => f === 'right_and_left_thru.xml'); } catch { continue; }
   for (const f of files) {
     const xml = readFileSync(path.join(dir, f), 'utf8');
     for (const b of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {

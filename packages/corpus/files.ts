@@ -41,7 +41,7 @@ export function levelsAvailable(): string[] {
     .map((entry) => entry.name);
 }
 
-const fileCache = new Map<string, string[]>();
+const fileCache = new Map<string, readonly string[]>();
 
 /**
  * The `<call>` XML files of one level, IN THE DIRECTORY'S OWN ORDER, or [] when the level has no directory.
@@ -57,16 +57,22 @@ const fileCache = new Map<string, string[]>();
  * A MISSING LEVEL IS EMPTY, NOT AN ERROR: `PERMISSION_LEVELS` and the harnesses' `ASSET_LEVELS` both name
  * `ssd` and `discovered`, which have no asset directory, and a reader that threw would make every caller
  * carry a list of the levels that happen to exist today.
+ *
+ * THE RETURNED ARRAY IS FROZEN, because it is the cached one: `filesOf(lv).sort()` would silently reorder the
+ * walk for EVERY later reader in the process, and the order is load-bearing (paragraph above). MEASURED before
+ * this rule: the one caller that sorted in place was `poc/tools/named-setup-probe.mjs`, which ran before the
+ * harnesses that pin pooling offsets. A caller sorts a copy (`[...filesOf(lv)].sort()`, as that probe now does).
  */
-export function filesOf(level: string): string[] {
+export function filesOf(level: string): readonly string[] {
   const dir = levelPath(level);
   const cached = fileCache.get(dir);
   if (cached) return cached;
   if (!fs.existsSync(dir)) {
-    fileCache.set(dir, []);
-    return [];
+    const empty = Object.freeze([] as string[]);
+    fileCache.set(dir, empty);
+    return empty;
   }
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.xml'));
+  const files = Object.freeze(fs.readdirSync(dir).filter((f) => f.endsWith('.xml')));
   fileCache.set(dir, files);
   return files;
 }

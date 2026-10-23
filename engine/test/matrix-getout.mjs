@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, sameBoardById, makeSquaredSet } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -24,7 +24,7 @@ const check = (cond, msg) => {
 // Build the full catalog so rigid self-inverse calls that MOVE the set (Circle
 // Left) are available and legal from home.
 const files = {};
-for (const f of fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   files[`ms/${f}`] = read(`ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../../poc-teacher/src/catalog.ts');

@@ -19,12 +19,12 @@
 //   4. the inverse-of-a-getout is a geometric neighbor, NOT a usable getin.
 //
 // Run: node graph.mjs  (after `npm run build:engine`)
-import { readFileSync, readdirSync, appendFileSync } from 'node:fs';
+import { readFileSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 // Progress is written as newline-terminated lines to a file (unbuffered), so a
@@ -35,7 +35,7 @@ const report = (line) => appendFileSync(PROGRESS_FILE, `${line}\n`);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => readFileSync(path.join(corpusRoot(), p), 'utf8');
 const files = {};
-for (const f of readdirSync(path.join(corpusRoot(), 'ms')).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   files[`ms/${f}`] = read(`ms/${f}`);
 }
 const { buildCatalog, makeSequencer } = await import('../poc-teacher/src/catalog.ts');

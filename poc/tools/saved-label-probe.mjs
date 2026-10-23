@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -63,7 +63,7 @@ const seq = new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets));
 const rows = [];
 let unnamed = 0;
 for (const lvl of ['ms', 'a1', 'plus']) {
-  for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lvl).filter((x) => x.endsWith('.xml'))) {
     let tams = [];
     try { tams = engine.parseCallXml(asset(`${lvl}/${f}`)); } catch { continue; }
     for (const tam of tams.slice(0, 4)) {
@@ -118,7 +118,7 @@ let labeled = 0;
 let sameAsFrom = 0;
 let fromBlank = 0;
 for (const lvl of ['ms', 'a1']) {
-  for (const f of fs.readdirSync(path.join(assets, lvl)).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lvl).filter((x) => x.endsWith('.xml'))) {
     let tams = [];
     try { tams = engine.parseCallXml(asset(`${lvl}/${f}`)); } catch { continue; }
     for (const t of tams) {

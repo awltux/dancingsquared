@@ -68,7 +68,7 @@
 // Run: node poc/tools/radial-arc-fit-probe.mjs   (from anywhere; build the engine first)
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const grid = await import(pathToFileURL(path.join(POC_DIR, '..', 'packages', 'stage', 'grid-magnet.ts')).href);
@@ -353,7 +353,7 @@ console.log('\n== 7. how often the corpus offers it, and the band the slack sits
   const levels = fs.readdirSync(path0, { withFileTypes: true })
     .filter((e) => e.isDirectory() && e.name !== 'src').map((e) => e.name);
   for (const level of levels) {
-    for (const f of fs.readdirSync(path.join(path0, level)).filter((x) => x.endsWith('.xml'))) {
+    for (const f of filesOf(level).filter((x) => x.endsWith('.xml'))) {
       let variants = [];
       try {
         variants = engine.buildCallVariants(fs.readFileSync(path.join(path0, level, f), 'utf8'), movesXml, formationsXml);

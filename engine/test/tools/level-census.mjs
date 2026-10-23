@@ -42,14 +42,14 @@
 // resolves a formation from it.
 // ============================================================================================
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, buildCellLattice } from '../../dist/index.js';
 import { buildCatalog, makeSequencer } from '../../../poc-teacher/src/catalog.ts';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -79,7 +79,7 @@ const perLevelFiles = new Map();
 const perLevelNames = new Map();
 for (const lv of ORDER) {
   let files = [];
-  try { files = readdirSync(path.join(assets, lv)).filter((f) => f.endsWith('.xml')); } catch { continue; }
+  try { files = filesOf(lv).filter((f) => f.endsWith('.xml')); } catch { continue; }
   perLevelFiles.set(lv, files);
   const names = new Set();
   for (const f of files) {

@@ -22,12 +22,12 @@
 //
 // Run: `npm run build && node test/gender-audit.mjs` from engine/.
 
-import { readdirSync, readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer, parseFormations } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -83,7 +83,7 @@ let tams = 0;
 for (const lv of levels) {
   const dir = path.join(corpusRoot(), lv);
   if (!existsSync(dir)) continue;
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     const xml = readFileSync(path.join(dir, f), 'utf8');
     for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
       const dancerTags = block.match(/<dancer\b[^>]*>/g) ?? [];
@@ -104,7 +104,7 @@ const calls = [];
 for (const lv of levels) {
   const dir = path.join(corpusRoot(), lv);
   if (!existsSync(dir)) continue;
-  for (const f of readdirSync(dir).filter((x) => x.endsWith('.xml'))) {
+  for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }
 }

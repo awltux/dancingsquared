@@ -28,7 +28,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { DEG, Sequencer, parseFormations, setParser, setStartFormation, loadCallFromXml, normalizeInstance } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 
@@ -207,9 +207,8 @@ for (const [a, b] of [
 
 // ---------------------------------------------------------------- 6. the library's names are covered
 console.log('\n6. every name the ENGINE library knows is represented, bar the exact-duplicate spellings');
-const { readdirSync } = await import('node:fs');
 const msDir = path.join(corpusRoot(), 'ms');
-const calls = readdirSync(msDir)
+const calls = filesOf('ms')
   .filter((f) => f.endsWith('.xml'))
   .map((f) => ({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(msDir, f), 'utf8') }));
 const seq = new Sequencer(movesXml, formationsXml, calls);

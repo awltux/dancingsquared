@@ -1,7 +1,7 @@
 // Headless check of the Teacher Session Tracker core (PRD item 15) against the
 // real Mainstream catalog + engine Sequencer. Run with `npm run verify` (Node 26
 // runs the .ts sources directly via type stripping).
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
@@ -32,7 +32,7 @@ import {
   removeAt,
   replaceAt,
 } from './src/teacher.ts';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,7 +49,7 @@ const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');
 
 const files = {};
-for (const f of readdirSync(path.join(assets, 'ms')).filter((f) => f.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((f) => f.endsWith('.xml'))) {
   files[`ms/${f}`] = read(`ms/${f}`);
 }
 const catalog = buildCatalog(files);

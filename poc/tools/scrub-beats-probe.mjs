@@ -19,7 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -50,7 +50,7 @@ console.log("== 1. the moves run on the call's own clock, and the lead-in and le
   let worstEnd = 0;
   let worstAt = '';
   let callsThatReachTheEnd = 0;
-  for (const level of LEVELS) for (const f of fs.readdirSync(path.join(corpusRoot(), level)).filter((x) => x.endsWith('.xml'))) {
+  for (const level of LEVELS) for (const f of filesOf(level).filter((x) => x.endsWith('.xml'))) {
     let call;
     try {
       call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(corpusRoot(), level, f), 'utf8'), movesXml, formationsXml, 0));

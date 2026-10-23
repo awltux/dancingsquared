@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, Sequencer } from '../dist/index.js';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,7 +20,7 @@ const check = (cond, msg) => {
 };
 
 const msDir = path.join(corpusRoot(), 'ms');
-const files = fs.readdirSync(msDir).filter((f) => f.endsWith('.xml'));
+const files = filesOf('ms').filter((f) => f.endsWith('.xml'));
 const seq = new Sequencer(movesXml, formationsXml);
 // EVERY TAM BY ITS OWN TITLE, not each FILE by the title of its FIRST tam. `callMeta(xml).title` is the first
 // tam's title, and `ms/circle.xml`'s first tam is `Circle Left Home` — so this registered 273 call names and

@@ -14,7 +14,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -70,7 +70,7 @@ const formations = engine.parseFormations(asset('formations.xml'));
 const moves = engine.parseMoves(asset('moves.xml'));
 const entries = [];
 const tamsByFile = new Map();
-for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
   let tams;
   try { tams = engine.parseCallXml(asset(`ms/${f}`)); } catch { continue; }
   tamsByFile.set(`ms/${f}`, tams);

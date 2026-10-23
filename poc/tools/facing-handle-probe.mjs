@@ -31,7 +31,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 // Resolved from THIS FILE, so the probe runs from anywhere and not only from poc/.
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -71,7 +71,7 @@ const firstWithRotate = { call: null, seg: null };
 for (const lv of levels) {
   const dir = path.join(corpusRoot(), lv);
   if (!fs.existsSync(dir)) continue;
-  for (const f of fs.readdirSync(dir)) {
+  for (const f of filesOf(lv)) {
     if (!f.endsWith('.xml')) continue;
     const xml = fs.readFileSync(path.join(dir, f), 'utf8');
     if (engine.callMeta(xml).setups.length === 0) continue;

@@ -21,7 +21,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -44,7 +44,7 @@ const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 // THE CORPUS: every call in the ms level, every dancer, every move that has something after it (the claim
 // is about the moves that follow).
 const cases = [];
-for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
   let call;
   try {
     call = engine.normalizeInstance(engine.loadCallFromXml(fs.readFileSync(path.join(assets, 'ms', f), 'utf8'), movesXml, formationsXml, 0));

@@ -22,7 +22,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -42,7 +42,7 @@ const check = (cond, msg) => {
 
 // THE CALLS: every ms-level setup that builds, exactly as the panel loads them.
 const calls = [];
-for (const f of fs.readdirSync(path.join(assets, 'ms')).filter((x) => x.endsWith('.xml'))) {
+for (const f of filesOf('ms').filter((x) => x.endsWith('.xml'))) {
   try {
     const call = engine.normalizeInstance(engine.loadCallFromXml(asset(path.join('ms', f)), movesXml, formationsXml, 0));
     if (call.dancers.length === 8) calls.push({ file: f, call });

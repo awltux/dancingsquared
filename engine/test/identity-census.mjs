@@ -11,17 +11,18 @@
 //
 // THE FIGURES, and what each is for:
 //   198 shapes / 242 arrangements   the arrangement axis is not redundant with the formation one
-//   18 of 1,730 groups split        a gender relabelling genuinely separates two authorings of one call
+//   18 of 1,731 groups split        a gender relabelling genuinely separates two authorings of one call
 //   115 calls end same-shape-diff   the reason a formation-only state model cannot decide whether the NEXT
 //                                   gender-specific call fits (1,488 change arrangement; 1,373 change shape)
-//   the variant population          every (level, title, formation ROOT) the corpus authors, and how many of
+//   the variant population          every (level, title, formation fid) the corpus authors, and how many of
 //                                   them are authored more than once - the duplicate check is a collision gate,
 //                                   not a uniqueness rule: two authorings of one variant are normal and share
 //                                   one id on purpose.
 //
-// AND THE LEDGER COVERAGE: every start shape must already have a ROOT in `assets/formation-roots.json`. A shape
-// the ledger has never seen would silently root at itself, which is exactly the re-keying the ledger exists to
-// prevent - so it is a failure here, naming the shapes, before a variant is ever minted from one.
+// AND THE TAG COVERAGE: every start definition must carry a stored `fid` in the corpus (`formations.xml` or the
+// tam's own inline block). An untagged definition could only be keyed by its computed content address, which a
+// geometry correction moves - the re-keying a stored tag exists to prevent - so it is a failure here, naming the
+// definitions, before a variant is ever minted from one.
 //
 // Run: node test/identity-census.mjs   (from engine/; the engine must be built)
 import fs from 'node:fs';
@@ -31,7 +32,7 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import {
   loadCallFromXml, setParser, formationId, arrangementId, allPoses,
-  callVariantId, callVariantCanonical, formationRootOf, isCallVariantId,
+  callVariantId, callVariantCanonical, parseFormationTags, isCallVariantId,
 } from '../dist/index.js';
 import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
 
@@ -41,8 +42,10 @@ const assets = corpusRoot();
 const read = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = read('moves.xml');
 const formationsXml = read('formations.xml');
-const ledger = JSON.parse(read('formation-roots.json'));
-const roots = ledger.roots ?? {};
+/** THE TAGS THE CORPUS STORES, by formation name: the third input of a variant id is one of these, not a
+ *  computed content address. 	est/formation-tags.mjs is what proves every definition carries one. */
+const formationTags = parseFormationTags(read('formations.xml'));
+const fidOf = (bundle) => (bundle.formation ? formationTags.get(bundle.formation)?.fid ?? null : bundle.formationTag?.fid ?? null);
 
 let failures = 0;
 const check = (cond, msg, detail) => {
@@ -59,7 +62,7 @@ const byTitleShape = new Map();
 const byVariant = new Map();      // canonical -> [site]
 const idToCanonical = new Map();  // id -> canonical (the collision gate)
 const canonicalToId = new Map();  // canonical -> id (determinism)
-const shapesWithoutRoot = new Set();
+const shapesWithoutTag = new Set();
 const failedTitles = [];
 let tams = 0;
 let genderSpecific = 0;
@@ -82,7 +85,7 @@ for (const level of LEVELS) {
         const arrangement = arrangementId(start);
         shapes.add(shape);
         arrangements.add(arrangement);
-        if (roots[shape] === undefined) shapesWithoutRoot.add(shape);
+        if (fidOf(bundle) === null) shapesWithoutTag.add(shape);
         const key = `${bundle.title}|${shape}`;
         if (!byTitleShape.has(key)) byTitleShape.set(key, new Set());
         byTitleShape.get(key).add(arrangement);
@@ -90,9 +93,9 @@ for (const level of LEVELS) {
         if (arrangementId(end) !== arrangement) endArrangementDiffers++;
         if (formationId(end) !== shape) endShapeDiffers++;
 
-        const root = formationRootOf(shape, roots);
-        const canonical = callVariantCanonical(level, bundle.title, root);
-        const id = callVariantId(level, bundle.title, root);
+        const fid = fidOf(bundle) ?? shape;
+        const canonical = callVariantCanonical(level, bundle.title, fid);
+        const id = callVariantId(level, bundle.title, fid);
         if (!byVariant.has(canonical)) byVariant.set(canonical, []);
         byVariant.get(canonical).push(`${level}/${file}#${site.index}`);
         if (idToCanonical.has(id) && idToCanonical.get(id) !== canonical) {
@@ -133,17 +136,23 @@ check(endArrangementDiffers === 1488, `1,488 authorings end in a different arran
 check(endShapeDiffers === 1373, `1,373 end in a different shape (${endShapeDiffers})`);
 check(endArrangementDiffers - endShapeDiffers === 115, `115 end in the SAME shape in a different arrangement (${endArrangementDiffers - endShapeDiffers})`);
 
-console.log('== the ledger covers every shape the corpus authors ==');
-check(shapesWithoutRoot.size === 0, `every start shape has a root (${shapesWithoutRoot.size} without)`,
-  [...shapesWithoutRoot].slice(0, 5).join(', '));
+console.log('== every start definition the corpus authors carries a stored fid ==');
+check(shapesWithoutTag.size === 0, `every start definition's fid is a stored tag (${shapesWithoutTag.size} without)`,
+  [...shapesWithoutTag].slice(0, 5).join(', '));
 
 console.log('== the variant population ==');
-check(byVariant.size === 1730, `1,730 distinct variants (${byVariant.size})`);
+// RE-PINNED when the variant identity's third input became a definition's STORED `fid` instead of a content
+// address. Both counts moved by one, in opposite directions, and each move is a named cause rather than drift:
+// `1,730 -> 1,731` because `ms/swing.xml`'s `Swing Your Partner` tam declares `asymmetric="true"` and so builds a
+// 2-dancer start whose content address no definition carried - under a tag it inherits `Facing Couples`'s and lands
+// on a variant no authoring minted before; `38 -> 37` because that same authoring now SHARES a variant with the
+// four-dancer Swing authorings instead of standing alone. Direction: distinct UP, duplicates DOWN, both by one.
+check(byVariant.size === 1731, `1,731 distinct variants (${byVariant.size})`);
 check(collisions.length === 0, `no two variants share an id (${collisions.length} collisions)`,
   collisions.slice(0, 3).map(([id, c]) => `${id}: ${c}`).join('\n        '));
 check(nonDeterministic.length === 0, 'every variant canonicalises to exactly one id');
 check([...byVariant.keys()].every((canonical) => isCallVariantId(canonicalToId.get(canonical))), 'every minted id passes isCallVariantId');
-check(multiAuthored.length === 38, `38 variants are authored more than once (${multiAuthored.length}) - a property, not a collision`);
+check(multiAuthored.length === 37, `37 variants are authored more than once (${multiAuthored.length}) - a property, not a collision`);
 console.log(`  info  distinct variants: ${byVariant.size}`);
 console.log(`  info  variants with more than one authoring: ${multiAuthored.length}`);
 console.log(`  info  authorings per variant: ${(tams / byVariant.size).toFixed(2)}`);

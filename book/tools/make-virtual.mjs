@@ -61,9 +61,9 @@
 // exclusion lives in the one corpus reader rather than in each census.
 //
 // EACH TAM NAMES THE VARIANT IT WAS PLACED FROM, as `parent_id`. The value is the engine's call-variant id —
-// `callVariantId(level, title, formationRootOf(sourceStart, roots))` — where `sourceStart` is the formation id
-// of the board the SOURCE authoring starts from (`VirtualCallInfo.sourceStart`, computed in `placeVirtual`).
-// That is the identity a consumer dedupes on: several authorings of one variant share it BY DESIGN, so two
+// `callVariantId(level, title, fid)` — where `fid` is the tag STORED on the source definition
+// (`VirtualCallInfo.sourceFid` when the source authored its own setup, otherwise the tag of the formation it
+// names). That is the identity a consumer dedupes on: several authorings of one variant share it BY DESIGN, so two
 // generated instances of the same call from the same start shape carry the same `parent_id`.
 //
 // Run: node book/tools/make-virtual.mjs            (regenerate)
@@ -75,6 +75,7 @@ import { pathToFileURL } from 'node:url';
 import { corpusRoot, filesOf, levelsAvailable, readFile, tamsOf, VIRTUAL_SUFFIX, virtualFilesOf } from 'dancing-squared-corpus';
 
 import { loadEngine, readAsset, toolsDir } from './lib/load.mjs';
+import { loadTags } from './lib/variants.mjs';
 
 const PLACEMENTS = join(toolsDir, 'virtual-placements.json');
 const OUT_INDEX = join(toolsDir, 'virtual-index.json');
@@ -217,7 +218,7 @@ function poseDrift(eng, a, b) {
 export function render() {
   const placements = JSON.parse(readFileSync(PLACEMENTS, 'utf8'));
   const eng = loadEngine();
-  const roots = JSON.parse(readFileSync(join(corpusRoot(), 'formation-roots.json'), 'utf8')).roots ?? {};
+  const tags = loadTags(eng);
   const { byTitle, familyOf } = sources();
   /** corpus-relative path -> the `<tam>` texts it carries, in placement order (a family may host two). */
   const tams = new Map();
@@ -255,12 +256,14 @@ export function render() {
       continue;
     }
     const { chosen } = legal;
-    // THE VARIANT THE INSTANCE WAS PLACED FROM, priced from the SOURCE's own start board. The root comes from
-    // the ledger, so a geometry correction re-keys the formation id but not this id (the ledger aliases it).
+    // THE VARIANT THE INSTANCE WAS PLACED FROM. Its third input is the SOURCE DEFINITION'S STORED TAG: the inline
+    // block's own when the source authored its setup, otherwise the tag of the formation it names. sourceStart`r
+    // is a content address and is only named in the failure message.
     const sourceStart = chosen.bundle.virtual?.sourceStart ?? '';
-    const parentId = sourceStart
-      ? eng.callVariantId(level, chosen.bundle.title, eng.formationRootOf(sourceStart, roots))
-      : '';
+    const sourceFid = chosen.bundle.virtual?.sourceFid ?? null;
+    const sourceFormation = chosen.bundle.virtual?.sourceFormation ?? null;
+    const fid = sourceFid ?? (sourceFormation ? tags.get(sourceFormation)?.fid ?? null : null);
+    const parentId = fid ? eng.callVariantId(level, chosen.bundle.title, fid) : '';
     if (!eng.isCallVariantId(parentId)) {
       problems.push(`${id}: the engine minted no call-variant id for "${chosen.bundle.title}" from ${level} (sourceStart "${sourceStart}")`);
       continue;

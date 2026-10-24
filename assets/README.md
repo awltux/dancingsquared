@@ -23,9 +23,7 @@ Declared conventions (measured, and the numbers live in the harnesses named besi
 | `discovered/` | Calls found while working this corpus and not authored upstream (5 files, 7 tams). | this repo |
 | `src/calls.xml` | Upstream's **master call index**: 690 `<call link="level/file" title="…">` rows, with `?animname=` fragments selecting one tam in a multi-tam file. Not animation data — the POC reads it to synthesise the one level the corpus has no directory for (`ssd`). | upstream Taminations |
 | `moves.xml` | The move primitives: **156** `<path>` definitions, each a chain of cubic Béziers. The one file whose `<move>` modifiers (`offsetX`, `scaleX`, `beats`, `hands`, `reflect`) the engine implements — `engine/src/convert.ts` is the only reader of them in either codebase. | upstream Taminations |
-| `formations.xml` | **292** `<formation name="…">` entries under a `<formations>` root: a name and its dancers' spots and facings. **MODIFIED from upstream** — `d244996` rotated `Static Square` by 90°, so do not "restore" it. Also a generated mirror of an upstream Dart list, so it drifts in both directions (`taminations.md` §2.3, §9.6). | upstream Taminations, then this repo |
-| `formation-roots.json` | The **append-only ledger** of formation roots — 198 shapes, `formation id -> the id that shape was first known by`. A call-variant id is keyed on a ROOT so a geometry correction does not re-key it. | `node engine/test/tools/formation-roots.mjs --write` |
-| `formation-aliases.json` | The **hand-written** half of that ledger: `{ "F3-new": "F3-old" }`, the decision a generator cannot make. Empty of aliases today. | by hand |
+| `formations.xml` | **292** `<formation name="…">` entries under a `<formations>` root: a name, its dancers' spots and facings, and its stored `fid`/`aid` (below). **MODIFIED from upstream** — `d244996` rotated `Static Square` by 90°, so do not "restore" it. Also a generated mirror of an upstream Dart list, so it drifts in both directions (`taminations.md` §2.3, §9.6). | upstream Taminations, then this repo |
 | `fsm-ms.json` | The generated Mainstream resolve state machine (291 catalogue entries, 3,934 edges — `engine/test/fsm-asset.mjs` pins both), serialised so the FSM view and the teacher app open instantly. | `node scripts/build-fsm-asset.mjs` |
 | `<level>/<family>.virtual.xml` | Whole-set instances generated for the book. **Not authored data** — see below. | `node book/tools/make-virtual.mjs` |
 
@@ -82,7 +80,7 @@ git submodule update --init taminations-flutter   # the reference, for reading o
   `discovered/` is ours.
 - **Do not regenerate this directory from upstream.** `formations.xml` would lose its rotation, and the levels the
   corpus's own gates pin would move. A corpus change is a change with a gate
-  (`node engine/test/corpus-inventory.mjs`, `node engine/test/call-titles.mjs`, `node engine/test/formation-roots.mjs`).
+  (`node engine/test/corpus-inventory.mjs`, `node engine/test/call-titles.mjs`, `node engine/test/formation-tags.mjs`).
 
 ## `*.virtual.xml` — the generated whole-set instances
 
@@ -115,9 +113,9 @@ seven tams as new eight-dancer authorings.
 ```
 
 `parent_id` is the engine's **call-variant id** of the SOURCE authoring —
-`callVariantId(level, sourceTitle, formationRootOf(sourceStart))`, where `sourceStart` is the formation id of the
-board the source starts from (`VirtualCallInfo.sourceStart`). It is the identity a consumer dedupes on: several
-authorings of one variant share it by design.
+`callVariantId(level, sourceTitle, fid)`, where `fid` is the tag STORED on the definition the source starts from
+(`VirtualCallInfo.sourceFid` when the source authored its own setup, otherwise the named definition's `fid`). It is
+the identity a consumer dedupes on: several authorings of one variant share it by design.
 
 **They are generated, so do not edit them.** The source of truth is
 [`book/tools/virtual-placements.json`](../book/tools/virtual-placements.json) — one row per card: the call, the
@@ -128,9 +126,9 @@ the tool re-verifies it: today one call is withheld with the engine's own senten
 
 ## Finding the tam a `parent_id` names
 
-The id is a digest of (level, title, formation ROOT), so it cannot be inverted — the way back is to build the
-candidate authorings and mint their ids. That is what [`book/tools/find-variant.mjs`](../book/tools/find-variant.mjs)
-does, with the engine's own arithmetic:
+The id is a digest of (level, title, the start definition's stored `fid`), so it cannot be inverted — the way back
+is to build the candidate authorings and mint their ids. That is what
+[`book/tools/find-variant.mjs`](../book/tools/find-variant.mjs) does, with the engine's own arithmetic:
 
 ```bash
 node book/tools/find-variant.mjs --virtual=ms/circle.virtual.xml
@@ -139,7 +137,7 @@ node book/tools/find-variant.mjs --virtual=ms/circle.virtual.xml
 ```
 ms/circle.virtual.xml is "Circle Four Left" from ms, placed from variant V1-85721b7k
   ms/circle.xml#77  "Circle Four Left"
-      variant V1-85721b7k   start shape F3-rj0qnzj7 -> root F3-rj0qnzj7
+      variant V1-85721b7k   start shape F3-rj0qnzj7   fid F3-rj0qnzj7
 1 authoring(s) mint V1-85721b7k — built 4, skipped 0 that do not load, over 10 level(s)
 ```
 
@@ -153,9 +151,9 @@ node book/tools/find-variant.mjs --title="Swing Your Partner"
 ```
 
 Two answers that look wrong and are not: an id can name **more than one authoring** (`Swing Your Partner`'s
-`ms/swing.xml#0` and `#8` share one, because the root covers a start SHAPE and not a board), and an id can name
-**nothing** — a retitle or a re-levelling mints a new variant id, while the ledger only keeps a corrected
-*formation* pointed at its old root.
+`ms/swing.xml#0` and `#8` share one, because the fid covers a start SHAPE and not a board), and an id can name
+**nothing** — a retitle or a re-levelling mints a new variant id, while a corrected *formation* keeps its stored
+tag and therefore its variants.
 
 ## Deleting, and recreating, one virtual tam
 

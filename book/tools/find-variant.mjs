@@ -38,7 +38,7 @@
 import { filesOf, levelsAvailable, readFile, tamsOf } from 'dancing-squared-corpus';
 
 import { loadEngine, readAsset } from './lib/load.mjs';
-import { loadRoots, variantOf } from './lib/variants.mjs';
+import { loadTags, variantOf } from './lib/variants.mjs';
 
 const USAGE = `usage: node book/tools/find-variant.mjs --virtual=<level>/<file>.virtual.xml
        node book/tools/find-variant.mjs <V1-id> [--title="<call>"] [--level=<level>]
@@ -85,7 +85,7 @@ function main() {
   if (!id && !title) return refuse(USAGE);
   if (id && !eng.isCallVariantId(id)) return refuse(`"${id}" is not a call-variant id (they start with V1-)\n\n${USAGE}`);
 
-  const roots = loadRoots();
+  const tags = loadTags(eng);
   const levels = (oneLevel ? [oneLevel] : levelsAvailable().filter((lv) => filesOf(lv).length)).slice().sort();
   if (!levels.length) return refuse(`no level to search${oneLevel ? ` (asked for "${oneLevel}")` : ''}`);
 
@@ -118,7 +118,7 @@ function main() {
           continue;
         }
         built++;
-        const { variantId, shape, root } = variantOf(eng, bundle, level, roots);
+        const { variantId, shape, root } = variantOf(eng, bundle, level, tags);
         if (id && variantId !== id) continue;
         hits.push({ site: `${level}/${file}#${site.index}`, title: site.title, from: site.attrs.from ?? '', variantId, shape, root });
       }

@@ -26,7 +26,7 @@ import { toolsDir, root, loadEngine, loadCall, readAsset } from './lib/load.mjs'
 // DANCER_WIDTH across the facing and DANCER_DEPTH along it, and the picture must not disagree with the
 // body the contact rules measure.
 const { DANCER_WIDTH, DANCER_DEPTH } = loadEngine();
-import { loadRoots, makeResolver } from './lib/variants.mjs';
+import { loadTags, makeResolver } from './lib/variants.mjs';
 import { matchesTamQuery, tamQueryMatch, tamsOf } from 'dancing-squared-corpus';
 import { encodeGif, decodeGif } from './lib/gif.mjs';
 import { Canvas, writePng } from './lib/raster.mjs';
@@ -435,8 +435,8 @@ export function build({ gifs = false } = {}) {
   const eng = loadEngine();
   // A BINDING NAMES A VARIANT, NOT A POSITION. See `lib/variants.mjs` for why the id replaced `{file, tamIndex}`
   // and why the title travels beside it as a hint.
-  const roots = loadRoots();
-  const bindings = makeResolver(eng, roots);
+  const tags = loadTags(eng);
+  const bindings = makeResolver(eng, tags);
   const unresolvedBindings = [];
   /** Every candidate skipped because it is a half-set authoring, named so the count can be acted on. */
   const subsetSkipped = [];
@@ -786,7 +786,7 @@ export function main() {
     // the map's site is a VARIANT ID, resolved exactly as the build resolves it.
     const virtuals = existsSync(VIRTUAL_INDEX) ? JSON.parse(readFileSync(VIRTUAL_INDEX, 'utf8')) : {};
     let resolved = virtuals.placements?.[id] ? { file: virtuals.placements[id].file, tamIndex: virtuals.placements[id].tamIndex } : null;
-    if (!resolved) resolved = makeResolver(eng, loadRoots()).resolve(entry.e.sites[0]);
+    if (!resolved) resolved = makeResolver(eng, loadTags(eng)).resolve(entry.e.sites[0]);
     if (!resolved) throw new Error(`the map's binding for ${id} does not resolve against the corpus`);
     const bundle = loadCall(eng, resolved);
     const frames = framesFor(eng, bundle, resolved);

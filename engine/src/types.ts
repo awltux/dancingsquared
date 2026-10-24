@@ -116,6 +116,24 @@ export type SequencerMode = 'perimeter' | 'exact' | 'gender-specific' | 'no';
  */
 export type Symmetry = 1 | 2;
 
+/**
+ * A DEFINITION'S STORED TAGS: the formation id (`fid`) and the arrangement id (`aid`) written on the definition
+ * itself, in `assets/formations.xml` or on a `<tam>`'s inline `<formation>`.
+ *
+ * WHY THEY ARE STORED AND NOT COMPUTED. A formation id is a content address, so a geometry edit mints a new one, and
+ * a REFERENCE that has to survive such an edit cannot be the content address. The reference used to live in a
+ * generated ledger plus a hand-written alias file; it now lives here, where it is authoritative by construction and
+ * needs nothing to alias. `formationId(board)`/`arrangementId(board)` are still the CONTENT addresses - they are what
+ * the tagger computes a tag FROM, and what any board that matches no tagged definition still has.
+ *
+ * A NULL IS NOT A FAILURE AT THIS LAYER: the parser is a byte reader, and whether every definition carries its tags
+ * is `engine/test/formation-tags.mjs`'s question.
+ */
+export interface FormationTag {
+  fid: string | null;
+  aid: string | null;
+}
+
 export interface CallBundle {
   title: string;
   from: string;
@@ -129,6 +147,13 @@ export interface CallBundle {
   totalBeats: number; // leadin + beats + leadout
   // The authored `sequencer` attribute, verbatim, or null when it is absent.
   sequencerMode: SequencerMode | null;
+  /**
+   * THE TAGS ON THIS AUTHORING'S START DEFINITION: the inline block's when the tam authors its own setup, and
+   * `{null, null}` when it names a formation (whose definition carries them instead). Read by the variant identity,
+   * which must name the DEFINITION a variant starts from rather than re-deriving a content address that a geometry
+   * edit would move.
+   */
+  formationTag: FormationTag;
   // Whether the sequencer may MATCH this variant from a board. False only for
   // `sequencerMode === 'no'`. Anything that hunts for a variant to apply must filter on
   // this; anything that merely LISTS variants (the picker, `variantStarts`, the FSM
@@ -210,6 +235,12 @@ export interface VirtualCallInfo {
    * carry the same fact three ways.
    */
   sourceStart: string;
+  /**
+   * THE SOURCE DEFINITION'S STORED `fid`, when the source authored its own inline setup; null when it NAMED a
+   * formation, whose definition then holds the tag. sourceStart above is a content address and is kept for
+   * diagnostics; this is the reference a variant id is minted from.
+   */
+  sourceFid: string | null;
   /**
    * How many dancers the source authoring describes AS PLACED — the normalised size, so a half-set unit written
    * as two dancers reads 4 here, because that is how many dancers one copy moves.

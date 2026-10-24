@@ -1,3 +1,0 @@
-{
-  "_comment": "Hand-written: the id a corrected formation's NEW id succeeds. Empty until a formation edit corrects a shape, because a generator cannot tell a correction from a replacement. engine/test/tools/formation-roots.mjs merges this into formation-roots.json and refuses an alias whose target does not exist."
-}

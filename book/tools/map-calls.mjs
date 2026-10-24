@@ -18,7 +18,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { toolsDir, loadEngine, catalogue, loadCall } from './lib/load.mjs';
-import { loadRoots, levelOf, variantOf } from './lib/variants.mjs';
+import { loadTags, levelOf, variantOf } from './lib/variants.mjs';
 
 const CLEANED = join(toolsDir, '.cache', 'mainstream.cleaned.txt');
 const OUT = join(toolsDir, 'call-map.json');
@@ -143,7 +143,7 @@ export function main() {
   const units = parseTeachingOrder(text);
   const eng = loadEngine();
   const byTitle = catalogue();
-  const roots = loadRoots();
+  const tags = loadTags(eng);
 
   if (process.argv.includes('--titles')) {
     for (const t of [...byTitle.keys()].sort()) console.log(`${t}\t${byTitle.get(t).map((s) => s.file).join(', ')}`);
@@ -204,7 +204,7 @@ export function main() {
           try {
             const bundle = loadCall(eng, site);
             const level = levelOf(site.file);
-            const { variantId } = variantOf(eng, bundle, level, roots);
+            const { variantId } = variantOf(eng, bundle, level, tags);
             return { variantId, level, title: bundle.title, file: site.file };
           } catch {
             return null;

@@ -6,7 +6,10 @@
 // @xmldom/xmldom's DOMParser (as the test does).
 
 import { goingOfTitle } from './going.js';
-import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Seg, SequencerMode, Symmetry } from './types.js';
+import type { BezierData, CallBundle, DancerSpec, FormationTag, Gender, Hands, Seg, SequencerMode, Symmetry } from './types.js';
+
+// Re-exported from where it is declared, so a caller reading a definition's tags has one type to name.
+export type { FormationTag } from './types.js';
 
 // ----------------------------------------------------------------- DOMParser
 
@@ -245,22 +248,10 @@ function resolvePath(
 type DancerBase = { gender: Gender; x: number; y: number; angleDeg: number };
 
 /**
- * A DEFINITION'S TAGS: the formation id and the arrangement id written on the definition itself.
- *
- * WHY THEY ARE ATTRIBUTES AND NOT A LEDGER. A formation id is a content address, so a geometry edit mints a new
- * one, and a REFERENCE that has to survive such an edit cannot be the content address. The answer used to be
- * `assets/formation-roots.json` plus a hand-written alias file; the answer now is that the reference is STORED
- * on the definition (`fid`/`aid`) and is therefore authoritative by construction - a geometry edit leaves it
- * alone and there is nothing to alias.
- *
  * READ, NEVER VERIFIED, HERE. This is a byte reader like `parseFormations`: whether the tags are present, well
  * formed and consistent is `test/formation-tags.mjs`'s question, and the parser must not pre-empt it with a
  * throw - a corpus mid-tagging has to stay readable so the tagger can report what is missing.
  */
-export interface FormationTag {
-  fid: string | null;
-  aid: string | null;
-}
 
 /** The tags an element carries, or nulls when it carries none. Shared by both definition sites. */
 function tagOf(el: { getAttribute(name: string): string | null }): FormationTag {
@@ -540,6 +531,10 @@ function buildCallImpl(
     title: tam.title,
     from: tam.from,
     formation: tam.dancers.length === 0 ? tam.formationAttr : null,
+    // THE START DEFINITION'S STORED TAGS travel with the bundle, because the variant identity names a DEFINITION and
+    // an inline block has no name to look one up by. A named reference carries nulls here - its definition, not the
+    // tam, holds the tags.
+    formationTag: tam.formationTag,
     // HOW this body goes, DERIVED from the title at the one place a CallBundle is born. `going.ts` carries the reason it
     // is derived rather than authored (these tams are app-exported, so an authored attribute needs the exporter and its
     // survival gate; a derived label cannot be lost) and the measurement that says it must be a label, not a distance.

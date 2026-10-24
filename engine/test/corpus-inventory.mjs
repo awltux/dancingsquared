@@ -35,7 +35,7 @@ import { fileURLToPath } from 'node:url';
 
 import { DOMParser } from '@xmldom/xmldom';
 
-import { allPoses, callVariantId, formationId, formationRootOf, isCallVariantId, loadCallFromXml, normalizeInstance, parseCallXml, setParser } from '../dist/index.js';
+import { callVariantId, isCallVariantId, loadCallFromXml, parseFormationTags, parseCallXml, setParser } from '../dist/index.js';
 import { corpusRoot, filesOf, isVirtualFile, readFile, tamsOf, tamAttrs, titlesOf, sitesOfTitle, VIRTUAL_SUFFIX, virtualFilesOf } from 'dancing-squared-corpus';
 import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
@@ -280,9 +280,10 @@ console.log('\n== The generated instances: excluded from the census, and naming 
     'ms/promenade.virtual.xml',
     'ms/swing.virtual.xml',
   ];
-  const roots = JSON.parse(readFileSync(path.join(assets, 'formation-roots.json'), 'utf8')).roots ?? {};
   const movesXml = readFileSync(path.join(assets, 'moves.xml'), 'utf8');
   const formationsXml = readFileSync(path.join(assets, 'formations.xml'), 'utf8');
+  /** THE DEFINITIONS' STORED TAGS, by formation name: a variant id's third input is one of these. */
+  const formationTags = parseFormationTags(formationsXml);
   /** Every call-variant id the corpus mints for a title, against the site that minted it. One build per title. */
   const byTitle = new Map();
   const variantsOf = (title) => {
@@ -296,9 +297,10 @@ console.log('\n== The generated instances: excluded from the census, and naming 
         continue; // an authoring that does not build mints no id (`identity-census` counts those by name)
       }
       if (!call?.dancers?.length) continue;
-      // THE SAME ARITHMETIC THE BOOK AND `placeVirtual` USE: the start poses of the NORMALISED instance.
-      const shape = formationId({ dancers: allPoses(normalizeInstance(call), 0) });
-      out.set(callVariantId(site.level, title, formationRootOf(shape, roots)), site);
+      // THE SAME INPUT THE BOOK AND `placeVirtual` USE: the tag stored on the start definition.
+      const fid = call.formation ? formationTags.get(call.formation)?.fid ?? null : call.formationTag?.fid ?? null;
+      if (!fid) continue; // an untagged start definition mints no reference (formation-tags names it)
+      out.set(callVariantId(site.level, title, fid), site);
     }
     byTitle.set(title, out);
     return out;

@@ -1047,6 +1047,8 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
     // a declared name - which is right, because `setup.name` is a user's LABEL for a shape, not a
     // reference into `formations.xml`.
     formation: null,
+    // An EDITOR-authored bundle starts from a board, not from a corpus definition, so it has no stored tags.
+    formationTag: { fid: null, aid: null },
     // THE SAME BODY: a synthesised setup re-poses the call on a different start set, which cannot change how it goes.
     // Leaving it off would make a `- Far` authoring indistinguishable from a plain one once re-posed.
     going: core.going,
@@ -1153,6 +1155,8 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
     from: spec.name,
     // NULL, for the same reason as `synthesizeSetup`: an EMBED-mode authoring with a user's label.
     formation: null,
+    // An EDITOR-authored bundle starts from a board, not from a corpus definition, so it has no stored tags.
+    formationTag: { fid: null, aid: null },
     going: coreA.going,
     parts: coreA.parts,
     taminator: coreA.taminator,

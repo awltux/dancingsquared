@@ -13,17 +13,24 @@
 // lookup; the hint narrows the search to the sites carrying that title (a handful), and the ID decides - a
 // candidate whose id does not match is not used, however well its title matches.
 //
-// THE ID IS THE ENGINE'S. `variantOf` reads the start board's formation id, resolves it to the ledger's ROOT,
-// and mints `V1-` from the three inputs. Nothing here re-implements that arithmetic - the whole point of the
-// root is that one definition exists (`engine/src/sequencer/call-variant-id.ts`).
+// THE ID IS THE ENGINE'S, AND ITS THIRD INPUT IS THE DEFINITION'S STORED TAG. `variantOf` reads the `fid` written
+// on the formation definition the authoring starts from - the named definition when the tam carries
+// `formation="…"`, the inline block's own tag otherwise - and mints `V1-` from (level, title, fid). Nothing here
+// re-implements that arithmetic, and nothing here reconstructs a "root": the tag IS the reference, so a geometry
+// correction to a definition cannot move the variants that hang off it.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { corpusRoot } from 'dancing-squared-corpus';
 import { catalogue, loadCall } from './load.mjs';
 
-/** The append-only ledger of formation roots, as a plain `formation id -> root` object. */
-export function loadRoots() {
-  return JSON.parse(readFileSync(join(corpusRoot(), 'formation-roots.json'), 'utf8')).roots ?? {};
+/**
+ * The `fid`/`aid` written on every `<formation>` of `formations.xml`, by formation name.
+ *
+ * THE NAMED HALF ONLY. A tam that authors its own setup carries its tags on the inline `<formation>` itself, which
+ * the engine already reads onto the bundle (`CallBundle.formationTag`), so there is nothing to look up for it.
+ */
+export function loadTags(eng) {
+  return eng.parseFormationTags(readFileSync(join(corpusRoot(), 'formations.xml'), 'utf8'));
 }
 
 /** The board a bundle starts from, carrying each dancer's gender - what both derived ids are functions of. */
@@ -31,11 +38,19 @@ export function startBoard(eng, bundle) {
   return { dancers: eng.allPoses(bundle, 0).map((p, i) => ({ ...p, gender: bundle.dancers[i].gender })) };
 }
 
-/** The variant an authoring realises, with the shape and root it was derived from (for error messages). */
-export function variantOf(eng, bundle, level, roots) {
+/**
+ * The definition an authoring starts from, as `{ fid, shape, root }`.
+ *
+ * `shape` is the CONTENT ADDRESS of the start board and is reported for diagnostics only - it is not the reference.
+ * A bundle that starts from neither a named definition nor a tagged inline block (an editor-authored call) has no
+ * stored tag, and falls back to that content address so the id is still defined; every corpus authoring is tagged,
+ * which is what `test/formation-tags.mjs` guarantees.
+ */
+export function variantOf(eng, bundle, level, tags) {
   const shape = eng.formationId(startBoard(eng, bundle));
-  const rootId = eng.formationRootOf(shape, roots);
-  return { variantId: eng.callVariantId(level, bundle.title, rootId), shape, root: rootId };
+  const stored = bundle.formation ? tags.get(bundle.formation)?.fid ?? null : bundle.formationTag?.fid ?? null;
+  const fid = stored ?? shape;
+  return { variantId: eng.callVariantId(level, bundle.title, fid), shape, root: fid, stored: stored !== null };
 }
 
 /**
@@ -54,7 +69,7 @@ export function levelOf(file) {
  * `identity-census` counts the corpus's two unbuildable authorings, and the book must not be the place that
  * discovers them.
  */
-export function makeResolver(eng, roots, { levels } = {}) {
+export function makeResolver(eng, tags, { levels } = {}) {
   const byTitle = catalogue(levels);
   const cache = new Map();
   const attempts = { built: 0, failed: 0 };
@@ -69,7 +84,7 @@ export function makeResolver(eng, roots, { levels } = {}) {
       try {
         const bundle = loadCall(eng, site);
         if (!bundle?.dancers?.length) throw new Error('built no dancers');
-        const { variantId } = variantOf(eng, bundle, level, roots);
+        const { variantId } = variantOf(eng, bundle, level, tags);
         if (!map.has(variantId)) map.set(variantId, site);
       } catch {
         attempts.failed++;

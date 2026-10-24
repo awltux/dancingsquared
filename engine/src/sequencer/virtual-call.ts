@@ -162,6 +162,11 @@ export function placeVirtual(
     // home identity") - which is why `FormationBoard` accepts a bare pose list: a virtual call's source has no
     // dancer identity to carry, and inventing one would be inventing identity for a digest that ignores it.
     sourceStart: formationId({ dancers: allPoses(source, 0) }),
+    // THE SOURCE DEFINITION'S STORED TAG, when it authored its own setup. `sourceStart` above is a CONTENT ADDRESS
+    // and moves with a geometry correction; the tag is the reference, and this is the last place the source board
+    // exists to read it from. A source that NAMES a formation carries no inline tag - the caller resolves that
+    // definition's tag by name (`book/tools/lib/variants.mjs`), which is why this is null rather than derived.
+    sourceFid: source.formationTag?.fid ?? null,
     sourceSize: source.dancers.length,
     placement,
     kind,
@@ -172,6 +177,9 @@ export function placeVirtual(
     // export can be a reference. `from` is the free-text field a reader shows.
     from: startFormation,
     formation: startFormation,
+    // A SYNTHESISED variant is not a corpus definition, so it carries no stored tags; what identifies it is
+    // `virtual.sourceStart` (the source authoring's own formation id), already carried below.
+    formationTag: { fid: null, aid: null },
     parts: source.parts,
     taminator: source.taminator,
     dancers: placed,

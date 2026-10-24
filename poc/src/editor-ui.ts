@@ -1009,6 +1009,13 @@ export class EditorController implements EditorUI {
       // it off was a type error the compiler had been reporting on a red gate nobody could read.
       going: goingOfTitle(name),
       symmetry: 1,
+      // NO STORED TAGS, and saying so rather than omitting the field: a still frame is authored HERE, dancer by
+      // dancer, so it names no formation definition and there is no `<formation>` block whose `fid`/`aid` it could
+      // carry. `7980688` made the field required when a call-variant id started being minted from a definition's
+      // stored tag, and this literal - the only `CallBundle` the panel builds by hand - was left behind, so
+      // `npx tsc -p poc --noEmit` was red at THIS line on master while every probe was green. A bundle built by
+      // `synthesizeSetup` writes the same pair (`editor.ts`), which is the rule: a synthesised bundle has no tag.
+      formationTag: { fid: null, aid: null },
     };
   }
 

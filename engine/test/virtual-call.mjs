@@ -161,21 +161,75 @@ console.log('\n== 2. The placement: the board is where it starts, and the track 
       check(held.length === 0, `a tiled placement moves every dancer (${b.dancers.length} of them), so nothing holds`);
     }
     check(b.virtual !== undefined, `the bundle is MARKED as synthesised (source "${b.virtual?.sourceTitle}", ${b.virtual?.sourceSize} dancers)`);
-    // THE SOURCE'S OWN START IS PRICED, so a consumer can name the variant the instance was placed FROM:
-    // `callVariantId(level, sourceTitle, formationRootOf(sourceStart, roots))`. `sourceFormation` is a NAME and is
-    // null on every inline authoring, which is most of the corpus - so without this field there is nothing to hold.
-    // NOTHING CAN DERIVE IT AFTER THE PLACEMENT: the placed bundle's own start is the BOARD it was placed on, and
-    // that is a different board (`Promenade 1/2` is authored from Facing Couples Far and placed here on a square).
+    // THE SOURCE'S OWN START IS PRICED, and it is TWO FACTS, which is why there are two fields: `sourceStart` is
+    // the CONTENT ADDRESS of the board the authoring starts from, and `sourceFid` is the STORED TAG the variant id
+    // is minted from — `callVariantId(level, sourceTitle, <that fid>)`, the same third input `book/tools/
+    // make-virtual.mjs` resolves and `identity-census.mjs`'s `fidOf` derives. `sourceStart` is kept for
+    // DIAGNOSTICS: a geometry correction moves it, which is the whole reason `7980688` stopped minting ids from it.
+    // NOTHING CAN DERIVE EITHER AFTER THE PLACEMENT: the placed bundle's own start is the BOARD it was placed on,
+    // and that is a different board (`Promenade 1/2` is authored from Facing Couples Far and placed here on a square).
     if (source) {
       const expected = formationId({ dancers: allPoses(source, 0) });
       check(b.virtual?.sourceStart === expected,
         `sourceStart is the formation id of the AUTHORING's start board (${b.virtual?.sourceStart} = ${expected})`);
       check(b.virtual?.sourceStart !== formationId(board),
         'and it is NOT the board it was placed on — that is the variant the instance IS, not the one it came from');
-      check(isCallVariantId(callVariantId('ms', b.virtual.sourceTitle, b.virtual.sourceStart ?? '')),
-        'and it is the input the call-variant id takes, so the parent id is derivable without rebuilding the authoring');
+      // THE INLINE CASE ONLY, and the denominator says which case this witness is: a source that NAMES a formation
+      // carries no inline tag (the definitions table holds it), so `null` here is the expected answer rather than a
+      // gap. `sourceFid` is read off `formationTag`, which the corpus's inline `<formation>` block supplies.
+      const tag = source.formationTag?.fid ?? null;
+      check(b.virtual?.sourceFid === tag,
+        `sourceFid is the tag STORED on the source definition (${b.virtual?.sourceFid} = ${tag}; the source ${tag === null ? 'NAMES a formation, so the caller resolves that definition\'s tag' : 'authors its own setup inline'})`);
+      if (tag !== null) {
+        check(isCallVariantId(callVariantId('ms', b.virtual.sourceTitle, tag)),
+          'and that fid is what the call-variant id takes, so the parent id is derivable without rebuilding the authoring');
+      }
     }
   }
+}
+
+// ------------------------------------------- 2b. the NAMED source was the easy half; here is the inline one
+console.log('\n== 2b. A source that authors its formation INLINE — the tag rides on the bundle ==');
+{
+  // WHY THIS SECOND WITNESS EXISTS. The block above walks `Promenade 1/2`, whose source NAMES its formation, so
+  // `sourceFid` is null there and the `tag !== null` branch above never runs — a check that cannot run is not a
+  // check. The inline case is the one `formationTag` on the bundle is FOR: an inline `<formation>` block has no name
+  // to look a definition up by, and the placement is the last place the block itself is in hand.
+  const square = seq.boardForFormation('Static Square');
+  const inline = [];
+  let named = 0;
+  for (const title of seq.library.callNames()) {
+    let r;
+    try {
+      r = seq.virtualCall(square, title);
+    } catch {
+      continue;
+    }
+    if (!r.legal) continue;
+    const info = (r.candidates.find((x) => x.kind === 'tiled') ?? r.candidates[0]).bundle.virtual;
+    if (info?.sourceFid) inline.push([title, info]);
+    else named++;
+  }
+  check(inline.length > 0 && named > 0,
+    `the sweep finds BOTH kinds of source (${inline.length} inline-tagged, ${named} named, of ${inline.length + named} legal virtual calls) — a 0 in either column would measure nothing`);
+  for (const [title, info] of inline) {
+    // THE SOURCE IS IDENTIFIED BY ITS CONTENT ADDRESS, which is the one thing that says which authoring was placed
+    // without trusting the field under test; the TAG that same block carries must then be the fid the id is minted
+    // from. A title can have several inline authorings (`Box the Gnat` has two tags, `F3-rj0qnzj7` and
+    // `F3-xud0oaar`), so the address is how the right one is picked.
+    const src = seq.library.matchableVariants(title).find((v) => v.formation === null && formationId({ dancers: allPoses(v, 0) }) === info.sourceStart);
+    const fid = src?.formationTag?.fid ?? null;
+    check(src !== undefined && info.sourceFid === fid,
+      `${title}: sourceFid is the fid STORED on the inline block it was placed from (${info.sourceFid} = ${fid}), not the block's own address`);
+    check(info.sourceFid !== null && isCallVariantId(callVariantId('ms', title, info.sourceFid)),
+      `${title}: and that fid is what the call-variant id takes, so the parent id is derivable without the source board`);
+  }
+  // THE TWO FIELDS ARE RECORDED AS EQUAL HERE, because they are: a tag minted from a CURRENT geometry IS that
+  // geometry's content address, and they part company only when a correction re-mints the address (which is why the
+  // id is minted from the tag). Printing it keeps the next reader from "simplifying" the pair into one field — the
+  // witness that would show them differing is a corrected formation, and this corpus has none.
+  const same = inline.filter(([, info]) => info.sourceFid === info.sourceStart).length;
+  console.log(`     ${same} of ${inline.length} inline witnesses carry a tag EQUAL to their content address — the difference appears only after a geometry correction`);
 }
 
 // ---------------------------------------------------------------- 3. the chooser's two refusals

@@ -32,7 +32,7 @@
 //
 // VERIFYING IS THE DEFAULT AND WRITING IS THE FLAG, deliberately: this tool rewrites the corpus, and a tool that
 // rewrites the corpus when invoked plainly is a tool that will one day rewrite it while the shapes it encodes are
-// being adjudicated (the same rule `scripts/reorder-formation.mjs` and `test/tools/formation-roots.mjs` follow).
+// being adjudicated (the rule `scripts/reorder-formation.mjs` follows).
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';

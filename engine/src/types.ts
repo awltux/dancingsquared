@@ -220,25 +220,34 @@ export interface VirtualCallInfo {
   /** The formation the SOURCE authoring starts from, or null when it named none. */
   sourceFormation: string | null;
   /**
-   * THE FORMATION ID OF THE BOARD THE SOURCE STARTS FROM — the identity of the authoring this variant was
-   * placed FROM, in the form `formationRootOf` takes.
+   * THE CONTENT ADDRESS OF THE BOARD THE SOURCE STARTS FROM — the identity of the authoring this variant was
+   * placed FROM, computed from its first poses (`formationId` reads x, y and heading and ignores gender, couple
+   * and id, which is why `FormationBoard` accepts a bare pose list).
+   *
+   * KEPT FOR DIAGNOSTICS, NOT FOR THE VARIANT ID. It MOVES when a formation's geometry is corrected — that is
+   * what a content address is — which is exactly why the reference is `sourceFid` below. `7980688` replaced a
+   * generated root ledger with the tag the corpus stores on the definition; this field survived that as the
+   * address a reader can compare, and it is not what `callVariantId` takes.
    *
    * WHY IT IS HERE AND NOT DERIVED BY THE CALLER. `sourceFormation` is a NAME, and it is null on every inline
    * authoring (`convert.ts`: an embedded `<formation>` says no name), which is most of the corpus — so a
-   * consumer that wants to say WHICH authoring a virtual instance came from has nothing to hold. The id is
-   * computed where the source board still exists, and it is the whole input of the variant identity:
-   * `callVariantId(level, sourceTitle, formationRootOf(sourceStart, roots))`.
+   * consumer that wants to say WHICH authoring a virtual instance came from needs the board's own identity, and
+   * the placement is the last place the source board still exists to compute it from.
    *
-   * A FORMATION ID RATHER THAN A `Board`, because that is exactly what the consumer needs and the board would
-   * be re-typed by the caller anyway: the id is a pure content address of the source's start poses
-   * (`formation-id.ts` reads x, y and heading and ignores gender, couple and id), so carrying the board would
-   * carry the same fact three ways.
+   * A FORMATION ID RATHER THAN A `Board`, because the board would be re-typed by the caller anyway and the id is
+   * a pure content address of it, so carrying the board would carry the same fact three ways.
    */
   sourceStart: string;
   /**
-   * THE SOURCE DEFINITION'S STORED `fid`, when the source authored its own inline setup; null when it NAMED a
-   * formation, whose definition then holds the tag. sourceStart above is a content address and is kept for
-   * diagnostics; this is the reference a variant id is minted from.
+   * THE REFERENCE A CALL-VARIANT ID IS MINTED FROM: the `fid` STORED on the source authoring's own start
+   * definition, or null when the source NAMED a formation — that definition then holds the tag, and the caller
+   * resolves it by name (`formationTags.get(call.formation)?.fid`, which `engine/test/identity-census.mjs` and
+   * `book/tools/make-virtual.mjs` both do).
+   *
+   * `callVariantId(level, sourceTitle, <this fid>)` is the whole identity. NULL IS THE NAMED CASE, not a missing
+   * fact: `placeVirtual` reads the tag off an inline setup because the placement is the only place the source
+   * board is in hand, and a source that names a formation leaves that one lookup to the caller holding the
+   * definitions.
    */
   sourceFid: string | null;
   /**

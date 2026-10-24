@@ -434,8 +434,9 @@ function mirrorToFull(dancers: DancerSpec[]): DancerSpec[] {
  * IT PLACES THE DUPLICATE. `mirrorToFull` is the SAME rule in the bundle's representation - it keeps the
  * base coordinates and sets `mirror: true`, which `poseFor` negates, because one path is then replayed for
  * both halves. The tag must be a content address of an actual board, and a board's poses are placed, so a
- * caller computing an id uses this form. MEASURED: `allPoses(bundle, 0)` and this agree, which is why the
- * ledger's own census (`test/tools/formation-roots.mjs`) minted the same 198 ids this scheme writes down.
+ * caller computing an id uses this form. MEASURED: `allPoses(bundle, 0)` and this agree, which is why the census
+ * the deleted root ledger ran (`test/tools/formation-roots.mjs`, removed when `7980688` replaced the ledger with
+ * the tag each definition stores) minted the same 198 ids this scheme writes down.
  */
 export function reconstituteWholeSet<T extends PlacedDancer>(dancers: readonly T[]): T[] {
   if (hasAntipode(dancers)) return [...dancers];

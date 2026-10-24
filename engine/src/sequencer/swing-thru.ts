@@ -50,6 +50,9 @@ type D = Board['dancers'][number];
 /** The reference's `isAround` tolerance, in radians. */
 const DELTA = 0.1;
 
+/** The reference's `minDistance`: the farthest a dancer can be and still be the one on that side. */
+const MIN_DISTANCE = 3.0;
+
 const physical = (board: Board): D[] => board.dancers.filter((d) => !d.isGhost);
 const dist = (a: D, b: D): number => Math.hypot(b.x - a.x, b.y - a.y);
 
@@ -96,10 +99,10 @@ function handPairs(board: Board, side: 'left' | 'right', group?: Map<number, num
   const used = new Set<number>();
   for (const d of physical(board)) {
     if (used.has(d.id)) continue;
-    const w = sideNeighbour(board, d, side, 3.0);
+    const w = sideNeighbour(board, d, side, MIN_DISTANCE);
     if (!w) continue;
     if (group && group.get(d.id) !== group.get(w.id)) continue;
-    const back = sideNeighbour(board, w, side, 3.0);
+    const back = sideNeighbour(board, w, side, MIN_DISTANCE);
     if (!back || back.id !== d.id) continue;
     used.add(d.id);
     used.add(w.id);

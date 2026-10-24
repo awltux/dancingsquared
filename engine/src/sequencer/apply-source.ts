@@ -37,10 +37,13 @@
 
 import { applyCodedMove, findCodedMove } from './coded-moves.js';
 import { normAngle } from '../moves.js';
+// THE SAME-BOARD TOLERANCE, from the module that owns it: these three defaults were the literal 1e-6 while
+// `constants.ts` exported `SAME_BOARD_TOL = 1e-6` and `board.ts` already used it.
+import { SAME_BOARD_TOL } from './constants.js';
 import type { Board } from './types.js';
 
 /** Same eight (or n) dancers, by ID, on position and heading. */
-export function sameBoard(a: Board, b: Board, tol = 1e-6): boolean {
+export function sameBoard(a: Board, b: Board, tol = SAME_BOARD_TOL): boolean {
   if (a.dancers.length !== b.dancers.length) return false;
   const byId = new Map(b.dancers.map((d) => [d.id, d]));
   for (const d of a.dancers) {
@@ -59,7 +62,7 @@ export function sameBoard(a: Board, b: Board, tol = 1e-6): boolean {
  * A null on either side is a NO, and each means something different: no authored variant applies (nothing to
  * prefer), or the rule refuses this board (the catalogue already serves it through `catalogueFallback`).
  */
-export function authoredTamWins(coded: Board | null, authored: Board | null, tol = 1e-6): boolean {
+export function authoredTamWins(coded: Board | null, authored: Board | null, tol = SAME_BOARD_TOL): boolean {
   if (!coded || !authored) return false;
   return sameBoard(coded, authored, tol);
 }
@@ -75,7 +78,7 @@ export function authoredStepWins(
   board: Board,
   call: string,
   appliedEnd: () => Board | null,
-  tol = 1e-6,
+  tol = SAME_BOARD_TOL,
 ): boolean {
   if (!findCodedMove(call)) return false;
   const derived = applyCodedMove(board, call);

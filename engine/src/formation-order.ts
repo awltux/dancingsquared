@@ -40,6 +40,11 @@
 // `const DEG = engine.DEG`). `engine/test/angle-normalisation.mjs` §5 is the census that keeps it at one.
 import { DEG, poseFor } from './core.js';
 import { normAngle } from './moves.js';
+// THE ENGINE'S TOLERANCES, from the module that owns them. `TOL` here WAS the XML round trip's 1e-3 under a local
+// name - the same rule `startsFromFormation` uses, written twice - and `sameSpot`'s comparisons were against a bare
+// 1e-9. Both are the engine's now: see `tolerances.ts` for why the first is not `ARC_TOL` and the second is not
+// `SAME_BOARD_TOL`.
+import { EXACT_TOL, XML_ROUND_TRIP_TOL } from './tolerances.js';
 import type { CallBundle } from './types.js';
 // `FormDancer` is declared with the editor's instance model; `CallBundle` is a core type. Both are
 // type-only imports, so this module adds nothing to the runtime graph but `poseFor` and `DEG`.
@@ -54,9 +59,6 @@ export const COMPASS_SEQUENCE: readonly CompassPoint[] = ['south', 'east', 'nort
 /** The angle of each compass point, in degrees measured from +X (the board frame `atan2(y, x)` uses). */
 const COMPASS_ANGLE: Record<CompassPoint, number> = { south: 270, east: 0, north: 90, west: 180 };
 
-/** The tolerance the XML round trip earns: the exporter writes four decimals, so a spot is within 1e-4. */
-const TOL = 1e-3;
-
 /**
  * Are these the same spot, allowing a 180-degree turn about the set centre - i.e. the same LOCAL frame?
  *
@@ -64,7 +66,7 @@ const TOL = 1e-3;
  * frames: every local control point is identical. That is the relation `mirrorToFull` relies on, and it is
  * the one this module uses to move a path between a dancer and its antipode without touching a curve.
  */
-export function sameSpotUpToHalfTurn(a: FormDancer, b: FormDancer, tol = TOL): boolean {
+export function sameSpotUpToHalfTurn(a: FormDancer, b: FormDancer, tol = XML_ROUND_TRIP_TOL): boolean {
   const exact = Math.abs(a.x - b.x) <= tol && Math.abs(a.y - b.y) <= tol && Math.abs(normAngle(a.heading - b.heading)) <= tol;
   if (exact) return genderOk(a, b);
   const turned = Math.abs(a.x + b.x) <= tol && Math.abs(a.y + b.y) <= tol && Math.abs(normAngle(a.heading - (b.heading + Math.PI))) <= tol;
@@ -72,7 +74,7 @@ export function sameSpotUpToHalfTurn(a: FormDancer, b: FormDancer, tol = TOL): b
 }
 
 /** The same spot with no rotation allowed: the rule a whole-set tam's own paths need. */
-export function sameSpotExact(a: FormDancer, b: FormDancer, tol = TOL): boolean {
+export function sameSpotExact(a: FormDancer, b: FormDancer, tol = XML_ROUND_TRIP_TOL): boolean {
   return (
     Math.abs(a.x - b.x) <= tol &&
     Math.abs(a.y - b.y) <= tol &&
@@ -112,7 +114,7 @@ export function formationReorderPermutation(
     return { ok: false, reason: 'size-mismatch', index: Math.min(oldDancers.length, newDancers.length) };
   }
   const halfTurn = opts.halfTurn ?? true;
-  const tol = opts.tol ?? TOL;
+  const tol = opts.tol ?? XML_ROUND_TRIP_TOL;
   const same = halfTurn ? sameSpotUpToHalfTurn : sameSpotExact;
   const used = new Array(oldDancers.length).fill(false);
   const permutation: number[] = [];
@@ -157,7 +159,7 @@ export function formationCompassOrder(
     const sy = Math.sin(Math.atan2(a.y, a.x)) + Math.sin(Math.atan2(b.y, b.x));
     // A pair straddling the origin has no direction at all: that is a formation of concentric pairs, not a
     // ring, and the caller has to be told the compass cannot name it rather than given a made-up point.
-    if (Math.hypot(sx, sy) < 1e-9) return null;
+    if (Math.hypot(sx, sy) < EXACT_TOL) return null;
     const mid = ((Math.atan2(sy, sx) / DEG) + 360) % 360;
     const best = COMPASS_SEQUENCE.map((point) => ({
       point,

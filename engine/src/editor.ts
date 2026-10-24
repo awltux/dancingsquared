@@ -32,6 +32,11 @@ import { normAngle } from './moves.js';
 // its own `r`, three spellings of one rule that no probe could import; the measurement that fixes the width and
 // the rejected alternative live in `export-format.ts`'s header now.
 import { exportAngleDeg, exportNumber } from './export-format.js';
+// THE ENGINE'S CROSS-CUTTING TOLERANCES, from the module that owns them. This file used to carry a private
+// `ARC_EPS = 1e-9` and eleven bare `1e-9`s beside it - the same "should be exact" rule named in one line and spelled
+// in eleven - and `1e-3` defaults that are the XML round trip's. See `tolerances.ts` for why `EXACT_TOL` is NOT
+// `SAME_BOARD_TOL` and why the tie epsilons stay their own constants.
+import { EXACT_TOL, XML_ROUND_TRIP_TOL } from './tolerances.js';
 
 export interface FormDancer {
   x: number;
@@ -396,7 +401,7 @@ export function fitCircle(b: BezierData, tolRel = ARC_FIT_TOL): CircleFit | null
   const p0 = { x: 0, y: 0 };
   const p3 = { x: b.x2, y: b.y2 };
   const chord = Math.hypot(p3.x - p0.x, p3.y - p0.y);
-  if (!(chord > 1e-9)) return null; // a closed or degenerate curve: not a single arc
+  if (!(chord > EXACT_TOL)) return null; // a closed or degenerate curve: not a single arc
   const t0 = bezierAngle(b, 0);
   const t1 = bezierAngle(b, 1);
   const normals = [t0 + Math.PI / 2, t0 - Math.PI / 2];
@@ -408,7 +413,7 @@ export function fitCircle(b: BezierData, tolRel = ARC_FIT_TOL): CircleFit | null
       const n1 = { x: Math.cos(a1), y: Math.sin(a1) };
       // p0 + u*n0 = p3 + v*n1  ->  u*n0 - v*n1 = p3 - p0
       const det = n0.x * -n1.y - n0.y * -n1.x;
-      if (Math.abs(det) < 1e-9) continue; // parallel perpendiculars: a straight walk
+      if (Math.abs(det) < EXACT_TOL) continue; // parallel perpendiculars: a straight walk
       const rx = p3.x - p0.x;
       const ry = p3.y - p0.y;
       const u = (rx * -n1.y - ry * -n1.x) / det;
@@ -658,7 +663,7 @@ export const RUN_ARC_MAX = Math.PI / 2;
 
 /** How many moves a turn needs, at most a quarter each. Always at least one, so a tiny turn is not zero. */
 export function runCircleMoveCount(sweep: number): number {
-  return Math.max(1, Math.ceil(Math.abs(sweep) / RUN_ARC_MAX - 1e-9));
+  return Math.max(1, Math.ceil(Math.abs(sweep) / RUN_ARC_MAX - EXACT_TOL));
 }
 
 /**
@@ -730,12 +735,12 @@ export function circleThrough(
   turn?: number,
 ): RunCircle | null {
   const r = Math.abs(radius);
-  if (!(r > 1e-9)) return null;
+  if (!(r > EXACT_TOL)) return null;
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const d = Math.hypot(dx, dy);
-  if (!(d > 1e-9)) return null;
-  if (r < d / 2 - 1e-9) return null;
+  if (!(d > EXACT_TOL)) return null;
+  if (r < d / 2 - EXACT_TOL) return null;
   const h = Math.sqrt(Math.max(0, r * r - (d / 2) * (d / 2)));
   const ux = dx / d;
   const uy = dy / d;
@@ -859,7 +864,7 @@ export function fitCircleRun(call: CallBundle, index: number, kFrom: number, kTo
   // already are, so this costs one pass and no extra sampling.
   let runLength = 0;
   for (let i = 1; i < pts.length; i++) runLength += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
-  if (!(runLength > 1e-9) || maxDev > RUN_FIT_MAX_DEV * runLength) return null;
+  if (!(runLength > EXACT_TOL) || maxDev > RUN_FIT_MAX_DEV * runLength) return null;
   let sweep = 0;
   let prev = Math.atan2(pts[0].y - cy, pts[0].x - cx);
   for (let i = 1; i < pts.length; i++) {
@@ -897,7 +902,7 @@ export function setRunCircle(call: CallBundle, index: number, kFrom: number, kTo
   if (!dancer) throw new Error(`no dancer ${index}`);
   if (kFrom < 0 || kTo >= dancer.path.length || kTo < kFrom) throw new Error(`no such run ${kFrom}..${kTo}`);
   const r = Math.abs(circle.r);
-  if (!(r > 1e-9)) throw new Error('the circle has no radius');
+  if (!(r > EXACT_TOL)) throw new Error('the circle has no radius');
   const run = dancer.path.slice(kFrom, kTo + 1);
   if (run.some((s) => !(s.beats > 0))) throw new Error('the run contains a move with no beats, so there is nothing to spread the turn over');
   const totalBeats = run.reduce((s, g) => s + g.beats, 0);
@@ -907,13 +912,13 @@ export function setRunCircle(call: CallBundle, index: number, kFrom: number, kTo
   }
   const thetas = run.map((s) => (circle.sweep * s.beats) / totalBeats);
   thetas.forEach((theta, i) => {
-    if (Math.abs(theta) > RUN_ARC_MAX + 1e-9) {
+    if (Math.abs(theta) > RUN_ARC_MAX + EXACT_TOL) {
       throw new Error(`move ${kFrom + i + 1} would have to turn ${degrees(Math.abs(theta)).toFixed(1)}deg and a move carries at most 90deg - spread the turn over more moves, or over moves with more even beats`);
     }
   });
   const start = frameAt(dancer, moveStartBeat(dancer, kFrom));
   const off = Math.hypot(start.x - circle.cx, start.y - circle.cy);
-  if (!(off > 1e-9)) throw new Error('the run starts at the centre of the circle, which is no radius at all');
+  if (!(off > EXACT_TOL)) throw new Error('the run starts at the centre of the circle, which is no radius at all');
   if (Math.abs(off - r) > tolRel * Math.max(1, r)) {
     throw new Error(`the run starts ${off.toFixed(3)} from the centre and the radius asked for is ${r.toFixed(3)}, which is a different circle`);
   }
@@ -1518,7 +1523,7 @@ export function placeDancerEnd(call: CallBundle, index: number, pose: FormDancer
   const local = rot(-pre.heading, { x: to.x - pre.x, y: to.y - pre.y });
   const turn = normAngle(to.heading - pre.heading);
   const handle = Math.hypot(local.x, local.y) / 3;
-  if (last.rotate === null && handle >= 1e-9) {
+  if (last.rotate === null && handle >= EXACT_TOL) {
     seg = {
       beats: last.beats,
       hands: last.hands,
@@ -1841,9 +1846,9 @@ function assignStartSlots(call: CallBundle, formation: FormDancer[]): number[] {
  *  Used to leave an authored first move ALONE when it already reaches the track. */
 function poseIs(pose: Pose, target: { x: number; y: number; heading: number }): boolean {
   return (
-    Math.abs(pose.x - target.x) <= 1e-9 &&
-    Math.abs(pose.y - target.y) <= 1e-9 &&
-    Math.abs(normAngle(pose.heading - target.heading)) <= 1e-9
+    Math.abs(pose.x - target.x) <= EXACT_TOL &&
+    Math.abs(pose.y - target.y) <= EXACT_TOL &&
+    Math.abs(normAngle(pose.heading - target.heading)) <= EXACT_TOL
   );
 }
 
@@ -1953,8 +1958,6 @@ export const ARC_TOL = 1e-3;
  */
 export const ARC_ANGLE_TOL = (0.5 * Math.PI) / 180;
 
-/** A length below which a handle has no direction and no size to speak of. */
-const ARC_EPS = 1e-9;
 
 /**
  * THE CUBIC THAT TRACES A CIRCULAR ARC about `centre`, from `from` to `to`, in whatever coordinate
@@ -1990,7 +1993,7 @@ export function arcBezierAbout(
 ): { cx1: number; cy1: number; cx2: number; cy2: number } | null {
   const r0 = Math.hypot(from.x - centre.x, from.y - centre.y);
   const r1 = Math.hypot(to.x - centre.x, to.y - centre.y);
-  if (r0 < ARC_EPS || r1 < ARC_EPS) return null;
+  if (r0 < EXACT_TOL || r1 < EXACT_TOL) return null;
   const r = (r0 + r1) / 2;
   if (Math.abs(r0 - r1) > tolRel * r) return null;
   const a0 = Math.atan2(from.y - centre.y, from.x - centre.x);
@@ -1998,7 +2001,7 @@ export function arcBezierAbout(
   // THE SHORT WAY ROUND, because that is the arc a caller means between two close points - and the
   // long one would be the rest of the circle.
   const sweep = normAngle(a1 - a0);
-  if (Math.abs(sweep) < ARC_EPS) return null;
+  if (Math.abs(sweep) < EXACT_TOL) return null;
   const reach = r * (4 / 3) * Math.tan(Math.abs(sweep) / 4);
   // The tangent at each end, in the direction of travel: for a POSITIVE (anticlockwise) sweep the
   // tangent is the radius turned +90 degrees.
@@ -2062,7 +2065,7 @@ export function arcBezier(p: ArcParams): BezierData {
 export function arcCorner(b: BezierData): number | null {
   const x = Math.hypot(b.cx1, b.cy1);
   const e = Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2);
-  if (x <= ARC_EPS || e <= ARC_EPS) return null;
+  if (x <= EXACT_TOL || e <= EXACT_TOL) return null;
   const ux = b.cx1 / x;
   const uy = b.cy1 / x;
   const ex = (b.x2 - b.cx2) / e;
@@ -2090,11 +2093,11 @@ export function arcOf(b: BezierData): ArcParams | null {
   const ex = b.x2 - b.cx2;
   const ey = b.y2 - b.cy2;
   const yLen = Math.hypot(ex, ey);
-  if (x <= ARC_EPS && yLen <= ARC_EPS) return null;
+  if (x <= EXACT_TOL && yLen <= EXACT_TOL) return null;
   // The start direction, with the frame's +x standing in when the handle has no length: cx1 = 0 and
   // cy1 = 0 is "no change of heading at the start", and atan2(0, 0) is 0.
-  const ux = x > ARC_EPS ? b.cx1 / x : 1;
-  const uy = x > ARC_EPS ? b.cy1 / x : 0;
+  const ux = x > EXACT_TOL ? b.cx1 / x : 1;
+  const uy = x > EXACT_TOL ? b.cy1 / x : 0;
   const wx = -uy;
   const wy = ux;
   const tol = ARC_TOL * Math.max(1, x, yLen);
@@ -2118,7 +2121,7 @@ export function arcOf(b: BezierData): ArcParams | null {
  * 0.33300000000000002. They are the same length, and an equality test would call that walk an ellipse.
  */
 export function arcIsCircle(p: ArcParams): boolean {
-  return Math.abs(p.x - Math.abs(p.y)) <= 1e-9 * Math.max(1, p.x, Math.abs(p.y));
+  return Math.abs(p.x - Math.abs(p.y)) <= EXACT_TOL * Math.max(1, p.x, Math.abs(p.y));
 }
 
 /** How far a curve is from being free to become a quarter arc - the panel's DISABLE reason. */
@@ -2139,11 +2142,11 @@ export function arcBlocker(b: BezierData, allowBackwards: boolean): ArcBlocker |
   if (arcOf(b)) return null; // already a quarter arc
   const xLen = Math.hypot(b.cx1, b.cy1);
   const yLen = Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2);
-  if (xLen <= ARC_EPS && yLen <= ARC_EPS) return 'no-handle-length';
+  if (xLen <= EXACT_TOL && yLen <= EXACT_TOL) return 'no-handle-length';
   if (!allowBackwards && b.cx1 < 0) return 'starts-backwards';
   // With one handle of zero length there is no angle to check, and the other handle's direction is
   // the only hint there is - the projection takes it and closes the arc as a circle.
-  if (xLen > ARC_EPS && yLen > ARC_EPS) {
+  if (xLen > EXACT_TOL && yLen > EXACT_TOL) {
     const corner = arcCorner(b);
     if (corner === null || Math.abs(Math.abs(corner) - Math.PI / 2) > ARC_ANGLE_TOL) return 'handles-not-perpendicular';
   }
@@ -2171,14 +2174,14 @@ export function projectToArc(b: BezierData, allowBackwards: boolean): ArcParams 
   if (arcBlocker(b, allowBackwards)) return null;
   const xLen = Math.hypot(b.cx1, b.cy1);
   const yLen = Math.hypot(b.x2 - b.cx2, b.y2 - b.cy2);
-  const angle = xLen > ARC_EPS ? Math.atan2(b.cy1, b.cx1) : 0;
-  if (xLen > ARC_EPS && yLen <= ARC_EPS) {
+  const angle = xLen > EXACT_TOL ? Math.atan2(b.cy1, b.cx1) : 0;
+  if (xLen > EXACT_TOL && yLen <= EXACT_TOL) {
     // One handle only: a circle, turning the way the move actually turns. Mid-move is where the turn
     // is well defined even when the end tangent is the zero vector.
     const ySign = bezierAngle(b, 0.5) < 0 ? -1 : 1;
     return { x: xLen, y: ySign * xLen, angle };
   }
-  if (yLen > ARC_EPS && xLen <= ARC_EPS) return { x: yLen, y: yLen, angle };
+  if (yLen > EXACT_TOL && xLen <= EXACT_TOL) return { x: yLen, y: yLen, angle };
   const wx = -Math.sin(angle);
   const wy = Math.cos(angle);
   const y = (b.x2 - b.cx2) * wx + (b.y2 - b.cy2) * wy;
@@ -2231,7 +2234,7 @@ export function sameFacing(a: BezierData | null, b: BezierData | null, tolDeg = 
   const pa = facingProfile(a);
   const pb = facingProfile(b);
   if (pa == null && pb == null) return true; // both holds: no direction, so nothing to disagree about
-  if (pa != null && pb != null && pa.every((v, i) => Math.abs(v - pb[i]) <= 1e-9)) return true;
+  if (pa != null && pb != null && pa.every((v, i) => Math.abs(v - pb[i]) <= EXACT_TOL)) return true;
   const tol = (tolDeg * Math.PI) / 180;
   for (let i = 0; i <= 8; i++) {
     const t = i / 8;
@@ -2339,7 +2342,7 @@ function sameBezier(a: BezierData | null | undefined, b: BezierData | null | und
  * `mirrorToFull` creates, so it is the only pairing a half-set text can reproduce. A call whose halves
  * pair up in some OTHER order is not one this writer can describe, and saying so is the point.
  */
-export function halfSetReport(call: CallBundle, tol = 1e-3): HalfSetReport {
+export function halfSetReport(call: CallBundle, tol = XML_ROUND_TRIP_TOL): HalfSetReport {
   const n = call.dancers.length;
   if (n === 0 || n % 2 !== 0) return { ok: false, half: 0, reason: `the set has ${n} dancers, which is not an even number of them` };
   const half = n / 2;
@@ -2506,7 +2509,7 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
  * The tolerance is the XML's own: the exporter rounds to four decimals, so a formation that has been
  * through the corpus once comes back within about 1e-4.
  */
-export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol = 1e-3): boolean {
+export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol = XML_ROUND_TRIP_TOL): boolean {
   if (call.dancers.length !== poses.length) return false;
   for (let i = 0; i < poses.length; i++) {
     const d = call.dancers[i];

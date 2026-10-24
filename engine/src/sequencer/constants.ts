@@ -28,6 +28,22 @@ export const SEARCH_MATCH_MAX = 6.0;
 // spent; measure the effective limit instead (test/selection.mjs pins it).
 export const KNOWN_FORMATION_MAX = 6.0;
 
+/**
+ * THE PER-DANCER DIVISOR: the `12` the paragraph above says "is what actually decides it".
+ *
+ * `matchEqualLength`'s distance-signature pre-filter binds at `maxError / SIGNATURE_DIVISOR`, not at `maxError`, so a
+ * caller passing `KNOWN_FORMATION_MAX` (6.0) gets an effective per-dancer allowance of 0.5. MEASURED: moving ONE dancer
+ * is forgiven up to 0.50 units and no further, uniformly over every dancer and over Static Square, Normal Lines and
+ * Ocean Waves; changing `KNOWN_FORMATION_MAX` to 3.0 moves that limit to exactly 0.25, i.e. the divisor is what sets it.
+ *
+ * WHY IT IS A NAME NOW. It was an unnamed `12` in three places (match.ts twice, matcher.ts once) while the paragraph
+ * above described it as the deciding number - a rule documented in prose and spelled in code. It is NOT 12 because
+ * there are twelve dancers: the corpus's sets are 2..16 dancers and the filter is a SUM over pairs, so the divisor is
+ * a bound on how a single dancer's displacement distributes into that sum, and `test/selection.mjs` pins the effective
+ * limit rather than this arithmetic.
+ */
+export const SIGNATURE_DIVISOR = 12;
+
 // Tolerance for "IS THIS THE SAME BOARD" — the per-dancer position AND heading slack `sameBoardById`
 // allows when it compares two boards by dancer IDENTITY.
 //

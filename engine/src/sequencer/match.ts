@@ -6,7 +6,7 @@
 // board dancers to the candidate dancers. This is the core of both "recognize
 // the current formation" and "apply this call's setup".
 
-import { isKnownCouple } from './constants.js';
+import { SIGNATURE_DIVISOR, isKnownCouple } from './constants.js';
 import { normAngle } from '../moves.js';
 
 export interface Matchable {
@@ -177,7 +177,7 @@ function matchEqualLength(  source: Matchable[],
   // distance to every other dancer by at most the displacement, so a caller passing maxError = 6.0
   // gets an effective per-dancer allowance of 0.5, not 6.0. Measured and pinned in
   // test/selection.mjs; see the note on KNOWN_FORMATION_MAX in constants.ts.
-  const sigTol = maxError / 12;
+  const sigTol = maxError / SIGNATURE_DIVISOR;
   for (let k = 0; k < s1.length; k++) {
     if (Math.abs(s1[k] - s2[k]) > sigTol) return null;
   }
@@ -306,7 +306,7 @@ export function matchFormationsAll(
   // distance to every other dancer by at most the displacement, so a caller passing maxError = 6.0
   // gets an effective per-dancer allowance of 0.5, not 6.0. Measured and pinned in
   // test/selection.mjs; see the note on KNOWN_FORMATION_MAX in constants.ts.
-  const sigTol = maxError / 12;
+  const sigTol = maxError / SIGNATURE_DIVISOR;
   const candidates: { m: FormationMatch; combo: number[] }[] = [];
   forEachCombination(source.length, target.length, (combo) => {
     // Snapshot the combo: forEachCombination reuses one internal array, so store

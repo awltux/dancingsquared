@@ -18,6 +18,10 @@ export * from './core.js';
 export * from './handholds.js';
 export * from './matrix.js';
 export * from './moves.js';
+// THE TWO CROSS-CUTTING TOLERANCES, exported because the POC's editor and the book's tools both round-trip XML and both
+// used to carry their own copy: `EXACT_TOL` (1e-9) for arithmetic that should be exact, `XML_ROUND_TRIP_TOL` (1e-3) for
+// "the same poses after a file". See `tolerances.ts` for why the first is not `SAME_BOARD_TOL`.
+export { EXACT_TOL, XML_ROUND_TRIP_TOL } from './tolerances.js';
 // HOW A CALL GOES: the derived `close`/`normal`/`far` label, exported because a rule or a probe that keys on a body has to
 // be able to enumerate the values and derive one from a title (`going.ts`).
 export { GOING_VALUES, goingOfTitle } from './going.js';
@@ -241,7 +245,7 @@ export type {
   FormationSetup,
   ComplianceLevel,
 } from './sequencer/alignment.js';
-export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SAME_BOARD_TOL } from './sequencer/constants.js';
+export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SAME_BOARD_TOL, SIGNATURE_DIVISOR } from './sequencer/constants.js';
 // THE TWO MATCH TOLERANCES ARE PART OF THE SURFACE, because measuring with them is what a probe does.
 //
 // Five files outside the engine used to COPY them — `test/disjoint-copies.mjs`, `test/scircle-instance.mjs` and three

@@ -22,7 +22,7 @@ import { FormationMatcher, rebasedPose, localMotion } from './matcher.js';
 import { CallApplicator } from './applicator.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
-import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
+import { DEFAULT_MATCH_MAX, SAME_BOARD_TOL, SEARCH_MATCH_MAX } from './constants.js';
 import { normAngle } from '../moves.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
@@ -1236,7 +1236,7 @@ export class SequenceAnalyzer {
     for (const d of board.dancers) {
       if (touched.has(d.id)) continue;
       const e = endById.get(d.id);
-      if (e && Math.hypot(e.x - d.x, e.y - d.y) < 1e-6 && Math.abs(normAngle(e.heading - d.heading)) < 1e-6) {
+      if (e && Math.hypot(e.x - d.x, e.y - d.y) < SAME_BOARD_TOL && Math.abs(normAngle(e.heading - d.heading)) < SAME_BOARD_TOL) {
         posed.set(d.id, { x: d.x, y: d.y, heading: d.heading });
       }
     }

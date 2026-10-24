@@ -16,6 +16,7 @@ import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection, resolveReading } from './selection.js';
 import { readCallName } from './call-name.js';
+import { EXACT_TOL } from '../tolerances.js';
 import type { CallTitle } from './call-titles.js';
 import type { CallNameHow } from './call-name.js';
 import type { Board, CallStep, GroupStep, LaneRun, ModuleStep, SeqDancer, VariantMatch } from './types.js';
@@ -1372,7 +1373,7 @@ export class CallApplicator {
     // AT LEAST `PATH_SAMPLES` OVER THE CALL, and 0.5 beats otherwise - see `PATH_SAMPLES` for the witness
     // that made the fixed step a defect in this predicate.
     const fine = Math.min(step, total / PATH_SAMPLES);
-    for (let t = 0; t <= total + 1e-9; t += fine) {
+    for (let t = 0; t <= total + EXACT_TOL; t += fine) {
       const all = sources.map(({ d, v, m }) => {
         const start = poseFor(v, 0);
         const cur = poseFor(v, Math.min(t, dancerBeats(v)));

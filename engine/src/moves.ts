@@ -16,6 +16,7 @@
 import type { DancerState } from './matrix.js';
 import { dancerMatrix } from './matrix.js';
 import type { Mat5 } from './matrix.js';
+import { EXACT_TOL } from './tolerances.js';
 
 export const PI = Math.PI;
 
@@ -212,7 +213,7 @@ function firstGridFacing(from: number, turn: number): number | null {
   const hi = Math.ceil((from + turn) / QUARTER) + 1;
   for (let k = lo; k <= hi; k++) {
     const ahead = dir * normAngle(k * QUARTER - from);
-    if (ahead > 1e-9 && ahead < limit - 1e-9) return normAngle(k * QUARTER);
+    if (ahead > EXACT_TOL && ahead < limit - EXACT_TOL) return normAngle(k * QUARTER);
   }
   return null;
 }

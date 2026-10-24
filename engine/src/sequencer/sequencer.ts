@@ -14,6 +14,7 @@ import { HomeSolver } from './solver.js';
 import { Grouping } from './grouping.js';
 import { COMBINED_GROUP_NAMES, SUBSET_GROUP_NAMES, splitSelection } from './selection.js';
 import { FsmStore, type FsmAmendment } from './fsm-store.js';
+import { EXACT_TOL } from '../tolerances.js';
 import { type FsmExport } from './fsm-export.js';
 import {
   FsmTable,
@@ -1695,7 +1696,7 @@ export class Sequencer {
     const beats = this.sequenceBeats(flat, start);
     if (beats <= 0) return null;
     let worst: BodyPair | null = null;
-    for (let b = 0; b <= beats + 1e-9; b += step) {
+    for (let b = 0; b <= beats + EXACT_TOL; b += step) {
       const board = this.evaluateSequence(flat, Math.min(b, beats), start).board;
       const found = worstBodyGap(board);
       if (found && (!worst || found.gap < worst.gap)) worst = found;

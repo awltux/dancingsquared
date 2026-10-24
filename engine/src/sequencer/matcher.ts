@@ -7,7 +7,7 @@
 import { matchFormations, type FormationMatch, type Matchable } from './match.js';
 import { CallLibrary } from './library.js';
 import { SequencerConfig, type ApplyPermission } from './config.js';
-import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, STANDARD_FORMATIONS, canonicalName } from './constants.js';
+import { DEFAULT_MATCH_MAX, KNOWN_FORMATION_MAX, SIGNATURE_DIVISOR, STANDARD_FORMATIONS, canonicalName } from './constants.js';
 import { findCouplePairs, COUPLE_WIDTH, COUPLE_WIDTH_TOL } from './couples.js';
 import { DEG } from '../core.js';
 import { normAngle } from '../moves.js';
@@ -498,7 +498,7 @@ export class FormationMatcher {
     if (!best) return null;
     const tol = KNOWN_FORMATION_MAX + this.config.matchMargin;
     if (best.m.error > tol) return null;
-    if (best.m.maxDancerError > tol / 12) return null;
+    if (best.m.maxDancerError > tol / SIGNATURE_DIVISOR) return null;
     if (best.second - best.m.error <= MATCH_TIE_EPS) return null;
     return best.f.name;
   }

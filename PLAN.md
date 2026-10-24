@@ -4826,6 +4826,29 @@ and `buildCatalog` projects over it. **Two things are left, and neither is this 
    generated artefact another task is mid-decision on is what AGENTS.md §10.8 forbids. **Whoever regenerates it gets
    4074 edges, not 4098** — that is this refactor's fingerprint on the number.
 
+**R8 — the magic numbers, and the rule that decides which ones are rules.** The ask was "convert the magic numbers to
+constants", which taken literally is 751 decimal literals. The pass gave itself an edge first:
+
+> A NUMBER EARNS A NAME WHEN IT IS A RULE RATHER THAN DATA, AND EITHER DUPLICATED OR DOCUMENTED-BUT-UNNAMED.
+
+Measured (`engine/test/tolerances.mjs`, light), the engine was not where the problem looked — it already names ~40
+constants and all 13 tolerance constants are declared once — and the class the count hid was the **tolerance literals
+spelled inline** plus three numbers that decided a rule under a bare literal. Named, with the census pins shrunk to
+prove it: `EXACT_TOL` (1e-9) and `XML_ROUND_TRIP_TOL` (1e-3) in `engine/src/tolerances.ts`; `SIGNATURE_DIVISOR` (12,
+the divisor `constants.ts` already described as "what actually decides it") in `sequencer/constants.ts`; `MIN_DISTANCE`
+(3.0, the reference's `minDistance`) in `swing-thru.ts`; and the copies that already had a name were routed through it —
+`apply-source.ts`'s three `1e-6` defaults at `SAME_BOARD_TOL`, `editor.ts`'s private `ARC_EPS`, `formation-order.ts`'s
+`TOL`, the POC's `NO_RADIUS`/`TOL`/pose checks, and the book's two extra `0.48`s at `MARKER_UNITS`. Inline sites:
+**1e-9 10 files → 0, 1e-6 11 → 6, 1e-3 12 → 6, `12` 3 → 0, `0.48` 3 files → 1**. What remains is named in the census's
+printout and is the class that genuinely cannot be named: rule-specific thresholds that are neither duplicated nor a
+documented rule (a half-turn test, a matrix-identity test, a turn-direction test, the POC view's force floor).
+
+**Deliberately NOT named, and the list is the useful part of the finding:** authored DATA (`season-data.ts`'s ~350
+literals are the corpus's content), DECORATION (`poc/src/fsm-view.ts`, `packages/stage/scene.ts` — used once, and the
+renderer already imports the engine's body numbers), PROBE FIXTURES (`40.91` px/unit is a view measurement four probes
+each state for themselves), and the TIE epsilons — `TIE_EPS`/`MATCH_TIE_EPS`/`REFLECT_TIE_EPS`/`CHOICE_TIE_EPS` answer
+"equal enough to tie", which is a different question from "this should be zero" and must not be merged into it.
+
 ---
 
 ## 5. Blocked, and recorded so nobody re-opens them

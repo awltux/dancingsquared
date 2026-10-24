@@ -9,7 +9,7 @@
 // verdict handling 60 times a second.
 //
 // Usage: node game/test/playhead-probe.mjs
-import { Replay } from '../src/ui/playhead.ts';
+import { Replay, LANDING_HOLD_MS } from '../src/ui/playhead.ts';
 import { MS_PER_BEAT } from '../src/puzzle/config.ts';
 
 let failures = 0;
@@ -35,9 +35,9 @@ console.log('\n== 2. a running replay reports the beat it has reached ==');
   check(p.isRunning === true, 'starting a motion makes it running');
   check(p.beat === 0, 'and it begins at beat 0');
   check(p.totalBeats === 8, `with the walk's total to draw against (${p.totalBeats})`);
-  check(p.advance(MS_PER_BEAT) === false, 'one beat in, it has not finished');
+  check(p.advance(MS_PER_BEAT).landed === false, 'one beat in, it has not finished');
   check(p.beat === 1, `and it reports beat 1 (${p.beat})`);
-  check(p.advance(MS_PER_BEAT / 2) === false, 'half a beat later it still has not finished');
+  check(p.advance(MS_PER_BEAT / 2).landed === false, 'half a beat later it still has not finished');
   check(p.beat === 1.5, `and the beat is fractional, so the picture can be drawn mid-call (${p.beat})`);
 }
 
@@ -45,19 +45,19 @@ console.log('\n== 3. the finish is an EDGE, reported once, on the exact total ==
 {
   const p = new Replay();
   p.start(4);
-  check(p.advance(4 * MS_PER_BEAT - 1) === false, 'one millisecond short of the end is not the finish');
-  check(p.advance(1) === true, 'the frame that reaches the end reports it');
+  check(p.advance(4 * MS_PER_BEAT - 1).landed === false, 'one millisecond short of the end is not the finish');
+  check(p.advance(1).landed === true, 'the frame that reaches the end reports it');
   check(p.isRunning === false, 'and the motion is no longer running');
   // THE EDGE, NOT THE STATE: `advance` is what the shell acts on, so a second `true` would run the verdict
   // handling twice — which is why the return is checked here rather than the flag alone.
-  check(p.advance(MS_PER_BEAT) === false, 'and a later frame reports nothing, because the edge has passed');
+  check(p.advance(MS_PER_BEAT).landed === false, 'and a later frame reports nothing, because the edge has passed');
   // NEGATIVE CONTROL, MEASURED: reporting the finish by STATE (`if (elapsed < total) return false;` with no
   // `running = false`) reddens the two checks above this one — a stopped playhead would claim to be running
   // and would report the finish on every frame the shell ever asks again.
   // THE CLAMP, and it is what keeps the picture and the verdict in agreement: a motion that stopped a hair
   // short of its beats would draw a board nobody's verdict was computed against.
   check(p.beat === 4, `a finished replay reports exactly the walk's total (${p.beat})`);
-  check(p.advance(100) === false, 'and advancing a stopped playhead reports nothing further');
+  check(p.advance(100).landed === false, 'and advancing a stopped playhead reports nothing further');
   check(p.beat === 4, 'and does not move the beat');
   // NEGATIVE CONTROL, MEASURED: using `running` where the class means "a walk has been asked for" (the flag
   // `beat` reads) reddens THESE two checks — a finished playhead would report beat 0, the START board, while
@@ -71,7 +71,7 @@ console.log('\n== 4. a zero-beat motion still settles on the ending ==');
   const p = new Replay();
   p.start(0);
   check(p.beat === 0, 'a zero-beat motion starts at 0');
-  check(p.advance(16) === true, 'and completes on the next frame');
+  check(p.advance(16).landed === true, 'and completes on the next frame');
   check(p.beat === 0, 'reporting beat 0, which for a stopped walk IS the landing board');
 }
 
@@ -87,7 +87,43 @@ console.log('\n== 5. cancel() abandons a motion without reporting ==');
   // on a new puzzle and on a mode switch, where the stale walk is the previous puzzle's, and a report of its
   // total would draw a board that is not on screen.
   check(p.totalBeats === 0, `and it has dropped the walk it was showing (${p.totalBeats} beats)`);
-  check(p.advance(MS_PER_BEAT) === false, 'so nothing more is reported from the abandoned walk');
+  check(p.advance(MS_PER_BEAT).landed === false, 'so nothing more is reported from the abandoned walk');
+}
+
+console.log('\n== 6. a LINE holds its landing frame, and a VERDICT motion does not ==');
+{
+  // REPORTED: "Put as 2 second delay/pause after playing the sequence for Drills and Todays Daily before resetting to
+  // the first formation/arrangement." The snapback was the shell dropping the motion on the landing frame, and the
+  // fix is this hold: `landed` (the verdict's frame) and `done` (the picture's) are now two edges.
+  const held = new Replay();
+  held.start(4, LANDING_HOLD_MS);
+  check(held.advance(4 * MS_PER_BEAT).landed === true, 'the landing frame reports `landed`');
+  check(held.phase === 'holding', `and the playhead is HOLDING, not idle (${held.phase})`);
+  check(held.isRunning === false, 'while NOT running, so a press during the hold is answered rather than refused');
+  // THE FRAME IS THE LANDING BOARD FOR THE WHOLE HOLD, which is what makes the two seconds legible: a beat that drifted
+  // would draw a board nobody's verdict was computed against.
+  check(held.beat === 4, `and the picture stays on the walk's last beat (${held.beat})`);
+  check(held.advance(LANDING_HOLD_MS - 1).done === false, `one millisecond short of ${LANDING_HOLD_MS} ms is not the end`);
+  check(held.beat === 4, 'and the beat still has not moved');
+  check(held.advance(1).done === true, 'the frame that spends the hold reports `done`');
+  check(held.phase === 'idle', 'and the playhead is idle again, which is what returns the picture to the pair');
+  check(held.advance(100).done === false, 'and nothing more is reported after it');
+  // THE VERDICT MOTION: one edge, so the next question's boards appear on the frame the call lands — a hold there would
+  // show the previous answer's board while the next question was being asked.
+  const verdict = new Replay();
+  verdict.start(2);
+  const edge = verdict.advance(2 * MS_PER_BEAT);
+  check(edge.landed === true && edge.done === true, 'an unheld motion lands and finishes on the same frame');
+  check(verdict.phase === 'idle', 'leaving nothing to hold');
+  // NEGATIVE CONTROL, MEASURED: the pre-hold playhead (a single boolean finish) reddens THESE checks — it has no
+  // `holding` phase at all, so `done` arrives with `landed` and the line snaps back to the opening formation. The two
+  // checks above it are what rule out the opposite error, a hold that also blocks input.
+  // AND THE HOLD IS DROPPED BY cancel(), which is the mode change's and the new puzzle's path.
+  const cancelled = new Replay();
+  cancelled.start(4, LANDING_HOLD_MS);
+  cancelled.advance(4 * MS_PER_BEAT);
+  cancelled.cancel();
+  check(cancelled.phase === 'idle' && cancelled.advance(1).done === false, 'and a cancelled hold reports nothing');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -16,6 +16,23 @@
 // disagreeing about what frame it is.
 import { MS_PER_BEAT } from '../puzzle/config.ts';
 
+/**
+ * HOW LONG A LINE'S LANDING BOARD IS HELD once the walk has been drawn.
+ *
+ * REPORTED: "Put as 2 second delay/pause after the playing the sequence for Drills and Todays Daily before resetting
+ * to the first formation/arrangement. It makes it easier for a person to digest the animation is finished."
+ *
+ * THE SNAPBACK WAS REAL AND IT WAS THE SHELL'S: when a replay finished, `main.ts` dropped the motion in the same
+ * frame, so `drawPair` painted the PANEL's pair again — and the panel's left board is the board the run STARTED
+ * from (`DrillController.view().from`, and the Daily's own first waypoint). So the line played to its ending and
+ * then jumped straight back to the opening formation, which reads as "that was not the end of anything".
+ *
+ * TWO SECONDS, asked for by the owner, and it is a HOLD rather than a longer walk: the picture stops on the final
+ * frame, nothing is charged extra, and the input stays live (see `isRunning`) so the player can answer the next
+ * call while the last board is still on screen.
+ */
+export const LANDING_HOLD_MS = 2000;
+
 export class Replay {
   private running = false;
   /** Whether a motion has ever been asked for. See `beat`: it is not the same as "running". */
@@ -23,10 +40,26 @@ export class Replay {
   private elapsedMs = 0;
   private totalMs = 0;
   private beats = 0;
+  /** The landing frame is on screen and the motion has been drawn to its end. See `phase`. */
+  private holding = false;
+  private holdMs = 0;
+  private holdMsLeft = 0;
 
-  /** Whether a motion is in flight. The UI uses this to disable the buttons while one plays. */
+  /**
+   * Whether a motion is IN FLIGHT — the input guard, and NOT the same as "the picture is a motion".
+   *
+   * THE HOLD IS DELIBERATELY EXCLUDED: during the two-second landing hold the animation is over, so a button that
+   * refused a press would be refusing one the player is entitled to make. `phase` is what the frame loop asks.
+   */
   get isRunning(): boolean {
     return this.running;
+  }
+
+  /** What the shell's loop should do: `idle` nothing, `playing` draw the walk, `holding` draw its last frame. */
+  get phase(): 'idle' | 'playing' | 'holding' {
+    if (this.running) return 'playing';
+    if (this.holding) return 'holding';
+    return 'idle';
   }
 
   /**
@@ -49,46 +82,75 @@ export class Replay {
   }
 
   /**
-   * Start a replay of `totalBeats` beats.
+   * Start a replay of `totalBeats` beats, holding the landing for `holdMs`.
    *
-   * A ZERO-BEAT MOTION IS NOT AN ERROR — it completes immediately on the next `advance`, which is what a
-   * caller gets for a list the engine cannot walk at all (a refused call has no motion to show) and what it
-   * wants: the end state is drawn with no motion rather than a special case at every call site.
+   * THE HOLD IS AN ARGUMENT BECAUSE THE TWO KINDS OF MOTION WANT DIFFERENT ENDINGS. A VERDICT animation — one move,
+   * whose message is already on screen — must hand the picture straight back, or the next question would appear while
+   * the previous board was still frozen. A LINE played from the panel's `Play` is the thing the player asked to watch,
+   * so its ending is the content: `playLine` passes `LANDING_HOLD_MS` and every other caller passes nothing.
    *
-   * IT TAKES NOTHING BUT A LENGTH. It used to take a `{ label, done }` spec, and by Phase 4 nothing read
-   * either: the caption is the SCREEN's (it says the call in the verdict line, where it stays visible after
-   * the motion), and the completion is a return value from `advance` rather than a callback — which is what
-   * keeps one verdict per motion rather than one per frame.
+   * A ZERO-BEAT MOTION IS NOT AN ERROR — it lands on the first `advance`, which is what a caller gets for a list the
+   * engine cannot walk at all (a refused call has no motion to show) and what it wants: the end state is drawn with no
+   * motion rather than a special case at every call site.
+   *
+   * IT TAKES NO CALLBACKS. It used to take a `{ label, done }` spec, and by Phase 4 nothing read either: the caption
+   * is the SCREEN's, and the completion is a return value from `advance` — which is what keeps one verdict per motion
+   * rather than one per frame.
    */
-  start(totalBeats: number): void {
+  start(totalBeats: number, holdMs = 0): void {
     this.asked = true;
     this.beats = totalBeats;
     this.totalMs = totalBeats * MS_PER_BEAT;
     this.elapsedMs = 0;
     this.running = true;
+    this.holdMs = holdMs;
+    this.holdMsLeft = holdMs;
+    this.holding = false;
   }
 
   /**
-   * Advance by `dt` ms. Returns true when the motion has FINISHED ON THIS CALL — the edge, not the state,
-   * so a caller reports the verdict once rather than once per frame.
+   * Advance by `dt` ms, reporting the two edges ONCE each.
+   *
+   * `landed` is the frame the walk reaches its last beat — where the verdict and the step's advance belong. `done` is
+   * the frame the landing hold expires — where the picture goes back to the panel's own pair. They are the SAME frame
+   * for an unheld motion (`holdMs === 0`), which is every verdict animation, so the two-edge shape costs those callers
+   * nothing.
+   *
+   * THE EDGES ARE EDGES, NOT STATES: the frame loop acts on them, and a `true` that repeated would run the verdict
+   * handling sixty times a second.
    */
-  advance(dt: number): boolean {
-    if (!this.running) return false;
+  advance(dt: number): { landed: boolean; done: boolean } {
+    if (this.holding) {
+      this.holdMsLeft -= dt;
+      if (this.holdMsLeft > 0) return { landed: false, done: false };
+      this.holding = false;
+      this.holdMsLeft = 0;
+      return { landed: false, done: true };
+    }
+    if (!this.running) return { landed: false, done: false };
     this.elapsedMs += dt;
-    if (this.elapsedMs < this.totalMs) return false;
-    this.running = false;
-    // CLAMPED, so `beat` is exactly the total on the landing frame: the last thing drawn must be the ending
-    // board itself, not a value a hair short of it. A walk that stopped at 0.999 of its beats would draw a
-    // board nobody's verdict was computed against.
+    if (this.elapsedMs < this.totalMs) return { landed: false, done: false };
+    // CLAMPED, so `beat` is exactly the total on the landing frame: the last thing drawn must be the ending board
+    // itself, not a value a hair short of it. A walk that stopped at 0.999 of its beats would draw a board nobody's
+    // verdict was computed against.
     this.elapsedMs = this.totalMs;
-    return true;
+    this.running = false;
+    if (this.holdMs > 0) {
+      this.holding = true;
+      this.holdMsLeft = this.holdMs;
+      return { landed: true, done: false };
+    }
+    return { landed: true, done: true };
   }
 
   /** Stop without reporting, for a replay abandoned by a mode change or a new puzzle. */
   cancel(): void {
     this.running = false;
+    this.holding = false;
     this.asked = false;
     this.elapsedMs = 0;
     this.beats = 0;
+    this.holdMs = 0;
+    this.holdMsLeft = 0;
   }
 }

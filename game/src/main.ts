@@ -55,7 +55,7 @@ import { LevelScreen } from './ui/level-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
 import { AccountScreen } from './ui/account-screen.ts';
 import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
-import { Replay } from './ui/playhead.ts';
+import { Replay, LANDING_HOLD_MS } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import type { Board } from 'dancing-squared-engine';
 
@@ -2383,7 +2383,10 @@ function playLine(): void {
     board = applier.apply(board, call);
   }
   playingLine = replayLine(line.calls, callBeats);
-  startReplay(applier.motion(line.calls, line.start), 'settle');
+  // THE LINE IS THE THING THE PLAYER ASKED TO WATCH, so its ending is the content: it is held on its last frame for
+  // `LANDING_HOLD_MS` instead of snapping back to the opening formation. REPORTED: "Put as 2 second delay/pause after
+  // playing the sequence for Drills and Todays Daily before resetting to the first formation/arrangement."
+  startReplay(applier.motion(line.calls, line.start), 'settle', LANDING_HOLD_MS);
 }
 
 /**
@@ -2485,12 +2488,29 @@ function draw(): void {
   stage.drawPair(current.stage);
 }
 
-/** Start a replay of `motion`, and what finishing it means. */
-function startReplay(motion: SequenceMotion, outcome: ReplayOutcome): void {
+/**
+ * Start a replay of `motion`, what landing it means, and how long its last frame is held.
+ *
+ * THE HOLD IS A PARAMETER because the two kinds of motion end differently: a VERDICT animation hands the picture
+ * straight back to the pair, while a LINE played from the panel's `Play` stops on its landing board for
+ * `LANDING_HOLD_MS` so the player can see that it finished (`ui/playhead.ts` carries the rule and the report).
+ */
+function startReplay(motion: SequenceMotion, outcome: ReplayOutcome, holdMs = 0): void {
   replay = motion;
   replayOutcome = outcome;
   setBusy(true);
-  PLAYHEAD.start(motion.beats);
+  PLAYHEAD.start(motion.beats, holdMs);
+}
+
+/**
+ * THE PICTURE GOES BACK TO THE PANEL'S PAIR, which is where a replay begins and ends: `replay` is what `draw` samples
+ * instead of the pair, so clearing it is what returns the boards — and `draw` has to be told, because the frame that
+ * clears it has already painted the held landing frame.
+ */
+function endReplay(): void {
+  replay = null;
+  replayOutcome = 'settle';
+  draw();
 }
 
 function setBusy(busy: boolean): void {
@@ -2508,24 +2528,29 @@ function toggleView(): void {
 function frame(nowMs: number): void {
   const dt = lastFrameMs === 0 ? 16 : Math.min(100, nowMs - lastFrameMs);
   lastFrameMs = nowMs;
-  if (PLAYHEAD.isRunning) {
-    const finished = PLAYHEAD.advance(dt);
+  // THE PLAYHEAD'S PHASE, NOT ITS `isRunning`: a LINE drawn to its end HOLDS that frame for two seconds
+  // (`LANDING_HOLD_MS`), and the loop has to keep painting it. `isRunning` stays false through the hold on purpose, so
+  // a button pressed while the last board is still up is answered rather than refused.
+  if (PLAYHEAD.phase !== 'idle') {
+    const { landed, done } = PLAYHEAD.advance(dt);
     draw();
     // THE CALL BEING PLAYED IS MARKED WHILE THE LINE PLAYS, from the same playhead beat the picture is sampled at — so
     // the list and the stage cannot disagree about where in the line we are. `puzzle/replay-line.ts` turns a beat into a
     // call, and `ReplayList` writes nothing while the answer is unchanged.
     if (playingLine) replayList.highlight(callAt(playingLine, PLAYHEAD.beat));
-    if (finished) {
-      // THE MARK GOES WHEN THE LINE ENDS: the list is a record, not a progress bar, and a call left lit would say the
+    if (landed) {
+      // THE MARK GOES WHEN THE LINE LANDS: the list is a record, not a progress bar, and a call left lit would say the
       // replay is still somewhere it is not.
       if (playingLine) {
         replayList.highlight(null);
         playingLine = null;
       }
       setBusy(false);
+      // THE MOTION IS KEPT, AND THAT IS THE WHOLE OF THE REPORTED SNAPBACK. Dropping it here made the next `draw` paint
+      // the PANEL's pair — whose left board is the board the run STARTED from — so a line played to its ending jumped
+      // straight back to the opening formation ("Put as 2 second delay/pause after playing the sequence … before
+      // resetting to the first formation"). It is held on its last frame until `done`.
       const outcome = replayOutcome;
-      replay = null;
-      replayOutcome = 'settle';
       if (mode === 'drill') {
         // A CORRECT ANSWER SETTLES ON ITS LANDING BOARD AND THEN THE STEP ADVANCES, so the player sees where
         // the call left the set — which is the state the NEXT question is asked from. A WRONG answer keeps its
@@ -2538,8 +2563,10 @@ function frame(nowMs: number): void {
       } else if (mode === 'daily') {
         paintDaily();
       }
-      draw();
-    }
+      // A VERDICT MOTION HAS NOTHING TO HOLD, so its `done` arrives on this same frame and the picture goes back
+      // exactly as it always did. Only a held line reaches the branch below on a later frame.
+      if (done) endReplay();
+    } else if (done) endReplay();
   } else if (mode === 'daily' && daily) {
     // THE CLOCK IS DRAWN FROM THE FRAME LOOP because it runs whether or not anything is moving, and only the
     // readout is touched — `writeClock` compares the string first, so this is not 60 DOM writes a second.

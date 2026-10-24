@@ -16,6 +16,15 @@
 // a geometry edit cannot re-key a reference, and there is nothing to alias. That is the whole of the simplification
 // - `assets/formation-roots.json` needed a generated mapping and a hand-written alias file for the same stability.
 //
+// A TAG IS A UID, AND THAT HAS ONE CONSEQUENCE FOR THIS FILE. Once minted, a tag names a definition and not a
+// geometry, so a legitimate geometry correction must not be a re-mint. The audit therefore does not re-derive tags:
+// `assets/formation-tag-provenance.json` records where each tag was minted, append-only, and the audit checks that
+// the corpus's carried tags and the record agree IN BOTH DIRECTIONS. The record is provenance, not a lookup - no
+// runtime code reads it, and unlike the deleted ledger it never answers "what does this board compute to".
+// MEASURED when this changed: 163 of the fids are rooted by a named definition alone, and shifting
+// `Facing Dancers Close` by 0.2 (the ids quantise positions to 0.25) produced 2 problems under the old rule and 0
+// under this one.
+//
 // WHY THE ORDER OF THE MATCH IS EXACT-FIRST. `formationId` already quotients out rotation and translation, so two
 // definitions of one shape share an id EXACTLY, and the nine `Ocean Waves` names (one geometry, nine gender
 // layouts) are nine `aid`s under one `fid`. The tolerance scan therefore only ever decides the NEAR-duplicates,
@@ -70,12 +79,56 @@ const ASSETS = corpusRoot();
  */
 const ASSETS_REL = path.relative(ROOT, ASSETS).split(path.sep).join('/');
 const REPORT = path.join(ROOT, 'DuplicateFormations.md');
+/**
+ * WHERE EACH TAG WAS MINTED. Append-only, and written by `--write`; no runtime code reads it.
+ *
+ * IT IS NOT THE DELETED `assets/formation-roots.json`. That file existed so a variant id could be DERIVED from a
+ * board through a lookup, which is exactly what a stored tag replaced. This records what a minting WAS, and the
+ * audit consults it so that a tag can be checked without re-deriving it from geometry - see `tagProblems`.
+ */
+const PROVENANCE = path.join(ASSETS, 'formation-tag-provenance.json');
 const DEG = Math.PI / 180;
 
 /** Every level whose call files carry tams. `src/` holds the engine's own fixtures; `corpus-inventory` reads both. */
 export const TAG_LEVELS = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b', 'src'];
 
 const read = (p) => fs.readFileSync(path.join(ASSETS, p), 'utf8');
+
+/**
+ * The recorded mintings: `{ fids: Map<fid, label>, aids: Map<aid, label> }`, or NULL when the record is absent.
+ *
+ * ONE MAP PER TAG, NOT A PAIR. A `fid` ignores gender and an `aid` does not, so ONE formation id legitimately
+ * carries SEVERAL arrangement ids: MEASURED, `F3-nqygzvp3` is both `Box RH` (`A1-b0hdpgj9`) and `Box RH Boys Lead`
+ * (`A1-3ay5cyub`). A record keyed by fid alone would have to pick one of them.
+ *
+ * Null rather than an empty record, because the two mean different things and the audit says which: an absent
+ * record is one failure naming the file and the command that writes it, where an empty one would report every tag
+ * in the corpus as unminted.
+ */
+export function loadProvenance() {
+  if (!fs.existsSync(PROVENANCE)) return null;
+  const raw = JSON.parse(fs.readFileSync(PROVENANCE, 'utf8'));
+  return { fids: new Map(Object.entries(raw.fids ?? {})), aids: new Map(Object.entries(raw.aids ?? {})) };
+}
+
+/**
+ * The record as bytes: sorted, no timestamp, so re-running the tool on an unchanged corpus rewrites nothing.
+ *
+ * A tag is minted from a geometry once and then AUTHORITATIVE, so no row is ever rewritten or dropped here - a
+ * correction may take the geometry somewhere the recorded digest no longer matches, and that is the point. Adding a
+ * row happens in `write()`; removing one is a hand edit with a reason in the commit.
+ */
+export function renderProvenance(record) {
+  const sorted = (map) => {
+    const out = {};
+    for (const key of [...map.keys()].sort()) out[key] = map.get(key);
+    return out;
+  };
+  const about = 'Where each formation and arrangement tag was minted. APPEND-ONLY, and authoritative: a tag is'
+    + ' minted from a geometry once, and a later geometry correction does not move it. Written by'
+    + ' scripts/tag-formations.mjs --write; read by engine/test/formation-tags.mjs and by no runtime code.';
+  return `${JSON.stringify({ about, version: 1, fids: sorted(record.fids), aids: sorted(record.aids) }, null, 2)}\n`;
+}
 
 /** Blank out comments without moving a single byte, so an offset survives the mask (`scripts/tam-blocks.mjs`). */
 const maskComments = (text) => text.replace(/<!--[\s\S]*?-->/g, (c) => c.replace(/[^\n]/g, ' '));
@@ -640,7 +693,7 @@ function applyEdits(text, edits) {
  * on a copy with two tags removed, which is what proves the check is not vacuous - a gate that only ever sees a
  * correct corpus cannot tell "no failures" from "nothing looked".
  */
-export function tagProblems(formations, tamFiles) {
+export function tagProblems(formations, tamFiles, provenance = loadProvenance()) {
   const out = [...formations.problems];
   const all = [...formations.defs, ...tamFiles.flatMap((f) => f.entries)];
   const seenName = new Set();
@@ -673,48 +726,50 @@ export function tagProblems(formations, tamFiles) {
     aidToFid.set(e.aid, e.fid);
   }
 
-  // EVERY STORED fid IS ROOTED BY A REAL GEOMETRY. A tag that equals no definition's computed id is a typo or a
-  // leftover from an older scheme, and every variant that hangs off it would resolve to nothing.
+  // EVERY CARRIED TAG IS ONE THAT WAS MINTED, AND THE RECORD OF THE MINTING IS THE REFERENCE.
+  //
+  // THE RULE THIS REPLACES, AND WHY IT WAS WRONG. The audit used to re-derive each tag from the corpus's CURRENT
+  // geometry and refuse any tag no definition computed. That makes a legitimate geometry correction a re-mint: the
+  // correction moves `formationId(board)` off the stored tag, the audit reds, and the only repair moves every
+  // call-variant id hanging off that tag - precisely what the stored tag exists to prevent (`call-variant-id.ts`).
+  // MEASURED when this changed: 163 of the corpus's fids are rooted by a named definition alone (89 by both a named
+  // definition and an inline block, 161 by inline blocks alone), and shifting `Facing Dancers Close` by 0.2 - the ids
+  // quantise positions to 0.25, so a smaller nudge cannot move one - produced 2 problems under the old rule and 0
+  // under this one.
+  //
+  // WHAT IS STILL CAUGHT, in both directions, which makes it a NAMED SET in §11.2.8's sense (fails when it shrinks
+  // AND when it grows):
+  //   - a carried fid with no recorded minting  -> a typo, or a hand-written attribute
+  //   - a recorded fid no definition carries    -> a leftover from a shape that was removed or retagged
+  //   - a carried aid that disagrees with the minting's -> two arrangements claiming one formation
+  //
+  // WHAT IS NO LONGER CAUGHT HERE, AND WHERE IT LIVES INSTEAD: that a tag names the same SHAPE as the definition it
+  // was inherited from, under the ids' own quotient - a rotation, never a reflection. That is a rule about MINTING,
+  // and `assignTags` refuses a reflected target when it assigns one (`resolve`: `m !== null && !m.reflect`). The
+  // second copy in this audit was the one that compared geometry, so it is the one that had to go (§11.4.4).
+  if (!provenance) {
+    out.push(`the record of mintings is missing (${path.relative(ROOT, PROVENANCE).split(path.sep).join('/')}): every carried tag is unminted until it exists - run \`node scripts/tag-formations.mjs --write\``);
+    return out;
+  }
   const byFid = new Map();
   const byAid = new Map();
   for (const e of all) {
     byFid.set(e.fid, [...(byFid.get(e.fid) ?? []), e]);
     byAid.set(e.aid, [...(byAid.get(e.aid) ?? []), e]);
   }
-  const rooted = new Map(); // fid -> the definitions whose computed id it is
-  const rootedAid = new Map(); // aid -> the definitions whose computed arrangement it is
-  for (const e of all) {
-    const cf = formationId(e.board);
-    const ca = arrangementId(e.board);
-    rooted.set(cf, [...(rooted.get(cf) ?? []), e]);
-    rootedAid.set(ca, [...(rootedAid.get(ca) ?? []), e]);
-  }
-  for (const [fid, members] of byFid) {
-    if (!rooted.has(fid)) {
-      out.push(`fid ${fid} is carried by ${members.length} definition(s) but is no definition's computed id (${members[0].label})`);
-      continue;
+  for (const [kind, carried, recorded] of [
+    ['fid', byFid, provenance.fids],
+    ['aid', byAid, provenance.aids],
+  ]) {
+    for (const [tag, members] of carried) {
+      if (!recorded.has(tag)) {
+        out.push(`${members[0].label}: carries ${kind} ${tag}, which no recorded minting names (${members.length} definition(s) carry it) - run \`node scripts/tag-formations.mjs --write\` if it is a new shape`);
+      }
     }
-    // AN INHERITED fid IS JUSTIFIED BY A MATCH, not by the assignment order: the rooting definition must be the
-    // same shape under the ids' own quotient - a rotation, never a reflection.
-    const roots = rooted.get(fid) ?? [];
-    for (const e of members) {
-      if (formationId(e.board) === fid) continue;
-      const ok = roots.some((r) => r.board.dancers.length === e.board.dancers.length
-        && (() => { const m = matchFormations(e.board.dancers, r.board.dancers, DEFAULT_MATCH_MAX, false); return m !== null && !m.reflect; })());
-      if (!ok) out.push(`${e.label}: carries fid ${fid} but its geometry neither computes it nor matches the definition that does (${roots[0].label})`);
-    }
-  }
-  for (const [aid, members] of byAid) {
-    if (!rootedAid.has(aid)) {
-      out.push(`aid ${aid} is carried by ${members.length} definition(s) but is no definition's computed arrangement (${members[0].label})`);
-      continue;
-    }
-    const roots = rootedAid.get(aid) ?? [];
-    for (const e of members) {
-      if (arrangementId(e.board) === aid) continue;
-      const ok = roots.some((r) => r.board.dancers.length === e.board.dancers.length
-        && (() => { const m = matchFormations(e.board.dancers, r.board.dancers, DEFAULT_MATCH_MAX, true); return m !== null && !m.reflect; })());
-      if (!ok) out.push(`${e.label}: carries aid ${aid} but its geometry neither computes it nor matches the definition that does (${roots[0].label})`);
+    for (const [tag, mintedFor] of recorded) {
+      if (!carried.has(tag)) {
+        out.push(`the record names ${kind} ${tag} (${mintedFor}) but no definition carries it - a retired tag's row is removed by hand, never by --write`);
+      }
     }
   }
 
@@ -758,11 +813,46 @@ export function write() {
   // THE TOOL OWNS EXACTLY THE FILES IT IS ABOUT TO WRITE. Anything else modified is work in progress that this tool
   // did not do and must not sweep into a corpus change (AGENTS.md §8 trap 16). The corpus files ARE the change, so
   // re-running after a partial write is legitimate - which is what makes this generator idempotent.
-  const owned = new Set([...files.map((f) => `${ASSETS_REL}/${f.rel}`), 'DuplicateFormations.md']);
-  const dirty = modifiedPaths().filter((p) => !owned.has(p));
+  const owned = new Set([...files.map((f) => `${ASSETS_REL}/${f.rel}`), 'DuplicateFormations.md', path.relative(ROOT, PROVENANCE).split(path.sep).join('/')]);
+  // THE TOOL'S OWN SOURCE IS NOT FOREIGN WORK. It cannot be swept into a corpus write (nothing below writes it), and
+  // refusing on it would make the tool unusable in the one situation it is always used in - while it is being
+  // changed. Every other modified path still refuses, which is trap 16's rule.
+  const self = path.relative(ROOT, fileURLToPath(import.meta.url)).split(path.sep).join('/');
+  const dirty = modifiedPaths().filter((p) => !owned.has(p) && p !== self);
   if (dirty.length) {
     console.log('refusing to write: the tree carries work this tool does not own. Modified:');
     for (const l of dirty) console.log(`  ${l}`);
+    return 1;
+  }
+  // THE RECORD IS APPEND-ONLY, AND THIS IS WHERE A MINTING IS RECORDED. An existing row is never rewritten, so a
+  // correction that changes a board's arrangement cannot silently move what a tag means; and a row is never dropped,
+  // so a shape that leaves the corpus is a decision a person takes in the file. Both refusals exist because `--write`
+  // is the one command anybody re-runs on an unfamiliar tree.
+  const record = loadProvenance() ?? { fids: new Map(), aids: new Map() };
+  const carried = { fid: new Set(), aid: new Set() };
+  let minted = 0;
+  for (const f of files) {
+    for (const e of f.entries) {
+      const tags = [
+        ['fids', 'fid', e.fid ?? e.newFid],
+        ['aids', 'aid', e.aid ?? e.newAid],
+      ];
+      for (const [collection, kind, tag] of tags) {
+        if (!tag) continue;
+        carried[kind].add(tag);
+        if (record[collection].has(tag)) continue;
+        record[collection].set(tag, e.label ?? e.name);
+        minted++;
+      }
+    }
+  }
+  const retired = [['fids', 'fid'], ['aids', 'aid']].flatMap(([collection, kind]) => [...record[collection].keys()]
+    .filter((tag) => !carried[kind].has(tag))
+    .map((tag) => `${kind} ${tag} (${record[collection].get(tag)})`));
+  if (retired.length) {
+    console.log('refusing to write: the record names tag(s) no definition carries any more:');
+    for (const line of retired) console.log(`  ${line}`);
+    console.log('  Removing a row is a corpus decision: edit the record by hand, with the reason in the commit.');
     return 1;
   }
   let changed = 0;
@@ -776,7 +866,11 @@ export function write() {
     added += edits.length;
   }
   fs.writeFileSync(REPORT, report, 'utf8');
-  console.log(`tag-formations: ${added} tag pair(s) added across ${changed} file(s); DuplicateFormations.md rendered`);
+  const nextProvenance = renderProvenance(record);
+  // LINE ENDINGS ARE NOT PART OF THE RENDER, for the reason `problems()` gives about the report (trap 2).
+  const currentProvenance = fs.existsSync(PROVENANCE) ? fs.readFileSync(PROVENANCE, 'utf8').replace(/\r\n/g, '\n') : null;
+  if (currentProvenance !== nextProvenance) fs.writeFileSync(PROVENANCE, nextProvenance, 'utf8');
+  console.log(`tag-formations: ${added} tag pair(s) added across ${changed} file(s), ${minted} minting(s) recorded; DuplicateFormations.md rendered`);
   return 0;
 }
 

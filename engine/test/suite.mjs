@@ -163,11 +163,14 @@ export const SUITE = [
   { h: 'arrangement-id', light: true },
   // EVERY FORMATION DEFINITION CARRIES ITS `fid` AND `aid`, and the duplicate table equals a fresh render. A tag is
   // a stored REFERENCE, so this is the gate that keeps the corpus's own bytes the reference set: all 292 named
-  // definitions and all 773 inline blocks tagged and well formed, no duplicate name, a reconstituted half that
-  // never puts two dancers on one spot, `aid -> fid` single-valued, every tag rooted by a geometry the corpus
-  // actually computes, and every INHERITED tag justified by a rotation (not a reflection) to the definition that
-  // roots it. Not vacuous: it also runs the same analysis over a copy of the model with two tags removed and
-  // requires both to be named. 5 s: parses the corpus, builds nothing.
+  // definitions and all 636 inline blocks tagged and well formed, no duplicate name, a reconstituted half that
+  // never puts two dancers on one spot, `aid -> fid` single-valued, and every carried tag RECORDED as minted in
+  // `assets/formation-tag-provenance.json` - in both directions, so a typo and a leftover are both failures. It
+  // does NOT re-derive a tag from geometry: a tag is a UID, and a geometry correction that red here would force a
+  // re-mint and move every variant id hanging off the tag. Rotation-not-reflection is enforced at MINTING time by
+  // `assignTags`. Not vacuous: it also runs the same analysis over a copy with two tags removed, over a record
+  // missing one row, over a record naming a shape nothing carries, and over a 0.2 geometry correction (which must
+  // stay green). 5 s: parses the corpus, builds nothing.
   { h: 'formation-tags', light: true },
   // EVERY AUTHORED TAM CARRIES THE `vid` OF THE VARIANT IT REALISES, and it is the id its own (level, title, fid)
   // mint - the third stored tag, and the only one that names a CALL rather than a shape. A `vid` is FULLY

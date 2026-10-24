@@ -67,8 +67,9 @@ export function callVariantCanonical(level: string, title: string, fid: string):
  * `fid` is a DEFINITION'S STORED TAG, not `formationId(board)`. The two coincide for a definition that roots its
  * own shape and differ for one that inherited its tag, and the difference is the point: a variant names the
  * definition the corpus has, so that a geometry correction cannot move it. Passing a computed formation id is the
- * one mistake this signature cannot catch, which is why the name says `fid` and `test/formation-tags.mjs` is what
- * keeps every stored `fid` rooted.
+ * one mistake this signature cannot catch, which is why the name says `fid`, and why the tag is a UID rather than a
+ * digest: `test/formation-tags.mjs` checks every stored `fid` against the recorded minting in
+ * `assets/formation-tag-provenance.json`, and deliberately NOT against the geometry the corpus has now.
  */
 export function callVariantId(level: string, title: string, fid: string): string {
   return encodeId('variant', fnv1a64(callVariantCanonical(level, title, fid)));

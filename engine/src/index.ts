@@ -400,6 +400,10 @@ export {
 } from './convert.js';
 export type { CallMeta, FormationTag } from './convert.js';
 export { setupLabel, parseTaminationTitle } from './convert.js';
+// THE EXPORT PRECISION: one module, because the same four-decimal lambda lived in `convert.ts`, in `editor.ts` and
+// in the POC panel, and a rule with three private spellings is a rule no probe can import. `exportAngleDeg` is the
+// separate WRITTEN-facing rule (`-90` -> `270`); `exportNumber` is the raw one.
+export { exportNumber, exportAngleDeg } from './export-format.js';
 // The four values of the `<tam sequencer="…">` attribute. Only `no` is behaviour-bearing so
 // far: it marks a demonstration animation the sequencer must not match. `perimeter` and
 // `exact` are carried but not yet acted on — see the note on `SequencerMode`.

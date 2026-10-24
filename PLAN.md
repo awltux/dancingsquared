@@ -54,7 +54,7 @@ Analyses (tools, not gates) live in `test/tools/` — 99 of its 109 files — an
 one-shot diagnostic; nothing runs it. Recorded: <path>`, naming the document that records the answer. They are
 NOT a hand-kept list any more: `test/harness-registry.mjs` (light) fails when a file under `test/` is neither
 registered nor stamped, so the set cannot drift behind a paragraph. Gates: `test/verify-suite.mjs` runs the one
-registry, `test/suite.mjs` (`light` = 57 harnesses, `all` = 78) and `figures`, which is a **red target suite by
+registry, `test/suite.mjs` (`light` = 59 harnesses, `all` = 79) and `figures`, which is a **red target suite by
 design** (the finish line, not a gate).
 
 **"A file in `test/` that the suite does not run" is exactly the shape that hid the staleness in

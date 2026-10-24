@@ -85,6 +85,9 @@ import {
   // How a call GOES (`close` / `normal` / `far`), derived from its title. A `CallBundle` carries it, so a bundle
   // the panel builds itself must be born through the same function as every other one.
   goingOfTitle,
+  // THE EXPORT PRECISION: four decimals, one copy, in the engine (`export-format.ts`). `convert.ts`, `editor.ts` and
+  // this panel each carried the same lambda before it was exported, which is why `export-format` is imported here.
+  exportNumber,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -355,9 +358,13 @@ function sameTrace(a: Seg[], b: Seg[]): boolean {
   return true;
 }
 
-/** Round the way the engine's XML export does, so a value read out of the table and typed
- *  back in is the same number rather than a 15-digit float. */
-const show = (n: number): string => (Math.round(n * 1e4) / 1e4).toString();
+/** THE ENGINE'S EXPORT PRECISION, under the panel's own word for "show this number to the caller". It used to be a
+ *  COPY of the four-decimal rounding with a comment saying it rounds "the way the engine's XML export does" - a copy
+ *  of a rule whose owner was two private lambdas in the engine (`convert.ts`'s `r`, `editor.ts`'s `rf`), so nothing
+ *  could import it and nothing measured the panel's version. The rule now lives in `engine/src/export-format.ts` and
+ *  this is the SAME function, so a value read out of the table and typed back in is the number the exporter writes,
+ *  by construction rather than by comment (AGENTS.md 5). */
+const show = exportNumber;
 const toDeg = (rad: number): number => (rad * 180) / Math.PI;
 /** The shortest signed angle equal to `a`, in (-PI, PI]. The engine's own is private to `editor.ts`, and
  *  a facing delta that wrapped would hold the trace by a whole turn. */

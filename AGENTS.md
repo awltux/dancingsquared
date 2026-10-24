@@ -252,7 +252,13 @@ regenerated only when a session ends gets read as current state by the session a
 
 1. **Read bytes, not the console, when checking text encoding.** `Get-Content` decodes UTF-8 as windows-1252 and
    prints a genuine `—` as `â€”`, inventing corruption in every file that holds one. Use `git grep` or a byte count.
-   `engine/test/tools/callerlab-diff.mjs` quotes mojibake **on purpose**; do not "fix" it.
+   `engine/test/tools/callerlab-diff.mjs` quotes mojibake **on purpose**; do not "fix" it. **AND NEVER WRITE ONE BACK
+   THROUGH IT.** MEASURED: a slice-and-rewrite (`Get-Content` → `[System.IO.File]::WriteAllLines`) used to delete 40
+   lines of `engine/src/editor.ts` turned **20** em dashes, `§` and `±` into mojibake — FOUR OF THEM INSIDE REFUSAL
+   MESSAGES rather than comments — and the engine built, the harnesses ran and the light tier reported its usual red.
+   The only instrument that noticed was `node book/tools/check-links.mjs`, which is also why the rest of `check:book`
+   never ran (the shell `&&` stops). The repair is `git checkout -- <file>` and then the editor tools: delete lines
+   with those, never with a decode/re-encode round trip.
 2. **`git checkout -- <file>` restores CRLF**, so a multi-line literal match in a probe must normalise line endings or
    silently match nothing.
 3. **A Node child spawned with piped stdio fails with EPERM under the file sandbox** — hence `stdio: 'inherit'` and

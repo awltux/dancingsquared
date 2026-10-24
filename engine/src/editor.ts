@@ -28,6 +28,10 @@ import { assignHomeIdentity } from './sequencer/identity.js';
 // the same (-PI, PI] rule `moves.ts` defines — and the two differed only in the last ulp. A rule with two
 // spellings in one engine is a rule whose owner cannot be found, so the local copy is gone.
 import { normAngle } from './moves.js';
+// THE EXPORT PRECISION, from the one module that owns it. This file used to carry `rf`/`rfAngle` and `convert.ts`
+// its own `r`, three spellings of one rule that no probe could import; the measurement that fixes the width and
+// the rejected alternative live in `export-format.ts`'s header now.
+import { exportAngleDeg, exportNumber } from './export-format.js';
 
 export interface FormDancer {
   x: number;
@@ -2421,14 +2425,14 @@ export function callToXml(call: CallBundle, name?: string, opts: CallXmlOptions 
       const x = d.mirror ? -d.x : d.x;
       const y = d.mirror ? -d.y : d.y;
       const a = d.mirror ? d.angleDeg + 180 : d.angleDeg;
-      return `        <dancer gender="${d.gender}" x="${rf(x)}" y="${rf(y)}" angle="${rfAngle(a)}"/>`;
+      return `        <dancer gender="${d.gender}" x="${exportNumber(x)}" y="${exportNumber(y)}" angle="${exportAngleDeg(a)}"/>`;
     })
     .join('\n');
   const paths = written
     .map(
       (d) =>
         `    <path>\n` +
-        d.path.map((s) => `      <movement hands="${s.hands}" beats="${rf(s.beats)}" ${bezAttr(s.translate)}${s.rotate ? ' ' + bezRotAttr(s.rotate) : ''}/>`).join('\n') +
+        d.path.map((s) => `      <movement hands="${s.hands}" beats="${exportNumber(s.beats)}" ${bezAttr(s.translate)}${s.rotate ? ' ' + bezRotAttr(s.rotate) : ''}/>`).join('\n') +
         `\n    </path>`,
     )
     .join('\n');
@@ -2671,45 +2675,8 @@ export function setupToXml(core: CallBundle, setup: NewSetup): string {
 }
 
 function bezAttr(b: BezierData): string {
-  return `cx1="${rf(b.cx1)}" cy1="${rf(b.cy1)}" cx2="${rf(b.cx2)}" cy2="${rf(b.cy2)}" x2="${rf(b.x2)}" y2="${rf(b.y2)}"`;
+  return `cx1="${exportNumber(b.cx1)}" cy1="${exportNumber(b.cy1)}" cx2="${exportNumber(b.cx2)}" cy2="${exportNumber(b.cy2)}" x2="${exportNumber(b.x2)}" y2="${exportNumber(b.y2)}"`;
 }
 function bezRotAttr(b: BezierData): string {
-  return `cx3="${rf(b.cx1)}" cx4="${rf(b.cx2)}" cy4="${rf(b.cy2)}" x4="${rf(b.x2)}" y4="${rf(b.y2)}"`;
-}
-/**
- * Export precision.
- *
- * Two decimals is the asset files' own house style, and it is NOT enough for the editor's
- * round trip: a path is a CHAIN of segments, each exporting its rotation Bezier to the
- * nearest 0.01, so the heading error accumulates along the chain and the final pose is out
- * by the distance travelled since. MEASURED on `ms/circle.xml` edited to 10.5 beats: the
- * end pose came back 0.0672 units out - 13 times the rounding of any single coordinate -
- * which is a dancer standing visibly off its spot. At four decimals the same path is out
- * by 0.0008, and `editor.mjs` pins both numbers.
- */
-function rf(n: number): string {
-  return (Math.round(n * 1e4) / 1e4).toString();
-}
-/** The angle a dancer is WRITTEN with, canonical in `[0, 360)`.
- *
- * A FACING HAS TWO SPELLINGS AND A GEOMETRY HAS ONE, so the exported text must not depend on which code
- * path built the bundle. `angleDeg` is authored, or derived from a pose, and the two disagree; MEASURED
- * (witness `ms/alamo_style.xml`, dancer 0, move 3): `requireDancer` normalises a half-set bundle through
- * `normalizeInstance`, which re-derives each mirrored dancer's start heading from `poseFor` - so a no-op
- * edit exported `angle="270"` as `angle="-90"`, the SAME facing, on two lines that have nothing to do
- * with the move that was edited. Two of the 64 exported lines differed and the file was dirtied by a
- * handle being dropped back where it started (`poc/tools/facing-handle-probe.mjs`).
- *
- * The obvious fix - stop `normalizeInstance` re-deriving the angle - is rejected: it is the one function
- * that rewrites a bundle in full-set coordinates, its output is pinned to one ulp by `editor.mjs`, and a
- * mirrored dancer's `angleDeg` is its BASE angle, which is not the full-set facing at all. Canonicalising
- * the WRITTEN value fixes every path at once, including the 15 negative angles the corpus authors
- * (`angle="-90"` and friends): those re-save as their positive equivalents, same facing, and the
- * round trip's heading agreement is unchanged because it is measured through `poseFor`, not through text.
- */
-function rfAngle(deg: number): string {
-  const wrapped = ((deg % 360) + 360) % 360;
-  // 359.9999999999999 is 360 to within the export's own precision, and writing `360` would be out of
-  // range for a reader that expects a half-open interval.
-  return rf(wrapped >= 360 - 5e-5 ? 0 : wrapped);
+  return `cx3="${exportNumber(b.cx1)}" cx4="${exportNumber(b.cx2)}" cy4="${exportNumber(b.cy2)}" x4="${exportNumber(b.x2)}" y4="${exportNumber(b.y2)}"`;
 }

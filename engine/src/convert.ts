@@ -6,6 +6,10 @@
 // @xmldom/xmldom's DOMParser (as the test does).
 
 import { goingOfTitle } from './going.js';
+// THE EXPORT PRECISION, from the one module that owns it; `formationToXml` used to carry a local copy of the same
+// four-decimal lambda. The rejected alternative for a FACING is in that module's header - a formation writes the
+// geometry it was given, so its `angle` is an `exportNumber`, not an `exportAngleDeg`.
+import { exportNumber } from './export-format.js';
 import type { BezierData, CallBundle, DancerSpec, FormationTag, Gender, Hands, Seg, SequencerMode, Symmetry } from './types.js';
 
 // Re-exported from where it is declared, so a caller reading a definition's tags has one type to name.
@@ -617,9 +621,8 @@ export function formationToXml(
   dancers: { x: number; y: number; heading: number; gender?: Gender }[],
   tags?: FormationTag,
 ): string {
-  const r = (n: number) => (Math.round(n * 1e4) / 1e4).toString();
   const lines = dancers.map(
-    (d) => `    <dancer gender="${esc(d.gender ?? 'boy')}" x="${r(d.x)}" y="${r(d.y)}" angle="${r((d.heading * 180) / Math.PI)}" />`,
+    (d) => `    <dancer gender="${esc(d.gender ?? 'boy')}" x="${exportNumber(d.x)}" y="${exportNumber(d.y)}" angle="${exportNumber((d.heading * 180) / Math.PI)}" />`,
   );
   // THE TAGS GO ON THE BLOCK the same way they are written in `formations.xml`, so an exported definition
   // re-enters the corpus already tagged. A caller that has none omits them and the corpus gate reports the

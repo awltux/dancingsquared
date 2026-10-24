@@ -95,6 +95,15 @@ export const SUITE = [
   // exactly), and fails if a second while-loop or `atan2(sin,` spelling appears anywhere in `engine/src`.
   // Pure arithmetic plus one directory walk: ~0s.
   { h: 'angle-normalisation', light: true },
+  // THE EXPORT PRECISION, AND A CENSUS LIKE THE ONE ABOVE. The same four-decimal lambda was written in THREE files
+  // (`convert.ts`'s `r`, `editor.ts`'s `rf`, the POC panel's `show`) with no export between them, so no probe could
+  // import the rule: the engine's copies were only measured through a whole export round trip and the panel's by
+  // nothing. It is one module now (`src/export-format.ts`), and this pins the four-decimal shape, the `[0, 360)`
+  // facing rule, the NEGATIVE CONTROL that the two are different rules (`exportNumber(-90)` is `-90`, a dancer's
+  // `-90` is `270` — unifying them rewrites the 15 negative angles the corpus authors), and a directory walk that
+  // fails when a fourth copy appears. MEASURED: two decimals puts an edited `ms/circle.xml` 0.0672 units out, four
+  // puts it 0.0008 out; `editor.mjs` pins both. Pure arithmetic plus one walk: ~0.1s.
+  { h: 'export-format', light: true },
   // ARE THESE TWO BOARDS THE SAME BOARD? `sameBoardById` compares by dancer IDENTITY with a position
   // and heading tolerance, and it is the engine's only facing-aware equality: `boardSig` is
   // positions-only by design and `reorderLike` fixes an order rather than testing one. The harness

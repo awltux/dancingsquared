@@ -27,7 +27,7 @@ import { normAngle } from '../moves.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { findCodedMove, codedMoveApplies, isDeferredCall, type CodedMove } from './coded-moves.js';
 import { authoredStepWins } from './apply-source.js';
-import { splitSelection } from './selection.js';
+import { resolveReading, splitSelection } from './selection.js';
 import { readCallName } from './call-name.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
@@ -704,10 +704,28 @@ export class SequenceAnalyzer {
         // `"Head Boys Dosado"` reaches `evaluateCallAt` as one string, where `selection` is null - so
         // the scoped path below never ran and a closing call animated nothing. Splitting it here is
         // what hands the evaluator the step the walk already understood.
+        //
+        // BUT THE READING IS THE APPLICATOR'S (`resolveReading`), not a bare `splitSelection`, and that is
+        // the second half of the same defect: a title the catalogue PUBLISHES whole is applied whole -
+        // `"Centers Cast Off Three Quarters"` is a `<tam>` in `ms/cast.xml`, so `applyToBoard` dances it
+        // as one call - while a bare split broke it into `Cast Off Three Quarters` for `Centers`. The
+        // animation then reached `animateParallelBoard` with a step whose own apply is ILLEGAL on that
+        // board ("Unresolvable selection: Centers"), and that method returns the board unchanged, so the
+        // step stood still for all of its beats and snapped on the last frame. MEASURED on the 2026-10-24
+        // Daily (level 1, seed 2036023644), which opens with that title TWICE: at 60 fps its first two
+        // 4.5-beat calls drew ONE distinct board each, while calls 3 and 4 drew 270 and 361 - reported as
+        // "the first two calls dont animate, they just jump between arrangements". Through this reading
+        // the same call departs 1.73 units mid-way and lands exactly on the applied board.
+        // `engine/test/title-animation.mjs` pins it over the corpus's own titles.
+        //
+        // AN EXPLICIT SELECTION ON A `CallStep` IS STILL THE CALLER'S, and is carried unchanged: only the
+        // string case has a reading to decide.
         const stepForEval: string | CallStep = (() => {
           if (isGroupStep(s.raw) || s.coded) return s.raw as string;
-          const spec = splitSelection(typeof s.raw === 'string' ? s.raw : s.raw.call);
-          return spec.selection ? { selection: spec.selection, call: spec.call } : s.raw;
+          if (typeof s.raw !== 'string' && s.raw.selection) return s.raw;
+          const raw = typeof s.raw === 'string' ? s.raw : s.raw.call;
+          const read = resolveReading(raw, (n: string) => this.library.hasCall(n) || this.library.hasModule(n));
+          return read.group ? { selection: read.group, call: read.call } : raw;
         })();
         const evBoard = isGroupStep(s.raw)
           ? this.evaluateGroupAt(s, beat - acc)

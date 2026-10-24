@@ -50,6 +50,8 @@ import {
   isFormationId,
   isArrangementId,
   matchFormations,
+  formationReorderPermutation,
+  completedFormation,
   DEFAULT_MATCH_MAX,
 } from '../engine/dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
@@ -87,6 +89,17 @@ function openTags(text, tag) {
 function geometryOf(dancers, symmetry = 2) {
   const full = symmetry === 2 ? reconstituteWholeSet(dancers) : [...dancers];
   return { dancers: full.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })) };
+}
+
+/**
+ * The WRITTEN poses of a definition, in the order it authors them.
+ *
+ * A different fact from `geometryOf`, which is the reconstituted whole: the paths of a half-set tam pair with the
+ * WRITTEN dancers, so a permutation between two definitions has to be derived in the written space as well as in
+ * the completed one. Both are carried, and `refactorPlan` picks by the tam's path count.
+ */
+function posesOf(dancers) {
+  return dancers.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }));
 }
 
 /** Whether two spots in a geometry coincide - a malformed half, reported rather than tagged as if it were fine. */
@@ -129,6 +142,7 @@ export function loadFormations() {
       written: dancers.length,
       size: board.dancers.length,
       board,
+      writtenBoard: posesOf(dancers),
       declaredAsymmetric: declared,
       fid: tags.get(name)?.fid ?? null,
       aid: tags.get(name)?.aid ?? null,
@@ -183,6 +197,15 @@ export function loadTams() {
           written: tam.dancers.length,
           size: board.dancers.length,
           board,
+          writtenBoard: posesOf(tam.dancers),
+          // WHAT A REFACTOR NEEDS TO KNOW ABOUT THE REFERENCE SITE, carried here so the report can say whether a
+          // duplicate is *absorbable* without a second walk of the corpus: the tam's own ordinal (the block index),
+          // the declaration it completes under, how many `<path>` blocks it writes, and whether it is authored for a
+          // subset.
+          tamIndex: i,
+          symmetry: tam.symmetry,
+          paths: tam.paths.length,
+          actives: tam.actives,
           fid: tam.formationTag.fid,
           aid: tam.formationTag.aid,
           at,
@@ -346,11 +369,67 @@ export function duplicateGroups(formations, tamFiles) {
   return rows;
 }
 
+/**
+ * WHETHER A DUPLICATE CAN BE ABSORBED INTO THE DEFINITION IT DUPLICATES, and exactly why not when it cannot.
+ *
+ * ONE RULE, TWO CALLERS: the report says `refactor` only when this returns `ok`, and
+ * `scripts/reorder-formation.mjs --absorb-duplicates` applies exactly those rows. Two rules would drift, and the
+ * drift is silent - a report promising a refactor no tool will do, or a tool editing a row the gate never read.
+ *
+ * THE REFUSALS ARE EACH A DIFFERENT FACT ABOUT THE CORPUS, not degrees of confidence:
+ *   - a duplicate of another INLINE block has no named definition to reference (the report's 206);
+ *   - `actives` means the tam is authored for a subset, so its paths pair by a rule this transform does not know;
+ *   - a WRITTEN-SIZE mismatch means the two definitions are not written in the same mode, and `shape-census` counts
+ *     a reference by the named definition's written size - absorbing one would move that census;
+ *   - a path count that is neither `n` nor `2n` means the pairing is neither the half-set nor the whole-set rule;
+ *   - a differing `fid` means absorbing the block would MOVE the variant id, which is the one thing the stored tags
+ *     exist to prevent;
+ *   - a refused permutation means the block is not the definition's shape under a half turn, so no path order is
+ *     implied by the swap.
+ */
+export function refactorPlan(row) {
+  const e = row.e;
+  const canon = row.canonical;
+  if (canon.kind !== 'named') {
+    return { ok: false, reason: 'its duplicate is another inline block, so there is no named definition to reference' };
+  }
+  const canonFid = canon.fid ?? canon.newFid;
+  if (e.actives) return { ok: false, reason: `the tam carries actives="${e.actives}"` };
+  if (e.written !== canon.written) {
+    return { ok: false, reason: `the named definition writes ${canon.written} dancers and the block writes ${e.written}` };
+  }
+  if ((e.fid ?? e.newFid) !== canonFid) {
+    return { ok: false, reason: `the block's fid ${e.fid ?? e.newFid} and the definition's fid ${canonFid} differ, so absorbing it would move the variant id` };
+  }
+  const half = e.paths === e.written;
+  const whole = e.paths === 2 * e.written;
+  if (!half && !whole) {
+    return { ok: false, reason: `the tam writes ${e.paths} paths against a definition that authors ${canon.written}` };
+  }
+  const plan = half
+    ? formationReorderPermutation(e.writtenBoard, canon.writtenBoard, { halfTurn: true })
+    : formationReorderPermutation(completedFormation(e.writtenBoard), completedFormation(canon.writtenBoard), { halfTurn: false });
+  if (!plan.ok) {
+    // `no-partner` IS AN OBSERVATION ABOUT THE CORPUS, not a limitation of the transform. MEASURED on the first
+    // case found (`plus/pass_the_sea.xml` "Pass the Sea"): the block writes boy (1,2) facing 270 and girl (-1,2)
+    // facing 270, and `Facing Couples` writes boy (-2,1) facing 0 and girl (-2,-1) facing 0 - the block is the
+    // definition rotated a quarter turn CLOCKWISE. The ids agree because a formation id and an arrangement id are
+    // both rotation-invariant, so these are duplicates by identity and not by position; absorbing one would rotate
+    // the board and move every dancer. Refused, with the reason said plainly.
+    if (plan.reason === 'no-partner') {
+      return { ok: false, reason: 'the block is the definition at a DIFFERENT ORIENTATION (no partner even under a half turn), so absorbing it would rotate the board' };
+    }
+    return { ok: false, reason: `the block is not a reorder of the definition (${plan.reason} at dancer ${plan.index})` };
+  }
+  return { ok: true, mode: half ? 'half-set' : 'whole-set', plan, name: canon.name };
+}
+
 /** How a duplicate should be closed. A named definition can only be merged by hand; an inline one can be replaced. */
 function outcomeOf(row) {
   if (row.e.kind === 'named') return { action: 'keep-named', why: 'two named definitions share an arrangement; merging them is a corpus decision, not a replacement' };
-  if (row.canonical.kind === 'named') return { action: 'refactor', why: `replace the inline block with formation="${row.canonical.name}" (scripts/reorder-formation.mjs)` };
-  return { action: 'keep-embedded', why: 'its duplicate is another inline block, so there is no named definition to reference' };
+  const plan = refactorPlan(row);
+  if (plan.ok) return { action: 'refactor', why: `replace the inline block with formation="${plan.name}" (node scripts/reorder-formation.mjs --absorb-duplicates --write)` };
+  return { action: 'keep-embedded', why: plan.reason };
 }
 
 /**
@@ -643,7 +722,18 @@ if (invokedDirectly) {
     console.log(JSON.stringify({
       named: formations.defs.length,
       inline: tamFiles.reduce((n, f) => n + f.entries.length, 0),
-      duplicates: rows.map((r) => ({ label: r.e.label, canonical: r.canonical.label, fid: r.tag.fid, aid: r.tag.aid, ...outcomeOf(r) })),
+      duplicates: rows.map((r) => {
+        const plan = r.e.kind === 'named' ? { ok: false } : refactorPlan(r);
+        return {
+          label: r.e.label,
+          canonical: r.canonical.label,
+          fid: r.tag.fid,
+          aid: r.tag.aid,
+          ...outcomeOf(r),
+          // The PLAN, for a caller that applies it: the pairing mode and whether the paths actually move.
+          ...(plan.ok ? { mode: plan.mode, permutation: plan.plan.permutation } : {}),
+        };
+      }),
       notes,
       problems: problems(),
     }, null, 2));

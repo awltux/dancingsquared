@@ -28,6 +28,10 @@ const REQUIRED = [
   'dancerBeats',
   'computeHandholds',
   'assignHomeIdentity',
+  // The degrees-per-radian factor `make-formations.mjs` draws every angle with. The engine owns the unit
+  // (`core.ts`), and this tool cannot `import` the CJS `dist` directly, so it binds `loadEngine().DEG` — asserted
+  // here so a missing export is a named failure instead of `NaN` in a PNG.
+  'DEG',
   // The family a corpus file files itself under — read off the root `<tamination title="…">` by
   // `make-virtual.mjs`, so a generated instance carries the same root element and family as the file it sits
   // beside rather than a second convention.

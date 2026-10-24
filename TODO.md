@@ -496,6 +496,20 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   pair, complete by construction) rather than by re-grouping numbers — which also removes the fallback that
   currently invents roles for UNRECOGNISED pairs out of home numbers, the same invention item 2 was about.
 
+- [ ] **46. `DEG` IS TWO DIFFERENT CONSTANTS IN THE PROBES, AND ONE OF THEM IS THE RECIPROCAL.** `[measured]`
+  `core.ts` owns `DEG = Math.PI / 180`, and `engine/test/angle-normalisation.mjs` §5 now keeps its declarations at
+  one inside the packages that own the unit (`engine/src`, and `book/tools` after `make-formations.mjs` was
+  re-pointed at `loadEngine().DEG`). **The 25 declarations in the probes are a different problem**: 12 are
+  `Math.PI / 180` (degrees → radians, the engine's value) and **13 are `180 / Math.PI` — the reciprocal — under the
+  same name** (`engine/test/rotation-tiebreak.mjs` and `poc/tools/`: `arc-centre-probe`, `arm-turn-probe`,
+  `call-formations-probe`, `clone-refusal-probe`, `connect-assign-probe`, `end-pair-probe`, `facing-chain-probe`,
+  `move-end-probe`, `run-circle-probe`, `wysiwyg-path-probe`, `promenade-pair-probe`, `promenade-travel-probe`),
+  plus three function-scoped copies in `poc/tools/display-couple-probe.mjs`.
+  So the conversion is NOT "import the engine's constant": re-pointing a reciprocal site would INVERT its factor,
+  silently. It is a decision about a SECOND name (radians → degrees) and then a mechanical pass over 25 files, each
+  verified by the output-diff the R3/R4 refactors used. The measured list is here so that pass starts from a census
+  rather than a grep.
+
 ---
 
 ## P1 — FOUND BY THE ITEM 7 CENSUS AT `8cfe8a1`

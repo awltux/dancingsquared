@@ -321,5 +321,24 @@ const degReciprocal = hits(/const DEG = 180 \/ Math\.PI/);
 check(degReciprocal.length === 0,
   `no file under engine/src calls the reciprocal DEG (${degReciprocal.length} do)`, degReciprocal.join('; '));
 
+// (c) THE BOOK DRAWS FROM THE SAME UNIT, and loads the engine for every other engine value it needs, so it declares
+// none of its own. A NAMED SET of zero files — a declaration BOUND to the engine (`= loadEngine().DEG`) is not
+// matched, because it is not a copy. MEASURED when this landed: `make-formations.mjs` was the only copy there.
+const bookTools = path.resolve(here, '..', '..', 'book', 'tools');
+const bookFiles = readdirSync(bookTools, { recursive: true })
+  .filter((f) => typeof f === 'string' && f.endsWith('.mjs'))
+  .map((f) => f.split(path.sep).join('/'))
+  .sort();
+check(bookFiles.length > 15, `the book walk found ${bookFiles.length} .mjs files under book/tools`, bookTools);
+const bookDegs = [];
+for (const f of bookFiles) {
+  const text = stripComments(readFileSync(path.join(bookTools, f), 'utf8'));
+  text.split('\n').forEach((line, i) => {
+    if (/const DEG = Math\.PI \/ 180/.test(line)) bookDegs.push(`book/tools/${f}:${i + 1}: ${line.trim()}`);
+  });
+}
+check(bookDegs.length === 0,
+  `no book tool declares its own DEG — the engine's is loaded (${bookDegs.length} do)`, bookDegs.join('; '));
+
 console.log(`\n${failures === 0 ? 'angle-normalisation: all checks hold' : `angle-normalisation: ${failures} FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

@@ -35,11 +35,14 @@
 // measurement (`Circle` was W,N,E,S where a square set is S,E,N,W). It is used to CHECK an order, never to
 // impose one: the caller chooses the order and this module only asks whether the spots are the same.
 
-import { poseFor } from './core.js';
+// `DEG` COMES FROM `core.ts`, WHICH OWNS IT — this module used to declare its own `Math.PI / 180` four lines below,
+// a second spelling of a unit the engine already exports (`poc/tools/end-spin-probe.mjs` binds it the same way,
+// `const DEG = engine.DEG`). `engine/test/angle-normalisation.mjs` §5 is the census that keeps it at one.
+import { DEG, poseFor } from './core.js';
 import { normAngle } from './moves.js';
 import type { CallBundle } from './types.js';
 // `FormDancer` is declared with the editor's instance model; `CallBundle` is a core type. Both are
-// type-only imports, so this module adds nothing to the runtime graph but `poseFor`.
+// type-only imports, so this module adds nothing to the runtime graph but `poseFor` and `DEG`.
 import type { FormDancer } from './editor.js';
 
 /** The four compass points a couple can stand on, going counter-clockwise: the square set's couple order. */
@@ -53,8 +56,6 @@ const COMPASS_ANGLE: Record<CompassPoint, number> = { south: 270, east: 0, north
 
 /** The tolerance the XML round trip earns: the exporter writes four decimals, so a spot is within 1e-4. */
 const TOL = 1e-3;
-
-const DEG = Math.PI / 180;
 
 /**
  * Are these the same spot, allowing a 180-degree turn about the set centre - i.e. the same LOCAL frame?

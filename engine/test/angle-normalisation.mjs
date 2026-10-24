@@ -1,4 +1,5 @@
-// ONE RADIAN NORMALISER IN THE ENGINE, AND THE FOUR SITES THAT ARE DELIBERATELY NOT IT.
+// ONE RADIAN NORMALISER IN THE ENGINE, AND THE FOUR SITES THAT ARE DELIBERATELY NOT IT — plus the one
+// degrees-per-radian constant, which is the same "one spelling" rule one order of magnitude simpler (§5).
 //
 // THE RULE. An angle is normalised into (-PI, PI] by `normAngle` in `src/moves.ts`, and every other radian
 // normalisation in `engine/src` goes through it. `moves.ts` owns it because that module is where body-relative
@@ -40,14 +41,15 @@
 //
 // THE LAST SECTION IS THE GATE THAT KEEPS IT AT ONE: it reads `engine/src` and fails if a second normaliser
 // appears. A structural check is the only way to test "there is no copy of this rule", and it is what makes a
-// revert of any single deletion go red.
+// revert of any single deletion go red. §5 applies the same check to `DEG`, the engine's degrees-per-radian
+// constant, and to the one book tool that used to declare a copy of it.
 //
 // Run: node test/angle-normalisation.mjs   (from engine/; needs `engine/dist`, no corpus and no parser)
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { normAngle } from '../dist/index.js';
+import { DEG, normAngle } from '../dist/index.js';
 
 let failures = 0;
 const check = (cond, msg, detail) => {
@@ -59,7 +61,8 @@ const check = (cond, msg, detail) => {
 };
 
 const TAU = 2 * Math.PI;
-const DEG = Math.PI / 180;
+// `DEG` is IMPORTED from the package now — this harness printed degrees with its own copy until §5 became a census of
+// copies, and a census that declares the constant it counts would be measuring itself.
 
 // THE SAMPLE IS DETERMINISTIC: the awkward points spelled out, then an LCG over [-50PI, 50PI] so it reaches inputs
 // a while-loop spelling would have re-subtracted many times. No `Math.random` anywhere.
@@ -281,6 +284,42 @@ check(JSON.stringify(foldFiles) === JSON.stringify(EXPECTED_FOLDS),
 const definitions = hits(/function normAngle|const normAngle\b|export const normAngle/);
 check(definitions.length === 1 && definitions[0].startsWith('moves.ts:'),
   `normAngle is defined exactly once, in moves.ts — ${definitions.length} definition(s)`, definitions.join('; '));
+
+// ---------------------------------------------------------------------------------------------------------------
+// 5. THE SAME RULE FOR `DEG`, one order of magnitude simpler.
+//
+// `DEG` is `Math.PI / 180`, the factor that takes a degree measure to radians, and `core.ts` owns it because that is
+// the module that reads dancer angles. It is on the public surface (`index.ts` re-exports `core.js`), so the way to
+// use it is to import it — `poc/tools/end-spin-probe.mjs` has always done exactly that (`const DEG = engine.DEG`).
+//
+// WHAT THIS REPLACED, MEASURED when §5 landed: `engine/src` held TWO declarations — `core.ts:8` and a bare copy in
+// `formation-order.ts:57`, four lines below a comment listing the module's imports — and `book/tools` held a third, in
+// `make-formations.mjs`, which loads the engine already for every other answer it draws.
+//
+// THE CENSUS STOPS AT THE PACKAGES THAT OWN THE UNIT, on purpose. Outside them a local `DEG` is not automatically a
+// copy of this value: MEASURED tree-wide, 25 further declarations exist in the probes, and **13 of them are
+// `180 / Math.PI` — the RECIPROCAL — under the same name** (`rotation-tiebreak`, `arc-centre-probe`, `arm-turn-probe`,
+// `call-formations-probe`, `clone-refusal-probe`, `connect-assign-probe`, `end-pair-probe`, `facing-chain-probe`,
+// `move-end-probe`, `run-circle-probe`, `wysiwyg-path-probe`, `promenade-pair-probe`, `promenade-travel-probe`).
+// Re-pointing one of those at the engine would INVERT its factor, so converting them is a rename, not an import, and
+// it is recorded in `TODO.md` rather than smuggled in here. What this section does pin is the thing that was wrong:
+// no package that owns the unit may spell it twice.
+console.log('\n== 5. `DEG` is declared once, in core.ts, and the book takes it from the engine ==');
+
+// THE VALUE ITSELF, so the spelling checks below are about a constant that is really pi/180.
+check(DEG === Math.PI / 180, `the exported DEG is Math.PI / 180 (${DEG})`);
+
+// (a) THE ENGINE'S POPULATION IS A FACT: exactly one declaration, and it is core.ts's.
+const degDefinitions = hits(/const DEG = Math\.PI \/ 180/);
+check(degDefinitions.length === 1 && degDefinitions[0].startsWith('core.ts:'),
+  `DEG is declared exactly once under engine/src, in core.ts — ${degDefinitions.length} definition(s)`,
+  degDefinitions.join('; '));
+
+// (b) THE RECIPROCAL IS NOT THIS CONSTANT. A NAMED SET of zero files: `180 / Math.PI` under the name `DEG` is the
+// other unit wearing this one's name, and `engine/src` writes the reciprocal as `rad / DEG` (`formation-order.ts`).
+const degReciprocal = hits(/const DEG = 180 \/ Math\.PI/);
+check(degReciprocal.length === 0,
+  `no file under engine/src calls the reciprocal DEG (${degReciprocal.length} do)`, degReciprocal.join('; '));
 
 console.log(`\n${failures === 0 ? 'angle-normalisation: all checks hold' : `angle-normalisation: ${failures} FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

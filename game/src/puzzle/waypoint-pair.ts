@@ -50,16 +50,26 @@ export function stageState(index: number, progress: number): WaypointState {
  * the player has reached in order (`waypointReached`), and `cursor` is the left index the player has paged to or
  * `null` to follow the front.
  *
+ * `hold` IS THE FRONT WHILE THE PAIR IS LIVE, and it is what stops a SUCCESS from moving the window. REPORTED: "when
+ * the player selects the correct call, the animation correctly plays in the left hand, but the right hand immediately
+ * auto-skips to the next board … Moving to the next waypoint should be left to the player by pressing the navigation
+ * buttons." Without it the front is `min(progress, count - 2)`, so reaching a waypoint advances the window the instant
+ * the call lands: the right-hand board the player was aiming at is replaced by the one after it, in the middle of the
+ * animation they were watching. With it the window stays where it was — left, the player's own board, right, the
+ * waypoint they just reached — and the arrow is the way on. `null` follows the front, which is the state before the
+ * first success and after any page or undo.
+ *
  * THE FRONT IS CLAMPED TO `count - 2`, because a pair needs a right-hand board: once the last waypoint is reached
  * there is nothing after it, so the stage rests on the final two and both are solved. Everything here is clamped
  * rather than trusted, for the reason `block.ts` clamps its sets: a bad index must not be able to take the boards
  * off the screen.
  */
-export function waypointPair(count: number, progress: number, cursor: number | null): WaypointPair {
+export function waypointPair(count: number, progress: number, cursor: number | null, hold: number | null = null): WaypointPair {
   const last = Math.max(count - 1, 0);
   const maxLeft = Math.max(count - 2, 0);
   const reached = Math.min(Math.max(Math.floor(progress), 0), last);
-  const front = Math.min(reached, maxLeft);
+  const followed = Math.min(reached, maxLeft);
+  const front = hold === null ? followed : Math.min(Math.max(Math.floor(hold), 0), maxLeft);
   const leftIndex = cursor === null ? front : Math.min(Math.max(Math.floor(cursor), 0), maxLeft);
   const rightIndex = Math.min(leftIndex + 1, last);
   const live = cursor === null;
@@ -67,7 +77,7 @@ export function waypointPair(count: number, progress: number, cursor: number | n
     leftIndex,
     rightIndex,
     // THE LIVE LEFT BOARD IS WHERE THE PLAYER IS, so it is always 'solved': it is the arrangement they are standing
-    // in, which is `front` by definition. Only a preview can show a left board that is not solved yet.
+    // in. Only a preview can show a left board that is not solved yet.
     left: live ? 'solved' : stageState(leftIndex, reached),
     right: stageState(rightIndex, reached),
     canPrev: leftIndex > 0,

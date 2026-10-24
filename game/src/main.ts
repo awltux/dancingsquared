@@ -203,6 +203,17 @@ let watchingDrill: { index: number; levelIndex: number; passed: boolean } | null
 let waypointCursor: number | null = null;
 
 /**
+ * THE FRONT THE LIVE PAIR IS HOLDING, or null to follow the player — the other half of the window's state.
+ *
+ * A SUCCESS SETS IT, to the front that was on screen BEFORE the call, so reaching a waypoint does not move the pair: the
+ * player watches the call land into the board they were aiming at, instead of the right-hand board being replaced by the
+ * next one mid-animation. REPORTED: "the right hand immediately auto-skips to the next board … Moving to the next
+ * waypoint should be left to the player by pressing the navigation buttons." The arrow clears it, and so does an undo or
+ * a new puzzle — those are the player saying where they want the window. `waypointPair`'s own header carries the rule.
+ */
+let waypointHold: number | null = null;
+
+/**
  * THE SAVED GAME — the record, the balance, the run ledger and the finished set, behind `SaveState`
  * (`game/save-state.ts`), which owns the rules over them. It is opened in `main()` before anything is issued;
  * the shell only ever reads it or calls one of its transitions, and `persist()` below is the one writer.
@@ -342,7 +353,7 @@ function waypointInfo(): WaypointInfo | null {
 function currentPair(): { stage: StagePair; pair: WaypointPair; info: WaypointInfo } | null {
   const info = waypointInfo();
   if (!info) return null;
-  const pair = waypointPair(info.boards.length, info.progress, waypointCursor);
+  const pair = waypointPair(info.boards.length, info.progress, waypointCursor, waypointHold);
   return {
     stage: {
       // THE LIVE PAIR'S LEFT BOARD IS THE PLAYER'S OWN, not the waypoint's: the Daily lets them leave the route, and
@@ -396,16 +407,34 @@ function paintWaypoints(): void {
 /**
  * Page the pair along the waypoints, and return to the live pair when the front is reached.
  *
- * THE FRONT IS NOT A CURSOR VALUE: it is wherever the player is (`min(progress, last pair)`), so paging back to it
- * has to clear the cursor rather than store an index that a later move would leave stale.
+ * THE FRONT IS NOT A CURSOR VALUE: it is wherever the window is sitting (`waypointPair`'s `hold`, or the player's own
+ * position when there is none), so paging back to it has to clear the cursor rather than store an index that a later move
+ * would leave stale.
+ *
+ * THE FORWARD ARROW IS THE WAY ON FROM A HELD SUCCESS. A success leaves the pair where it was, so with a hold in force
+ * the arrow moves the window on by one and KEEPS THE LEFT BOARD LIVE — the player's own board on the left, the next
+ * waypoint on the right — which is exactly what a player pressing it expects. Once it has caught up with where the
+ * player actually is, the hold is dropped and the pair follows again.
+ *
+ * BOTH FRONTS ARE ASKED OF `waypointPair`, never recomputed here: a second copy of the clamp is a second rule, and the
+ * clamp is exactly the part that is easy to get one out (AGENTS.md §5, "import the rule; never mirror it").
  */
 function pageWaypoints(delta: number): void {
   const info = waypointInfo();
   if (!info) return;
-  const pair = waypointPair(info.boards.length, info.progress, waypointCursor);
-  const front = Math.min(info.progress, Math.max(info.boards.length - 2, 0));
-  const next = Math.min(Math.max(pair.leftIndex + delta, 0), Math.max(info.boards.length - 2, 0));
-  waypointCursor = next === front ? null : next;
+  const maxLeft = Math.max(info.boards.length - 2, 0);
+  const liveFront = waypointPair(info.boards.length, info.progress, null, waypointHold).leftIndex;
+  if (waypointCursor === null && delta > 0 && waypointHold !== null) {
+    const next = Math.min(liveFront + 1, maxLeft);
+    const followed = waypointPair(info.boards.length, info.progress, null, null).leftIndex;
+    waypointHold = next >= followed ? null : next;
+    paintWaypoints();
+    draw();
+    return;
+  }
+  const pair = waypointPair(info.boards.length, info.progress, waypointCursor, waypointHold);
+  const next = Math.min(Math.max(pair.leftIndex + delta, 0), maxLeft);
+  waypointCursor = next === liveFront ? null : next;
   paintWaypoints();
   draw();
 }
@@ -930,6 +959,7 @@ function setMode(next: AppMode): void {
 function applyMode(next: AppMode): void {
   mode = next;
   waypointCursor = null;
+  waypointHold = null;
   // A HALF-FINISHED SLIDE BELONGS TO THE PUZZLE THE PLAYER JUST LEFT, so it is stopped rather than carried across —
   // and the pair is FORGOTTEN, so the next mode's boards are painted rather than slid to from this one's.
   stage.forgetPair();
@@ -994,6 +1024,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   playingLine = null;
   replayList.hide();
   waypointCursor = null;
+  waypointHold = null;
   stage.forgetPair();
   position = issued.index;
   // THE SERVER'S OWN WORD ABOUT THIS RUN, taken before anything can paint: `currentStanding` reads it to decide
@@ -1832,6 +1863,7 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
     ? DailyRun.resume(puzzle, applier, performance.now(), stored, { gapMs: wallGapMs(stored.savedAtMs, Date.now()) })
     : null;
   waypointCursor = null;
+  waypointHold = null;
   stage.forgetPair();
   // A DIFFERENT CHALLENGE IS A DIFFERENT LIST, so the player's search and subset belong to the last one: a query typed
   // for yesterday's puzzle would open today's already narrowed, which reads as a puzzle with almost no calls. Said here
@@ -1878,6 +1910,7 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
  */
 function startDaily(): void {
   waypointCursor = null;
+  waypointHold = null;
   daily = null;
   els.loading.hidden = true;
   dailyScreen.say("The Daily Challenge needs the game server: a challenge is published for a level and a day, and this build has no API configured.", 'info');
@@ -2101,6 +2134,12 @@ function logDailyMove(move: 'add' | 'undo' | 'redo', call: string | null = null)
 
 function playDailyCall(call: string): void {
   if (!daily || !applier || PLAYHEAD.isRunning) return;
+  // THE WINDOW AS IT STANDS, BEFORE the cursor is cleared and the call is played: a success holds the pair HERE, so the
+  // boards the player is watching do not move out from under the animation. It is the LIVE front (the hold in force, or
+  // the player's own position when there is none), not a paged preview — resuming from where a preview was left is what
+  // the cursor reset above is for.
+  const before = waypointInfo();
+  const shownFront = before ? waypointPair(before.boards.length, before.progress, null, waypointHold).leftIndex : null;
   waypointCursor = null;
   const from = daily.board;
   // THE COUNT BEFORE THE MOVE, so "did this pass a waypoint" is a DELTA rather than a state: a board that is already
@@ -2118,16 +2157,19 @@ function playDailyCall(call: string): void {
     paintDaily();
     return;
   }
+  // ONE READ AFTER THE MOVE, because two things need the same answer: whether the waypoint count ROSE, and — in the
+  // branch below — which sentence to say.
+  const view = daily.view(performance.now());
+  const advanced = view.progress > passedBefore;
   if (result.verdict === 'wrong') {
     // THREE SENTENCES, because a legal non-winning move can be three things and the player needs to know which: it
     // PASSED a waypoint (the only one that is good news), it landed on the goal's own setup without the ones before it,
     // or it did neither. The middle case is the rule the whole sequence exists for; the first is the case a
     // two-sentence version got WRONG ON A PAGE — a call that advanced the strip to "waypoint 2 of 5" was announced as
     // "the set is not on the goal board yet", which is true and useless.
-    const view = daily.view(performance.now());
     const onGoal = arrangementKey(result.board) === arrangementKey(daily.goal);
     dailyScreen.say(
-      view.progress > passedBefore && !onGoal
+      advanced && !onGoal
         ? `${call} — that is waypoint ${view.progress + 1} of ${view.waypoints.length}.`
         : onGoal
           ? `${call} — that is the goal's setup, but the waypoints are passed in order, so the run is not finished.`
@@ -2135,6 +2177,10 @@ function playDailyCall(call: string): void {
       'info',
     );
   } else dailyScreen.say(`${call} — every waypoint passed, and that is the goal board.`, 'ok');
+  // A SUCCESS HOLDS THE WINDOW WHERE THE PLAYER WAS WATCHING IT. Only a verdict that PASSED a waypoint would move the
+  // strip, and moving the pair for it is exactly the auto-skip that was reported — so the arrow does that instead, and
+  // the stage stays on the two boards the animation is landing between.
+  if (advanced && shownFront !== null) waypointHold = shownFront;
   logDailyMove('add', call);
   persist();
   startReplay(applier.motion([call], from), result.verdict === 'correct' ? 'advance' : 'settle');
@@ -2144,6 +2190,7 @@ function undoDaily(): void {
   if (!daily || PLAYHEAD.isRunning) return;
   if (!daily.undo()) return;
   waypointCursor = null;
+  waypointHold = null;
   logDailyMove('undo');
   dailyScreen.say('Undone — and the clock kept running, and any hint is still spent.', 'info');
   paintDaily();
@@ -2155,6 +2202,7 @@ function redoDaily(): void {
   if (!daily || PLAYHEAD.isRunning) return;
   if (!daily.redo()) return;
   waypointCursor = null;
+  waypointHold = null;
   logDailyMove('redo');
   dailyScreen.say('Redone.', 'info');
   paintDaily();

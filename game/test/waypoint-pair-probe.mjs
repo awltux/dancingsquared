@@ -19,6 +19,7 @@
 //
 // Usage: node game/test/waypoint-pair-probe.mjs
 import { stageState, waypointPair } from '../src/puzzle/waypoint-pair.ts';
+import { justSolved } from '../src/render/celebrate.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -91,7 +92,40 @@ console.log('\n== 4. the smallest puzzle: two waypoints, one pair, no paging =='
   check(states(done) === 'solved/solved', `solving it turns the pair green (${states(done)})`);
 }
 
-console.log('\n== 5. bad input is clamped, never trusted ==');
+console.log('\n== 5. a SUCCESS holds the window, and the arrow is the way on ==');
+{
+  // REPORTED: "when the player selects the correct call, the animation correctly plays in the left hand, but the right
+  // hand immediately auto-skips to the next board … Moving to the next waypoint should be left to the player by pressing
+  // the navigation buttons." THE HOLD IS THE FRONT THE PLAYER WAS LOOKING AT: progress 1 (waypoint 2 reached) with the
+  // window held at 0 leaves the pair on waypoints 1 and 2, and the right-hand board — the one they were aiming at — is
+  // now solved.
+  const held = waypointPair(4, 1, null, 0);
+  check(held.live, 'a held pair is still the LIVE pair: the left board is the player\'s own');
+  check(held.leftIndex === 0 && held.rightIndex === 1, `and it sits where the player was watching (${held.leftIndex + 1}, ${held.rightIndex + 1})`);
+  check(states(held) === 'solved/solved', `with the waypoint they just reached now solved (${states(held)})`);
+  // THE NEGATIVE CONTROL: the same state WITHOUT the hold is the auto-skip — the pair jumps to (2, 3), which is what a
+  // test for "it moved on" would call correct, and is exactly what was reported.
+  const skipped = waypointPair(4, 1, null);
+  check(skipped.leftIndex === 1 && skipped.rightIndex === 2,
+    `NEGATIVE CONTROL: without the hold the pair advances on a success (${skipped.leftIndex + 1}, ${skipped.rightIndex + 1})`);
+  // THE ARROW ADVANCES IT: holding one further on keeps the left board live, shows the next waypoint on the right, and the
+  // pair catches the player up as it goes. (`progress` is the INDEX of the last waypoint reached, so at 1 the pair (1, 2)
+  // reads "you are on waypoint 2, waypoint 3 is next" — the following pair again.)
+  const nextStep = waypointPair(4, 1, null, 1);
+  check(nextStep.live && nextStep.leftIndex === 1 && nextStep.rightIndex === 2, `one page on shows the next window (${nextStep.leftIndex + 1}, ${nextStep.rightIndex + 1})`);
+  check(states(nextStep) === 'solved/next', `with the waypoint after it reading next again (${states(nextStep)})`);
+  // PAGING STILL WINS OVER THE HOLD: a cursor is the player's own look at the route, and then both boards are the route's.
+  const pagedOver = waypointPair(4, 1, 2, 0);
+  check(!pagedOver.live && pagedOver.leftIndex === 2, `a paged pair ignores the hold (${pagedOver.leftIndex + 1})`);
+  check(waypointPair(4, 1, null, 99).leftIndex === 2, 'and a hold past the last pair clamps to it');
+  // THE CELEBRATION STILL FIRES, which is why the hold is safe: with the indices unchanged a held success is the shape
+  // `justSolved` already had for the goal — the right border turning solved in place.
+  const before = waypointPair(4, 0, null);
+  check(justSolved(before, waypointPair(4, 1, null, 0)) === 'right',
+    'and the reached waypoint still flashes its border, the way the goal case does');
+}
+
+console.log('\n== 6. bad input is clamped, never trusted ==');
 {
   const negativeProgress = waypointPair(4, -3, null);
   check(states(negativeProgress) === 'solved/next', `a negative progress reads as the start (${states(negativeProgress)})`);

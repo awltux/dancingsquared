@@ -95,6 +95,15 @@ export const SUITE = [
   // exactly), and fails if a second while-loop or `atan2(sin,` spelling appears anywhere in `engine/src`.
   // Pure arithmetic plus one directory walk: ~0s.
   { h: 'angle-normalisation', light: true },
+  // THE MAGIC NUMBERS, AND WHICH ONES ARE RULES. The engine already names ~40 constants; what R8 found is the class
+  // the count hides: the tolerance literals spelled INLINE (`1e-9` in 10 files, `1e-6` in 11, `1e-3` in 12, across
+  // `engine/src` and `poc/src`), plus three numbers that decide a rule under a bare literal - `maxError / 12` (the
+  // tolerance that actually binds, documented in `constants.ts` and named nowhere, written in 3 places), the marker
+  // size `0.48` (three declarations while `board-style.mjs` exports `MARKER_UNITS`), and `swing-thru.ts`'s `3.0` (the
+  // reference's `minDistance`). THE PINS ARE NAMED SETS OF `path count`, so a named constant leaving the inline list
+  // and a NEW unnamed tolerance are the same red. The header states what it deliberately does NOT name (authored data,
+  // decoration, probe fixtures) and why the tie epsilons stay their own rule. ~0.2s: a source walk, no engine build.
+  { h: 'tolerances', light: true },
   // THE EXPORT PRECISION, AND A CENSUS LIKE THE ONE ABOVE. The same four-decimal lambda was written in THREE files
   // (`convert.ts`'s `r`, `editor.ts`'s `rf`, the POC panel's `show`) with no export between them, so no probe could
   // import the rule: the engine's copies were only measured through a whole export round trip and the panel's by

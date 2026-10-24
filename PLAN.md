@@ -4777,6 +4777,39 @@ two spaces carry the same information and the editor may move between them freel
 
 ---
 
+### Phase R — the QA refactor findings, and the two that are NOT actioned
+
+R6 was a pass over the four largest modules (`poc/src/editor-ui.ts` 6,447 lines, `poc/src/sequencer-ui.ts` 2,959,
+`engine/src/editor.ts` 2,715, `game/src/main.ts` 2,574) asking one question: **where is a rule inside one of them that
+no probe can measure?** Size alone was not a finding. It landed four extractions, each of which moved a rule into a
+small module that its probes now IMPORT instead of restating:
+
+| the rule | now in | the copy it replaced |
+|---|---|---|
+| the export precision (four decimals, and a facing canonical in `[0, 360)`) | `engine/src/export-format.ts` | THREE private lambdas - `convert.ts`'s `r`, `editor.ts`'s `rf`/`rfAngle`, `poc/src/editor-ui.ts`'s `show` - none exported, so the panel's copy was measured by nothing |
+| the group gate's "is this the same move" | `poc/src/same-move.ts` | five probes (`clone-refusal`, `connect-assign` twice, `coords-gate`, `match-link`, `select-row`), one saying so in a comment |
+| the next-call list's board key | `poc/src/board-key.ts` | four lines at the bottom of `sequencer-ui.ts`, with its doc comment sitting on two DEAD declarations (`PARALLEL_PREFIX`, `isParallelPick`, both deleted) |
+| which leaderboard period a run is on | `game/src/puzzle/board-period.ts` | `main.ts`, over module state and `Date.now()`, where no probe could ask it anything |
+
+**Recorded, NOT actioned, and why:**
+
+1. **`alignTargetToStart` (`engine/src/editor.ts`) is exported, BOUND by a Gherkin tag, and called by nothing.**
+   `git grep`: three code hits, all its own declaration or the `index.ts` re-export, plus
+   `features/call_editor.feature:70` (`@bind:closureDiscrepancy @bind:alignTargetToStart`). `bind-audit.mjs` resolves
+   a `@bind:` name against the package's exports, so the tag is green while the scenario's own Then-step ("the target
+   must be re-ordered into the call's dancer order BY GEOMETRY, via the call's start poses") has no executable witness
+   behind it: the ordering is `closureDiscrepancy`'s and `correctEndTo`'s, both of which call `orderLikeCore` directly
+   with the same start-pose construction. **Action: delete the function and drop its tag, or make the scenario call it
+   - a feature-file migration either way, so it is its own commit, never a footnote to a refactor.**
+2. **`poc/src/editor-ui.ts` still carries its own `normAngle`, under a stale reason.** Line ~364 says "The engine's own
+   is private to `editor.ts`" - DISPROVED: `moves.ts` exports `normAngle`, `editor.ts` imports it, and
+   `poc/tools/mirror-moves-probe.mjs` and `start-pose-drag-probe.mjs` mirror the same lambda a third and fourth time.
+   **Action: measure whether the panel's `atan2(sin, cos)` agrees with `moves.ts`'s modulo form bit for bit over a large
+   sample FIRST, then import it if it does and record the ulp if it does not** - the engine's own history says the two
+   spellings differ in the last bits (`angle-normalisation.mjs`), so this is a measurement, not a tidy-up.
+
+---
+
 ## 5. Blocked, and recorded so nobody re-opens them
 
 These are Phase 4e's remainder. Each was probed to a definite answer and each needs a **source of the

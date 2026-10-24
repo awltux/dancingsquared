@@ -26,6 +26,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+// THE GATE'S OWN COMPARISON, IMPORTED. This probe used to carry a copy of `travelGap`/`sameTravel`/`sameFacingCurve`/
+// `sameTrace` and of the two windows, because they were private to `editor-ui.ts` - so it measured an arithmetic it
+// restated (AGENTS.md 5). They live in `poc/src/same-move.ts` now, and this is the shipped rule.
+import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameFacingCurve, sameTravel, sameTrace, travelGap } from '../src/same-move.ts';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -55,10 +59,15 @@ has(/if \(donorPath && !sameTrace\(donorPath, r\.moves\)\)/,
 check(!/tracesAgree/.test(ui), 'and the old "the whole selection must already agree" premise is gone, because that is exactly the state in which the caller cannot use it');
 has(/link\.addEventListener\('click', \(\) => this\.matchDancer\(i\)\)/, 'and clicking it calls that method with the dancer alone');
 has(/this\.selectedDancers\.add\(i\);/, 'which SELECTS the dancer, which is the second half of what was asked for');
-has(/function sameTrace\(a: Seg\[\], b: Seg\[\]\): boolean \{\s*\n\s*if \(a\.length !== b\.length\) return false;[\s\S]{0,400}?a\[k\]\.beats !== b\[k\]\.beats \|\| a\[k\]\.hands !== b\[k\]\.hands/,
+// THE RULE ITSELF LIVES IN A MODULE NOW, so the checks that used to grep its text out of the panel read the module -
+// and the WINDOWS are checked as VALUES, because they are imported rather than restated. A copy that drifts still
+// reads like a rule, which is why the copy was the problem (AGENTS.md 11.4.4).
+const ruleSrc = fs.readFileSync(path.join(POC_DIR, 'src', 'same-move.ts'), 'utf8');
+check(/export function sameTrace\(a: Seg\[\], b: Seg\[\]\): boolean \{\s*\n\s*if \(a\.length !== b\.length\) return false;[\s\S]{0,400}?a\[k\]\.beats !== b\[k\]\.beats \|\| a\[k\]\.hands !== b\[k\]\.hands/.test(ruleSrc),
   'and "the same trace" is the gate\'s own per-move comparison over a whole path: the same number of moves, the same travel, the same turn, the same beats and the same hands');
-has(/const SHAPE_WINDOW = 0\.025;/, 'the travel window is 0.025 units');
-has(/const FACING_WINDOW_DEG = 0\.5;/, 'and the facing window is half a degree');
+has(/import \{[^}]*sameTrace[^}]*\} from '\.\/same-move'/, 'and the panel IMPORTS that comparison rather than defining a second one');
+check(SHAPE_WINDOW === 0.025, `the travel window is 0.025 units (imported: ${SHAPE_WINDOW})`);
+check(FACING_WINDOW_DEG === 0.5, `and the facing window is half a degree (imported: ${FACING_WINDOW_DEG})`);
 // THE STALE-TAB BUG, GATED AS AN ABSENCE. `renderInstance` draws the table BEFORE `renderMoveStrip` normalises
 // a stale `moveKind`, so a link drawn from the tab was offered for a facing curve the panel was about to stop
 // editing. A whole-trace question has no move index, and this is what says so.
@@ -72,31 +81,8 @@ check(typeof engine.setDancerPath === 'function', 'and the engine exports the pa
 
 // ============================================================ 2. the mirror
 //
-// MIRRORED rather than imported: `sameTravel`/`sameFacingCurve` are module-private in the controller, which
-// builds DOM. Section 1 pins the constants and the wiring they live in; the numbers below are about what the
-// rule MEANS.
-const SHAPE_WINDOW = 0.025;
-const FACING_WINDOW_DEG = 0.5;
-const travelGap = (a, b) => {
-  let gap = 0;
-  for (let i = 0; i <= 16; i++) {
-    const t = i / 16;
-    const qa = engine.bezierPoint(a.translate, t);
-    const qb = engine.bezierPoint(b.translate, t);
-    gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-  }
-  return gap;
-};
-const sameTravel = (a, b) => travelGap(a, b) < SHAPE_WINDOW;
-const sameFacingCurve = (a, b) => engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
-const sameTrace = (a, b) => {
-  if (a.length !== b.length) return false;
-  for (let k = 0; k < a.length; k++) {
-    if (!sameTravel(a[k], b[k]) || !sameFacingCurve(a[k], b[k])) return false;
-    if (a[k].beats !== b[k].beats || a[k].hands !== b[k].hands) return false;
-  }
-  return true;
-};
+// IMPORTED, not mirrored: the comparison is `poc/src/same-move.ts`, the rule the panel calls. Section 1 pins the
+// wiring; the numbers below are about what the rule MEANS.
 /** The OLD copy, for the mutation: ONE curve of the move on screen. */
 const oldCopy = (call, target, donor, moveIndex, curve) => {
   const ref = call.dancers[donor]?.path[moveIndex];

@@ -22,6 +22,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { corpusRoot } from 'dancing-squared-corpus';
+// THE PANEL'S GATE, IMPORTED: this probe's own answer to "why are dancers 1 and 3 refused" has to be the gate's
+// answer, not a copy of it - five probes carried this one (AGENTS.md 5).
+import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameFacingCurve, sameTravel, travelGap } from '../src/same-move.ts';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -114,23 +117,9 @@ for (let i = 0; i < poses.length; i++) console.log(`     spot ${i + 1}: (${poses
 
 // ---------------------------------------------------------------- what the connect wrote, dancer by dancer
 console.log(`\n== the chain the connect writes ==`);
-// THE PANEL'S OWN GATE, mirrored to the letter: the travel curves are compared as CURVES, at one pixel
-// (0.025 board units at this view's 40.91 px per unit), and the facing through `sameFacing` at half a
-// degree. `editor-ui.ts` `sameTravel` / `sameFacingCurve` are the definitions; keep these in step.
-const WINDOW = 0.025;
-const FACING_WINDOW_DEG = 0.5;
-const travelGap = (a, b) => {
-  let gap = 0;
-  for (let i = 0; i <= 16; i++) {
-    const t = i / 16;
-    const qa = engine.bezierPoint(a.translate, t);
-    const qb = engine.bezierPoint(b.translate, t);
-    gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-  }
-  return gap;
-};
-const sameTravel = (a, b) => travelGap(a, b) < WINDOW;
-const sameFacingCurve = (a, b) => engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
+// THE PANEL'S OWN GATE, IMPORTED rather than mirrored: the travel curves are compared as CURVES, at one pixel
+// (0.025 board units at this view's 40.91 px per unit), and the facing through the engine at half a degree. Both are
+// `poc/src/same-move.ts` - the functions the panel calls - so this probe cannot drift from the gate it is about.
 const straight = (t) => {
   const p = [[0, 0], [t.cx1, t.cy1], [t.cx2, t.cy2], [t.x2, t.y2]];
   let worst = 0;
@@ -179,7 +168,7 @@ console.log(`   the travel curves are ${travelOk ? 'the SAME to within the windo
     const qb = engine.bezierPoint(B.translate, t);
     gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
   }
-  console.log(`   the largest single-number difference is ${worstNum.toExponential(3)} (${worstKey}), against a ${WINDOW} window`);
+  console.log(`   the largest single-number difference is ${worstNum.toExponential(3)} (${worstKey}), against a ${SHAPE_WINDOW} window`);
   console.log(`   and the two CURVES are ${gap.toExponential(3)} units apart at their worst (${(gap * 40.91).toFixed(2)} px in the flat view)`);
   check(gap * 40.91 < 1, `the difference the old 0.01-unit window refused is ${(gap * 40.91).toFixed(2)} px - under one pixel, which is what "too strict" meant here`);
 }
@@ -285,7 +274,7 @@ if (process.argv.includes('--sweep')) {
             gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
           }
           const facingOkHere = engine.sameFacing(a.rotate ?? a.translate, bb.rotate ?? bb.translate, FACING_WINDOW_DEG);
-          if (gap < WINDOW && facingOkHere) continue;
+          if (gap < SHAPE_WINDOW && facingOkHere) continue;
           refused++;
           const px = gap * WINDOW_PX;
           if (gap < 0.025) { opens1px++; largestUnder2px = Math.max(largestUnder2px, px); }

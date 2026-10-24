@@ -21,6 +21,8 @@
 // asks about one curve or both - and what that opens - is measured by `connect-assign-probe.mjs`.
 //
 // Run: node tools/coords-gate-probe.mjs   (from anywhere)
+// THE GATE'S COMPARISON, IMPORTED: this probe used to restate it (AGENTS.md 5).
+import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameFacingCurve, sameTravel, travelGap } from '../src/same-move.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -42,30 +44,14 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-/** The panel's own comparison, to the letter - now PER CURVE, because that is what the edit writes: a
- *  Move-tab field writes the travel numbers and a Facing-tab field writes the rotation's, so the gate
- *  asks about one curve. `both` is kept for the questions about a single set of numbers describing the
- *  whole move; the panel's refusal is `sameTravel` or `sameFacing` on the curve in hand.
+/** The panel's own comparison, IMPORTED from `poc/src/same-move.ts` - now PER CURVE, because that is what the edit
+ *  writes: a Move-tab field writes the travel numbers and a Facing-tab field writes the rotation's, so the gate asks
+ *  about one curve. `sameCoords` (`both`, below) is this probe's own question about a single set of numbers describing
+ *  the whole move; the panel's refusal is `sameTravel` or `sameFacingCurve` on the curve in hand.
  *
- *  THE SHAPE WINDOW IS ON THE CURVES AT ONE PIXEL (0.025 board units here), not on the control points:
- *  see the long note in `editor-ui.ts`, and `clone-refusal-probe.mjs`, which measured that the refusals a
- *  caller hits come in two sizes - under half a pixel, and 2 px and up - with nothing in between. */
-const WINDOW = 0.025;
-const FACING_WINDOW_DEG = 0.5;
-const travelGap = (a, b) => {
-  let gap = 0;
-  for (let i = 0; i <= 16; i++) {
-    const t = i / 16;
-    const qa = engine.bezierPoint(a.translate, t);
-    const qb = engine.bezierPoint(b.translate, t);
-    gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-  }
-  return gap;
-};
-const sameTravel = (a, b) => travelGap(a, b) < WINDOW;
-const sameFacingCurve = (a, b) =>
-  // BY MEANING, not by numbers: the facing curve is scale-invariant (see sameFacing in the engine).
-  engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
+ *  THE SHAPE WINDOW IS ON THE CURVES AT ONE PIXEL (0.025 board units here), not on the control points: see the long
+ *  note in `same-move.ts`, and `clone-refusal-probe.mjs`, which measured that the refusals a caller hits come in two
+ *  sizes - under half a pixel, and 2 px and up - with nothing in between. */
 const sameCoords = (a, b) => sameTravel(a, b) && sameFacingCurve(a, b);
 
 /**
@@ -190,15 +176,15 @@ console.log('\n== The window in the data, and on the screen ==');
   console.log(`    differences that are NOT zero: ${noises.length + visible.length}`);
   console.log(`      the largest below 1e-3 (arithmetic noise) : ${noiseHi.toExponential(3)}`);
   console.log(`      the smallest above 1e-3 (a real difference): ${visibleLo.toExponential(3)}`);
-  console.log(`      the panel's windows: ${WINDOW} units (${(WINDOW * 40.91).toFixed(1)} px) on the shape, ${FACING_WINDOW_DEG}deg on the facing`);
-  check(noiseHi > 0 && noiseHi < WINDOW,
-    `the windows sit above the arithmetic noise: the largest difference the gate treats as the SAME shape is ${noiseHi.toExponential(2)} units, an order of magnitude below the ${WINDOW}-unit window`);
+  console.log(`      the panel's windows: ${SHAPE_WINDOW} units (${(SHAPE_WINDOW * 40.91).toFixed(1)} px) on the shape, ${FACING_WINDOW_DEG}deg on the facing`);
+  check(noiseHi > 0 && noiseHi < SHAPE_WINDOW,
+    `the windows sit above the arithmetic noise: the largest difference the gate treats as the SAME shape is ${noiseHi.toExponential(2)} units, an order of magnitude below the ${SHAPE_WINDOW}-unit window`);
   // The question that decides it: is a difference the gate CALLS real one the caller can see? The shape
   // window is 0.025 units = one pixel at this scale, measured along the curves themselves, and this
   // probe's own sweep below shows the next refusal up is 2 px - so a refusal is always about a difference
   // of at least a pixel, and everything under a pixel is accepted.
-  check(WINDOW * 40.91 <= 1.1,
-    `the gate refuses only diffs of a pixel or more: the shape window is ${(WINDOW * 40.91).toFixed(2)} px measured along the curves, and this probe measures the smallest refusal it makes below`);
+  check(SHAPE_WINDOW * 40.91 <= 1.1,
+    `the gate refuses only diffs of a pixel or more: the shape window is ${(SHAPE_WINDOW * 40.91).toFixed(2)} px measured along the curves, and this probe measures the smallest refusal it makes below`);
 }
 
 // ---------------------------------------------------------------- what the connect actually wrote
@@ -341,7 +327,7 @@ console.log('\n== Is the window ever refusing an edit nobody could see? (many cl
   check(refusedAtAll > 0, `the gate does refuse group edits after a connect (${refusedAtAll} of ${tried} targets)`);
   check(invisibleRefusals === 0,
     `and NEVER on a difference below a hundredth of a unit: the smallest refusal of all is ${smallestRefused.toFixed(4)} units, ${(smallestRefused * 40.91).toFixed(1)} px on screen, so the window is not what a caller is hitting`);
-  check(smallestRefused > WINDOW,
+  check(smallestRefused > SHAPE_WINDOW,
     `and every refusal rested on more than the shape window: the smallest of all is ${smallestRefused.toFixed(4)} units (${(smallestRefused * 40.91).toFixed(1)} px), so the window is not what a caller is hitting`);
   // A difference of a few hundredths of a unit is REAL and refinable, and it is the smallest the gate
   // ever refuses on: a caller looking at a 4 px gap can fairly say "they look the same", which is why
@@ -381,7 +367,7 @@ console.log('\n== Is the window ever refusing an edit nobody could see? (many cl
     }
     if (tight) {
       const facingRejected = !engine.sameFacing(tight.a.rotate ?? tight.a.translate, tight.b.rotate ?? tight.b.translate, FACING_WINDOW_DEG);
-      const posRejected = ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2'].some((key) => Math.abs(tight.a.translate[key] - tight.b.translate[key]) >= WINDOW);
+      const posRejected = ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2'].some((key) => Math.abs(tight.a.translate[key] - tight.b.translate[key]) >= SHAPE_WINDOW);
       console.log(`    the TIGHTEST refusal over every target: "${tight.name}", move ${tight.k + 1}, dancers ${tight.i + 1} and ${tight.j + 1}`);
       console.log(`      refused by: ${posRejected ? 'the SHAPE window' : ''}${posRejected && facingRejected ? ' and ' : ''}${facingRejected ? 'the FACING window' : ''}`);
       const fmt = (s) => `(${s.translate.cx1.toFixed(4)}, ${s.translate.cy1.toFixed(4)}, ${s.translate.cx2.toFixed(4)}, ${s.translate.cy2.toFixed(4)}, ${s.translate.x2.toFixed(4)}, ${s.translate.y2.toFixed(4)})`;

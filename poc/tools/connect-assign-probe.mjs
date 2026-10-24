@@ -20,6 +20,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { corpusRoot } from 'dancing-squared-corpus';
+// THE GATE'S COMPARISON, IMPORTED, not restated: it was a copy here in TWO blocks (AGENTS.md 5).
+import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameFacingCurve, sameTravel, travelGap } from '../src/same-move.ts';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -232,21 +234,9 @@ console.log('\n== the ancestor its own first move leaves behind, and how symmetr
 // then no window between the two would change a single answer, and the differences are the data's.
 console.log('\n== is the compare too strict? the noise floor against the refusals ==');
 {
-  // THE PANEL'S GATE AS IT NOW IS: the travel curves compared AS CURVES at one pixel (0.025 units), the
-  // facing through the engine at half a degree. (This block originally modelled the 0.01-unit
-  // control-point window; `clone-refusal-probe.mjs` is what changed it, on a 0.58px refusal.)
-  const WINDOW = 0.025;
-  const FACING_WINDOW_DEG = 0.5;
-  const travelGap = (a, b) => {
-    let gap = 0;
-    for (let i = 0; i <= 16; i++) {
-      const t = i / 16;
-      const qa = engine.bezierPoint(a.translate, t);
-      const qb = engine.bezierPoint(b.translate, t);
-      gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-    }
-    return gap;
-  };
+  // THE PANEL'S GATE AS IT NOW IS, imported from `poc/src/same-move.ts`: the travel curves compared AS CURVES at one
+  // pixel, the facing through the engine at half a degree. (The numbers were a copy here until the rule got a module;
+  // this block originally modelled the 0.01-unit control-point window, which `clone-refusal-probe.mjs` changed.)
   let accepted = 0;
   let acceptedWorst = 0;
   let refusedTravel = 0;
@@ -270,7 +260,7 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
         const b = clone.dancers[j].path[0];
         if (!a || !b) continue;
         const num = travelGap(a, b);
-        const travelOk = num < WINDOW;
+        const travelOk = num < SHAPE_WINDOW;
         const facingOk = engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
         if (travelOk && facingOk) {
           accepted++;
@@ -304,11 +294,11 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
   facings.sort((x, y) => x - y);
   console.log(`   accepted walk-in pairs: ${accepted}, and the biggest difference ANY accepted pair has: ${acceptedWorst.toExponential(2)} units`);
   console.log(`   refused on the travel curve alone: ${refusedTravel}, on the facing alone: ${refusedFacing}, on both: ${refusedBoth}`);
-  console.log(`   the smallest travel difference ever refused: ${smallestTravel.toFixed(4)} units (${(smallestTravel * 40.91).toFixed(1)} px), against a ${WINDOW}-unit window`);
+  console.log(`   the smallest travel difference ever refused: ${smallestTravel.toFixed(4)} units (${(smallestTravel * 40.91).toFixed(1)} px), against a ${SHAPE_WINDOW}-unit window`);
   console.log(`   refused travel differences by band: ${Object.entries(bands).map(([k, v]) => `${k}: ${v}`).join(', ')}`);
   if (facings.length) console.log(`   refused facing differences: smallest ${facings[0].toFixed(2)}deg, largest ${facings[facings.length - 1].toFixed(2)}deg (window ${FACING_WINDOW_DEG}deg)`);
-  check(acceptedWorst < WINDOW, `the biggest difference the gate ACCEPTS is ${acceptedWorst.toExponential(2)} units, and the smallest it refuses is ${smallestTravel.toFixed(4)} - a gap of ${(smallestTravel / acceptedWorst).toFixed(0)}x, so no window between them would change a single answer, and the refusals are not floating-point noise`);
-  check(smallestTravel > WINDOW * 2, `the smallest refusal is ${smallestTravel.toFixed(4)} units, well above the ${WINDOW}-unit window: "too strict" is a judgement about ${(smallestTravel * 40.91).toFixed(1)} px rather than a precision problem`);
+  check(acceptedWorst < SHAPE_WINDOW, `the biggest difference the gate ACCEPTS is ${acceptedWorst.toExponential(2)} units, and the smallest it refuses is ${smallestTravel.toFixed(4)} - a gap of ${(smallestTravel / acceptedWorst).toFixed(0)}x, so no window between them would change a single answer, and the refusals are not floating-point noise`);
+  check(smallestTravel > SHAPE_WINDOW * 2, `the smallest refusal is ${smallestTravel.toFixed(4)} units, well above the ${SHAPE_WINDOW}-unit window: "too strict" is a judgement about ${(smallestTravel * 40.91).toFixed(1)} px rather than a precision problem`);
 
   // ---------------------------------------------------------------- what a per-curve gate opens
   //
@@ -334,7 +324,7 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
         const b = clone.dancers[j].path[0];
         if (!a || !b) continue;
         const num = travelGap(a, b);
-        const travelOk = num < WINDOW;
+        const travelOk = num < SHAPE_WINDOW;
         const facingOk = engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
         if (travelOk && !facingOk) { opensTravel++; any = true; }
         if (!travelOk && facingOk) { opensFacing++; any = true; }
@@ -354,20 +344,8 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
 // the parameterisation (how the control points sit along it, which is the speed)?
 console.log('\n== the refused pads, number by number ==');
 {
-  const WINDOW = 0.025;
-  const FACING_WINDOW_DEG = 0.5;
-  const travelGap = (a, b) => {
-    let gap = 0;
-    for (let i = 0; i <= 16; i++) {
-      const t = i / 16;
-      const qa = engine.bezierPoint(a.translate, t);
-      const qb = engine.bezierPoint(b.translate, t);
-      gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-    }
-    return gap;
-  };
-  const sameTravel = (a, b) => travelGap(a, b) < WINDOW;
-  const sameFacingCurve = (a, b) => engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
+  // `sameCoords` IS THIS PROBE'S OWN QUESTION - both curves at once, which is a strictly stronger test than the gate's
+  // per-curve one - and it is composed from the imported predicates rather than from a second notion of "the same".
   const sameCoords = (a, b) => sameTravel(a, b) && sameFacingCurve(a, b);
   const straight = (t) => {
     // Collinear control polygon = a straight line: the cross products of consecutive spans vanish.
@@ -418,7 +396,7 @@ console.log('\n== the refused pads, number by number ==');
   }
   // How many refused pairs are two straight lines whose ENDPOINTS agree - the same drawn segment, a
   // different speed along it?
-  const sameLine = rows.filter((r) => r.sa && r.sb && Math.abs(r.a.translate.x2 - r.b.translate.x2) < WINDOW && Math.abs(r.a.translate.y2 - r.b.translate.y2) < WINDOW);
+  const sameLine = rows.filter((r) => r.sa && r.sb && Math.abs(r.a.translate.x2 - r.b.translate.x2) < SHAPE_WINDOW && Math.abs(r.a.translate.y2 - r.b.translate.y2) < SHAPE_WINDOW);
   console.log(`   refused pairs that are two STRAIGHT lines with the SAME local endpoint: ${sameLine.length} of ${rows.length}`);
   // THE FAMILY THE REPORT IS ABOUT: the same line, refused because the two dancers END UP FACING
   // DIFFERENTLY. The line is identical to the last bit; what differs is the rotate curve the same pad

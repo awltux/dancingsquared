@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { SHAPE_WINDOW, sameCurve, travelGap } from '../src/same-move.ts';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -37,24 +38,10 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-// THE PANEL'S GATE, copied in the two numbers that define it (`poc/src/editor-ui.ts`: SHAPE_WINDOW,
-// FACING_WINDOW_DEG, travelGap, sameTravel, sameFacingCurve). A copy says so; the point of the measurement
-// is what the RULE does to the corpus, and the rule is four lines of arithmetic around the engine's own
-// `sameFacing`.
-const SHAPE_WINDOW = 0.025;
-const FACING_WINDOW_DEG = 0.5;
-const travelGap = (a, b) => {
-  let gap = 0;
-  for (let i = 0; i <= 16; i++) {
-    const t = i / 16;
-    const qa = engine.bezierPoint(a.translate, t);
-    const qb = engine.bezierPoint(b.translate, t);
-    gap = Math.max(gap, Math.hypot(qa.x - qb.x, qa.y - qb.y));
-  }
-  return gap;
-};
-const sameCurve = (a, b, curve) =>
-  curve === 'travel' ? travelGap(a, b) < SHAPE_WINDOW : engine.sameFacing(a.rotate ?? a.translate, b.rotate ?? b.translate, FACING_WINDOW_DEG);
+// THE PANEL'S GATE, IMPORTED (`poc/src/same-move.ts`). It was a copy here until the rule got a module; the point of
+// the measurement is what the RULE does to the corpus, and a copy of it would be one edit away from measuring nothing
+// (AGENTS.md 5).
+
 
 // The corpus: every call in the ms level, whole-set only.
 const calls = [];

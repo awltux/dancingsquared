@@ -39,7 +39,7 @@ export function startBoard(eng, bundle) {
 }
 
 /**
- * The definition an authoring starts from, as `{ fid, shape, root }`.
+ * The definition an authoring starts from, as `{ fid, shape, stored }`.
  *
  * `shape` is the CONTENT ADDRESS of the start board and is reported for diagnostics only - it is not the reference.
  * A bundle that starts from neither a named definition nor a tagged inline block (an editor-authored call) has no
@@ -50,7 +50,7 @@ export function variantOf(eng, bundle, level, tags) {
   const shape = eng.formationId(startBoard(eng, bundle));
   const stored = bundle.formation ? tags.get(bundle.formation)?.fid ?? null : bundle.formationTag?.fid ?? null;
   const fid = stored ?? shape;
-  return { variantId: eng.callVariantId(level, bundle.title, fid), shape, root: fid, stored: stored !== null };
+  return { variantId: eng.callVariantId(level, bundle.title, fid), shape, fid, stored: stored !== null };
 }
 
 /**

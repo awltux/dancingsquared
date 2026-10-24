@@ -65,7 +65,7 @@ and the POC synthesises it at load time (`poc/src/data.ts`). So `filesOf('ssd')`
   the block wins at load time — otherwise the one it names). Unlike `fid`, a `vid` is **fully determined** by the
   tree, so a retitle or a level move re-mints it and `engine/test/variant-tags.mjs` fails until it is re-tagged. The
   one place they are all maintained is `scripts/tag-formations.mjs` and `scripts/tag-variants.mjs`; a generated
-  `*.virtual.xml` instance carries `parent_id` instead — the variant it was *placed from*.
+  `*.virtual.xml` instance carries `parent_vid` instead — the variant it was *placed from*.
 
 ## Where the files came from — Taminations
 
@@ -114,26 +114,28 @@ app loaders filter their glob keys with the same predicate. A census of authored
 counting boards nobody authored — MEASURED: without the exclusion `make-virtual.mjs`'s own dead-row check read its
 seven tams as new eight-dancer authorings.
 
-**Each one names the variant it was placed from**, as `parent_id`:
+**Each one names the variant it was placed from**, as `parent_vid`:
 
 ```xml
 <tamination title="Circle Family">
-  <tam title="Circle Four Left" from="Static Square" parts="" asymmetric="true" parent_id="V1-85721b7k">
+  <tam title="Circle Four Left" from="Static Square" parts="" asymmetric="true" parent_vid="V1-85721b7k">
 ```
 
-`parent_id` is the engine's **call-variant id** of the SOURCE authoring —
+`parent_vid` is the engine's **call-variant id** of the SOURCE authoring —
 `callVariantId(level, sourceTitle, fid)`, where `fid` is the tag STORED on the definition the source starts from
 (`VirtualCallInfo.sourceFid` when the source authored its own setup, otherwise the named definition's `fid`). It is
-the identity a consumer dedupes on: several authorings of one variant share it by design.
+the same `V1-` scheme an authored tam carries in its own `vid`, and the name says so: `vid` is a call variant, so a
+reference to the variant a placement came from is a `parent_vid`. It is the identity a consumer dedupes on: several
+authorings of one variant share it by design.
 
 **They are generated, so do not edit them.** The source of truth is
 [`book/tools/virtual-placements.json`](../book/tools/virtual-placements.json) — one row per card: the call, the
 board to place it on, and why — and the generated index is
-[`book/tools/virtual-index.json`](../book/tools/virtual-index.json) (`file`, `tamIndex`, `title`, `parentId`,
+[`book/tools/virtual-index.json`](../book/tools/virtual-index.json) (`file`, `tamIndex`, `title`, `parentVid`,
 `level`, the reading the permission layer allowed, and the end formation). A row marked `refused` is a CLAIM, and
 the tool re-verifies it: today one call is withheld with the engine's own sentence.
 
-## Finding the tam a `parent_id` names
+## Finding the tam a `parent_vid` names
 
 The id is a digest of (level, title, the start definition's stored `fid`), so it cannot be inverted — the way back
 is to build the candidate authorings and mint their ids. That is what
@@ -212,4 +214,4 @@ a search result recorded once, and the row is re-verified on every run.
 
 **Change a placement (a different board, or the index's reading).** Edit the row's `board` (and its `why`, which a
 reader sees), then regenerate and check as above. Do not hand-edit the generated file to "just move a dancer": the
-round trip would re-derive the placement and the `parent_id` from the row either way.
+round trip would re-derive the placement and the `parent_vid` from the row either way.

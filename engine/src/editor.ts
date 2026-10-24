@@ -2285,8 +2285,8 @@ export interface CallXmlOptions {
    * Attributes written LAST on the `<tam>`, for a caller whose own convention records something the format
    * does not name.
    *
-   * ONE CALLER: `book/tools/make-virtual.mjs` writes `parent_id="V1-…"` on a generated whole-set instance,
-   * naming the call variant it was placed FROM — the identity `VirtualCallInfo.sourceStart` makes derivable.
+   * ONE CALLER: `book/tools/make-virtual.mjs` writes `parent_vid="V1-…"` on a generated whole-set instance,
+   * naming the call variant it was placed FROM — the identity `VirtualCallInfo.sourceFid` makes derivable.
    * It goes through the writer rather than a hand-built tag because the writer owns both rules the attribute
    * needs: the VALUE is escaped with the XML escaper (`esc`: `& < "`, AGENTS §6), and the NAME is refused when
    * it is not an XML name, which no escaper can protect — a bad name produces a file whose parse error names

@@ -23,7 +23,7 @@
 //       `filesOf` preserves the directory's order and this harness pins that it does.
 //   (5) THE GENERATED INSTANCES ARE NOT AUTHORINGS. `<level>/<family>.virtual.xml` holds the whole-set instances
 //       the book's `make-virtual.mjs` places, and the suffix is the exclusion (`packages/corpus/virtual.ts`). This
-//       harness pins the split, the layout AND the `parent_id` each one carries.
+//       harness pins the split, the layout AND the `parent_vid` each one carries.
 //
 // WHAT IT DOES NOT CHECK, on purpose: the pooled XML's wrapper (`engine/test/catalogue.mjs` pins the Circulate
 // offsets that depend on it), and the per-consumer level lists (each consumer's own gate pins those).
@@ -264,7 +264,7 @@ console.log('\n== The file order, and why it is not sorted ==');
 //       eight-dancer authorings and declared every placement row obsolete.
 //   (b) EACH SITS BESIDE ITS FAMILY: `ms/circle.virtual.xml` is only beside its family if `ms/circle.xml` is in
 //       the same level, which is the whole reason for the layout.
-//   (c) EACH CARRIES ONE `parent_id` THAT IS A CALL-VARIANT ID.
+//   (c) EACH CARRIES ONE `parent_vid` THAT IS A CALL-VARIANT ID.
 //   (d) THAT ID IS ONE THE CORPUS MINTS — the variant of the authoring the instance was placed FROM, judged by
 //       building every authoring of that call and re-deriving its id, not by asking the tool that wrote the file
 //       (AGENTS §11.2.3). "Generated from" is the SOURCE authoring — `Dosado` written for two dancers — so the
@@ -326,15 +326,15 @@ console.log('\n== The generated instances: excluded from the census, and naming 
         continue;
       }
       const [site] = tamsOf(level, file);
-      const parentId = site.attrs.parent_id ?? '';
-      if (!isCallVariantId(parentId)) {
-        wrong.push(`${level}/${file}: parent_id "${parentId}" is not a call-variant id`);
+      const parentVid = site.attrs.parent_vid ?? '';
+      if (!isCallVariantId(parentVid)) {
+        wrong.push(`${level}/${file}: parent_vid "${parentVid}" is not a call-variant id`);
         continue;
       }
       const options = variantsOf(site.title);
-      const from = options.get(parentId);
+      const from = options.get(parentVid);
       if (!from) {
-        wrong.push(`${level}/${file}: parent_id "${parentId}" is not minted by any corpus authoring of "${site.title}" (${options.size} candidate id(s) over ${LEVELS.length} levels)`);
+        wrong.push(`${level}/${file}: parent_vid "${parentVid}" is not minted by any corpus authoring of "${site.title}" (${options.size} candidate id(s) over ${LEVELS.length} levels)`);
         continue;
       }
       provenance.push(`${level}/${file}  <-  ${from.level}/${from.file}#${from.index}  (${site.title})`);

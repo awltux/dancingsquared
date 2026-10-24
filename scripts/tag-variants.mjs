@@ -5,7 +5,7 @@
 // and `aid` on the definitions, and it is the one that names a CALL rather than a shape.
 //
 // WHAT IT BUYS. A consumer can name the variant without re-deriving it: the book's `call-map.json`, every virtual
-// instance's `parent_id` and a person reading the XML all get the same string, and a reader can see which
+// instance's `parent_vid` and a person reading the XML all get the same string, and a reader can see which
 // definition a call starts from in the file itself. MEASURED at the commit that introduced it: 1,731 distinct
 // variants over ms+plus alone, and 5,487 of the corpus's 5,489 live authorings realising one.
 //
@@ -27,8 +27,8 @@
 //
 // NOT TAGGED, ON PURPOSE: the 20 commented-out tams (`scripts/tam-blocks.mjs` masks them - text that is not a tam
 // cannot carry a variant), and the 7 generated `*.virtual.xml` tams, which `filesOf` excludes from every census and
-// which are rewritten from `book/tools/virtual-placements.json` on every build; their `parent_id` already names the
-// variant they were PLACED FROM.
+// which are rewritten from `book/tools/virtual-placements.json` on every build; their `parent_vid` already names
+// the variant they were PLACED FROM.
 //
 // Run: node scripts/tag-variants.mjs             (verify; exit 1 on anything untagged or wrong)
 //      node scripts/tag-variants.mjs --write     (add the vids)

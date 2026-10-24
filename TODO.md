@@ -659,8 +659,8 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
       `assets/virtual/` directory that was not a level — MEASURED, that directory cost three gates
       (`call-titles`, `poc/tools/corpus-key-probe.mjs`, `poc/tools/mirror-moves-probe.mjs`). The suffix is the
       exclusion (`packages/corpus/virtual.ts`: `filesOf` omits them, `virtualFilesOf` returns them; the two Vite
-      globs filter their keys by the same predicate), each tam carries `parent_id` — the call-variant id of the
-      authoring it was placed FROM, from `VirtualCallInfo.sourceStart` — and `engine/test/corpus-inventory.mjs`
+      globs filter their keys by the same predicate), each tam carries `parent_vid` — the call-variant id of the
+      authoring it was placed FROM, from `VirtualCallInfo.sourceFid` — and `engine/test/corpus-inventory.mjs`
       pins the layout, the exclusion and the provenance by building every authoring of each call again.
       The build REPORTS resolvability (`b5ebc93`): of its 12 unresolved start queries **5 resolve as
       virtual calls, 3 are refused by the engine for a reason, 1 has no authoring at all and 3 name a start the

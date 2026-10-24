@@ -1,21 +1,21 @@
 // WHICH AUTHORING MINTS A CALL-VARIANT ID — the reverse of `V1-…`, which cannot be inverted.
 //
 // WHY IT EXISTS. A generated instance in the corpus (`<level>/<family>.virtual.xml`, one of the seven
-// `book/tools/make-virtual.mjs` writes) carries `parent_id="V1-…"`: the call variant of the authoring it was placed
-// FROM. That id is a digest of (level, title, formation ROOT) — `engine/src/sequencer/call-variant-id.ts` — so it
+// `book/tools/make-virtual.mjs` writes) carries `parent_vid="V1-…"`: the call variant of the authoring it was placed
+// FROM. That id is a digest of (level, title, formation fid) — `engine/src/sequencer/call-variant-id.ts` — so it
 // cannot be computed backwards. The only way from an id to the tam that carries it is to build the candidate
 // authorings and mint their ids, which is what this does, with the engine's own arithmetic through
 // `lib/variants.mjs` (the module the book's card bindings resolve through, so there is no second spelling of it).
 //
 // AN ID IS NOT ONE FILE'S IDENTITY, and that is why it prints every candidate. Several authorings of one variant
-// share an id BY DESIGN — MEASURED, 38 of ms+plus's 1,730 variants are authored more than once — because the id is
-// (level, title, formation ROOT) and a root covers one start SHAPE, not one board. So nothing here picks a winner.
+// share an id BY DESIGN — MEASURED, 91 of the corpus's 5,388 variants are authored more than once — because the id is
+// (level, title, formation fid) and a fid covers one start SHAPE, not one board. So nothing here picks a winner.
 //
 // THE RECIPE, in the order the questions actually arrive:
 //
 //   node book/tools/find-variant.mjs --virtual=ms/circle.virtual.xml
-//        Read a generated instance's own `title` and `parent_id` out of the file, then name every authoring that
-//        mints that variant. This is the documented way back from `parent_id` (see `assets/README.md`).
+//        Read a generated instance's own `title` and `parent_vid` out of the file, then name every authoring that
+//        mints that variant. This is the documented way back from `parent_vid` (see `assets/README.md`).
 //
 //   node book/tools/find-variant.mjs V1-85721b7k --title="Circle Four Left"
 //        The same question when you already have both halves. `--title` is a HINT that narrows the search and
@@ -30,9 +30,9 @@
 // fallback, not the recipe.
 //
 // EXIT CODES ARE THE ANSWER: 0 when something was found, 1 when nothing mints what you asked for — a stale
-// `parent_id` is a real outcome, because the ledger keeps a CORRECTED FORMATION pointed at its old root while a
-// RETITLE or a re-levelling mints a new variant — and 2 for a usage error. A title no level authors is a FAILURE
-// and not an empty search: a sweep that silently skips its input measures less than it claims.
+// `parent_vid` is a real outcome, because a RETITLE or a re-levelling mints a new variant — and 2 for a usage error.
+// A title no level authors is a FAILURE and not an empty search: a sweep that silently skips its input measures less
+// than it claims.
 //
 // Run: node book/tools/find-variant.mjs --virtual=ms/circle.virtual.xml   (from anywhere; the engine must be built)
 import { filesOf, levelsAvailable, readFile, tamsOf } from 'dancing-squared-corpus';
@@ -44,7 +44,7 @@ const USAGE = `usage: node book/tools/find-variant.mjs --virtual=<level>/<file>.
        node book/tools/find-variant.mjs <V1-id> [--title="<call>"] [--level=<level>]
        node book/tools/find-variant.mjs --title="<call>" [--level=<level>]
 
-  --virtual=  a generated instance; its own title and parent_id are read out of the file
+  --virtual=  a generated instance; its own title and parent_vid are read out of the file
   --title=    a HINT that narrows the search; the id still decides
   --level=    one level to search (default: every level the corpus has)`;
 
@@ -70,16 +70,16 @@ function main() {
 
   if (virtualPath !== undefined) {
     // THE GENERATED INSTANCE ANSWERS BOTH HALVES ITSELF, which is the point: a reader who has the file does not
-    // have to know that `parent_id` is keyed on a formation ROOT as well as on a level and a title.
+    // have to know that `parent_vid` is keyed on a formation fid as well as on a level and a title.
     const [level, ...rest] = String(virtualPath).split('/');
     const file = rest.join('/');
     if (!level || !file) return refuse(`--virtual wants <level>/<file>.virtual.xml, got "${virtualPath}"\n\n${USAGE}`);
     if (!filesOf(level).length) return refuse(`"${level}" is not a level this corpus has\n\n${USAGE}`);
     const [tam] = tamsOf(level, file);
     if (!tam) return refuse(`no <tam> in ${virtualPath} — is that a corpus file this reader can see?`);
-    id = tam.attrs.parent_id ?? '';
+    id = tam.attrs.parent_vid ?? '';
     title = tam.title;
-    if (!eng.isCallVariantId(id)) return refuse(`${virtualPath} carries no parent_id, or it is not a V1- id: "${id}"`);
+    if (!eng.isCallVariantId(id)) return refuse(`${virtualPath} carries no parent_vid, or it is not a V1- id: "${id}"`);
     console.log(`${virtualPath} is "${title}" from ${level}, placed from variant ${id}`);
   }
   if (!id && !title) return refuse(USAGE);
@@ -118,9 +118,9 @@ function main() {
           continue;
         }
         built++;
-        const { variantId, shape, root } = variantOf(eng, bundle, level, tags);
+        const { variantId, shape, fid } = variantOf(eng, bundle, level, tags);
         if (id && variantId !== id) continue;
-        hits.push({ site: `${level}/${file}#${site.index}`, title: site.title, from: site.attrs.from ?? '', variantId, shape, root });
+        hits.push({ site: `${level}/${file}#${site.index}`, title: site.title, from: site.attrs.from ?? '', variantId, shape, fid });
       }
     }
   }
@@ -136,7 +136,7 @@ function main() {
       `no authoring mints ${id || `a variant of "${title}"`}`
       + ` (built ${built}, skipped ${skipped} that do not load, over ${levels.length} level(s))`,
     );
-    console.error('        a RETITLE or a re-levelling mints a new variant; the ledger only keeps a corrected FORMATION on its old root');
+    console.error('        a RETITLE or a re-levelling mints a new variant, and a RE-TAGGED formation mints a new one too: the id is a digest of all three inputs');
     return 1;
   }
 
@@ -144,7 +144,7 @@ function main() {
     // THE `from` LABEL IS AUTHORED AND OFTEN ABSENT (an inline `<formation>` block needs none), so it is printed
     // only when the file carries one rather than as `from ""`.
     console.log(`  ${hit.site}  "${hit.title}"${hit.from ? `  from "${hit.from}"` : ''}`);
-    console.log(`      variant ${hit.variantId}   start shape ${hit.shape} -> root ${hit.root}`);
+    console.log(`      variant ${hit.variantId}   start shape ${hit.shape}   fid ${hit.fid}`);
   }
   console.log(
     `${hits.length} authoring(s) ${id ? `mint ${id}` : `carry a variant of "${title}"`}`

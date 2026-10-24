@@ -60,11 +60,14 @@
 // them. THE GENERATED FILES ARE NOT AUTHORED DATA: no census of authored tams may count them, which is why the
 // exclusion lives in the one corpus reader rather than in each census.
 //
-// EACH TAM NAMES THE VARIANT IT WAS PLACED FROM, as `parent_id`. The value is the engine's call-variant id —
-// `callVariantId(level, title, fid)` — where `fid` is the tag STORED on the source definition
-// (`VirtualCallInfo.sourceFid` when the source authored its own setup, otherwise the tag of the formation it
-// names). That is the identity a consumer dedupes on: several authorings of one variant share it BY DESIGN, so two
-// generated instances of the same call from the same start shape carry the same `parent_id`.
+// EACH TAM NAMES THE VARIANT IT WAS PLACED FROM, as `parent_vid` — the same `V1-` scheme an authored tam carries
+// in its own `vid`, and deliberately the same word: `vid` names a CALL VARIANT, so a reference to the variant a
+// placement came from says `parent_vid` rather than the old `parent_id`, which read as if it might be a dancer id or
+// a database key. The value is the engine's call-variant id — `callVariantId(level, title, fid)` — where `fid` is
+// the tag STORED on the source definition (`VirtualCallInfo.sourceFid` when the source authored its own setup,
+// otherwise the tag of the formation it names). That is the identity a consumer dedupes on: several authorings of
+// one variant share it BY DESIGN, so two generated instances of the same call from the same start shape carry the
+// same `parent_vid`.
 //
 // Run: node book/tools/make-virtual.mjs            (regenerate)
 //      node book/tools/make-virtual.mjs --check    (verify the committed artefacts)
@@ -257,14 +260,14 @@ export function render() {
     }
     const { chosen } = legal;
     // THE VARIANT THE INSTANCE WAS PLACED FROM. Its third input is the SOURCE DEFINITION'S STORED TAG: the inline
-    // block's own when the source authored its setup, otherwise the tag of the formation it names. sourceStart`r
+    // block's own when the source authored its setup, otherwise the tag of the formation it names. `sourceStart`
     // is a content address and is only named in the failure message.
     const sourceStart = chosen.bundle.virtual?.sourceStart ?? '';
     const sourceFid = chosen.bundle.virtual?.sourceFid ?? null;
     const sourceFormation = chosen.bundle.virtual?.sourceFormation ?? null;
     const fid = sourceFid ?? (sourceFormation ? tags.get(sourceFormation)?.fid ?? null : null);
-    const parentId = fid ? eng.callVariantId(level, chosen.bundle.title, fid) : '';
-    if (!eng.isCallVariantId(parentId)) {
+    const parentVid = fid ? eng.callVariantId(level, chosen.bundle.title, fid) : '';
+    if (!eng.isCallVariantId(parentVid)) {
       problems.push(`${id}: the engine minted no call-variant id for "${chosen.bundle.title}" from ${level} (sourceStart "${sourceStart}")`);
       continue;
     }
@@ -273,12 +276,12 @@ export function render() {
     const file = `${level}/${family.replace(/\.xml$/, VIRTUAL_SUFFIX)}`;
     const tamIndex = tams.get(file)?.length ?? 0;
     if (!tams.has(file)) tams.set(file, []);
-    tams.get(file).push(eng.callToXml(chosen.bundle, undefined, { extraAttrs: { parent_id: parentId } }));
+    tams.get(file).push(eng.callToXml(chosen.bundle, undefined, { extraAttrs: { parent_vid: parentVid } }));
     entries[id] = {
       file,
       tamIndex,
       title: chosen.bundle.title,
-      parentId,
+      parentVid,
       level,
       board: chosen.startFormation,
       kind: chosen.kind,
@@ -456,7 +459,7 @@ export function main() {
   writeFileSync(OUT_INDEX, indexText, 'utf8');
   for (const id of Object.keys(index.placements).sort()) {
     const e = index.placements[id];
-    console.log(`  ${id}  ${e.title}  from ${e.board}  (${e.kind}/${e.reading}, ends on ${e.endFormation})  ${e.parentId}  -> ${e.file}#${e.tamIndex}`);
+    console.log(`  ${id}  ${e.title}  from ${e.board}  (${e.kind}/${e.reading}, ends on ${e.endFormation})  ${e.parentVid}  -> ${e.file}#${e.tamIndex}`);
   }
   for (const id of Object.keys(index.refusals).sort()) console.log(`  ${id}  REFUSED: ${index.refusals[id]}`);
   console.log(`${Object.keys(index.placements).length} placement(s) in ${files.size} file(s), ${Object.keys(index.refusals).length} refusal(s) -> assets/ + ${OUT_INDEX}`);

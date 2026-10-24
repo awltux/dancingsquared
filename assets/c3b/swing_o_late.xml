@@ -66,13 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Swing-O-Late" from="Right-Hand Thar" fractions="3">
-    <formation fid="F3-9sxbib8b" aid="A1-zhjmdy83">
-      <dancer gender="girl" x="0" y="1" angle="0"/>
-      <dancer gender="boy" x="0" y="3" angle="180"/>
-      <dancer gender="girl" x="-1" y="0" angle="90"/>
-      <dancer gender="boy" x="-3" y="0" angle="270"/>
-    </formation>
+  <tam title="Swing-O-Late" from="Right-Hand Thar" fractions="3" formation="Thar RH Girls">
     <path>
       <move select="Swing Left"/>
       <move select="U-Turn Left" beats="2" offsetY=".5"/>

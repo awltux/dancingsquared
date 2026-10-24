@@ -308,13 +308,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand Quarter Thru" from="Diamonds 4" parts="1.5">
-    <formation fid="F3-7kcomvce" aid="A1-hxuqc30g">
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-      <dancer gender="girl" x="-3" y="-2" angle="270"/>
-      <dancer gender="boy" x="0" y="-1" angle="0"/>
-      <dancer gender="girl" x="3" y="-2" angle="270"/>
-    </formation>
+  <tam title="Any Hand Quarter Thru" from="Diamonds 4" parts="1.5" formation="Diamonds 3 and 1 Girl Points">
     <path>
       <move select="Hinge Right"/>
       <move select="Swing Left"/>
@@ -596,13 +590,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand 3/4 Thru" from="Diamonds 4" parts="4.5">
-    <formation fid="F3-7kcomvce" aid="A1-hxuqc30g">
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-      <dancer gender="girl" x="-3" y="-2" angle="270"/>
-      <dancer gender="boy" x="0" y="-1" angle="0"/>
-      <dancer gender="girl" x="3" y="-2" angle="270"/>
-    </formation>
+  <tam title="Any Hand 3/4 Thru" from="Diamonds 4" parts="4.5" formation="Diamonds 3 and 1 Girl Points">
     <path>
       <move select="Cast Right"/>
       <move select="Flip Left"/>

@@ -48,11 +48,7 @@
        extension, so it does not depend on how far the dancers travelled to get there. -->
   <tam title="Touch a Quarter"
        from="Facing Couples"
-       difficulty="1">
-    <formation fid="F3-rj0qnzj7" aid="A1-5ok70lr7">
-      <dancer gender="boy" x="-3" y="1" angle="0" />
-      <dancer gender="girl" x="-3" y="-1" angle="0" />
-    </formation>
+       difficulty="1" formation="Facing Couples Far">
     <path>
       <move select="Extend Left" scaleX="3" />
       <move select="Hinge Right" beats="1"/>

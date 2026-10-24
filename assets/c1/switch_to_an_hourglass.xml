@@ -59,13 +59,7 @@
     </path>
   </tam>
 
-  <tam title="Switch to an Hourglass" from="3 and 1 Lines">
-     <formation fid="F3-cimsa5il" aid="A1-kirx6kj9">
-      <dancer gender="boy" x="-2" y="3" angle="180"/>
-      <dancer gender="girl" x="-2" y="1" angle="180"/>
-      <dancer gender="boy" x="-2" y="-1" angle="180"/>
-      <dancer gender="girl" x="-2" y="-3" angle="0"/>
-    </formation>
+  <tam title="Switch to an Hourglass" from="3 and 1 Lines" formation="3 and 1 lines #8">
     <path>
       <move select="Lead Left" beats="2"/>
       <move select="Forward 2"/>

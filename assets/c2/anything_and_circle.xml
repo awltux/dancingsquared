@@ -132,25 +132,7 @@
     </path>
   </tam>
 
-  <tam title="Switch and Circle 1/2" group=" " parts="4;4;4">
-    <formation fid="F3-a9qgc3sg" aid="A1-yur55z2m">
-      <dancer gender="boy" x="0" y="3" angle="0"/>
-      <dancer gender="girl" x="0" y="1" angle="0"/>
-      <dancer gender="boy" x="-3" y="1" angle="180"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-    </formation>
-    <path>
-      <move select="Run Right" beats="4" scaleY="2"/>
-      <move select="Stand" beats="4"/>
-      <move select="Flip Left" beats="4"/>
-      <move select="Run Left" beats="4" offsetX="3"/>
-    </path>
-    <path>
-      <move select="Flip Left" beats="4"/>
-      <move select="Run Left" beats="4" offsetX="3"/>
-      <move select="Stand" beats="4"/>
-      <move select="Dodge Right" beats="4"/>
-    </path>
+  <tam title="Switch and Circle 1/2" group=" " parts="4;4;4" formation="Mixed Quarter Tag #7">
     <path>
       <move select="Stand" beats="4"/>
       <move select="Flip Left" beats="4"/>
@@ -162,6 +144,18 @@
       <move select="Extend Right" beats="4" scaleX="3" scaleY="2"/>
       <move select="Run Left" beats="4" scaleY="2"/>
       <move select="Stand" beats="4"/>
+    </path>
+    <path>
+      <move select="Run Right" beats="4" scaleY="2"/>
+      <move select="Stand" beats="4"/>
+      <move select="Flip Left" beats="4"/>
+      <move select="Run Left" beats="4" offsetX="3"/>
+    </path>
+    <path>
+      <move select="Flip Left" beats="4"/>
+      <move select="Run Left" beats="4" offsetX="3"/>
+      <move select="Stand" beats="4"/>
+      <move select="Dodge Right" beats="4"/>
     </path>
   </tam>
 

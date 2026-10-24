@@ -22,13 +22,7 @@
 -->
 <tamination title="Plan Ahead">
 
-  <tam title="Plan Ahead" from="Lines" fractions="8.5">
-    <formation fid="F3-1r9s5bst" aid="A1-q27idb99">
-      <dancer gender="girl" x="-2" y="3" angle="0"/>
-      <dancer gender="boy" x="-2" y="1" angle="0"/>
-      <dancer gender="girl" x="-2" y="-1" angle="0"/>
-      <dancer gender="boy" x="-2" y="-3" angle="0"/>
-    </formation>
+  <tam title="Plan Ahead" from="Lines" fractions="8.5" formation="Sashayed Lines">
     <path couples="4 2">
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" beats="5" scaleX="4" scaleY="3.5"/>

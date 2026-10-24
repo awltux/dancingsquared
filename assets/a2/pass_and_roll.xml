@@ -22,11 +22,7 @@
 -->
 <tamination title="Pass and Roll">
 
-  <tam title="Pass and Roll" from="Single Column">
-    <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
-      <dancer gender="boy" x="-3" y="0" angle="0"/>
-      <dancer gender="girl" x="-1" y="0" angle="180"/>
-    </formation>
+  <tam title="Pass and Roll" from="Single Column" formation="Single Eight Chain Thru">
     <path numbers="1 4">
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -130,11 +126,7 @@
     </path>
   </tam>
 
-  <tam title="Left Pass and Roll" from="Single Column">
-    <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
-      <dancer gender="boy" x="-3" y="0" angle="0"/>
-      <dancer gender="girl" x="-1" y="0" angle="180"/>
-    </formation>
+  <tam title="Left Pass and Roll" from="Single Column" formation="Single Eight Chain Thru">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />

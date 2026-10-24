@@ -50,22 +50,16 @@
   </tam>
 
   <tam title="Allemande Left" sequencer="gender-specific"
-       from="Left-Hand Waves">
-    <formation fid="F3-jk0u0kn1" aid="A1-nbdxp8qx">
-        <dancer gender="boy" x="-2" y="1" angle="0"/>
-        <dancer gender="girl" x="-2" y="-3" angle="0"/>
-        <dancer gender="boy" x="-2" y="-1" angle="180"/>
-        <dancer gender="girl" x="2" y="-3" angle="0"/>
-    </formation>
+       from="Left-Hand Waves" formation="Ocean Waves LH GBBG">
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
-      <movement hands="none" beats="1.5" cx1="1" cy1="0.0268" cx2="0.276" cy2="1.1667" x2="0.414" y2="1.75" cx3="0.3927" cx4="0.2932" cy4="0.2664" x4="0.4435" y4="0.6293"/>
+      <movement hands="none" beats="1.5" cx1="0.5" cy1="0.0224" cx2="0.6667" cy2="0.776" x2="1" y2="1.164" cx3="0.1309" cx4="0.1311" cy4="0.1936" x4="0.2521" y4="0.2437"/>
     </path>
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
-      <movement hands="none" beats="1.5" cx1="0.138" cy1="-0.0833" cx2="0.276" cy2="-0.1667" x2="0.414" y2="-0.25" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
+      <movement hands="none" beats="1.5" cx1="1" cy1="0.0268" cx2="0.276" cy2="1.1667" x2="0.414" y2="1.75" cx3="0.3927" cx4="0.2932" cy4="0.2664" x4="0.4435" y4="0.6293"/>
     </path>
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
@@ -75,7 +69,7 @@
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
-      <movement hands="none" beats="1.5" cx1="0.5" cy1="0.0224" cx2="0.6667" cy2="0.776" x2="1" y2="1.164" cx3="0.1309" cx4="0.1311" cy4="0.1936" x4="0.2521" y4="0.2437"/>
+      <movement hands="none" beats="1.5" cx1="0.138" cy1="-0.0833" cx2="0.276" cy2="-0.1667" x2="0.414" y2="-0.25" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
     </path>
   </tam>
 
@@ -103,19 +97,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit aace058, with uncommitted changes, built 2026-10-19 08:42Z -->
-  <tam title="Allemande Left" from="Alamo Ring - Men Facing In" parts="" sequencer="gender-specific">
-    <formation fid="F3-imy1u3eo" aid="A1-0qtn4sm8">
-        <dancer gender="girl" x="1" y="-2.414" angle="-67.5"/>
-        <dancer gender="boy" x="2.414" y="-1" angle="157.5"/>
-        <dancer gender="girl" x="2.414" y="1" angle="22.5"/>
-        <dancer gender="boy" x="1" y="2.414" angle="-112.5"/>
-    </formation>
-    <path>
-      <movement hands="none" beats="1" cx1="0.417" cy1="0.0381" cx2="0.5746" cy2="0.6114" x2="0.3519" y2="1.2625" cx3="0.2618" cx4="0.836" cy4="0.889" x4="0.7056" y4="1.249"/>
-      <movement hands="gripleft" beats="3" cx1="0.3631" cy1="0.0513" cx2="0.5452" cy2="0.4511" x2="0.4912" y2="0.6836"/>
-      <movement hands="none" beats="0.75" cx1="0.253" cy1="0.0153" cx2="0.4392" cy2="0.3031" x2="0.4775" y2="0.5886"/>
-      <movement hands="none" beats="0.75" cx1="0.3309" cy1="0" cx2="0.5672" cy2="0.5221" x2="0.8884" y2="0.4428"/>
-    </path>
+  <tam title="Allemande Left" from="Alamo Ring - Men Facing In" parts="" sequencer="gender-specific" formation="Alamo Wave">
     <path>
       <movement hands="none" beats="1" cx1="0.0668" cy1="0.2746" cx2="0.2456" cy2="0.5359" x2="0.4571" y2="0.7483" cx3="0.2618" cx4="0.7685" cy4="-0.0338" x4="0.9239" y4="0.3827"/>
       <movement hands="gripleft" beats="3" cx1="0.3314" cy1="-0.0852" cx2="0.6722" cy2="0.0903" x2="0.7068" y2="0.3746"/>
@@ -133,16 +115,21 @@
       <movement hands="gripleft" beats="3" cx1="0.3314" cy1="-0.0852" cx2="0.6722" cy2="0.0903" x2="0.7068" y2="0.3746"/>
       <movement hands="none" beats="0.75" cx1="0.2774" cy1="-0.0713" cx2="0.5737" cy2="0.0691" x2="0.6383" y2="0.4551"/>
       <movement hands="none" beats="0.75" cx1="0.4386" cy1="-0.0623" cx2="0.7847" cy2="0.3612" x2="1.177" y2="0.5418" cx3="0.047" cx4="0.951" cy4="0.0638" x4="0.9975" y4="0.0704"/>
+    </path>
+    <path>
+      <movement hands="none" beats="1" cx1="0.417" cy1="0.0381" cx2="0.5746" cy2="0.6114" x2="0.3519" y2="1.2625" cx3="0.2618" cx4="0.836" cy4="0.889" x4="0.7056" y4="1.249"/>
+      <movement hands="gripleft" beats="3" cx1="0.3631" cy1="0.0513" cx2="0.5452" cy2="0.4511" x2="0.4912" y2="0.6836"/>
+      <movement hands="none" beats="0.75" cx1="0.253" cy1="0.0153" cx2="0.4392" cy2="0.3031" x2="0.4775" y2="0.5886"/>
+      <movement hands="none" beats="0.75" cx1="0.3309" cy1="0" cx2="0.5672" cy2="0.5221" x2="0.8884" y2="0.4428"/>
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Trade By" parts="" sequencer="gender-specific">
-    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
-        <dancer gender="boy" x="-3" y="-1" angle="180"/>
-        <dancer gender="girl" x="-1" y="-1" angle="0"/>
-        <dancer gender="boy" x="1" y="-1" angle="180"/>
-        <dancer gender="girl" x="3" y="-1" angle="0"/>
-    </formation>
+  <tam title="Allemande Left" from="Trade By" parts="" sequencer="gender-specific" formation="Trade By">
+    <path>
+      <movement hands="none" beats="1.5" cx1="0.2967" cy1="0.0226" cx2="0.5548" cy2="0.4406" x2="0.5056" y2="1.0061"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="-0.0071" cx2="0.6771" cy2="0.9929" x2="0.0106" y2="0.9999"/>
+      <movement hands="none" beats="1.5" cx1="0.335" cy1="-0.0341" cx2="0.67" cy2="-0.0682" x2="1.005" y2="-0.1022" cx3="0.1344" cx4="0.8561" cy4="-0.1475" x4="0.9797" y4="-0.2003"/>
+    </path>
     <path>
       <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="-0.4705" cy2="-0.4652" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -157,11 +144,6 @@
       <movement hands="none" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0" x2="1" y2="0" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.5358" cy2="1.1431" x2="-0.0271" y2="1.3912"/>
       <movement hands="none" beats="1.5" cx1="0.3243" cy1="0" cx2="0.6752" cy2="0.137" x2="0.8993" y2="0.3714"/>
-    </path>
-    <path>
-      <movement hands="none" beats="1.5" cx1="0.2967" cy1="0.0226" cx2="0.5548" cy2="0.4406" x2="0.5056" y2="1.0061"/>
-      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="-0.0071" cx2="0.6771" cy2="0.9929" x2="0.0106" y2="0.9999"/>
-      <movement hands="none" beats="1.5" cx1="0.335" cy1="-0.0341" cx2="0.67" cy2="-0.0682" x2="1.005" y2="-0.1022" cx3="0.1344" cx4="0.8561" cy4="-0.1475" x4="0.9797" y4="-0.2003"/>
     </path>
   </tam>
 
@@ -252,13 +234,12 @@
   </tam>
 
   <tam title="Allemande Left" from="Lines Facing Out"
-       sequencer="gender-specific">
-    <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
-        <dancer gender="boy" x="-2" y="1" angle="180"/>
-        <dancer gender="girl" x="-2" y="-1" angle="180"/>
-        <dancer gender="boy" x="-2" y="-3" angle="180"/>
-        <dancer gender="girl" x="2" y="-3" angle="0"/>
-    </formation>
+       sequencer="gender-specific" formation="Lines Facing Out">
+    <path>
+      <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
+      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
+      <movement hands="none" beats="1" cx1="0.138" cy1="-0.1667" cx2="0.276" cy2="-0.3333" x2="0.414" y2="-0.5" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
+    </path>
     <path>
       <movement hands="none" beats="1" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -273,11 +254,6 @@
       <movement hands="none" beats="1" cx1="0" cy1="0" cx2="-0.5" cy2="-1" x2="-0.5" y2="-1" cx3="0.55" cx4="1" cy4="-0.45" x4="1" y4="-1"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
       <movement hands="none" beats="1" cx1="0.138" cy1="0.5" cx2="0.276" cy2="1" x2="0.414" y2="1.5" cx3="0.3927" cx4="0.6812" cy4="0.1928" x4="0.8315" y4="0.5556"/>
-    </path>
-    <path>
-      <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
-      <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
-      <movement hands="none" beats="1" cx1="0.138" cy1="-0.1667" cx2="0.276" cy2="-0.3333" x2="0.414" y2="-0.5" cx3="0.3927" cx4="0.6812" cy4="-0.1928" x4="0.8315" y4="-0.5556"/>
     </path>
   </tam>
 
@@ -332,13 +308,7 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Thar" sequencer="gender-specific">
-    <formation fid="F3-9sxbib8b" aid="A1-2mi95old">
-        <dancer gender="boy" x="-1" y="0" angle="90"/>
-        <dancer gender="girl" x="0" y="-3" angle="0"/>
-        <dancer gender="boy" x="0" y="-1" angle="180"/>
-        <dancer gender="girl" x="3" y="0" angle="90"/>
-    </formation>
+  <tam title="Allemande Left" from="Thar" sequencer="gender-specific" formation="Thar RH Boys">
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
       <movement hands="gripleft" beats="1.5" cx1="0.2837" cy1="-0.0102" cx2="0.4803" cy2="0.2603" x2="0.5" y2="0.5"/>
@@ -505,13 +475,12 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Trade By" parts="" sequencer="gender-specific">
-    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
-        <dancer gender="boy" x="-3" y="-1" angle="180"/>
-        <dancer gender="girl" x="-1" y="-1" angle="0"/>
-        <dancer gender="boy" x="1" y="-1" angle="180"/>
-        <dancer gender="girl" x="3" y="-1" angle="0"/>
-    </formation>
+  <tam title="Allemande Right" from="Trade By" parts="" sequencer="gender-specific" formation="Trade By">
+    <path>
+      <movement hands="none" beats="1.5" cx1="-0.2967" cy1="0.0226" cx2="-0.5548" cy2="0.4406" x2="-0.5056" y2="1.0061"/>
+      <movement hands="gripright" beats="3" cx1="-0.6665" cy1="-0.0071" cx2="-0.6771" cy2="0.9929" x2="-0.0106" y2="0.9999"/>
+      <movement hands="none" beats="1.5" cx1="-0.3392" cy1="0.3564" cx2="-0.6783" cy2="0.7128" x2="-1.0175" y2="1.0693" cx3="0.9199" cx4="1.0434" cy4="0.6391" x4="0.1897" y4="0.9818"/>
+    </path>
     <path>
       <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4705" cy2="-0.4652" x2="0.5" y2="-1" cx3="-0.55" cx4="-1" cy4="-0.45" x4="-1" y4="-1"/>
       <movement hands="gripright" beats="3" cx1="-0.6665" cy1="0" cx2="-0.6665" cy2="1" x2="0" y2="1"/>
@@ -526,11 +495,6 @@
       <movement hands="none" beats="1.5" cx1="0.3854" cy1="0.0143" cx2="0.7173" cy2="1.002" x2="1" y2="1" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
       <movement hands="gripright" beats="3" cx1="0.6883" cy1="-0.0308" cx2="0.6883" cy2="-1.0021" x2="0" y2="-1"/>
       <movement hands="none" beats="1.5" cx1="0.5773" cy1="0" cx2="0.3979" cy2="-1.653" x2="0.94" y2="-1.4546"/>
-    </path>
-    <path>
-      <movement hands="none" beats="1.5" cx1="-0.2967" cy1="0.0226" cx2="-0.5548" cy2="0.4406" x2="-0.5056" y2="1.0061"/>
-      <movement hands="gripright" beats="3" cx1="-0.6665" cy1="-0.0071" cx2="-0.6771" cy2="0.9929" x2="-0.0106" y2="0.9999"/>
-      <movement hands="none" beats="1.5" cx1="-0.3392" cy1="0.3564" cx2="-0.6783" cy2="0.7128" x2="-1.0175" y2="1.0693" cx3="0.9199" cx4="1.0434" cy4="0.6391" x4="0.1897" y4="0.9818"/>
     </path>
   </tam>
 

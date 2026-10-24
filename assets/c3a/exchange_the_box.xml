@@ -80,13 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Exchange the Box" from="Right-Hand Columns" parts="3;3;3">
-    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
-      <dancer gender="boy" x="-3" y="-1" angle="180"/>
-      <dancer gender="girl" x="-1" y="-1" angle="180"/>
-      <dancer gender="boy" x="1" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="-1" angle="180"/>
-    </formation>
+  <tam title="Exchange the Box" from="Right-Hand Columns" parts="3;3;3" formation="Columns">
     <path couples="3 1">
       <move select="Run Right"/>
       <move select="Forward 2" beats="3"/>

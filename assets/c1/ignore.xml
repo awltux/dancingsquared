@@ -41,18 +41,10 @@
   </tam>
 
   <tam title="Ignore the Head Men, Motivate"
-       group=" " fractions="4;4.5;3" sequencer="gender-specific">
-    <formation fid="F3-4ablgjmv" aid="A1-t2fif4z7">
-      <dancer gender="boy" x="-2" y="-3" angle="180"/>
-      <dancer gender="girl" x="-2" y="-1" angle="0"/>
-      <dancer gender="girl" x="-2" y="1" angle="180"/>
-      <dancer gender="boy" x="-2" y="3" angle="0"/>
-    </formation>
+       group=" " fractions="4;4.5;3" sequencer="gender-specific" formation="Ocean Waves">
     <path>
-    </path>
-    <path>
-      <move select="Forward 4" />
-      <move select="Cast Left" />
+      <move select="Extend Left" beats="4" scaleX="4"/>
+      <move select="Lead Right" beats="4.5" scaleX="3" scaleY="4" />
       <move select="Swing Right" />
       <move select="Cast Left" />
     </path>
@@ -63,10 +55,12 @@
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3" />
     </path>
     <path>
-      <move select="Extend Left" beats="4" scaleX="4"/>
-      <move select="Lead Right" beats="4.5" scaleX="3" scaleY="4" />
+      <move select="Forward 4" />
+      <move select="Cast Left" />
       <move select="Swing Right" />
       <move select="Cast Left" />
+    </path>
+    <path>
     </path>
   </tam>
 

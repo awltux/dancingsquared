@@ -144,13 +144,7 @@
 
   <tam title="Triple Star Thru"
        from="Eight Chain Thru"
-       parts="3;3" sequencer="gender-specific">
-    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
-      <dancer gender="boy" x="-3" y="1" angle="0"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-      <dancer gender="boy" x="-1" y="-1" angle="180"/>
-      <dancer gender="girl" x="-1" y="1" angle="180"/>
-    </formation>
+       parts="3;3" sequencer="gender-specific" formation="Eight Chain Thru">
     <path>
       <move select="Extend Left" hands="right" beats="1.5" scaleY=".5" />
       <move select="Quarter Right" beats="1.5" offsetX="1" offsetY="-.5" />

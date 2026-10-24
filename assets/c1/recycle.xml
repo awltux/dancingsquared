@@ -119,13 +119,7 @@
   </tam>
 
 
-  <tam title="All Eight Recycle" from="I-Beam 1">
-    <formation fid="F3-mjc15xen" aid="A1-u5jdby8f">
-      <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
-      <dancer gender="girl" x="1" y="-3.5" angle="90"/>
-      <dancer gender="boy" x="0" y="-2" angle="180"/>
-      <dancer gender="girl" x="0" y="-.67" angle="0"/>
-    </formation>
+  <tam title="All Eight Recycle" from="I-Beam 1" formation="I-Beam">
     <path>
       <move select="Stand" hands="right" beats="2"/>
       <move select="U-Turn Right" beats="3" offsetX="3.5" offsetY="-.33" />
@@ -808,13 +802,7 @@
   </tam>
 
   <tam title="Split Recycle"
-       from="3 and 1 Lines">
-    <formation fid="F3-afnubval" aid="A1-hshyx4yd">
-      <dancer gender="boy" x="-2" y="3" angle="0"/>
-      <dancer gender="girl" x="-2" y="1" angle="180"/>
-      <dancer gender="boy" x="-2" y="-1" angle="0"/>
-      <dancer gender="girl" x="-2" y="-3" angle="0"/>
-    </formation>
+       from="3 and 1 Lines" formation="3 and 1 lines #2">
     <path numbers="5 4">
       <move select="U-Turn Right" beats="4" hands="gripright" offsetX="2" offsetY="-.5" />
     </path>

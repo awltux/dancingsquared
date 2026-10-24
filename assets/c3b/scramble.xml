@@ -22,25 +22,7 @@
 -->
 <tamination title="Scramble">
 
-  <tam title="Scramble" from="Lines Facing Out" parts="2">
-    <formation name="Inverted Lines Ends Facing Out" fid="F3-xzuj7y07" aid="A1-05dph68t">
-      <dancer gender="girl" x="2" y="1" angle="0"/>
-      <dancer gender="boy" x="2" y="3" angle="0"/>
-      <dancer gender="girl" x="-2" y="3" angle="180"/>
-      <dancer gender="boy" x="-2" y="1" angle="180"/>
-    </formation>
-    <path>
-      <move select="Quarter Right" beats="2" offsetX="-1"/>
-      <move select="Extend Left" scaleY=".5"/>
-      <move select="Extend Right" beats="4" scaleY="2.5"/>
-      <move select="Forward"/>
-    </path>
-    <path>
-      <move select="Lead Right" beats="2" scaleY="2"/>
-      <move select="Extend Left" scaleY=".5"/>
-      <move select="Swing Right" scaleX=".5" scaleY=".5"/>
-      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
-    </path>
+  <tam title="Scramble" from="Lines Facing Out" parts="2" formation="Lines Facing Out">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -52,6 +34,18 @@
       <move select="Extend Left" scaleY=".5"/>
       <move select="Forward" />
       <move select="Extend Left" beats="4" scaleY="1.5"/>
+    </path>
+    <path>
+      <move select="Quarter Right" beats="2" offsetX="-1"/>
+      <move select="Extend Left" scaleY=".5"/>
+      <move select="Extend Right" beats="4" scaleY="2.5"/>
+      <move select="Forward"/>
+    </path>
+    <path>
+      <move select="Lead Right" beats="2" scaleY="2"/>
+      <move select="Extend Left" scaleY=".5"/>
+      <move select="Swing Right" scaleX=".5" scaleY=".5"/>
+      <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
     </path>
   </tam>
 

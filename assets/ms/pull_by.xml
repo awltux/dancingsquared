@@ -57,11 +57,7 @@
        `scaleX = 1`. The start formation is written INLINE at x = -1 so the engine's own mirror
        (180 degrees about the origin) places the second couple at x = +1. Everything else, including
        the group attribute, is copied unchanged. -->
-  <tam title="Right Pull By" group=" ">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+  <tam title="Right Pull By" group=" " formation="Facing Couples Close">
     <path>
       <move select="Pull Left" scaleX="1" scaleY=".5" beats="2"/>
       <move select="Extend Right" scaleX="1" scaleY=".5" beats="2"/>
@@ -72,11 +68,7 @@
     </path>
   </tam>
 
-  <tam title="Left Pull By" group=" ">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+  <tam title="Left Pull By" group=" " formation="Facing Couples Close">
     <path>
       <move select="Pull Right" scaleX="1" scaleY=".5" beats="2"/>
       <move select="Extend Left" scaleX="1" scaleY=".5" beats="2"/>

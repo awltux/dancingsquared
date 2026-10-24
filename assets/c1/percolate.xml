@@ -87,18 +87,20 @@
 
   <tam title="Percolate"
        from="Left-Hand Waves"
-       parts="4;2" >
-     <formation fid="F3-jk0u0kn1" aid="A1-paoctnf9">
-      <dancer gender="girl" x="-2" y="-3" angle="0"/>
-      <dancer gender="boy" x="-2" y="-1" angle="180"/>
-      <dancer gender="girl" x="-2" y="1" angle="0"/>
-      <dancer gender="boy" x="-2" y="3" angle="180"/>
-    </formation>
+       parts="4;2"  formation="Ocean Waves LH BGBG">
+    <path>
+      <move select="Lead Left" beats="2" scaleX="2" scaleY="3" />
+      <move select="Lead Left" beats="2" scaleX="3" scaleY="2" />
+      <move select="Forward 2" />
+      <move select="Hinge Left" />
+      <move select="Extend Left" hands="right" beats="3" scaleX="3" scaleY="2" />
+      <move select="Forward" />
+    </path>
     <path>
       <move select="Forward 4" />
-      <move select="Lead Left" beats="2" scaleX="2" scaleY="3" />
+      <move select="Lead Right" beats="2" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="Forward 2" />
+      <move select="Extend Left" beats="2" scaleX="2" />
     </path>
     <path>
       <move select="Run Right" beats="4" />
@@ -108,17 +110,9 @@
     </path>
     <path>
       <move select="Forward 4" />
-      <move select="Lead Right" beats="2" />
-      <move select="Swing Left" scaleX=".5" scaleY=".5" />
-      <move select="Extend Left" beats="2" scaleX="2" />
-    </path>
-    <path>
       <move select="Lead Left" beats="2" scaleX="2" scaleY="3" />
-      <move select="Lead Left" beats="2" scaleX="3" scaleY="2" />
+      <move select="Swing Left" scaleX=".5" scaleY=".5" />
       <move select="Forward 2" />
-      <move select="Hinge Left" />
-      <move select="Extend Left" hands="right" beats="3" scaleX="3" scaleY="2" />
-      <move select="Forward" />
     </path>
   </tam>
 

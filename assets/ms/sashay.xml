@@ -229,11 +229,7 @@
     </path>
   </tam>
 
-<tam title="Rollaway" from="Facing Couples">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+<tam title="Rollaway" from="Facing Couples" formation="Facing Couples Close">
     <path>
       <move select="Dodge Right" hands="gripright" />
     </path>

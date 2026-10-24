@@ -49,11 +49,7 @@
        vary with the separation in the Star Thru pair either. Start formation written INLINE at
        x = -1 so the engine's mirror puts the second couple at +1. -->
   <tam title="Turn Thru"
-       from="Facing Couples">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+       from="Facing Couples" formation="Facing Couples Close">
     <path>
       <move select="Extend Left" scaleX="1" scaleY=".5" />
       <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />

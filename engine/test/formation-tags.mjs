@@ -27,7 +27,7 @@
 // MEASURED at the commit that introduced the tags, 292 named definitions + 773 inline blocks over 500 files.
 //
 // Run: node test/formation-tags.mjs   (from engine/; `dist` must be built)
-import { loadFormations, loadTams, tagProblems, problems } from '../../scripts/tag-formations.mjs';
+import { loadFormations, loadTams, tagProblems, problems, duplicateGroups, refactorPlan } from '../../scripts/tag-formations.mjs';
 
 let failures = 0;
 const check = (cond, msg, detail) => {
@@ -56,6 +56,43 @@ const found = tagProblems(formations, files);
 for (const p of found) console.log(`  FAIL ${p}`);
 check(found.length === 0, 'no structural problem: formats, uniqueness, the reconstituted geometry, and every tag rooted', found.slice(0, 3).join('; '));
 check(problems().length === found.length, 'DuplicateFormations.md is byte-identical to a fresh render');
+
+// NO DUPLICATE IS LEFT THAT A TOOL COULD ABSORB. The table's `refactor` rows are the ones `refactorPlan` says a
+// `<path>` permutation can express; the rest each carry the reason they cannot be absorbed and are a corpus
+// decision, not outstanding work. This is the check that makes "the exercise is finished" mechanical.
+{
+  const rows = duplicateGroups(formations, files);
+  const absorbable = rows.filter((r) => r.e.kind !== 'named' && refactorPlan(r).ok);
+  check(absorbable.length === 0,
+    `no duplicate is left that a path permutation can absorb (${absorbable.length} still can)`,
+    absorbable.length ? `run \`node scripts/reorder-formation.mjs --absorb-duplicates --write\` - ${absorbable.slice(0, 5).map((r) => r.e.label).join('; ')}` : '');
+  const kept = rows.filter((r) => r.e.kind === 'named' || !refactorPlan(r).ok);
+  check(kept.length > 0, `and the corpus still carries duplicates that are a DECISION not a task (${kept.length} recorded with a reason)`);
+  // THE OTHER HALF OF THAT CHECK, and why it is not vacuous: every real row is refused today, so a `refactorPlan`
+  // that had stopped saying yes to anything would pass the check above while measuring nothing. These two synthetic
+  // rows are the rule's own control - the identity case must be absorbable, and a written-size mismatch must be
+  // refused FOR THAT REASON.
+  const spots = [
+    { x: -2, y: 1, heading: 0, gender: 'boy' },
+    { x: -2, y: -1, heading: 0, gender: 'girl' },
+    { x: 2, y: 1, heading: Math.PI, gender: 'boy' },
+    { x: 2, y: -1, heading: Math.PI, gender: 'girl' },
+  ];
+  const synthetic = (written, paths) => {
+    const board = spots.slice(0, written);
+    return {
+      e: { kind: 'inline', label: 'synthetic', written, writtenBoard: board, paths, actives: null, formationAttr: null, fid: 'F3-aaaaaaaa', newFid: 'F3-aaaaaaaa' },
+      canonical: { kind: 'named', name: 'Synthetic', written, writtenBoard: board, fid: 'F3-aaaaaaaa', newFid: 'F3-aaaaaaaa' },
+      tag: { fid: 'F3-aaaaaaaa' },
+    };
+  };
+  check(refactorPlan(synthetic(4, 4)).ok, 'POSITIVE CONTROL: a block identical to its definition is absorbable');
+  const twoWritten = synthetic(4, 4);
+  twoWritten.canonical = { ...twoWritten.canonical, written: 2, writtenBoard: spots.slice(0, 2) };
+  const mismatch = refactorPlan(twoWritten);
+  check(!mismatch.ok && /writes 2 dancers and the block writes 4/.test(mismatch.reason),
+    'NEGATIVE CONTROL: a written-size mismatch is refused, naming the two sizes', mismatch.ok ? 'it was accepted' : mismatch.reason);
+}
 
 console.log('\n== NOT VACUOUS: a tag removed is a tag reported ==');
 {

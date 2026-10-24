@@ -72,13 +72,7 @@
 
   <tam title="Hinge"
        from="Right-Hand Waves"
-       difficulty="1">
-    <formation fid="F3-4tsqu67b" aid="A1-0nsuszbv">
-      <dancer gender="boy" x="-1.5" y="3" angle="0"/>
-      <dancer gender="girl" x="-1.5" y="1" angle="180"/>
-      <dancer gender="girl" x="-1.5" y="-1" angle="0"/>
-      <dancer gender="boy" x="-1.5" y="-3" angle="180"/>
-    </formation>
+       difficulty="1" formation="Ocean Waves RH BGGB Compact">
     <path>
       <move select="Hinge Right" beats="2" offsetX="-.5" offsetY="-.5"/>
     </path>

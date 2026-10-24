@@ -125,13 +125,7 @@
     </path>
   </tam>
 
-  <tam title="Chase Right" from="T-Bones 2" difficulty="3">
-     <formation fid="F3-k64551hp" aid="A1-l0shswzn">
-      <dancer gender="boy" x="-3" y="1" angle="180"/>
-      <dancer gender="girl" x="-3" y="-1" angle="270"/>
-      <dancer gender="boy" x="-1" y="-1" angle="0"/>
-      <dancer gender="girl" x="-1" y="1" angle="90"/>
-    </formation>
+  <tam title="Chase Right" from="T-Bones 2" difficulty="3" formation="T-Bone DRDR">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1"/>
       <move select="Forward" />
@@ -288,23 +282,17 @@
     </path>
   </tam>
 
-  <tam title="Left Chase" from="T-Bones 2" difficulty="3">
-     <formation fid="F3-k64551hp" aid="A1-l0shswzn">
-      <dancer gender="boy" x="-3" y="1" angle="180"/>
-      <dancer gender="girl" x="-3" y="-1" angle="270"/>
-      <dancer gender="boy" x="-1" y="-1" angle="0"/>
-      <dancer gender="girl" x="-1" y="1" angle="90"/>
-    </formation>
-    <path>
-      <move select="Run Left"/>
-      <move select="Forward 2"/>
-    </path>
+  <tam title="Left Chase" from="T-Bones 2" difficulty="3" formation="T-Bone DRDR">
     <path>
       <move select="Run Left"/>
       <move select="Forward 2"/>
     </path>
     <path>
       <move select="Run Left" scaleX=".5"/>
+      <move select="Forward 2"/>
+    </path>
+    <path>
+      <move select="Run Left"/>
       <move select="Forward 2"/>
     </path>
     <path>

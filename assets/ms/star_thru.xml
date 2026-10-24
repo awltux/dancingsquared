@@ -70,17 +70,7 @@
     </path>
   </tam>
 
-  <tam title="Star Thru" from="Sashayed Lines" sequencer="gender-specific">
-     <formation fid="F3-1r9s5bst" aid="A1-q27idb99">
-      <dancer gender="boy" x="-2" y="1" angle="0"/>
-      <dancer gender="girl" x="-2" y="3" angle="0"/>
-      <dancer gender="boy" x="-2" y="-3" angle="0"/>
-      <dancer gender="girl" x="-2" y="-1" angle="0"/>
-    </formation>
-    <path>
-      <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
-      <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
-    </path>
+  <tam title="Star Thru" from="Sashayed Lines" sequencer="gender-specific" formation="Sashayed Lines">
     <path>
       <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Left" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
@@ -92,6 +82,10 @@
     <path>
       <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Left" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
+    </path>
+    <path>
+      <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
+      <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
     </path>
   </tam>
 

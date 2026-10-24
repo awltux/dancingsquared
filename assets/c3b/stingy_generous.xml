@@ -264,13 +264,7 @@
   </tam>
 
   <tam title="Stingy Split Square Chain Thru" group="Stingy"
-       fractions="1;2;6" >
-     <formation fid="F3-mx7qw8zz" aid="A1-gnc2m2sz">
-      <dancer gender="boy" x="-1" y="3" angle="0"/>
-      <dancer gender="girl" x="1" y="3" angle="180"/>
-      <dancer gender="boy" x="-1" y="1" angle="90"/>
-      <dancer gender="girl" x="1" y="1" angle="90"/>
-    </formation>
+       fractions="1;2;6"  formation="T-Bone ULRU">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -280,12 +274,12 @@
       <move select="Extend Left" beats="2" scaleY="2" />
     </path>
     <path>
-      <move select="Pull Left" scaleY=".5" />
-      <move select="Lead Left" beats="2" scaleX="3" scaleY=".5" />
+      <move select="Stand" />
+      <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Hinge Left" />
-      <move select="Swing Right" />
+      <move select="Stand" beats="3" />
       <move select="Swing Left" />
-      <move select="Extend Left" beats="2" scaleY="2" />
+      <move select="Forward" />
     </path>
     <path>
       <move select="Stand" />
@@ -296,12 +290,12 @@
       <move select="Forward" />
     </path>
     <path>
-      <move select="Stand" />
-      <move select="Extend Right" beats="2" scaleY="2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" beats="2" scaleX="3" scaleY=".5" />
       <move select="Hinge Left" />
-      <move select="Stand" beats="3" />
+      <move select="Swing Right" />
       <move select="Swing Left" />
-      <move select="Forward" />
+      <move select="Extend Left" beats="2" scaleY="2" />
     </path>
   </tam>
 

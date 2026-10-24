@@ -50,11 +50,7 @@
        puts the facing pair at x = +1 - the separation 2 those boards use. This is the same fix, for
        the same reason, as the authored `Box the Gnat` variant. -->
   <tam title="Pass Thru"
-       from="Facing Couples">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+       from="Facing Couples" formation="Facing Couples Close">
     <path>
       <move select="Extend Left" scaleX="1" scaleY=".5" />
       <move select="Extend Right" scaleX="1" scaleY=".5" />

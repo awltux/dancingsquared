@@ -79,19 +79,21 @@
   </tam>
 
   <tam title="Coordinate, Replace Trade with a Remake"
-       group=" ">
-  <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
-    <dancer gender="boy" x="-3" y="1" angle="0"/>
-    <dancer gender="girl" x="-1" y="1" angle="0"/>
-    <dancer gender="boy" x="1" y="1" angle="0"/>
-    <dancer gender="girl" x="3" y="1" angle="0"/>
-  </formation>
+       group=" " formation="Column RH GBGB">
     <path>
-      <move select="Forward" scaleX="3" beats="3" />
+      <move select="Flip Right" beats="2" />
+      <move select="Forward" />
       <move select="Hinge Right" scaleX=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>
+      <move select="Extend Left" beats="3" scaleX="2" scaleY="2"/>
+    </path>
+    <path>
+      <move select="Forward" scaleX="2" beats="1.5" />
+      <move select="Lead Right" beats="1.5"/>
+      <move select="Stand" hands="none" beats="9"/>
+      <move select="Lead Right" scaleX="3" scaleY="2" beats="3" />
     </path>
     <path>
       <move select="Forward" scaleX="3" beats="3" />
@@ -101,19 +103,11 @@
       <move select="Hinge Right" scaleY=".5"/>
     </path>
     <path>
-      <move select="Forward" scaleX="2" beats="1.5" />
-      <move select="Lead Right" beats="1.5"/>
-      <move select="Stand" hands="none" beats="9"/>
-      <move select="Lead Right" scaleX="3" scaleY="2" beats="3" />
-    </path>
-    <path>
-      <move select="Flip Right" beats="2" />
-      <move select="Forward" />
+      <move select="Forward" scaleX="3" beats="3" />
       <move select="Hinge Right" scaleX=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>
-      <move select="Extend Left" beats="3" scaleX="2" scaleY="2"/>
     </path>
   </tam>
 

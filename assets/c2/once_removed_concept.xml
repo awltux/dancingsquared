@@ -200,13 +200,7 @@
     </path>
   </tam>
 
-  <tam title="Once Removed Shakedown" group="(From lines) Once Removed">
-    <formation fid="F3-9gboj6dj" aid="A1-l7zeku39">
-      <dancer gender="girl" x="-1.5" y="3" angle="180"/>
-      <dancer gender="boy" x="-1.5" y="1" angle="180"/>
-      <dancer gender="girl" x="-1.5" y="-1" angle="180"/>
-      <dancer gender="boy" x="-1.5" y="-3" angle="180"/>
-    </formation>
+  <tam title="Once Removed Shakedown" group="(From lines) Once Removed" formation="Lines Facing Out Compact">
     <path couples="1 2">
       <move select="U-Turn Right" offsetX="-1.25"/>
       <move select="Quarter Right" offsetX="1.25" />

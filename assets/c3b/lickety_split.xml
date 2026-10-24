@@ -82,24 +82,18 @@
     </path>
   </tam>
 
-  <tam title="Lickety Split" from="T-Bones 1">
-    <formation fid="F3-chbf53tp" aid="A1-0qij1j83">
-      <dancer gender="boy" y="3" x="1" angle="0"/>
-      <dancer gender="girl" y="1" x="1" angle="270"/>
-      <dancer gender="girl" y="-1" x="1" angle="270"/>
-      <dancer gender="boy" y="-3" x="1" angle="180"/>
-    </formation>
+  <tam title="Lickety Split" from="T-Bones 1" formation="T-Bone ULLD">
     <path>
-      <move select="Run Right" scaleX=".5"/>
-    </path>
-    <path>
-      <move select="Counter Rotate Right 0 -2" beats="3" hands="right"/>
+      <move select="Forward 2" beats="3"/>
     </path>
     <path>
       <move select="Counter Rotate Right 2 0" beats="3" hands="right"/>
     </path>
     <path>
-      <move select="Forward 2" beats="3"/>
+      <move select="Counter Rotate Right 0 -2" beats="3" hands="right"/>
+    </path>
+    <path>
+      <move select="Run Right" scaleX=".5"/>
     </path>
   </tam>
 

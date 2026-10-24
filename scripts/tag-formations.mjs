@@ -206,6 +206,10 @@ export function loadTams() {
           symmetry: tam.symmetry,
           paths: tam.paths.length,
           actives: tam.actives,
+          // A tam may name a formation AND author a block; `buildCallImpl` gives the block priority, so the
+          // attribute is dead text today. Absorbing that tam would rewrite the attribute and silently re-point a
+          // reference a reader can see - refused, and reported.
+          formationAttr: tam.formationAttr,
           fid: tam.formationTag.fid,
           aid: tam.formationTag.aid,
           at,
@@ -395,6 +399,9 @@ export function refactorPlan(row) {
   }
   const canonFid = canon.fid ?? canon.newFid;
   if (e.actives) return { ok: false, reason: `the tam carries actives="${e.actives}"` };
+  if (e.formationAttr) {
+    return { ok: false, reason: `the tam already names formation="${e.formationAttr}" AND authors its own block (the block wins at load time), so absorbing it would silently re-point the reference` };
+  }
   if (e.written !== canon.written) {
     return { ok: false, reason: `the named definition writes ${canon.written} dancers and the block writes ${e.written}` };
   }

@@ -778,18 +778,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Chain Down the Line" group="All 8 (with calls through Plus)" display="none">
-    <formation fid="F3-xz5t9pjr" aid="A1-rw1ck391">
-      <dancer gender="girl" x="-1" y="0" angle="90"/>
-      <dancer gender="boy" x="-3" y="0" angle="90"/>
-      <dancer gender="girl" x="0" y="-1" angle="180"/>
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-    </formation>
-    <path>
-      <move select="Swing Right" />
-      <move select="Hinge Left" />
-      <move select="Belle Wheel" offsetX="1"/>
-    </path>
+  <tam title="All 8 Chain Down the Line" group="All 8 (with calls through Plus)" display="none" formation="Reverse Star Promenade">
     <path>
       <move select="Stand" beats="3"/>
       <move select="BackHinge Right" />
@@ -804,6 +793,11 @@
       <move select="Stand" beats="3"/>
       <move select="BackHinge Right" />
       <move select="Beau Wheel" offsetX="1"/>
+    </path>
+    <path>
+      <move select="Swing Right" />
+      <move select="Hinge Left" />
+      <move select="Belle Wheel" offsetX="1"/>
     </path>
   </tam>
 
@@ -858,13 +852,10 @@
   </tam>
 
 
-  <tam title="All 8 Crossfire" group="All 8 (with calls through Plus)">
-    <formation fid="F3-xz5t9pjr" aid="A1-rw1ck391">
-      <dancer gender="girl" x="-1" y="0" angle="90"/>
-      <dancer gender="boy" x="-3" y="0" angle="90"/>
-      <dancer gender="girl" x="0" y="-1" angle="180"/>
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-    </formation>
+  <tam title="All 8 Crossfire" group="All 8 (with calls through Plus)" formation="Reverse Star Promenade">
+    <path>
+      <move select="Run Right" beats="5" offsetX="3" scaleY="2"/>
+    </path>
     <path>
       <move select="Swing Right"/>
       <move select="Forward 3"/>
@@ -875,9 +866,6 @@
     <path>
       <move select="Swing Right"/>
       <move select="Forward 3"/>
-    </path>
-    <path>
-      <move select="Run Right" beats="5" offsetX="3" scaleY="2"/>
     </path>
   </tam>
 

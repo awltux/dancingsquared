@@ -1104,13 +1104,7 @@
   </tam>
 
   <tam title="Concentric Linear Cycle"
-       group="(From tidal formation) Concentric">
-    <formation fid="F3-svw0dvrr" aid="A1-stppo8uf">
-      <dancer gender="boy" x="0" y="-3.5" angle="180"/>
-      <dancer gender="girl" x="0" y="-2.5" angle="0"/>
-      <dancer gender="boy" x="0" y="-1.5" angle="180"/>
-      <dancer gender="girl" x="0" y="-.5" angle="0"/>
-    </formation>
+       group="(From tidal formation) Concentric" formation="Tidal Wave RH BGBG">
     <path couples="3 1">
       <move select="Hinge Right" scaleY=".5" />
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2"/>

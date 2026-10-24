@@ -359,11 +359,7 @@
        second couple at x = +1. -->
   <tam title="Square Thru 4"
        from="Facing Couples"
-       difficulty="1">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+       difficulty="1" formation="Facing Couples Close">
     <path>
       <move select="Pull Left" beats="2" scaleX="1" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1" />

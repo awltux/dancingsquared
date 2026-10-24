@@ -65,13 +65,7 @@
 
   <tam title="Girls Disconnected Crossfire"
        group="Girls Disconnected"
-       sequencer="gender-specific">
-     <formation fid="F3-2ntdg2yx" aid="A1-4w3an8p5">
-      <dancer gender="girl" x="0" y="-2.5" angle="0"/>
-      <dancer gender="boy" x="0" y="-3.5" angle="0"/>
-      <dancer gender="girl" x="0" y="-.5" angle="0"/>
-      <dancer gender="boy" x="0" y="-1.5" angle="0"/>
-    </formation>
+       sequencer="gender-specific" formation="Tidal Line Girls Disconnected">
   <path numbers="7 2">
     <move select="Run Left" beats="5" offsetX="2" scaleY="1.75"/>
   </path>

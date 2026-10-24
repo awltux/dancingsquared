@@ -138,13 +138,7 @@
     </path>
   </tam>
 
-  <tam title="Invert and Scatter" group=" " fractions="6">
-    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
-      <dancer gender="boy" x="3" y="1" angle="0"/>
-      <dancer gender="girl" x="1" y="1" angle="0"/>
-      <dancer gender="boy" x="1" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="-1" angle="180"/>
-    </formation>
+  <tam title="Invert and Scatter" group=" " fractions="6" formation="Columns">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 4" beats="3"/>

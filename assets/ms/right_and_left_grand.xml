@@ -55,13 +55,7 @@
   </tam>
 
 
-  <tam title="Right and Left Grand" from="Grand Circle" sequencer="gender-specific">
-     <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
-      <dancer gender="boy" x="-1" y="-3" angle="0"/>
-      <dancer gender="girl" x="1" y="-3" angle="180"/>
-      <dancer gender="boy" x="3" y="-1" angle="90"/>
-      <dancer gender="girl" x="3" y="1" angle="270"/>
-    </formation>
+  <tam title="Right and Left Grand" from="Grand Circle" sequencer="gender-specific" formation="Right and Left Grand Static Square">
     <path>
       <move select="Pull Left" scaleY=".75" />
       <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
@@ -349,13 +343,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
-  <tam title="Right and Left Grand" from="Thar" parts="" sequencer="gender-specific">
-    <formation fid="F3-djgm8ct1" aid="A1-kg3l3pin">
-        <dancer gender="boy" x="-1" y="0" angle="-90"/>
-        <dancer gender="girl" x="-3" y="0" angle="90"/>
-        <dancer gender="boy" x="0" y="-1" angle="0"/>
-        <dancer gender="girl" x="0" y="-3" angle="180"/>
-    </formation>
+  <tam title="Right and Left Grand" from="Thar" parts="" sequencer="gender-specific" formation="Thar LH Boys">
     <path>
       <movement hands="left" beats="4.5" cx1="0.795" cy1="0" cx2="1.5603" cy2="-1.6853" x2="2.1213" y2="-1.1213"/>
       <movement hands="right" beats="3" cx1="0.53" cy1="0" cx2="1.0444" cy2="1.206" x2="1.4184" y2="1.582"/>
@@ -497,13 +485,7 @@
     </path>
   </tam>
 
-  <tam title="Weave the Ring" group=" ">
-     <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
-      <dancer gender="boy" x="-1" y="-3" angle="0"/>
-      <dancer gender="girl" x="1" y="-3" angle="180"/>
-      <dancer gender="boy" x="-3" y="1" angle="270"/>
-      <dancer gender="girl" x="-3" y="-1" angle="90"/>
-    </formation>
+  <tam title="Weave the Ring" group=" " formation="Right and Left Grand Static Square">
     <path>
       <move select="Extend Left" scaleY=".75" />
       <move select="Lead Left 1/2" beats="3" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
@@ -535,13 +517,7 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="Grand Circle"
-       sequencer="gender-specific">
-     <formation fid="F3-8dyawmgx" aid="A1-uo2i94jf">
-       <dancer gender="girl" x="-1" y="-3" angle="0"/>
-       <dancer gender="boy" x="1" y="-3" angle="180"/>
-       <dancer gender="girl" x="3" y="-1" angle="90"/>
-       <dancer gender="boy" x="3" y="1" angle="270"/>
-    </formation>
+       sequencer="gender-specific" formation="Wrong Way Grand Static Square">
     <path>
       <move select="Pull Left" scaleY=".75" />
       <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
@@ -611,13 +587,14 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="Eight Chain Thru"
-       sequencer="gender-specific">
-    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
-      <dancer gender="girl" x="3" y="1" angle="180"/>
-      <dancer gender="boy" x="1" y="1" angle="0"/>
-      <dancer gender="girl" x="-1" y="1" angle="180"/>
-      <dancer gender="boy" x="-3" y="1" angle="0"/>
-    </formation>
+       sequencer="gender-specific" formation="Eight Chain Thru">
+    <path>
+      <move select="Extend Left"/>
+      <move select="Extend Left" beats="3" hands="left" scaleX="2" scaleY=".25"/>
+      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
+      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
+      <move select="Lead Right 1/2" beats="2" offsetX="1" offsetY=".5"/>
+    </path>
     <path>
       <move select="Forward"/>
       <move select="Forward" beats=".5" scaleX=".5"/>
@@ -639,13 +616,6 @@
       <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
       <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
       <move select="Lead Left 1/2" beats="2"/>
-    </path>
-    <path>
-      <move select="Extend Left"/>
-      <move select="Extend Left" beats="3" hands="left" scaleX="2" scaleY=".25"/>
-      <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
-      <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
-      <move select="Lead Right 1/2" beats="2" offsetX="1" offsetY=".5"/>
     </path>
   </tam>
 
@@ -679,13 +649,7 @@
     </path>
   </tam>
 
-  <tam title="Wrong Way Grand" from="Trade By" sequencer="gender-specific">
-    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
-      <dancer gender="girl" x="3" y="-1" angle="0"/>
-      <dancer gender="boy" x="3" y="1" angle="0"/>
-      <dancer gender="girl" x="1" y="1" angle="180"/>
-      <dancer gender="boy" x="-1" y="1" angle="0"/>
-    </formation>
+  <tam title="Wrong Way Grand" from="Trade By" sequencer="gender-specific" formation="Trade By">
     <path>
       <move select="Quarter Left" offsetY="1"/>
       <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
@@ -802,13 +766,7 @@
     </path>
   </tam>
 
-  <tam title="Wrong Way Grand" from="3/4 Tag" sequencer="gender-specific">
-    <formation fid="F3-78uohvsi" aid="A1-1icb6ye6">
-      <dancer gender="girl" x="3" y="-1" angle="0"/>
-      <dancer gender="boy" x="3" y="1" angle="0"/>
-      <dancer gender="girl" x="0" y="1" angle="180"/>
-      <dancer gender="boy" x="0" y="3" angle="0"/>
-    </formation>
+  <tam title="Wrong Way Grand" from="3/4 Tag" sequencer="gender-specific" formation="3/4 Tag">
     <path>
       <move select="Quarter Left" offsetY="1"/>
       <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-.55" />
@@ -826,18 +784,18 @@
       <move select="Forward" scaleX=".1"/>
     </path>
     <path>
-      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
-      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
-      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
-      <move select="Lead Left 1/2" beats="1" hands="right" />
-      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
-    </path>
-    <path>
       <move select="Lead Right 1/2" beats="4.5" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-.92" />
       <move select="Lead Right 1/2" beats="3" hands="right" scaleX="3" scaleY="3" offsetX=".52" offsetY="1.3" />
       <move select="Lead Right 1/2" beats="3" hands="left" scaleX="2" scaleY="2" offsetX=".16" offsetY="-1.67" />
       <move select="Lead Right 1/2" beats="2" hands="right" offsetX=".5" offsetY="1"/>
       <move select="Forward" scaleX=".1"/>
+    </path>
+    <path>
+      <move select="Lead Left 1/2" beats="4.5" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-2.55" />
+      <move select="Lead Left 1/2" beats="3" hands="right" scaleX="2" scaleY="2" offsetX=".16" offsetY="1.58" />
+      <move select="Lead Left 1/2" beats="3" hands="left" scaleX="3" scaleY="3" offsetX=".52" offsetY="-1.2" />
+      <move select="Lead Left 1/2" beats="1" hands="right" />
+      <move select="Forward" beats="2" offsetX="-.2" offsetY="-.1"/>
     </path>
   </tam>
 

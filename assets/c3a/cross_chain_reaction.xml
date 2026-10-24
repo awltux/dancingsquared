@@ -155,13 +155,7 @@
 
   <tam title="Cross Chain Reaction"
        from="Mixed Quarter Waves, Centers Right-Handed"
-       fractions="5;3" >
-    <formation fid="F3-349dzyd8" aid="A1-uoe4xxas">
-      <dancer gender="boy" x="-3" y="1" angle="180"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-      <dancer gender="girl" x="0" y="-1" angle="0"/>
-    </formation>
+       fractions="5;3"  formation="Mixed Quarter Tag #5">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Quarter Left" beats="2" offsetX="-2" offsetY="1"/>
@@ -193,13 +187,7 @@
 
   <tam title="Cross Chain Reaction"
        from="Mixed Quarter Waves, Centers Left-Handed"
-       fractions="5;3">
-    <formation fid="F3-lgl8fetg" aid="A1-rt9mpbp8">
-      <dancer gender="boy" x="-3" y="1" angle="0"/>
-      <dancer gender="girl" x="-3" y="-1" angle="180"/>
-      <dancer gender="boy" x="0" y="-3" angle="0"/>
-      <dancer gender="girl" x="0" y="-1" angle="180"/>
-    </formation>
+       fractions="5;3" formation="Mixed Quarter Tag #2">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>

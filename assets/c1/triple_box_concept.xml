@@ -439,15 +439,7 @@
   </tam>
 
 
-  <tam title="Triple Column Pass and Roll" group="Triple Column">
-    <formation fid="F3-m4vsgc9d" aid="A1-1d6zwg57">
-      <dancer gender="boy" x="3" y="2" angle="180"/>
-      <dancer gender="girl" x="3" y="0" angle="180"/>
-      <dancer gender="girl" x="1" y="0" angle="0"/>
-      <dancer gender="boy" x="1" y="2" angle="0"/>
-      <dancer gender="phantom" x="1" y="-2" angle="0"/>
-      <dancer gender="phantom" x="3" y="-2" angle="180"/>
-    </formation>
+  <tam title="Triple Column Pass and Roll" group="Triple Column" formation="Triple Columns">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -583,15 +575,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Wave Swing Thru" group="Triple Wave">
-    <formation fid="F3-1bul6qzv" aid="A1-opwdxpzx">
-      <dancer gender="boy" x="0" y="3" angle="180"/>
-      <dancer gender="girl" x="0" y="1" angle="0"/>
-      <dancer gender="girl" x="4" y="1" angle="180"/>
-      <dancer gender="boy" x="4" y="3" angle="0"/>
-      <dancer gender="phantom" x="4" y="-1" angle="0"/>
-      <dancer gender="phantom" x="4" y="-3" angle="180"/>
-    </formation>
+  <tam title="Triple Wave Swing Thru" group="Triple Wave" formation="Triple Lines">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Swing Left"/>

@@ -108,13 +108,7 @@
     </path>
   </tam>
 
-  <tam title="Do Paso to an Allemande Thar" group=" " display="no">
-    <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
-      <dancer gender="boy" x="-3" y="1" angle="270"/>
-      <dancer gender="girl" x="-3" y="-1" angle="90"/>
-      <dancer gender="boy" x="-1" y="-3" angle="0"/>
-      <dancer gender="girl" x="1" y="-3" angle="180"/>
-    </formation>
+  <tam title="Do Paso to an Allemande Thar" group=" " display="no" formation="Right and Left Grand Static Square">
     <path>
       <move select="Extend Right" scaleY=".75" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

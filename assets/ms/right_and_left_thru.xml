@@ -55,11 +55,7 @@
        not touch the identity-coherence defect pinned in selection.mjs. -->
   <tam title="Right and Left Thru"
        from="Facing Couples"
-       parts="3" difficulty="1" sequencer="no">
-    <formation fid="F3-rj0qnzj7" aid="A1-5ok70lr7">
-      <dancer gender="boy" x="-3" y="1" angle="0" />
-      <dancer gender="girl" x="-3" y="-1" angle="0" />
-    </formation>
+       parts="3" difficulty="1" sequencer="no" formation="Facing Couples Far">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="3" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="3" scaleY=".5" />
@@ -86,11 +82,7 @@
        procedure as the `Box the Gnat` separation-6 tam, which is the one that has held. -->
   <tam title="Right and Left Thru"
        from="Facing Couples"
-       parts="3" difficulty="1" sequencer="no">
-    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
-      <dancer gender="boy" x="-1" y="1" angle="0" />
-      <dancer gender="girl" x="-1" y="-1" angle="0" />
-    </formation>
+       parts="3" difficulty="1" sequencer="no" formation="Facing Couples Close">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="1" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1" scaleY=".5" />

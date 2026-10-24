@@ -24,13 +24,7 @@
 
   <tam title="Split Square Chain Thru"
        from="T-Bones, Ends Facing"
-       parts="1;2;6" >
-     <formation fid="F3-mx7qw8zz" aid="A1-gnc2m2sz">
-      <dancer gender="boy" x="-1" y="3" angle="0"/>
-      <dancer gender="girl" x="1" y="3" angle="180"/>
-      <dancer gender="boy" x="-1" y="1" angle="90"/>
-      <dancer gender="girl" x="1" y="1" angle="90"/>
-    </formation>
+       parts="1;2;6"  formation="T-Bone ULRU">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -40,8 +34,8 @@
       <move select="Forward" />
     </path>
     <path>
-      <move select="Pull Left" scaleY=".5" />
-      <move select="Lead Left" beats="2" scaleX="3" scaleY=".5" />
+      <move select="Stand" />
+      <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Swing Left" />
       <move select="Swing Right" />
       <move select="Swing Left" />
@@ -56,8 +50,8 @@
       <move select="Forward" />
     </path>
     <path>
-      <move select="Stand" />
-      <move select="Extend Right" beats="2" scaleY="2" />
+      <move select="Pull Left" scaleY=".5" />
+      <move select="Lead Left" beats="2" scaleX="3" scaleY=".5" />
       <move select="Swing Left" />
       <move select="Swing Right" />
       <move select="Swing Left" />
@@ -67,13 +61,7 @@
 
   <tam title="Split Square Chain Thru"
        from="T-Bones, Centers Facing"
-       parts="1;2;6" >
-     <formation fid="F3-zy410h5b" aid="A1-vvbb9y71">
-      <dancer gender="boy" x="-1" y="3" angle="270"/>
-      <dancer gender="girl" x="1" y="3" angle="270"/>
-      <dancer gender="boy" x="-1" y="1" angle="0"/>
-      <dancer gender="girl" x="1" y="1" angle="180"/>
-    </formation>
+       parts="1;2;6"  formation="T-Bone RUUL">
     <path>
       <move select="Stand" />
       <move select="Extend Right" beats="2" scaleY="2" />
@@ -223,13 +211,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones, Ends Facing"
-       parts="1;2;6" >
-    <formation fid="F3-mx7qw8zz" aid="A1-gnc2m2sz">
-      <dancer gender="boy" x="-1" y="3" angle="0"/>
-      <dancer gender="girl" x="1" y="3" angle="180"/>
-      <dancer gender="boy" x="-1" y="1" angle="90"/>
-      <dancer gender="girl" x="1" y="1" angle="90"/>
-    </formation>
+       parts="1;2;6"  formation="T-Bone ULRU">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="3" scaleY=".5" />
@@ -239,8 +221,8 @@
       <move select="Extend Right" beats="2" scaleY="2" />
     </path>
     <path>
-      <move select="Pull Right" scaleY=".5" />
-      <move select="Lead Left" beats="2" scaleY="1.5" />
+      <move select="Stand" />
+      <move select="Forward" beats="2" />
       <move select="Swing Right" />
       <move select="Stand" beats="3" />
       <move select="Swing Right" />
@@ -255,8 +237,8 @@
       <move select="Extend Right" beats="2" scaleY="2" />
     </path>
     <path>
-      <move select="Stand" />
-      <move select="Forward" beats="2" />
+      <move select="Pull Right" scaleY=".5" />
+      <move select="Lead Left" beats="2" scaleY="1.5" />
       <move select="Swing Right" />
       <move select="Stand" beats="3" />
       <move select="Swing Right" />
@@ -267,13 +249,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones, Centers Facing"
-       parts="1;2;6" >
-    <formation fid="F3-zy410h5b" aid="A1-vvbb9y71">
-      <dancer gender="boy" x="-1" y="3" angle="270"/>
-      <dancer gender="girl" x="1" y="3" angle="270"/>
-      <dancer gender="boy" x="-1" y="1" angle="0"/>
-      <dancer gender="girl" x="1" y="1" angle="180"/>
-    </formation>
+       parts="1;2;6"  formation="T-Bone RUUL">
     <path>
       <move select="Stand" />
       <move select="Forward" beats="2" />

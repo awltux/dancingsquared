@@ -1,3 +1,12 @@
+// TWO DIRECTIONS ON THE SAME RULE, one file because they are the same permutation, the same block rewriter and the
+// same proof:
+//
+//   --formation <Name>     a DEFINITION's dancer order changed, so follow every call that names it;
+//   --absorb-duplicates    a CALL carries its own copy of a definition's spots, so replace the copy with a
+//                          reference to the definition. The duplicates and their feasibility come from
+//                          `scripts/tag-formations.mjs` (`duplicateGroups`, `refactorPlan`), so what a duplicate IS
+//                          is defined once and the report and the tool cannot disagree.
+//
 // REORDER A NAMED FORMATION'S DANCER ORDER, AND PERMUTE EVERY CALL THAT NAMES IT.
 //
 //   node scripts/reorder-formation.mjs --formation Circle            # plan only, writes nothing
@@ -25,17 +34,19 @@
 //     up to 3.68 units);
 //   - a whole-set tam writes one path per completed dancer, where the antipode's path is NOT
 //     interchangeable;
-//   - an inline formation is a COPY that a named-formation change does not reach, and an alias name (a
-//     formation with the same spots under another name) is not a dependent at all.
+//   - an inline formation is a COPY that a named-formation REORDER does not reach, and an alias name (a
+//     formation with the same spots under another name) is not a dependent at all. The copy is what
+//     `--absorb-duplicates` is for, and it is the same permutation applied the other way: the definition's order
+//     is fixed and the CALL's paths move onto it.
 // So the permutation is derived by the engine's rule (`formationReorderPermutation`) and the result is
 // PROVED by rebuilding every dependent before and after: a dancer may be re-ordered, never moved.
 //
 // WHAT IT REFUSES, and each refusal is reported rather than worked around:
 //   - a dirty tree: anything modified besides `assets/formations.xml` is someone else's in-flight work
-//     (AGENTS.md §8 trap 16), so nothing is written;
+//     (AGENTS.md §8 trap 16), so nothing is written (the absorb mode refuses ANY modified tracked file);
 //   - a block whose spot set is not the old one, or whose dancers cannot be matched up to a half turn;
 //   - a tam whose path count is neither the written count nor twice it, or that carries `actives`, or
-//     that carries an inline formation (its own copy would need the same treatment);
+//     that carries an inline formation (the reorder mode cannot reach its copy - `--absorb-duplicates` can);
 //   - any change that moves a dancer by more than the tolerance, in which case NOTHING is written.
 //
 // DETERMINISM. Only the `<path>` blocks move: the tool rewrites each dependent tam's path sequence in
@@ -49,13 +60,21 @@ import { pathToFileURL } from 'node:url';
 // THE BLOCK RULE IS IMPORTED, NOT RESTATED - see `tam-blocks.mjs`. A commented-out tam is not a tam, and
 // addressing a tam by position without that rule edits the wrong call.
 import { liveTamBlocks, titlePattern } from './tam-blocks.mjs';
+// THE DUPLICATE ROWS AND THE FEASIBILITY RULE COME FROM THE TAGGER, not from a second analysis here. What a
+// duplicate IS, and whether it can be absorbed, are one rule (`refactorPlan`); this file owns only "how to absorb
+// one". `scripts/tag-formations.mjs` is imported for its functions, so its CLI guard does not run.
+import { loadFormations, loadTams, duplicateGroups, refactorPlan } from './tag-formations.mjs';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const USAGE = `usage: node scripts/reorder-formation.mjs --formation <Name> [--write] [--json] [--check]
+       node scripts/reorder-formation.mjs --absorb-duplicates [--write] [--json] [--only=<level>] [--limit=N]
 
-  --formation <Name>  the formation to reorder (its NEW block must already be in assets/formations.xml)
+  --formation <Name>  reorder ONE named formation (its NEW block must already be in assets/formations.xml)
+  --absorb-duplicates absorb every duplicate inline <formation> into the definition it duplicates
+  --only=<level>      (absorb only) restrict to one level directory, e.g. --only=ms
+  --limit=N           (absorb only) stop after N tams, for a staged run
   --write             apply the plan (default: report it and write nothing)
-  --check             exit 0 when the working block matches HEAD, 1 when there is a reorder pending
+  --check             (--formation only) exit 0 when the working block matches HEAD
   --json              print the plan as JSON
   --help              this text`;
 
@@ -69,10 +88,14 @@ const arg = (name) => {
   return at >= 0 ? argv[at + 1] : null;
 };
 const formation = arg('--formation');
+const absorb = argv.includes('--absorb-duplicates');
+const only = (argv.find((a) => a.startsWith('--only=')) ?? '').split('=')[1] ?? null;
+const limitArg = (argv.find((a) => a.startsWith('--limit=')) ?? '').split('=')[1] ?? null;
+const limit = limitArg ? Number(limitArg) : Infinity;
 const write = argv.includes('--write');
 const check = argv.includes('--check');
 const json = argv.includes('--json');
-if (!formation) {
+if (!formation && !absorb) {
   console.error(USAGE);
   process.exit(2);
 }
@@ -109,12 +132,227 @@ const dirty = execFileSync('git', ['status', '--porcelain', '--untracked-files=n
   .split('\n')
   .map((line) => line.trimEnd())
   .filter(Boolean);
-const stray = dirty.filter((line) => !/^[AM ]?M\s+assets\/formations\.xml$/.test(line));
-if (stray.length) {
-  die(
-    `the tree is dirty outside assets/formations.xml, so this is not safe to run:\n    ${stray.join('\n    ')}\n` +
-      '  Commit or stash that work first (AGENTS.md §8 trap 16). Nothing was written.',
-  );
+if (!absorb) {
+  const stray = dirty.filter((line) => !/^[AM ]?M\s+assets\/formations\.xml$/.test(line));
+  if (stray.length) {
+    die(
+      `the tree is dirty outside assets/formations.xml, so this is not safe to run:\n    ${stray.join('\n    ')}\n` +
+        '  Commit or stash that work first (AGENTS.md §8 trap 16). Nothing was written.',
+    );
+  }
+}
+
+// ---- the duplicate-absorbing mode: every inline block that duplicates a definition becomes a reference to it
+if (absorb) process.exit(await absorbDuplicates(dirty));
+
+/**
+ * Replace each absorbable duplicate's inline `<formation>` with a `formation="Name"` reference on its `<tam>`,
+ * permuting that tam's `<path>` blocks so every dancer keeps its own track.
+ *
+ * THE ROWS AND THE RULE COME FROM `scripts/tag-formations.mjs`; this function only decides HOW. Every tam is
+ * PROVED before anything is written - the call is built from the corpus, then built again from the converted tam
+ * against the named definition, and `compareGeometry` requires every sampled pose to agree to 1e-6. A rotated
+ * copy, a size mismatch, an `actives` subset and an unprovable pairing were already refused by `refactorPlan`, so
+ * a proof failure here is a defect in this transform, not a corpus refusal: nothing is written.
+ *
+ * WHAT IS REMOVED IS ONLY THE BLOCK. Everything else in the tam - its attributes, its `from`, the comments around
+ * it, the <path> bytes - is untouched, and the write is re-read and re-verified before it stands (the restore-on-
+ * failure rule the reorder mode uses).
+ */
+async function absorbDuplicates(dirtyTree) {
+  if (dirtyTree.length) {
+    return refuse(
+      `the tree is dirty, so this is not safe to run:\n    ${dirtyTree.join('\n    ')}\n` +
+        '  Commit or stash that work first (AGENTS.md §8 trap 16). Nothing was written.',
+    );
+  }
+  const formations = loadFormations();
+  const { files: tamFiles } = loadTams();
+  const rows = duplicateGroups(formations, tamFiles);
+  const planned = [];
+  const refused = [];
+  for (const row of rows) {
+    const plan = refactorPlan(row);
+    if (!plan.ok) { refused.push({ label: row.e.label, why: plan.reason }); continue; }
+    if (only && row.e.level !== only) continue;
+    planned.push({ row, plan });
+  }
+  const batch = planned.slice(0, Number.isFinite(limit) ? limit : planned.length);
+  if (!batch.length) {
+    if (json) console.log(JSON.stringify({ ok: true, absorbed: 0, refused }, null, 1));
+    else console.log('absorb-duplicates: no absorbable duplicate in this selection');
+    return 0;
+  }
+
+  const assets = corpusRoot();
+  const formationsXml = readText(path.join(assets, 'formations.xml'));
+  const formationsMap = engine.parseFormations(formationsXml);
+  const moves = engine.parseMoves(readText(path.join(assets, 'moves.xml')));
+  const fileText = new Map();
+  const tamCache = new Map();
+  const parsedOf = (rel) => {
+    if (!tamCache.has(rel)) tamCache.set(rel, engine.parseCallXml(textOf(rel)));
+    return tamCache.get(rel);
+  };
+  const textOf = (rel) => {
+    if (!fileText.has(rel)) fileText.set(rel, readText(path.join(assets, rel)));
+    return fileText.get(rel);
+  };
+
+  // ---- plan and PROVE every tam before a byte is written
+  const results = [];
+  const failures = [];
+  let worst = 0;
+  let worstWhere = '';
+  let noChange = 0;
+  for (const { row, plan } of batch) {
+    const e = row.e;
+    const rel = `${e.level}/${e.file}`;
+    // A NAME WITH AN XML-SPECIAL CHARACTER IS REFUSED RATHER THAN ESCAPED: the tree has exactly four escaper
+    // implementations and a gate that counts them (`poc/tools/escape-probe.mjs`), so a fifth here would be the
+    // wrong fix. MEASURED: no formation name in the corpus carries `&`, `<`, `>` or `"`.
+    if (/[&<>"]/.test(plan.name)) { failures.push(`${e.label}: the name "${plan.name}" needs XML escaping, which this tool does not do`); continue; }
+    const tams = parsedOf(rel);
+    const tam = tams[e.tamIndex];
+    if (!tam || tam.title !== e.title) { failures.push(`${e.label}: the parsed tam at that position is not this one`); continue; }
+    const blocks = liveTamBlocks(textOf(rel));
+    if (!blocks[e.tamIndex] || !titlePattern(e.title).test(blocks[e.tamIndex].text)) {
+      failures.push(`${e.label}: the live block at that position does not carry this title`);
+      continue;
+    }
+    const raw = blocks[e.tamIndex].text;
+    const masked = raw.replace(/<!--[\s\S]*?-->/g, (c) => c.replace(/[^\n]/g, ' '));
+    const tag = /^<tam\b[^>]*>/.exec(masked);
+    if (!tag) { failures.push(`${e.label}: the block does not open with a <tam> tag`); continue; }
+    if (/\bformation=/.test(tag[0])) { failures.push(`${e.label}: the tam already carries a formation attribute`); continue; }
+    const inline = /<formation\b[^>]*>[\s\S]*?<\/formation>/.exec(masked);
+    if (!inline) { failures.push(`${e.label}: no inline <formation> block found in the tam`); continue; }
+    const pathMatches = [...masked.matchAll(/<path\b[\s\S]*?<\/path>/g)].map((m) => ({ at: m.index, end: m.index + m[0].length, text: raw.slice(m.index, m.index + m[0].length) }));
+    if (pathMatches.length !== tam.paths.length) {
+      failures.push(`${e.label}: ${pathMatches.length} <path> blocks in the text but ${tam.paths.length} parsed`);
+      continue;
+    }
+    const permuted = engine.permuteBy(tam.paths, plan.plan.permutation);
+    const permutedXml = engine.permuteBy(pathMatches.map((p) => p.text), plan.plan.permutation);
+    const changes = JSON.stringify(permuted.map((p) => p.length)) !== JSON.stringify(tam.paths.map((p) => p.length))
+      || permutedXml.some((x, i) => x !== pathMatches[i].text);
+    if (!changes) noChange++;
+
+    // THE CONVERTED TAM, proved against the corpus as it stands.
+    const after = { ...tam, dancers: [], formationAttr: plan.name, paths: permuted };
+    let beforeCall;
+    let afterCall;
+    try {
+      beforeCall = engine.buildCall(tam, formationsMap, moves, true);
+      afterCall = engine.buildCall(after, formationsMap, moves, true);
+    } catch (err) {
+      failures.push(`${e.label}: ${err.message}`);
+      continue;
+    }
+    const cmp = engine.compareGeometry(beforeCall, afterCall, { tol: 1e-6 });
+    if (!cmp.ok) {
+      failures.push(`${e.label}: the conversion moves a dancer (worst ${cmp.worst.toExponential(2)} at dancer ${cmp.worstDancer}, ${cmp.unmatched} unmatched)`);
+      continue;
+    }
+    if (cmp.worst >= worst) { worst = cmp.worst; worstWhere = e.label; }
+
+    // ---- the block's new text: the tam tag gains the attribute, the inline block goes, the paths permute
+    const edits = [];
+    edits.push({ at: tag[0].length - 1, end: tag[0].length - 1, text: ` formation="${plan.name}"` });
+    // Sweep the whitespace before the block back to the previous non-space, and swallow it only when it holds a
+    // newline - so a block on its own lines leaves no blank line, and a block sharing a line with the tag keeps
+    // the gap that was there.
+    let removeFrom = inline.index;
+    let back = removeFrom - 1;
+    while (back >= 0 && /[\s]/.test(raw[back])) back--;
+    if (raw.slice(back + 1, removeFrom).includes('\n')) removeFrom = back + 1;
+    edits.push({ at: removeFrom, end: inline.index + inline[0].length, text: '' });
+    pathMatches.forEach((p, i) => edits.push({ at: p.at, end: p.end, text: permutedXml[i] }));
+    edits.sort((a, b) => b.at - a.at || b.end - a.end);
+    let next = raw;
+    for (const edit of edits) next = `${next.slice(0, edit.at)}${edit.text}${next.slice(edit.end)}`;
+    if (engine.parseCallXml(`<calls>${next}</calls>`).length !== 1) {
+      failures.push(`${e.label}: the rewritten block does not parse as one tam`);
+      continue;
+    }
+    results.push({ row, plan, rel, tamIndex: e.tamIndex, title: e.title, raw, next, changes });
+  }
+  if (failures.length) {
+    return refuse(`the transform does not hold for every tam, so NOTHING was written:\n    ${failures.join('\n    ')}`);
+  }
+
+  // ---- one pass per file, keyed by the live block's ordinal
+  const perFile = new Map();
+  for (const r of results) {
+    const entry = perFile.get(r.rel) ?? { text: textOf(r.rel), blocks: liveTamBlocks(textOf(r.rel)), replacements: new Map() };
+    entry.replacements.set(r.tamIndex, r.next);
+    perFile.set(r.rel, entry);
+  }
+  const edits = new Map();
+  for (const [rel, { text, blocks, replacements }] of perFile) {
+    const parts = [];
+    let last = 0;
+    for (const [k, block] of blocks.entries()) {
+      parts.push(text.slice(last, block.index));
+      parts.push(replacements.get(k) ?? block.text);
+      last = block.index + block.text.length;
+    }
+    parts.push(text.slice(last));
+    edits.set(rel, { text, next: parts.join('') });
+  }
+  if (write) {
+    for (const [rel, edit] of edits) if (edit.next !== edit.text) fs.writeFileSync(path.join(assets, rel), edit.next, 'utf8');
+    // VERIFY WHAT WAS WRITTEN: re-read, re-parse, rebuild, re-compare - and restore every file on any failure.
+    const broke = [];
+    for (const r of results) {
+      const text = readText(path.join(assets, r.rel));
+      const tam = engine.parseCallXml(text)[r.tamIndex];
+      if (!tam || tam.title !== r.title || tam.dancers.length !== 0 || tam.formationAttr !== r.plan.name) {
+        broke.push(`${r.rel} "${r.title}": the written file no longer parses that tam as a reference to ${r.plan.name}`);
+        continue;
+      }
+      const cmp = engine.compareGeometry(
+        engine.buildCall(parsedOf(r.rel)[r.tamIndex], formationsMap, moves, true),
+        engine.buildCall(tam, formationsMap, moves, true),
+        { tol: 1e-6 },
+      );
+      if (!cmp.ok) broke.push(`${r.rel} "${r.title}": after writing, geometry moves (worst ${cmp.worst.toExponential(2)})`);
+    }
+    if (broke.length) {
+      for (const [rel, edit] of edits) fs.writeFileSync(path.join(assets, rel), edit.text, 'utf8');
+      return refuse(`the written files failed their own check and were RESTORED:\n    ${broke.join('\n    ')}`);
+    }
+  }
+
+  const byFile = new Map();
+  for (const r of results) byFile.set(r.rel, (byFile.get(r.rel) ?? 0) + 1);
+  const report = {
+    ok: true,
+    written: write,
+    absorbed: results.length,
+    files: byFile.size,
+    pathChanged: results.filter((r) => r.changes).length,
+    pathUnchanged: noChange,
+    worst,
+    worstWhere,
+    refused,
+  };
+  if (json) {
+    console.log(JSON.stringify({ ...report, tams: results.map((r) => ({ rel: r.rel, title: r.title, formation: r.plan.name, mode: r.plan.mode, pathChanged: r.changes })) }, null, 1));
+  } else {
+    console.log(`absorb-duplicates: ${results.length} tam(s) in ${byFile.size} file(s); ${report.pathChanged} need a different path order and ${noChange} already read the same under it`);
+    console.log(`verification: every tam built before and after, worst sampled position difference ${worst.toExponential(2)} (limit 1e-6)${worstWhere ? ` at ${worstWhere}` : ''}`);
+    console.log(`refused by the rule: ${refused.length} (reasons in DuplicateFormations.md)`);
+    console.log(write ? 'WRITTEN' : 'dry run - nothing written (pass --write to apply)');
+  }
+  return 0;
+}
+
+/** Refuse with the mode's own voice: JSON when asked, a marked line otherwise, exit 1. */
+function refuse(message) {
+  if (json) console.log(JSON.stringify({ ok: false, reason: message }, null, 1));
+  else console.error(`✗ ${message}`);
+  return 1;
 }
 
 // ---- the old block comes from HEAD, the new one from the working tree

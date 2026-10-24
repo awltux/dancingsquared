@@ -22,13 +22,20 @@
 -->
 <tamination title="Stimulate">
 
-  <tam title="Stimulate" from="Right-Hand Columns" fractions="3;1.5">
-    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
-      <dancer gender="boy" x="1" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="-1" angle="180"/>
-      <dancer gender="boy" x="3" y="1" angle="0"/>
-      <dancer gender="girl" x="1" y="1" angle="0"/>
-    </formation>
+  <tam title="Stimulate" from="Right-Hand Columns" fractions="3;1.5" formation="Columns">
+    <path>
+      <move select="Run Right"/>
+      <move select="Forward" beats="1.5"/>
+      <move select="Hinge Right" beats="2" scaleX=".5"/>
+      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
+      <move select="Hinge Left" beats="2" scaleY="1.5"/>
+    </path>
+    <path>
+      <move select="Forward 2" beats="3"/>
+      <move select="Lead Right"/>
+      <move select="Lead Right" beats="5" scaleX="3" scaleY="4"/>
+      <move select="Forward 2"/>
+    </path>
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Forward" beats="1.5"/>
@@ -42,19 +49,6 @@
       <move select="Hinge Right" beats="2" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Quarter Left" beats="2" hands="left" offsetX="1" offsetY="-.5"/>
-    </path>
-    <path>
-      <move select="Run Right"/>
-      <move select="Forward" beats="1.5"/>
-      <move select="Hinge Right" beats="2" scaleX=".5"/>
-      <move select="Swing Left" scaleX=".5" scaleY=".5"/>
-      <move select="Hinge Left" beats="2" scaleY="1.5"/>
-    </path>
-    <path>
-      <move select="Forward 2" beats="3"/>
-      <move select="Lead Right"/>
-      <move select="Lead Right" beats="5" scaleX="3" scaleY="4"/>
-      <move select="Forward 2"/>
     </path>
   </tam>
 

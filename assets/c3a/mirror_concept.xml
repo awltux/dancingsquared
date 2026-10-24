@@ -180,13 +180,7 @@
 
   <tam title="Mirror Triple Star Thru" group="Mirror"
        from="Double Pass Thru"
-       fractions="3;3" >
-     <formation fid="F3-7i4q346d" aid="A1-28i78rtj">
-      <dancer gender="boy" x="-3" y="1" angle="0"/>
-      <dancer gender="girl" x="-3" y="-1" angle="0"/>
-      <dancer gender="boy" x="-1" y="-1" angle="0"/>
-      <dancer gender="girl" x="-1" y="1" angle="0"/>
-    </formation>
+       fractions="3;3"  formation="Double Pass Thru for Blocks">
     <path>
       <move select="Stand" beats="6" />
       <move select="Extend Right" hands="left" beats="1.5" scaleY=".5" />

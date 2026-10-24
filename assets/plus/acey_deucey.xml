@@ -510,13 +510,7 @@
 
   <tam title="Acey Deucey"
        from="Diamonds 4"
-       fractions="2" difficulty="3">
-    <formation fid="F3-jy6andim" aid="A1-wsr5i58w">
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-      <dancer gender="girl" x="-3" y="-2" angle="270"/>
-      <dancer gender="boy" x="0" y="-1" angle="0"/>
-      <dancer gender="girl" x="3" y="-2" angle="90"/>
-    </formation>
+       fractions="2" difficulty="3" formation="Diamonds Facing Girl Points">
     <path>
       <move select="Swing Right" beats="4" />
     </path>
@@ -534,13 +528,7 @@
 
   <tam title="Acey Deucey"
        from="Diamonds 5"
-       fractions="2" difficulty="3">
-    <formation fid="F3-7kcomvce" aid="A1-hxuqc30g">
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-      <dancer gender="girl" x="-3" y="-2" angle="270"/>
-      <dancer gender="boy" x="0" y="-1" angle="0"/>
-      <dancer gender="girl" x="3" y="-2" angle="270"/>
-    </formation>
+       fractions="2" difficulty="3" formation="Diamonds 3 and 1 Girl Points">
     <path>
       <move select="Swing Right" beats="4" />
     </path>
@@ -584,13 +572,7 @@
 
   <tam title="Acey Deucey"
        from="Diamonds 7"
-       fractions="2" difficulty="3">
-    <formation fid="F3-9xs9oi7o" aid="A1-u5cm923q">
-      <dancer gender="boy" x="0" y="-3" angle="0"/>
-      <dancer gender="girl" x="-3" y="-2" angle="90"/>
-      <dancer gender="boy" x="0" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="-2" angle="270"/>
-    </formation>
+       fractions="2" difficulty="3" formation="Diamonds Facing LH Girl Points">
     <path>
       <move select="Swing Left" beats="4" />
     </path>
@@ -677,13 +659,7 @@
 
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 3"
-       difficulty="3">
-    <formation fid="F3-vlh9cwbw" aid="A1-2exx29mq">
-      <dancer gender="boy" x="0" y="-3" angle="180"/>
-      <dancer gender="girl" x="-3" y="-2" angle="270"/>
-      <dancer gender="boy" x="0" y="-1" angle="180"/>
-      <dancer gender="girl" x="3" y="-2" angle="90"/>
-    </formation>
+       difficulty="3" formation="Diamonds 3 and 1">
     <path>
       <move select="Run Right" beats="4" />
     </path>

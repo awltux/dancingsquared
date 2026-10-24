@@ -309,13 +309,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2">
-    <formation fid="F3-uwwg1rcw" aid="A1-qq6aem6o">
-      <dancer gender="boy" x="-1" y="-3" angle="90"/>
-      <dancer gender="girl" x="0" y="-1" angle="180"/>
-      <dancer gender="boy" x="1" y="-3" angle="270"/>
-      <dancer gender="girl" x="0" y="-5" angle="0"/>
-    </formation>
+  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2" formation="Diamonds Facing PTP">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -332,13 +326,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2">
-    <formation fid="F3-ryle6ork" aid="A1-zxfvsd34">
-      <dancer gender="boy" x="-1" y="-3" angle="270"/>
-      <dancer gender="girl" x="0" y="-1" angle="0"/>
-      <dancer gender="boy" x="1" y="-3" angle="90"/>
-      <dancer gender="girl" x="0" y="-5" angle="180"/>
-    </formation>
+  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2" formation="Diamonds Facing LH PTP">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -355,13 +343,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Point-to-Point Diamonds 3" difficulty="2">
-    <formation fid="F3-ppnzg034" aid="A1-1nknm600">
-      <dancer gender="boy" x="-1" y="-3" angle="90"/>
-      <dancer gender="girl" x="0" y="-1" angle="180"/>
-      <dancer gender="boy" x="1" y="-3" angle="270"/>
-      <dancer gender="girl" x="0" y="-5" angle="180"/>
-    </formation>
+  <tam title="Cut the Diamond" from="Point-to-Point Diamonds 3" difficulty="2" formation="Interlocked Diamonds RH PTP Girl Points">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -402,13 +384,7 @@
   </tam>
 
   <tam title="Cut the Diamond"
-       from="Point-to-Point Diamonds 5" difficulty="2">
-    <formation fid="F3-sw02d9fk" aid="A1-y2ww6o40">
-      <dancer gender="boy" x="-1" y="-3" angle="270"/>
-      <dancer gender="girl" x="0" y="-1" angle="0"/>
-      <dancer gender="boy" x="1" y="-3" angle="90"/>
-      <dancer gender="girl" x="0" y="-5" angle="0"/>
-    </formation>
+       from="Point-to-Point Diamonds 5" difficulty="2" formation="Interlocked Diamonds LH PTP Girl Points">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>

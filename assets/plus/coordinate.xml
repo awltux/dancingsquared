@@ -80,13 +80,7 @@
 
   <tam title="Coordinate"
        from="3 and 1 Lines, Right-Hand Centers"
-       parts="4;2;3" difficulty="3">
-    <formation fid="F3-ptgvautp" aid="A1-37eaagpx">
-      <dancer gender="boy" x="-2" y="3" angle="0"/>
-      <dancer gender="girl" x="-2" y="1" angle="0"/>
-      <dancer gender="boy" x="-2" y="-1" angle="180"/>
-      <dancer gender="girl" x="-2" y="-3" angle="0"/>
-    </formation>
+       parts="4;2;3" difficulty="3" formation="3 and 1 lines #3">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />

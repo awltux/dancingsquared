@@ -26,6 +26,9 @@
 import { utcDay } from './puzzle/daily.ts';
 import { arrangementKey } from './puzzle/arrangement.ts';
 import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
+// WHICH BOARD A RUN IS ON, as a pure rule: the period used to be decided here, over shell state and the clock, so no
+// probe could ask it which board a drill lands on (`puzzle/board-period.ts`).
+import { boardPeriodOf } from './puzzle/board-period.ts';
 import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
@@ -666,23 +669,20 @@ function accountChanged(): void {
 // ------------------------------------------------------------------------------------------------ the board
 
 /**
- * The period the board on screen is for, from the mode and the DRILL IN PLAY — or null when there is none.
+ * The period the board on screen is for — a THIN SHELL around `puzzle/board-period.ts`, which owns the rule.
  *
- * THE TWO BOARDS MEAN DIFFERENT THINGS BY "PERIOD" (§6), and the SERVER takes it from the caller. A Daily board is
- * ONE UTC DAY — the same `utcDay` the challenge is seeded from, which the client can compute because the day IS
- * the challenge. A DRILL board is NOT a calendar month any more (§15 Q17(vii)): it is the PUBLISHED SET the runs
- * land on, and the only place the client can learn which set that is, is the drill the server issued — so it comes
- * from the answer rather than from `seasonOf(Date.now())`, which is what this used to be. That mattered: a drill
- * finished just after a month boundary, or after the publisher replaced a set, used to be ranked on a board its
- * drill did not come from, and a set that was EXTENDED moved the denominator under scores already on it.
+ * THIS FUNCTION'S ONLY JOB IS NAMING ITS TWO INPUTS, and the split is the point: the rule ("a Daily board is the UTC
+ * day, a Drill board is the set the SERVER issued, and null is an answer") is a pure function a probe can drive, and
+ * everything that fed it here is shell state — `mode`, `serverIssued()`, `practiceRun`, and the clock. The rule used to
+ * live in this file whole, and the drill half consulted `seasonOf(Date.now())`, which ranked runs on a board their
+ * drill did not come from (`puzzle/board-period.ts`'s header has the measurement).
  *
- * NULL IS AN ANSWER. With no server drill in play there is no set to name — an offline practice drill is not on any
- * board — and asking for the current month would show an empty board that looks like a real one.
+ * `utcDay(new Date())` IS the daily half's own answer: the day IS the challenge, so the client computing it cannot
+ * disagree with the server. The drill half reads the ISSUED drill's schedule version and nothing else.
  */
 function boardPeriod(): string | null {
-  if (mode === 'daily') return utcDay(new Date());
   const issued = serverIssued() ? serverDrill : null;
-  return issued?.scheduleVersion ?? null;
+  return boardPeriodOf(mode, utcDay(new Date()), issued?.scheduleVersion ?? null);
 }
 
 /**

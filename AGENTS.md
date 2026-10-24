@@ -46,7 +46,6 @@ the NEXT commit is not green standalone — say so in both messages.
 | `game/` | `dancing-squared-game`: `src/puzzle/` is the **pure, seeded core** (ladder, pool, generator, daily, schedule, session, hints, score), `src/game/` the run layer, `src/net/` the ONLY outbound path (probe-loadable: it takes its `fetch` and its storage as arguments). The Vite app (`src/main.ts`, `src/render/`, `src/ui/`, `src/data/`) is the layer that is NOT probe-loadable. **Engine VALUES may be imported** where a pure rule needs one; the **sequencer** is reached only through `src/engine/applier.ts`. | `game/tools/verify-probes.mjs` |
 | `poc/` | Three.js app: sequencer panel, call editor, FSM view, browse view. | `poc/verify.cjs` + `poc/tools/*-probe.mjs` |
 | `poc-teacher/` | Teacher / session tracker app. | `npm run verify:teacher` |
-| `poc-matrix/` | Earlier matrix/graph experiments. | **no gate** |
 | `features/` | Gherkin specs. | `engine/test/bind-audit.mjs` |
 | `modules/`, `sequences/` | The ceder corpus (tracked); `scripts/translate-sequences.mjs` regenerates the first from the second. | yes |
 | `docs/` | The CALLERLAB PDF and downloaded pages — an oracle **outside git**. | **untracked by design** |
@@ -154,7 +153,7 @@ correctness property for an unmeasured speed claim.
 
 **No dead code, no commented-out code, no unused export**, no "in case we need it later" — a rule that exists is a
 rule that is tested; an unused branch is a claim nobody checked. **`strict` is on in every TypeScript package**
-(engine, poc, poc-teacher; `poc-matrix` is plain `.mjs`); keep it clean, and `any` is near-absent in the engine —
+(engine, poc, poc-teacher); keep it clean, and `any` is near-absent in the engine —
 prefer a real type or `unknown` plus a narrowing check. **No new dependency without a reason that survives review**:
 workspace-local, licence-clean, justified in the commit message, with `package-lock.json` in step. **Comments and docs
 must describe what the code does now.** A stale comment is worse than none.

@@ -13,7 +13,6 @@ managed as a single npm workspace.
 | `dancing-squared-stage` | `packages/stage/` | The shared Three.js render stage the apps draw through (`scene.ts`, `grid-magnet.ts`), exported as **source** so both apps render through one implementation rather than two. It has no gate of its own: its consumers' gates are its gate, and the probes that load `grid-magnet.ts` are the closest thing to a unit test it has. |
 | `dancing-squared-game` | `game/` | The call game: a seeded puzzle core, the Drill and the Daily, playable offline and (from Phase 5) account-backed. Its design of record is `game/DESIGN.md`, and it has **its own gate** — see `npm run verify:game` below. |
 | `dancing-squared-api` | `api/` | The game's server: the endpoints of `game/DESIGN.md` §11 as handler functions over injected ports, with a local dev server (port **8090**) and an in-memory store. It is the one component that will talk to AWS. **Its own gate** — `npm run verify:api`. |
-| `dancing-squared-matrix-poc` | `poc-matrix/` | Exploratory: whether a call reads as a matrix transformation of (position, heading). **Not in any gate** — its only script is `poc`. |
 
 The engine is what all the others consume (linked as a workspace), so it is the single source of truth for
 all engine logic; the packages with a gate of their own are `engine/`, `poc/`, `poc-teacher/`, `game/` and `api/`,

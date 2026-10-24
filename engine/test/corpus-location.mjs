@@ -17,7 +17,8 @@
 // code (engine/test, poc/tools 49+, poc-matrix, scripts, poc-teacher, book/tools, poc 1); a second pass with
 // the broader literal rule below found 21 MORE that carried the path only as a `../`-chained call-site literal
 // (`read('../../assets/moves.xml')`), which the construction shapes could not see. The change touched 222
-// files: engine/test 155, poc/tools 55, scripts 3, poc-matrix 3, book/tools 2, poc-teacher 3, game/test 1.
+// files: engine/test 155, poc/tools 55, scripts 3, poc-matrix 3 (since archived — the directory is gone, so it is
+// no longer a ROOT below; the count stands as what that change touched), book/tools 2, poc-teacher 3, game/test 1.
 // It leaves 309 `corpusRoot()` call sites and this list of 12 files that may still spell an `assets`
 // directory. The set is EXACT: it fails when it grows (a new hand-built path) and when it shrinks (a pin that
 // has silently stopped matching is worse than none — §11.2.8).
@@ -87,7 +88,7 @@ const IMPORT_PINNED = new Map([
 ]);
 
 const ROOTS = [
-  'engine/src', 'engine/test', 'poc', 'poc-teacher', 'poc-matrix', 'book/tools', 'book/assets',
+  'engine/src', 'engine/test', 'poc', 'poc-teacher', 'book/tools', 'book/assets',
   'scripts', 'game/src', 'game/test', 'game/tools', 'game/vite.config.ts', 'api', 'packages',
   'features', 'vite.corpus.ts',
 ];

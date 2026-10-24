@@ -192,8 +192,8 @@ const TEXT_FILE = /\.(md|ts|tsx|mjs|js|json|css|html|txt)$/;
  * The files GIT tracks, because these two checks are about the REPO'S TEXT and not about what is on disk.
  *
  * THE WALK IS FILESYSTEM-BASED, which is right for the link checks (a page must resolve against what will be
- * deployed) and wrong for these two: MEASURED, adding the control-character check below turned
- * `poc-matrix/_g.txt` red — 448 bytes of NULs from a run artifact that `.gitignore` lists under "scratch / run
+ * deployed) and wrong for these two: MEASURED, adding the control-character check below turned a run artefact in
+ * the (since archived) `poc-matrix/` red — 448 bytes of NULs from a file `.gitignore` listed under "scratch / run
  * artifacts (not source)" and that git does not track. A gate that reads an ignored artifact reports the
  * DEVELOPER'S DISK rather than the repository, and the failure asks whoever sees it to repair something that is
  * not source and may not exist in a fresh clone. The tracked set is what a clone has.

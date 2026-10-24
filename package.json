@@ -11,8 +11,7 @@
     "game",
     "api",
     "poc",
-    "poc-teacher",
-    "poc-matrix"
+    "poc-teacher"
   ],
   "scripts": {
     "build:engine": "npm run build -w dancing-squared-engine",

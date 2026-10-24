@@ -237,6 +237,16 @@ export const SUITE = [
   // also pins the ONE ACCESSOR (only `packages/corpus` and the two Vite configs import `CORPUS`). ~0.3s:
   // 545 source files read as text, no engine build. The rule and the six shapes it replaces are in its header.
   { h: 'corpus-location', light: true },
+  // HOW MANY WAYS THIS TREE SLICES A `<tam>` BLOCK, and what the one live un-stripped reader teaches. R7 proposed
+  // consolidating "three catalogue builders"; MEASURED, two of the three are `dancing-squared-corpus` projections and
+  // the fourth (`poc-matrix`) is archived - but 39 files still slice by hand and 27 of them cannot be stripping
+  // comments. The one that matters is `poc-teacher/src/catalog.ts`, which builds the teacher's catalogue AND the FSM
+  // asset's input: it pools a second, AUTHORED-NOWHERE authoring for the 8 `Left/Right-Hand Star` titles whose blocks
+  // are commented out in `ms/star.xml` (1068 pooled setups against 1060; 2 matchable variants where the engine should
+  // see 1). Both are NAMED SETS - a new slicer, a file that starts stripping, and a phantom set that grows OR shrinks
+  // are all red - and the third section judges the cheap slice against the engine's own parser on the four files that
+  // carry the 20 commented-out blocks. ~1s: a source walk plus four corpus files.
+  { h: 'tam-readers', light: true },
   // ONE REGISTRY, AND A TOOL THAT SAYS IT IS ONE. Every harness under `engine/test/` is either registered in
   // `suite.mjs` (a gate) or says on line 1 that it is a one-shot diagnostic and names where its answer is
   // recorded (`// TIER: none — one-shot diagnostic; nothing runs it. Recorded: <path>.`). MEASURED at the R2

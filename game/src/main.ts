@@ -2403,6 +2403,22 @@ function startReview(which: 'mine' | 'shortest'): void {
   paintDaily();
   playLine();
 }
+
+/**
+ * THE PANEL'S `Play`, in both modes — and the mode is the only thing the press has to ask.
+ *
+ * ONE BUTTON, TWO MODES (`DESIGN.md` 9): the Drill has exactly one line on its panel, so the press plays it; the Daily
+ * has two, so the press first says WHICH line is on the panel and then plays it. The buttons were both wired to
+ * `startReview`, which begins `if (!daily) return` — so in the DRILL the press did nothing at all. REPORTED: "the
+ * animation of a completed Drill #1 not working. After opening the Today's Daily and returning to the Drill, the
+ * completed drills animation did work" — and that is the same fact seen from the other side: `daily` is only cleared
+ * by a new challenge, so after a visit `startReview` got past its guard and played `panelLine()`, which in drill mode
+ * is the drill's own line. The guard was doing the mode's job by accident.
+ */
+function playPanel(which: 'mine' | 'shortest'): void {
+  if (mode === 'daily') startReview(which);
+  else playLine();
+}
 /** The engine's refusal prose, tidied for a sentence. The string itself is never reworded. */
 function cap(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -2586,8 +2602,8 @@ function main(): void {
   els.waypointNext.addEventListener('click', () => pageWaypoints(1));
   els.hint.addEventListener('click', () => void takeHint());
   els.giveUp.addEventListener('click', giveUpDaily);
-  els.replayMine.addEventListener('click', () => startReview('mine'));
-  els.replayShortest.addEventListener('click', () => startReview('shortest'));
+  els.replayMine.addEventListener('click', () => playPanel('mine'));
+  els.replayShortest.addEventListener('click', () => playPanel('shortest'));
   els.view.addEventListener('click', toggleView);
   els.practice.addEventListener('click', startPractice);
   els.startOver.addEventListener('click', startOver);

@@ -844,3 +844,18 @@ button[data-busy="true"]::after {
   max-height: 9.5em;
   overflow-y: auto;
 }
+
+#replayCalls li.played {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+/* THE CALL BEING PLAYED: a border and a weight as well as a colour, so it survives a colour-vision difference — the same
+   rule the route line's reached waypoints and the hinted call follow. */
+#replayCalls li.now {
+  color: var(--ink);
+  font-weight: 700;
+  border-left: 3px solid var(--accent);
+  margin-left: -0.5em;
+  padding-left: 0.4em;
+}

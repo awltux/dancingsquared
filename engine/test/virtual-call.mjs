@@ -195,40 +195,59 @@ console.log('\n== 2b. A source that authors its formation INLINE — the tag rid
   // `sourceFid` is null there and the `tag !== null` branch above never runs — a check that cannot run is not a
   // check. The inline case is the one `formationTag` on the bundle is FOR: an inline `<formation>` block has no name
   // to look a definition up by, and the placement is the last place the block itself is in hand.
-  const square = seq.boardForFormation('Static Square');
+  //
+  // ONE BOARD IS NOT A SAMPLE, and this cost a red gate to learn: `e872f1e` absorbed the 137 inline blocks that
+  // duplicated a `formations.xml` definition, and from a STATIC SQUARE the inline case then measured **0 of 47** —
+  // the check failed correctly and taught nothing except that the witness had been too narrow. MEASURED over the four
+  // whole-set boards the library names: 233 legal virtual calls, **14 inline-tagged sources**, all of them from
+  // `Ocean Waves` (9) / `Normal Lines` (2) / `Two-Faced Lines` (3) and NONE from a Static Square. So the sweep walks
+  // boards, and prints the split per board.
+  const boards = ['Static Square', 'Ocean Waves', 'Normal Lines', 'Two-Faced Lines']
+    .map((n) => [n, seq.boardForFormation(n)])
+    .filter(([, b]) => b !== null && b !== undefined);
+  check(boards.length === 4, `all four whole-set boards resolve (${boards.map(([n]) => n).join(', ')})`);
   const inline = [];
+  const perBoard = [];
+  let legal = 0;
   let named = 0;
-  for (const title of seq.library.callNames()) {
-    let r;
-    try {
-      r = seq.virtualCall(square, title);
-    } catch {
-      continue;
+  for (const [boardName, board] of boards) {
+    let onThis = 0;
+    for (const title of seq.library.callNames()) {
+      let r;
+      try {
+        r = seq.virtualCall(board, title);
+      } catch {
+        continue;
+      }
+      if (!r.legal) continue;
+      legal++;
+      onThis++;
+      const info = (r.candidates.find((x) => x.kind === 'tiled') ?? r.candidates[0]).bundle.virtual;
+      if (info?.sourceFid) inline.push([boardName, title, info]);
+      else named++;
     }
-    if (!r.legal) continue;
-    const info = (r.candidates.find((x) => x.kind === 'tiled') ?? r.candidates[0]).bundle.virtual;
-    if (info?.sourceFid) inline.push([title, info]);
-    else named++;
+    perBoard.push(`${boardName} ${onThis}`);
   }
+  console.log(`     ${legal} legal virtual calls over ${boards.length} boards (${perBoard.join(', ')})`);
   check(inline.length > 0 && named > 0,
-    `the sweep finds BOTH kinds of source (${inline.length} inline-tagged, ${named} named, of ${inline.length + named} legal virtual calls) — a 0 in either column would measure nothing`);
-  for (const [title, info] of inline) {
+    `the sweep finds BOTH kinds of source (${inline.length} inline-tagged, ${named} named, of ${legal} legal virtual calls) — a 0 in either column would measure nothing`);
+  for (const [boardName, title, info] of inline) {
     // THE SOURCE IS IDENTIFIED BY ITS CONTENT ADDRESS, which is the one thing that says which authoring was placed
     // without trusting the field under test; the TAG that same block carries must then be the fid the id is minted
-    // from. A title can have several inline authorings (`Box the Gnat` has two tags, `F3-rj0qnzj7` and
-    // `F3-xud0oaar`), so the address is how the right one is picked.
+    // from. A title can have several inline authorings (`Box the Gnat` carries both `F3-rj0qnzj7` and `F3-xud0oaar`),
+    // so the address is how the right one is picked.
     const src = seq.library.matchableVariants(title).find((v) => v.formation === null && formationId({ dancers: allPoses(v, 0) }) === info.sourceStart);
     const fid = src?.formationTag?.fid ?? null;
     check(src !== undefined && info.sourceFid === fid,
-      `${title}: sourceFid is the fid STORED on the inline block it was placed from (${info.sourceFid} = ${fid}), not the block's own address`);
+      `${boardName} / ${title}: sourceFid is the fid STORED on the inline block it was placed from (${info.sourceFid} = ${fid}), not the block's own address`);
     check(info.sourceFid !== null && isCallVariantId(callVariantId('ms', title, info.sourceFid)),
-      `${title}: and that fid is what the call-variant id takes, so the parent id is derivable without the source board`);
+      `${boardName} / ${title}: and that fid is what the call-variant id takes, so the parent id is derivable without the source board`);
   }
   // THE TWO FIELDS ARE RECORDED AS EQUAL HERE, because they are: a tag minted from a CURRENT geometry IS that
   // geometry's content address, and they part company only when a correction re-mints the address (which is why the
   // id is minted from the tag). Printing it keeps the next reader from "simplifying" the pair into one field — the
   // witness that would show them differing is a corrected formation, and this corpus has none.
-  const same = inline.filter(([, info]) => info.sourceFid === info.sourceStart).length;
+  const same = inline.filter(([, , info]) => info.sourceFid === info.sourceStart).length;
   console.log(`     ${same} of ${inline.length} inline witnesses carry a tag EQUAL to their content address — the difference appears only after a geometry correction`);
 }
 

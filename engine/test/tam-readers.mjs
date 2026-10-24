@@ -1,4 +1,4 @@
-// HOW MANY WAYS THIS TREE SLICES A `<tam>` BLOCK, and the cost of the one that does not strip comments.
+// HOW MANY WAYS THIS TREE SLICES A `<tam>` BLOCK, and that the one live reader now goes through the corpus package.
 //
 // WHY THIS IS A GATE. R7 was proposed as "catalogue construction is three live builders" and went looking for a
 // consolidation. The claim was wrong in BOTH directions, and the measurements below are what settled it:
@@ -7,24 +7,28 @@
 //     `book/tools/lib/load.mjs` import `dancing-squared-corpus` (`titlesOf`/`pooledXmlOfTitle`/`tamsOf`); they are
 //     POLICY over one reader - the level list, the pooling order, the hidden rule - and both say so in their headers.
 //   * Its fourth, `poc-matrix/`, was archived in R5 and is not in the tree.
-//   * But the corpus is still sliced by hand in ~25 places, and the corpus package's own header records what an
+//   * But the corpus was still sliced by hand in ~40 places, and the corpus package's own header records what an
 //     UN-STRIPPED slice costs: 2203 titles by the raw scan against 2191 by the engine's parser, the 12 differing
 //     blocks existing only inside `<!-- -->`, and the book pairing a raw index with a DOM parse in those files.
 //
-// THE ONE THAT IS NOT A HARNESS. Almost every raw scan below is probe-local: a probe reads one file it chose and counts
-// or compares its blocks. `poc-teacher/src/catalog.ts::buildCatalog` is different - it builds the catalogue the TEACHER
-// APP teaches from and the catalogue `scripts/build-fsm-asset.mjs` turns into `assets/fsm-ms.json` - and it does not
-// strip comments, so 8 titles pool a second, AUTHORED-NOWHERE authoring from the blocks that are commented out in
-// `ms/star.xml`. MEASURED: 1068 pooled setups against the corpus package's 1060 under the same hidden rule, and the
-// engine offers 2 matchable variants instead of 1 for each of the 8. `poc-teacher/scripts/gen-discovered.mjs` carries
-// the same raw slice a second time; it is a one-shot generator whose output is committed corpus, so it is NAMED here
-// and left alone (converting it without regenerating `assets/discovered/*.xml` would leave a generator whose committed
-// output it no longer produces).
+// THE READER THAT WAS NOT A HARNESS, AND IS FIXED. Almost every remaining raw scan is probe-local: a probe reads one
+// file it chose and counts or compares its blocks. `poc-teacher/src/catalog.ts::buildCatalog` was different - it
+// builds the catalogue the TEACHER APP teaches from and the catalogue `scripts/build-fsm-asset.mjs` turns into
+// `assets/fsm-ms.json` - and it sliced without stripping comments, so 8 titles pooled a second, AUTHORED-NOWHERE
+// authoring from the blocks commented out in `ms/star.xml`. MEASURED then: 1068 pooled setups against the corpus
+// package's 1060 under the same hidden rule, and 2 matchable variants where the engine should see 1 for each of the
+// eight `Left/Right-Hand Star` titles. THE FIX: the slice moved to `packages/corpus/blocks.ts` (fs-free, so the app may
+// import it) and `buildCatalog` projects over it - 1060 setups, one variant each - which emptied section 2's named set
+// and took `catalog.ts` out of section 1's no-strip list. The empty set is the point: it fails again if a phantom comes
+// back.
 //
-// THE PINS ARE NAMED SETS, not counts of counts: the census fails when a file appears or disappears, when a file's
-// class flips between `strips` and `raw`, and when the phantom set shrinks OR grows. That is what makes it a gate
-// rather than a paragraph - and when the teacher's reader is consolidated onto the corpus package, the entry leaves
-// the list in the same commit that removes it.
+// STILL NAMED AND STILL SLICING, deliberately: `poc-teacher/scripts/gen-discovered.mjs` is a one-shot generator whose
+// output is committed corpus, so converting it without regenerating `assets/discovered/*.xml` would leave a generator
+// whose committed output it no longer produces - its own migration.
+//
+// THE PINS ARE NAMED SETS, not counts of counts: the census fails when a file appears or disappears, when a file
+// starts or stops stripping comments, and when the phantom set shrinks OR grows. That is what makes it a gate rather
+// than a paragraph - and the records above are what the set change means.
 //
 // WHAT IT DOES NOT JUDGE. Whether a probe-local raw scan is a defect is a per-harness question (`engine/test/
 // tools/*` build XML of their own, and `scripts/tam-blocks.mjs` slices a POSITION-PRESERVING MASK on purpose). This
@@ -131,9 +135,10 @@ console.log('== 1. Every place that slices `<tam>` by hand, and whether it strip
     'engine/test/tools/scircle-probe.mjs',
     'engine/test/tools/scircle-shift-probe.mjs',
     'engine/test/tools/trade-whole-set-record-probe.mjs',
-    'packages/corpus/index.ts',
+    // THE ONE READER. It slices `<tam>` for every caller, and it strips comments first; `index.ts` no longer slices at
+    // all, which is why it left this list in the commit that made the block read pure.
+    'packages/corpus/blocks.ts',
     'poc-teacher/scripts/gen-discovered.mjs',
-    'poc-teacher/src/catalog.ts',
     'poc/src/data.ts',
     'poc/src/editor-ui.ts',
     'poc/tools/arm-turn-probe.mjs',
@@ -170,7 +175,6 @@ console.log('== 1. Every place that slices `<tam>` by hand, and whether it strip
     'engine/test/tools/rlt-probe.mjs',
     'engine/test/tools/trade-whole-set-record-probe.mjs',
     'poc-teacher/scripts/gen-discovered.mjs',
-    'poc-teacher/src/catalog.ts',
     'poc/src/editor-ui.ts',
     'poc/tools/arm-turn-probe.mjs',
     'poc/tools/clone-refusal-probe.mjs',
@@ -213,31 +217,24 @@ console.log('\n== 2. What the teacher\'s un-stripped reader teaches that the cor
   check(onlyTeacher.length === 0,
     `the teacher invents no TITLE the corpus does not have (${onlyTeacher.length}: ${onlyTeacher.join(', ') || 'none'})`);
 
-  // THE NAMED SET: titles whose pooled block count is bigger in the teacher's read, i.e. the ones carrying an
-  // authoring that exists only inside a comment. Fails when it SHRINKS (a fix that was not recorded) or GROWS (a new
-  // commented tam starting to be taught).
+  // THE NAMED SET, AND IT IS NOW EMPTY ON PURPOSE. It held the eight `Left/Right-Hand Star` titles while the teacher's
+  // reader sliced the raw text; the shared reader empties it, and an EMPTY set is the strongest form of the pin here:
+  // one phantom authoring reappearing fails. It fails symmetrically too - a title that stops matching means the two
+  // readers stopped agreeing about a title, which is the direction a merge would produce.
   const phantom = [...teacher.entries()]
     .filter(([title, n]) => n !== (corpus.get(title) ?? 0))
     .map(([title, n]) => `${title} ${n - (corpus.get(title) ?? 0)}`)
     .sort();
-  const EXPECTED_PHANTOM = [
-    'Left-Hand Star 1/2 1',
-    'Left-Hand Star 1/4 1',
-    'Left-Hand Star 3/4 1',
-    'Left-Hand Star a Full Turn 1',
-    'Right-Hand Star 1/2 1',
-    'Right-Hand Star 1/4 1',
-    'Right-Hand Star 3/4 1',
-    'Right-Hand Star a Full Turn 1',
-  ];
+  const EXPECTED_PHANTOM = [];
   check(JSON.stringify(phantom) === JSON.stringify(EXPECTED_PHANTOM),
-    `the titles carrying a COMMENTED-OUT authoring are exactly the ${EXPECTED_PHANTOM.length} pinned ones (found ${phantom.length}: ${phantom.slice(0, 3).join(', ')}${phantom.length > 3 ? ', ...' : ''})`);
-  // AND THE SOURCE OF THE DIFFERENCE IS NAMED, so a reader can go and look: the blocks are commented out in one file.
+    `no title carries a COMMENTED-OUT authoring: the two readers agree title for title (${phantom.length} disagree${phantom.length ? ': ' + phantom.join(', ') : ''})`);
+  // AND THE SOURCE OF THE DIFFERENCE IS STILL NAMED, so a reader can see WHERE the phantom used to come from and that the
+  // file has not changed: the strips happen in the reader now, not in the file.
   const star = readFile(level, 'star.xml');
   const rawBlocks = (star.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []).length;
   const strippedBlocks = (star.replace(/<!--[\s\S]*?-->/g, '').match(/<tam\b[\s\S]*?<\/tam>/g) ?? []).length;
   check(rawBlocks - strippedBlocks === 16,
-    `\`ms/star.xml\` carries ${rawBlocks - strippedBlocks} tam blocks inside comments (${rawBlocks} by a raw scan, ${strippedBlocks} after stripping) - the file the 8 phantoms come from`);
+    `\`ms/star.xml\` still carries ${rawBlocks - strippedBlocks} tam blocks inside comments (${rawBlocks} by a raw scan, ${strippedBlocks} after stripping) - the file the 8 phantoms came from, and the reader ignores them`);
 }
 
 // ---------------------------------------------------------------- 3. the judge: the engine's own parser

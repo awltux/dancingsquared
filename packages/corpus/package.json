@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "The corpus read from disk: the ONE enumerator of its call files, tam sites and titles, the one place the generated-instance suffix lives, shared by the engine harnesses, the book tools, the teacher's build scripts, the two Vite apps and the game's node loader.",
+  "description": "The corpus read from disk: the ONE enumerator of its call files, tam sites and titles, the one place the generated-instance suffix lives, and the one `<tam>` slice (`./blocks`, fs-free so a browser may import it), shared by the engine harnesses, the book tools, the teacher's app and build scripts, the two Vite apps and the game's node loader.",
   "exports": {
     ".": {
       "types": "./index.ts",
       "import": "./index.ts"
+    },
+    "./blocks": {
+      "types": "./blocks.ts",
+      "import": "./blocks.ts"
     },
     "./files": {
       "types": "./files.ts",

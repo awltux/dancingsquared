@@ -40,6 +40,11 @@
 // rule (`display="no"` filtering is the teacher's), and the engine-coupled title algebra (`implementedTitles`
 // unions `CODED_MOVES` aliases and stays with the engine's tests). It also has NO ENGINE DEPENDENCY: it reads bytes.
 import { filesOf, readFile } from './files.ts';
+// THE BLOCK READ, FROM ITS OWN MODULE. The slice moved to `blocks.ts` so a caller that already HAS the bytes - the
+// teacher's Vite glob, a fixture, a tool that read the file itself - uses the one implementation without being able to
+// reach the filesystem. `./blocks` is therefore a package export a BROWSER may import; this entry is the Node one.
+import { tamSitesOf } from './blocks.ts';
+import type { TamSite } from './blocks.ts';
 
 // The path half is re-exported from the root entry so a caller needs ONE specifier; `./files` stays available for
 // the callers that only want bytes (the teacher's build script, the game's whole-file loader).
@@ -49,70 +54,25 @@ export { corpusRoot, filesOf, levelPath, levelsAvailable, readFile, virtualFiles
 // FROM `dancing-squared-corpus/virtual` INSTEAD: this entry pulls in `files.ts`, which reads the filesystem.
 export { VIRTUAL_SUFFIX, isVirtualFile } from './virtual.ts';
 
-/** One `<tam>` in the corpus: its identity, its position, and its own text. */
-export interface TamSite {
-  /**
-   * The DECODED title — the identity a caller matches on, spelled as `CALL_TITLE` and `callMeta` spell it. The RAW
-   * spelling is on `attrs.title` for the one caller that needs it: the book's `tam_xml_queries` compare against the
-   * file's attributes as written.
-   */
-  title: string;
-  /** The index `loadCallFromXml(xml, moves, formations, index)` and `parseCallXml(xml)[index]` address. */
-  index: number;
-  /** The `<tam>…</tam>` block, exactly as the file spells it (comments inside the block are the one loss). */
-  xml: string;
-  /** The block's opening-tag attributes, RAW (undecoded). */
-  attrs: Readonly<Record<string, string>>;
-  level: string;
-  file: string;
-}
-
-/** Strip XML comments, leaving everything else byte for byte. */
-export function stripComments(xml: string): string {
-  return xml.replace(/<!--[\s\S]*?-->/g, '');
-}
-
-/** The five XML entities the corpus uses, decoded. `&amp;` LAST, so `&amp;quot;` does not become a quote. */
-export function decodeEntities(text: string): string {
-  return text
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, '&');
-}
-
-/** A `<tam>` block's opening-tag attributes, as written (entities NOT decoded). */
-export function tamAttrs(block: string): Record<string, string> {
-  const end = block.indexOf('>');
-  const open = end >= 0 ? block.slice(0, end + 1) : block;
-  const attrs: Record<string, string> = {};
-  for (const m of open.matchAll(/([A-Za-z_:][-A-Za-z0-9_:.]*)\s*=\s*"([^"]*)"/g)) attrs[m[1]] = m[2];
-  return attrs;
-}
+// And the block read, re-exported here so a Node caller keeps ONE specifier for the corpus (the teacher imports
+// `dancing-squared-corpus/blocks` directly, because it must not reach this file).
+export { decodeEntities, stripComments, tamAttrs, tamSitesOf, taminationTitle } from './blocks.ts';
+export type { TamSite } from './blocks.ts';
 
 const siteCache = new Map<string, TamSite[]>();
 
 /**
  * Every `<tam>` site of one level's file, in the file's own order — comments excluded, so the index is the same
  * one the engine's parser produces (proven per file by `engine/test/corpus-inventory.mjs`).
+ *
+ * THE READ IS `blocks.ts`'s, and this is only the cache plus the filename: the split is what lets the teacher's
+ * catalogue be built from the same slice it was built from by hand, without the teacher being able to read the disk.
  */
 export function tamsOf(level: string, file: string): TamSite[] {
   const key = `${level}/${file}`;
   const cached = siteCache.get(key);
   if (cached) return cached;
-  const blocks = stripComments(readFile(level, file)).match(/<tam\b[\s\S]*?<\/tam>/g) ?? [];
-  const sites = blocks.map((block, index) => {
-    const attrs = tamAttrs(block);
-    return {
-      title: decodeEntities(attrs.title ?? ''),
-      index,
-      xml: block,
-      attrs,
-      level,
-      file,
-    };
-  });
+  const sites = tamSitesOf(level, file, readFile(level, file));
   siteCache.set(key, sites);
   return sites;
 }

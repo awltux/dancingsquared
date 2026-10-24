@@ -24,7 +24,7 @@
 
   <tam title="Switch to an Interlocked Diamond"
        from="Right-Hand Waves">
-     <formation>
+     <formation fid="F3-4ablgjmv" aid="A1-gamazakz">
       <dancer gender="girl" x="3" y="2" angle="270"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="boy" x="-1" y="2" angle="270"/>

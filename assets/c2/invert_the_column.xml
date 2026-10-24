@@ -82,7 +82,7 @@
 
 
   <tam title="Columns of 3 Invert the Column" fractions="4;3" group=" ">
-    <formation>
+    <formation fid="F3-i7qs3ybp" aid="A1-irio3cyj">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="boy" x="2" y="1" angle="0"/>
@@ -114,7 +114,7 @@
 
   <tam title="Magic Column Invert the Column"
        fractions="5;3;4" group=" ">
-    <formation>
+    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>
@@ -149,7 +149,7 @@
 
   <tam title="Magic Column Invert the Column"
        fractions="5;3;4" group=" " display="no">
-    <formation>
+    <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-1" angle="180"/>

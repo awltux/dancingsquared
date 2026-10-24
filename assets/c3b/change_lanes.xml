@@ -119,7 +119,7 @@
   </tam>
 
   <tam title="Change Lanes" from="Columns">
-    <formation>
+    <formation fid="F3-2ezs6w63" aid="A1-mde26cxd">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="1" angle="180"/>

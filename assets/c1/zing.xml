@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Zing" from="T-Bone 1">
-    <formation>
+    <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
     </formation>
@@ -60,7 +60,7 @@
   </tam>
 
   <tam title="Zing" from="T-Bone 2">
-    <formation>
+    <formation fid="F3-7b4wxvs2" aid="A1-rvj9jslu">
       <dancer gender="boy" x="1" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>
     </formation>

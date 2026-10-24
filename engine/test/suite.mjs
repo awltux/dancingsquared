@@ -152,6 +152,14 @@ export const SUITE = [
   // run beside it, and that the arrangement canonicalisation is the formation one plus a suffix - which is what
   // keeps them one mechanism. Milliseconds: synthetic boards only.
   { h: 'arrangement-id', light: true },
+  // EVERY FORMATION DEFINITION CARRIES ITS `fid` AND `aid`, and the duplicate table equals a fresh render. A tag is
+  // a stored REFERENCE, so this is the gate that keeps the corpus's own bytes the reference set: all 292 named
+  // definitions and all 773 inline blocks tagged and well formed, no duplicate name, a reconstituted half that
+  // never puts two dancers on one spot, `aid -> fid` single-valued, every tag rooted by a geometry the corpus
+  // actually computes, and every INHERITED tag justified by a rotation (not a reflection) to the definition that
+  // roots it. Not vacuous: it also runs the same analysis over a copy of the model with two tags removed and
+  // requires both to be named. 5 s: parses the corpus, builds nothing.
+  { h: 'formation-tags', light: true },
   // The three identities over the whole corpus: 198 shapes, 242 arrangements, 1,730 variants (38 authored more
   // than once), every start shape covered by the roots ledger, and NO two variants minting one id. This is the
   // only place the key space exists as a whole, so it is the only place a collision could be seen.

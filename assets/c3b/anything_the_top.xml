@@ -82,7 +82,7 @@
   </tam>
 
   <tam title="Tag the Top" group=" " fractions="4.5">
-    <formation>
+    <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="-3" angle="180"/>

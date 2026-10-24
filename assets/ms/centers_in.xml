@@ -60,7 +60,7 @@
 
   <tam title="Centers In" display="none"
        from="Outer Right-Hand Mini-Wave">
-    <formation>
+    <formation fid="F3-b49o2w1f" aid="A1-7mbzn6n5">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -82,7 +82,7 @@
 
   <tam title="Centers In" display="none"
        from="Outer Left-Hand Mini-Wave">
-    <formation>
+    <formation fid="F3-2cg7ruit" aid="A1-yxteglwt">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>

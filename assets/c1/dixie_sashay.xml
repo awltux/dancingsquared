@@ -23,7 +23,7 @@
 <tamination title="Dixie Sashay">
 
   <tam title="Dixie Sashay" from="Facing Couples">
-    <formation>
+    <formation fid="F3-4ro3p815" aid="A1-yl2mr1qt">
       <dancer gender="boy" x="1" y="1.5" angle="270"/>
       <dancer gender="girl" x="-1" y="1.5" angle="270"/>
     </formation>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Dixie Sashay" from="Facing Couples Close" display="no">
-    <formation>
+    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
     </formation>

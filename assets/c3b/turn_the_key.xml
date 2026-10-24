@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="Turn the Key" from="3 and 1 Lines #1" parts="3;5">
-    <formation>
+    <formation fid="F3-9ud8qqgd" aid="A1-o8r993ih">
       <dancer gender="boy" x="2" y="1" angle="180"/>
       <dancer gender="girl" x="2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="3" angle="180"/>

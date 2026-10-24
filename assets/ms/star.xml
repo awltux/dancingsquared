@@ -236,7 +236,7 @@
   </tam>
 
   <tam title="Turn the Stars" from="Facing Stars 1" display="no">
-    <formation>
+    <formation fid="F3-cx47e3ho" aid="A1-155xw122">
       <dancer gender="boy" x="3" y="0" angle="90"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="boy" x="-1" y="0" angle="90"/>
@@ -261,7 +261,7 @@
   </tam>
 
   <tam title="Turn the Stars" from="Facing Stars 2" display="no">
-    <formation>
+    <formation fid="F3-seu8qfzg" aid="A1-mzlav5qy">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
       <dancer gender="boy" x="-1" y="0" angle="270"/>

@@ -102,7 +102,7 @@
   </tam>
 
   <tam title="Couples Twosome Single Wheel" group="Couples Twosome">
-    <formation>
+    <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -204,7 +204,7 @@
   </tam>
 
   <tam title="Tandem Twosome Single Wheel" group="Tandem Twosome">
-    <formation>
+    <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -246,7 +246,7 @@
 
   <tam title="Tandem, Tandem Twosome Touch a Quarter"
        group="Tandem, Tandem Twosome">
-    <formation>
+    <formation fid="F3-l1ba2e7i" aid="A1-vodgzo6q">
       <dancer gender="girl" x=".8" y="0" angle="180"/>
       <dancer gender="boy" x="3.6" y="0" angle="180"/>
       <dancer gender="girl" x="2.2" y="0" angle="180"/>

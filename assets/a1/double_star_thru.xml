@@ -108,7 +108,7 @@
   <tam title="Triple Star Thru"
        from="Double Pass Thru"
        parts="3;3" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-7i4q346d" aid="A1-4mhq1h73">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>
@@ -145,7 +145,7 @@
   <tam title="Triple Star Thru"
        from="Eight Chain Thru"
        parts="3;3" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>

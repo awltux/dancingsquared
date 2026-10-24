@@ -24,7 +24,7 @@
 
   <tam title="Chisel Thru"
        from="Normal Lines" parts="5;2.5">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-mib7zc39">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
       <dancer gender="boy" x="-1" y="2" angle="270"/>

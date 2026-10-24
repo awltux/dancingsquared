@@ -24,7 +24,7 @@
 
   <tam title="Zip Code 6" from="Double Pass Thru"
        fractions="5;2;4;2;4">
-    <formation>
+    <formation fid="F3-7i4q346d" aid="A1-v1s9nkeh">
       <dancer gender="boy" y="3" x="1" angle="270" />
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="1" angle="270" />

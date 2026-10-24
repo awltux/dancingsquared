@@ -193,7 +193,7 @@
 
   <tam title="Cut the Diamond" from="Right-Hand Wave, Points Facing In"
        difficulty="2">
-    <formation>
+    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -218,7 +218,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Left-Hand Wave, Points Facing Out" difficulty="2">
-    <formation>
+    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -243,7 +243,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Left-Hand Wave, Points Facing In" difficulty="2">
-    <formation>
+    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -310,7 +310,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2">
-    <formation>
+    <formation fid="F3-uwwg1rcw" aid="A1-qq6aem6o">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -333,7 +333,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2">
-    <formation>
+    <formation fid="F3-ryle6ork" aid="A1-zxfvsd34">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -356,7 +356,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Point-to-Point Diamonds 3" difficulty="2">
-    <formation>
+    <formation fid="F3-ppnzg034" aid="A1-1nknm600">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -379,7 +379,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Point-to-Point Diamonds 4" difficulty="2">
-    <formation>
+    <formation fid="F3-x0vy384g" aid="A1-9wda6y80">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -403,7 +403,7 @@
 
   <tam title="Cut the Diamond"
        from="Point-to-Point Diamonds 5" difficulty="2">
-    <formation>
+    <formation fid="F3-sw02d9fk" aid="A1-y2ww6o40">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -427,7 +427,7 @@
 
   <tam title="Cut the Diamond"
        from="Point-to-Point Diamonds 6" difficulty="2">
-    <formation>
+    <formation fid="F3-8ogv2tf4" aid="A1-9qhj5pzk">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>

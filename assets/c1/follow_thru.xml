@@ -83,7 +83,7 @@
   </tam>
 
   <tam title="Follow Thru" from="Single T-Bone">
-    <formation>
+    <formation fid="F3-vem78m16" aid="A1-vabff0x0">
       <dancer gender="boy" x="-1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="0"/>
     </formation>

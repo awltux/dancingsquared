@@ -23,7 +23,7 @@
 <tamination title="Strip the Diamond / Hourglass">
 
   <tam title="Strip the Diamond" from="Right-Hand Diamonds">
-    <formation>
+    <formation fid="F3-va6q5tqm" aid="A1-enpkglk4">
       <dancer gender="girl" y="0" x="-3" angle="90"/>
       <dancer gender="boy" y="3" x="-2" angle="0"/>
       <dancer gender="girl" y="0" x="-1" angle="270"/>

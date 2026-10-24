@@ -191,7 +191,7 @@
   </tam>
 
   <tam title="Change Your Image" from="T-Bones" fractions="3">
-    <formation>
+    <formation fid="F3-o9tliph3" aid="A1-k888hctz">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>

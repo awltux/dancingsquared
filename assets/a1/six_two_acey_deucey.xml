@@ -127,7 +127,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Wave and Mini-Waves, Right-Handed">
-     <formation>
+     <formation fid="F3-1v115cf0" aid="A1-jno3xgk0">
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
       <dancer gender="boy" x="3" y="-1" angle="180"/>
@@ -149,7 +149,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Wave and Mini-Waves, Left-Handed">
-     <formation>
+     <formation fid="F3-tjy15pec" aid="A1-sldj5tdc">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>
       <dancer gender="boy" x="3" y="-1" angle="0"/>
@@ -171,7 +171,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Two-Faced Line and Mini-Waves, Right-Handed" display="none">
-    <formation>
+    <formation fid="F3-idvq1344" aid="A1-hobetvok">
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
       <dancer gender="boy" x="3" y="-1" angle="180"/>
@@ -193,7 +193,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Two-Faced Line and Mini-Waves, Left-Handed" display="none">
-    <formation>
+    <formation fid="F3-w1f29bwo" aid="A1-fg4y16ao">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>
       <dancer gender="boy" x="3" y="-1" angle="0"/>

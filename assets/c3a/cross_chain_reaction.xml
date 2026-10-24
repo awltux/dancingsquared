@@ -156,7 +156,7 @@
   <tam title="Cross Chain Reaction"
        from="Mixed Quarter Waves, Centers Right-Handed"
        fractions="5;3" >
-    <formation>
+    <formation fid="F3-349dzyd8" aid="A1-uoe4xxas">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
@@ -194,7 +194,7 @@
   <tam title="Cross Chain Reaction"
        from="Mixed Quarter Waves, Centers Left-Handed"
        fractions="5;3">
-    <formation>
+    <formation fid="F3-lgl8fetg" aid="A1-rt9mpbp8">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-3" angle="0"/>
@@ -229,7 +229,7 @@
 
   <tam title="Cross Chain Reaction" from="Right-Hand Two-Faced Line between Mini-Waves"
        fractions="5;3">
-     <formation>
+     <formation fid="F3-idvq1344" aid="A1-dzij8kds">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="1" angle="0"/>
@@ -266,7 +266,7 @@
 
   <tam title="Cross Chain Reaction" from="Left-Hand Two-Faced Line between Mini-Waves"
        fractions="5;3">
-     <formation>
+     <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="1" angle="180"/>

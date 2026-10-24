@@ -244,6 +244,40 @@ function resolvePath(
 
 type DancerBase = { gender: Gender; x: number; y: number; angleDeg: number };
 
+/**
+ * A DEFINITION'S TAGS: the formation id and the arrangement id written on the definition itself.
+ *
+ * WHY THEY ARE ATTRIBUTES AND NOT A LEDGER. A formation id is a content address, so a geometry edit mints a new
+ * one, and a REFERENCE that has to survive such an edit cannot be the content address. The answer used to be
+ * `assets/formation-roots.json` plus a hand-written alias file; the answer now is that the reference is STORED
+ * on the definition (`fid`/`aid`) and is therefore authoritative by construction - a geometry edit leaves it
+ * alone and there is nothing to alias.
+ *
+ * READ, NEVER VERIFIED, HERE. This is a byte reader like `parseFormations`: whether the tags are present, well
+ * formed and consistent is `test/formation-tags.mjs`'s question, and the parser must not pre-empt it with a
+ * throw - a corpus mid-tagging has to stay readable so the tagger can report what is missing.
+ */
+export interface FormationTag {
+  fid: string | null;
+  aid: string | null;
+}
+
+/** The tags an element carries, or nulls when it carries none. Shared by both definition sites. */
+function tagOf(el: { getAttribute(name: string): string | null }): FormationTag {
+  return { fid: el.getAttribute('fid'), aid: el.getAttribute('aid') };
+}
+
+function parseFormationTagsImpl(xmlText: string): Map<string, FormationTag> {
+  const doc = parseXML(xmlText);
+  const map = new Map<string, FormationTag>();
+  for (const f of byTag(doc, 'formation')) {
+    const name = f.getAttribute('name');
+    if (!name) continue;
+    map.set(name, tagOf(f));
+  }
+  return map;
+}
+
 function parseFormationsImpl(xmlText: string): Map<string, DancerBase[]> {
   const doc = parseXML(xmlText);
   const map = new Map<string, DancerBase[]>();
@@ -292,6 +326,16 @@ export interface TamRaw {
   // reference, and the measurement: the declaration and the geometric guess agree on every shipped tam
   // but one. CARRIED, NOT YET ACTED ON: `buildCallImpl` still completes by geometry (`hasAntipode`).
   symmetry: Symmetry;
+  /**
+   * The TAGS on this tam's INLINE `<formation>`, or nulls when it has none (which is also every tam that
+   * starts from a named formation - that reference carries no tags; the definition it names does).
+   *
+   * Carried rather than looked up because the inline block IS a formation definition: it writes half a set,
+   * `reconstituteWholeSet` supplies the other half, and the tags are that definition's stored identity. A
+   * consumer that wants to say which setup an authoring starts from has nothing else to hold - an inline block
+   * has no name.
+   */
+  formationTag: FormationTag;
 }
 
 /** Parse the `sequencer` attribute, keeping every value Taminations defines. */
@@ -342,6 +386,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       sequencerMode: parseSequencerMode(tam.getAttribute('sequencer')),
       actives: tam.getAttribute('actives'),
       symmetry: parseSymmetry(tam.getAttribute('asymmetric')),
+      formationTag: inline ? tagOf(inline) : { fid: null, aid: null },
     });
   }
   return tams;
@@ -352,13 +397,14 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
 // Mirroring is auto-applied only when it is unambiguous: it is skipped when a
 // dancer's 180-degree partner already exists in the formation (e.g. a full
 // Squared Set or an on-axis wave/column).
-const MIRROR_EPS = 0.01;
+/** How close two spots must be, in units, for a duplicate to be "already there". */
+export const MIRROR_EPS = 0.01;
 
 /** Anything placed on the floor: both the formation registry's dancers and a tam's own carry these. */
-type PlacedDancer = { x: number; y: number; angleDeg: number; mirror?: boolean };
+export type PlacedDancer = { x: number; y: number; angleDeg: number; mirror?: boolean };
 
 /** Whether a set already CONTAINS its own 180-degree partners, and so is already whole. */
-function hasAntipode(dancers: PlacedDancer[]): boolean {
+export function hasAntipode(dancers: readonly PlacedDancer[]): boolean {
   for (const d of dancers) {
     for (const e of dancers) {
       if (d === e) continue;
@@ -374,16 +420,24 @@ function mirrorToFull(dancers: DancerSpec[]): DancerSpec[] {
 }
 
 /**
- * A formation's dancers as the FULL set, with the duplicated half PLACED rather than flagged.
+ * THE RECONSTITUTION RULE, WRITTEN ONCE: a formation definition writes HALF the set, and the whole is
+ * the written dancers plus the same dancers rotated 180 degrees about the origin - `(x, y, angle)` ->
+ * `(-x, -y, angle + 180)`. The duplication is SKIPPED when the written shape already contains a dancer at
+ * every dancer's antipode, because then the two would land on one spot (a Squared Set, an on-axis wave, or
+ * a definition that is already whole at a size other than eight).
  *
- * `mirrorToFull` marks the duplicate half instead of moving it: the duplicate keeps the base's `(x, y)` and
- * `poseFor` negates the pose when it reads it. That is right while ONE path is replayed for both halves, and
- * wrong the moment each dancer has its OWN path - which is exactly what a full set of paths means - because the
- * negation would then be applied on top of a start that was already placed. So this puts the duplicate where
- * `poseFor` would have put it and clears the flag.
+ * WHY IT IS EXPORTED. It is what gives a formation definition the geometry the ids are taken over, so the
+ * tagger (`scripts/tag-formations.mjs`) and the gate (`test/formation-tags.mjs`) must ask it rather than
+ * restate it - a restated copy is one edit away from tagging a geometry the engine never builds (AGENTS §5).
+ *
+ * IT PLACES THE DUPLICATE. `mirrorToFull` is the SAME rule in the bundle's representation - it keeps the
+ * base coordinates and sets `mirror: true`, which `poseFor` negates, because one path is then replayed for
+ * both halves. The tag must be a content address of an actual board, and a board's poses are placed, so a
+ * caller computing an id uses this form. MEASURED: `allPoses(bundle, 0)` and this agree, which is why the
+ * ledger's own census (`test/tools/formation-roots.mjs`) minted the same 198 ids this scheme writes down.
  */
-function materialiseFull<T extends PlacedDancer>(dancers: T[]): T[] {
-  if (hasAntipode(dancers)) return dancers; // already a whole set: nothing to place
+export function reconstituteWholeSet<T extends PlacedDancer>(dancers: readonly T[]): T[] {
+  if (hasAntipode(dancers)) return [...dancers];
   return [
     ...dancers.map((d) => ({ ...d, mirror: false }) as T),
     ...dancers.map((d) => ({ ...d, x: -d.x, y: -d.y, angleDeg: d.angleDeg + 180, mirror: false }) as T),
@@ -424,7 +478,7 @@ function buildCallImpl(
   // Mirroring is attempted and the counts are re-checked rather than assumed: a formation that already
   // CONTAINS its own antipodes is a whole set however few dancers it lists, and `mirrorToFull` leaves it alone.
   if (resolvedPaths.length === dancers.length * 2) {
-    // THE TAM'S OWN `asymmetric` DECLARATION DECIDES, NOT THE GEOMETRY. `mirrorToFull`/`materialiseFull`
+    // THE TAM'S OWN `asymmetric` DECLARATION DECIDES, NOT THE GEOMETRY. `mirrorToFull`/`reconstituteWholeSet`
     // guess by looking for an antipode, and the guess and the declaration agree on every shipped tam but
     // one - which is why carrying `tam.symmetry` and never acting on it went unnoticed. The paths have
     // honoured it since they were written (`mirror && tam.symmetry === 2` below); the FORMATION did not, so
@@ -440,7 +494,7 @@ function buildCallImpl(
     // threw `Path count mismatch for Circle Left Home: 8 paths vs 4 dancers`, while the same XML read with
     // `mirror: true` was fine. NO SHIPPED TAM IS AFFECTED: of the corpus's 5488 tams, ZERO carry 2N paths
     // for N dancers at symmetry 2, so this branch only ever fires on editor-authored XML.
-    const full = tam.symmetry === 2 ? materialiseFull(dancers) : dancers;
+    const full = tam.symmetry === 2 ? reconstituteWholeSet(dancers) : dancers;
     if (full.length === resolvedPaths.length) dancers = full;
   }
 
@@ -515,6 +569,11 @@ export function parseFormations(xmlText: string): Map<string, DancerBase[]> {
   return parseFormationsImpl(xmlText);
 }
 
+/** The `fid`/`aid` every definition carries, by formation name. See `FormationTag`. */
+export function parseFormationTags(xmlText: string): Map<string, FormationTag> {
+  return parseFormationTagsImpl(xmlText);
+}
+
 export function parseCallXml(xmlText: string): TamRaw[] {
   return parseCallXmlImpl(xmlText);
 }
@@ -547,12 +606,24 @@ export interface CallMeta {
  * Only the four attributes the reader understands are written (`gender`, `x`, `y`, `angle`), in
  * degrees, because that is what `parseFormations` reads back.
  */
-export function formationToXml(name: string, dancers: { x: number; y: number; heading: number; gender?: Gender }[]): string {
+export function formationToXml(
+  name: string,
+  dancers: { x: number; y: number; heading: number; gender?: Gender }[],
+  tags?: FormationTag,
+): string {
   const r = (n: number) => (Math.round(n * 1e4) / 1e4).toString();
   const lines = dancers.map(
     (d) => `    <dancer gender="${esc(d.gender ?? 'boy')}" x="${r(d.x)}" y="${r(d.y)}" angle="${r((d.heading * 180) / Math.PI)}" />`,
   );
-  return `  <formation name="${esc(name)}">\n${lines.join('\n')}\n  </formation>`;
+  // THE TAGS GO ON THE BLOCK the same way they are written in `formations.xml`, so an exported definition
+  // re-enters the corpus already tagged. A caller that has none omits them and the corpus gate reports the
+  // definition as untagged - which is the honest outcome, not a block that claims an id it never matched.
+  const attrs = [
+    `name="${esc(name)}"`,
+    ...(tags?.fid ? [`fid="${esc(tags.fid)}"`] : []),
+    ...(tags?.aid ? [`aid="${esc(tags.aid)}"`] : []),
+  ].join(' ');
+  return `  <formation ${attrs}>\n${lines.join('\n')}\n  </formation>`;
 }
 /**
  * A setup's identifying name: its FORMATION, with the `from` label as the fallback.

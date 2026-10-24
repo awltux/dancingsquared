@@ -60,7 +60,7 @@
 
   <tam title="Zig Zag"
        from="Right-Hand Columns">
-     <formation>
+     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>

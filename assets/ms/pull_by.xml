@@ -58,7 +58,7 @@
        (180 degrees about the origin) places the second couple at x = +1. Everything else, including
        the group attribute, is copied unchanged. -->
   <tam title="Right Pull By" group=" ">
-    <formation>
+    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
       <dancer gender="boy" x="-1" y="1" angle="0" />
       <dancer gender="girl" x="-1" y="-1" angle="0" />
     </formation>
@@ -73,7 +73,7 @@
   </tam>
 
   <tam title="Left Pull By" group=" ">
-    <formation>
+    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
       <dancer gender="boy" x="-1" y="1" angle="0" />
       <dancer gender="girl" x="-1" y="-1" angle="0" />
     </formation>

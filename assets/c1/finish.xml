@@ -50,7 +50,7 @@
   </tam>
 
   <tam title="Finish Brace Thru" group="Finish" sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-xzuj7y07" aid="A1-zolwt0mp">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="boy" x="2" y="-3" angle="0"/>
@@ -428,7 +428,7 @@
   </tam>
 
   <tam title="Finish Rotary Spin" group="Finish">
-     <formation>
+     <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
       <dancer gender="boy" x="-1" y="3" angle="90"/>

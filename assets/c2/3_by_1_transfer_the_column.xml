@@ -24,7 +24,7 @@
 
   <tam title="3 by 1 Transfer the Column"
        from="Right-Hand Columns">
-    <formation>
+    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
       <dancer gender="girl" y="-1" x="-1" angle="90"/>
@@ -56,7 +56,7 @@
 
   <tam title="3 by 1 Transfer the Column"
        from="Left-Hand Columns">
-     <formation>
+     <formation fid="F3-dhnw1kx1" aid="A1-5rn8li19">
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>

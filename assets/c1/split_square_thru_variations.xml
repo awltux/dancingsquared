@@ -172,7 +172,7 @@
 
   <tam title="Split Square Chain the Top"
        from="Center Wave">
-    <formation>
+    <formation fid="F3-tpbvr6qa" aid="A1-sfuhwv80">
       <dancer gender="boy" x="-1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
       <dancer gender="boy" x="0" y="1.5" angle="0"/>

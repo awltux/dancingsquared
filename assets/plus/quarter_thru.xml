@@ -25,7 +25,7 @@
   <tam title="Quarter Thru"
        from="Right-Hand Box"
        parts="1.5" >
-    <formation>
+    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
     </formation>
@@ -267,7 +267,7 @@
   <tam title="Left Quarter Thru"
        from="Facing Diamonds"
        parts="1.5" >
-     <formation>
+     <formation fid="F3-9xs9oi7o" aid="A1-u5cm923q">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -560,7 +560,7 @@
   <tam title="Left 3/4 Thru"
        from="Facing Diamonds"
        parts="4.5" >
-    <formation>
+    <formation fid="F3-9xs9oi7o" aid="A1-u5cm923q">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>

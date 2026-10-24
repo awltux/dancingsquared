@@ -89,7 +89,7 @@
   <tam title="Swing the Fractions"
        from="Facing Diamonds"
        parts="1.5;3;4.5;3" >
-    <formation>
+    <formation fid="F3-jy6andim" aid="A1-wsr5i58w">
       <dancer gender="boy" y="0" x="-3" angle="90"/>
       <dancer gender="girl" y="3" x="-2" angle="180"/>
       <dancer gender="boy" y="0" x="-1" angle="270"/>
@@ -188,7 +188,7 @@
   <tam title="Left Swing the Fractions"
        from="Facing Diamonds"
        parts="1.5;3;4.5;3" >
-    <formation>
+    <formation fid="F3-9xs9oi7o" aid="A1-u5cm923q">
       <dancer gender="boy" y="0" x="-3" angle="270"/>
       <dancer gender="girl" y="3" x="-2" angle="0"/>
       <dancer gender="boy" y="0" x="-1" angle="90"/>
@@ -222,7 +222,7 @@
 
   <tam title="Any Hand Swing the Fractions" parts="1.5;3;4.5;3"
        from="Inverted Line Ends Facing In" group=" ">
-    <formation>
+    <formation fid="F3-xpndd93x" aid="A1-0yxo4g85">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="90"/>
       <dancer gender="boy" x="-1" y="2" angle="90"/>

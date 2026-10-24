@@ -23,7 +23,7 @@
 <tamination title="Z Axle">
 
   <tam title="&quot;Z&quot; Axle" from="Right-Hand Outfacing Z" parts="4;3">
-    <formation>
+    <formation fid="F3-df6beb94" aid="A1-9nvj7ark">
       <dancer gender="boy" x="2" y="-1" angle="0" />
       <dancer gender="girl" x="0" y="-1" angle="180" />
     </formation>
@@ -40,7 +40,7 @@
   </tam>
 
   <tam title="&quot;Z&quot; Axle" from="Left-Hand Outfacing Z" parts="4;3">
-	  <formation>
+	  <formation fid="F3-ychuz3du" aid="A1-xz4cz9wu">
 	    <dancer gender="boy" x="2" y="1" angle="0" />
 	    <dancer gender="girl" x="0" y="1" angle="180" />
 	  </formation>
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="&quot;Z&quot; Axle" from="Right-Hand Tandem Z" parts="4;3">
-	  <formation>
+	  <formation fid="F3-km28j8ki" aid="A1-w0joe90u">
 	    <dancer gender="boy" x="2" y="1" angle="0" />
 	    <dancer gender="girl" x="0" y="1" angle="0" />
 	  </formation>
@@ -74,7 +74,7 @@
   </tam>
 
   <tam title="&quot;Z&quot; Axle" from="Left-Hand Tandem Z" parts="4;3">
-    <formation>
+    <formation fid="F3-zmb3igvk" aid="A1-cajnavzu">
       <dancer gender="boy" x="2" y="-1" angle="0" />
       <dancer gender="girl" x="0" y="-1" angle="0" />
     </formation>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="Pass &quot;Z&quot; Axle" from="Right-Hand Infacing Z" parts="2;4;3">
-	  <formation>
+	  <formation fid="F3-yw58ox5e" aid="A1-fcr23g1q">
 	    <dancer gender="boy" x="2" y="1" angle="180" />
 	    <dancer gender="girl" x="0" y="1" angle="0" />
 	  </formation>
@@ -112,7 +112,7 @@
   </tam>
 
   <tam title="Pass &quot;Z&quot; Axle" from="Left-Hand Infacing Z" parts="2;4;3">
-    <formation>
+    <formation fid="F3-528kin3k" aid="A1-2iz0o37g">
       <dancer gender="boy" x="2" y="-1" angle="180" />
       <dancer gender="girl" x="0" y="-1" angle="0" />
     </formation>

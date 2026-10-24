@@ -56,7 +56,7 @@
 
 
   <tam title="Right and Left Grand" from="Grand Circle" sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>
       <dancer gender="boy" x="3" y="-1" angle="90"/>
@@ -93,7 +93,7 @@
   </tam>
 
   <tam title="Right and Left Grand" from="Grand Circle 2" sequencer="gender-specific" display="none">
-     <formation>
+     <formation fid="F3-17ptmjsl" aid="A1-ooagptvx">
       <dancer gender="boy" x="-3" y="-1.1" angle="315"/>
       <dancer gender="girl" x="-1" y="-1.5" angle="180"/>
       <dancer gender="boy" x="1" y="-1.5" angle="0"/>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Right and Left Grand" from="Eight Chain Thru" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-p3qjle85" aid="A1-ssjpsnxr">
         <dancer gender="boy" x="3" y="1" angle="180"/>
         <dancer gender="girl" x="1" y="1" angle="0"/>
         <dancer gender="boy" x="-1" y="1" angle="180"/>
@@ -203,7 +203,7 @@
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
   <tam title="Right and Left Grand" from="Trade By" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-39npqtaz" aid="A1-oia05mmj">
         <dancer gender="boy" x="3" y="-1" angle="0"/>
         <dancer gender="girl" x="3" y="1" angle="0"/>
         <dancer gender="boy" x="1" y="1" angle="180"/>
@@ -241,7 +241,7 @@
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
   <tam title="Right and Left Grand" from="T-Bones" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-dlap8ufn" aid="A1-z6vfwflf">
         <dancer gender="boy" x="3" y="-1" angle="90"/>
         <dancer gender="girl" x="3" y="1" angle="-90"/>
         <dancer gender="boy" x="1" y="1" angle="180"/>
@@ -279,7 +279,7 @@
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
   <tam title="Right and Left Grand" from="1/4 Tag" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-ibqwe37g">
         <dancer gender="boy" x="3" y="-1" angle="180"/>
         <dancer gender="girl" x="3" y="1" angle="180"/>
         <dancer gender="boy" x="0" y="1" angle="180"/>
@@ -314,7 +314,7 @@
   </tam>
 
   <tam title="Right and Left Grand" from="3/4 Tag" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-ewptadwm">
         <dancer gender="boy" x="3" y="-1" angle="0"/>
         <dancer gender="girl" x="3" y="1" angle="0"/>
         <dancer gender="boy" x="0" y="1" angle="180"/>
@@ -350,7 +350,7 @@
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
   <tam title="Right and Left Grand" from="Thar" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-djgm8ct1" aid="A1-kg3l3pin">
         <dancer gender="boy" x="-1" y="0" angle="-90"/>
         <dancer gender="girl" x="-3" y="0" angle="90"/>
         <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -389,7 +389,7 @@
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
   <tam title="Right and Left Grand" from="after Allemande Left" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-olbjy39f" aid="A1-tjdd2hjn">
         <dancer gender="boy" x="3.5" y="-1.5" angle="45"/>
         <dancer gender="girl" x="3.5" y="1.5" angle="-45"/>
         <dancer gender="boy" x="1" y="1.5" angle="180"/>
@@ -427,7 +427,7 @@
 
 <!-- exported by the dancing-squared web app: commit 8feba86, with uncommitted changes, built 2026-10-13 20:04Z -->
   <tam title="Right and Left Grand" from="Quarter Tag Facing" parts="">
-    <formation>
+    <formation fid="F3-zo0s8mk0" aid="A1-auie35i8">
         <dancer gender="boy" x="0" y="1" angle="180"/>
         <dancer gender="girl" x="3" y="1" angle="-90"/>
         <dancer gender="boy" x="3" y="-1" angle="90"/>
@@ -463,7 +463,7 @@
 
 <!-- exported by the dancing-squared web app: commit 95ddff2, with uncommitted changes, built 2026-10-13 16:34Z -->
   <tam title="Right and Left Grand" from="Outrigger" parts="">
-    <formation>
+    <formation fid="F3-fk9ce9wh" aid="A1-be64wo8b">
         <dancer gender="boy" x="2.5" y="0" angle="90"/>
         <dancer gender="girl" x="3.5" y="0" angle="-90"/>
         <dancer gender="boy" x="1" y="1" angle="180"/>
@@ -498,7 +498,7 @@
   </tam>
 
   <tam title="Weave the Ring" group=" ">
-     <formation>
+     <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>
       <dancer gender="boy" x="-3" y="1" angle="270"/>
@@ -536,7 +536,7 @@
 
   <tam title="Wrong Way Grand" from="Grand Circle"
        sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-8dyawmgx" aid="A1-uo2i94jf">
        <dancer gender="girl" x="-1" y="-3" angle="0"/>
        <dancer gender="boy" x="1" y="-3" angle="180"/>
        <dancer gender="girl" x="3" y="-1" angle="90"/>
@@ -573,7 +573,7 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="Grand Circle 2" sequencer="gender-specific" display="none">
-    <formation>
+    <formation fid="F3-17ptmjsl" aid="A1-3ds4m05d">
       <dancer gender="girl" x="-3" y="-1.1" angle="315"/>
       <dancer gender="boy" x="-1" y="-1.5" angle="180"/>
       <dancer gender="girl" x="1" y="-1.5" angle="0"/>
@@ -612,7 +612,7 @@
 
   <tam title="Wrong Way Grand" from="Eight Chain Thru"
        sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="girl" x="3" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -680,7 +680,7 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="Trade By" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
@@ -723,7 +723,7 @@
   <tam title="Wrong Way Grand" from="T-Bones"
        display="none"
        sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-dlap8ufn" aid="A1-lkthw84j">
       <dancer gender="girl" x="3" y="-1" angle="90"/>
       <dancer gender="boy" x="3" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
@@ -764,7 +764,7 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="1/4 Tag" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-oartgelk">
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="180"/>
@@ -803,7 +803,7 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="3/4 Tag" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-1icb6ye6">
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="180"/>
@@ -874,7 +874,7 @@
   </tam>
 
   <tam title="Wrong Way Grand" from="Quarter Tag Facing" display="none">
-    <formation>
+    <formation fid="F3-zo0s8mk0" aid="A1-2142b1g4">
       <dancer gender="girl" x="3" y="-1" angle="90"/>
       <dancer gender="boy" x="3" y="1" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="180"/>

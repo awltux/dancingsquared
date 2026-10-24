@@ -50,7 +50,7 @@
   <tam title="Ramble" from="Quarter Tag, Girls in Center"
        sequencer="gender-specific"
        parts="3">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -79,7 +79,7 @@
   <tam title="Ramble" from="Quarter Tag, Boys in Center"
        sequencer="gender-specific"
        parts="3">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
@@ -136,7 +136,7 @@
   <tam title="Ramble" from="Three Quarter Tag, Girls in Center"
        sequencer="gender-specific"
        parts="3">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-kjfkuiyk">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -167,7 +167,7 @@
   <tam title="Ramble" from="Three Quarter Tag, Boys in Center"
        sequencer="gender-specific"
        parts="3">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-cvq7pdsw">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
@@ -261,7 +261,7 @@
        from="Quarter Tag, Boys in center"
        sequencer="gender-specific"
        fractions="6;3">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
@@ -305,7 +305,7 @@
        from="Quarter Tag, Girls in center"
        sequencer="gender-specific"
        parts="6;3">
-    <formation name="Quarter Tag">
+    <formation name="Quarter Tag" fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>

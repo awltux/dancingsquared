@@ -23,7 +23,7 @@
 <tamination title="Quadruple Formation Concept">
 
   <tam title="Quadruple Box Split Swap" group=" ">
-    <formation>
+    <formation fid="F3-8hk24ifi" aid="A1-c6gr2kse">
       <dancer gender="boy" x="1" y="5.25" angle="180"/>
       <dancer gender="girl" x="1" y="3.75" angle="180"/>
       <dancer gender="boy" x="-1" y="2.25" angle="0"/>
@@ -60,7 +60,7 @@
   </tam>
 
   <tam title="Quadruple Column Pass and Roll" group=" ">
-    <formation>
+    <formation fid="F3-7e40lhvo" aid="A1-bnqykxzg">
       <dancer gender="boy" x="3" y="3" angle="180"/>
       <dancer gender="girl" x="3" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="3" angle="0"/>
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="Quadruple Line Bend the Line" group=" ">
-    <formation>
+    <formation fid="F3-7e40lhvo" aid="A1-bnqykxzg">
       <dancer gender="boy" x="3" y="3" angle="180"/>
       <dancer gender="girl" x="3" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="3" angle="0"/>
@@ -170,7 +170,7 @@
   </tam>
 
   <tam title="Quadruple Wave Swing Thru" group=" " fractions="3">
-    <formation>
+    <formation fid="F3-8pgc7lxk" aid="A1-6t896fzu">
       <dancer gender="boy" x="1" y="3" angle="180"/>
       <dancer gender="girl" x="1" y="1" angle="0"/>
       <dancer gender="boy" x="3" y="3" angle="0"/>
@@ -214,7 +214,7 @@
     </path>
   </tam>
   <tam title="Quadruple Waves of 3 Swing Thru" group=" " fractions="3">
-    <formation>
+    <formation fid="F3-euf29stl" aid="A1-gmmv54nd">
       <dancer gender="boy" x="1" y="2" angle="180"/>
       <dancer gender="girl" x="1" y="0" angle="0"/>
       <dancer gender="boy" x="3" y="2" angle="0"/>

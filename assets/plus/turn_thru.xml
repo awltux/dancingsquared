@@ -50,7 +50,7 @@
        x = -1 so the engine's mirror puts the second couple at +1. -->
   <tam title="Turn Thru"
        from="Facing Couples">
-    <formation>
+    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
       <dancer gender="boy" x="-1" y="1" angle="0" />
       <dancer gender="girl" x="-1" y="-1" angle="0" />
     </formation>
@@ -190,7 +190,7 @@
   </tam>
 
   <tam title="Turn Thru" from="Quarter Tag" difficulty="1">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-ibqwe37g">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>

@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Stretch Chase Right" group="Stretch">
-    <formation name="Trade By">
+    <formation name="Trade By" fid="F3-39npqtaz" aid="A1-qkw66agr">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="270"/>
@@ -324,7 +324,7 @@
   <tam title="Stretch Shakedown"
        from="Lines Facing Out"
        group="Stretch" >
-     <formation>
+     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" x="3" y="2" angle="90"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="girl" x="-1" y="2" angle="90"/>

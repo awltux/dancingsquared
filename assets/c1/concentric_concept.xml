@@ -829,7 +829,7 @@
   <tam title="Concentric Slide Thru"
        group="(From lines) Concentric"
        sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
@@ -857,7 +857,7 @@
   <tam title="Concentric Star Thru"
        group="(From lines) Concentric"
        sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
       <dancer gender="boy" x="1" y="2" angle="270"/>
@@ -955,7 +955,7 @@
   </tam>
 
   <tam title="Concentric Star Thru" group="(From T-Bones) Concentric">
-     <formation>
+     <formation fid="F3-dlap8ufn" aid="A1-2wdq0q9r">
       <dancer gender="boy" x="3" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="boy" x="1" y="1" angle="180"/>
@@ -1105,7 +1105,7 @@
 
   <tam title="Concentric Linear Cycle"
        group="(From tidal formation) Concentric">
-    <formation>
+    <formation fid="F3-svw0dvrr" aid="A1-stppo8uf">
       <dancer gender="boy" x="0" y="-3.5" angle="180"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
       <dancer gender="boy" x="0" y="-1.5" angle="180"/>

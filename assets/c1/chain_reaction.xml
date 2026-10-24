@@ -168,7 +168,7 @@
 
   <tam title="Chain Reaction" from="Right-Hand Two-Faced Line between Mini-Waves"
        fractions="3;2;3">
-     <formation>
+     <formation fid="F3-a9qgc3sg" aid="A1-ybrn9sm2">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="1" angle="0"/>
@@ -207,7 +207,7 @@
 
   <tam title="Chain Reaction" from="Left-Hand Two-Faced Line between Mini-Waves"
        fractions="3;2;3">
-     <formation>
+     <formation fid="F3-6jy7bllw" aid="A1-8zp52gx2">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="1" angle="180"/>
@@ -255,7 +255,7 @@
   <tam title="Chain Reaction, Turn the Star 1/2"
        from="Left-Hand Quarter Tag"
        fractions="3;1.5;3" >
-     <formation>
+     <formation fid="F3-rz17g4ey" aid="A1-n37uvq4s">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="0"/>
@@ -431,7 +431,7 @@
   <tam title="Chain Reaction, Turn the Star 1/2"
        from="Right-Hand Two-Faced Line between Mini-Waves"
        fractions="3;2;3">
-     <formation>
+     <formation fid="F3-a9qgc3sg" aid="A1-ybrn9sm2">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="1" angle="0"/>
@@ -471,7 +471,7 @@
   <tam title="Chain Reaction, Turn the Star 1/2"
        from="Left-Hand Two-Faced Line between Mini-Waves"
        fractions="3;2;3">
-     <formation>
+     <formation fid="F3-6jy7bllw" aid="A1-8zp52gx2">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="1" angle="180"/>

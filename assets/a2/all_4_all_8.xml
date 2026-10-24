@@ -263,7 +263,7 @@
 
   <tam title="All 4 Couples Slide Thru" group="All 4 Couples (with calls through Plus)"
        sequencer="gender-specific" display="none">
-    <formation>
+    <formation fid="F3-3h40wv4v" aid="A1-vob72ma1">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
@@ -291,7 +291,7 @@
 
   <tam title="All 4 Couples Slide Thru" group="All 4 Couples (with calls through Plus)"
        sequencer="gender-specific" display="none">
-    <formation>
+    <formation fid="F3-3h40wv4v" aid="A1-o6ebf13z">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="-3" angle="90"/>
@@ -571,7 +571,7 @@
 
   <tam title="All 4 Couples Star Thru" group="All 4 Couples (with calls through Plus)"
        sequencer="gender-specific" display="none">
-    <formation>
+    <formation fid="F3-3h40wv4v" aid="A1-vob72ma1">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
@@ -599,7 +599,7 @@
 
   <tam title="All 4 Couples Star Thru" group="All 4 Couples (with calls through Plus)"
        sequencer="gender-specific" display="none">
-    <formation>
+    <formation fid="F3-3h40wv4v" aid="A1-o6ebf13z">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="-3" angle="90"/>
@@ -779,7 +779,7 @@
   </tam>
 
   <tam title="All 8 Chain Down the Line" group="All 8 (with calls through Plus)" display="none">
-    <formation>
+    <formation fid="F3-xz5t9pjr" aid="A1-rw1ck391">
       <dancer gender="girl" x="-1" y="0" angle="90"/>
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -859,7 +859,7 @@
 
 
   <tam title="All 8 Crossfire" group="All 8 (with calls through Plus)">
-    <formation>
+    <formation fid="F3-xz5t9pjr" aid="A1-rw1ck391">
       <dancer gender="girl" x="-1" y="0" angle="90"/>
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -882,7 +882,7 @@
   </tam>
 
   <tam title="All 8 Crossfire" group="All 8 (with calls through Plus)" display="no">
-    <formation>
+    <formation fid="F3-3tuezk19" aid="A1-3td4yx8n">
       <dancer gender="girl" x="-1" y="0" angle="270"/>
       <dancer gender="boy" x="-3" y="0" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -1199,7 +1199,7 @@
   </tam>
 
   <tam title="All 8 Half Tag" group="All 8 (with calls through Plus)">
-    <formation>
+    <formation fid="F3-xz5t9pjr" aid="A1-hsve7ybv">
       <dancer gender="boy" x="-1" y="0" angle="90"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -1487,7 +1487,7 @@
 
   <tam title="All 4 Couples Brace Thru" group="All 4 Couples (with A-1 calls)"
        sequencer="gender-specific">
-    <formation name="Static Square">
+    <formation name="Static Square" fid="F3-3h40wv4v" aid="A1-vob72ma1">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="-3" angle="90"/>

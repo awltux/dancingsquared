@@ -24,7 +24,7 @@
 
   <tam title="Turnstyle" from="Single Double Pass Thru"
        formation="Single Double Pass Thru">
-    <formation>
+    <formation fid="F3-slbcbgsw" aid="A1-le2zzx7m">
       <dancer gender="boy" y="3" x="0" angle="270"/>
       <dancer gender="girl" y="1" x="0" angle="270"/>
     </formation>
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Turnstyle" from="3/4 Lines">
-    <formation>
+    <formation fid="F3-vg8zjub2" aid="A1-m3gqpop4">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="3" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="1" angle="0"/>

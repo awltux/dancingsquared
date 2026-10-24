@@ -24,7 +24,7 @@
 
   <tam title="Galaxy Circulate"
        from="Right-Hand Galaxy">
-    <formation>
+    <formation fid="F3-urv775kg" aid="A1-2ooy0j7y">
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>

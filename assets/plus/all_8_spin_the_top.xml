@@ -64,7 +64,7 @@
 
   <tam title="All 8 Spin the Top" difficulty="1"
        from="Grand Circle" parts="5">
-     <formation>
+     <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>
       <dancer gender="boy" x="-3" y="1" angle="270"/>
@@ -94,7 +94,7 @@
 
   <tam title="All 8 Left Spin the Top" difficulty="2"
        from="Grand Circle" parts="5">
-     <formation>
+     <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>
       <dancer gender="boy" x="-3" y="1" angle="270"/>

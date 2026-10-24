@@ -220,7 +220,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="Right-Hand Z Facing Out">
-    <formation>
+    <formation fid="F3-km28j8ki" aid="A1-83w342bo">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
     </formation>
@@ -233,7 +233,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="Left-Hand Z Facing Out">
-    <formation>
+    <formation fid="F3-zmb3igvk" aid="A1-rkblren0">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>
     </formation>
@@ -246,7 +246,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="Right-Hand Z Facing In">
-    <formation>
+    <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
     </formation>
@@ -260,7 +260,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="Left-Hand Z Facing In">
-    <formation>
+    <formation fid="F3-07nohwr6" aid="A1-kggk56dw">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
     </formation>

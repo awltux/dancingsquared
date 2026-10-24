@@ -384,6 +384,7 @@ export {
   setParser,
   parseMoves,
   parseFormations,
+  parseFormationTags,
   parseCallXml,
   buildCall,
   buildCallVariants,
@@ -392,11 +393,14 @@ export {
   loadCallFromXml,
   selectTam,
   tamName,
+  // THE RECONSTITUTION RULE, exported because a formation definition writes HALF a set and the tagger
+  // (`scripts/tag-formations.mjs`) has to ask the engine's own rule rather than restate it.
+  reconstituteWholeSet,
   // The one definition of the hand state's mirror, exported so a probe can measure a mirroring edit against
   // the corpus's own convention instead of restating it.
   swapLR,
 } from './convert.js';
-export type { CallMeta } from './convert.js';
+export type { CallMeta, FormationTag } from './convert.js';
 export { setupLabel, parseTaminationTitle } from './convert.js';
 // The four values of the `<tam sequencer="…">` attribute. Only `no` is behaviour-bearing so
 // far: it marks a demonstration animation the sequencer must not match. `perimeter` and

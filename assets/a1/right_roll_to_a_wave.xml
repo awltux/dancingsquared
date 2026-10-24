@@ -262,7 +262,7 @@
   <tam title="Right Roll to a Wave Three Times"
        from="Single File Dancers"
        fractions="2;3">
-     <formation>
+     <formation fid="F3-6hj1usl9" aid="A1-abotepqn">
       <dancer gender="boy" x="-2.5" y="0" angle="180"/>
       <dancer gender="girl" x="-3.5" y="0" angle="180"/>
       <dancer gender="boy" x="-1.5" y="0" angle="180"/>

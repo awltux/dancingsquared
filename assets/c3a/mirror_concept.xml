@@ -55,7 +55,7 @@
   <tam title="Mirror Brace Thru" group="Mirror"
        from="Lines"
        fractions="3" >
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
@@ -181,7 +181,7 @@
   <tam title="Mirror Triple Star Thru" group="Mirror"
        from="Double Pass Thru"
        fractions="3;3" >
-     <formation>
+     <formation fid="F3-7i4q346d" aid="A1-28i78rtj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>

@@ -38,7 +38,7 @@
 
   <tam title="Vertical Tag"
        from="Couples Facing Out">
-    <formation>
+    <formation fid="F3-ik8242br" aid="A1-27lc8wm5">
       <dancer gender="girl" x="1" y="2" angle="90"/>
       <dancer gender="boy" x="-1" y="2" angle="90"/>
     </formation>
@@ -70,7 +70,7 @@
 
   <tam title="Vertical Tag"
        from="Left-Hand Box">
-    <formation>
+    <formation fid="F3-0pwss2ox" aid="A1-m4dsj3np">
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
     </formation>
@@ -127,7 +127,7 @@
 
   <tam title="Vertical 1/2 Tag"
        from="Facing Couples">
-    <formation>
+    <formation fid="F3-4ro3p815" aid="A1-yl2mr1qt">
       <dancer gender="boy" x="1" y="1.5" angle="270"/>
       <dancer gender="girl" x="-1" y="1.5" angle="270"/>
     </formation>
@@ -164,7 +164,7 @@
 
   <tam title="Vertical 1/2 Tag"
        from="Left-Hand Box">
-    <formation>
+    <formation fid="F3-0pwss2ox" aid="A1-m4dsj3np">
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
     </formation>

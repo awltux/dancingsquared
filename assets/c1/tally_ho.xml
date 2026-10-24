@@ -109,7 +109,7 @@
   <tam title="Tally Ho"
        from="Normal Lines"
        parts="2;3" >
-    <formation>
+    <formation fid="F3-1r9s5bst" aid="A1-mib7zc39">
       <dancer gender="boy" y="2" x="3" angle="270"/>
       <dancer gender="girl" y="2" x="1" angle="270"/>
       <dancer gender="boy" y="2" x="-1" angle="270"/>

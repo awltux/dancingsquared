@@ -23,7 +23,7 @@
 <tamination title="Anyone Hop">
 
   <tam title="Beaus Hop" parts="4" group=" ">
-    <formation>
+    <formation fid="F3-nlnlii69" aid="A1-6r10ge6d">
       <dancer gender="boy" y="2" x="1" angle="270" />
       <dancer gender="girl" y="2" x="-1" angle="270" />
     </formation>
@@ -38,7 +38,7 @@
   </tam>
 
   <tam title="Trailers Hop" parts="4" group=" ">
-    <formation>
+    <formation fid="F3-0pwss2ox" aid="A1-m4dsj3np">
       <dancer gender="boy" y="2" x="1" angle="90"/>
       <dancer gender="girl" y="2" x="-1" angle="270"/>
     </formation>
@@ -100,7 +100,7 @@
 
   <tam title="Magic Column Boys Hop" formation="Magic Column RH"
        sequencer="gender-specific" parts="3" group=" ">
-    <formation>
+    <formation fid="F3-dy4b34sl" aid="A1-50p0u50t">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>

@@ -25,7 +25,7 @@
   <tam title="Mini-Busy"
        from="Right-Hand Two-Faced Lines"
        parts="2;1.5" >
-    <formation>
+    <formation fid="F3-p8t2f0pj" aid="A1-zmy9xmg7">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
@@ -56,7 +56,7 @@
   <tam title="_Mini-Busy But"
        from="Right-Hand Two-Faced Lines" display="none"
        parts="2;1.5" >
-    <formation>
+    <formation fid="F3-p8t2f0pj" aid="A1-zmy9xmg7">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
@@ -133,7 +133,7 @@
   <tam title="2/3 Mini-Busy"
        from="Right-Hand Two-Faced Lines"
        parts="2;1.5" display="no">
-    <formation>
+    <formation fid="F3-p8t2f0pj" aid="A1-zmy9xmg7">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>

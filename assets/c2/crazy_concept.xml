@@ -295,7 +295,7 @@
   </tam>
 
   <tam title="Crazy Triangle Circulate" group="Crazy" parts="3;3;3">
-    <formation>
+    <formation fid="F3-z9mc9mm2" aid="A1-i3e3nn0e">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="0"/>
@@ -328,7 +328,7 @@
   </tam>
 
   <tam title="1/2 Crazy Quarter Thru" group=" " parts="4.5">
-    <formation>
+    <formation fid="F3-vljpxzpx" aid="A1-k6w9pyol">
       <dancer gender="girl" x="3" y="3" angle="270"/>
       <dancer gender="boy" x="1" y="3" angle="90"/>
       <dancer gender="girl" x="-1" y="0" angle="270"/>
@@ -469,7 +469,7 @@
   </tam>
 
   <tam title="1/2 Reverse Crazy Tag Back" group="1/2 Reverse Crazy" parts="8.5">
-    <formation>
+    <formation fid="F3-u0r62dn0" aid="A1-at6cbz2y">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>
@@ -533,7 +533,7 @@
   </tam>
 
   <tam title="3/4 Reverse Crazy Follow Thru" group="3/4 Reverse Crazy" parts="3;3">
-    <formation>
+    <formation fid="F3-xk54gzh8" aid="A1-iz6u7m90">
       <dancer gender="boy" x="3" y="0" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="boy" x="1" y="3" angle="270"/>

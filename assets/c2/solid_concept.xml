@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Lines of 3 work Solid, all Diamond Circulate" group=" ">
-     <formation>
+     <formation fid="F3-w0ijyvbs" aid="A1-ek0nlh0k">
       <dancer gender="boy" x="0" y="5" angle="0"/>
       <dancer gender="girl" x="0" y="3" angle="0"/>
       <dancer gender="boy" x="3" y="0" angle="270"/>
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Outside Triangles work Solid, all Mix" group=" ">
-     <formation>
+     <formation fid="F3-cjwzz7d6" aid="A1-xh2gnhke">
       <dancer gender="boy" x="-1" y="-3" angle="180"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="180"/>

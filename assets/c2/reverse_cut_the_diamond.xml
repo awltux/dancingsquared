@@ -23,7 +23,7 @@
 <tamination title="Reverse Cut the Diamond">
 
   <tam title="Reverse Cut the Diamond" from="Right-Hand Diamond">
-    <formation>
+    <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg">
       <dancer gender="boy" y="0" x="3" angle="270" />
       <dancer gender="girl" y="-1" x="0" angle="180" />
     </formation>
@@ -179,7 +179,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Interlocked Diamonds 3">
-    <formation>
+    <formation fid="F3-vlh9cwbw" aid="A1-2exx29mq">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -201,7 +201,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Interlocked Diamonds 4">
-    <formation>
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -257,7 +257,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Facing Point-to-Point Diamonds, Right-Hand Centers">
-    <formation>
+    <formation fid="F3-uwwg1rcw" aid="A1-qq6aem6o">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -280,7 +280,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers">
-    <formation>
+    <formation fid="F3-ryle6ork" aid="A1-zxfvsd34">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -303,7 +303,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 3">
-    <formation>
+    <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -325,7 +325,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 4">
-    <formation>
+    <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -346,7 +346,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 5">
-    <formation>
+    <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -367,7 +367,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 6">
-    <formation>
+    <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -388,7 +388,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Right-Hand Diamond">
-    <formation>
+    <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg">
       <dancer gender="boy" y="0" x="3" angle="270" />
       <dancer gender="girl" y="-1" x="0" angle="180" />
     </formation>
@@ -529,7 +529,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Interlocked Diamonds 3">
-    <formation>
+    <formation fid="F3-vlh9cwbw" aid="A1-2exx29mq">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -551,7 +551,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Interlocked Diamonds 4">
-    <formation>
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -603,7 +603,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Facing Point-to-Point Diamonds, Right-Hand Centers">
-    <formation>
+    <formation fid="F3-uwwg1rcw" aid="A1-qq6aem6o">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -624,7 +624,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers">
-    <formation>
+    <formation fid="F3-ryle6ork" aid="A1-zxfvsd34">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -645,7 +645,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 3">
-    <formation>
+    <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -666,7 +666,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 4">
-    <formation>
+    <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -687,7 +687,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 5">
-    <formation>
+    <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -708,7 +708,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 6">
-    <formation>
+    <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>

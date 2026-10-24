@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Quarter In" from="Tidal Wave">
-     <formation>
+     <formation fid="F3-bjavu23j" aid="A1-mtoqxdar">
       <dancer gender="boy" x="0" y="5.25" angle="0"/>
       <dancer gender="girl" x="0" y="3.75" angle="180"/>
       <dancer gender="girl" x="0" y="2.25" angle="0"/>
@@ -358,7 +358,7 @@
   </tam>
 
   <tam title="Quarter Out" from="Heads Facing Left">
-    <formation>
+    <formation fid="F3-d224k9cv" aid="A1-5ktcrza9">
       <dancer gender="boy" x="-3" y="1" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="90"/>
       <dancer gender="boy" x="1" y="3" angle="270"/>

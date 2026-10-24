@@ -88,7 +88,7 @@
   <tam title="Percolate"
        from="Left-Hand Waves"
        parts="4;2" >
-     <formation>
+     <formation fid="F3-jk0u0kn1" aid="A1-paoctnf9">
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
@@ -181,7 +181,7 @@
   </tam>
 
   <tam title="Percolate" from="T-Bones" parts="3;1.5">
-    <formation>
+    <formation fid="F3-ad1pteh3" aid="A1-9woi6uwb">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="180"/>
       <dancer gender="boy" x="1" y="1" angle="180"/>

@@ -23,7 +23,7 @@
 <tamination title="Lockit">
 
   <tam title="Lockit" from="Right-Hand Wave">
-    <formation>
+    <formation fid="F3-9vxgr91a" aid="A1-bieo87yo">
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="-1" y="0" angle="270"/>
     </formation>

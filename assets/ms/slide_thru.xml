@@ -55,7 +55,7 @@
   <tam title="Slide Thru"
        from="Facing Couples" sequencer="gender-specific"
        difficulty="1">
-    <formation>
+    <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
       <dancer gender="boy" x="-1" y="1" angle="0" />
       <dancer gender="girl" x="-1" y="-1" angle="0" />
     </formation>
@@ -71,7 +71,7 @@
 
   <tam title="Slide Thru" from="Sashayed Couples" sequencer="gender-specific"
        difficulty="2">
-    <formation>
+    <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
       <dancer gender="boy" x="-1.5" y="-1" angle="0"/>
       <dancer gender="girl" x="-1.5" y="1" angle="0"/>
     </formation>
@@ -108,7 +108,7 @@
 
   <tam title="Slide Thru" from="Sashayed Lines" sequencer="gender-specific"
        difficulty="2">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-q27idb99">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
@@ -178,7 +178,7 @@
   <tam title="Slide Thru"
        from="Same Sex Facing" sequencer="gender-specific"
        difficulty="2">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>

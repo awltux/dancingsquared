@@ -342,7 +342,7 @@
   </tam>
 
   <tam title="Acey Deucey" from="Right-Hand Center Box" difficulty="3">
-    <formation>
+    <formation fid="F3-2ezs6w63" aid="A1-v4n6te83">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
@@ -363,7 +363,7 @@
   </tam>
 
   <tam title="Acey Deucey" from="Left-Hand Center Box" difficulty="3">
-    <formation>
+    <formation fid="F3-1kozhs63" aid="A1-rsc3lmpr">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -486,7 +486,7 @@
   <tam title="Acey Deucey"
        from="Diamonds 3"
        fractions="2" difficulty="3">
-    <formation>
+    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -511,7 +511,7 @@
   <tam title="Acey Deucey"
        from="Diamonds 4"
        fractions="2" difficulty="3">
-    <formation>
+    <formation fid="F3-jy6andim" aid="A1-wsr5i58w">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -535,7 +535,7 @@
   <tam title="Acey Deucey"
        from="Diamonds 5"
        fractions="2" difficulty="3">
-    <formation>
+    <formation fid="F3-7kcomvce" aid="A1-hxuqc30g">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -560,7 +560,7 @@
   <tam title="Acey Deucey"
        from="Diamonds 6"
        fractions="2" difficulty="3">
-    <formation>
+    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -585,7 +585,7 @@
   <tam title="Acey Deucey"
        from="Diamonds 7"
        fractions="2" difficulty="3">
-    <formation>
+    <formation fid="F3-9xs9oi7o" aid="A1-u5cm923q">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -609,7 +609,7 @@
   <tam title="Acey Deucey"
        from="Diamonds 8"
        fractions="2" difficulty="3">
-    <formation>
+    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -653,7 +653,7 @@
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 2"
        difficulty="3">
-    <formation>
+    <formation fid="F3-9fwv30cs" aid="A1-4ek2lkpe">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -678,7 +678,7 @@
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 3"
        difficulty="3">
-    <formation>
+    <formation fid="F3-vlh9cwbw" aid="A1-2exx29mq">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -702,7 +702,7 @@
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 4"
        difficulty="3">
-    <formation>
+    <formation fid="F3-ewzhe0vg" aid="A1-fc3amq6a">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -746,7 +746,7 @@
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 6"
        difficulty="3">
-    <formation>
+    <formation fid="F3-x3ypejw6" aid="A1-694jilps">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -771,7 +771,7 @@
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 7"
        difficulty="3">
-    <formation>
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -795,7 +795,7 @@
   <tam title="Acey Deucey"
        from="Interlocked Diamonds 8"
        difficulty="3">
-    <formation>
+    <formation fid="F3-lqyfsb12" aid="A1-dob97mog">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -818,7 +818,7 @@
   </tam>
 
   <tam title="Acey Deucey" from="Wave with 6 Dancers" difficulty="3">
-    <formation>
+    <formation fid="F3-pkti7xgx" aid="A1-4b6iktnb">
       <dancer gender="boy" x="0.75" y="0" angle="270"/>
       <dancer gender="girl" x="2.25" y="0" angle="90"/>
       <dancer gender="boy" x="3.75" y="0" angle="270"/>

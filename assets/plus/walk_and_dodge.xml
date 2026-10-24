@@ -127,7 +127,7 @@
 
   <tam title="Walk and Dodge" from="T-Bones"
        difficulty="3">
-     <formation>
+     <formation fid="F3-462oelr2" aid="A1-w7khqvvk">
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -499,7 +499,7 @@
   </tam>
 
   <tam title="1 by 3 Walk and Dodge" from="3 and 1 Lines #5" difficulty="3">
-    <formation>
+    <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -539,7 +539,7 @@
   </tam>
 
   <tam title="Side Girls Dodge and Others Walk" group=" " difficulty="2">
-    <formation>
+    <formation fid="F3-mgilzw9x" aid="A1-i8zf8i0p">
       <dancer gender="boy" y="1" x="1" angle="270"/>
       <dancer gender="girl" y="-1" x="1" angle="270"/>
       <dancer gender="girl" y="-3" x="1" angle="90"/>

@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Diamond Circulate and Circle 1/4" group=" " parts="3">
-    <formation>
+    <formation fid="F3-ev2d73d1" aid="A1-1xeae1xz">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="boy" x="-3" y="1" angle="0"/>
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="Switch and Circle 1/2" group=" " parts="4;4;4">
-    <formation>
+    <formation fid="F3-a9qgc3sg" aid="A1-yur55z2m">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="1" angle="180"/>

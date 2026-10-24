@@ -23,7 +23,7 @@
 <tamination title="Triple Box Concept">
 
   <tam title="Triple Box Circulate" group="Triple Box">
-    <formation>
+    <formation fid="F3-k39vf938" aid="A1-i33i8ka2">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Triple Box Counter Rotate" group="Triple Box">
-    <formation>
+    <formation fid="F3-f3ytl3sw" aid="A1-14vlwysy">
       <dancer gender="boy" x="2" y="5" angle="0"/>
       <dancer gender="girl" x="2" y="3" angle="180"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -208,7 +208,7 @@
   </tam>
 
   <tam title="Triple Box Pass the Ocean" group="Triple Box">
-    <formation>
+    <formation fid="F3-0pksxc4i" aid="A1-oog05hc4">
       <dancer gender="boy" x="1" y="5" angle="270"/>
       <dancer gender="girl" x="-1" y="5" angle="270"/>
       <dancer gender="boy" x="1" y="1" angle="270"/>
@@ -243,7 +243,7 @@
   </tam>
 
   <tam title="Triple Box Peel and Trail" group="Triple Box">
-    <formation>
+    <formation fid="F3-4ewj7tpw" aid="A1-4xfk759y">
       <dancer gender="boy" x="-1" y="5" angle="90"/>
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -440,7 +440,7 @@
 
 
   <tam title="Triple Column Pass and Roll" group="Triple Column">
-    <formation>
+    <formation fid="F3-m4vsgc9d" aid="A1-1d6zwg57">
       <dancer gender="boy" x="3" y="2" angle="180"/>
       <dancer gender="girl" x="3" y="0" angle="180"/>
       <dancer gender="girl" x="1" y="0" angle="0"/>
@@ -494,7 +494,7 @@
   </tam>
 
   <tam title="Triple Line Turn and Deal" group="Triple Line">
-    <formation>
+    <formation fid="F3-lrvlmnlr" aid="A1-12p3p4zn">
       <dancer gender="boy" x="4" y="3" angle="0"/>
       <dancer gender="girl" x="4" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
@@ -523,7 +523,7 @@
   </tam>
 
   <tam title="Triple Wave 2/3 Recycle" group="Triple Wave">
-    <formation>
+    <formation fid="F3-xlusuvgt" aid="A1-383c6pox">
       <dancer gender="boy" x="4" y="-1" angle="0"/>
       <dancer gender="girl" x="4" y="-3" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="180"/>
@@ -552,7 +552,7 @@
   </tam>
 
   <tam title="Triple Wave Recycle" group="Triple Wave">
-    <formation>
+    <formation fid="F3-gkqh4598" aid="A1-2jrsgmrw">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="180"/>
       <dancer gender="girl" x="0" y="1.5" angle="0"/>
@@ -584,7 +584,7 @@
   </tam>
 
   <tam title="Triple Wave Swing Thru" group="Triple Wave">
-    <formation>
+    <formation fid="F3-1bul6qzv" aid="A1-opwdxpzx">
       <dancer gender="boy" x="0" y="3" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="4" y="1" angle="180"/>

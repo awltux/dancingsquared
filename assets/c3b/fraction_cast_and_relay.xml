@@ -24,7 +24,7 @@
 
   <tam title="1/4 Cast and Relay" from="Right-Hand Waves"
        parts="1.5;4.5;3">
-    <formation>
+    <formation fid="F3-4ablgjmv" aid="A1-v2gxpog9">
       <dancer gender="boy" y="2" x="3" angle="270"/>
       <dancer gender="girl" y="2" x="1" angle="90"/>
       <dancer gender="boy" y="2" x="-1" angle="270"/>

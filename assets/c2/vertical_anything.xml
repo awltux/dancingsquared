@@ -23,7 +23,7 @@
 <tamination title="Vertical">
 
   <tam title="Vertical Dixie Style to a Wave" group="Vertical">
-    <formation>
+    <formation fid="F3-ik8242br" aid="A1-27lc8wm5">
       <dancer gender="girl" x="1" y="2" angle="90"/>
       <dancer gender="boy" x="-1" y="2" angle="90"/>
   </formation>
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Vertical Grand Chain Eight" group="Vertical">
-     <formation>
+     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" x="3" y="2" angle="90"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="girl" x="-1" y="2" angle="90"/>

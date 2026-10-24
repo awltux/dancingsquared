@@ -184,7 +184,7 @@
 	</tam>
 
 	<tam title="The K" from="Right-Hand Columns" fractions="1.5">
-		<formation>
+		<formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
 			<dancer gender="boy" y="3" x="-1" angle="90"/>
 			<dancer gender="girl" y="1" x="-1" angle="90"/>
 			<dancer gender="boy" y="1" x="1" angle="270"/>
@@ -252,7 +252,7 @@
 	</tam>
 
 	<tam title="The K" from="Galaxy" fractions="1.5">
-		<formation>
+		<formation fid="F3-urv775kg" aid="A1-2ooy0j7y">
 			<dancer gender="girl" y="1" x="1" angle="270"/>
 			<dancer gender="boy" y="3" x="0" angle="0"/>
 			<dancer gender="girl" y="-1" x="1" angle="270"/>
@@ -347,7 +347,7 @@
 	</tam>
 
 	<tam title="Offset Lines the K" group=" " fractions="1.5">
-		<formation>
+		<formation fid="F3-wi518h6d" aid="A1-w8wf07dr">
 			<dancer gender="boy" x="0" y="3" angle="0"/>
 			<dancer gender="girl" x="0" y="1" angle="0"/>
 			<dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -385,7 +385,7 @@
 	</tam>
 
 	<tam title="Tandem the K" group=" " fractions="2">
-		<formation>
+		<formation fid="F3-stj9x6gj" aid="A1-s6s0gyz7">
 			<dancer gender="boy" x="-1" y="3" angle="0"/>
 			<dancer gender="girl" x="-1" y="1" angle="0"/>
 			<dancer gender="girl" x="-1" y="-1" angle="180"/>

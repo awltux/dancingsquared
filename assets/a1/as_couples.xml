@@ -297,7 +297,7 @@
   </tam>
 
   <tam title="As Couples Ladies Center as the Men Sashay" group="As Couples (with calls through Plus)">
-     <formation>
+     <formation fid="F3-1f145gba" aid="A1-c1vc7ze4">
       <dancer gender="boy" x="-2.414" y="1" angle="-22.5"/>
       <dancer gender="girl" x="1" y="2.414" angle="247.5"/>
       <dancer gender="boy" x="-2.414" y="-1" angle="22.5"/>
@@ -562,7 +562,7 @@
   </tam>
 
   <tam title="As Couples Slide Thru" group="As Couples (with calls through Plus)" sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
@@ -588,7 +588,7 @@
 
   <tam title="As Couples Slide Thru" group="As Couples (with calls through Plus)"
        sequencer="gender-specific" display="none">
-    <formation>
+    <formation fid="F3-1r9s5bst" aid="A1-ypgg4ie5">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>

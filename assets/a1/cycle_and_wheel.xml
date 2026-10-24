@@ -100,7 +100,7 @@
 
   <tam title="Cycle and Wheel"
        from="3 and 1 lines #5">
-     <formation>
+     <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -123,7 +123,7 @@
 
   <tam title="Cycle and Wheel"
        from="3 and 1 lines #6">
-     <formation>
+     <formation fid="F3-lit8rynj" aid="A1-nrtgn2u3">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -146,7 +146,7 @@
 
   <tam title="Cycle and Wheel"
        from="3 and 1 lines #7">
-     <formation>
+     <formation fid="F3-k9frz2rj" aid="A1-81w4kg57">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
@@ -169,7 +169,7 @@
 
   <tam title="Cycle and Wheel"
        from="3 and 1 lines #8">
-     <formation>
+     <formation fid="F3-cimsa5il" aid="A1-nzq2bwnx">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -231,7 +231,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #1">
-    <formation>
+    <formation fid="F3-ppfmkkg9" aid="A1-m2ugs1sp">
       <dancer gender="boy" x="0" y="-3.5" angle="0"/>
       <dancer gender="girl" x="0" y="-2.5" angle="180"/>
       <dancer gender="boy" x="0" y="-1.5" angle="180"/>
@@ -253,7 +253,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #2">
-    <formation>
+    <formation fid="F3-59zr95on" aid="A1-fuw5ubmt">
       <dancer gender="boy" x="0" y="-3.5" angle="180"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
       <dancer gender="boy" x="0" y="-1.5" angle="180"/>
@@ -275,7 +275,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #3">
-    <formation>
+    <formation fid="F3-iuf0736h" aid="A1-luem7nkh">
       <dancer gender="boy" x="0" y="-3.5" angle="180"/>
       <dancer gender="girl" x="0" y="-2.5" angle="180"/>
       <dancer gender="boy" x="0" y="-1.5" angle="0"/>
@@ -297,7 +297,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #4">
-    <formation>
+    <formation fid="F3-fvqo421l" aid="A1-ocnuepnf">
       <dancer gender="boy" x="0" y="-3.5" angle="180"/>
       <dancer gender="girl" x="0" y="-2.5" angle="180"/>
       <dancer gender="boy" x="0" y="-1.5" angle="180"/>
@@ -319,7 +319,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #5">
-    <formation>
+    <formation fid="F3-6h1zhnib" aid="A1-88jhu0iv">
       <dancer gender="boy" x="0" y="-3.5" angle="180"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
       <dancer gender="boy" x="0" y="-1.5" angle="0"/>
@@ -341,7 +341,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #6">
-    <formation>
+    <formation fid="F3-kmrqei55" aid="A1-cmxf7g61">
       <dancer gender="boy" x="0" y="-3.5" angle="0"/>
       <dancer gender="girl" x="0" y="-2.5" angle="180"/>
       <dancer gender="boy" x="0" y="-1.5" angle="0"/>
@@ -363,7 +363,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #7">
-    <formation>
+    <formation fid="F3-xjr276nd" aid="A1-t8xr947t">
       <dancer gender="boy" x="0" y="-3.5" angle="0"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
       <dancer gender="boy" x="0" y="-1.5" angle="180"/>
@@ -385,7 +385,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #8">
-    <formation>
+    <formation fid="F3-bzqmizeh" aid="A1-dtclx9i1">
       <dancer gender="boy" x="0" y="-3.5" angle="0"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
       <dancer gender="boy" x="0" y="-1.5" angle="0"/>

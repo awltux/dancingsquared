@@ -25,7 +25,7 @@
   <tam title="Dixie Grand"
        from="Facing Couples"
        display="none">
-    <formation>
+    <formation fid="F3-nlnlii69" aid="A1-6r10ge6d">
       <dancer gender="boy" x="-2" y="1" angle="0" />
       <dancer gender="girl" x="2" y="1" angle="180" />
     </formation>
@@ -47,7 +47,7 @@
 
   <tam title="Dixie Grand" from="Dixie Grand Circle"
        parts="2;2" difficulty="1">
-    <formation>
+    <formation fid="F3-8dyawmgx" aid="A1-uo2i94jf">
       <dancer gender="boy" x="-3" y="-1" angle="90"/>
       <dancer gender="girl" x="3" y="-1" angle="90"/>
       <dancer gender="boy" x="1" y="-3" angle="180"/>
@@ -82,7 +82,7 @@
   <tam title="Dixie Grand"
        from="Double Pass Thru"
        parts="2;2" difficulty="1">
-    <formation>
+    <formation fid="F3-7i4q346d" aid="A1-v1s9nkeh">
       <dancer gender="boy" x="3" y="-1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>
@@ -121,7 +121,7 @@
   <tam title="Dixie Grand"
        from="Quarter Tag"
        parts="2;2" difficulty="1">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-qf1wbkk2">
       <dancer gender="boy" x="3" y="-1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="3" angle="0"/>
@@ -158,7 +158,7 @@
   <tam title="Dixie Grand"
        from="Completed Double Pass Thru"
        parts="3;3" difficulty="1">
-    <formation>
+    <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -194,7 +194,7 @@
 
   <tam title="Dixie Grand" from="Trade By" formation="Trade By"
        parts="3;2" difficulty="2">
-    <formation>
+    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -232,7 +232,7 @@
 
   <tam title="Dixie Grand" from="3/4 Tag"
        parts="3;2" difficulty="2">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-1icb6ye6">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="0" y="3" angle="0"/>
@@ -268,7 +268,7 @@
 
   <tam title="Dixie Grand" from="Eight Chain Thru" parts="2;3"
        difficulty="2">
-    <formation>
+    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -308,7 +308,7 @@
 
   <tam title="Dixie Grand" from="Right-Hand Waves" parts="2;3"
        difficulty="2">
-    <formation>
+    <formation fid="F3-4ablgjmv" aid="A1-t2fif4z7">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -344,7 +344,7 @@
 
   <tam title="Dixie Grand" from="Magic Columns Right-Hand Centers" parts="2;3"
        difficulty="2">
-    <formation>
+    <formation fid="F3-dy4b34sl" aid="A1-pjjbrfqb">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -382,7 +382,7 @@
 
   <tam title="Dixie Grand" from="Magic Columns Left-Hand Centers" parts="2;3"
        difficulty="2">
-    <formation>
+    <formation fid="F3-3zu9lyyj" aid="A1-sxyzjgbn">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>

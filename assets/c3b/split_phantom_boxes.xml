@@ -23,7 +23,7 @@
 <tamination title="Split Phantom Boxes Concept">
 
   <tam title="Split Phantom Boxes Acey Deucey" group="Split Phantom Boxes">
-    <formation>
+    <formation fid="F3-6mxyo77c" aid="A1-1s4dota2">
       <dancer gender="boy" x="-1.5" y="-.75" angle="0"/>
       <dancer gender="girl" x="-1.5" y=".75" angle="180"/>
       <dancer gender="girl" x="-1.5" y="2.25" angle="0"/>
@@ -60,7 +60,7 @@
   </tam>
 
   <tam title="Split Phantom Boxes In Roll Circulate" group="Split Phantom Boxes">
-    <formation>
+    <formation fid="F3-6mxyo77c" aid="A1-1s4dota2">
       <dancer gender="boy" x="-1.5" y="-.75" angle="0"/>
       <dancer gender="girl" x="-1.5" y=".75" angle="180"/>
       <dancer gender="girl" x="-1.5" y="2.25" angle="0"/>
@@ -97,7 +97,7 @@
   </tam>
 
   <tam title="Split Phantom Boxes Link Up" group="Split Phantom Boxes">
-    <formation>
+    <formation fid="F3-5pdrm8u0" aid="A1-0x0xnhwy">
       <dancer gender="boy" x="-1.5" y="5.25" angle="0"/>
       <dancer gender="girl" x="-1.5" y="3.75" angle="0"/>
       <dancer gender="girl" x="-1.5" y="2.25" angle="180"/>
@@ -148,7 +148,7 @@
   </tam>
 
   <tam title="Split Phantom Boxes Plan Ahead" group="Split Phantom Boxes">
-    <formation>
+    <formation fid="F3-2e3qsb9k" aid="A1-ob99giw8">
       <dancer gender="boy" x="-1.5" y="2.25" angle="0"/>
       <dancer gender="girl" x="-1.5" y=".75" angle="0"/>
       <dancer gender="boy" x="-1.5" y="-.75" angle="0"/>
@@ -222,7 +222,7 @@
   </tam>
 
   <tam title="Split Phantom Boxes Walk Out to a Wave" group="Split Phantom Boxes">
-    <formation>
+    <formation fid="F3-iupvoy88" aid="A1-jfv7staq">
       <dancer gender="boy" x="1" y=".75" angle="270"/>
       <dancer gender="girl" x="1" y="2.25" angle="270"/>
       <dancer gender="girl" x="1" y="3.75" angle="270"/>

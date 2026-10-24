@@ -243,7 +243,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="3 and 1 Lines #3">
-     <formation>
+     <formation fid="F3-ptgvautp" aid="A1-vf7owirh">
       <dancer gender="boy"  x="-2" y="3"  angle="0" />
       <dancer gender="girl" x="-2" y="1"  angle="0" />
       <dancer gender="girl" x="-2" y="-1" angle="180" />
@@ -396,7 +396,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="T-Bones">
-     <formation>
+     <formation fid="F3-mx7qw8zz" aid="A1-kneaxu0v">
       <dancer gender="boy" x="-3" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>

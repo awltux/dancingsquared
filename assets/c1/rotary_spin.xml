@@ -25,7 +25,7 @@
   <tam title="Rotary Spin"
        from="Eight Chain Thru"
        parts="2" >
-     <formation>
+     <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>

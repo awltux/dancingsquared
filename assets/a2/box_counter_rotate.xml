@@ -65,7 +65,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 1" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-cewx13tu" aid="A1-k1qqz7lu">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="270"/>
@@ -87,7 +87,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 2" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-cewx13tu" aid="A1-k1qqz7lu">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="270"/>
@@ -109,7 +109,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 3" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-ebvz5ete" aid="A1-nx1tioxq">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -131,7 +131,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 4" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-ebvz5ete" aid="A1-nx1tioxq">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -153,7 +153,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 5" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-h4pcldyy" aid="A1-8ad92sra">
       <dancer gender="boy" x="1" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -175,7 +175,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 6" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-kl12cnei" aid="A1-dh5l5kr8">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -197,7 +197,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 7" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-kl12cnei" aid="A1-dh5l5kr8">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -219,7 +219,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 8" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-mug58u1e" aid="A1-827nnvyk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -241,7 +241,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 9" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-mug58u1e" aid="A1-827nnvyk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -263,7 +263,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 10" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-chqpk82a" aid="A1-nm9y2ifa">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -285,7 +285,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 11" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-4mubexmh" aid="A1-4if1uqr3">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -307,7 +307,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 12" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-4mubexmh" aid="A1-4if1uqr3">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -330,7 +330,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 13" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -352,7 +352,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 14" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -376,7 +376,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 15" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -399,7 +399,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 16" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -423,7 +423,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 17" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-5m0yf7rv" aid="A1-9e7tk6nv">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -446,7 +446,7 @@
 
   <tam title="Box Counter Rotate"
        from="T-Bone 18" asymmetric="true" display="no">
-    <formation>
+    <formation fid="F3-0tzn4qgq" aid="A1-h66x8j44">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -535,7 +535,7 @@
 
   <tam title="Split Counter Rotate"
        from="Right-Hand Columns">
-    <formation>
+    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
       <dancer gender="boy" y="-1" x="-1" angle="90"/>
@@ -609,7 +609,7 @@
 
   <tam title="Split Counter Rotate"
        from="T-Bones 1">
-    <formation>
+    <formation fid="F3-chbf53tp" aid="A1-0qij1j83">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>

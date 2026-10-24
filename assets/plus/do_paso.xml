@@ -109,7 +109,7 @@
   </tam>
 
   <tam title="Do Paso to an Allemande Thar" group=" " display="no">
-    <formation>
+    <formation fid="F3-8dyawmgx" aid="A1-dhzxrej3">
       <dancer gender="boy" x="-3" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-3" angle="0"/>

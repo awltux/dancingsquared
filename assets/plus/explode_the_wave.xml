@@ -149,7 +149,7 @@
   </tam>
 
   <tam title="Explode" from="Compact Right-Hand Wave" display="none">
-    <formation>
+    <formation fid="F3-kl44f788" aid="A1-uj8pej5w">
       <dancer gender="boy" x="0" y="1.5" angle="0"/>
       <dancer gender="girl" x="0" y="0.5" angle="180"/>
     </formation>
@@ -171,7 +171,7 @@
   </tam>
 
   <tam title="Explode" from="Compact Left-Hand Wave" display="none">
-    <formation>
+    <formation fid="F3-m06nqfnm" aid="A1-g2o3kjf2">
       <dancer gender="boy" x="0" y="1.5" angle="180"/>
       <dancer gender="girl" x="0" y="0.5" angle="0"/>
     </formation>
@@ -199,7 +199,7 @@
   </tam>
 
   <tam title="Explode" from="Compact Right-Hand Waves" display="none">
-    <formation>
+    <formation fid="F3-hdi09wtx" aid="A1-v7fpom7v">
       <dancer gender="boy" x="-2" y="1.5" angle="0"/>
       <dancer gender="girl" x="-2" y="0.5" angle="180"/>
       <dancer gender="girl" x="-2" y="-0.5" angle="0"/>
@@ -235,7 +235,7 @@
   </tam>
 
   <tam title="Explode" from="Compact Left-Hand Waves" display="none">
-    <formation>
+    <formation fid="F3-bl1dj7mx" aid="A1-pcosv3vn">
       <dancer gender="boy" x="-2" y="1.5" angle="180"/>
       <dancer gender="girl" x="-2" y="0.5" angle="0"/>
       <dancer gender="girl" x="-2" y="-0.5" angle="180"/>

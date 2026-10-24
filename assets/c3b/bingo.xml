@@ -23,7 +23,7 @@
 <tamination title="Bingo">
 
   <tam title="Bingo" from="Right-Hand Box" fractions="2.25">
-    <formation>
+    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="-2" x="1" angle="270"/>
     </formation>
@@ -125,7 +125,7 @@
   </tam>
 
   <tam title="Bingo" from="T-Bone Box">
-    <formation>
+    <formation fid="F3-vem78m16" aid="A1-vabff0x0">
       <dancer gender="boy" x="1" y="1" angle="180" />
       <dancer gender="girl" x="1" y="-1" angle="270" />
     </formation>

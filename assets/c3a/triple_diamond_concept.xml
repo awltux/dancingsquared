@@ -23,7 +23,7 @@
 <tamination title="Triple Diamond Concept">
 
   <tam title="Triple Diamond Circulate" from="Triple Diamonds">
-    <formation>
+    <formation fid="F3-vbb1sri2" aid="A1-oj3ets9g">
       <dancer gender="boy" x="2" y="0" angle="270"/>
       <dancer gender="girl" x="0" y="-5" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>

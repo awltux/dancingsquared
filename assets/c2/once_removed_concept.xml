@@ -25,7 +25,7 @@
   <tam title="Once Removed Boys Run"
        group="(From lines) Once Removed"
        sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-0cpks7zb" aid="A1-ig381bif">
       <dancer gender="girl" x="-1.5" y="3" angle="0"/>
       <dancer gender="boy" x="-1.5" y="-1" angle="180"/>
       <dancer gender="girl" x="-1.5" y="1" angle="0"/>
@@ -201,7 +201,7 @@
   </tam>
 
   <tam title="Once Removed Shakedown" group="(From lines) Once Removed">
-    <formation>
+    <formation fid="F3-9gboj6dj" aid="A1-l7zeku39">
       <dancer gender="girl" x="-1.5" y="3" angle="180"/>
       <dancer gender="boy" x="-1.5" y="1" angle="180"/>
       <dancer gender="girl" x="-1.5" y="-1" angle="180"/>
@@ -449,7 +449,7 @@
   </tam>
 
   <tam title="Once Removed Walk and Dodge" group="(From columns) Once Removed">
-     <formation>
+     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -567,7 +567,7 @@
   </tam>
 
   <tam title="Once Removed Touch a Quarter" group="(From double pass thru) Once Removed">
-    <formation>
+    <formation fid="F3-7i4q346d" aid="A1-v1s9nkeh">
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="1" angle="270"/>

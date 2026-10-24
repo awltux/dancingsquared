@@ -55,7 +55,7 @@
 
   <tam title="Pair Off"
        from="Eight Chain Thru">
-    <formation>
+    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" y="3" x="1" angle="270" />
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="-1" angle="90" />

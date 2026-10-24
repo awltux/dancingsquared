@@ -88,7 +88,7 @@
   </tam>
 
   <tam title="Interlocked Plenty" from="Right-Hand 3/4 Line" fractions="6;7">
-    <formation>
+    <formation fid="F3-vg8zjub2" aid="A1-sokysfyo">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>

@@ -139,7 +139,7 @@
   <tam title="Zoom"
        from="T-Bones"
        fractions="2" difficulty="3">
-     <formation>
+     <formation fid="F3-jsf4eay5" aid="A1-ohmk2yf7">
       <dancer gender="girl" x="-3" y="-1" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>

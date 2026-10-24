@@ -128,7 +128,7 @@
 
   <tam title="Inpoint Triangle Circulate"
        from="Tandem Centers" >
-     <formation>
+     <formation fid="F3-2sx178nq" aid="A1-0z0ts7xo">
       <dancer gender="boy" x="0" y="-3" angle="270"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="270"/>
@@ -265,7 +265,7 @@
 
   <tam title="Tandem-Based Triangle Circulate"
        from="Hourglass with Right-Hand Tandem Triangles">
-     <formation>
+     <formation fid="F3-tmpa6y0d" aid="A1-tl5u49r1">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>
@@ -286,7 +286,7 @@
 
   <tam title="Tandem-Based Triangle Circulate"
        from="Hourglass with Left-Hand Tandem Triangles">
-     <formation>
+     <formation fid="F3-eeqbxagd" aid="A1-50sqmw7h">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="180"/>
@@ -307,7 +307,7 @@
 
   <tam title="Tandem-Based Triangle Circulate"
        from="Galaxy with Right-Hand Tandem Triangles">
-     <formation>
+     <formation fid="F3-khac4wb2" aid="A1-7jp5jee8">
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
@@ -328,7 +328,7 @@
 
   <tam title="Tandem-Based Triangle Circulate"
        from="Galaxy with Left-Hand Tandem Triangles">
-     <formation>
+     <formation fid="F3-glqo2xb4" aid="A1-cd4zazrc">
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>

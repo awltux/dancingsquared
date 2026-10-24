@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Fan Relay the Shadow" group=" ">
-    <formation>
+    <formation fid="F3-1sm6u8fu" aid="A1-13no84jg">
       <dancer gender="boy" x="0" y="3.5" angle="180"/>
       <dancer gender="girl" x="-2" y="2" angle="0"/>
       <dancer gender="girl" x="-2" y="-2" angle="0"/>

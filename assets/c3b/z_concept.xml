@@ -25,7 +25,7 @@
 
   <tam title="(From offset lines) &quot;Z&quot; Chase Right"
        group="(From offset lines)">
-    <formation name="Ocean Waves RH BGGB">
+    <formation name="Ocean Waves RH BGGB" fid="F3-5yyh2nok" aid="A1-svhbeoc6">
       <dancer gender="boy" x="-1.5" y="2" angle="180"/>
       <dancer gender="girl" x="-1.5" y="0" angle="180"/>
       <dancer gender="girl" x="-1.5" y="-2" angle="180"/>
@@ -54,7 +54,7 @@
 
   <tam title="(From offset lines) &quot;Z&quot; Shakedown"
        group="(From offset lines)">
-    <formation name="Ocean Waves RH BGGB">
+    <formation name="Ocean Waves RH BGGB" fid="F3-5yyh2nok" aid="A1-svhbeoc6">
       <dancer gender="boy" x="-1.5" y="2" angle="180"/>
       <dancer gender="girl" x="-1.5" y="0" angle="180"/>
       <dancer gender="girl" x="-1.5" y="-2" angle="180"/>
@@ -80,7 +80,7 @@
 
   <tam title="(From offset lines) &quot;Z&quot; Split Circulate"
        group="(From offset lines)">
-    <formation name="Ocean Waves RH BGGB">
+    <formation name="Ocean Waves RH BGGB" fid="F3-qbw8lof8" aid="A1-gnsmk13q">
       <dancer gender="boy" x="-1.5" y="2" angle="0"/>
       <dancer gender="girl" x="-1.5" y="0" angle="180"/>
       <dancer gender="girl" x="-1.5" y="-2" angle="0"/>
@@ -102,7 +102,7 @@
 
   <tam title="(From offset lines) &quot;Z&quot; Split Counter Rotate"
        group="(From offset lines)">
-    <formation name="Ocean Waves RH BGGB">
+    <formation name="Ocean Waves RH BGGB" fid="F3-qbw8lof8" aid="A1-gnsmk13q">
       <dancer gender="boy" x="-1.5" y="2" angle="0"/>
       <dancer gender="girl" x="-1.5" y="0" angle="180"/>
       <dancer gender="girl" x="-1.5" y="-2" angle="0"/>
@@ -124,7 +124,7 @@
 
   <tam title="(From offset lines) &quot;Z&quot; Swap Around"
        group="(From offset lines)">
-    <formation name="Ocean Waves RH BGGB">
+    <formation name="Ocean Waves RH BGGB" fid="F3-8cgqvmxg" aid="A1-9ccq88na">
       <dancer gender="boy" x="-1.5" y="2" angle="0"/>
       <dancer gender="girl" x="-1.5" y="0" angle="0"/>
       <dancer gender="girl" x="-1.5" y="-2" angle="0"/>
@@ -146,7 +146,7 @@
 
   <tam title="(From offset lines) &quot;Z&quot; Walk and Dodge"
        group="(From offset lines)">
-    <formation name="Ocean Waves RH BGGB">
+    <formation name="Ocean Waves RH BGGB" fid="F3-qbw8lof8" aid="A1-gnsmk13q">
       <dancer gender="boy" x="-1.5" y="2" angle="0"/>
       <dancer gender="girl" x="-1.5" y="0" angle="180"/>
       <dancer gender="girl" x="-1.5" y="-2" angle="0"/>
@@ -170,7 +170,7 @@
 
   <tam title="(From offset columns) &quot;Z&quot; Split Circulate"
        group="(From offset columns)">
-    <formation name="Column RH GBGB">
+    <formation name="Column RH GBGB" fid="F3-khp8vqum" aid="A1-42g6yh0w">
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -192,7 +192,7 @@
 
   <tam title="(From offset columns) &quot;Z&quot; Split Counter Rotate"
        group="(From offset columns)">
-    <formation name="Column RH GBGB">
+    <formation name="Column RH GBGB" fid="F3-khp8vqum" aid="A1-42g6yh0w">
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -214,7 +214,7 @@
 
   <tam title="(From offset columns) &quot;Z&quot; Split Sidetrack"
        group="(From offset columns)">
-    <formation name="Column RH GBGB">
+    <formation name="Column RH GBGB" fid="F3-khp8vqum" aid="A1-42g6yh0w">
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -244,7 +244,7 @@
 
   <tam title="(From offset columns) &quot;Z&quot; Walk and Dodge"
        group="(From offset columns)">
-    <formation name="Column RH GBGB">
+    <formation name="Column RH GBGB" fid="F3-khp8vqum" aid="A1-42g6yh0w">
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>

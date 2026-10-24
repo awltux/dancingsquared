@@ -604,7 +604,7 @@
 
   <tam title="Centers Run" difficulty="3"  sequencer="no"
        from="T-Bones">
-     <formation>
+     <formation fid="F3-7ze4qv1j" aid="A1-92j1x0f9">
       <dancer gender="girl" x="-1" y="3" angle="270"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>

@@ -25,7 +25,7 @@
   <tam title="Perk Up"
        from="Right-Hand Waves"
        fractions="4;2" >
-    <formation>
+    <formation fid="F3-4ablgjmv" aid="A1-ie5f8l9h">
       <dancer gender="girl" y="2" x="3" angle="270"/>
       <dancer gender="boy" y="2" x="1" angle="90"/>
       <dancer gender="girl" y="2" x="-1" angle="270"/>

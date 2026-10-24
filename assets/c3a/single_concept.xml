@@ -23,7 +23,7 @@
 <tamination title="Single Concept">
 
   <tam title="Single Checkmate" from="Right-Hand Box">
-    <formation>
+    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
     </formation>
@@ -364,7 +364,7 @@
   </tam>
 
   <tam title="Single Rotary Spin" group="Single">
-    <formation>
+    <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="90"/>
     </formation>

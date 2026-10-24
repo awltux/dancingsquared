@@ -51,7 +51,7 @@
 
   <tam title="Allemande Left" sequencer="gender-specific"
        from="Left-Hand Waves">
-    <formation>
+    <formation fid="F3-jk0u0kn1" aid="A1-nbdxp8qx">
         <dancer gender="boy" x="-2" y="1" angle="0"/>
         <dancer gender="girl" x="-2" y="-3" angle="0"/>
         <dancer gender="boy" x="-2" y="-1" angle="180"/>
@@ -104,7 +104,7 @@
 
 <!-- exported by the dancing-squared web app: commit aace058, with uncommitted changes, built 2026-10-19 08:42Z -->
   <tam title="Allemande Left" from="Alamo Ring - Men Facing In" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-imy1u3eo" aid="A1-0qtn4sm8">
         <dancer gender="girl" x="1" y="-2.414" angle="-67.5"/>
         <dancer gender="boy" x="2.414" y="-1" angle="157.5"/>
         <dancer gender="girl" x="2.414" y="1" angle="22.5"/>
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Allemande Left" from="Trade By" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
         <dancer gender="boy" x="-3" y="-1" angle="180"/>
         <dancer gender="girl" x="-1" y="-1" angle="0"/>
         <dancer gender="boy" x="1" y="-1" angle="180"/>
@@ -223,7 +223,7 @@
 
   <tam title="Allemande Left" sequencer="gender-specific"
        from="Left-Hand 3/4 Tag">
-    <formation>
+    <formation fid="F3-muub1v0a" aid="A1-k0zvzsi6">
         <dancer gender="boy" x="-1" y="3" angle="90"/>
         <dancer gender="girl" x="-3" y="0" angle="-90"/>
         <dancer gender="boy" x="-1" y="0" angle="90"/>
@@ -253,7 +253,7 @@
 
   <tam title="Allemande Left" from="Lines Facing Out"
        sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
         <dancer gender="boy" x="-2" y="1" angle="180"/>
         <dancer gender="girl" x="-2" y="-1" angle="180"/>
         <dancer gender="boy" x="-2" y="-3" angle="180"/>
@@ -333,7 +333,7 @@
   </tam>
 
   <tam title="Allemande Left" from="Thar" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-9sxbib8b" aid="A1-2mi95old">
         <dancer gender="boy" x="-1" y="0" angle="90"/>
         <dancer gender="girl" x="0" y="-3" angle="0"/>
         <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -472,7 +472,7 @@
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
   <tam title="Allemande Right" from="Alamo Wave" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-imy1u3eo" aid="A1-kmkna2sc">
         <dancer gender="girl" x="1" y="-2.414" angle="110.966"/>
         <dancer gender="boy" x="2.414" y="-1" angle="-24.034"/>
         <dancer gender="girl" x="2.414" y="1" angle="-159.034"/>
@@ -506,7 +506,7 @@
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
   <tam title="Allemande Right" from="Trade By" parts="" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
         <dancer gender="boy" x="-3" y="-1" angle="180"/>
         <dancer gender="girl" x="-1" y="-1" angle="0"/>
         <dancer gender="boy" x="1" y="-1" angle="180"/>

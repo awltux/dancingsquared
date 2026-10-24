@@ -24,7 +24,7 @@
 
   <tam title="Triple Lines Working Forward Circulate"
        group="Triple Lines Working Forward">
-    <formation>
+    <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus">
       <dancer gender="boy" x="3" y="-1" angle="0"/>
       <dancer gender="girl" x="3" y="1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -46,7 +46,7 @@
 
   <tam title="Triple Lines Working Forward Link Up"
        group="Triple Lines Working Forward">
-    <formation>
+    <formation fid="F3-nekdg2u4" aid="A1-59p6pigw">
       <dancer gender="boy" x="3" y="-1" angle="0"/>
       <dancer gender="girl" x="3" y="-3" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -76,7 +76,7 @@
 
   <tam title="Triple Lines Working Forward Load the Boat"
        group="Triple Lines Working Forward">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -115,7 +115,7 @@
 
   <tam title="Triple Lines Working Backward Chase Right"
        group="Triple Lines Working Backward">
-    <formation>
+    <formation fid="F3-lazc4yml" aid="A1-8z06f1gn">
       <dancer gender="boy" x="3" y="-1" angle="0"/>
       <dancer gender="girl" x="3" y="-3" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -142,7 +142,7 @@
 
   <tam title="Triple Lines Working Backward Vertical Tag the Line"
        group="Triple Lines Working Backward">
-    <formation>
+    <formation fid="F3-m5y8he1x" aid="A1-v6bs5qcv">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="boy" x="-1" y="2" angle="270"/>
@@ -169,7 +169,7 @@
 
   <tam title="Triple Boxes Working Left Trade Circulate"
        group="Triple Boxes Working Left">
-    <formation>
+    <formation fid="F3-s55fht2o" aid="A1-iqwb340o">
       <dancer gender="boy" x="2" y="5" angle="180"/>
       <dancer gender="girl" x="2" y="3" angle="0"/>
       <dancer gender="boy" x="2" y="1" angle="180"/>
@@ -192,7 +192,7 @@
 
   <tam title="Triple Boxes Working Left Regroup"
        group="Triple Boxes Working Left">
-    <formation>
+    <formation fid="F3-prrxn5gk" aid="A1-kk2gzn3k">
       <dancer gender="boy" x="1" y="5" angle="0"/>
       <dancer gender="girl" x="1" y="3" angle="0"/>
       <dancer gender="boy" x="1" y="1" angle="0"/>
@@ -220,7 +220,7 @@
 
   <tam title="Triple Boxes Working Right Trade Circulate"
        group="Triple Boxes Working Right">
-    <formation>
+    <formation fid="F3-s55fht2o" aid="A1-iqwb340o">
       <dancer gender="boy" x="2" y="5" angle="180"/>
       <dancer gender="girl" x="2" y="3" angle="0"/>
       <dancer gender="boy" x="2" y="1" angle="180"/>

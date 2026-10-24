@@ -82,7 +82,7 @@
 
   <tam title="Hourglass Circulate"
        from="Facing Hourglass, Right-Hand Box">
-    <formation>
+    <formation fid="F3-qgsw1xbh" aid="A1-xuy09n8j">
       <dancer gender="boy" y="2" x="-3" angle="90"/>
       <dancer gender="girl" y="3" x="0" angle="180"/>
       <dancer gender="boy" y="2" x="3" angle="270"/>
@@ -108,7 +108,7 @@
 
   <tam title="Big Hourglass Circulate"
        from="Big Right-Hand Hourglass" display="no">
-    <formation>
+    <formation fid="F3-qeibmrgf" aid="A1-bh40z0zt">
       <dancer gender="boy" y="2" x="-3" angle="90"/>
       <dancer gender="girl" y="5" x="0" angle="0"/>
       <dancer gender="boy" y="2" x="3" angle="270"/>
@@ -132,7 +132,7 @@
 
   <tam title="Big Hourglass Circulate"
        from="Big Left-Hand Hourglass" display="no">
-    <formation>
+    <formation fid="F3-h24hwlid" aid="A1-1vla4ev5">
       <dancer gender="boy" y="2" x="-3" angle="270"/>
       <dancer gender="girl" y="5" x="0" angle="180"/>
       <dancer gender="boy" y="2" x="3" angle="90"/>
@@ -235,7 +235,7 @@
   </tam>
 
   <tam title="Cut the Hourglass" from="Hourglass Box Facing Out">
-    <formation>
+    <formation fid="F3-edgfktvh" aid="A1-h0yzjnm5">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="180"/>
@@ -259,7 +259,7 @@
   </tam>
 
   <tam title="Cut the Hourglass" from="Hourglass Box Facing In">
-    <formation>
+    <formation fid="F3-6f4nnmml" aid="A1-y87lqfod">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>
@@ -283,7 +283,7 @@
   </tam>
 
   <tam title="Cut the Hourglass" from="Hourglass Box 2 Facing Out" display="none">
-    <formation>
+    <formation fid="F3-9v8zigvh" aid="A1-oybkpl6r">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
       <dancer gender="boy" x="-2" y="3" angle="180"/>
@@ -307,7 +307,7 @@
   </tam>
 
   <tam title="Cut the Hourglass" from="Hourglass Box 2 Facing In" display="none">
-    <formation>
+    <formation fid="F3-pqspp4r1" aid="A1-t9dhb377">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>
@@ -405,7 +405,7 @@
   <tam title="Flip the Hourglass"
        from="Hourglass Box Facing Out"
        formation="Hourglass Facing RH Box">
-    <formation>
+    <formation fid="F3-edgfktvh" aid="A1-h0yzjnm5">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="180"/>
@@ -427,7 +427,7 @@
   </tam>
 
   <tam title="Flip the Hourglass" from="Hourglass Box Facing In">
-    <formation>
+    <formation fid="F3-6f4nnmml" aid="A1-y87lqfod">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>
@@ -449,7 +449,7 @@
   </tam>
 
   <tam title="Flip the Hourglass" from="Hourglass Box 2 Facing Out" display="none">
-    <formation>
+    <formation fid="F3-9v8zigvh" aid="A1-oybkpl6r">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
       <dancer gender="boy" x="-2" y="3" angle="180"/>
@@ -471,7 +471,7 @@
   </tam>
 
   <tam title="Flip the Hourglass" from="Hourglass Box 2 Facing In" display="none">
-    <formation>
+    <formation fid="F3-pqspp4r1" aid="A1-t9dhb377">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>

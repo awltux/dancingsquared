@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Butterfly Checkmate" group="Butterfly">
-    <formation>
+    <formation fid="F3-khmhmci1" aid="A1-u80bee7v">
       <dancer gender="boy" y="3" x="3" angle="270"/>
       <dancer gender="girl" y="3" x="-3" angle="90"/>
       <dancer gender="girl" y="1" x="1" angle="270"/>
@@ -73,7 +73,7 @@
   </tam>
 
   <tam title="Butterfly Circulate" group="Butterfly">
-    <formation>
+    <formation fid="F3-khmhmci1" aid="A1-mewxtdzz">
       <dancer gender="girl" x="-3" y="3" angle="0"/>
       <dancer gender="boy" x="-3" y="-3" angle="180"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>

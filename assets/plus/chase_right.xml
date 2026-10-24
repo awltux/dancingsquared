@@ -101,7 +101,7 @@
   </tam>
 
   <tam title="Chase Right" from="T-Bones 1" difficulty="3">
-     <formation>
+     <formation fid="F3-4ohmtsct" aid="A1-wvufxukt">
       <dancer gender="boy" x="-3" y="1" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="270"/>
@@ -126,7 +126,7 @@
   </tam>
 
   <tam title="Chase Right" from="T-Bones 2" difficulty="3">
-     <formation>
+     <formation fid="F3-k64551hp" aid="A1-l0shswzn">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -155,7 +155,7 @@
   </tam>
 
   <tam title="Chase Right" from="T-Bones 3" difficulty="3">
-     <formation>
+     <formation fid="F3-nug2yac5" aid="A1-a787ibcn">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -260,7 +260,7 @@
   </tam>
 
   <tam title="Left Chase" from="T-Bones 1" difficulty="3">
-     <formation>
+     <formation fid="F3-4ohmtsct" aid="A1-wvufxukt">
       <dancer gender="boy" x="-3" y="1" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="270"/>
@@ -289,7 +289,7 @@
   </tam>
 
   <tam title="Left Chase" from="T-Bones 2" difficulty="3">
-     <formation>
+     <formation fid="F3-k64551hp" aid="A1-l0shswzn">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -314,7 +314,7 @@
   </tam>
 
   <tam title="Left Chase" from="T-Bones 3" difficulty="3">
-     <formation>
+     <formation fid="F3-nug2yac5" aid="A1-a787ibcn">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>

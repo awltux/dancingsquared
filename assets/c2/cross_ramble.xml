@@ -49,7 +49,7 @@
 
   <tam title="Cross Ramble" from="3/4 Tag, Boys in Center"
        parts="4" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-cvq7pdsw">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
@@ -80,7 +80,7 @@
 
   <tam title="Cross Ramble" from="3/4 Tag, Girls in Center"
        parts="4" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-78uohvsi" aid="A1-kjfkuiyk">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -185,7 +185,7 @@
   <tam title="Scoot and Cross Ramble"
        from="Quarter Tag, Boys in Center"
        parts="5;4" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
@@ -229,7 +229,7 @@
   <tam title="Scoot and Cross Ramble"
        from="Quarter Tag, Girls in Center"
        parts="5;4" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>

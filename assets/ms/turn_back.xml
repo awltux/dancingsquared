@@ -36,7 +36,7 @@
 
   <tam title="U-Turn Back"
        from="Sashayed Couples">
-    <formation>
+    <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
       <dancer gender="boy" x="-1.5" y="-1" angle="0" />
       <dancer gender="girl" x="-1.5" y="1" angle="0" />
     </formation>

@@ -23,7 +23,7 @@
 <tamination title="Stimulate">
 
   <tam title="Stimulate" from="Right-Hand Columns" fractions="3;1.5">
-    <formation>
+    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" x="1" y="-1" angle="180"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>

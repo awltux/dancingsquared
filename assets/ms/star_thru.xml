@@ -36,7 +36,7 @@
   </tam>
 
   <tam title="Star Thru" from="Sashayed Couples" sequencer="gender-specific">
-    <formation>
+    <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
       <dancer gender="boy" x="-1.5" y="-1" angle="0"/>
       <dancer gender="girl" x="-1.5" y="1" angle="0"/>
     </formation>
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="Star Thru" from="Sashayed Lines" sequencer="gender-specific">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-q27idb99">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>

@@ -23,7 +23,7 @@
 <tamination title="3 by 1 Checkmate the Column">
 
   <tam title="3 by 1 Checkmate the Column" from="Right-Hand Columns">
-    <formation>
+    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
       <dancer gender="girl" y="-1" x="-1" angle="90"/>

@@ -130,7 +130,7 @@
   </tam>
 
   <tam title="Switch to a Diamond" from="3 and 1 Lines">
-     <formation>
+     <formation fid="F3-k9frz2rj" aid="A1-5et06l9p">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>

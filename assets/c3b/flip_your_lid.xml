@@ -23,7 +23,7 @@
 <tamination title="Flip Your Lid">
 
   <tam title="Flip Your Lid" from="Right-Hand Quarter Tag">
-    <formation>
+    <formation fid="F3-roc084t6" aid="A1-oartgelk">
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="180"/>
       <dancer gender="boy" x="0" y="3" angle="0"/>

@@ -164,7 +164,7 @@
   </tam>
 
   <tam title="Cross Concentric Star Thru (example 2)" group="Cross Concentric">
-     <formation>
+     <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
       <dancer gender="boy" x="1" y="2" angle="270"/>
@@ -189,7 +189,7 @@
   </tam>
 
   <tam title="Cross Concentric Star Thru (example 3)" group="Cross Concentric">
-     <formation>
+     <formation fid="F3-dlap8ufn" aid="A1-2wdq0q9r">
       <dancer gender="boy" x="3" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="boy" x="1" y="1" angle="180"/>

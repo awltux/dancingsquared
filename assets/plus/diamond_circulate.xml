@@ -195,7 +195,7 @@
   <tam title="Diamond Circulate"
        from="Facing Point-to-Point Diamonds, Right-Hand Centers"
        difficulty="2">
-    <formation>
+    <formation fid="F3-uwwg1rcw" aid="A1-qq6aem6o">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -218,7 +218,7 @@
   <tam title="Diamond Circulate"
        from="Facing Point-to-Point Diamonds, Left-Hand Centers"
        difficulty="2">
-    <formation>
+    <formation fid="F3-ryle6ork" aid="A1-zxfvsd34">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -265,7 +265,7 @@
   <tam title="Diamond Circulate"
        from="Diamonds with Center Two-Faced Line 2"
        difficulty="3" display="no">
-    <formation>
+    <formation fid="F3-whmjjop2" aid="A1-lfq543ps">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -289,7 +289,7 @@
   <tam title="Diamond Circulate"
        from="Diamonds with Center Two-Faced Line 3"
        difficulty="3" display="no">
-    <formation>
+    <formation fid="F3-u0r62dn0" aid="A1-spjeuvv6">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -313,7 +313,7 @@
   <tam title="Diamond Circulate"
        from="Diamonds with Center Two-Faced Line 4"
        difficulty="3" display="no">
-    <formation>
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>

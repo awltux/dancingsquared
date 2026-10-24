@@ -23,7 +23,7 @@
 <tamination title="Scramble">
 
   <tam title="Scramble" from="Lines Facing Out" parts="2">
-    <formation name="Inverted Lines Ends Facing Out">
+    <formation name="Inverted Lines Ends Facing Out" fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="3" angle="180"/>
@@ -56,7 +56,7 @@
   </tam>
 
   <tam title="Scramble" from="Inverted Lines, Ends Facing Out" parts="2">
-    <formation>
+    <formation fid="F3-xq9nr45b" aid="A1-ibzt7xtj">
       <dancer gender="girl" x="2" y="1" angle="180"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="3" angle="180"/>

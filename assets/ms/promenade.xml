@@ -1012,7 +1012,7 @@
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
   <tam title="Wrong Way Promenade 3/4 - Keep Walking" formation="Facing Couples Far" parts="">
-    <formation>
+    <formation fid="F3-rj0qnzj7" aid="A1-5ok70lr7">
         <dancer gender="boy" x="-3" y="1" angle="0"/>
         <dancer gender="girl" x="-3" y="-1" angle="0"/>
     </formation>
@@ -1032,7 +1032,7 @@
 
 <!-- exported by the dancing-squared web app: commit d3c0800, with uncommitted changes, built 2026-10-01 08:02Z -->
   <tam title="Wrong Way Promenade 1/2 - Keep Walking" formation="Facing Couples Far" parts="">
-    <formation>
+    <formation fid="F3-rj0qnzj7" aid="A1-5ok70lr7">
         <dancer gender="boy" x="-3" y="1" angle="0"/>
         <dancer gender="girl" x="-3" y="-1" angle="0"/>
     </formation>

@@ -23,7 +23,7 @@
 <tamination title="Phantom Columns | Lines | Waves Concept">
 
   <tam title="Phantom Columns Checkmate" group="Phantom Columns">
-    <formation>
+    <formation fid="F3-ssg6hm1w" aid="A1-nrxhev80">
       <dancer gender="boy" x="3" y="3" angle="180"/>
       <dancer gender="girl" x="1" y="3" angle="180"/>
       <dancer gender="girl" x="3" y="-1" angle="0"/>
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Phantom Columns Circulate" group="Phantom Columns">
-    <formation>
+    <formation fid="F3-p36bbasc" aid="A1-5nn7jani">
       <dancer gender="boy" x="3" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="girl" x="3" y="-3" angle="180"/>
@@ -117,7 +117,7 @@
 
 
   <tam title="Phantom Lines Chase Right" group="Phantom Lines">
-    <formation>
+    <formation fid="F3-5hj3zmdu" aid="A1-btdfy33y">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="-3" angle="0"/>
@@ -166,7 +166,7 @@
   </tam>
 
   <tam title="Phantom Lines Swap Around" group="Phantom Lines">
-    <formation>
+    <formation fid="F3-m43jlpt0" aid="A1-w3hirdbk">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="3" angle="180"/>
@@ -203,7 +203,7 @@
   </tam>
 
   <tam title="Phantom Waves Circulate" group="Phantom Waves">
-    <formation>
+    <formation fid="F3-3kdhl4k4" aid="A1-gm5ndybg">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>
@@ -242,7 +242,7 @@
   </tam>
 
   <tam title="Phantom Waves In-Roll Circulate" group="Phantom Waves">
-    <formation>
+    <formation fid="F3-3kdhl4k4" aid="A1-gm5ndybg">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="-3" angle="180"/>

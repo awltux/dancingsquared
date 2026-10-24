@@ -25,7 +25,7 @@
   <tam title="Acey Deucey and Spread" group=" "
        from="Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-21b5rte7">
     <path>
       <move select="Extend Right" beats="4" scaleX="4" scaleY="2" />
     </path>
@@ -66,7 +66,7 @@
   <tam title="Cloverleaf and Spread" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-eehih2tu">
     <path>
       <move select="Lead Right" />
       <move select="Lead Right" scaleX="1.5" scaleY="1.5" />
@@ -96,7 +96,7 @@
   </tam>
 
   <tam title="Coordinate and Spread" from="Right-Hand Columns" group=" "
-        formation="Column RH GBGB" difficulty="3">
+        formation="Column RH GBGB" difficulty="3" vid="V1-48s8yw2s">
     <path>
       <move select="Flip Right" beats="2" />
       <move select="Forward" />
@@ -124,7 +124,7 @@
   <tam title="Cut the Diamond and Spread" group=" "
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-qo09o8uv">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -148,7 +148,7 @@
   <tam title="Fan the Top and Spread" group=" "
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-40dqxpli">
     <path>
       <move select="Lead Right" beats="6" scaleY="1.5" />
     </path>
@@ -168,7 +168,7 @@
   <tam title="Ferris Wheel and Spread" group=" "
        from="Right-Handed Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="1">
+       difficulty="1" vid="V1-o93vnykr">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleX="2" scaleY="2.5" offsetX="3.5" />
       <move select="Dodge Left" beats="1" scaleY=".5" offsetX="-.5"/>
@@ -193,7 +193,7 @@
            xref-from="Ocean Waves"/>
 
   <tam title="Heads Star Thru and Spread" group=" "
-       formation="Static Square" difficulty="1">
+       formation="Static Square" difficulty="1" vid="V1-d33o4rnf">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Quarter Right" beats="3" offsetX="3" offsetY=".5"/>
@@ -213,7 +213,7 @@
   </tam>
 
   <tam title="Heads Touch 1/4 and Spread" group=" "
-       formation="Static Square" difficulty="2">
+       formation="Static Square" difficulty="2" vid="V1-wfo3d3dh">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>
@@ -237,7 +237,7 @@
   <tam title="Hinge and Spread" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" difficulty="3">
+       fractions="" difficulty="3" vid="V1-g04rj8zf">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-1" />
     </path>
@@ -259,7 +259,7 @@
   <tam title="Pass the Ocean and Spread" group=" "
        from="Lines"
        formation="Normal Lines"
-       fractions="" difficulty="3">
+       fractions="" difficulty="3" vid="V1-zrqerac0">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -281,7 +281,7 @@
   <tam title="Pass to the Center and Spread" group=" "
        from="Eight Chain Thru"
        formation="Pass Thru"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-ax2dk1cr">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Sashay Left" beats="4" scaleY=".75" />
@@ -305,7 +305,7 @@
   <tam title="Swing Thru and Spread" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-cs27dgrh">
     <path>
       <move select="Swing Right" />
       <move select="Swing Left" scaleY="2" />
@@ -327,7 +327,7 @@
   <tam title="Trade the Wave and Spread" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" difficulty="3">
+       fractions="" difficulty="3" vid="V1-go5iwf6i">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="3" />
     </path>
@@ -345,7 +345,7 @@
   <tam title="Wheel and Deal and Spread" group=" "
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-61hr4i8v">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="-1" />
       <move select="Dodge Right" beats="2" offsetX="-1" />
@@ -367,7 +367,7 @@
   <tam title="Zoom and Spread" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-93e0hru8">
     <path>
       <move select="Flip Right" beats="1" scaleX=".5" scaleY=".5" />
       <move select="Forward" />

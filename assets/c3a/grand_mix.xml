@@ -23,7 +23,7 @@
 <tamination title="Grand Mix">
 
   <tam title="Grand Mix" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" parts="3">
+       formation="Tidal Wave RH BGGB" parts="3" vid="V1-64aol040">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB" parts="3">
+       formation="Tidal Wave LH BGGB" parts="3" vid="V1-5499sxh4">
     <path>
       <move select="Dodge Left" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -61,7 +61,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Right-Hand Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line RH" parts="3">
+       formation="Two-Faced Tidal Line RH" parts="3" vid="V1-ejdk7x08">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Left-Hand Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line LH" parts="3">
+       formation="Two-Faced Tidal Line LH" parts="3" vid="V1-8ydyzqmf">
     <path>
       <move select="Dodge Left" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -99,7 +99,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Right-Hand Tidal Inverted Line"
-       formation="Tidal Inverted Line RH" parts="3">
+       formation="Tidal Inverted Line RH" parts="3" vid="V1-wyc25gc1">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Run Right" scaleY=".5"/>
@@ -118,7 +118,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Left-Hand Tidal Inverted Line"
-       formation="Tidal Inverted Line LH" parts="3">
+       formation="Tidal Inverted Line LH" parts="3" vid="V1-gpx3hyl8">
     <path>
       <move select="Dodge Left" scaleY=".5"/>
       <move select="Flip Left" scaleY=".5"/>
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Right-Hand Tidal Line"
-       formation="Tidal Line RH" parts="3">
+       formation="Tidal Line RH" parts="3" vid="V1-6t8mts2f">
     <path couples="3 1">
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Flip Right" scaleY=".5"/>
@@ -156,7 +156,7 @@
   </tam>
 
   <tam title="Grand Mix" from="Left-Hand Tidal Line"
-       formation="Tidal Line LH" parts="3">
+       formation="Tidal Line LH" parts="3" vid="V1-s4p99jt0">
     <path>
       <move select="Run Left"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -175,7 +175,7 @@
   </tam>
 
   <tam title="Grand Swing and Mix" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" parts="3;3">
+       formation="Tidal Wave RH BGGB" parts="3;3" vid="V1-mezo9op7">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Run Left"/>
@@ -198,7 +198,7 @@
   </tam>
 
   <tam title="Grand Swing and Mix" from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB" parts="3">
+       formation="Tidal Wave LH BGGB" parts="3" vid="V1-tdifjv7n">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Run Right"/>
@@ -221,7 +221,7 @@
   </tam>
 
   <tam title="Grand Swing and Mix" from="Facing Lines"
-       formation="Normal Lines" parts="5;3">
+       formation="Normal Lines" parts="5;3" vid="V1-otz2exn4">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>

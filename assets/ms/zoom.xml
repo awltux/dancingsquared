@@ -25,7 +25,7 @@
   <tam title="Zoom"
        from="Right-Hand Box"
        formation="Box RH"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-ncsy51bu">
     <path>
       <move select="Forward 4" beats="6" />
     </path>
@@ -38,7 +38,7 @@
   <tam title="Zoom"
        from="Left-Hand Box"
        formation="Box LH"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-c3cv3c9q">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Run Right" offsetX="2" />
@@ -51,7 +51,7 @@
   <tam title="Zoom"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="2" difficulty="2">
+       fractions="2" difficulty="2" vid="V1-92evz3ao">
     <path>
       <move select="Run Right" beats="2" offsetX="-1" />
       <move select="Run Right" beats="2" offsetX="1" />
@@ -74,7 +74,7 @@
   <tam title="Zoom"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       fractions="2" difficulty="1">
+       fractions="2" difficulty="1" vid="V1-926rfsl4">
     <path>
       <move select="Forward 2" beats="4" hands="right" />
     </path>
@@ -99,7 +99,7 @@
   <tam title="Zoom"
        from="Columns"
        formation="Column RH GBGB"
-       fractions="2" difficulty="2">
+       fractions="2" difficulty="2" vid="V1-6war3drv">
     <path>
       <move select="Run Left" beats="2" offsetX="-1" />
       <move select="Run Left" beats="2" offsetX="1" />
@@ -119,7 +119,7 @@
   <tam title="Zoom"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       fractions="2" difficulty="2">
+       fractions="2" difficulty="2" vid="V1-eey5829y">
     <path>
       <move select="Forward 2" beats="4" />
     </path>
@@ -138,7 +138,7 @@
 
   <tam title="Zoom"
        from="T-Bones"
-       fractions="2" difficulty="3" formation="T-Bone URUR">
+       fractions="2" difficulty="3" formation="T-Bone URUR" vid="V1-i22nkhkr">
     <path>
       <move select="Forward 2" beats="4" />
     </path>
@@ -158,7 +158,7 @@
   <tam title="Centers Zoom"
        from="Columns"
        formation="Column RH GBGB"
-       fractions="2" difficulty="2">
+       fractions="2" difficulty="2" vid="V1-nr2iiyc1">
     <path>
     </path>
     <path>
@@ -175,7 +175,7 @@
   <tam title="Ends Zoom"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-nuluylz8">
     <path>
       <move select="Forward 4" beats="6" />
     </path>
@@ -192,7 +192,7 @@
   <tam title="Points Zoom"
        from="Diamonds"
        formation="Diamonds RH Girl Points"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-2soc48vm">
     <path>
     </path>
     <path>

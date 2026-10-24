@@ -24,7 +24,7 @@
 
   <tam title="Grand Quarter Thru"
        from="Right-Hand Columns"
-       parts="2" >
+       parts="2"  vid="V1-4fdwmnoz">
      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="-1" angle="270"/>
@@ -48,7 +48,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Quarter Thru" from="Right-Hand Columns of 6" parts="2">
+  <tam title="Grand Quarter Thru" from="Right-Hand Columns of 6" parts="2" vid="V1-3ntaymeg">
     <formation fid="F3-76pg7qim" aid="A1-id85x5va">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="0" angle="270"/>
@@ -70,7 +70,7 @@
   <tam title="Grand Quarter Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing PTP"
-       parts="2">
+       parts="2" vid="V1-d8pl51o5">
     <path>
       <move select="Hinge Right" beats="2"/>
     </path>
@@ -90,7 +90,7 @@
   <tam title="Grand Left Quarter Thru"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       parts="2" >
+       parts="2"  vid="V1-j6zxe2cv">
     <path>
       <move select="Hinge Left" beats="2" scaleX=".5" hands="gripleft"/>
       <move select="Swing Right" beats="4" scaleX=".75" scaleY=".5" hands="gripright"/>
@@ -108,7 +108,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Left Quarter Thru" from="Left-Hand Columns of 6">
+  <tam title="Grand Left Quarter Thru" from="Left-Hand Columns of 6" vid="V1-9iextzoq">
     <formation fid="F3-yhjzm6r3" aid="A1-fxvn8w11">
       <dancer gender="girl" x="1" y="-3" angle="90"/>
       <dancer gender="boy" x="1" y="0" angle="90"/>
@@ -130,7 +130,7 @@
   <tam title="Grand Left Quarter Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing LH PTP"
-       parts="2">
+       parts="2" vid="V1-jb4ix24d">
     <path>
       <move select="Hinge Left" beats="2" scaleX=".5"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75"/>
@@ -150,7 +150,7 @@
   <tam title="Grand 3/4 Thru"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-sphyo31h">
     <path>
       <move select="Hinge Right" hands="gripright" scaleX=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".75" scaleY=".5" />
@@ -172,7 +172,7 @@
     </path>
   </tam>
 
-  <tam title="Grand 3/4 Thru" from="Right-Hand Columns of 6" parts="4.5">
+  <tam title="Grand 3/4 Thru" from="Right-Hand Columns of 6" parts="4.5" vid="V1-nl36gzru">
     <formation fid="F3-76pg7qim" aid="A1-id85x5va">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="0" angle="270"/>
@@ -197,7 +197,7 @@
   <tam title="Grand 3/4 Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing PTP"
-       parts="4.5">
+       parts="4.5" vid="V1-lq7a4b1z">
     <path>
       <move select="Swing Right"/>
       <move select="Hinge Right" scaleX=".5"/>
@@ -220,7 +220,7 @@
   <tam title="Grand Left 3/4 Thru"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-0f1dnokx">
     <path>
       <move select="Hinge Left" hands="gripleft" scaleX=".5" />
       <move select="Swing Left" hands="gripleft" scaleX=".75" scaleY=".5" />
@@ -242,7 +242,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Left 3/4 Thru" from="Left-Hand Columns of 6" parts="4.5">
+  <tam title="Grand Left 3/4 Thru" from="Left-Hand Columns of 6" parts="4.5" vid="V1-dxsxct58">
     <formation fid="F3-yhjzm6r3" aid="A1-fxvn8w11">
       <dancer gender="girl" x="1" y="-3" angle="90"/>
       <dancer gender="boy" x="1" y="0" angle="90"/>
@@ -267,7 +267,7 @@
   <tam title="Grand Left 3/4 Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing LH PTP"
-       parts="4.5">
+       parts="4.5" vid="V1-2v0cjrk7">
     <path>
       <move select="Swing Left"/>
       <move select="Hinge Left"/>

@@ -26,7 +26,7 @@
        from="Quarter Tag"
        formation="Quarter Tag"
        sequencer="gender-specific"
-       parts="3" >
+       parts="3"  vid="V1-p4ol9tea">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="3" />
       <move select="Lead Right" />
@@ -49,7 +49,7 @@
 
   <tam title="Ramble" from="Quarter Tag, Girls in Center"
        sequencer="gender-specific"
-       parts="3">
+       parts="3" vid="V1-p4ol9tea">
     <formation fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
@@ -78,7 +78,7 @@
 
   <tam title="Ramble" from="Quarter Tag, Boys in Center"
        sequencer="gender-specific"
-       parts="3">
+       parts="3" vid="V1-p4ol9tea">
     <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
@@ -110,7 +110,7 @@
        from="Three Quarter Tag"
        formation="3/4 Tag"
        sequencer="gender-specific"
-       parts="3" >
+       parts="3"  vid="V1-u1x9anf5">
     <path numbers="1 8">
       <move select="Quarter Right" offsetY="-1" />
       <move select="Lead Right" beats="3.5" scaleY="3" />
@@ -135,7 +135,7 @@
 
   <tam title="Ramble" from="Three Quarter Tag, Girls in Center"
        sequencer="gender-specific"
-       parts="3">
+       parts="3" vid="V1-u1x9anf5">
     <formation fid="F3-78uohvsi" aid="A1-kjfkuiyk">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -166,7 +166,7 @@
 
   <tam title="Ramble" from="Three Quarter Tag, Boys in Center"
        sequencer="gender-specific"
-       parts="3">
+       parts="3" vid="V1-u1x9anf5">
     <formation fid="F3-78uohvsi" aid="A1-cvq7pdsw">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
@@ -196,7 +196,7 @@
   </tam>
 
   <tam title="Ramble" from="Right-Hand Columns" formation="Column RH GBGB"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-yi757rm5">
     <path>
       <move select="U-Turn Left" offsetX="-1" offsetY="2" />
       <move select="Forward 2" />
@@ -222,7 +222,7 @@
        from="Quarter Tag"
        formation="Quarter Tag"
        sequencer="gender-specific"
-       parts="6;3" >
+       parts="6;3"  vid="V1-njihymp9">
     <path couples="2 4">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -260,7 +260,7 @@
   <tam title="Scoot and Ramble"
        from="Quarter Tag, Boys in center"
        sequencer="gender-specific"
-       fractions="6;3">
+       fractions="6;3" vid="V1-njihymp9">
     <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
@@ -304,7 +304,7 @@
   <tam title="Scoot and Ramble"
        from="Quarter Tag, Girls in center"
        sequencer="gender-specific"
-       parts="6;3">
+       parts="6;3" vid="V1-njihymp9">
     <formation name="Quarter Tag" fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>

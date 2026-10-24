@@ -22,7 +22,7 @@
 -->
 <tamination title="Anything and Cross">
 
-  <tam title="Cross" from="Right-Hand Box" formation="Box RH">
+  <tam title="Cross" from="Right-Hand Box" formation="Box RH" vid="V1-4r5sfitx">
     <path>
       <move select="Extend Right" hands="left" beats="2" scaleX="3" scaleY="2" />
       <move select="Forward" />
@@ -32,7 +32,7 @@
     </path>
   </tam>
 
-  <tam title="Cross" from="Left-Hand Box" formation="Box LH">
+  <tam title="Cross" from="Left-Hand Box" formation="Box LH" vid="V1-dfu5w0sd">
     <path>
       <move select="Stand" beats="3" hands="none"/>
     </path>
@@ -44,7 +44,7 @@
 
   <tam title="Cross"
        from="Right-Hand Columns"
-       formation="Column RH GBGB" >
+       formation="Column RH GBGB"  vid="V1-7713jooc">
     <path>
       <move select="Stand" beats="2" hands="none"/>
     </path>
@@ -61,7 +61,7 @@
 
   <tam title="Cross"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-l15wg2t6">
     <path>
       <move select="Extend Right" hands="left" beats="2" scaleX="3" scaleY="2" />
       <move select="Forward" />
@@ -80,7 +80,7 @@
 
   <tam title="Cross"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG" >
+       formation="Ocean Waves LH BGBG"  vid="V1-oljyo88p">
     <path>
       <move select="Stand" beats="3" hands="none"/>
     </path>
@@ -99,7 +99,7 @@
 
   <tam title="Beaus Cross"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-n1wlqg8n">
     <path>
       <movement hands="left" beats="2" cx1="1" cy1="0" cx2=".8" cy2="-2" x2="3" y2="-2"
                 cx3="1" cx4="1" cy4="-.4" x4="2" y4="-.4" />
@@ -111,7 +111,7 @@
 
   <tam title="Beaus Cross"
        from="Normal Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-1bj5so0y">
     <path>
       <movement hands="left" beats="2" cx1="1" cy1="0" cx2=".8" cy2="-2" x2="4" y2="-2"
                 cx3="1" cx4="1" cy4="-.4" x4="2" y4="-.4" />
@@ -130,7 +130,7 @@
 
   <tam title="Belles Cross"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-kn11731c">
     <path>
       <move select="Stand" beats="2" hands="none"/>
     </path>
@@ -142,7 +142,7 @@
 
   <tam title="Belles Cross"
        from="Normal Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-h8z9kpy9">
     <path>
       <move select="Stand" beats="2" hands="none"/>
     </path>
@@ -159,7 +159,7 @@
     </path>
   </tam>
 
-  <tam title="Wheel and Deal, Beaus Cross" formation="Two-Faced Line RH" group=" ">
+  <tam title="Wheel and Deal, Beaus Cross" formation="Two-Faced Line RH" group=" " vid="V1-9wwf77j6">
     <path numbers="1 4">
       <move select="Run Right" beats="4" hands="right" scaleX="2" scaleY="2" offsetX="2" />
       <movement hands="left" beats="2" cx1="1" cy1="0" cx2=".8" cy2="-2" x2="4" y2="-2"

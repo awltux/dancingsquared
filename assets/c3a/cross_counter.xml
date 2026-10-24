@@ -22,7 +22,7 @@
 -->
 <tamination title="Cross Counter">
 
-  <tam title="Cross Counter" from="3/4 Tag" formation="3/4 Tag" parts="4;4.5">
+  <tam title="Cross Counter" from="3/4 Tag" formation="3/4 Tag" parts="4;4.5" vid="V1-m3hnxy6h">
     <path>
       <move select="Run Left" beats="4" scaleX="2" offsetX="-2" scaleY="2"/>
       <move select="Extend Left" beats="1.5" scaleY=".5"/>
@@ -48,7 +48,7 @@
   </tam>
 
   <tam title="Cross Counter" from="Left-Hand 3/4 Tag"
-       formation="3/4 Tag LH" parts="4;4.5">
+       formation="3/4 Tag LH" parts="4;4.5" vid="V1-3rno0v39">
     <path>
       <move select="Run Left" beats="4" scaleX="2" offsetX="-2" scaleY="2"/>
       <move select="Extend Left" beats="1.5" scaleY=".5"/>
@@ -74,7 +74,7 @@
   </tam>
 
   <tam title="Scoot and Cross Counter" group=" " parts="6;4;4.5"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-sgqzi7fv">
     <path numbers="1 8">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -112,7 +112,7 @@
   </tam>
 
   <tam title="Left Scoot and Cross Counter" group=" " parts="6;4;4.5"
-       formation="Quarter Tag LH">
+       formation="Quarter Tag LH" vid="V1-qxszs8l5">
     <path>
       <move select="Forward" beats="1.5" scaleX="1.5" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

@@ -24,7 +24,7 @@
 
   <tam title="Detour"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-svvf39go">
     <path couples="4 2">
       <move select="Forward 2" />
       <move select="Quarter Left" hands="left" offsetX="1" />
@@ -43,7 +43,7 @@
 
   <tam title="Detour"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-u6s45nrt">
     <path numbers="1 8">
       <move select="Forward 2" />
       <move select="Quarter Left" hands="left" offsetX="1" />
@@ -62,7 +62,7 @@
 
   <tam title="Detour"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-t1b7tpyv">
     <path>
       <move select="Run Right" beats="2" offsetX="-2" offsetY="1" />
       <move select="Hinge Right" />
@@ -81,7 +81,7 @@
 
   <tam title="Detour"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-90m7mslu">
     <path>
       <move select="Run Right" beats="2" offsetX="-2" offsetY="1" />
       <move select="Hinge Right" />
@@ -100,7 +100,7 @@
 
   <tam title="Detour"
        from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-wuxs2tag">
     <path>
       <move select="Lead Right" beats="3" scaleX="2" scaleY="3"/>
     </path>
@@ -119,7 +119,7 @@
 
   <tam title="Detour"
        from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-fb058r4j">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="3"/>
     </path>
@@ -138,7 +138,7 @@
 
   <tam title="Detour"
        from="T-Bones 1"
-       formation="T-Bone URRD">
+       formation="T-Bone URRD" vid="V1-syxwzyd2">
     <path>
       <move select="Forward" beats="3"/>
       <move select="Hinge Left" offsetY="-1"/>
@@ -157,7 +157,7 @@
 
   <tam title="Detour"
        from="T-Bones 2"
-       formation="T-Bone DRRU">
+       formation="T-Bone DRRU" vid="V1-6u2r19p2">
     <path>
       <move select="Run Right" scaleY=".5" offsetX="-1"/>
       <move select="Hinge Right"/>

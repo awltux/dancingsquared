@@ -24,7 +24,7 @@
 
   <tam title="Heads Rotate"
        from="Static Square"
-       formation="Static Square" parts="2" group=" ">
+       formation="Static Square" parts="2" group=" " vid="V1-oyqac6fj">
     <path numbers="1 8">
       <move select="Lead Right" hands="right" beats="2" scaleY="2" />
       <move select="Lead Left" hands="right" beats="3" scaleX="2" scaleY="2" />
@@ -43,7 +43,7 @@
 
   <tam title="Sides Rotate"
        from="Static Square"
-       formation="Static Square" parts="2" group=" ">
+       formation="Static Square" parts="2" group=" " vid="V1-3iscq5pa">
     <path>
       <move select="Forward 2" hands="right" />
     </path>
@@ -62,7 +62,7 @@
 
   <tam title="Heads Rotate 1/2"
        from="Static Square"
-       formation="Static Square" parts="2" group=" ">
+       formation="Static Square" parts="2" group=" " vid="V1-08j0o0o1">
     <path>
       <move select="Lead Right" hands="right" beats="2" scaleY="2" />
       <move select="Lead Left" hands="right" beats="3" scaleX="2" scaleY="2" />
@@ -83,7 +83,7 @@
 
   <tam title="Sides Rotate 1/2"
        from="Static Square"
-       formation="Static Square" parts="2" group=" ">
+       formation="Static Square" parts="2" group=" " vid="V1-h17jq0yo">
     <path>
       <move select="Forward 2" hands="right" />
     </path>
@@ -106,7 +106,7 @@
   <tam title="Heads Reverse Rotate"
        from="Static Square"
        formation="Static Square"
-       parts="2" group="  ">
+       parts="2" group="  " vid="V1-sf1a2uoh">
     <path>
       <move select="Quarter Left" hands="right" beats="2" />
       <move select="Lead Right" hands="right" beats="3" scaleX="3.5" scaleY="3"/>
@@ -126,7 +126,7 @@
   <tam title="Sides Reverse Rotate"
        from="Static Square"
        formation="Static Square"
-       parts="2" group="  ">
+       parts="2" group="  " vid="V1-0z7afxls">
     <path>
       <move select="Forward 2" hands="right" />
     </path>
@@ -146,7 +146,7 @@
   <tam title="Heads Reverse Rotate 1/2"
        from="Static Square"
        formation="Static Square"
-       parts="2" group="  ">
+       parts="2" group="  " vid="V1-7jvhm4i3">
     <path>
       <move select="Quarter Left" hands="right" beats="2" />
       <move select="Lead Right" hands="right" beats="3" scaleX="3.5" scaleY="3"/>
@@ -168,7 +168,7 @@
   <tam title="Sides Reverse Rotate 1/2"
        from="Static Square"
        formation="Static Square"
-       parts="2" group="  ">
+       parts="2" group="  " vid="V1-8se2h8fm">
     <path>
       <move select="Forward 2" hands="right" />
     </path>
@@ -190,7 +190,7 @@
 
   <tam title="Heads Single Rotate"
        from="Static Square"
-       formation="Static Square" group="   " >
+       formation="Static Square" group="   "  vid="V1-6a17bgcz">
     <path numbers="1 8">
       <move select="Quarter Right" offsetY="-1" />
       <move select="Counter Rotate Left 4 2" offsetX="-1"/>
@@ -209,7 +209,7 @@
 
   <tam title="Sides Single Rotate"
        from="Static Square"
-       formation="Static Square" group="   " >
+       formation="Static Square" group="   "  vid="V1-m599hiok">
     <path>
       <move select="Forward 2" hands="right" />
     </path>
@@ -228,7 +228,7 @@
 
   <tam title="Heads Single Rotate 1/2"
        from="Static Square"
-       formation="Static Square" group="   " >
+       formation="Static Square" group="   "  vid="V1-m0l1ykgt">
     <path>
       <move select="Quarter Right" offsetY="-1" />
       <move select="Counter Rotate Left 4 2" offsetX="-1"/>
@@ -249,7 +249,7 @@
 
   <tam title="Sides Single Rotate 1/2"
        from="Static Square"
-       formation="Static Square" group="   " >
+       formation="Static Square" group="   "  vid="V1-3hpg7e7i">
     <path>
       <move select="Forward 2" offsetX="-.5" hands="right" />
     </path>
@@ -271,7 +271,7 @@
 
   <tam title="Heads Reverse Single Rotate"
        from="Static Square"
-       formation="Static Square" group="    ">
+       formation="Static Square" group="    " vid="V1-n37sqa51">
     <path>
       <move select="Quarter Left" offsetY="1" />
       <move select="Counter Rotate Right 2 -4" offsetX="-1"/>
@@ -290,7 +290,7 @@
 
   <tam title="Sides Reverse Single Rotate"
        from="Static Square"
-       formation="Static Square" group="    ">
+       formation="Static Square" group="    " vid="V1-l5dcthri">
     <path>
       <move select="Forward 2" hands="right" />
     </path>
@@ -309,7 +309,7 @@
 
   <tam title="Heads Reverse Single Rotate 1/2"
        from="Static Square"
-       formation="Static Square" group="    ">
+       formation="Static Square" group="    " vid="V1-b9ava8pj">
     <path>
       <move select="Quarter Left" offsetY="1" />
       <move select="Counter Rotate Right 2 -4" offsetX="-1"/>
@@ -330,7 +330,7 @@
 
   <tam title="Sides Reverse Single Rotate 1/2"
        from="Static Square"
-       formation="Static Square" group="    ">
+       formation="Static Square" group="    " vid="V1-xwzn3t9s">
     <path>
       <move select="Forward 2" offsetX="-.5" hands="right" />
     </path>

@@ -23,7 +23,7 @@
 <tamination title="Split Square Thru">
 
   <tam title="Split Square Thru 2"
-       from="T-Bones, Ends Facing" formation="T-Bone ULRU">
+       from="T-Bones, Ends Facing" formation="T-Bone ULRU" vid="V1-u9g8r7bh">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Split Square Thru 2"
-       from="T-Bones, Centers Facing" formation="T-Bone RUUL">
+       from="T-Bones, Centers Facing" formation="T-Bone RUUL" vid="V1-rv3oevwa">
     <path>
       <move select="Stand" beats="1.5" />
       <move select="Extend Right" scaleY=".5" />
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="Left Split Square Thru" group=" " sequencer="no"
-       formation="T-Bone ULRU">
+       formation="T-Bone ULRU" vid="V1-ae57c4t0">
     <path>
       <move select="Extend Right" scaleY=".5"/>
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY=".5"/>
@@ -103,7 +103,7 @@
   </tam>
 
   <tam title="Heads Start Split Square Thru" group=" " sequencer="no"
-       formation="Static Square" >
+       formation="Static Square"  vid="V1-6guc1wku">
     <path>
       <move select="Forward 2" />
       <move select="Pull Left" scaleY=".5" />
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Sides Start Split Square Thru" group=" " sequencer="no"
-       formation="Static Square" >
+       formation="Static Square"  vid="V1-zworehzp">
     <path>
       <move select="Stand" beats="3.5" />
       <move select="Extend Right" scaleY=".5" />

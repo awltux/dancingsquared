@@ -25,7 +25,7 @@
 
 
   <tam title="Boys Press Right" from="Waves"
-       formation="Column LH GBGB" sequencer="gender-specific" group=" ">
+       formation="Column LH GBGB" sequencer="gender-specific" group=" " vid="V1-2r6ls6uk">
     <path>
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>
     </path>

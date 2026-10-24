@@ -22,7 +22,7 @@
 -->
 <tamination title="Bias Circulate">
 
-  <tam title="Bias Circulate" from="Right-Hand Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Bias Circulate" from="Right-Hand Waves" formation="Ocean Waves RH BGBG" vid="V1-kqrv0eh8">
     <path numbers="1 8">
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>
       <move select="Hinge Right"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Bias Circulate" from="Left-Hand Waves" formation="Ocean Waves LH BGBG">
+  <tam title="Bias Circulate" from="Left-Hand Waves" formation="Ocean Waves LH BGBG" vid="V1-46642sj7">
     <path>
       <move select="Run Left" beats="7.5" scaleX="2" scaleY="3"/>
     </path>

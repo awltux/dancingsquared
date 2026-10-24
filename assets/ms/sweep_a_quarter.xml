@@ -23,7 +23,7 @@
 <tamination title="Sweep a Quarter">
 
   <tam title="Flutterwheel and Sweep a Quarter" group=" "
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-lh1nw6jk">
     <path>
       <move select="Forward" hands="nohands" beats="3.5" scaleX=".5"/>
       <move select="Extend Left" hands="right" beats="1.5" scaleX="1.5" scaleY="1.5" />
@@ -43,7 +43,7 @@
 
   <tam title="Reverse Flutterwheel and Sweep a Quarter" group=" "
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-ojqgk2me">
     <path>
       <move select="Extend Right" beats="2" scaleX="1.5" scaleY="1.75" />
       <move select="Swing Left" hands="both" scaleX=".75" scaleY=".75" />
@@ -60,7 +60,7 @@
 
   <tam title="Ferris Wheel, Centers Sweep a Quarter" group=" "
        from="Right-Handed Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-a1b2j6ba">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleX="2" scaleY="2" offsetX="3" />
       <move select="Counter Rotate Right 2 0" hands="right"/>
@@ -79,7 +79,7 @@
 
   <tam title="Ferris Wheel, Centers Sweep a Quarter" group=" "
        from="Left-Handed Two-Faced Lines" display="none"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-9o1nc4ml">
     <path>
       <move select="Run Left" beats="4" hands="gripleft" scaleX="2" scaleY="2" offsetX="1" />
     </path>
@@ -98,7 +98,7 @@
 
   <tam title="Flutterwheel and Sweep a Quarter" group=" "
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-i2zw9tgh">
     <path>
       <move select="Forward" hands="nohands" beats="3.5" />
       <move select="Extend Left" hands="right" beats="1.5" scaleX="1.5" scaleY="1.5" />
@@ -128,7 +128,7 @@
   <tam title="Recycle and Sweep a Quarter" group=" "
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="4" >
+       fractions="4"  vid="V1-cwfwkizb">
     <path>
       <move select="Run Right" beats="4" offsetX="1" offsetY="-2" />
       <move select="Counter Rotate Right 2 0" hands="right" offsetY="1"/>
@@ -151,7 +151,7 @@
 
   <tam title="Reverse Flutterwheel and Sweep a Quarter" group=" "
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-nxyxa8ju">
     <path>
       <move select="Extend Right" beats="2" scaleY="1.5" />
       <move select="Swing Left" hands="both" scaleX=".5" scaleY=".5" />
@@ -181,7 +181,7 @@
   <tam title="Wheel and Deal, Centers Sweep a Quarter" group=" "
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="4" >
+       fractions="4"  vid="V1-cv78sz1m">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="-1" />
       <move select="Counter Rotate Left 2 0" hands="left"/>
@@ -200,7 +200,7 @@
 
   <!-- These are for the sequencer -->
   <tam title="Sweep a Quarter Left" display="none"
-       from="Facing Couples" formation="Facing Couples Compact">
+       from="Facing Couples" formation="Facing Couples Compact" vid="V1-xgtxzrj3">
     <path>
       <move select="Counter Rotate Right 2 0" hands="right" offsetX="0.5" offsetY="0.5"/>
     </path>
@@ -210,7 +210,7 @@
   </tam>
 
   <tam title="Sweep a Quarter Left" display="none"
-       from="Normal Lines" formation="Normal Lines Compact">
+       from="Normal Lines" formation="Normal Lines Compact" vid="V1-4v7d2e60">
     <path>
       <move select="Counter Rotate Right 2 0" hands="right" offsetX="0.5"/>
     </path>
@@ -226,7 +226,7 @@
   </tam>
 
   <tam title="Sweep a Quarter Left" display="none"
-       from="Eight Chain Thru" formation="Eight Chain Thru">
+       from="Eight Chain Thru" formation="Eight Chain Thru" vid="V1-jnrmooyv">
     <path>
       <move select="Counter Rotate Right 2 0" hands="right" offsetY="0.5"/>
     </path>
@@ -242,7 +242,7 @@
   </tam>
 
   <tam title="Sweep a Quarter Right" display="none"
-       from="Facing Couples" formation="Facing Couples Compact">
+       from="Facing Couples" formation="Facing Couples Compact" vid="V1-8msojyz0">
     <path>
       <move select="Counter Rotate Left 0 -2" hands="right" offsetX="0.5" offsetY="-0.5"/>
     </path>
@@ -252,7 +252,7 @@
   </tam>
 
   <tam title="Sweep a Quarter Right" display="none"
-       from="Normal Lines" formation="Normal Lines Compact">
+       from="Normal Lines" formation="Normal Lines Compact" vid="V1-0u1iao5f">
     <path>
       <move select="Counter Rotate Left 0 -2" hands="right" offsetX="0.5"/>
     </path>
@@ -268,7 +268,7 @@
   </tam>
 
   <tam title="Sweep a Quarter Right" display="none"
-       from="Eight Chain Thru" formation="Eight Chain Thru">
+       from="Eight Chain Thru" formation="Eight Chain Thru" vid="V1-rc40bix0">
     <path>
       <move select="Counter Rotate Left 0 -2" hands="right" offsetY="-0.5"/>
     </path>
@@ -288,7 +288,7 @@
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
 <tam title="Flutterwheel and Sweep a Quarter" group=" "
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-6ub8jxhp">
     <path>
       <move select="Forward" hands="nohands" beats="3.5" />
       <move select="Extend Left" hands="right" beats="1.5" scaleX="1.5" scaleY="1.5" />
@@ -305,7 +305,7 @@
 
 <tam title="Reverse Flutterwheel and Sweep a Quarter" group=" "
        from="Facing Couples"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-vqu90e6r">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.75" />
       <move select="Swing Left" hands="both" scaleX=".75" scaleY=".75" />

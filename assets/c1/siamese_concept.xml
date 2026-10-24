@@ -22,7 +22,7 @@
 -->
 <tamination title="Siamese Concept">
 
-  <tam title="Siamese 2/3 Recycle" group="Siamese" formation="Siamese Wave">
+  <tam title="Siamese 2/3 Recycle" group="Siamese" formation="Siamese Wave" vid="V1-n83g4br1">
     <path>
       <move select="Lead Right" hands="right" beats="2" scaleX="2" scaleY="2.5"/>
       <move select="Forward 3" hands="right" offsetY="1"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Ah So" group="Siamese" formation="Siamese Wave">
+  <tam title="Siamese Ah So" group="Siamese" formation="Siamese Wave" vid="V1-d3s6bq25">
     <path>
       <move select="Run Right" hands="gripright" beats="6" scaleX="2" scaleY="3.25" offsetX="2"/>
     </path>
@@ -60,7 +60,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Alter the Wave" group="Siamese" formation="Siamese Wave">
+  <tam title="Siamese Alter the Wave" group="Siamese" formation="Siamese Wave" vid="V1-rr0bpc3k">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleX="1.5" scaleY="1.5"/>
       <move select="Hinge Left" hands="both" scaleX=".5" scaleY=".5"/>
@@ -100,7 +100,7 @@
   </tam>
 
   <tam title="Siamese Bend the Line" group="Siamese"
-       formation="Siamese 2-Faced Line 2">
+       formation="Siamese 2-Faced Line 2" vid="V1-lq8sq3p5">
     <path>
       <move select="BackHinge Left" hands="gripright" beats="3" scaleY=".5"/>
     </path>
@@ -115,7 +115,7 @@
     </path>
   </tam>
 
-  <tam title="Box Circulate" group="Siamese" formation="Siamese Box 3">
+  <tam title="Box Circulate" group="Siamese" formation="Siamese Box 3" vid="V1-jgpctkpi">
     <path>
       <move select="Run Right" hands="right" beats="4" scaleX="2.5" scaleY="3"/>
     </path>
@@ -130,7 +130,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Cross Your Neighbor" group="Siamese" formation="Siamese Box 3">
+  <tam title="Siamese Cross Your Neighbor" group="Siamese" formation="Siamese Box 3" vid="V1-q2hwwhnf">
     <path>
       <move select="Lead Right" beats="4" hands="right" scaleX="3" scaleY="3"/>
       <move select="Swing Right" beats="6" scaleX="1.5" scaleY="1.25"/>
@@ -156,7 +156,7 @@
   </tam>
 
   <tam title="Siamese Diamond Circulate" group="Siamese"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-h3lao4ax">
     <path>
       <move select="Lead Right" hands="gripright" beats="6" scaleX="5" scaleY="3"/>
     </path>
@@ -171,7 +171,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Dixie Style to a Wave" group="Siamese" formation="Siamese Box 2">
+  <tam title="Siamese Dixie Style to a Wave" group="Siamese" formation="Siamese Box 2" vid="V1-ihjb6k30">
     <path>
       <move select="Extend Left" hands="gripleft" beats="3" scaleX="2" scaleY="3.5" />
       <move select="Extend Right" hands="gripleft" beats="3" scaleX="2" scaleY="3.5" />
@@ -192,7 +192,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Follow Thru" group="Siamese" formation="Siamese Box 3">
+  <tam title="Siamese Follow Thru" group="Siamese" formation="Siamese Box 3" vid="V1-m8l0tc8y">
     <path>
       <move select="Lead Right" beats="5" hands="right" scaleX="3" scaleY="3"/>
     </path>
@@ -209,7 +209,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Mix" group="Siamese" formation="Siamese Wave 2">
+  <tam title="Siamese Mix" group="Siamese" formation="Siamese Wave 2" vid="V1-m0lyv6qt">
     <path>
       <move select="Run Left" beats="4" hands="right" scaleX="2" scaleY="1.5"/>
     </path>
@@ -228,7 +228,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Pass the Ocean" group="Siamese" formation="Siamese Box 1">
+  <tam title="Siamese Pass the Ocean" group="Siamese" formation="Siamese Box 1" vid="V1-k50r2bpc">
     <path>
       <move select="Extend Left" hands="right" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" hands="right" beats="4" scaleX="3.5" scaleY="3.5"/>
@@ -247,7 +247,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Recycle" group="Siamese" formation="Siamese Wave">
+  <tam title="Siamese Recycle" group="Siamese" formation="Siamese Wave" vid="V1-rnqcpocd">
     <path>
       <move select="Run Right" hands="right" beats="8" scaleX="2.5" scaleY="3.25" offsetX="2"/>
     </path>
@@ -269,7 +269,7 @@
   </tam>
 
   <tam title="Siamese Spin the Top" group="Siamese"
-       formation="Siamese Wave" parts="4">
+       formation="Siamese Wave" parts="4" vid="V1-l9kuktg0">
     <path>
       <move select="Run Right" hands="right" beats="4" scaleX="1.5" scaleY="1.5"/>
       <move select="Run Left" hands="both" beats="3" scaleX=".5" scaleY=".5"/>
@@ -292,7 +292,7 @@
     </path>
   </tam>
 
-  <tam title="Siamese Zing" group="Siamese" formation="Siamese Box 3">
+  <tam title="Siamese Zing" group="Siamese" formation="Siamese Box 3" vid="V1-19tv327u">
     <path>
       <move select="U-Turn Left" hands="right"/>
       <move select="Forward 2" hands="right"/>

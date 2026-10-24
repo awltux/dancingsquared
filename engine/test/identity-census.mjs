@@ -31,7 +31,7 @@ import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import {
-  loadCallFromXml, setParser, formationId, arrangementId, allPoses,
+  loadCallFromXml, parseCallXml, setParser, formationId, arrangementId, allPoses,
   callVariantId, callVariantCanonical, parseFormationTags, isCallVariantId,
 } from '../dist/index.js';
 import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
@@ -68,10 +68,13 @@ let tams = 0;
 let genderSpecific = 0;
 let endArrangementDiffers = 0;
 let endShapeDiffers = 0;
+/** Authorings whose STORED `vid` is not the id this harness mints independently, by name. */
+const vidMismatches = [];
 
 for (const level of LEVELS) {
   for (const file of filesOf(level)) {
     const xml = read(`${level}/${file}`);
+    const parsed = parseCallXml(xml);
     for (const site of tamsOf(level, file)) {
       tams++;
       try {
@@ -104,6 +107,14 @@ for (const level of LEVELS) {
           idToCanonical.set(id, canonical);
         }
         canonicalToId.set(canonical, id);
+        // THE STORED TAG AGAINST AN INDEPENDENT MINT. `id` above comes from the fid the ENGINE resolves for the
+        // built bundle; the corpus stores its own on the tam. Two pieces of code answering the same question is the
+        // only kind of witness that catches both drifting together - a single implementation checked against itself
+        // passes for as long as the defect exists (AGENTS.md §11.2.3).
+        const storedVid = parsed[site.index]?.vid ?? null;
+        if (storedVid !== id) {
+          vidMismatches.push(`${level}/${file}#${site.index} "${site.title}" stores ${storedVid} and mints ${id}`);
+        }
       } catch (err) {
         failedTitles.push(`${site.title || file}: ${err.message}`);
       }
@@ -120,6 +131,9 @@ console.log('== the sample ==');
 check(tams === 1771, `ms+plus holds 1,771 tams (${tams})`);
 check(failedTitles.length === 2, `exactly the 2 known authorings fail to build (${failedTitles.length})`, failedTitles.join('; '));
 check(shapes.size > 0, 'the sweep measured something (a zero would be a coverage gap, not an absence)');
+check(vidMismatches.length === 0,
+  `every authoring's STORED vid is the id this harness mints from its own resolution (${vidMismatches.length} disagree of ${tams - failedTitles.length} built)`,
+  vidMismatches.slice(0, 3).join('; '));
 
 console.log('== the arrangement axis is not the formation axis ==');
 check(shapes.size === 198, `198 distinct start shapes (${shapes.size})`);

@@ -24,7 +24,7 @@
 
   <tam title="Step and Fold"
        from="Right-Hand Wave"
-       formation="Wave RH" >
+       formation="Wave RH"  vid="V1-eke76gjc">
     <path numbers="1 4">
       <move select="Run Right" offsetX="1.5" />
     </path>
@@ -35,7 +35,7 @@
 
   <tam title="Step and Fold"
        from="Left-Hand Wave"
-       formation="Wave LH" >
+       formation="Wave LH"  vid="V1-r8ec7a5r">
     <path>
       <move select="Run Left" offsetX="1.5" />
     </path>
@@ -46,7 +46,7 @@
 
   <tam title="Step and Fold"
        from="Right-Hand Diamond"
-       formation="Diamond RH" >
+       formation="Diamond RH"  vid="V1-yio02k8j">
     <path numbers="2 3">
       <move select="Run Right" offsetX="1" />
     </path>
@@ -57,7 +57,7 @@
 
   <tam title="Step and Fold"
        from="Left-Hand Diamond"
-       formation="Diamond LH" >
+       formation="Diamond LH"  vid="V1-nsgs1y0i">
     <path>
       <move select="Run Left" offsetX="1" />
     </path>
@@ -68,7 +68,7 @@
 
   <tam title="Step and Fold"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-f9hhzvjm">
     <path>
       <move select="Flip Right" offsetX="1" />
     </path>
@@ -85,7 +85,7 @@
 
   <tam title="Step and Fold"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-s19v91q9">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -102,7 +102,7 @@
 
   <tam title="Step and Fold"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-v13ms1zv">
     <path numbers="5 4">
       <move select="Flip Right" offsetX="1" />
     </path>
@@ -119,7 +119,7 @@
 
   <tam title="Step and Fold"
        from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-h4bijtzc">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -136,7 +136,7 @@
 
   <tam title="Step and Fold"
        from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-y6ddpnma">
     <path>
       <move select="Forward" />
     </path>
@@ -153,7 +153,7 @@
 
   <tam title="Step and Fold"
        from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-aptp8qf9">
     <path>
       <move select="Forward" />
     </path>
@@ -170,7 +170,7 @@
 
   <tam title="Step and Fold"
        from="Right-Hand Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-wlcvemfv">
     <path>
       <move select="Forward 2" />
     </path>
@@ -186,7 +186,7 @@
 
   <tam title="Step and Fold"
        from="Left-Hand Point-to-Point Diamonds"
-       formation="Diamonds LH PTP Girl Points">
+       formation="Diamonds LH PTP Girl Points" vid="V1-it69hy32">
     <path>
     </path>
     <path>
@@ -201,7 +201,7 @@
   </tam>
 
   <tam title="Step and Fold" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-uu1ezhcp">
     <path>
       <move select="Flip Right" offsetX="2" scaleY=".25" />
     </path>
@@ -217,7 +217,7 @@
   </tam>
 
   <tam title="Step and Fold" from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-otltnji1">
     <path>
       <move select="Flip Left" offsetX="2" scaleY=".25" />
     </path>
@@ -233,7 +233,7 @@
   </tam>
 
   <tam title="Step and Fold" from="Tidal Inverted Line, Right-Hand Centers"
-       formation="Inverted Tidal Line RH">
+       formation="Inverted Tidal Line RH" vid="V1-jkj1r0hs">
     <path>
       <move select="Flip Right" beats="3" offsetX="2" scaleY=".25" />
     </path>
@@ -249,7 +249,7 @@
   </tam>
 
   <tam title="Step and Fold" from="Tidal Inverted Line, Left-Hand Centers"
-       formation="Inverted Tidal Line LH">
+       formation="Inverted Tidal Line LH" vid="V1-h45c73i9">
     <path>
       <move select="Flip Left" beats="3" offsetX="2" scaleY=".25"/>
     </path>
@@ -265,7 +265,7 @@
   </tam>
 
   <tam title="All 8 Step and Fold" group=" "
-       formation="Thar LH Boys">
+       formation="Thar LH Boys" vid="V1-yymu9vyi">
     <path>
       <move select="Forward 3"/>
     </path>
@@ -281,7 +281,7 @@
   </tam>
 
   <tam title="All 8 Step and Fold" group=" " display="none"
-       formation="Thar RH Boys">
+       formation="Thar RH Boys" vid="V1-632yrndl">
     <path>
       <move select="Forward 3"/>
     </path>
@@ -297,7 +297,7 @@
   </tam>
 
   <tam title="As Couples Step and Fold" group=" "
-       from="Tidal Two-Faced Line" formation="Two-Faced Tidal Line RH">
+       from="Tidal Two-Faced Line" formation="Two-Faced Tidal Line RH" vid="V1-e0rant8q">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleY="2" offsetX="2" offsetY="1.5"/>
     </path>
@@ -313,7 +313,7 @@
   </tam>
 
   <tam title="Concentric Step and Fold" group=" "
-       formation="Concentric Diamonds Mixed">
+       formation="Concentric Diamonds Mixed" vid="V1-1rg6d0zp">
     <path>
       <move select="Flip Right" offsetX="1"/>
     </path>
@@ -330,7 +330,7 @@
   </tam>
 
   <tam title="Concentric Diamond Step and Fold" group=" "
-       formation="Concentric Diamonds Mixed">
+       formation="Concentric Diamonds Mixed" vid="V1-g29m7x4d">
     <path>
       <move select="Forward"/>
     </path>
@@ -347,7 +347,7 @@
 
   <tam title="Stretch Step and Fold"
        formation="Ocean Waves RH BGGB"
-       group=" " >
+       group=" "  vid="V1-60by2qav">
     <path>
       <move select="Forward 2" beats="1" />
       <move select="Run Right" beats="2" offsetX="1" scaleX=".5" />
@@ -365,7 +365,7 @@
 
   <tam title="Tandem Step and Fold"
        formation="Ocean Waves RH BGGB"
-       group=" " >
+       group=" "  vid="V1-3rb7uu3f">
     <path>
       <move select="Forward 4" beats="3" />
       <move select="Run Right" offsetX="1" />
@@ -382,7 +382,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Line Step and Fold" group=" " >
+  <tam title="Triple Line Step and Fold" group=" "  vid="V1-q70wh6sw">
      <formation fid="F3-d1osiqrj" aid="A1-dff4xa6h">
        <dancer gender="boy" x="-4" y="1" angle="0"/>
        <dancer gender="girl" x="-4" y="-1" angle="0"/>

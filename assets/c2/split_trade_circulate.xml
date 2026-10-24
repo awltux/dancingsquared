@@ -25,7 +25,7 @@
   <tam title="Split Trade Circulate"
        from="Inverted Lines Ends Facing Out"
        formation="Inverted Lines Ends Facing Out"
-       fractions="" >
+       fractions=""  vid="V1-phrkcapf">
     <path>
       <move select="Run Left" beats="4" />
     </path>
@@ -45,7 +45,7 @@
   <tam title="Split Trade Circulate"
        from="Inverted Lines Ends Facing In"
        formation="Inverted Lines Ends Facing In"
-       fractions="" >
+       fractions=""  vid="V1-i2oqd9hc">
     <path>
       <move select="Forward" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />
@@ -64,7 +64,7 @@
 
   <tam title="Split Trade Circulate"
        from="Magic Column RH"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-4mc94z5v">
     <path>
       <move select="Extend Left" beats="2" scaleY="2" />
       <move select="Forward" />
@@ -83,7 +83,7 @@
 
   <tam title="Split Trade Circulate"
        from="Magic Column LH"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-wsfzd9il">
     <path numbers="2 7">
       <move select="Run Right" />
     </path>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Mini Chase">
 
-  <tam title="Mini Chase" from="Couples Facing Out" formation="Couples Facing Out">
+  <tam title="Mini Chase" from="Couples Facing Out" formation="Couples Facing Out" vid="V1-c2vlir69">
     <path couples="3 1">
       <move select="Run Right" offsetX="-1.5"/>
       <move select="Lead Right" beats="2" scaleX="1.5"/>
@@ -33,7 +33,7 @@
     </path>
   </tam>
 
-  <tam title="Mini Chase" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Mini Chase" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-8ewz18ol">
     <path>
       <move select="Run Right" scaleY=".5" offsetX="-1.5"/>
       <move select="Lead Right" beats="2" scaleX="1.5"/>
@@ -52,7 +52,7 @@
     </path>
   </tam>
 
-  <tam title="Mini Chase" from="Trade By" formation="Trade By">
+  <tam title="Mini Chase" from="Trade By" formation="Trade By" vid="V1-ih1qguux">
     <path>
       <move select="Run Right" offsetX="-.5"/>
       <move select="Lead Right" beats="2" scaleX="1.5"/>
@@ -71,7 +71,7 @@
     </path>
   </tam>
 
-  <tam title="Mini Chase" from="T-Bones" formation="T-Bone DRLD">
+  <tam title="Mini Chase" from="T-Bones" formation="T-Bone DRLD" vid="V1-4miarm8f">
     <path>
       <move select="Run Right" scaleY=".5" offsetX="-.5"/>
       <move select="Lead Right" beats="2" scaleX="1.5"/>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="All 8 Mini Chase" group=" "
-       formation="Static Facing Out">
+       formation="Static Facing Out" vid="V1-ja3jlh92">
     <path>
       <move select="Quarter Right" beats="2" offsetY="-1"/>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2"/>
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="As Couples Mini Chase" group=" "
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-0rpw0zoe">
     <path>
       <move select="Counter Rotate Right -2 0" hands="left"/>
       <move select="U-Turn Right" hands="left" beats="3" offsetX="-1" offsetY="-1"/>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Concentric Mini Chase" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-tobvz5vr">
     <path>
       <move select="Run Right" scaleY="1.5" offsetX="-.5"/>
       <move select="Lead Right" beats="3" scaleX="3.5"/>
@@ -151,7 +151,7 @@
   </tam>
 
   <tam title="Stretch Mini Chase" group=" "
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-krdwxy2m">
     <path>
       <move select="Run Right" scaleY=".5" offsetX="-1.5"/>
       <move select="Lead Right" beats="2" scaleX="1.5"/>
@@ -171,7 +171,7 @@
   </tam>
 
   <tam title="Tandem Mini Chase" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-vaeqhrh2">
     <path>
       <move select="Run Right" scaleY="2" offsetX="-1.5"/>
       <move select="Lead Right" beats="4" scaleX="2.5" scaleY="4"/>

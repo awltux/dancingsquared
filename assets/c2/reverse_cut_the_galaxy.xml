@@ -22,7 +22,7 @@
 -->
 <tamination title="Reverse Cut the Galaxy">
 
-  <tam title="Reverse Cut the Galaxy" from="Right-Hand Galaxy" formation="Galaxy RH GP">
+  <tam title="Reverse Cut the Galaxy" from="Right-Hand Galaxy" formation="Galaxy RH GP" vid="V1-i34o9lg7">
     <path>
 	    <move select="Swing Right" hands="gripright" beats="4" scaleX=".5"/>
 	    <move select="Dodge Left" offsetX="-.5"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Galaxy" from="Left-Hand Galaxy" formation="Galaxy LH GP">
+  <tam title="Reverse Cut the Galaxy" from="Left-Hand Galaxy" formation="Galaxy LH GP" vid="V1-o0j1n5se">
     <path>
       <move select="Swing Left" hands="gripleft" beats="4" scaleX=".5"/>
       <move select="Dodge Right" offsetX=".5"/>
@@ -62,7 +62,7 @@
 
   <tam title="Reverse Cut the Galaxy"
        from="Facing Galaxy, Right-Hand Box"
-       formation="Galaxy Facing RH Box">
+       formation="Galaxy Facing RH Box" vid="V1-2xb2nohq">
     <path>
       <move select="Swing Right" hands="gripright" beats="4" scaleX=".5"/>
       <move select="Dodge Left" offsetX="-.5"/>
@@ -83,7 +83,7 @@
 
   <tam title="Reverse Cut the Galaxy"
        from="Facing Galaxy, Left-Hand Box"
-       formation="Galaxy Facing LH Box">
+       formation="Galaxy Facing LH Box" vid="V1-i7lff2mb">
     <path>
       <move select="Swing Left" hands="gripleft" beats="4" scaleX=".5"/>
       <move select="Dodge Right" offsetX=".5"/>
@@ -104,7 +104,7 @@
 
   <tam title="Reverse Cut the Galaxy"
        from="Galaxy 5"
-       formation="Galaxy 5">
+       formation="Galaxy 5" vid="V1-q96kr1h5">
     <path>
       <move select="Run Right" beats="4"/>
       <move select="Dodge Left" offsetX="-.5"/>
@@ -125,7 +125,7 @@
 
   <tam title="Reverse Cut the Galaxy"
        from="Galaxy 6"
-       formation="Galaxy 6">
+       formation="Galaxy 6" vid="V1-h3w3xwxn">
     <path>
       <move select="Flip Left" beats="4" scaleX=".5"/>
       <move select="Dodge Right" offsetX=".5"/>
@@ -146,7 +146,7 @@
 
   <tam title="Reverse Cut the Galaxy"
        from="Galaxy 7"
-       formation="Galaxy 7">
+       formation="Galaxy 7" vid="V1-udt6c2ds">
     <path>
       <move select="Run Right" beats="4"/>
       <move select="Dodge Left" offsetX="-.5"/>
@@ -167,7 +167,7 @@
 
   <tam title="Reverse Cut the Galaxy"
        from="Galaxy 8"
-       formation="Galaxy 8">
+       formation="Galaxy 8" vid="V1-9ohjpjlq">
     <path>
       <move select="Flip Left" beats="4" scaleX=".5"/>
       <move select="Dodge Right" offsetX=".5"/>
@@ -186,7 +186,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Galaxy" from="Right-Hand Galaxy" formation="Galaxy RH GP">
+  <tam title="Reverse Flip the Galaxy" from="Right-Hand Galaxy" formation="Galaxy RH GP" vid="V1-4f8obvie">
     <path>
       <move select="Flip Left" beats="4" offsetX=".5"/>
     </path>
@@ -201,7 +201,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Galaxy" from="Left-Hand Galaxy" formation="Galaxy LH GP">
+  <tam title="Reverse Flip the Galaxy" from="Left-Hand Galaxy" formation="Galaxy LH GP" vid="V1-hmtgzudn">
     <path>
       <move select="Flip Right" beats="4" offsetX="-.5"/>
     </path>
@@ -218,7 +218,7 @@
 
   <tam title="Reverse Flip the Galaxy"
        from="Facing Galaxy, Right-Hand Box"
-       formation="Galaxy Facing RH Box">
+       formation="Galaxy Facing RH Box" vid="V1-nj9w41yf">
     <path>
       <move select="Flip Left" beats="4" offsetX=".5"/>
     </path>
@@ -235,7 +235,7 @@
 
   <tam title="Reverse Flip the Galaxy"
        from="Facing Galaxy, Left-Hand Box"
-       formation="Galaxy Facing LH Box">
+       formation="Galaxy Facing LH Box" vid="V1-pru1k04e">
     <path>
       <move select="Flip Right" beats="4" offsetX="-.5"/>
     </path>
@@ -252,7 +252,7 @@
 
   <tam title="Reverse Flip the Galaxy"
        from="Galaxy 5"
-       formation="Galaxy 5">
+       formation="Galaxy 5" vid="V1-wc59ko74">
     <path>
       <move select="Flip Left" beats="4" offsetX=".5"/>
     </path>
@@ -269,7 +269,7 @@
 
   <tam title="Reverse Flip the Galaxy"
        from="Galaxy 6"
-       formation="Galaxy 6">
+       formation="Galaxy 6" vid="V1-c8248hcm">
     <path>
       <move select="Flip Right" beats="4" offsetX="-.5"/>
     </path>
@@ -286,7 +286,7 @@
 
   <tam title="Reverse Flip the Galaxy"
        from="Galaxy 7"
-       formation="Galaxy 7">
+       formation="Galaxy 7" vid="V1-eshjjo4h">
     <path>
       <move select="Flip Left" beats="4" offsetX=".5"/>
     </path>
@@ -303,7 +303,7 @@
 
   <tam title="Reverse Flip the Galaxy"
        from="Galaxy 8"
-       formation="Galaxy 8">
+       formation="Galaxy 8" vid="V1-pzf8cbin">
     <path>
       <move select="Flip Right" beats="4" offsetX="-.5"/>
     </path>

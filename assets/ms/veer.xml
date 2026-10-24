@@ -25,7 +25,7 @@
   <tam title="Veer Left"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-3whfmf6q">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="1.5" scaleY="2" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Veer Left"
        from="Left-Hand Two-Faced Line"
        formation="Two-Faced Line LH"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-x7skx2xc">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY="2" />
     </path>
@@ -49,7 +49,7 @@
   <tam title="Veer Left"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-00a2hp92">
     <path>
       <move select="Extend Left" beats="2" hands="gripright" scaleY="2" />
     </path>
@@ -67,7 +67,7 @@
   <tam title="Veer Left"
        from="Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-yq0kqrgd">
     <path>
       <move select="Extend Left" beats="2" hands="gripleft" scaleY="2" />
     </path>
@@ -85,7 +85,7 @@
   <tam title="Veer Left"
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line LH"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-66qbr1pn">
     <path>
       <move select="Extend Left" beats="2" hands="gripleft" scaleX="2" scaleY=".5" />
     </path>
@@ -103,7 +103,7 @@
   <tam title="Veer Left"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-vm4v9yfz">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY=".5" />
     </path>
@@ -121,7 +121,7 @@
   <tam title="Veer Right"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-4kp232dz">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="1.5" scaleY="2" />
     </path>
@@ -133,7 +133,7 @@
   <tam title="Veer Right"
        from="Right-Hand Two-Faced Line"
        formation="Two-Faced Line RH"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-vw51mv36">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="2" scaleY="2" />
     </path>
@@ -145,7 +145,7 @@
   <tam title="Veer Right"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-70m4ncnj">
     <path>
       <move select="Extend Right" beats="2" hands="gripright" scaleY="2" />
     </path>
@@ -163,7 +163,7 @@
   <tam title="Veer Right"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-zmm98owr">
     <path>
       <move select="Extend Right" beats="2" hands="gripright" scaleY="2" />
     </path>
@@ -181,7 +181,7 @@
   <tam title="Veer Right"
        from="Tidal Two-Faced Line"
        formation="Two-Faced Tidal Line RH"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-hogcuhjx">
     <path>
       <move select="Extend Right" beats="2" hands="gripright" scaleX="2" scaleY=".5" />
     </path>
@@ -199,7 +199,7 @@
   <tam title="Veer Right"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-goh05t8i">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="2" scaleY="1.5" />
     </path>
@@ -221,7 +221,7 @@
 <tam title="Veer Left"
        from="Facing Couples"
        formation="Facing Couples"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-mbwt3u6n">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY="2" />
     </path>
@@ -233,7 +233,7 @@
 <tam title="Veer Right"
        from="Facing Couples"
        formation="Facing Couples"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-195j0856">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="2" scaleY="2" />
     </path>

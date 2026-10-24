@@ -13,7 +13,7 @@
   <tam title="Flutterwheel"
        from="Static Square"
        formation="Static Square"
-       difficulty="2" >
+       difficulty="2"  vid="V1-arx4o5hq">
     <path>
       <move select="Quarter Left" beats="4.5" offsetY="-1" />
       <move select="Hinge Right" beats="3" scaleX="3" scaleY="3" />

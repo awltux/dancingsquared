@@ -25,7 +25,7 @@
   <tam title="Spin Chain the Gears"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;4.5;3" difficulty="1">
+       parts="3;4.5;3;4.5;3" difficulty="1" vid="V1-3m1yqis0">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -61,7 +61,7 @@
   <tam title="Spin Chain the Gears"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3;4.5;3" difficulty="2">
+       parts="3;4.5;3;4.5;3" difficulty="2" vid="V1-u2iuf88f">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -97,7 +97,7 @@
   <tam title="Spin Chain the Gears"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5;4.5;3;4.5;3" difficulty="2">
+       parts="5;4.5;3;4.5;3" difficulty="2" vid="V1-x46386l5">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right" />
@@ -137,7 +137,7 @@
   <tam title="Left Spin Chain the Gears" group=" "
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5;4.5;3;4.5;3" difficulty="3">
+       parts="5;4.5;3;4.5;3" difficulty="3" vid="V1-mmqjn7jw">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" />
@@ -176,7 +176,7 @@
 
   <tam title="Spin Chain the Gears Part 2" display="no"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-77ghpw5x">
     <path>
       <move select="Flip Right" beats="4.5"/>
     </path>
@@ -193,7 +193,7 @@
 
   <tam title="Spin Chain the Gears Part 2" display="no"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-lth1xk66">
     <path>
       <move select="Flip Left" beats="4.5"/>
     </path>
@@ -210,7 +210,7 @@
 
   <tam title="Spin Chain the Gears Part 6" display="no"
        from="Left-Hand Stars"
-       formation="Stars LH">
+       formation="Stars LH" vid="V1-jdc7bo64">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -227,7 +227,7 @@
 
   <tam title="Spin Chain the Gears Part 6" display="no"
        from="Right-Hand Stars"
-       formation="Stars RH">
+       formation="Stars RH" vid="V1-2fqkmbxw">
     <path>
       <move select="Cast Right"/>
     </path>

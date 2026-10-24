@@ -25,7 +25,7 @@
   <tam title="Grand Swing Thru"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-4ivlu2zs">
     <path>
       <move select="Swing Right" scaleX=".65" scaleY=".5" />
       <move select="Swing Left" scaleX=".65" scaleY=".5" />
@@ -46,7 +46,7 @@
   <tam title="Grand Swing Thru"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-l9rjdvpc">
     <path>
       <move select="Stand" beats="3" hands="nohands" />
       <move select="Swing Left" scaleX=".65" scaleY=".5" />
@@ -68,7 +68,7 @@
   <tam title="Grand Swing Thru"
        from="Normal Lines"
        formation="Normal Lines Compact"
-       parts="4" difficulty="2">
+       parts="4" difficulty="2" vid="V1-s5uk3qmh">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".5"/>
       <move select="Swing Right" scaleX=".65" scaleY=".5" />
@@ -93,7 +93,7 @@
   <tam title="Grand Left Swing Thru"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-urw43hcx">
     <path>
       <move select="Swing Left" scaleX=".65" scaleY=".5" />
       <move select="Swing Right" scaleX=".65" scaleY=".5" />
@@ -114,7 +114,7 @@
   <tam title="Grand Left Swing Thru"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-c6qsuc9d">
     <path>
       <move select="Stand" beats="3" hands="nohands" />
       <move select="Swing Right" scaleX=".65" scaleY=".5" />
@@ -136,7 +136,7 @@
   <tam title="Grand Left Swing Thru"
        from="Normal Lines"
        formation="Normal Lines Compact"
-       parts="4" difficulty="2">
+       parts="4" difficulty="2" vid="V1-dz585bcs">
     <path>
       <move select="Extend Right" scaleX="1.5" scaleY=".5"/>
       <move select="Swing Left" scaleX=".65" scaleY=".5" />

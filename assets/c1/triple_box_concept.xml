@@ -22,7 +22,7 @@
 -->
 <tamination title="Triple Box Concept">
 
-  <tam title="Triple Box Circulate" group="Triple Box">
+  <tam title="Triple Box Circulate" group="Triple Box" vid="V1-lj5tuwct">
     <formation fid="F3-k39vf938" aid="A1-i33i8ka2">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
@@ -51,7 +51,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Counter Rotate" group="Triple Box">
+  <tam title="Triple Box Counter Rotate" group="Triple Box" vid="V1-n6t6sizq">
     <formation fid="F3-f3ytl3sw" aid="A1-14vlwysy">
       <dancer gender="boy" x="2" y="5" angle="0"/>
       <dancer gender="girl" x="2" y="3" angle="180"/>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Triple Box Dixie Style to a Wave" group="Triple Box"
-       formation="Phantom Lines In">
+       formation="Phantom Lines In" vid="V1-poox9aw3">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -111,7 +111,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Flutterwheel" group="Triple Box" formation="Phantom Lines In">
+  <tam title="Triple Box Flutterwheel" group="Triple Box" formation="Phantom Lines In" vid="V1-h5xfiqhb">
     <path>
       <move select="Forward" hands="nohands" beats="3.5" />
       <move select="Extend Left" hands="right" beats="1.5" scaleX="1.5" scaleY="1.5" />
@@ -145,7 +145,7 @@
   </tam>
 
   <tam title="Triple Box Follow Your Neighbor and Spread" group="Triple Box"
-       formation="Phantom Waves RH">
+       formation="Phantom Waves RH" vid="V1-51jqmqjh">
     <path>
       <move select="Forward 2" beats="1.5" offsetY="-.125" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -175,7 +175,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Pass In" group="Triple Box" formation="Phantom Lines In">
+  <tam title="Triple Box Pass In" group="Triple Box" formation="Phantom Lines In" vid="V1-42n7vqj6">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" scaleY=".5"/>
@@ -207,7 +207,7 @@
     </taminator>
   </tam>
 
-  <tam title="Triple Box Pass the Ocean" group="Triple Box">
+  <tam title="Triple Box Pass the Ocean" group="Triple Box" vid="V1-prtwrowo">
     <formation fid="F3-0pksxc4i" aid="A1-oog05hc4">
       <dancer gender="boy" x="1" y="5" angle="270"/>
       <dancer gender="girl" x="-1" y="5" angle="270"/>
@@ -242,7 +242,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Peel and Trail" group="Triple Box">
+  <tam title="Triple Box Peel and Trail" group="Triple Box" vid="V1-6nfeks43">
     <formation fid="F3-4ewj7tpw" aid="A1-4xfk759y">
       <dancer gender="boy" x="-1" y="5" angle="90"/>
       <dancer gender="girl" x="-1" y="3" angle="90"/>
@@ -276,7 +276,7 @@
 
 
   <tam title="Triple Box Quarter In" group="Triple Box"
-       formation="Phantom Lines In">
+       formation="Phantom Lines In" vid="V1-ftm3mprl">
     <path><move select="Quarter Right" offsetX="1"/></path>
     <path><move select="Quarter Left" offsetX="1"/></path>
     <path><move select="Quarter Right" offsetX="1"/></path>
@@ -286,7 +286,7 @@
   </tam>
 
   <tam title="Triple Box Right and Left Thru" group="Triple Box"
-       from="" formation="Phantom Lines In">
+       from="" formation="Phantom Lines In" vid="V1-wtar8hkb">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleX="2" scaleY=".5" />
@@ -320,7 +320,7 @@
   </tam>
 
   <tam title="Triple Box Boys Run" group="Triple Box" sequencer="gender-specific"
-       formation="Phantom Waves RH">
+       formation="Phantom Waves RH" vid="V1-s0tji08t">
     <path>
       <move select="Run Right"/>
     </path>
@@ -342,7 +342,7 @@
   </tam>
 
   <tam title="Triple Box Scoot Back" group="Triple Box"
-       formation="Phantom Waves RH">
+       formation="Phantom Waves RH" vid="V1-udq1wrpg">
     <path>
       <move select="Extend Right" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -369,7 +369,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Square Thru" group="Triple Box" from="" formation="Phantom Lines In">
+  <tam title="Triple Box Square Thru" group="Triple Box" from="" formation="Phantom Lines In" vid="V1-3vnw1mk6">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -421,7 +421,7 @@
   </tam>
 
   <tam title="Triple Box Wheel Thru" group="Triple Box"
-       formation="Phantom Lines In">
+       formation="Phantom Lines In" vid="V1-8ip501ce">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="2" />
     </path>
@@ -439,7 +439,7 @@
   </tam>
 
 
-  <tam title="Triple Column Pass and Roll" group="Triple Column" formation="Triple Columns">
+  <tam title="Triple Column Pass and Roll" group="Triple Column" formation="Triple Columns" vid="V1-rpxzgynb">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -485,7 +485,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Line Turn and Deal" group="Triple Line">
+  <tam title="Triple Line Turn and Deal" group="Triple Line" vid="V1-k6gwvxi8">
     <formation fid="F3-lrvlmnlr" aid="A1-12p3p4zn">
       <dancer gender="boy" x="4" y="3" angle="0"/>
       <dancer gender="girl" x="4" y="1" angle="0"/>
@@ -514,7 +514,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Wave 2/3 Recycle" group="Triple Wave">
+  <tam title="Triple Wave 2/3 Recycle" group="Triple Wave" vid="V1-ovhto00r">
     <formation fid="F3-xlusuvgt" aid="A1-383c6pox">
       <dancer gender="boy" x="4" y="-1" angle="0"/>
       <dancer gender="girl" x="4" y="-3" angle="180"/>
@@ -543,7 +543,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Wave Recycle" group="Triple Wave">
+  <tam title="Triple Wave Recycle" group="Triple Wave" vid="V1-s1yhzu9a">
     <formation fid="F3-gkqh4598" aid="A1-2jrsgmrw">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="180"/>
@@ -575,7 +575,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Wave Swing Thru" group="Triple Wave" formation="Triple Lines">
+  <tam title="Triple Wave Swing Thru" group="Triple Wave" formation="Triple Lines" vid="V1-qbt8bv3y">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Swing Left"/>

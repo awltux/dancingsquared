@@ -24,7 +24,7 @@
 
   <tam title="Split Swap Around"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-b4g66zes">
     <path>
       <move select="Quarter Right" beats="3" offsetX=".5" offsetY="-2.5" />
     </path>
@@ -35,7 +35,7 @@
 
   <tam title="Split Swap Around"
        from="Normal Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-0utl9gi5">
     <path>
       <move select="Quarter Right" beats="3" offsetX="1" offsetY="-2" />
     </path>
@@ -52,7 +52,7 @@
 
   <tam title="Split Swap Around"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-qbc4yve4">
     <path>
       <move select="Quarter Right" beats="3" offsetY="-3" />
     </path>
@@ -67,7 +67,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Split Swap Around" formation="Static Square" group=" ">
+  <tam title="Heads Split Swap Around" formation="Static Square" group=" " vid="V1-fbl9gi45">
     <path>
       <move select="Quarter Right" beats="3" offsetX="2" offsetY="-2" />
     </path>
@@ -83,7 +83,7 @@
   <tam title="As Couples Split Swap Around"
        from="Normal Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-a59mtxbg">
     <path>
       <move select="Hinge Right" beats="4" offsetY="-4" />
     </path>
@@ -98,7 +98,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Split Swap Around" formation="Double Pass Thru" group=" ">
+  <tam title="Tandem Split Swap Around" formation="Double Pass Thru" group=" " vid="V1-v21zp54b">
     <path>
       <move select="Stand" beats="1"/>
       <move select="Quarter Right" beats="4" offsetX="2" offsetY="-2"/>
@@ -117,7 +117,7 @@
 
   <tam title="Reverse Split Swap Around"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-uncxbq0u">
     <path>
       <move select="Quarter Left" beats="3" offsetX="2.5" offsetY=".5" />
     </path>
@@ -128,7 +128,7 @@
 
   <tam title="Reverse Split Swap Around"
        from="Normal Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-x5uqt3xf">
     <path>
       <move select="Quarter Left" beats="3" offsetX="3" />
     </path>
@@ -145,7 +145,7 @@
 
   <tam title="Reverse Split Swap Around"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-ejqdybyq">
     <path>
       <move select="Quarter Left" beats="3" offsetX="2" offsetY="1" />
     </path>
@@ -160,7 +160,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Reverse Split Swap Around" formation="Static Square" group=" ">
+  <tam title="Heads Reverse Split Swap Around" formation="Static Square" group=" " vid="V1-qrd39jej">
     <path>
       <move select="Quarter Left" beats="3" offsetX="4" />
     </path>
@@ -176,7 +176,7 @@
   <tam title="As Couples Reverse Split Swap Around"
        from="Normal Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-mbj1hznm">
     <path>
       <move select="BackHinge Right" beats="4" offsetX="4" />
     </path>
@@ -191,7 +191,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Reverse Split Swap Around" formation="Double Pass Thru" group=" ">
+  <tam title="Tandem Reverse Split Swap Around" formation="Double Pass Thru" group=" " vid="V1-lk0z74x1">
     <path>
       <move select="Quarter Left" beats="5" offsetX="4"/>
     </path>
@@ -209,7 +209,7 @@
   </tam>
 
   <tam title="Sides Reverse Split Swap Around" formation="Static Square"
-       group=" " display="none">
+       group=" " display="none" vid="V1-nzo1bnpg">
     <path>
     </path>
     <path>

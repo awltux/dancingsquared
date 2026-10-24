@@ -22,7 +22,7 @@
 -->
 <tamination title="Triple Play">
 
-  <tam title="Triple Play" from="Right-Hand Columns">
+  <tam title="Triple Play" from="Right-Hand Columns" vid="V1-16s58pab">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="Triple Play" from="Left-Hand Columns"
-       formation="Column LH GBGB" >
+       formation="Column LH GBGB"  vid="V1-970w5pge">
     <path>
       <move select="Forward"/>
       <move select="Swing Left" scaleX=".5"/>
@@ -86,7 +86,7 @@
   </tam>
 
 	<tam title="Magic Column Triple Play" from="Magic Columns Right-Hand Centers"
-		   formation="Magic Column RH" >
+		   formation="Magic Column RH"  vid="V1-3ax2ibn8">
 		<path>
       <move select="Forward" beats="2" />
       <move select="Swing Left" scaleX=".5"/>
@@ -114,7 +114,7 @@
 		</path>
 	</tam>
 
-	<tam title="Magic Column Triple Play" from="Magic Columns Left-Hand Centers">
+	<tam title="Magic Column Triple Play" from="Magic Columns Left-Hand Centers" vid="V1-e59310cm">
     <formation fid="F3-3zu9lyyj" aid="A1-844gzps3">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="270"/>

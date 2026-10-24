@@ -22,7 +22,7 @@
 -->
 <tamination title="Switch the Line">
 
-  <tam title="Switch the Line" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Switch the Line" from="Right-Hand Wave" formation="Wave RH" vid="V1-1qer97w5">
     <path numbers="1 4">
       <move select="Run Right" beats="6" scaleY="2" />
     </path>
@@ -33,7 +33,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Compact Right-Hand Wave"
-       formation="Compact Wave RH" display="none">
+       formation="Compact Wave RH" display="none" vid="V1-x7asdmfk">
     <path>
       <move select="Run Right" beats="6" />
     </path>
@@ -42,7 +42,7 @@
     </path>
   </tam>
 
-  <tam title="Switch the Line" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Switch the Line" from="Left-Hand Wave" formation="Wave LH" vid="V1-2vnv1hmq">
     <path>
       <move select="Run Left" beats="6" scaleY="2" />
     </path>
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Compact Left-Hand Wave"
-       formation="Compact Wave LH" display="none">
+       formation="Compact Wave LH" display="none" vid="V1-77vhfpxf">
     <path>
       <move select="Run Left" beats="6"/>
     </path>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-9jc4ufwz">
     <path numbers="1 4">
       <move select="Run Right" beats="4" scaleY="2" />
     </path>
@@ -73,7 +73,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Compact Right-Hand Two-Faced Line"
-       formation="Compact Two-Faced Line RH" display="none">
+       formation="Compact Two-Faced Line RH" display="none" vid="V1-ih5ceh01">
     <path>
       <move select="Run Right" beats="4" />
     </path>
@@ -83,7 +83,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-jljch1ug">
     <path>
       <move select="Flip Right" />
     </path>
@@ -93,7 +93,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Compact Left-Hand Two-Faced Line"
-       formation="Compact Two-Faced Line LH" display="none">
+       formation="Compact Two-Faced Line LH" display="none" vid="V1-nmlsulng">
     <path>
       <move select="Flip Right" scaleY=".5"/>
     </path>
@@ -103,7 +103,7 @@
   </tam>
 
   <tam title="Switch the Line" from="Inverted Lines"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-7spzs2bx">
     <path numbers="5 4">
       <move select="Flip Left" beats="4" scaleY="2"/>
     </path>
@@ -120,7 +120,7 @@
 
   <tam title="Switch the Line"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-jo68zhvc">
     <path numbers="5 4">
       <move select="Run Left" beats="4" scaleY="2" />
     </path>
@@ -137,7 +137,7 @@
 
   <tam title="Switch the Line"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-2fqr1qni">
     <path>
       <move select="Run Right" beats="4" scaleY="2" />
     </path>
@@ -154,7 +154,7 @@
 
   <tam title="Switch the Line"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-bxbeur79">
     <path>
       <move select="Run Left" beats="4" scaleY="2" />
     </path>
@@ -171,7 +171,7 @@
 
   <tam title="Switch the Line"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH GBBG">
+       formation="Ocean Waves RH GBBG" vid="V1-59eczw5z">
     <path>
       <move select="Run Right" beats="6" scaleY="2" />
     </path>
@@ -188,7 +188,7 @@
 
   <tam title="Switch the Line"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH GBBG">
+       formation="Ocean Waves LH GBBG" vid="V1-fltuprm0">
     <path>
       <move select="Run Left" beats="6" scaleY="2" />
     </path>
@@ -205,7 +205,7 @@
 
   <tam title="All 8 Switch the Line"
        from="Thar"
-       formation="Thar RH Boys">
+       formation="Thar RH Boys" vid="V1-4agfld1s">
     <path>
       <move select="Run Left" />
     </path>
@@ -222,7 +222,7 @@
 
   <tam title="All 8 Switch the Line"
        from="Wrong Way Thar"
-       formation="Thar LH Boys">
+       formation="Thar LH Boys" vid="V1-smj300or">
     <path>
       <move select="Run Right" />
     </path>
@@ -239,7 +239,7 @@
 
   <tam title="All 8 Switch the Line"
        from="Star Promenade"
-       formation="Star Promenade">
+       formation="Star Promenade" vid="V1-tpkbg15z">
     <path>
       <move select="Flip Right" />
     </path>
@@ -256,7 +256,7 @@
 
   <tam title="All 8 Switch the Line"
        from="Reverse Star Promenade"
-       formation="Reverse Star Promenade">
+       formation="Reverse Star Promenade" vid="V1-dnlnoww5">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="2" />
     </path>
@@ -273,7 +273,7 @@
 
   <tam title="As Couples Switch the Line"
        from="Tidal Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-at6s118o">
     <path>
       <move select="Run Right" beats="4" scaleX="3.5" scaleY="2.5" />
     </path>

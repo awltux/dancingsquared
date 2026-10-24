@@ -24,7 +24,7 @@
 
   <tam title="Star Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact" sequencer="gender-specific">
+       formation="Facing Couples Compact" sequencer="gender-specific" vid="V1-ony3ujmo">
     <path>
       <move select="Extend Left" hands="gripright" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Quarter Right" hands="gripright" beats="2" offsetX="1"/>
@@ -35,7 +35,7 @@
     </path>
   </tam>
 
-  <tam title="Star Thru" from="Sashayed Couples" sequencer="gender-specific">
+  <tam title="Star Thru" from="Sashayed Couples" sequencer="gender-specific" vid="V1-ony3ujmo">
     <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
       <dancer gender="boy" x="-1.5" y="-1" angle="0"/>
       <dancer gender="girl" x="-1.5" y="1" angle="0"/>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Star Thru" from="Lines"
-       formation="Normal Lines" sequencer="gender-specific">
+       formation="Normal Lines" sequencer="gender-specific" vid="V1-5lzm9iqp">
     <path>
       <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
@@ -70,7 +70,7 @@
     </path>
   </tam>
 
-  <tam title="Star Thru" from="Sashayed Lines" sequencer="gender-specific" formation="Sashayed Lines">
+  <tam title="Star Thru" from="Sashayed Lines" sequencer="gender-specific" formation="Sashayed Lines" vid="V1-5lzm9iqp">
     <path>
       <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Left" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
@@ -91,7 +91,7 @@
 
   <tam title="Star Thru"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru" sequencer="gender-specific">
+       formation="Eight Chain Thru" sequencer="gender-specific" vid="V1-niyt9xyg">
     <path>
       <move select="Extend Left" hands="gripright" scaleY=".5" />
       <move select="Quarter Right" hands="gripright" offsetX="1" offsetY=".5" />
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="Heads Star Thru" group=" "
-       formation="Static Square" sequencer="gender-specific">
+       formation="Static Square" sequencer="gender-specific" vid="V1-s5t97m85">
     <path>
       <move select="Extend Left" hands="gripright" beats="3" scaleX="3" scaleY=".5" />
       <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />
@@ -129,7 +129,7 @@
        Basic levels; every other Basic tam is already re-authored here. -->
 <tam title="Star Thru"
        from="Facing Couples"
-       formation="Facing Couples" sequencer="gender-specific">
+       formation="Facing Couples" sequencer="gender-specific" vid="V1-rwjrpoy5">
     <path>
       <move select="Extend Left" hands="gripright" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY=".5" />

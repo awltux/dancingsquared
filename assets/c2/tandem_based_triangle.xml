@@ -22,7 +22,7 @@
 -->
 <tamination title="Tandem-Based Triangle Formation">
 
-  <tam title="Triangle Peel and Trail" group="Triangle">
+  <tam title="Triangle Peel and Trail" group="Triangle" vid="V1-htc13cdr">
     <formation fid="F3-khac4wb2" aid="A1-i5t4f1jc">
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -44,7 +44,7 @@
     </path>
   </tam>
 
-  <tam title="Triangle Recycle" group="Triangle">
+  <tam title="Triangle Recycle" group="Triangle" vid="V1-y0mdmgtd">
     <formation fid="F3-oy892rq8" aid="A1-vw3hyrwo">
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -64,7 +64,7 @@
     </path>
   </tam>
 
-  <tam title="Triangle Swap Around" group="Triangle">
+  <tam title="Triangle Swap Around" group="Triangle" vid="V1-z1jv64tc">
     <formation fid="F3-oy892rq8" aid="A1-vw3hyrwo">
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -84,7 +84,7 @@
     </path>
   </tam>
 
-  <tam title="Triangle Wheel Thru" group="Triangle">
+  <tam title="Triangle Wheel Thru" group="Triangle" vid="V1-zzd4683g">
     <formation fid="F3-oy892rq8" aid="A1-vw3hyrwo">
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -106,7 +106,7 @@
     </path>
   </tam>
 
-  <tam title="Outside Triangle Cross Your Neighbor" group="Outside Triangle">
+  <tam title="Outside Triangle Cross Your Neighbor" group="Outside Triangle" vid="V1-1z5fiajn">
     <formation fid="F3-du6e245v" aid="A1-6mdr2a0b">
       <dancer gender="boy" x="-1" y="4.2" angle="0"/>
       <dancer gender="girl" x="1" y="4.2" angle="0"/>
@@ -131,7 +131,7 @@
     </path>
   </tam>
 
-  <tam title="Outside Triangle Peel and Trail" group="Outside Triangle">
+  <tam title="Outside Triangle Peel and Trail" group="Outside Triangle" vid="V1-9bo25mwh">
     <formation fid="F3-du6e245v" aid="A1-6mdr2a0b">
       <dancer gender="boy" x="-1" y="4.2" angle="0"/>
       <dancer gender="girl" x="1" y="4.2" angle="0"/>
@@ -153,7 +153,7 @@
     </path>
   </tam>
 
-  <tam title="Outside Triangle Peel the Top" group="Outside Triangle">
+  <tam title="Outside Triangle Peel the Top" group="Outside Triangle" vid="V1-iiohp70o">
     <formation fid="F3-du6e245v" aid="A1-6mdr2a0b">
       <dancer gender="boy" x="-1" y="4.2" angle="0"/>
       <dancer gender="girl" x="1" y="4.2" angle="0"/>
@@ -177,7 +177,7 @@
     </path>
   </tam>
 
-  <tam title="Outside Triangle Peel to a Diamond" group="Outside Triangle">
+  <tam title="Outside Triangle Peel to a Diamond" group="Outside Triangle" vid="V1-u3865fw4">
     <formation fid="F3-du6e245v" aid="A1-6mdr2a0b">
       <dancer gender="boy" x="-1" y="4.2" angle="0"/>
       <dancer gender="girl" x="1" y="4.2" angle="0"/>

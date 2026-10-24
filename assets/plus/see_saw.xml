@@ -29,7 +29,7 @@
   <tam title="All Around the Corner, See Saw Your Partner"
        from="Static Square"
        formation="Static Square"
-       fractions="7" >
+       fractions="7"  vid="V1-4irs0k5c">
     <path>
       <move select="Lead Left" beats="1.5" offsetX="-.5" />
       <move select="Hinge Right" scaleX=".5" scaleY=".5" />

@@ -25,7 +25,7 @@
   <tam title="Alter the Wave"
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-5bjh9skg">
     <path numbers="1 4">
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -44,7 +44,7 @@
   <tam title="Alter the Wave"
        from="Compact Right-Hand Wave"
        formation="Compact Wave RH" display="none"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-ukjkf2gx">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Cast Left" scaleX=".5" scaleY=".5"/>
@@ -63,7 +63,7 @@
   <tam title="Alter the Wave"
        from="Left-Hand Wave"
        formation="Wave LH"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-0l50t2x3">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -82,7 +82,7 @@
   <tam title="Alter the Wave"
        from="Compact Left-Hand Wave"
        formation="Compact Wave LH" display="none"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-to5fcs9i">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Cast Right" scaleX=".5" scaleY=".5"/>
@@ -101,7 +101,7 @@
   <tam title="Alter the Wave"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-mna6rpga">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -133,7 +133,7 @@
   <tam title="Alter the Wave"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-zpbazbq1">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -162,7 +162,7 @@
     </path>
   </tam>
 
-  <tam title="Alter the Wave" from="Tidal Wave" formation="Tidal Wave RH BGGB" parts="3;4.5;4">
+  <tam title="Alter the Wave" from="Tidal Wave" formation="Tidal Wave RH BGGB" parts="3;4.5;4" vid="V1-tcva4qtt">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Cast Left" scaleX=".5" scaleY=".5"/>
@@ -190,7 +190,7 @@
   </tam>
 
   <tam title="Alter the Wave" from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB" parts="3;4.5;4">
+       formation="Tidal Wave LH BGGB" parts="3;4.5;4" vid="V1-qz9bsag1">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Cast Right" scaleX=".5" scaleY=".5"/>
@@ -218,7 +218,7 @@
   </tam>
 
   <tam title="Alter the Wave" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="5;4.5;4">
+       formation="Eight Chain Thru" parts="5;4.5;4" vid="V1-qkq1a1nv">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right" />
@@ -252,7 +252,7 @@
   </tam>
 
   <tam title="Left Alter the Wave" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="5;4.5;4">
+       formation="Eight Chain Thru" parts="5;4.5;4" vid="V1-zulf9jau">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" />
@@ -292,7 +292,7 @@
   <tam title="Alter the Wave, but Counter Rotate the Diamond 3/4"
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-mn7mbnxj">
     <path numbers="1 4">
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -313,7 +313,7 @@
   <tam title="As Couples Alter the Wave" group=" "
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line RH"
-       parts="3;4.5;4" >
+       parts="3;4.5;4"  vid="V1-mptordd0">
     <path>
       <move select="Swing Right" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -343,7 +343,7 @@
   </tam>
 
   <tam title="All 8 Alter the Wave" from="Thar" group=" "
-       formation="Thar LH Boys" parts="3;4.5;8">
+       formation="Thar LH Boys" parts="3;4.5;8" vid="V1-l8qu4990">
     <path>
       <move select="Swing Right"/>
       <move select="U-Turn Right" beats="4.5"/>
@@ -375,7 +375,7 @@
   </tam>
 
   <tam title="Concentric Alter the Wave" from="Tidal Wave" group=" "
-       formation="Tidal Wave RH BGGB" parts="3;9;6">
+       formation="Tidal Wave RH BGGB" parts="3;9;6" vid="V1-okczlpyf">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Lead Left" beats="3" scaleX="2.5" scaleY="2.5"/>
@@ -405,7 +405,7 @@
   </tam>
 
   <tam title="Phantom Alter the Wave" from="Phantom Formation" group=" "
-       formation="Phantom Formation RH" parts="3;4.5;4">
+       formation="Phantom Formation RH" parts="3;4.5;4" vid="V1-lvwu3462">
     <path>
       <move select="Swing Right"/>
       <move select="Cast Left"/>
@@ -448,7 +448,7 @@
   </tam>
 
   <tam title="Tandem Alter the Wave" from="Right-Hand Waves" group=" "
-       formation="Ocean Waves RH BGGB" parts="6;9;8">
+       formation="Ocean Waves RH BGGB" parts="6;9;8" vid="V1-wrny2idl">
     <path>
       <!-- Swing Right -->
       <move select="Counter Rotate Right 2 0" hands="right" beats="3" offsetX="1"/>

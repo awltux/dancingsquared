@@ -26,7 +26,7 @@
        from="Tidal Two-Faced Line"
        formation="Two-Faced Tidal Line RH"
        group="Finally As Couples"
-       fractions="3" >
+       fractions="3"  vid="V1-c9nwubtv">
     <path>
       <move select="Stand" beats="8"/>
     </path>
@@ -48,7 +48,7 @@
        from="Tidal Two-Faced Line"
        formation="Two-Faced Tidal Line RH"
        group="Finally As Couples"
-       fractions="3" >
+       fractions="3"  vid="V1-opcbugwa">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
     </path>
@@ -67,7 +67,7 @@
 
   <tam title="Finally As Couples Pass the Ocean"
        formation="Normal Lines"
-       group="Finally As Couples" fractions="3;1.5">
+       group="Finally As Couples" fractions="3;1.5" vid="V1-i7azukyr">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleY=".5"/>
@@ -144,7 +144,7 @@
   <tam title="Finally As Couples Wheel the Sea"
        formation="Lines Facing Out"
        group="Finally As Couples"
-       fractions="3">
+       fractions="3" vid="V1-e2etmd83">
     <path>
       <move select="Belle Wheel"/>
       <move select="Dodge Right" beats="4" hands="left" scaleY="2"/>
@@ -165,7 +165,7 @@
 
   <tam title="Finally Tandem Swing Thru"
        formation="Ocean Waves RH BGGB"
-       group="Finally Tandem" fractions="3">
+       group="Finally Tandem" fractions="3" vid="V1-l20n79pu">
     <path>
       <move select="Swing Right"/>
       <move select="Counter Rotate Left 0 2" hands="left" offsetX="-1"/>

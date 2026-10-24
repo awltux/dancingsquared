@@ -25,7 +25,7 @@
   <tam title="Scoot Back"
        from="Right-Hand Box"
        formation="Box RH"
-       fractions="3" difficulty="1">
+       fractions="3" difficulty="1" vid="V1-bcknlco2">
     <path>
       <move select="Extend Right" scaleX="2" scaleY=".25" beats="1.5"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -39,7 +39,7 @@
   <tam title="Scoot Back"
        from="Left-Hand Box"
        formation="Box LH"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-68i9oehi">
     <path>
       <move select="Flip Left" beats="6" />
     </path>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Scoot Back" from="Single Quarter Tag"
-       formation="Single Quarter Tag" difficulty="2">
+       formation="Single Quarter Tag" difficulty="2" vid="V1-lzgij9cd">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".75"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Scoot Back" from="Left-Hand Single Quarter Tag"
-       formation="Single Left Quarter Tag" difficulty="3">
+       formation="Single Left Quarter Tag" difficulty="3" vid="V1-q2rcgtao">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".75"/>
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -78,7 +78,7 @@
     </path>
   </tam>
 
-  <tam title="Scoot Back" display="none">
+  <tam title="Scoot Back" display="none" vid="V1-2t2274mt">
     <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
       <dancer gender="boy" x="-1.0" y="1" angle="0" />
       <dancer gender="girl" x="-1.0" y="-1" angle="270" />
@@ -93,7 +93,7 @@
     </path>
   </tam>
 
-  <tam title="Scoot Back" display="none">
+  <tam title="Scoot Back" display="none" vid="V1-0yhjyi4b">
     <formation fid="F3-vem78m16" aid="A1-vabff0x0">
       <dancer gender="boy" x="-1.0" y="-1" angle="0" />
       <dancer gender="girl" x="-1.0" y="1" angle="90" />
@@ -111,7 +111,7 @@
   <tam title="Scoot Back"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGBG"
-       fractions="3" difficulty="1">
+       fractions="3" difficulty="1" vid="V1-vin5txtl">
     <path>
       <move select="Extend Right" scaleX="2" scaleY=".25" beats="1.5"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -133,7 +133,7 @@
   <tam title="Scoot Back"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGBG"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-0ydhx3pm">
     <path>
       <move select="Flip Left" beats="6" />
     </path>
@@ -155,7 +155,7 @@
   <tam title="Scoot Back"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-7akvoo2r">
     <path>
       <move select="Run Right" beats="6" scaleX=".5" />
     </path>
@@ -177,7 +177,7 @@
   <tam title="Scoot Back"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-08tsdh1a">
     <path>
       <move select="Extend Left" beats="1.5" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -197,7 +197,7 @@
   </tam>
 
   <tam title="Scoot Back" display="none"
-       from="T-Bones URUR" formation="T-Bone URUR">
+       from="T-Bones URUR" formation="T-Bone URUR" vid="V1-2vvso4oj">
     <path>
       <move select="Extend Right" scaleY=".25" beats="1.5"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -217,7 +217,7 @@
   </tam>
 
   <tam title="Scoot Back" display="none"
-       from="T-Bones LULU" formation="T-Bone LULU">
+       from="T-Bones LULU" formation="T-Bone LULU" vid="V1-d85wpeg1">
     <path>
       <move select="Run Right" beats="6" />
     </path>
@@ -237,7 +237,7 @@
   </tam>
 
   <tam title="Scoot Back" display="none"
-       from="T-Bones DLDL" formation="T-Bone DLDL">
+       from="T-Bones DLDL" formation="T-Bone DLDL" vid="V1-749apcki">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" />
     </path>
@@ -257,7 +257,7 @@
   </tam>
 
   <tam title="Scoot Back" display="none"
-       from="T-Bones RDRD" formation="T-Bone RDRD">
+       from="T-Bones RDRD" formation="T-Bone RDRD" vid="V1-e0lv6xuq">
     <path>
       <move select="Run Right" beats="6" scaleX=".5" />
     </path>
@@ -279,7 +279,7 @@
   <tam title="Scoot Back"
        from="Quarter Tag"
        formation="Quarter Tag"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-w1tqv400">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -305,7 +305,7 @@
   <tam title="Scoot Back"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       fractions="3" difficulty="3">
+       fractions="3" difficulty="3" vid="V1-w4huqjjr">
     <path>
       <move select="Forward" beats="1.5" scaleX="1.5" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

@@ -25,7 +25,7 @@
   <tam title="Single Circle to a Wave"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="1">
+       difficulty="1" vid="V1-7viwax5n">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" />
@@ -43,7 +43,7 @@
   <tam title="Single Circle to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-e7kdjnbm">
     <path>
       <move select="Forward" scaleX=".3" scaleY=".3" />
       <move select="ssqtr" />
@@ -73,7 +73,7 @@
   <tam title="Single Circle to a Wave"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-yuyg70f7">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" />
@@ -103,7 +103,7 @@
   <tam title="Single Circle 3/4 to a Wave"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="2">
+       difficulty="2" vid="V1-2g4jghvh">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" />
@@ -123,7 +123,7 @@
   <tam title="Single Circle 3/4 to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-fjqgwf3s">
     <path>
       <move select="Forward" scaleX=".3" scaleY=".3" />
       <move select="ssqtr" />
@@ -157,7 +157,7 @@
   <tam title="Single Circle 3/4 to a Wave"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-a7g9hpm9">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" />
@@ -191,7 +191,7 @@
   <tam title="Reverse Single Circle to a Wave"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="2">
+       difficulty="2" vid="V1-2irwqr6h">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" reflect="-1" />
@@ -209,7 +209,7 @@
   <tam title="Reverse Single Circle to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-t19w3vmc">
     <path>
       <move select="Forward" scaleX=".3" scaleY=".3" />
       <move select="ssqtr" reflect="-1" />
@@ -239,7 +239,7 @@
   <tam title="Reverse Single Circle to a Wave"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-njn0sjn9">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" reflect="-1" />
@@ -269,7 +269,7 @@
   <tam title="Reverse Single Circle 3/4 to a Wave"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="3">
+       difficulty="3" vid="V1-dftxwl3v">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" reflect="-1" />
@@ -289,7 +289,7 @@
   <tam title="Reverse Single Circle 3/4 to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="3">
+       difficulty="3" vid="V1-jrvf5b9u">
     <path>
       <move select="Forward" scaleX=".3" scaleY=".3" />
       <move select="ssqtr" reflect="-1" />
@@ -323,7 +323,7 @@
   <tam title="Reverse Single Circle 3/4 to a Wave"
        from="Lines"
        formation="Normal Lines"
-       difficulty="3">
+       difficulty="3" vid="V1-4f9hsodf">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" reflect="-1" />

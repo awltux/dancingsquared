@@ -24,7 +24,7 @@
 
   <tam title="Slip the Clutch"
        from="Thar"
-       formation="Thar RH Boys">
+       formation="Thar RH Boys" vid="V1-gx1n7qey">
     <path>
       <move select="HalfHinge Right" beats="2"/>
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Slip the Clutch"
        from="Wrong Way Thar"
-       formation="Thar LH Boys">
+       formation="Thar LH Boys" vid="V1-cy4niiex">
     <path>
       <move select="HalfHinge Left" beats="2"/>
     </path>

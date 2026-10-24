@@ -25,7 +25,7 @@
   <tam title="Square Thru 2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1">
+       difficulty="1" vid="V1-ofkun1ob">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -39,7 +39,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 8820bd7, with uncommitted changes, built 2026-10-20 11:05Z -->
-  <tam title="Square Thru 2" formation="Facing Couples Far" parts="" >
+  <tam title="Square Thru 2" formation="Facing Couples Far" parts=""  vid="V1-epr0egfp">
     <path>
       <movement hands="none" beats="2" cx1="0.666" cy1="0" cx2="1.334" cy2="0" x2="2" y2="0"/>
       <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="Square Thru 2" from="Right-Hand Wave"
-       formation="Wave RH" difficulty="2">
+       formation="Wave RH" difficulty="2" vid="V1-cww4nl0o">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
@@ -69,7 +69,7 @@
   <tam title="Square Thru 2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-3xxrg8gj">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -95,7 +95,7 @@
   <tam title="Square Thru 2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-dvkaf20e">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -123,7 +123,7 @@
   </tam>
 
   <tam title="Square Thru 2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" difficulty="2">
+       formation="Ocean Waves RH BGGB" difficulty="2" vid="V1-ivje69ya">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
@@ -143,7 +143,7 @@
   </tam>
 
   <tam title="Square Thru 2" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" difficulty="2">
+       formation="Tidal Wave RH BGGB" difficulty="2" vid="V1-oku2gomh">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
       <move select="Extend Left" beats="2" scaleX="1" scaleY=".5" />
@@ -165,7 +165,7 @@
   <tam title="Square Thru 3"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1">
+       difficulty="1" vid="V1-xpccurcc">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
@@ -180,7 +180,7 @@
     </path>
   </tam>
 
-  <tam title="Square Thru 3" from="Facing Couples" formation="Facing Couples Far" parts="">
+  <tam title="Square Thru 3" from="Facing Couples" formation="Facing Couples Far" parts="" vid="V1-oqwzxw3a">
     <path>
       <movement hands="none" beats="2" cx1="0.666" cy1="0" cx2="1.334" cy2="0" x2="2" y2="0"/>
       <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
@@ -200,7 +200,7 @@
   <tam title="Square Thru 3"
        from="Right-Hand Wave"
        formation="Wave RH"
-       difficulty="2">
+       difficulty="2" vid="V1-5m0oau93">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -216,7 +216,7 @@
   <tam title="Square Thru 3"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-k8qiur6s">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -246,7 +246,7 @@
   <tam title="Square Thru 3"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-n38z5jt1">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -280,7 +280,7 @@
   <tam title="Square Thru 3"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-23h0m6xh">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -304,7 +304,7 @@
   </tam>
 
   <tam title="Square Thru 3" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" difficulty="2">
+       formation="Tidal Wave RH BGGB" difficulty="2" vid="V1-k24o3682">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -330,7 +330,7 @@
   <tam title="Square Thru 4"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1">
+       difficulty="1" vid="V1-oumj1621">
     <path>
       <move select="Pull Left" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
@@ -359,7 +359,7 @@
        second couple at x = +1. -->
   <tam title="Square Thru 4"
        from="Facing Couples"
-       difficulty="1" formation="Facing Couples Close">
+       difficulty="1" formation="Facing Couples Close" vid="V1-vnq30jw3">
     <path>
       <move select="Pull Left" beats="2" scaleX="1" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1" />
@@ -376,7 +376,7 @@
     </path>
   </tam>
 
-  <tam title="Square Thru 4" formation="Facing Couples Far" parts="">
+  <tam title="Square Thru 4" formation="Facing Couples Far" parts="" vid="V1-286z5x0n">
     <path>
       <movement hands="none" beats="2" cx1="0.666" cy1="0" cx2="1.334" cy2="0" x2="2" y2="0"/>
       <movement hands="right" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="1" y2="0.5" cx3="1" cx4="1" cy4="0.2" x4="2" y4="0.2"/>
@@ -396,7 +396,7 @@
   </tam>
 
   <tam title="Square Thru 4" from="Right-Hand Wave"
-      formation="Wave RH" difficulty="2">
+      formation="Wave RH" difficulty="2" vid="V1-27osswfa">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -414,7 +414,7 @@
   <tam title="Square Thru 4"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-z5vksgml">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -448,7 +448,7 @@
   <tam title="Square Thru 4"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-6z5zipyg">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -484,7 +484,7 @@
   </tam>
 
   <tam title="Square Thru 4" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" difficulty="2">
+       formation="Ocean Waves RH BGGB" difficulty="2" vid="V1-5051n59w">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -512,7 +512,7 @@
   </tam>
 
   <tam title="Square Thru 4" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" difficulty="2">
+       formation="Tidal Wave RH BGGB" difficulty="2" vid="V1-qmvv3kmr">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -542,7 +542,7 @@
   <tam title="Left Square Thru 4"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-xpjfw41q">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Right" scaleY=".5" />
@@ -562,7 +562,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 8820bd7, with uncommitted changes, built 2026-10-20 11:05Z -->
-  <tam title="Left Square Thru 4" from="Facing Couples" formation="Facing Couples Far" parts="">
+  <tam title="Left Square Thru 4" from="Facing Couples" formation="Facing Couples Far" parts="" vid="V1-1ieqty8s">
     <path>
       <movement hands="none" beats="1" cx1="0.1665" cy1="0" cx2="1.8335" cy2="0" x2="2" y2="0"/>
       <movement hands="left" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
@@ -582,7 +582,7 @@
   </tam>
 
   <tam title="Left Square Thru 4" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="2" display="none">
+       formation="Wave LH" difficulty="2" display="none" vid="V1-jup19qj2">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Left" offsetX=".5" offsetY="-.5" />
@@ -600,7 +600,7 @@
   <tam title="Left Square Thru 4"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-io31b6s2">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -634,7 +634,7 @@
   <tam title="Left Square Thru 4"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" display="none">
+       difficulty="2" display="none" vid="V1-1a7e5yqr">
     <path>
       <move select="Forward" />
       <move select="Pull Right" scaleY=".5" />
@@ -673,7 +673,7 @@
   <tam title="Left Square Thru 3 1/2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-o97phhut">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Right" scaleY=".5" />
@@ -690,7 +690,7 @@
     </path>
   </tam>
 
-  <tam title="Left Square Thru 3 1/2" from="Facing Couples" formation="Facing Couples Far" parts="">
+  <tam title="Left Square Thru 3 1/2" from="Facing Couples" formation="Facing Couples Far" parts="" vid="V1-t6p4j1h7">
     <path>
       <movement hands="none" beats="1" cx1="0.1665" cy1="0" cx2="1.8335" cy2="0" x2="2" y2="0"/>
       <movement hands="left" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
@@ -708,7 +708,7 @@
   </tam>
 
   <tam title="Left Square Thru 3 1/2" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="2" display="none">
+       formation="Wave LH" difficulty="2" display="none" vid="V1-uo008jrp">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Left" offsetX=".5" offsetY="-.5" />
@@ -724,7 +724,7 @@
   <tam title="Left Square Thru 3 1/2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-eulcmqo9">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -754,7 +754,7 @@
   <tam title="Left Square Thru 3 1/2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" display="none">
+       difficulty="2" display="none" vid="V1-h2j1bhb0">
     <path>
       <move select="Forward" />
       <move select="Pull Right" scaleY=".5" />
@@ -788,7 +788,7 @@
   <tam title="Left Square Thru 3"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-60xmunsf">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Right" scaleY=".5" />
@@ -805,7 +805,7 @@
     </path>
   </tam>
 
-  <tam title="Left Square Thru 3" from="Facing Couples" formation="Facing Couples Far" parts="">
+  <tam title="Left Square Thru 3" from="Facing Couples" formation="Facing Couples Far" parts="" vid="V1-c2dgns4h">
     <path>
       <movement hands="none" beats="1" cx1="0.1665" cy1="0" cx2="1.8335" cy2="0" x2="2" y2="0"/>
       <movement hands="left" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
@@ -823,7 +823,7 @@
   </tam>
 
   <tam title="Left Square Thru 3" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="2" display="none">
+       formation="Wave LH" difficulty="2" display="none" vid="V1-tmx6jtyz">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Left" offsetX=".5" offsetY="-.5" />
@@ -839,7 +839,7 @@
   <tam title="Left Square Thru 3"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-ad21abef">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -869,7 +869,7 @@
   <tam title="Left Square Thru 3"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" display="none">
+       difficulty="2" display="none" vid="V1-qwkgg46i">
     <path>
       <move select="Forward" />
       <move select="Pull Right" scaleY=".5" />
@@ -903,7 +903,7 @@
   <tam title="Left Square Thru 2 1/2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-c3qcclla">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Right" scaleY=".5" />
@@ -919,7 +919,7 @@
   </tam>
 
   <tam title="Left Square Thru 2 1/2" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="2" display="none">
+       formation="Wave LH" difficulty="2" display="none" vid="V1-9eszb3ha">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Left" offsetY="-.5" />
@@ -933,7 +933,7 @@
   <tam title="Left Square Thru 2 1/2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-hzo5fcf6">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -959,7 +959,7 @@
   <tam title="Left Square Thru 2 1/2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" display="none">
+       difficulty="2" display="none" vid="V1-4tzspqer">
     <path>
       <move select="Forward" />
       <move select="Pull Right" scaleY=".5" />
@@ -989,7 +989,7 @@
   <tam title="Left Square Thru 2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-zpfniagw">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Right" scaleY=".5" />
@@ -1004,7 +1004,7 @@
     </path>
   </tam>
 
-  <tam title="Left Square Thru 2" from="Facing Couples" formation="Facing Couples Far" parts="">
+  <tam title="Left Square Thru 2" from="Facing Couples" formation="Facing Couples Far" parts="" vid="V1-fad4i5gy">
     <path>
       <movement hands="none" beats="1" cx1="0.1665" cy1="0" cx2="1.8335" cy2="0" x2="2" y2="0"/>
       <movement hands="left" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
@@ -1020,7 +1020,7 @@
   </tam>
 
   <tam title="Left Square Thru 2" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="2" display="none">
+       formation="Wave LH" difficulty="2" display="none" vid="V1-dvmb0t18">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -1034,7 +1034,7 @@
   <tam title="Left Square Thru 2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-jm0x9sug">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1060,7 +1060,7 @@
   <tam title="Left Square Thru 2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" display="none">
+       difficulty="2" display="none" vid="V1-ekhuppdt">
     <path>
       <move select="Forward" />
       <move select="Pull Right" scaleY=".5" />
@@ -1090,7 +1090,7 @@
   <tam title="Left Square Thru 1 1/2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-4g5gc9wf">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Right" scaleY=".5" />
@@ -1104,7 +1104,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 8820bd7, with uncommitted changes, built 2026-10-20 11:05Z -->
-  <tam title="Left Square Thru 1 1/2" from="Facing Couples" formation="Facing Couples Far" parts="">
+  <tam title="Left Square Thru 1 1/2" from="Facing Couples" formation="Facing Couples Far" parts="" vid="V1-cy64fssx">
     <path>
       <movement hands="none" beats="1" cx1="0.1665" cy1="0" cx2="1.8335" cy2="0" x2="2" y2="0"/>
       <movement hands="left" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
@@ -1118,7 +1118,7 @@
   </tam>
 
   <tam title="Left Square Thru 1 1/2" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="2" display="none">
+       formation="Wave LH" difficulty="2" display="none" vid="V1-jepyad2j">
     <path>
       <move select="Lead Left" beats="3" scaleY="3" />
     </path>
@@ -1130,7 +1130,7 @@
   <tam title="Left Square Thru 1 1/2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-qn3517c7">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1152,7 +1152,7 @@
   <tam title="Left Square Thru 1 1/2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" display="none">
+       difficulty="2" display="none" vid="V1-cpubvmai">
     <path>
       <move select="Forward" />
       <move select="Pull Right" scaleY=".5" />
@@ -1182,7 +1182,7 @@
   <tam title="Square Thru 1 1/2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="2">
+       difficulty="2" vid="V1-rxy90npg">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Left" scaleY=".5" />
@@ -1196,7 +1196,7 @@
   </tam>
 
   <tam title="Square Thru 1 1/2" from="Right-Hand Wave"
-       formation="Wave RH" difficulty="3">
+       formation="Wave RH" difficulty="3" vid="V1-qnds6lov">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
     </path>
@@ -1208,7 +1208,7 @@
   <tam title="Square Thru 1 1/2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-7cumoxws">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -1230,7 +1230,7 @@
   <tam title="Square Thru 1 1/2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-c6f01clp">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -1254,7 +1254,7 @@
   </tam>
 
   <tam title="Square Thru 1 1/2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" difficulty="3">
+       formation="Ocean Waves RH BGGB" difficulty="3" vid="V1-zxsqlzbx">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
     </path>
@@ -1270,7 +1270,7 @@
   </tam>
 
   <tam title="Square Thru 1 1/2" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" difficulty="3">
+       formation="Tidal Wave RH BGGB" difficulty="3" vid="V1-5j8xjmbe">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
     </path>
@@ -1288,7 +1288,7 @@
   <tam title="Square Thru 2 1/2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="2">
+       difficulty="2" vid="V1-6s925syh">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Left" scaleY=".5" />
@@ -1306,7 +1306,7 @@
   <tam title="Square Thru 2 1/2"
        from="Right-Hand Wave"
        formation="Wave RH"
-       difficulty="3">
+       difficulty="3" vid="V1-5swdyauu">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1320,7 +1320,7 @@
   <tam title="Square Thru 2 1/2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-qdkyjmn1">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -1346,7 +1346,7 @@
   <tam title="Square Thru 2 1/2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-q0utx2vs">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -1376,7 +1376,7 @@
   <tam title="Square Thru 2 1/2"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="3">
+       difficulty="3" vid="V1-3fu851ok">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1396,7 +1396,7 @@
   </tam>
 
   <tam title="Square Thru 2 1/2" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" difficulty="3">
+       formation="Tidal Wave RH BGGB" difficulty="3" vid="V1-nqh0pmzn">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1418,7 +1418,7 @@
   <tam title="Square Thru 3 1/2"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="2">
+       difficulty="2" vid="V1-rjwv1icy">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Left" scaleY=".5" />
@@ -1436,7 +1436,7 @@
   </tam>
 
   <tam title="Square Thru 3 1/2" from="Right-Hand Wave"
-      formation="Wave RH" difficulty="3">
+      formation="Wave RH" difficulty="3" vid="V1-n78milu5">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1452,7 +1452,7 @@
   <tam title="Square Thru 3 1/2"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-qifk6l46">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -1482,7 +1482,7 @@
   <tam title="Square Thru 3 1/2"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-76wckmcv">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -1514,7 +1514,7 @@
   </tam>
 
   <tam title="Square Thru 3 1/2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" difficulty="3">
+       formation="Ocean Waves RH BGGB" difficulty="3" vid="V1-0fg373bj">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1538,7 +1538,7 @@
   </tam>
 
   <tam title="Square Thru 3 1/2" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" difficulty="3">
+       formation="Tidal Wave RH BGGB" difficulty="3" vid="V1-cwcmit1g">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
       <move select="Lead Right" offsetX=".5" offsetY=".5" />
@@ -1562,7 +1562,7 @@
   </tam>
 
   <tam title="Square Thru, on the Third Hand Spin the Top" group="   "
-       formation="Normal Lines" difficulty="2" parts="5;3">
+       formation="Normal Lines" difficulty="2" parts="5;3" vid="V1-csnm2w84">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -1603,7 +1603,7 @@
   </tam>
 
   <tam title="Square Thru, on the Third Hand Eight Chain 5" group="   "
-       formation="Eight Chain Thru" difficulty="2">
+       formation="Eight Chain Thru" difficulty="2" vid="V1-3lzr5rm2">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -1662,7 +1662,7 @@
   </tam>
 
   <tam title="Square Thru, on the Third Hand Box the Gnat and Right and Left Grand"
-       group="   " formation="Eight Chain Thru" difficulty="2" parts="4;3">
+       group="   " formation="Eight Chain Thru" difficulty="2" parts="4;3" vid="V1-58jcem1w">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -1711,7 +1711,7 @@
   </tam>
 
   <tam title="Square Thru, on the Fourth Hand Left Swing Thru" group="   "
-       formation="Normal Lines" difficulty="2" parts="">
+       formation="Normal Lines" difficulty="2" parts="" vid="V1-odweqhar">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -1752,7 +1752,7 @@
   </tam>
 
   <tam title="Square Thru, on the Fourth Hand Left Allemande" group="   "
-       formation="Normal Lines" difficulty="2" parts="6.5">
+       formation="Normal Lines" difficulty="2" parts="6.5" vid="V1-etbq1bbr">
     <path>
       <move select="Forward" />
       <move select="Pull Left" scaleY=".5" />
@@ -1792,7 +1792,7 @@
   </tam>
 
   <tam title="Square Thru, on the Third Hand Touch 1/4" group="   "
-       formation="Facing Couples Compact" difficulty="2">
+       formation="Facing Couples Compact" difficulty="2" vid="V1-vil0cstk">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Left" scaleY=".5" />
@@ -1813,7 +1813,7 @@
   </tam>
 
   <tam title="Square Thru, on the Fourth Hand Left Touch 1/4" group="   "
-       formation="Facing Couples Compact" difficulty="2">
+       formation="Facing Couples Compact" difficulty="2" vid="V1-5t1u53b0">
     <path>
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Left" scaleY=".5" />

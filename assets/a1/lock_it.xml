@@ -22,7 +22,7 @@
 -->
 <tamination title="Lockit">
 
-  <tam title="Lockit" from="Right-Hand Wave">
+  <tam title="Lockit" from="Right-Hand Wave" vid="V1-sbp3u6uc">
     <formation fid="F3-9vxgr91a" aid="A1-bieo87yo">
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="-1" y="0" angle="270"/>
@@ -35,7 +35,7 @@
     </path>
   </tam>
 
-  <tam title="Lockit" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Lockit" from="Left-Hand Wave" formation="Wave LH" vid="V1-vicx5fmz">
     <path>
       <move select="Lead Left" beats="4" scaleX="3" scaleY="3" />
     </path>
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Two-Faced Line"
-    formation="Two-Faced Line RH" fractions="">
+    formation="Two-Faced Line RH" fractions="" vid="V1-fg3lnf5m">
     <path>
       <move select="Lead Right" beats="4" hands="right" scaleX="3"
         scaleY="3" />
@@ -56,7 +56,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-0um0yl41">
     <path>
       <move select="Hinge Left" beats="4" hands="both" />
     </path>
@@ -65,7 +65,7 @@
     </path>
   </tam>
 
-  <tam title="Lockit" from="Right-Hand Diamond" formation="Diamond RH">
+  <tam title="Lockit" from="Right-Hand Diamond" formation="Diamond RH" vid="V1-li8rnl1j">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
     </path>
@@ -74,7 +74,7 @@
     </path>
   </tam>
 
-  <tam title="Lockit" from="Left-Hand Diamond" formation="Diamond LH">
+  <tam title="Lockit" from="Left-Hand Diamond" formation="Diamond LH" vid="V1-ih70i3pq">
     <path>
       <move select="Lead Left" beats="4" scaleX="3" scaleY="3" />
     </path>
@@ -83,7 +83,7 @@
     </path>
   </tam>
 
-  <tam title="Lockit" from="Facing Diamond, Right-Hand Centers" formation="Diamond Facing RH">
+  <tam title="Lockit" from="Facing Diamond, Right-Hand Centers" formation="Diamond Facing RH" vid="V1-954o9kvy">
     <path>
       <move select="Lead Left" beats="4" scaleX="3" scaleY="3" />
     </path>
@@ -92,7 +92,7 @@
     </path>
   </tam>
 
-  <tam title="Lockit" from="Facing Diamond, Left-Hand Centers" formation="Diamond Facing">
+  <tam title="Lockit" from="Facing Diamond, Left-Hand Centers" formation="Diamond Facing" vid="V1-javg6k79">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
     </path>
@@ -102,7 +102,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Waves"
-    formation="Ocean Waves RH BGGB">
+    formation="Ocean Waves RH BGGB" vid="V1-1z14sed2">
     <path>
       <move select="Lead Right" beats="4" scaleX="1.5" scaleY="3" />
     </path>
@@ -118,7 +118,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Waves"
-    formation="Ocean Waves LH BGGB">
+    formation="Ocean Waves LH BGGB" vid="V1-qp0ayo0t">
     <path>
       <move select="Lead Left" beats="4" scaleX="1.5" scaleY="3" />
     </path>
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-rn6sf24j">
     <path>
       <move select="Lead Right" hands="gripright" beats="4" scaleX="1.5" scaleY="3" />
     </path>
@@ -150,7 +150,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-uc7pibmk">
     <path>
       <move select="Lead Left" hands="gripleft" beats="4" scaleX="1.5" scaleY="3" />
     </path>
@@ -166,7 +166,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Tidal Wave"
-    formation="Tidal Wave RH BGGB">
+    formation="Tidal Wave RH BGGB" vid="V1-lfgd0qqt">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="1.5" />
     </path>
@@ -182,7 +182,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Tidal Wave"
-    formation="Tidal Wave LH BGGB">
+    formation="Tidal Wave LH BGGB" vid="V1-ipdddpal">
     <path>
       <move select="Lead Left" beats="4" scaleX="3" scaleY="1.5" />
     </path>
@@ -198,7 +198,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-hfjn6wxx">
     <path>
       <move select="Lead Right" hands="gripright" beats="4" scaleX="3" scaleY="1.5" />
     </path>
@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-76iwe17e">
     <path>
       <move select="Lead Left" hands="gripleft" beats="4" scaleX="3" scaleY="1.5" />
     </path>
@@ -230,7 +230,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Twin Diamonds"
-    formation="Diamonds RH Girl Points">
+    formation="Diamonds RH Girl Points" vid="V1-p4c4zgpi">
     <path numbers="6 3">
       <move select="Quarter Right" hands="right" beats="4" offsetX="1" />
     </path>
@@ -246,7 +246,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Twin Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-5b49n1s1">
     <path>
       <move select="Quarter Left" hands="left" beats="4" offsetX="1" />
     </path>
@@ -262,7 +262,7 @@
   </tam>
 
   <tam title="Lockit" from="Facing Diamonds, Right-Hand Centers"
-       formation="Diamonds Facing Girl Points">
+       formation="Diamonds Facing Girl Points" vid="V1-u82fncsh">
     <path>
       <move select="Quarter Right" hands="right" beats="4" offsetX="1" />
     </path>
@@ -278,7 +278,7 @@
   </tam>
 
   <tam title="Lockit" from="Facing Diamonds, Left-Hand Centers"
-       formation="Diamonds Facing LH Girl Points">
+       formation="Diamonds Facing LH Girl Points" vid="V1-i6ybyh2i">
     <path>
       <move select="Quarter Left" hands="left" beats="4" offsetX="1" />
     </path>
@@ -294,7 +294,7 @@
   </tam>
 
   <tam title="Lockit" from="Right-Hand Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-57enn1cv">
     <path>
       <move select="Hinge Right" beats="4" offsetX="1"/>
     </path>
@@ -310,7 +310,7 @@
   </tam>
 
   <tam title="Lockit" from="Left-Hand Point-to-Point Diamonds"
-       formation="Diamonds LH PTP Girl Points">
+       formation="Diamonds LH PTP Girl Points" vid="V1-npes9ffm">
     <path>
       <move select="Hinge Left" beats="4" offsetX="-1"/>
     </path>
@@ -326,7 +326,7 @@
   </tam>
 
   <tam title="Lockit" from="Facing PTP Diamonds, Right-Hand Centers"
-       formation="Diamonds Facing PTP">
+       formation="Diamonds Facing PTP" vid="V1-mdwdabsi">
     <path>
       <move select="Hinge Right" beats="4" offsetX="1"/>
     </path>
@@ -342,7 +342,7 @@
   </tam>
 
   <tam title="Lockit" from="Facing PTP Diamonds, Left-Hand Centers"
-       formation="Diamonds Facing LH PTP">
+       formation="Diamonds Facing LH PTP" vid="V1-xt46ojnb">
     <path>
       <move select="Hinge Left" beats="4" offsetX="-1"/>
     </path>
@@ -358,7 +358,7 @@
   </tam>
 
   <tam title="As Couples Lockit" from="Two-Faced Tidal Line"
-    formation="Two-Faced Tidal Line RH" group=" ">
+    formation="Two-Faced Tidal Line RH" group=" " vid="V1-43hhk2k8">
     <path>
       <move select="Hinge Right" beats="4" scaleX="3.5" scaleY="3.5" />
     </path>

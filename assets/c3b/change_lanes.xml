@@ -23,7 +23,7 @@
 <tamination title="Change Lanes">
 
   <tam title="Change Lanes" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-a46zwlgq">
     <path couples="2 4">
       <move select="Forward 4" beats="6"/>
       <move select="Run Right" beats="5" scaleY="2"/>
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Change Lanes" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-jh3se6ap">
     <path>
       <move select="Run Left" beats="8" scaleX="2" scaleY="3"/>
       <move select="Extend Left" beats="3" scaleX="4" scaleY="2"/>
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="Change Lanes" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-jke1koqj">
     <path>
       <move select="Forward 4" beats="6"/>
       <move select="Run Right" beats="5" scaleX="2" scaleY="2"/>
@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="Change Lanes" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-l6dr44ro">
     <path>
       <move select="Run Left" beats="8" scaleX="2" scaleY="3"/>
       <move select="Extend Left" beats="3" scaleX="4" scaleY="2"/>
@@ -118,7 +118,7 @@
     </path>
   </tam>
 
-  <tam title="Change Lanes" from="Columns">
+  <tam title="Change Lanes" from="Columns" vid="V1-8nqrpt6m">
     <formation fid="F3-2ezs6w63" aid="A1-mde26cxd">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="0"/>

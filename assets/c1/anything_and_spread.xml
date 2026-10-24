@@ -23,7 +23,7 @@
 <tamination title="Anything and Spread">
 
   <tam title="Touch a Quarter, Boys Spread" formation="Normal Lines"
-       group=" " sequencer="gender-specific">
+       group=" " sequencer="gender-specific" vid="V1-mhbwt49g">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" beats="3" scaleX="3" scaleY=".5"/>

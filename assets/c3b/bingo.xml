@@ -22,7 +22,7 @@
 -->
 <tamination title="Bingo">
 
-  <tam title="Bingo" from="Right-Hand Box" fractions="2.25">
+  <tam title="Bingo" from="Right-Hand Box" fractions="2.25" vid="V1-eg1phzee">
     <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="-2" x="1" angle="270"/>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Bingo" from="Left-Hand Box" formation="Box LH" fractions="2.25">
+  <tam title="Bingo" from="Left-Hand Box" formation="Box LH" fractions="2.25" vid="V1-v8bd6t2q">
     <path>
       <move select="Quarter Right" offsetX="-.333" offsetY="-.333"/>
       <move select="Quarter Right" offsetX=".333" offsetY="-.333"/>
@@ -48,7 +48,7 @@
     </path>
   </tam>
 
-  <tam title="Bingo" from="Right-Hand Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Bingo" from="Right-Hand Waves" formation="Ocean Waves RH BGBG" vid="V1-8hij5l7h">
     <path>
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="2"/>
     </path>
@@ -67,7 +67,7 @@
     </path>
   </tam>
 
-  <tam title="Bingo" from="Left-Hand Waves" formation="Ocean Waves LH BGBG">
+  <tam title="Bingo" from="Left-Hand Waves" formation="Ocean Waves LH BGBG" vid="V1-0co285x2">
     <path>
       <move select="Quarter Right" offsetX="-.333"/>
       <move select="Quarter Right" offsetY="-.333"/>
@@ -86,7 +86,7 @@
     </path>
   </tam>
 
-  <tam title="Bingo" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Bingo" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-ilnz4uev">
     <path>
       <move select="Quarter Left" offsetY=".333"/>
       <move select="Quarter Left" offsetX=".333"/>
@@ -105,7 +105,7 @@
     </path>
   </tam>
 
-  <tam title="Bingo" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Bingo" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-fk5cltya">
     <path>
       <move select="Lead Left" beats="4.5" scaleX="2" scaleY="3"/>
     </path>
@@ -124,7 +124,7 @@
     </path>
   </tam>
 
-  <tam title="Bingo" from="T-Bone Box">
+  <tam title="Bingo" from="T-Bone Box" vid="V1-qelkvniv">
     <formation fid="F3-vem78m16" aid="A1-vabff0x0">
       <dancer gender="boy" x="1" y="1" angle="180" />
       <dancer gender="girl" x="1" y="-1" angle="270" />
@@ -140,7 +140,7 @@
   </tam>
 
   <tam title="As Couples Bingo" group=" "
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-roft3dcj">
     <path>
       <move select="Lead Right" hands="right" beats="3" scaleX="3.5" scaleY="3" />
       <move select="Extend Left" hands="right" beats="3" scaleX="2" scaleY="1.5" />
@@ -161,7 +161,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Bingo" formation="Column RH GBGB" group=" ">
+  <tam title="Tandem Bingo" formation="Column RH GBGB" group=" " vid="V1-2vk2pkda">
     <path>
       <move select="Counter Rotate Left 0 2"/>
       <move select="Counter Rotate Left 0 2"/>
@@ -183,7 +183,7 @@
     </path>
   </tam>
 
-  <tam title="In Your Block Bingo" formation="Blocks RH" group=" ">
+  <tam title="In Your Block Bingo" formation="Blocks RH" group=" " vid="V1-rvdl5cox">
     <path>
       <move select="Lead Right" beats="4.5" scaleX="4" scaleY="4"/>
     </path>
@@ -202,7 +202,7 @@
     </path>
   </tam>
 
-  <tam title="Once Removed Bingo" formation="Two-Faced Lines RH" group=" ">
+  <tam title="Once Removed Bingo" formation="Two-Faced Lines RH" group=" " vid="V1-ffo81m9j">
     <path>
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="4"/>
     </path>
@@ -222,7 +222,7 @@
     </path>
   </tam>
 
-  <tam title="Couples Twosome Bingo" formation="Two-Faced Lines RH" group=" ">
+  <tam title="Couples Twosome Bingo" formation="Two-Faced Lines RH" group=" " vid="V1-bksmljfv">
     <path>
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="4"/>
     </path>
@@ -245,7 +245,7 @@
     </taminator>
   </tam>
 
-  <tam title="Tandem Twosome Bingo" formation="Column RH GBGB" group=" ">
+  <tam title="Tandem Twosome Bingo" formation="Column RH GBGB" group=" " vid="V1-mnejol9c">
     <path>
       <move select="Quarter Left" offsetY=".5" beats="2"/>
       <move select="Quarter Left" offsetX=".25" beats="2"/>

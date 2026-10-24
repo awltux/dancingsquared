@@ -23,7 +23,7 @@
 <tamination title="Chase Your Neighbor">
 
   <tam title="Chase Your Neighbor" from="Couples Facing Out"
-       formation="Couples Facing Out" parts="3.7">
+       formation="Couples Facing Out" parts="3.7" vid="V1-lv2m4lcq">
     <path couples="3 1">
       <move select="U-Turn Right" offsetX="-2" />
       <move select="Lead Right" beats="3.5" scaleX="3.5" scaleY="1.5" />
@@ -39,7 +39,7 @@
 
   <tam title="Chase Your Neighbor"
        from="Lines Facing Out"
-       formation="Lines Facing Out" parts="3.7">
+       formation="Lines Facing Out" parts="3.7" vid="V1-pio9hiai">
     <path>
       <move select="U-Turn Right" offsetX="-2" />
       <move select="Lead Right" beats="3.5" scaleX="3.5" scaleY="1.5" />
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Chase Your Neighbor" from="Trade By"
-       formation="Trade By" parts="3">
+       formation="Trade By" parts="3" vid="V1-m2lkm5ja">
     <path>
       <move select="U-Turn Right" offsetX="-2" />
       <move select="Lead Right" beats="2" scaleX=".5"/>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="Left Chase Your Neighbor" from="Couples Facing Out"
-       formation="Couples Facing Out" parts="3.7">
+       formation="Couples Facing Out" parts="3.7" vid="V1-h1qrl0cd">
     <path>
       <move select="Flip Left" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".25" />
@@ -107,7 +107,7 @@
 
   <tam title="Left Chase Your Neighbor"
        from="Lines Facing Out"
-       formation="Lines Facing Out" parts="3.7">
+       formation="Lines Facing Out" parts="3.7" vid="V1-tmfbraox">
     <path>
       <move select="Flip Left" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".25" />
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="Left Chase Your Neighbor" from="Trade By"
-       formation="Trade By" parts="3">
+       formation="Trade By" parts="3" vid="V1-nic731r1">
     <path>
       <move select="Flip Left" />
       <move select="Extend Left" scaleY=".5" />
@@ -160,7 +160,7 @@
 
 
   <tam title="All 8 Chase Your Neighbor"
-       formation="Static Facing Out" group=" " parts="4.3">
+       formation="Static Facing Out" group=" " parts="4.3" vid="V1-oy6he6af">
     <path>
       <move select="Flip Right" />
       <move select="Forward 3"/>
@@ -184,7 +184,7 @@
   </tam>
 
   <tam title="As Couples Chase Your Neighbor" from="Lines Facing Out"
-       formation="Lines Facing Out" group=" " parts="6">
+       formation="Lines Facing Out" group=" " parts="6" vid="V1-kfzxja7t">
     <path>
       <move select="BackRun Left" hands="left" offsetX="-1"/>
       <move select="Forward 3" hands="left"/>
@@ -212,7 +212,7 @@
   </tam>
 
   <tam title="Concentric Chase Your Neighbor"
-       formation="Lines Facing Out" group=" ">
+       formation="Lines Facing Out" group=" " vid="V1-g5pjj1f8">
     <path>
       <move select="Flip Right" beats="5" scaleY=".5" offsetX="-2"/>
       <move select="Lead Right" beats="6" scaleX="4.5" scaleY="4"/>
@@ -235,7 +235,7 @@
   </tam>
 
   <tam title="Tandem Chase Your Neighbor"
-       formation="Completed Double Pass Thru" group=" ">
+       formation="Completed Double Pass Thru" group=" " vid="V1-z44w8ysd">
     <path>
       <move select="Flip Right" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -268,7 +268,7 @@
   </tam>
 
   <tam title="Triple Box Chase Your Neighbor"
-       formation="Phantom Lines Out" group=" " parts="3.7">
+       formation="Phantom Lines Out" group=" " parts="3.7" vid="V1-k2i1se59">
     <path>
       <move select="Flip Right" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".25" />

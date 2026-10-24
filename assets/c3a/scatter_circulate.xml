@@ -22,7 +22,7 @@
 -->
 <tamination title="Scatter Circulate">
 
-  <tam title="Scatter Circulate" from="Normal Lines" formation="Normal Lines">
+  <tam title="Scatter Circulate" from="Normal Lines" formation="Normal Lines" vid="V1-6jtes047">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Scatter Circulate" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Scatter Circulate" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-bip3s4u0">
     <path>
       <move select="Flip Left" beats="4"/>
     </path>
@@ -58,7 +58,7 @@
     </path>
   </tam>
 
-  <tam title="Scatter Circulate" from="Right-Hand Two-Faced Lines">
+  <tam title="Scatter Circulate" from="Right-Hand Two-Faced Lines" vid="V1-zgbs28ha">
     <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Scatter Circulate" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-jlqn8n3p">
     <path>
       <move select="Run Left" beats="4"/>
     </path>
@@ -98,7 +98,7 @@
   </tam>
 
   <tam title="Scatter Circulate" from="T-Bone Lines"
-       formation="T-Bone RDLU">
+       formation="T-Bone RDLU" vid="V1-oufd68bx">
   <formation name="T-Bone RDLU" fid="F3-ateu28tp" aid="A1-iaich423"> <!-- matches Ceder Chest -->
     <dancer gender="boy"  x="1"  y="3" angle="180"/>
     <dancer gender="girl" x="1"  y="1" angle="270"/>

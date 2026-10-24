@@ -22,7 +22,7 @@
 -->
 <tamination title="Swing and Mix">
 
-  <tam title="Swing and Mix" from="Facing Couples" formation="Facing Couples" parts="5;3">
+  <tam title="Swing and Mix" from="Facing Couples" formation="Facing Couples" parts="5;3" vid="V1-xwrc8gou">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
       <move select="Swing Right"/>
@@ -36,7 +36,7 @@
     </path>
   </tam>
 
-  <tam title="Swing and Mix" from="Right-Hand Wave" formation="Wave RH" parts="3;3">
+  <tam title="Swing and Mix" from="Right-Hand Wave" formation="Wave RH" parts="3;3" vid="V1-faz4xsig">
     <path>
       <move select="Swing Right"/>
       <move select="Run Left" scaleY="2" />
@@ -48,7 +48,7 @@
     </path>
   </tam>
 
-  <tam title="Swing and Mix" from="Left-Hand Wave" formation="Wave LH" parts="3;3">
+  <tam title="Swing and Mix" from="Left-Hand Wave" formation="Wave LH" parts="3;3" vid="V1-7jcljki7">
     <path>
       <move select="Swing Left"/>
       <move select="Run Right" scaleY="2" />
@@ -60,7 +60,7 @@
     </path>
   </tam>
 
-  <tam title="Swing and Mix" from="Lines" formation="Normal Lines" parts="5;3">
+  <tam title="Swing and Mix" from="Lines" formation="Normal Lines" parts="5;3" vid="V1-elrz2r26">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -88,7 +88,7 @@
   <tam title="Swing and Mix"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;3" >
+       parts="3;3"  vid="V1-ui9mjp3m">
     <path>
       <move select="Swing Right"/>
       <move select="Run Left" scaleY="2" />
@@ -112,7 +112,7 @@
   <tam title="Swing and Mix"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;3" >
+       parts="3;3"  vid="V1-cpwfuorl">
     <path>
       <move select="Swing Left"/>
       <move select="Run Right" scaleY="2" />
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Swing and Mix" from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In" parts="3;3">
+       formation="Inverted Lines Ends Facing In" parts="3;3" vid="V1-0c59hpmj">
     <path>
       <move select="Swing Right"/>
       <move select="Run Left" scaleY="2"/>
@@ -156,7 +156,7 @@
   </tam>
 
   <tam title="Swing and Mix" from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out" parts="3;3">
+       formation="Inverted Lines Ends Facing Out" parts="3;3" vid="V1-3eqrmt48">
     <path>
       <move select="Swing Left"/>
       <move select="Run Right" scaleX="2" scaleY="2"/>
@@ -179,7 +179,7 @@
 
   <tam title="Swing and Mix"
        from="Eight Chain Thru" formation="Eight Chain Thru"
-       parts="5;3">
+       parts="5;3" vid="V1-ufyyjhr7">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right"/>
@@ -205,7 +205,7 @@
   </tam>
 
   <tam title="Swing and Mix" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" parts="3;3">
+       formation="Tidal Wave RH BGGB" parts="3;3" vid="V1-tkafmbcp">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Run Left" />
@@ -227,7 +227,7 @@
   </tam>
 
   <tam title="Swing and Mix" from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB" parts="3;3">
+       formation="Tidal Wave LH BGGB" parts="3;3" vid="V1-swmq2wyh">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Run Right" />
@@ -249,7 +249,7 @@
   </tam>
 
   <tam title="Swing and Mix" from="Tidal Inverted Line"
-       formation="Tidal Inverted Line RH" parts="3;3">
+       formation="Tidal Inverted Line RH" parts="3;3" vid="V1-ybbti84g">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Run Left" />
@@ -272,7 +272,7 @@
   </tam>
 
   <tam title="Swing and Mix" from="Tidal Inverted Line"
-       formation="Tidal Inverted Line LH" parts="3;3" display="none">
+       formation="Tidal Inverted Line LH" parts="3;3" display="none" vid="V1-4ra2qov5">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Forward" beats=".5"/>
@@ -294,7 +294,7 @@
     </path>
   </tam>
 
-  <tam title="Left Swing and Mix" from="Facing Couples" formation="Facing Couples" parts="5;3">
+  <tam title="Left Swing and Mix" from="Facing Couples" formation="Facing Couples" parts="5;3" vid="V1-litg1qiz">
     <path>
       <move select="Forward 2"/>
       <move select="Swing Left"/>
@@ -308,7 +308,7 @@
     </path>
   </tam>
 
-  <tam title="Left Swing and Mix" from="Lines" formation="Normal Lines" parts="5;3">
+  <tam title="Left Swing and Mix" from="Lines" formation="Normal Lines" parts="5;3" vid="V1-qfx3vr1v">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -335,7 +335,7 @@
 
   <tam title="Left Swing and Mix"
        from="Eight Chain Thru" formation="Eight Chain Thru"
-       parts="5;3">
+       parts="5;3" vid="V1-7tbkya8y">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left"/>
@@ -364,7 +364,7 @@
   <tam title="All 8 Swing and Mix"
        from="Right-Hand Thar"
        formation="Thar LH Girls"
-       parts="3;4.5">
+       parts="3;4.5" vid="V1-rnxgbn32">
     <path couples="2 4">
       <move select="Swing Right"/>
       <move select="Stand" beats="1.5" />
@@ -392,7 +392,7 @@
   <tam title="All 8 Swing and Mix"
        from="Left-Hand Thar"
        formation="Thar RH Girls"
-       parts="3;4.5">
+       parts="3;4.5" vid="V1-7lybmdf1">
     <path>
       <move select="Swing Left"/>
       <move select="Stand" beats="1.5" />
@@ -419,7 +419,7 @@
 
   <tam title="As Couples Swing and Mix"
        formation="Normal Lines"
-       parts="5;3" group=" ">
+       parts="5;3" group=" " vid="V1-qpop64lf">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX="1.5" scaleY="1.5"/>

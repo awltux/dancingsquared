@@ -22,7 +22,7 @@
 -->
 <tamination title="Any Tagging Call the Top">
 
-  <tam title="Chase the Top" group=" " fractions="6" formation="Lines Facing Out">
+  <tam title="Chase the Top" group=" " fractions="6" formation="Lines Facing Out" vid="V1-j44scpdz">
     <path>
       <move select="U-Turn Right" offsetX="-2"/>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2"/>
@@ -50,7 +50,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Top" group=" " fractions="7.5" formation="Ocean Waves LH BGGB">
+  <tam title="Flip the Top" group=" " fractions="7.5" formation="Ocean Waves LH BGGB" vid="V1-39nb541w">
     <path couples="2 4">
       <move select="Lead Left" beats="3.5" scaleX=".5" scaleY="2" />
       <move select="Forward 2" />
@@ -81,7 +81,7 @@
     </path>
   </tam>
 
-  <tam title="Tag the Top" group=" " fractions="4.5">
+  <tam title="Tag the Top" group=" " fractions="4.5" vid="V1-ijdf0cdn">
     <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>

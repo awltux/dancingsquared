@@ -23,7 +23,7 @@
 <tamination title="Scoot Chain Thru">
 
   <tam title="Scoot Chain Thru" from="Right-Hand Waves"
-    formation="Ocean Waves RH BGBG" parts="2;3;3;3">
+    formation="Ocean Waves RH BGBG" parts="2;3;3;3" vid="V1-kxdlekkl">
     <path numbers="1 8">
       <move select="Forward 2" />
       <move select="Swing Right" />
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru" from="Left-Hand Waves"
-    formation="Ocean Waves LH BGBG" parts="2;3;3;3">
+    formation="Ocean Waves LH BGBG" parts="2;3;3;3" vid="V1-fkv740dq">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Run Left" />
@@ -75,7 +75,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru" from="Quarter Tag"
-    formation="Quarter Tag" parts="2;3;3;3">
+    formation="Quarter Tag" parts="2;3;3;3" vid="V1-rgxmahp0">
     <path numbers="1 8">
       <move select="Extend Left" scaleY="2" beats="2" />
       <move select="Swing Right" />
@@ -107,7 +107,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru" from="Left-Handed Quarter Tag"
-    formation="Quarter Tag LH" parts="2;3;3;3">
+    formation="Quarter Tag LH" parts="2;3;3;3" vid="V1-u739ib3v">
     <path numbers="1 8">
       <move select="Forward" beats="2" />
       <move select="Swing Left" />
@@ -139,7 +139,7 @@
   </tam>
 
   <tam title="Half Scoot Chain Thru" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG" display="none">
+       formation="Ocean Waves RH BGBG" display="none" vid="V1-rvdnso1i">
     <path numbers="1 8">
       <move select="Forward 2" />
       <move select="Swing Right" />
@@ -160,7 +160,7 @@
   </tam>
 
   <tam title="Half Scoot Chain Thru" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG" display="none">
+       formation="Ocean Waves LH BGBG" display="none" vid="V1-glctyxp9">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Lead Left" />
@@ -181,7 +181,7 @@
   </tam>
 
   <tam title="Half Scoot Chain Thru" from="Quarter Tag"
-       formation="Quarter Tag" display="none">
+       formation="Quarter Tag" display="none" vid="V1-631jz3gv">
     <path numbers="1 8">
       <move select="Extend Left" scaleY="2" beats="2" />
       <move select="Swing Right" />
@@ -203,7 +203,7 @@
   </tam>
 
   <tam title="Half Scoot Chain Thru" from="Left-Handed Quarter Tag"
-       formation="Quarter Tag LH" display="none">
+       formation="Quarter Tag LH" display="none" vid="V1-179sx4d4">
     <path numbers="1 8">
       <move select="Forward" beats="2" />
       <move select="Swing Left" />

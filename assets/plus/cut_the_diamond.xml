@@ -25,7 +25,7 @@
   <tam title="Cut the Diamond"
        from="Right-Hand Diamond"
        formation="Diamond RH"
-       difficulty="1">
+       difficulty="1" vid="V1-c0ij58i6">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -39,7 +39,7 @@
   <tam title="Cut the Diamond"
        from="Left-Hand Diamond"
        formation="Diamond LH"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-hb29jogb">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -53,7 +53,7 @@
   <tam title="Cut the Diamond"
        from="Facing Diamond"
        formation="Diamond Facing RH"
-       difficulty="2">
+       difficulty="2" vid="V1-v4fm9rvj">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -67,7 +67,7 @@
   <tam title="Cut the Diamond"
        from="Facing Diamond, Left-Hand Centers"
        formation="Diamond Facing"
-       difficulty="2">
+       difficulty="2" vid="V1-v5yssjgw">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -81,7 +81,7 @@
   <tam title="Cut the Diamond"
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       difficulty="1">
+       difficulty="1" vid="V1-r0edbk7n">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -103,7 +103,7 @@
   <tam title="Cut the Diamond"
        from="Left-Hand Diamonds"
        formation="Diamonds LH Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-ghwasrds">
     <path>
       <move select="Forward 2" />
       <move select="Lead Left" />
@@ -125,7 +125,7 @@
   <tam title="Cut the Diamond"
        from="Facing Diamonds, Right-Hand Wave"
        formation="Diamonds Facing Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-1h4f4q3o">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -147,7 +147,7 @@
   <tam title="Cut the Diamond"
        from="Facing Diamonds, Left-Hand Wave"
        formation="Diamonds Facing LH Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-yrgqp4i3">
     <path>
       <move select="Forward 2" />
       <move select="Lead Left" />
@@ -172,7 +172,7 @@
 
   <tam title="Cut the Diamond"
        formation="Diamonds 3 and 1 Girl Points"
-       from="Right-Hand Wave, Points Facing Out" difficulty="2">
+       from="Right-Hand Wave, Points Facing Out" difficulty="2" vid="V1-5nnod8k3">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -192,7 +192,7 @@
   </tam>
 
   <tam title="Cut the Diamond" from="Right-Hand Wave, Points Facing In"
-       difficulty="2">
+       difficulty="2" vid="V1-y6kn833d">
     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -217,7 +217,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Left-Hand Wave, Points Facing Out" difficulty="2">
+  <tam title="Cut the Diamond" from="Left-Hand Wave, Points Facing Out" difficulty="2" vid="V1-cgogudej">
     <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -242,7 +242,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Left-Hand Wave, Points Facing In" difficulty="2">
+  <tam title="Cut the Diamond" from="Left-Hand Wave, Points Facing In" difficulty="2" vid="V1-i6z301jm">
     <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -270,7 +270,7 @@
   <tam title="Cut the Diamond"
        from="Point-to-Point Diamonds"
        formation="Diamonds RH PTP Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-1rgchd22">
     <path>
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Lead Right"  beats="2"/>
@@ -292,7 +292,7 @@
   <tam title="Cut the Diamond"
        from="Left-Hand Point-to-Point Diamonds"
        formation="Diamonds LH PTP Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-cnb8z2jf">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -309,7 +309,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2" formation="Diamonds Facing PTP">
+  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2" formation="Diamonds Facing PTP" vid="V1-etqs7rw7">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -326,7 +326,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2" formation="Diamonds Facing LH PTP">
+  <tam title="Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2" formation="Diamonds Facing LH PTP" vid="V1-tw5b3r2m">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -343,7 +343,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Point-to-Point Diamonds 3" difficulty="2" formation="Interlocked Diamonds RH PTP Girl Points">
+  <tam title="Cut the Diamond" from="Point-to-Point Diamonds 3" difficulty="2" formation="Interlocked Diamonds RH PTP Girl Points" vid="V1-bfa42wuo">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -360,7 +360,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Diamond" from="Point-to-Point Diamonds 4" difficulty="2">
+  <tam title="Cut the Diamond" from="Point-to-Point Diamonds 4" difficulty="2" vid="V1-19hu0klr">
     <formation fid="F3-x0vy384g" aid="A1-9wda6y80">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -384,7 +384,7 @@
   </tam>
 
   <tam title="Cut the Diamond"
-       from="Point-to-Point Diamonds 5" difficulty="2" formation="Interlocked Diamonds LH PTP Girl Points">
+       from="Point-to-Point Diamonds 5" difficulty="2" formation="Interlocked Diamonds LH PTP Girl Points" vid="V1-4h1mcdac">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -402,7 +402,7 @@
   </tam>
 
   <tam title="Cut the Diamond"
-       from="Point-to-Point Diamonds 6" difficulty="2">
+       from="Point-to-Point Diamonds 6" difficulty="2" vid="V1-rt8rjl1o">
     <formation fid="F3-8ogv2tf4" aid="A1-9qhj5pzk">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>

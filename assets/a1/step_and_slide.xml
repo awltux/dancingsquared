@@ -22,7 +22,7 @@
 -->
 <tamination title="Step and Slide">
 
-  <tam title="Step and Slide" from="Right-Hand Two-Faced Line">
+  <tam title="Step and Slide" from="Right-Hand Two-Faced Line" vid="V1-sq9e1xu2">
     <formation fid="F3-la88ogb8" aid="A1-ypdxw964">
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="-1" y="0" angle="90"/>
@@ -36,7 +36,7 @@
   </tam>
 
   <tam title="Step and Slide" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-psc6gckx">
     <path>
       <move select="Forward 2" beats="4"/>
     </path>
@@ -45,7 +45,7 @@
     </path>
   </tam>
 
-  <tam title="Step and Slide" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Step and Slide" from="Right-Hand Wave" formation="Wave RH" vid="V1-crrto7kk">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>
@@ -54,7 +54,7 @@
     </path>
   </tam>
 
-  <tam title="Step and Slide" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Step and Slide" from="Left-Hand Wave" formation="Wave LH" vid="V1-qj732piz">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -63,7 +63,7 @@
     </path>
   </tam>
 
-  <tam title="Step and Slide" from="Lines Facing Out">
+  <tam title="Step and Slide" from="Lines Facing Out" vid="V1-83glpqvd">
     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" x="3" y="2" angle="90"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
@@ -84,7 +84,7 @@
     </path>
   </tam>
 
-  <tam title="Step and Slide" from="Lines Facing In" formation="Normal Lines">
+  <tam title="Step and Slide" from="Lines Facing In" formation="Normal Lines" vid="V1-yywmgc8a">
     <path>
       <move select="Dodge Right" beats="4" offsetX="-1" />
     </path>
@@ -101,7 +101,7 @@
 
   <tam title="Step and Slide"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-xx4xq8jz">
     <path>
       <move select="Extend Right" beats="4" scaleY="2" />
     </path>
@@ -118,7 +118,7 @@
 
   <tam title="Step and Slide"
        from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-bm8r9kfg">
     <path>
       <move select="Extend Left" beats="4" scaleY="2" />
     </path>
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Step and Slide" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-q126tgbq">
     <path>
       <move select="Dodge Right" beats="4"/>
     </path>
@@ -150,7 +150,7 @@
   </tam>
 
   <tam title="Step and Slide" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-v6z6dax9">
     <path>
       <move select="Dodge Left" beats="4"/>
     </path>
@@ -166,7 +166,7 @@
   </tam>
 
   <tam title="Step and Slide" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-g5w87khf">
     <path>
       <move select="Dodge Right" beats="4"/>
     </path>
@@ -182,7 +182,7 @@
   </tam>
 
   <tam title="Step and Slide" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-hy6oaacs">
     <path>
       <move select="Dodge Left" beats="4"/>
     </path>
@@ -198,7 +198,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #1" display="none"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-aai5xb4m">
     <path>
       <move select="Dodge Left" beats="4" offsetX="1"/>
     </path>
@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #2" display="none"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-b13s3f02">
     <path>
       <move select="Dodge Right" beats="4"/>
     </path>
@@ -230,7 +230,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #3" display="none"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-7q3rksrq">
     <path>
       <move select="Dodge Right" beats="4"/>
     </path>
@@ -246,7 +246,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #4" display="none"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-0agoa7r3">
     <path>
       <move select="Dodge Right" beats="4" offsetX="-1"/>
     </path>
@@ -262,7 +262,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #5" display="none"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-b76gc2w1">
     <path>
       <move select="Dodge Right" beats="4" offsetX="1"/>
     </path>
@@ -278,7 +278,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #6" display="none"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-f7xpcrmj">
     <path>
       <move select="Dodge Left" beats="4"/>
     </path>
@@ -294,7 +294,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #7" display="none"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-ketqv3wh">
     <path>
       <move select="Dodge Left" beats="4"/>
     </path>
@@ -310,7 +310,7 @@
   </tam>
 
   <tam title="Step and Slide" from="3 and 1 Lines #8" display="none"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-lt10668i">
     <path>
       <move select="Dodge Left" beats="4" offsetX="-1"/>
     </path>
@@ -326,7 +326,7 @@
   </tam>
 
   <tam title="Step and Slide"
-       from="Tidal Line" formation="Tidal Line RH">
+       from="Tidal Line" formation="Tidal Line RH" vid="V1-0h7t6lay">
     <path>
       <move select="Dodge Right"  offsetY="1.5" />
     </path>
@@ -343,7 +343,7 @@
 
   <tam title="Step and Slide"
        from="Tidal Line LH"
-       formation="Tidal Line LH" display="none">
+       formation="Tidal Line LH" display="none" vid="V1-yq2ysn39">
     <path>
       <move select="Extend Right" hands="left" beats="3" scaleX="3" scaleY=".5" />
     </path>
@@ -359,7 +359,7 @@
   </tam>
 
   <tam title="Step and Slide"
-       from="Tidal Two-Faced Line" formation="Two-Faced Tidal Line RH">
+       from="Tidal Two-Faced Line" formation="Two-Faced Tidal Line RH" vid="V1-et27499x">
     <path>
       <move select="Dodge Right"  offsetY="1.5" />
     </path>
@@ -376,7 +376,7 @@
 
   <tam title="Step and Slide"
        from="Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line LH" display="no">
+       formation="Two-Faced Tidal Line LH" display="no" vid="V1-jaaemoq2">
     <path>
       <move select="Dodge Left"  offsetY="-1.5" />
     </path>
@@ -393,7 +393,7 @@
 
   <tam title="Step and Slide"
        from="Tidal Inverted Line"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-gwbttoo4">
     <path>
       <move select="Dodge Right"  offsetY="1.5" />
     </path>
@@ -410,7 +410,7 @@
 
   <tam title="Step and Slide"
        from="Tidal Inverted Line LH"
-       formation="Tidal Inverted Line LH" display="none">
+       formation="Tidal Inverted Line LH" display="none" vid="V1-lt670wc5">
     <path>
       <move select="Dodge Left"  offsetY="-1.5" />
     </path>

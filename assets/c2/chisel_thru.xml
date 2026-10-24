@@ -23,7 +23,7 @@
 <tamination title="Chisel Thru">
 
   <tam title="Chisel Thru"
-       from="Normal Lines" parts="5;2.5">
+       from="Normal Lines" parts="5;2.5" vid="V1-drlpkkwm">
      <formation fid="F3-1r9s5bst" aid="A1-mib7zc39">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Chisel Thru" from="Tidal Wave"
-       formation="Tidal Wave RH BGGB" parts="3;2.5">
+       formation="Tidal Wave RH BGGB" parts="3;2.5" vid="V1-bigkwvhd">
     <path>
       <move select="Lead Right" beats="3" scaleX="3" scaleY="2.5" />
       <move select="Extend Left" scaleY=".5" />

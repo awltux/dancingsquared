@@ -22,7 +22,7 @@
 -->
 <tamination title="Reflected Concept">
 
-  <tam title="Reflected Flip the Line" from="Right-Hand Wave" formation="Wave RH" group=" ">
+  <tam title="Reflected Flip the Line" from="Right-Hand Wave" formation="Wave RH" group=" " vid="V1-e028xe9e">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 4" beats="3"/>
@@ -38,7 +38,7 @@
     </path>
   </tam>
 
-  <tam title="Reflected Tag the Line" formation="Two-Faced Lines RH" group=" ">
+  <tam title="Reflected Tag the Line" formation="Two-Faced Lines RH" group=" " vid="V1-50r6ihla">
     <path>
       <move select="Lead Right"/>
       <move select="Forward"/>

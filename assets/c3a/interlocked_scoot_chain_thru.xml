@@ -21,7 +21,7 @@
 <!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
 <tamination title="Interlocked Scoot Chain Thru">
 
-  <tam title="Interlocked Scoot Chain Thru" from="Right-Hand Quarter Line" formation="Quarter Lines RH">
+  <tam title="Interlocked Scoot Chain Thru" from="Right-Hand Quarter Line" formation="Quarter Lines RH" vid="V1-ttte15t2">
     <path>
       <move select="Forward" beats="2" scaleX="1.5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -52,7 +52,7 @@
     </path>
   </tam>
 
-  <tam title="Interlocked Scoot Chain Thru" from="Left-Hand Quarter Line" formation="Quarter Lines LH">
+  <tam title="Interlocked Scoot Chain Thru" from="Left-Hand Quarter Line" formation="Quarter Lines LH" vid="V1-oe1ute3f">
     <path>
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>

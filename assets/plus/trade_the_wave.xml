@@ -25,7 +25,7 @@
   <tam title="Trade the Wave"
        from="Right-Hand Wave"
        formation="Wave RH Boys Center"
-       difficulty="2">
+       difficulty="2" vid="V1-etj4e9tm">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" scaleY="2" />
     </path>
@@ -35,7 +35,7 @@
   </tam>
 
   <tam title="Trade the Wave" from="Compact Right-Hand Wave" display="none"
-       formation="Compact Wave RH">
+       formation="Compact Wave RH" vid="V1-d9rt3asb">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="1" />
     </path>
@@ -47,7 +47,7 @@
   <tam title="Trade the Wave"
        from="Left-Hand Wave"
        formation="Wave LH Boys Center"
-       difficulty="1">
+       difficulty="1" vid="V1-w1vr7vph">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="2" />
     </path>
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="Trade the Wave" from="Compact Left-Hand Wave" display="none"
-       formation="Compact Wave LH">
+       formation="Compact Wave LH" vid="V1-4w55b89o">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" scaleY="1" />
     </path>
@@ -69,7 +69,7 @@
   <tam title="Trade the Wave"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-li2x1sc0">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="2" />
     </path>
@@ -87,7 +87,7 @@
   <tam title="Trade the Wave"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       difficulty="1">
+       difficulty="1" vid="V1-08q58qrz">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" scaleY="2" />
     </path>
@@ -105,7 +105,7 @@
   <tam title="Trade the Wave"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-7q2uo6zb">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" />
     </path>
@@ -123,7 +123,7 @@
   <tam title="Trade the Wave"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-jrhcdgyf">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" />
     </path>

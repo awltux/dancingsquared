@@ -24,7 +24,7 @@
 
 
 
-  <tam title="Team Up" from="Completed Double Pass Thru" formation="Completed Double Pass Thru">
+  <tam title="Team Up" from="Completed Double Pass Thru" formation="Completed Double Pass Thru" vid="V1-6a9enozc">
     <path>
       <move select="Quarter Left" offsetY="1"/>
       <move select="Quarter Right" beats="1.5" hands="right" offsetX="1"/>
@@ -42,7 +42,7 @@
   </tam>
 
 <!-- ARV 20130208 22:10 CST -->
-  <tam title="Team Up" from="Inverted Lines" formation="Inverted Lines Ends Facing Out">
+  <tam title="Team Up" from="Inverted Lines" formation="Inverted Lines Ends Facing Out" vid="V1-vg21xfej">
     <path couples="2 4">
       <move select="Lead Left 2" offsetX="-1" offsetY="1" />
       <move select="Quarter Right" beats="1.5" hands="right" offsetX="1"/>
@@ -60,7 +60,7 @@
   </tam>
 
 <!-- ARV 20130209 10:50 CST -->
-  <tam title="Team Up" from="T-Bones" formation="T-Bone URDR">
+  <tam title="Team Up" from="T-Bones" formation="T-Bone URDR" vid="V1-1lib3y3f">
     <path couples="4 2">
       <move select="Forward" />
       <move select="Quarter Left" beats="1.5" hands="left" offsetX="1"/>

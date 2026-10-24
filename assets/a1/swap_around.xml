@@ -25,7 +25,7 @@
   <tam title="Swap Around"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       fractions="2" >
+       fractions="2"  vid="V1-ydi3tih3">
     <path>
       <move select="Flip Right" beats="4" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Swap Around"
        from="Facing Couples Close"
        formation="Facing Couples Close"
-       fractions="2" display="none">
+       fractions="2" display="none" vid="V1-xj6napx9">
     <path>
       <move select="Flip Right" beats="4" />
     </path>
@@ -49,7 +49,7 @@
   <tam title="Swap Around"
        from="Facing Couples"
        formation="Facing Couples Far"
-       fractions="2" display="no">
+       fractions="2" display="no" vid="V1-8m9f3gs9">
     <path>
       <move select="Flip Right" beats="4" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="Swap Around"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="2" >
+       fractions="2"  vid="V1-dvn125ki">
     <path>
       <move select="Flip Right" beats="4" />
     </path>
@@ -79,7 +79,7 @@
   <tam title="Swap Around"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="2" >
+       fractions="2"  vid="V1-ovznv8e7">
     <path>
       <move select="Flip Right" beats="4" />
     </path>
@@ -96,7 +96,7 @@
 
   <tam title="Half Swap Around" display="no"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-xht4kgrs">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-2" offsetY="-1"/>
     </path>
@@ -113,7 +113,7 @@
   <tam title="As Couples Swap Around"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="2" group=" ">
+       fractions="2" group=" " vid="V1-nv11z3ep">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleY="3" />
     </path>
@@ -135,7 +135,7 @@
   <tam title="Reverse Swap Around"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       fractions="2" >
+       fractions="2"  vid="V1-1ld4jftp">
     <path>
       <move select="Forward 3" beats="4" />
     </path>
@@ -147,7 +147,7 @@
   <tam title="Reverse Swap Around"
        from="Facing Couples Close"
        formation="Facing Couples Close"
-       fractions="2" display="none">
+       fractions="2" display="none" vid="V1-r2b0fd7r">
     <path>
       <move select="Forward 2" beats="4"/>
     </path>
@@ -159,7 +159,7 @@
   <tam title="Reverse Swap Around"
        from="Facing Couples Far"
        formation="Facing Couples Far"
-       fractions="2" display="no">
+       fractions="2" display="no" vid="V1-qgl8aok3">
     <path>
       <move select="Forward 6" beats="4" />
     </path>
@@ -171,7 +171,7 @@
   <tam title="Reverse Swap Around"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="2" >
+       fractions="2"  vid="V1-7wu86jgk">
     <path>
       <move select="Forward 4" />
     </path>
@@ -189,7 +189,7 @@
   <tam title="Reverse Swap Around"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="2" >
+       fractions="2"  vid="V1-frtap9v5">
     <path>
       <move select="Forward 2" beats="4" />
     </path>
@@ -206,7 +206,7 @@
 
   <tam title="Half Reverse Swap Around" display="no"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-u9l97yxm">
     <path>
     </path>
     <path>
@@ -223,7 +223,7 @@
   <tam title="As Couples Reverse Swap Around"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="2" group=" " >
+       fractions="2" group=" "  vid="V1-pq9h59e3">
     <path>
       <move select="Forward 4" hands="right" />
     </path>

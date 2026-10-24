@@ -23,7 +23,7 @@
 <tamination title="3 by 1 Transfer The Column">
 
   <tam title="3 by 1 Transfer the Column"
-       from="Right-Hand Columns">
+       from="Right-Hand Columns" vid="V1-26atqhks">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="3 by 1 Transfer the Column"
-       from="Left-Hand Columns">
+       from="Left-Hand Columns" vid="V1-062gbk0l">
      <formation fid="F3-dhnw1kx1" aid="A1-5rn8li19">
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -88,7 +88,7 @@
 
   <tam title="Magic 3 by 1 Transfer the Column"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-84wc86at">
     <path>
       <move select="Forward" beats="2" />
       <move select="Extend Left" beats="2" scaleY="2" />
@@ -118,7 +118,7 @@
 
   <tam title="Magic 3 by 1 Transfer the Column"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-ck04rhi7">
     <path>
       <move select="Run Right" beats="6" scaleY="2" />
       <move select="Forward 5"/>

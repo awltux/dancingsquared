@@ -24,7 +24,7 @@
 
   <tam title="Cast a Shadow"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" >
+       formation="Ocean Waves RH BGGB"  vid="V1-tk6838qi">
     <path couples="2 4">
       <move select="Extend Right" beats="2.5" scaleX="2" scaleY=".75" />
       <move select="Swing Left" beats="2" scaleX=".75" scaleY=".75" />
@@ -51,7 +51,7 @@
 
   <tam title="Cast a Shadow"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH GBBG">
+       formation="Ocean Waves LH GBBG" vid="V1-cufuk77d">
     <path>
       <move select="U-Turn Right" beats=".5" offsetY="-.75" />
       <move select="Forward 2" beats="1" />
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Cast a Shadow"
-       from="Right-Hand Two-Faced Lines">
+       from="Right-Hand Two-Faced Lines" vid="V1-hhjlg66n">
      <formation fid="F3-p8t2f0pj" aid="A1-zs75tk63">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
@@ -113,7 +113,7 @@
   </tam>
 
   <tam title="Cast a Shadow"
-       from="Left-Hand Two-Faced Lines">
+       from="Left-Hand Two-Faced Lines" vid="V1-nbi1hbl4">
      <formation fid="F3-njckelvh" aid="A1-2xeilizd">
       <dancer gender="girl" x="3" y="2" angle="90"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
@@ -145,7 +145,7 @@
   </tam>
 
   <tam title="Cast a Shadow" formation="3 and 1 lines #5"
-       from="3 and 1 Lines #5">
+       from="3 and 1 Lines #5" vid="V1-tgjtq3jx">
     <path couples="2 4">
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".75" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -172,7 +172,7 @@
   </tam>
 
   <tam title="Cast a Shadow" formation="3 and 1 lines #8"
-       from="3 and 1 Lines #8">
+       from="3 and 1 Lines #8" vid="V1-gy343kqe">
     <path>
       <move select="U-Turn Right" beats=".5" offsetY="-.75" />
       <move select="Forward 2" beats="1" />
@@ -198,7 +198,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Cast a Shadow" group=" ">
+  <tam title="Heads Cast a Shadow" group=" " vid="V1-zgriv9yq">
     <formation fid="F3-cd6blrmh" aid="A1-g67guzj5">
       <dancer gender="girl" x="0" y="3" angle="180"/>
       <dancer gender="boy" x="0" y="1.5" angle="180"/>

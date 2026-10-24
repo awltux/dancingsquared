@@ -23,7 +23,7 @@
 <tamination title="Fan Concept">
 
   <tam title="Fan Alter and Circulate" formation="Ocean Waves RH BGGB"
-       fractions="7.5;4" group=" ">
+       fractions="7.5;4" group=" " vid="V1-446e3u7g">
     <path>
       <move select="U-Turn Right" />
       <move select="Run Left" beats="4.5" scaleX="3" scaleY="3" />
@@ -50,7 +50,7 @@
     </path>
   </tam>
 
-  <tam title="Fan Alter the Wave" group=" " formation="Wave RH" fractions="4.5;4">
+  <tam title="Fan Alter the Wave" group=" " formation="Wave RH" fractions="4.5;4" vid="V1-7pufm8ox">
     <path>
       <move select="U-Turn Right" beats="4.5" />
       <move select="Lead Left" beats="2" scaleX="2" scaleY="3" />
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Fan Chain and Exchange the Gears" group=" "
-       formation="Ocean Waves RH BGGB" fractions="4.5;3;4.5;4">
+       formation="Ocean Waves RH BGGB" fractions="4.5;3;4.5;4" vid="V1-ei115not">
     <path>
       <move select="Stand" beats="2" />
       <move select="Flip Right" beats="5.5" />
@@ -113,7 +113,7 @@
   </tam>
 
   <tam title="Fan Chain the Gears" group=" "
-       formation="Ocean Waves RH BGGB" fractions="4.5;3;4.5;3">
+       formation="Ocean Waves RH BGGB" fractions="4.5;3;4.5;3" vid="V1-coaj2xu1">
     <path>
       <move select="Stand" beats="2" />
       <move select="Flip Right" beats="5.5" />
@@ -142,7 +142,7 @@
     </path>
   </tam>
 
-  <tam title="Fan Chain the Line" formation="Tidal Wave RH BGGB" group=" ">
+  <tam title="Fan Chain the Line" formation="Tidal Wave RH BGGB" group=" " vid="V1-g6eaxwg0">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Dodge Right" beats="1" scaleY=".25"/>
@@ -164,7 +164,7 @@
   </tam>
 
   <tam title="Fan Chain Thru" group=" "
-       formation="Ocean Waves RH BGGB" fractions="4.5;3">
+       formation="Ocean Waves RH BGGB" fractions="4.5;3" vid="V1-ckzqgnyh">
     <path>
     </path>
     <path>
@@ -182,7 +182,7 @@
   </tam>
 
   <tam title="Fan Relay the Deucey" group=" "
-       formation="Ocean Waves RH BGGB" fractions="4.5;3;3;3">
+       formation="Ocean Waves RH BGGB" fractions="4.5;3;3;3" vid="V1-lsc72y94">
     <path>
       <move select="Forward 2" beats="4.5" />
       <move select="Forward 2" beats="3" />
@@ -213,7 +213,7 @@
     </path>
   </tam>
 
-  <tam title="Fan Relay the Shadow" group=" ">
+  <tam title="Fan Relay the Shadow" group=" " vid="V1-kqvspp5t">
     <formation fid="F3-1sm6u8fu" aid="A1-13no84jg">
       <dancer gender="boy" x="0" y="3.5" angle="180"/>
       <dancer gender="girl" x="-2" y="2" angle="0"/>
@@ -251,7 +251,7 @@
   </tam>
 
   <tam title="Fan Relay the Top" group=" "
-       formation="Ocean Waves RH BGGB" fractions="4.5;3" >
+       formation="Ocean Waves RH BGGB" fractions="4.5;3"  vid="V1-vxdx2ddm">
     <path>
       <move select="Extend Right" beats="4.5" scaleX="2" scaleY="2" />
       <move select="Hinge Right" beats="3" />
@@ -281,7 +281,7 @@
 
   <tam title="Fan 1/2 Cast and Relay" group=" "
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" fractions="4.5;3">
+       formation="Ocean Waves RH BGGB" fractions="4.5;3" vid="V1-xgilwe6i">
     <path>
       <move select="Extend Right" beats="4.5" scaleX="2" scaleY="2"/>
       <move select="Swing Right"/>

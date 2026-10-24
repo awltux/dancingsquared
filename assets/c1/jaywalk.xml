@@ -25,7 +25,7 @@
   <tam title="Boys Jaywalk"
        from="Waves"
        formation="Ocean Waves RH BGBG"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-071lpolk">
     <path>
       <move select="Forward" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />
@@ -42,7 +42,7 @@
 
   <tam title="Jaywalk"
        from="Quarter Tag"
-       formation="Quarter Tag" >
+       formation="Quarter Tag"  vid="V1-vsj6muzw">
     <path numbers="1 8">
       <move select="Pass Thru" beats="3" scaleX="1.5" />
     </path>
@@ -61,7 +61,7 @@
 
   <tam title="Jaywalk"
        from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" >
+       formation="Quarter Tag LH"  vid="V1-aoihiclv">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2" />
       <move select="Forward" />
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Jaywalk"
-       from="Quarter Lines" formation="Quarter Lines RH">
+       from="Quarter Lines" formation="Quarter Lines RH" vid="V1-0n74t41e">
     <path>
       <move select="Forward" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2" />
@@ -98,7 +98,7 @@
   </tam>
 
   <tam title="Jaywalk"
-       from="Left-Hand Quarter Lines" formation="Quarter Lines LH">
+       from="Left-Hand Quarter Lines" formation="Quarter Lines LH" vid="V1-dptpm1p3">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY="2" />
       <move select="Forward" beats="1.5" scaleX="1.5" />
@@ -119,7 +119,7 @@
 
   <tam title="Jaywalk"
        from="Facing Diamonds"
-       formation="Diamonds Facing Girl Points" >
+       formation="Diamonds Facing Girl Points"  vid="V1-hh6t6ytm">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" scaleY="1.5" />

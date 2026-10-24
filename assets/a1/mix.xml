@@ -22,7 +22,7 @@
 -->
 <tamination title="Mix">
 
-  <tam title="Mix" from="Right-Hand Wave" formation="Wave RH" parts="3">
+  <tam title="Mix" from="Right-Hand Wave" formation="Wave RH" parts="3" vid="V1-zwqas3wi">
     <path numbers="1 4">
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -33,7 +33,7 @@
   </tam>
 
   <tam title="Mix" from="Compact Right-Hand Wave"
-       formation="Compact Wave RH" parts="3" display="none">
+       formation="Compact Wave RH" parts="3" display="none" vid="V1-4y4vca9f">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Mix" from="Left-Hand Wave" formation="Wave LH" parts="3">
+  <tam title="Mix" from="Left-Hand Wave" formation="Wave LH" parts="3" vid="V1-3hpwwxdp">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -54,7 +54,7 @@
   </tam>
 
   <tam title="Mix" from="Compact Left-Hand Wave"
-       formation="Compact Wave LH" parts="3" display="none">
+       formation="Compact Wave LH" parts="3" display="none" vid="V1-vsisvw2c">
     <path>
       <move select="Dodge Left" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Mix" from="Right-Hand Two-Face Line"
-       formation="Two-Faced Line RH" parts="3">
+       formation="Two-Faced Line RH" parts="3" vid="V1-7nt3x0ao">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -76,7 +76,7 @@
   </tam>
 
   <tam title="Mix" from="Compact Right-Hand Two-Face Line"
-       formation="Compact Two-Faced Line RH" parts="3" display="none">
+       formation="Compact Two-Faced Line RH" parts="3" display="none" vid="V1-twyxe0ui">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -87,7 +87,7 @@
   </tam>
 
   <tam title="Mix" from="Left-Hand Two-Face Line"
-       formation="Two-Faced Line LH" parts="3">
+       formation="Two-Faced Line LH" parts="3" vid="V1-qvnihbqr">
     <path>
       <move select="Run Left" scaleY="2" />
     </path>
@@ -98,7 +98,7 @@
   </tam>
 
   <tam title="Mix" from="Compact Left-Hand Two-Face Line"
-       formation="Compact Two-Faced Line LH" parts="3" display="none">
+       formation="Compact Two-Faced Line LH" parts="3" display="none" vid="V1-lnqmz767">
     <path>
       <move select="Run Left"/>
     </path>
@@ -111,7 +111,7 @@
   <tam title="Mix"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-9qpiyb20">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -131,7 +131,7 @@
   <tam title="Mix"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-hvmaq7gn">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -151,7 +151,7 @@
   <tam title="Mix"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       parts="3" >
+       parts="3"  vid="V1-stgmlyi1">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -171,7 +171,7 @@
   <tam title="Mix"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       parts="3" >
+       parts="3"  vid="V1-hl6d529u">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -191,7 +191,7 @@
   <tam title="Mix"
        from="Lines Facing In"
        formation="Normal Lines"
-       parts="3" >
+       parts="3"  vid="V1-qz3lkxo4">
     <path>
       <move select="Dodge Right" />
       <move select="Run Right" />
@@ -211,7 +211,7 @@
   <tam title="Mix"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       parts="3" >
+       parts="3"  vid="V1-sbgysejv">
     <path>
       <move select="Dodge Left" />
       <move select="Flip Left" />
@@ -229,7 +229,7 @@
   </tam>
 
   <tam title="Mix" from="Inverted Lines, Centers Facing"
-       formation="Inverted Lines Ends Facing Out" parts="3">
+       formation="Inverted Lines Ends Facing Out" parts="3" vid="V1-dn0kmvwa">
     <path>
       <move select="Dodge Left" />
       <move select="Flip Left" />
@@ -247,7 +247,7 @@
   </tam>
 
   <tam title="Mix" from="Inverted Lines, Ends Facing"
-       formation="Inverted Lines Ends Facing In" parts="3">
+       formation="Inverted Lines Ends Facing In" parts="3" vid="V1-q4gj8qc1">
     <path>
       <move select="Dodge Right" />
       <move select="Run Right" />
@@ -265,7 +265,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1" parts="3">
+       formation="3 and 1 lines #1" parts="3" vid="V1-ci0uehw4">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -283,7 +283,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #2"
-       formation="3 and 1 lines #2" parts="3">
+       formation="3 and 1 lines #2" parts="3" vid="V1-kh5qfte4">
     <path>
       <move select="Dodge Right" />
       <move select="Run Right" />
@@ -301,7 +301,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #3"
-       formation="3 and 1 lines #3" parts="3">
+       formation="3 and 1 lines #3" parts="3" vid="V1-17a2p4l4">
     <path>
       <move select="Dodge Right" />
       <move select="Run Right" />
@@ -319,7 +319,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4" parts="3">
+       formation="3 and 1 lines #4" parts="3" vid="V1-3tm0196x">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -337,7 +337,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5" parts="3">
+       formation="3 and 1 lines #5" parts="3" vid="V1-2rxc015z">
     <path numbers="5 4">
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -355,7 +355,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #6"
-       formation="3 and 1 lines #6" parts="3">
+       formation="3 and 1 lines #6" parts="3" vid="V1-hevosqep">
     <path>
       <move select="Dodge Left" />
       <move select="Flip Left" />
@@ -373,7 +373,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #7"
-       formation="3 and 1 lines #7" parts="3">
+       formation="3 and 1 lines #7" parts="3" vid="V1-3ooo3flb">
     <path>
       <move select="Dodge Left" />
       <move select="Flip Left" />
@@ -391,7 +391,7 @@
   </tam>
 
   <tam title="Mix" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8" parts="3">
+       formation="3 and 1 lines #8" parts="3" vid="V1-e7na2tak">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -409,7 +409,7 @@
   </tam>
 
   <tam title="Mix" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" parts="3">
+       formation="Tidal Wave RH BGGB" parts="3" vid="V1-xism9t7z">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -427,7 +427,7 @@
   </tam>
 
   <tam title="Mix" from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB" parts="3">
+       formation="Tidal Wave LH BGGB" parts="3" vid="V1-4fnwbb33">
     <path>
       <move select="Dodge Left" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -445,7 +445,7 @@
   </tam>
 
   <tam title="Mix" from="Right-Hand Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line RH" parts="3">
+       formation="Two-Faced Tidal Line RH" parts="3" vid="V1-51l71f2b">
     <path>
       <move select="Dodge Right" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -463,7 +463,7 @@
   </tam>
 
   <tam title="Mix" from="Left-Hand Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line LH" parts="3">
+       formation="Two-Faced Tidal Line LH" parts="3" vid="V1-81j2lf3w">
     <path>
       <move select="Dodge Left" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -488,7 +488,7 @@
   <tam title="As Couples Mix"
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line RH"
-       parts="3" group=" ">
+       parts="3" group=" " vid="V1-nd1h4oak">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" scaleX="1.5" scaleY="1.5" />
@@ -508,7 +508,7 @@
   <tam title="As Couples Mix"
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line LH"
-       parts="3" group=" " display="none">
+       parts="3" group=" " display="none" vid="V1-lp0oqesb">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" scaleX="1.5" scaleY="1.5" />

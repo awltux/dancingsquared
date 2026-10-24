@@ -22,7 +22,7 @@
 -->
 <tamination title="Rip Off">
 
-  <tam title="Rip Off" from="Right-Hand Box" formation="Box RH">
+  <tam title="Rip Off" from="Right-Hand Box" formation="Box RH" vid="V1-bimytycj">
     <path>
       <move select="Forward 4"/>
     </path>
@@ -31,7 +31,7 @@
     </path>
   </tam>
 
-  <tam title="Rip Off" from="Left-Hand Box" formation="Box LH">
+  <tam title="Rip Off" from="Left-Hand Box" formation="Box LH" vid="V1-uylqp4r7">
     <path>
       <move select="Run Right" offsetX="-2"/>
       <move select="Run Right" offsetX="2"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Rip Off" from="Facing Couples" formation="Facing Couples Compact">
+  <tam title="Rip Off" from="Facing Couples" formation="Facing Couples Compact" vid="V1-rz3l5ixd">
     <path>
       <move select="Forward 3"/>
     </path>
@@ -50,7 +50,7 @@
     </path>
   </tam>
 
-  <tam title="Rip Off" from="Couples Facing Out" formation="Couples Facing Out">
+  <tam title="Rip Off" from="Couples Facing Out" formation="Couples Facing Out" vid="V1-a84f5f27">
     <path>
       <move select="Run Right" offsetX="-2"/>
       <move select="Run Right" offsetX="2"/>
@@ -60,7 +60,7 @@
     </path>
   </tam>
 
-  <tam title="Rip Off" from="Completed Double Pass Thru" formation="Completed Double Pass Thru">
+  <tam title="Rip Off" from="Completed Double Pass Thru" formation="Completed Double Pass Thru" vid="V1-xlromwgl">
     <path couples="4 1">
       <move select="Run Right" offsetX="-1"/>
       <move select="Run Right" offsetX="1"/>
@@ -76,7 +76,7 @@
     </path>
   </tam>
 
-  <tam title="Rip Off" from="Magic Columns">
+  <tam title="Rip Off" from="Magic Columns" vid="V1-bqf24ugs">
     <formation fid="F3-3zu9lyyj" aid="A1-3r4zgz9r">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
@@ -98,7 +98,7 @@
     </path>
   </tam>
 
-  <tam title="Mirror Rip Off" from="Completed Double Pass Thru" formation="Completed Double Pass Thru">
+  <tam title="Mirror Rip Off" from="Completed Double Pass Thru" formation="Completed Double Pass Thru" vid="V1-jblu4nak">
     <path couples="4 1">
       <move select="Run Left" beats="6"/>
     </path>
@@ -114,7 +114,7 @@
     </path>
   </tam>
 
-  <tam title="Mirror Rip Off" from="Magic Columns">
+  <tam title="Mirror Rip Off" from="Magic Columns" vid="V1-tygl7wd5">
     <formation fid="F3-3zu9lyyj" aid="A1-3r4zgz9r">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>

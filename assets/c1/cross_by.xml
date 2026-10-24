@@ -24,7 +24,7 @@
 
   <tam title="Cross By"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" >
+       formation="Ocean Waves RH BGGB"  vid="V1-ejt29igb">
     <path numbers="1 8">
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2" />
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Cross By"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-epmn0jf8">
     <path couples="2 4">
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
     </path>
@@ -58,7 +58,7 @@
 
   <tam title="Cross By"
        from="Thar"
-       formation="Thar RH Boys">
+       formation="Thar RH Boys" vid="V1-4de7tp1b">
     <path numbers="2 7">
       <move select="Eighth Right" beats="3" offsetX="2.121" offsetY="1.121"/>
     </path>

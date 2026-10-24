@@ -25,7 +25,7 @@
   <tam title="Exchange the Diamond"
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       parts="3;3;3" >
+       parts="3;3;3"  vid="V1-2tllc73v">
     <path numbers="6 3">
       <move select="Lead Right" beats="3" scaleX="2" />
       <move select="Lead Right" beats="3" scaleY="2" />
@@ -55,7 +55,7 @@
   <tam title="Exchange the Diamond"
        from="Left-Hand Diamonds"
        formation="Diamonds LH Girl Points"
-       parts="3;3;3" >
+       parts="3;3;3"  vid="V1-wg4ajlag">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" />
       <move select="Lead Left" beats="3" scaleY="2" />
@@ -85,7 +85,7 @@
   <tam title="Exchange the Diamond"
        from="Facing Diamonds, Right-Hand Centers"
        formation="Diamonds Facing Girl Points"
-       parts="3;3;3">
+       parts="3;3;3" vid="V1-jx1jp4x8">
     <path>
       <move select="Lead Right" beats="3" scaleX="2"/>
       <move select="Lead Right" beats="3" scaleY="2"/>
@@ -118,7 +118,7 @@
   <tam title="Exchange the Diamond"
        from="Facing Diamonds, Left-Hand Centers"
        formation="Diamonds Facing LH Girl Points"
-       parts="3;3;3">
+       parts="3;3;3" vid="V1-9xvb88oz">
     <path>
       <move select="Extend Left" beats="1.5"/>
       <move select="Quarter Left" beats="1.5" offsetX="1"/>
@@ -151,7 +151,7 @@
   <tam title="Exchange the Diamond"
        from="Right-Hand Point-to-Point Diamonds"
        formation="Diamonds RH PTP Girl Points"
-       parts="3;3;3">
+       parts="3;3;3" vid="V1-p8jx0bz6">
     <path>
       <move select="Lead Right" beats="3" scaleX="2"/>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="4"/>
@@ -181,7 +181,7 @@
   <tam title="Exchange the Diamond"
        from="Left-Hand Point-to-Point Diamonds"
        formation="Diamonds LH PTP Girl Points"
-       parts="3;3;3">
+       parts="3;3;3" vid="V1-e71qr7oz">
     <path>
       <move select="Lead Left" beats="3" scaleX="2"/>
       <move select="Lead Left" beats="3" scaleY="2"/>
@@ -210,7 +210,7 @@
 
   <tam title="Exchange the Diamond"
        from="Facing Point-to-Point Diamonds, Right-Hand Centers"
-       formation="Diamonds Facing PTP">
+       formation="Diamonds Facing PTP" vid="V1-10xxnbcf">
     <path>
       <move select="Lead Right" beats="3" scaleX="2"/>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="4"/>
@@ -245,7 +245,7 @@
 
   <tam title="Exchange the Diamond"
        from="Facing Point-to-Point Diamonds, Left-Hand Centers"
-       formation="Diamonds Facing LH PTP">
+       formation="Diamonds Facing LH PTP" vid="V1-hvtrhls6">
     <path>
       <move select="Extend Left" beats="2"/>
       <move select="Quarter Left" beats="1" offsetX="1"/>

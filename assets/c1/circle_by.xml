@@ -23,7 +23,7 @@
 <tamination title="Circle By (m and n)">
 
   <tam title="Circle By Nothing and Nothing" group="Circle By"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-u97zkz28">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
     </path>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Circle By Nothing and 1/4" group="Circle By"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-c2jqzx0l">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Hinge Right" scaleY=".5" />
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Circle By Nothing and 1/2" group="Circle By"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-ttlx7urj">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Circle By Nothing and 3/4" group="Circle By"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-2pp9ikqv">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -103,7 +103,7 @@
   </tam>
 
   <tam title="Circle By 1/4 and Nothing" group="Circle By"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-p5qzwud5">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX="1" />
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -128,7 +128,7 @@
 
   <tam title="Circle By 1/4 and 1/4" group="Circle By"
        formation="Normal Lines"
-       parts="4.5" >
+       parts="4.5"  vid="V1-mp4jwy4o">
     <path>
       <move select="Eighth Right" beats="1" offsetX="1" hands="right"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -157,7 +157,7 @@
 
   <tam title="Circle By 1/4 and 1/2" group="Circle By"
        formation="Normal Lines"
-       parts="4.5" >
+       parts="4.5"  vid="V1-yyqv2wr2">
     <path>
       <move select="Eighth Right" beats="1" offsetX="1" hands="right"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -186,7 +186,7 @@
 
   <tam title="Circle By 1/4 and 3/4" group="Circle By"
        formation="Normal Lines"
-       parts="4.5" >
+       parts="4.5"  vid="V1-lppherae">
     <path>
       <move select="Eighth Right" beats="1" offsetX="1" hands="right"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Circle By 1/2 and Nothing" group="Circle By"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-3ftngujj">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX="1" />
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -243,7 +243,7 @@
 
   <tam title="Circle By 1/2 and 1/4" group="Circle By"
        formation="Normal Lines"
-       parts="6" >
+       parts="6"  vid="V1-ltki8avm">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX="1" />
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -276,7 +276,7 @@
 
   <tam title="Circle By 1/2 and 1/2" group="Circle By"
        formation="Normal Lines"
-       parts="6" >
+       parts="6"  vid="V1-8zompv04">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX="1" />
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -309,7 +309,7 @@
 
   <tam title="Circle By 1/2 and 3/4" group="Circle By"
        formation="Normal Lines"
-       parts="6" >
+       parts="6"  vid="V1-5lkhbvwk">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX="1" />
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -345,7 +345,7 @@
   </tam>
 
   <tam title="Circle By 3/4 and Nothing" group="Circle By"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-gs866emf">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX="1" />
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -378,7 +378,7 @@
 
   <tam title="Circle By 3/4 and 1/4" group="Circle By"
        formation="Normal Lines"
-       parts="7.5" >
+       parts="7.5"  vid="V1-ns1kgh0a">
     <path>
       <move select="Eighth Right" beats="1" offsetX="1" hands="right"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -415,7 +415,7 @@
 
   <tam title="Circle By 3/4 and 1/2" group="Circle By"
        formation="Normal Lines"
-       parts="7.5" >
+       parts="7.5"  vid="V1-qp4dum64">
     <path>
       <move select="Eighth Right" beats="1" offsetX="1" hands="right"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />
@@ -452,7 +452,7 @@
 
   <tam title="Circle By 3/4 and 3/4" group="Circle By"
        formation="Normal Lines"
-       parts="7.5" >
+       parts="7.5"  vid="V1-1xr3lhjg">
     <path>
       <move select="Eighth Right" beats="1" offsetX="1" hands="right"/>
       <move select="Circle Left Quarter" scaleX="2" scaleY="2" />

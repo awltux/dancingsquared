@@ -12,7 +12,7 @@
 
   <tam title="Recycle"
        from="Static Square"
-       formation="Static Square">
+       formation="Static Square" vid="V1-4u8hdh7w">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="3" />
     </path>

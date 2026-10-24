@@ -22,7 +22,7 @@
 -->
 <tamination title="Pass and Roll Your Neighbor">
 
-  <tam title="Pass and Roll Your Neighbor" from="Single Column" formation="Single Eight Chain Thru">
+  <tam title="Pass and Roll Your Neighbor" from="Single Column" formation="Single Eight Chain Thru" vid="V1-cwacpszm">
     <path numbers="1 4">
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Pass and Roll Your Neighbor" from="Right-Hand Box"
-       formation="Box RH">
+       formation="Box RH" vid="V1-km628k8g">
     <path>
       <move select="Forward 2" />
       <move select="Swing Right" scaleX=".5" scaleY=".75" />
@@ -65,7 +65,7 @@
 
   <tam title="Pass and Roll Your Neighbor"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-fkegq6eq">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Pass and Roll Your Neighbor" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-c20g97cb">
     <path>
       <move select="Forward 2" />
       <move select="Swing Right" scaleX=".5" scaleY=".75" />
@@ -139,7 +139,7 @@
     </path>
   </tam>
 
-  <tam title="Left Pass and Roll Your Neighbor" from="Single Column" formation="Single Eight Chain Thru">
+  <tam title="Left Pass and Roll Your Neighbor" from="Single Column" formation="Single Eight Chain Thru" vid="V1-rkukq28n">
     <path numbers="1 4">
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />
@@ -161,7 +161,7 @@
   </tam>
 
   <tam title="Left Pass and Roll Your Neighbor" from="Left-Hand Box"
-       formation="Box LH">
+       formation="Box LH" vid="V1-ov8cwv8p">
     <path>
       <move select="Forward" />
       <move select="Flip Left" scaleY=".75" />
@@ -182,7 +182,7 @@
 
   <tam title="Left Pass and Roll Your Neighbor"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-4qlyr85b">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />
@@ -221,7 +221,7 @@
   </tam>
 
   <tam title="Left Pass and Roll Your Neighbor" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-v94nt2ud">
     <path>
       <move select="Forward" />
       <move select="Flip Left" scaleY=".75" />
@@ -259,7 +259,7 @@
   <tam title="All 8 Pass and Roll Your Neighbor and Spread"
        from="Facing Dancers"
        formation="Static Facing"
-       group=" " >
+       group=" "  vid="V1-b8qu4a84">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
@@ -299,7 +299,7 @@
   </tam>
 
    <tam title="As Couples Pass and Roll Your Neighbor" group=" "
-       formation="Eight Chain Thru" >
+       formation="Eight Chain Thru"  vid="V1-1oyo2jzj">
     <path>
       <move select="Extend Left" hands="right" scaleY=".5" />
       <move select="Forward 2" />

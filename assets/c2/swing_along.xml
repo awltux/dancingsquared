@@ -24,7 +24,7 @@
 
   <tam title="Along"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGBG">
+       formation="Tidal Wave RH BGBG" vid="V1-8nqin5xv">
     <path couples="3 1">
       <move select="Forward" />
       <move select="Lead Right" beats="6" scaleX="2" scaleY="5.5" />
@@ -48,7 +48,7 @@
 
   <tam title="Along"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-ycznlaez">
     <path>
       <move select="Forward" />
       <move select="Lead Left" beats="6" scaleX="2" scaleY="5.5" />
@@ -72,7 +72,7 @@
 
 
   <tam title="Swing Along" from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB" fractions="3">
+       formation="Tidal Wave RH BGGB" fractions="3" vid="V1-wr6yp1q5">
 	<path>
 	  <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Left" scaleY=".5" />

@@ -25,7 +25,7 @@
   <tam title="Square Chain Thru"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       parts="3;6" >
+       parts="3;6"  vid="V1-y7ew4yyw">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Square Chain Thru" from="Right-Hand Wave"
-       formation="Wave RH">
+       formation="Wave RH" vid="V1-gvgmmoe3">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Swing Left" />
@@ -65,7 +65,7 @@
   <tam title="Square Chain Thru"
        from="Lines"
        formation="Normal Lines"
-       parts="3;6" >
+       parts="3;6"  vid="V1-o2vq6r7d">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -103,7 +103,7 @@
   <tam title="Square Chain Thru"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;6" >
+       parts="3;6"  vid="V1-efhnam0x">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Swing Left" hands="gripleft" scaleX=".5" scaleY=".5" />
@@ -138,7 +138,7 @@
   <tam title="Square Chain Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="3;6" >
+       parts="3;6"  vid="V1-1rj6lvr4">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
@@ -176,7 +176,7 @@
   <tam title="Square Chain Thru"
        from="Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="2;6" >
+       parts="2;6"  vid="V1-aommdafq">
     <path>
       <move select="Lead Right" beats="2" scaleY="1.5" />
       <move select="Swing Left" />
@@ -210,7 +210,7 @@
   <tam title="As Couples Square Chain Thru" group=" "
        from="Lines"
        formation="Normal Lines"
-       parts="6;8" >
+       parts="6;8"  vid="V1-3mpetkxu">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="4" scaleX="1.5" scaleY="3.5" />
@@ -252,7 +252,7 @@
   <tam title="Left Square Chain Thru"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       parts="3;6" >
+       parts="3;6"  vid="V1-umbflinv">
     <path>
       <move select="Pull Right" scaleX="1.5" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="3" scaleY=".5" />
@@ -272,7 +272,7 @@
   </tam>
 
   <tam title="Left Square Chain Thru" from="Left-Hand Wave"
-       formation="Wave LH">
+       formation="Wave LH" vid="V1-k7xpwatb">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Swing Right" />
@@ -291,7 +291,7 @@
 
   <tam title="Left Square Chain Thru"
        from="Lines"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-k2avdizy">
     <path>
       <move select="Pull Right" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="3" scaleY=".5" />
@@ -329,7 +329,7 @@
   <tam title="Left Square Chain Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;6" >
+       parts="3;6"  vid="V1-gf4m3xv5">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -363,7 +363,7 @@
 
   <tam title="Left Square Chain Thru"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru" >
+       formation="Eight Chain Thru"  vid="V1-a4ocepg3">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY=".5" />
@@ -401,7 +401,7 @@
   <tam title="Left Square Chain Thru"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="2;6" >
+       parts="2;6"  vid="V1-1hiz5sg9">
     <path>
       <move select="Lead Left" beats="2" scaleY="1.5" />
       <move select="Swing Right" />
@@ -435,7 +435,7 @@
   <tam title="As Couples Left Square Chain Thru"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-7jc0fvhv">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="2" scaleY="1.5" />
       <move select="Lead Right" beats="4" scaleX="3.5" scaleY="1.5" />

@@ -23,7 +23,7 @@
 <tamination title="Rotary">
 
   <tam title="Rotary Explode the Wave" formation="Eight Chain Thru"
-       group="Rotary" parts="2">
+       group="Rotary" parts="2" vid="V1-79d0d7hs">
     <path>
       <move select="Pull Left" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>
@@ -52,7 +52,7 @@
     </path>
   </tam>
 
-  <tam title="Rotary Mix" group="Rotary">
+  <tam title="Rotary Mix" group="Rotary" vid="V1-u0mwjb37">
     <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" y="3" x="1" angle="270" />
       <dancer gender="girl" y="3" x="-1" angle="270" />
@@ -87,7 +87,7 @@
   </tam>
 
   <tam title="Rotary Trade the Wave" formation="Eight Chain Thru"
-       group="Rotary">
+       group="Rotary" vid="V1-rmsufur1">
     <path>
       <move select="Pull Left" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>

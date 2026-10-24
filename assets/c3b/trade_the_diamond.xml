@@ -24,7 +24,7 @@
 
   <tam title="Trade the Diamond" parts="6;1.5;3"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-uie8ug56">
     <path>
       <move select="Extend Right" scaleX="4" scaleY="2" beats="6" />
       <move select="Hinge Right"/>
@@ -53,7 +53,7 @@
 
   <tam title="Trade the Diamond" parts="6;1.5;3"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-fczyo1ch">
     <path>
       <move select="Run Left" scaleY="2" beats="6" />
       <move select="Hinge Left"/>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Trade the Diamond" parts="6;1.5;3.5"
-       from="Right-Hand Waves" formation="Ocean Waves RH BGGB">
+       from="Right-Hand Waves" formation="Ocean Waves RH BGGB" vid="V1-120cgs23">
     <path couples="2 4">
       <move select="Extend Right" scaleX="4" scaleY="2" beats="6" />
       <move select="Hinge Right"/>
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="Trade the Diamond" parts="6;1.5;3.5"
-       from="Left-Hand Waves" formation="Ocean Waves LH BGGB">
+       from="Left-Hand Waves" formation="Ocean Waves LH BGGB" vid="V1-p8tigiic">
     <path>
       <move select="Run Left" scaleY="2" beats="6" />
       <move select="Hinge Left"/>

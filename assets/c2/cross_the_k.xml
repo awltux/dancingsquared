@@ -22,7 +22,7 @@
 -->
 <tamination title="Cross the K">
 
-  <tam title="Cross the K" from="Lines" formation="Normal Lines" parts="5">
+  <tam title="Cross the K" from="Lines" formation="Normal Lines" parts="5" vid="V1-rlncv4rf">
     <path>
 	  <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
 	  <move select="Extend Right" beats="2" scaleY="2.5"/>
@@ -50,7 +50,7 @@
   </tam>
 
 	<tam title="Cross the K" from="Eight Chain Thru"
-			 formation="Eight Chain Thru" parts="6">
+			 formation="Eight Chain Thru" parts="6" vid="V1-x5rmcxxm">
 		<path>
 			<move select="Extend Left" scaleY=".5" beats="2"/>
 			<movement beats="4" hands="none" cx1="1" cy1="0" cx2="0" cy2="-2.5" x2="1" y2="-2.5"
@@ -77,7 +77,7 @@
 		</path>
 	</tam>
 
-	<tam title="The K" from="Right-Hand Wave" formation="Wave RH" fractions="1.5">
+	<tam title="The K" from="Right-Hand Wave" formation="Wave RH" fractions="1.5" vid="V1-llfqdhl5">
 		<path>
 			<move select="U-Turn Left"/>
 		</path>
@@ -86,7 +86,7 @@
 		</path>
 	</tam>
 
-	<tam title="The K" from="Left-Hand Wave" formation="Wave LH" fractions="1.5">
+	<tam title="The K" from="Left-Hand Wave" formation="Wave LH" fractions="1.5" vid="V1-8o40lh1i">
 		<path>
 			<move select="U-Turn Right"/>
 		</path>
@@ -96,7 +96,7 @@
 	</tam>
 
 	<tam title="The K" from="Right-Hand Two-Faced Line"
-			 formation="Two-Faced Line RH" fractions="1.5">
+			 formation="Two-Faced Line RH" fractions="1.5" vid="V1-tawcdpen">
 		<path>
 			<move select="U-Turn Left"/>
 		</path>
@@ -106,7 +106,7 @@
 	</tam>
 
 	<tam title="The K" from="Left-Hand Two-Faced Line"
-			 formation="Two-Faced Line LH" fractions="1.5">
+			 formation="Two-Faced Line LH" fractions="1.5" vid="V1-w72k6y4k">
 		<path>
 			<move select="Swing Left"/>
 		</path>
@@ -116,7 +116,7 @@
 	</tam>
 
 	<tam title="The K" from="Right-Hand Diamond" fractions="1.5"
-			 formation="Diamond RH">
+			 formation="Diamond RH" vid="V1-30qr3gby">
 		<path>
 			<move select="U-Turn Left"/>
 		</path>
@@ -126,7 +126,7 @@
 	</tam>
 
 	<tam title="The K" from="Left-Hand Diamond" fractions="1.5"
-			 formation="Diamond LH">
+			 formation="Diamond LH" vid="V1-k7m70kkr">
 		<path>
 			<move select="U-Turn Right"/>
 		</path>
@@ -136,7 +136,7 @@
 	</tam>
 
 	<tam title="The K" from="Right-Hand Waves"
-			 formation="Ocean Waves RH BGGB" fractions="1.5">
+			 formation="Ocean Waves RH BGGB" fractions="1.5" vid="V1-iho83qk3">
 		<path>
 			<move select="U-Turn Left"/>
 		</path>
@@ -152,7 +152,7 @@
 	</tam>
 
 	<tam title="The K" from="Lines Facing Out" fractions="1.5"
-			 formation="Lines Facing Out">
+			 formation="Lines Facing Out" vid="V1-fo8nwcz8">
 		<path>
 			<move select="U-Turn Right"/>
 		</path>
@@ -168,7 +168,7 @@
 	</tam>
 
 	<tam title="The K" from="Right-Hand Diamonds" fractions="1.5"
-			 formation="Diamonds RH Girl Points">
+			 formation="Diamonds RH Girl Points" vid="V1-bop38fub">
 		<path>
 			<move select="Swing Right"/>
 		</path>
@@ -183,7 +183,7 @@
 		</path>
 	</tam>
 
-	<tam title="The K" from="Right-Hand Columns" fractions="1.5">
+	<tam title="The K" from="Right-Hand Columns" fractions="1.5" vid="V1-b4mgl98l">
 		<formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
 			<dancer gender="boy" y="3" x="-1" angle="90"/>
 			<dancer gender="girl" y="1" x="-1" angle="90"/>
@@ -205,7 +205,7 @@
 	</tam>
 
 	<tam title="The K" from="Left-Hand Columns" formation="Column LH GBGB"
-			 fractions="1.5">
+			 fractions="1.5" vid="V1-clghxhtg">
 		<path>
 			<move select="U-Turn Right"/>
 		</path>
@@ -220,7 +220,7 @@
 		</path>
 	</tam>
 
-	<tam title="The K" from="3/4 Tag" formation="3/4 Tag" fractions="1.5">
+	<tam title="The K" from="3/4 Tag" formation="3/4 Tag" fractions="1.5" vid="V1-0293os61">
 		<path>
 			<move select="U-Turn Right"/>
 		</path>
@@ -236,7 +236,7 @@
 	</tam>
 
 	<tam title="The K" from="Tidal Two-Faced Line" fractions="1.5"
-			 formation="Two-Faced Tidal Line RH">
+			 formation="Two-Faced Tidal Line RH" vid="V1-oj2onh6g">
 		<path>
 			<move select="U-Turn Left"/>
 		</path>
@@ -251,7 +251,7 @@
 		</path>
 	</tam>
 
-	<tam title="The K" from="Galaxy" fractions="1.5">
+	<tam title="The K" from="Galaxy" fractions="1.5" vid="V1-4kw2yrie">
 		<formation fid="F3-urv775kg" aid="A1-2ooy0j7y">
 			<dancer gender="girl" y="1" x="1" angle="270"/>
 			<dancer gender="boy" y="3" x="0" angle="0"/>
@@ -272,7 +272,7 @@
 		</path>
 	</tam>
 
-	<tam title="As Couples the K" group=" " formation="Two-Faced Tidal Line RH">
+	<tam title="As Couples the K" group=" " formation="Two-Faced Tidal Line RH" vid="V1-v4s7dmkl">
 		<path>
 			<move select="Beau Wheel" scaleX=".5" scaleY=".5"/>
 		</path>
@@ -287,7 +287,7 @@
 		</path>
 	</tam>
 
-	<tam title="Concentric the K" group=" " formation="Two-Faced Tidal Line RH">
+	<tam title="Concentric the K" group=" " formation="Two-Faced Tidal Line RH" vid="V1-a48qs688">
 		<path>
 			<move select="U-Turn Left" beats="5"/>
 		</path>
@@ -302,7 +302,7 @@
 		</path>
 	</tam>
 
-	<tam title="Crazy the K" group=" " parts="3;3;3" formation="Two-Faced Tidal Line RH">
+	<tam title="Crazy the K" group=" " parts="3;3;3" formation="Two-Faced Tidal Line RH" vid="V1-5yiyo2ul">
 		<path>
 			<move select="U-Turn Left"/>
 			<move select="Stand" beats="3"/>
@@ -329,7 +329,7 @@
 		</path>
 	</tam>
 
-	<tam title="Cross Concentric the K" group=" " formation="Two-Faced Tidal Line RH">
+	<tam title="Cross Concentric the K" group=" " formation="Two-Faced Tidal Line RH" vid="V1-f1k8fu0o">
 		<path>
 			<move select="Dodge Right"/>
 			<move select="U-Turn Left"/>
@@ -346,7 +346,7 @@
 		</path>
 	</tam>
 
-	<tam title="Offset Lines the K" group=" " fractions="1.5">
+	<tam title="Offset Lines the K" group=" " fractions="1.5" vid="V1-pznrtp90">
 		<formation fid="F3-wi518h6d" aid="A1-w8wf07dr">
 			<dancer gender="boy" x="0" y="3" angle="0"/>
 			<dancer gender="girl" x="0" y="1" angle="0"/>
@@ -369,7 +369,7 @@
 		</path>
 	</tam>
 
-	<tam title="Once Removed the K" group=" " formation="Tidal Wave RH BGBG">
+	<tam title="Once Removed the K" group=" " formation="Tidal Wave RH BGBG" vid="V1-l1im9dv5">
 		<path couples="1 2">
 			<move select="U-Turn Left"/>
 		</path>
@@ -384,7 +384,7 @@
 		</path>
 	</tam>
 
-	<tam title="Tandem the K" group=" " fractions="2">
+	<tam title="Tandem the K" group=" " fractions="2" vid="V1-tai5nf2i">
 		<formation fid="F3-stj9x6gj" aid="A1-s6s0gyz7">
 			<dancer gender="boy" x="-1" y="3" angle="0"/>
 			<dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -408,7 +408,7 @@
 	</tam>
 
 	<tam title="Cross Trail Thru the K" group="  "
-			 from="Lines" formation="Normal Lines" fractions="5">
+			 from="Lines" formation="Normal Lines" fractions="5" vid="V1-5fuwq3gu">
 		<path numbers="1 8">
 			<!-- Cross Trail Thru -->
 			<move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />

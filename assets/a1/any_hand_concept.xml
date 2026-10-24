@@ -23,7 +23,7 @@
 <tamination title="Any Hand Concept">
 
   <tam title="Any Hand Swing Thru" formation="Inverted Lines Ends Facing Out"
-       from="Inverted Lines, Ends Facing Out" parts="3">
+       from="Inverted Lines, Ends Facing Out" parts="3" vid="V1-g2whds8a">
     <path numbers="5 4">
       <move select="Swing Left"/>
       <move select="Run Right"/>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Any Hand Swing Thru" formation="Inverted Lines Ends Facing In"
-       from="Inverted Lines, Ends Facing In"  parts="3">
+       from="Inverted Lines, Ends Facing In"  parts="3" vid="V1-uj3nqlk1">
     <path>
       <move select="Swing Right"/>
       <move select="Flip Left"/>
@@ -60,7 +60,7 @@
 
   <tam title="Any Hand Swing Thru" parts="3"
        from="Tidal Inverted Line, Right-Hand Centers"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-w206hiv2">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Flip Left" scaleY=".5"/>
@@ -79,7 +79,7 @@
 
   <tam title="Any Hand Swing Thru" parts="3"
        from="Tidal Inverted Line, Left-Hand Centers"
-       formation="Tidal Inverted Line LH">
+       formation="Tidal Inverted Line LH" vid="V1-ffjynmsv">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Run Right" scaleY=".5"/>
@@ -98,7 +98,7 @@
 
   <tam title="Any Hand Grand Swing Thru" parts="3"
        from="Tidal Inverted Line, Right-Hand Centers"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-44q3zcp4">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Flip Left" scaleY=".5"/>
@@ -118,7 +118,7 @@
 
   <tam title="Any Hand Grand Swing Thru" parts="3"
        from="Tidal Inverted Line, Left-Hand Centers"
-       formation="Tidal Inverted Line LH">
+       formation="Tidal Inverted Line LH" vid="V1-c6aevv3t">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Run Right" scaleY=".5"/>
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" parts="1.5"
-       from="Inverted Lines, Ends Facing Out">
+       from="Inverted Lines, Ends Facing Out" vid="V1-8cdnic8s">
     <formation fid="F3-xq9nr45b" aid="A1-15lti50r">
       <dancer gender="boy" x="3" y="2" angle="90"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
@@ -162,7 +162,7 @@
 
   <tam title="Any Hand Quarter Thru"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In" parts="1.5">
+       formation="Inverted Lines Ends Facing In" parts="1.5" vid="V1-txn8ari7">
     <path>
       <move select="Hinge Right"/>
       <move select="Flip Left"/>
@@ -181,7 +181,7 @@
 
   <tam title="Any Hand Quarter Thru"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH" parts="1.5">
+       formation="Magic Column RH" parts="1.5" vid="V1-rn8ieu5s">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Run Right" scaleX=".75" scaleY=".5"/>
@@ -200,7 +200,7 @@
 
   <tam title="Any Hand Quarter Thru"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH" parts="1.5">
+       formation="Magic Column LH" parts="1.5" vid="V1-kgaoifua">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
     </path>
@@ -219,7 +219,7 @@
 
   <tam title="Any Hand Quarter Thru"
        from="Right-Hand Diamond"
-       formation="Diamond RH" parts="1.5">
+       formation="Diamond RH" parts="1.5" vid="V1-ftq06jd3">
     <path numbers="2 3">
       <move select="Stand" beats="1.5"/>
       <move select="Run Right"/>
@@ -232,7 +232,7 @@
 
   <tam title="Any Hand Quarter Thru"
        from="Left-Hand Diamond"
-       formation="Diamond LH Boys Center" parts="1.5">
+       formation="Diamond LH Boys Center" parts="1.5" vid="V1-ugjtef4e">
     <path>
       <move select="Hinge Left"/>
       <move select="Run Right"/>
@@ -244,7 +244,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points" parts="1.5">
+       formation="Diamonds RH Girl Points" parts="1.5" vid="V1-1ycr7ml2">
     <path>
       <move select="Hinge Right"/>
       <move select="Flip Left"/>
@@ -264,7 +264,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points" parts="1.5">
+       formation="Diamonds LH Girl Points" parts="1.5" vid="V1-fsu00gw1">
     <path>
       <move select="Hinge Left"/>
       <move select="Run Right"/>
@@ -283,7 +283,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand Quarter Thru" from="Diamonds 3" parts="1.5">
+  <tam title="Any Hand Quarter Thru" from="Diamonds 3" parts="1.5" vid="V1-q4gg75u0">
     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -308,7 +308,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand Quarter Thru" from="Diamonds 4" parts="1.5" formation="Diamonds 3 and 1 Girl Points">
+  <tam title="Any Hand Quarter Thru" from="Diamonds 4" parts="1.5" formation="Diamonds 3 and 1 Girl Points" vid="V1-fkuxbfvu">
     <path>
       <move select="Hinge Right"/>
       <move select="Swing Left"/>
@@ -327,7 +327,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand Quarter Thru" from="Diamonds 5" parts="1.5">
+  <tam title="Any Hand Quarter Thru" from="Diamonds 5" parts="1.5" vid="V1-uwid8kjz">
     <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -352,7 +352,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand Quarter Thru" from="Diamonds 6" parts="1.5">
+  <tam title="Any Hand Quarter Thru" from="Diamonds 6" parts="1.5" vid="V1-unbpf8jy">
     <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -378,7 +378,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Right-Hand Point-to-Point Diamonds"
-       parts="1.5" formation="Diamonds RH PTP Girl Points">
+       parts="1.5" formation="Diamonds RH PTP Girl Points" vid="V1-0m6c17mn">
     <path>
       <move select="Hinge Right" scaleX=".75"/>
       <move select="Flip Left" scaleY=".75"/>
@@ -398,7 +398,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Left-Hand Point-to-Point Diamonds"
-       parts="1.5" formation="Diamonds LH PTP Girl Points">
+       parts="1.5" formation="Diamonds LH PTP Girl Points" vid="V1-w1kiq1ia">
     <path>
       <move select="Hinge Left" scaleX=".75"/>
       <move select="Run Right" scaleY=".75"/>
@@ -419,7 +419,7 @@
 
   <tam title="Any Hand 3/4 Thru" parts="4.5"
        from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-kkntrly6">
     <path>
       <move select="Cast Left"/>
       <move select="Run Right"/>
@@ -438,7 +438,7 @@
 
   <tam title="Any Hand 3/4 Thru" parts="4.5"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-q060oz91">
     <path>
       <move select="Cast Right"/>
     </path>
@@ -457,7 +457,7 @@
 
   <tam title="Any Hand 3/4 Thru"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH" parts="4.5">
+       formation="Magic Column RH" parts="4.5" vid="V1-oc7nw4ki">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -480,7 +480,7 @@
 
   <tam title="Any Hand 3/4 Thru"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH" parts="4.5">
+       formation="Magic Column LH" parts="4.5" vid="V1-4hjst3os">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -502,7 +502,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Right-Hand Diamond"
-       formation="Diamond RH" parts="4.5">
+       formation="Diamond RH" parts="4.5" vid="V1-r6c0dyxh">
     <path numbers="2 3">
       <move select="Stand" beats="4.5"/>
       <move select="Run Right"/>
@@ -514,7 +514,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Left-Hand Diamond"
-       formation="Diamond LH Boys Center" parts="4.5">
+       formation="Diamond LH Boys Center" parts="4.5" vid="V1-9p8v37k8">
     <path>
       <move select="Cast Left"/>
       <move select="Run Right"/>
@@ -526,7 +526,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points" parts="4.5">
+       formation="Diamonds RH Girl Points" parts="4.5" vid="V1-fydiefng">
     <path>
       <move select="Cast Right"/>
       <move select="Flip Left"/>
@@ -546,7 +546,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points" parts="4.5">
+       formation="Diamonds LH Girl Points" parts="4.5" vid="V1-ibuxt1rz">
     <path>
       <move select="Cast Left"/>
       <move select="Run Right"/>
@@ -565,7 +565,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand 3/4 Thru" from="Diamonds 3" parts="4.5">
+  <tam title="Any Hand 3/4 Thru" from="Diamonds 3" parts="4.5" vid="V1-ditsbx4a">
     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -590,7 +590,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand 3/4 Thru" from="Diamonds 4" parts="4.5" formation="Diamonds 3 and 1 Girl Points">
+  <tam title="Any Hand 3/4 Thru" from="Diamonds 4" parts="4.5" formation="Diamonds 3 and 1 Girl Points" vid="V1-qk8sv2zs">
     <path>
       <move select="Cast Right"/>
       <move select="Flip Left"/>
@@ -609,7 +609,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand 3/4 Thru" from="Diamonds 5" parts="4.5">
+  <tam title="Any Hand 3/4 Thru" from="Diamonds 5" parts="4.5" vid="V1-lnptw6dt">
     <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -634,7 +634,7 @@
     </path>
   </tam>
 
-  <tam title="Any Hand 3/4 Thru" from="Diamonds 6" parts="4.5">
+  <tam title="Any Hand 3/4 Thru" from="Diamonds 6" parts="4.5" vid="V1-68h3okxs">
     <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -660,7 +660,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Right-Hand Point-to-Point Diamonds"
-       parts="4.5" formation="Diamonds RH PTP Girl Points">
+       parts="4.5" formation="Diamonds RH PTP Girl Points" vid="V1-cr1gaih5">
     <path>
       <move select="Hinge Right" scaleX=".75"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75"/>
@@ -682,7 +682,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Left-Hand Point-to-Point Diamonds"
-       parts="4.5" formation="Diamonds LH PTP Girl Points">
+       parts="4.5" formation="Diamonds LH PTP Girl Points" vid="V1-qsyq5v1c">
     <path>
       <move select="Hinge Left" scaleX=".75"/>
       <move select="Swing Left" scaleX=".75" scaleY=".75"/>
@@ -705,7 +705,7 @@
 
   <tam title="Any Hand Grand Quarter Thru"
        from="Magic Columns Right-Hand Centers"
-       formation="Magic Column RH" parts="1.5">
+       formation="Magic Column RH" parts="1.5" vid="V1-f8k7hlbq">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Run Right" scaleX=".75" scaleY=".5"/>
@@ -725,7 +725,7 @@
 
   <tam title="Any Hand Grand Quarter Thru"
        from="Magic Columns Left-Hand Centers"
-       formation="Magic Column LH" parts="1.5">
+       formation="Magic Column LH" parts="1.5" vid="V1-b393zfsg">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
     </path>
@@ -745,7 +745,7 @@
 
   <tam title="Any Hand Grand 3/4 Thru"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH" parts="4.5">
+       formation="Magic Column RH" parts="4.5" vid="V1-52jotsds">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -769,7 +769,7 @@
 
   <tam title="Any Hand Grand 3/4 Thru"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH" parts="4.5">
+       formation="Magic Column LH" parts="4.5" vid="V1-pdtg114i">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>

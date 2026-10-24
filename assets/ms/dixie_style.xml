@@ -25,7 +25,7 @@
   <tam title="Dixie Style to a Wave"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="1" >
+       difficulty="1"  vid="V1-msyj94r1">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -38,7 +38,7 @@
   </tam>
 
   <tam title="Dixie Style to a Wave" from="Tandem" formation="Tandem Girls Lead"
-       difficulty="2">
+       difficulty="2" vid="V1-88hhwd2r">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -53,7 +53,7 @@
 
   <tam title="Dixie Style to a Wave" from="Single Quarter Tag"
        formation="Single Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-qj7lnlml">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -68,7 +68,7 @@
   <tam title="Dixie Style to a Wave"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1" >
+       difficulty="1"  vid="V1-z3tbrhi9">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -92,7 +92,7 @@
   <tam title="Dixie Style to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2" >
+       difficulty="2"  vid="V1-s6kl4mlk">
     <path>
       <move select="Dodge Right" scaleY=".875" offsetX="-.3"/>
       <move select="Stand" />
@@ -117,7 +117,7 @@
 
   <tam title="Dixie Style to a Wave"
        from="Double Pass Thru"
-       difficulty="1" >
+       difficulty="1"  vid="V1-wn4gfqxc">
     <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -149,7 +149,7 @@
   <tam title="Dixie Style to a Wave"
        from="Quarter Tag"
        formation="Quarter Tag"
-       difficulty="2" >
+       difficulty="2"  vid="V1-h7z5v4j4">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -172,7 +172,7 @@
 
   <tam title="Dixie Style to a Wave"
        from="Tidal Column"
-       difficulty="3">
+       difficulty="3" vid="V1-piw3o7sc">
     <formation fid="F3-asmxxr5t" aid="A1-0wb74fjz">
       <dancer gender="boy" x="0" y="-3.5" angle="90"/>
       <dancer gender="girl" x="0" y="-2.5" angle="90"/>
@@ -204,7 +204,7 @@
   <tam title="Reverse Dixie Style to a Wave"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="2" >
+       difficulty="2"  vid="V1-lqn3f3gf">
     <path>
       <move select="Extend Right" beats="2" hands="right" offsetX="1" offsetY="-.5" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY="1.25" />
@@ -217,7 +217,7 @@
   </tam>
 
   <tam title="Reverse Dixie Style to a Wave" from="Tandem" formation="Tandem Girls Lead"
-       difficulty="2">
+       difficulty="2" vid="V1-ht8llojh">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Left" scaleY=".5" />
@@ -232,7 +232,7 @@
 
   <tam title="Reverse Dixie Style to a Wave" from="Single Left-Hand Quarter Tag"
        formation="Single Left Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-pyzrfiw6">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Left" scaleY=".5" />
@@ -247,7 +247,7 @@
   <tam title="Reverse Dixie Style to a Wave"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" >
+       difficulty="2"  vid="V1-zval3p2n">
     <path>
       <move select="Extend Right" beats="2" hands="left" offsetX="1" offsetY="-.5" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY="1.25" />
@@ -271,7 +271,7 @@
   <tam title="Reverse Dixie Style to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2" >
+       difficulty="2"  vid="V1-j6tspnty">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="1.15" scaleY="1.5" />
       <move select="Extend Left" beats="2" scaleX="1.15" scaleY="1.25" />
@@ -296,7 +296,7 @@
 
   <tam title="Reverse Dixie Style to a Wave"
        from="Double Pass Thru"
-       difficulty="2" >
+       difficulty="2"  vid="V1-6vxg5vui">
     <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -328,7 +328,7 @@
   <tam title="Reverse Dixie Style to a Wave"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       difficulty="2" >
+       difficulty="2"  vid="V1-1qkekpy5">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Left" scaleY=".5" />
@@ -351,7 +351,7 @@
 
   <tam title="Reverse Dixie Style to a Wave"
        from="Tidal Column"
-       difficulty="3">
+       difficulty="3" vid="V1-m9uzry9u">
     <formation fid="F3-asmxxr5t" aid="A1-0wb74fjz">
       <dancer gender="boy" x="0" y="-3.5" angle="90"/>
       <dancer gender="girl" x="0" y="-2.5" angle="90"/>

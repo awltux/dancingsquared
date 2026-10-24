@@ -24,7 +24,7 @@
 
   <tam title="Wheel Around"
        from="Facing Couples"
-       formation="Facing Couples Compact" sequencer="no">
+       formation="Facing Couples Compact" sequencer="no" vid="V1-8iu8u5zf">
     <path>
       <move select="Beau Wheel" />
     </path>
@@ -35,7 +35,7 @@
 
   <tam title="Wheel Around"
        from="Couples Facing Out"
-       formation="Couples Facing Out Compact" sequencer="no">
+       formation="Couples Facing Out Compact" sequencer="no" vid="V1-08qdixd8">
     <path>
       <move select="Belle Wheel" />
     </path>
@@ -46,7 +46,7 @@
 
   <tam title="Wheel Around"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-2on7pybi">
     <path>
       <move select="Beau Wheel" />
     </path>
@@ -63,7 +63,7 @@
 
   <tam title="Wheel Around"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-iiu76p0j">
     <path>
       <move select="Beau Wheel" scaleX=".5"/>
     </path>
@@ -80,7 +80,7 @@
 
   <tam title="Heads Wheel Around"
        from="Promenade"
-       formation="Promenade 2">
+       formation="Promenade 2" vid="V1-7i26lmay">
     <path>
     <move select="BackHinge Right" scaleX=".5" scaleY=".5"/>
     <move select="HalfBackHinge Right" scaleX=".5" scaleY=".5" offsetX="-.35" offsetY=".35"/>
@@ -100,7 +100,7 @@
   <tam title="Reverse Wheel Around"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       sequencer="no">
+       sequencer="no" vid="V1-3733fb2p">
     <path>
       <move select="Belle Wheel" reflect="1" />
     </path>
@@ -112,7 +112,7 @@
   <tam title="Reverse Wheel Around"
        from="Couples Facing Out"
        formation="Couples Facing Out Compact"
-       sequencer="no">
+       sequencer="no" vid="V1-zd7xkv0q">
     <path>
       <move select="Beau Wheel" reflect="1" />
     </path>
@@ -123,7 +123,7 @@
 
   <tam title="Reverse Wheel Around"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-zwulmgdc">
     <path>
       <move select="Belle Wheel" reflect="-1" />
     </path>
@@ -140,7 +140,7 @@
 
   <tam title="Reverse Wheel Around"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-8n3a25l1">
     <path>
       <move select="Belle Wheel" reflect="-1" scaleX=".5"/>
     </path>
@@ -162,7 +162,7 @@
 <tam title="Wheel Around"
        from="Facing Couples"
        formation="Facing Couples"
-       fractions="" >
+       fractions=""  vid="V1-lzmkvny6">
     <path>
       <move select="Beau Wheel" />
     </path>
@@ -174,7 +174,7 @@
 <tam title="Reverse Wheel Around"
        from="Facing Couples"
        formation="Facing Couples"
-       fractions="" >
+       fractions=""  vid="V1-2igsfxto">
     <path>
       <move select="Belle Wheel" reflect="1" />
     </path>

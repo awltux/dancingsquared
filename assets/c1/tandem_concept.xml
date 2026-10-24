@@ -23,7 +23,7 @@
 <tamination title="Tandem Concept">
 
   <tam title="Tandem Bend the Line" group="Tandem"
-       formation="Two-Faced Lines RH" >
+       formation="Two-Faced Lines RH"  vid="V1-vr8qe3q2">
     <path>
       <move select="Counter Rotate Right 2 0" beats="3" hands="right" offsetX="1"/>
     </path>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Tandem Box Circulate" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-1i094n48">
     <path>
       <move select="Run Right" />
       <move select="Forward 2" />
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="Tandem Box Transfer" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-jqs3gnn7">
     <path>
       <move select="Counter Rotate Right 2 -4" beats="3.333"/>
       <move select="Counter Rotate Right 2 -4" beats="3.333"/>
@@ -85,7 +85,7 @@
   </tam>
 
   <tam title="Tandem Cast Off 3/4" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-obrc1w0v">
     <path>
       <move select="Counter Rotate Right 0 -2" hands="right"/>
       <move select="Counter Rotate Right 0 -2" hands="right"/>
@@ -109,7 +109,7 @@
   </tam>
 
   <tam title="Tandem Centers Run" group="Tandem"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-ppf8c1jy">
     <path>
       <move select="Dodge Right" beats="6" />
     </path>
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Tandem Chase Right" group="Tandem"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-12ijv1b4">
     <path>
       <move select="Pivot backward right" offsetX="-1"/>
       <move select="Forward 3"/>
@@ -151,7 +151,7 @@
   </tam>
 
   <tam title="Tandem Left Chase" group="Tandem" display="none"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-dwxjbdfj">
     <path>
       <move select="Run Left" beats="5"/>
       <move select="Forward 6"/>
@@ -175,7 +175,7 @@
   </tam>
 
   <tam title="Tandem Courtesy Turn" group="Tandem"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-cfntj55p">
     <path>
       <move select="Counter Rotate Left 0 2" hands="left"/>
       <move select="Counter Rotate Left 0 2" hands="left"/>
@@ -195,7 +195,7 @@
   </tam>
 
   <tam title="Tandem Crossfire" group="Tandem"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-qdqyiyuw">
     <path>
       <move select="Forward 4" beats="3"/>
       <move select="Run Right" beats="4" scaleY="2" offsetX="1"/>
@@ -217,7 +217,7 @@
   </tam>
 
   <tam title="Tandem Crossfire" group="Tandem" display="none"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-3k23glwn">
     <path>
       <move select="Run Left" beats="6" scaleY="2"/>
       <move select="Forward"/>
@@ -239,7 +239,7 @@
   </tam>
 
   <tam title="Tandem Cut the Diamond" group="Tandem"
-       formation="T-Bone ULLD">
+       formation="T-Bone ULLD" vid="V1-4jx19ir2">
     <path>
       <move select="Dodge Right"/>
       <move select="Counter Rotate Right 2 0" hands="right"/>
@@ -263,7 +263,7 @@
   </tam>
 
   <tam title="Tandem Cut the Diamond" group="Tandem" display="none"
-       formation="T-Bone DRRU">
+       formation="T-Bone DRRU" vid="V1-slswvzik">
     <path>
       <move select="Dodge Left"/>
       <move select="Counter Rotate Left 0 2" hands="left"/>
@@ -287,7 +287,7 @@
   </tam>
 
   <tam title="Tandem Diamond Circulate" group="Tandem"
-       formation="T-Bone ULLD">
+       formation="T-Bone ULLD" vid="V1-daxytaov">
     <path>
       <move select="Forward" beats="1.5"/>
       <move select="Lead Right" beats="2.5" scaleY="2"/>
@@ -311,7 +311,7 @@
   </tam>
 
   <tam title="Tandem Diamond Circulate" group="Tandem" display="none"
-       formation="T-Bone DRRU">
+       formation="T-Bone DRRU" vid="V1-bn050aut">
     <path>
       <move select="Quarter Left" offsetY="1"/>
       <move select="Forward 3"/>
@@ -330,7 +330,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Dixie Style to a Wave" group="Tandem" formation="Double Pass Thru">
+  <tam title="Tandem Dixie Style to a Wave" group="Tandem" formation="Double Pass Thru" vid="V1-efn58ond">
     <path>
       <move select="Back" beats="2"/>
       <move select="Dodge Right"/>
@@ -357,7 +357,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Fan the Top" group="Tandem" formation="Ocean Waves RH BGGB">
+  <tam title="Tandem Fan the Top" group="Tandem" formation="Ocean Waves RH BGGB" vid="V1-z07nog1g">
     <path>
       <move select="Counter Rotate Right 5 -1" beats="9"/>
     </path>
@@ -377,7 +377,7 @@
   </tam>
 
   <tam title="Tandem Fan the Top" group="Tandem" display="none"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-sf23rlrf">
     <path>
       <move select="Counter Rotate Left 1 5" beats="9"/>
     </path>
@@ -397,7 +397,7 @@
   </tam>
 
   <tam title="Tandem Flip the Diamond" group="Tandem"
-       formation="T-Bone ULLD">
+       formation="T-Bone ULLD" vid="V1-9poozilh">
     <path>
       <move select="Forward 2"/>
       <move select="Run Right" offsetX=".5"/>
@@ -417,7 +417,7 @@
   </tam>
 
   <tam title="Tandem Flip the Diamond" group="Tandem" display="none"
-       formation="T-Bone DRRU">
+       formation="T-Bone DRRU" vid="V1-zljomv4r">
     <path>
       <move select="Run Left"/>
       <move select="Forward 2" offsetX=".5"/>
@@ -437,7 +437,7 @@
   </tam>
 
   <tam title="Tandem Follow Your Neighbor" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-zule4jq9">
     <path>
       <move select="Forward 2"/>
       <move select="Counter Rotate Right 0 -2"/>
@@ -465,7 +465,7 @@
   </tam>
 
   <tam title="Tandem Follow Your Neighbor" group="Tandem"
-       formation="Column LH GBGB" display="none">
+       formation="Column LH GBGB" display="none" vid="V1-ifmot640">
     <path>
       <move select="Forward 2"/>
       <move select="Counter Rotate Left 2 0" hands="left"/>
@@ -493,7 +493,7 @@
   </tam>
 
   <tam title="Tandem Follow Your Neighbor" group="Tandem"
-       formation="Column LH GBGB" display="none">
+       formation="Column LH GBGB" display="none" vid="V1-ifmot640">
     <path>
       <move select="Forward 2"/>
       <move select="Counter Rotate Left 2 0" hands="left"/>
@@ -520,7 +520,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Hinge" group="Tandem" formation="Column RH GBGB">
+  <tam title="Tandem Hinge" group="Tandem" formation="Column RH GBGB" vid="V1-oh0ua350">
     <path>
       <move select="Counter Rotate Right 0 -2" offsetY="-1" hands="right"/>
     </path>
@@ -536,7 +536,7 @@
   </tam>
 
   <tam title="Tandem Partner Hinge" group="Tandem"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-6606hw05">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-2" offsetY="2.5"/>
     </path>
@@ -552,7 +552,7 @@
   </tam>
 
   <tam title="Tandem Pass the Ocean" group="Tandem"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-j8m94qdk">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 4" />
@@ -576,7 +576,7 @@
   </tam>
 
   <tam title="Tandem Pass Thru" group="Tandem"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-kclf6obe">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -600,7 +600,7 @@
   </tam>
 
   <tam title="Tandem Peel Off" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-551k68c4">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 4" beats="3"/>
@@ -620,7 +620,7 @@
   </tam>
 
   <tam title="Tandem Peel Off" group="Tandem" display="none"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-5aoiu3zx">
     <path>
       <move select="Forward 2"/>
       <move select="Pivot forward left" beats="4" scaleY=".5" offsetX="1"/>
@@ -639,7 +639,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Quarter Thru" group="Tandem" fractions="2">
+  <tam title="Tandem Quarter Thru" group="Tandem" fractions="2" vid="V1-pq1jalpa">
      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -665,7 +665,7 @@
   </tam>
 
   <tam title="Tandem Right and Left Thru" group="Tandem"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-wtfhr4t1">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -697,7 +697,7 @@
   </tam>
 
   <tam title="Tandem Right Roll to a Wave" group="Tandem"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-eoth0ohw">
     <path>
       <move select="Forward" beats="2"/>
     </path>
@@ -715,7 +715,7 @@
   </tam>
 
   <tam title="Tandem Scoot Back" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-3zzdpqw0">
     <path>
       <move select="Run Right" beats="5" />
       <move select="Forward 2" beats="3" />
@@ -739,7 +739,7 @@
   </tam>
 
   <tam title="Tandem Single Wheel" group="Tandem"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-t3n3rpp7">
     <path>
       <move select="Flip Left" offsetX="-1" scaleY=".5"/>
       <move select="Forward 2" scaleX="0.6"  />
@@ -758,7 +758,7 @@
   </tam>
 
   <tam title="Tandem Square Chain Thru" group="Tandem"
-       formation="Double Pass Thru" fractions="5;4;4">
+       formation="Double Pass Thru" fractions="5;4;4" vid="V1-b7kwvryv">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="1.5"/>
       <move select="Counter Rotate Right 2 0" offsetY="-1.5" beats="3"/>
@@ -805,7 +805,7 @@
 
   <tam title="Tandem Swing Thru" group="Tandem"
        formation="Ocean Waves RH BGGB"
-       fractions="4" >
+       fractions="4"  vid="V1-y4arr9ty">
     <path numbers="2 7">
       <move select="Counter Rotate Right 2 0" hands="right" offsetX="1"/>
       <move select="Counter Rotate Right 2 0" hands="right" offsetY="1"/>
@@ -829,7 +829,7 @@
   </tam>
 
   <tam title="Tandem Switch the Wave" group="Tandem"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-jsg87oot">
     <path>
       <move select="Forward 4" beats="3" />
       <move select="Run Right" beats="5" scaleY="2" />
@@ -849,7 +849,7 @@
   </tam>
 
   <tam title="Tandem Switch the Wave" group="Tandem" display="none"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-qmtcvfh2">
     <path>
       <move select="Run Left" beats="5" scaleY="2" />
       <move select="Forward 4" beats="3" />
@@ -868,7 +868,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Touch 1/4" group="Tandem" formation="Double Pass Thru">
+  <tam title="Tandem Touch 1/4" group="Tandem" formation="Double Pass Thru" vid="V1-3unfup9f">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
       <move select="Counter Rotate Right 2 0" hands="right"/>
@@ -887,7 +887,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Walk and Dodge" group="Tandem" formation="Column RH GBGB">
+  <tam title="Tandem Walk and Dodge" group="Tandem" formation="Column RH GBGB" vid="V1-svkkye1s">
     <path>
       <move select="Dodge Right" beats="4"/>
     </path>
@@ -903,7 +903,7 @@
   </tam>
 
   <tam title="Tandem Zoom" group="Tandem"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-z9hq64nk">
     <path>
       <move select="Flip Left" beats="2" scaleX=".75" scaleY=".75" />
       <move select="Forward 6" />

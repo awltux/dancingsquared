@@ -160,6 +160,14 @@ export const SUITE = [
   // roots it. Not vacuous: it also runs the same analysis over a copy of the model with two tags removed and
   // requires both to be named. 5 s: parses the corpus, builds nothing.
   { h: 'formation-tags', light: true },
+  // EVERY AUTHORED TAM CARRIES THE `vid` OF THE VARIANT IT REALISES, and it is the id its own (level, title, fid)
+  // mint - the third stored tag, and the only one that names a CALL rather than a shape. A `vid` is FULLY
+  // DETERMINED by the tree, so this asserts EQUALITY with `callVariantId` rather than consistency: a retitle or a
+  // level move fails here and forces a re-tag. Pins the population (5,489 live tams, 5,487 tagged, 5,388 distinct
+  // variants, 91 authored more than once) and NAMES the two tams with no start definition (`Ferris Wheel`,
+  // `Couples Circulate`, the pair `catalogue.mjs` pins). Not vacuous: it also runs the same analysis over a copy
+  // with one vid cleared and one minted from a different title. 5 s: parses the corpus, builds nothing.
+  { h: 'variant-tags', light: true },
   // The three identities over the whole corpus: 198 shapes, 242 arrangements, 1,730 variants (38 authored more
   // than once), every start shape covered by the roots ledger, and NO two variants minting one id. This is the
   // only place the key space exists as a whole, so it is the only place a collision could be seen.

@@ -24,7 +24,7 @@
 
   <tam title="Sock It To Me"
        from="Lines Facing In"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-dytm7ue9">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="3" />
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Sock It To Me"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-0w74t7zu">
     <path>
       <move select="Flip Left" beats="6" />
     </path>
@@ -58,7 +58,7 @@
 
   <tam title="Sock It To Me"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-9pp28a14">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="3" />
     </path>
@@ -75,7 +75,7 @@
 
   <tam title="Sock It To Me"
        from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-0vot0fe3">
     <path>
       <move select="Flip Left" beats="6" />
     </path>
@@ -92,7 +92,7 @@
 
   <tam title="Sock It To Me"
        from="3 and 1 Lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-4w5tviz1">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="3" />
     </path>
@@ -109,7 +109,7 @@
 
   <tam title="Sock It To Me"
        from="3 and 1 Lines #3"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-s32s8swd">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="3" />
     </path>
@@ -126,7 +126,7 @@
 
   <tam title="Sock It To Me"
        from="3 and 1 Lines #6"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-5zhr75ps">
     <path>
       <move select="Flip Left" beats="6" />
     </path>
@@ -143,7 +143,7 @@
 
   <tam title="Sock It To Me"
        from="3 and 1 Lines #7"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-tzl2hymi">
     <path>
       <move select="Flip Left" beats="6" />
     </path>
@@ -159,7 +159,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Right-Hand Tidal Line" formation="Tidal Line RH">
+       from="Right-Hand Tidal Line" formation="Tidal Line RH" vid="V1-83mxljrd">
     <path>
       <move select="Run Right" beats="6" scaleX="2" scaleY="1.5"/>
     </path>
@@ -175,7 +175,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Left-Hand Tidal Line" formation="Tidal Line LH">
+       from="Left-Hand Tidal Line" formation="Tidal Line LH" vid="V1-0e67x4bm">
     <path>
       <move select="Flip Left" beats="6" scaleY=".5"/>
     </path>
@@ -191,7 +191,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Right-Hand Inverted Tidal Line" formation="Tidal Inverted Line RH">
+       from="Right-Hand Inverted Tidal Line" formation="Tidal Inverted Line RH" vid="V1-wyzlnit3">
     <path>
       <move select="Run Right" beats="6" scaleX="2" scaleY="1.5"/>
     </path>
@@ -207,7 +207,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Left-Hand Inverted Tidal Line" formation="Tidal Inverted Line LH">
+       from="Left-Hand Inverted Tidal Line" formation="Tidal Inverted Line LH" vid="V1-p8d2dr6i">
     <path>
       <move select="Flip Left" beats="6" scaleY=".5"/>
     </path>
@@ -223,7 +223,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Tidal 3 and 1 Line #2" formation="Tidal 3 and 1 Line #2">
+       from="Tidal 3 and 1 Line #2" formation="Tidal 3 and 1 Line #2" vid="V1-gpxmd7k6">
     <path>
       <move select="Run Right" beats="6" scaleX="2" scaleY="1.5"/>
     </path>
@@ -239,7 +239,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Tidal 3 and 1 Line #3" formation="Tidal 3 and 1 Line #3">
+       from="Tidal 3 and 1 Line #3" formation="Tidal 3 and 1 Line #3" vid="V1-a1yskein">
     <path>
       <move select="Run Right" beats="6" scaleX="2" scaleY="1.5"/>
     </path>
@@ -255,7 +255,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Tidal 3 and 1 Line #6" formation="Tidal 3 and 1 Line #6">
+       from="Tidal 3 and 1 Line #6" formation="Tidal 3 and 1 Line #6" vid="V1-72h9s7gf">
     <path>
       <move select="Flip Left" beats="6" scaleY=".5"/>
     </path>
@@ -271,7 +271,7 @@
   </tam>
 
   <tam title="Sock It To Me"
-       from="Tidal 3 and 1 Line #7" formation="Tidal 3 and 1 Line #7">
+       from="Tidal 3 and 1 Line #7" formation="Tidal 3 and 1 Line #7" vid="V1-0np7tkrz">
     <path>
       <move select="Flip Left" beats="6" scaleY=".5"/>
     </path>
@@ -291,7 +291,7 @@
 
   <tam title="Here Comes the Judge"
        from="Lines Facing In"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-eimjv44i">
     <path>
       <move select="Flip Right" beats="6" />
     </path>
@@ -308,7 +308,7 @@
 
   <tam title="Here Comes the Judge"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-i9uvsh3l">
     <path numbers="5 4">
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -325,7 +325,7 @@
 
   <tam title="Here Comes the Judge"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-8f9s8nav">
     <path>
       <move select="Flip Right" beats="6" />
     </path>
@@ -342,7 +342,7 @@
 
   <tam title="Here Comes the Judge"
        from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-zt339mec">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -359,7 +359,7 @@
 
   <tam title="Here Comes the Judge"
        from="3 and 1 Lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-v44fbyey">
     <path>
       <move select="Flip Right" beats="6" />
     </path>
@@ -376,7 +376,7 @@
 
   <tam title="Here Comes the Judge"
        from="3 and 1 Lines #3"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-i2vc9aj2">
     <path>
       <move select="Flip Right" beats="6" />
     </path>
@@ -393,7 +393,7 @@
 
   <tam title="Here Comes the Judge"
        from="3 and 1 Lines #6"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-btrsu3oj">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -410,7 +410,7 @@
 
   <tam title="Here Comes the Judge"
        from="3 and 1 Lines #7"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-uwhre961">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -426,7 +426,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Right-Hand Tidal Line" formation="Tidal Line RH">
+       from="Right-Hand Tidal Line" formation="Tidal Line RH" vid="V1-9s04v82q">
     <path>
       <move select="Flip Right" beats="6" scaleY=".5"/>
     </path>
@@ -442,7 +442,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Left-Hand Tidal Line" formation="Tidal Line LH">
+       from="Left-Hand Tidal Line" formation="Tidal Line LH" vid="V1-iom4lie5">
     <path>
       <move select="Flip Right" beats="6" scaleY=".5"/>
     </path>
@@ -458,7 +458,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Right-Hand Inverted Tidal Line" formation="Tidal Inverted Line RH">
+       from="Right-Hand Inverted Tidal Line" formation="Tidal Inverted Line RH" vid="V1-yzhnr11o">
     <path>
       <move select="Flip Right" beats="6" scaleY=".5"/>
     </path>
@@ -474,7 +474,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Left-Hand Inverted Tidal Line" formation="Tidal Inverted Line LH">
+       from="Left-Hand Inverted Tidal Line" formation="Tidal Inverted Line LH" vid="V1-az7xdmod">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="1.5"/>
     </path>
@@ -490,7 +490,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Tidal 3 and 1 Line #2" formation="Tidal 3 and 1 Line #2">
+       from="Tidal 3 and 1 Line #2" formation="Tidal 3 and 1 Line #2" vid="V1-zrr72d7p">
     <path>
       <move select="Flip Right" beats="6" scaleY=".5"/>
     </path>
@@ -506,7 +506,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Tidal 3 and 1 Line #3" formation="Tidal 3 and 1 Line #3">
+       from="Tidal 3 and 1 Line #3" formation="Tidal 3 and 1 Line #3" vid="V1-0mej034g">
     <path>
       <move select="Flip Right" beats="6" scaleY=".5"/>
     </path>
@@ -522,7 +522,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Tidal 3 and 1 Line #6" formation="Tidal 3 and 1 Line #6">
+       from="Tidal 3 and 1 Line #6" formation="Tidal 3 and 1 Line #6" vid="V1-myprozbo">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="1.5"/>
     </path>
@@ -538,7 +538,7 @@
   </tam>
 
   <tam title="Here Comes the Judge"
-       from="Tidal 3 and 1 Line #7" formation="Tidal 3 and 1 Line #7">
+       from="Tidal 3 and 1 Line #7" formation="Tidal 3 and 1 Line #7" vid="V1-ul17wl6w">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="1.5"/>
     </path>

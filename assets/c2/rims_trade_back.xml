@@ -25,7 +25,7 @@
   <tam title="Rims Trade Back"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-s7dfxub3">
     <path>
       <move select="Swing Right" />
       <move select="Run Left" beats="4" />
@@ -45,7 +45,7 @@
   <tam title="Rims Trade Back"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-9zmjb9ao">
     <path>
       <move select="Swing Left" />
       <move select="Forward 4" />
@@ -65,7 +65,7 @@
   <tam title="Rims Trade Back"
        from="Thar"
        formation="Thar LH Boys"
-       parts="3" >
+       parts="3"  vid="V1-zt40uks8">
     <path>
       <move select="Swing Right" />
     </path>
@@ -85,7 +85,7 @@
   <tam title="Hubs Trade Back"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-31m8uhzo">
     <path>
       <move select="Swing Right" />
     </path>
@@ -105,7 +105,7 @@
   <tam title="Hubs Trade Back"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-vdbq7hor">
     <path>
       <move select="Swing Left" />
     </path>
@@ -125,7 +125,7 @@
   <tam title="Hubs Trade Back"
        from="Thar"
        formation="Thar LH Boys"
-       parts="3" >
+       parts="3"  vid="V1-wwenw8qb">
     <path>
       <move select="Swing Right" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />

@@ -25,7 +25,7 @@
   <tam title="Linear Cycle"
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="1.5;4" difficulty="1">
+       parts="1.5;4" difficulty="1" vid="V1-bclnx07r">
     <path>
       <move select="Hinge Right" />
       <move select="Forward 4" />
@@ -46,7 +46,7 @@
   <tam title="Linear Cycle"
        from="Left-Hand Wave"
        formation="Wave LH"
-       parts="1.5;4" difficulty="2">
+       parts="1.5;4" difficulty="2" vid="V1-qwamgjkg">
     <path>
       <move select="Hinge Left" />
       <move select="Forward 4" />
@@ -63,7 +63,7 @@
   <tam title="Linear Cycle"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="1.5;4" difficulty="1">
+       parts="1.5;4" difficulty="1" vid="V1-rik4p3et">
     <path>
       <move select="Hinge Right" />
       <move select="Forward 4" />
@@ -94,7 +94,7 @@
   <tam title="Linear Cycle"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="1.5;4" difficulty="2">
+       parts="1.5;4" difficulty="2" vid="V1-k09zl4r2">
     <path>
       <move select="Hinge Left" />
       <move select="Forward 4" />
@@ -122,7 +122,7 @@
   <tam title="Linear Cycle"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="1.5;3" difficulty="1">
+       parts="1.5;3" difficulty="1" vid="V1-imp7r4eq">
     <path>
       <move select="Hinge Right" scaleY=".5" />
       <move select="Forward 2" />
@@ -150,7 +150,7 @@
   <tam title="Linear Cycle"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="1.5;3" difficulty="2">
+       parts="1.5;3" difficulty="2" vid="V1-m77zi7ma">
     <path>
       <move select="Hinge Left" scaleY=".5" />
       <move select="Forward 2" />

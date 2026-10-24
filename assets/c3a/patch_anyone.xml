@@ -22,7 +22,7 @@
 -->
 <tamination title="Patch Anyone">
 
-  <tam title="Patch the Centers" group=" " parts="1.5">
+  <tam title="Patch the Centers" group=" " parts="1.5" vid="V1-xfxcaeyh">
     <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="3" angle="90"/>
@@ -46,7 +46,7 @@
   </tam>
 
   <tam title="Patch the Leaders" group=" " parts="1.5"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-dduqkz1k">
     <path couples="2 4">
       <move select="Hinge Right"/>
     </path>
@@ -64,7 +64,7 @@
   </tam>
 
   <tam title="Patch the Boys" group=" " sequencer="gender-specific"
-       formation="Lines Facing Out" parts="1.5">
+       formation="Lines Facing Out" parts="1.5" vid="V1-8nlnw404">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1"/>
     </path>

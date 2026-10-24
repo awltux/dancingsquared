@@ -23,7 +23,7 @@
 <tamination title="Dixie Diamond">
 
   <tam title="Dixie Diamond" from="Facing Couples"
-       formation="Facing Couples" parts="5.5">
+       formation="Facing Couples" parts="5.5" vid="V1-njwn7wzb">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -38,7 +38,7 @@
   </tam>
 
   <tam title="Dixie Diamond" from="Tandem"
-       formation="Tandem Girls Lead">
+       formation="Tandem Girls Lead" vid="V1-vxfa7zw5">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -56,7 +56,7 @@
   <tam title="Dixie Diamond"
        from="Lines"
        formation="Normal Lines"
-       parts="6" >
+       parts="6"  vid="V1-tnapth1j">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -84,7 +84,7 @@
   <tam title="Dixie Diamond"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5.5">
+       parts="5.5" vid="V1-mbbn5jmm">
     <path>
       <move select="Dodge Right" scaleY=".875" offsetX="-.3"/>
       <move select="Stand" />
@@ -114,7 +114,7 @@
   <tam title="Dixie Diamond"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       parts="4.5">
+       parts="4.5" vid="V1-30tmcc1e">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -142,7 +142,7 @@
   </tam>
 
   <tam title="All 8 Dixie Diamond" group=" "
-       formation="Static Square" parts="8">
+       formation="Static Square" parts="8" vid="V1-skmg1vif">
     <path>
       <move select="Extend Right" beats="5" scaleY="1.75"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -169,7 +169,7 @@
 
   <tam title="As Couples Dixie Diamond" group=" "
        formation="Normal Lines"
-       parts="8" >
+       parts="8"  vid="V1-66j8l89s">
     <path>
       <move select="BackSashay Right" beats="6" hands="right" scaleY="2"/>
       <move select="Hinge Left" hands="both" beats="2" scaleX=".5" />
@@ -196,7 +196,7 @@
 
   <tam title="Dixie Diamond, Interrupt with Flip Back" group=" "
        formation="Normal Lines"
-       parts="5.5;6;6.5" >
+       parts="5.5;6;6.5"  vid="V1-5y1dcuy8">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" scaleY=".75"/>
@@ -239,7 +239,7 @@
 
 
   <tam title="Reverse Dixie Diamond" group=" "
-       formation="Facing Couples" parts="5.5">
+       formation="Facing Couples" parts="5.5" vid="V1-v7kzv80p">
     <path>
       <move select="Extend Right" beats="2" hands="right" offsetX="1" offsetY="-.5" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY="1.25" />

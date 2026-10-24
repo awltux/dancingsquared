@@ -23,7 +23,7 @@
 <tamination title="Pass the Sea">
 
   <tam title="Pass the Sea"
-       from="Facing Couples">
+       from="Facing Couples" vid="V1-2q5sc957">
     <formation fid="F3-nlnlii69" aid="A1-6r10ge6d">
       <dancer gender="boy" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
@@ -40,7 +40,7 @@
 
   <tam title="Pass the Sea"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-zwtrkelv">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -61,7 +61,7 @@
 
   <tam title="Pass the Sea"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru" >
+       formation="Eight Chain Thru"  vid="V1-c0bzhjtu">
     <path>
       <move select="Extend Left" beats="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
@@ -80,7 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Pass the Sea" formation="Static Square" group="  ">
+  <tam title="Heads Pass the Sea" formation="Static Square" group="  " vid="V1-bb35ep9t">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -95,7 +95,7 @@
     </path>
   </tam>
 
-  <tam title="Sides Pass the Sea" formation="Static Square" group="  ">
+  <tam title="Sides Pass the Sea" formation="Static Square" group="  " vid="V1-mo6zzxkc">
     <path>
     </path>
     <path>
@@ -113,7 +113,7 @@
   <tam title="As Couples Pass the Sea"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-m08t18gi">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="4" scaleX="1.5" scaleY="3.5" />

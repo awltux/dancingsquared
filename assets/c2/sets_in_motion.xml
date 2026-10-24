@@ -24,7 +24,7 @@
 
   <tam title="Sets in Motion"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-yfayj1iv">
     <path>
       <move select="Forward 4" />
       <move select="Run Right" beats="4" scaleX="2" scaleY="2" />
@@ -53,7 +53,7 @@
 
   <tam title="Sets in Motion"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-4ia6oulk">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Forward 2" />
@@ -83,7 +83,7 @@
 
   <tam title="Sets in Motion"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-foo9ftzi">
     <path numbers="1 8" couples="2 4">
       <move select="Forward 4" />
       <move select="Run Right" beats="5" scaleX="2" scaleY="2" />
@@ -113,7 +113,7 @@
 
   <tam title="Sets in Motion"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-dt20dq1h">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Forward 2" />
@@ -140,7 +140,7 @@
     </path>
   </tam>
 
-  <tam title="Sets in Motion" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Sets in Motion" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-j386u32w">
     <path numbers="1 8">
       <move select="Run Left" beats="5" scaleX="2" scaleY="3" />
       <move select="Forward 2"/>
@@ -168,7 +168,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="Inverted Lines"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-swedar9a">
     <path>
       <move select="Extend Left"  beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
@@ -205,7 +205,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="3 and 1 Lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-zfa6yr03">
     <path>
       <move select="Extend Left"  beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
@@ -242,7 +242,7 @@
     </path>
   </tam>
 
-  <tam title="Sets in Motion" from="3 and 1 Lines #3">
+  <tam title="Sets in Motion" from="3 and 1 Lines #3" vid="V1-gbb730aj">
      <formation fid="F3-ptgvautp" aid="A1-vf7owirh">
       <dancer gender="boy"  x="-2" y="3"  angle="0" />
       <dancer gender="girl" x="-2" y="1"  angle="0" />
@@ -286,7 +286,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-nqjve7u4">
     <path>
       <move select="Forward 4" />
       <move select="Run Right" beats="4" scaleX="2" scaleY="2" />
@@ -313,7 +313,7 @@
     </path>
   </tam>
 
-  <tam title="Sets in Motion" from="3 and 1 Lines #6" formation="3 and 1 lines #6">
+  <tam title="Sets in Motion" from="3 and 1 Lines #6" formation="3 and 1 lines #6" vid="V1-phk1k5rm">
     <path numbers="1 8">
       <move select="Run Left" beats="5" scaleX="2" scaleY="3" />
       <move select="Forward 2"/>
@@ -341,7 +341,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="3 and 1 Lines #7"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-gxppaklw">
     <path>
       <move select="Run Left" beats="5" scaleX="2" scaleY="3" />
       <move select="Forward 2"/>
@@ -368,7 +368,7 @@
   </tam>
 
   <tam title="Sets in Motion" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-g7dst5h3">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Forward 2" />
@@ -395,7 +395,7 @@
     </path>
   </tam>
 
-  <tam title="Sets in Motion" from="T-Bones">
+  <tam title="Sets in Motion" from="T-Bones" vid="V1-jy7uo86i">
      <formation fid="F3-mx7qw8zz" aid="A1-kneaxu0v">
       <dancer gender="boy" x="-3" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="-1" angle="90"/>

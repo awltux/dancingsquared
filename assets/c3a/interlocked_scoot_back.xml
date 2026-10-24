@@ -22,7 +22,7 @@
 -->
 <tamination title="Interlocked Scoot Back">
 
-  <tam title="Interlocked Scoot Back" from="Right-Hand Quarter Line">
+  <tam title="Interlocked Scoot Back" from="Right-Hand Quarter Line" vid="V1-o0ttw2x3">
     <formation fid="F3-00kg8wpm" aid="A1-xfw4kydw">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
@@ -54,7 +54,7 @@
     </taminator>
   </tam>
 
-  <tam title="Interlocked Scoot Back" from="Left-Hand Quarter Line" formation="Quarter Lines LH">
+  <tam title="Interlocked Scoot Back" from="Left-Hand Quarter Line" formation="Quarter Lines LH" vid="V1-zlb34d46">
     <path>
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>

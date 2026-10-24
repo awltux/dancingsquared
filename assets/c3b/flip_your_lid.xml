@@ -22,7 +22,7 @@
 -->
 <tamination title="Flip Your Lid">
 
-  <tam title="Flip Your Lid" from="Right-Hand Quarter Tag">
+  <tam title="Flip Your Lid" from="Right-Hand Quarter Tag" vid="V1-02okat9w">
     <formation fid="F3-roc084t6" aid="A1-oartgelk">
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="180"/>
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Flip Your Lid" from="Left-Hand Quarter Tag" formation="Quarter Tag LH">
+  <tam title="Flip Your Lid" from="Left-Hand Quarter Tag" formation="Quarter Tag LH" vid="V1-uvx1w6aj">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".25"/>
       <move select="Swing Left" scaleX=".75" scaleY=".75"/>

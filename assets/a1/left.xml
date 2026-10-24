@@ -24,7 +24,7 @@
 
 
   <tam title="Left Dosado" group="Left"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-n53ny6ww">
     <path>
       <move select="Extend Right" scaleX="1.5" scaleY=".5" />
       <move select="Extend Left" scaleY=".5" />
@@ -40,7 +40,7 @@
   </tam>
 
   <tam title="Left Pass to the Center" group="Left"
-       formation="Ocean Waves LH GBBG">
+       formation="Ocean Waves LH GBBG" vid="V1-b737vcdo">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Run Left" beats="4"/>
@@ -62,7 +62,7 @@
            xref-title="Left Swing Thru"
            xref-from="Right-Hand Wave"/>
 
-  <tam title="Left 3/4 Tag the Line" formation="Two-Faced Lines LH" group="Left">
+  <tam title="Left 3/4 Tag the Line" formation="Two-Faced Lines LH" group="Left" vid="V1-0i82m39m">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 2" beats="3"/>
@@ -92,7 +92,7 @@
 
   <tam title="Left Turn Thru" group="Left"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-gsozhxfk">
     <path>
       <move select="Extend Right" scaleX="1.5" scaleY=".5" />
       <move select="Swing Left" beats="2" scaleX=".5" scaleY=".5" />
@@ -106,7 +106,7 @@
   </tam>
 
   <tam title="Left Turn Thru" from="Left-Hand Wave" group="Left"
-       formation="Wave LH">
+       formation="Wave LH" vid="V1-uyvn0fzw">
     <path>
       <move select="Hinge Left" scaleX=".75" />
       <move select="Hinge Left" scaleX=".75" scaleY=".75" />
@@ -119,7 +119,7 @@
     </path>
   </tam>
 
-  <tam title="Left Wheel and Deal" formation="Lines Facing Out" group="Left">
+  <tam title="Left Wheel and Deal" formation="Lines Facing Out" group="Left" vid="V1-8idsi0cu">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="2" scaleY="2" offsetX="1" />
     </path>

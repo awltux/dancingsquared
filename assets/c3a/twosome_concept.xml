@@ -23,7 +23,7 @@
 <tamination title="Twosome Concept">
 
   <tam title="Couples Twosome Circulate" group="Couples Twosome"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-9ptmlmvf">
     <path>
       <move select="Forward 4" beats="5"/>
     </path>
@@ -46,7 +46,7 @@
   </tam>
 
   <tam title="Couples Twosome Crossfire" group="Couples Twosome"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-aji4dswo">
     <path>
       <move select="Run Right" beats="5" scaleX="2" scaleY="2" offsetX="2" offsetY="-.5"/>
     </path>
@@ -64,7 +64,7 @@
   </tam>
 
   <tam title="Couples Twosome Hinge" group="Couples Twosome"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-jbt9dkhq">
     <path>
       <move select="Lead Right"/>
       <move select="Forward"/>
@@ -84,7 +84,7 @@
   </tam>
 
   <tam title="Couples Twosome Recycle" group="Couples Twosome"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-u015kv72">
     <path>
       <move select="Run Right" beats="6" scaleX="2" scaleY="2" offsetX="2" offsetY="-.5"/>
     </path>
@@ -101,7 +101,7 @@
     </path>
   </tam>
 
-  <tam title="Couples Twosome Single Wheel" group="Couples Twosome">
+  <tam title="Couples Twosome Single Wheel" group="Couples Twosome" vid="V1-n8ck9m38">
     <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
@@ -130,7 +130,7 @@
   </tam>
 
   <tam title="Couples Twosome Swing Thru" group="Couples Twosome"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-66s0geh6">
     <path>
       <move select="Run Right" scaleX=".75"/>
       <move select="Run Left" scaleX=".75"/>
@@ -148,7 +148,7 @@
   </tam>
 
   <tam title="Couples Twosome Trade" group="Couples Twosome"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-na2z0gi7">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 2"/>
@@ -172,7 +172,7 @@
   </tam>
 
   <tam title="Tandem Twosome Circulate" group="Tandem Twosome"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-3ju0jue2">
     <path>
       <move select="Flip Right" beats="4"/>
     </path>
@@ -188,7 +188,7 @@
   </tam>
 
   <tam title="Tandem Twosome Left Roll to a Wave" group="Tandem Twosome"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-5vkpaihf">
     <path>
       <move select="Run Left" offsetX="-1"/>
     </path>
@@ -203,7 +203,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Twosome Single Wheel" group="Tandem Twosome">
+  <tam title="Tandem Twosome Single Wheel" group="Tandem Twosome" vid="V1-cw8dyif6">
     <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
@@ -225,7 +225,7 @@
   </tam>
 
   <tam title="Tandem Twosome Zoom" group="Tandem Twosome"
-       formation="Column RH GBGB" fractions="4">
+       formation="Column RH GBGB" fractions="4" vid="V1-4nkptttp">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 2"/>
@@ -245,7 +245,7 @@
   </tam>
 
   <tam title="Tandem, Tandem Twosome Touch a Quarter"
-       group="Tandem, Tandem Twosome">
+       group="Tandem, Tandem Twosome" vid="V1-rjinvush">
     <formation fid="F3-l1ba2e7i" aid="A1-vodgzo6q">
       <dancer gender="girl" x=".8" y="0" angle="180"/>
       <dancer gender="boy" x="3.6" y="0" angle="180"/>

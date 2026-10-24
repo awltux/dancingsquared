@@ -25,7 +25,7 @@
   <tam title="Square the Bases"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="5;2.5" >
+       fractions="5;2.5"  vid="V1-3o6vpqb0">
     <path numbers="1 8">
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="3" scaleY="2.5" />

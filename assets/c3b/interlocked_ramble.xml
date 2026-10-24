@@ -23,7 +23,7 @@
 <tamination title="Interlocked Ramble">
 
   <tam title="Interlocked Ramble" from="Right-Hand 3/4 Lines"
-       formation="3/4 Lines RH" parts="4">
+       formation="3/4 Lines RH" parts="4" vid="V1-fxuowht6">
     <path>
       <move select="Quarter Right" beats="2" offsetY="-1" />
       <move select="Lead Right" beats="2" scaleY="2" />
@@ -50,7 +50,7 @@
     </path>
   </tam>
 
-  <tam title="Interlocked Ramble" from="Left-Hand 3/4 Lines" parts="4">
+  <tam title="Interlocked Ramble" from="Left-Hand 3/4 Lines" parts="4" vid="V1-n48j0igu">
     <formation name="3/4 Lines LH" fid="F3-8yj622tq" aid="A1-n0rqtzya">
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>

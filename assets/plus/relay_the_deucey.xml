@@ -23,7 +23,7 @@
 <tamination title="Relay the Deucey">
 
   <tam title="Relay the Deucey" from="Right-Hand Waves"
-    formation="Ocean Waves RH BGGB" parts="3;4.5;3;3;3" difficulty="1">
+    formation="Ocean Waves RH BGGB" parts="3;4.5;3;3;3" difficulty="1" vid="V1-r9skga15">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Relay the Deucey" from="Left-Hand Waves"
-    formation="Ocean Waves LH BGGB" parts="3;4.5;3;3;3" difficulty="2">
+    formation="Ocean Waves LH BGGB" parts="3;4.5;3;3;3" difficulty="2" vid="V1-c7r6lj4q">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="Relay the Deucey" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="5;4.5;3;3;3" difficulty="3">
+       formation="Eight Chain Thru" parts="5;4.5;3;3;3" difficulty="3" vid="V1-ke5dshmw">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right" />
@@ -135,7 +135,7 @@
   </tam>
 
   <tam title="Left Relay the Deucey" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="3;4.5;3;3;3" difficulty="2">
+       formation="Eight Chain Thru" parts="3;4.5;3;3;3" difficulty="2" vid="V1-5d0dqgsp">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" />

@@ -23,7 +23,7 @@
 <tamination title="Walk Around the Corner">
 
 
-  <tam title="Walk Around the Corner" from="Facing Couples" formation="Facing Couples">
+  <tam title="Walk Around the Corner" from="Facing Couples" formation="Facing Couples" vid="V1-hu60oowk">
     <path>
       <move select="Extend Left" beats="2.5" scaleX="2" scaleY="1.3"/>
       <move select="Run Right" scaleX=".65" scaleY=".65"/>
@@ -38,7 +38,7 @@
 
   <tam title="Walk Around the Corner"
        from="Static Square"
-       formation="Static Square">
+       formation="Static Square" vid="V1-7cais40j">
     <path>
       <move select="Lead Left" offsetX="-.5" />
       <move select="Hinge Right" scaleX=".5" scaleY=".5" />

@@ -31,7 +31,7 @@
            xref-title="Cross Concentric Circle to a Wave" />
 
   <tam title="Cross Concentric Crossfire" group="Cross Concentric"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-4bnl3a96">
     <path numbers="1 8">
       <move select="Stand" beats="3"/>
       <move select="Run Right" offsetX="1" scaleY="2.25" beats="4"/>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Cross Concentric Flip the Diamond" group="Cross Concentric"
-       formation="Concentric Diamonds RH">
+       formation="Concentric Diamonds RH" vid="V1-218ev6fs">
     <path numbers="3 6">
       <move select="Lead Right" beats="3" scaleX="1.5" scaleY="3"/>
     </path>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Cross Concentric Hinge" group="Cross Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-i3wzvbcl">
     <path numbers="8 1">
       <move select="Quarter Right" hands="right" beats="3" offsetX="1" offsetY="-1.5"/>
     </path>
@@ -83,7 +83,7 @@
   </tam>
 
   <tam title="Cross Concentric Recycle" group="Cross Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-1wcy7efv">
     <path numbers="8 1">
       <move select="Stand" beats="1"/>
       <move select="Lead Right" beats="3" scaleY="2.5"/>
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Cross Concentric Reverse Explode" group="Cross Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-rlc0kvwt">
     <path numbers="8 1">
       <move select="Stand"/>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-1.5"/>
@@ -122,7 +122,7 @@
   </tam>
 
   <tam title="Cross Concentric Star Thru" group="Cross Concentric"
-       from="" formation="Normal Lines">
+       from="" formation="Normal Lines" vid="V1-ydx82ogg">
   <path>
     <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
     <move select="Lead Right" beats="3" scaleY="1.5"/>
@@ -142,7 +142,7 @@
   </tam>
 
   <tam title="Cross Concentric Star Thru (example 1)" group="Cross Concentric"
-        formation="Double Pass Thru">
+        formation="Double Pass Thru" vid="V1-1l2ptbdl">
     <path numbers="1 8">
       <move select="Forward 2"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -163,7 +163,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Concentric Star Thru (example 2)" group="Cross Concentric">
+  <tam title="Cross Concentric Star Thru (example 2)" group="Cross Concentric" vid="V1-jlnx9t0b">
      <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
@@ -188,7 +188,7 @@
   </path>
   </tam>
 
-  <tam title="Cross Concentric Star Thru (example 3)" group="Cross Concentric">
+  <tam title="Cross Concentric Star Thru (example 3)" group="Cross Concentric" vid="V1-mqxxt3lv">
      <formation fid="F3-dlap8ufn" aid="A1-2wdq0q9r">
       <dancer gender="boy" x="3" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Cross Concentric Step and Fold" group="Cross Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-w272py24">
     <path numbers="8 1">
       <move select="Flip Right" offsetX="1" scaleY="1.25"/>
     </path>
@@ -239,7 +239,7 @@
 
   <!-- TODO add example from thar -->
   <tam title="Cross Concentric Wheel and Deal" group="Cross Concentric"
-       from="" formation="Two-Faced Tidal Line RH">
+       from="" formation="Two-Faced Tidal Line RH" vid="V1-18g02cja">
     <path numbers="1 8">
       <move select="Run Right" hands="right" offsetX="1" offsetY="-2.5"/>
     </path>

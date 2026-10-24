@@ -25,7 +25,7 @@
   <tam title="Motivate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="4;4.5;3" difficulty="1">
+       parts="4;4.5;3" difficulty="1" vid="V1-024to6gu">
     <path numbers="1 8" couples="2 4">
       <move select="Forward 4" />
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3" />
@@ -55,7 +55,7 @@
   <tam title="Motivate"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="4;4.5;3" difficulty="1">
+       parts="4;4.5;3" difficulty="1" vid="V1-pp72jjhx">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Extend Left" beats="4.5" scaleX="2" scaleY="2" />
@@ -85,7 +85,7 @@
   <tam title="Motivate"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       parts="4;4.5;3" difficulty="3">
+       parts="4;4.5;3" difficulty="3" vid="V1-bk9oitiz">
     <path>
       <move select="Forward 4" hands="right" />
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3" />
@@ -118,7 +118,7 @@
     </path>
   </tam>
 
-  <tam title="Motivate" from="T-Bones" parts="2;4.5;3" difficulty="3">
+  <tam title="Motivate" from="T-Bones" parts="2;4.5;3" difficulty="3" vid="V1-kvo6wm3v">
     <formation fid="F3-zxc7q2zi" aid="A1-8umeupma">
       <dancer gender="girl" y="1" x="3" angle="270"/>
       <dancer gender="girl" y="1" x="1" angle="0"/>
@@ -164,7 +164,7 @@
   <tam title="Motivate, Turn the Star 1/4" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="4;4.5;3" difficulty="1">
+       parts="4;4.5;3" difficulty="1" vid="V1-h7g86mi0">
     <path numbers="1 8" couples="2 4">
       <move select="Forward 4" />
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3" />
@@ -194,7 +194,7 @@
   <tam title="Motivate, Turn the Star 1/4" group=" " display="none"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="4;4.5;3" difficulty="1">
+       parts="4;4.5;3" difficulty="1" vid="V1-7dvqjmgn">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Extend Left" beats="4.5" scaleX="2" scaleY="2" />
@@ -224,7 +224,7 @@
   <tam title="Motivate, Turn the Star 3/4" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="4;4.5;3" difficulty="1">
+       parts="4;4.5;3" difficulty="1" vid="V1-z9mutjf2">
     <path>
       <move select="Forward 4" />
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3" />
@@ -254,7 +254,7 @@
   <tam title="Motivate, Turn the Star 3/4" group=" " display="none"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="4;4.5;3" difficulty="1">
+       parts="4;4.5;3" difficulty="1" vid="V1-xwepq2md">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Extend Left" beats="4.5" scaleX="2" scaleY="2" />
@@ -284,7 +284,7 @@
   <tam title="Motivate, Do Not Turn the Star" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="4;4.5;3" difficulty="2">
+       parts="4;4.5;3" difficulty="2" vid="V1-0w24byyy">
     <path numbers="1 8" couples="2 4">
       <move select="Forward 4" />
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3" />
@@ -314,7 +314,7 @@
   <tam title="Motivate, Do Not Turn the Star" group=" " display="none"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="4;4.5;3" difficulty="2">
+       parts="4;4.5;3" difficulty="2" vid="V1-apt9xz9l">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3" />
       <move select="Extend Left" beats="4.5" scaleX="2" scaleY="2" />

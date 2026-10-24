@@ -25,7 +25,7 @@
   <tam title="Wheel and Deal"
        from="Right-Hand Two-Faced Line"
        formation="Two-Faced Line RH"
-       difficulty="1">
+       difficulty="1" vid="V1-oj75f9ju">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleX="2" scaleY="2" offsetX="1.5" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Wheel and Deal"
        from="Compact Right-Hand Two-Faced Line"
        formation="Compact Two-Faced Line RH"
-       difficulty="1" display="no">
+       difficulty="1" display="no" vid="V1-y1b2h3xo">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleX="1.5" scaleY="1.25" offsetX="1" />
     </path>
@@ -49,7 +49,7 @@
   <tam title="Wheel and Deal"
        from="Left-Hand Two-Faced Line"
        formation="Two-Faced Line LH"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-ue1og3nl">
     <path>
       <move select="U-Turn Left" beats="4" hands="right" offsetX="1.5" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="Wheel and Deal"
        from="Compact Left-Hand Two-Faced Line"
        formation="Compact Two-Faced Line LH"
-       difficulty="1" display="no">
+       difficulty="1" display="no" vid="V1-cjnxuov5">
     <path>
       <move select="U-Turn Left" beats="4" hands="right" offsetX="1" offsetY="-.5"/>
     </path>
@@ -73,7 +73,7 @@
   <tam title="Wheel and Deal"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="1">
+       difficulty="1" vid="V1-0jo1980p">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="-1" />
     </path>
@@ -91,7 +91,7 @@
   <tam title="Wheel and Deal"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="1">
+       difficulty="1" vid="V1-lxezxmw3">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleY="2" offsetX="1" />
     </path>
@@ -112,7 +112,7 @@
   <tam title="Wheel and Deal"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       difficulty="2">
+       difficulty="2" vid="V1-oghqlegs">
     <path>
       <move select="Run Left" beats="4" hands="gripleft" scaleX="2" scaleY="2" offsetX="1" />
     </path>
@@ -133,7 +133,7 @@
   <tam title="Wheel and Deal"
        from="Lines Facing In"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-pxck6ge2">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleY="2" offsetX="1" />
     </path>
@@ -155,7 +155,7 @@
   <tam title="Wheel and Deal"
        from="Tidal Two-Faced Line, Right-Handed"
        formation="Two-Faced Tidal Line RH"
-       difficulty="1">
+       difficulty="1" vid="V1-2xf8crj9">
     <path>
       <move select="Run Right" beats="4" hands="gripright" offsetX="2" offsetY="-0.5" />
     </path>
@@ -173,7 +173,7 @@
   <tam title="Wheel and Deal"
        from="Tidal Two-Faced Line, Left-Handed"
        formation="Two-Faced Tidal Line LH"
-       difficulty="1">
+       difficulty="1" vid="V1-jo3gt35m">
     <path>
       <move select="Run Left" beats="4" hands="gripleft" offsetX="2" offsetY="0.5" />
     </path>
@@ -191,7 +191,7 @@
   <tam title="Wheel and Deal"
        from="Tidal Line"
        formation="Tidal Line RH"
-       difficulty="3">
+       difficulty="3" vid="V1-51jbqh8q">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleY="1.25" offsetX="2" />
     </path>
@@ -209,7 +209,7 @@
   <tam title="Wheel and Deal"
        from="Left-Hand Tidal Line"
        formation="Tidal Line LH"
-       difficulty="3">
+       difficulty="3" vid="V1-pylvl851">
     <path>
       <move select="U-Turn Left" beats="4" hands="gripright" offsetX="-2" offsetY="-.5" />
     </path>
@@ -227,7 +227,7 @@
   <tam title="Left Wheel and Deal"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="3" display="no">
+       difficulty="3" display="no" vid="V1-kgynnqvo">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="2" scaleY="2" offsetX="1" />
     </path>
@@ -245,7 +245,7 @@
   <tam title="Left Wheel and Deal"
        from="Tidal Line"
        formation="Tidal Line RH"
-       difficulty="3" display="no">
+       difficulty="3" display="no" vid="V1-5r0czvbr">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleY="1.25" offsetX="-2" />
     </path>
@@ -263,7 +263,7 @@
   <tam title="Left Wheel and Deal"
        from="Left-Hand Tidal Line"
        formation="Tidal Line LH"
-       difficulty="3" display="no">
+       difficulty="3" display="no" vid="V1-r2gzfn2c">
     <path>
       <move select="U-Turn Left" beats="4" hands="gripright" offsetX="2" offsetY="-.5" />
     </path>

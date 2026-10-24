@@ -25,7 +25,7 @@
   <tam title="Bend the Line and Roll" group=" "
        from="Normal Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-zxf2u5w8">
     <path>
       <move select="Hinge Right" offsetY="-1"/>
       <move select="Quarter Right"/>
@@ -50,7 +50,7 @@
   </tam>
 
   <tam title="Cast Off 3/4 and Roll" group=" "
-       formation="Lines Facing Out" difficulty="2">
+       formation="Lines Facing Out" difficulty="2" vid="V1-py9ap5hb">
     <path>
       <move select="Quarter Right" hands="left" offsetX=".33" offsetY=".33" />
       <move select="Quarter Right" hands="left" offsetX="-.33" offsetY=".33" />
@@ -78,7 +78,7 @@
   </tam>
 
   <tam title="Chase Right and Roll" group=" "
-       formation="Lines Facing Out" difficulty="3">
+       formation="Lines Facing Out" difficulty="3" vid="V1-jjld5unl">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1" />
       <move select="Forward" />
@@ -105,7 +105,7 @@
   </tam>
 
   <tam title="Cloverleaf and Roll" group=" "
-       formation="Completed Double Pass Thru" difficulty="3">
+       formation="Completed Double Pass Thru" difficulty="3" vid="V1-4wahgohu">
     <path>
       <move select="Lead Right" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -140,7 +140,7 @@
   <tam title="Cut the Diamond and Roll"
        group=" "
        formation="Diamonds RH Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-b46qu71j">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -165,7 +165,7 @@
 
   <tam title="Dixie Style to a Wave and Roll"
        group=" "
-       difficulty="2">
+       difficulty="2" vid="V1-9y9367f4">
     <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -200,7 +200,7 @@
 
   <tam title="Ends Fold and Roll" group=" "
        formation="Lines Facing Out"
-       difficulty="2">
+       difficulty="2" vid="V1-m9c531zy">
     <path>
       <move select="Fold Left" offsetX="-1" />
       <move select="Quarter Left" />
@@ -219,7 +219,7 @@
 
   <tam title="Explode and Roll" group=" "
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-m5fb1o55">
     <path>
        <move select="Run Right" offsetX="1"/>
     </path>
@@ -238,7 +238,7 @@
   <tam title="Ferris Wheel and Roll" group=" "
        from="Right-Handed Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="2">
+       difficulty="2" vid="V1-k8h74kwn">
     <path>
       <move select="Run Right" beats="4" hands="gripright" scaleX="2" scaleY="2" offsetX="3"/>
       <move select="Quarter Right" />
@@ -258,7 +258,7 @@
   </tam>
 
   <tam title="Flip the Diamond and Roll" group=" "
-       formation="Diamonds RH Girl Points" difficulty="2">
+       formation="Diamonds RH Girl Points" difficulty="2" vid="V1-na4a76jg">
     <path>
       <move select="Lead Right" beats="3" scaleX="3" />
       <move select="Quarter Right" offsetX="1"/>
@@ -279,7 +279,7 @@
 
   <tam title="Flutterwheel and Roll" group=" "
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-g6qpwnm7">
     <path>
       <move select="Forward" hands="nohands" beats="3.5" />
       <move select="Extend Left" hands="right" beats="1.5" scaleX="1.5" scaleY="1.5" />
@@ -310,7 +310,7 @@
   <tam title="Hinge and Roll" group=" "
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-aqjvsrwj">
     <path>
       <move select="Hinge Right" offsetY="-1"/>
       <move select="Quarter Right"  />
@@ -332,7 +332,7 @@
   <tam title="Heads Lead Right and Roll" group=" "
        from="Static Square"
        formation="Static Square"
-       difficulty="2">
+       difficulty="2" vid="V1-b1ou9o9s">
     <path>
       <move select="Hinge Right" beats="4" scaleX=".5" scaleY=".5" offsetX="3.5" offsetY="-1.5" />
       <move select="Quarter Right" />
@@ -350,7 +350,7 @@
   <tam title="Partner Trade and Roll (from Lines)" group=" "
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="1">
+       difficulty="1" vid="V1-b3k4309d">
     <path>
       <move select="Flip Left" offsetX="-1"/>
       <move select="Quarter Left"/>
@@ -372,7 +372,7 @@
   <tam title="Partner Trade and Roll (from Completed Double Pass Thru)" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-4tg3ya58">
     <path>
       <move select="Flip Left" />
       <move select="Quarter Left"/>
@@ -394,7 +394,7 @@
   <tam title="Pass to the Center and Roll" group=" "
        from="Pass Thru"
        formation="Pass Thru"
-       fractions="2" difficulty="2">
+       fractions="2" difficulty="2" vid="V1-1j7m84qf">
     <path>
       <move select="Pass Thru" />
     </path>
@@ -414,7 +414,7 @@
   </tam>
 
   <tam title="Peel Off and Roll" group=" "
-       formation="Completed Double Pass Thru" difficulty="2">
+       formation="Completed Double Pass Thru" difficulty="2" vid="V1-pn6r6u94">
     <path>
       <move select="Run Right" offsetX="-1" />
       <move select="Quarter Right" offsetX="1"/>
@@ -436,7 +436,7 @@
   <tam title="Recycle and Roll" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-kz9uvrtt">
     <path>
       <move select="Run Right" beats="4" offsetX="1" offsetY="-3" />
       <move select="Quarter Right" />
@@ -459,7 +459,7 @@
 
   <tam title="Recycle and Roll (from Left-Hand Waves)"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" group=" " difficulty="2">
+       formation="Ocean Waves LH BGGB" group=" " difficulty="2" vid="V1-gl33gois">
     <path>
       <move select="Run Left" beats="4" offsetX="1" offsetY="3" />
       <move select="Quarter Left"/>
@@ -483,7 +483,7 @@
   <tam title="Reverse Flutterwheel and Roll" group=" "
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-cqlmevn1">
     <path>
       <move select="Extend Right" beats="2" scaleX="1.5" scaleY="1.75" />
       <move select="Swing Left" hands="both" scaleX=".75" scaleY=".75" />
@@ -513,7 +513,7 @@
   <tam title="Right and Left Thru and Roll" group=" "
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-hiytx1yx">
     <path>
       <move select="Pull Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleY=".5"/>
@@ -543,7 +543,7 @@
   <tam title="Centers Run and Roll" group=" "
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-wvpab0rb">
     <path>
       <move select="Dodge Right" offsetX="1" />
     </path>
@@ -563,7 +563,7 @@
   <tam title="Scoot Back and Roll" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGBG"
-        difficulty="2" sequencer="no">
+        difficulty="2" sequencer="no" vid="V1-4j7pvi3d">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -590,7 +590,7 @@
   <tam title="Slide Thru and Roll" group=" "
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-nfq0annn">
     <path>
       <move select="Extend Left" beats="2" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5" />
@@ -615,7 +615,7 @@
 
   <tam title="Spin the Top and Roll" group=" "
        formation="Wave RH GBBG"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-2gex4a6q">
     <path>
       <move select="Swing Right" />
       <move select="Hinge Left" />
@@ -632,7 +632,7 @@
 
   <tam title="Swing Thru and Roll" group=" "
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-w37rgfkl">
     <path>
       <move select="Swing Right" />
       <move select="Swing Left" />
@@ -655,7 +655,7 @@
 
   <tam title="Touch a Quarter and Roll" group=" "
        formation="Facing Couples Compact"
-       difficulty="1">
+       difficulty="1" vid="V1-rpvlqnbj">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".5" />
       <move select="Hinge Right" scaleY=".5" beats="1" />
@@ -671,7 +671,7 @@
   <tam title="Trade and Roll" group=" "
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-or7bz7lc">
     <path>
       <move select="Swing Right" />
       <move select="Quarter Right" offsetX="-1" />
@@ -693,7 +693,7 @@
   <tam title="Trade By and Roll" group=" "
        from="Trade By"
        formation="Trade By"
-       difficulty="2">
+       difficulty="2" vid="V1-t6649q06">
     <path>
       <move select="Flip Left" />
       <move select="Quarter Left" />
@@ -715,7 +715,7 @@
   <tam title="Touch a Quarter and Roll" group=" "
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-flfjoh1m">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" />
       <move select="Hinge Right" scaleY=".5" beats="1" />
@@ -741,7 +741,7 @@
   <tam title="U-Turn Back and Roll (from Lines)" group=" "
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-fv3nge1a">
     <path>
       <move select="U-Turn Right" offsetX="1" />
       <move select="Quarter Right" />
@@ -763,7 +763,7 @@
   <tam title="U-Turn Back and Roll (from Waves)" group=" "
        from="Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-vo3f1z7x">
     <path>
       <move select="U-Turn Right" offsetX="1" />
       <move select="Quarter Right" />
@@ -785,7 +785,7 @@
   <tam title="Wheel and Deal and Roll" group=" "
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-t01oqp8z">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="-1" />
       <move select="Quarter Left"/>
@@ -807,7 +807,7 @@
   <tam title="Wheel Around and Roll" group=" "
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-1w7gag0o">
     <path>
       <move select="Beau Wheel" offsetX="1"/>
       <move select="Quarter Left"/>

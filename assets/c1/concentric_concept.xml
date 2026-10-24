@@ -23,7 +23,7 @@
 <tamination title="Concentric Concept">
 
   <tam title="Concentric Box Counter Rotate" group="(From columns) Concentric"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-yovjnzpq">
     <path>
       <move select="Counter Rotate Left 4 -2" beats="5" hands="left"/>
     </path>
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Concentric Box Transfer" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-e6ch337y">
     <path>
       <move select="Run Right" beats="6" scaleY="2.5"/>
       <move select="Forward 3" beats="5"/>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Concentric Chase Right" group="(From columns) Concentric"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-i90ezykf">
     <path>
       <move select="Run Right" offsetX="-1"/>
       <move select="Forward 4"/>
@@ -91,7 +91,7 @@
 
   <tam title="Concentric Dixie Style to a Wave"
        group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-wryy1jsq">
     <path>
       <move select="Dodge Right" offsetX="-.5" scaleY=".875" beats="9"/>
       <move select="Hinge Left"  scaleY=".75" />
@@ -115,7 +115,7 @@
   </tam>
 
   <tam title="Concentric Do Paso" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-4jqoh8p1">
     <path>
       <move select="Quarter Right" offsetX="-.5" offsetY="-1"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -159,7 +159,7 @@
   <tam title="Concentric Double Star Thru"
        group="(From columns) Concentric"
        sequencer="gender-specific"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-af4zujux">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="3"/>
       <move select="Lead Right" scaleY=".5"/>
@@ -187,7 +187,7 @@
   </tam>
 
   <tam title="Concentric Extend" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-hcgbfwc5">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2.5"/>
     </path>
@@ -204,7 +204,7 @@
 
   <tam title="Concentric Flutterwheel"
        group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-k04w4b70">
     <path>
       <move select="Stand" hands="nohands" beats="8" />
       <move select="Extend Left" hands="right" beats="3" scaleX="3" scaleY="3.5" />
@@ -230,7 +230,7 @@
 
   <tam title="Concentric Follow Your Neighbor"
        group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-q3ij1r2o">
     <path>
       <move select="Lead Right" beats="4" scaleX="1.5" />
       <move select="Run Right" beats="6" scaleX=".5" scaleY=".5" />
@@ -254,7 +254,7 @@
   </tam>
 
   <tam title="Concentric Lead Right" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-9qep1fq1">
     <path>
       <move select="Lead Right" beats="2" hands="gripright" scaleY="2"/>
       <move select="Extend Left" beats="4" hands="gripright" scaleX="2" scaleY="3"/>
@@ -273,7 +273,7 @@
   </tam>
 
   <tam title="Concentric Pair Off" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-sb8de37g">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="2"/>
     </path>
@@ -289,7 +289,7 @@
   </tam>
 
   <tam title="Concentric Pass In" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-ccj02vcn">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="3"/>
       <move select="Lead Right"/>
@@ -309,7 +309,7 @@
   </tam>
 
   <tam title="Concentric Pass Thru" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-0975keo1">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />
@@ -329,7 +329,7 @@
   </tam>
 
   <tam title="Concentric Peel and Trail" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-wcpjv6cd">
     <path>
       <move select="Flip Left" beats="4" scaleY="1.25" offsetX="-3"/>
       <move select="Stand" beats="4" hands="none"/>
@@ -348,7 +348,7 @@
   </tam>
 
   <tam title="Concentric Peel Off" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-we55uhbd">
     <path>
       <move select="Flip Left" beats="4" scaleY="1.25" offsetX="-3"/>
     </path>
@@ -364,7 +364,7 @@
   </tam>
 
   <tam title="Concentric Peel the Top" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-ziex2k60">
     <path>
       <move select="Flip Left" beats="4" scaleY="1.5" offsetX="-3"/>
       <move select="Lead Left" beats="4" scaleX="3.5" scaleY="4"/>
@@ -387,7 +387,7 @@
   </tam>
 
   <tam title="Concentric Recycle" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-u2w4dkmu">
     <path numbers="1 8">
       <move select="U-Turn Right" beats="5" offsetX="3" offsetY="1.5"/>
     </path>
@@ -403,7 +403,7 @@
   </tam>
 
   <tam title="Concentric Right and Left Thru" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-71dm063q">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2.5"/>
       <move select="Extend Right" beats="4" scaleX="3" scaleY="2.5"/>
@@ -427,7 +427,7 @@
   </tam>
 
   <tam title="Concentric Scoot Back" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-f6jcc7y9">
     <path>
       <move select="Run Right"/>
     </path>
@@ -448,7 +448,7 @@
   </tam>
 
   <tam title="Concentric Slide Thru" group="(From columns) Concentric"
-       formation="Double Pass Thru" sequencer="gender-specific">
+       formation="Double Pass Thru" sequencer="gender-specific" vid="V1-0abhqvjv">
     <path numbers="1 8">
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2.5" />
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5" />
@@ -470,7 +470,7 @@
   <tam title="Concentric Star Thru"
        group="(From columns) Concentric"
        sequencer="gender-specific"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-hxckof3q">
     <path numbers="1 8">
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2.5" />
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5" />
@@ -493,7 +493,7 @@
   </tam>
 
   <tam title="Concentric Square Thru" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-3f6sn457">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2.5"/>
       <move select="Lead Right" beats="4" scaleX="2.5" scaleY="3.5"/>
@@ -526,7 +526,7 @@
 
   <tam title="Concentric Touch a Quarter"
        group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-2daq66cb">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2.5"/>
       <move select="Hinge Right" scaleY=".5"/>
@@ -546,7 +546,7 @@
   </tam>
 
   <tam title="Concentric Turn Thru" group="(From columns) Concentric"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-9gn3jq9b">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2.5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -570,7 +570,7 @@
   </tam>
 
   <tam title="Concentric Walk and Dodge" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-danjhm8p">
     <path>
       <move select="Dodge Right" />
     </path>
@@ -588,7 +588,7 @@
   </tam>
 
   <tam title="Concentric Zig Zag" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-0tcgyovg">
     <path>
       <move select="Quarter Right" beats="4" offsetX="-2" offsetY="2"/>
     </path>
@@ -604,7 +604,7 @@
   </tam>
 
   <tam title="Concentric Zoom" group="(From columns) Concentric"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-ocjxzo49">
     <path>
       <move select="Quarter Left" beats="1" offsetY="1" />
       <move select="Lead Left" beats="2" scaleX="2" scaleY="2" />
@@ -628,7 +628,7 @@
 
   <tam title="Concentric Cut the Diamond"
        group="(From concentric diamonds) Concentric"
-       formation="Concentric Diamonds RH">
+       formation="Concentric Diamonds RH" vid="V1-4ewfbhuw">
     <path>
       <move select="Lead Right" beats="4" scaleX="3.5" scaleY="3"/>
     </path>
@@ -646,7 +646,7 @@
 
   <tam title="Concentric Diamond Circulate"
        group="(From concentric diamonds) Concentric"
-       formation="Concentric Diamonds Mixed">
+       formation="Concentric Diamonds Mixed" vid="V1-5bl1uxkp">
     <path>
       <move select="Lead Right" beats="6" scaleX="4" scaleY="3"/>
     </path>
@@ -663,7 +663,7 @@
 
   <tam title="Concentric Flip the Diamond"
        group="(From concentric diamonds) Concentric"
-       formation="Concentric Diamonds Mixed">
+       formation="Concentric Diamonds Mixed" vid="V1-isciunwd">
     <path>
       <move select="Lead Right" beats="3" scaleX="3.5" scaleY="3"/>
     </path>
@@ -680,7 +680,7 @@
 
   <tam title="Concentric Diamond Step and Fold"
        group="(From concentric diamonds) Concentric"
-       formation="Concentric Diamonds Mixed">
+       formation="Concentric Diamonds Mixed" vid="V1-g29m7x4d">
     <path numbers="3 6">
       <move select="Forward"/>
     </path>
@@ -696,7 +696,7 @@
   </tam>
 
   <tam title="Concentric Chase Right" group="(From lines) Concentric"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-dtgd8mel">
     <path couples="4 2">
       <move select="U-Turn Right" beats="1.5" offsetX="-1" />
       <move select="Forward 2" />
@@ -718,7 +718,7 @@
   </tam>
 
   <tam title="Concentric Pass In" group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-mcsrj5v6">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" beats="2" scaleX="3" scaleY="1.5"/>
@@ -738,7 +738,7 @@
   </tam>
 
   <tam title="Concentric Pass Out" group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-nmopkd61">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Quarter Left" beats="2" offsetX="3" offsetY="-1.5"/>
@@ -758,7 +758,7 @@
   </tam>
 
   <tam title="Concentric Pass the Ocean" group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-v2eibe8g">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="3.5" scaleY="3.5" />
@@ -778,7 +778,7 @@
   </tam>
 
   <tam title="Concentric Pass the Sea" group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-94032ekl">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="3.5" />
@@ -799,7 +799,7 @@
 
   <tam title="Concentric Right and Left Thru"
        group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-523s4mr7">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleX="2" scaleY=".5" />
@@ -828,7 +828,7 @@
 
   <tam title="Concentric Slide Thru"
        group="(From lines) Concentric"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-mta7sbsu">
      <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
@@ -856,7 +856,7 @@
 
   <tam title="Concentric Star Thru"
        group="(From lines) Concentric"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-e9bd2zhf">
      <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
@@ -883,7 +883,7 @@
   </tam>
 
   <tam title="Concentric Square Thru" group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-py5ioke6">
     <path>
       <move select="Pull Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="3.5" />
@@ -917,7 +917,7 @@
   </tam>
 
   <tam title="Concentric Touch a Quarter" group="(From lines) Concentric"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-i64yj2n2">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="3" scaleY="1.5" />
@@ -937,7 +937,7 @@
   </tam>
 
   <tam title="Concentric Zoom" group="(From lines) Concentric"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-h7dq6em6">
     <path>
       <move select="Forward 4" beats="6" />
     </path>
@@ -954,7 +954,7 @@
     </path>
   </tam>
 
-  <tam title="Concentric Star Thru" group="(From T-Bones) Concentric">
+  <tam title="Concentric Star Thru" group="(From T-Bones) Concentric" vid="V1-nl3qt38u">
      <formation fid="F3-dlap8ufn" aid="A1-2wdq0q9r">
       <dancer gender="boy" x="3" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -980,7 +980,7 @@
   </tam>
 
   <tam title="Concentric Cast Off 3/4" group="(From thar) Concentric"
-       formation="Thar LH Boys">
+       formation="Thar LH Boys" vid="V1-lsxg96fj">
     <path>
       <move select="Cast Left" beats="12"/>
     </path>
@@ -1000,7 +1000,7 @@
   </tam>
 
   <tam title="Concentric Bend the Line" group="(From tidal formation) Concentric"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-kedo1bxj">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="1.5"/>
     </path>
@@ -1016,7 +1016,7 @@
   </tam>
 
   <tam title="Concentric Crossfire" from="" group="(From tidal formation) Concentric"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-gi1149gd">
     <path numbers="1 8">
       <move select="Forward 2"/>
       <move select="Run Right" scaleX="2" scaleY="2.25" offsetX="1"/>
@@ -1036,7 +1036,7 @@
 
   <tam title="Concentric Explode the Wave"
        group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-hmt43m9g">
     <path>
       <move select="Lead Right" beats="4" scaleX="3.5" scaleY="3.5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -1056,7 +1056,7 @@
   </tam>
 
   <tam title="Concentric Fan the Top" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-mywz7yso">
     <path>
       <move select="Hinge Right" hands="none" beats="6" scaleX="3.5" scaleY="3.5"/>
     </path>
@@ -1072,7 +1072,7 @@
   </tam>
 
   <tam title="Concentric Half Tag the Line" group="(From tidal formation) Concentric"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-azj7dnbe">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="1.5"/>
     </path>
@@ -1088,7 +1088,7 @@
   </tam>
 
   <tam title="Concentric Hinge" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-4gf9il5a">
     <path numbers="8 1">
       <move select="Lead Right" beats="3" scaleX="3" scaleY="1.5" />
     </path>
@@ -1104,7 +1104,7 @@
   </tam>
 
   <tam title="Concentric Linear Cycle"
-       group="(From tidal formation) Concentric" formation="Tidal Wave RH BGBG">
+       group="(From tidal formation) Concentric" formation="Tidal Wave RH BGBG" vid="V1-5livga4g">
     <path couples="3 1">
       <move select="Hinge Right" scaleY=".5" />
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2"/>
@@ -1131,7 +1131,7 @@
   </tam>
 
   <tam title="Concentric Lockit" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-4j6vzxkd">
     <path>
       <move select="Lead Right" beats="6" scaleX="3.5" scaleY="3.5"/>
     </path>
@@ -1147,7 +1147,7 @@
   </tam>
 
   <tam title="Concentric Mix" group="(From tidal formation) Concentric"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-4p2jd8l0">
     <path>
       <move select="Dodge Left" beats="1" scaleY=".5"/>
       <move select="Run Left" beats="5" scaleX="2" scaleY="2.5"/>
@@ -1166,7 +1166,7 @@
   </tam>
 
   <tam title="Concentric Recycle" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-wg8wbmig">
     <path numbers="8 1">
       <move select="Run Right" beats="6" offsetX="3" offsetY="-2.5" />
     </path>
@@ -1184,7 +1184,7 @@
   </tam>
 
   <tam title="Concentric Spin the Top" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-dpqpd6er">
     <path>
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
       <move select="Lead Left" beats="2" scaleX="2.5" scaleY="2.5" />
@@ -1206,7 +1206,7 @@
   </tam>
 
   <tam title="Concentric Swing Thru" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-vpq60jlk">
     <path>
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="2.5" />
@@ -1226,7 +1226,7 @@
   </tam>
 
   <tam title="Concentric Trade the Wave" group="(From tidal formation) Concentric"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-yl7z5md5">
     <path numbers="8 1">
       <move select="Run Right" beats="8" scaleX="3.5" scaleY="3" />
     </path>
@@ -1243,7 +1243,7 @@
 
   <tam title="Concentric Turn and Deal"
        group="(From tidal formation) Concentric"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-x38d3bxe">
   <path>
     <move select="Run Right" beats="4" offsetX="3" scaleY="1.25"/>
   </path>
@@ -1259,7 +1259,7 @@
   </tam>
 
   <tam title="Concentric Veer Right" group="(From tidal formation) Concentric"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-9sbj96kw">
     <path>
       <move select="Forward" />
       <move select="Extend Right" hands="right" beats="3" scaleX="2" scaleY="2.5" />
@@ -1282,7 +1282,7 @@
   <!-- Various Concentric Wheel and Deal available for the sequencer -->
   <tam title="Concentric Wheel and Deal"
        group="(From tidal formation) Concentric"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-netgts3n">
     <path>
       <move select="Run Right" beats="6" hands="right" offsetX="3" offsetY="-2.5" />
     </path>
@@ -1299,7 +1299,7 @@
 
   <tam title="Concentric Wheel and Deal" group="Concentric"
        formation="Two-Faced Tidal Line LH"
-       display="none">
+       display="none" vid="V1-rgxh68xo">
     <path>
       <move select="Run Left" beats="6" hands="left" offsetX="3" offsetY="2.5" />
     </path>
@@ -1316,7 +1316,7 @@
 
   <tam title="Concentric Wheel and Deal" group="Concentric"
        formation="Tidal Line RH"
-       display="none">
+       display="none" vid="V1-deemrakg">
     <path>
       <move select="Run Right" beats="6" hands="right" offsetX="3" offsetY="-2.5" />
     </path>
@@ -1333,7 +1333,7 @@
 
   <tam title="Concentric Wheel and Deal" group="Concentric"
        formation="Tidal Line LH"
-       display="none">
+       display="none" vid="V1-ix1qw3tz">
     <path>
       <move select="U-Turn Left" beats="6" hands="right" offsetX="3" offsetY="1.5" />
     </path>

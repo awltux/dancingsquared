@@ -22,7 +22,7 @@
 -->
 <tamination title="Face Left / Right / In / Out">
 
-	<tam title="Face Left" formation="Facing Couples Close" from="Facing Couples" sequencer="no">
+	<tam title="Face Left" formation="Facing Couples Close" from="Facing Couples" sequencer="no" vid="V1-xu5r4zh5">
 		<path>
 			<move select="Quarter Left"/>
 		</path>
@@ -31,7 +31,7 @@
 	  </path>
 	</tam>
 
-	<tam title="Face Left" formation="Couples Facing Out Close" from="Couples Facing Out" sequencer="no">
+	<tam title="Face Left" formation="Couples Facing Out Close" from="Couples Facing Out" sequencer="no" vid="V1-gqjd2785">
 		<path>
 			<move select="Quarter Left"/>
 		</path>
@@ -40,7 +40,7 @@
 	  </path>
 	</tam>
 
-  <tam title="Face Right" formation="Facing Couples Close" from="Facing Couples" sequencer="no">
+  <tam title="Face Right" formation="Facing Couples Close" from="Facing Couples" sequencer="no" vid="V1-7eeh92ta">
 		<path>
 			<move select="Quarter Right"/>
 		</path>
@@ -49,7 +49,7 @@
 	  </path>
   </tam>
 
-	<tam title="Face Right" formation="Couples Facing Out Close" from="Couples Facing Out" sequencer="no">
+	<tam title="Face Right" formation="Couples Facing Out Close" from="Couples Facing Out" sequencer="no" vid="V1-7hv66snm">
 		<path>
 			<move select="Quarter Right"/>
 		</path>
@@ -58,7 +58,7 @@
 	  </path>
 	</tam>
 
-  <tam title="Face In" formation="Facing Couples Close" from="Facing Couples" sequencer="no">
+  <tam title="Face In" formation="Facing Couples Close" from="Facing Couples" sequencer="no" vid="V1-x67cs90v">
 		<path>
 			<move select="Quarter Right"/>
 		</path>
@@ -67,7 +67,7 @@
 	  </path>
   </tam>
 
-	<tam title="Face In" formation="Couples Facing Out Close" from="Couples Facing Out"  sequencer="no">
+	<tam title="Face In" formation="Couples Facing Out Close" from="Couples Facing Out"  sequencer="no" vid="V1-h65aqk9r">
 		<path>
 			<move select="Quarter Left"/>
 		</path>
@@ -77,7 +77,7 @@
 	</tam>
 
 	<tam title="Face In" formation="Completed Double Pass Thru"
-       from="Completed Double Pass Thru">
+       from="Completed Double Pass Thru" vid="V1-fqeky5qp">
     <path>
       <move select="Quarter Left" offsetY="-0.5"/>
     </path>
@@ -93,7 +93,7 @@
   </tam>
 
   <tam title="Face In" formation="Lines Facing Out Compact"
-       from="Lines Facing Out">
+       from="Lines Facing Out" vid="V1-iv517t46">
     <path>
       <move select="Quarter Left" offsetX="-0.5"/>
     </path>
@@ -108,7 +108,7 @@
     </path>
   </tam>
 
-  <tam title="Face Out" formation="Facing Couples Close" from="Facing Couples">
+  <tam title="Face Out" formation="Facing Couples Close" from="Facing Couples" vid="V1-67o9puh0">
 		<path>
 			<move select="Quarter Left"/>
 		</path>
@@ -117,7 +117,7 @@
 	  </path>
   </tam>
 
-	<tam title="Face Out" formation="Couples Facing Out Close" from="Couples Facing Out">
+	<tam title="Face Out" formation="Couples Facing Out Close" from="Couples Facing Out" vid="V1-2xibh8w4">
 		<path>
 			<move select="Quarter Right"/>
 		</path>
@@ -127,7 +127,7 @@
 	</tam>
 
   <tam title="Face Out" formation="Completed Double Pass Thru"
-       from="Completed Double Pass Thru">
+       from="Completed Double Pass Thru" vid="V1-njcdm036">
     <path>
       <move select="Quarter Right" offsetY="-0.5"/>
     </path>
@@ -143,7 +143,7 @@
   </tam>
 
   <tam title="Face Out" formation="Lines Facing Out Compact"
-       from="Lines Facing Out">
+       from="Lines Facing Out" vid="V1-lo5t6789">
     <path>
       <move select="Quarter Right" offsetX="-0.5"/>
     </path>

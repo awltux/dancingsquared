@@ -25,7 +25,7 @@
   <tam title="Flip Back"
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="5.5" >
+       parts="5.5"  vid="V1-p482eq0o">
     <path numbers="1 4">
       <move select="Hinge Right" />
       <move select="Forward 4" />
@@ -43,7 +43,7 @@
   <tam title="Flip Back"
        from="Left-Hand Wave"
        formation="Wave LH"
-       parts="5.5" >
+       parts="5.5"  vid="V1-1s87fjn3">
     <path numbers="4 1">
       <move select="Hinge Left" />
       <move select="Forward 4" />
@@ -61,7 +61,7 @@
   <tam title="Flip Back"
        from="Right-Hand Waves"
        formation="Ocean Waves RH GBBG"
-       parts="4.5" >
+       parts="4.5"  vid="V1-or58fo8i">
     <path>
       <move select="Lead Right" />
       <move select="Forward 4" beats="3" />
@@ -91,7 +91,7 @@
   <tam title="Flip Back"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       parts="4.5" >
+       parts="4.5"  vid="V1-2l3qhb7l">
     <path>
       <move select="Lead Left" />
       <move select="Forward 4" beats="3" />
@@ -121,7 +121,7 @@
   <tam title="Flip Back"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-5dva7qu1">
     <path>
       <move select="Lead Right" scaleY=".5"/>
       <move select="Forward 2" beats="3" />
@@ -151,7 +151,7 @@
   <tam title="Flip Back"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-zdfovszd">
     <path>
       <move select="Lead Left" scaleY=".5"/>
       <move select="Forward 2" beats="3" />
@@ -181,7 +181,7 @@
   <tam title="Tag Back to a Wave"
        from="Lines"
        formation="Normal Lines"
-       parts="3" >
+       parts="3"  vid="V1-vxj2wmi2">
     <path>
       <move select="Lead Right" beats="3" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
@@ -207,7 +207,7 @@
   </tam>
 
   <tam title="Tag Back to a Wave" from="Two-Faced Lines"
-       formation="Two-Faced Lines RH" parts="3">
+       formation="Two-Faced Lines RH" parts="3" vid="V1-d4ionur7">
     <path>
       <move select="Lead Right" beats="3" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
@@ -233,7 +233,7 @@
   </tam>
 
   <tam title="Vertical Tag Back to a Wave" from="Facing Couples"
-       formation="Facing Couples Compact" parts="3">
+       formation="Facing Couples Compact" parts="3" vid="V1-j7cbqojv">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" beats="2" scaleX="1.5" scaleY=".25"/>
@@ -248,7 +248,7 @@
   </tam>
 
   <tam title="All 8 Vertical Tag Back to a Wave" from="Static Square"
-       formation="Static Square" parts="6">
+       formation="Static Square" parts="6" vid="V1-c2505ycu">
     <path>
       <move select="Stand" beats="5"/>
       <move select="Forward 3"/>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Chuck-A-Luck">
 
-  <tam title="Chuck-A-Luck" group=" " parts="3">
+  <tam title="Chuck-A-Luck" group=" " parts="3" vid="V1-ebayiztj">
     <formation fid="F3-xzuj7y07" aid="A1-zolwt0mp">
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
@@ -51,7 +51,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Chuck-A-Luck" group=" " parts="4">
+  <tam title="Cross Chuck-A-Luck" group=" " parts="4" vid="V1-sdm68rsr">
     <formation fid="F3-xzuj7y07" aid="A1-zolwt0mp">
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>

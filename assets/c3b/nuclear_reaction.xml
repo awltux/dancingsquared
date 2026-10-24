@@ -22,7 +22,7 @@
 -->
 <tamination title="Nuclear Reaction">
 
-  <tam title="Nuclear Reaction" from="1/4 Tag" formation="Quarter Tag" parts="3;5">
+  <tam title="Nuclear Reaction" from="1/4 Tag" formation="Quarter Tag" parts="3;5" vid="V1-123t9v4o">
     <path couples="2 4">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5"/>
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5"/>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Nuclear Reaction" from="Left-Hand 1/4 Tag"
-       formation="Quarter Tag LH" parts="3;5">
+       formation="Quarter Tag LH" parts="3;5" vid="V1-rsi1t9kf">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Forward 5"/>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Nuclear Reaction" from="Quarter Lines"
-       formation="Quarter Lines RH" parts="3;5">
+       formation="Quarter Lines RH" parts="3;5" vid="V1-bunz5jk6">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Forward 5"/>
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="Cross Nuclear Reaction" from="1/4 Tag"
-       formation="Quarter Tag" parts="3;5">
+       formation="Quarter Tag" parts="3;5" vid="V1-y4kqt78c">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Forward 5"/>
@@ -140,7 +140,7 @@
   </tam>
 
   <tam title="Cross Nuclear Reaction" from="Two-Faced Line Between Mini-Waves"
-      parts="3;5" formation="Mixed Quarter Tag #3">
+      parts="3;5" formation="Mixed Quarter Tag #3" vid="V1-rc6eujje">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>

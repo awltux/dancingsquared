@@ -22,7 +22,7 @@
 -->
 <tamination title="Wrap To a Formation">
 
-  <tam title="Wrap to Diamonds" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Wrap to Diamonds" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-nrsc90uj">
     <path>
       <move select="Lead Right"/>
       <move select="Lead Right" beats="3" scaleX="3" scaleY="2"/>
@@ -42,7 +42,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to Diamonds" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Wrap to Diamonds" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-fxf988ie">
     <path>
       <move select="Forward 3"/>
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>
@@ -62,7 +62,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to a Galaxy" from="Right-Hand Columns">
+  <tam title="Wrap to a Galaxy" from="Right-Hand Columns" vid="V1-ihyclq3n">
     <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="3" x="1" angle="270"/>
@@ -87,7 +87,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to a Galaxy" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Wrap to a Galaxy" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-cide2zum">
     <path>
       <move select="Forward 4"/>
     </path>
@@ -106,7 +106,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to an Hourglass" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Wrap to an Hourglass" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-84wytftn">
     <path couples="3 1">
       <move select="Lead Right"/>
       <move select="Lead Right" beats="3" scaleX="3" scaleY="2"/>
@@ -126,7 +126,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to an Hourglass" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Wrap to an Hourglass" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-5p9rx206">
     <path>
       <move select="Forward 3"/>
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>
@@ -146,7 +146,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to Interlocked Diamonds" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Wrap to Interlocked Diamonds" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-w8cyxooz">
     <path couples="3 1">
       <move select="Lead Right"/>
       <move select="Lead Right" beats="3" scaleX="3" scaleY="2"/>
@@ -166,7 +166,7 @@
     </path>
   </tam>
 
-  <tam title="Wrap to Interlocked Diamonds" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Wrap to Interlocked Diamonds" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-ov0thz32">
     <path>
       <move select="Forward 3"/>
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>

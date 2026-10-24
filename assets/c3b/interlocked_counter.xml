@@ -22,7 +22,7 @@
 -->
 <tamination title="Interlocked Counter">
 
-  <tam title="Interlocked Counter" from="Right-Hand Three Quarter Lines">
+  <tam title="Interlocked Counter" from="Right-Hand Three Quarter Lines" vid="V1-v9gylc3d">
     <formation fid="F3-vg8zjub2" aid="A1-sokysfyo">
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="3" angle="0"/>
@@ -54,7 +54,7 @@
   </tam>
 
   <tam title="Interlocked Counter" from="Left-Hand Three Quarter Lines"
-       formation="3/4 Lines LH">
+       formation="3/4 Lines LH" vid="V1-6mhep76x">
     <path>
       <move select="Run Right" offsetX="-3" offsetY="-1.5"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75"/>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Interlocked Counter" from="Right-Hand Three Quarter Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-oucjvjvs">
     <path>
       <move select="Run Right" beats="5.5" offsetX="-3" offsetY="-2"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75"/>

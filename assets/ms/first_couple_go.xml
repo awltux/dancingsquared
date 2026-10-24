@@ -23,7 +23,7 @@
 <tamination title="First Couple Go Left/Right, Next Couple Go Left/Right">
 
   <tam title="First Couple Go Left, Next Couple Go Right" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-8pvzgxmv">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="1.5" scaleY="2" offsetX="-1" />
     </path>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="First Couple Go Right, Next Couple Go Left" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-a7cjblo9">
     <path>
       <move select="U-Turn Right" beats="4" hands="left" offsetX="-1" />
     </path>
@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="First Couple Go Left, Next Couple Go Left" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-8klnk6ri">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="1.5" scaleY="2.5" offsetX="-3" />
     </path>
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="First Couple Go Right, Next Couple Go Right" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-ae2skoei">
     <path>
       <move select="U-Turn Right" beats="4" hands="left" offsetX="-3" offsetY="-1" />
     </path>
@@ -93,7 +93,7 @@
 <tam title="First Couple Go Left, Next Couple Go Right" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-8pvzgxmv">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="1.5" scaleY="2" offsetX="-1" />
     </path>
@@ -111,7 +111,7 @@
 <tam title="First Couple Go Right, Next Couple Go Left" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-a7cjblo9">
     <path>
       <move select="U-Turn Right" beats="4" hands="left" offsetX="-1" />
     </path>
@@ -129,7 +129,7 @@
 <tam title="First Couple Go Left, Next Couple Go Left" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-8klnk6ri">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="1.5" scaleY="2.5" offsetX="-3" />
     </path>
@@ -147,7 +147,7 @@
 <tam title="First Couple Go Right, Next Couple Go Right" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-ae2skoei">
     <path>
       <move select="U-Turn Right" beats="4" hands="left" offsetX="-3" offsetY="-1" />
     </path>

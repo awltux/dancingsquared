@@ -23,7 +23,7 @@
 <tamination title="Gee Whiz">
 
   <tam title="Gee Whiz" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-ju07lby0">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2"/>
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Gee Whiz" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-lgrvdmw7">
     <path couples="4 2">
       <move select="Run Left" beats="5" scaleX="1.5" scaleY="2" offsetX="1"/>
     </path>
@@ -60,7 +60,7 @@
     </path>
   </tam>
 
-  <tam title="Left Gee Whiz" formation="Lines Facing Out" group=" ">
+  <tam title="Left Gee Whiz" formation="Lines Facing Out" group=" " vid="V1-5cg780ev">
     <path couples="4 2">
       <move select="U-Turn Left" beats="2" offsetX="-1.5" offsetY=".5"/>
       <move select="Forward" beats=".5" />
@@ -80,7 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Right Gee Whiz" formation="Lines Facing Out" group=" ">
+  <tam title="Right Gee Whiz" formation="Lines Facing Out" group=" " vid="V1-5hj78yfw">
     <path>
       <move select="Run Left" beats="5" scaleX="1.5" scaleY="2" offsetX="1"/>
     </path>

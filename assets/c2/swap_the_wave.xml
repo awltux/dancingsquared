@@ -24,7 +24,7 @@
 
   <tam title="Swap the Wave"
        from="Right-Hand Wave"
-       formation="Wave RH">
+       formation="Wave RH" vid="V1-ig4k1auy">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="3" />
       <move select="Lead Right" beats="2" scaleY="2.5" />
@@ -35,7 +35,7 @@
   </tam>
 
   <tam title="Swap the Wave"
-       from="Left-Hand Wave" formation="Wave LH Boys Center">
+       from="Left-Hand Wave" formation="Wave LH Boys Center" vid="V1-zoh6uwqt">
     <path>
       <move select="Swing Right" />
       <move select="Forward 2" />
@@ -47,7 +47,7 @@
 
   <tam title="Swap the Wave"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-p4ocotdc">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="3" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -66,7 +66,7 @@
 
   <tam title="Swap the Wave"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-2t5g3b0v">
     <path>
       <move select="Extend Left" beats="4" scaleY="2" />
     </path>
@@ -85,7 +85,7 @@
 
   <tam title="Swap the Wave"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-aai5ir87">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
       <move select="Lead Right" beats="2" scaleY="2.5" />
@@ -104,7 +104,7 @@
 
   <tam title="Swap the Wave"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-ne2s0hzr">
     <path>
       <move select="Extend Left" beats="4" scaleX="2" scaleY=".5" />
     </path>

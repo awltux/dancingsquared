@@ -24,7 +24,7 @@
 
   <tam title="Courtesy Turn"
        from="Couples Facing Out"
-       formation="Couples Facing Out" sequencer="no">
+       formation="Couples Facing Out" sequencer="no" vid="V1-axuqapbm">
     <path>
       <move select="Belle Wheel" scaleX="0.67" />
     </path>
@@ -35,7 +35,7 @@
 
   <tam title="Courtesy Turn"
        from="Lines Facing Out"
-       formation="Lines Facing Out" sequencer="gender-specific">
+       formation="Lines Facing Out" sequencer="gender-specific" vid="V1-7rfz7waq">
     <path>
       <move select="Belle Wheel" scaleX="0.67" />
     </path>
@@ -50,7 +50,7 @@
     </path>
   </tam>
 
-  <tam title="Courtesy Turn" from="Girls facing Boys" sequencer="gender-specific">
+  <tam title="Courtesy Turn" from="Girls facing Boys" sequencer="gender-specific" vid="V1-phx0w0v4">
     <formation fid="F3-p3qjle85" aid="A1-eqky5b8n">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="90"/>
@@ -81,7 +81,7 @@
 
   <tam title="Courtesy Turn and a Quarter More" group=" "
        from="Couples Facing Out"
-       formation="Couples Facing Out" sequencer="gender-specific">
+       formation="Couples Facing Out" sequencer="gender-specific" vid="V1-m60l9iwp">
     <path>
       <move select="Belle Wheel" scaleX="0.67" />
       <move select="Hinge Left"/>
@@ -94,7 +94,7 @@
 
 
   <tam title="Heads Pass Thru and Courtesy Turn" group=" " sequencer="gender-specific"
-       formation="Static Square" fractions="6">
+       formation="Static Square" fractions="6" vid="V1-l9hoyuo2">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Extend Right" beats="3" scaleX="3" scaleY=".5"/>
@@ -112,7 +112,7 @@
   </tam>
 
   <tam title="All 4 Ladies make a right-hand star, turn it once around; boys Courtesy Turn your girl"
-       group=" " formation="Static Square" sequencer="gender-specific">
+       group=" " formation="Static Square" sequencer="gender-specific" vid="V1-tgdue6qr">
     <path>
       <move select="Stand" beats="6"/>
       <move select="Quarter Left" beats="3" offsetY="-2"/>

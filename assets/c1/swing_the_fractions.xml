@@ -25,7 +25,7 @@
   <tam title="Swing the Fractions"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="1.5;3;4.5;3" >
+       parts="1.5;3;4.5;3"  vid="V1-68eq512y">
     <path numbers="1 8" couples="2 4">
       <move select="Hinge Right" />
       <move select="Swing Left" />
@@ -59,7 +59,7 @@
   <tam title="Swing the Fractions"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="1.5;3;4.5;3" >
+       parts="1.5;3;4.5;3"  vid="V1-8qmnkpq1">
     <path numbers="1 8">
       <move select="Stand" beats="9" />
       <move select="Swing Left" />
@@ -88,7 +88,7 @@
 
   <tam title="Swing the Fractions"
        from="Facing Diamonds"
-       parts="1.5;3;4.5;3" >
+       parts="1.5;3;4.5;3"  vid="V1-netq67ct">
     <formation fid="F3-jy6andim" aid="A1-wsr5i58w">
       <dancer gender="boy" y="0" x="-3" angle="90"/>
       <dancer gender="girl" y="3" x="-2" angle="180"/>
@@ -124,7 +124,7 @@
   <tam title="Left Swing the Fractions"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="1.5;3;4.5;3" >
+       parts="1.5;3;4.5;3"  vid="V1-9fv5feex">
     <path>
       <move select="Stand" beats="9" />
       <move select="Swing Right" />
@@ -154,7 +154,7 @@
   <tam title="Left Swing the Fractions"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="1.5;3;4.5;3" >
+       parts="1.5;3;4.5;3"  vid="V1-q7qf80ga">
     <path>
       <move select="Hinge Left" />
       <move select="Stand" beats="3" />
@@ -187,7 +187,7 @@
 
   <tam title="Left Swing the Fractions"
        from="Facing Diamonds"
-       parts="1.5;3;4.5;3" >
+       parts="1.5;3;4.5;3"  vid="V1-8qnuy7o9">
     <formation fid="F3-9xs9oi7o" aid="A1-u5cm923q">
       <dancer gender="boy" y="0" x="-3" angle="270"/>
       <dancer gender="girl" y="3" x="-2" angle="0"/>
@@ -221,7 +221,7 @@
   </tam>
 
   <tam title="Any Hand Swing the Fractions" parts="1.5;3;4.5;3"
-       from="Inverted Line Ends Facing In" group=" ">
+       from="Inverted Line Ends Facing In" group=" " vid="V1-4wev92r6">
     <formation fid="F3-xpndd93x" aid="A1-0yxo4g85">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="90"/>
@@ -268,7 +268,7 @@
 
   <tam title="Any Hand Swing the Fractions" parts="1.5;3;4.5;3"
        from="Inverted Line Ends Facing Out"
-        formation="Inverted Lines Ends Facing Out" display="none">
+        formation="Inverted Lines Ends Facing Out" display="none" vid="V1-n2pf3vjl">
     <path>
       <move select="Hinge Left"/>
       <move select="Stand" beats="3"/>

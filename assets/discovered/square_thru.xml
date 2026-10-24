@@ -13,7 +13,7 @@
   <tam title="Square Thru 2"
        from="Static Square"
        formation="Static Square"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-lmqrdqzr">
     <path>
       <move select="Forward 2" />
       <move select="Pull Left" scaleY=".5" />
@@ -35,7 +35,7 @@
 <tam title="Square Thru 3"
        from="Static Square"
        formation="Static Square"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-lfirz778">
     <path>
       <move select="Forward 2" />
       <move select="Pull Left" scaleY=".5" />
@@ -59,7 +59,7 @@
 <tam title="Square Thru 4"
        from="Static Square"
        formation="Static Square"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-f1nzjkh1">
     <path>
       <move select="Forward 2" />
       <move select="Pull Left" scaleY=".5" />

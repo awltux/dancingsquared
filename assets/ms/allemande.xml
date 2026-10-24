@@ -26,7 +26,7 @@
   <!-- CALLERLAB CASE 1 -->
 
   <tam title="Allemande Left" formation="Eight Chain Thru"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-4k2cmek9">
     <path>
       <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.667" cy2="0" x2="1" y2="0"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -50,7 +50,7 @@
   </tam>
 
   <tam title="Allemande Left" sequencer="gender-specific"
-       from="Left-Hand Waves" formation="Ocean Waves LH GBBG">
+       from="Left-Hand Waves" formation="Ocean Waves LH GBBG" vid="V1-rlzjyszz">
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.45" x2="0.75" y2="1"/>
       <movement hands="gripleft" beats="1.5" cx1="0.4125" cy1="0" cx2="0.75" cy2="0.3375" x2="0.75" y2="0.75"/>
@@ -73,7 +73,7 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" formation="Wrong Way Grand Circle" parts="" sequencer="gender-specific">
+  <tam title="Allemande Left" formation="Wrong Way Grand Circle" parts="" sequencer="gender-specific" vid="V1-sqdwlrmx">
     <path>
       <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.5" cy2="-0.5" x2="1" y2="-0.5" cx3="1" cx4="1" cy4="-0.2" x4="2" y4="-0.2"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -97,7 +97,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit aace058, with uncommitted changes, built 2026-10-19 08:42Z -->
-  <tam title="Allemande Left" from="Alamo Ring - Men Facing In" parts="" sequencer="gender-specific" formation="Alamo Wave">
+  <tam title="Allemande Left" from="Alamo Ring - Men Facing In" parts="" sequencer="gender-specific" formation="Alamo Wave" vid="V1-ff0kglcn">
     <path>
       <movement hands="none" beats="1" cx1="0.0668" cy1="0.2746" cx2="0.2456" cy2="0.5359" x2="0.4571" y2="0.7483" cx3="0.2618" cx4="0.7685" cy4="-0.0338" x4="0.9239" y4="0.3827"/>
       <movement hands="gripleft" beats="3" cx1="0.3314" cy1="-0.0852" cx2="0.6722" cy2="0.0903" x2="0.7068" y2="0.3746"/>
@@ -124,7 +124,7 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Trade By" parts="" sequencer="gender-specific" formation="Trade By">
+  <tam title="Allemande Left" from="Trade By" parts="" sequencer="gender-specific" formation="Trade By" vid="V1-afe4z62j">
     <path>
       <movement hands="none" beats="1.5" cx1="0.2967" cy1="0.0226" cx2="0.5548" cy2="0.4406" x2="0.5056" y2="1.0061"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="-0.0071" cx2="0.6771" cy2="0.9929" x2="0.0106" y2="0.9999"/>
@@ -153,7 +153,7 @@
 
   <tam title="Allemande Left" sequencer="gender-specific"
        from="Static Square"
-       formation="Static Square" >
+       formation="Static Square"  vid="V1-7csqyowv">
     <path>
       <movement hands="none" beats="3" cx1="0.55" cy1="0" cx2="1.5" cy2="0.45" x2="1.5" y2="1"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -178,7 +178,7 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" formation="Circle" sequencer="gender-specific">
+  <tam title="Allemande Left" formation="Circle" sequencer="gender-specific" vid="V1-xrw75ad8">
     <path>
       <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4134" cy2="0.7649" x2="0.4134" y2="0.7649" cx3="0.265" cx4="0.52" cy4="0.105" x4="0.707" y4="0.293"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -204,7 +204,7 @@
   </tam>
 
   <tam title="Allemande Left" sequencer="gender-specific"
-       from="Left-Hand 3/4 Tag">
+       from="Left-Hand 3/4 Tag" vid="V1-nk66ujsm">
     <formation fid="F3-muub1v0a" aid="A1-k0zvzsi6">
         <dancer gender="boy" x="-1" y="3" angle="90"/>
         <dancer gender="girl" x="-3" y="0" angle="-90"/>
@@ -234,7 +234,7 @@
   </tam>
 
   <tam title="Allemande Left" from="Lines Facing Out"
-       sequencer="gender-specific" formation="Lines Facing Out">
+       sequencer="gender-specific" formation="Lines Facing Out" vid="V1-jdmvk4c3">
     <path>
       <movement hands="none" beats="1" cx1="0.275" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -258,7 +258,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Left" formation="Inverted Lines Ends Facing In" parts="" sequencer="gender-specific">
+  <tam title="Allemande Left" formation="Inverted Lines Ends Facing In" parts="" sequencer="gender-specific" vid="V1-y5c8ukah">
     <path>
       <movement hands="none" beats="1" cx1="1" cy1="0" cx2="1.5" cy2="-0.5" x2="2" y2="-0.5" cx3="0.55" cx4="1.5" cy4="0" x4="2" y4="0"/>
       <movement hands="gripleft" beats="1.5" cx1="0.2843" cy1="0" cx2="0.5" cy2="0.1924" x2="0.5" y2="0.5"/>
@@ -285,7 +285,7 @@
 
   <tam title="Allemande Left" sequencer="gender-specific"
        from="Facing Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-7wwun18s">
     <path>
       <movement hands="none" beats="2" cx1="1" cy1="0" cx2="1" cy2="-0.5" x2="2" y2="-0.5" cx3="2" cx4="2" cy4="-0.2" x4="4" y4="-0.2"/>
       <movement hands="gripleft" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="1" x2="0" y2="1"/>
@@ -308,7 +308,7 @@
     </path>
   </tam>
 
-  <tam title="Allemande Left" from="Thar" sequencer="gender-specific" formation="Thar RH Boys">
+  <tam title="Allemande Left" from="Thar" sequencer="gender-specific" formation="Thar RH Boys" vid="V1-vvs8iaj0">
     <path>
       <movement hands="gripleft" beats="1.5" cx1="0.5" cy1="0" cx2="0.5" cy2="0.5" x2="0.5" y2="1"/>
       <movement hands="gripleft" beats="1.5" cx1="0.2837" cy1="-0.0102" cx2="0.4803" cy2="0.2603" x2="0.5" y2="0.5"/>
@@ -337,7 +337,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Eight Chain Thru" formation="Eight Chain Thru" parts="" sequencer="gender-specific">
+  <tam title="Allemande Right" from="Eight Chain Thru" formation="Eight Chain Thru" parts="" sequencer="gender-specific" vid="V1-5294uori">
     <path>
       <movement hands="none" beats="1" cx1="0.333" cy1="0" cx2="0.667" cy2="0.5" x2="1" y2="0.5"/>
       <movement hands="gripleft" beats="1.5" cx1="0.3038" cy1="0" cx2="0.5" cy2="-0.1907" x2="0.5" y2="-0.5"/>
@@ -363,7 +363,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Right Hand Waves" formation="Ocean Waves RH BGBG" parts="" sequencer="gender-specific">
+  <tam title="Allemande Right" from="Right Hand Waves" formation="Ocean Waves RH BGBG" parts="" sequencer="gender-specific" vid="V1-79658xif">
     <path>
       <movement hands="gripright" beats="1.5" cx1="0.4125" cy1="0" cx2="0.5" cy2="-0.45" x2="0.5" y2="-1"/>
       <movement hands="gripright" beats="1.5" cx1="0.2727" cy1="0" cx2="0.5" cy2="-0.1716" x2="0.5" y2="-0.5"/>
@@ -391,7 +391,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Circle" formation="Circle" parts="" sequencer="gender-specific">
+  <tam title="Allemande Right" from="Circle" formation="Circle" parts="" sequencer="gender-specific" vid="V1-ox0vkca3">
     <path>
       <movement hands="none" beats="1.5" cx1="0" cy1="0" cx2="0.4134" cy2="-0.7649" x2="0.4134" y2="-0.7649" cx3="0.265" cx4="0.52" cy4="-0.105" x4="0.707" y4="-0.293"/>
       <movement hands="gripright" beats="3" cx1="0.6665" cy1="0" cx2="0.6665" cy2="-1" x2="0" y2="-1"/>
@@ -417,7 +417,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" formation="Right and Left Grand Circle" parts="" sequencer="gender-specific">
+  <tam title="Allemande Right" formation="Right and Left Grand Circle" parts="" sequencer="gender-specific" vid="V1-svaey792">
     <path>
       <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.7124" cy2="0.1867" x2="0.9568" y2="0.3032" cx3="0.9184" cx4="1.2119" cy4="-0.152" x4="2" y4="0.2"/>
       <movement hands="gripright" beats="3" cx1="0.6758" cy1="-0.0185" cx2="0.7099" cy2="-1.0198" x2="-0.0274" y2="-0.9996"/>
@@ -441,7 +441,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Alamo Wave" parts="" sequencer="gender-specific">
+  <tam title="Allemande Right" from="Alamo Wave" parts="" sequencer="gender-specific" vid="V1-vp4rn1kw">
     <formation fid="F3-imy1u3eo" aid="A1-kmkna2sc">
         <dancer gender="girl" x="1" y="-2.414" angle="110.966"/>
         <dancer gender="boy" x="2.414" y="-1" angle="-24.034"/>
@@ -475,7 +475,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Trade By" parts="" sequencer="gender-specific" formation="Trade By">
+  <tam title="Allemande Right" from="Trade By" parts="" sequencer="gender-specific" formation="Trade By" vid="V1-pmhdh16w">
     <path>
       <movement hands="none" beats="1.5" cx1="-0.2967" cy1="0.0226" cx2="-0.5548" cy2="0.4406" x2="-0.5056" y2="1.0061"/>
       <movement hands="gripright" beats="3" cx1="-0.6665" cy1="-0.0071" cx2="-0.6771" cy2="0.9929" x2="-0.0106" y2="0.9999"/>
@@ -499,7 +499,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 55c3b08, with uncommitted changes, built 2026-10-19 15:18Z -->
-  <tam title="Allemande Right" from="Static Square" formation="Static Square" parts="" sequencer="gender-specific">
+  <tam title="Allemande Right" from="Static Square" formation="Static Square" parts="" sequencer="gender-specific" vid="V1-yyoyfs3s">
     <path>
       <movement hands="none" beats="2" cx1="0.55" cy1="0" cx2="0.5" cy2="0.45" x2="0.5" y2="1"/>
       <movement hands="gripleft" beats="2" cx1="0.3231" cy1="-0.0104" cx2="0.4951" cy2="-0.158" x2="0.5" y2="-0.5"/>

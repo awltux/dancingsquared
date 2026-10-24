@@ -24,7 +24,7 @@
 
   <tam title="Cross Trail Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-1l32c1rc">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".5" beats="2"/>
       <movement beats="4" hands="none" cx1="1" cy1="0" cx2="0" cy2="-2.5" x2="1.5" y2="-2.5"
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Trail Thru" from="Lines" formation="Normal Lines">
+  <tam title="Cross Trail Thru" from="Lines" formation="Normal Lines" vid="V1-n9otj3q1">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" beats="2"/>
       <movement beats="4" hands="none" cx1="1" cy1="0" cx2="0" cy2="-2.5" x2="2" y2="-2.5"
@@ -63,7 +63,7 @@
   <tam title="Cross Trail Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="" >
+       fractions=""  vid="V1-he4dvug0">
     <path>
       <move select="Extend Left" scaleY=".5" beats="2"/>
       <movement beats="4" hands="none" cx1="1" cy1="0" cx2="0" cy2="-2.5" x2="1" y2="-2.5"
@@ -89,7 +89,7 @@
   <tam title="Cross Trail Thru"
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-9et7udi9">
     <path>
       <movement beats="4" hands="none" cx1="1" cy1="0" cx2="0" cy2="-4" x2="1" y2="-4"
                 cx3="1" cx4="1" cy4="-.5" x4="2" y4="-.5"/>
@@ -111,7 +111,7 @@
   <tam title="As Couples Cross Trail Thru"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-fvzl14o8">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleX="2" scaleY=".5" />
       <move select="Extend Right" hands="gripright" beats="4" scaleY="4.5" />

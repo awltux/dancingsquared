@@ -24,7 +24,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit 3d317fd, with uncommitted changes, built 2026-10-12 13:50Z -->
-  <tam title="Left Hand Star" formation="Opposite Boy" asymmetric="true">
+  <tam title="Left Hand Star" formation="Opposite Boy" asymmetric="true" vid="V1-qcamgvo0">
     <path>
       <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2" cy2="0" x2="2" y2="-1"/>
       <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
@@ -42,7 +42,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 1d480f7, with uncommitted changes, built 2026-10-13 11:20Z -->
-  <tam title="Left Hand Star" formation="Opposite Girl" parts="" asymmetric="true">
+  <tam title="Left Hand Star" formation="Opposite Girl" parts="" asymmetric="true" vid="V1-un9uab70">
     <path>
       <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2.5" cy2="0" x2="3" y2="0"/>
       <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="0.4477" x2="1" y2="1"/>
@@ -60,7 +60,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 1d480f7, with uncommitted changes, built 2026-10-13 11:20Z -->
-  <tam title="Right Hand Star" formation="Opposite Boy" parts="" asymmetric="true">
+  <tam title="Right Hand Star" formation="Opposite Boy" parts="" asymmetric="true" vid="V1-bknko2h1">
     <path>
       <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2.5" cy2="0" x2="3" y2="0"/>
       <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
@@ -78,7 +78,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit 3d317fd, with uncommitted changes, built 2026-10-12 13:50Z -->
-  <tam title="Right Hand Star" formation="Opposite Girl" parts="" asymmetric="true">
+  <tam title="Right Hand Star" formation="Opposite Girl" parts="" asymmetric="true" vid="V1-kt56a5kx">
     <path>
       <movement hands="gripleft" beats="3" cx1="0.55" cy1="0" cx2="2" cy2="0" x2="2" y2="1"/>
       <movement hands="gripleft" beats="3" cx1="0.5523" cy1="0" cx2="1" cy2="-0.4477" x2="1" y2="-1"/>
@@ -98,7 +98,7 @@
 
   <tam title="Right Hand Star"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-mim72jtg">
     <path>
       <move select="Forward" beats="1.5" scaleX="1.5" />
       <move select="Swing Right" />
@@ -113,7 +113,7 @@
 
   <tam title="Right Hand Star"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-o09uo48s">
     <path>
       <move select="Forward" beats="1.5" />
       <move select="Swing Right" />
@@ -138,7 +138,7 @@
 
   <tam title="Left Hand Star"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-0zk8jaqx">
     <path>
       <move select="Lead Right" beats="1.5" scaleX=".5"/>
       <move select="Swing Left" />
@@ -153,7 +153,7 @@
 
   <tam title="Left Hand Star"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-t3ixwfvx">
     <path>
       <move select="Quarter Right" beats="1.5" offsetY="-1" />
       <move select="Swing Left" />
@@ -176,7 +176,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Star" from="Right-Hand Star" formation="Star RH">
+  <tam title="Turn the Star" from="Right-Hand Star" formation="Star RH" vid="V1-frazps3t">
     <path>
       <move select="Hinge Right"/>
     </path>
@@ -185,7 +185,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Star" from="Left-Hand Star" formation="Star LH">
+  <tam title="Turn the Star" from="Left-Hand Star" formation="Star LH" vid="V1-gq6vytdr">
     <path>
       <move select="Hinge Left"/>
     </path>
@@ -194,7 +194,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Star" from="Facing Star" formation="Star Facing">
+  <tam title="Turn the Star" from="Facing Star" formation="Star Facing" vid="V1-6lmxhs2p">
     <path>
       <move select="Eighth Left" beats="1.5" hands="left" offsetX=".353" offsetY=".647" />
       <move select="Eighth Left" beats="1.5" hands="left" offsetX=".707" offsetY="-.207" />
@@ -205,7 +205,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Stars" from="Right-Hand Stars" formation="Stars RH">
+  <tam title="Turn the Stars" from="Right-Hand Stars" formation="Stars RH" vid="V1-ak2tta7a">
     <path>
       <move select="Hinge Right"/>
     </path>
@@ -220,7 +220,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Stars" from="Left-Hand Stars" formation="Stars LH">
+  <tam title="Turn the Stars" from="Left-Hand Stars" formation="Stars LH" vid="V1-e05qcqyq">
     <path>
       <move select="Hinge Left"/>
     </path>
@@ -235,7 +235,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Stars" from="Facing Stars 1" display="no">
+  <tam title="Turn the Stars" from="Facing Stars 1" display="no" vid="V1-swnirevn">
     <formation fid="F3-cx47e3ho" aid="A1-155xw122">
       <dancer gender="boy" x="3" y="0" angle="90"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
@@ -260,7 +260,7 @@
     </path>
   </tam>
 
-  <tam title="Turn the Stars" from="Facing Stars 2" display="no">
+  <tam title="Turn the Stars" from="Facing Stars 2" display="no" vid="V1-b2zbe1wp">
     <formation fid="F3-seu8qfzg" aid="A1-mzlav5qy">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -286,7 +286,7 @@
   </tam>
 
   <tam title="Head Right-Hand Star All the Way Around"
-       formation="Static Square" group=" ">
+       formation="Static Square" group=" " vid="V1-4r3su2kl">
     <path>
       <move select="Forward 2"/>
       <move select="Forward" beats="1.5"/>
@@ -306,7 +306,7 @@
   </tam>
 
   <tam title="Head Left-Hand Star All the Way Around"
-       formation="Static Square" group=" ">
+       formation="Static Square" group=" " vid="V1-3k8ivm2a">
     <path>
       <move select="Forward 2"/>
       <move select="Quarter Right" offsetY="-1"/>
@@ -326,7 +326,7 @@
   </tam>
 
   <tam title="Heads Square Thru; Make A Right Hand Star With The Sides; Heads Center Left Hand Star; Back To The Same Girl With A Right and Left Thru"
-       formation="Static Square" group=" ">
+       formation="Static Square" group=" " vid="V1-6jtxnk2l">
     <path>
       <move select="Forward 2" />
       <move select="Pull Left" scaleY=".5" />
@@ -608,7 +608,7 @@
   </tam>
   -->
 
-  <tam title="Right-Hand Star 1/4" formation="Eight Chain Thru" group=" ">
+  <tam title="Right-Hand Star 1/4" formation="Eight Chain Thru" group=" " vid="V1-bfbox409">
     <path>
       <move select="Forward" hands="right"/>
       <move select="Forward" hands="right"/>
@@ -632,7 +632,7 @@
   </tam>
 
   <tam title="Right-Hand Star 1/2" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-6ww98n7r">
     <path>
       <move select="Forward" hands="right"/>
       <move select="Hinge Right" beats="2"/>
@@ -656,7 +656,7 @@
   </tam>
 
   <tam title="Right-Hand Star 3/4" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-y2z93zhz">
     <path>
       <move select="Forward" hands="right"/>
       <move select="Swing Right" beats="4"/>
@@ -680,7 +680,7 @@
   </tam>
 
   <tam title="Right-Hand Star a Full Turn" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-qkyogena">
     <path>
       <move select="Forward" hands="right"/>
       <move select="Hinge Right" beats="2"/>
@@ -708,7 +708,7 @@
   </tam>
 
   <tam title="Left-Hand Star 1/4" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-28q8gtp8">
     <path>
       <move select="Quarter Right" beats="1" hands="left" offsetY="-1"/>
       <move select="Quarter Left" beats="1" hands="left" offsetX="1"/>
@@ -728,7 +728,7 @@
   </tam>
 
   <tam title="Left-Hand Star 1/2" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-qoof0cb2">
     <path>
       <move select="Quarter Right" beats="1" hands="left" offsetY="-1"/>
       <move select="Hinge Left" beats="2"/>
@@ -752,7 +752,7 @@
   </tam>
 
   <tam title="Left-Hand Star 3/4" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-8m1pve7q">
     <path>
       <move select="Quarter Right" beats="1" hands="left" offsetY="-1"/>
       <move select="Swing Left" beats="4"/>
@@ -776,7 +776,7 @@
   </tam>
 
   <tam title="Left-Hand Star a Full Turn" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-tb1kf83j">
     <path>
       <move select="Quarter Right" beats="1" hands="left" offsetY="-1"/>
       <move select="Hinge Left" beats="2"/>
@@ -809,7 +809,7 @@
        Basic levels; every other Basic tam is already re-authored here. -->
 <tam title="Right Hand Star"
        from="Facing Couples"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-k0awllj5">
     <path>
       <move select="Forward" beats="1.5" scaleX="2" />
       <move select="Swing Right" />
@@ -824,7 +824,7 @@
 
 <tam title="Left Hand Star"
        from="Facing Couples"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-gorqgosk">
     <path>
       <move select="Lead Right" beats="1.5" />
       <move select="Swing Left" />

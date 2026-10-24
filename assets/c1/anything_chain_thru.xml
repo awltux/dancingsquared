@@ -24,7 +24,7 @@
 
   <tam title="All Eight Recycle Chain Thru"
        from="Quarter Tag" group=" "
-       formation="Quarter Tag" >
+       formation="Quarter Tag"  vid="V1-t7n28mvm">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="3" />
       <move select="Swing Left"/>
@@ -47,7 +47,7 @@
 
   <tam title="Cross Extend Chain Thru"
        from="Right-Hand Waves" group=" "
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-gjulq1c6">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
       <move select="Swing Right"/>
@@ -74,7 +74,7 @@
            xref-from="Right-Hand Diamonds" />
 
   <tam title="Inside Triangle Chain Thru" parts="5;3" group=" "
-       from="" formation="Diamonds RH Girl Points">
+       from="" formation="Diamonds RH Girl Points" vid="V1-6cpbf7v0">
     <path>
       <move select="Stand" beats="8"/>
       <move select="Cast Right"/>
@@ -94,7 +94,7 @@
 
   <tam title="Follow Thru Chain Thru"
        from="Right-Hand Columns" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-3khxmjy0">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" />
     </path>
@@ -117,7 +117,7 @@
 
   <tam title="Follow Your Neighbor Chain Thru"
        from="Right-Hand Columns" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-lxwn0a4m">
     <path>
       <move select="Lead Right" beats="2" scaleX="1.5" />
       <move select="Run Right" scaleX=".5" scaleY=".5" />
@@ -146,7 +146,7 @@
   </tam>
 
   <tam title="Interlocked Diamond Chain Thru" parts="4;3" group=" "
-       from="Interlocked Diamonds" formation="Interlocked Diamonds RH Girl Points">
+       from="Interlocked Diamonds" formation="Interlocked Diamonds RH Girl Points" vid="V1-eju6e4r2">
     <path>
       <move select="Lead Right" beats="4" scaleX="3"/>
     </path>
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Ping Pong Chain Thru"
-       from="Quarter Tag" formation="Quarter Tag" group=" ">
+       from="Quarter Tag" formation="Quarter Tag" group=" " vid="V1-pmpqbxr7">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Forward" />
@@ -196,7 +196,7 @@
 
   <tam title="Single Circle to a Wave Chain Thru"
        from="Lines" group=" "
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-2js2hq6p">
     <path>
       <move select="Forward" scaleX="1.3" scaleY=".3" />
       <move select="ssqtr" />
@@ -231,7 +231,7 @@
 
   <tam title="Split Recycle Chain Thru"
        from="Right-Hand Waves" group=" "
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-7nl75h1r">
     <path>
       <move select="U-Turn Right" beats="4" hands="gripright" offsetX="2" offsetY="-.5" />
     </path>

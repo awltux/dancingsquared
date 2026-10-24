@@ -24,7 +24,7 @@
 
 
 
-  <tam title="Swap the Top" from="Facing Couples" formation="Facing Couples">
+  <tam title="Swap the Top" from="Facing Couples" formation="Facing Couples" vid="V1-q85z5ww8">
     <path>
       <move select="Flip Right" beats="4.5"/>
       <move select="Lead Right" beats="2"/>

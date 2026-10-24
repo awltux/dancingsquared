@@ -22,7 +22,7 @@
 -->
 <tamination title="Ah So">
 
-  <tam title="Ah So" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Ah So" from="Right-Hand Wave" formation="Wave RH" vid="V1-fv9v9ncf">
     <path numbers="1 4">
       <move select="Run Right" hands="gripright" scaleX="1.5" scaleY="2" offsetX="1.5" />
     </path>
@@ -31,7 +31,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Ah So" from="Left-Hand Wave" formation="Wave LH" vid="V1-cer3wjvc">
     <path>
       <move select="Run Left" hands="gripleft" scaleX="1.5" scaleY="2" offsetX="1.5" />
     </path>
@@ -42,7 +42,7 @@
 
   <tam title="Ah So"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-5jvo8gu5">
     <path>
       <move select="Run Right" hands="gripright" scaleY="2" offsetX="1" />
     </path>
@@ -59,7 +59,7 @@
 
   <tam title="Ah So"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-bc2o3qty">
     <path>
       <move select="Run Left" hands="gripleft" scaleY="2" offsetX="1" />
     </path>
@@ -76,7 +76,7 @@
 
   <tam title="Ah So"
        from="Inverted Lines"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-axdxer33">
     <path>
       <move select="Run Left" hands="gripleft" scaleY="2" offsetX="-1" />
     </path>
@@ -91,7 +91,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #1" formation="3 and 1 lines #1">
+  <tam title="Ah So" from="3 and 1 Lines #1" formation="3 and 1 lines #1" vid="V1-emf5y9jp">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="1" />
     </path>
@@ -106,7 +106,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #2" formation="3 and 1 lines #2">
+  <tam title="Ah So" from="3 and 1 Lines #2" formation="3 and 1 lines #2" vid="V1-nrylfsn5">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>
@@ -121,7 +121,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #3" formation="3 and 1 lines #3">
+  <tam title="Ah So" from="3 and 1 Lines #3" formation="3 and 1 lines #3" vid="V1-yhyecbsx">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>
@@ -136,7 +136,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #4" formation="3 and 1 lines #4">
+  <tam title="Ah So" from="3 and 1 Lines #4" formation="3 and 1 lines #4" vid="V1-97pvjv38">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>
@@ -151,7 +151,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #5" formation="3 and 1 lines #5">
+  <tam title="Ah So" from="3 and 1 Lines #5" formation="3 and 1 lines #5" vid="V1-f6782aj2">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>
@@ -166,7 +166,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #6">
+  <tam title="Ah So" from="3 and 1 Lines #6" vid="V1-pk993fes">
      <formation fid="F3-lit8rynj" aid="A1-poo1l253">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
@@ -187,7 +187,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #7" formation="3 and 1 lines #7">
+  <tam title="Ah So" from="3 and 1 Lines #7" formation="3 and 1 lines #7" vid="V1-0j4ubb32">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="-1" />
     </path>
@@ -202,7 +202,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="3 and 1 Lines #8" formation="3 and 1 lines #8">
+  <tam title="Ah So" from="3 and 1 Lines #8" formation="3 and 1 lines #8" vid="V1-x30045xp">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="2" offsetX="1" />
     </path>
@@ -217,7 +217,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB">
+  <tam title="Ah So" from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB" vid="V1-8zb8w50a">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -232,7 +232,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB">
+  <tam title="Ah So" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB" vid="V1-qf8w1vxm">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -247,7 +247,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #1" formation="Tidal 3 and 1 Line #1">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #1" formation="Tidal 3 and 1 Line #1" vid="V1-gcitugr5">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -262,7 +262,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #2" formation="Tidal 3 and 1 Line #2">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #2" formation="Tidal 3 and 1 Line #2" vid="V1-8knrkiua">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -277,7 +277,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #3" formation="Tidal 3 and 1 Line #3">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #3" formation="Tidal 3 and 1 Line #3" vid="V1-nrcvsb2j">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -292,7 +292,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #4" formation="Tidal 3 and 1 Line #4">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #4" formation="Tidal 3 and 1 Line #4" vid="V1-4yqwt8tl">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -307,7 +307,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #5" formation="Tidal 3 and 1 Line #5">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #5" formation="Tidal 3 and 1 Line #5" vid="V1-4hh6ezla">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -322,7 +322,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #6" formation="Tidal 3 and 1 Line #6">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #6" formation="Tidal 3 and 1 Line #6" vid="V1-7llux3hn">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="1.25" offsetX="-1.5"/>
     </path>
@@ -337,7 +337,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #7" formation="Tidal 3 and 1 Line #7">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #7" formation="Tidal 3 and 1 Line #7" vid="V1-fy4t4p9n">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="1.25" offsetX="-1.5"/>
     </path>
@@ -352,7 +352,7 @@
     </path>
   </tam>
 
-  <tam title="Ah So" from="Tidal 3 and 1 Lines #8" formation="Tidal 3 and 1 Line #8">
+  <tam title="Ah So" from="Tidal 3 and 1 Lines #8" formation="Tidal 3 and 1 Line #8" vid="V1-y30j5wra">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -368,7 +368,7 @@
   </tam>
 
   <tam title="Ah So" from="Right-Hand Inverted Tidal Line"
-       formation="Inverted Tidal Line RH">
+       formation="Inverted Tidal Line RH" vid="V1-8twczxmj">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="1.25" offsetX="1.5"/>
     </path>
@@ -384,7 +384,7 @@
   </tam>
 
   <tam title="Ah So" from="Left-Hand Inverted Tidal Line"
-       formation="Inverted Tidal Line LH">
+       formation="Inverted Tidal Line LH" vid="V1-ccjc2dum">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleY="1.25" offsetX="-1.5"/>
     </path>
@@ -403,7 +403,7 @@
   <tam title="As Couples Ah So"
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line RH"
-       group=" ">
+       group=" " vid="V1-as3t2vu5">
     <path>
       <move select="Run Right" beats="5" hands="gripright" scaleX="2" scaleY="3" offsetX="1.5" offsetY="-.5" />
     </path>
@@ -418,7 +418,7 @@
     </path>
   </tam>
 
-  <tam title="Concentric Ah So" from="Tidal Wave" formation="Tidal Wave RH BGGB" group=" ">
+  <tam title="Concentric Ah So" from="Tidal Wave" formation="Tidal Wave RH BGGB" group=" " vid="V1-hvqca98o">
     <path>
       <move select="Run Right" hands="gripright" offsetX="3" scaleY="2.25"/>
     </path>
@@ -434,7 +434,7 @@
   </tam>
 
   <tam title="Stretch Ah So" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB Compact" group=" ">
+       formation="Ocean Waves RH BGGB Compact" group=" " vid="V1-iqu60m91">
     <path>
       <move select="Run Right" hands="gripright" scaleY="2" offsetX="2.5" />
     </path>
@@ -450,7 +450,7 @@
   </tam>
 
   <tam title="Tandem Ah So" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB Compact" group=" ">
+       formation="Ocean Waves RH BGGB Compact" group=" " vid="V1-2etkcsjl">
     <path>
       <move select="Counter Rotate Right 2 0" hands="gripright" beats="4" offsetX="2"/>
       <move select="Counter Rotate Right 2 0" hands="gripright" beats="4" offsetX="2" offsetY=".5"/>

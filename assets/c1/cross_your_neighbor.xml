@@ -22,7 +22,7 @@
 -->
 <tamination title="Cross Your Neighbor">
 
-  <tam title="Cross Your Neighbor" from="Right-Hand Box">
+  <tam title="Cross Your Neighbor" from="Right-Hand Box" vid="V1-wjfaadp0">
     <formation name="Box RH" fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
@@ -38,7 +38,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Your Neighbor" from="Left-Hand Box" formation="Box LH">
+  <tam title="Cross Your Neighbor" from="Left-Hand Box" formation="Box LH" vid="V1-0tdiunm0">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" />
       <move select="Run Left" beats="3.5" scaleY=".5" />
@@ -52,7 +52,7 @@
 
   <tam title="Cross Your Neighbor"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-h24swivj">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.75" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -75,7 +75,7 @@
 
   <tam title="Cross Your Neighbor"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-04inc7u8">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" />
       <move select="Run Left" beats="3.5" scaleY=".5" />
@@ -97,7 +97,7 @@
   </tam>
 
   <tam title="Cross Your Neighbor" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-3wok6ngh">
     <path>
       <move select="Lead Right" beats="3" scaleX="1.5" />
       <move select="Run Right" beats="3.5" scaleY=".5" />
@@ -117,7 +117,7 @@
   </tam>
 
   <tam title="Cross Your Neighbor" from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-jo7abqj4">
     <path>
       <move select="Extend Left" beats="2" scaleY="1.5"/>
       <move select="Cast Right" scaleX=".5" scaleY=".5"/>
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Cross Your Neighbor"
-       from="Quarter Tag" formation="Quarter Tag">
+       from="Quarter Tag" formation="Quarter Tag" vid="V1-22h1kypq">
 		<path>
 			<move select="Extend Left" beats="2" scaleY="0.25"/>
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -161,7 +161,7 @@
   </tam>
 
 	<tam title="Cross Your Neighbor"
-	     from="Left-Hand Quarter Tag" formation="Quarter Tag LH">
+	     from="Left-Hand Quarter Tag" formation="Quarter Tag LH" vid="V1-omoqylzx">
 		<path>
 			<move select="Extend Left" beats="2" scaleY="1.75"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -185,7 +185,7 @@
 	</tam>
 
   <tam title="Grand Cross Your Neighbor"
-       from="Right-Hand Columns" formation="Column RH GBGB">
+       from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-yunuefij">
     <path>
       <move select="Lead Right" beats="3" scaleX="1.5" />
       <move select="Run Right" beats="3.5" scaleY=".5" />
@@ -205,7 +205,7 @@
   </tam>
 
   <tam title="Grand Cross Your Neighbor"
-       from="Left-Hand Columns" formation="Column LH GBGB">
+       from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-r0ardn6e">
     <path>
       <move select="Extend Left" beats="2" scaleY="1.5"/>
       <move select="Cast Right" scaleX=".5" scaleY=".5"/>
@@ -225,7 +225,7 @@
   </tam>
 
   <tam title="All 8 Cross Your Neighbor" group=" "
-       from="Squared Mini-Waves"  formation="Static MiniWaves RH">
+       from="Squared Mini-Waves"  formation="Static MiniWaves RH" vid="V1-chpa1y1t">
     <path>
       <move select="Extend Right" beats="4.5" scaleX="3" scaleY="2"/>
       <move select="Cast Left"/>
@@ -245,7 +245,7 @@
   </tam>
 
   <tam title="As Couples Cross Your Neighbor" group=" "
-       from="Two-Faced Lines" formation="Two-Faced Lines RH">
+       from="Two-Faced Lines" formation="Two-Faced Lines RH" vid="V1-37mm74sx">
     <path>
       <move select="Extend Right" beats="4" hands="gripright" scaleX="2" scaleY="3.5"/>
       <move select="Cast Left" beats="6" hands="both" scaleX=".5" scaleY=".5"/>
@@ -265,7 +265,7 @@
   </tam>
 
 	<tam title="Tandem Cross Your Neighbor" group=" "
-	     formation="Column RH GBGB">
+	     formation="Column RH GBGB" vid="V1-c3x0ky84">
 		<path>
 			<move select="Run Right" offsetX="1"/>
 			<move select="Lead Right"/>
@@ -292,7 +292,7 @@
 	</tam>
 
   <tam title="Pass and Roll Your Cross Neighbor" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-iwnvt08d">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -333,7 +333,7 @@
   </tam>
 
   <tam title="Left Pass and Roll Your Cross Neighbor" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-enkvrbp6">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />

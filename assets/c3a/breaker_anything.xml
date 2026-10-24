@@ -22,7 +22,7 @@
 -->
 <tamination title="Breaker Anything">
 
-  <tam title="Breaker 3" from="Right-Hand Columns" fractions="4.5">
+  <tam title="Breaker 3" from="Right-Hand Columns" fractions="4.5" vid="V1-z4j2ywjc">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -53,7 +53,7 @@
     </path>
   </tam>
 
-  <tam title="Breaker 3" from="Left-Hand Columns" formation="Column LH GBGB" fractions="4.5">
+  <tam title="Breaker 3" from="Left-Hand Columns" formation="Column LH GBGB" fractions="4.5" vid="V1-3m7uatdd">
     <path>
       <move select="Hinge Left" offsetX="-.333"/>
       <move select="Hinge Left" offsetY=".333"/>
@@ -78,7 +78,7 @@
     </path>
   </tam>
 
-  <tam title="Breaker 3" from="Magic Columns" formation="Magic Column RH" fractions="4.5">
+  <tam title="Breaker 3" from="Magic Columns" formation="Magic Column RH" fractions="4.5" vid="V1-gi4yr928">
     <path>
       <move select="Hinge Left" offsetX="-.333"/>
       <move select="Hinge Left" offsetY=".333"/>
@@ -105,7 +105,7 @@
     </path>
   </tam>
 
-  <tam title="Breaker Mix" from="Right-Hand Columns" fractions="4.5">
+  <tam title="Breaker Mix" from="Right-Hand Columns" fractions="4.5" vid="V1-vho21gyn">
     <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>

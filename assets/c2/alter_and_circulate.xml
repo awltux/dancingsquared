@@ -25,7 +25,7 @@
   <tam title="Alter and Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;4" >
+       parts="3;4.5;3;4"  vid="V1-2tfsi7ky">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -59,7 +59,7 @@
   <tam title="Alter and Circulate"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="3;4.5;3;4" >
+       fractions="3;4.5;3;4"  vid="V1-u6afhei9">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />

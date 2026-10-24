@@ -23,7 +23,7 @@
 <tamination title="Quick">
 
   <tam title="Quick Step" from="Right-Hand Centers"
-       formation="Mixed Columns RH Ends In">
+       formation="Mixed Columns RH Ends In" vid="V1-7wjvg67k">
     <path>
       <move select="Forward 2"/>
     </path>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Quick Step" from="Left-Hand Centers"
-       formation="Mixed Columns LH Ends In">
+       formation="Mixed Columns LH Ends In" vid="V1-s9aw0xlu">
     <path>
       <move select="Stand" hands="none" beats="3"/>
       <move select="U-Turn Left" hands="left" beats="4"/>
@@ -58,7 +58,7 @@
     </path>
   </tam>
 
-  <tam title="Quick Turn and Deal" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Quick Turn and Deal" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-364v9qg2">
     <path>
       <move select="Stand" hands="none" beats="3"/>
       <move select="Flip Right"/>

@@ -23,7 +23,7 @@
 <tamination title="Stingy | Generous anything">
 
   <tam title="Generous Dixie Style to a Wave" group="Generous"
-       formation="Double Pass Thru" fractions="2">
+       formation="Double Pass Thru" fractions="2" vid="V1-gbiafcwq">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Forward" beats="2"/>
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Generous Lockit" group="Generous"
-    formation="Tidal Wave RH BGGB">
+    formation="Tidal Wave RH BGGB" vid="V1-90ivsle5">
     <path>
       <move select="Lead Right" beats="3" scaleX="3" scaleY="1.5" />
     </path>
@@ -69,7 +69,7 @@
   <tam title="Generous Mix" group="Generous"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="3" >
+       fractions="3"  vid="V1-1wabsbjk">
     <path>
       <move select="Dodge Right" />
       <move select="Cast Right" />
@@ -87,7 +87,7 @@
   </tam>
 
   <tam title="Generous Reset" group="Generous" fractions="3;3;3"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-hsdv5c5z">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Swing Left"/>
@@ -115,7 +115,7 @@
   </tam>
 
   <tam title="Generous Six-Two Acey Deucey" group="Generous"
-       formation="Hourglass RH BP">
+       formation="Hourglass RH BP" vid="V1-k7va3bdz">
     <path>
       <move select="Lead Right" beats="4" scaleY="3" />
     </path>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Generous Spin the Windmill Forward" group="Generous"
-       formation="Ocean Waves RH GBBG">
+       formation="Ocean Waves RH GBBG" vid="V1-2iv5aov6">
     <path>
       <move select="Forward 4" beats="5"/>
       <move select="Run Right" beats="7" scaleX="2.5" scaleY="3"/>
@@ -153,7 +153,7 @@
   </tam>
 
   <tam title="Generous Scoot Back" group="Generous"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-6s0y6wke">
     <path>
       <move select="Extend Left" beats="2" scaleY="1.75"/>
       <move select="Cast Right" scaleX=".75" scaleY=".75"/>
@@ -177,7 +177,7 @@
   </tam>
 
   <tam title="Generous Sets in Motion" group="Generous"
-       formation="Diamonds Facing Girl Points">
+       formation="Diamonds Facing Girl Points" vid="V1-3sqn9iap">
     <path>
       <move select="Swing Right" />
       <move select="Swing Left" />
@@ -210,7 +210,7 @@
            xref-from="Ocean Waves"/>
 
   <tam title="Stingy Cut the Diamond" group="Stingy"
-       formation="Diamonds RH Girl Points" >
+       formation="Diamonds RH Girl Points"  vid="V1-dv1dxmnj">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -230,7 +230,7 @@
   </tam>
 
   <tam title="Stingy Follow Your Neighbor" group="Stingy"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-2n3d9gzk">
     <path>
       <move select="Forward 2"  offsetY="-.25" />
       <move select="Hinge Right" scaleX=".75" scaleY=".75" />
@@ -252,7 +252,7 @@
   </tam>
 
   <tam title="Stingy Spin the Top" group="Stingy"
-       formation="Box RH" fractions="2">
+       formation="Box RH" fractions="2" vid="V1-adlst9ix">
     <path>
       <move select="Hinge Right" beats="2"/>
       <move select="Cast Left" beats="4"/>
@@ -264,7 +264,7 @@
   </tam>
 
   <tam title="Stingy Split Square Chain Thru" group="Stingy"
-       fractions="1;2;6"  formation="T-Bone ULRU">
+       fractions="1;2;6"  formation="T-Bone ULRU" vid="V1-mw76w6ju">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -305,7 +305,7 @@
            xref-from="Right-Hand Waves"/>
 
   <tam title="Finally Stingy Spin the Top" group=" "
-       formation="Facing Couples" fractions="3;3">
+       formation="Facing Couples" fractions="3;3" vid="V1-8nx0r3wd">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2"/>
       <move select="Swing Right"/>

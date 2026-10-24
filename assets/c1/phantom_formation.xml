@@ -24,7 +24,7 @@
 
 
   <tam title="Phantom Acey Deucey" group="Phantom"
-       formation="Phantom Formation RH">
+       formation="Phantom Formation RH" vid="V1-ss0hmbe9">
     <path>
       <move select="Forward 4" />
     </path>
@@ -46,7 +46,7 @@
   </tam>
 
   <tam title="Phantom All 8 Circulate" group="Phantom"
-       formation="Phantom Formation RH">
+       formation="Phantom Formation RH" vid="V1-dbesizjf">
     <path>
       <move select="Forward 4" />
     </path>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Phantom Bend the Lines" group="Phantom"
-       formation="Phantom Formation In">
+       formation="Phantom Formation In" vid="V1-15api87x">
     <path>
       <move select="Hinge Right" />
     </path>
@@ -90,7 +90,7 @@
   </tam>
 
   <tam title="Phantom Couples Circulate" group="Phantom"
-       formation="Phantom Formation Two-Faced">
+       formation="Phantom Formation Two-Faced" vid="V1-tt948rpo">
     <path>
       <move select="Forward 4" hands="right" />
     </path>
@@ -112,7 +112,7 @@
   </tam>
 
   <tam title="Phantom Ferris Wheel" group="Phantom"
-       formation="Phantom Formation Two-Faced">
+       formation="Phantom Formation Two-Faced" vid="V1-e62q82n9">
     <path>
       <move select="Run Right" beats="4" hands="gripright"
             scaleX="2" scaleY="2" offsetX="3" />
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Phantom Load the Boat" group="Phantom"
-       formation="Phantom Formation In">
+       formation="Phantom Formation In" vid="V1-tp3jwiyd">
     <path>
       <move select="Forward 3" />
       <move select="Lead Right" beats="2" scaleX="2.5" scaleY="3.5" />
@@ -179,7 +179,7 @@
     </path>
   </tam>
 
-  <tam title="Phantom Motivate" group="Phantom" fractions="4;4.5;3">
+  <tam title="Phantom Motivate" group="Phantom" fractions="4;4.5;3" vid="V1-h8h3r1ri">
     <formation fid="F3-o8o7de3l" aid="A1-v2v49njz">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -230,7 +230,7 @@
   </tam>
 
   <tam title="Phantom Pass Thru" group="Phantom"
-       formation="Phantom Formation In">
+       formation="Phantom Formation In" vid="V1-nngbvr5w">
     <path>
       <move select="Forward 4" hands="right" />
     </path>
@@ -253,7 +253,7 @@
     </path>
   </tam>
 
-  <tam title="Phantom Tally Ho" group="Phantom" fractions="2">
+  <tam title="Phantom Tally Ho" group="Phantom" fractions="2" vid="V1-8baj83st">
     <formation fid="F3-k0cnz9ij" aid="A1-n18bo64h">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -297,7 +297,7 @@
   </tam>
 
   <tam title="Phantom Trade Circulate" group="Phantom"
-       formation="Phantom Formation LH">
+       formation="Phantom Formation LH" vid="V1-sca3fz4e">
     <path>
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="2"/>
     </path>
@@ -319,7 +319,7 @@
   </tam>
 
   <tam title="Phantom Wheel and Deal" group="Phantom"
-       formation="Phantom Formation Two-Faced">
+       formation="Phantom Formation Two-Faced" vid="V1-1p0jzn0f">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>

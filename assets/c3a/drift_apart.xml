@@ -22,7 +22,7 @@
 -->
 <tamination title="Drift Apart">
 
-  <tam title="Drift Apart" from="Facing Lines" formation="Normal Lines" fractions="4">
+  <tam title="Drift Apart" from="Facing Lines" formation="Normal Lines" fractions="4" vid="V1-i656p6oy">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -45,7 +45,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="Lines Facing Out" formation="Lines Facing Out" fractions="4">
+  <tam title="Drift Apart" from="Lines Facing Out" formation="Lines Facing Out" fractions="4" vid="V1-lxdimjo1">
     <path>
       <move select="Flip Left" beats="4"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -71,7 +71,7 @@
   <tam title="Drift Apart"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="4" >
+       fractions="4"  vid="V1-ngv741a3">
     <path numbers="1 8">
       <move select="Forward 4" />
       <move select="Run Right" beats="4" />
@@ -93,7 +93,7 @@
   <tam title="Drift Apart"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="4" >
+       fractions="4"  vid="V1-s8avkobo">
     <path>
       <move select="Run Left" beats="4" scaleY=".75" />
       <move select="Extend Right" beats="4" scaleX="4" scaleY=".5" />
@@ -113,7 +113,7 @@
   </tam>
 
   <tam title="Drift Apart" from="Inverted Lines, Centers In"
-       formation="Inverted Lines Ends Facing Out" fractions="4">
+       formation="Inverted Lines Ends Facing Out" fractions="4" vid="V1-3glq3oys">
     <path>
       <move select="Run Left" beats="4" scaleY=".75"/>
       <move select="Forward 2"/>
@@ -137,7 +137,7 @@
   </tam>
 
   <tam title="Drift Apart" from="Inverted Lines, Centers Out"
-       formation="Inverted Lines Ends Facing In" fractions="4">
+       formation="Inverted Lines Ends Facing In" fractions="4" vid="V1-d4yjv6nr">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Forward 2"/>
@@ -163,7 +163,7 @@
   <tam title="Drift Apart"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="4" >
+       fractions="4"  vid="V1-awk7gxfi">
     <path>
       <move select="Extend Left" beats="4" scaleX="4" scaleY=".5" />
       <move select="Run Right" beats="4" scaleY="1.25" />
@@ -185,7 +185,7 @@
   <tam title="Drift Apart"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBGB"
-       fractions="4" >
+       fractions="4"  vid="V1-1lsl4r91">
     <path couples="4 2">
       <move select="Run Left" beats="4" />
       <move select="Forward 4" />
@@ -204,7 +204,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="Right-Hand Columns" fractions="3">
+  <tam title="Drift Apart" from="Right-Hand Columns" fractions="3" vid="V1-ptgc0sc0">
     <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90" />
       <dancer gender="girl" y="1" x="-1" angle="90" />
@@ -230,7 +230,7 @@
   </tam>
 
   <tam title="Drift Apart" from="Left-Hand Columns"
-       formation="Column LH GBGB" fractions="3">
+       formation="Column LH GBGB" fractions="3" vid="V1-qr37idyx">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Run Left" scaleX=".5"/>
@@ -250,7 +250,7 @@
   </tam>
 
   <tam title="Drift Apart" from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH" fractions="3">
+       formation="Magic Column RH" fractions="3" vid="V1-udhb8bbc">
     <path>
       <move select="Forward" beats="1.5"/>
       <move select="Extend Left" beats="1.5" scaleY=".5"/>
@@ -272,7 +272,7 @@
   </tam>
 
   <tam title="Drift Apart" from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH" fractions="3">
+       formation="Magic Column LH" fractions="3" vid="V1-mr7q26wa">
     <path>
       <move select="Run Right"/>
       <move select="Forward 2" beats="3"/>
@@ -292,7 +292,7 @@
   </tam>
 
   <tam title="Drift Apart" from="Eight Chain Thru"
-        formation="Eight Chain Thru" fractions="3">
+        formation="Eight Chain Thru" fractions="3" vid="V1-qktezsfj">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Run Right" scaleX=".67"/>
@@ -313,7 +313,7 @@
     </path>
   </tam>
 
- <tam title="Drift Apart" from="Trade By" formation="Trade By" fractions="3">
+ <tam title="Drift Apart" from="Trade By" formation="Trade By" fractions="3" vid="V1-b0xhvve5">
     <path>
       <move select="Flip Left"/>
       <move select="Extend Left"  scaleY=".5" beats="2"/>
@@ -340,7 +340,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="T-Bones 1" formation="T-Bone DRDR" fractions="3">
+  <tam title="Drift Apart" from="T-Bones 1" formation="T-Bone DRDR" fractions="3" vid="V1-9moauirl">
     <path>
       <move select="Flip Left"/>
       <move select="Forward 2" beats="3"/>
@@ -359,7 +359,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="T-Bones 2" formation="T-Bone LDLD" fractions="3">
+  <tam title="Drift Apart" from="T-Bones 2" formation="T-Bone LDLD" fractions="3" vid="V1-07f6cv21">
     <path>
       <move select="Run Right"/>
       <move select="Forward 2" beats="3"/>
@@ -378,7 +378,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="T-Bones 3" formation="T-Bone DLDL" fractions="3">
+  <tam title="Drift Apart" from="T-Bones 3" formation="T-Bone DLDL" fractions="3" vid="V1-fkd8nql1">
     <path>
       <move select="Flip Left"/>
       <move select="Extend Left" beats="1.5" scaleY=".5"/>
@@ -398,7 +398,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="T-Bones 4" formation="T-Bone RDRD" fractions="3">
+  <tam title="Drift Apart" from="T-Bones 4" formation="T-Bone RDRD" fractions="3" vid="V1-0abvy8ft">
     <path>
       <move select="Flip Right"/>
       <move select="Extend Right" beats="1.5" scaleY=".5"/>
@@ -418,7 +418,7 @@
     </path>
   </tam>
 
-  <tam title="Drift Apart" from="T-Bones 5" formation="T-Bone URUR" fractions="3">
+  <tam title="Drift Apart" from="T-Bones 5" formation="T-Bone URUR" fractions="3" vid="V1-hrnb13c8">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Flip Right"/>

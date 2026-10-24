@@ -22,7 +22,7 @@
 -->
 <tamination title="Press Ahead">
 
-  <tam title="Press Ahead" from="Right-Hand Waves">
+  <tam title="Press Ahead" from="Right-Hand Waves" vid="V1-rnll9be1">
     <formation fid="F3-04ob0a8b" aid="A1-zoaw4fk3">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Press Ahead" from="Left-Hand Waves">
+  <tam title="Press Ahead" from="Left-Hand Waves" vid="V1-h8pycenl">
     <formation fid="F3-t3ujr4rb" aid="A1-b6is9ivv">
       <dancer gender="boy" x="-1" y="3" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -64,7 +64,7 @@
     </path>
   </tam>
 
-  <tam title="Press Ahead" from="Right-Hand Two-Faced Lines">
+  <tam title="Press Ahead" from="Right-Hand Two-Faced Lines" vid="V1-sqicuuek">
     <formation fid="F3-stj9x6gj" aid="A1-s6s0gyz7">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -88,7 +88,7 @@
     </taminator>
   </tam>
 
-  <tam title="Press Ahead" from="Left-Hand Two-Faced Lines">
+  <tam title="Press Ahead" from="Left-Hand Two-Faced Lines" vid="V1-n9rc4ae8">
     <formation fid="F3-nglpej47" aid="A1-j141jwnn">
       <dancer gender="girl" x="-1" y="3" angle="180"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
@@ -109,7 +109,7 @@
     </path>
   </tam>
 
-  <tam title="Press Ahead" from="Right-Hand Columns" formation="Columns">
+  <tam title="Press Ahead" from="Right-Hand Columns" formation="Columns" vid="V1-1w8wavlo">
     <path>
       <move select="Forward 2" hands="left"/>
     </path>
@@ -124,7 +124,7 @@
     </path>
   </tam>
 
-  <tam title="Press Ahead" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Press Ahead" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-zw0ivy1h">
     <path>
       <move select="Forward 2" hands="left"/>
     </path>
@@ -140,7 +140,7 @@
   </tam>
 
   <tam title="Ends Press Ahead" group=" "
-       from="Lines Facing Out">
+       from="Lines Facing Out" vid="V1-71rnnaux">
      <formation fid="F3-f16ry9ub" aid="A1-t367io1x">
       <dancer gender="girl" x="-1" y="3" angle="180"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
@@ -160,7 +160,7 @@
   </tam>
 
   <tam title="Girls Press Ahead" group=" " sequencer="gender-specific"
-       from="Right-Hand Waves">
+       from="Right-Hand Waves" vid="V1-25phwed2">
      <formation fid="F3-04ob0a8b" aid="A1-izfqeb55">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -180,7 +180,7 @@
   </tam>
 
   <tam title="1/2 Press Ahead" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-s20s8dm0">
     <path>
       <move select="Forward 2"/>
     </path>
@@ -199,7 +199,7 @@
   </tam>
 
   <tam title="1/2 Press Ahead" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-i8galdkn">
     <path>
       <move select="Forward" beats="2"/>
     </path>
@@ -215,7 +215,7 @@
   </tam>
 
   <tam title="1/2 Press Ahead" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-fo9kgi55">
     <path>
       <move select="Forward 2" hands="right"/>
     </path>
@@ -231,7 +231,7 @@
   </tam>
 
   <tam title="1/2 Press Ahead" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-6dneuas2">
     <path>
       <move select="Forward" beats="2" hands="right"/>
     </path>

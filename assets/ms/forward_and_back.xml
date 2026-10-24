@@ -23,7 +23,7 @@
 <tamination title="Forward and Back">
 
   <tam title="Forward and Back" from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-a0cfmsow">
     <path>
       <move select="Forward" hands="right" beats="2" scaleX="0.7" />
       <move select="Back" hands="right" beats="2" scaleX="0.7"/>
@@ -36,7 +36,7 @@
 
   <tam title="Forward and Back"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-bkwin9q9">
     <path>
       <move select="Forward" hands="right" beats="2" />
       <move select="Back" hands="right" beats="2" />
@@ -56,7 +56,7 @@
   </tam>
 
   <tam title="Heads Forward and Back" from="Static Square"
-       formation="Static Square" group=" ">
+       formation="Static Square" group=" " vid="V1-kinmh2tb">
     <path>
       <move select="Forward 2" hands="right" beats="4" />
       <move select="Back 2" hands="right" beats="4" />
@@ -70,7 +70,7 @@
   </tam>
 
   <tam title="Sides Forward and Back" from="Static Square"
-       formation="Static Square" display="none">
+       formation="Static Square" display="none" vid="V1-2jdukt0i">
     <path/>
     <path/>
     <path>
@@ -88,7 +88,7 @@
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
 <tam title="Forward and Back" from="Facing Couples"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-7tp98wod">
     <path>
       <move select="Forward" hands="right" beats="2" />
       <move select="Back" hands="right" beats="2" />

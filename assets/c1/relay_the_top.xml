@@ -25,7 +25,7 @@
   <tam title="Relay the Top"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-26xjek5x">
     <path couples="2 4">
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -55,7 +55,7 @@
   <tam title="Relay the Top"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-fqrytrdq">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -85,7 +85,7 @@
   <tam title="Relay the Top"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="4.5;4.5;3" >
+       parts="4.5;4.5;3"  vid="V1-led6fl7o">
     <path>
       <move select="Extend Left" beats="1.5" scaleY="2"/>
       <move select="Swing Right" />
@@ -119,7 +119,7 @@
   <tam title="Left Relay the Top"
        group=" "
        formation="Eight Chain Thru"
-       parts="4.5;4.5;3" >
+       parts="4.5;4.5;3"  vid="V1-w28t9zmv">
     <path>
       <move select="Forward" beats="1.5"/>
       <move select="Swing Left" />
@@ -154,7 +154,7 @@
   <tam title="Relay the Top, Turn the Star 1/2"
        group=" "
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-yop2182v">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -184,7 +184,7 @@
   <tam title="Relay the Top, Turn the Star 3/4"
        group=" "
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;4.5" >
+       parts="3;4.5;4.5"  vid="V1-qdtzwkxb">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -214,7 +214,7 @@
   <tam title="Relay the Top, Do Not Turn the Star"
        group=" "
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-qfbljpq1">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -244,7 +244,7 @@
   <tam title="Relay the Top, Turn the Star 1/2"
        group=" " display="none"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-y3qp7nfc">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -274,7 +274,7 @@
   <tam title="Relay the Top, Turn the Star 3/4"
        group=" " display="none"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;4.5" >
+       parts="3;4.5;4.5"  vid="V1-ej1e0zrk">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -304,7 +304,7 @@
   <tam title="Relay the Top, Do Not Turn the Star"
        group=" " display="none"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-vv1xmvm2">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />

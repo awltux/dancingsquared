@@ -22,7 +22,7 @@
 -->
 <tamination title="Arm Turns">
 
-  <tam title="Turn Partner by the Right" group=" " formation="Right and Left Grand Static Square">
+  <tam title="Turn Partner by the Right" group=" " formation="Right and Left Grand Static Square" vid="V1-0mhdt0ih">
     <path>
       <move select="Extend Left" scaleY=".75"/>
       <move select="Swing Right" beats="4" scaleX=".75" scaleY=".75"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Turn Partner by the Left" group=" " formation="Right and Left Grand Static Square">
+  <tam title="Turn Partner by the Left" group=" " formation="Right and Left Grand Static Square" vid="V1-grgy9opq">
     <path>
       <move select="Extend Right" scaleY=".75"/>
       <move select="Swing Left" beats="4" scaleX=".75" scaleY=".75"/>
@@ -61,7 +61,7 @@
   </tam>
 
   <tam title="Left Arm Turn 3/4" group=" "
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-5wu6em6f">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -82,7 +82,7 @@
        call's end board, and every dancer's heading changes by +90 degrees, where the left call changes it by
        -90 - i.e. 270 degrees the other way. `poc/tools/arm-turn-probe.mjs` pins the pairing. -->
   <tam title="Right Arm Turn 3/4" group=" "
-       formation="Ocean Waves RH GBGB">
+       formation="Ocean Waves RH GBGB" vid="V1-kch1jia3">
     <path>
       <move select="Cast Right"/>
     </path>
@@ -98,7 +98,7 @@
   </tam>
 
   <tam title="Centers Arm Turn 3/4" group=" "
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-rt39hxyk">
     <path>
     </path>
     <path>

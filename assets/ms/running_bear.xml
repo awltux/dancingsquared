@@ -25,7 +25,7 @@
   <tam title="Running Bear"
        group=" "
        formation="Static Square"
-       fractions="8;8;3;5;2;3;4;4.5;2;6.5;4;4.5;2" >
+       fractions="8;8;3;5;2;3;4;4.5;2;6.5;4;4.5;2"  vid="V1-c187gpve">
     <path>
       <!-- Ladies Chain -->
         <move select="Flip Left" beats="5" offsetY="-4" />

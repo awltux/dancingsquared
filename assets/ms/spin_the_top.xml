@@ -25,7 +25,7 @@
   <tam title="Spin the Top"
        from="Right-Hand Wave"
        formation="Wave RH GBBG"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-n7vmxduk">
     <path>
       <move select="Swing Right" />
       <move select="Hinge Left" />
@@ -41,7 +41,7 @@
   <tam title="Spin the Top"
        from="Left-Hand Wave"
        formation="Wave LH GBBG"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-n4x7gbub">
     <path>
       <move select="Swing Left" />
       <move select="Hinge Right" />
@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="Spin the Top" from="Facing Couples"
-       formation="Facing Couples" parts="5" difficulty="2">
+       formation="Facing Couples" parts="5" difficulty="2" vid="V1-eh4zhisq">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
       <move select="Swing Right"/>
@@ -69,7 +69,7 @@
   </tam>
 
   <tam title="Spin the Top" from="Close Couples" display="none"
-       formation="Facing Couples Close" parts="4" difficulty="2">
+       formation="Facing Couples Close" parts="4" difficulty="2" vid="V1-9am0eaxp">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -85,7 +85,7 @@
   <tam title="Spin the Top"
        from="Right-Hand Waves"
        formation="Ocean Waves RH GBBG"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-51c9bt8u">
     <path>
       <move select="Swing Right" />
       <move select="Hinge Left" />
@@ -111,7 +111,7 @@
   <tam title="Spin the Top"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-8rgvutc5">
     <path>
       <move select="Swing Left" />
       <move select="Hinge Right" />
@@ -137,7 +137,7 @@
   <tam title="Spin the Top"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH GBBG"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-72gesfyl">
     <path>
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
       <move select="Hinge Left" scaleY=".5" />
@@ -161,7 +161,7 @@
   <tam title="Spin the Top"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-x9zhz2hx">
     <path>
       <move select="Swing Left" hands="gripleft" scaleX=".5" scaleY=".5" />
       <move select="Hinge Right" scaleY=".5" />
@@ -185,7 +185,7 @@
   <tam title="Spin the Top"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="4" difficulty="2">
+       parts="4" difficulty="2" vid="V1-vxqyucin">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -211,7 +211,7 @@
   <tam title="Spin the Top"
        from="Lines"
        formation="Normal Lines"
-       parts="5" difficulty="3">
+       parts="5" difficulty="3" vid="V1-8jqdu9xu">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -237,7 +237,7 @@
   </tam>
 
   <tam title="Left Spin the Top" from="Facing Couples"
-       formation="Facing Couples" parts="5" difficulty="3">
+       formation="Facing Couples" parts="5" difficulty="3" vid="V1-26b504u7">
     <path>
       <move select="Forward 2"/>
       <move select="Swing Left"/>
@@ -251,7 +251,7 @@
   </tam>
 
   <tam title="Left Spin the Top" from="Close Couples" display="none"
-       formation="Facing Couples Close" parts="4" difficulty="2">
+       formation="Facing Couples Close" parts="4" difficulty="2" vid="V1-zw649cf0">
     <path>
       <move select="Extend Right" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -267,7 +267,7 @@
   <tam title="Left Spin the Top"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="4" difficulty="3">
+       parts="4" difficulty="3" vid="V1-d2qku36u">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Swing Left" hands="gripleft" scaleX=".5" scaleY=".5" />
@@ -293,7 +293,7 @@
   <tam title="Left Spin the Top"
        from="Lines"
        formation="Normal Lines"
-       parts="5" difficulty="3">
+       parts="5" difficulty="3" vid="V1-m3i58gof">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Left" hands="gripleft" scaleX=".5" scaleY=".5" />
@@ -320,7 +320,7 @@
 
 
   <tam title="Heads Spin the Top" from="Static Square" group=" "
-       formation="Static Square" parts="6" difficulty="2">
+       formation="Static Square" parts="6" difficulty="2" vid="V1-p5el7pb0">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -339,7 +339,7 @@
   </tam>
 
   <tam title="Heads Left Spin the Top" from="Static Square" group=" "
-       formation="Static Square" parts="6" difficulty="3">
+       formation="Static Square" parts="6" difficulty="3" vid="V1-p8ezfcdn">
     <path>
       <move select="Extend Right" beats="3" scaleX="3" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />

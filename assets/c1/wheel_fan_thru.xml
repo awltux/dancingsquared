@@ -24,7 +24,7 @@
 
   <tam title="Wheel Fan Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-1p4rbjz4">
     <path numbers="1 4">
       <move select="HalfHinge Right" beats="2" offsetX="1.25" offsetY="-.25" />
       <move select="Swing Right" scaleX=".707" scaleY=".707" />
@@ -38,7 +38,7 @@
 
   <tam title="Wheel Fan Thru"
        from="Lines"
-       formation="Normal Lines" >
+       formation="Normal Lines"  vid="V1-in69qj35">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX="1.6" offsetY="-.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -61,7 +61,7 @@
 
   <tam title="Wheel Fan Thru"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-0k5gqyaw">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX=".6" offsetY="-.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -82,7 +82,7 @@
 
   <tam title="Left Wheel Fan Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-gouazb0p">
     <path>
       <move select="Quarter Left" offsetX=".5" offsetY=".5" />
     </path>
@@ -95,7 +95,7 @@
 
   <tam title="Left Wheel Fan Thru"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-qgoz7oug">
     <path>
       <move select="Quarter Left" offsetX="1" />
     </path>
@@ -116,7 +116,7 @@
 
   <tam title="Left Wheel Fan Thru"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-urt8wgy5">
     <path>
       <move select="Quarter Left" offsetY="1" />
     </path>
@@ -136,7 +136,7 @@
   </tam>
 
   <tam title="Heads Wheel Fan Thru"
-       formation="Static Square" group="  ">
+       formation="Static Square" group="  " vid="V1-b3t53qw7">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX="2.6" offsetY="-.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -153,7 +153,7 @@
   </tam>
 
   <tam title="Sides Wheel Fan Thru"
-       formation="Static Square" group="  ">
+       formation="Static Square" group="  " vid="V1-xohwao5u">
     <path>
     </path>
     <path>
@@ -170,7 +170,7 @@
   </tam>
 
   <tam title="Heads Left Wheel Fan Thru"
-       formation="Static Square" group="  ">
+       formation="Static Square" group="  " vid="V1-zqodufpo">
     <path>
       <move select="Quarter Left" offsetX="2" beats="3"/>
       <move select="Stand" hands="none" beats="4"/>
@@ -187,7 +187,7 @@
   </tam>
 
   <tam title="Sides Left Wheel Fan Thru"
-       formation="Static Square" group="  ">
+       formation="Static Square" group="  " vid="V1-m5sy1u7n">
     <path>
     </path>
     <path>
@@ -205,7 +205,7 @@
 
   <tam title="As Couples Wheel Fan Thru"
        formation="Normal Lines"
-       group=" ">
+       group=" " vid="V1-529oj8cw">
     <path>
       <move select="Extend Right" hands="right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Cast Right" scaleX="1.5" scaleY="1.5" />
@@ -227,7 +227,7 @@
   </tam>
 
   <tam title="All 8 Wheel Fan Thru" from="Static Square" group=" "
-       formation="Static Square">
+       formation="Static Square" vid="V1-kc8wnu9j">
     <path>
       <move select="Forward 3"/>
       <move select="Cast Right"/>
@@ -246,7 +246,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Wheel Fan Thru" from="" formation="Butterfly Chain Thru" group=" ">
+  <tam title="Butterfly Wheel Fan Thru" from="" formation="Butterfly Chain Thru" group=" " vid="V1-rdeupd9o">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX=".1" offsetY="-1.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -267,7 +267,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Wheel Fan Thru" from="" formation="O Eight Chain Thru" group=" ">
+  <tam title="&quot;O&quot; Wheel Fan Thru" from="" formation="O Eight Chain Thru" group=" " vid="V1-f4lq4q90">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX="1.1" offsetY="-1.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -291,7 +291,7 @@
   <tam title="Stretch Wheel Fan Thru"
        from=""
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-qdv1x7uy">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX="1.6" offsetY="-.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -313,7 +313,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Wheel Fan Thru" from="" formation="Double Pass Thru" group=" ">
+  <tam title="Tandem Wheel Fan Thru" from="" formation="Double Pass Thru" group=" " vid="V1-rrjkg16z">
     <path>
       <move select="Forward 2"/>
       <move select="Counter Rotate Right 2 0" hands="right"/>
@@ -340,7 +340,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Wheel Fan Thru" from="" formation="Phantom Lines In" group=" ">
+  <tam title="Triple Box Wheel Fan Thru" from="" formation="Phantom Lines In" group=" " vid="V1-7mg4z2wx">
     <path>
       <move select="HalfHinge Right" beats="2" offsetX="1.6" offsetY="-.4" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -370,7 +370,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Left Wheel Fan Thru" from="Static Square" group=" " formation="Static Square">
+  <tam title="All 8 Left Wheel Fan Thru" from="Static Square" group=" " formation="Static Square" vid="V1-ufj4497g">
     <path>
       <move select="Lead Left" beats="6" scaleX="2" scaleY="2"/>
     </path>
@@ -392,7 +392,7 @@
   <tam title="As Couples Left Wheel Fan Thru"
        from="" group=" "
        formation="Normal Lines"
-       fractions="" >
+       fractions=""  vid="V1-tm4cddcn">
     <path>
       <move select="BackHinge Right" />
     </path>
@@ -411,7 +411,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Left Wheel Fan Thru" from="" formation="Butterfly Chain Thru" group=" ">
+  <tam title="Butterfly Left Wheel Fan Thru" from="" formation="Butterfly Chain Thru" group=" " vid="V1-zqsej66f">
     <path>
       <move select="Quarter Left"/>
       <move select="Stand" hands="none" beats="5.5"/>
@@ -432,7 +432,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Left Wheel Fan Thru" from="" formation="O Eight Chain Thru" group=" ">
+  <tam title="&quot;O&quot; Left Wheel Fan Thru" from="" formation="O Eight Chain Thru" group=" " vid="V1-9icnngjj">
     <path>
       <move select="Quarter Left"/>
       <move select="Stand" hands="none" beats="5.5"/>
@@ -456,7 +456,7 @@
   <tam title="Stretch Left Wheel Fan Thru"
        from=""
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-t1eh5qi9">
     <path>
       <move select="Quarter Left" offsetX="1" beats="3"/>
       <move select="Stand" hands="none" beats="4"/>
@@ -478,7 +478,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Left Wheel Fan Thru" from="" formation="Double Pass Thru" group=" ">
+  <tam title="Tandem Left Wheel Fan Thru" from="" formation="Double Pass Thru" group=" " vid="V1-98fnfpqc">
     <path>
       <move select="Eighth Left" beats="3"/>
       <move select="Stand" beats="5" hands="none"/>
@@ -505,7 +505,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Box Left Wheel Fan Thru" from="" formation="Phantom Lines In" group=" ">
+  <tam title="Triple Box Left Wheel Fan Thru" from="" formation="Phantom Lines In" group=" " vid="V1-dfcmmuim">
     <path>
       <move select="Quarter Left" offsetX="1" beats="3"/>
       <move select="Stand" hands="none" beats="4"/>

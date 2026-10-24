@@ -25,7 +25,7 @@
   <tam title="Interlocked Little More"
        from="Right-Hand Quarter Line"
        formation="Quarter Lines RH"
-       parts="6">
+       parts="6" vid="V1-pwkz2lth">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
     </path>
@@ -47,7 +47,7 @@
   <tam title="Interlocked Little More"
        from="Left-Hand Quarter Line"
        formation="Quarter Lines LH"
-       parts="6">
+       parts="6" vid="V1-m5gn4aw4">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
     </path>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Interlocked Little More" from="Right-Hand 3/4 Line" parts="6">
+  <tam title="Interlocked Little More" from="Right-Hand 3/4 Line" parts="6" vid="V1-4izicv91">
     <formation fid="F3-vg8zjub2" aid="A1-sokysfyo">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -94,7 +94,7 @@
   <tam title="Interlocked Little More"
        from="Left-Hand 3/4 Line"
        formation="3/4 Lines LH"
-       parts="6">
+       parts="6" vid="V1-2rky02rx">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Forward 3"/>
@@ -116,7 +116,7 @@
   <tam title="Interlocked Scoot and Little More"
        from="Right-Hand Quarter Line"
        formation="Quarter Lines RH"
-       parts="8;6">
+       parts="8;6" vid="V1-2bxt3p7s">
     <path numbers="1 8">
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -150,7 +150,7 @@
   <tam title="Interlocked Scoot and Little More"
        from="Left-Hand Quarter Line"
        formation="Quarter Lines LH"
-       parts="8;6">
+       parts="8;6" vid="V1-gxqr9c4t">
     <path>
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>

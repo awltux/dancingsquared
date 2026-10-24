@@ -23,7 +23,7 @@
 <tamination title="Block Formation">
 
   <tam title="In Your Block Box Circulate" group="In Your Block"
-       from="" formation="Blocks RH">
+       from="" formation="Blocks RH" vid="V1-27bjgzbn">
     <path>
       <move select="Forward 4"/>
     </path>
@@ -41,7 +41,7 @@
   <tam title="In Your Block Chase Right" group="In Your Block"
        from=""
        formation="Blocks Facing Out"
-       fractions="" >
+       fractions=""  vid="V1-urkhnnnx">
     <path>
       <move select="U-Turn Right" beats="2" offsetX="-1" />
       <move select="Lead Right" beats="3" scaleX="3" />
@@ -67,7 +67,7 @@
   <tam title="In Your Block Pass Thru" group="In Your Block"
        from=""
        formation="Facing Blocks Left"
-       fractions="" >
+       fractions=""  vid="V1-1i1yraop">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -89,7 +89,7 @@
   <tam title="In Your Block Partner Tag" group="In Your Block"
        from=""
        formation="Facing Blocks Left"
-       fractions="" >
+       fractions=""  vid="V1-q9qv4ua5">
     <path>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="2" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -111,7 +111,7 @@
   <tam title="In Your Block Partner Trade" group="In Your Block"
        from=""
        formation="Blocks Facing Out"
-       fractions="" >
+       fractions=""  vid="V1-q734l1l5">
     <path>
       <move select="Flip Left" beats="3" scaleY="2" />
     </path>
@@ -129,7 +129,7 @@
   <tam title="In Your Block Slide Thru" group="In Your Block"
        from=""
        formation="Facing Blocks Left"
-       fractions="" >
+       fractions=""  vid="V1-o7vmj7yl">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="2" scaleY=".5" />
@@ -149,7 +149,7 @@
   </tam>
 
   <tam title="In Your Block Square Chain the Top" group="In Your Block"
-       fractions="">
+       fractions="" vid="V1-zfwhzjzt">
     <formation fid="F3-g3kqivc3" aid="A1-jdm78xhx">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="1" angle="270"/>
@@ -191,7 +191,7 @@
   </tam>
 
   <tam title="In Your Block Square Chain Thru" group="In Your Block"
-       fractions="3.5;3;3;3" >
+       fractions="3.5;3;3;3"  vid="V1-gjvvwc7g">
     <formation fid="F3-g3kqivc3" aid="A1-jdm78xhx">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="1" angle="270"/>
@@ -235,7 +235,7 @@
   <tam title="In Your Block Square Thru" group="In Your Block"
        from=""
        formation="Facing Blocks Left"
-       fractions="4;4;4" >
+       fractions="4;4;4"  vid="V1-6slrgman">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="2" scaleY=".5" />
@@ -281,7 +281,7 @@
   <tam title="In Your Block Touch a Quarter" group="In Your Block"
        from=""
        formation="Facing Blocks Right"
-       fractions="" >
+       fractions=""  vid="V1-yh8h03s7">
     <path>
       <move select="Extend Left"  beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="2" scaleY=".5" />
@@ -303,7 +303,7 @@
   <tam title="In Your Block Walk and Dodge" group="In Your Block"
        from=""
        formation="Blocks RH"
-       fractions="" >
+       fractions=""  vid="V1-bu037wtb">
     <path>
       <move select="Forward 4" />
     </path>
@@ -323,7 +323,7 @@
   <tam title="In Your Block Wheel Thru" group="In Your Block"
        from=""
        formation="Facing Blocks Left"
-       fractions="" >
+       fractions=""  vid="V1-yjwnri9r">
     <path>
       <move select="Lead Right" beats="4" scaleX="4" scaleY="4" />
     </path>
@@ -338,7 +338,7 @@
     </path>
   </tam>
 
-  <tam title="In Your Block Zing" group="In Your Block" from="" formation="Blocks RH">
+  <tam title="In Your Block Zing" group="In Your Block" from="" formation="Blocks RH" vid="V1-gsa401ta">
     <path>
       <move select="Forward 3" beats="4.5"/>
       <move select="Quarter Right" offsetX="1"/>

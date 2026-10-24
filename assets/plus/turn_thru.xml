@@ -24,7 +24,7 @@
 
   <tam title="Turn Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-2aktq61p">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".5" />
       <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />
@@ -49,7 +49,7 @@
        vary with the separation in the Star Thru pair either. Start formation written INLINE at
        x = -1 so the engine's mirror puts the second couple at +1. -->
   <tam title="Turn Thru"
-       from="Facing Couples" formation="Facing Couples Close">
+       from="Facing Couples" formation="Facing Couples Close" vid="V1-6qfljs2v">
     <path>
       <move select="Extend Left" scaleX="1" scaleY=".5" />
       <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />
@@ -62,7 +62,7 @@
     </path>
   </tam>
 
-  <tam title="Turn Thru" from="Right-Hand Box" formation="Box RH">
+  <tam title="Turn Thru" from="Right-Hand Box" formation="Box RH" vid="V1-y9k44z73">
     <path>
       <move select="Hinge Right" scaleX=".75" />
       <move select="Hinge Right" scaleX=".75" scaleY=".75" />
@@ -76,7 +76,7 @@
   </tam>
 
 
-  <tam title="Turn Thru" from="Right-Hand Wave" formation="Wave RH" difficulty="2">
+  <tam title="Turn Thru" from="Right-Hand Wave" formation="Wave RH" difficulty="2" vid="V1-b8pt35rm">
     <path>
       <move select="Hinge Right" scaleX=".75" />
       <move select="Hinge Right" scaleX=".75" scaleY=".75" />
@@ -91,7 +91,7 @@
 
   <tam title="Turn Thru"
        from="Lines"
-       formation="Normal Lines" difficulty="2">
+       formation="Normal Lines" difficulty="2" vid="V1-fnk7ep8k">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />
@@ -116,7 +116,7 @@
 
   <tam title="Turn Thru"
        from="Waves"
-       formation="Ocean Waves RH GBBG" difficulty="1">
+       formation="Ocean Waves RH GBBG" difficulty="1" vid="V1-htyxagvc">
     <path>
       <move select="Hinge Right" scaleX=".75" />
       <move select="Hinge Right" scaleX=".75" scaleY=".75" />
@@ -139,7 +139,7 @@
     </path>
   </tam>
 
-  <tam title="Turn Thru" from="Eight Chain Thru" formation="Eight Chain Thru" difficulty="1">
+  <tam title="Turn Thru" from="Eight Chain Thru" formation="Eight Chain Thru" difficulty="1" vid="V1-e3r6v71t">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Swing Right" hands="gripright" beats="2" scaleX=".5" scaleY=".5" />
@@ -162,7 +162,7 @@
     </path>
   </tam>
 
-  <tam title="Turn Thru" from="Right-Hand Columns" formation="Column RH GBGB" difficulty="2">
+  <tam title="Turn Thru" from="Right-Hand Columns" formation="Column RH GBGB" difficulty="2" vid="V1-ok9rq34y">
     <path>
       <move select="Hinge Right" scaleX=".75" />
       <move select="Hinge Right" scaleX=".75" scaleY=".75" />
@@ -185,7 +185,7 @@
     </path>
   </tam>
 
-  <tam title="Turn Thru" from="Quarter Tag" difficulty="1">
+  <tam title="Turn Thru" from="Quarter Tag" difficulty="1" vid="V1-5ctrx50x">
     <formation fid="F3-roc084t6" aid="A1-ibqwe37g">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>

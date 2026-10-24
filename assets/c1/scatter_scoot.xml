@@ -24,7 +24,7 @@
 
   <tam title="Scatter Scoot"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" >
+       formation="Ocean Waves RH BGGB"  vid="V1-yzybupja">
     <path numbers="1 8" couples="2 4">
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -46,7 +46,7 @@
 
   <tam title="Scatter Scoot"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-mewtiz59">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="3" />
       <move select="Lead Left" beats="3" scaleX="3" scaleY="2"/>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Scatter Scoot" from="T-Bones 1"
-       formation="T-Bone RDRD">
+       formation="T-Bone RDRD" vid="V1-1faneo2p">
     <path>
       <move select="Run Right" beats="6" scaleX="2" scaleY="3"/>
     </path>
@@ -87,7 +87,7 @@
   </tam>
 
   <tam title="Scatter Scoot" from="T-Bones 2"
-       formation="T-Bone DLDL">
+       formation="T-Bone DLDL" vid="V1-g5h3rne5">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3"/>
     </path>
@@ -109,7 +109,7 @@
   <tam title="Scatter Scoot Chain Thru"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGBG"
-       parts="2;3;3;3" >
+       parts="2;3;3;3"  vid="V1-6py2nfoy">
     <path>
       <move select="Forward 2" />
       <move select="Swing Right" />
@@ -135,7 +135,7 @@
   <tam title="Scatter Scoot Chain Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGBG"
-       parts="2;3;3;3" >
+       parts="2;3;3;3"  vid="V1-iaopz6bl">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>

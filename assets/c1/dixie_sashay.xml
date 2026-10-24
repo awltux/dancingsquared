@@ -22,7 +22,7 @@
 -->
 <tamination title="Dixie Sashay">
 
-  <tam title="Dixie Sashay" from="Facing Couples">
+  <tam title="Dixie Sashay" from="Facing Couples" vid="V1-4ya6ygav">
     <formation fid="F3-4ro3p815" aid="A1-yl2mr1qt">
       <dancer gender="boy" x="1" y="1.5" angle="270"/>
       <dancer gender="girl" x="-1" y="1.5" angle="270"/>
@@ -38,7 +38,7 @@
     </path>
   </tam>
 
-  <tam title="Dixie Sashay" from="Facing Couples Close" display="no">
+  <tam title="Dixie Sashay" from="Facing Couples Close" display="no" vid="V1-8vi7rsal">
     <formation fid="F3-xud0oaar" aid="A1-k1o5a9dv">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
@@ -54,7 +54,7 @@
     </path>
   </tam>
 
-  <tam title="Dixie Sashay" from="Tandem" formation="Tandem Girls Lead">
+  <tam title="Dixie Sashay" from="Tandem" formation="Tandem Girls Lead" vid="V1-liqqcads">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -70,7 +70,7 @@
 
   <tam title="Dixie Sashay"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-4sie8fle">
     <path>
       <move select="Dodge Right" beats="4" scaleY="0.875"/>
       <move select="Hinge Left" beats="3" scaleX="3" scaleY=".75"/>
@@ -91,7 +91,7 @@
     </path>
   </tam>
 
-  <tam title="Dixie Sashay" from="Eight Chain Thru" formation="Eight Chain Thru">
+  <tam title="Dixie Sashay" from="Eight Chain Thru" formation="Eight Chain Thru" vid="V1-tmym9d33">
     <path>
       <move select="Dodge Right" scaleY=".875" offsetX="-.3"/>
       <move select="Stand" />
@@ -114,7 +114,7 @@
     </path>
   </tam>
 
-  <tam title="Dixie Sashay" from="Double Pass Thru" formation="Double Pass Thru">
+  <tam title="Dixie Sashay" from="Double Pass Thru" formation="Double Pass Thru" vid="V1-vuerklvb">
     <path>
       <move select="Stand" beats="2" />
       <move select="Extend Right" scaleY=".5" />
@@ -140,7 +140,7 @@
   </tam>
 
   <tam title="All 8 Dixie Sashay" group=" "
-       formation="Static Square">
+       formation="Static Square" vid="V1-uom0s09o">
     <path>
       <move select="Extend Right" beats="5" scaleY="1.75"/>
       <move select="Forward 2" hands="left" offsetY="-.25"/>

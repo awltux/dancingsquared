@@ -23,7 +23,7 @@
 <tamination title="Counter Rotate">
 
   <tam title="Counter Rotate"
-       from="Right-Hand Waves">
+       from="Right-Hand Waves" vid="V1-6qqtqx00">
      <formation fid="F3-4tsqu67b" aid="A1-0nsuszbv">
       <dancer gender="boy" x="3" y="1.5" angle="270"/>
       <dancer gender="girl" x="1" y="1.5" angle="90"/>
@@ -47,7 +47,7 @@
     </taminator>
   </tam>
 
-  <tam title="Counter Rotate" from="Left-Hand Waves" formation="Ocean Waves LH BGGB">
+  <tam title="Counter Rotate" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" vid="V1-ca8xz362">
     <path>
       <move select="Counter Rotate Left 1 5" beats="5"/>
     </path>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Counter Rotate"
-       from="Right-Hand Tidal Wave">
+       from="Right-Hand Tidal Wave" vid="V1-8csrj7we">
      <formation fid="F3-svw0dvrr" aid="A1-y8ioixzx">
       <dancer gender="boy" x="-3.5" y="0" angle="90"/>
       <dancer gender="girl" x="-2.5" y="0" angle="270"/>
@@ -87,7 +87,7 @@
   <tam title="Counter Rotate"
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       fractions="" >
+       fractions=""  vid="V1-o4gen1x5">
     <path>
       <move select="Lead Right" beats="5" scaleX="3" scaleY="3" />
     </path>
@@ -102,7 +102,7 @@
     </path>
   </tam>
 
-  <tam title="Counter Rotate" from="Point to Point Diamonds" formation="Diamonds RH PTP Girl Points">
+  <tam title="Counter Rotate" from="Point to Point Diamonds" formation="Diamonds RH PTP Girl Points" vid="V1-m8h6wlkk">
     <path>
       <move select="Counter Rotate Right 4 2" hands="right" beats="5"/>
     </path>
@@ -120,7 +120,7 @@
   <tam title="Counter Rotate"
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="" >
+       fractions=""  vid="V1-nnhi6dox">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="3" scaleY="1.5" />
@@ -147,7 +147,7 @@
   <tam title="Counter Rotate"
        from="Inverted Lines Centers Facing In"
        formation="Inverted Lines Ends Facing Out"
-       fractions="" >
+       fractions=""  vid="V1-ijp4jrzv">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -168,7 +168,7 @@
 
   <tam title="Counter Rotate"
        from="Inverted Lines Centers Facing Out"
-       formation="Inverted Lines Ends Facing In" >
+       formation="Inverted Lines Ends Facing In"  vid="V1-alxqo94o">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" beats="3" scaleX="3" scaleY="1.5"/>
@@ -188,7 +188,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-wbc78odg">
     <path>
       <move select="Counter Rotate Right 5 -1" hands="right" beats="5"/>
     </path>
@@ -204,7 +204,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-ugoltdar">
     <path>
       <move select="Counter Rotate Left 1 5" hands="left" beats="5"/>
     </path>
@@ -219,7 +219,7 @@
     </path>
   </tam>
 
-  <tam title="Counter Rotate" from="Quarter Tag" formation="Quarter Tag">
+  <tam title="Counter Rotate" from="Quarter Tag" formation="Quarter Tag" vid="V1-3hnt1pog">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2.5"/>
       <move select="Lead Right" scaleY=".5"/>
@@ -237,7 +237,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Facing Hourglass"
-       formation="Hourglass Facing RH Box">
+       formation="Hourglass Facing RH Box" vid="V1-y1qm7g0r">
     <path>
       <move select="Counter Rotate Right 1 -5" beats="5" />
     </path>
@@ -253,7 +253,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-20prm2lf">
     <path>
       <move select="Counter Rotate Right -2 -4" hands="right" beats="5"/>
     </path>
@@ -269,7 +269,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-hl6tnu7y">
     <path>
       <move select="Counter Rotate Left 4 -2" hands="left" beats="5" />
     </path>
@@ -284,7 +284,7 @@
     </path>
   </tam>
 
-  <tam title="Counter Rotate" from="Magic Columns, Right-Hand Centers">
+  <tam title="Counter Rotate" from="Magic Columns, Right-Hand Centers" vid="V1-n6b67663">
     <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp">
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
@@ -306,7 +306,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Magic Columnns, Left-Hand Centers"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-2y673bnp">
     <path>
       <move select="Counter Rotate Right -2 -4" hands="right" beats="5"/>
     </path>
@@ -321,7 +321,7 @@
     </path>
   </tam>
 
-  <tam title="Counter Rotate" from="Parallelogram">
+  <tam title="Counter Rotate" from="Parallelogram" vid="V1-fsptqd4k">
      <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -345,7 +345,7 @@
   <tam title="Points Counter Rotate"
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       fractions="" >
+       fractions=""  vid="V1-4xo6f6h6">
     <path numbers="6 3">
     </path>
     <path numbers="2 7">

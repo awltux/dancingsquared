@@ -24,7 +24,7 @@
 
   <tam title="Once Removed Boys Run"
        group="(From lines) Once Removed"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-f41vvpgl">
     <formation fid="F3-0cpks7zb" aid="A1-ig381bif">
       <dancer gender="girl" x="-1.5" y="3" angle="0"/>
       <dancer gender="boy" x="-1.5" y="-1" angle="180"/>
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Once Removed Chase Right" group="(From lines) Once Removed"
-       formation="Lines Facing Out Compact">
+       formation="Lines Facing Out Compact" vid="V1-lly5ddea">
   <path couples="1 2">
     <move select="U-Turn Right" offsetX="-2"/>
     <move select="Forward"/>
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="Once Removed Circle By 1/4 by 1/2" group="(From lines) Once Removed"
-       formation="Normal Lines Compact">
+       formation="Normal Lines Compact" vid="V1-2oi5h2g0">
     <path couples="1 2">
       <move select="Eighth Right" beats="1" hands="right" offsetX=".5" />
       <move select="Circle Left Quarter" beats="4" hands="none" scaleX="2" scaleY="2" />
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="Once Removed Circulate" group="(From lines) Once Removed"
-       formation="Two-Faced Lines RH Compact">
+       formation="Two-Faced Lines RH Compact" vid="V1-spkvv8pr">
     <path couples="1 2">
       <move select="Forward 3" beats="4"/>
     </path>
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Once Removed Counter Rotate" group="(From lines) Once Removed"
-       formation="Two-Faced Lines RH Compact">
+       formation="Two-Faced Lines RH Compact" vid="V1-mg92q4tw">
     <path couples="1 2">
       <move select="Counter Rotate Right 2 0" scaleX="1.25"/>
     </path>
@@ -143,7 +143,7 @@
   </tam>
 
   <tam title="Once Removed Partner Trade" group="(From lines) Once Removed"
-       formation="Lines Facing Out Compact">
+       formation="Lines Facing Out Compact" vid="V1-bhg4sn5i">
     <path couples="1 2">
       <move select="Flip Left" beats="6" scaleY="2"/>
     </path>
@@ -159,7 +159,7 @@
   </tam>
 
   <tam title="Once Removed Pass the Ocean" group="(From lines) Once Removed"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-p9pr2qdm">
     <path couples="1 2">
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="1.5"/>
@@ -183,7 +183,7 @@
   </tam>
 
   <tam title="Once Removed Peel Off" group="(From lines) Once Removed"
-       formation="Ocean Waves RH BGGB Compact">
+       formation="Ocean Waves RH BGGB Compact" vid="V1-laevk4i0">
     <path couples="1 2">
       <move select="U-Turn Left" beats="3" offsetX="1.5" offsetY="-.5" />
       <move select="BackSashay Left" scaleY=".5"/>
@@ -200,7 +200,7 @@
     </path>
   </tam>
 
-  <tam title="Once Removed Shakedown" group="(From lines) Once Removed" formation="Lines Facing Out Compact">
+  <tam title="Once Removed Shakedown" group="(From lines) Once Removed" formation="Lines Facing Out Compact" vid="V1-44m38cp4">
     <path couples="1 2">
       <move select="U-Turn Right" offsetX="-1.25"/>
       <move select="Quarter Right" offsetX="1.25" />
@@ -220,7 +220,7 @@
   </tam>
 
   <tam title="Once Removed Single Wheel" group="(From lines) Once Removed"
-       formation="Lines Facing Out Compact">
+       formation="Lines Facing Out Compact" vid="V1-21fk1y7r">
     <path couples="1 2">
       <move select="U-Turn Left" beats="4" offsetX="-.5" offsetY="2" />
     </path>
@@ -241,7 +241,7 @@
   </tam>
 
   <tam title="Once Removed Square Chain Thru" group="(From lines) Once Removed"
-       formation="Normal Lines Compact">
+       formation="Normal Lines Compact" vid="V1-h197qdvx">
     <path couples="1 2">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5"/>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5"/>
@@ -288,7 +288,7 @@
   </tam>
 
   <tam title="Once Removed Square Thru 3 to a Wave" group="(From lines) Once Removed"
-       formation="Normal Lines Compact">
+       formation="Normal Lines Compact" vid="V1-sqd1jhas">
     <path couples="1 2">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5"/>
       <move select="Lead Right" scaleX=".5" scaleY=".5"/>
@@ -321,7 +321,7 @@
   </tam>
 
   <tam title="Once Removed Swap Around" group="(From lines) Once Removed"
-       formation="Normal Lines Compact">
+       formation="Normal Lines Compact" vid="V1-9xa9e58u">
     <path couples="1 2">
       <move select="Flip Right" beats="4" scaleY="2"/>
     </path>
@@ -337,7 +337,7 @@
   </tam>
 
   <tam title="Once Removed Walk and Dodge" group="(From lines) Once Removed"
-       formation="Two-Faced Lines RH Compact">
+       formation="Two-Faced Lines RH Compact" vid="V1-eljvfgt0">
     <path numbers="1 8" couples="1 2">
       <move select="Forward 3" beats="4" hands="right"/>
     </path>
@@ -353,7 +353,7 @@
   </tam>
 
   <tam title="Once Removed Circulate" group="(From columns) Once Removed"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-biguvjcc">
     <path couples="1 2">
       <move select="Run Right" beats="4"/>
     </path>
@@ -369,7 +369,7 @@
   </tam>
 
   <tam title="Once Removed Hinge" group="(From columns) Once Removed"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-pqiaz6od">
     <path couples="1 2">
       <move select="Lead Right" scaleX=".5"/>
     </path>
@@ -385,7 +385,7 @@
   </tam>
 
   <tam title="Once Removed Peel Off" group="(From columns) Once Removed"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-n0k8ima3">
     <path couples="1 2">
       <move select="Run Left" beats="4" offsetX="-1.5"/>
     </path>
@@ -401,7 +401,7 @@
   </tam>
 
   <tam title="Once Removed Quarter Thru" group="(From columns) Once Removed"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-dhmsroot">
     <path couples="1 2">
       <move select="Lead Right" scaleX=".5"/>
     </path>
@@ -421,7 +421,7 @@
   </tam>
 
   <tam title="Once Removed Turn to a Line" group="(From columns) Once Removed"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-ejz5xx13">
     <path couples="1 2">
       <move select="U-Turn Right" beats="4" offsetX="-1" offsetY="-2"/>
     </path>
@@ -442,7 +442,7 @@
     </taminator>
   </tam>
 
-  <tam title="Once Removed Walk and Dodge" group="(From columns) Once Removed">
+  <tam title="Once Removed Walk and Dodge" group="(From columns) Once Removed" vid="V1-lnkv8wt7">
      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -464,7 +464,7 @@
   </tam>
 
   <tam title="Once Removed Zoom" group="(From columns) Once Removed"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-m6cfqbdn">
     <path couples="1 2">
       <move select="Run Left" offsetX="-2" />
       <move select="Run Left" offsetX="2" />
@@ -483,7 +483,7 @@
 
 
   <tam title="Once Removed Pass the Ocean" group="(From double pass thru) Once Removed"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-mct7fmrz">
     <path couples="1 2">
       <move select="Extend Left" scaleY=".5"/>
       <move select="Forward 2"/>
@@ -509,7 +509,7 @@
   </tam>
 
   <tam title="Once Removed Right and Left Thru" group="(From double pass thru) Once Removed"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-6gwrv1q0">
     <path couples="1 2">
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -537,7 +537,7 @@
   </tam>
 
   <tam title="Once Removed Slide Thru" group="(From double pass thru) Once Removed"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-xzrlh4at">
     <path couples="1 2">
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -560,7 +560,7 @@
     </path>
   </tam>
 
-  <tam title="Once Removed Touch a Quarter" group="(From double pass thru) Once Removed">
+  <tam title="Once Removed Touch a Quarter" group="(From double pass thru) Once Removed" vid="V1-bkmjpy3t">
     <formation fid="F3-7i4q346d" aid="A1-v1s9nkeh">
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="3" x="-1" angle="270"/>
@@ -590,7 +590,7 @@
   </tam>
 
   <tam title="Once Removed Turn to a Line" group="(From double pass thru) Once Removed"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-co44tfis">
     <path couples="1 2">
       <move select="U-Turn Left" beats="4" offsetX="1.5" offsetY="2"/>
     </path>
@@ -607,7 +607,7 @@
 
 
   <tam title="Once Removed Crossfire" group="(From tidal line) Once Removed"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-a5tnofy4">
     <path couples="1 2">
       <move select="Lead Right" beats="2" scaleX="2" scaleY="2"/>
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY=".5"/>
@@ -629,7 +629,7 @@
   </tam>
 
   <tam title="Once Removed Reverse Explode" group="(From tidal line) Once Removed"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-y4ichvoo">
     <path couples="1 2">
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-.5"/>
     </path>
@@ -645,7 +645,7 @@
   </tam>
 
   <tam title="Once Removed Swing Thru" group="(From tidal line) Once Removed"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-0492geym">
     <path>
       <move select="Lead Right" scaleX=".5" scaleY=".5"/>
       <move select="Forward"/>
@@ -675,7 +675,7 @@
   </tam>
 
   <tam title="Once Removed Switch to a Diamond" group="(From tidal line) Once Removed"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-aor4ej5d">
     <path couples="1 2">
       <move select="Lead Right"/>
       <move select="Forward" beats="2" scaleX="1.5"/>
@@ -695,7 +695,7 @@
 
   <tam title="Once Removed Turn and Deal"
        group="(From tidal line) Once Removed"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-0n2feby8">
     <path couples="1 2">
       <move select="U-Turn Left" beats="4" offsetX="-1.5" offsetY=".5" />
     </path>
@@ -712,7 +712,7 @@
 
   <tam title="Once Removed Two-Thirds Recycle"
        group="(From tidal line) Once Removed"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-yy5t5gp3">
     <path couples="1 2">
       <move select="Lead Right" offsetY=".5"/>
       <move select="Forward 4"/>
@@ -735,7 +735,7 @@
 
   <tam title="Once Removed Bend the Line"
        group="(From tidal wave) Once Removed"
-       formation="Tidal Wave RH BGBG">
+       formation="Tidal Wave RH BGBG" vid="V1-2l8i8gs1">
     <path couples="1 2">
       <move select="Hinge Right" beats="3" scaleY=".5"/>
     </path>
@@ -759,7 +759,7 @@
 
   <tam title="Once Removed Turn and Deal"
        group="(From tidal wave) Once Removed"
-       formation="Tidal Wave RH BGBG">
+       formation="Tidal Wave RH BGBG" vid="V1-9lx7b1qb">
     <path couples="1 2">
       <move select="U-Turn Right" beats="4" offsetX="1.5" offsetY="-.5" />
     </path>
@@ -776,7 +776,7 @@
 
   <tam title="Once Removed Wheel and Deal"
        group="(From tidal wave) Once Removed"
-       formation="Tidal Wave RH BGBG">
+       formation="Tidal Wave RH BGBG" vid="V1-2zh3inmt">
     <path couples="1 2">
       <move select="Forward"/>
       <move select="Run Right" beats="4" hands="right" scaleX="2" scaleY="2" offsetX="1.5" />
@@ -801,7 +801,7 @@
 
   <tam title="Once Removed Diamond Circulate"
        group="(From OR diamonds, tandem centers) Once Removed"
-       formation="Once Removed Diamonds Tandem Centers">
+       formation="Once Removed Diamonds Tandem Centers" vid="V1-9z9dha2i">
     <path couples="1 2">
       <move select="Lead Right" beats="4" scaleY="4"/>
     </path>
@@ -818,7 +818,7 @@
 
   <tam title="Once Removed Flip the Diamond"
        group="(From OR diamonds, tandem centers) Once Removed"
-       formation="Once Removed Diamonds Tandem Centers">
+       formation="Once Removed Diamonds Tandem Centers" vid="V1-n6k3g156">
     <path couples="1 2">
       <move select="Run Right" beats="4" scaleY="1.75"/>
     </path>
@@ -835,7 +835,7 @@
 
   <tam title="Once Removed Cut the Diamond"
        group="(From OR diamonds, tandem centers) Once Removed"
-       formation="Once Removed Diamonds Tandem Centers">
+       formation="Once Removed Diamonds Tandem Centers" vid="V1-rbiuot17">
     <path couples="1 2">
       <move select="Dodge Right" beats="4" scaleY="1.75"/>
       <move select="Run Right" scaleX=".5"/>
@@ -854,7 +854,7 @@
 
   <tam title="Once Removed Reverse Flip the Diamond"
        group="(From OR diamonds, tandem centers) Once Removed"
-       formation="Once Removed Diamonds Tandem Centers">
+       formation="Once Removed Diamonds Tandem Centers" vid="V1-ab51942o">
     <path couples="1 2">
       <move select="Lead Right" beats="4" scaleY="3.5"/>
     </path>
@@ -871,7 +871,7 @@
 
   <tam title="Once Removed Reverse Cut the Diamond"
        group="(From OR diamonds, tandem centers) Once Removed"
-       formation="Once Removed Diamonds Tandem Centers">
+       formation="Once Removed Diamonds Tandem Centers" vid="V1-up9xk7gt">
     <path couples="1 2">
       <move select="Stand"/>
       <move select="Lead Right" beats="3.5" scaleY="3.5"/>
@@ -892,7 +892,7 @@
 
   <tam title="Once Removed Diamond Circulate"
        group="(From OR diamonds, tandem points) Once Removed"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-bl4yynfs">
     <path couples="1 2">
       <move select="Lead Right" beats="3" scaleX="3" />
     </path>
@@ -913,7 +913,7 @@
 
   <tam title="Once Removed Flip the Diamond"
        group="(From OR diamonds, tandem points) Once Removed"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-7432kot4">
     <path couples="1 2">
       <move select="Lead Right" beats="3" scaleX="3" />
     </path>
@@ -930,7 +930,7 @@
 
   <tam title="Once Removed Cut the Diamond"
        group="(From OR diamonds, tandem points) Once Removed"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-wbsj62ud">
     <path couples="1 2">
       <move select="Lead Right" beats="3" scaleX="3" />
     </path>
@@ -949,7 +949,7 @@
 
   <tam title="Once Removed Reverse Flip the Diamond"
        group="(From OR diamonds, tandem points) Once Removed"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-1j76lw0m">
     <path couples="1 2">
       <move select="Flip Left" beats="4" scaleY="0.25"/>
     </path>
@@ -966,7 +966,7 @@
 
   <tam title="Once Removed Reverse Cut the Diamond"
        group="(From OR diamonds, tandem points) Once Removed"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-o793galr">
     <path couples="1 2">
       <move select="Lead Right" scaleX=".5"/>
       <move select="Forward" beats="2" scaleX="3.5"/>

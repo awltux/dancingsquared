@@ -25,7 +25,7 @@
   <tam title="Spin Chain and Exchange the Gears"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;4.5" difficulty="1">
+       parts="3;4.5;3;4.5" difficulty="1" vid="V1-wtsa1ynm">
     <path numbers="2 6">
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -79,7 +79,7 @@
   <tam title="Spin Chain and Exchange the Gears"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3;4.5" difficulty="2">
+       parts="3;4.5;3;4.5" difficulty="2" vid="V1-7ccsl8ht">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -133,7 +133,7 @@
   <tam title="Spin Chain and Exchange the Gears"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5;4.5;3;4.5" difficulty="2">
+       parts="5;4.5;3;4.5" difficulty="2" vid="V1-xpoczs03">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right" />
@@ -191,7 +191,7 @@
   <tam title="Left Spin Chain and Exchange the Gears" group=" "
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5;4.5;3;4.5" difficulty="3">
+       parts="5;4.5;3;4.5" difficulty="3" vid="V1-bqmplezs">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" />
@@ -248,7 +248,7 @@
 
   <tam title="Spin Chain and Exchange the Gears, Do Not Turn the Star" group=" "
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;0" difficulty="3">
+       parts="3;4.5;3;0" difficulty="3" vid="V1-lrc6tzby">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -306,7 +306,7 @@
 
   <tam title="Spin Chain and Exchange the Gears, Turn the Star One Quarter" group=" "
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;1.5" difficulty="2">
+       parts="3;4.5;3;1.5" difficulty="2" vid="V1-f23m7fnc">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -367,7 +367,7 @@
   <tam title="Spin Chain and Exchange the Gears, Turn the Star One Half" group=" "
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;3" difficulty="2">
+       parts="3;4.5;3;3" difficulty="2" vid="V1-5a3jjav7">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -429,7 +429,7 @@
   <tam title="Spin Chain and Exchange the Gears, Turn the Star a Full Turn"
        from="Right-Hand Waves" group=" "
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3;6" difficulty="2">
+       parts="3;4.5;3;6" difficulty="2" vid="V1-qtbzszsj">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -490,7 +490,7 @@
 
   <tam title="Spin Chain and Exchange the Gears, Do Not Turn the Star" group=" "
        formation="Ocean Waves LH BGGB"  display="none"
-       parts="3;4.5;3;0" difficulty="3">
+       parts="3;4.5;3;0" difficulty="3" vid="V1-2t2attn9">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -539,7 +539,7 @@
 
   <tam title="Spin Chain and Exchange the Gears, Turn the Star One Quarter" group=" "  display="none"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3;1.5" difficulty="2">
+       parts="3;4.5;3;1.5" difficulty="2" vid="V1-n70dzc1z">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -590,7 +590,7 @@
 
   <tam title="Spin Chain and Exchange the Gears, Turn the Star One Half" group=" "
        formation="Ocean Waves LH BGGB"  display="none"
-       parts="3;4.5;3;3" difficulty="2">
+       parts="3;4.5;3;3" difficulty="2" vid="V1-l7diqgcc">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -644,7 +644,7 @@
   <tam title="Spin Chain and Exchange the Gears, Turn the Star a Full Turn"
        group=" " display="none"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3;6" difficulty="2">
+       parts="3;4.5;3;6" difficulty="2" vid="V1-4h3ah2ek">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />

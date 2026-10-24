@@ -23,7 +23,7 @@
 <tamination title="Change Your Image">
 
   <tam title="Change Your Image" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" fractions="3">
+       formation="Ocean Waves RH BGGB" fractions="3" vid="V1-24rl2mv0">
     <path>
       <move select="Forward 3"/>
       <move select="Run Right"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" fractions="3">
+       formation="Ocean Waves LH BGGB" fractions="3" vid="V1-ti9qx943">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 2" beats="3"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" fractions="3">
+       formation="Two-Faced Lines RH" fractions="3" vid="V1-enm0tmad">
     <path>
       <move select="Forward 3"/>
       <move select="Run Right"/>
@@ -83,7 +83,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In" fractions="3">
+       formation="Inverted Lines Ends Facing In" fractions="3" vid="V1-z4fczv11">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>
@@ -105,7 +105,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-r0n52cse">
     <path>
       <move select="Stand" beats="4"/>
       <move select="Run Left" offsetX="-1"/>
@@ -129,7 +129,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Right-Hand Columns"
-       formation="Column RH GBGB" fractions="3">
+       formation="Column RH GBGB" fractions="3" vid="V1-q2vc9ymu">
     <path>
       <move select="Run Right"/>
       <move select="Forward 2" beats="3"/>
@@ -148,7 +148,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Left-Hand Columns"
-       formation="Column LH GBGB" fractions="3">
+       formation="Column LH GBGB" fractions="3" vid="V1-s38c00ar">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Run Left" scaleX=".5"/>
@@ -167,7 +167,7 @@
   </tam>
 
   <tam title="Change Your Image" from="Magic Columns"
-       formation="Magic Column RH" fractions="3">
+       formation="Magic Column RH" fractions="3" vid="V1-fp6vzwqq">
     <path>
       <move select="Extend Left" beats="1.5" scaleY=".5"/>
       <move select="Forward" beats="1.5"/>
@@ -190,7 +190,7 @@
     </path>
   </tam>
 
-  <tam title="Change Your Image" from="T-Bones" fractions="3">
+  <tam title="Change Your Image" from="T-Bones" fractions="3" vid="V1-akit79w7">
     <formation fid="F3-o9tliph3" aid="A1-k888hctz">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>

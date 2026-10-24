@@ -25,7 +25,7 @@
 
 
   <tam title="Switch to an Hourglass" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-sdssuct9">
     <path>
       <move select="Extend Right" beats="4" scaleX="2" scaleY="2"/>
     </path>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Switch to an Hourglass" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-hbbvjpfa">
     <path>
       <move select="Lead Left" beats="2"/>
       <move select="Forward 2"/>
@@ -59,7 +59,7 @@
     </path>
   </tam>
 
-  <tam title="Switch to an Hourglass" from="3 and 1 Lines" formation="3 and 1 lines #8">
+  <tam title="Switch to an Hourglass" from="3 and 1 Lines" formation="3 and 1 lines #8" vid="V1-hf0py1o8">
     <path>
       <move select="Lead Left" beats="2"/>
       <move select="Forward 2"/>

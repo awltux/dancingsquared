@@ -27,7 +27,7 @@
   <tam title="Bend the Line With the Flow" group=" "
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="2" >
+       fractions="2"  vid="V1-1flrlzxa">
     <path>
       <move select="Hinge Right" beats="2" />
       <move select="Forward 4" />
@@ -49,7 +49,7 @@
   <tam title="Wheel and Deal With the Flow" group=" "
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="4" >
+       fractions="4"  vid="V1-9be8zciq">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1"/>
       <move select="Forward 2" />
@@ -71,7 +71,7 @@
   <tam title="All 4 Couples Right and Left Thru With the Flow" group=" "
        from="Static Square"
        formation="Static Square"
-       fractions="9.5" >
+       fractions="9.5"  vid="V1-288dgsd5">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2" />
       <move select="Forward" />

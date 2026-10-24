@@ -25,7 +25,7 @@
   <tam title="Tally Ho"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="2;3" >
+       parts="2;3"  vid="V1-9aku7hz1">
     <path numbers="1 8">
       <move select="Forward 2" />
       <move select="Hinge Right" />
@@ -53,7 +53,7 @@
   <tam title="Tally Ho"
        from="Right-Hand Waves to Partner"
        formation="Ocean Waves RH BGGB"
-       parts="2;3" >
+       parts="2;3"  vid="V1-9aku7hz1">
     <path couples="1 3">
       <move select="Forward 2" />
       <move select="Hinge Right" />
@@ -81,7 +81,7 @@
   <tam title="Tally Ho"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="2;3" >
+       parts="2;3"  vid="V1-f2ru2ryu">
     <path>
       <move select="Lead Left" beats="2" scaleX="3" scaleY="3" />
       <move select="Swing Left" />
@@ -108,7 +108,7 @@
 
   <tam title="Tally Ho"
        from="Normal Lines"
-       parts="2;3" >
+       parts="2;3"  vid="V1-pf3kaxpp">
     <formation fid="F3-1r9s5bst" aid="A1-mib7zc39">
       <dancer gender="boy" y="2" x="3" angle="270"/>
       <dancer gender="girl" y="2" x="1" angle="270"/>
@@ -141,7 +141,7 @@
   </tam>
 
   <tam title="Tally Ho" from="Lines Facing Out"
-       formation="Lines Facing Out" parts="3;3">
+       formation="Lines Facing Out" parts="3;3" vid="V1-7dzdeki6">
     <path>
       <move select="Lead Left" beats="3" scaleY="3"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Tally Ho" from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out" parts="3;3">
+       formation="Inverted Lines Ends Facing Out" parts="3;3" vid="V1-eo33ds7z">
     <path>
       <move select="Lead Left" beats="3" scaleY="3"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -195,7 +195,7 @@
   </tam>
 
   <tam title="Tally Ho" from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In" parts="2;3">
+       formation="Inverted Lines Ends Facing In" parts="2;3" vid="V1-z0ozcelo">
     <path>
       <move select="Extend Left" beats="2" scaleX="2"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -220,7 +220,7 @@
     </path>
   </tam>
 
-  <tam title="Tally Ho" from="Right-Hand Two-Faced Lines" formation="Two-Faced Lines RH" parts="3;3">
+  <tam title="Tally Ho" from="Right-Hand Two-Faced Lines" formation="Two-Faced Lines RH" parts="3;3" vid="V1-0ulqdo4g">
     <path numbers="1 8">
       <move select="Forward 2" hands="right" beats="3"/>
       <move select="Lead Right" beats="1.5" scaleY="1.5"/>
@@ -245,7 +245,7 @@
     </path>
   </tam>
 
-  <tam title="Tally Ho" from="Left-Hand Two-Faced Lines" formation="Two-Faced Lines LH" parts="3;3">
+  <tam title="Tally Ho" from="Left-Hand Two-Faced Lines" formation="Two-Faced Lines LH" parts="3;3" vid="V1-tr7urt7j">
     <path>
       <move select="Lead Left" hands="left" scaleX="3" scaleY="3" beats="3"/>
       <move select="Flip Left"/>
@@ -275,7 +275,7 @@
   <tam title="Tally Ho"
        from="Trade By"
        formation="Trade By"
-       parts="1;3.5" >
+       parts="1;3.5"  vid="V1-juz8c5oi">
     <path couples="2 4">
       <move select="Quarter Left" offsetY="1" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -300,7 +300,7 @@
   </tam>
 
   <tam title="Tally Ho" from="T-Bones 1"
-       formation="T-Bone URLU" parts="1;3">
+       formation="T-Bone URLU" parts="1;3" vid="V1-kh3c5g0w">
     <path>
       <move select="Extend Left"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -328,7 +328,7 @@
   </tam>
 
   <tam title="Tally Ho" from="T-Bones 2"
-       formation="T-Bone LUUR" parts="1;3">
+       formation="T-Bone LUUR" parts="1;3" vid="V1-m9yyn3d4">
     <path>
       <move select="Lead Right" beats="1"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -356,7 +356,7 @@
   </tam>
 
   <tam title="Tally Ho" from="T-Bones 3"
-       formation="T-Bone LRDU" parts="1.5;3">
+       formation="T-Bone LRDU" parts="1.5;3" vid="V1-pz3iaryx">
     <path>
       <move select="Lead Right"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -382,7 +382,7 @@
   </tam>
 
   <tam title="Tally Ho" from="T-Bones 4"
-       formation="T-Bone UDLR" parts="1.5;3">
+       formation="T-Bone UDLR" parts="1.5;3" vid="V1-oqje43z5">
     <path>
       <move select="Forward" beats="1.5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>

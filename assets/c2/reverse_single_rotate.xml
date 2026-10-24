@@ -22,7 +22,7 @@
 -->
 <tamination title="Reverse Single Rotate 1/4, 1/2, 3/4">
 
-  <tam title="Reverse Single Rotate 1/4" from="Lines" formation="Normal Lines">
+  <tam title="Reverse Single Rotate 1/4" from="Lines" formation="Normal Lines" vid="V1-ncazziuk">
     <path>
       <move select="Quarter Left"/>
       <move select="Counter Rotate Right 0 -2" beats="3" offsetY="-2"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Single Rotate 1/4" from="Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Reverse Single Rotate 1/4" from="Waves" formation="Ocean Waves RH BGBG" vid="V1-rev8agb4">
     <path>
       <move select="Quarter Left"/>
       <move select="Counter Rotate Right 0 -2" beats="3" offsetY="-2"/>

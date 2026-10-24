@@ -24,7 +24,7 @@
 
   <tam title="Stack the Line"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-4wvlosvj">
     <path numbers="1 8">
       <move select="Quarter Right" beats="3" offsetX="3" />
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Stack the Line"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-vynnoytk">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-3" offsetY="2" />
     </path>
@@ -58,7 +58,7 @@
 
   <tam title="Stack the Line"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-qwaoym6y">
     <path>
       <move select="Quarter Right" beats="3" offsetX="3" />
     </path>
@@ -75,7 +75,7 @@
 
   <tam title="Stack the Line"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-8hipl9i1">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-2" />
       <move select="Extend Left" beats="2" scaleX="2" />
@@ -94,7 +94,7 @@
 
   <tam title="Stack the Line"
        from="Double Pass Thru"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-7g5kyqeb">
     <path>
       <move select="Quarter Right" beats="3" offsetX="2" offsetY=".5"/>
     </path>
@@ -111,7 +111,7 @@
 
   <tam title="Stack the Line"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-6r2jin9r">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-2" offsetY="2.5"/>
     </path>
@@ -128,7 +128,7 @@
 
   <tam title="Stack the Line"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-kscdmhfw">
     <path>
       <move select="Quarter Right" beats="3" offsetY="-2.5"/>
     </path>
@@ -145,7 +145,7 @@
 
   <tam title="Stack the Line"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-4e230jl1">
     <path>
       <move select="Quarter Left" beats="3" offsetY="-.5"/>
     </path>
@@ -163,7 +163,7 @@
   </tam>
 
   <tam title="Stack the Line" from="T-Bones"
-       formation="T-Bone UDLL" parts="1.5">
+       formation="T-Bone UDLL" parts="1.5" vid="V1-sf0pqg1p">
     <path>
       <move select="Quarter Right"/>
       <move select="Dodge Left" beats="2"/>

@@ -23,7 +23,7 @@
 <tamination title="Invert the Column 1/4, 1/2, 3/4, Full">
 
   <tam title="Invert the Column" from="Right-Hand Columns"
-       formation="Column RH GBGB" fractions="5;3;3">
+       formation="Column RH GBGB" fractions="5;3;3" vid="V1-49vjx37s">
     <path numbers="2 7" couples="4 2">
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 2"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Invert the Column" from="Left-Hand Columns"
-       formation="Column LH GBGB" fractions="5;3;3">
+       formation="Column LH GBGB" fractions="5;3;3" vid="V1-sg6n8q4h">
     <path>
       <move select="Forward" beats="5"/>
       <move select="Forward" beats="3"/>
@@ -81,7 +81,7 @@
   </tam>
 
 
-  <tam title="Columns of 3 Invert the Column" fractions="4;3" group=" ">
+  <tam title="Columns of 3 Invert the Column" fractions="4;3" group=" " vid="V1-ta2lem4m">
     <formation fid="F3-i7qs3ybp" aid="A1-irio3cyj">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
@@ -113,7 +113,7 @@
   </tam>
 
   <tam title="Magic Column Invert the Column"
-       fractions="5;3;4" group=" ">
+       fractions="5;3;4" group=" " vid="V1-srqa9fi5">
     <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -148,7 +148,7 @@
   </tam>
 
   <tam title="Magic Column Invert the Column"
-       fractions="5;3;4" group=" " display="no">
+       fractions="5;3;4" group=" " display="no" vid="V1-0w9kyfw3">
     <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
@@ -184,7 +184,7 @@
 
   <tam title="Cross Invert the Column 1/4"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-tg8135s8">
     <path numbers="2 7">
       <move select="Run Right" beats="4" scaleY="2" offsetX="-1" />
       <move select="Forward 2" />
@@ -202,7 +202,7 @@
 
   <tam title="Cross Invert the Column 1/4"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-hmj4esox">
     <path numbers="2 7">
       <move select="Forward" />
     </path>
@@ -220,7 +220,7 @@
 
   <tam title="Cross Invert the Column 1/2"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-y4cey3sq">
     <path numbers="2 7">
       <move select="Run Right" beats="4" scaleY="2" offsetX="-2" />
       <move select="Forward 3" />
@@ -239,7 +239,7 @@
 
   <tam title="Cross Invert the Column 1/2"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-39m7dqcn">
     <path numbers="2 7">
       <move select="Forward" />
     </path>
@@ -258,7 +258,7 @@
 
   <tam title="Cross Invert the Column 3/4"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-vsl8j3e2">
     <path numbers="2 7">
       <move select="Run Right" beats="4" scaleY="2" offsetX="-2" />
       <move select="Forward 4" />
@@ -279,7 +279,7 @@
 
   <tam title="Cross Invert the Column 3/4"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-kdzz9izb">
     <path numbers="2 7">
       <move select="Forward 3" />
     </path>
@@ -300,7 +300,7 @@
 
   <tam title="Cross Invert the Column"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-l6prwogo">
     <path numbers="2 7">
       <move select="Run Right" />
       <move select="Forward 6" />
@@ -323,7 +323,7 @@
 
   <tam title="Cross Invert the Column"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-54paq8up">
     <path numbers="2 7">
       <move select="Forward 6" />
       <move select="Run Left" />

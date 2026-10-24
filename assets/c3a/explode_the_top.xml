@@ -25,7 +25,7 @@
   <tam title="Explode the Top"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       parts="2;9.5;1.5">
+       parts="2;9.5;1.5" vid="V1-spffh7q1">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -68,7 +68,7 @@
   <tam title="Explode the Top"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="2;9.5;1.5">
+       parts="2;9.5;1.5" vid="V1-oznmrf4m">
     <path numbers="1 8">
       <move select="Lead Right" beats="2" scaleY="2"/>
       <move select="Extend Left" beats="1" scaleY=".5"/>
@@ -111,7 +111,7 @@
   <tam title="Explode the Top"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="2;9.5;1.5">
+       parts="2;9.5;1.5" vid="V1-qc9g6lvh">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Extend Left" beats="1" scaleY=".5"/>

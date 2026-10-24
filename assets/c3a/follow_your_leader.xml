@@ -23,7 +23,7 @@
 <tamination title="Follow Your Leader">
 
   <tam title="Follow Your Leader" from="Right-Hand Waves"
-       formation="Ocean Waves RH GBGB">
+       formation="Ocean Waves RH GBGB" vid="V1-5pkh1hui">
     <path couples="4 2">
       <move select="Forward 2" beats="1.5" offsetY="-.25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Follow Your Leader" from="Left-Hand Waves" formation="Ocean Waves LH BGBG">
+  <tam title="Follow Your Leader" from="Left-Hand Waves" formation="Ocean Waves LH BGBG" vid="V1-irll9449">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 5" beats="3"/>
@@ -75,7 +75,7 @@
     </path>
   </tam>
 
-  <tam title="Your Leader" from="3/4 Tag" formation="3/4 Tag" >
+  <tam title="Your Leader" from="3/4 Tag" formation="3/4 Tag"  vid="V1-n87ky831">
     <path couples="3 1">
       <move select="Quarter Right" beats=".5" />
       <move select="Forward 3" beats="1.5" />
@@ -99,7 +99,7 @@
     </path>
   </tam>
 
-  <tam title="Your Leader" from="Twin Diamonds" formation="Diamonds RH Girl Points" >
+  <tam title="Your Leader" from="Twin Diamonds" formation="Diamonds RH Girl Points"  vid="V1-k6bv1h7z">
     <path>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
       <move select="Hinge Right" offsetY=".25" />

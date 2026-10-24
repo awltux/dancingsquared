@@ -22,7 +22,7 @@
 -->
 <tamination title="Step Thru">
 
-  <tam title="Step Thru" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Step Thru" from="Right-Hand Wave" formation="Wave RH" vid="V1-kb5aen89">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
     </path>
@@ -31,7 +31,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Compact Right-Hand Wave" display="none" formation="Compact Wave RH">
+  <tam title="Step Thru" from="Compact Right-Hand Wave" display="none" formation="Compact Wave RH" vid="V1-n312scbg">
     <path>
       <move select="Extend Right" beats="2" scaleY=".5"/>
     </path>
@@ -40,7 +40,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Compact Left-Hand Wave" display="none" formation="Compact Wave LH">
+  <tam title="Step Thru" from="Compact Left-Hand Wave" display="none" formation="Compact Wave LH" vid="V1-k2i15z7r">
     <path>
       <move select="Extend Left" beats="2" scaleY=".5"/>
     </path>
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Step Thru" from="Left-Hand Wave" formation="Wave LH" vid="V1-wyf5gu7q">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
     </path>
@@ -58,7 +58,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Right-Hand Box" formation="Box RH">
+  <tam title="Step Thru" from="Right-Hand Box" formation="Box RH" vid="V1-jjpw72co">
     <path>
       <move select="Extend Right"/>
     </path>
@@ -67,7 +67,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Left-Hand Box" formation="Box LH">
+  <tam title="Step Thru" from="Left-Hand Box" formation="Box LH" vid="V1-v7iab4us">
     <path>
       <move select="Extend Left"/>
     </path>
@@ -76,7 +76,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Right-Hand Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Step Thru" from="Right-Hand Waves" formation="Ocean Waves RH BGBG" vid="V1-irudzl37">
     <path>
       <move select="Extend Right" beats="2" scaleY="2"/>
     </path>
@@ -94,7 +94,7 @@
     </taminator>
   </tam>
 
-  <tam title="Step Thru" from="Compact Right-Hand Waves" display="none">
+  <tam title="Step Thru" from="Compact Right-Hand Waves" display="none" vid="V1-823rvpz1">
     <formation fid="F3-hdi09wtx" aid="A1-v7fpom7v">
       <dancer gender="boy" x="-2" y="1.5" angle="0"/>
       <dancer gender="girl" x="-2" y="0.5" angle="180"/>
@@ -115,7 +115,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Left-Hand Waves" formation="Ocean Waves LH BGBG">
+  <tam title="Step Thru" from="Left-Hand Waves" formation="Ocean Waves LH BGBG" vid="V1-0r7tiol8">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
     </path>
@@ -130,7 +130,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Compact Left-Hand Waves" display="none">
+  <tam title="Step Thru" from="Compact Left-Hand Waves" display="none" vid="V1-bbgh3box">
     <formation fid="F3-bl1dj7mx" aid="A1-pcosv3vn">
       <dancer gender="boy" x="-2" y="1.5" angle="180"/>
       <dancer gender="girl" x="-2" y="0.5" angle="0"/>
@@ -151,7 +151,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Tidal Wave" formation="Tidal Wave RH BGBG">
+  <tam title="Step Thru" from="Tidal Wave" formation="Tidal Wave RH BGBG" vid="V1-k8g0whnk">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="0.5"/>
     </path>
@@ -166,7 +166,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB">
+  <tam title="Step Thru" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB" vid="V1-3ehgnyyw">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="0.5"/>
     </path>
@@ -181,7 +181,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Columns" formation="Column RH GBGB">
+  <tam title="Step Thru" from="Columns" formation="Column RH GBGB" vid="V1-ab74h2c5">
     <path>
       <move select="Extend Right" scaleX="0.5"/>
     </path>
@@ -196,7 +196,7 @@
     </path>
   </tam>
 
-  <tam title="Step Thru" from="Thar" formation="Thar LH Boys">
+  <tam title="Step Thru" from="Thar" formation="Thar LH Boys" vid="V1-lhkzztw4">
     <path>
       <move select="Extend Right" beats="2" scaleX="0.75" scaleY="1.25"/>
     </path>
@@ -211,7 +211,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Step Thru" formation="Quarter Tag" group=" ">
+  <tam title="Centers Step Thru" formation="Quarter Tag" group=" " vid="V1-xxqo4b9s">
     <path>
     </path>
     <path>

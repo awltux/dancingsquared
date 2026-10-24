@@ -25,7 +25,7 @@
   <tam title="Cross Over Circulate"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="3" >
+       fractions="3"  vid="V1-78e7vgh5">
     <path numbers="1 8" couples="2 4">
       <move select="Extend Right" beats="3" scaleX="1.5" />
       <move select="Extend Right" beats="3" scaleX="2.5" />
@@ -49,7 +49,7 @@
   <tam title="Cross Over Circulate"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="3" >
+       fractions="3"  vid="V1-osrm4u4i">
     <path numbers="1 8">
       <move select="Quarter Left" offsetX=".1" offsetY="1" />
       <move select="Forward 2" beats="3" />
@@ -73,7 +73,7 @@
   <tam title="Cross Over Circulate"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="3" >
+       fractions="3"  vid="V1-z818uk8b">
     <path>
       <move select="Quarter Left" offsetX=".1" offsetY="1" />
       <move select="Forward 2" beats="3" />
@@ -99,7 +99,7 @@
   <tam title="Cross Over Circulate"
        from="Facing Lines"
        formation="Normal Lines"
-       fractions="3" >
+       fractions="3"  vid="V1-t8wn6md0">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" beats="2"/>
       <movement beats="4" hands="none" cx1="1" cy1="0" cx2="0" cy2="-2.5" x2="2" y2="-2.5"
@@ -123,7 +123,7 @@
   </tam>
   <tam title="Cross Over Circulate"
        from="Inverted Lines Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-tcpyogu2">
     <path>
       <move select="Flip Left" beats="6" scaleY="2" />
     </path>
@@ -142,7 +142,7 @@
 
   <tam title="Cross Over Circulate"
        from="Inverted Lines Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-ck54eeq9">
     <path>
       <move select="Forward" beats="1.5" />
       <move select="Extend Right" beats="4.5" scaleX="3" scaleY="2" />
@@ -162,7 +162,7 @@
   <tam title="Cross Over Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="3" >
+       fractions="3"  vid="V1-7xmtsgjc">
     <path numbers="1 8" couples="2 4">
       <move select="Forward" beats="1.5" />
       <move select="Extend Right" beats="4.5" scaleX="3" scaleY="2" />
@@ -182,7 +182,7 @@
   <tam title="Cross Over Circulate"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGBG"
-       fractions="3" >
+       fractions="3"  vid="V1-kvc4bo1z">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" scaleY="2" />
     </path>
@@ -200,7 +200,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-gzy7cq8k">
     <path>
       <move select="Run Left" beats="6" scaleY="2"/>
     </path>
@@ -219,7 +219,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-jaeds9xo">
     <path>
       <move select="Forward 2" beats="2.5"/>
       <move select="Extend Right" beats="3.5" scaleX="2" scaleY="2"/>
@@ -238,7 +238,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #3"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-w71fq794">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Extend Right" beats="4" scaleX="4" scaleY="2"/>
@@ -257,7 +257,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-o4e0jcw9">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Extend Right" beats="4" scaleX="4" scaleY="2"/>
@@ -276,7 +276,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-28qsc4h3">
     <path>
       <move select="Extend Right" beats="6" scaleX="4" scaleY="2"/>
     </path>
@@ -292,7 +292,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #6"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-mqsdu1gx">
     <path>
       <move select="Flip Left" beats="6" scaleY="2"/>
     </path>
@@ -308,7 +308,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #7"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-sobcjqzz">
     <path>
       <move select="Flip Left" beats="6" scaleY="2"/>
     </path>
@@ -324,7 +324,7 @@
   </tam>
 
   <tam title="Cross Over Circulate" from="3 and 1 lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-fmcnow7g">
     <path>
       <move select="Flip Left" beats="6" scaleY="2"/>
     </path>

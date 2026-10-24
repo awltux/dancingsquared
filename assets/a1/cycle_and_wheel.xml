@@ -23,7 +23,7 @@
 <tamination title="Cycle and Wheel">
 
   <tam title="Cycle and Wheel" from="3 and 1 lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-ztsng3pu">
     <path>
       <move select="Run Left" beats="4" offsetX="1" offsetY="2" />
     </path>
@@ -40,7 +40,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="3 and 1 lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-02e38s52">
     <path>
       <move select="Run Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -61,7 +61,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="3 and 1 lines #3"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-ouy47c3u">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>
@@ -82,7 +82,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="3 and 1 lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-tuuspfnv">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleY="2" offsetX="1" />
     </path>
@@ -99,7 +99,7 @@
   </tam>
 
   <tam title="Cycle and Wheel"
-       from="3 and 1 lines #5">
+       from="3 and 1 lines #5" vid="V1-m5e2mexp">
      <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -122,7 +122,7 @@
   </tam>
 
   <tam title="Cycle and Wheel"
-       from="3 and 1 lines #6">
+       from="3 and 1 lines #6" vid="V1-tclee95r">
      <formation fid="F3-lit8rynj" aid="A1-nrtgn2u3">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
@@ -145,7 +145,7 @@
   </tam>
 
   <tam title="Cycle and Wheel"
-       from="3 and 1 lines #7">
+       from="3 and 1 lines #7" vid="V1-lmge4myd">
      <formation fid="F3-k9frz2rj" aid="A1-81w4kg57">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -168,7 +168,7 @@
   </tam>
 
   <tam title="Cycle and Wheel"
-       from="3 and 1 lines #8">
+       from="3 and 1 lines #8" vid="V1-qqsoddqu">
      <formation fid="F3-cimsa5il" aid="A1-nzq2bwnx">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -191,7 +191,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Inverted Lines Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-gbr6hk9c">
     <path>
       <move select="Run Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -209,7 +209,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Inverted Lines Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-2w0cbs6r">
     <path>
       <move select="Run Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -230,7 +230,7 @@
     </taminator>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #1" formation="Tidal 3 and 1 Line #4">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #1" formation="Tidal 3 and 1 Line #4" vid="V1-quql4yuy">
     <path>
       <move select="Run Left" beats="4" offsetX="2" offsetY=".5" />
     </path>
@@ -246,7 +246,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #2" formation="Tidal 3 and 1 Line #3">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #2" formation="Tidal 3 and 1 Line #3" vid="V1-4wbzzdo4">
     <path>
       <move select="Run Right" beats="4" scaleY="1.25" offsetX="2" />
     </path>
@@ -262,7 +262,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #3" formation="Tidal 3 and 1 Line #2">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #3" formation="Tidal 3 and 1 Line #2" vid="V1-0hivt8gp">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleX="1.5" scaleY="1.25" offsetX="2" />
     </path>
@@ -278,7 +278,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #4" formation="Tidal 3 and 1 Line #1">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #4" formation="Tidal 3 and 1 Line #1" vid="V1-xp9trr4i">
     <path>
       <move select="Run Right" beats="4" hands="right" scaleX="1.5" scaleY="1.25" offsetX="2" />
     </path>
@@ -294,7 +294,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #5" formation="Tidal 3 and 1 Line #8">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #5" formation="Tidal 3 and 1 Line #8" vid="V1-l5y0b31p">
     <path>
       <move select="Run Right" beats="4" offsetX="2" offsetY="-.5" />
     </path>
@@ -310,7 +310,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #6" formation="Tidal 3 and 1 Line #7">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #6" formation="Tidal 3 and 1 Line #7" vid="V1-c4tk616k">
     <path>
       <move select="Run Left" beats="4" offsetX="-2" offsetY=".5" />
     </path>
@@ -326,7 +326,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #7" formation="Tidal 3 and 1 Line #6">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #7" formation="Tidal 3 and 1 Line #6" vid="V1-v4ge14co">
     <path>
       <move select="Run Left" beats="4" hands="gripleft" scaleY="1.25" offsetX="-2" />
     </path>
@@ -342,7 +342,7 @@
     </path>
   </tam>
 
-  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #8" formation="Tidal 3 and 1 Line #5">
+  <tam title="Cycle and Wheel" from="Tidal 3 and 1 Lines #8" formation="Tidal 3 and 1 Line #5" vid="V1-9tpe7qmh">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="1.5" scaleY="1.25" offsetX="2" />
     </path>
@@ -359,7 +359,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal Inverted Line Right-Hand Centers"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-d8y5kfiw">
     <path>
       <move select="Run Right" beats="4" scaleY="1.25" offsetX="2" />
     </path>
@@ -377,7 +377,7 @@
   </tam>
 
   <tam title="Cycle and Wheel" from="Tidal Inverted Line Left-Hand Centers"
-       formation="Tidal Inverted Line LH">
+       formation="Tidal Inverted Line LH" vid="V1-4lmlhykp">
     <path>
       <move select="Run Left" beats="4" offsetX="-2" offsetY=".5" />
     </path>

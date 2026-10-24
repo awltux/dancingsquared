@@ -23,7 +23,7 @@
 <tamination title="Explode and Anything">
 
   <tam title="Explode and Roll" from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-twsfbpts">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1" />
       <move select="Quarter Left" offsetX="1"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Explode and Roll" from="Inverted Lines"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-p1e65wpy">
     <path>
       <move select="Quarter Right" offsetX="1" offsetY="-1" />
       <move select="Quarter Right" offsetX="1"/>
@@ -62,7 +62,7 @@
     </path>
   </tam>
 
-  <tam title="Explode and Roll" from="3 and 1 Lines" formation="3 and 1 lines #5">
+  <tam title="Explode and Roll" from="3 and 1 Lines" formation="3 and 1 lines #5" vid="V1-w4f10n1g">
     <path>
       <move select="Quarter Right" offsetX="1" offsetY="-1" />
       <move select="Quarter Right" offsetX="1"/>
@@ -82,7 +82,7 @@
   </tam>
 
   <tam title="Explode and Roll" from="3 and 1 Lines"
-       formation="3 and 1 lines #8" display="none">
+       formation="3 and 1 lines #8" display="none" vid="V1-qwq3lw5b">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1" />
       <move select="Quarter Left" offsetX="1"/>
@@ -102,7 +102,7 @@
   </tam>
 
   <tam title="Explode and Roll" from="Tidal Inverted Line"
-       formation="Tidal Inverted Line LH">
+       formation="Tidal Inverted Line LH" vid="V1-yqcxdtlk">
     <path>
       <move select="Quarter Left" offsetX="1" offsetY=".5" />
       <move select="Quarter Left"/>
@@ -123,7 +123,7 @@
 
   <tam title="Explode and Touch a Quarter"
        from="Lines"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-f56al7jl">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />

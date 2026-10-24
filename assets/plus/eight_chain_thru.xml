@@ -24,7 +24,7 @@
 <tamination title="Eight Chain Thru">
 
   <tam title="Eight Chain One" difficulty="1"
-       from="Eight Chain Thru" formation="Eight Chain Thru">
+       from="Eight Chain Thru" formation="Eight Chain Thru" vid="V1-o89ysw4b">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Eight Chain One" difficulty="2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-z9q6jcbu">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
     </path>
@@ -60,7 +60,7 @@
   </tam>
 
   <tam title="Eight Chain Two" difficulty="1"
-       from="Eight Chain Thru" formation="Eight Chain Thru" parts="2.5">
+       from="Eight Chain Thru" formation="Eight Chain Thru" parts="2.5" vid="V1-edlyjox1">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Eight Chain Two" difficulty="2"
-       from="Right-Hand Waves" formation="Ocean Waves RH BGGB" parts="2">
+       from="Right-Hand Waves" formation="Ocean Waves RH BGGB" parts="2" vid="V1-4rd6ejrg">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -108,7 +108,7 @@
   </tam>
 
   <tam title="Eight Chain Three" difficulty="1" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5" vid="V1-v4dserv3">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -142,7 +142,7 @@
   </tam>
 
   <tam title="Eight Chain Three" difficulty="2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="2;2.5">
+       formation="Ocean Waves RH BGGB" parts="2;2.5" vid="V1-d85d5twe">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -172,7 +172,7 @@
   </tam>
 
   <tam title="Eight Chain Four" difficulty="1" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="2.5;2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5;2.5" vid="V1-kdc86k1d">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -212,7 +212,7 @@
   </tam>
 
   <tam title="Eight Chain Four" difficulty="2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="2;2.5;2.5">
+       formation="Ocean Waves RH BGGB" parts="2;2.5;2.5" vid="V1-o3jyltuw">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -248,7 +248,7 @@
   </tam>
 
   <tam title="Eight Chain Five" difficulty="1" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5" vid="V1-wiuiwdq9">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -296,7 +296,7 @@
   </tam>
 
   <tam title="Eight Chain Five" difficulty="2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="2;2.5;2.5;2.5">
+       formation="Ocean Waves RH BGGB" parts="2;2.5;2.5;2.5" vid="V1-c3dpygm0">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -340,7 +340,7 @@
   </tam>
 
   <tam title="Eight Chain Six" difficulty="1" from="Eight Chain Thru"
-       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5;2.5" vid="V1-pdf8s47r">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -394,7 +394,7 @@
   </tam>
 
   <tam title="Eight Chain Six" difficulty="2" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="2;2.5;2.5;2.5;2.5">
+       formation="Ocean Waves RH BGGB" parts="2;2.5;2.5;2.5;2.5" vid="V1-ssjx9hom">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -445,7 +445,7 @@
 
   <tam title="Eight Chain Seven" difficulty="1" from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="2.5;2.5;2.5;2.5;2.5;2.5" >
+       parts="2.5;2.5;2.5;2.5;2.5;2.5"  vid="V1-u44wzih2">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -508,7 +508,7 @@
 
   <tam title="Eight Chain Seven" difficulty="2" from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="2;2.5;2.5;2.5;2.5;2.5" >
+       parts="2;2.5;2.5;2.5;2.5;2.5"  vid="V1-g5pol6un">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -567,7 +567,7 @@
 
   <tam title="Eight Chain Thru" difficulty="1" from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="2.5;2.5;2.5;2.5;2.5;2.5;2.5" >
+       parts="2.5;2.5;2.5;2.5;2.5;2.5;2.5"  vid="V1-hrcpvs4k">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -636,7 +636,7 @@
 
   <tam title="Eight Chain Thru" difficulty="2" from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="2;2.5;2.5;2.5;2.5;2.5;2.5" >
+       parts="2;2.5;2.5;2.5;2.5;2.5;2.5"  vid="V1-yjx2ur2t">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Pull Right" beats="1.25" scaleY=".5" />
@@ -700,7 +700,7 @@
   </tam>
 
   <tam title="Eight Chain One and a Half" group="  " difficulty="3"
-       formation="Eight Chain Thru" parts="2.5">
+       formation="Eight Chain Thru" parts="2.5" vid="V1-eeafn8mm">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -724,7 +724,7 @@
   </tam>
 
   <tam title="Eight Chain Two and a Half" group="  " difficulty="2"
-       formation="Eight Chain Thru" parts="2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5" vid="V1-z7zrt1ng">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -754,7 +754,7 @@
   </tam>
 
   <tam title="Eight Chain Three and a Half" group="  " difficulty="3"
-       formation="Eight Chain Thru" parts="2.5;2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5;2.5" vid="V1-t02o08oa">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -792,7 +792,7 @@
   </tam>
 
   <tam title="Eight Chain Four and a Half" group="  " difficulty="2"
-       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5" vid="V1-l3y5uk40">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -836,7 +836,7 @@
   </tam>
 
   <tam title="Eight Chain Five and a Half" group="  " difficulty="3"
-       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5;2.5">
+       formation="Eight Chain Thru" parts="2.5;2.5;2.5;2.5;2.5" vid="V1-pn4op9fk">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -889,7 +889,7 @@
 
   <tam title="Eight Chain Six and a Half" group="  " difficulty="2"
        formation="Eight Chain Thru"
-       parts="2.5;2.5;2.5;2.5;2.5;2.5" >
+       parts="2.5;2.5;2.5;2.5;2.5;2.5"  vid="V1-3tv4at82">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />
@@ -948,7 +948,7 @@
 
   <tam title="Eight Chain Seven and a Half" group="  " difficulty="3"
        formation="Eight Chain Thru"
-       parts="2.5;2.5;2.5;2.5;2.5;2.5;2.5" >
+       parts="2.5;2.5;2.5;2.5;2.5;2.5;2.5"  vid="V1-mnryjr9h">
     <path>
       <move select="Pull Left" beats="1.25" scaleY=".5" />
       <move select="Extend Right" beats="1.25" scaleY=".5" />

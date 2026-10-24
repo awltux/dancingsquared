@@ -22,7 +22,7 @@
 -->
 <tamination title="Polly Wally">
 
-  <tam title="Polly Wally" from="Right-Hand Columns">
+  <tam title="Polly Wally" from="Right-Hand Columns" vid="V1-ctboe97m">
     <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
@@ -45,7 +45,7 @@
     </path>
   </tam>
 
-  <tam title="Polly Wally" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Polly Wally" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-h5h4z22n">
     <path>
       <move select="Flip Right" beats="6" offsetX="1"/>
     </path>
@@ -62,7 +62,7 @@
     </path>
   </tam>
 
-  <tam title="Polly Wally" from="Double Pass Thru" formation="Double Pass Thru">
+  <tam title="Polly Wally" from="Double Pass Thru" formation="Double Pass Thru" vid="V1-h6glnxvx">
     <path>
       <move select="Flip Right" beats="6" offsetX="1"/>
     </path>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Polly Wally" from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-0z0sou61">
     <path>
       <move select="Flip Left" beats="6" offsetX="-1"/>
     </path>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Split Counter Rotate">
 
-  <tam title="Split Counter Rotate" from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB">
+  <tam title="Split Counter Rotate" from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB" vid="V1-leiib57a">
     <path numbers="8 1">
       <move select="Lead Right" beats="3" scaleX="3" scaleY="1.5"/>
     </path>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Split Counter Rotate" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB">
+  <tam title="Split Counter Rotate" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB" vid="V1-umqido0e">
     <path>
       <move select="Lead Left" beats="3" scaleX="3" scaleY="1.5"/>
     </path>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Regroup">
 
-  <tam title="Regroup" from="Normal Lines" formation="Normal Lines" parts="3">
+  <tam title="Regroup" from="Normal Lines" formation="Normal Lines" parts="3" vid="V1-nqjfzbfc">
     <path>
       <move select="Lead Left"/>
       <move select="Lead Right"/>
@@ -45,7 +45,7 @@
 
   <tam title="Regroup"
        from="Lines Facing Out"
-       formation="Lines Facing Out" parts="3">
+       formation="Lines Facing Out" parts="3" vid="V1-ycz6d3iv">
     <path numbers="1 8" couples="2 4">
       <move select="U-Turn Right" offsetX="-1" offsetY="-1" />
       <move select="Forward 2" />

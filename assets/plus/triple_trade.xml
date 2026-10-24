@@ -24,7 +24,7 @@
 
   <tam title="Triple Trade"
        from="Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-funcpcg3">
     <path>
       <move select="Stand" beats="3" hands="nohands" />
     </path>
@@ -44,7 +44,7 @@
 
   <tam title="Triple Trade"
        from="Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-9478cemv">
     <path>
       <move select="Stand" beats="3" hands="nohands" />
     </path>
@@ -60,7 +60,7 @@
   </tam>
 
   <tam title="Triple Trade" from="Tidal Inverted Line"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-uktwjezu">
     <path>
     </path>
     <path>
@@ -76,7 +76,7 @@
 
   <tam title="Triple Trade"
        from="Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-ru84t1v5">
     <path>
       <move select="Swing Right" />
     </path>
@@ -93,7 +93,7 @@
 
   <tam title="Triple Trade"
        from="1/4 Tag"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-xh7cjin9">
     <path>
       <move select="Run Right" />
     </path>
@@ -109,7 +109,7 @@
 
   <tam title="Triple Trade"
        from="3/4 Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-ve68tn1y">
     <path>
       <move select="Flip Left" />
     </path>

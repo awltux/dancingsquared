@@ -22,7 +22,7 @@
 -->
 <tamination title="Anything Concept">
 
-  <tam title="Split Counter Coordinate" from="" group=" " formation="Ocean Waves RH BGGB">
+  <tam title="Split Counter Coordinate" from="" group=" " formation="Ocean Waves RH BGGB" vid="V1-9s7hs3t3">
     <path couples="2 4">
       <move select="Quarter Right" hands="gripright" beats="4" offsetX="3" />
       <move select="Forward" />
@@ -50,7 +50,7 @@
 
   <tam title="Split Coordinate"
        from="" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-nqvyl3bp">
     <path>
       <move select="Flip Right" beats="2" />
       <move select="Forward" />
@@ -75,7 +75,7 @@
     </path>
   </tam>
 
-  <tam title="Counter Motivate" from="" formation="Ocean Waves RH BGGB" group=" ">
+  <tam title="Counter Motivate" from="" formation="Ocean Waves RH BGGB" group=" " vid="V1-gl1f6eos">
     <path>
       <move select="Lead Right" beats="5" scaleX="5" />
       <move select="Extend Right" beats="4.5" scaleX="2" scaleY="2" />
@@ -102,7 +102,7 @@
     </path>
   </tam>
 
-  <tam title="Trade Motivate" from="" formation="Ocean Waves LH BGGB" group=" ">
+  <tam title="Trade Motivate" from="" formation="Ocean Waves LH BGGB" group=" " vid="V1-epvl5qch">
   <path>
     <!-- Trade Circulate -->
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="2" />
@@ -139,7 +139,7 @@
   </path>
   </tam>
 
-  <tam title="Counter Percolate" from="" formation="Ocean Waves RH BGGB" group=" ">
+  <tam title="Counter Percolate" from="" formation="Ocean Waves RH BGGB" group=" " vid="V1-c5lyhqtc">
     <path>
       <move select="Lead Right" beats="5" scaleX="5" />
       <move select="Forward 2" />
@@ -167,7 +167,7 @@
     </path>
   </tam>
 
-  <tam title="Split Percolate" from="" formation="Ocean Waves RH BGGB" group=" ">
+  <tam title="Split Percolate" from="" formation="Ocean Waves RH BGGB" group=" " vid="V1-y71iigho">
     <path>
       <move select="Forward 4"/>
       <move select="Lead Right" beats="2" scaleX="2" scaleY="3" />
@@ -195,7 +195,7 @@
     </path>
   </tam>
 
-  <tam title="Trade Percolate" from="" formation="Ocean Waves LH BGGB" group=" ">
+  <tam title="Trade Percolate" from="" formation="Ocean Waves LH BGGB" group=" " vid="V1-58fqoznp">
     <path>
     <!-- Trade Circulate -->
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="2" />

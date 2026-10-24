@@ -22,7 +22,7 @@
 -->
 <tamination title="Circulate">
 
-  <tam title="Circulate" from="Thar" formation="Thar RH Boys">
+  <tam title="Circulate" from="Thar" formation="Thar RH Boys" vid="V1-3trq3vri">
     <path>
       <move select="Lead Right" hands="right" beats="4"/>
     </path>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Circulate" from="Wrong Way Thar" formation="Thar LH Boys">
+  <tam title="Circulate" from="Wrong Way Thar" formation="Thar LH Boys" vid="V1-bq99i4pp">
     <path>
       <move select="Lead Left" hands="left" beats="4"/>
     </path>
@@ -52,7 +52,7 @@
     </path>
   </tam>
 
-  <tam title="Circulate" from="Star Promenade" formation="Star Promenade">
+  <tam title="Circulate" from="Star Promenade" formation="Star Promenade" vid="V1-p07bpy89">
     <path>
       <move select="Lead Left" hands="both" beats="4"/>
     </path>
@@ -67,7 +67,7 @@
     </path>
   </tam>
 
-  <tam title="Circulate" from="Reverse Star Promenade" formation="Reverse Star Promenade">
+  <tam title="Circulate" from="Reverse Star Promenade" formation="Reverse Star Promenade" vid="V1-s5whn1an">
     <path>
       <move select="Lead Right" hands="right" beats="4" scaleX="3" scaleY="3"/>
     </path>

@@ -24,7 +24,7 @@
 
   <tam title="End Girls Right Loop 3" from="Waves"
        formation="Ocean Waves RH BGBG" group=" "
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-ej6w2jue">
     <path>
     </path>
     <path>
@@ -36,7 +36,7 @@
     </path>
   </tam>
 
-  <tam title="Boys In Loop 2" from="Blocks" group=" " sequencer="gender-specific">
+  <tam title="Boys In Loop 2" from="Blocks" group=" " sequencer="gender-specific" vid="V1-rhs763rp">
      <formation fid="F3-051pdi2z" aid="A1-584humar">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-3" angle="180"/>

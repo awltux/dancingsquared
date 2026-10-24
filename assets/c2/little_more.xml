@@ -25,7 +25,7 @@
   <tam title="Little More"
        from="Right-Hand Quarter Tag"
        formation="Quarter Tag"
-       fractions="6" >
+       fractions="6"  vid="V1-9qqhay2t">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
     </path>
@@ -46,7 +46,7 @@
   <tam title="Little More"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       fractions="6">
+       fractions="6" vid="V1-1uymukge">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
     </path>
@@ -66,7 +66,7 @@
 
   <tam title="Little More"
        from="Right-Hand 3/4 Tag"
-       formation="3/4 Tag" fractions="6">
+       formation="3/4 Tag" fractions="6" vid="V1-wuc8hcuu">
     <path numbers="1 8" couples="4 2">
       <move select="Flip Right" offsetX="-1" />
       <move select="Forward 4" />
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Little More"
-       from="Left-Hand 3/4 Tag" fractions="6">
+       from="Left-Hand 3/4 Tag" fractions="6" vid="V1-yi19sv9e">
     <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-k0zvzsi6">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -113,7 +113,7 @@
 
   <tam title="Little More"
        from="Right-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #1" fractions="6">
+       formation="Mixed Quarter Tag #1" fractions="6" vid="V1-krugm44c">
     <path>
       <move select="Lead Right" scaleX=".5" />
       <move select="Lead Left" beats="3.5" scaleX="3" scaleY=".5" />
@@ -134,7 +134,7 @@
 
   <tam title="Little More"
        from="Left-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #6" fractions="6">
+       formation="Mixed Quarter Tag #6" fractions="6" vid="V1-2vl56112">
     <path>
       <move select="Flip Right" beats="2" offsetX="-1" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
@@ -157,7 +157,7 @@
   <tam title="Scoot and Little More"
        from="Quarter Tag"
        formation="Quarter Tag"
-       fractions="5;6" >
+       fractions="5;6"  vid="V1-vfugn2xw">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -192,7 +192,7 @@
   <tam title="Scoot and Little More"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       fractions="5;6" >
+       fractions="5;6"  vid="V1-4mlf6bpn">
     <path>
       <move select="Forward" scaleX="1.5" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

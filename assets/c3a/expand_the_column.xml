@@ -22,7 +22,7 @@
 -->
 <tamination title="Expand the Column">
 
-  <tam title="Expand the Column" from="Right-Hand Columns">
+  <tam title="Expand the Column" from="Right-Hand Columns" vid="V1-dzsajz0y">
     <formation fid="F3-lcwes2cr" aid="A1-4am07t7r">
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Magic Expand the Column" from="Right-Hand Magic Columns"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-k7wij611">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Forward 3" beats="2"/>

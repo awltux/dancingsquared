@@ -22,7 +22,7 @@
 -->
 <tamination title="Reactivate">
 
-  <tam title="Reactivate" from="Quarter Tag" fractions="3;3">
+  <tam title="Reactivate" from="Quarter Tag" fractions="3;3" vid="V1-leu3c4sl">
     <formation fid="F3-roc084t6" aid="A1-oartgelk">
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="180"/>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Reactivate" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" fractions="3;3">
+       formation="Quarter Tag LH" fractions="3;3" vid="V1-sgoaddxq">
     <path>
       <move select="Forward" beats="3"/>
       <move select="Swing Right" scaleX=".5"/>
@@ -74,7 +74,7 @@
   </tam>
 
   <tam title="Reactivate" from="Quarter Lines"
-       formation="Quarter Lines RH" fractions="3;3">
+       formation="Quarter Lines RH" fractions="3;3" vid="V1-2s6tw2dn">
     <path>
       <move select="Forward" beats="3"/>
       <move select="Swing Right" scaleX=".5"/>
@@ -97,7 +97,7 @@
   </tam>
 
   <tam title="Reactivate" from="Quarter Waves"
-       formation="Mixed Quarter Tag #1" fractions="3;3">
+       formation="Mixed Quarter Tag #1" fractions="3;3" vid="V1-oz4bc9wc">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5"/>
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5"/>
@@ -119,7 +119,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Reactivate" from="Quarter Tag" formation="Quarter Tag" fractions="">
+  <tam title="Cross Reactivate" from="Quarter Tag" formation="Quarter Tag" fractions="" vid="V1-2oo1ee4h">
     <path>
       <move select="Forward" beats="3"/>
       <move select="Swing Right" scaleX=".5"/>

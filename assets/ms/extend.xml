@@ -23,7 +23,7 @@
 <tamination title="Extend">
 
   <tam title="Extend" from="Single Quarter Tag"
-       formation="Single Quarter Tag" difficulty="2">
+       formation="Single Quarter Tag" difficulty="2" vid="V1-e6slqaqu">
     <path>
       <move select="Extend Left" beats="2"/>
     </path>
@@ -33,7 +33,7 @@
   </tam>
 
   <tam title="Extend" from="Single Left Quarter Tag"
-       formation="Single Left Quarter Tag" difficulty="2">
+       formation="Single Left Quarter Tag" difficulty="2" vid="V1-fwnmhm7j">
     <path>
       <move select="Extend Right" beats="2"/>
     </path>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Extend" from="Right-Hand Box"
-       formation="Box RH" difficulty="2">
+       formation="Box RH" difficulty="2" vid="V1-ff2y65ed">
     <path>
       <move select="Forward 2"/>
     </path>
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Extend" from="Left-Hand Box"
-       formation="Box LH" difficulty="2">
+       formation="Box LH" difficulty="2" vid="V1-mnvtbygt">
     <path>
       <move select="Extend Left" beats="2"/>
     </path>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Extend" from="Single 3/4 Tag"
-       formation="Single 3/4 Tag" difficulty="2">
+       formation="Single 3/4 Tag" difficulty="2" vid="V1-ond9ytov">
     <path>
     </path>
     <path>
@@ -72,7 +72,7 @@
   </tam>
 
   <tam title="Extend" from="Single Left 3/4 Tag"
-       formation="Single Left 3/4 Tag" difficulty="2">
+       formation="Single Left 3/4 Tag" difficulty="2" vid="V1-n3aedisx">
     <path>
     </path>
     <path>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Extend" from="Single Double Pass Thru"
-       formation="Single Double Pass Thru" difficulty="2">
+       formation="Single Double Pass Thru" difficulty="2" vid="V1-7bad1pek">
     <path>
     </path>
     <path>
@@ -92,7 +92,7 @@
   <tam title="Extend"
        from="Right-Hand 1/4 Tag"
        formation="Quarter Tag"
-       difficulty="1">
+       difficulty="1" vid="V1-h25f622j">
     <path>
       <move select="Extend Left" scaleY="2" beats="2" />
     </path>
@@ -110,7 +110,7 @@
   <tam title="Extend"
        from="Left-Hand 1/4 Tag"
        formation="Quarter Tag LH"
-       difficulty="2">
+       difficulty="2" vid="V1-67fpym44">
     <path>
       <move select="Forward" beats="2" />
     </path>
@@ -128,7 +128,7 @@
   <tam title="Extend"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-css0nlfn">
     <path>
     </path>
     <path>
@@ -144,7 +144,7 @@
   <tam title="Extend"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-7dnra8e2">
     <path>
       <move select="Forward 2" />
     </path>
@@ -161,7 +161,7 @@
 
   <tam title="Extend" from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-rq3ijnnd">
     <path>
       <move select="Extend Left" scaleY="2" beats="2" />
     </path>
@@ -179,7 +179,7 @@
   <tam title="Extend"
        from="3/4 Tag"
        formation="3/4 Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-x8t5e6qk">
     <path>
     </path>
     <path>
@@ -195,7 +195,7 @@
   <tam title="Extend"
        from="Left-Hand 3/4 Tag"
        formation="3/4 Tag LH"
-       difficulty="2">
+       difficulty="2" vid="V1-hnww5m74">
     <path>
     </path>
     <path>
@@ -208,7 +208,7 @@
     </path>
   </tam>
 
-  <tam title="Extend" from="Tidal Quarter Tag" difficulty="3">
+  <tam title="Extend" from="Tidal Quarter Tag" difficulty="3" vid="V1-1fxhxsqj">
     <formation fid="F3-h9kyi923" aid="A1-41ibmqxz">
       <dancer gender="boy" x="-1" y="-2" angle="90"/>
       <dancer gender="girl" x="0" y="-.5" angle="270"/>
@@ -229,7 +229,7 @@
     </path>
   </tam>
 
-  <tam title="Extend" from="Tidal Left Quarter Tag" difficulty="3">
+  <tam title="Extend" from="Tidal Left Quarter Tag" difficulty="3" vid="V1-aspdei8n">
     <formation fid="F3-ou0zgtv7" aid="A1-y9emy52f">
       <dancer gender="boy" x="-1" y="-2" angle="270"/>
       <dancer gender="girl" x="0" y="-.5" angle="270"/>
@@ -251,7 +251,7 @@
   </tam>
 
   <tam title="Extend" from="Right-Hand Columns"
-       formation="Column RH GBGB" difficulty="3">
+       formation="Column RH GBGB" difficulty="3" vid="V1-zn8vbiwc">
     <path>
       <move select="Extend Right" beats="2" scaleX=".5"/>
     </path>
@@ -267,7 +267,7 @@
   </tam>
 
   <tam title="Extend" from="Left-Hand Columns"
-       formation="Column LH GBGB" difficulty="3">
+       formation="Column LH GBGB" difficulty="3" vid="V1-htyrxb5x">
     <path>
       <move select="Forward" beats="2"/>
     </path>
@@ -282,7 +282,7 @@
     </path>
   </tam>
 
-  <tam title="Extend" from="Tidal 3/4 Tag" difficulty="3">
+  <tam title="Extend" from="Tidal 3/4 Tag" difficulty="3" vid="V1-twr30vsw">
     <formation fid="F3-lj1g7cb5" aid="A1-xc0l7kax">
       <dancer gender="boy" x="-1" y="-2" angle="90"/>
       <dancer gender="girl" x="0" y="-.5" angle="90"/>
@@ -301,7 +301,7 @@
     </path>
   </tam>
 
-  <tam title="Extend" from="Tidal Left 3/4 Tag" difficulty="3">
+  <tam title="Extend" from="Tidal Left 3/4 Tag" difficulty="3" vid="V1-2rbcmsu4">
     <formation fid="F3-98coy9c9" aid="A1-tj623xgp">
       <dancer gender="boy" x="-1" y="-2" angle="270"/>
       <dancer gender="girl" x="0" y="-.5" angle="90"/>
@@ -324,7 +324,7 @@
   <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
-<tam title="Extend" from="Right-Hand Wave" formation="Wave RH" difficulty="1">
+<tam title="Extend" from="Right-Hand Wave" formation="Wave RH" difficulty="1" vid="V1-vs33dpkw">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
     </path>
@@ -333,7 +333,7 @@
     </path>
   </tam>
 
-<tam title="Extend" from="Left-Hand Wave" formation="Wave LH" difficulty="2">
+<tam title="Extend" from="Left-Hand Wave" formation="Wave LH" difficulty="2" vid="V1-cb44oyqv">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
     </path>

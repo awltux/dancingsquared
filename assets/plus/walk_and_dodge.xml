@@ -25,7 +25,7 @@
   <tam title="Walk and Dodge"
        from="Right-Hand Box"
        formation="Box RH"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-468stbqu">
     <path>
       <move select="Forward 4" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Walk and Dodge"
        from="Left-Hand Box"
        formation="Box LH"
-       difficulty="2">
+       difficulty="2" vid="V1-m3x64nsi">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -49,7 +49,7 @@
   <tam title="Walk and Dodge"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-8lzb3vfh">
     <path>
       <move select="Forward 4" />
     </path>
@@ -71,7 +71,7 @@
   <tam title="Walk and Dodge"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-kww5g112">
     <path>
       <move select="Dodge Left" />
     </path>
@@ -89,7 +89,7 @@
   <tam title="Walk and Dodge"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       difficulty="2">
+       difficulty="2" vid="V1-z2un03ef">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>
@@ -110,7 +110,7 @@
   <tam title="Walk and Dodge"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       difficulty="2">
+       difficulty="2" vid="V1-edkr706a">
     <path>
       <move select="Forward 2" beats="4" />
     </path>
@@ -126,7 +126,7 @@
   </tam>
 
   <tam title="Walk and Dodge" from="T-Bones"
-       difficulty="3">
+       difficulty="3" vid="V1-k0dus2wa">
      <formation fid="F3-462oelr2" aid="A1-w7khqvvk">
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -150,7 +150,7 @@
   <tam title="Boys Walk, Girls Dodge"
        from="Facing Couples"
        formation="Facing Couples Compact" sequencer="gender-specific"
-       difficulty="1">
+       difficulty="1" vid="V1-u0wukn3j">
     <path>
       <move select="Forward 3" beats="4" />
     </path>
@@ -162,7 +162,7 @@
   <tam title="Boys Walk, Girls Dodge"
        from="Lines"
        formation="Normal Lines" sequencer="gender-specific"
-       difficulty="1">
+       difficulty="1" vid="V1-dudjdmp6">
     <path>
       <move select="Forward 4" />
     </path>
@@ -180,7 +180,7 @@
   <tam title="Boys Walk, Girls Dodge"
        from="Eight Chain Thru"
        formation="Eight Chain Thru" sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-yd190apj">
     <path>
       <move select="Forward 2" beats="4" />
     </path>
@@ -198,7 +198,7 @@
   <tam title="Girls Walk, Boys Dodge"
        from="Facing Couples"
        formation="Facing Couples Compact" sequencer="gender-specific"
-       difficulty="1">
+       difficulty="1" vid="V1-q6s65vjn">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>
@@ -210,7 +210,7 @@
   <tam title="Girls Walk, Boys Dodge"
        from="Lines"
        formation="Normal Lines" sequencer="gender-specific"
-       difficulty="1">
+       difficulty="1" vid="V1-8uzp8ija">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>
@@ -228,7 +228,7 @@
   <tam title="Girls Walk, Boys Dodge"
        from="Eight Chain Thru"
        formation="Eight Chain Thru" sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-lk23mf3v">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>
@@ -243,7 +243,7 @@
     </path>
   </tam>
 
-  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 1" formation="Mixed Quarter Tag #2" difficulty="3">
+  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 1" formation="Mixed Quarter Tag #2" difficulty="3" vid="V1-xjgerv24">
     <path>
       <move select="Forward 3" beats="4" />
     </path>
@@ -258,7 +258,7 @@
     </path>
   </tam>
 
-  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 2" formation="Mixed Quarter Tag #3" difficulty="3">
+  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 2" formation="Mixed Quarter Tag #3" difficulty="3" vid="V1-wfwk1bb5">
     <path>
       <move select="Forward 3" beats="4" />
     </path>
@@ -272,7 +272,7 @@
       <move select="Forward 3" beats="4" />
     </path>
   </tam>
-  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 3" formation="Mixed Quarter Tag #5" difficulty="3">
+  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 3" formation="Mixed Quarter Tag #5" difficulty="3" vid="V1-tsr0unla">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -286,7 +286,7 @@
       <move select="Forward 3" beats="4" />
     </path>
   </tam>
-  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 4" formation="Mixed Quarter Tag #8" difficulty="3">
+  <tam title="Center 6 Walk and Dodge" from="Mixed Quarter Tag 4" formation="Mixed Quarter Tag #8" difficulty="3" vid="V1-mi0o909o">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -302,7 +302,7 @@
   </tam>
 
 
-  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 1" formation="Mixed Quarter Tag #1" sequencer="perimeter" difficulty="3">
+  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 1" formation="Mixed Quarter Tag #1" sequencer="perimeter" difficulty="3" vid="V1-hwwtuy8u">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2"/>
     </path>
@@ -317,7 +317,7 @@
     </path>
   </tam>
 
-  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 2" formation="Mixed Quarter Tag #3" sequencer="perimeter" difficulty="3">
+  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 2" formation="Mixed Quarter Tag #3" sequencer="perimeter" difficulty="3" vid="V1-tb6hbzd5">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2"/>
     </path>
@@ -331,7 +331,7 @@
       <!-- do nothing -->
     </path>
   </tam>
-  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 3" formation="Mixed Quarter Tag #6" sequencer="perimeter" difficulty="3">
+  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 3" formation="Mixed Quarter Tag #6" sequencer="perimeter" difficulty="3" vid="V1-3500r6z0">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -345,7 +345,7 @@
       <!-- do nothing -->
     </path>
   </tam>
-  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 4" formation="Mixed Quarter Tag #8" sequencer="perimeter" difficulty="3">
+  <tam title="Outside 6 Walk and Dodge" from="Mixed Quarter Tag 4" formation="Mixed Quarter Tag #8" sequencer="perimeter" difficulty="3" vid="V1-q74jmrmc">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -362,7 +362,7 @@
 
   <tam title="3 by 1 Walk and Dodge"
        from="Right-Hand Columns"
-       formation="Column RH GBGB" difficulty="3">
+       formation="Column RH GBGB" difficulty="3" vid="V1-m9a2bzsy">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>
@@ -379,7 +379,7 @@
 
   <tam title="3 by 1 Walk and Dodge"
        from="Left-Hand Columns"
-       formation="Column LH GBGB" difficulty="3">
+       formation="Column LH GBGB" difficulty="3" vid="V1-q9ugsa3j">
     <path>
       <move select="Forward 2" beats="4" />
     </path>
@@ -396,7 +396,7 @@
 
   <tam title="1 by 3 Walk and Dodge"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB Compact" difficulty="3">
+       formation="Ocean Waves RH BGGB Compact" difficulty="3" vid="V1-dy4xg7lx">
     <path>
       <move select="Forward 3" beats="4" />
     </path>
@@ -413,7 +413,7 @@
 
   <tam title="1 by 3 Walk and Dodge"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" difficulty="3">
+       formation="Ocean Waves LH BGGB" difficulty="3" vid="V1-7z9hxqn7">
     <path numbers="1 8">
       <move select="Dodge Left" beats="4" />
     </path>
@@ -430,7 +430,7 @@
 
   <tam title="1 by 3 Walk and Dodge"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" difficulty="3">
+       formation="Two-Faced Lines RH" difficulty="3" vid="V1-rpxsqqxh">
     <path>
       <move select="Forward 4" />
     </path>
@@ -447,7 +447,7 @@
 
   <tam title="1 by 3 Walk and Dodge"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH" difficulty="3">
+       formation="Two-Faced Lines LH" difficulty="3" vid="V1-yksvw80u">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -463,7 +463,7 @@
   </tam>
 
   <tam title="1 by 3 Walk and Dodge" from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1" difficulty="3">
+       formation="3 and 1 lines #1" difficulty="3" vid="V1-to9s8y5c">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -479,7 +479,7 @@
   </tam>
 
   <tam title="1 by 3 Walk and Dodge" from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4" difficulty="3">
+       formation="3 and 1 lines #4" difficulty="3" vid="V1-pdi0nc8l">
     <path>
       <move select="Forward 4" />
     </path>
@@ -498,7 +498,7 @@
     </taminator>
   </tam>
 
-  <tam title="1 by 3 Walk and Dodge" from="3 and 1 Lines #5" difficulty="3">
+  <tam title="1 by 3 Walk and Dodge" from="3 and 1 Lines #5" difficulty="3" vid="V1-b61f3lf7">
     <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -523,7 +523,7 @@
   </tam>
 
   <tam title="1 by 3 Walk and Dodge" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8" difficulty="3">
+       formation="3 and 1 lines #8" difficulty="3" vid="V1-skir2jhs">
     <path>
       <move select="Dodge Left" beats="4" />
     </path>
@@ -538,7 +538,7 @@
     </path>
   </tam>
 
-  <tam title="Side Girls Dodge and Others Walk" group=" " difficulty="2">
+  <tam title="Side Girls Dodge and Others Walk" group=" " difficulty="2" vid="V1-2nndiax4">
     <formation fid="F3-mgilzw9x" aid="A1-i8zf8i0p">
       <dancer gender="boy" y="1" x="1" angle="270"/>
       <dancer gender="girl" y="-1" x="1" angle="270"/>

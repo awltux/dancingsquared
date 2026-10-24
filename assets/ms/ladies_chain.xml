@@ -25,7 +25,7 @@
   <tam title="Ladies Chain"
        from="Facing Couples"
        formation="Facing Couples Compact" sequencer="gender-specific"
-       fractions="5" difficulty="1">
+       fractions="5" difficulty="1" vid="V1-nh61bw0i">
     <path>
       <move select="Stand" hands="nohands" />
       <move select="Dodge Right" beats="2"/>
@@ -42,7 +42,7 @@
   <tam title="Ladies Chain"
        from="Normal Lines"
        formation="Normal Lines" sequencer="gender-specific"
-       fractions="5" difficulty="1">
+       fractions="5" difficulty="1" vid="V1-6rz9vx3j">
     <path>
       <move select="Stand" hands="nohands" />
       <move select="Dodge Right" beats="2"/>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Ladies Chain" from="Eight Chain Thru" sequencer="gender-specific"
-       formation="Eight Chain Thru" fractions="5" difficulty="1">
+       formation="Eight Chain Thru" fractions="5" difficulty="1" vid="V1-p6aa65ja">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -95,7 +95,7 @@
 
   <tam title="Head Ladies Chain" group=" "
        from="Static Square"
-       formation="Static Square" sequencer="gender-specific" difficulty="1">
+       formation="Static Square" sequencer="gender-specific" difficulty="1" vid="V1-s0hhbo34">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -115,7 +115,7 @@
 
   <tam title="Side Ladies Chain" group=" "
        from="Static Square"
-       formation="Static Square" sequencer="gender-specific" difficulty="1">
+       formation="Static Square" sequencer="gender-specific" difficulty="1" vid="V1-r2f8mbbv">
     <path>
     </path>
     <path>
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Head Ladies Chain Right" group=" "
-       formation="Static Square" sequencer="gender-specific" difficulty="2">
+       formation="Static Square" sequencer="gender-specific" difficulty="2" vid="V1-ad8yvj36">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -160,7 +160,7 @@
   </tam>
 
   <tam title="Side Ladies Chain Right" group=" "
-       formation="Static Square" sequencer="gender-specific" difficulty="2">
+       formation="Static Square" sequencer="gender-specific" difficulty="2" vid="V1-5sn3u93l">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -186,7 +186,7 @@
   </tam>
 
   <tam title="Head Ladies Chain Left" group=" "
-       formation="Static Square" sequencer="gender-specific" difficulty="2">
+       formation="Static Square" sequencer="gender-specific" difficulty="2" vid="V1-y4yo97sp">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -215,7 +215,7 @@
   </tam>
 
   <tam title="Side Ladies Chain Left" group=" "
-       formation="Static Square" sequencer="gender-specific" difficulty="2">
+       formation="Static Square" sequencer="gender-specific" difficulty="2" vid="V1-4bpyscxg">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -244,7 +244,7 @@
   </tam>
 
   <tam title="End Ladies Chain on a Diagonal" group=" "
-       formation="Normal Lines" sequencer="gender-specific" difficulty="2">
+       formation="Normal Lines" sequencer="gender-specific" difficulty="2" vid="V1-nduzxmxx">
     <path>
     </path>
     <path>
@@ -264,7 +264,7 @@
   </tam>
 
   <tam title="Center Ladies Chain on a Diagonal" group=" "
-       formation="Normal Lines" sequencer="gender-specific" difficulty="3">
+       formation="Normal Lines" sequencer="gender-specific" difficulty="3" vid="V1-smdcvbef">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Dodge Right" beats="4"/>
@@ -285,7 +285,7 @@
   </tam>
 
   <tam title="On a Double Track, Ladies Chain" from="Double Pass Thru" group=" "
-       sequencer="gender-specific" difficulty="2">
+       sequencer="gender-specific" difficulty="2" vid="V1-7dgzvovg">
     <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
@@ -319,7 +319,7 @@
   <tam title="Four Ladies Chain"
        from="Static Square"
        formation="Static Square" sequencer="gender-specific"
-       fractions="5" difficulty="1">
+       fractions="5" difficulty="1" vid="V1-rwxgp5ja">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="2"/>
@@ -345,7 +345,7 @@
   </tam>
 
   <tam title="Four Ladies Chain" from="Normal Lines"
-       formation="Normal Lines" sequencer="gender-specific" difficulty="2">
+       formation="Normal Lines" sequencer="gender-specific" difficulty="2" vid="V1-nqstv7od">
     <path>
       <move select="Dodge Right" beats="7" scaleY="0.75"/>
       <move select="U-Turn Left" beats="2" offsetY=".5"/>
@@ -375,7 +375,7 @@
   <tam title="Four Ladies Chain 3/4" group=" "
        from="Static Square"
        formation="Static Square" sequencer="gender-specific"
-       fractions="6.5"  difficulty="1">
+       fractions="6.5"  difficulty="1" vid="V1-1q067izk">
     <path>
       <move select="Stand" />
       <move select="Dodge Right" beats="3.5"/>
@@ -405,7 +405,7 @@
   <tam title="Four Ladies Chain 1/4" group=" "
        from="Static Square"
        formation="Static Square" sequencer="gender-specific"
-       fractions="6.5" difficulty="2">
+       fractions="6.5" difficulty="2" vid="V1-qtia567a">
     <path>
       <move select="Dodge Right" beats="2"/>
       <move select="U-Turn Left" hands="right" beats="2" offsetY=".5"/>
@@ -431,7 +431,7 @@
   <tam title="Chain Down the Line"
        from="Two-Faced Line"
        formation="Two-Faced Line RH"
-       fractions="3" difficulty="1">
+       fractions="3" difficulty="1" vid="V1-4osfe21e">
     <path>
       <move select="Quarter Right" beats="3" offsetY="-1"/>
       <move select="U-Turn Left" beats="1.5"/>
@@ -447,7 +447,7 @@
   <tam title="Chain Down the Line"
        from="Compact Two-Faced Line"
        formation="Compact Two-Faced Line RH"
-       fractions="3" difficulty="1" display="no">
+       fractions="3" difficulty="1" display="no" vid="V1-7k5388uc">
     <path>
       <move select="Quarter Right" beats="3"/>
       <move select="U-Turn Left" beats="1.5"/>
@@ -461,7 +461,7 @@
   </tam>
 
   <tam title="Chain Down the Line" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="1">
+       formation="Wave LH" difficulty="1" vid="V1-l6h86uc3">
     <path>
       <move select="Quarter Left" beats="3" offsetY="1"/>
       <move select="U-Turn Left" beats="1.5"/>
@@ -477,7 +477,7 @@
   <tam title="Chain Down the Line"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="3" difficulty="1">
+       fractions="3" difficulty="1" vid="V1-axvfy697">
     <path>
       <move select="Quarter Right" beats="3" offsetY="-1"/>
       <move select="U-Turn Left" beats="1.5"/>
@@ -503,7 +503,7 @@
   <tam title="Chain Down the Line"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="3" difficulty="1">
+       fractions="3" difficulty="1" vid="V1-87zkpfz9">
     <path>
       <move select="Quarter Left" beats="3" offsetY="1"/>
       <move select="U-Turn Left" beats="1.5"/>
@@ -527,7 +527,7 @@
   </tam>
 
   <tam title="Chain Down the Line" from="Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line RH" fractions="3" difficulty="2">
+       formation="Two-Faced Tidal Line RH" fractions="3" difficulty="2" vid="V1-z5eh7hnx">
     <path>
       <move select="Quarter Right" beats="3"/>
       <move select="U-Turn Left" beats="1.5" offsetX=".5" offsetY="-.5"/>
@@ -553,7 +553,7 @@
   <tam title="Chain Down the Line"
        from="Tidal Left-Hand Wave"
        formation="Tidal Wave LH BGGB"
-       fractions="3" difficulty="2">
+       fractions="3" difficulty="2" vid="V1-6c97xj0l">
     <path>
       <move select="Quarter Left" beats="3"/>
       <move select="Quarter Left" beats=".75"/>
@@ -585,7 +585,7 @@
 <tam title="Ladies Chain"
        from="Facing Couples"
        formation="Facing Couples" sequencer="gender-specific"
-       fractions="5" difficulty="1">
+       fractions="5" difficulty="1" vid="V1-19fm1vtr">
     <path>
       <move select="Stand" />
       <move select="Flip Left" beats="4" offsetY="-4" />
@@ -599,7 +599,7 @@
   </tam>
 
 <tam title="Ladies Chain" from="Double Pass Thru"
-       sequencer="gender-specific" difficulty="2">
+       sequencer="gender-specific" difficulty="2" vid="V1-d6ewjzq2">
     <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>

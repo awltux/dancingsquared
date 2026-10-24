@@ -25,7 +25,7 @@
   <tam title="Circle to a Wave"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       parts="2.25" >
+       parts="2.25"  vid="V1-9ajx3j4f">
     <path>
       <move select="Eighth Right" offsetX="0.5" />
       <move select="Counter Rotate Left 1.414 1.414" hands="both" beats="1.5"/>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Circle to a Wave"
-       from="Normal Lines" formation="Normal Lines Compact" parts="2.25">
+       from="Normal Lines" formation="Normal Lines Compact" parts="2.25" vid="V1-raek5u2w">
     <path>
       <move select="Eighth Right" offsetX=".5" />
       <move select="Counter Rotate Left 1.414 1.414" hands="gripboth" beats="1.5"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Circle to a Wave"
-       from="Eight Chain Thru" formation="Eight Chain Thru" parts="2.25">
+       from="Eight Chain Thru" formation="Eight Chain Thru" parts="2.25" vid="V1-f64fcwk7">
     <path>
       <move select="Eighth Right" />
       <move select="Counter Rotate Left 1.414 1.414" hands="gripboth" beats="1.5"/>
@@ -88,7 +88,7 @@
 
   <tam title="Circle 1/2 to a Wave" group=" "
        formation="Facing Couples Compact"
-       parts="3.75" >
+       parts="3.75"  vid="V1-cram4z09">
     <path>
       <move select="Eighth Right" offsetX="0.5" />
       <move select="Counter Rotate Left 1.414 1.414" hands="both" beats="1.5"/>
@@ -103,7 +103,7 @@
     </path>
   </tam>
 
-  <tam title="All 4 Couples Circle to a Wave" group=" " formation="Static Square">
+  <tam title="All 4 Couples Circle to a Wave" group=" " formation="Static Square" vid="V1-q5ql0uln">
     <path>
       <move select="Forward" hands="both" scaleX=".59" scaleY=".59" />
       <move select="cl" />
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="As Couples Circle to a Wave" group=" "
-       formation="Normal Lines Compact">
+       formation="Normal Lines Compact" vid="V1-rsj3p48f">
     <path>
       <move select="Eighth Right" beats="1" hands="right" offsetX=".5" offsetY="-1"/>
       <movement hands="both" beats="2"
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Concentric Circle to a Wave" group=" "
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-9qhf4qvz">
     <path>
       <move select="Counter Rotate Right 4 2" beats="4" hands="right"/>
       <move select="Extend Left" beats="2" scaleX="2"/>
@@ -193,7 +193,7 @@
   </tam>
 
   <tam title="Cross Concentric Circle to a Wave" group=" "
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-ajbpakb3">
     <path>
       <move select="Stand" beats="5"/>
       <move select="Eighth Right" beats="2" hands="right" offsetX="2" />

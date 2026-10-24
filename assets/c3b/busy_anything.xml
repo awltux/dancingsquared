@@ -22,7 +22,7 @@
 -->
 <tamination title="Busy anything">
 
-  <tam title="Busy Cross Cycle" group="Busy" fractions="4" formation="Two-Faced Lines RH">
+  <tam title="Busy Cross Cycle" group="Busy" fractions="4" formation="Two-Faced Lines RH" vid="V1-2cz11zke">
     <path>
       <move select="Forward 2" beats="4" hands="right"/>
       <move select="Lead Right" beats="4" scaleY="4"/>
@@ -44,7 +44,7 @@
     </path>
   </tam>
 
-  <tam title="Busy Crossfire" group="Busy" fractions="4" formation="Two-Faced Lines LH">
+  <tam title="Busy Crossfire" group="Busy" fractions="4" formation="Two-Faced Lines LH" vid="V1-ivng24wf">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="3" scaleY="3"/>
       <move select="Forward 4"/>
@@ -64,7 +64,7 @@
     </path>
   </tam>
 
-  <tam title="Busy Mix" group="Busy" fractions="4">
+  <tam title="Busy Mix" group="Busy" fractions="4" vid="V1-fclublny">
     <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
@@ -90,7 +90,7 @@
     </path>
   </tam>
 
-  <tam title="Busy Single Wheel" group="Busy" fractions="4">
+  <tam title="Busy Single Wheel" group="Busy" fractions="4" vid="V1-tv3vfeyr">
     <formation fid="F3-p8t2f0pj" aid="A1-a4nha8gv">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>

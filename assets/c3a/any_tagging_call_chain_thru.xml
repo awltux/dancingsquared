@@ -25,7 +25,7 @@
 
 
   <tam title="Tag Chain Thru" from="Lines Facing Out" group=" "
-       formation="Lines Facing Out" fractions="3.5">
+       formation="Lines Facing Out" fractions="3.5" vid="V1-1serfh26">
     <path>
       <move select="Quarter Left"  offsetX="-1" offsetY="1"/>
       <move select="Stand" beats="2"/>
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="Flip Chain Thru" from="Right-Hand Waves" group=" "
-       formation="Ocean Waves RH BGGB" fractions="6.5">
+       formation="Ocean Waves RH BGGB" fractions="6.5" vid="V1-ae87leu4">
     <path numbers="1 8">
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward 3"/>

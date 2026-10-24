@@ -23,7 +23,7 @@
 <tamination title="Flare Out to a Line">
 
   <tam title="Flare Out to a Line" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-uzr42isu">
     <path>
       <move select="Extend Right" beats="3" hands="right" scaleX="2" scaleY="1.5"/>
     </path>
@@ -38,7 +38,7 @@
     </path>
   </tam>
 
-  <tam title="Flare Out to a Line" from="Left-Hand Two-Faced Lines">
+  <tam title="Flare Out to a Line" from="Left-Hand Two-Faced Lines" vid="V1-4hbrvjcl">
     <formation fid="F3-njckelvh" aid="A1-j8hx34d9">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>

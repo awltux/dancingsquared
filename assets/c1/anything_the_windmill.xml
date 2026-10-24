@@ -22,7 +22,7 @@
 -->
 <tamination title="Anything the Windmill">
 
-  <tam title="Mix the Windmill Right" formation="Quarter Tag" group=" ">
+  <tam title="Mix the Windmill Right" formation="Quarter Tag" group=" " vid="V1-tp4s24lq">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />
@@ -46,7 +46,7 @@
     </path>
   </tam>
 
-  <tam title="Half Tag the Windmill Right" formation="Quarter Lines RH" group=" ">
+  <tam title="Half Tag the Windmill Right" formation="Quarter Lines RH" group=" " vid="V1-a2gfcb4j">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />
@@ -71,7 +71,7 @@
     </path>
   </tam>
 
-  <tam title="Follow Your Neighbor the Windmill Forward" formation="Ocean Waves RH BGGB" group=" ">
+  <tam title="Follow Your Neighbor the Windmill Forward" formation="Ocean Waves RH BGGB" group=" " vid="V1-lb40z0mi">
     <path>
       <move select="Forward 4"/>
       <move select="Run Right" beats="6.5" scaleX="3" scaleY="3"/>
@@ -93,7 +93,7 @@
     </path>
   </tam>
 
-  <tam title="Switch the Windmill Right" formation="Quarter Tag" group=" ">
+  <tam title="Switch the Windmill Right" formation="Quarter Tag" group=" " vid="V1-0v4r7mqm">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />

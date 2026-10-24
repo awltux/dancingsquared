@@ -25,7 +25,7 @@
   <tam title="Quarter the Top"
        from="Thar"
        formation="Thar RH Boys"
-       parts="3" >
+       parts="3"  vid="V1-zprw02mi">
     <path>
       <move select="Swing Left" />
       <move select="Lead Left 1/4" beats="1.125" scaleX="3" scaleY="3" />
@@ -49,7 +49,7 @@
   <tam title="Quarter the Top"
        from="Wrong Way Thar"
        formation="Thar LH Boys"
-       parts="3" >
+       parts="3"  vid="V1-y5wsxrft">
     <path>
       <move select="Swing Right" />
       <move select="Lead Right 1/4" beats="1.125" scaleX="3" scaleY="3" />
@@ -73,7 +73,7 @@
   <tam title="Half the Top"
        from="Thar"
        formation="Thar RH Boys"
-       parts="3" >
+       parts="3"  vid="V1-oi2jwk99">
     <path>
       <move select="Swing Left" />
       <move select="Lead Left 1/2" beats="2.25" scaleX="3" scaleY="3" />
@@ -97,7 +97,7 @@
   <tam title="Half the Top"
        from="Wrong Way Thar"
        formation="Thar LH Boys"
-       parts="3" >
+       parts="3"  vid="V1-sy9bfo72">
     <path>
       <move select="Swing Right" />
       <move select="Lead Right 1/2" beats="2.25" scaleX="3" scaleY="3" />
@@ -121,7 +121,7 @@
   <tam title="3/4 the Top"
        from="Thar"
        formation="Thar RH Boys"
-       parts="3" >
+       parts="3"  vid="V1-auqura9c">
     <path>
       <move select="Swing Left" />
       <move select="Lead Left 1/2" beats="2.25" scaleX="3" scaleY="3" />
@@ -147,7 +147,7 @@
   <tam title="3/4 the Top"
        from="Wrong Way Thar"
        formation="Thar LH Boys"
-       parts="3" >
+       parts="3"  vid="V1-bawweg2j">
     <path>
       <move select="Swing Right" />
       <move select="Lead Right 1/2" beats="2.25" scaleX="3" scaleY="3" />

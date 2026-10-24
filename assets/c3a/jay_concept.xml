@@ -22,7 +22,7 @@
 -->
 <tamination title="Jay Concept">
 
-  <tam title="Jay Left Wheel Thru" group="Jay">
+  <tam title="Jay Left Wheel Thru" group="Jay" vid="V1-ztu4wm5t">
     <formation fid="F3-roc084t6" aid="A1-zgtdeqka">
       <dancer gender="boy" x="3" y="1" angle="180"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Jay Pass the Ocean" group="Jay">
+  <tam title="Jay Pass the Ocean" group="Jay" vid="V1-yg6b6pe2">
     <formation fid="F3-roc084t6" aid="A1-qf1wbkk2">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="-1" y="0" angle="270"/>
@@ -67,7 +67,7 @@
     </path>
   </tam>
 
-  <tam title="Jay Square Thru Three" formation="Quarter Tag" group="Jay">
+  <tam title="Jay Square Thru Three" formation="Quarter Tag" group="Jay" vid="V1-4on9hnoe">
     <path>
       <move select="Extend Left" beats="2" scaleX="1" scaleY=".5"/>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5"/>
@@ -94,7 +94,7 @@
     </path>
   </tam>
 
-  <tam title="Jay Swap Around" formation="Quarter Tag" group="Jay">
+  <tam title="Jay Swap Around" formation="Quarter Tag" group="Jay" vid="V1-k7e2go5q">
     <path>
       <move select="Run Right" beats="4"/>
     </path>
@@ -109,7 +109,7 @@
     </path>
   </tam>
 
-  <tam title="Jay Touch a Quarter" formation="Quarter Tag" group="Jay">
+  <tam title="Jay Touch a Quarter" formation="Quarter Tag" group="Jay" vid="V1-h1ns79ia">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY=".5"/>
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY=".5"/>
@@ -126,7 +126,7 @@
     </path>
   </tam>
 
-  <tam title="Back Jay Chase Right" group="Back Jay" formation="3/4 Tag">
+  <tam title="Back Jay Chase Right" group="Back Jay" formation="3/4 Tag" vid="V1-mp4m98sq">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1" offsetY="-1" />
       <move select="Forward" />
@@ -147,7 +147,7 @@
     </path>
   </tam>
 
-  <tam title="Back Jay Shakedown" group="Back Jay">
+  <tam title="Back Jay Shakedown" group="Back Jay" vid="V1-2q9hgbj5">
     <formation fid="F3-tf2jipxe" aid="A1-s2y5a214">
       <dancer gender="boy" x="3" y="3" angle="0"/>
       <dancer gender="girl" x="3" y="-3" angle="0"/>
@@ -174,7 +174,7 @@
     </path>
   </tam>
 
-  <tam title="Left Jay Partner Tag" group="Left Jay">
+  <tam title="Left Jay Partner Tag" group="Left Jay" vid="V1-plq5jbsa">
     <formation fid="F3-tpfr4zlu" aid="A1-vq8wlg30">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="2" y="1" angle="90"/>
@@ -199,7 +199,7 @@
     </path>
   </tam>
 
-  <tam title="Right Jay Partner Tag" group="Right Jay">
+  <tam title="Right Jay Partner Tag" group="Right Jay" vid="V1-rpwdg2lx">
     <formation fid="F3-tpfr4zlu" aid="A1-vq8wlg30">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="2" y="1" angle="90"/>

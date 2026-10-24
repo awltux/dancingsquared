@@ -23,7 +23,7 @@
 
 
   <tam title="Transfer and" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-hnlnqju7">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Transfer and" from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-0idpcs22">
     <path>
       <move select="Forward 2"/>
     </path>
@@ -64,7 +64,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and" from="T-Bones 1">
+  <tam title="Transfer and" from="T-Bones 1" vid="V1-feu0wive">
     <formation fid="F3-olxqsvcv" aid="A1-x5l38lrp">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -90,7 +90,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and" from="T-Bones 2">
+  <tam title="Transfer and" from="T-Bones 2" vid="V1-58fybah3">
     <formation fid="F3-pwh54y57" aid="A1-5do2wkup">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
@@ -116,7 +116,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and" from="T-Bones 3">
+  <tam title="Transfer and" from="T-Bones 3" vid="V1-kfop49e1">
     <formation fid="F3-2fwd44ic" aid="A1-c4wsesoo">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -142,7 +142,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and" from="T-Bones 4">
+  <tam title="Transfer and" from="T-Bones 4" vid="V1-qjgegfed">
     <formation fid="F3-43oqwpra" aid="A1-hk8rk5by">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Transfer and Box Circulate Twice" group="Transfer and"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-b7zxzmzc">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -194,7 +194,7 @@
   </tam>
 
   <tam title="Transfer and Box Counter Rotate" group="Transfer and"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-ziw8f2fv">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -217,7 +217,7 @@
   </tam>
 
   <tam title="Transfer and Box Transfer" group="Transfer and"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-yg85k72n">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -243,7 +243,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and Crossfire" group="Transfer and">
+  <tam title="Transfer and Crossfire" group="Transfer and" vid="V1-5funk1g6">
      <formation fid="F3-olxqsvcv" aid="A1-x5l38lrp">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -272,7 +272,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and Cut the Diamond" group="Transfer and">
+  <tam title="Transfer and Cut the Diamond" group="Transfer and" vid="V1-0isx8ed2">
      <formation fid="F3-2fwd44ic" aid="A1-c4wsesoo">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -303,7 +303,7 @@
   </tam>
 
   <tam title="Transfer and Follow Your Neighbor" group="Transfer and"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-e67dljmt">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -328,7 +328,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and Peel and Trail" group="Transfer and">
+  <tam title="Transfer and Peel and Trail" group="Transfer and" vid="V1-pad7ma0t">
      <formation fid="F3-462oelr2" aid="A1-w7khqvvk">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -357,7 +357,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and Peel the Top" group="Transfer and">
+  <tam title="Transfer and Peel the Top" group="Transfer and" vid="V1-yrpgwyg1">
      <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -388,7 +388,7 @@
   </tam>
 
   <tam title="Transfer and Quarter Thru"
-       from="Columns" group="Transfer and">
+       from="Columns" group="Transfer and" vid="V1-i0erd2hm">
      <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -419,7 +419,7 @@
   </tam>
 
   <tam title="Transfer and Remake" group="Transfer and"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-rark4qhw">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -448,7 +448,7 @@
   </tam>
 
   <tam title="Transfer and Single Wheel" group="Transfer and"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-d1fkg3no">
     <path>
       <move select="Run Right" beats="4" scaleY="2.5" />
       <move select="Forward 3" />
@@ -470,7 +470,7 @@
     </path>
   </tam>
 
-  <tam title="Transfer and Turn and Deal" group="Transfer and">
+  <tam title="Transfer and Turn and Deal" group="Transfer and" vid="V1-4b2jtqi7">
      <formation fid="F3-pwh54y57" aid="A1-5do2wkup">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>

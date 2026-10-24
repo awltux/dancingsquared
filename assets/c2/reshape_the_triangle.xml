@@ -25,7 +25,7 @@
 
 
   <tam title="Reshape the Outside Triangle" from="ptp diamonds" group=" "
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-tup4h7ma">
     <path>
       <move select="Quarter Right" beats="3" offsetX="-.1" offsetY="-2"/>
     </path>

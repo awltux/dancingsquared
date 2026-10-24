@@ -23,7 +23,7 @@
 <tamination title="Triple Cross">
 
   <tam title="Triple Cross"
-       from="Right-Hand Columns">
+       from="Right-Hand Columns" vid="V1-nwrfeozi">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Triple Cross"
-       from="Left-Hand Columns">
+       from="Left-Hand Columns" vid="V1-5totaznf">
     <formation fid="F3-dhnw1kx1" aid="A1-cl87xbbn">
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="-1" angle="270"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Cross" from="Right-Hand Box between Couples">
+  <tam title="Triple Cross" from="Right-Hand Box between Couples" vid="V1-pavgltco">
     <formation fid="F3-mgilzw9x" aid="A1-lhyug3s7">
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="-1" angle="90" />
@@ -87,7 +87,7 @@
     </path>
   </tam>
 
-  <tam title="Triple Cross" from="Left-Hand Box between Couples">
+  <tam title="Triple Cross" from="Left-Hand Box between Couples" vid="V1-pkpw4rcq">
     <formation fid="F3-424fi6bp" aid="A1-zxj5yo9z">
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="-1" angle="270" />
@@ -108,7 +108,7 @@
     </path>
   </tam>
 
-  <tam title="Double Cross" from="Quarter Tag" formation="Quarter Tag">
+  <tam title="Double Cross" from="Quarter Tag" formation="Quarter Tag" vid="V1-i4g7jwzo">
     <path>
       <move select="Stand" hands="none" beats="3"/>
     </path>
@@ -123,7 +123,7 @@
     </path>
   </tam>
 
-  <tam title="Double Cross" from="Left-Hand Quarter Tag" formation="Quarter Tag LH">
+  <tam title="Double Cross" from="Left-Hand Quarter Tag" formation="Quarter Tag LH" vid="V1-bbaze5wr">
     <path>
       <move select="Cross Right" scaleX="1.5" beats="3"/>
     </path>
@@ -139,7 +139,7 @@
   </tam>
 
   <tam title="Double Cross" from="Quarter Lines"
-       formation="Quarter Lines RH" display="no">
+       formation="Quarter Lines RH" display="no" vid="V1-71rc9nay">
     <path>
       <move select="Cross Right" scaleX="1.5" beats="3"/>
     </path>
@@ -155,7 +155,7 @@
   </tam>
 
   <tam title="Double Cross" from="Quarter Lines LH"
-       formation="Quarter Lines LH" display="no">
+       formation="Quarter Lines LH" display="no" vid="V1-cimdjtbz">
     <path>
       <move select="Stand" hands="none" beats="3"/>
     </path>

@@ -23,7 +23,7 @@
 <tamination title="Anything and Circle">
 
   <tam title="All 8 Recycle and Circle 1/4"
-       formation="Mixed Quarter Tag #1" group=" " parts="6">
+       formation="Mixed Quarter Tag #1" group=" " parts="6" vid="V1-aiwufuho">
     <path couples="2 4">
       <move select="U-Turn Right" hands="gripright" beats="6" offsetX="3" />
     </path>
@@ -42,7 +42,7 @@
     </path>
   </tam>
 
-  <tam title="Diamond Circulate and Circle 1/4" group=" " parts="3">
+  <tam title="Diamond Circulate and Circle 1/4" group=" " parts="3" vid="V1-6ab0268j">
     <formation fid="F3-ev2d73d1" aid="A1-1xeae1xz">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Heads Spin the Top and Circle 1/4"
-       formation="Static Square" group=" " parts="6;4.5">
+       formation="Static Square" group=" " parts="6;4.5" vid="V1-k13cq89q">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".5" />
@@ -92,7 +92,7 @@
   </tam>
 
   <tam title="Inlet and Circle 1/4" group=" "
-       formation="Ocean Waves RH BGGB" parts="4">
+       formation="Ocean Waves RH BGGB" parts="4" vid="V1-i96wtm3u">
     <path>
       <move select="Run Right" beats="4" hands="gripright" offsetX="2" />
       <move select="Stand" beats="4"/>
@@ -114,7 +114,7 @@
 
   <tam title="Switch and Circle 1/4"
        formation="Quarter Tag"
-       fractions="3" group=" ">
+       fractions="3" group=" " vid="V1-xhbq88cf">
     <path numbers="1 8">
       <move select="Stand" beats="3" hands="right"/>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2"/>
@@ -132,7 +132,7 @@
     </path>
   </tam>
 
-  <tam title="Switch and Circle 1/2" group=" " parts="4;4;4" formation="Mixed Quarter Tag #7">
+  <tam title="Switch and Circle 1/2" group=" " parts="4;4;4" formation="Mixed Quarter Tag #7" vid="V1-zknuwitt">
     <path>
       <move select="Stand" beats="4"/>
       <move select="Flip Left" beats="4"/>
@@ -161,7 +161,7 @@
 
   <tam title="Swing and Mix and Circle 1/2"
        formation="Quarter Tag"
-       fractions="8;4;8" group=" ">
+       fractions="8;4;8" group=" " vid="V1-dgchb6o2">
   <path numbers="1 8">
     <!-- Swing and Mix -->
     <move select="Stand" beats="8" hands="right"/>

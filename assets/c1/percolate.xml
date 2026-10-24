@@ -25,7 +25,7 @@
   <tam title="Percolate"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="2;1" >
+       parts="2;1"  vid="V1-8isfow70">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Left" beats="2" scaleX="2" />
@@ -56,7 +56,7 @@
   <tam title="Percolate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="4;2" >
+       parts="4;2"  vid="V1-v0eqp6j1">
     <path couples="2 4">
       <move select="Forward 4" />
       <move select="Lead Right" beats="2" scaleX="2" scaleY="3" />
@@ -87,7 +87,7 @@
 
   <tam title="Percolate"
        from="Left-Hand Waves"
-       parts="4;2"  formation="Ocean Waves LH BGBG">
+       parts="4;2"  formation="Ocean Waves LH BGBG" vid="V1-y3dmz2qu">
     <path>
       <move select="Lead Left" beats="2" scaleX="2" scaleY="3" />
       <move select="Lead Left" beats="2" scaleX="3" scaleY="2" />
@@ -116,7 +116,7 @@
     </path>
   </tam>
 
-  <tam title="Percolate" from="Normal Lines" formation="Normal Lines" parts="3;2">
+  <tam title="Percolate" from="Normal Lines" formation="Normal Lines" parts="3;2" vid="V1-s15ciuhp">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>
@@ -148,7 +148,7 @@
   </tam>
 
   <tam title="Percolate" from="Lines Facing Out"
-       formation="Lines Facing Out" parts="4;2">
+       formation="Lines Facing Out" parts="4;2" vid="V1-gg61ise6">
     <path>
       <move select="Run Left" beats="4" scaleX="2" scaleY="3"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -174,7 +174,7 @@
     </path>
   </tam>
 
-  <tam title="Percolate" from="T-Bones" parts="3;1.5">
+  <tam title="Percolate" from="T-Bones" parts="3;1.5" vid="V1-je7tg36o">
     <formation fid="F3-ad1pteh3" aid="A1-9woi6uwb">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="180"/>
@@ -209,7 +209,7 @@
 
   <tam title="Percolate but Ah So" group=" "
        formation="Ocean Waves RH BGGB"
-       parts="4;2">
+       parts="4;2" vid="V1-yfvdy9k3">
     <path couples="2 4">
       <move select="Forward 4" />
       <move select="Lead Right" beats="2" scaleX="2" scaleY="3" />
@@ -237,7 +237,7 @@
 
   <tam title="Percolate but Swing Thru" group=" "
        formation="Eight Chain Thru"
-       parts="2;1" >
+       parts="2;1"  vid="V1-5eaogue2">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Left" beats="2" scaleX="2" />
@@ -267,7 +267,7 @@
 
   <tam title="Percolate but 2/3 Recycle" group=" "
        formation="Eight Chain Thru"
-       parts="2;1" >
+       parts="2;1"  vid="V1-slkncvfm">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Left" beats="2" scaleX="2" />

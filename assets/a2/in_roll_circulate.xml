@@ -25,7 +25,7 @@
   <tam title="In-Roll Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB Compact"
-       fractions="2" >
+       fractions="2"  vid="V1-ok9rhma5">
     <path numbers="1 8">
       <move select="Forward 3" beats="4" />
     </path>
@@ -43,7 +43,7 @@
   <tam title="In-Roll Circulate"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="2" >
+       fractions="2"  vid="V1-3w9nosa3">
     <path numbers="1 8">
       <move select="Flip Left" beats="4" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="In-Roll Circulate"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="2" >
+       fractions="2"  vid="V1-3dqw5uu5">
     <path>
       <move select="Forward 4" />
     </path>
@@ -79,7 +79,7 @@
   <tam title="In-Roll Circulate"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="2" >
+       fractions="2"  vid="V1-r93u2qnq">
     <path>
       <move select="Flip Left" beats="4" />
     </path>
@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="In-Roll Circulate" from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1" fractions="2">
+       formation="3 and 1 lines #1" fractions="2" vid="V1-gijdbngo">
     <path>
       <move select="Flip Left" beats="4" />
     </path>
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="In-Roll Circulate" from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4" fractions="2">
+       formation="3 and 1 lines #4" fractions="2" vid="V1-a7jlta19">
     <path>
       <move select="Forward 4" />
     </path>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="In-Roll Circulate" from="3 and 1 Lines #5"
-       fractions="2">
+       fractions="2" vid="V1-qc73u2y3">
      <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -156,7 +156,7 @@
   </tam>
 
   <tam title="In-Roll Circulate" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8" fractions="2">
+       formation="3 and 1 lines #8" fractions="2" vid="V1-seyt9jp4">
     <path>
       <move select="Flip Left" beats="4" />
     </path>
@@ -174,7 +174,7 @@
   <tam title="Out-Roll Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="3" >
+       fractions="3"  vid="V1-9hk3iwjl">
     <path numbers="1 8">
       <move select="Flip Right" beats="6" />
     </path>
@@ -192,7 +192,7 @@
   <tam title="Out-Roll Circulate"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="3" >
+       fractions="3"  vid="V1-h98sgwn6">
     <path numbers="1 8">
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -210,7 +210,7 @@
   <tam title="Out-Roll Circulate"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="3" >
+       fractions="3"  vid="V1-rabarjzw">
     <path>
       <move select="Flip Right" beats="6" />
     </path>
@@ -228,7 +228,7 @@
   <tam title="Out-Roll Circulate"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="3" >
+       fractions="3"  vid="V1-jy38p75n">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -244,7 +244,7 @@
   </tam>
 
   <tam title="Out-Roll Circulate" from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1" fractions="3">
+       formation="3 and 1 lines #1" fractions="3" vid="V1-0sfoh4dd">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>
@@ -260,7 +260,7 @@
   </tam>
 
   <tam title="Out-Roll Circulate" from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4" fractions="3">
+       formation="3 and 1 lines #4" fractions="3" vid="V1-nxyql28w">
     <path>
       <move select="Flip Right" beats="6" />
     </path>
@@ -280,7 +280,7 @@
   </tam>
 
   <tam title="Out-Roll Circulate" from="3 and 1 Lines #5"
-       fractions="3">
+       fractions="3" vid="V1-3i1ju07e">
     <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -305,7 +305,7 @@
   </tam>
 
   <tam title="Out-Roll Circulate" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8" fractions="3">
+       formation="3 and 1 lines #8" fractions="3" vid="V1-yzllsxpd">
     <path>
       <move select="Run Left" beats="6" scaleX="2" scaleY="3" />
     </path>

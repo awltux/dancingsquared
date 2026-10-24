@@ -22,7 +22,7 @@
 -->
 <tamination title="Strut">
 
-  <tam title="Strut Right" group=" " formation="Double Pass Thru">
+  <tam title="Strut Right" group=" " formation="Double Pass Thru" vid="V1-qpyke4y3">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="1.5"/>
@@ -47,7 +47,7 @@
     </path>
   </tam>
 
-  <tam title="Strut Left" group=" " formation="Double Pass Thru">
+  <tam title="Strut Left" group=" " formation="Double Pass Thru" vid="V1-kofmc6xi">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="1.5"/>
@@ -72,7 +72,7 @@
     </path>
   </tam>
 
-  <tam title="Strut Right Left" group=" " formation="Double Pass Thru">
+  <tam title="Strut Right Left" group=" " formation="Double Pass Thru" vid="V1-a152n9zc">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="1.5"/>
@@ -97,7 +97,7 @@
     </path>
   </tam>
 
-  <tam title="Strut Left Right" group=" " formation="Double Pass Thru">
+  <tam title="Strut Left Right" group=" " formation="Double Pass Thru" vid="V1-25uwboyk">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="1.5"/>

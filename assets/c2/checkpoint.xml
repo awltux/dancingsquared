@@ -23,7 +23,7 @@
 <tamination title="Checkpoint">
 
   <tam title="Checkpoint Ah So by Swing Thru" group="Checkpoint"
-       from="" formation="Tidal Wave RH BGGB">
+       from="" formation="Tidal Wave RH BGGB" vid="V1-rr9exgch">
   <path numbers="8 1">
     <move select="Dodge Right" beats="2" scaleY=".25"/>
     <move select="Swing Right"/>
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Checkpoint Tag the Line by Swing Thru" group="Checkpoint"
-       from="" formation="Tidal Wave RH BGGB">
+       from="" formation="Tidal Wave RH BGGB" vid="V1-6c5or0q3">
   <path numbers="8 1">
     <move select="Dodge Right"/>
     <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Checkpoint Box Circulate by Mix" group="Checkpoint"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-9kive0y0">
     <path>
       <move select="Extend Left"/>
       <move select="Forward 4"/>
@@ -83,7 +83,7 @@
     </path>
   </tam>
 
-  <tam title="Checkpoint Counter Rotate by Triangle Circulate" group="Checkpoint">
+  <tam title="Checkpoint Counter Rotate by Triangle Circulate" group="Checkpoint" vid="V1-tud9z39p">
      <formation fid="F3-3zsj7668" aid="A1-awvv402m">
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="3.1" angle="0"/>

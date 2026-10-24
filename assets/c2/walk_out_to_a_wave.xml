@@ -22,7 +22,7 @@
 -->
 <tamination title="Walk Out to a Wave">
 
-  <tam title="Walk Out to a Wave" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Walk Out to a Wave" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-ovrwhkbh">
     <path couples="4 2">
       <move select="Run Right" beats="5" scaleY="2" offsetX="-1"/>
       <move select="Run Right"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Walk Out to a Wave" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Walk Out to a Wave" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-pn1nu0ik">
     <path>
       <move select="Forward 3" beats="5"/>
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>
@@ -60,7 +60,7 @@
     </path>
   </tam>
 
-  <tam title="Walk Out to a Wave" from="Double Pass Thru" formation="Double Pass Thru">
+  <tam title="Walk Out to a Wave" from="Double Pass Thru" formation="Double Pass Thru" vid="V1-wg1zquty">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Forward 2"/>
@@ -84,7 +84,7 @@
   </tam>
 
   <tam title="Walk Out to a Wave" from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-0iemopxq">
     <path>
       <move select="Run Left" beats="5" scaleX="2" scaleY="2" offsetX="-1"/>
       <move select="Run Left"/>
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Magic Walk Out to a Wave" from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-wabcy8c4">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Extend Left" beats="2" scaleY="2"/>
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Magic Walk Out to a Wave" from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-b77cjqh2">
     <path>
       <move select="Run Right" beats="5" scaleY="2" offsetX="-1"/>
       <move select="Run Right"/>

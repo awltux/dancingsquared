@@ -23,7 +23,7 @@
 <tamination title="Rotate">
 
   <tam title="Rotate 1/4" group=" " fractions="1.5"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-6a7su0ua">
     <path couples="3 1">
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Hinge Left" hands="left" beats="4" scaleX="3.5" scaleY="3.5"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Reverse Rotate 1/4" group=" " fractions="1.5"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-7hgc0884">
     <path couples="3 1">
       <move select="BackHinge Left" scaleX=".5"/>
       <move select="Hinge Right" hands="left" beats="4" scaleX="2.5" scaleY="2.5"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Single Rotate 1/4" group=" " fractions="1.5"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-olhz9lko">
     <path couples="3 1">
       <move select="Quarter Left" offsetY="-1"/>
       <move select="Counter Rotate Left 5 1" beats="4" hands="left"/>
@@ -83,7 +83,7 @@
   </tam>
 
   <tam title="Reverse Single Rotate 1/4" group=" " fractions="1.5"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-0lvdvn0y">
     <path couples="3 1">
       <move select="Quarter Right" offsetY="-1"/>
       <move select="Counter Rotate Right 1 -5" beats="4" hands="right"/>
@@ -103,7 +103,7 @@
   </tam>
 
   <tam title="Split Single Rotate 1/4" group=" " fractions="1.5"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-tt4ivyng">
     <path couples="3 1">
       <move select="Quarter Left"/>
       <move select="Counter Rotate Left 2 0" beats="2" hands="left"/>

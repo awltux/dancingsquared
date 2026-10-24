@@ -25,7 +25,7 @@
   <tam title="Touch a Quarter"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1">
+       difficulty="1" vid="V1-8v2z1ipl">
     <path>
       <move select="Extend Left" scaleX="1.5" />
       <move select="Hinge Right" beats="1"/>
@@ -48,7 +48,7 @@
        extension, so it does not depend on how far the dancers travelled to get there. -->
   <tam title="Touch a Quarter"
        from="Facing Couples"
-       difficulty="1" formation="Facing Couples Far">
+       difficulty="1" formation="Facing Couples Far" vid="V1-uk6uki9j">
     <path>
       <move select="Extend Left" scaleX="3" />
       <move select="Hinge Right" beats="1"/>
@@ -62,7 +62,7 @@
   <tam title="Touch a Quarter"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-nh21bcoo">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" />
       <move select="Hinge Right" scaleY=".5" beats="1" hands="gripright"/>
@@ -84,7 +84,7 @@
   <tam title="Touch a Quarter"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-e57l87el">
     <path>
       <move select="Extend Left" />
       <move select="Quarter Right" hands="right" offsetX="1" />
@@ -106,7 +106,7 @@
   <tam title="Left Touch a Quarter"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-icg1uste">
     <path>
       <move select="Extend Right" scaleX="1.5" scaleY=".5" />
       <move select="Hinge Left" beats="1" />
@@ -120,7 +120,7 @@
   <tam title="Left Touch a Quarter"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-a23hic2n">
     <path>
       <move select="Extend Right" scaleX="2" scaleY=".5" />
       <move select="Hinge Left" scaleY=".5" beats="1" hands="gripleft"/>
@@ -142,7 +142,7 @@
   <tam title="Left Touch a Quarter"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-eg8oq2vq">
     <path>
       <move select="Forward" />
       <move select="Hinge Left" />
@@ -164,7 +164,7 @@
   <tam title="Touch a Half"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="2">
+       difficulty="2" vid="V1-3dowzvcy">
     <path>
       <move select="Extend Left" beats="3" scaleX="1.5" scaleY="2" />
       <move select="Swing Right" />
@@ -181,7 +181,7 @@
 <tam title="Touch a Quarter"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-stxo286s">
     <path>
       <move select="Extend Left" scaleX="2" />
       <move select="Quarter Right" hands="right" beats="1" offsetX="1" />
@@ -195,7 +195,7 @@
 <tam title="Left Touch a Quarter"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-0rvfc7tb">
     <path>
       <move select="Extend Right" scaleX="2" scaleY=".5" />
       <move select="Hinge Left" beats="1" scaleY="1.5" />
@@ -209,7 +209,7 @@
 <tam title="Touch a Half"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="2">
+       difficulty="2" vid="V1-4z2c2nfz">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Swing Right" />

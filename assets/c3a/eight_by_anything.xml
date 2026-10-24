@@ -22,7 +22,7 @@
 -->
 <tamination title="Eight By Anything">
 
-  <tam title="Eight by Reach Out" group="Eight by" formation="3 and 1 lines #3">
+  <tam title="Eight by Reach Out" group="Eight by" formation="3 and 1 lines #3" vid="V1-nae2g25s">
     <path numbers="1 8">
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2.5" />
@@ -47,7 +47,7 @@
     </path>
   </tam>
 
-  <tam title="Eight by Swap Around" from="Lines" formation="Normal Lines" group="Eight by">
+  <tam title="Eight by Swap Around" from="Lines" formation="Normal Lines" group="Eight by" vid="V1-zy24pkwj">
   <path>
     <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
     <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2.5"/>
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="Eight by Wheel Thru" from="Lines" formation="Normal Lines"
-    group="Eight by">
+    group="Eight by" vid="V1-5gf4q253">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2.5" />
@@ -96,7 +96,7 @@
   </tam>
 
   <tam title="Eight by Swing Thru" from="Lines" formation="Normal Lines"
-    group="Eight by">
+    group="Eight by" vid="V1-fu6589d4">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2.5" />
@@ -123,7 +123,7 @@
     </path>
   </tam>
 
-  <tam title="Eight by Flip the Diamond" group="Eight by">
+  <tam title="Eight by Flip the Diamond" group="Eight by" vid="V1-gwxp531j">
     <formation fid="F3-tiew821m" aid="A1-ldvgnm9s">
       <dancer gender="boy"  x="0" y="6" angle="0"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>

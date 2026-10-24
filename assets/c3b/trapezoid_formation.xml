@@ -22,7 +22,7 @@
 -->
 <tamination title="Trapezoid Formation">
 
-  <tam title="Trapezoid Brace Thru" formation="Normal Lines" group="Trapezoid">
+  <tam title="Trapezoid Brace Thru" formation="Normal Lines" group="Trapezoid" vid="V1-sdkkjzgg">
     <path>
       <move select="Forward 2"/>
       <move select="Hinge Right"/>
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Trapezoid Circulate" formation="Two-Faced Lines RH" group="Trapezoid">
+  <tam title="Trapezoid Circulate" formation="Two-Faced Lines RH" group="Trapezoid" vid="V1-t8scl3xx">
     <path>
       <move select="Extend Right" beats="2" scaleX="1.5"/>
       <move select="Extend Right" beats="2" scaleX="2.5"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Trapezoid Couple Up" group="Trapezoid">
+  <tam title="Trapezoid Couple Up" group="Trapezoid" vid="V1-4yz7axld">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>

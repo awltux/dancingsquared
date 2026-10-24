@@ -23,7 +23,7 @@
 <tamination title="Switch to an Interlocked Diamond">
 
   <tam title="Switch to an Interlocked Diamond"
-       from="Right-Hand Waves">
+       from="Right-Hand Waves" vid="V1-26tzo46u">
      <formation fid="F3-4ablgjmv" aid="A1-gamazakz">
       <dancer gender="girl" x="3" y="2" angle="270"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
@@ -46,7 +46,7 @@
 
   <tam title="Switch to an Interlocked Diamond"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH GBBG" >
+       formation="Ocean Waves LH GBBG"  vid="V1-qwt5udul">
     <path>
       <move select="Lead Left" scaleY="3" beats="3" />
     </path>
@@ -62,7 +62,7 @@
   </tam>
 
   <tam title="Switch to an Interlocked Diamond"
-       from="Right-Hand Two-Faced Lines" formation="Two-Faced Lines RH">
+       from="Right-Hand Two-Faced Lines" formation="Two-Faced Lines RH" vid="V1-ruznaryb">
     <path>
       <move select="Lead Right" scaleX="3" scaleY="3" beats="3" />
     </path>
@@ -78,7 +78,7 @@
   </tam>
 
   <tam title="Switch to an Interlocked Diamond"
-       from="Left-Hand Two-Faced Lines" formation="Two-Faced Lines LH">
+       from="Left-Hand Two-Faced Lines" formation="Two-Faced Lines LH" vid="V1-uk0ke1gc">
     <path>
       <move select="Lead Left" scaleY="3" beats="3" />
     </path>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Good Show">
 
-  <tam title="Good Show" from="Right-Hand Waves" formation="Ocean Waves RH BGGB">
+  <tam title="Good Show" from="Right-Hand Waves" formation="Ocean Waves RH BGGB" vid="V1-fia73xbo">
     <path couples="2 4">
       <move select="Forward 4"/>
     </path>
@@ -38,7 +38,7 @@
     </path>
   </tam>
 
-  <tam title="Good Show" from="Left-Hand Waves" formation="Ocean Waves LH BGGB">
+  <tam title="Good Show" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" vid="V1-2bkwzcx7">
     <path>
       <move select="Dodge Left" beats="4"/>
     </path>
@@ -54,7 +54,7 @@
     </path>
   </tam>
 
-  <tam title="Good Show" from="Right-Hand Columns">
+  <tam title="Good Show" from="Right-Hand Columns" vid="V1-zvnekkdq">
     <formation fid="F3-lcwes2cr" aid="A1-4am07t7r">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>

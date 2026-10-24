@@ -25,7 +25,7 @@
   <tam title="Linear Action"
        from="Right-Hand Quarter Tag"
        formation="Quarter Tag"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-i2jxqtck">
     <path>
       <move select="Lead Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -53,7 +53,7 @@
   <tam title="Linear Action"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-kspkymrf">
     <path>
       <move select="Lead Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -83,7 +83,7 @@
   <tam title="Linear Action"
        from="Right-Hand 3/4 Tag"
        formation="3/4 Tag"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-x179a8rf">
     <path>
       <move select="Quarter Left" beats="1.5" offsetX="-1" offsetY="1"/>
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -111,7 +111,7 @@
   <tam title="Linear Action"
        from="Left-Hand 3/4 Tag"
        formation="3/4 Tag LH"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-mgqhv8bz">
     <path>
       <move select="Quarter Left" beats="1.5" offsetX="-1" offsetY="1"/>
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -141,7 +141,7 @@
   <tam title="Linear Action"
        from="Right-Hand Quarter Lines"
        formation="Quarter Lines RH"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-eeitxu96">
     <path>
       <move select="Lead Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -169,7 +169,7 @@
   <tam title="Linear Action"
        from="Left-Hand Quarter Lines"
        formation="Quarter Lines LH"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-tgowukxb">
     <path>
       <move select="Lead Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -197,7 +197,7 @@
   <tam title="Linear Action"
        from="Right-Hand 3/4 Lines"
        formation="3/4 Lines RH"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-b02lpnba">
     <path>
       <move select="Quarter Left" beats="1.5" offsetX="-1" offsetY="1"/>
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -225,7 +225,7 @@
   <tam title="Linear Action"
        from="Left-Hand 3/4 Lines"
        formation="3/4 Lines LH"
-       parts="1.5;5">
+       parts="1.5;5" vid="V1-ejno66xu">
     <path>
       <move select="Quarter Left" beats="1.5" offsetX="-1" offsetY="1"/>
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -253,7 +253,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #1"
        formation="Mixed Quarter Tag #1"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-3dpvpewh">
     <path numbers="1 8" couples="2 4">
       <move select="Hinge Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -281,7 +281,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #2"
        formation="Mixed Quarter Tag #2"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-8k20526j">
     <path>
       <move select="Hinge Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -311,7 +311,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #3"
        formation="Mixed Quarter Tag #3"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-kls7etpu">
     <path>
       <move select="Hinge Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -339,7 +339,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #4"
        formation="Mixed Quarter Tag #4"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-hoqddket">
     <path>
       <move select="Hinge Right" />
       <move select="Swing Right" beats="5" offsetY="-1" />
@@ -367,7 +367,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #5"
        formation="Mixed Quarter Tag #5"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-iba1cba1">
     <path>
       <move select="Hinge Left" />
       <move select="Swing Left" beats="5" offsetY="-1" />
@@ -397,7 +397,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #6"
        formation="Mixed Quarter Tag #6"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-ex0wdehf">
     <path>
       <move select="Hinge Left" />
       <move select="Swing Left" beats="5" offsetY="-1" />
@@ -425,7 +425,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #7"
        formation="Mixed Quarter Tag #7"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-axt0ld30">
     <path>
       <move select="Hinge Left" />
       <move select="Swing Left" beats="5" offsetY="-1" />
@@ -455,7 +455,7 @@
   <tam title="Linear Action"
        from="Mixed Quarter Tag #8"
        formation="Mixed Quarter Tag #8"
-       parts="1.5;5" >
+       parts="1.5;5"  vid="V1-41jv31qf">
     <path>
       <move select="Hinge Left" />
       <move select="Swing Left" beats="5" offsetY="-1" />

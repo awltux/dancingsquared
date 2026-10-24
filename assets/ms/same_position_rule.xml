@@ -23,7 +23,7 @@
 <tamination title="Same Position Rule">
 
   <tam title="Circulate 1 1/2" from="Lines Facing Out"
-       formation="Lines Facing Out" fractions="4">
+       formation="Lines Facing Out" fractions="4" vid="V1-2k90lukw">
     <path numbers="1 8">
       <move select="Run Left" beats="4" scaleX="2" scaleY="3"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Split Circulate" from="Inverted Lines"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-mqe2dmmw">
     <path>
       <move select="Lead Left" beats="2" scaleY=".5"/>
       <move select="Quarter Left" beats="2" offsetX="-.5" offsetY="1"/>

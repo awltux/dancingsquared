@@ -23,7 +23,7 @@
 <tamination title="Reverse The Pass">
 
   <tam title="Reverse the Pass" from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru" parts="3;3">
+       formation="Completed Double Pass Thru" parts="3;3" vid="V1-h33dpp33">
     <path>
       <move select="Flip Left"/>
       <move select="Extend Left" beats="1.5" scaleY=".5"/>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Reverse the Pass" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" parts="3;4">
+       formation="Two-Faced Lines RH" parts="3;4" vid="V1-t5gyb4jj">
     <path>
       <move select="Stand" hands="right" beats="3"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>

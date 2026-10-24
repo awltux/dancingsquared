@@ -23,7 +23,7 @@
 <tamination title="Make Magic">
 
   <tam title="Make Magic"
-       from="Centers Right-Hand Box" formation="Mixed Columns RH Ends In">
+       from="Centers Right-Hand Box" formation="Mixed Columns RH Ends In" vid="V1-looksoq7">
     <path numbers="1 8">
     </path>
     <path numbers="2 7">
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Make Magic"
-       from="Centers Left-Hand Box">
+       from="Centers Left-Hand Box" vid="V1-p0bsllld">
      <formation fid="F3-424fi6bp" aid="A1-t9l4nb55">
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="3" x="-1" angle="270"/>

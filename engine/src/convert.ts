@@ -327,6 +327,15 @@ export interface TamRaw {
    * has no name.
    */
   formationTag: FormationTag;
+  /**
+   * The CALL-VARIANT id this authoring realises, or null when the corpus carries none.
+   *
+   * A variant is (level, title, the fid of the definition the tam starts from) - `callVariantId` mints it - and the
+   * corpus stores the result on the tam as `vid`, so a reader can name the variant without re-deriving it and a
+   * gate can assert the stored value equals the computed one. The LEVEL is the caller's: it is the directory the
+   * file lives in, which this parser never sees, so this field is the tag as written and not a check.
+   */
+  vid: string | null;
 }
 
 /** Parse the `sequencer` attribute, keeping every value Taminations defines. */
@@ -378,6 +387,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       actives: tam.getAttribute('actives'),
       symmetry: parseSymmetry(tam.getAttribute('asymmetric')),
       formationTag: inline ? tagOf(inline) : { fid: null, aid: null },
+      vid: tam.getAttribute('vid'),
     });
   }
   return tams;

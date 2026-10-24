@@ -25,7 +25,7 @@
   <tam title="Pass Thru"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-8zedb1e3">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" scaleX="1.5" scaleY=".5" />
@@ -50,7 +50,7 @@
        puts the facing pair at x = +1 - the separation 2 those boards use. This is the same fix, for
        the same reason, as the authored `Box the Gnat` variant. -->
   <tam title="Pass Thru"
-       from="Facing Couples" formation="Facing Couples Close">
+       from="Facing Couples" formation="Facing Couples Close" vid="V1-ch6u7pr5">
     <path>
       <move select="Extend Left" scaleX="1" scaleY=".5" />
       <move select="Extend Right" scaleX="1" scaleY=".5" />
@@ -64,7 +64,7 @@
   <tam title="Pass Thru"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-357c6tq6">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleX="2" scaleY=".5" />
@@ -86,7 +86,7 @@
   <tam title="Pass Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-izebnkf7">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -108,7 +108,7 @@
   <tam title="Pass Thru"
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-k3v4g8k2">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
     </path>
@@ -131,7 +131,7 @@
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
 <tam title="Heads Pass Thru" group=" " display="none"
-       formation="Static Square">
+       formation="Static Square" vid="V1-c73wrx32">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -147,7 +147,7 @@
   </tam>
 
 <tam title="Sides Pass Thru" group=" " display="none"
-       formation="Static Square">
+       formation="Static Square" vid="V1-8pv3st6h">
     <path>
     </path>
     <path>

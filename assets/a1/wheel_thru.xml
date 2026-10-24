@@ -24,7 +24,7 @@
 
   <tam title="Wheel Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-wu7txksd">
     <path numbers="1 4">
       <movement  beats="3" cx1="2" cy1="0" cx2="2.5" cy2="-.5" x2="2.5" y2="-2.5" hands="none"/>
     </path>
@@ -35,7 +35,7 @@
 
   <tam title="Wheel Thru"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-u1iw6wmc">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="2" />
     </path>
@@ -52,7 +52,7 @@
 
   <tam title="Wheel Thru"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-3drguzm9">
     <path>
       <move select="Lead Right" beats="4" scaleX="2" scaleY="3" />
     </path>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Heads Wheel Thru" group="  "
-       formation="Static Square">
+       formation="Static Square" vid="V1-czhgkhqi">
     <path>
       <move select="Forward"/>
       <movement hands="none" beats="3" cx1="2.4" cy1="0" cx2="3" cy2="-.6" x2="3" y2="-2"/>
@@ -82,7 +82,7 @@
   </tam>
 
   <tam title="Sides Wheel Thru" group="  "
-       formation="Static Square">
+       formation="Static Square" vid="V1-sq313plj">
     <path/>
     <path/>
     <path>
@@ -98,7 +98,7 @@
   <tam title="As Couples Wheel Thru"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-kb58slh1">
     <path>
       <move select="Lead Right" hands="right" beats="3" scaleX="3.5" scaleY="3" />
       <move select="Extend Left" hands="right" beats="2" scaleX="2" scaleY="1.5" />
@@ -121,7 +121,7 @@
 
   <tam title="Left Wheel Thru"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-30wyqlf4">
     <path numbers="1 4">
       <move select="Quarter Left" beats="4" offsetX=".5" offsetY=".5" />
     </path>
@@ -132,7 +132,7 @@
 
   <tam title="Left Wheel Thru"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-vca0jxwx">
     <path>
       <move select="Quarter Left" beats="4" offsetX="1" />
     </path>
@@ -149,7 +149,7 @@
 
   <tam title="Left Wheel Thru"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-0ok7yneg">
     <path>
       <move select="Quarter Left" beats="4" offsetY="1" />
     </path>
@@ -165,7 +165,7 @@
   </tam>
 
   <tam title="Heads Left Wheel Thru" group="  "
-       formation="Static Square">
+       formation="Static Square" vid="V1-c48edamd">
     <path>
       <move select="Forward"/>
       <move select="Quarter Left" beats="3" offsetX="1"  />
@@ -179,7 +179,7 @@
   </tam>
 
   <tam title="Sides Left Wheel Thru" group="  "
-       formation="Static Square">
+       formation="Static Square" vid="V1-ted8g976">
     <path/>
     <path/>
     <path>
@@ -195,7 +195,7 @@
   <tam title="As Couples Left Wheel Thru"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-cv1h8pbq">
     <path>
       <move select="BackHinge Right" />
     </path>

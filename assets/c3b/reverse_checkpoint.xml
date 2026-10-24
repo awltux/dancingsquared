@@ -23,7 +23,7 @@
 <tamination title="Reverse Checkpoint anything By anything">
 
   <tam title="Reverse Checkpoint Follow to a Diamond by Box Circulate"
-       group="Reverse Checkpoint" formation="Two-Faced Lines RH">
+       group="Reverse Checkpoint" formation="Two-Faced Lines RH" vid="V1-4j9lf48m">
     <path>
       <move select="Stand" beats="5"/>
       <move select="Forward 2"/>
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Reverse Checkpoint Hinge by Cast Off 3/4" group="Reverse Checkpoint"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-q6p1n917">
     <path>
       <move select="Dodge Left"/>
       <move select="Hinge Left" scaleX=".5"/>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Reverse Checkpoint Recycle by Touch 1/4" group="Reverse Checkpoint"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-ppmh1n1y">
     <path couples="3 1">
       <move select="Stand" beats="2.5"/>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="2.5"/>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Cross and Turn">
 
-  <tam title="Cross and Turn" from="Facing Couples" formation="Facing Couples Compact">
+  <tam title="Cross and Turn" from="Facing Couples" formation="Facing Couples Compact" vid="V1-jq96aecb">
     <path numbers="1 4">
       <move select="Forward"  />
       <move select="Extend Right" hands="right" beats="2" scaleX="2" scaleY="2" />
@@ -34,7 +34,7 @@
 
   <tam title="Cross and Turn"
        from="Lines"
-       formation="Normal Lines Compact">
+       formation="Normal Lines Compact" vid="V1-f9i1v1t0">
     <path>
       <move select="Forward" />
       <move select="Extend Right" hands="right" beats="2" scaleX="2" scaleY="2" />
@@ -53,7 +53,7 @@
 
   <tam title="Cross and Turn"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-jvi7ioqb">
     <path>
       <move select="Forward" beats=".5" scaleX=".5" scaleY=".5" />
       <move select="Extend Right" hands="right" beats="2" scaleX="1.5" scaleY="2" />
@@ -70,7 +70,7 @@
     </path>
   </tam>
 
-  <tam title="As Couples Cross and Turn" group=" " from="Lines" formation="Normal Lines">
+  <tam title="As Couples Cross and Turn" group=" " from="Lines" formation="Normal Lines" vid="V1-3sm2827f">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="2" scaleY="1.5"/>
       <move select="Extend Right" hands="right" beats="4" scaleX="2" scaleY="2.5"/>
@@ -87,7 +87,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Cross and Turn" group=" " from="Static Square" formation="Static Square">
+  <tam title="All 8 Cross and Turn" group=" " from="Static Square" formation="Static Square" vid="V1-p6vrkcg0">
     <path>
       <move select="Forward 3"/>
       <move select="Hinge Right"/>
@@ -106,7 +106,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Cross and Turn" group=" " from="" formation="Butterfly Chain Thru">
+  <tam title="Butterfly Cross and Turn" group=" " from="" formation="Butterfly Chain Thru" vid="V1-xbdw7zgj">
     <path>
       <move select="Forward" beats=".5" scaleX=".5" scaleY=".5" />
       <move select="Extend Right" hands="right" beats="4" scaleX="1.5" scaleY="4" />
@@ -123,7 +123,7 @@
     </path>
   </tam>
 
-  <tam title="Concentric Cross and Turn" group=" " from="Double Pass Thru" formation="Double Pass Thru">
+  <tam title="Concentric Cross and Turn" group=" " from="Double Pass Thru" formation="Double Pass Thru" vid="V1-gs926gxl">
     <path>
       <move select="Extend Left" beats="2" scaleX="2"/>
       <move select="Forward 2"/>
@@ -141,7 +141,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Cross and Turn" group=" " from="" formation="O Eight Chain Thru">
+  <tam title="&quot;O&quot; Cross and Turn" group=" " from="" formation="O Eight Chain Thru" vid="V1-jdgoczcz">
     <path>
       <move select="Forward" beats=".5" scaleX=".5" scaleY=".5" />
       <move select="Extend Right" hands="right" beats="4" scaleX="1.5" scaleY="4" />
@@ -159,7 +159,7 @@
   </tam>
 
   <tam title="Reverse Cross and Turn" from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-gnvnorr5">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -171,7 +171,7 @@
 
   <tam title="Reverse Cross and Turn"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-d8kmbyj4">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -190,7 +190,7 @@
 
   <tam title="Reverse Cross and Turn"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-7y7be911">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -208,7 +208,7 @@
   </tam>
 
   <tam title="As Couples Reverse Cross and Turn"
-       from="" formation="Normal Lines" group=" ">
+       from="" formation="Normal Lines" group=" " vid="V1-3fjlgex9">
     <path>
       <move select="Beau Reverse Wheel"/>
     </path>
@@ -226,7 +226,7 @@
   </tam>
 
   <tam title="All 8 Reverse Cross and Turn" group=" "
-       from="Static Square" formation="Static Square">
+       from="Static Square" formation="Static Square" vid="V1-t7yso8mq">
     <path>
       <move select="U-Turn Right"/>
     </path>
@@ -245,7 +245,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Reverse Cross and Turn" group=" " from="" formation="Butterfly Chain Thru">
+  <tam title="Butterfly Reverse Cross and Turn" group=" " from="" formation="Butterfly Chain Thru" vid="V1-ngmftbal">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -263,7 +263,7 @@
   </tam>
 
   <tam title="Concentric Reverse Cross and Turn" group=" "
-       from="Double Pass Thru" formation="Double Pass Thru">
+       from="Double Pass Thru" formation="Double Pass Thru" vid="V1-gck1el5b">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -281,7 +281,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Reverse Cross and Turn" group=" " from="" formation="O Eight Chain Thru">
+  <tam title="&quot;O&quot; Reverse Cross and Turn" group=" " from="" formation="O Eight Chain Thru" vid="V1-1lhokatl">
     <path>
       <move select="U-Turn Right" />
     </path>

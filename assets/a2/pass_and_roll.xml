@@ -22,7 +22,7 @@
 -->
 <tamination title="Pass and Roll">
 
-  <tam title="Pass and Roll" from="Single Column" formation="Single Eight Chain Thru">
+  <tam title="Pass and Roll" from="Single Column" formation="Single Eight Chain Thru" vid="V1-7ybxi70x">
     <path numbers="1 4">
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Pass and Roll" from="Right-Hand Box"
-       formation="Box RH">
+       formation="Box RH" vid="V1-bylupxa3">
     <path>
       <move select="Forward 2" />
       <move select="Swing Right" scaleX=".5" scaleY=".75" />
@@ -60,7 +60,7 @@
 
   <tam title="Pass and Roll"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-o95rl1j1">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -95,7 +95,7 @@
 
   <tam title="Pass and Roll"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-9m8ez690">
     <path>
       <move select="Forward 2" />
       <move select="Swing Right" scaleX=".5" scaleY=".75" />
@@ -126,7 +126,7 @@
     </path>
   </tam>
 
-  <tam title="Left Pass and Roll" from="Single Column" formation="Single Eight Chain Thru">
+  <tam title="Left Pass and Roll" from="Single Column" formation="Single Eight Chain Thru" vid="V1-mip9ngd4">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />
@@ -146,7 +146,7 @@
 
   <tam title="Left Pass and Roll"
        from="Left-Hand Box"
-       formation="Box LH">
+       formation="Box LH" vid="V1-h91zso1e">
     <path>
       <move select="Forward" />
       <move select="Flip Left" scaleY=".75" />
@@ -164,7 +164,7 @@
 
   <tam title="Left Pass and Roll"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru" >
+       formation="Eight Chain Thru"  vid="V1-0v4x1xyk">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />
@@ -199,7 +199,7 @@
 
   <tam title="Left Pass and Roll"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-lb8k1k3a">
     <path>
       <move select="Forward" />
       <move select="Flip Left" scaleY=".75" />
@@ -231,7 +231,7 @@
 
   <tam title="All 8 Pass and Roll"
        formation="Static Facing"
-       group=" " >
+       group=" "  vid="V1-hwxehdmt">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
@@ -266,7 +266,7 @@
 
 
   <tam title="As Couples Pass and Roll" group=" "
-       formation="Eight Chain Thru" >
+       formation="Eight Chain Thru"  vid="V1-gq9mpuzg">
     <path>
       <move select="Extend Left" hands="right" scaleY=".5" />
       <move select="Forward 2" />

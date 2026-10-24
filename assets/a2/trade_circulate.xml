@@ -25,7 +25,7 @@
   <tam title="Trade Circulate"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGBG"
-       fractions="" >
+       fractions=""  vid="V1-paw7o6jv">
     <path numbers="1 8">
       <move select="Forward" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />
@@ -45,7 +45,7 @@
   <tam title="Trade Circulate"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGBG"
-       fractions="" >
+       fractions=""  vid="V1-qivx7ob8">
     <path>
       <move select="Run Left" beats="6" scaleX=".5" scaleY="2" />
     </path>
@@ -65,7 +65,7 @@
   <tam title="Trade Circulate"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="" >
+       fractions=""  vid="V1-zzl9qkii">
     <path numbers="1 8">
       <movement hands="none" beats="4" cx1="1.5" cy1="0" cx2="3.5" cy2="-4" x2="4" y2="-4" cx3="1" cx4="1" cy4="-0.4" x4="2" y4="-0.4" />
     </path>
@@ -83,7 +83,7 @@
   <tam title="Trade Circulate"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="" >
+       fractions=""  vid="V1-w1niqodt">
     <path>
       <move select="Flip Left" />
     </path>

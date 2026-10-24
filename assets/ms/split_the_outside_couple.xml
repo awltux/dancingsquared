@@ -23,7 +23,7 @@
 <tamination title="Split Two">
 
   <tam title="Centers Split the Outside Couple"
-       formation="Eight Chain Thru" group=" " actives="Centers">
+       formation="Eight Chain Thru" group=" " actives="Centers" vid="V1-s31qw59h">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Centers Split Two" formation="Eight Chain Thru"
-       group=" " display="none" actives="Centers">
+       group=" " display="none" actives="Centers" vid="V1-slt6vdcd">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>
@@ -65,7 +65,7 @@
   <tam title="Centers Split the Outside Couple, Separate, Go Around One to a Line"
        from="Pass Thru" group=" "
        formation="Eight Chain Thru"
-       actives="Centers">
+       actives="Centers" vid="V1-b0du6gef">
     <path>
       <move select="Dodge Left" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
       <move select="Dodge Right" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
@@ -88,7 +88,7 @@
   <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
-<tam title="Split Two" formation="Eight Chain Thru" group=" ">
+<tam title="Split Two" formation="Eight Chain Thru" group=" " vid="V1-mr3rbvez">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Extend Right" scaleY=".5"/>
@@ -110,7 +110,7 @@
 <tam title="Split the Outside Couple, Separate, Go Around One to a Line"
        from="Pass Thru" group=" "
        formation="Eight Chain Thru"
-       fractions="" >
+       fractions=""  vid="V1-557qmqg1">
     <path>
       <move select="Dodge Left" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />
       <move select="Dodge Right" beats="1" scaleX=".25" scaleY=".25" offsetX=".5" />

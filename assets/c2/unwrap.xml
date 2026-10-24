@@ -24,7 +24,7 @@
 
   <tam title="Unwrap the Diamond"
        from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-jlvwq2i9">
     <path numbers="6 3" couples="3 1">
       <move select="Lead Right" beats="3" />
       <move select="Forward 3" />
@@ -44,7 +44,7 @@
 
   <tam title="Unwrap the Diamond"
        from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-5lrj41xa">
     <path>
       <move select="Lead Left" beats="3" />
       <move select="Forward 3" />
@@ -64,7 +64,7 @@
 
   <tam title="Unwrap the Diamond"
        from="Right-Hand Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-tjxqg558">
     <path>
       <move select="Forward 6"/>
     </path>
@@ -86,7 +86,7 @@
 
   <tam title="Unwrap the Diamond"
        from="Left-Hand Point-to-Point Diamonds"
-       formation="Diamonds LH PTP Girl Points">
+       formation="Diamonds LH PTP Girl Points" vid="V1-xg1q20vt">
     <path>
       <move select="Lead Left" beats="2" scaleX="2"/>
       <move select="Lead Left" beats="2" scaleY="2"/>
@@ -108,7 +108,7 @@
 
   <tam title="Unwrap the Diamond"
        from="Facing Diamonds"
-       formation="Diamonds Facing Girl Points">
+       formation="Diamonds Facing Girl Points" vid="V1-mt7t6mgm">
     <path>
       <move select="Lead Right" beats="3" />
       <move select="Forward 2" />
@@ -132,7 +132,7 @@
 
   <tam title="Unwrap the Hourglass"
        from="Right-Hand Hourglass"
-       formation="Hourglass RH BP">
+       formation="Hourglass RH BP" vid="V1-q9do3426">
     <path>
       <move select="Lead Right" beats="3" scaleY="3" />
       <move select="Lead Right" beats="2" />
@@ -153,7 +153,7 @@
 
   <tam title="Unwrap the Hourglass"
        from="Left-Hand Hourglass"
-       formation="Hourglass LH BP">
+       formation="Hourglass LH BP" vid="V1-71jzwb1z">
     <path>
       <move select="Extend Left" beats="6" scaleX="5" scaleY="2" />
     </path>
@@ -174,7 +174,7 @@
 
   <tam title="Unwrap the Butterfly"
        from="Right-Hand Butterfly"
-       formation="Butterfly RH">
+       formation="Butterfly RH" vid="V1-tzt9z71p">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
       <move select="Forward 2"/>
@@ -194,7 +194,7 @@
 
   <tam title="Unwrap the Butterfly"
        from="Left-Hand Butterfly"
-       formation="Butterfly LH">
+       formation="Butterfly LH" vid="V1-hyejtgc9">
     <path>
       <move select="Run Left" beats="4" scaleY="2"/>
       <move select="Forward 2"/>
@@ -214,7 +214,7 @@
 
   <tam title="Unwrap the Galaxy"
        from="Right-Hand Galaxy"
-       formation="Galaxy RH GP">
+       formation="Galaxy RH GP" vid="V1-xicl52xs">
     <path>
       <move select="Lead Right" beats="2" scaleX="2"/>
       <move select="Lead Right" beats="2" scaleY="2"/>
@@ -234,7 +234,7 @@
 
   <tam title="Unwrap the Galaxy"
        from="Left-Hand Galaxy"
-       formation="Galaxy LH GP">
+       formation="Galaxy LH GP" vid="V1-3fc87iup">
     <path>
       <move select="Forward 4"/>
     </path>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Trip the Set">
 
-  <tam title="Trip the Set" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Trip the Set" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-50tue5a8">
     <path couples="4 2">
       <move select="Lead Left" beats="4" scaleY="3"/>
       <move select="U-Turn Left" beats="3" offsetX="2"/>

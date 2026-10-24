@@ -17,7 +17,7 @@
   <tam title="Star Thru"
        from="Static Square"
        formation="Static Square"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-tw04hzjg">
     <path>
       <move select="Extend Left" hands="gripright" beats="3" scaleX="3" scaleY=".5" />
       <move select="Quarter Right" hands="gripright" beats="2" offsetX="1" offsetY="-.5" />

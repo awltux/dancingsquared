@@ -22,7 +22,7 @@
 -->
 <tamination title="Reverse Rotate 1/4, 1/2, 3/4">
 
-  <tam title="Reverse Rotate 3/4" from="Lines" formation="Normal Lines" fractions="4.5;3">
+  <tam title="Reverse Rotate 3/4" from="Lines" formation="Normal Lines" fractions="4.5;3" vid="V1-53zr82qm">
   <path>
     <move select="BackHinge Right"/>
     <move select="Hinge Right" beats="3" scaleX="1.5" scaleY="3"/>

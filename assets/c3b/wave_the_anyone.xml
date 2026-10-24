@@ -22,7 +22,7 @@
 -->
 <tamination title="Wave The anyone">
 
-  <tam title="Wave the Beaus" group=" " parts="2">
+  <tam title="Wave the Beaus" group=" " parts="2" vid="V1-uticdupd">
     <formation fid="F3-7ze4qv1j" aid="A1-1vf2jujn">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Wave the Belles" group=" " parts="2">
+  <tam title="Wave the Belles" group=" " parts="2" vid="V1-5o9j7f84">
     <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>
@@ -80,7 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Wave the Boys" group=" " parts="2" sequencer="gender-specific">
+  <tam title="Wave the Boys" group=" " parts="2" sequencer="gender-specific" vid="V1-gubu9osk">
     <formation fid="F3-7ze4qv1j" aid="A1-92j1x0f9">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>
@@ -107,7 +107,7 @@
     </path>
   </tam>
 
-  <tam title="Wave the Girls" group=" " parts="2" sequencer="gender-specific">
+  <tam title="Wave the Girls" group=" " parts="2" sequencer="gender-specific" vid="V1-75yort4i">
     <formation fid="F3-7ze4qv1j" aid="A1-92j1x0f9">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>

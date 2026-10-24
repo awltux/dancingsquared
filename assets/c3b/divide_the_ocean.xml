@@ -23,7 +23,7 @@
 <tamination title="Divide The Ocean | Sea direction | anything">
 
   <tam title="Divide the Ocean Right" group=" "
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-yia8yc7x">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>
@@ -50,7 +50,7 @@
   </tam>
 
   <tam title="Divide the Sea Out" group=" "
-       formation="Tidal Wave RH BGBG">
+       formation="Tidal Wave RH BGBG" vid="V1-ua4bpqwq">
     <path couples="3 1">
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>

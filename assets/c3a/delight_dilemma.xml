@@ -24,7 +24,7 @@
 
   <tam title="Delight" group=" "
        formation="3/4 Tag"
-       fractions="3;3;3" >
+       fractions="3;3;3"  vid="V1-t17nac8o">
     <path>
       <move select="Quarter Right" offsetY="-1" />
       <move select="Lead Right" beats="4" scaleX="2" scaleY="3" />
@@ -52,7 +52,7 @@
 
   <tam title="Dilemma" group=" "
        formation="3/4 Tag"
-       fractions="3;3;3" >
+       fractions="3;3;3"  vid="V1-064n2neg">
     <path>
       <move select="Quarter Left" offsetY="1" />
       <move select="Forward 2" beats="4" />
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Tagger's Delight" group=" "
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-ne932s2p">
     <path numbers="1 8">
       <move select="Quarter Left" offsetX="-.5" offsetY="1" />
       <move select="Extend Left" beats="3" scaleX="2" scaleY=".5" />

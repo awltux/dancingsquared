@@ -24,7 +24,7 @@
 
   <tam title="Criss Cross Your Neighbor"
        from="Right-Hand Box"
-       formation="Box RH" >
+       formation="Box RH"  vid="V1-rz1eji5f">
     <path numbers="1 4">
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.75" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -40,7 +40,7 @@
   <tam title="Criss Cross Your Neighbor"
        from="Left-Hand Box"
        formation="Box LH"
-       fractions="" >
+       fractions=""  vid="V1-acu1m7rn">
     <path>
       <move select="Run Left" scaleY="1.5" />
       <move select="Forward 2" />
@@ -55,7 +55,7 @@
 
   <tam title="Criss Cross Your Neighbor"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG" >
+       formation="Ocean Waves RH BGBG"  vid="V1-6v2h87cc">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -80,7 +80,7 @@
 
   <tam title="Criss Cross Your Neighbor"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG" >
+       formation="Ocean Waves LH BGBG"  vid="V1-ow9f50lv">
     <path>
       <move select="Run Left" scaleY="1.25" />
       <move select="Forward 2" />
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Criss Cross Your Neighbor" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-dip0yiyu">
     <path>
       <move select="Run Right" scaleY="1.5" beats="4" />
       <move select="Lead Right" beats="4" scaleX="1.5" scaleY="2" />
@@ -126,7 +126,7 @@
   </tam>
 
   <tam title="Criss Cross Your Neighbor" from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-2i5as33n">
     <path>
       <move select="Extend Left" beats="2" scaleY="1.5" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -149,7 +149,7 @@
 
   <tam title="Criss Cross Your Neighbor"
        from="Right-Handed T-Bones"
-       formation="T-Bone URUR">
+       formation="T-Bone URUR" vid="V1-kxqho6u2">
     <path>
       <move select="Extend Right" beats="2" scaleY="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -172,7 +172,7 @@
 
   <tam title="Criss Cross Your Neighbor"
        from="Left-Handed T-Bones"
-       formation="T-Bone LULU">
+       formation="T-Bone LULU" vid="V1-14r2a7lw">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Run Right" scaleX="2" scaleY="1.25" beats="6"/>
@@ -194,7 +194,7 @@
   </tam>
 
   <tam title="All 8 Criss Cross Your Neighbor" group=" "
-       formation="Static MiniWaves RH">
+       formation="Static MiniWaves RH" vid="V1-yf5v1yqy">
     <path>
       <move select="Extend Right" beats="4" scaleX="3" scaleY="2"/>
       <move select="Swing Left"/>
@@ -220,7 +220,7 @@
   </tam>
 
   <tam title="As Couples Criss Cross Your Neighbor" group=" "
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-r4cmmj08">
     <path>
       <move select="Extend Right" hands="right" beats="3" scaleX="2" scaleY="3.5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -244,7 +244,7 @@
   </tam>
 
   <tam title="Tandem Criss Cross Your Neighbor" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-yy44xx6p">
     <path>
       <move select="Run Right" beats="5" scaleY="2" offsetX="-1"/>
       <move select="Forward 2"/>
@@ -276,7 +276,7 @@
   </tam>
 
   <tam title="Concentric Criss Cross Your Neighbor" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-qu312qd2">
     <path>
       <move select="Lead Right"/>
       <move select="Lead Right" beats="6" scaleX="4" scaleY="4"/>
@@ -301,7 +301,7 @@
   </tam>
 
   <tam title="Pass and Roll Your Criss Cross Neighbor" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-tqdl56r2">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -340,7 +340,7 @@
   </tam>
 
   <tam title="Left Pass and Roll Your Criss Cross Neighbor" group=" "
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-39jvyuvv">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />

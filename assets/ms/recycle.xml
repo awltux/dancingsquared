@@ -25,7 +25,7 @@
   <tam title="Recycle"
        from="Right-Hand Wave"
        formation="Wave RH"
-       difficulty="1">
+       difficulty="1" vid="V1-qpun7h1f">
     <path>
       <move select="Run Right" beats="4" offsetX="1.5" offsetY="-2" />
     </path>
@@ -41,7 +41,7 @@
   <tam title="Recycle"
        from="Left-Hand Wave"
        formation="Wave LH Boys Center"
-       difficulty="1">
+       difficulty="1" vid="V1-otycd2t8">
     <path>
       <move select="Run Left" beats="2" scaleX=".5" scaleY=".5" offsetX="-.75" />
       <move select="Run Left" beats="2" scaleX=".5" scaleY=".5" offsetX=".75" />
@@ -54,7 +54,7 @@
   <tam title="Recycle"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-2i6a2bt5">
     <path>
       <move select="Run Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -77,7 +77,7 @@
   <tam title="Recycle"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       difficulty="1">
+       difficulty="1" vid="V1-mdyrf44a">
     <path>
       <move select="Run Left" beats="4" offsetX="1" offsetY="2" />
     </path>
@@ -100,7 +100,7 @@
   <tam title="Recycle"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-m7rekoq6">
     <path>
       <move select="Run Right" beats="4" offsetX="2" offsetY="-.5" />
     </path>
@@ -120,7 +120,7 @@
   <tam title="Recycle"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-vvo4t3h2">
     <path>
       <move select="Run Left" beats="4" offsetX="2" offsetY=".5" />
     </path>
@@ -140,7 +140,7 @@
   <tam title="Recycle"
        from="Thar"
        formation="Thar RH Boys"
-       difficulty="2">
+       difficulty="2" vid="V1-o444dwgd">
     <path>
       <move select="Run Left" beats="2" scaleX=".5" scaleY=".5" offsetX="-1.5" />
       <move select="Run Left" beats="2" scaleX=".5" scaleY=".5" offsetX="1.5" />

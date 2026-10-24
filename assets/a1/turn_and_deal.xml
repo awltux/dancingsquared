@@ -23,7 +23,7 @@
 <tamination title="Turn and Deal">
 
   <tam title="Turn and Deal" from="Right-Hand Two-Faced Line"
-      formation="Two-Faced Line RH">
+      formation="Two-Faced Line RH" vid="V1-eytuoh3e">
     <path numbers="1 4">
       <move select="U-Turn Right" beats="4" offsetX="1.5" offsetY="-2" />
     </path>
@@ -34,7 +34,7 @@
 
   <tam title="Turn and Deal"
        from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" >
+       formation="Two-Faced Line LH"  vid="V1-c0wn2vu9">
     <path numbers="3 2">
       <move select="U-Turn Left" beats="4" offsetX="-1.5" offsetY="2" />
     </path>
@@ -45,7 +45,7 @@
 
   <tam title="Turn and Deal"
        from="Right-Hand Wave"
-       formation="Wave RH" >
+       formation="Wave RH"  vid="V1-z0caaqtw">
     <path numbers="1 4">
       <move select="U-Turn Right" beats="4" offsetX="1.5" offsetY="-2" />
     </path>
@@ -56,7 +56,7 @@
 
   <tam title="Turn and Deal"
        from="Left-Hand Wave"
-       formation="Wave LH" >
+       formation="Wave LH"  vid="V1-crrjp8sb">
     <path numbers="4 1">
       <move select="U-Turn Left" beats="4" offsetX="-1.5" offsetY="2" />
     </path>
@@ -67,7 +67,7 @@
 
   <tam title="Turn and Deal"
        from="Normal Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-l7h32vhm">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -84,7 +84,7 @@
 
   <tam title="Turn and Deal"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-uc12ca4p">
     <path numbers="5 4">
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -101,7 +101,7 @@
 
   <tam title="Turn and Deal"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-2egou3qr">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -118,7 +118,7 @@
 
   <tam title="Turn and Deal"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-46r4wtm4">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -135,7 +135,7 @@
 
   <tam title="Turn and Deal"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-c9mnfzl2">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -152,7 +152,7 @@
 
   <tam title="Turn and Deal"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-hfjmzu6l">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -168,7 +168,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-wj2mjudy">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -184,7 +184,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-x9o8py9e">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -200,7 +200,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #3"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-tyo87c12">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -216,7 +216,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-mj14wr0f">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -232,7 +232,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-xfqwym5d">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -248,7 +248,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #6"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-1gi5zavv">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -264,7 +264,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #7"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-6ne7hn5t">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -280,7 +280,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-81lgsphu">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -296,7 +296,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="Inverted Lines, Centers Facing"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-xut7w3os">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1" offsetY="2" />
     </path>
@@ -312,7 +312,7 @@
   </tam>
 
   <tam title="Turn and Deal" from="Inverted Lines, Ends Facing"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-j3j9kb0v">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" offsetY="-2" />
     </path>
@@ -329,7 +329,7 @@
 
   <tam title="Turn and Deal"
        from="Tidal Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-mps9t4ka">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1.5" offsetY="-.5" />
     </path>
@@ -346,7 +346,7 @@
 
   <tam title="Turn and Deal"
        from="Right-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-11mnqsj9">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1.5" offsetY="-.5" />
     </path>
@@ -363,7 +363,7 @@
 
   <tam title="Turn and Deal"
        from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-5iuv97ze">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1.5" offsetY=".5" />
     </path>
@@ -380,7 +380,7 @@
 
   <tam title="Turn and Deal"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-uhbyoanp">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1.5" offsetY="-.5" />
     </path>
@@ -397,7 +397,7 @@
 
   <tam title="Turn and Deal"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-fm2nq42l">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="-1.5" offsetY=".5" />
     </path>
@@ -414,7 +414,7 @@
 
   <tam title="Left Turn and Deal"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-lpnorjbh">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="-1" offsetY="-2" />
     </path>
@@ -431,7 +431,7 @@
 
   <tam title="Left Turn and Deal"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-z92n0ova">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="1" offsetY="2" />
     </path>
@@ -447,7 +447,7 @@
   </tam>
 
   <tam title="Left Turn and Deal" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" >
+       formation="Two-Faced Line LH"  vid="V1-1cl5ulj2">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="1.5" offsetY="2" />
     </path>
@@ -461,7 +461,7 @@
   </tam>
 
   <tam title="Left Turn and Deal" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-58g20r0v">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="1" offsetY="2" />
     </path>
@@ -478,7 +478,7 @@
 
   <tam title="Left Turn and Deal"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-xapfi8p6">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="-1.5" offsetY="-.5" />
     </path>
@@ -495,7 +495,7 @@
 
   <tam title="Left Turn and Deal"
        from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-cxxkpo7t">
     <path>
       <move select="U-Turn Left" beats="4" offsetX="1.5" offsetY=".5" />
     </path>
@@ -512,7 +512,7 @@
 
   <tam title="As Couples Turn and Deal"
        from="Right-Hand Tidal Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-kwc9ixu9">
     <path>
       <move select="Belle Wheel" beats="4" reflect="-1" hands="gripright" scaleY=".5" offsetX="1.5" offsetY="-1.5" />
     </path>
@@ -529,7 +529,7 @@
 
   <tam title="As Couples Turn and Deal"
        from="Left-Hand Tidal Line"
-       formation="Tidal Line LH">
+       formation="Tidal Line LH" vid="V1-5ohxaxq2">
     <path>
       <move select="Beau Wheel" beats="4" scaleX=".5" scaleY=".5" offsetX="-1.5" offsetY=".5" />
     </path>
@@ -548,7 +548,7 @@
 
   <tam title="As Couples Turn and Deal"
        from="Right-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-05l68cqa">
     <path>
       <move select="Belle Wheel" beats="4" reflect="-1" scaleY=".5" offsetX="1.5" offsetY="-1.5" />
     </path>
@@ -567,7 +567,7 @@
 
   <tam title="As Couples Turn and Deal"
        from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-kjmcv6ol">
     <path>
       <move select="Belle Wheel" beats="4" scaleX=".5" scaleY=".5" offsetX="-1.5" offsetY="1.5" />
     </path>

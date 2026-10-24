@@ -23,7 +23,7 @@
 <tamination title="Shake and Rattle">
 
   <tam title="Shake and Rattle" from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-5jlcq47q">
     <path couples="2 1">
       <move select="Flip Right" offsetX="-1" scaleY=".5"/>
       <move select="Quarter Right" offsetX="1"/>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Shake and Rattle" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-kamh7ntx">
     <path>
       <move select="Flip Right"/>
       <move select="Quarter Right" offsetY="1"/>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Shake and Rattle" from="Magic Columns"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-3m595add">
     <path>
       <move select="Quarter Left" beats="4.5" offsetY="3"/>
     </path>
@@ -77,7 +77,7 @@
   </tam>
 
   <tam title="Shake and Rattle" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-97puf3ir">
     <path>
       <move select="Quarter Left" beats="4.5" offsetX="3"/>
     </path>
@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="Shake and Rattle" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-r2scr2oc">
     <path>
       <move select="Flip Right" beats="2.5" offsetX="-1" scaleY=".25"/>
       <move select="Lead Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -113,7 +113,7 @@
   </tam>
 
   <tam title="Shake and Rattle" from="Inverted Lines"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-4zqc4ozt">
     <path>
       <move select="Flip Right" beats="2.5" offsetX="-1" scaleY=".25"/>
       <move select="Lead Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Shake and Rattle and Roll" group=" "
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-dlzsrqqa">
     <path couples="2 1">
       <move select="Flip Right" offsetX="-1" scaleY=".5"/>
       <move select="Lead Right"/>

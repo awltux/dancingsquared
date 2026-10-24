@@ -23,7 +23,7 @@
 <tamination title="Catch Anything N">
 
   <tam title="Catch Mix 3" from="Facing Couples" group=" "
-       formation="Facing Couples Compact" parts="5;5">
+       formation="Facing Couples Compact" parts="5;5" vid="V1-i857srze">
     <path numbers="1 4">
       <move select="Pull Left" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Catch Switch to a Diamond 3" group=" "
-       from="Facing Couples" formation="Facing Couples Compact" parts="5;5">
+       from="Facing Couples" formation="Facing Couples Compact" parts="5;5" vid="V1-ci0p1xei">
     <path>
       <move select="Pull Left" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />

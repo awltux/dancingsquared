@@ -24,7 +24,7 @@
 
   <tam title="Quarter Tag"
        from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="2">
+       formation="Two-Faced Line RH" difficulty="2" vid="V1-zzwu9jgw">
     <path>
       <move select="Quarter Right" />
     </path>
@@ -34,7 +34,7 @@
   </tam>
 
   <tam title="Quarter Tag" from="Left-Hand Two-Faced Line" formation="Two-Faced Line LH"
-       difficulty="3">
+       difficulty="3" vid="V1-n0fmeow3">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1"/>
     </path>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter Tag" from="Right-Hand Wave" formation="Wave RH" difficulty="3">
+  <tam title="Quarter Tag" from="Right-Hand Wave" formation="Wave RH" difficulty="3" vid="V1-grli1fci">
     <path>
       <move select="Quarter Right"/>
     </path>
@@ -52,7 +52,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter Tag" from="Left-Hand Wave" formation="Wave LH" difficulty="2">
+  <tam title="Quarter Tag" from="Left-Hand Wave" formation="Wave LH" difficulty="2" vid="V1-9agdhq8d">
     <path>
       <move select="Quarter Left"/>
     </path>
@@ -63,7 +63,7 @@
 
   <tam title="Quarter Tag"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" difficulty="2">
+       formation="Two-Faced Lines RH" difficulty="2" vid="V1-az3eguzd">
     <path>
       <move select="Quarter Right" offsetX="1" />
     </path>
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Quarter Tag" from="Lines Facing Out"
-       formation="Lines Facing Out" difficulty="2">
+       formation="Lines Facing Out" difficulty="2" vid="V1-nx70vgfv">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1"/>
     </path>
@@ -97,7 +97,7 @@
 
   <tam title="Half Tag"
        from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1">
+       formation="Two-Faced Line RH" difficulty="1" vid="V1-b3ipp7wz">
     <path>
       <move select="Lead Right" />
     </path>
@@ -108,7 +108,7 @@
   </tam>
 
   <tam title="Half Tag" from="Left-Hand Two-Faced Line" formation="Two-Faced Line LH"
-       difficulty="2">
+       difficulty="2" vid="V1-80n5xizc">
     <path>
       <move select="Quarter Left" offsetX="-1"/>
       <move select="Forward 3"/>
@@ -119,7 +119,7 @@
     </path>
   </tam>
 
-  <tam title="Half Tag" from="Right-Hand Wave" formation="Wave RH" difficulty="2">
+  <tam title="Half Tag" from="Right-Hand Wave" formation="Wave RH" difficulty="2" vid="V1-rlfr1ppx">
     <path>
       <move select="Quarter Right" offsetX="1"/>
       <move select="Forward"/>
@@ -130,7 +130,7 @@
     </path>
   </tam>
 
-  <tam title="Half Tag" from="Left-Hand Wave" formation="Wave LH" difficulty="2">
+  <tam title="Half Tag" from="Left-Hand Wave" formation="Wave LH" difficulty="2" vid="V1-uii12zb6">
     <path>
       <move select="Quarter Left" offsetX="-1"/>
       <move select="Forward"/>
@@ -141,7 +141,7 @@
     </path>
   </tam>
 
-  <tam title="Half Tag" from="Lines Facing Out" difficulty="1">
+  <tam title="Half Tag" from="Lines Facing Out" difficulty="1" vid="V1-5ek52zco">
     <formation fid="F3-xzuj7y07" aid="A1-q3ttyu3n">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
@@ -165,7 +165,7 @@
   </tam>
 
   <tam title="Half Tag" from="Lines Facing In"
-       formation="Normal Lines" difficulty="2">
+       formation="Normal Lines" difficulty="2" vid="V1-0fog2umv">
     <path>
       <move select="Lead Right" beats="4"/>
     </path>
@@ -184,7 +184,7 @@
 
   <tam title="Half Tag"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" difficulty="1">
+       formation="Two-Faced Lines RH" difficulty="1" vid="V1-tc6td2zy">
     <path>
       <move select="Lead Right" />
     </path>
@@ -202,7 +202,7 @@
   </tam>
 
   <tam title="Half Tag" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH" difficulty="2">
+       formation="Two-Faced Lines LH" difficulty="2" vid="V1-ejrtbyet">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -220,7 +220,7 @@
   </tam>
 
   <tam title="Half Tag" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" difficulty="3">
+       formation="Ocean Waves RH BGGB" difficulty="3" vid="V1-6bzkdn87">
     <path>
       <move select="Lead Right" />
     </path>
@@ -238,7 +238,7 @@
   </tam>
 
   <tam title="Half Tag" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" difficulty="2">
+       formation="Ocean Waves LH BGGB" difficulty="2" vid="V1-oqj3cymg">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -256,7 +256,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #1" display="none"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-4z25lm2j">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -274,7 +274,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #2" display="none"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-0hl21hxv">
     <path>
       <move select="Lead Right" />
     </path>
@@ -292,7 +292,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #3" display="none"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-53vajifv">
     <path>
       <move select="Lead Right" />
     </path>
@@ -310,7 +310,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #4" display="none"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-4u1nrt92">
     <path>
       <move select="Lead Right" />
     </path>
@@ -328,7 +328,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #5" display="none"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-nkc33dsc">
     <path>
       <move select="Lead Right" />
     </path>
@@ -346,7 +346,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #6" display="none"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-lio1pvv6">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -364,7 +364,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #7" display="none"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-mppsv1kk">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -382,7 +382,7 @@
   </tam>
 
   <tam title="Half Tag" from="3 and 1 Lines #8" display="none"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-gs5fbvx3">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -400,7 +400,7 @@
   </tam>
 
   <tam title="Half Tag" from="Inverted Lines Ends Facing Out" display="none"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-ctu3wd8t">
     <path>
       <move select="Quarter Left" beats="4" offsetX="-1" offsetY="1"/>
     </path>
@@ -418,7 +418,7 @@
   </tam>
 
   <tam title="Half Tag" from="Inverted Lines Ends Facing In" display="none"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-ihcy4jj2">
     <path>
       <move select="Lead Right" />
     </path>
@@ -436,7 +436,7 @@
   </tam>
 
   <tam title="Half Tag" from="Two-Faced Tidal Line" difficulty="1"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-m4c8jyl0">
     <path>
       <move select="Quarter Right" offsetX="1" beats="2"/>
       <move select="Forward" scaleX=".5" beats="2"/>
@@ -457,7 +457,7 @@
 
   <tam title="Half Tag"
        from="Tidal Line"
-       formation="Tidal Line RH" difficulty="2">
+       formation="Tidal Line RH" difficulty="2" vid="V1-c5c6b2pn">
     <path>
       <move select="Quarter Right" offsetX="1" beats="2"/>
       <move select="Forward" scaleX=".5" beats="2"/>
@@ -477,7 +477,7 @@
   </tam>
 
   <tam title="Left Half Tag" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="3">
+       formation="Two-Faced Line RH" difficulty="3" vid="V1-8jxvk8dm">
     <path>
       <move select="Quarter Right" offsetX="-1"/>
       <move select="Forward"/>
@@ -490,7 +490,7 @@
 
   <tam title="Left Half Tag"
        from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="2">
+       formation="Two-Faced Line LH" difficulty="2" vid="V1-7hb26n0x">
     <path>
       <move select="Lead Left" />
       <move select="Forward 2" />
@@ -501,7 +501,7 @@
   </tam>
 
   <tam title="Left Half Tag" from="Right-Hand Wave"
-       formation="Wave RH" difficulty="2">
+       formation="Wave RH" difficulty="2" vid="V1-8ppwv3jo">
     <path>
       <move select="Quarter Right" offsetX="-1"/>
       <move select="Forward"/>
@@ -512,7 +512,7 @@
     </path>
   </tam>
 
-  <tam title="Left Half Tag" from="Left-Hand Wave" formation="Wave LH" difficulty="2">
+  <tam title="Left Half Tag" from="Left-Hand Wave" formation="Wave LH" difficulty="2" vid="V1-30xhr9gb">
     <path>
       <move select="Quarter Left" offsetX="1"/>
       <move select="Forward"/>
@@ -524,7 +524,7 @@
   </tam>
 
   <tam title="Left Half Tag" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH" difficulty="2">
+       formation="Two-Faced Lines LH" difficulty="2" vid="V1-bil79z9o">
     <path>
       <move select="Lead Left" />
     </path>
@@ -544,7 +544,7 @@
   <tam title="3/4 Tag the Line"
        from="Right-Hand Two-Faced Line"
        formation="Two-Faced Line RH"
-       difficulty="1">
+       difficulty="1" vid="V1-l9np2lef">
     <path>
       <move select="Lead Right" scaleX=".5" />
       <move select="Extend Left" beats="3" scaleX="2" scaleY=".5" />
@@ -559,7 +559,7 @@
   <tam title="3/4 Tag the Line"
        from="Left-Hand Two-Faced Line"
        formation="Two-Faced Line LH"
-       difficulty="2">
+       difficulty="2" vid="V1-dfakfh7w">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY=".5" />
       <move select="Forward" />
@@ -574,7 +574,7 @@
   <tam title="3/4 Tag the Line"
        from="Right-Hand Wave"
        formation="Wave RH"
-       difficulty="2">
+       difficulty="2" vid="V1-rfp0c4ap">
     <path>
       <move select="Lead Right" scaleX=".5" />
       <move select="Extend Left" beats="3" scaleX="2" scaleY=".5" />
@@ -589,7 +589,7 @@
   <tam title="3/4 Tag the Line"
        from="Left-Hand Wave"
        formation="Wave LH"
-       difficulty="2">
+       difficulty="2" vid="V1-grjwfsxa">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY=".5" />
       <move select="Extend Left" beats="3" scaleX="2.5" scaleY=".5" />
@@ -604,7 +604,7 @@
   <tam title="3/4 Tag the Line"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="1">
+       difficulty="1" vid="V1-08s2xqsa">
     <path>
       <move select="Lead Right" scaleX=".5" />
       <move select="Extend Left" beats="3" scaleX="2" scaleY=".5" />
@@ -624,7 +624,7 @@
     </path>
   </tam>
 
-  <tam title="3/4 Tag the Line" from="Lines Facing Out" difficulty="1">
+  <tam title="3/4 Tag the Line" from="Lines Facing Out" difficulty="1" vid="V1-mm0dcxx8">
     <formation fid="F3-xzuj7y07" aid="A1-zolwt0mp">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -651,7 +651,7 @@
   </tam>
 
   <tam title="Left 3/4 Tag the Line" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="3">
+       formation="Two-Faced Line RH" difficulty="3" vid="V1-clkjoi96">
     <path>
       <move select="Quarter Right" offsetX="-.5" offsetY="-.5" />
       <move select="Extend Right" beats="3" scaleX="2.5" scaleY=".5" />
@@ -664,7 +664,7 @@
   </tam>
 
   <tam title="Left 3/4 Tag the Line" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="2">
+       formation="Two-Faced Line LH" difficulty="2" vid="V1-bixqawwh">
     <path>
       <move select="Lead Left" scaleX=".5" />
       <move select="Forward" />
@@ -679,7 +679,7 @@
   <tam title="Left 3/4 Tag the Line"
        from="Right-Hand Wave"
        formation="Wave RH"
-       difficulty="2">
+       difficulty="2" vid="V1-dtipru7o">
     <path>
       <move select="Quarter Right" offsetX="-.5" offsetY="-.5" />
       <move select="Extend Right" beats="3" scaleX="2.5" scaleY=".5" />
@@ -694,7 +694,7 @@
   <tam title="Left 3/4 Tag the Line"
        from="Left-Hand Wave"
        formation="Wave LH"
-       difficulty="3">
+       difficulty="3" vid="V1-72k5vjbv">
     <path>
       <move select="Lead Left" scaleX=".5" />
       <move select="Extend Right" beats="3" scaleX="2" scaleY=".5" />

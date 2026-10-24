@@ -24,7 +24,7 @@
 
   <tam title="Split Square Chain Thru"
        from="T-Bones, Ends Facing"
-       parts="1;2;6"  formation="T-Bone ULRU">
+       parts="1;2;6"  formation="T-Bone ULRU" vid="V1-aaj5el2w">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -61,7 +61,7 @@
 
   <tam title="Split Square Chain Thru"
        from="T-Bones, Centers Facing"
-       parts="1;2;6"  formation="T-Bone RUUL">
+       parts="1;2;6"  formation="T-Bone RUUL" vid="V1-8as0rxln">
     <path>
       <move select="Stand" />
       <move select="Extend Right" beats="2" scaleY="2" />
@@ -98,7 +98,7 @@
 
   <tam title="Split Square Chain Thru"
        from="Center Wave"
-       parts="1;2;6" >
+       parts="1;2;6"  vid="V1-d3gfi93o">
     <formation fid="F3-tpbvr6qa" aid="A1-sfuhwv80">
       <dancer gender="boy" x="-1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
@@ -137,7 +137,7 @@
 
   <tam title="Split Square Chain Thru"
        from="T-Bones 3" parts="1;2;6"
-       formation="T-Bone RLUU">
+       formation="T-Bone RLUU" vid="V1-isw7u5mg">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Left" beats="2" scaleX="1.5" scaleY=".5" />
@@ -174,7 +174,7 @@
 
   <tam title="Split Square Chain Thru"
        from="T-Bones 4" parts="1;2;6"
-       formation="T-Bone UURL">
+       formation="T-Bone UURL" vid="V1-a6j60ml8">
     <path>
       <move select="Stand" />
       <move select="Extend Right" beats="2" scaleY=".5"/>
@@ -211,7 +211,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones, Ends Facing"
-       parts="1;2;6"  formation="T-Bone ULRU">
+       parts="1;2;6"  formation="T-Bone ULRU" vid="V1-rqzgwuob">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="3" scaleY=".5" />
@@ -249,7 +249,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones, Centers Facing"
-       parts="1;2;6"  formation="T-Bone RUUL">
+       parts="1;2;6"  formation="T-Bone RUUL" vid="V1-d9hi09uw">
     <path>
       <move select="Stand" />
       <move select="Forward" beats="2" />
@@ -286,7 +286,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones, Center Wave"
-       parts="1;2;6" >
+       parts="1;2;6"  vid="V1-ie53pqeq">
     <formation fid="F3-8xcr0wxi" aid="A1-hisj0sdi">
       <dancer gender="boy" x="-1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
@@ -325,7 +325,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones 3" parts="1;2;6"
-       formation="T-Bone RLUU">
+       formation="T-Bone RLUU" vid="V1-hgm46umb">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Left" beats="2" scaleX=".5" scaleY="1.5" />
@@ -362,7 +362,7 @@
 
   <tam title="Left Split Square Chain Thru"
        from="T-Bones 4" parts="1;2;6"
-       formation="T-Bone UURL">
+       formation="T-Bone UURL" vid="V1-6mlb0fsj">
     <path>
       <move select="Stand" />
       <move select="Extend Left" beats="2" scaleY=".5" />
@@ -399,7 +399,7 @@
 
 
 
-  <tam title="Heads Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " parts="3;2;6">
+  <tam title="Heads Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " parts="3;2;6" vid="V1-hp8ao0q9">
     <path>
       <move select="Pull Left" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Lead Left" beats="2" scaleX="3" scaleY=".5" />
@@ -434,7 +434,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Left Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " parts="3;2;6">
+  <tam title="Heads Left Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " parts="3;2;6" vid="V1-xm2f9sp4">
     <path>
       <move select="Pull Right" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Lead Left" beats="2" scaleY="1.5" />
@@ -469,7 +469,7 @@
     </path>
   </tam>
 
-  <tam title="Sides Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " display="none" parts="3;2;6">
+  <tam title="Sides Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " display="none" parts="3;2;6" vid="V1-8lrycxv2">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Forward" beats="2" />
@@ -504,7 +504,7 @@
     </path>
   </tam>
 
-  <tam title="Sides Left Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " display="none" parts="3;2;6">
+  <tam title="Sides Left Split Square Chain Thru" from="Static Square" formation="Static Square" group=" " display="none" parts="3;2;6" vid="V1-p6vy7f6h">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Extend Left" beats="2" scaleY="2" />

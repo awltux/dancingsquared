@@ -25,7 +25,7 @@
   <tam title="Spin Chain Thru"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3" difficulty="1">
+       parts="3;4.5;3" difficulty="1" vid="V1-s2cs0c46">
     <path>
       <move select="Swing Right" />
       <move select="Cast Left" />
@@ -49,7 +49,7 @@
   <tam title="Spin Chain Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3;4.5;3" difficulty="2">
+       parts="3;4.5;3" difficulty="2" vid="V1-uh4q7znh">
     <path>
       <move select="Swing Left" />
       <move select="Cast Right" />
@@ -73,7 +73,7 @@
   <tam title="Spin Chain Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5;4.5;3" difficulty="2">
+       parts="5;4.5;3" difficulty="2" vid="V1-fhouvlc7">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right" />
@@ -104,7 +104,7 @@
   <tam title="Left Spin Chain Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="5;4.5;3" difficulty="3">
+       parts="5;4.5;3" difficulty="3" vid="V1-zn1ir42c">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" />

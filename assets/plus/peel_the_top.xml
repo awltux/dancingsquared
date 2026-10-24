@@ -24,7 +24,7 @@
 
   <tam title="Peel the Top"
        from="Left-Hand Z"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-g038nlqg">
     <formation fid="F3-07nohwr6" aid="A1-kggk56dw">
       <dancer gender="boy" x="0" y="1" angle="180"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -42,7 +42,7 @@
 
   <tam title="Peel the Top"
        from="Right-Hand Z"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-vj1mv5wp">
     <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8">
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -61,7 +61,7 @@
   <tam title="Peel the Top"
        from="Right-Hand Box"
        formation="Box RH"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-20qq1e5n">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Cast Right" beats="3" />
@@ -75,7 +75,7 @@
   <tam title="Peel the Top"
        from="Left-Hand Box"
        formation="Box LH"
-       parts="3" difficulty="2">
+       parts="3" difficulty="2" vid="V1-8j9wfz9n">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Lead Right" beats="3" scaleX="3" scaleY="3" />
@@ -88,7 +88,7 @@
 
   <tam title="Peel the Top"
        from="Left-Hand Zs" formation="Left-Hand Zs"
-       parts="2" difficulty="1">
+       parts="2" difficulty="1" vid="V1-nj0nl7kl">
     <path>
       <move select="Forward 2"  />
       <move select="Hinge Left" beats="1.5" scaleX=".5" />
@@ -115,7 +115,7 @@
 
   <tam title="Peel the Top"
        from="Right-Hand Zs" formation="Right-Hand Zs"
-       parts="2" difficulty="1">
+       parts="2" difficulty="1" vid="V1-vb2jj6dj">
     <path>
       <move select="Forward 2"  />
       <move select="Hinge Right" beats="1.5" scaleX=".5" />
@@ -139,7 +139,7 @@
   <tam title="Peel the Top"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="2" difficulty="3">
+       parts="2" difficulty="3" vid="V1-pbmh3mac">
     <path>
       <move select="Forward" beats="2" scaleX="2" scaleY="2" />
       <move select="Cast Right" beats="4"/>
@@ -162,7 +162,7 @@
   <tam title="Peel the Top"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="2" difficulty="3">
+       parts="2" difficulty="3" vid="V1-ipi392rv">
     <path>
       <move select="Run Right" beats="1" scaleX=".5" scaleY=".5" />
       <move select="Lead Right" beats="5" scaleX="5" scaleY="2" />
@@ -185,7 +185,7 @@
   <tam title="Peel the Top"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       parts="2" difficulty="2">
+       parts="2" difficulty="2" vid="V1-q3kczu4u">
     <path>
       <move select="Run Left" beats="2" offsetX="-1" />
       <move select="Lead Left" beats="4" scaleX="1.5" scaleY="3" />
@@ -209,7 +209,7 @@
   <tam title="Peel the Top"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       parts="2" difficulty="2">
+       parts="2" difficulty="2" vid="V1-7xdu8urv">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" beats="2.5"/>
@@ -231,7 +231,7 @@
   </tam>
 
   <tam title="Peel the Top" from="Right-Hand Z-Tag" parts="2"
-       formation="Quarter Z RH" difficulty="2">
+       formation="Quarter Z RH" difficulty="2" vid="V1-acwi4f74">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" beats="2.5" scaleX=".5" scaleY=".5"/>
@@ -253,7 +253,7 @@
   </tam>
 
   <tam title="Peel the Top" from="Left-Hand Z-Tag" parts="2"
-       formation="Quarter Z LH" difficulty="2">
+       formation="Quarter Z LH" difficulty="2" vid="V1-rlfyewzi">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Left" beats="2.5" scaleX=".5" scaleY=".5"/>
@@ -277,7 +277,7 @@
   <tam title="Peel the Top"
        from="T-Bones 1"
        formation="T-Bone LULU"
-       parts="2" difficulty="3">
+       parts="2" difficulty="3" vid="V1-h33aozmk">
     <path>
       <move select="Run Left" beats="2" offsetX="-1" />
       <move select="Lead Left" beats="4" scaleY="3" />
@@ -301,7 +301,7 @@
   <tam title="Peel the Top"
        from="T-Bones 2"
        formation="T-Bone DLDL"
-       difficulty="3">
+       difficulty="3" vid="V1-3wb7ymb3">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Lead Right" beats="3" scaleX="2" scaleY="3" />

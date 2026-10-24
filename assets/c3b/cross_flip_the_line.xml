@@ -24,7 +24,7 @@
 
   <tam title="Cross Flip the Line 1/4"
        from="Right-Hand Two-Face Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-narg7mkc">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 2" beats="3"/>
@@ -37,7 +37,7 @@
 
   <tam title="Cross Flip the Line 1/4"
        from="Left-Hand Two-Face Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-eq3lwyfj">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Run Left" scaleY=".5" offsetX="2"/>
@@ -50,7 +50,7 @@
 
   <tam title="Cross Flip the Line 1/4"
        from="Right-Hand Two-Face Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-dfkak965">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 2" beats="3"/>
@@ -71,7 +71,7 @@
 
   <tam title="Cross Flip the Line 1/4"
        from="Left-Hand Two-Face Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-uqgvqkdi">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 2" beats="3"/>
@@ -92,7 +92,7 @@
 
   <tam title="Cross Flip the Line 1/4"
        from="Right-Hand Two-Face Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-0lsl7ut3">
     <path>
       <move select="Lead Right"/>
     </path>
@@ -112,7 +112,7 @@
 
   <tam title="Cross Flip the Line 1/4"
        from="Left-Hand Two-Face Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-fp6llw4g">
     <path>
       <move select="Lead Left"/>
     </path>
@@ -132,7 +132,7 @@
 
   <tam title="Cross Flip the Line 1/2"
        from="Right-Hand Two-Face Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-5hijg3hy">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" offsetX=".5" />
@@ -145,7 +145,7 @@
 
   <tam title="Cross Flip the Line 1/2"
        from="Left-Hand Two-Face Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-1y6lchp9">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Run Left" offsetX=".5"/>
@@ -158,7 +158,7 @@
 
   <tam title="Cross Flip the Line 1/2"
        from="Right-Hand Two-Face Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-z53wdbbr">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" offsetX=".5" />
@@ -179,7 +179,7 @@
 
   <tam title="Cross Flip the Line 1/2"
        from="Left-Hand Two-Face Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-bij9tm00">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 3" offsetX=".5" />
@@ -200,7 +200,7 @@
 
   <tam title="Cross Flip the Line 1/2"
        from="Right-Hand Two-Face Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-2hskazzt">
     <path>
       <move select="Lead Right"/>
       <move select="Forward" beats="2" offsetX=".5"/>
@@ -221,7 +221,7 @@
 
   <tam title="Cross Flip the Line 1/2"
        from="Left-Hand Two-Face Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-hmujaav2">
     <path>
       <move select="Lead Left"/>
       <move select="Forward" beats="2" offsetX=".5"/>
@@ -242,7 +242,7 @@
 
   <tam title="Cross Flip the Line 3/4"
        from="Right-Hand Two-Face Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-qzbwf8jy">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" />
@@ -257,7 +257,7 @@
 
   <tam title="Cross Flip the Line 3/4"
        from="Left-Hand Two-Face Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-ktaikzlx">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Run Left" />
@@ -272,7 +272,7 @@
 
   <tam title="Cross Flip the Line 3/4"
        from="Right-Hand Two-Face Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-c78e16f3">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 5" />
@@ -296,7 +296,7 @@
 
   <tam title="Cross Flip the Line 3/4"
        from="Left-Hand Two-Face Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-ch3c6gjc">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 3" />
@@ -320,7 +320,7 @@
 
   <tam title="Cross Flip the Line 3/4"
        from="Right-Hand Two-Face Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-oyhebbb5">
     <path>
       <move select="Lead Right"/>
       <move select="Extend Right" beats="4" scaleX="1.5"/>
@@ -344,7 +344,7 @@
 
   <tam title="Cross Flip the Line 3/4"
        from="Left-Hand Two-Face Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-vq1yq4hi">
     <path>
       <move select="Lead Left"/>
       <move select="Extend Left" beats="4" scaleX="1.5"/>
@@ -368,7 +368,7 @@
 
 
   <tam title="Cross Flip the Line" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" >
+       formation="Two-Faced Line RH"  vid="V1-axubzqfk">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" beats="4"/>
@@ -384,7 +384,7 @@
   </tam>
 
   <tam title="Cross Flip the Line" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" >
+       formation="Two-Faced Line LH"  vid="V1-mlv7y8qr">
     <path>
       <move select="Lead Left"/>
       <move select="Forward"/>
@@ -400,7 +400,7 @@
   </tam>
 
   <tam title="Cross Flip the Line" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" >
+       formation="Two-Faced Lines RH"  vid="V1-1a5chqc9">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" beats="4"/>
@@ -427,7 +427,7 @@
   </tam>
 
   <tam title="Cross Flip the Line" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH" >
+       formation="Two-Faced Lines LH"  vid="V1-g3zfyv6a">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 3" beats="4"/>
@@ -454,7 +454,7 @@
   </tam>
 
   <tam title="Cross Flip the Line" from="Right-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH" >
+       formation="Two-Faced Tidal Line RH"  vid="V1-jifftwqb">
     <path>
       <move select="Lead Right"/>
       <move select="Extend Right" beats="5" scaleX="1.5"/>
@@ -479,7 +479,7 @@
   </tam>
 
   <tam title="Cross Flip the Line" from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH" >
+       formation="Two-Faced Tidal Line LH"  vid="V1-9pp3o5jg">
     <path>
       <move select="Lead Left"/>
       <move select="Extend Left" beats="5" scaleX="1.5"/>
@@ -506,7 +506,7 @@
 
   <tam title="Cross Flip and Scatter"
        from="Right-Hand Two-Face Lines"
-       formation="Two-Faced Lines RH" parts="5">
+       formation="Two-Faced Lines RH" parts="5" vid="V1-6ieaskdx">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" beats="3.5" offsetX=".5" />
@@ -535,7 +535,7 @@
 
   <tam title="Cross Flip and Scatter"
        from="Left-Hand Two-Face Lines"
-       formation="Two-Faced Lines LH" parts="5">
+       formation="Two-Faced Lines LH" parts="5" vid="V1-5ygybhtq">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 3" beats="3.5" offsetX=".5" />
@@ -565,7 +565,7 @@
 
   <tam title="Cross Flip Back"
        from="Right-Hand Two-Face Line"
-       formation="Two-Faced Line RH" parts="5">
+       formation="Two-Faced Line RH" parts="5" vid="V1-v09q25f4">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" beats="3.5" offsetX=".5" />
@@ -582,7 +582,7 @@
 
   <tam title="Cross Flip Back"
        from="Left-Hand Two-Face Line"
-       formation="Two-Faced Line LH" parts="5">
+       formation="Two-Faced Line LH" parts="5" vid="V1-gb04x7hf">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Run Left" offsetX=".5"/>
@@ -599,7 +599,7 @@
 
   <tam title="Cross Flip Chain Thru"
        from="Right-Hand Two-Face Lines"
-       formation="Two-Faced Lines RH" parts="5">
+       formation="Two-Faced Lines RH" parts="5" vid="V1-jndixb9w">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" beats="3.5" offsetX=".5" />
@@ -632,7 +632,7 @@
 
   <tam title="Cross Flip Chain Thru"
        from="Left-Hand Two-Face Lines"
-       formation="Two-Faced Lines LH" parts="5">
+       formation="Two-Faced Lines LH" parts="5" vid="V1-9qust19f">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 3" beats="3.5" offsetX=".5" />
@@ -665,7 +665,7 @@
 
   <tam title="Cross Flip Your Leader"
        from="Right-Hand Two-Face Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-t7anflly">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" offsetX=".5" />
@@ -701,7 +701,7 @@
 
   <tam title="Cross Flip Your Leader"
        from="Left-Hand Two-Face Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-wf52z3jx">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 3" offsetX=".5" />
@@ -737,7 +737,7 @@
 
   <tam title="Cross Flip Your Neighbor"
        from="Right-Hand Two-Face Line"
-       formation="Two-Faced Line RH" parts="5">
+       formation="Two-Faced Line RH" parts="5" vid="V1-k03bvraw">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 3" beats="3.5" offsetX=".5" />
@@ -755,7 +755,7 @@
 
   <tam title="Cross Flip Your Neighbor"
        from="Left-Hand Two-Face Line"
-       formation="Two-Faced Line LH" parts="5">
+       formation="Two-Faced Line LH" parts="5" vid="V1-mqy856rf">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Run Left" offsetX=".5"/>

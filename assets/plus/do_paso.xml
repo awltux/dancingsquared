@@ -23,7 +23,7 @@
 <tamination title="Do Paso">
 
   <tam title="Do Paso" group=" "
-       formation="Static Square">
+       formation="Static Square" vid="V1-4etzisox">
     <path>
       <move select="Quarter Right" />
       <move select="Extend Right" scaleY=".75" />
@@ -69,7 +69,7 @@
   </tam>
 
   <tam title="Do Paso to an Allemande Thar" group=" "
-       formation="Static Square">
+       formation="Static Square" vid="V1-nx57do9z">
     <path>
       <move select="Quarter Right" />
       <move select="Extend Right" scaleY=".75" />
@@ -108,7 +108,7 @@
     </path>
   </tam>
 
-  <tam title="Do Paso to an Allemande Thar" group=" " display="no" formation="Right and Left Grand Static Square">
+  <tam title="Do Paso to an Allemande Thar" group=" " display="no" formation="Right and Left Grand Static Square" vid="V1-3af5xrhe">
     <path>
       <move select="Extend Right" scaleY=".75" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -149,7 +149,7 @@
        Basic levels; every other Basic tam is already re-authored here. -->
 <tam title="Do Paso"
        from="Static Square"
-       formation="Static Square">
+       formation="Static Square" vid="V1-4etzisox">
     <path>
       <move select="Quarter Right" />
       <move select="Extend Right" scaleY=".75" />

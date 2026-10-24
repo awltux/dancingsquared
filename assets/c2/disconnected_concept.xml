@@ -22,7 +22,7 @@
 -->
 <tamination title="Disconnected Concept">
 
-  <tam title="Boys Disconnected Crossfire" group="Boys Disconnected" sequencer="gender-specific">
+  <tam title="Boys Disconnected Crossfire" group="Boys Disconnected" sequencer="gender-specific" vid="V1-hwp021si">
      <formation fid="F3-0r6r9zgd" aid="A1-7xyj03tj">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="0" y="-.6" angle="0"/>
@@ -48,7 +48,7 @@
   <tam title="Girls Disconnected Cross Roll to a Wave"
        group="Girls Disconnected"
        formation="Tidal Line Girls Disconnected"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-2f00r26o">
   <path numbers="7 2">
     <move select="Run Left" beats="5"/>
   </path>
@@ -65,7 +65,7 @@
 
   <tam title="Girls Disconnected Crossfire"
        group="Girls Disconnected"
-       sequencer="gender-specific" formation="Tidal Line Girls Disconnected">
+       sequencer="gender-specific" formation="Tidal Line Girls Disconnected" vid="V1-vlluzkf0">
   <path numbers="7 2">
     <move select="Run Left" beats="5" offsetX="2" scaleY="1.75"/>
   </path>
@@ -83,7 +83,7 @@
 
   <tam title="Girls Disconnected Mix" group="Girls Disconnected"
        sequencer="gender-specific"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-p55duyni">
     <path>
       <move select="Stand" beats="7" hands="none"/>
     </path>
@@ -102,7 +102,7 @@
 
   <tam title="Girls Disconnected Swing Thru" group="Girls Disconnected"
        sequencer="gender-specific"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-wd3poi5j">
     <path>
       <move select="Stand" beats="7" hands="none"/>
     </path>
@@ -121,7 +121,7 @@
 
   <tam title="Girls Disconnected Switch the Wave" group="Girls Disconnected"
        sequencer="gender-specific"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-keddvic0">
     <path>
       <move select="Stand" beats="6" hands="none"/>
     </path>
@@ -138,7 +138,7 @@
   </tam>
 
   <tam title="Ends Disconnected Chase Right" group="Ends Disconnected"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-tojzpwtz">
     <path>
       <move select="U-Turn Right" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -157,7 +157,7 @@
   </tam>
 
   <tam title="Ends Disconnected Scoot Back" group="Ends Disconnected"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-rderllex">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2.25"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75"/>
@@ -175,7 +175,7 @@
   </tam>
 
   <tam title="Ends Disconnected Swap Around" group="Ends Disconnected"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-x0b6jt9k">
     <path>
       <move select="Run Right" beats="6" scaleX="1.5" scaleY="3"/>
     </path>
@@ -191,7 +191,7 @@
   </tam>
 
   <tam title="Same Sex Disconnected Crossfire" group=" "
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-87a9d934">
      <formation fid="F3-5iiqlbux" aid="A1-zm67bhhr">
       <dancer gender="girl" x="0" y="3.5" angle="0"/>
       <dancer gender="boy" x="0" y="2.5" angle="0"/>
@@ -218,7 +218,7 @@
     </path>
   </tam>
 
-  <tam title="Disconnected Columns of 3 Circulate" group=" ">
+  <tam title="Disconnected Columns of 3 Circulate" group=" " vid="V1-ecujwbx0">
      <formation fid="F3-s0cevrmz" aid="A1-ydoi5dbv">
       <dancer gender="boy" x="1" y="4" angle="270"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>

@@ -25,7 +25,7 @@
   <tam title="Pass to the Center"
        from="Eight Chain Thru"
        formation="Pass Thru"
-       parts="2" difficulty="1">
+       parts="2" difficulty="1" vid="V1-qoxbj4tl">
     <path>
       <move select="Pass Thru" />
     </path>
@@ -45,7 +45,7 @@
   <tam title="Pass to the Center"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="3">
+       difficulty="3" vid="V1-44l8vfy8">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
     </path>

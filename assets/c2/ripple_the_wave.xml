@@ -25,7 +25,7 @@
   <tam title="Ends Ripple the Wave" group=" "
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="3;3" >
+       parts="3;3"  vid="V1-zr9oqcu3">
     <path>
       <move select="Swing Right" />
       <move select="Swing Left" />
@@ -41,7 +41,7 @@
   <tam title="Very Ends Ripple the Wave" group=" "
        from="Tidal Line"
        formation="Tidal Line RH"
-       parts="3;3" >
+       parts="3;3"  vid="V1-ora8c0wl">
     <path>
       <move select="Run Right" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -67,7 +67,7 @@
   <tam title="Very Ends Ripple 3" group=" "
        from="Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="3;3" >
+       parts="3;3"  vid="V1-e4ltbzun">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -93,7 +93,7 @@
   <tam title="Very Ends Ripple 7" group=" "
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="3;3;3;3;3;3" >
+       parts="3;3;3;3;3;3"  vid="V1-33b6szff">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -123,7 +123,7 @@
   </tam>
 
   <tam title="Trailing End Like A Ripple Swing, Cast Off 3/4, and Single Wheel"
-       formation="Ocean Waves RH BGGB" group=" " fractions="3;4.5">
+       formation="Ocean Waves RH BGGB" group=" " fractions="3;4.5" vid="V1-6qlpip8g">
     <path>
       <move select="Swing Right"/>
       <move select="Cast Left"/>
@@ -142,7 +142,7 @@
   </tam>
 
   <tam title="Outfacing Points Like a Ripple Jaywalk, Swing, Slip, Cast Off 3/4"
-       group=" " fractions="3;3;3" formation="Diamonds 3 and 1">
+       group=" " fractions="3;3;3" formation="Diamonds 3 and 1" vid="V1-yt4gk4zc">
     <path>
       <move select="Forward 2"/>
       <move select="Lead Right"/>

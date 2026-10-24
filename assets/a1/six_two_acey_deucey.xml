@@ -24,7 +24,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-u0y9z62y">
     <path couples="3 1">
       <move select="Lead Right" beats="4" scaleX="3" />
     </path>
@@ -40,7 +40,7 @@
   </tam>
 
   <tam title="Six-Two Acey Deucey"
-       from="Left-Hand Diamonds"  formation="Diamonds LH Girl Points">
+       from="Left-Hand Diamonds"  formation="Diamonds LH Girl Points" vid="V1-t09xncl9">
     <path>
       <move select="Lead Left" beats="4" scaleX="3" />
     </path>
@@ -57,7 +57,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-x87gyzoz">
     <path couples="2 4">
       <move select="Extend Left" beats="2" scaleX="3" scaleY=".5" />
       <move select="Extend Right" beats="2" scaleX="3" scaleY=".5" />
@@ -75,7 +75,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Left-Hand Point-to-Point Diamonds"
-       formation="Diamonds LH PTP Girl Points">
+       formation="Diamonds LH PTP Girl Points" vid="V1-10w56yhi">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" />
     </path>
@@ -93,7 +93,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Hourglass"
-       formation="Hourglass RH BP">
+       formation="Hourglass RH BP" vid="V1-m0t3nvin">
     <path>
       <move select="Lead Right" beats="4" scaleY="3" />
     </path>
@@ -110,7 +110,7 @@
 
   <tam title="Six-Two Acey Deucey"
        from="Left-Hand Hourglass"
-       formation="Hourglass LH BP">
+       formation="Hourglass LH BP" vid="V1-f5xp5wyq">
     <path>
       <move select="Forward 4" />
     </path>
@@ -126,7 +126,7 @@
   </tam>
 
   <tam title="Six-Two Acey Deucey"
-       from="Wave and Mini-Waves, Right-Handed">
+       from="Wave and Mini-Waves, Right-Handed" vid="V1-0kilrvpq">
      <formation fid="F3-1v115cf0" aid="A1-jno3xgk0">
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -148,7 +148,7 @@
   </tam>
 
   <tam title="Six-Two Acey Deucey"
-       from="Wave and Mini-Waves, Left-Handed">
+       from="Wave and Mini-Waves, Left-Handed" vid="V1-7f9j6k0s">
      <formation fid="F3-tjy15pec" aid="A1-sldj5tdc">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>
@@ -170,7 +170,7 @@
   </tam>
 
   <tam title="Six-Two Acey Deucey"
-       from="Two-Faced Line and Mini-Waves, Right-Handed" display="none">
+       from="Two-Faced Line and Mini-Waves, Right-Handed" display="none" vid="V1-t3lk460p">
     <formation fid="F3-idvq1344" aid="A1-hobetvok">
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -192,7 +192,7 @@
   </tam>
 
   <tam title="Six-Two Acey Deucey"
-       from="Two-Faced Line and Mini-Waves, Left-Handed" display="none">
+       from="Two-Faced Line and Mini-Waves, Left-Handed" display="none" vid="V1-6cppwun8">
     <formation fid="F3-w1f29bwo" aid="A1-fg4y16ao">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>

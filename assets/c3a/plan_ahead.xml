@@ -22,7 +22,7 @@
 -->
 <tamination title="Plan Ahead">
 
-  <tam title="Plan Ahead" from="Lines" fractions="8.5" formation="Sashayed Lines">
+  <tam title="Plan Ahead" from="Lines" fractions="8.5" formation="Sashayed Lines" vid="V1-wrwafi0t">
     <path couples="4 2">
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Lead Right" beats="5" scaleX="4" scaleY="3.5"/>
@@ -56,7 +56,7 @@
   </tam>
 
   <tam title="Plan Ahead" from="Inverted Lines" fractions="8.5"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-v1sxo28f">
     <path>
       <move select="Run Left" beats="3" scaleY="3"/>
       <move select="Forward 2"/>

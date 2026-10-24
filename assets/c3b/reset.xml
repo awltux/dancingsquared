@@ -22,7 +22,7 @@
 -->
 <tamination title="Reset">
 
-  <tam title="Reset" from="Right-Hand Box" formation="Box RH Boys Lead" parts="3;1.5;3">
+  <tam title="Reset" from="Right-Hand Box" formation="Box RH Boys Lead" parts="3;1.5;3" vid="V1-n59ei1ui">
     <path couples="3 1">
       <move select="Run Left" offsetX="-2"/>
       <move select="Hinge Left"/>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Reset" from="Left-Hand Box" formation="Box LH" parts="3;1.5;3">
+  <tam title="Reset" from="Left-Hand Box" formation="Box LH" parts="3;1.5;3" vid="V1-34halbjy">
     <path>
       <move select="Run Right" offsetX="-2"/>
       <move select="Hinge Right"/>

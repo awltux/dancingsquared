@@ -23,7 +23,7 @@
 <tamination title="Lateral Substitute">
 
   <tam title="Centers Lateral Substitute" from="T-Bones"
-       formation="T-Bone RDDL">
+       formation="T-Bone RDDL" vid="V1-tasn9gbp">
     <path>
       <move select="Forward 2" beats="3"/>
     </path>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Centers Lateral Substitute" from="Galaxy"
-       formation="Galaxy RH GP">
+       formation="Galaxy RH GP" vid="V1-9m5k4c4z">
     <path>
       <move select="Sashay Left" scaleY="1.05"/>
     </path>

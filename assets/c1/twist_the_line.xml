@@ -24,7 +24,7 @@
 
   <tam title="Twist the Line"
        from="Normal Lines"
-       formation="Normal Lines" sequencer="gender-specific">
+       formation="Normal Lines" sequencer="gender-specific" vid="V1-hel7n0ns">
     <path>
       <move select="Quarter Right" beats="3" offsetX="-.5" offsetY="-3" />
       <move select="Lead Right" beats="1" scaleY=".5" />
@@ -43,7 +43,7 @@
 
   <tam title="Twist the Line"
        from="Lines Facing Out"
-       formation="Lines Facing Out" sequencer="gender-specific" >
+       formation="Lines Facing Out" sequencer="gender-specific"  vid="V1-t372t9jr">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-1.5" offsetY="3" />
       <move select="Quarter Left" beats="1" offsetX="1" offsetY="-.5" />
@@ -62,7 +62,7 @@
 
   <tam title="Twist the Line"
        from="Tidal Line"
-       formation="Tidal Line RH" sequencer="gender-specific">
+       formation="Tidal Line RH" sequencer="gender-specific" vid="V1-u7faglek">
     <path>
       <move select="Quarter Right" beats="2" offsetX=".5" offsetY="-1.5" />
       <move select="Lead Right" beats="2" scaleY=".5" />
@@ -83,7 +83,7 @@
 
   <tam title="Twist And"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-xihfvnux">
     <path numbers="1 8">
       <move select="Quarter Left" beats="3" offsetX="-1" offsetY="2" />
     </path>
@@ -100,7 +100,7 @@
 
   <tam title="Twist And"
        from="Lines Facing In"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-rsfur9d6">
     <path>
       <move select="Quarter Right" beats="3" offsetX="-1" offsetY="-2" />
     </path>
@@ -117,7 +117,7 @@
 
   <tam title="Twist And"
        from="Inverted Lines Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-9itnae3w">
     <path>
       <move select="Lead Left" beats="3" scaleY="2"/>
     </path>
@@ -134,7 +134,7 @@
 
   <tam title="Twist And"
        from="Inverted Lines Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-wap6pndb">
     <path>
       <move select="Lead Right" beats="3" scaleY="2"/>
     </path>
@@ -151,7 +151,7 @@
 
   <tam title="Twist And"
        from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-dgx08aja">
     <path>
       <move select="Lead Left" beats="3" scaleY="2"/>
     </path>
@@ -168,7 +168,7 @@
 
   <tam title="Twist And"
        from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-7wfsbqbj">
     <path>
       <move select="Quarter Right" beats="3" offsetX="-1" offsetY="-2" />
     </path>
@@ -185,7 +185,7 @@
 
   <tam title="Twist And"
        from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-1suwp5r5">
     <path>
       <move select="Lead Right" beats="3" scaleY="2"/>
     </path>
@@ -202,7 +202,7 @@
 
   <tam title="Twist And"
        from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-6urxok0i">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-1" offsetY="2" />
     </path>
@@ -220,7 +220,7 @@
   <tam title="Twist And Pass Out"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       group=" " >
+       group=" "  vid="V1-w4zbowc2">
     <path numbers="1 8">
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="2" />
       <move select="Extend Left" scaleY=".5"/>
@@ -242,7 +242,7 @@
   <tam title="Twist And Split Square Thru 2"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       group=" " >
+       group=" "  vid="V1-zgde4uvr">
     <path numbers="1 8">
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="2" />
       <move select="Extend Left" scaleY=".5"/>
@@ -270,7 +270,7 @@
   <tam title="Twist And Square Thru 2"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       group=" " >
+       group=" "  vid="V1-s29t1c4r">
     <path numbers="1 8">
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="2" />
       <move select="Extend Left" scaleY=".5"/>

@@ -23,7 +23,7 @@
 <tamination title="Switch the Wave">
 
   <tam title="Switch the Wave" from="Right-Hand Wave"
-       formation="Wave RH Boys Center">
+       formation="Wave RH Boys Center" vid="V1-fj6mhtz1">
     <path numbers="2 3" couples="3 1">
       <move select="Run Right" beats="6"/>
     </path>
@@ -33,7 +33,7 @@
   </tam>
 
   <tam title="Switch the Wave" from="Compact Right-Hand Wave"
-       formation="Compact Wave RH" display="none">
+       formation="Compact Wave RH" display="none" vid="V1-pmashbbc">
     <path>
       <move select="Run Right" beats="6" />
     </path>
@@ -42,7 +42,7 @@
     </path>
   </tam>
 
-  <tam title="Switch the Wave" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Switch the Wave" from="Left-Hand Wave" formation="Wave LH" vid="V1-f2e400u2">
     <path numbers="4 1" couples="3 1">
       <move select="Run Left" beats="6" scaleY="2" />
     </path>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Switch the Wave" from="Compact Left-Hand Wave"
-       formation="Compact Wave LH" display="none">
+       formation="Compact Wave LH" display="none" vid="V1-buno9i63">
     <path>
       <move select="Run Left" beats="6"/>
     </path>
@@ -63,7 +63,7 @@
 
   <tam title="Switch the Wave"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH GBBG">
+       formation="Ocean Waves RH GBBG" vid="V1-p4n67vsv">
     <path>
       <move select="Run Right" beats="6" scaleY="2" />
     </path>
@@ -80,7 +80,7 @@
 
   <tam title="Switch the Wave"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH GBBG">
+       formation="Ocean Waves LH GBBG" vid="V1-gfrdcv4w">
     <path>
       <move select="Run Left" beats="6" scaleY="2" />
     </path>
@@ -97,7 +97,7 @@
 
   <tam title="Switch the Wave"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-ezy9fges">
     <path>
       <move select="Run Right" beats="6" scaleX=".75" />
     </path>
@@ -114,7 +114,7 @@
 
   <tam title="Switch the Wave"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-lbw4ynkk">
     <path>
       <move select="Run Left" beats="6" scaleX=".75" />
     </path>
@@ -131,7 +131,7 @@
 
   <tam title="As Couples Switch the Wave"
        from="Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-ecovthpp">
     <path>
       <move select="Run Right" hands="right" beats="6" scaleX="2.5" scaleY="2.5" />
     </path>
@@ -148,7 +148,7 @@
 
   <tam title="All 8 Switch the Wave"
        from="Thar"
-       formation="Thar LH Boys">
+       formation="Thar LH Boys" vid="V1-29up3r57">
     <path>
       <move select="Run Right" />
     </path>

@@ -23,7 +23,7 @@
 <tamination title="All 8 Spin the Top">
 
   <tam title="All 8 Spin the Top" from="Wrong Way Thar" formation="Thar LH Boys"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-bq88vv68">
     <path>
       <move select="Swing Right" />
       <move select="Lead Right" scaleX="3" scaleY="3" beats="4.5" />
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="All 8 Spin the Top" from="Thar" difficulty="2"
-       formation="Thar RH Boys" parts="3">
+       formation="Thar RH Boys" parts="3" vid="V1-eop2sklf">
     <path>
       <move select="Swing Left" />
       <move select="Lead Left" scaleX="3" scaleY="3" beats="4.5" />
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="All 8 Spin the Top" difficulty="1"
-       from="Grand Circle" parts="5" formation="Right and Left Grand Static Square">
+       from="Grand Circle" parts="5" formation="Right and Left Grand Static Square" vid="V1-bhv07qil">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
       <move select="Swing Right" />
@@ -87,7 +87,7 @@
   </tam>
 
   <tam title="All 8 Left Spin the Top" difficulty="2"
-       from="Grand Circle" parts="5" formation="Right and Left Grand Static Square">
+       from="Grand Circle" parts="5" formation="Right and Left Grand Static Square" vid="V1-f4c2733u">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Left" />

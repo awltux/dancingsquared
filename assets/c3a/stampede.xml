@@ -22,7 +22,7 @@
 -->
 <tamination title="Stampede">
 
-  <tam title="Stampede" from="3/4 Tag" formation="3/4 Tag" parts="4;1.5">
+  <tam title="Stampede" from="3/4 Tag" formation="3/4 Tag" parts="4;1.5" vid="V1-s5wforbk">
     <path couples="3 1">
       <move select="Run Left" beats="5.5" offsetX="-2" scaleX="1.5" scaleY="2"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -45,7 +45,7 @@
     </path>
   </tam>
 
-  <tam title="Stampede" from="Left-Hand 3/4 Tag" formation="3/4 Tag LH" parts="4;1.5">
+  <tam title="Stampede" from="Left-Hand 3/4 Tag" formation="3/4 Tag LH" parts="4;1.5" vid="V1-0dbd42as">
     <path>
       <move select="Run Left" beats="5.5" offsetX="-2" scaleX="1.5" scaleY="2"/>
       <move select="Extend Left" scaleY=".5"/>

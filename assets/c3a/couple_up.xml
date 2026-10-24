@@ -22,7 +22,7 @@
 -->
 <tamination title="Couple Up">
 
-  <tam title="Couple Up" from="Right-Hand Box" formation="Box RH" parts="4">
+  <tam title="Couple Up" from="Right-Hand Box" formation="Box RH" parts="4" vid="V1-izlh5ild">
     <path numbers="1 4">
       <move select="Forward 4"/>
       <move select="U-Turn Right"/>
@@ -32,7 +32,7 @@
     </path>
   </tam>
 
-  <tam title="Couple Up" from="Left-Hand Box" formation="Box LH" parts="4">
+  <tam title="Couple Up" from="Left-Hand Box" formation="Box LH" parts="4" vid="V1-r9slye4x">
     <path>
       <move select="Run Left" beats="4"/>
     </path>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Couple Up" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="4">
+       formation="Ocean Waves RH BGGB" parts="4" vid="V1-golulp1i">
     <path>
       <move select="Forward 4"/>
       <move select="U-Turn Right"/>
@@ -61,7 +61,7 @@
   </tam>
 
   <tam title="Couple Up" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" parts="4">
+       formation="Ocean Waves LH BGGB" parts="4" vid="V1-rlaqnhyl">
     <path>
       <move select="Run Left" beats="4"/>
     </path>
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Couple Up" from="Right-Hand Columns"
-       formation="Column RH GBGB" parts="3">
+       formation="Column RH GBGB" parts="3" vid="V1-44la7l6g">
     <path>
       <move select="Run Right"/>
     </path>
@@ -97,7 +97,7 @@
   </tam>
 
   <tam title="Couple Up" from="Left-Hand Columns"
-       formation="Column LH GBGB" parts="3">
+       formation="Column LH GBGB" parts="3" vid="V1-2z6lk0vl">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="U-Turn Left"/>
@@ -115,7 +115,7 @@
   </tam>
 
   <tam title="Counter Couple Up" formation="Ocean Waves RH BGGB"
-       group="  " parts="4">
+       group="  " parts="4" vid="V1-lk1qtdyq">
     <path>
       <move select="Counter Rotate Right 5 -1" beats="4"/>
     </path>
@@ -136,7 +136,7 @@
   </tam>
 
   <tam title="Split Counter Couple Up" formation="Ocean Waves RH BGGB"
-       group="  " parts="3">
+       group="  " parts="3" vid="V1-tj38hjf2">
     <path>
       <move select="Counter Rotate Right 2 0" hands="right" offsetX="1" beats="3"/>
     </path>
@@ -157,7 +157,7 @@
   </tam>
 
   <tam title="Trade Couple Up" formation="Ocean Waves RH BGGB" group="  "
-       parts="4">
+       parts="4" vid="V1-dnw281pc">
     <path>
       <move select="Forward" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />
@@ -180,7 +180,7 @@
   </tam>
 
   <tam title="Trade Like a Couple Up"
-       formation="Ocean Waves RH BGGB" group="  " parts="3">
+       formation="Ocean Waves RH BGGB" group="  " parts="3" vid="V1-0sfsy1sw">
     <path>
       <move select="Swing Right"/>
       <move select="U-Turn Right"/>
@@ -198,7 +198,7 @@
   </tam>
 
   <tam title="As Couples Couple Up" formation="Two-Faced Lines RH"
-       group=" " parts="4">
+       group=" " parts="4" vid="V1-eqqacbny">
     <path>
       <move select="Forward 4" hands="right" />
       <move select="Beau Reverse Wheel" scaleX=".67" />
@@ -216,7 +216,7 @@
   </tam>
 
   <tam title="Concentric Couple Up" formation="Ocean Waves RH BGGB"
-       group=" " parts="4">
+       group=" " parts="4" vid="V1-k81wv9w6">
     <path>
       <move select="Forward 4" />
       <move select="U-Turn Right"/>
@@ -234,7 +234,7 @@
   </tam>
 
   <tam title="Once Removed Couple Up" formation="Two-Faced Lines RH"
-       group=" " parts="4">
+       group=" " parts="4" vid="V1-jorr82vm">
     <path>
       <move select="Forward 4"/>
       <move select="U-Turn Right"/>
@@ -251,7 +251,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Couple Up" formation="Column RH GBGB" group=" ">
+  <tam title="Tandem Couple Up" formation="Column RH GBGB" group=" " vid="V1-dmmja76f">
     <path>
       <move select="Run Right"/>
       <move select="Forward 2"/>

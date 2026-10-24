@@ -23,7 +23,7 @@
 <tamination title="Like a Couple Up">
 
   <tam title="Trade Like a Couple Up"
-       formation="Ocean Waves RH BGGB" group="  " parts="3">
+       formation="Ocean Waves RH BGGB" group="  " parts="3" vid="V1-0sfsy1sw">
     <path>
       <move select="Swing Right"/>
       <move select="U-Turn Right"/>

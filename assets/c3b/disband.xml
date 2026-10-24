@@ -24,7 +24,7 @@
 
   <tam title="Disband"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="3.5">
+       formation="Ocean Waves RH BGGB" parts="3.5" vid="V1-w9xtk949">
     <path>
       <move select="Forward 2" />
       <move select="Quarter Left" hands="left" offsetX="1" />
@@ -49,7 +49,7 @@
   <tam title="Disband"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="3.5" >
+       parts="3.5"  vid="V1-hpq8swze">
     <path couples="2 4">
       <move select="Run Right" beats="2" offsetX="-2" offsetY="1" />
       <move select="Hinge Right" />
@@ -73,7 +73,7 @@
 
   <tam title="Disband"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" parts="3.5">
+       formation="Two-Faced Lines RH" parts="3.5" vid="V1-y6g4a5qs">
     <path>
       <move select="Forward 2" />
       <move select="Quarter Left" hands="left" offsetX="1" />
@@ -98,7 +98,7 @@
   <tam title="Disband"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       parts="3.5" >
+       parts="3.5"  vid="V1-rk65xjs3">
     <path>
       <move select="Run Right" beats="2" offsetX="-2" offsetY="1" />
       <move select="Hinge Right" />
@@ -121,7 +121,7 @@
   </tam>
 
   <tam title="Disband" from="Right-Hand Columns"
-       formation="Column RH GBGB" parts="4">
+       formation="Column RH GBGB" parts="4" vid="V1-ji5wfkb7">
     <path>
       <move select="Run Left" beats="3" scaleY="1.25" offsetX="-3"/>
       <move select="Hinge Left" beats="1" scaleY=".5"/>
@@ -143,7 +143,7 @@
     </path>
   </tam>
 
-  <tam title="Disband" from="Left-Hand Columns" parts="4">
+  <tam title="Disband" from="Left-Hand Columns" parts="4" vid="V1-vxwdm08e">
     <formation fid="F3-dhnw1kx1" aid="A1-4ko0ta6f">
       <dancer gender="boy" y="3" x="1" angle="90"/>
       <dancer gender="girl" y="1" x="1" angle="90"/>

@@ -24,7 +24,7 @@
 
   <tam title="Inlet"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-mg9culk5">
     <path>
       <move select="Run Right" beats="4" hands="gripright" offsetX="2" />
     </path>
@@ -42,7 +42,7 @@
 
   <tam title="Inlet"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-i5x3ci5q">
     <path>
       <move select="Run Left" beats="4" offsetX="1" offsetY="2" />
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Inlet"
-       from="3 and 1 Lines">
+       from="3 and 1 Lines" vid="V1-wp76sxos">
      <formation fid="F3-km139yvj" aid="A1-oxqajud5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
@@ -83,7 +83,7 @@
 
   <tam title="Outlet"
        from="Quarter Tag"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-7h3l3bnl">
     <path couples="2 4">
       <move select="U-Turn Right" beats="4" offsetX="1" />
     </path>
@@ -100,7 +100,7 @@
 
   <tam title="Outlet"
        from="Quarter Lines"
-       formation="Quarter Lines RH">
+       formation="Quarter Lines RH" vid="V1-09xlzd67">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="1" />
     </path>
@@ -117,7 +117,7 @@
 
   <tam title="Outlet"
        from="Mixed Quarter Tag 1"
-       formation="Mixed Quarter Tag #1">
+       formation="Mixed Quarter Tag #1" vid="V1-xmzuskkw">
     <path>
       <move select="U-Turn Right" beats="4" hands="gripright" offsetX="1" />
     </path>
@@ -134,7 +134,7 @@
 
   <tam title="Outlet"
        from="Mixed Quarter Tag 2"
-       formation="Mixed Quarter Tag #3">
+       formation="Mixed Quarter Tag #3" vid="V1-j71m64rj">
     <path>
       <move select="U-Turn Right" beats="4" hands="gripright" offsetX="1" />
     </path>
@@ -151,7 +151,7 @@
 
   <tam title="Outlet"
        from="Mixed Quarter Tag 3"
-       formation="Mixed Quarter Tag #6">
+       formation="Mixed Quarter Tag #6" vid="V1-msunr5oq">
     <path>
       <move select="Run Left" beats="4" hands="gripleft" offsetX="-1" offsetY="2" />
     </path>

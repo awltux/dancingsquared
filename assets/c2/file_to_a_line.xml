@@ -25,7 +25,7 @@
   <tam title="File to a Line"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       fractions="" >
+       fractions=""  vid="V1-wge8egqd">
     <path numbers="2 7">
       <move select="Dodge Left" offsetX="-1" />
     </path>
@@ -43,7 +43,7 @@
   <tam title="File to a Line"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       fractions="" >
+       fractions=""  vid="V1-t13pll5w">
     <path>
       <move select="Dodge Right" offsetX="1" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="File to a Line"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-5xf7jj0u">
     <path>
       <move select="Dodge Left" offsetX="1" />
     </path>
@@ -81,7 +81,7 @@
   <tam title="File to a Line"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-yw8bzcue">
     <path>
       <move select="Dodge Right" offsetX="-1" />
     </path>
@@ -99,7 +99,7 @@
   <tam title="File to a Line"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="" >
+       fractions=""  vid="V1-okx7ncdm">
     <path>
       <move select="Dodge Left" offsetX="1" />
     </path>
@@ -117,7 +117,7 @@
   <tam title="File to a Line"
        from="Trade By"
        formation="Trade By"
-       fractions="" >
+       fractions=""  vid="V1-fd64et0c">
     <path>
       <move select="Dodge Right" offsetX="-1" />
     </path>
@@ -136,7 +136,7 @@
 
   <tam title="File to a Line"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-xkwv0ttd">
     <path>
       <move select="Dodge Right" offsetX="1" />
     </path>
@@ -153,7 +153,7 @@
 
   <tam title="File to a Line"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-spiuw14r">
     <path>
       <move select="Dodge Left" offsetX="-1" />
     </path>
@@ -170,7 +170,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #1" display="none"
-       formation="Mixed Columns RH Ends In">
+       formation="Mixed Columns RH Ends In" vid="V1-fr2t4g2f">
     <path>
       <move select="Dodge Left" offsetX="1" />
     </path>
@@ -187,7 +187,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #2" display="none"
-       formation="Mixed Columns LH Ends In">
+       formation="Mixed Columns LH Ends In" vid="V1-ok2krug9">
     <path>
       <move select="Dodge Left" offsetX="1" />
     </path>
@@ -204,7 +204,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #3" display="none"
-       formation="Mixed Columns RH Ends Out">
+       formation="Mixed Columns RH Ends Out" vid="V1-0mn4iakm">
     <path>
       <move select="Dodge Right" offsetX="-1" />
     </path>
@@ -221,7 +221,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #4" display="none"
-       formation="Mixed Columns LH Ends Out">
+       formation="Mixed Columns LH Ends Out" vid="V1-9fu81adb">
     <path>
       <move select="Dodge Right" offsetX="-1" />
     </path>
@@ -238,7 +238,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #5" display="none"
-       formation="Mixed Columns RH Centers In">
+       formation="Mixed Columns RH Centers In" vid="V1-60kyxtwa">
     <path>
       <move select="Dodge Left" offsetX="1" />
     </path>
@@ -259,7 +259,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #6" display="none"
-       formation="Mixed Columns LH Centers In">
+       formation="Mixed Columns LH Centers In" vid="V1-4kpqbv93">
     <path>
       <move select="Dodge Right" offsetX="-1" />
     </path>
@@ -280,7 +280,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #7" display="none"
-       formation="Mixed Columns RH Centers Out">
+       formation="Mixed Columns RH Centers Out" vid="V1-fvop5xwy">
     <path>
       <move select="Dodge Left" offsetX="1" />
     </path>
@@ -301,7 +301,7 @@
 
   <tam title="File to a Line"
        from="Mixed Columns #8" display="none"
-       formation="Mixed Columns LH Centers Out">
+       formation="Mixed Columns LH Centers Out" vid="V1-g0uldhet">
     <path>
       <move select="Dodge Right" offsetX="-1" />
     </path>
@@ -321,7 +321,7 @@
   </tam>
 
 
-  <tam title="Magic Column File to a Line" group=" ">
+  <tam title="Magic Column File to a Line" group=" " vid="V1-cnazjuxs">
     <formation fid="F3-dy4b34sl" aid="A1-59iygw2f">
       <dancer gender="boy" y="3" x="1" angle="90"/>
       <dancer gender="girl" y="1" x="1" angle="270"/>

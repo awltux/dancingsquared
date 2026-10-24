@@ -23,7 +23,7 @@
 <tamination title="Mirror Concept">
 
   <tam formation="Static Square" group="Mirror"
-       title="Mirror All 4 Couples Right and Left Thru">
+       title="Mirror All 4 Couples Right and Left Thru" vid="V1-zcwo2o7w">
     <path>
       <move beats="3.5" scaleX="3" select="Extend Left" />
       <move select="Forward 2" />
@@ -54,7 +54,7 @@
 
   <tam title="Mirror Brace Thru" group="Mirror"
        from="Lines"
-       fractions="3" >
+       fractions="3"  vid="V1-j380oqr6">
      <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
@@ -89,7 +89,7 @@
   </tam>
 
   <tam title="Mirror Pass the Ocean" group="Mirror"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-g30iv1d2">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" hands="right" beats="2" scaleY=".5" />
@@ -102,7 +102,7 @@
   </tam>
 
   <tam title="Mirror Pass the Sea" group="Mirror"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-9aw6rrtv">
     <path>
       <move select="Extend Right" beats="2.5" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="3.5" scaleX="3" scaleY=".5" />
@@ -116,7 +116,7 @@
   <tam title="Mirror Recycle"
        from="Facing Couples"
        formation="Facing Couples"
-       group="Mirror" >
+       group="Mirror"  vid="V1-40cyn6zt">
     <path>
       <movement hands="none" beats="3" cx1="-.5" cy1="0" cx2="0" cy2="-4" x2="2" y2="-4"
                                      cx3="1" cx4="2" cy4="-2" x4="3" y4="-2" />
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Mirror Right and Left Thru" group="Mirror"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-m0u1yzp8">
     <path>
       <move select="Pull Right" scaleX="1.5" scaleY=".5" />
       <move select="Extend Left" scaleX="1.5" scaleY=".5" />
@@ -140,7 +140,7 @@
     </path>
   </tam>
 
-  <tam title="Mirror Single Wheel" group="Mirror" formation="Facing Couples">
+  <tam title="Mirror Single Wheel" group="Mirror" formation="Facing Couples" vid="V1-4flsz0ct">
     <path>
       <move select="U-Turn Right" offsetX="-1" offsetY="-1"/>
     </path>
@@ -151,7 +151,7 @@
 
   <tam title="Mirror Slide Thru"
        sequencer="gender-specific" group="Mirror"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-mmfz13dl">
     <path>
       <move select="Extend Right" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="1" />
@@ -163,7 +163,7 @@
   </tam>
 
   <tam title="Mirror Wheel and Deal"
-       formation="Lines Facing Out" group="Mirror">
+       formation="Lines Facing Out" group="Mirror" vid="V1-5srbag8d">
     <path>
       <move select="Run Left" beats="4" hands="left" scaleX="2" scaleY="2" offsetX="1" />
     </path>
@@ -180,7 +180,7 @@
 
   <tam title="Mirror Triple Star Thru" group="Mirror"
        from="Double Pass Thru"
-       fractions="3;3"  formation="Double Pass Thru for Blocks">
+       fractions="3;3"  formation="Double Pass Thru for Blocks" vid="V1-0rsu47hm">
     <path>
       <move select="Stand" beats="6" />
       <move select="Extend Right" hands="left" beats="1.5" scaleY=".5" />

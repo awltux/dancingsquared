@@ -25,7 +25,7 @@
   <tam title="Teacup Chain"
        from="Static Square"
        formation="Static Square"
-       fractions="7;7;10" difficulty="1">
+       fractions="7;7;10" difficulty="1" vid="V1-nkkqzgqe">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-.75" offsetY="-1" />
       <move select="Cast Right" scaleX=".75" scaleY=".75" />
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Teacup Chain" from="Normal Lines"
-       formation="Normal Lines" fractions="10;8.5;13" difficulty="3">
+       formation="Normal Lines" fractions="10;8.5;13" difficulty="3" vid="V1-166yp631">
     <path>
       <move select="Stand" beats="4"/>
       <move select="Cast Right" scaleX=".75" scaleY=".75"/>
@@ -136,7 +136,7 @@
   <tam title="All Ladies Center, Teacup Chain"
        from="Static Square"
        formation="Static Square"
-       fractions="7;7;10" difficulty="2">
+       fractions="7;7;10" difficulty="2" vid="V1-i31f1iwy">
     <path>
       <move select="Dodge Right" beats="5" scaleX=".875" scaleY=".875" />
       <move select="Stand" />
@@ -194,7 +194,7 @@
   <tam title="All Ladies Right, Teacup Chain"
        from="Static Square"
        formation="Static Square"
-       fractions="7;7;10" difficulty="2">
+       fractions="7;7;10" difficulty="2" vid="V1-js485sbp">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-.75" offsetY="-1" />
       <move select="Cast Right" scaleX=".75" scaleY=".75" />
@@ -254,7 +254,7 @@
   <tam title="Beer Mug Chain"
        from="Static Square"
        formation="Static Square"
-       fractions="7;7;10" difficulty="3">
+       fractions="7;7;10" difficulty="3" vid="V1-qw513lgd">
     <path>
       <move select="Pull Right" beats="2" scaleX="3" scaleY="1.75" />
       <move select="Hinge Left" scaleX=".75" scaleY=".75" />
@@ -315,7 +315,7 @@
   <tam title="Tea Mug Chain"
        from="Static Square"
        formation="Static Square"
-       fractions="7;7;10" difficulty="3">
+       fractions="7;7;10" difficulty="3" vid="V1-8im1oj5j">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-.75" offsetY="-1" />
       <move select="Cast Left" scaleX=".75" scaleY=".75" />

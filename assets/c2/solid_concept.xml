@@ -23,7 +23,7 @@
 <tamination title="Solid Concept">
 
   <tam title="Groups of 4 work Solid, Touch a Quarter" group=" "
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-av3h54nf">
     <path>
       <move select="Extend Left" beats="2" hands="right" scaleY="2"/>
       <move select="Forward" hands="right"/>
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Centers work Solid, all Swing Thru" group=" "
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-l26rxbke">
     <path>
       <move select="Swing Right" beats="4" scaleX="1.5" scaleY="2"/>
       <move select="Swing Left"/>
@@ -64,7 +64,7 @@
     </path>
   </tam>
 
-  <tam title="Lines of 3 work Solid, all Diamond Circulate" group=" ">
+  <tam title="Lines of 3 work Solid, all Diamond Circulate" group=" " vid="V1-j2i7a19c">
      <formation fid="F3-w0ijyvbs" aid="A1-ek0nlh0k">
       <dancer gender="boy" x="0" y="5" angle="0"/>
       <dancer gender="girl" x="0" y="3" angle="0"/>
@@ -85,7 +85,7 @@
     </path>
   </tam>
 
-  <tam title="Outside Triangles work Solid, all Mix" group=" ">
+  <tam title="Outside Triangles work Solid, all Mix" group=" " vid="V1-gw2vsvmy">
      <formation fid="F3-cjwzz7d6" aid="A1-xh2gnhke">
       <dancer gender="boy" x="-1" y="-3" angle="180"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -113,7 +113,7 @@
   </tam>
 
   <tam title="Tandem-Based Triangle work Solid, all Flip the Diamond" group=" "
-       from="Galaxy" formation="Galaxy RH GP">
+       from="Galaxy" formation="Galaxy RH GP" vid="V1-67qn6kly">
     <path>
       <move select="Counter Rotate Right 0 -2" beats="4" offsetX="2"/>
     </path>

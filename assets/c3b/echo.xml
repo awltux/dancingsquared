@@ -23,7 +23,7 @@
 <tamination title="Echo any Concept anything">
 
   <tam title="Echo As Couples 1/2 Tag" group="Echo" fractions="3"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-jrxr2u06">
     <path>
       <move select="Lead Right" beats="3" hands="right" scaleX="3" scaleY="1.5"/>
       <move select="Lead Right" beats="3"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Echo Concentric Recycle" group="Echo" fractions="4"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-yp0pmott">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="3" offsetY="1.5"/>
       <move select="Run Right" beats="2" scaleX=".5" scaleY=".5" offsetX="-.5" />
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Echo Six-Two Acey Deucey" group="Echo" fractions="3"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-z59ymm39">
     <path>
       <move select="Lead Right" beats="3" scaleX="3"/>
       <move select="Forward 4" beats="5"/>
@@ -85,7 +85,7 @@
   </tam>
 
   <tam title="Echo Split Circulate" group="Echo" fractions="3"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-albsso53">
     <path>
       <move select="Forward 4" beats="3"/>
       <move select="Run Right" beats="4" scaleX="2.5" scaleY="3"/>
@@ -106,7 +106,7 @@
 
   <tam title="Echo Stretch Partner Trade" group="Echo"
        formation="Lines Facing Out"
-       fractions="4" >
+       fractions="4"  vid="V1-y81j0r6f">
     <path>
       <move select="Flip Left" beats="4" scaleY="2" />
       <move select="Run Right"/>
@@ -126,7 +126,7 @@
   </tam>
 
   <tam title="Echo Tandem Cross Roll" group="Echo" fractions="9"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-hdmy7fke">
     <path>
       <move select="Forward 4" beats="5"/>
       <move select="Run Right" beats="4"/>

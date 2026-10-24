@@ -24,7 +24,7 @@
 
   <tam title="Ends Squeeze"
        from="Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-o3858m6a">
     <path numbers="8 1">
       <move select="Hinge Right" scaleX=".5" />
       <move select="Lead Right" beats="3" scaleX="3" scaleY=".5" />
@@ -41,7 +41,7 @@
 
   <tam title="Ends Squeeze"
        from="Butterfly"
-       formation="Butterfly RH">
+       formation="Butterfly RH" vid="V1-xkqcbi6j">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Hinge Right" scaleY=".5" />
@@ -58,7 +58,7 @@
 
   <tam title="Squeeze"
        from="Butterfly"
-       formation="Butterfly RH">
+       formation="Butterfly RH" vid="V1-cn86axsj">
     <path>
       <move select="Lead Right" beats="3" scaleX=".5" scaleY="3" />
       <move select="Hinge Right" scaleY=".5" />
@@ -77,7 +77,7 @@
     </path>
   </tam>
 
-  <tam title="Squeeze" from="Diamonds" formation="Diamonds RH Girl Points" fractions="">
+  <tam title="Squeeze" from="Diamonds" formation="Diamonds RH Girl Points" fractions="" vid="V1-tudnfk8w">
     <path>
       <move select="Swing Right" />
       <move select="Dodge Left" beats="1" scaleY=".25"/>
@@ -98,7 +98,7 @@
 
   <tam title="Squeeze"
        from="O"
-       formation="O RH">
+       formation="O RH" vid="V1-4tlirpr6">
     <path>
       <move select="Hinge Right" scaleX=".5" />
       <move select="Lead Right" beats="3" scaleX="3" scaleY=".5" />
@@ -118,7 +118,7 @@
   </tam>
 
   <tam title="Centers Tandem Squeeze"
-       from="Right-Hand Columns" formation="Column RH GBGB">
+       from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-ehtr8g9x">
     <path>
     </path>
     <path>
@@ -135,7 +135,7 @@
   </tam>
 
   <tam title="Centers Tandem Squeeze"
-       from="Left-Hand Columns" formation="Column LH GBGB">
+       from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-3w4pbivo">
     <path>
     </path>
     <path>
@@ -153,7 +153,7 @@
 
   <tam title="Squeeze the Hourglass"
        from="Right-Hand Hourglass"
-       formation="Hourglass RH BP" >
+       formation="Hourglass RH BP"  vid="V1-c9xumvas">
     <path numbers="3 6">
       <move select="Quarter Right" beats="3" offsetY="-3" />
       <move select="Hinge Right" hands="gripright" />
@@ -173,7 +173,7 @@
 
   <tam title="Squeeze the Hourglass"
        from="Left-Hand Hourglass"
-       formation="Hourglass LH BP" >
+       formation="Hourglass LH BP"  vid="V1-enl7vctp">
     <path>
       <move select="Lead Left" beats="3" scaleY="3" />
       <move select="Quarter Left" hands="gripleft" offsetX="1" />
@@ -193,7 +193,7 @@
 
   <tam title="Squeeze the Galaxy"
        from="Right-Hand Galaxy"
-       formation="Galaxy RH GP">
+       formation="Galaxy RH GP" vid="V1-95gj1246">
     <path numbers="2 7">
       <move select="Hinge Right" />
       <move select="Quarter Right" beats="3" offsetX="3" />
@@ -213,7 +213,7 @@
 
   <tam title="Squeeze the Galaxy"
        from="Left-Hand Galaxy"
-       formation="Galaxy LH GP">
+       formation="Galaxy LH GP" vid="V1-oxuvz1i3">
     <path>
       <move select="Quarter Left" hands="left" offsetY="1" />
       <move select="Lead Left" beats="3" scaleX="3" />

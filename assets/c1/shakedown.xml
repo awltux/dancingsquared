@@ -22,7 +22,7 @@
 -->
 <tamination title="Shakedown">
 
-  <tam title="Shakedown" from="Couples Facing Out" formation="Couples Facing Out Compact">
+  <tam title="Shakedown" from="Couples Facing Out" formation="Couples Facing Out Compact" vid="V1-035n7eys">
     <path numbers="1 4" couples="3 1">
       <move select="U-Turn Right" offsetX="-2" offsetY="-1" />
       <move select="Quarter Right" offsetX=".5" />
@@ -33,7 +33,7 @@
     </path>
   </tam>
 
-  <tam title="Shakedown" from="Trade By" formation="Trade By">
+  <tam title="Shakedown" from="Trade By" formation="Trade By" vid="V1-fadpun41">
     <path>
       <move select="U-Turn Right" offsetX="-1" offsetY="-1" />
       <move select="Quarter Right" offsetX="1" />
@@ -54,7 +54,7 @@
 
   <tam title="Shakedown"
        from="Lines Facing Out"
-       formation="Lines Facing Out Compact">
+       formation="Lines Facing Out Compact" vid="V1-xkdd4mio">
     <path>
       <move select="U-Turn Right" offsetX="-1.5" offsetY="-1" />
       <move select="Lead Right" />
@@ -73,7 +73,7 @@
     </path>
   </tam>
 
-  <tam title="Left Shakedown" from="Couples Facing Out" formation="Couples Facing Out Compact">
+  <tam title="Left Shakedown" from="Couples Facing Out" formation="Couples Facing Out Compact" vid="V1-fjg134pz">
     <path>
       <move select="Flip Left" scaleY="1.5" />
       <move select="Quarter Left" offsetX=".5" />
@@ -86,7 +86,7 @@
 
   <tam title="Left Shakedown"
        from="Trade By"
-       formation="Trade By">
+       formation="Trade By" vid="V1-g80l1c32">
     <path>
       <move select="Flip Left" />
       <move select="Quarter Left" offsetY="-1" />
@@ -107,7 +107,7 @@
 
   <tam title="Left Shakedown"
        from="Lines Facing Out"
-       formation="Lines Facing Out Compact">
+       formation="Lines Facing Out Compact" vid="V1-ydz660pv">
     <path>
       <move select="Flip Left" />
       <move select="Quarter Left" offsetX=".5" />
@@ -126,7 +126,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Shakedown" from="" formation="Static Facing Out" group=" ">
+  <tam title="All 8 Shakedown" from="" formation="Static Facing Out" group=" " vid="V1-2dyc32ho">
     <path>
       <move select="Flip Right" beats="5" scaleY="2" />
       <move select="Quarter Right" beats="3" offsetX="2" />
@@ -148,7 +148,7 @@
   <tam title="As Couples Shakedown"
        from="Lines Facing Out"
        formation="Lines Facing Out Compact"
-       group=" " >
+       group=" "  vid="V1-hfe7cxe3">
     <path>
       <move select="Beau Wheel" reflect="-1" offsetX="-2" offsetY="-.5" />
       <move select="Quarter Right" hands="left" offsetX=".5" />
@@ -167,7 +167,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Shakedown" from="" formation="Butterfly Trade By" group=" ">
+  <tam title="Butterfly Shakedown" from="" formation="Butterfly Trade By" group=" " vid="V1-j6mza3r6">
     <path>
       <move select="Lead Right" beats="3" scaleY="3"/>
       <move select="Flip Right" scaleY=".5" offsetX="3"/>
@@ -190,7 +190,7 @@
   <tam title="Concentric Shakedown"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       group=" " >
+       group=" "  vid="V1-ez3qa5ql">
     <path>
       <move select="U-Turn Right" offsetX="-2" offsetY="-2" />
       <move select="Quarter Right" offsetX="2" />
@@ -209,7 +209,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Shakedown" from="" formation="O Trade By" group=" ">
+  <tam title="&quot;O&quot; Shakedown" from="" formation="O Trade By" group=" " vid="V1-msol60br">
     <path>
       <move select="Quarter Right" offsetY="-1"/>
       <move select="Quarter Right" offsetX="1"/>
@@ -232,7 +232,7 @@
   <tam title="Stretch Shakedown (from columns)"
        from="Trade By"
        formation="Trade By"
-       group=" " >
+       group=" "  vid="V1-wzntrexq">
     <path>
       <move select="U-Turn Right" offsetX="-2" offsetY="-1" />
       <move select="Quarter Right" offsetX="2" />
@@ -254,7 +254,7 @@
   <tam title="Stretch Shakedown (from lines)"
        from="Lines Facing Out"
        formation="Lines Facing Out Compact"
-       group=" " >
+       group=" "  vid="V1-9eo35n5v">
     <path>
       <move select="U-Turn Right" offsetX="-1" offsetY="-1" />
       <move select="Lead Right" scaleX="1.5" />
@@ -277,7 +277,7 @@
   <tam title="As Couples Left Shakedown"
        from="Lines Facing Out"
        formation="Lines Facing Out Compact"
-       group=" ">
+       group=" " vid="V1-y3a4odba">
     <path>
       <move select="Run Left" hands="left" scaleX="3" scaleY="3" offsetX="1.5" />
       <move select="Hinge Left" scaleX="2" scaleY="2" offsetY="-.5" />
@@ -299,7 +299,7 @@
   <tam title="Concentric Left Shakedown"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       group=" ">
+       group=" " vid="V1-ra15mh4m">
     <path>
       <move select="Flip Left" offsetX="-1" offsetY="1" />
       <move select="Quarter Left" offsetX="1" offsetY="-1" />
@@ -321,7 +321,7 @@
   <tam title="Stretch Left Shakedown (from columns)"
        from="Trade By"
        formation="Trade By"
-       group=" ">
+       group=" " vid="V1-wtj3wg05">
     <path>
       <move select="Flip Left" />
       <move select="Quarter Left" offsetY="-1" />
@@ -343,7 +343,7 @@
   <tam title="Stretch Left Shakedown (from lines)"
        from="Lines Facing Out"
        formation="Lines Facing Out Compact"
-       group=" ">
+       group=" " vid="V1-ph5j6f90">
     <path>
       <move select="Flip Left" scaleY="2" />
       <move select="Quarter Left" offsetX=".5" />

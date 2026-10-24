@@ -24,7 +24,7 @@
 
   <tam title="Step and Flip"
        from="Lines Facing Out"
-       formation="Lines Facing Out" >
+       formation="Lines Facing Out"  vid="V1-9xoz4zm9">
     <path>
       <move select="Flip Left" offsetX="-1" />
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Step and Flip"
        from="Inverted Lines Ends Facing In"
-       formation="Inverted Lines Ends Facing In" >
+       formation="Inverted Lines Ends Facing In"  vid="V1-am1cuofr">
     <path>
       <move select="Flip Right" offsetX="1" />
     </path>
@@ -58,7 +58,7 @@
 
   <tam title="Step and Flip"
        from="Inverted Lines Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out" >
+       formation="Inverted Lines Ends Facing Out"  vid="V1-8e8sv8f8">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -74,7 +74,7 @@
   </tam>
 
   <tam title="Step and Flip" from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-ii6p8dnd">
     <path>
       <move select="Flip Right" offsetX="1" />
     </path>
@@ -89,7 +89,7 @@
     </path>
   </tam>
 
-  <tam title="Step and Flip" from="3 and 1 Lines #7">
+  <tam title="Step and Flip" from="3 and 1 Lines #7" vid="V1-jkm62ey1">
     <formation fid="F3-k9frz2rj" aid="A1-5et06l9p">
       <dancer gender="boy" y="2" x="1" angle="90"/>
       <dancer gender="girl" y="2" x="3" angle="90"/>
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="Step and Flip" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-wcxit2qi">
     <path>
       <move select="Flip Left" offsetX="-1" />
     </path>
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Step and Flip"
-       from="Tidal Line">
+       from="Tidal Line" vid="V1-74eeo9r6">
     <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-k9coh0rt">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="0"/>
@@ -150,7 +150,7 @@
 
   <tam title="Step and Flip"
        from="Tidal Line LH"
-       formation="Tidal Line LH" display="none">
+       formation="Tidal Line LH" display="none" vid="V1-15wnow4d">
     <path>
       <move select="Extend Right" hands="left" beats="3" scaleX="3" scaleY=".5" />
     </path>
@@ -167,7 +167,7 @@
 
   <tam title="Step and Flip"
        from="Tidal Inverted Line"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-7w8fh5n0">
     <path>
       <move select="Flip Right"  offsetY="1.5" />
     </path>
@@ -184,7 +184,7 @@
 
   <tam title="Step and Flip"
        from="Tidal Inverted Line LH"
-       formation="Tidal Inverted Line LH" display="none">
+       formation="Tidal Inverted Line LH" display="none" vid="V1-u8ihjdn1">
     <path>
       <move select="Flip Left"  offsetY="-1.5" />
     </path>
@@ -201,7 +201,7 @@
 
   <tam title="Step and Flip"
        from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-g4u8msxu">
     <path>
       <move select="Flip Right"/>
     </path>
@@ -212,7 +212,7 @@
 
   <tam title="Step and Flip"
        from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-rmt5v76h">
     <path>
       <move select="Forward 2"/>
     </path>
@@ -223,7 +223,7 @@
 
   <tam title="Step and Flip"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-we9qjw6z">
     <path>
       <move select="Flip Right"/>
     </path>
@@ -240,7 +240,7 @@
 
   <tam title="Step and Flip"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-ixg9v084">
     <path>
       <move select="Flip Left"/>
     </path>
@@ -257,7 +257,7 @@
 
   <tam title="Step and Flip"
        from="Right-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-b0j3li4d">
     <path>
       <move select="Flip Right" scaleY=".25"/>
     </path>
@@ -274,7 +274,7 @@
 
   <tam title="Step and Flip"
        from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH">
+       formation="Two-Faced Tidal Line LH" vid="V1-6bt78g8y">
     <path>
       <move select="Flip Left" scaleY=".25"/>
     </path>
@@ -291,7 +291,7 @@
 
   <tam title="Step and Flip and Roll" group=" "
        from="Lines Facing Out"
-       formation="Lines Facing Out" >
+       formation="Lines Facing Out"  vid="V1-y8ztr8n3">
     <path>
       <move select="Flip Left" offsetX="-1" />
       <move select="Quarter Left"/>
@@ -308,7 +308,7 @@
     </path>
   </tam>
 
-  <tam title="As Couples Step and Flip" group=" ">
+  <tam title="As Couples Step and Flip" group=" " vid="V1-0899m8a1">
     <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-k9coh0rt">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="0"/>
@@ -330,7 +330,7 @@
   </tam>
 
   <tam title="Stretch Step and Flip" group=" "
-       formation="Inverted Lines Ends Facing In" >
+       formation="Inverted Lines Ends Facing In"  vid="V1-sjw75v96">
     <path>
       <move select="Forward 2"/>
       <move select="Run Right" offsetX="1" />
@@ -348,7 +348,7 @@
   </tam>
 
   <tam title="Tandem Step and Flip" group=" "
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-uf6ct2rr">
     <path>
       <move select="Forward 3"/>
       <move select='Run Right'/>

@@ -24,7 +24,7 @@
 
   <tam title="Quarter In"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-vwi0zg7q">
     <path>
       <move select="Quarter Right" beats="2" offsetX=".5" offsetY=".5" />
     </path>
@@ -35,7 +35,7 @@
 
   <tam title="Quarter In"
        from="Two-Faced Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-94soitb3">
     <path>
       <move select="Quarter Right" beats="2" />
     </path>
@@ -46,7 +46,7 @@
 
   <tam title="Quarter In"
        from="Diamond"
-       formation="Diamond RH">
+       formation="Diamond RH" vid="V1-jwt8110u">
     <path>
       <move select="Quarter Right" beats="2" />
     </path>
@@ -57,7 +57,7 @@
 
   <tam title="Quarter In"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-4e560e56">
     <path>
       <move select="Quarter Right" beats="2" offsetY="1" />
     </path>
@@ -74,7 +74,7 @@
 
   <tam title="Quarter In"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-zvil6t2j">
     <path>
       <move select="Quarter Right" beats="2" offsetX="1" />
     </path>
@@ -89,7 +89,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter In" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Quarter In" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-vi501gvo">
     <path numbers="1 8">
       <move select="Quarter Left" beats="2" offsetX="-1" />
     </path>
@@ -106,7 +106,7 @@
 
   <tam title="Quarter In"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-ybkk8ugj">
     <path>
       <move select="Quarter Right" beats="2" offsetX="1" />
     </path>
@@ -123,7 +123,7 @@
 
   <tam title="Quarter In"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-bzbuwx2k">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" />
     </path>
@@ -138,7 +138,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter In" from="T-Bones" formation="T-Bone LDDR">
+  <tam title="Quarter In" from="T-Bones" formation="T-Bone LDDR" vid="V1-acxeox5s">
     <path numbers="1 8">
       <move select="Quarter Right" beats="2" />
     </path>
@@ -153,7 +153,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter In" from="Diamonds" formation="Diamonds RH Girl Points">
+  <tam title="Quarter In" from="Diamonds" formation="Diamonds RH Girl Points" vid="V1-rilfdjqr">
     <path numbers="6 3">
       <move select="Quarter Right" beats="2" />
     </path>
@@ -168,7 +168,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter In" from="Tidal Wave">
+  <tam title="Quarter In" from="Tidal Wave" vid="V1-7lnbycxt">
      <formation fid="F3-bjavu23j" aid="A1-mtoqxdar">
       <dancer gender="boy" x="0" y="5.25" angle="0"/>
       <dancer gender="girl" x="0" y="3.75" angle="180"/>
@@ -189,7 +189,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Quarter In" group=" " formation="Static Square">
+  <tam title="Heads Quarter In" group=" " formation="Static Square" vid="V1-bgitbldl">
     <path>
       <move select="Quarter Right"/>
     </path>
@@ -200,7 +200,7 @@
     <path/>
   </tam>
 
-  <tam title="Sides Quarter In" group=" " formation="Static Square">
+  <tam title="Sides Quarter In" group=" " formation="Static Square" vid="V1-82sz2p10">
     <path/>
     <path/>
     <path>
@@ -218,7 +218,7 @@
   <tam title="As Couples Quarter In"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-zikjkpve">
     <path>
       <move select="Hinge Right" beats="3" />
     </path>
@@ -235,7 +235,7 @@
 
   <tam title="Quarter Out"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-dcofp3bz">
     <path>
       <move select="Quarter Left" beats="2" offsetX=".5" offsetY=".5" />
     </path>
@@ -246,7 +246,7 @@
 
   <tam title="Quarter Out"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-zjm4e0rr">
     <path>
       <move select="Quarter Left" beats="2" offsetY="1" />
     </path>
@@ -263,7 +263,7 @@
 
   <tam title="Quarter Out"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-lmdb8fq2">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" />
     </path>
@@ -278,7 +278,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter Out" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Quarter Out" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-atct6h2x">
     <path numbers="1 8">
       <move select="Quarter Right" beats="2" offsetX="-1" />
     </path>
@@ -295,7 +295,7 @@
 
   <tam title="Quarter Out"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-qawonree">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" />
     </path>
@@ -312,7 +312,7 @@
 
   <tam title="Quarter Out"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-tl5imqxp">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" />
     </path>
@@ -327,7 +327,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter Out" from="T-Bones" formation="T-Bone LDDR">
+  <tam title="Quarter Out" from="T-Bones" formation="T-Bone LDDR" vid="V1-w7e8kdx9">
     <path numbers="1 8">
       <move select="Quarter Left" beats="2" />
     </path>
@@ -342,7 +342,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter Out" from="Diamonds" formation="Diamonds RH Girl Points">
+  <tam title="Quarter Out" from="Diamonds" formation="Diamonds RH Girl Points" vid="V1-juqptok6">
     <path numbers="6 3">
       <move select="Quarter Left" beats="2" />
     </path>
@@ -357,7 +357,7 @@
     </path>
   </tam>
 
-  <tam title="Quarter Out" from="Heads Facing Left">
+  <tam title="Quarter Out" from="Heads Facing Left" vid="V1-j2mip9u4">
     <formation fid="F3-d224k9cv" aid="A1-5ktcrza9">
       <dancer gender="boy" x="-3" y="1" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="90"/>
@@ -378,7 +378,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Quarter Out" group=" " formation="Static Square">
+  <tam title="Heads Quarter Out" group=" " formation="Static Square" vid="V1-11b26iue">
     <path>
       <move select="Quarter Left"/>
     </path>
@@ -389,7 +389,7 @@
     <path/>
   </tam>
 
-  <tam title="Sides Quarter Out" group=" " formation="Static Square">
+  <tam title="Sides Quarter Out" group=" " formation="Static Square" vid="V1-27wx031p">
     <path/>
     <path/>
     <path>
@@ -407,7 +407,7 @@
   <tam title="As Couples Quarter Out"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-vbwvgfch">
     <path>
       <move select="BackHinge Right" beats="2" />
     </path>

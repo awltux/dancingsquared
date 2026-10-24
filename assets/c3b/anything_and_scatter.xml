@@ -23,7 +23,7 @@
 <tamination title="Any Tagging Call and Scatter">
 
   <tam title="Chase and Scatter" group=" " fractions="5"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-8ofhczts">
     <path>
       <move select="U-Turn Right" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Cross Flip and Scatter" formation="Two-Faced Lines RH"
-       group=" " fractions="5.5">
+       group=" " fractions="5.5" vid="V1-6ieaskdx">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 4"/>
@@ -77,7 +77,7 @@
   </tam>
 
   <tam title="Cross Loop and Scatter" formation="Column RH GBGB"
-       group=" " fractions="7">
+       group=" " fractions="7" vid="V1-1po2uiib">
     <path>
       <move select="Run Right" scaleX=".4" scaleY="1.5" offsetX="-1"/>
       <move select="Lead Right" beats="2"  scaleY="2"/>
@@ -111,7 +111,7 @@
   </tam>
 
   <tam title="Flip and Scatter" formation="Ocean Waves RH BGGB"
-       group=" " fractions="5.5">
+       group=" " fractions="5.5" vid="V1-q6m9vyg8">
     <path couples="2 4">
       <move select="Lead Right"/>
       <move select="Forward 4"/>
@@ -138,7 +138,7 @@
     </path>
   </tam>
 
-  <tam title="Invert and Scatter" group=" " fractions="6" formation="Columns">
+  <tam title="Invert and Scatter" group=" " fractions="6" formation="Columns" vid="V1-snkbzuod">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 4" beats="3"/>
@@ -166,7 +166,7 @@
   <tam title="Loop and Scatter" group=" "
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="8.5" >
+       fractions="8.5"  vid="V1-sy4ur844">
     <path>
       <move select="Lead Right" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -204,7 +204,7 @@
   </tam>
 
   <tam title="Vertical Tag and Scatter" group=" " fractions="5"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-hfvh1j1u">
     <path>
       <move select="U-Turn Left" offsetX="-2"/>
       <move select="Forward 2"/>

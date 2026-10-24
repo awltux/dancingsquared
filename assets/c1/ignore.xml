@@ -23,7 +23,7 @@
 <tamination title="Ignore">
 
   <tam title="Ignore the Very Centers, Fan the Top" group=" "
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-clqvk6hj">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="1.5" />
     </path>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Ignore the Head Men, Motivate"
-       group=" " fractions="4;4.5;3" sequencer="gender-specific" formation="Ocean Waves">
+       group=" " fractions="4;4.5;3" sequencer="gender-specific" formation="Ocean Waves" vid="V1-3m2rtlhs">
     <path>
       <move select="Extend Left" beats="4" scaleX="4"/>
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="4" />
@@ -66,7 +66,7 @@
 
   <tam title="Ignore the Lead End, Lines of 3 Out Roll Circulate"
        formation="Two-Faced Lines RH"
-       group=" ">
+       group=" " vid="V1-yvvswq6l">
     <path>
       <move select="Flip Right" beats="4"/>
     </path>
@@ -82,7 +82,7 @@
   </tam>
 
   <tam title="Ignore the Head Men, Wave-Based Triangle Circulate"
-       group=" " sequencer="gender-specific">
+       group=" " sequencer="gender-specific" vid="V1-3tsbuzxr">
     <formation name="Diamonds RH PTP Girl Points" fid="F3-tz9rl51s" aid="A1-845wtqju">
       <dancer gender="girl" x="-1" y="-3" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>

@@ -24,7 +24,7 @@
 
   <tam title="Cross Back"
        from="Right-Hand Box"
-       formation="Box RH Boys Lead" >
+       formation="Box RH Boys Lead"  vid="V1-b4qkb431">
     <path numbers="2 3" couples="3 1">
       <move select="U-Turn Right" />
     </path>
@@ -36,7 +36,7 @@
 
   <tam title="Cross Back"
        from="Left-Hand Box"
-       formation="Box LH" >
+       formation="Box LH"  vid="V1-0qnhnev9">
     <path numbers="1 4">
       <move select="U-Turn Left" />
     </path>
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Cross Back" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-p2syqpjm">
     <path>
       <move select="Extend Right" hands="left" beats="2" scaleX="3" scaleY="2" />
       <move select="Forward" />
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Cross Back" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-7afs1p7l">
     <path>
       <move select="U-Turn Left" />
     </path>
@@ -82,7 +82,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Back" from="Right-Hand Columns" formation="Column RH GBGB">
+  <tam title="Cross Back" from="Right-Hand Columns" formation="Column RH GBGB" vid="V1-upv78hl0">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -99,7 +99,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Back" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Cross Back" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-blx3eix9">
     <path>
       <move select="Extend Left" hands="right" beats="2" scaleX="1.25" scaleY="2" />
       <move select="Forward" scaleX=".75"/>
@@ -116,7 +116,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Cross Back" formation="Static MiniWaves RH" group=" ">
+  <tam title="All 8 Cross Back" formation="Static MiniWaves RH" group=" " vid="V1-1gp9s99a">
     <path>
       <move select="Extend Right" hands="left" beats="2" scaleX="3" scaleY="2" />
       <move select="Forward 3" />
@@ -133,7 +133,7 @@
     </path>
   </tam>
 
-  <tam title="As Couples Cross Back" formation="Two-Faced Lines RH" group=" ">
+  <tam title="As Couples Cross Back" formation="Two-Faced Lines RH" group=" " vid="V1-n55lu6zk">
     <path>
       <move select="Extend Right" beats="3" hands="right" scaleX="2" scaleY="4" />
       <move select="Forward 2" hands="right"/>
@@ -150,7 +150,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Cross Back" formation="Column RH GBGB" group=" ">
+  <tam title="Tandem Cross Back" formation="Column RH GBGB" group=" " vid="V1-v1fe4nxp">
     <path>
       <move select="Pivot backward right" beats="5"/>
     </path>
@@ -167,7 +167,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Cross Back" from="Right-Hand Columns">
+  <tam title="Grand Cross Back" from="Right-Hand Columns" vid="V1-qwl9jhke">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -191,7 +191,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Cross Back" from="Left-Hand Columns" formation="Column LH GBGB">
+  <tam title="Grand Cross Back" from="Left-Hand Columns" formation="Column LH GBGB" vid="V1-mgazm4kr">
     <path>
       <move select="Extend Left" scaleX="1.25" scaleY="2" beats="2"/>
       <move select="Forward" scaleX=".75"/>

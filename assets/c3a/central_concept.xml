@@ -23,7 +23,7 @@
 <tamination title="Central Concept">
 
   <tam title="Central Choice" group="Central"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-s066dk7b">
     <path>
       <move select="Lead Right" beats="4" scaleX="1.5" scaleY="3" />
       <move select="Hinge Right" scaleY=".5"/>
@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Central Counter" group="Central"
-       formation="Ocean Waves RH BGBG" fractions="4.5">
+       formation="Ocean Waves RH BGBG" fractions="4.5" vid="V1-taaga4b2">
     <path>
       <move select="Cast Right"/>
       <move select="Lead Right" beats="3" scaleX="1.5" scaleY="3"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Central Load the Boat" group="Central"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-u13nv19d">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -94,7 +94,7 @@
     </path>
   </tam>
 
-  <tam title="Central Ramble" group="Central">
+  <tam title="Central Ramble" group="Central" vid="V1-6xlwmhnd">
     <formation fid="F3-4ablgjmv" aid="A1-iw06f7c1">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
@@ -124,7 +124,7 @@
   </tam>
 
   <tam title="Central Spin the Windmill" group="Central"
-       formation="Ocean Waves RH GBGB">
+       formation="Ocean Waves RH GBGB" vid="V1-6bnnqmsz">
     <path couples="4 2">
       <move select="Swing Right"/>
       <move select="Swing Left"/>
@@ -152,7 +152,7 @@
            xref-title="Central Scramble"/>
 
   <tam title="Central Stampede" group="Central"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-csf9cvbl">
     <path>
       <move select="Run Right" beats="4" scaleX="1.5" scaleY="2"/>
       <move select="Hinge Left"/>
@@ -176,7 +176,7 @@
   </tam>
 
   <tam title="Each Wave Central Counter" group=" "
-       formation="Ocean Waves RH BGBG" fractions="4.5">
+       formation="Ocean Waves RH BGBG" fractions="4.5" vid="V1-l5ef3zeg">
     <path>
       <move select="Cast Right"/>
       <move select="Counter Rotate Right 0 -2" offsetX="-1" hands="right"/>

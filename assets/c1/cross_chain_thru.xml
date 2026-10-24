@@ -23,7 +23,7 @@
 <tamination title="Cross Chain Thru">
 
   <tam title="Cross Chain Thru"
-       from="Eight Chain Thru" parts="2">
+       from="Eight Chain Thru" parts="2" vid="V1-sdegvaz9">
      <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>
@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="Cross Chain And Roll"
-       from="Eight Chain Thru" parts="2">
+       from="Eight Chain Thru" parts="2" vid="V1-rsjs23bs">
     <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="-1" y="3" angle="270"/>

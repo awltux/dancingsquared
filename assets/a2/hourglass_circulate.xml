@@ -24,7 +24,7 @@
 
   <tam title="Hourglass Circulate"
        from="Right-Hand Hourglass"
-       formation="Hourglass RH BP">
+       formation="Hourglass RH BP" vid="V1-vad6agfq">
     <path couples="2 4">
       <move select="Lead Right" beats="4" scaleY="3" />
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Hourglass Circulate"
        from="Left-Hand Hourglass"
-       formation="Hourglass LH BP">
+       formation="Hourglass LH BP" vid="V1-hrbcl79r">
     <path>
       <move select="Extend Left" scaleX="2" scaleY="2" beats="4" />
     </path>
@@ -58,7 +58,7 @@
 
   <tam title="Hourglass Circulate"
        from="Facing Hourglass, Left-Hand Box"
-       formation="Hourglass Facing LH Box">
+       formation="Hourglass Facing LH Box" vid="V1-76nt9b7p">
     <path>
       <move select="Extend Left" scaleY="2" beats="3" />
       <move select="Forward"/>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Hourglass Circulate"
-       from="Facing Hourglass, Right-Hand Box">
+       from="Facing Hourglass, Right-Hand Box" vid="V1-tfi7pdeh">
     <formation fid="F3-qgsw1xbh" aid="A1-xuy09n8j">
       <dancer gender="boy" y="2" x="-3" angle="90"/>
       <dancer gender="girl" y="3" x="0" angle="180"/>
@@ -107,7 +107,7 @@
   </tam>
 
   <tam title="Big Hourglass Circulate"
-       from="Big Right-Hand Hourglass" display="no">
+       from="Big Right-Hand Hourglass" display="no" vid="V1-uagdb6xp">
     <formation fid="F3-qeibmrgf" aid="A1-bh40z0zt">
       <dancer gender="boy" y="2" x="-3" angle="90"/>
       <dancer gender="girl" y="5" x="0" angle="0"/>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Big Hourglass Circulate"
-       from="Big Left-Hand Hourglass" display="no">
+       from="Big Left-Hand Hourglass" display="no" vid="V1-6s7f0xjq">
     <formation fid="F3-h24hwlid" aid="A1-1vla4ev5">
       <dancer gender="boy" y="2" x="-3" angle="270"/>
       <dancer gender="girl" y="5" x="0" angle="180"/>
@@ -156,7 +156,7 @@
 
   <tam title="Cut the Hourglass"
        from="Right-Hand Hourglass"
-       formation="Hourglass RH GP">
+       formation="Hourglass RH GP" vid="V1-sxv12gvr">
     <path couples="2 4">
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -176,7 +176,7 @@
 
   <tam title="Cut the Hourglass"
        from="Left-Hand Hourglass"
-       formation="Hourglass LH BP">
+       formation="Hourglass LH BP" vid="V1-yxfvtmt6">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -196,7 +196,7 @@
 
   <tam title="Cut the Hourglass"
        from="Facing Hourglass with Right-Hand Diamond"
-       formation="Hourglass Facing LH Box">
+       formation="Hourglass Facing LH Box" vid="V1-2ymybyxk">
     <path>
       <move select="Dodge Left" />
       <move select="Swing Left" />
@@ -216,7 +216,7 @@
 
   <tam title="Cut the Hourglass"
        from="Facing Hourglass with Left-Hand Diamond"
-       formation="Hourglass Facing RH Box">
+       formation="Hourglass Facing RH Box" vid="V1-6t5d3ir4">
     <path>
       <move select="Dodge Right" />
       <move select="Swing Right" />
@@ -234,7 +234,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Hourglass" from="Hourglass Box Facing Out">
+  <tam title="Cut the Hourglass" from="Hourglass Box Facing Out" vid="V1-gs50p5ok">
     <formation fid="F3-edgfktvh" aid="A1-h0yzjnm5">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
@@ -258,7 +258,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Hourglass" from="Hourglass Box Facing In">
+  <tam title="Cut the Hourglass" from="Hourglass Box Facing In" vid="V1-xbn76ozf">
     <formation fid="F3-6f4nnmml" aid="A1-y87lqfod">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
@@ -282,7 +282,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Hourglass" from="Hourglass Box 2 Facing Out" display="none">
+  <tam title="Cut the Hourglass" from="Hourglass Box 2 Facing Out" display="none" vid="V1-h68n1jje">
     <formation fid="F3-9v8zigvh" aid="A1-oybkpl6r">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
@@ -306,7 +306,7 @@
     </path>
   </tam>
 
-  <tam title="Cut the Hourglass" from="Hourglass Box 2 Facing In" display="none">
+  <tam title="Cut the Hourglass" from="Hourglass Box 2 Facing In" display="none" vid="V1-9k85fado">
     <formation fid="F3-pqspp4r1" aid="A1-t9dhb377">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
@@ -332,7 +332,7 @@
 
   <tam title="Flip the Hourglass"
        from="Right-Hand Hourglass"
-       formation="Hourglass RH BP">
+       formation="Hourglass RH BP" vid="V1-yj2smte0">
     <path numbers="3 6">
       <move select="Flip Right" />
     </path>
@@ -349,7 +349,7 @@
   </tam>
 
   <tam title="Flip the Hourglass" from="Left-Hand Hourglass"
-       formation="Hourglass LH BP">
+       formation="Hourglass LH BP" vid="V1-pzjwuj5d">
     <path numbers="3 6">
       <move select="Flip Left"/>
     </path>
@@ -367,7 +367,7 @@
 
   <tam title="Flip the Hourglass"
        from="Facing Hourglass with Right-Hand Diamond"
-       formation="Hourglass Facing LH Box">
+       formation="Hourglass Facing LH Box" vid="V1-zvy20tdn">
     <path>
       <move select="Flip Left" beats="4"/>
     </path>
@@ -385,7 +385,7 @@
 
   <tam title="Flip the Hourglass"
        from="Facing Hourglass with Left-Hand Diamond"
-       formation="Hourglass Facing RH Box">
+       formation="Hourglass Facing RH Box" vid="V1-pil1wyxb">
     <path>
       <move select="Flip Right" beats="4"/>
     </path>
@@ -404,7 +404,7 @@
 
   <tam title="Flip the Hourglass"
        from="Hourglass Box Facing Out"
-       formation="Hourglass Facing RH Box">
+       formation="Hourglass Facing RH Box" vid="V1-u4jjefxb">
     <formation fid="F3-edgfktvh" aid="A1-h0yzjnm5">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
@@ -426,7 +426,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Hourglass" from="Hourglass Box Facing In">
+  <tam title="Flip the Hourglass" from="Hourglass Box Facing In" vid="V1-k9x59mvo">
     <formation fid="F3-6f4nnmml" aid="A1-y87lqfod">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
@@ -448,7 +448,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Hourglass" from="Hourglass Box 2 Facing Out" display="none">
+  <tam title="Flip the Hourglass" from="Hourglass Box 2 Facing Out" display="none" vid="V1-3l8uqj0p">
     <formation fid="F3-9v8zigvh" aid="A1-oybkpl6r">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
@@ -470,7 +470,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Hourglass" from="Hourglass Box 2 Facing In" display="none">
+  <tam title="Flip the Hourglass" from="Hourglass Box 2 Facing In" display="none" vid="V1-zrv5688b">
     <formation fid="F3-pqspp4r1" aid="A1-t9dhb377">
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>
@@ -494,7 +494,7 @@
 
   <tam title="Flip the Hourglass and Roll"
        group=" "
-       formation="Hourglass RH BP">
+       formation="Hourglass RH BP" vid="V1-meckb1yc">
     <path>
       <move select="Flip Right" />
       <move select="Quarter Right" offsetX="1"/>

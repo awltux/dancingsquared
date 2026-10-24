@@ -23,7 +23,7 @@
 <tamination title="Checkerboard Anything">
 
   <tam title="Checkerboard Bounce the Boys" group="Checkerboard"
-          formation="Two-Faced Lines RH Compact" sequencer="gender-specific">
+          formation="Two-Faced Lines RH Compact" sequencer="gender-specific" vid="V1-10h1ddgh">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" hands="right" beats="3" scaleX="2" scaleY="4"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Checkerboard Swing Thru" group="Checkerboard" formation="Ocean Waves RH BGGB">
+  <tam title="Checkerboard Swing Thru" group="Checkerboard" formation="Ocean Waves RH BGGB" vid="V1-fis0b98f">
     <path>
       <move select="Forward 2"/>
       <move select="Swing Right"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Checkerboard Tag the Line" group="Checkerboard"
-       formation="Two-Faced Lines RH Compact">
+       formation="Two-Faced Lines RH Compact" vid="V1-delw3j0u">
     <path>
       <move select="Forward" scaleX="1.5"/>
       <move select="Lead Right" scaleX=".5" />
@@ -84,7 +84,7 @@
     </path>
   </tam>
 
-  <tam title="Checkerboard Recycle" group="Checkerboard" formation="Ocean Waves RH BGGB">
+  <tam title="Checkerboard Recycle" group="Checkerboard" formation="Ocean Waves RH BGGB" vid="V1-y0dnw4af">
     <path>
       <move select="Forward 2"/>
       <move select="Run Right" beats="4" offsetX=".75" offsetY="-2" />
@@ -107,7 +107,7 @@
       <move select="Forward" />
     </path>
   </tam>
- <tam title="Checkerboard Swap the Wave"  from="Right Hand Waves" formation="Ocean Waves RH BGGB">
+ <tam title="Checkerboard Swap the Wave"  from="Right Hand Waves" formation="Ocean Waves RH BGGB" vid="V1-pptxvsv7">
     <path>
       <move select="Forward 2"/>
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="3" />
@@ -131,7 +131,7 @@
     </path>
   </tam>
 
-  <tam title="Checkerboard Swap the Wave" from="Left Hand Waves" formation="Ocean Waves LH BGGB">
+  <tam title="Checkerboard Swap the Wave" from="Left Hand Waves" formation="Ocean Waves LH BGGB" vid="V1-f9tfzi3g">
     <path>
       <move select="Run Left" beats="4" scaleY="2" offsetX="1" />
       <move select="Forward" beats="2" />
@@ -151,7 +151,7 @@
     </path>
   </tam>
 
-  <tam title="Checkerbox Recycle" group="Checkerbox" formation="Ocean Waves RH BGGB">
+  <tam title="Checkerbox Recycle" group="Checkerbox" formation="Ocean Waves RH BGGB" vid="V1-didj59j6">
     <path>
       <move select="Extend Right" scaleY="1.5" />
       <move select="U-Turn Right" offsetX="1" offsetY="-.5" />
@@ -172,7 +172,7 @@
     </path>
   </tam>
 
-  <tam title="Checkerbox Turn Thru" group="Checkerbox" formation="Ocean Waves RH BGGB">
+  <tam title="Checkerbox Turn Thru" group="Checkerbox" formation="Ocean Waves RH BGGB" vid="V1-3yjc2ogn">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -191,7 +191,7 @@
     </path>
   </tam>
 
-  <tam title="Checkerbox Swap Around" group="Checkerbox" formation="Ocean Waves RH BGGB">
+  <tam title="Checkerbox Swap Around" group="Checkerbox" formation="Ocean Waves RH BGGB" vid="V1-0g6tl1mr">
     <path>
       <move select="Flip Right" beats="5" scaleY="2"/>
     </path>

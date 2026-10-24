@@ -24,7 +24,7 @@
 
   <!-- Ends part of Load the Boat, for sequencer  -->
   <tam title="Load the Boat"
-       from="Ends Facing Only" sequencer="perimeter" display="no">
+       from="Ends Facing Only" sequencer="perimeter" display="no" vid="V1-pw9vb4i8">
     <formation fid="F3-rc8fsiyp" aid="A1-v9dv17xd">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -46,7 +46,7 @@
   </tam>
 
   <tam title="Load the Boat"
-       from="Ends Back-to-Back Only" sequencer="perimeter" display="no">
+       from="Ends Back-to-Back Only" sequencer="perimeter" display="no" vid="V1-louadlmw">
     <formation fid="F3-326hjv3l" aid="A1-obe0xlb5">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="180"/>
@@ -64,7 +64,7 @@
   </tam>
 
   <tam title="Load the Boat" display="no"
-       from="Ends in Mini-Waves" sequencer="perimeter">
+       from="Ends in Mini-Waves" sequencer="perimeter" vid="V1-h6c6f0x2">
     <formation fid="F3-w609x5oh" aid="A1-o9kd3sxr">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
@@ -86,7 +86,7 @@
   <!-- And centers part of Load the Boat -->
   <tam title="Load the Boat"
        from="Facing Couples"
-       formation="Facing Couples Compact" display="no">
+       formation="Facing Couples Compact" display="no" vid="V1-a0b340ju">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -105,7 +105,7 @@
 
   <tam title="Load the Boat"
        from="Wave" display="no"
-       formation="Wave RH">
+       formation="Wave RH" vid="V1-m4kl38wl">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Quarter Left" beats="2" />
@@ -122,7 +122,7 @@
 
   <tam title="Load the Boat"
        from="Compact Wave" display="no"
-       formation="Compact Wave RH">
+       formation="Compact Wave RH" vid="V1-omtcocxc">
     <path>
       <move select="Extend Right" beats="2" scaleY=".5" />
       <move select="Quarter Left" beats="2" />
@@ -141,7 +141,7 @@
   <tam title="Load the Boat"
        from="Normal Lines"
        formation="Normal Lines"
-       parts="3;3;3" difficulty="1">
+       parts="3;3;3" difficulty="1" vid="V1-1f3mnmyf">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleY=".5" />
@@ -175,7 +175,7 @@
   <tam title="Load the Boat"
        from="Inverted Lines"
        formation="Inverted Lines Ends Facing Out"
-       parts="3;3;3" difficulty="2">
+       parts="3;3;3" difficulty="2" vid="V1-3go2o0h9">
     <path>
       <move select="Lead Left" beats="3" scaleY="3.5"/>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="3.5"/>
@@ -205,7 +205,7 @@
   <tam title="Load the Boat"
        from="Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="1.5;3;3" difficulty="2">
+       parts="1.5;3;3" difficulty="2" vid="V1-9q4cxhb0">
     <path>
       <move select="Extend Right" beats="1.5" scaleY=".5" />
       <move select="Lead Right" scaleX="2.5" scaleY="3.5" beats="3" />
@@ -236,7 +236,7 @@
   </tam>
 
   <tam title="Load the Boat" from="Diamonds, Points Facing"
-       parts="3;3;3" difficulty="3">
+       parts="3;3;3" difficulty="3" vid="V1-lcyh7r51">
      <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -272,7 +272,7 @@
   </tam>
 
   <tam title="Load the Boat" from="Diamonds, Points Out"
-       formation="Diamonds 3 and 1 Girl Points" parts="3;3;3" difficulty="3">
+       formation="Diamonds 3 and 1 Girl Points" parts="3;3;3" difficulty="3" vid="V1-f6l4rtrb">
     <path>
       <move select="Extend Right" scaleY="2" beats="3" />
       <move select="Quarter Left" beats="3"/>
@@ -301,7 +301,7 @@
 
   <tam title="Load the Boat" from="Wave between Mini-Waves"
        formation="Concentric Diamonds Mixed"
-       parts="2;3;3" difficulty="3">
+       parts="2;3;3" difficulty="3" vid="V1-g9ce3f9q">
     <path>
       <move select="Extend Right" scaleY="2" beats="2" />
       <move select="Quarter Left" beats="3"/>
@@ -330,7 +330,7 @@
 
   <tam title="Load the Boat"
        from="T-Bones, Ends Facing In"
-       parts="3;3;3" difficulty="3">
+       parts="3;3;3" difficulty="3" vid="V1-zx6bfmii">
      <formation fid="F3-dlap8ufn" aid="A1-ogmrzrlb">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
@@ -365,7 +365,7 @@
 
   <tam title="Load the Boat"
        from="T-Bones, Ends Facing Out"
-       parts="3;3;3" difficulty="3">
+       parts="3;3;3" difficulty="3" vid="V1-ehono6mm">
      <formation fid="F3-nug2yac5" aid="A1-l4exd4ol">
       <dancer gender="boy" x="-1" y="-3" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Half Sashay Family">
 
-  <tam title="Half Sashay" from="Facing Couples" formation="Facing Couples Compact">
+  <tam title="Half Sashay" from="Facing Couples" formation="Facing Couples Compact" vid="V1-o8yl4nef">
     <path>
       <move select="BackSashay Right" beats="4" />
     </path>
@@ -31,22 +31,7 @@
     </path>
   </tam>
 
-  <tam title="Half Sashay" from="Lines" formation="Normal Lines">
-    <path>
-      <move select="BackSashay Right" beats="4" />
-    </path>
-    <path>
-      <move select="Sashay Left" beats="4" />
-    </path>
-    <path>
-      <move select="BackSashay Right" beats="4" />
-    </path>
-    <path>
-      <move select="Sashay Left" beats="4" />
-    </path>
-  </tam>
-
-  <tam title="Half Sashay" from="Squared Set" formation="Static Square">
+  <tam title="Half Sashay" from="Lines" formation="Normal Lines" vid="V1-uyuxhvmq">
     <path>
       <move select="BackSashay Right" beats="4" />
     </path>
@@ -61,7 +46,22 @@
     </path>
   </tam>
 
-  <tam title="Heads Half Sashay" from="Squared Set" formation="Static Square" display="none">
+  <tam title="Half Sashay" from="Squared Set" formation="Static Square" vid="V1-jlym6lsl">
+    <path>
+      <move select="BackSashay Right" beats="4" />
+    </path>
+    <path>
+      <move select="Sashay Left" beats="4" />
+    </path>
+    <path>
+      <move select="BackSashay Right" beats="4" />
+    </path>
+    <path>
+      <move select="Sashay Left" beats="4" />
+    </path>
+  </tam>
+
+  <tam title="Heads Half Sashay" from="Squared Set" formation="Static Square" display="none" vid="V1-xci216xa">
     <path>
       <move select="BackSashay Right" beats="4" />
     </path>
@@ -72,7 +72,7 @@
     <path/>
   </tam>
 
-  <tam title="Sides Half Sashay" from="Squared Set" formation="Static Square" display="none">
+  <tam title="Sides Half Sashay" from="Squared Set" formation="Static Square" display="none" vid="V1-few43xpx">
     <path/>
     <path/>
     <path>
@@ -85,7 +85,7 @@
 
   <tam title="Ladies In, Men Sashay"
        from="Circle Left"
-       formation="Circle" sequencer="gender-specific">
+       formation="Circle" sequencer="gender-specific" vid="V1-3hx8qzeu">
     <path>
       <move select="Sxtnth Left" />
       <move select="cl" beats="2" />
@@ -110,7 +110,7 @@
 
   <tam title="Ladies In, Men Sashay"
        from="Circle Right" sequencer="gender-specific"
-       formation="Circle">
+       formation="Circle" vid="V1-3hx8qzeu">
     <path>
       <move select="Sxtnth Right" />
       <move select="cr" beats="2" />
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Rollaway" from="Facing Couples"
-       formation="Facing Couples" sequencer="no">
+       formation="Facing Couples" sequencer="no" vid="V1-ymmgyz6z">
     <path>
       <move select="Dodge Right" hands="gripright" />
     </path>
@@ -144,7 +144,7 @@
     </path>
   </tam>
 
-  <tam title="Rollaway" from="Couples Facing Out" formation="Couples Facing Out">
+  <tam title="Rollaway" from="Couples Facing Out" formation="Couples Facing Out" vid="V1-3w1xdsrc">
     <path>
       <move select="Fold Left" hands="gripleft" beats="1.5" scaleX=".6" scaleY=".5" />
       <move select="U-Turn Left" hands="gripleft" beats="1.5" offsetX="1.2" offsetY="-1" />
@@ -156,7 +156,7 @@
 
   <tam title="Rollaway"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-kcwc5xzn">
     <path>
       <move select="Dodge Right" hands="gripright" />
     </path>
@@ -174,7 +174,7 @@
   </tam>
 
   <tam title="Rollaway" from="Circle Left" formation="Circle"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-qih0j5nb">
     <path>
       <move select="Stand" hands="gripright" beats="4.5"/>
       <move select="Stand" hands="both" beats=".1"/>
@@ -199,7 +199,7 @@
     </path>
   </tam>
 
-  <tam title="Rollaway" from="Static Square" formation="Static Square">
+  <tam title="Rollaway" from="Static Square" formation="Static Square" vid="V1-q4v755gc">
     <path>
       <move select="Dodge Right" hands="gripright" />
     </path>
@@ -220,7 +220,7 @@
   <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
-<tam title="Half Sashay" from="Facing Couples" formation="Facing Couples">
+<tam title="Half Sashay" from="Facing Couples" formation="Facing Couples" vid="V1-te6ma0re">
     <path>
       <move select="BackSashay Right" beats="4" />
     </path>
@@ -229,7 +229,7 @@
     </path>
   </tam>
 
-<tam title="Rollaway" from="Facing Couples" formation="Facing Couples Close">
+<tam title="Rollaway" from="Facing Couples" formation="Facing Couples Close" vid="V1-p9fbnoy0">
     <path>
       <move select="Dodge Right" hands="gripright" />
     </path>

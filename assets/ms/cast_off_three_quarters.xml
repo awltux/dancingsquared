@@ -26,7 +26,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Two-Faced Line"
        formation="Two-Faced Line RH"
-       difficulty="2">
+       difficulty="2" vid="V1-k9jtarbb">
     <path>
       <move beats="2" select="Quarter Left" hands="right" offsetX=".33" offsetY="-.83" />
       <move beats="2" select="Quarter Left" hands="right" offsetX="-.33" offsetY="-.33" />
@@ -42,7 +42,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Two-Faced Line"
        formation="Two-Faced Line LH"
-       difficulty="2">
+       difficulty="2" vid="V1-aqdepu58">
     <path>
       <move select="Hinge Right" scaleX="2" scaleY="2" offsetX=".33" offsetY=".83" />
       <move select="Hinge Right" scaleX="2" scaleY="2" offsetX="-.33" offsetY=".33" />
@@ -55,7 +55,7 @@
     </path>
   </tam>
 
-  <tam title="Cast Off Three Quarters" from="Right-Hand Wave" formation="Wave RH" difficulty="1">
+  <tam title="Cast Off Three Quarters" from="Right-Hand Wave" formation="Wave RH" difficulty="1" vid="V1-9kypbljl">
     <path>
       <move select="Swing Right"/>
       <move select="Hinge Right" offsetY=".5"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Cast Off Three Quarters" from="Left-Hand Wave" formation="Wave LH" difficulty="1">
+  <tam title="Cast Off Three Quarters" from="Left-Hand Wave" formation="Wave LH" difficulty="1" vid="V1-inysn2xq">
     <path>
       <move select="Swing Left"/>
       <move select="Hinge Left" offsetY="-.5"/>
@@ -80,7 +80,7 @@
   <tam title="Cast Off Three Quarters"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="1">
+       difficulty="1" vid="V1-li6nqjzg">
     <path>
       <move select="Quarter Right" hands="left" offsetX=".33" offsetY=".33" />
       <move select="Quarter Right" hands="left" offsetX="-.33" offsetY=".33" />
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" from="Right-Hand Box"
-       formation="Box RH" difficulty="1" sequencer="no">
+       formation="Box RH" difficulty="1" sequencer="no" vid="V1-cm3z8pq8">
     <path>
       <move select="Cast Right"/>
     </path>
@@ -114,7 +114,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" from="Left-Hand Box"
-       formation="Box LH" difficulty="1" sequencer="no">
+       formation="Box LH" difficulty="1" sequencer="no" vid="V1-r5gebdb0">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -124,7 +124,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" from="Lines Facing In"
-       formation="Normal Lines" difficulty="2" display="none">
+       formation="Normal Lines" difficulty="2" display="none" vid="V1-cnatmz77">
     <path>
       <move select="BackHinge Right"/>
       <move select="BackHinge Right"/>
@@ -146,7 +146,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="2">
+       difficulty="2" vid="V1-uorde2ui">
     <path>
       <move select="Quarter Left" hands="right" offsetX=".33" offsetY="-.33" />
       <move select="Quarter Left" hands="right" offsetX="-.33" offsetY="-.33" />
@@ -176,7 +176,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       difficulty="2">
+       difficulty="2" vid="V1-pb3pcpwh">
     <path>
       <move select="Quarter Right" hands="left" offsetX=".33" offsetY=".33" />
       <move select="Quarter Right" hands="left" offsetX="-.33" offsetY=".33" />
@@ -206,7 +206,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-h9absbqz">
     <path>
       <move select="Cast Right" />
     </path>
@@ -224,7 +224,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-24bt2qg4">
     <path>
       <move select="Cast Left" />
     </path>
@@ -240,7 +240,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" from="Inverted Lines, Centers Facing"
-       formation="Inverted Lines Ends Facing Out" difficulty="2">
+       formation="Inverted Lines Ends Facing Out" difficulty="2" vid="V1-4sgku3ht">
     <path>
       <move select="Cast Left" />
     </path>
@@ -256,7 +256,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" from="Inverted Lines, Ends Facing"
-       formation="Inverted Lines Ends Facing In" difficulty="2">
+       formation="Inverted Lines Ends Facing In" difficulty="2" vid="V1-79sdxz02">
     <path>
       <move select="Cast Right" />
     </path>
@@ -274,7 +274,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGBG"
-       difficulty="2">
+       difficulty="2" vid="V1-8c9452ko">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>
@@ -296,7 +296,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-4x69ru8w">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Left" scaleY=".5"/>
@@ -318,7 +318,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Tidal Line"
        formation="Tidal Line RH"
-       difficulty="2">
+       difficulty="2" vid="V1-zdivw0pb">
     <path>
       <move select="Quarter Left" hands="right" offsetX=".33" offsetY="-.17" />
       <move select="Quarter Left" hands="right" offsetX="-.17" offsetY="-.33" />
@@ -344,7 +344,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Tidal Line"
        formation="Tidal Line LH"
-       difficulty="2">
+       difficulty="2" vid="V1-jbimm764">
     <path>
       <move select="Hinge Right" offsetX=".33" offsetY=".17" />
       <move select="Hinge Right" offsetX=".33" offsetY=".33" />
@@ -370,7 +370,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line RH"
-       difficulty="2">
+       difficulty="2" vid="V1-gaoqoxf4">
     <path>
       <move select="Quarter Left" hands="right" offsetX=".33" offsetY="-.17" />
       <move select="Quarter Left" hands="right" offsetX="-.17" offsetY="-.33" />
@@ -396,7 +396,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line LH"
-       difficulty="2">
+       difficulty="2" vid="V1-00fa6l9r">
     <path>
       <move select="Quarter Right" hands="left" offsetX=".33" offsetY=".17" />
       <move select="Quarter Right" hands="left" offsetX="-.17" offsetY=".33" />
@@ -422,7 +422,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Inverted Tidal Line"
        formation="Inverted Tidal Line RH"
-       difficulty="2">
+       difficulty="2" vid="V1-2olkaey1">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Right" scaleY=".5"/>
@@ -444,7 +444,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Inverted Tidal Line"
        formation="Inverted Tidal Line LH"
-       difficulty="2">
+       difficulty="2" vid="V1-dw7iwouc">
     <path>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
       <move select="Hinge Left" scaleY=".5"/>
@@ -466,7 +466,7 @@
   <tam title="Cast Off Three Quarters"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       difficulty="2">
+       difficulty="2" vid="V1-fbpu5oz1">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -488,7 +488,7 @@
   <tam title="Cast Off Three Quarters"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       difficulty="2">
+       difficulty="2" vid="V1-ghqxsd7w">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -510,7 +510,7 @@
   <tam title="Cast Off Three Quarters"
        from="Magic Columns Right-Hand Centers"
        formation="Magic Column RH"
-       difficulty="2">
+       difficulty="2" vid="V1-v0ieuqu1">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -532,7 +532,7 @@
   <tam title="Cast Off Three Quarters"
        from="Magic Columns Left-Hand Centers"
        formation="Magic Column LH"
-       difficulty="2">
+       difficulty="2" vid="V1-p86apedf">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -554,7 +554,7 @@
   <tam title="Cast Off Three Quarters"
        from="Alamo Wave"
        formation="Alamo Wave"
-       difficulty="2">
+       difficulty="2" vid="V1-ztgm0af0">
     <path>
       <move select="Sxtnth Left" />
       <move select="Swing Right" />
@@ -580,7 +580,7 @@
   <tam title="Cast Off Three Quarters"
        from="Thar"
        formation="Thar LH Boys"
-       difficulty="2">
+       difficulty="2" vid="V1-c0derx0s">
     <path>
       <move select="Swing Right" />
       <move select="Hinge Right" offsetY=".414" />
@@ -604,7 +604,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #1" formation="3 and 1 lines #1">
+       from="3 and 1 Lines #1" formation="3 and 1 lines #1" vid="V1-ha1upefr">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -622,7 +622,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #2" formation="3 and 1 lines #2">
+       from="3 and 1 Lines #2" formation="3 and 1 lines #2" vid="V1-5uklk3g7">
     <path>
       <move select="Cast Right"/>
     </path>
@@ -640,7 +640,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #3" formation="3 and 1 lines #3">
+       from="3 and 1 Lines #3" formation="3 and 1 lines #3" vid="V1-kvb8yhsf">
     <path>
       <move select="BackHinge Right"/>
       <move select="BackHinge Right"/>
@@ -658,7 +658,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #4" formation="3 and 1 lines #4">
+       from="3 and 1 Lines #4" formation="3 and 1 lines #4" vid="V1-7b82ivaq">
     <path>
       <move select="BackHinge Right"/>
       <move select="BackHinge Right"/>
@@ -676,7 +676,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #5" formation="3 and 1 lines #5">
+       from="3 and 1 Lines #5" formation="3 and 1 lines #5" vid="V1-qp0fz9l4">
     <path>
       <move select="Cast Right"/>
     </path>
@@ -694,7 +694,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #6" formation="3 and 1 lines #6">
+       from="3 and 1 Lines #6" formation="3 and 1 lines #6" vid="V1-693kqtmu">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -712,7 +712,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #7" formation="3 and 1 lines #7">
+       from="3 and 1 Lines #7" formation="3 and 1 lines #7" vid="V1-h79yzlx4">
     <path>
       <move select="BackHinge Left"/>
       <move select="BackHinge Left"/>
@@ -730,7 +730,7 @@
   </tam>
 
   <tam title="Cast Off Three Quarters" display="none"
-       from="3 and 1 Lines #8" formation="3 and 1 lines #8">
+       from="3 and 1 Lines #8" formation="3 and 1 lines #8" vid="V1-djufc0nf">
     <path>
       <move select="BackHinge Left"/>
       <move select="BackHinge Left"/>
@@ -748,7 +748,7 @@
   </tam>
 
 
-  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Two-Faced Line" formation="Two-Faced Line RH" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Two-Faced Line" formation="Two-Faced Line RH" difficulty="1" sequencer="no" vid="V1-78u38lpx">
     <path>
     </path>
     <path>
@@ -756,7 +756,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Two-Faced Line" formation="Two-Faced Line LH" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Two-Faced Line" formation="Two-Faced Line LH" difficulty="1" sequencer="no" vid="V1-ln83y3jq">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -764,7 +764,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Wave" formation="Wave RH" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Wave" formation="Wave RH" difficulty="1" sequencer="no" vid="V1-m5bbc5dz">
     <path>
     </path>
     <path>
@@ -772,7 +772,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Wave" formation="Wave LH" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Wave" formation="Wave LH" difficulty="1" sequencer="no" vid="V1-fyjiuzvk">
     <path>
     </path>
     <path>
@@ -780,7 +780,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Diamond" formation="Diamond RH" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Diamond" formation="Diamond RH" difficulty="1" sequencer="no" vid="V1-yfbp1ars">
     <path>
     </path>
     <path>
@@ -788,7 +788,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Diamond" formation="Diamond LH" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Diamond" formation="Diamond LH" difficulty="1" sequencer="no" vid="V1-rpyz1p55">
     <path>
     </path>
     <path>
@@ -796,46 +796,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Two-Faced Lines" formation="Two-Faced Lines RH" difficulty="1" sequencer="no">
-    <path>
-    </path>
-    <path>
-      <move select="Cast Right"/>
-    </path>
-    <path>
-      <move select="Cast Right"/>
-    </path>
-    <path>
-    </path>
-  </tam>
-
-  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Two-Faced Lines" formation="Two-Faced Lines LH" difficulty="1" sequencer="no">
-    <path>
-    </path>
-    <path>
-      <move select="Cast Left"/>
-    </path>
-    <path>
-      <move select="Cast Left"/>
-    </path>
-    <path>
-    </path>
-  </tam>
-
-  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Waves" formation="Ocean Waves RH BGGB" difficulty="1" sequencer="no">
-    <path>
-    </path>
-    <path>
-      <move select="Cast Left"/>
-    </path>
-    <path>
-      <move select="Cast Left"/>
-    </path>
-    <path>
-    </path>
-  </tam>
-
-  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Two-Faced Lines" formation="Two-Faced Lines RH" difficulty="1" sequencer="no" vid="V1-503967xk">
     <path>
     </path>
     <path>
@@ -848,7 +809,46 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Two-Faced Lines" formation="Two-Faced Lines LH" difficulty="1" sequencer="no" vid="V1-7q24h9dj">
+    <path>
+    </path>
+    <path>
+      <move select="Cast Left"/>
+    </path>
+    <path>
+      <move select="Cast Left"/>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Waves" formation="Ocean Waves RH BGGB" difficulty="1" sequencer="no" vid="V1-2sb6vcqd">
+    <path>
+    </path>
+    <path>
+      <move select="Cast Left"/>
+    </path>
+    <path>
+      <move select="Cast Left"/>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" difficulty="1" sequencer="no" vid="V1-peqoexku">
+    <path>
+    </path>
+    <path>
+      <move select="Cast Right"/>
+    </path>
+    <path>
+      <move select="Cast Right"/>
+    </path>
+    <path>
+    </path>
+  </tam>
+
+  <tam title="Centers Cast Off Three Quarters" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points" difficulty="1" sequencer="no" vid="V1-wnd6hm05">
     <path>
       <move select="Cast Right"/>
     </path>
@@ -861,7 +861,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Diamonds" formation="Diamonds LH Girl Points" difficulty="1" sequencer="no">
+  <tam title="Centers Cast Off Three Quarters" from="Left-Hand Diamonds" formation="Diamonds LH Girl Points" difficulty="1" sequencer="no" vid="V1-1kke5j7e">
     <path>
       <move select="Cast Left"/>
     </path>
@@ -875,7 +875,7 @@
   </tam>
 
 
-  <tam title="Very Centers Cast Off Three Quarters" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points" difficulty="1" sequencer="no">
+  <tam title="Very Centers Cast Off Three Quarters" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points" difficulty="1" sequencer="no" vid="V1-tf5maxo7">
     <path>
     </path>
     <path>
@@ -887,7 +887,7 @@
     </path>
   </tam>
 
-  <tam title="Very Centers Cast Off Three Quarters" from="Left-Hand Diamonds" formation="Diamonds LH Girl Points" difficulty="1" sequencer="no">
+  <tam title="Very Centers Cast Off Three Quarters" from="Left-Hand Diamonds" formation="Diamonds LH Girl Points" difficulty="1" sequencer="no" vid="V1-gq4f0fjw">
     <path>
     </path>
     <path>

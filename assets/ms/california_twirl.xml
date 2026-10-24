@@ -22,7 +22,7 @@
 -->
 <tamination title="California Twirl">
 
-  <tam title="California Twirl" from="Facing Couples" formation="Facing Couples" sequencer="no">
+  <tam title="California Twirl" from="Facing Couples" formation="Facing Couples" sequencer="no" vid="V1-f60f33tq">
     <path>
       <move select="Run Right" hands="gripright" />
     </path>
@@ -33,7 +33,7 @@
 
   <tam title="California Twirl"
        from="Couples Facing Out"
-       formation="Couples Facing Out" sequencer="no">
+       formation="Couples Facing Out" sequencer="no" vid="V1-ps92hn29">
     <path>
       <move select="Flip Left" hands="gripleft" />
     </path>
@@ -44,7 +44,7 @@
 
   <tam title="California Twirl"
        from="Lines Facing Out"
-       formation="Lines Facing Out" sequencer="gender-specific">
+       formation="Lines Facing Out" sequencer="gender-specific" vid="V1-js1aq5t1">
     <path>
       <move select="Flip Left" hands="gripleft" />
     </path>
@@ -61,7 +61,7 @@
 
   <tam title="California Twirl"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru" sequencer="gender-specific">
+       formation="Completed Double Pass Thru" sequencer="gender-specific" vid="V1-b7noa9fr">
     <path>
       <move select="Flip Left" hands="gripleft" />
     </path>

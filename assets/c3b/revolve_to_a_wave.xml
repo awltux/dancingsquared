@@ -22,7 +22,7 @@
 -->
 <tamination title="Revolve To A Wave">
 
-  <tam title="Revolve to a Wave" from="Right-Hand Box" formation="Box RH">
+  <tam title="Revolve to a Wave" from="Right-Hand Box" formation="Box RH" vid="V1-fpjnnvjl">
     <path>
       <move select="U-Turn Right" beats="4" offsetX="2"/>
     </path>
@@ -32,7 +32,7 @@
     </path>
   </tam>
 
-  <tam title="Revolve to a Wave" from="Left-Hand Box" formation="Box LH">
+  <tam title="Revolve to a Wave" from="Left-Hand Box" formation="Box LH" vid="V1-avqhcxq9">
     <path>
       <move select="Quarter Right" beats="1" offsetY="-1"/>
       <move select="Run Right" scaleY="1.5"/>

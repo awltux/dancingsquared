@@ -22,7 +22,7 @@
 -->
 <tamination title="Anyone Hop">
 
-  <tam title="Beaus Hop" parts="4" group=" ">
+  <tam title="Beaus Hop" parts="4" group=" " vid="V1-gugw6xoc">
     <formation fid="F3-nlnlii69" aid="A1-6r10ge6d">
       <dancer gender="boy" y="2" x="1" angle="270" />
       <dancer gender="girl" y="2" x="-1" angle="270" />
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Trailers Hop" parts="4" group=" ">
+  <tam title="Trailers Hop" parts="4" group=" " vid="V1-zth5qpjz">
     <formation fid="F3-0pwss2ox" aid="A1-m4dsj3np">
       <dancer gender="boy" y="2" x="1" angle="90"/>
       <dancer gender="girl" y="2" x="-1" angle="270"/>
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Everybody Hop" formation="Facing Couples Compact"
-       parts="4" group=" ">
+       parts="4" group=" " vid="V1-gin6v8gu">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Nobody Hop" formation="Box RH" parts="3" group=" ">
+  <tam title="Nobody Hop" formation="Box RH" parts="3" group=" " vid="V1-ji4nzxe8">
     <path>
       <move select="BackSashay Right" scaleX="1.5"/>
       <move select="Hinge Left"/>
@@ -79,7 +79,7 @@
 
   <tam title="Boys Hop" from="Lines" formation="Normal Lines"
        sequencer="gender-specific"
-       parts="4" group=" ">
+       parts="4" group=" " vid="V1-i80bljsn">
     <path>
       <move select="Forward 4"/>
       <move select="Hinge Right"/>
@@ -99,7 +99,7 @@
   </tam>
 
   <tam title="Magic Column Boys Hop" formation="Magic Column RH"
-       sequencer="gender-specific" parts="3" group=" ">
+       sequencer="gender-specific" parts="3" group=" " vid="V1-gb8ttw44">
     <formation fid="F3-dy4b34sl" aid="A1-50p0u50t">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>

@@ -23,7 +23,7 @@
 <tamination title="Interlocked Plenty">
 
   <tam title="Interlocked Plenty" from="Right-Hand Quarter Line"
-       formation="Quarter Lines RH" fractions="6;6">
+       formation="Quarter Lines RH" fractions="6;6" vid="V1-a9laja64">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
       <move select="Forward" beats="3" scaleX="3.5"/>
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Interlocked Plenty" from="Left-Hand Quarter Line"
-       formation="Quarter Lines LH" fractions="6;7">
+       formation="Quarter Lines LH" fractions="6;7" vid="V1-6cddznfl">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
@@ -87,7 +87,7 @@
     </path>
   </tam>
 
-  <tam title="Interlocked Plenty" from="Right-Hand 3/4 Line" fractions="6;7">
+  <tam title="Interlocked Plenty" from="Right-Hand 3/4 Line" fractions="6;7" vid="V1-zoe00s8k">
     <formation fid="F3-vg8zjub2" aid="A1-sokysfyo">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -128,7 +128,7 @@
   </tam>
 
   <tam title="Interlocked Plenty" from="Left-Hand 3/4 Line"
-       formation="3/4 Lines LH" fractions="6;6">
+       formation="3/4 Lines LH" fractions="6;6" vid="V1-z09iqmcw">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Forward 3"/>
@@ -159,7 +159,7 @@
   </tam>
 
   <tam title="Interlocked Scoot and Plenty" from="Right-Hand Quarter Line"
-       formation="Quarter Lines RH" fractions="8;6;7">
+       formation="Quarter Lines RH" fractions="8;6;7" vid="V1-ijscyu67">
     <path>
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -206,7 +206,7 @@
   </tam>
 
   <tam title="Interlocked Scoot and Plenty" from="Left-Hand Quarter Line"
-       formation="Quarter Lines LH" fractions="8;6;6">
+       formation="Quarter Lines LH" fractions="8;6;6" vid="V1-hhh5414u">
     <path>
       <move select="Forward" beats="2" scaleX="1.5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>

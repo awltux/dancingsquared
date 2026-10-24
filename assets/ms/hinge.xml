@@ -25,7 +25,7 @@
   <tam title="Hinge"
        from="Right-Hand Box"
        formation="Box RH"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-3bxoeubk">
     <path>
       <move select="Hinge Right" beats="2" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Hinge"
        from="Left-Hand Box"
        formation="Box LH"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-loqq2yjg">
     <path>
       <move select="Hinge Left" beats="2" />
     </path>
@@ -49,7 +49,7 @@
   <tam title="Hinge"
        from="Right-Hand Wave"
        formation="Wave RH"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-1llvs2hd">
     <path>
       <move select="Hinge Right" beats="2" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="Hinge"
        from="Left-Hand Wave"
        formation="Wave LH"
-       difficulty="1">
+       difficulty="1" vid="V1-5936m8ym">
     <path>
       <move select="Hinge Left" beats="2" />
     </path>
@@ -72,7 +72,7 @@
 
   <tam title="Hinge"
        from="Right-Hand Waves"
-       difficulty="1" formation="Ocean Waves RH BGGB Compact">
+       difficulty="1" formation="Ocean Waves RH BGGB Compact" vid="V1-8mhj93d6">
     <path>
       <move select="Hinge Right" beats="2" offsetX="-.5" offsetY="-.5"/>
     </path>
@@ -90,7 +90,7 @@
   <tam title="Hinge"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-k6l2bl7o">
     <path>
       <move select="Hinge Left" beats="2" />
     </path>
@@ -106,7 +106,7 @@
   </tam>
 
   <tam title="Hinge" from="Inverted Lines, Centers In"
-       formation="Inverted Lines Ends Facing Out" difficulty="2">
+       formation="Inverted Lines Ends Facing Out" difficulty="2" vid="V1-2fjrwlbl">
     <path>
       <move select="Hinge Left" beats="2" />
     </path>
@@ -122,7 +122,7 @@
   </tam>
 
   <tam title="Hinge" from="Inverted Lines, Centers Out"
-       formation="Inverted Lines Ends Facing In" difficulty="2">
+       formation="Inverted Lines Ends Facing In" difficulty="2" vid="V1-k9981sj6">
     <path>
       <move select="Hinge Right" beats="2" />
     </path>
@@ -140,7 +140,7 @@
   <tam title="Hinge"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       difficulty="1">
+       difficulty="1" vid="V1-wy9giyjx">
     <path>
       <move select="Hinge Right" beats="2" scaleX=".5" />
     </path>
@@ -158,7 +158,7 @@
   <tam title="Hinge"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       difficulty="1">
+       difficulty="1" vid="V1-gsbo8awc">
     <path>
       <move select="Hinge Left" beats="2" scaleX=".5" />
     </path>
@@ -174,7 +174,7 @@
   </tam>
 
   <tam title="Hinge" from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH" difficulty="2">
+       formation="Magic Column RH" difficulty="2" vid="V1-ji621xy1">
     <path>
       <move select="Hinge Left" beats="2" scaleX=".5" />
     </path>
@@ -190,7 +190,7 @@
   </tam>
 
   <tam title="Hinge" from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH" difficulty="2">
+       formation="Magic Column LH" difficulty="2" vid="V1-3lxt7ps3">
     <path>
       <move select="Hinge Right" beats="2" scaleX=".5" />
     </path>
@@ -208,7 +208,7 @@
   <tam title="Hinge"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-roj41b0o">
     <path>
       <move select="Hinge Right" beats="2" scaleY=".5" />
     </path>
@@ -226,7 +226,7 @@
   <tam title="Hinge"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-dr9su5y8">
     <path>
       <move select="Hinge Left" beats="2" scaleY=".5" />
     </path>
@@ -242,7 +242,7 @@
   </tam>
 
   <tam title="Centers Hinge" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1">
+       formation="Two-Faced Line RH" difficulty="1" vid="V1-5lkaccup">
     <path>
     </path>
     <path>
@@ -251,7 +251,7 @@
   </tam>
 
   <tam title="Centers Hinge" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="2">
+       formation="Two-Faced Line LH" difficulty="2" vid="V1-yaytkq6a">
     <path>
       <move select="Hinge Left" beats="2"/>
     </path>
@@ -259,7 +259,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Hinge" from="Right-Hand Wave" formation="Wave RH" difficulty="1">
+  <tam title="Centers Hinge" from="Right-Hand Wave" formation="Wave RH" difficulty="1" vid="V1-ozs0e74r">
     <path>
     </path>
     <path>
@@ -267,7 +267,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Hinge" from="Left-Hand Wave" formation="Wave LH" difficulty="1">
+  <tam title="Centers Hinge" from="Left-Hand Wave" formation="Wave LH" difficulty="1" vid="V1-czg9ndtw">
     <path>
     </path>
     <path>
@@ -275,7 +275,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Hinge" from="Right-Hand Diamond" formation="Diamond RH" difficulty="2">
+  <tam title="Centers Hinge" from="Right-Hand Diamond" formation="Diamond RH" difficulty="2" vid="V1-nnwo8wx0">
     <path>
     </path>
     <path>
@@ -283,7 +283,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Hinge" from="Left-Hand Diamond" formation="Diamond LH" difficulty="2">
+  <tam title="Centers Hinge" from="Left-Hand Diamond" formation="Diamond LH" difficulty="2" vid="V1-mj5w12vh">
     <path>
     </path>
     <path>
@@ -292,7 +292,7 @@
   </tam>
 
   <tam title="Centers Hinge" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" difficulty="1">
+       formation="Two-Faced Lines RH" difficulty="1" vid="V1-ovwta8v0">
     <path>
     </path>
     <path>
@@ -306,7 +306,7 @@
   </tam>
 
   <tam title="Centers Hinge" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH" difficulty="2">
+       formation="Two-Faced Lines LH" difficulty="2" vid="V1-qkaov6mz">
     <path>
     </path>
     <path>
@@ -320,7 +320,7 @@
   </tam>
 
   <tam title="Centers Hinge" from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points" difficulty="2">
+       formation="Diamonds RH Girl Points" difficulty="2" vid="V1-mrovf61t">
     <path>
       <move select="Hinge Right" beats="2"/>
     </path>
@@ -334,7 +334,7 @@
   </tam>
 
   <tam title="Centers Hinge" from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points" difficulty="2">
+       formation="Diamonds LH Girl Points" difficulty="2" vid="V1-kmo4yka6">
     <path>
       <move select="Hinge Left" beats="2"/>
     </path>
@@ -347,7 +347,7 @@
     </path>
   </tam>
 
-  <tam title="Centers Hinge" from="Quarter Tag" formation="Quarter Tag" difficulty="2">
+  <tam title="Centers Hinge" from="Quarter Tag" formation="Quarter Tag" difficulty="2" vid="V1-wkq9rc0o">
     <path>
     </path>
     <path>
@@ -361,7 +361,7 @@
   </tam>
 
   <tam title="Very Centers Hinge" from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points" difficulty="2">
+       formation="Diamonds RH Girl Points" difficulty="2" vid="V1-a3rnm5of">
     <path>
     </path>
     <path>
@@ -374,7 +374,7 @@
   </tam>
 
   <tam title="Very Centers Hinge" from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points" difficulty="2">
+       formation="Diamonds LH Girl Points" difficulty="2" vid="V1-jdrtvc78">
     <path>
     </path>
     <path>
@@ -387,7 +387,7 @@
   </tam>
 
   <tam title="Very Centers Hinge"
-       from="Quarter Tag" formation="Quarter Tag" difficulty="2">
+       from="Quarter Tag" formation="Quarter Tag" difficulty="2" vid="V1-fhlexhhq">
     <path>
     </path>
     <path>
@@ -400,7 +400,7 @@
   </tam>
 
   <tam title="Very Centers Hinge"
-       from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB" difficulty="2">
+       from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB" difficulty="2" vid="V1-ovm88gs4">
     <path>
     </path>
     <path>
@@ -413,7 +413,7 @@
   </tam>
 
   <tam title="Couples Hinge" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1">
+       formation="Two-Faced Line RH" difficulty="1" vid="V1-eo08u7zm">
     <path>
       <move select="Hinge Right" hands="gripright" beats="3" scaleX="3" scaleY="3" />
     </path>
@@ -423,7 +423,7 @@
   </tam>
 
   <tam title="Couples Hinge" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="1">
+       formation="Two-Faced Line LH" difficulty="1" vid="V1-5y0cgzrd">
     <path>
       <move select="Hinge Left" beats="3" hands="gripboth" scaleX="1" />
     </path>
@@ -435,7 +435,7 @@
   <tam title="Couples Hinge"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="1">
+       difficulty="1" vid="V1-3fnrrphn">
     <path>
       <move select="Hinge Right" hands="gripright" beats="3" scaleX="1.5" scaleY="3" />
     </path>
@@ -453,7 +453,7 @@
   <tam title="Couples Hinge"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       difficulty="1">
+       difficulty="1" vid="V1-aybj9b4k">
     <path>
       <move select="Hinge Left" hands="gripleft" beats="3" scaleX="1.5" scaleY="3" />
     </path>
@@ -471,7 +471,7 @@
   <tam title="Couples Hinge"
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line RH"
-       difficulty="1">
+       difficulty="1" vid="V1-trxcvuml">
     <path>
       <move select="Hinge Right" hands="gripright" beats="3" scaleX="3" scaleY="1.5" />
     </path>
@@ -488,7 +488,7 @@
 
   <tam title="Couples Hinge"
        formation="Two-Faced Tidal Line LH" display="none"
-       difficulty="1">
+       difficulty="1" vid="V1-fdk2ntf6">
     <path>
       <move select="Hinge Left" hands="gripleft" beats="3" scaleX="3" scaleY="1.5" />
     </path>
@@ -506,7 +506,7 @@
   <tam title="Couples Hinge"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="2">
+       difficulty="2" vid="V1-rfesdq0x">
     <path>
       <move select="Quarter Left" beats="3" hands="left" offsetX="-.5" offsetY="3" />
     </path>
@@ -524,7 +524,7 @@
   <tam title="Couples Hinge"
        from="Lines Facing In"
        formation="Normal Lines" display="none"
-       difficulty="2">
+       difficulty="2" vid="V1-3a18dp5e">
     <path>
       <move select="Hinge Right" beats="3" scaleX="1.5" scaleY="3" />
     </path>
@@ -542,7 +542,7 @@
   <tam title="Couples Hinge"
        from="Tidal Line"
        formation="Tidal Line RH"
-       difficulty="2">
+       difficulty="2" vid="V1-89d4qawi">
     <path>
       <move select="Hinge Right" beats="3" scaleX="3" scaleY="1.5" />
     </path>
@@ -560,7 +560,7 @@
   <tam title="Couples Hinge"
        from="Tidal Line LH"
        formation="Tidal Line LH" display="none"
-       difficulty="2">
+       difficulty="2" vid="V1-5br03hot">
     <path>
       <move select="Quarter Left" beats="3" hands="right" offsetX="-3" offsetY="0.5" />
     </path>
@@ -578,7 +578,7 @@
   <tam title="Couples Hinge"
        from="Two-Faced Tidal Line"
        formation="Two-Faced Tidal Line RH"
-       difficulty="2">
+       difficulty="2" vid="V1-trxcvuml">
     <path>
       <move select="Hinge Right" beats="3" scaleX="3" scaleY="1.5" />
     </path>
@@ -596,7 +596,7 @@
   <tam title="Couples Hinge"
        from="Two-Faced Tidal Line LH"
        formation="Two-Faced Tidal Line LH" display="none"
-       difficulty="2">
+       difficulty="2" vid="V1-fdk2ntf6">
     <path>
       <move select="Hinge Left" beats="3" scaleX="3" scaleY="1.5" />
     </path>

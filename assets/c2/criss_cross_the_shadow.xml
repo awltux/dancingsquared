@@ -25,7 +25,7 @@
   <tam title="Criss Cross the Shadow"
        from="Right-Hand Waves"
        formation="Ocean Waves RH GBBG"
-       fractions="" >
+       fractions=""  vid="V1-hezpc7ly">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -51,7 +51,7 @@
   <tam title="Criss Cross the Shadow"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       fractions="" >
+       fractions=""  vid="V1-sbole0j1">
     <path>
       <move select="U-Turn Right" beats="2" offsetX="-2" offsetY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -76,7 +76,7 @@
 
   <tam title="Criss Cross the Shadow"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-m2y9l09f">
     <path couples="2 4">
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -102,7 +102,7 @@
   <tam title="Criss Cross the Shadow"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="" >
+       fractions=""  vid="V1-vlf77zik">
     <path>
       <move select="U-Turn Right" beats="2" offsetX="-2" offsetY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -126,7 +126,7 @@
   </tam>
 
   <tam title="Criss Cross the Shadow"
-       from="3 and 1 Lines, Centers In">
+       from="3 and 1 Lines, Centers In" vid="V1-am79vrof">
      <formation fid="F3-km139yvj" aid="A1-4rmatmmn">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
@@ -154,7 +154,7 @@
   </tam>
 
   <tam title="Criss Cross the Shadow"
-       from="3 and 1 Lines, Centers Out">
+       from="3 and 1 Lines, Centers Out" vid="V1-6veuu4zl">
      <formation fid="F3-u6cmsz8f" aid="A1-q5uo0n3z">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="180"/>

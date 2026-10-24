@@ -23,7 +23,7 @@
 <tamination title="Single File Recycle">
 
   <tam title="Single File Recycle" from="Single Double Pass Thru"
-       formation="Single Double Pass Thru">
+       formation="Single Double Pass Thru" vid="V1-k5koxfrm">
     <path couples="3 1">
       <move select="Extend Left" beats="4" scaleX="3" scaleY="3"/>
     </path>

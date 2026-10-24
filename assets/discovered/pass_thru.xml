@@ -11,7 +11,7 @@
 <tamination title="Pass Thru">
 
   <tam title="Pass Thru"
-       formation="Static Square">
+       formation="Static Square" vid="V1-it0h11mz">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />

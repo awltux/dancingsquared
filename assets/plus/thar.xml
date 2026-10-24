@@ -24,7 +24,7 @@
 
   <tam title="Allemande Thar" group=" "
        from="Thar Star"
-       formation="Thar RH Boys">
+       formation="Thar RH Boys" vid="V1-8gn26cpa">
     <path>
       <move select="BackHinge Right" beats="3" hands="both" />
     </path>
@@ -41,7 +41,7 @@
 
   <tam title="Wrong Way Thar" group=" "
        from="Left Hand Thar Star"
-       formation="Thar LH Boys">
+       formation="Thar LH Boys" vid="V1-210vwo8k">
     <path>
       <move select="BackHinge Left" beats="3" hands="both" />
     </path>
@@ -63,7 +63,7 @@ girl start (3.5,0) lead right 1/2 delta (-.293, .707) or (3.207, .707) goal (2*s
 
   <tam title="Allemande Left to an Allemande Thar" group=" " sequencer="no"
        from="Static Square"
-       formation="Static Square" >
+       formation="Static Square"  vid="V1-4ofk9e39">
     <path>
       <move select="Lead Left" beats="3" offsetX=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -99,7 +99,7 @@ girl start (3.5,0) lead right 1/2 delta (-.293, .707) or (3.207, .707) goal (2*s
   <!-- For the sequencer, align to walls  -->
   <tam title="Allemande Left to an Allemande Thar" display="none"
        from="Static Square"
-       formation="Static Square" >
+       formation="Static Square"  vid="V1-4ofk9e39">
     <path>
       <move select="Lead Left" beats="3" offsetX=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />

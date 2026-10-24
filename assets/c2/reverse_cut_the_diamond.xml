@@ -22,7 +22,7 @@
 -->
 <tamination title="Reverse Cut the Diamond">
 
-  <tam title="Reverse Cut the Diamond" from="Right-Hand Diamond">
+  <tam title="Reverse Cut the Diamond" from="Right-Hand Diamond" vid="V1-cz988cil">
     <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg">
       <dancer gender="boy" y="0" x="3" angle="270" />
       <dancer gender="girl" y="-1" x="0" angle="180" />
@@ -37,7 +37,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Left-Hand Diamond"
-    formation="Diamond LH">
+    formation="Diamond LH" vid="V1-a23fy0g0">
     <path>
       <move select="Lead Left" beats="4" scaleY="3" />
     </path>
@@ -48,7 +48,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Facing Diamond, Left-Hand Centers"
-       formation="Diamond Facing">
+       formation="Diamond Facing" vid="V1-pnag1mxn">
     <path>
       <move select="Lead Right" beats="4" scaleY="3"/>
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Facing Diamond, Right-Hand Centers"
-        formation="Diamond Facing RH">
+        formation="Diamond Facing RH" vid="V1-ibqkrmi4">
     <path>
       <move select="Lead Left" beats="4" scaleY="3" />
     </path>
@@ -69,7 +69,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points">
+  <tam title="Reverse Cut the Diamond" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points" vid="V1-tli39378">
   <path>
     <move select="Hinge Right" beats="2" />
     <move select="Lead Right" beats="2" scaleX="1.5" />
@@ -88,7 +88,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-k9lr7axj">
     <path>
       <move select="Hinge Left" beats="2"/>
       <move select="Lead Left" beats="2" scaleX="1.5"/>
@@ -107,7 +107,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Facing Diamonds, Right-Hand Wave"
-       formation="Diamonds Facing Girl Points">
+       formation="Diamonds Facing Girl Points" vid="V1-7p7ts6ib">
     <path>
       <move select="Hinge Right" beats="2" />
       <move select="Lead Right" beats="2" scaleX="1.5" />
@@ -126,7 +126,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Facing Diamonds, Left-Hand Wave"
-       formation="Diamonds Facing LH Girl Points">
+       formation="Diamonds Facing LH Girl Points" vid="V1-ybqaad68">
     <path>
       <move select="Hinge Left" beats="2" />
       <move select="Lead Left" beats="2" scaleX="1.5" />
@@ -145,7 +145,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Right-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-yddkd05m">
     <path>
       <move select="Run Right" beats="4" scaleY="1.25"/>
     </path>
@@ -162,7 +162,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Left-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds LH Girl Points">
+       formation="Interlocked Diamonds LH Girl Points" vid="V1-srswa7la">
     <path>
       <move select="Flip Left" beats="4" scaleY="1.25"/>
     </path>
@@ -178,7 +178,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond"
-       from="Interlocked Diamonds 3" formation="Diamonds 3 and 1">
+       from="Interlocked Diamonds 3" formation="Diamonds 3 and 1" vid="V1-2v6i8zkv">
     <path>
       <move select="Run Right" beats="4" scaleY="1.25"/>
     </path>
@@ -194,7 +194,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond"
-       from="Interlocked Diamonds 4">
+       from="Interlocked Diamonds 4" vid="V1-8tf8vmas">
     <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -215,7 +215,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Right-Hand Point-to-Point Diamonds" formation="Diamonds RH PTP Girl Points">
+  <tam title="Reverse Cut the Diamond" from="Right-Hand Point-to-Point Diamonds" formation="Diamonds RH PTP Girl Points" vid="V1-htgc6l5t">
   <path>
     <move select="Hinge Right" beats="1"/>
     <move select="Quarter Right" beats="3" offsetX="3"/>
@@ -232,7 +232,7 @@
   </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Left-Hand Point-to-Point Diamonds" formation="Diamonds LH PTP Girl Points">
+  <tam title="Reverse Cut the Diamond" from="Left-Hand Point-to-Point Diamonds" formation="Diamonds LH PTP Girl Points" vid="V1-qov3h3m0">
     <path>
       <move select="Hinge Left" beats="1"/>
       <move select="Lead Left" beats="3" scaleX="3" scaleY="2"/>
@@ -250,7 +250,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond"
-       from="Facing Point-to-Point Diamonds, Right-Hand Centers" formation="Diamonds Facing PTP">
+       from="Facing Point-to-Point Diamonds, Right-Hand Centers" formation="Diamonds Facing PTP" vid="V1-msyj3lyo">
     <path>
       <move select="Hinge Right" beats="1"/>
       <move select="Quarter Right" beats="3" offsetX="3"/>
@@ -267,7 +267,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" formation="Diamonds Facing LH PTP">
+  <tam title="Reverse Cut the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" formation="Diamonds Facing LH PTP" vid="V1-kutgct9t">
     <path>
       <move select="Hinge Left" beats="1"/>
       <move select="Lead Left" beats="3" scaleX="3" scaleY="2"/>
@@ -284,7 +284,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 3">
+  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 3" vid="V1-jhjyacc6">
     <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -306,7 +306,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 4">
+  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 4" vid="V1-aulh8mwd">
     <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -327,7 +327,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 5">
+  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 5" vid="V1-vao5vfns">
     <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -348,7 +348,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 6">
+  <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 6" vid="V1-3cto1ndh">
     <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -369,7 +369,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Right-Hand Diamond">
+  <tam title="Reverse Flip the Diamond" from="Right-Hand Diamond" vid="V1-s9y77aeq">
     <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg">
       <dancer gender="boy" y="0" x="3" angle="270" />
       <dancer gender="girl" y="-1" x="0" angle="180" />
@@ -382,7 +382,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Left-Hand Diamond" formation="Diamond LH">
+  <tam title="Reverse Flip the Diamond" from="Left-Hand Diamond" formation="Diamond LH" vid="V1-tumi7tuf">
     <path>
       <move select="Lead Left" beats="3" scaleY="3"/>
     </path>
@@ -392,7 +392,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Facing Diamond, Left-Hand Centers"
-       formation="Diamond Facing">
+       formation="Diamond Facing" vid="V1-5j7kxy2s">
     <path>
       <move select="Lead Right" beats="3" scaleY="3"/>
     </path>
@@ -402,7 +402,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Facing Diamond, Right-Hand Centers"
-       formation="Diamond Facing RH">
+       formation="Diamond Facing RH" vid="V1-rusc0m8z">
     <path>
       <move select="Lead Left" beats="3" scaleY="3" />
     </path>
@@ -411,7 +411,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points">
+  <tam title="Reverse Flip the Diamond" from="Right-Hand Diamonds" formation="Diamonds RH Girl Points" vid="V1-j0p67g9j">
     <path>
       <move select="Flip Left" scaleX=".25" scaleY=".25"/>
     </path>
@@ -426,7 +426,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Left-Hand Diamonds" formation="Diamonds LH Girl Points">
+  <tam title="Reverse Flip the Diamond" from="Left-Hand Diamonds" formation="Diamonds LH Girl Points" vid="V1-k198l13w">
     <path>
       <move select="Flip Right" scaleX=".25" scaleY=".25"/>
     </path>
@@ -443,7 +443,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Facing Diamonds, Right-Hand Wave"
-       formation="Diamonds Facing Girl Points">
+       formation="Diamonds Facing Girl Points" vid="V1-17qdd6dc">
     <path>
       <move select="Flip Left" scaleX=".25" scaleY=".25"/>
     </path>
@@ -460,7 +460,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Facing Diamonds, Left-Hand Wave"
-       formation="Diamonds Facing LH Girl Points">
+       formation="Diamonds Facing LH Girl Points" vid="V1-865ga0cf">
     <path>
       <move select="Flip Right" scaleX=".25" scaleY=".25"/>
     </path>
@@ -477,7 +477,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Right-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-htcptcu5">
     <path>
       <move select="Flip Left" scaleX=".25" scaleY=".25"/>
     </path>
@@ -494,7 +494,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Left-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds LH Girl Points">
+       formation="Interlocked Diamonds LH Girl Points" vid="V1-7vck6ng9">
     <path>
       <move select="Flip Right" scaleX=".25" scaleY=".25"/>
     </path>
@@ -510,7 +510,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond"
-       from="Interlocked Diamonds 3" formation="Diamonds 3 and 1">
+       from="Interlocked Diamonds 3" formation="Diamonds 3 and 1" vid="V1-7lm6ucsk">
     <path>
       <move select="Flip Left" scaleX=".25" scaleY=".25"/>
     </path>
@@ -526,7 +526,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond"
-       from="Interlocked Diamonds 4">
+       from="Interlocked Diamonds 4" vid="V1-v2yyg5ff">
     <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -547,7 +547,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Right-Hand Point-to-Point Diamonds" formation="Diamonds RH PTP Girl Points">
+  <tam title="Reverse Flip the Diamond" from="Right-Hand Point-to-Point Diamonds" formation="Diamonds RH PTP Girl Points" vid="V1-elvcvkf2">
     <path>
       <move select="Flip Left" offsetX="1"/>
     </path>
@@ -562,7 +562,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Left-Hand Point-to-Point Diamonds" formation="Diamonds LH PTP Girl Points">
+  <tam title="Reverse Flip the Diamond" from="Left-Hand Point-to-Point Diamonds" formation="Diamonds LH PTP Girl Points" vid="V1-7o1zwlnj">
     <path>
       <move select="Flip Right" offsetX="-1"/>
     </path>
@@ -578,7 +578,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond"
-       from="Facing Point-to-Point Diamonds, Right-Hand Centers" formation="Diamonds Facing PTP">
+       from="Facing Point-to-Point Diamonds, Right-Hand Centers" formation="Diamonds Facing PTP" vid="V1-ws70dhnf">
     <path>
       <move select="Flip Left" offsetX="1"/>
     </path>
@@ -593,7 +593,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" formation="Diamonds Facing LH PTP">
+  <tam title="Reverse Flip the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" formation="Diamonds Facing LH PTP" vid="V1-1kq5z97e">
     <path>
       <move select="Flip Right" offsetX="-1"/>
     </path>
@@ -608,7 +608,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 3">
+  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 3" vid="V1-tl0w71w1">
     <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -629,7 +629,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 4">
+  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 4" vid="V1-u65j9pke">
     <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -650,7 +650,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 5">
+  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 5" vid="V1-r832a2nb">
     <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -671,7 +671,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 6">
+  <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 6" vid="V1-gl8ef2du">
     <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>

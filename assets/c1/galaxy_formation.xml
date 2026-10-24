@@ -23,7 +23,7 @@
 <tamination title="Galaxy Formation">
 
   <tam title="Galaxy Circulate"
-       from="Right-Hand Galaxy">
+       from="Right-Hand Galaxy" vid="V1-rmud595t">
     <formation fid="F3-urv775kg" aid="A1-2ooy0j7y">
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
       <dancer gender="boy" x="-3" y="0" angle="90"/>
@@ -48,7 +48,7 @@
 
   <tam title="Galaxy Circulate"
        from="Left-Hand Galaxy"
-       formation="Galaxy LH GP">
+       formation="Galaxy LH GP" vid="V1-2432tngs">
     <path>
       <move select="Extend Right" beats="3" scaleY="2.1" />
     </path>
@@ -65,7 +65,7 @@
 
   <tam title="Galaxy Circulate"
        from="Facing Galaxy Right-Hand Box"
-       formation="Galaxy Facing RH Box">
+       formation="Galaxy Facing RH Box" vid="V1-r0d3agvc">
     <path>
       <move select="Forward"/>
       <move select="Lead Right" beats="2"/>
@@ -86,7 +86,7 @@
 
   <tam title="Galaxy Circulate"
        from="Facing Galaxy Left-Hand Box"
-       formation="Galaxy Facing LH Box">
+       formation="Galaxy Facing LH Box" vid="V1-gnohmr61">
     <path>
       <move select="Lead Right" beats="2"/>
       <move select="Quarter Left" offsetX="1.1"/>
@@ -107,7 +107,7 @@
 
   <tam title="Cut the Galaxy"
        from="Right-Hand Galaxy"
-       formation="Galaxy RH GP">
+       formation="Galaxy RH GP" vid="V1-e4ij5gh2">
     <path couples="3 1">
       <move select="Lead Right" beats="6" scaleX="2" />
     </path>
@@ -126,7 +126,7 @@
 
   <tam title="Cut the Galaxy"
        from="Left-Hand Galaxy"
-       formation="Galaxy LH GP">
+       formation="Galaxy LH GP" vid="V1-2jpz5j3f">
     <path>
       <move select="Extend Right" beats="6" scaleY="2.1" />
     </path>
@@ -145,7 +145,7 @@
 
   <tam title="Cut the Galaxy"
        from="Facing Galaxy, Right-Hand Centers"
-       formation="Galaxy Facing RH Box">
+       formation="Galaxy Facing RH Box" vid="V1-kt10oypz">
     <path>
       <move select="Lead Right" beats="3" scaleX="2" />
     </path>
@@ -164,7 +164,7 @@
 
   <tam title="Cut the Galaxy"
        from="Facing Galaxy, Left-Hand Centers"
-       formation="Galaxy Facing LH Box">
+       formation="Galaxy Facing LH Box" vid="V1-03mey8hq">
     <path>
       <move select="Extend Right" beats="3" scaleY="2" />
     </path>
@@ -183,7 +183,7 @@
 
   <tam title="Flip the Galaxy"
        from="Right-Hand Galaxy"
-       formation="Galaxy RH GP">
+       formation="Galaxy RH GP" vid="V1-rnr8mzy5">
     <path couples="3 1">
       <move select="Lead Right" beats="3" scaleX="2" />
     </path>
@@ -200,7 +200,7 @@
 
   <tam title="Flip the Galaxy"
        from="Left-Hand Galaxy"
-       formation="Galaxy LH GP">
+       formation="Galaxy LH GP" vid="V1-hq3fzdqw">
     <path>
       <move select="Extend Right" beats="3" scaleY="2" />
     </path>
@@ -217,7 +217,7 @@
 
   <tam title="Flip the Galaxy"
        from="Facing Galaxy, Right-Hand Centers"
-       formation="Galaxy Facing RH Box">
+       formation="Galaxy Facing RH Box" vid="V1-ti2ketkk">
     <path>
       <move select="Lead Right" beats="3" scaleX="2" />
     </path>
@@ -234,7 +234,7 @@
 
   <tam title="Flip the Galaxy"
        from="Facing Galaxy, Left-Hand Centers"
-       formation="Galaxy Facing LH Box">
+       formation="Galaxy Facing LH Box" vid="V1-kj6q8z5h">
     <path>
       <move select="Extend Right" beats="3" scaleY="2" />
     </path>

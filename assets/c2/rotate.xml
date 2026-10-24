@@ -22,7 +22,7 @@
 -->
 <tamination title="Rotate 1/4, 1/2, 3/4">
 
-  <tam title="Rotate 1/4" formation="Normal Lines" group=" ">
+  <tam title="Rotate 1/4" formation="Normal Lines" group=" " vid="V1-oi5nvoqi">
   <path>
     <move select="Hinge Right"/>
     <move select="Hinge Left" beats="3" hands="both" scaleX=".5"/>
@@ -41,7 +41,7 @@
   </path>
   </tam>
 
-  <tam title="Rotate 1/2" formation="Normal Lines" group=" " fractions="4.5">
+  <tam title="Rotate 1/2" formation="Normal Lines" group=" " fractions="4.5" vid="V1-a6626v8c">
   <path>
     <move select="Hinge Right"/>
     <move select="Hinge Left" beats="3" hands="both" scaleX=".5"/>
@@ -64,7 +64,7 @@
   </path>
   </tam>
 
-  <tam title="Rotate 3/4" formation="Normal Lines" group=" " fractions="4.5;3">
+  <tam title="Rotate 3/4" formation="Normal Lines" group=" " fractions="4.5;3" vid="V1-bn48b33g">
   <path>
     <move select="Hinge Right"/>
     <move select="Hinge Left" beats="3" hands="both" scaleX=".5"/>
@@ -91,7 +91,7 @@
   </path>
   </tam>
 
-  <tam title="Rotate 1/2 and Spread" formation="Normal Lines" group="  " fractions="4.5;3">
+  <tam title="Rotate 1/2 and Spread" formation="Normal Lines" group="  " fractions="4.5;3" vid="V1-h7cqpm1i">
   <path>
     <move select="Hinge Right"/>
     <move select="Hinge Left" beats="3" hands="both" scaleX=".5"/>
@@ -114,7 +114,7 @@
   </path>
   </tam>
 
-  <tam title="Rotate 1/2 and Roll" formation="Normal Lines" group="  " fractions="4.5;3">
+  <tam title="Rotate 1/2 and Roll" formation="Normal Lines" group="  " fractions="4.5;3" vid="V1-9r30zqfe">
   <path>
     <move select="Hinge Right"/>
     <move select="Hinge Left" beats="3" hands="both" scaleX=".5"/>
@@ -141,7 +141,7 @@
   </path>
   </tam>
 
-  <tam title="All 4 Couples Rotate 1/2" formation="Static Square" group="   ">
+  <tam title="All 4 Couples Rotate 1/2" formation="Static Square" group="   " vid="V1-c4wfw44t">
     <path>
       <move select="Extend Right" hands="right" scaleX="3" scaleY="2" beats="4"/>
       <move select="Hinge Left" hands="both" beats="4"/>
@@ -160,7 +160,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Rotate 3/4" from="Lines" formation="Normal Lines" fractions="4.5;3">
+  <tam title="Reverse Rotate 3/4" from="Lines" formation="Normal Lines" fractions="4.5;3" vid="V1-53zr82qm">
     <path>
       <move select="BackHinge Right"/>
       <move select="Hinge Right" beats="3" scaleX="1.5" scaleY="3"/>
@@ -187,7 +187,7 @@
     </path>
   </tam>
 
-  <tam title="Single Rotate 1/4" from="Lines" formation="Normal Lines">
+  <tam title="Single Rotate 1/4" from="Lines" formation="Normal Lines" vid="V1-i4d65sj2">
     <path>
       <move select="Quarter Right"/>
       <move select="Counter Rotate Left 2 0" beats="3"/>
@@ -206,7 +206,7 @@
     </path>
   </tam>
 
-  <tam title="Single Rotate 1/4" from="Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Single Rotate 1/4" from="Waves" formation="Ocean Waves RH BGBG" vid="V1-qz66emqq">
     <path>
       <move select="Quarter Right"/>
       <move select="Counter Rotate Left 2 0" beats="3"/>
@@ -225,7 +225,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Single Rotate 1/4" from="Lines" formation="Normal Lines">
+  <tam title="Reverse Single Rotate 1/4" from="Lines" formation="Normal Lines" vid="V1-ncazziuk">
     <path>
       <move select="Quarter Left"/>
       <move select="Counter Rotate Right 0 -2" beats="3" offsetY="-2"/>
@@ -244,7 +244,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Single Rotate 1/4" from="Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Reverse Single Rotate 1/4" from="Waves" formation="Ocean Waves RH BGBG" vid="V1-rev8agb4">
     <path>
       <move select="Quarter Left"/>
       <move select="Counter Rotate Right 0 -2" beats="3" offsetY="-2"/>

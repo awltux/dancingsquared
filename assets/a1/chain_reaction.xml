@@ -25,7 +25,7 @@
   <tam title="Chain Reaction"
        from="Quarter Tag"
        formation="Quarter Tag"
-       fractions="3;1.5;2" >
+       fractions="3;1.5;2"  vid="V1-zc2oenvp">
     <path numbers="1 8">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
@@ -55,7 +55,7 @@
 
   <tam title="Chain Reaction"
        from="Left-Hand Quarter Tag"
-       fractions="3;1.5;2"  formation="Quarter Tag LH">
+       fractions="3;1.5;2"  formation="Quarter Tag LH" vid="V1-f69hsn72">
     <path numbers="1 8">
       <move select="Stand" beats="3"/>
       <move select="Hinge Right" offsetX="1" />
@@ -91,7 +91,7 @@
   <tam title="Chain Reaction, Turn the Star 1/2" group=" "
        from="Quarter Tag"
        formation="Quarter Tag"
-       fractions="3;1.5;3" >
+       fractions="3;1.5;3"  vid="V1-tuc3mwox">
     <path numbers="1 8">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
@@ -122,7 +122,7 @@
   <tam title="Chain Reaction, Turn the Star 3/4" group=" "
        from="Quarter Tag"
        formation="Quarter Tag"
-       fractions="3;1.5;4.5" >
+       fractions="3;1.5;4.5"  vid="V1-9coa2mep">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
@@ -153,7 +153,7 @@
   <tam title="Chain Reaction, Do Not Turn the Star" group=" "
        from="Quarter Tag"
        formation="Quarter Tag"
-       fractions="3;1;2" >
+       fractions="3;1;2"  vid="V1-ydt39z5p">
     <path numbers="1 8">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />

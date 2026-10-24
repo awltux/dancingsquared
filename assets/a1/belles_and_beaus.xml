@@ -22,7 +22,7 @@
 -->
 <tamination title="Belles and Beaus (naming convention)">
 
-  <tam title="Belles Walk, Beaus Dodge" group=" ">
+  <tam title="Belles Walk, Beaus Dodge" group=" " vid="V1-1obtuk91">
      <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Beaus Trade" from="Inverted Lines" formation="Inverted Lines Ends Facing Out" group=" ">
+  <tam title="Beaus Trade" from="Inverted Lines" formation="Inverted Lines Ends Facing Out" group=" " vid="V1-dimlwu3a">
     <path>
     </path>
     <path>
@@ -56,7 +56,7 @@
     </path>
   </tam>
 
-  <tam title="Belles Trade" from="Inverted Lines" formation="Inverted Lines Ends Facing Out" group=" ">
+  <tam title="Belles Trade" from="Inverted Lines" formation="Inverted Lines Ends Facing Out" group=" " vid="V1-cziyx3ed">
     <path>
       <move select="Swing Left"/>
     </path>
@@ -69,7 +69,7 @@
     </path>
   </tam>
 
-  <tam title="Beaus Walk, Belles Dodge" group=" ">
+  <tam title="Beaus Walk, Belles Dodge" group=" " vid="V1-j6ez94hz">
     <formation fid="F3-mgilzw9x" aid="A1-lhyug3s7">
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -90,7 +90,7 @@
     </path>
   </tam>
 
-  <tam title="Belles Cross" group=" " formation="3 and 1 lines #4">
+  <tam title="Belles Cross" group=" " formation="3 and 1 lines #4" vid="V1-kj2lrxhk">
     <path>
       <move select="Stand" beats="3" hands="none"/>
     </path>

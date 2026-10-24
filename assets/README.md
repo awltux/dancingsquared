@@ -39,7 +39,7 @@ and the POC synthesises it at load time (`poc/src/data.ts`). So `filesOf('ssd')`
 <!DOCTYPE tamination SYSTEM "../src/tamination.dtd">
 <!-- Copyright 2023 Brad Christie … GNU Affero General Public License … -->
 <tamination title="Circle Family">
-  <tam title="Circle Left Home" from="Static Square" formation="Static Square" parts="">
+  <tam title="Circle Left Home" from="Static Square" formation="Static Square" parts="" vid="V1-…">
     <formation> … <dancer gender="boy" x="-1" y="-3" angle="90"/> … </formation>
     <path> … <movement hands="none" beats="4" cx1="…" x2="…" …/> … </path>
   </tam>
@@ -57,6 +57,15 @@ and the POC synthesises it at load time (`poc/src/data.ts`). So `filesOf('ssd')`
 - A `<tam>` attribute the engine reads and a reader should not "tidy away": `sequencer` (`no` means a
   demonstration, not a callable variant), `actives` (WHICH dancers the paths describe), `asymmetric` (how many
   copies of the written dancers make the set).
+- **The three stored ids.** A formation DEFINITION — in `formations.xml` or a `<tam>`'s own `<formation>` block —
+  carries `fid="F3-…"` and `aid="A1-…"`: its formation identity and its arrangement identity, written once and
+  authoritative thereafter (a geometry edit leaves them alone, which is what replaced the root ledger). A `<tam>`
+  carries `vid="V1-…"`: the CALL VARIANT it realises, `callVariantId(level, title, fid)` where the level is the
+  directory the file lives in and the fid is the definition the tam starts from (its inline block if it authors one —
+  the block wins at load time — otherwise the one it names). Unlike `fid`, a `vid` is **fully determined** by the
+  tree, so a retitle or a level move re-mints it and `engine/test/variant-tags.mjs` fails until it is re-tagged. The
+  one place they are all maintained is `scripts/tag-formations.mjs` and `scripts/tag-variants.mjs`; a generated
+  `*.virtual.xml` instance carries `parent_id` instead — the variant it was *placed from*.
 
 ## Where the files came from — Taminations
 

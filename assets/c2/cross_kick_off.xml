@@ -24,7 +24,7 @@
 
   <tam title="Centers Cross Kick Off"
        from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" >
+       formation="Two-Faced Line RH"  vid="V1-augclxfo">
     <path numbers="1 4">
       <move select="Quarter Right" beats="3" offsetY="-2" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Centers Cross Kick Off"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-lp9ytjik">
     <path>
       <move select="Lead Right" beats="3" scaleY="2" />
     </path>
@@ -57,7 +57,7 @@
   <tam title="Centers Cross Kick Off"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-e6m6j5wz">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-1" offsetY="2" />
     </path>
@@ -77,7 +77,7 @@
   <tam title="Centers Cross Kick Off"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="" >
+       fractions=""  vid="V1-miu2bcx1">
     <path>
       <move select="Lead Right" beats="3" scaleY="2" />
     </path>
@@ -97,7 +97,7 @@
   <tam title="Centers Cross Kick Off"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="" >
+       fractions=""  vid="V1-5dp047gu">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-1" offsetY="2" />
     </path>
@@ -117,7 +117,7 @@
   <tam title="Centers Cross Kick Off"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="" >
+       fractions=""  vid="V1-dwhnvl4f">
     <path>
       <move select="Quarter Left" beats="3" offsetX="-1" offsetY="2" />
     </path>
@@ -138,7 +138,7 @@
   <tam title="Ends Cross Kick Off"
        from="Right-Hand Two-Faced Line"
        formation="Two-Faced Line RH"
-       fractions="" >
+       fractions=""  vid="V1-8ie92bjk">
     <path numbers="1 4">
       <move select="Lead Right" beats="2" scaleX="2" scaleY="2" />
       <move select="Run Right" beats="3" offsetX="2" />
@@ -152,7 +152,7 @@
   <tam title="Ends Cross Kick Off"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-1d6fx5vs">
     <path>
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="2" />
       <move select="Run Right" beats="3" offsetX="2" offsetY="1.5" />
@@ -172,7 +172,7 @@
   <tam title="Ends Cross Kick Off"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-6y73ln2v">
     <path>
       <move select="Lead Left" beats="2" scaleY="2" />
       <move select="Run Left" beats="3" offsetX="2" />
@@ -192,7 +192,7 @@
   <tam title="Ends Cross Kick Off"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       fractions="" >
+       fractions=""  vid="V1-ozf85aex">
     <path>
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="2" />
       <move select="Run Right" beats="3" offsetX="2" offsetY="1.5" />
@@ -212,7 +212,7 @@
   <tam title="Ends Cross Kick Off"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       fractions="" >
+       fractions=""  vid="V1-fot2j31u">
     <path>
       <move select="Lead Left" beats="2" scaleY="2" />
       <move select="Run Left" beats="3" offsetX="2" />
@@ -232,7 +232,7 @@
   <tam title="Ends Cross Kick Off"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="" >
+       fractions=""  vid="V1-s8e6nafv">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="3" />
       <move select="Run Left" offsetX="1" offsetY="-.5" />

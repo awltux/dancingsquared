@@ -24,7 +24,7 @@
 
   <tam title="Explode the Line"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-zvhikksj">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1" />
       <move select="Pull Left" beats="2" scaleX="2" scaleY=".5" />
@@ -47,7 +47,7 @@
 
   <tam title="Explode the Line"
        from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-r5cz9vwp">
     <path>
       <move select="Lead Right" hands="right" beats="4" scaleX="1.5" scaleY="3" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -68,7 +68,7 @@
 
   <tam title="Explode the Line"
        from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-zh40cmsi">
     <path>
       <move select="Lead Left" hands="right" beats="4" scaleX=".5" scaleY="3" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -89,7 +89,7 @@
 
   <tam title="Explode the Line"
        from="Lines Facing In"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-4kbq5c2k">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-1" />
       <move select="Pull Left" beats="2" scaleX="2" scaleY=".5" />
@@ -112,7 +112,7 @@
 
   <tam title="Explode the Line"
        from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-2ct35eks">
     <path>
       <move select="Lead Left" hands="right" beats="4" scaleX=".5" scaleY="3" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -134,7 +134,7 @@
 
   <tam title="Explode the Line"
        from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-sq53kylt">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-.5" offsetY="-1" />
       <move select="Forward 2"/>
@@ -156,7 +156,7 @@
 
   <tam title="Explode the Line"
        from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-50ipkvnz">
     <path>
       <move select="Lead Right" hands="right" beats="4" scaleX="1.5" scaleY="3" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -178,7 +178,7 @@
 
   <tam title="Explode the Line"
        from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-bb1h6ias">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1" />
       <move select="Pull Left" beats="2" scaleX="2" scaleY=".5" />
@@ -201,7 +201,7 @@
 
   <tam title="Explode the Line"
        from="Tidal Inverted Line, Right-Hand Centers"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-4lvn14iu">
     <path>
       <move select="Lead Right" beats="2" scaleY=".5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -226,7 +226,7 @@
 
   <tam title="Explode the Line"
        from="Tidal Inverted Line, Left-Hand Centers"
-       formation="Tidal Inverted Line LH">
+       formation="Tidal Inverted Line LH" vid="V1-6vjss4sn">
     <path>
       <move select="Lead Left" beats="2" scaleY=".5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -251,7 +251,7 @@
 
   <tam title="Explode the Line"
        from="Tidal Line, Right-Hand Centers"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-yvmn3t3s">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-.5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -276,7 +276,7 @@
 
   <tam title="Explode the Line"
        from="Tidal Line, Left-Hand Centers"
-       formation="Tidal Line LH">
+       formation="Tidal Line LH" vid="V1-wre26jdb">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-.5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -301,7 +301,7 @@
 
   <tam title="Explode the Line"
        from="Tidal 3 and 1 Line #1"
-       formation="Tidal 3 and 1 Line #1">
+       formation="Tidal 3 and 1 Line #1" vid="V1-597fejo0">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-.5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -326,7 +326,7 @@
 
   <tam title="Explode the Line"
        from="Tidal 3 and 1 Line #4"
-       formation="Tidal 3 and 1 Line #4">
+       formation="Tidal 3 and 1 Line #4" vid="V1-zzlnh5ew">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY=".5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -351,7 +351,7 @@
 
   <tam title="Explode the Line"
        from="Tidal 3 and 1 Line #5"
-       formation="Tidal 3 and 1 Line #5">
+       formation="Tidal 3 and 1 Line #5" vid="V1-7za26b7f">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY=".5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -376,7 +376,7 @@
 
   <tam title="Explode the Line"
        from="Tidal 3 and 1 Line #8"
-       formation="Tidal 3 and 1 Line #8">
+       formation="Tidal 3 and 1 Line #8" vid="V1-371z78u3">
     <path>
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -402,7 +402,7 @@
   <!-- Theses animations for just Explode are for the sequencer  -->
   <tam title="Explode" display="none"
        from="Lines Facing Out"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-adphusyk">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1.5" />
     </path>
@@ -419,7 +419,7 @@
 
   <tam title="Explode" display="none"
        from="Lines Facing In"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-0wknjw9v">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-1.5" />
     </path>
@@ -436,7 +436,7 @@
 
   <tam title="Explode" display="none"
        from="Inverted Lines"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-cxl06lb6">
     <path>
       <move select="Lead Right" beats="2" scaleY="1.5"/>
     </path>
@@ -453,7 +453,7 @@
 
   <tam title="Explode" display="none"
        from="Inverted Lines 2"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-128y5n5t">
     <path>
       <move select="Lead Left" beats="2" scaleY="1.5"/>
     </path>
@@ -470,7 +470,7 @@
 
   <tam title="Explode" display="none"
        from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-7ovh6y9z">
     <path>
       <move select="Lead Left" beats="2" scaleY="1.5"/>
     </path>
@@ -487,7 +487,7 @@
 
   <tam title="Explode" display="none"
        from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-1mr45zoi">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-1.5" />
     </path>
@@ -504,7 +504,7 @@
 
   <tam title="Explode" display="none"
        from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-a4qpixtk">
     <path>
       <move select="Lead Right" beats="2" scaleY="1.5"/>
     </path>
@@ -521,7 +521,7 @@
 
   <tam title="Explode" display="none"
        from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-g7rvnwt7">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1.5" />
     </path>
@@ -538,7 +538,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal Inverted Line RH"
-       formation="Tidal Inverted Line RH">
+       formation="Tidal Inverted Line RH" vid="V1-fccfwwhl">
     <path>
       <move select="Lead Right" beats="2" scaleY=".5"/>
     </path>
@@ -555,7 +555,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal Inverted Line LH"
-       formation="Tidal Inverted Line LH">
+       formation="Tidal Inverted Line LH" vid="V1-xby5qjys">
     <path>
       <move select="Lead Left" beats="2" scaleY=".5"/>
     </path>
@@ -572,7 +572,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal Line RH"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-gi7jd9r3">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-.5"/>
     </path>
@@ -589,7 +589,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal Line LH"
-       formation="Tidal Line LH">
+       formation="Tidal Line LH" vid="V1-s0dxmfwc">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-.5"/>
     </path>
@@ -606,7 +606,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal 3 and 1 Line #1"
-       formation="Tidal 3 and 1 Line #1">
+       formation="Tidal 3 and 1 Line #1" vid="V1-ojmi53rb">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" offsetY="-.5"/>
     </path>
@@ -623,7 +623,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal 3 and 1 Line #4"
-       formation="Tidal 3 and 1 Line #4">
+       formation="Tidal 3 and 1 Line #4" vid="V1-fm9ge2cf">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY=".5"/>
     </path>
@@ -640,7 +640,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal 3 and 1 Line #5"
-       formation="Tidal 3 and 1 Line #5">
+       formation="Tidal 3 and 1 Line #5" vid="V1-4pe7rk0w">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY=".5"/>
     </path>
@@ -657,7 +657,7 @@
 
   <tam title="Explode" display="none"
        from="Tidal 3 and 1 Line #8"
-       formation="Tidal 3 and 1 Line #8">
+       formation="Tidal 3 and 1 Line #8" vid="V1-yozc8ggk">
     <path>
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5"/>
     </path>

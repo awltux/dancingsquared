@@ -25,7 +25,7 @@
   <tam title="Scoot and Dodge"
        from="Right-Hand Box"
        formation="Box RH"
-       fractions="" >
+       fractions=""  vid="V1-ffeogxex">
     <path couples="1 3">
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -39,7 +39,7 @@
   <tam title="Scoot and Dodge"
        from="Left-Hand Box"
        formation="Box LH"
-       fractions="" >
+       fractions=""  vid="V1-3suturvt">
     <path couples="3 1">
       <move select="Dodge Left" />
     </path>
@@ -53,7 +53,7 @@
   <tam title="Scoot and Dodge"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGBG"
-       fractions="" >
+       fractions=""  vid="V1-sdk7y7e6">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -75,7 +75,7 @@
   <tam title="Scoot and Dodge"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGBG"
-       fractions="" >
+       fractions=""  vid="V1-a6r4qzhh">
     <path>
       <move select="Dodge Left" />
     </path>
@@ -97,7 +97,7 @@
   <tam title="Scoot and Dodge"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       fractions="" >
+       fractions=""  vid="V1-3vu9lu74">
     <path>
       <move select="Dodge Right" />
     </path>
@@ -119,7 +119,7 @@
   <tam title="Scoot and Dodge"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       fractions="" >
+       fractions=""  vid="V1-0yhvafl5">
     <path>
       <move select="Extend Left" beats="1.5" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -141,7 +141,7 @@
   <tam title="As Couples Scoot and Dodge"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       group=" " >
+       group=" "  vid="V1-a2fjyrd8">
     <path>
       <move select="Extend Right" hands="right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Swing Right" scaleX="1.5" scaleY="1.5" />

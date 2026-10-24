@@ -25,7 +25,7 @@
   <tam title="Horseshoe Turn"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-ydz7u7p8">
     <path couples="2 4">
       <move select="Lead Right" beats="2" scaleY="1.5" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -49,7 +49,7 @@
   <tam title="Horseshoe Turn"
        from="Trade By"
        formation="Trade By"
-       fractions="" >
+       fractions=""  vid="V1-mg3kpiqi">
     <path>
       <move select="Lead Right" beats="2" scaleY="1.5" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -70,7 +70,7 @@
     </path>
   </tam>
 
-  <tam title="Horseshoe Turn" from="3/4 Tag" formation="3/4 Tag">
+  <tam title="Horseshoe Turn" from="3/4 Tag" formation="3/4 Tag" vid="V1-ttezx217">
     <path>
       <move select="Lead Right" beats="2" scaleY="2.5" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -92,7 +92,7 @@
   </tam>
 
   <tam title="Horseshoe Turn" from="T-Bones"
-       formation="T-Bone LUUR">
+       formation="T-Bone LUUR" vid="V1-b3pbaa40">
     <path>
       <move select="Lead Left" beats="2" scaleY="1.5" />
       <move select="Lead Left" beats="2" scaleX="1.5" scaleY="1.5" />

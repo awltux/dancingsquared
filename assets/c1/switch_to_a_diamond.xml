@@ -23,7 +23,7 @@
 <tamination title="Switch to a Diamond">
 
   <tam title="Switch to a Diamond" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-673j71fa">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 2"/>
@@ -34,7 +34,7 @@
   </tam>
 
   <tam title="Switch to a Diamond" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH">
+       formation="Two-Faced Line LH" vid="V1-5ausb97h">
     <path>
       <move select="Flip Right"/>
     </path>
@@ -44,7 +44,7 @@
     </path>
   </tam>
 
-  <tam title="Switch to a Diamond" from="Normal Lines" formation="Normal Lines">
+  <tam title="Switch to a Diamond" from="Normal Lines" formation="Normal Lines" vid="V1-e6j1za8u">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 2" beats="3"/>
@@ -62,7 +62,7 @@
   </tam>
 
   <tam title="Switch to a Diamond" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-piuqftg7">
     <path>
       <move select="Lead Right"/>
       <move select="Forward 2"/>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Switch to a Diamond" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-qobovalc">
     <path>
       <move select="Lead Left"/>
       <move select="Forward 2"/>
@@ -97,7 +97,7 @@
     </path>
   </tam>
 
-  <tam title="Switch to a Diamond" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Switch to a Diamond" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-80ngqdph">
     <path>
       <move select="Lead Left"/>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2"/>
@@ -114,7 +114,7 @@
     </path>
   </tam>
 
-  <tam title="Switch to a Diamond" from="Inverted Lines" formation="Inverted Lines Ends Facing Out">
+  <tam title="Switch to a Diamond" from="Inverted Lines" formation="Inverted Lines Ends Facing Out" vid="V1-9hvf6xs8">
   <path>
     <move select="Lead Left" beats="3" offsetX="-2" offsetY="2"/>
   </path>
@@ -129,7 +129,7 @@
   </path>
   </tam>
 
-  <tam title="Switch to a Diamond" from="3 and 1 Lines">
+  <tam title="Switch to a Diamond" from="3 and 1 Lines" vid="V1-d67hv5lp">
      <formation fid="F3-k9frz2rj" aid="A1-5et06l9p">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="1" angle="180"/>
@@ -153,7 +153,7 @@
   </tam>
 
   <tam title="Switch to a Diamond" from="Tidal Two-Faced Line"
-       formation="Two-Faced Tidal Line RH">
+       formation="Two-Faced Tidal Line RH" vid="V1-fsgpa9rt">
     <path>
       <move select="Lead Right" scaleX=".75"/>
       <move select="Forward" scaleX=".5"/>
@@ -170,7 +170,7 @@
     </path>
   </tam>
 
-  <tam title="Switch to a Diamond" from="Tidal Line" formation="Tidal Line RH">
+  <tam title="Switch to a Diamond" from="Tidal Line" formation="Tidal Line RH" vid="V1-frf9ltdy">
     <path>
       <move select="Lead Right" scaleX=".75" scaleY=".5"/>
       <move select="Forward" beats="2"/>

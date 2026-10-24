@@ -22,7 +22,7 @@
 -->
 <tamination title="Substitute">
 
-  <tam title="Substitute" from="Double Pass Thru" formation="Double Pass Thru">
+  <tam title="Substitute" from="Double Pass Thru" formation="Double Pass Thru" vid="V1-67igpfb7">
     <path>
       <move select="Extend Right" hands="gripright" scaleY=".5"/>
       <move select="Extend Left" hands="gripright" scaleY=".5"/>
@@ -42,7 +42,7 @@
   </tam>
 
   <tam title="Substitute" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-oprkozpr">
     <path>
       <move select="Extend Right" hands="right" beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Left" hands="right" beats="1.5" scaleX="2" scaleY=".5" />
@@ -62,7 +62,7 @@
   </tam>
 
   <tam title="Substitute" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-ujq0q548">
     <path>
       <move select="Retreat Right" hands="gripleft" beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Retreat Left" hands="gripleft" beats="1.5" scaleX="2" scaleY=".5" />
@@ -81,7 +81,7 @@
     </path>
   </tam>
 
-  <tam title="Substitute" formation="Galaxy RH GP" from="Galaxy">
+  <tam title="Substitute" formation="Galaxy RH GP" from="Galaxy" vid="V1-05jwiiwb">
     <path>
       <move select="Extend Left" hands="gripright" beats="1.5" scaleY=".5" />
       <move select="Extend Right" hands="gripright" beats="1.5" scaleY=".5" />

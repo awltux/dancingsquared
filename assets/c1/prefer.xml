@@ -24,7 +24,7 @@
 
   <tam title="Prefer the Men, Explode the Line" sequencer="gender-specific"
        formation="Lines Facing Out"
-       group=" " >
+       group=" "  vid="V1-9r6y3t7c">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1" />
       <move select="Pull Left" beats="2" scaleX="2" scaleY=".5" />
@@ -45,7 +45,7 @@
     </path>
   </tam>
 
-  <tam title="Prefer the Head Men, In Roll Circulate" group=" " sequencer="gender-specific">
+  <tam title="Prefer the Head Men, In Roll Circulate" group=" " sequencer="gender-specific" vid="V1-71ej6780">
     <formation name="Inverted Lines Ends Facing In" fid="F3-xpndd93x" aid="A1-twhuiatp">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Prefer the Girls, Scoot and Dodge" sequencer="gender-specific"
-       formation="Normal Lines" group=" ">
+       formation="Normal Lines" group=" " vid="V1-9f4a1pss">
     <path>
       <move select="Dodge Right" />
     </path>

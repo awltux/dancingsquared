@@ -24,7 +24,7 @@
 
   <tam title="Split Square Chain the Top"
        from="Ends Facing"
-       formation="T-Bone ULRU">
+       formation="T-Bone ULRU" vid="V1-38qyp92h">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" scaleX=".5" scaleY="1.5" />
@@ -61,7 +61,7 @@
 
   <tam title="Split Square Chain the Top"
        from="Centers Facing"
-       formation="T-Bone RUUL">
+       formation="T-Bone RUUL" vid="V1-6i5deike">
     <path>
       <move select="Stand" />
       <move select="Extend Right" beats="1.5" scaleY=".5" />
@@ -98,7 +98,7 @@
 
   <tam title="Split Square Chain the Top"
        from="Left Side of Line Facing"
-       formation="T-Bone RLUU">
+       formation="T-Bone RLUU" vid="V1-mmy1fk0x">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Left" scaleX="1.5" scaleY=".5" />
@@ -135,7 +135,7 @@
 
   <tam title="Split Square Chain the Top"
        from="Right Side of Line Facing"
-       formation="T-Bone UURL">
+       formation="T-Bone UURL" vid="V1-zc9z6xbl">
     <path>
       <move select="Stand" />
       <move select="Extend Right" beats="1.5" scaleY=".5" />
@@ -171,7 +171,7 @@
   </tam>
 
   <tam title="Split Square Chain the Top"
-       from="Center Wave">
+       from="Center Wave" vid="V1-b2n0zlo9">
     <formation fid="F3-tpbvr6qa" aid="A1-sfuhwv80">
       <dancer gender="boy" x="-1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
@@ -210,7 +210,7 @@
 
   <tam title="Split Dixie Style to a Wave"
        from="Ends Facing"
-       formation="T-Bone ULRU" parts="2.5">
+       formation="T-Bone ULRU" parts="2.5" vid="V1-bxuz787w">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right"/>
@@ -237,7 +237,7 @@
 
   <tam title="Split Dixie Style to a Wave"
        from="Centers Facing"
-       formation="T-Bone RUUL" parts="2.5">
+       formation="T-Bone RUUL" parts="2.5" vid="V1-xrg32klj">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Extend Right" scaleX=".75"/>
@@ -264,7 +264,7 @@
 
   <tam title="Split Dixie Style to a Wave"
        from="Left Side of Line Facing"
-       formation="T-Bone RLUU" parts="2.5">
+       formation="T-Bone RLUU" parts="2.5" vid="V1-3q0eoxa4">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Quarter Left" offsetX="1"/>
@@ -291,7 +291,7 @@
 
   <tam title="Split Dixie Style to a Wave"
        from="Right Side of Line Facing"
-       formation="T-Bone UURL" parts="2.5">
+       formation="T-Bone UURL" parts="2.5" vid="V1-6cugmj9s">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Extend Right" scaleX=".75" scaleY=".5"/>
@@ -318,7 +318,7 @@
 
   <tam title="Split Dixie Diamond"
        from="Ends Facing"
-       formation="T-Bone ULRU" parts="5">
+       formation="T-Bone ULRU" parts="5" vid="V1-0nqj0rki">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right"/>
@@ -349,7 +349,7 @@
 
   <tam title="Split Dixie Diamond"
        from="Centers Facing"
-       formation="T-Bone RUUL" parts="5">
+       formation="T-Bone RUUL" parts="5" vid="V1-iyko50jx">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Extend Right" scaleX=".75"/>
@@ -380,7 +380,7 @@
 
   <tam title="Split Dixie Sashay"
        from="Ends Facing"
-       formation="T-Bone ULRU" parts="2.5">
+       formation="T-Bone ULRU" parts="2.5" vid="V1-2u2dqp7z">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right"/>
@@ -409,7 +409,7 @@
 
   <tam title="Split Dixie Sashay"
        from="Centers Facing"
-       formation="T-Bone RUUL" parts="2.5">
+       formation="T-Bone RUUL" parts="2.5" vid="V1-nmrxr104">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Extend Right" scaleX=".75"/>
@@ -439,7 +439,7 @@
 
   <tam title="Left Split Square Chain the Top"
        from="Ends Facing"
-       formation="T-Bone ULRU">
+       formation="T-Bone ULRU" vid="V1-hipznalc">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Right" scaleX="1.5" scaleY=".5" />
@@ -476,7 +476,7 @@
 
   <tam title="Left Split Square Chain the Top"
        from="Centers Facing"
-       formation="T-Bone RUUL">
+       formation="T-Bone RUUL" vid="V1-5acpqq2r">
     <path>
       <move select="Stand" />
       <move select="Extend Left" beats="1.5" scaleY=".5" />
@@ -513,7 +513,7 @@
 
   <tam title="Left Split Square Chain the Top"
        from="Left Side of Line Facing"
-       formation="T-Bone RLUU">
+       formation="T-Bone RLUU" vid="V1-sdlpqrw0">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Left" scaleX=".5" scaleY="1.5" />
@@ -550,7 +550,7 @@
 
   <tam title="Left Split Square Chain the Top"
        from="Right Side of Line Facing"
-       formation="T-Bone UURL">
+       formation="T-Bone UURL" vid="V1-u9mh7gp0">
     <path>
       <move select="Stand" />
       <move select="Extend Left" beats="1.5" scaleY=".5" />
@@ -589,7 +589,7 @@
 
   <tam title="Left Split Dixie Style to a Wave"
        from="Ends Facing"
-       formation="T-Bone ULRU" parts="2.5">
+       formation="T-Bone ULRU" parts="2.5" vid="V1-6w9svp1z">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Quarter Right" offsetX="1"/>
@@ -616,7 +616,7 @@
 
   <tam title="Left Split Dixie Style to a Wave"
        from="Centers Facing"
-       formation="T-Bone RUUL" parts="2.5">
+       formation="T-Bone RUUL" parts="2.5" vid="V1-5aej1xi4">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Forward" scaleX=".75"/>
@@ -643,7 +643,7 @@
 
   <tam title="Left Split Dixie Style to a Wave"
        from="Left Side of Line Facing"
-       formation="T-Bone RLUU" parts="2.5">
+       formation="T-Bone RLUU" parts="2.5" vid="V1-a3p6snxb">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Lead Left"/>
@@ -670,7 +670,7 @@
 
   <tam title="Left Split Dixie Style to a Wave"
        from="Right Side of Line Facing"
-       formation="T-Bone UURL" parts="2.5">
+       formation="T-Bone UURL" parts="2.5" vid="V1-6fyhaein">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Extend Left" scaleX=".75" scaleY=".5"/>
@@ -698,7 +698,7 @@
 
   <tam title="Left Split Dixie Diamond"
        from="Ends Facing"
-       formation="T-Bone ULRU" parts="5">
+       formation="T-Bone ULRU" parts="5" vid="V1-pj1xeik9">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Quarter Right" offsetX="1"/>
@@ -729,7 +729,7 @@
 
   <tam title="Left Split Dixie Diamond"
        from="Centers Facing"
-       formation="T-Bone RUUL" parts="5">
+       formation="T-Bone RUUL" parts="5" vid="V1-czsh4wj2">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Forward" scaleX=".75"/>
@@ -760,7 +760,7 @@
 
   <tam title="Left Split Dixie Sashay"
        from="Ends Facing"
-       formation="T-Bone ULRU" parts="2.5">
+       formation="T-Bone ULRU" parts="2.5" vid="V1-yg8l9x5q">
     <path>
       <move select="Pull Right" scaleY=".5" />
       <move select="Quarter Right" offsetX="1"/>
@@ -789,7 +789,7 @@
 
   <tam title="Left Split Dixie Sashay"
        from="Centers Facing"
-       formation="T-Bone RUUL" parts="2.5">
+       formation="T-Bone RUUL" parts="2.5" vid="V1-govmgnmp">
     <path>
       <move select="Stand" beats="2.5"/>
       <move select="Forward" scaleX=".75"/>

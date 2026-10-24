@@ -23,7 +23,7 @@
 <tamination title="Turn to a Line">
 
   <tam title="Turn to a Line" from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-uhtlpv7j">
     <path numbers="1 4">
       <move select="Flip Left" offsetX="1.5" />
     </path>
@@ -32,7 +32,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Couples Facing Out" formation="Couples Facing Out">
+  <tam title="Turn to a Line" from="Couples Facing Out" formation="Couples Facing Out" vid="V1-ml8dnu91">
     <path numbers="1 4">
       <move select="Flip Right" offsetX="-2" />
     </path>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Right-Hand Box" formation="Box RH">
+  <tam title="Turn to a Line" from="Right-Hand Box" formation="Box RH" vid="V1-34ui8ptd">
     <path numbers="1 4">
       <move select="Flip Left" offsetX="2" />
     </path>
@@ -50,7 +50,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Left-Hand Box" formation="Box LH">
+  <tam title="Turn to a Line" from="Left-Hand Box" formation="Box LH" vid="V1-d0bb42gx">
     <path numbers="1 4">
       <move select="Flip Right" offsetX="-2" />
     </path>
@@ -59,7 +59,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Eight Chain Thru" formation="Eight Chain Thru">
+  <tam title="Turn to a Line" from="Eight Chain Thru" formation="Eight Chain Thru" vid="V1-aqjejhmv">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -76,7 +76,7 @@
 
   <tam title="Turn to a Line"
        from="Double Pass Thru"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-xc9yjxun">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -93,7 +93,7 @@
 
   <tam title="Turn to a Line"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-as2wngv7">
     <path>
       <move select="Flip Right" offsetX="-1" />
     </path>
@@ -108,7 +108,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Trade By" formation="Trade By">
+  <tam title="Turn to a Line" from="Trade By" formation="Trade By" vid="V1-y0pvbwmd">
     <path>
       <move select="Flip Right" offsetX="-1" />
     </path>
@@ -125,7 +125,7 @@
 
   <tam title="Turn to a Line"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-p1vfqb0o">
     <path>
       <move select="Flip Right" offsetX="-1" />
     </path>
@@ -142,7 +142,7 @@
 
   <tam title="Turn to a Line"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-z9ungzup">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -158,7 +158,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-oup0ff4g">
     <path>
       <move select="Flip Left" offsetX="1" />
     </path>
@@ -174,7 +174,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-k2d9hviq">
     <path>
       <move select="Flip Right" offsetX="-1" />
     </path>
@@ -191,7 +191,7 @@
 
   <tam title="Turn to a Line"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-28yz7c9v">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -208,7 +208,7 @@
 
   <tam title="Turn to a Line"
        from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-yaacuhmk">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -225,7 +225,7 @@
 
   <tam title="Turn to a Line"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-40h44ck6">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -240,7 +240,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Left-Hand Waves" formation="Ocean Waves LH BGBG">
+  <tam title="Turn to a Line" from="Left-Hand Waves" formation="Ocean Waves LH BGBG" vid="V1-kziq4pz1">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -255,7 +255,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Normal Lines" formation="Normal Lines">
+  <tam title="Turn to a Line" from="Normal Lines" formation="Normal Lines" vid="V1-xlao5d8a">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -270,7 +270,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line" from="Lines Facing Out" formation="Lines Facing Out">
+  <tam title="Turn to a Line" from="Lines Facing Out" formation="Lines Facing Out" vid="V1-9otx6kk9">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -286,7 +286,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="Inverted Lines, Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-puojkmcc">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -302,7 +302,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="Inverted Lines, Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-avghcevz">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -318,7 +318,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #1"
-       formation="3 and 1 lines #1">
+       formation="3 and 1 lines #1" vid="V1-82bdfvqe">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -334,7 +334,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #2"
-       formation="3 and 1 lines #2">
+       formation="3 and 1 lines #2" vid="V1-j9qb8dcy">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -350,7 +350,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #3"
-       formation="3 and 1 lines #3">
+       formation="3 and 1 lines #3" vid="V1-zkjopjo6">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -366,7 +366,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #4"
-       formation="3 and 1 lines #4">
+       formation="3 and 1 lines #4" vid="V1-xemuq7db">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -382,7 +382,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #5"
-       formation="3 and 1 lines #5">
+       formation="3 and 1 lines #5" vid="V1-sorfemwh">
     <path>
       <move select="Flip Left" offsetX="2" offsetY="-1.5" />
     </path>
@@ -398,7 +398,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #6"
-       formation="3 and 1 lines #6">
+       formation="3 and 1 lines #6" vid="V1-a19v3bez">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -414,7 +414,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #7"
-       formation="3 and 1 lines #7">
+       formation="3 and 1 lines #7" vid="V1-7l90agi9">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -430,7 +430,7 @@
   </tam>
 
   <tam title="Turn to a Line" from="3 and 1 Lines #8"
-       formation="3 and 1 lines #8">
+       formation="3 and 1 lines #8" vid="V1-8c792vsy">
     <path>
       <move select="Flip Right" offsetX="-2" offsetY="1.5" />
     </path>
@@ -445,7 +445,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line and Roll" formation="Completed Double Pass Thru" group=" ">
+  <tam title="Turn to a Line and Roll" formation="Completed Double Pass Thru" group=" " vid="V1-ri7tqbn1">
     <path>
       <move select="Flip Right" offsetX="-1" />
       <move select="Quarter Right" offsetX="1"/>
@@ -464,7 +464,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line and Spread" formation="Trade By" group=" ">
+  <tam title="Turn to a Line and Spread" formation="Trade By" group=" " vid="V1-mbkpvyhf">
     <path>
       <move select="U-Turn Right" offsetX="-1"/>
     </path>
@@ -479,7 +479,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Turn to a Line" formation="Static MiniWaves RH" group="  ">
+  <tam title="All 8 Turn to a Line" formation="Static MiniWaves RH" group="  " vid="V1-hrerebeq">
     <path>
       <move select="Flip Left" offsetX="3" beats="5"/>
     </path>
@@ -495,7 +495,7 @@
   </tam>
 
   <tam title="As Couples Turn to a Line"
-       formation="Two-Faced Lines RH" group="  ">
+       formation="Two-Faced Lines RH" group="  " vid="V1-8n5i6dwc">
     <path>
       <move select="Quarter Left" hands="right" beats="2"/>
       <move select="Quarter Left" hands="right" beats="2" offsetX="-.5" offsetY="-2"/>
@@ -514,7 +514,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Turn to a Line" formation="Butterfly Trade By" group="   ">
+  <tam title="Butterfly Turn to a Line" formation="Butterfly Trade By" group="   " vid="V1-pqotp0z8">
     <path>
       <move select="Run Right" offsetX="-2" scaleY="2"/>
     </path>
@@ -529,7 +529,7 @@
     </path>
   </tam>
 
-  <tam title="Concentric Turn to a Line" formation="Double Pass Thru" group="   ">
+  <tam title="Concentric Turn to a Line" formation="Double Pass Thru" group="   " vid="V1-ww5cwt4f">
     <path>
       <move select="Flip Left" offsetX="3" offsetY=".5"/>
     </path>
@@ -545,7 +545,7 @@
   </tam>
 
   <tam title="Cross Concentric Turn to a Line (from columns)"
-       formation="Double Pass Thru" group="   ">
+       formation="Double Pass Thru" group="   " vid="V1-1io7rlnn">
     <path>
       <move select="Flip Left" offsetX="3" scaleY=".25"/>
     </path>
@@ -561,7 +561,7 @@
   </tam>
 
   <tam title="Cross Concentric Turn to a Line (from waves)"
-       formation="Ocean Waves RH BGBG" group="   ">
+       formation="Ocean Waves RH BGBG" group="   " vid="V1-edmab5xh">
     <path>
       <move select="Stand"/>
       <move select="Dodge Right"/>
@@ -580,7 +580,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Turn to a Line" formation="O Trade By" group="   ">
+  <tam title="&quot;O&quot; Turn to a Line" formation="O Trade By" group="   " vid="V1-mq0jkypp">
     <path>
       <move select="Flip Right"/>
     </path>
@@ -595,7 +595,7 @@
     </path>
   </tam>
 
-  <tam title="Stretch Turn to a Line" formation="Completed Double Pass Thru" group="   ">
+  <tam title="Stretch Turn to a Line" formation="Completed Double Pass Thru" group="   " vid="V1-zvfmpnig">
     <path>
       <move select="Flip Right" offsetX="-1" />
     </path>
@@ -610,7 +610,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Turn to a Line" formation="Completed Double Pass Thru" group="   ">
+  <tam title="Tandem Turn to a Line" formation="Completed Double Pass Thru" group="   " vid="V1-1mzx97xu">
     <path>
       <move select="Flip Right" offsetX="-1" />
       <move select="Forward 4"/>
@@ -629,7 +629,7 @@
     </path>
   </tam>
 
-  <tam title="Turn to a Line the Windmill Right" formation="Column RH GBGB"    group="   ">
+  <tam title="Turn to a Line the Windmill Right" formation="Column RH GBGB"    group="   " vid="V1-o1h9z419">
     <path>
       <move select="Hinge Right" beats="1" scaleX=".5"/>
       <move select="Lead Right" beats="4" scaleX="5" scaleY="3.5"/>

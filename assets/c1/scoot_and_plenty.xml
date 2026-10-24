@@ -25,7 +25,7 @@
   <tam title="Plenty"
        from="Right-Hand Quarter Tag"
        formation="Quarter Tag"
-       parts="5;7" >
+       parts="5;7"  vid="V1-odjaugrr">
     <path numbers="1 8">
       <move select="Extend Right" beats="5" scaleY="4" />
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5" />
@@ -68,7 +68,7 @@
   <tam title="Plenty"
        from="Right-Hand 3/4 Tag"
        formation="3/4 Tag"
-       parts="6;7" >
+       parts="6;7"  vid="V1-hq9pto7s">
     <path numbers="1 8" couples="4 2">
       <move select="Flip Right" offsetX="-1" />
       <move select="Forward 4" beats="3" />
@@ -99,7 +99,7 @@
     </path>
   </tam>
 
-  <tam title="Plenty" from="Left-Hand Quarter Tag" formation="Quarter Tag LH" parts="5;7">
+  <tam title="Plenty" from="Left-Hand Quarter Tag" formation="Quarter Tag LH" parts="5;7" vid="V1-oa0j3ve8">
     <path>
       <move select="Extend Right" beats="5" scaleY="4" />
       <move select="Forward 4"/>
@@ -129,7 +129,7 @@
     </path>
   </tam>
 
-  <tam title="Plenty" from="Left-Hand 3/4 Tag" formation="3/4 Tag LH" parts="5;7">
+  <tam title="Plenty" from="Left-Hand 3/4 Tag" formation="3/4 Tag LH" parts="5;7" vid="V1-m6910se4">
     <path>
       <move select="Flip Right" beats="2" offsetX="-1" />
       <move select="Forward 4" beats="3" />
@@ -165,7 +165,7 @@
   </tam>
 
 
-  <tam title="Plenty" from ="&quot;I&quot; formation" parts="5;5">
+  <tam title="Plenty" from ="&quot;I&quot; formation" parts="5;5" vid="V1-6ns5hzha">
     <formation fid="F3-8xcr0wxi" aid="A1-2esp05xa">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
@@ -202,7 +202,7 @@
     </path>
   </tam>
 
-  <tam title="Plenty" from="Hourglass" formation="Hourglass RH BP" parts="6;4">
+  <tam title="Plenty" from="Hourglass" formation="Hourglass RH BP" parts="6;4" vid="V1-hvdrm4rv">
     <path>
       <!-- Little -->
       <move select="Quarter Right"/>
@@ -252,7 +252,7 @@
   <tam title="Plenty, Points Go As You Are"
        from="Diamonds"
        formation="Diamonds RH Girl Points"
-       parts="6;7" >
+       parts="6;7"  vid="V1-ywumcswm">
     <path>
       <move select="Flip Right" beats="6" offsetX="2" />
       <move select="Forward 4" />
@@ -285,7 +285,7 @@
   <tam title="Left Plenty"
        from="Right-Hand Quarter Tag"
        formation="Quarter Tag"
-       parts="5;7" >
+       parts="5;7"  vid="V1-hqlwo00e">
     <path>
       <move select="Extend Left" beats="2.5" scaleX="2" scaleY="2" />
       <move select="Forward 3" beats="2.5" />
@@ -317,7 +317,7 @@
   <tam title="Left Plenty"
        from="Right-Hand 3/4 Tag"
        formation="3/4 Tag"
-       parts="5;7" >
+       parts="5;7"  vid="V1-vd2uwr19">
     <path>
       <move select="Flip Left" beats="4" scaleX="2" scaleY="2" />
       <move select="Forward" />
@@ -350,7 +350,7 @@
   <tam title="Left Plenty"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       parts="5;7" >
+       parts="5;7"  vid="V1-21jcqq0d">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Forward 3" beats="2" />
@@ -389,7 +389,7 @@
   <tam title="Left Plenty"
        from="Left-Hand 3/4 Tag"
        formation="3/4 Tag LH"
-       parts="6;7" >
+       parts="6;7"  vid="V1-5m0yunvt">
     <path>
       <move select="Flip Left" beats="5" scaleX="2" scaleY="2" />
       <move select="Forward" />
@@ -424,7 +424,7 @@
   <tam title="Scoot and Plenty"
        from="Quarter Tag"
        formation="Quarter Tag"
-       parts="6;6;7" >
+       parts="6;6;7"  vid="V1-z9x19keg">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -470,7 +470,7 @@
   <tam title="Scoot and Plenty"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       parts="6;6;7" >
+       parts="6;6;7"  vid="V1-qr327j6n">
     <path>
       <move select="Forward" beats="1.5" scaleX="1.5" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

@@ -25,7 +25,7 @@
   <tam title="Box Transfer"
        from="Right-Hand Box"
        formation="Box RH"
-       fractions="" >
+       fractions=""  vid="V1-2l90awws">
     <path numbers="1 4" couples="1 3">
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Cast Right" scaleX=".75" scaleY=".75" />
@@ -40,7 +40,7 @@
 
   <tam title="Box Transfer"
        from="Left-Hand Box"
-       formation="Box LH Girls Lead">
+       formation="Box LH Girls Lead" vid="V1-vtkyfgao">
     <path couples="1 3">
       <move select="Extend Left" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Cast Left" scaleX=".75" scaleY=".75" />
@@ -56,7 +56,7 @@
   <tam title="All 8 Box Transfer"
        from="Mini Waves"
        formation="Static MiniWaves RH"
-       group=" " >
+       group=" "  vid="V1-j8b9q2k7">
     <path>
       <move select="Forward 3" />
       <move select="Cast Right" />
@@ -82,7 +82,7 @@
   <tam title="As Couples Box Transfer"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       group=" " >
+       group=" "  vid="V1-cwmthbv5">
     <path>
       <move select="Extend Right" hands="right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Cast Right" scaleX="1.5" scaleY="1.5" />
@@ -107,7 +107,7 @@
 
   <tam title="Split Transfer"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-rw5otnp4">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Cast Right" scaleX=".75" scaleY=".75" />
@@ -132,7 +132,7 @@
 
   <tam title="Split Transfer"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-4tuzcv7r">
     <path>
       <move select="Run Left" beats="4" scaleX=".5" scaleY="1.25" />
       <move select="Forward 2" />
@@ -157,7 +157,7 @@
 
   <tam title="Split Transfer"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-bdjobgxe">
     <path>
       <move select="Run Right" beats="4" scaleX=".5" scaleY="1.75" />
       <move select="Forward" />
@@ -182,7 +182,7 @@
 
   <tam title="Split Transfer"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-ytvz6bgv">
     <path>
       <move select="Extend Left" beats="1.5" scaleY=".25" />
       <move select="Cast Left" scaleX=".75" scaleY=".75" />

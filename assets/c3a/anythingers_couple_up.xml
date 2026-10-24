@@ -23,7 +23,7 @@
 <tamination title="&lt;anything&gt;er's Couple Up">
 
   <tam title="Counter Couple Up" formation="Ocean Waves RH BGGB"
-       group="  " parts="4">
+       group="  " parts="4" vid="V1-lk1qtdyq">
     <path>
       <move select="Counter Rotate Right 5 -1" beats="4"/>
     </path>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Split Counter Couple Up" formation="Ocean Waves RH BGGB"
-       group="  " parts="3">
+       group="  " parts="3" vid="V1-tj38hjf2">
     <path>
       <move select="Counter Rotate Right 2 0" hands="right" offsetX="1" beats="3"/>
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Trade Couple Up" formation="Ocean Waves RH BGGB" group="  "
-       parts="4">
+       parts="4" vid="V1-dnw281pc">
     <path>
       <move select="Forward" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />

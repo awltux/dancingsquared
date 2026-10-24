@@ -23,7 +23,7 @@
 <tamination title="Cross Cycle">
 
   <tam title="Cross Cycle, 3 distinct parts" group=" "
-       formation="Two-Faced Line RH" parts="3;2">
+       formation="Two-Faced Line RH" parts="3;2" vid="V1-ta0ki2s9">
     <path>
       <move select="Dodge Right" offsetX="1"/>
       <move select="Counter Rotate Right 0 -2" hands="right"/>
@@ -36,7 +36,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Cycle" from="Right-Hand Two-Faced Line" formation="Two-Faced Line RH" fractions="4">
+  <tam title="Cross Cycle" from="Right-Hand Two-Faced Line" formation="Two-Faced Line RH" fractions="4" vid="V1-9k3xg0e8">
     <path>
       <move select="Lead Right" beats="4" scaleY="4"/>
       <move select="Quarter Right" offsetY="1"/>
@@ -52,7 +52,7 @@
     </taminator>
   </tam>
 
-  <tam title="Cross Cycle" from="Left-Hand Two-Faced Line" formation="Two-Faced Line LH" fractions="4">
+  <tam title="Cross Cycle" from="Left-Hand Two-Faced Line" formation="Two-Faced Line LH" fractions="4" vid="V1-l8iii9gz">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Run Left" beats="2"/>
@@ -64,7 +64,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Cycle" from="Facing Couples">
+  <tam title="Cross Cycle" from="Facing Couples" vid="V1-zxlvy0so">
     <formation fid="F3-nlnlii69" aid="A1-3qas3yk3">
       <dancer gender="girl" x="2" y="-1" angle="180" />
       <dancer gender="boy" x="2" y="1" angle="180" />
@@ -82,7 +82,7 @@
 
   <tam title="Cross Cycle"
        from="Right-Hand Box"
-       formation="Box RH">
+       formation="Box RH" vid="V1-pyi7megv">
     <path>
       <move select="U-Turn Right" beats="4" hands="gripright" offsetX="2" />
       <move select="BackSashay Left" beats="2" scaleX="1.5"/>

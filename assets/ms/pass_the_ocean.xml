@@ -25,7 +25,7 @@
   <tam title="Pass the Ocean"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="1">
+       difficulty="1" vid="V1-fmgplinj">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Forward" beats=".5" />
@@ -39,7 +39,7 @@
 
   <tam title="Pass the Ocean"
        from="Close Couples"
-       formation="Facing Couples Close" display="none">
+       formation="Facing Couples Close" display="none" vid="V1-u9b2ii4l">
     <path>
       <move select="Extend Left" beats="2" scaleY=".5" />
       <move select="Forward" beats=".5" scaleX=".5" />
@@ -54,7 +54,7 @@
   <tam title="Pass the Ocean"
        from="Lines"
        formation="Normal Lines"
-       difficulty="1">
+       difficulty="1" vid="V1-qh4i6i96">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Forward" beats=".5" />
@@ -78,7 +78,7 @@
   <tam title="Pass the Ocean"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-tnahhs6v">
     <path>
       <move select="Extend Left" beats="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -100,7 +100,7 @@
   <tam title="Pass the Ocean"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="3">
+       difficulty="3" vid="V1-hja2jmcm">
     <path>
       <move select="Lead Right" beats="4" scaleX="1.5" scaleY="3" />
     </path>
@@ -118,7 +118,7 @@
   <tam title="Pass the Ocean"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       difficulty="3">
+       difficulty="3" vid="V1-zqzdrxf9">
     <path>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="1.5" />
     </path>
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Heads Pass the Ocean" from="Static Square" group=" "
-       formation="Static Square" difficulty="1">
+       formation="Static Square" difficulty="1" vid="V1-waeciqhw">
     <path>
       <move select="Extend Left" beats="2" scaleX="3" scaleY=".5" />
       <move select="Forward" beats=".5" />
@@ -151,7 +151,7 @@
   </tam>
 
   <tam title="Sides Pass the Ocean" from="Static Square" group=" "
-       formation="Static Square" difficulty="1">
+       formation="Static Square" difficulty="1" vid="V1-z9aqh3r1">
     <path>
     </path>
     <path>
@@ -174,7 +174,7 @@
 <tam title="Pass the Ocean"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="1">
+       difficulty="1" vid="V1-v4fa8l8i">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Forward" beats=".5" />

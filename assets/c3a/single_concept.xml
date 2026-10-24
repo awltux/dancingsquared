@@ -22,7 +22,7 @@
 -->
 <tamination title="Single Concept">
 
-  <tam title="Single Checkmate" from="Right-Hand Box">
+  <tam title="Single Checkmate" from="Right-Hand Box" vid="V1-vwtgeuot">
     <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Single Checkmate" from="Left-Hand Box" formation="Box LH">
+  <tam title="Single Checkmate" from="Left-Hand Box" formation="Box LH" vid="V1-h2hwhidx">
     <path>
       <move select="Run Left" scaleY="1.5"/>
       <move select="Quarter Left" beats="3" offsetX="3"/>
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Single Checkmate" from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-7edfg7ff">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY=".5"/>
       <move select="Lead Right" scaleY=".5"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Single Checkmate" from="Couples Facing Out"
-       formation="Couples Facing Out">
+       formation="Couples Facing Out" vid="V1-n03f1l0x">
     <path>
       <move select="Flip Left"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Single Checkmate" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-it5prbuq">
     <path>
       <move select="Forward 2"/>
       <move select="Lead Right" beats="4" scaleY="2"/>
@@ -102,7 +102,7 @@
   </tam>
 
   <tam title="Single Checkmate" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-azqvt8cx">
     <path>
       <move select="Run Left"/>
       <move select="Quarter Left" beats="3" offsetX="3"/>
@@ -122,7 +122,7 @@
   </tam>
 
   <tam title="Single Checkmate" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-cexh7sc4">
     <path>
       <move select="Run Right" scaleY="1.5"/>
       <move select="Quarter Right" beats="2" offsetX="2"/>
@@ -142,7 +142,7 @@
   </tam>
 
   <tam title="Single Checkmate" from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-ckkfvnzx">
     <path>
       <move select="Forward"/>
       <move select="Lead Left" beats="4" scaleY="3"/>
@@ -163,7 +163,7 @@
 
   <tam title="Single Checkmate"
        from="Inverted Lines Ends Facing Out"
-       formation="Inverted Lines Ends Facing Out">
+       formation="Inverted Lines Ends Facing Out" vid="V1-lfzble8o">
     <path>
       <move select="Run Left" scaleY="0.75"/>
       <move select="Forward 2"/>
@@ -188,7 +188,7 @@
 
   <tam title="Single Checkmate"
        from="Inverted Lines Ends Facing In"
-       formation="Inverted Lines Ends Facing In">
+       formation="Inverted Lines Ends Facing In" vid="V1-d7zduoaz">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Forward"/>
@@ -212,7 +212,7 @@
   </tam>
 
   <tam title="Heads Single Checkmate" from="Static Square"
-       formation="Static Square" group=" ">
+       formation="Static Square" group=" " vid="V1-43f9vooo">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Lead Right" scaleY=".5"/>
@@ -233,7 +233,7 @@
   </tam>
 
   <tam title="As Couples Single Checkmate"
-       formation="Two-Faced Lines RH" group=" ">
+       formation="Two-Faced Lines RH" group=" " vid="V1-rd7mcjiw">
     <path>
       <move select="Forward 2" hands="right"/>
       <move select="Lead Right" beats="4" hands="right" scaleX="3" scaleY="3"/>
@@ -257,7 +257,7 @@
   </tam>
 
   <tam title="Stretch Single Checkmate" group=" "
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-gs397lhh">
     <path>
       <move select="Forward 2"/>
       <move select="Lead Right" beats="4" scaleY="2"/>
@@ -278,7 +278,7 @@
   </tam>
 
   <tam title="Tandem Single Checkmate" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-5kfrwk6h">
     <path>
       <move select="Run Right" scaleY="1.5"/>
       <move select="Forward 4"/>
@@ -316,7 +316,7 @@
            xref-link="a2/single_wheel"
            xref-from="Right-Hand Box"/>
 
-  <tam title="Single Turn and Deal" from="Left-Hand Box" formation="Box LH">
+  <tam title="Single Turn and Deal" from="Left-Hand Box" formation="Box LH" vid="V1-54glxjqc">
     <path>
       <move select="U-Turn Left" offsetX="-1" offsetY="1"/>
     </path>
@@ -327,7 +327,7 @@
 
 
   <tam title="Single Ferris Wheel" group="Single"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-nbe7n5dp">
     <path>
       <move select="Forward 2"/>
       <move select="Lead Right"/>
@@ -346,7 +346,7 @@
   </tam>
 
   <tam title="Single Polly Wally" group="Single"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-tal6kwrh">
     <path>
       <move select="U-Turn Right" offsetX="1"/>
     </path>
@@ -363,7 +363,7 @@
     </path>
   </tam>
 
-  <tam title="Single Rotary Spin" group="Single">
+  <tam title="Single Rotary Spin" group="Single" vid="V1-rypxqr8x">
     <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="90"/>
@@ -382,7 +382,7 @@
   </tam>
 
   <tam title="Single Shakedown" group="Single"
-       formation="Couples Facing Out Compact">
+       formation="Couples Facing Out Compact" vid="V1-oldj5gxz">
     <path>
       <move select="Run Right" offsetX="-.5"/>
       <move select="Quarter Right" offsetX="1"/>
@@ -394,7 +394,7 @@
   </tam>
 
   <tam title="Single Turn to a Line" from="Facing Couples"
-       formation="Facing Couples">
+       formation="Facing Couples" vid="V1-x6cz21mc">
     <path>
       <move select="Quarter Left" offsetX="1"/>
       <move select="Extend Right" beats="2" scaleX="2"/>
@@ -408,7 +408,7 @@
   </tam>
 
   <tam title="Single Turn to a Line" from="Couples Facing Out"
-       formation="Couples Facing Out">
+       formation="Couples Facing Out" vid="V1-79risjg7">
     <path>
       <move select="Quarter Right" offsetX="-1"/>
       <move select="Extend Right" beats="2" scaleX="2"/>
@@ -422,7 +422,7 @@
   </tam>
 
   <tam title="Single Turn to a Line" from="Right-Hand Box"
-       formation="Box RH">
+       formation="Box RH" vid="V1-btpt3p17">
     <path>
       <move select="Quarter Left" offsetX="1"/>
       <move select="Extend Right" beats="2" scaleX="2"/>
@@ -436,7 +436,7 @@
   </tam>
 
   <tam title="Single Turn to a Line" from="Left-Hand Box"
-       formation="Box LH">
+       formation="Box LH" vid="V1-gfbojk6z">
     <path>
       <move select="Quarter Right" offsetX="-1"/>
       <move select="Extend Right" beats="2" scaleX="2"/>

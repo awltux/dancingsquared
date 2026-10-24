@@ -27,7 +27,7 @@
 
   <tam title="Pair Off"
        from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-ku8alhnm">
     <path>
       <move select="Lead Left" beats="2" scaleX=".5" scaleY=".5"/>
     </path>
@@ -38,7 +38,7 @@
 
   <tam title="Pair Off"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-ayo9mqxr">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" />
     </path>
@@ -54,7 +54,7 @@
   </tam>
 
   <tam title="Pair Off"
-       from="Eight Chain Thru">
+       from="Eight Chain Thru" vid="V1-shfg6mom">
     <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
       <dancer gender="boy" y="3" x="1" angle="270" />
       <dancer gender="girl" y="3" x="-1" angle="270" />
@@ -75,7 +75,7 @@
     </path>
   </tam>
 
-  <tam title="Heads Pair Off" formation="Static Square" group=" ">
+  <tam title="Heads Pair Off" formation="Static Square" group=" " vid="V1-o9gmbstp">
     <path>
       <move select="Forward" beats="1.5"/>
       <move select="Quarter Left" beats="2.5" offsetX="1" />
@@ -88,7 +88,7 @@
     <path/>
   </tam>
 
-  <tam title="Sides Pair Off" formation="Static Square" group=" ">
+  <tam title="Sides Pair Off" formation="Static Square" group=" " vid="V1-nw6kao5s">
     <path/>
     <path/>
     <path>
@@ -104,7 +104,7 @@
   <tam title="As Couples Pair Off"
        from="Lines"
        formation="Normal Lines"
-       group=" " >
+       group=" "  vid="V1-z1z24c4m">
     <path>
       <move select="BackHinge Right" />
     </path>

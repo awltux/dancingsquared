@@ -22,7 +22,7 @@
 -->
 <tamination title="Switch to a Diamond">
 
-  <tam formation="Wave RH" title="Switch to a Diamond" from="Right-Hand Wave">
+  <tam formation="Wave RH" title="Switch to a Diamond" from="Right-Hand Wave" vid="V1-f1ocbjwv">
     <path numbers="1 4">
       <move select="Lead Right" scaleY="3" beats="3" />
     </path>
@@ -31,7 +31,7 @@
     </path>
   </tam>
 
-  <tam formation="Wave LH" title="Switch to a Diamond" from="Left-Hand Wave">
+  <tam formation="Wave LH" title="Switch to a Diamond" from="Left-Hand Wave" vid="V1-eon1tl4o">
     <path>
       <move select="Lead Left" scaleY="3" beats="3" />
     </path>
@@ -43,7 +43,7 @@
   <tam title="Switch to a Diamond"
        from="Right-Hand Waves"
        formation="Ocean Waves RH GBBG"
-       fractions="" >
+       fractions=""  vid="V1-4ep35uu5">
     <path>
       <move select="Lead Right" scaleY="3" beats="3" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="Switch to a Diamond"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       fractions="" >
+       fractions=""  vid="V1-gplxi0fq">
     <path>
       <move select="Lead Left" scaleY="3" beats="3" />
     </path>
@@ -79,7 +79,7 @@
   <tam title="Switch to a Diamond"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-gzz3b4l6">
     <path>
       <move select="Lead Right" beats="3" scaleY="1.5" />
     </path>
@@ -97,7 +97,7 @@
   <tam title="Switch to a Diamond"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-mc0sz3pm">
     <path>
       <move select="Lead Left" beats="3" scaleY="1.5" />
     </path>
@@ -115,7 +115,7 @@
   <tam title="Switch to an Hourglass"
        from="Right-Hand Waves"
        formation="Ocean Waves RH GBBG"
-       fractions="" >
+       fractions=""  vid="V1-wxa58569">
     <path numbers="1 8">
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2" />
     </path>
@@ -133,7 +133,7 @@
   <tam title="Switch to an Hourglass"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       fractions="" >
+       fractions=""  vid="V1-gkc6nyia">
     <path numbers="1 8">
       <move select="Lead Left" beats="3" scaleY="3" />
     </path>

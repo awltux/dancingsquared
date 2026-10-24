@@ -25,7 +25,7 @@
   <tam title="Cross and Wheel"
        from="Normal Lines"
        formation="Normal Lines"
-       parts="3" >
+       parts="3"  vid="V1-y9ldl7e7">
     <path>
       <move select="Lead Right" beats="3" hands="right" scaleX="1.5" scaleY="3" />
       <move select="Extend Right" beats="3" hands="right" scaleX="2" scaleY=".5" />
@@ -48,7 +48,7 @@
 
   <tam title="Cross and Wheel"
        from="Right-Hand Two-Faced Lines"
-       parts="3" >
+       parts="3"  vid="V1-8z6hmkgm">
     <formation fid="F3-p8t2f0pj" aid="A1-zs75tk63">
       <dancer gender="boy" y="2" x="3" angle="270"/>
       <dancer gender="girl" y="2" x="1" angle="270"/>
@@ -78,7 +78,7 @@
   <tam title="Cross and Wheel"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       parts="3" >
+       parts="3"  vid="V1-068yzjnx">
     <path>
       <move select="Lead Left" beats="3" hands="left" scaleX="1.5" scaleY="3" />
       <move select="Forward"/>
@@ -102,7 +102,7 @@
   <tam title="Cross Trade and Wheel"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       parts="3;3" >
+       parts="3;3"  vid="V1-y53kz8gw">
     <path>
       <move select="Hinge Right" beats="3" scaleX="1.5" scaleY="3" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -130,7 +130,7 @@
   <tam title="Cross Trade and Wheel"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       parts="3;3" >
+       parts="3;3"  vid="V1-6vrsat7j">
     <path>
       <move select="Hinge Left" beats="3" scaleX="1.5" scaleY="3" />
       <move select="Stand" beats="3" />
@@ -158,7 +158,7 @@
   <tam title="Cross Trade and Wheel"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       parts="3;3" >
+       parts="3;3"  vid="V1-9nwioya6">
     <path>
       <move select="Quarter Left" beats="3" hands="left" offsetX="-.5" offsetY="3"/>
       <move select="Stand" beats="3" />
@@ -184,7 +184,7 @@
   </tam>
 
   <tam title="Grand Cross Trade and Wheel" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" parts="3;3">
+       formation="Two-Faced Lines RH" parts="3;3" vid="V1-t3cluhi2">
     <path>
       <move select="Hinge Right" beats="3" hands="gripright" scaleX="1.5" scaleY="3"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -208,7 +208,7 @@
   </tam>
 
   <tam title="Single Cross and Wheel" from="Right-Hand Box"
-       formation="Box RH" parts="1.5">
+       formation="Box RH" parts="1.5" vid="V1-kjsgmn5c">
     <path>
       <move select="Hinge Right"/>
       <move select="Forward 2" beats="3"/>
@@ -220,7 +220,7 @@
   </tam>
 
   <tam title="Single Cross and Wheel" from="Left-Hand Box"
-       formation="Box LH" parts="1.5">
+       formation="Box LH" parts="1.5" vid="V1-cc6watnw">
     <path>
       <move select="Hinge Left"/>
       <move select="Run Left" beats="3" offsetX="2"/>
@@ -232,7 +232,7 @@
   </tam>
 
   <tam title="Single Cross and Wheel" from="Facing Couples"
-       formation="Facing Couples Compact" parts="1.5">
+       formation="Facing Couples Compact" parts="1.5" vid="V1-rrpd04da">
     <path>
       <move select="Hinge Right" offsetX="-0.5"/>
       <move select="Forward 2" beats="3" scaleX=".75"/>
@@ -244,7 +244,7 @@
   </tam>
 
   <tam title="Single Cross and Wheel" from="Couples Facing Out"
-       formation="Couples Facing Out" parts="1.5">
+       formation="Couples Facing Out" parts="1.5" vid="V1-itv9t5zc">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1"/>
       <move select="Forward 2" beats="3"/>
@@ -257,7 +257,7 @@
 
   <tam title="Single Cross Trade and Wheel"
        from="Right-Hand Box"
-       formation="Box RH" parts="1.5;3">
+       formation="Box RH" parts="1.5;3" vid="V1-rsnq0sui">
     <path>
       <move select="Hinge Right"/>
       <move select="Swing Left"/>
@@ -272,7 +272,7 @@
 
   <tam title="Single Cross Trade and Wheel"
        from="Left-Hand Box"
-       formation="Box LH" parts="1.5;3">
+       formation="Box LH" parts="1.5;3" vid="V1-x007vb0u">
     <path>
       <move select="Hinge Left"/>
       <move select="Stand" beats="3"/>
@@ -287,7 +287,7 @@
 
   <tam title="Single Cross Trade and Wheel"
        from="Facing Couples"
-       formation="Facing Couples Compact" parts="1.5;3">
+       formation="Facing Couples Compact" parts="1.5;3" vid="V1-lwt7s7bc">
     <path>
       <move select="Lead Right"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -302,7 +302,7 @@
 
   <tam title="Single Cross Trade and Wheel"
        from="Couples Facing Out"
-       formation="Couples Facing Out" parts="1.5;3">
+       formation="Couples Facing Out" parts="1.5;3" vid="V1-cthf4gk2">
     <path>
       <move select="Quarter Left" offsetX="-1" offsetY="1"/>
       <move select="Swing Left"/>
@@ -316,7 +316,7 @@
   </tam>
 
   <tam title="Single Cross Trade and Wheel" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" parts="1.5;3">
+       formation="Ocean Waves RH BGGB" parts="1.5;3" vid="V1-24vyxudd">
     <path>
       <move select="Hinge Right"/>
       <move select="Swing Left"/>
@@ -340,7 +340,7 @@
   </tam>
 
   <tam title="Single Cross Trade and Wheel" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" parts="1.5;3">
+       formation="Ocean Waves LH BGGB" parts="1.5;3" vid="V1-iqdevrpe">
     <path>
       <move select="Hinge Left"/>
       <move select="Stand" beats="3"/>
@@ -364,7 +364,7 @@
   </tam>
 
   <tam title="Single Cross Trade and Wheel" from="Right-Hand Columns"
-       formation="Column RH GBGB" parts="1.5;3">
+       formation="Column RH GBGB" parts="1.5;3" vid="V1-3uz8sq6j">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Stand" beats="3"/>
@@ -388,7 +388,7 @@
   </tam>
 
   <tam title="Single Cross Trade and Wheel" from="Left-Hand Columns"
-       formation="Column LH GBGB" parts="1.5;3">
+       formation="Column LH GBGB" parts="1.5;3" vid="V1-x2sakemu">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -412,7 +412,7 @@
   </tam>
 
   <tam title="Grand Single Cross and Wheel" from="Right-Hand Columns"
-       formation="Column RH GBGB" parts="1.5">
+       formation="Column RH GBGB" parts="1.5" vid="V1-gni0tq0n">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="U-Turn Right" beats="2" offsetX="2" offsetY="-.5"/>
@@ -432,7 +432,7 @@
   </tam>
 
   <tam title="Grand Single Cross and Wheel" from="Left-Hand Columns"
-       formation="Column LH GBGB" parts="1.5">
+       formation="Column LH GBGB" parts="1.5" vid="V1-eo5j36ci">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -453,7 +453,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Double Pass Thru"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-ermzp8ic">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -474,7 +474,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-bmus9o3o">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -495,7 +495,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-f0klpw6k">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -516,7 +516,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Trade By"
-       formation="Trade By">
+       formation="Trade By" vid="V1-tov84eua">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -537,7 +537,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-21r8nkqv">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -558,7 +558,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-gutc810h">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="U-Turn Right" beats="2" offsetX="2" offsetY="-.5"/>
@@ -579,7 +579,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #1"
-       formation="Mixed Columns RH Ends In">
+       formation="Mixed Columns RH Ends In" vid="V1-xqhw1c1x">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -600,7 +600,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #2"
-       formation="Mixed Columns LH Ends In">
+       formation="Mixed Columns LH Ends In" vid="V1-mlhp2k3n">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -621,7 +621,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #3"
-       formation="Mixed Columns RH Ends Out">
+       formation="Mixed Columns RH Ends Out" vid="V1-c02l4n5g">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -642,7 +642,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #4"
-       formation="Mixed Columns LH Ends Out">
+       formation="Mixed Columns LH Ends Out" vid="V1-nkk7y0ex">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -663,7 +663,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #5"
-       formation="Mixed Columns RH Centers In">
+       formation="Mixed Columns RH Centers In" vid="V1-vlkhhiks">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -684,7 +684,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #6"
-       formation="Mixed Columns LH Centers In">
+       formation="Mixed Columns LH Centers In" vid="V1-57zmq5k9">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="U-Turn Left" beats="2" offsetX="2" offsetY=".5"/>
@@ -705,7 +705,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #7"
-       formation="Mixed Columns RH Centers Out">
+       formation="Mixed Columns RH Centers Out" vid="V1-h5ok8re8">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
@@ -726,7 +726,7 @@
 
   <tam title="Grand Single Cross and Wheel"
        from="Mixed Columns #8"
-       formation="Mixed Columns LH Centers Out">
+       formation="Mixed Columns LH Centers Out" vid="V1-ykfyizsz">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="U-Turn Left" beats="2" offsetX="2" offsetY=".5"/>
@@ -746,7 +746,7 @@
   </tam>
 
   <tam title="Grand Single Cross Trade and Wheel"
-       from="Right-Hand Columns" parts="1.5;3">
+       from="Right-Hand Columns" parts="1.5;3" vid="V1-cijda1mh">
     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -776,7 +776,7 @@
   </tam>
 
   <tam title="Grand Single Cross Trade and Wheel" from="Left-Hand Columns"
-       formation="Column LH GBGB" parts="1.5;3">
+       formation="Column LH GBGB" parts="1.5;3" vid="V1-d5bswbw8">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -802,7 +802,7 @@
   <tam title="Grand Single Cross Trade and Wheel"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-enhhjh4u">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -828,7 +828,7 @@
   <tam title="Grand Single Cross Trade and Wheel"
        from="Trade By"
        formation="Trade By"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-hhvmbpew">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -854,7 +854,7 @@
   <tam title="Grand Single Cross Trade and Wheel"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-egh68xqq">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -880,7 +880,7 @@
   <tam title="Grand Single Cross Trade and Wheel"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-1fjihl02">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -905,7 +905,7 @@
 
   <tam title="Grand Single Cross Trade and Wheel"
        from="Magic Columns, Right-Hand Centers"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-l7ot6icd">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Run Right" scaleY=".5"/>
@@ -930,7 +930,7 @@
 
   <tam title="Grand Single Cross Trade and Wheel"
        from="Magic Columns, Left-Hand Centers"
-       formation="Magic Column LH" parts="1.5;3">
+       formation="Magic Column LH" parts="1.5;3" vid="V1-be1b4btj">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Stand" beats="3"/>
@@ -956,7 +956,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #1"
        formation="Mixed Columns RH Ends In"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-e20faezn">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -982,7 +982,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #2"
        formation="Mixed Columns LH Ends In"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-3c6snvgl">
     <path>
       <move select="Lead Right" scaleX=".5"/>
       <move select="Flip Left" scaleY=".5"/>
@@ -1008,7 +1008,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #3"
        formation="Mixed Columns RH Ends Out"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-pmpnaq36">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -1034,7 +1034,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #4"
        formation="Mixed Columns LH Ends Out"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-6x5d6jff">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1"/>
       <move select="Flip Left" scaleY=".5"/>
@@ -1060,7 +1060,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #5"
        formation="Mixed Columns RH Centers In"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-px4je7gm">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -1086,7 +1086,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #6"
        formation="Mixed Columns LH Centers In"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-d722f863">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Stand" beats="3"/>
@@ -1112,7 +1112,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #7"
        formation="Mixed Columns RH Centers Out"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-o87dfcj2">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -1138,7 +1138,7 @@
   <tam title="Grand Single Cross Trade and Wheel" display="none"
        from="Mixed Columns #8"
        formation="Mixed Columns LH Centers Out"
-       parts="1.5;3">
+       parts="1.5;3" vid="V1-6r18ggy9">
     <path>
       <move select="Hinge Left" scaleX=".5"/>
       <move select="Stand" beats="3"/>

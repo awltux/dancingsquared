@@ -24,7 +24,7 @@
 
   <tam title="Quarter Thru"
        from="Right-Hand Box"
-       parts="1.5" >
+       parts="1.5"  vid="V1-yd12t264">
     <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
@@ -42,7 +42,7 @@
        from="Right-Hand Box Close"
        formation="Box RH Close"
        display="none"
-       parts="1.5" >
+       parts="1.5"  vid="V1-5voz06ld">
     <path>
       <move select="Hinge Right" scaleX=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -55,7 +55,7 @@
   <tam title="Quarter Thru"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="1.5" >
+       parts="1.5"  vid="V1-6tvf3a9j">
     <path numbers="1 8">
       <move select="Hinge Right" />
       <move select="Swing Left" />
@@ -75,7 +75,7 @@
   <tam title="Quarter Thru"
        from="Columns"
        formation="Column RH GBGB"
-       parts="1.5" >
+       parts="1.5"  vid="V1-a10nso2x">
     <path numbers="2 7">
       <move select="Hinge Right" scaleX=".5" />
     </path>
@@ -93,7 +93,7 @@
   </tam>
 
   <tam title="Quarter Thru" from="Alamo Ring"
-       formation="Alamo Wave" parts="1.6">
+       formation="Alamo Wave" parts="1.6" vid="V1-tqfunztc">
     <path>
       <move select="Sxtnth Left" hands="right"/>
       <move select="Hinge Right" offsetX="0.45"/>
@@ -117,7 +117,7 @@
   <tam title="Quarter Thru"
        from="Facing Diamonds"
        formation="Diamonds Facing Girl Points"
-       parts="1.5" >
+       parts="1.5"  vid="V1-napmnav4">
     <path>
       <move select="Hinge Right" />
       <move select="Swing Left" />
@@ -139,7 +139,7 @@
   <tam title="Quarter Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing PTP"
-       parts="1.5">
+       parts="1.5" vid="V1-rfmjj1ln">
     <path>
       <move select="Hinge Right" scaleX=".67"/>
       <move select="Swing Left" scaleX=".67" scaleY=".67"/>
@@ -161,7 +161,7 @@
   <tam title="Centers Quarter Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="1.5" >
+       parts="1.5"  vid="V1-ncpveyg6">
     <path>
     </path>
     <path>
@@ -178,7 +178,7 @@
   <tam title="Left Quarter Thru"
        from="Left-Hand Box"
        formation="Box LH"
-       parts="1.5" >
+       parts="1.5"  vid="V1-2h8b4omp">
     <path>
       <move select="Hinge Left" />
     </path>
@@ -192,7 +192,7 @@
        from="Left-Hand Box Close"
        formation="Box LH Close"
        display="none"
-       parts="1.5" >
+       parts="1.5"  vid="V1-iv3kzxgw">
     <path>
       <move select="Hinge Left" scaleX=".5" />
     </path>
@@ -205,7 +205,7 @@
   <tam title="Left Quarter Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="1.5" >
+       parts="1.5"  vid="V1-a8smajbh">
     <path>
       <move select="Hinge Left" />
     </path>
@@ -225,7 +225,7 @@
   <tam title="Left Quarter Thru"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       parts="1.5" >
+       parts="1.5"  vid="V1-2hnci4nl">
     <path>
       <move select="Hinge Left" scaleX=".5" />
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
@@ -243,7 +243,7 @@
   </tam>
 
   <tam title="Left Quarter Thru" from="Alamo Ring"
-       formation="Alamo Wave" parts="1.6">
+       formation="Alamo Wave" parts="1.6" vid="V1-drdd3ysd">
     <path>
       <move select="Sxtnth Right" hands="left"/>
       <move select="Hinge Left" offsetX="0.45"/>
@@ -266,7 +266,7 @@
 
   <tam title="Left Quarter Thru"
        from="Facing Diamonds"
-       parts="1.5"  formation="Diamonds Facing LH Girl Points">
+       parts="1.5"  formation="Diamonds Facing LH Girl Points" vid="V1-htjybpyy">
     <path>
       <move select="Hinge Left" />
       <move select="Swing Right" />
@@ -288,7 +288,7 @@
   <tam title="Left Quarter Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing LH PTP"
-       parts="1.5">
+       parts="1.5" vid="V1-iau1b2xz">
     <path>
       <move select="Hinge Left" scaleX=".67"/>
       <move select="Swing Right" scaleX=".67" scaleY=".67"/>
@@ -309,7 +309,7 @@
 
   <tam title="As Couples Quarter Thru" group=" "
        formation="Two-Faced Lines RH"
-       parts="3" >
+       parts="3"  vid="V1-rkny2s6j">
     <path>
       <move select="Hinge Right" beats="3" scaleX="1.5" scaleY="3" />
       <move select="Swing Left" beats="4" scaleX=".5" scaleY=".5" />
@@ -333,7 +333,7 @@
   <tam title="3/4 Thru"
        from="Right-Hand Box"
        formation="Box RH"
-       parts="4.5" >
+       parts="4.5"  vid="V1-u6kjq3sa">
     <path>
       <move select="Cast Right" />
     </path>
@@ -346,7 +346,7 @@
   <tam title="3/4 Thru"
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-wpdq8uch">
     <path>
       <move select="Cast Right" />
     </path>
@@ -366,7 +366,7 @@
   <tam title="3/4 Thru"
        from="Columns"
        formation="Column RH GBGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-mpxx5dez">
     <path>
       <move select="Cast Right" scaleX=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -384,7 +384,7 @@
   </tam>
 
   <tam title="3/4 Thru" from="Alamo Ring"
-       formation="Alamo Wave" parts="4.6">
+       formation="Alamo Wave" parts="4.6" vid="V1-6n8s89re">
     <path>
       <move select="Sxtnth Left" hands="right"/>
       <move select="Hinge Right" offsetX="0.45"/>
@@ -412,7 +412,7 @@
   <tam title="3/4 Thru"
        from="Facing Diamonds"
        formation="Diamonds Facing Girl Points"
-       parts="4.5" >
+       parts="4.5"  vid="V1-av7bpt5y">
     <path>
       <move select="Cast Right" />
       <move select="Swing Left" />
@@ -434,7 +434,7 @@
   <tam title="3/4 Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing PTP"
-       parts="4.5">
+       parts="4.5" vid="V1-darj6tml">
     <path>
       <move select="Hinge Right" scaleX=".67"/>
       <move select="Swing Right" scaleX=".67" scaleY=".67"/>
@@ -458,7 +458,7 @@
   <tam title="Centers 3/4 Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-d0sfbh40">
     <path>
     </path>
     <path>
@@ -475,7 +475,7 @@
   <tam title="Left 3/4 Thru"
        from="Left-Hand Box"
        formation="Box LH"
-       parts="4.5" >
+       parts="4.5"  vid="V1-bfir56mr">
     <path>
       <move select="Cast Left" />
       <move select="Swing Right" />
@@ -488,7 +488,7 @@
   <tam title="Left 3/4 Thru"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-pyy4nzgz">
     <path>
       <move select="Cast Left" />
       <move select="Swing Right" />
@@ -508,7 +508,7 @@
   <tam title="Left 3/4 Thru"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       parts="1.5" >
+       parts="1.5"  vid="V1-3ku0b1yr">
     <path>
       <move select="Cast Left" scaleX=".5" />
     </path>
@@ -526,7 +526,7 @@
   </tam>
 
   <tam title="Left 3/4 Thru" from="Alamo Ring"
-       formation="Alamo Wave" parts="1.6">
+       formation="Alamo Wave" parts="1.6" vid="V1-qlwnwtrf">
     <path>
       <move select="Sxtnth Right" hands="left"/>
       <move select="Hinge Left" offsetX="0.45"/>
@@ -553,7 +553,7 @@
 
   <tam title="Left 3/4 Thru"
        from="Facing Diamonds"
-       parts="4.5"  formation="Diamonds Facing LH Girl Points">
+       parts="4.5"  formation="Diamonds Facing LH Girl Points" vid="V1-1lny842g">
     <path>
       <move select="Cast Left" />
       <move select="Swing Right" />
@@ -575,7 +575,7 @@
   <tam title="Left 3/4 Thru"
        from="Facing Point-to-Point Diamonds"
        formation="Diamonds Facing LH PTP"
-       parts="4.5">
+       parts="4.5" vid="V1-612py06x">
     <path>
       <move select="Hinge Left" scaleX=".67"/>
       <move select="Swing Left" scaleX=".67" scaleY=".67"/>
@@ -599,7 +599,7 @@
   <tam title="As Couples 3/4 Thru"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       parts="9" group=" ">
+       parts="9" group=" " vid="V1-8fe72i8d">
     <path>
       <move select="Cast Right" beats="9" scaleX="1.5" scaleY="3" />
     </path>

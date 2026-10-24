@@ -30,6 +30,13 @@
 // that named an old id keeps its own copy of it. Excluding the title would make two different calls share an id,
 // which is worse than a migration.
 //
+// IT IS STORED ON THE TAM AS `vid`. The corpus writes the id this function mints onto every authored `<tam>`, so a
+// consumer can name the variant without resolving a level, a title and a definition first, and so the pair (call,
+// its start definition) is visible in the file. That makes this id the one stored tag whose value is FULLY
+// DETERMINED by the tree - unlike `fid`, it is never inherited from a shape the corpus already has - which is why
+// `test/variant-tags.mjs` asserts stored EQUALS minted rather than merely consistent: a retitle or a level move
+// re-mints it and the gate forces the migration into the open.
+//
 // WHY `V1-` AND EIGHT CHARACTERS. Eight characters is the tree's one payload width since the identity schemes were
 // made consistent (`id-code.ts` owns it), and this scheme is the one that needed it: 1,730 variants today, over
 // ms+plus alone, and the population grows with every level registered. The version marker means a change to the

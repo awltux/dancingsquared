@@ -24,7 +24,7 @@
 
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Adjacent Dancers Close" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Adjacent Dancers Close" parts="" asymmetric="true" vid="V1-d6amfhf9">
     <path>
       <movement hands="none" beats="1" cx1="0" cy1="0" cx2="0" cy2="0" x2="0" y2="0" cx3="0.463" cx4="0.3914" cy4="-0.3915" x4="0.4009" y4="-0.692"/>
       <movement hands="none" beats="1" cx1="0.3944" cy1="-0.0147" cx2="0.4244" cy2="0.1252" x2="0.6574" y2="0.3327" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
@@ -46,7 +46,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Adjacent Dancers" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Adjacent Dancers" parts="" asymmetric="true" vid="V1-vnuqcbq2">
     <path>
       <movement hands="none" beats="1" cx1="0" cy1="-0.3333" cx2="0" cy2="-0.6667" x2="0" y2="-1" cx3="0.5131" cx4="0.702" cy4="-0.183" x4="0.7182" y4="-0.6958"/>
       <movement hands="none" beats="1" cx1="0.3944" cy1="-0.0147" cx2="0.4244" cy2="0.1252" x2="0.6574" y2="0.3327" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
@@ -68,7 +68,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Adjacent Dancers" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Adjacent Dancers" parts="" asymmetric="true" vid="V1-vnuqcbq2">
     <path>
       <movement hands="none" beats="1" cx1="0" cy1="-0.3333" cx2="0" cy2="-0.6667" x2="0" y2="-1" cx3="0.5131" cx4="0.702" cy4="-0.183" x4="0.7182" y4="-0.6958"/>
       <movement hands="none" beats="1" cx1="0.3944" cy1="-0.0147" cx2="0.4244" cy2="0.1252" x2="0.6574" y2="0.3327" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
@@ -90,7 +90,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Adjacent Dancers Far" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Adjacent Dancers Far" parts="" asymmetric="true" vid="V1-0s1ykpjy">
     <path>
       <movement hands="none" beats="1" cx1="0" cy1="-0.6667" cx2="0" cy2="-1.3333" x2="0" y2="-2" cx3="0.5131" cx4="0.702" cy4="-0.183" x4="0.7182" y4="-0.6958"/>
       <movement hands="none" beats="1" cx1="0.3944" cy1="-0.0147" cx2="0.4244" cy2="0.1252" x2="0.6574" y2="0.3327" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
@@ -112,7 +112,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit b57bc5a, with uncommitted changes, built 2026-10-08 11:32Z -->
-  <tam title="Swing Your Partner" formation="Facing Dancers Close" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Facing Dancers Close" parts="" asymmetric="true" vid="V1-k6jiteko">
     <path>
       <movement hands="none" beats="1" cx1="0.5" cy1="0" cx2="0.3879" cy2="0.1178" x2="0.6464" y2="0.3536" cx3="0.463" cx4="0.6502" cy4="0.0173" x4="0.9138" y4="0.0426"/>
       <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
@@ -132,7 +132,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Facing Dancers Compact" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Facing Dancers Compact" parts="" asymmetric="true" vid="V1-5wx7exsq">
     <path>
       <movement hands="none" beats="1" cx1="1" cy1="0" cx2="0.8582" cy2="-0.0028" x2="1.1464" y2="0.3536" cx3="0.0319" cx4="0.9671" cy4="0.0448" x4="0.9989" y4="0.0478"/>
       <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
@@ -152,7 +152,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Facing Dancers" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Facing Dancers" parts="" asymmetric="true" vid="V1-h3gkv36h">
     <path>
       <movement hands="none" beats="1" cx1="1.5" cy1="0" cx2="1.324" cy2="0.0028" x2="1.6464" y2="0.3536" cx3="0.0319" cx4="0.9671" cy4="0.0448" x4="0.9989" y4="0.0478"/>
       <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
@@ -172,7 +172,7 @@
   </tam>
 
 <!-- exported by the dancing-squared web app: commit fd0bc8b, with uncommitted changes, built 2026-10-09 15:01Z -->
-  <tam title="Swing Your Partner" formation="Facing Dancers Far" parts="" asymmetric="true">
+  <tam title="Swing Your Partner" formation="Facing Dancers Far" parts="" asymmetric="true" vid="V1-owxqaqp7">
     <path>
       <movement hands="none" beats="1" cx1="2.5" cy1="0" cx2="2.3183" cy2="0" x2="2.6464" y2="0.3536" cx3="0.0319" cx4="0.9671" cy4="0.0448" x4="0.9989" y4="0.0478"/>
       <movement hands="none" beats="0.5" cx1="0.2131" cy1="0.1757" cx2="0.5282" cy2="0.1454" x2="0.7039" y2="-0.0677"/>
@@ -193,7 +193,7 @@
 
 
 
-  <tam title="Swing Your Partner" from="Facing Couples" formation="Facing Couples" asymmetric="true">
+  <tam title="Swing Your Partner" from="Facing Couples" formation="Facing Couples" asymmetric="true" vid="V1-mqhk22d9">
     <path>
       <move select="Lead Right" scaleX=".75" scaleY=".5"/>
       <move select="Quarter Right" offsetX=".75" offsetY=".25" />
@@ -213,7 +213,7 @@
   <tam title="Swing Your Corner"
        from="Facing Couples"
        formation="Facing Couples"
-       fractions="" >
+       fractions=""  vid="V1-58xzph9q">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY=".25" />
       <move select="Quarter Right" offsetX=".75" offsetY=".25" />

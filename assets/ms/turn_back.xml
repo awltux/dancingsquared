@@ -25,7 +25,7 @@
   <tam title="U-Turn Back"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-lny4z3kp">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -35,7 +35,7 @@
   </tam>
 
   <tam title="U-Turn Back"
-       from="Sashayed Couples">
+       from="Sashayed Couples" vid="V1-lny4z3kp">
     <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
       <dancer gender="boy" x="-1.5" y="-1" angle="0" />
       <dancer gender="girl" x="-1.5" y="1" angle="0" />
@@ -51,7 +51,7 @@
   <tam title="U-Turn Back"
        from="Couples Facing Out"
        formation="Couples Facing Out"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-krw2ycyf">
     <path>
       <move select="U-Turn Left" />
     </path>
@@ -63,7 +63,7 @@
   <tam title="U-Turn Back"
        from="Lines"
        formation="Normal Lines"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-4wjwqdi0">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -81,7 +81,7 @@
   <tam title="U-Turn Back"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-kq98pkrb">
     <path>
       <move select="U-Turn Left" />
     </path>
@@ -99,7 +99,7 @@
   <tam title="U-Turn Back"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-ibjaycas">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -117,7 +117,7 @@
   <tam title="U-Turn Back"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-c8sfrdvf">
     <path>
       <move select="U-Turn Left" />
     </path>
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="Boys Turn Back" from="Facing Couples"
-       formation="Facing Couples Compact" sequencer="no">
+       formation="Facing Couples Compact" sequencer="no" vid="V1-9ekronou">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -142,7 +142,7 @@
   </tam>
 
   <tam title="Boys Turn Back" from="Right-Hand Box"
-       sequencer="no" formation="Box RH">
+       sequencer="no" formation="Box RH" vid="V1-nfnb000w">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -151,7 +151,7 @@
   </tam>
 
   <tam title="Girls Turn Back" from="Facing Couples"
-       sequencer="no" formation="Facing Couples Compact">
+       sequencer="no" formation="Facing Couples Compact" vid="V1-irzyxrfk">
     <path>
     </path>
     <path>
@@ -160,7 +160,7 @@
   </tam>
 
   <tam title="Girls Turn Back" from="Right-Hand Box"
-       sequencer="no" formation="Box RH">
+       sequencer="no" formation="Box RH" vid="V1-pl69imqa">
     <path>
     </path>
     <path>
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Girls Backtrack" from="Promenade"
-       sequencer="gender-specific" formation="Promenade">
+       sequencer="gender-specific" formation="Promenade" vid="V1-m5ic57jc">
     <path>
       <move select="Lead Left 1/2" beats="2" scaleX="2" scaleY="2" />
     </path>
@@ -194,7 +194,7 @@
 <tam title="U-Turn Back"
        from="Facing Couples"
        formation="Facing Couples"
-       fractions="1.5" >
+       fractions="1.5"  vid="V1-99mc1yok">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -204,7 +204,7 @@
   </tam>
 
 <tam title="Boys Turn Back" from="Facing Couples"
-       formation="Facing Couples" sequencer="no">
+       formation="Facing Couples" sequencer="no" vid="V1-q3ysp0ff">
     <path>
       <move select="U-Turn Right" />
     </path>
@@ -213,7 +213,7 @@
   </tam>
 
 <tam title="Girls Turn Back" from="Facing Couples"
-       sequencer="no" formation="Facing Couples">
+       sequencer="no" formation="Facing Couples" vid="V1-459jlidp">
     <path>
     </path>
     <path>

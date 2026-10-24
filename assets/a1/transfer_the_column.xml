@@ -23,7 +23,7 @@
 <tamination title="Transfer the Column">
 
   <tam title="Transfer the Column"
-       from="Right-Hand Columns">
+       from="Right-Hand Columns" vid="V1-ctg0w3yy">
      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="Transfer the Column"
-       from="Left-Hand Columns">
+       from="Left-Hand Columns" vid="V1-5xzse9on">
      <formation fid="F3-dhnw1kx1" aid="A1-gvyshelj">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="boy" x="-1" y="1" angle="270"/>

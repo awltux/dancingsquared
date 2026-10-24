@@ -25,7 +25,7 @@
   <tam title="Diamond Chain Thru"
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       parts="3;3" >
+       parts="3;3"  vid="V1-x2etlwap">
     <path numbers="6 3" couples="2 4">
       <move select="Lead Right" scaleX="3" beats="3" />
     </path>
@@ -47,7 +47,7 @@
   <tam title="Diamond Chain Thru"
        from="Left-Hand Diamonds"
        formation="Diamonds LH Girl Points"
-       parts="3;3" >
+       parts="3;3"  vid="V1-eeuz8az2">
     <path>
       <move select="Lead Left" scaleX="3" beats="3" />
     </path>
@@ -69,7 +69,7 @@
   <tam title="Diamond Chain Thru"
        from="Facing Diamonds, Right-Hand Centers"
        formation="Diamonds Facing Girl Points"
-       parts="3;3" >
+       parts="3;3"  vid="V1-mb6ve2fa">
     <path numbers="6 3">
       <move select="Forward 2"/>
       <move select="Lead Right"/>
@@ -97,7 +97,7 @@
   <tam title="Diamond Chain Thru"
        from="Facing Diamonds, Left-Hand Centers"
        formation="Diamonds Facing LH Girl Points"
-       parts="3;3">
+       parts="3;3" vid="V1-6wzh9he9">
     <path>
       <move select="Lead Left" beats="3" scaleX="3" />
     </path>

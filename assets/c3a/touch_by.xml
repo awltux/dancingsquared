@@ -22,7 +22,7 @@
 -->
 <tamination title="Touch By">
 
-  <tam title="Touch By 1/2 By 1/4" group=" " parts="6">
+  <tam title="Touch By 1/2 By 1/4" group=" " parts="6" vid="V1-ibfjcfve">
     <formation fid="F3-slbcbgsw" aid="A1-le2zzx7m">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="270"/>
@@ -39,7 +39,7 @@
     </path>
   </tam>
 
-  <tam title="Touch By 1/4 By 1/2" group=" " parts="5">
+  <tam title="Touch By 1/4 By 1/2" group=" " parts="5" vid="V1-pwjkkb3u">
     <formation fid="F3-slbcbgsw" aid="A1-le2zzx7m">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="270"/>
@@ -55,7 +55,7 @@
     </path>
   </tam>
 
-  <tam title="Touch By 1/4 By Swing Thru" group=" ">
+  <tam title="Touch By 1/4 By Swing Thru" group=" " vid="V1-rpdgkt3e">
     <formation fid="F3-7i4q346d" aid="A1-28i78rtj">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>

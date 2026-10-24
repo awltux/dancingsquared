@@ -22,7 +22,7 @@
 -->
 <tamination title="Stimulate">
 
-  <tam title="Stimulate" from="Right-Hand Columns" fractions="3;1.5" formation="Columns">
+  <tam title="Stimulate" from="Right-Hand Columns" fractions="3;1.5" formation="Columns" vid="V1-m1f43abg">
     <path>
       <move select="Run Right"/>
       <move select="Forward" beats="1.5"/>
@@ -52,7 +52,7 @@
     </path>
   </tam>
 
-  <tam title="Stimulate" from="Left-Hand Columns" formation="Column LH GBGB" fractions="3;1.5">
+  <tam title="Stimulate" from="Left-Hand Columns" formation="Column LH GBGB" fractions="3;1.5" vid="V1-k16qocr9">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Forward" beats="1.5"/>

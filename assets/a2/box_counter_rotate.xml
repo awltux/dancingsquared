@@ -22,7 +22,7 @@
 -->
 <tamination title="Box Counter Rotate">
 
-  <tam title="Box Counter Rotate" from="Right-Hand Box" formation="Box RH Compact">
+  <tam title="Box Counter Rotate" from="Right-Hand Box" formation="Box RH Compact" vid="V1-e49a95uz">
     <path couples="1 3">
       <move select="Counter Rotate Right 2.5 0.5" beats="4" hands="right" />
     </path>
@@ -31,7 +31,7 @@
     </path>
   </tam>
 
-  <tam title="Box Counter Rotate" from="Left-Hand Box" formation="Box LH Compact">
+  <tam title="Box Counter Rotate" from="Left-Hand Box" formation="Box LH Compact" vid="V1-m2xx9uvt">
     <path couples="1 3">
       <move select="Counter Rotate Left -0.5 2.5" hands="gripleft" beats="4"  />
     </path>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Box Counter Rotate" from="Facing Couples"
-       formation="Facing Couples Compact">
+       formation="Facing Couples Compact" vid="V1-4f8ns73m">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1" />
@@ -54,7 +54,7 @@
 
   <tam title="Box Counter Rotate"
        from="Couples Facing Out"
-       formation="Couples Facing Out Compact">
+       formation="Couples Facing Out Compact" vid="V1-ektc1ku9">
     <path>
       <move select="Lead Left Passing" beats="4" scaleY="2.5" offsetX="-1.5"/>
     </path>
@@ -64,7 +64,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 1" asymmetric="true" display="no">
+       from="T-Bone 1" asymmetric="true" display="no" vid="V1-8pjem4hc">
     <formation fid="F3-cewx13tu" aid="A1-k1qqz7lu">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 2" asymmetric="true" display="no">
+       from="T-Bone 2" asymmetric="true" display="no" vid="V1-8pjem4hc">
     <formation fid="F3-cewx13tu" aid="A1-k1qqz7lu">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -108,7 +108,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 3" asymmetric="true" display="no">
+       from="T-Bone 3" asymmetric="true" display="no" vid="V1-bcozlt1q">
     <formation fid="F3-ebvz5ete" aid="A1-nx1tioxq">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -130,7 +130,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 4" asymmetric="true" display="no">
+       from="T-Bone 4" asymmetric="true" display="no" vid="V1-bcozlt1q">
     <formation fid="F3-ebvz5ete" aid="A1-nx1tioxq">
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -152,7 +152,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 5" asymmetric="true" display="no">
+       from="T-Bone 5" asymmetric="true" display="no" vid="V1-quuebjqr">
     <formation fid="F3-h4pcldyy" aid="A1-8ad92sra">
       <dancer gender="boy" x="1" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -174,7 +174,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 6" asymmetric="true" display="no">
+       from="T-Bone 6" asymmetric="true" display="no" vid="V1-s1za62s7">
     <formation fid="F3-kl12cnei" aid="A1-dh5l5kr8">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="270"/>
@@ -196,7 +196,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 7" asymmetric="true" display="no">
+       from="T-Bone 7" asymmetric="true" display="no" vid="V1-s1za62s7">
     <formation fid="F3-kl12cnei" aid="A1-dh5l5kr8">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="270"/>
@@ -218,7 +218,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 8" asymmetric="true" display="no">
+       from="T-Bone 8" asymmetric="true" display="no" vid="V1-hcfxmc83">
     <formation fid="F3-mug58u1e" aid="A1-827nnvyk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="270"/>
@@ -240,7 +240,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 9" asymmetric="true" display="no">
+       from="T-Bone 9" asymmetric="true" display="no" vid="V1-hcfxmc83">
     <formation fid="F3-mug58u1e" aid="A1-827nnvyk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
@@ -262,7 +262,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 10" asymmetric="true" display="no">
+       from="T-Bone 10" asymmetric="true" display="no" vid="V1-br4a9sj8">
     <formation fid="F3-chqpk82a" aid="A1-nm9y2ifa">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
@@ -284,7 +284,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 11" asymmetric="true" display="no">
+       from="T-Bone 11" asymmetric="true" display="no" vid="V1-ivbi07jw">
     <formation fid="F3-4mubexmh" aid="A1-4if1uqr3">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -306,7 +306,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 12" asymmetric="true" display="no">
+       from="T-Bone 12" asymmetric="true" display="no" vid="V1-ivbi07jw">
     <formation fid="F3-4mubexmh" aid="A1-4if1uqr3">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -329,7 +329,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 13" asymmetric="true" display="no">
+       from="T-Bone 13" asymmetric="true" display="no" vid="V1-nk8hgrv1">
     <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -351,7 +351,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 14" asymmetric="true" display="no">
+       from="T-Bone 14" asymmetric="true" display="no" vid="V1-k696da1v">
     <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -375,7 +375,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 15" asymmetric="true" display="no">
+       from="T-Bone 15" asymmetric="true" display="no" vid="V1-nk8hgrv1">
     <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -398,7 +398,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 16" asymmetric="true" display="no">
+       from="T-Bone 16" asymmetric="true" display="no" vid="V1-k696da1v">
     <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -422,7 +422,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 17" asymmetric="true" display="no">
+       from="T-Bone 17" asymmetric="true" display="no" vid="V1-hpp7lsve">
     <formation fid="F3-5m0yf7rv" aid="A1-9e7tk6nv">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -445,7 +445,7 @@
   </tam>
 
   <tam title="Box Counter Rotate"
-       from="T-Bone 18" asymmetric="true" display="no">
+       from="T-Bone 18" asymmetric="true" display="no" vid="V1-5282ypvv">
     <formation fid="F3-0tzn4qgq" aid="A1-h66x8j44">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -468,7 +468,7 @@
   </tam>
 
 
-  <tam title="Box Counter Rotate 3/4" from="Right-Hand Box" formation="Box RH" fractions="4;4">
+  <tam title="Box Counter Rotate 3/4" from="Right-Hand Box" formation="Box RH" fractions="4;4" vid="V1-1010o3he">
     <path numbers="1 4">
       <move select="Counter Rotate Right 3 1" beats="4" hands="right" />
       <move select="Counter Rotate Right 3 1" beats="4" hands="right" />
@@ -484,7 +484,7 @@
   <tam title="As Couples Box Counter Rotate"
        from="Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       group=" " >
+       group=" "  vid="V1-ofk392e5">
     <path>
       <move select="Counter Rotate Right 5 -1" beats="5" hands="right" />
     </path>
@@ -501,7 +501,7 @@
 
   <tam title="Split Counter Rotate"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG" >
+       formation="Ocean Waves RH BGBG"  vid="V1-va1os15o">
     <path numbers="1 8">
       <move select="Counter Rotate Right 2 0" hands="right" beats="4" scaleX="1.5"/>
     </path>
@@ -518,7 +518,7 @@
 
   <tam title="Split Counter Rotate"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH GBBG">
+       formation="Ocean Waves LH GBBG" vid="V1-rsstssjn">
     <path>
       <move select="Counter Rotate Left 0 2" hands="left" beats="4" offsetX="-1" />
     </path>
@@ -534,7 +534,7 @@
   </tam>
 
   <tam title="Split Counter Rotate"
-       from="Right-Hand Columns">
+       from="Right-Hand Columns" vid="V1-ilisqkl2">
     <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
@@ -557,7 +557,7 @@
 
   <tam title="Split Counter Rotate"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-sq2aqahv">
     <path>
       <move select="Counter Rotate Left 2 0" hands="left" beats="4" offsetY="-1" />
     </path>
@@ -572,7 +572,7 @@
     </path>
   </tam>
 
-  <tam title="Split Counter Rotate" from="Lines" formation="Normal Lines">
+  <tam title="Split Counter Rotate" from="Lines" formation="Normal Lines" vid="V1-10qih4vk">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5" />
@@ -592,7 +592,7 @@
   </tam>
 
   <tam title="Split Counter Rotate"
-       from="Lines Facing Out"  formation="Lines Facing Out Compact" >
+       from="Lines Facing Out"  formation="Lines Facing Out Compact"  vid="V1-l0i6sp0q">
     <path>
       <move select="Lead Left Passing" beats="4" scaleY="2" offsetX="-1.5"/>
     </path>
@@ -608,7 +608,7 @@
   </tam>
 
   <tam title="Split Counter Rotate"
-       from="T-Bones 1" formation="T-Bone ULLD">
+       from="T-Bones 1" formation="T-Bone ULLD" vid="V1-c9ctf20k">
     <path>
       <move select="Counter Rotate Right 2 0" beats="4" />
     </path>
@@ -624,7 +624,7 @@
   </tam>
 
   <tam title="Split Counter Rotate" from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-lz0nmzwc">
     <path>
       <move select="Hinge Right" beats="3" offsetY="1"/>
     </path>
@@ -640,7 +640,7 @@
   </tam>
 
   <tam title="Split Counter Rotate" from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-oci31m0v">
     <path>
       <move select="Hinge Left" beats="3" offsetY="-1"/>
     </path>
@@ -656,7 +656,7 @@
   </tam>
 
   <tam title="Split Counter Rotate" from="Facing Diamonds, Right-Hand Centers"
-       formation="Diamonds Facing Girl Points">
+       formation="Diamonds Facing Girl Points" vid="V1-a9xyzni3">
     <path>
       <move select="Hinge Right" beats="3" offsetY="1"/>
     </path>
@@ -672,7 +672,7 @@
   </tam>
 
   <tam title="Split Counter Rotate" from="Facing Diamonds, Left-Hand Centers"
-       formation="Diamonds Facing LH Girl Points">
+       formation="Diamonds Facing LH Girl Points" vid="V1-dalt00iw">
     <path>
       <move select="Hinge Left" beats="3" offsetY="-1"/>
     </path>
@@ -688,7 +688,7 @@
   </tam>
 
   <tam title="Split Counter Rotate" from="Right-Hand Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-jtuqbjih">
     <path numbers="2 7">
       <move select="Hinge Right" beats="3" offsetX="1"/>
     </path>
@@ -704,7 +704,7 @@
   </tam>
 
   <tam title="Split Counter Rotate" from="Left-Hand Point-to-Point Diamonds"
-       formation="Diamonds LH PTP Girl Points">
+       formation="Diamonds LH PTP Girl Points" vid="V1-xvs06w2o">
     <path>
       <move select="Hinge Left" beats="3" offsetX="-1"/>
     </path>
@@ -721,7 +721,7 @@
 
   <tam title="Split Counter Rotate"
        from="Facing Point-to-Point Diamonds, Right-Hand Centers"
-       formation="Diamonds Facing PTP">
+       formation="Diamonds Facing PTP" vid="V1-vy0ha8iw">
     <path>
       <move select="Hinge Right" beats="3" offsetX="1"/>
     </path>
@@ -738,7 +738,7 @@
 
   <tam title="Split Counter Rotate"
        from="Facing Point-to-Point Diamonds, Left-Hand Centers"
-       formation="Diamonds Facing LH PTP">
+       formation="Diamonds Facing LH PTP" vid="V1-iefv3qcp">
     <path>
       <move select="Hinge Left" beats="3" offsetX="-1"/>
     </path>

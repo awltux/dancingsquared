@@ -23,7 +23,7 @@
 <tamination title="Swing-O-Late">
 
   <tam title="Swing-O-Late" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" fractions="3">
+       formation="Ocean Waves RH BGGB" fractions="3" vid="V1-ynzetdip">
     <path couples="2 4">
       <move select="Swing Right"/>
       <move select="Run Left" beats="5" scaleY="2"/>
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Swing-O-Late" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" fractions="3">
+       formation="Ocean Waves LH BGGB" fractions="3" vid="V1-ib1g96uq">
     <path>
       <move select="Swing Left"/>
       <move select="Run Right" beats="5" scaleY="2"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Swing-O-Late" from="Right-Hand Thar" fractions="3" formation="Thar RH Girls">
+  <tam title="Swing-O-Late" from="Right-Hand Thar" fractions="3" formation="Thar RH Girls" vid="V1-12t61mf9">
     <path>
       <move select="Swing Left"/>
       <move select="U-Turn Left" beats="2" offsetY=".5"/>
@@ -88,7 +88,7 @@
   </tam>
 
   <tam title="Swing-O-Late" from="Left-Hand Thar"
-       formation="Thar LH Boys" fractions="3">
+       formation="Thar LH Boys" fractions="3" vid="V1-nq1h2v3a">
     <path>
       <move select="Swing Right"/>
       <move select="U-Turn Right" beats="2" offsetY="-.5"/>

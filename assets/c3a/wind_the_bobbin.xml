@@ -24,7 +24,7 @@
 
   <tam title="Wind the Bobbin"
        from="Right-Hand Columns"
-       fractions="1;4.5;3" >
+       fractions="1;4.5;3"  vid="V1-zsefq09m">
       <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
         <dancer gender="girl" y="3" x="-1" angle="90"/>
         <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -58,7 +58,7 @@
   <tam title="Wind the Bobbin"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       fractions="1;4.5;3" >
+       fractions="1;4.5;3"  vid="V1-m7omg81z">
     <path>
       <move select="Forward" />
       <move select="Cast Left" />

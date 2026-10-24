@@ -23,7 +23,7 @@
 <tamination title="Ping Pong Circulate">
 
   <!-- 4-dancer animations for sequencer, unusual formations or sashayed dancers -->
-  <tam title="Ping Pong Circulate" from="Center 4 Dancers" display="none">
+  <tam title="Ping Pong Circulate" from="Center 4 Dancers" display="none" vid="V1-gwev2vfi">
     <formation fid="F3-5vlmvc2d" aid="A1-1xiv6w79">
       <dancer gender="girl" x="1" y="-3" angle="90"/>
       <dancer gender="girl" x="1" y="0" angle="90"/>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Ping Pong Circulate" from="Center 4 Dancers LH" display="none">
+  <tam title="Ping Pong Circulate" from="Center 4 Dancers LH" display="none" vid="V1-r42yobpz">
     <formation fid="F3-0sx150gt" aid="A1-n6pdba4l">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="boy" x="1" y="0" angle="270"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Ping Pong Circulate" from="Outer 4 Dancers"
-       sequencer="perimeter" display="none">
+       sequencer="perimeter" display="none" vid="V1-02z7msag">
     <formation fid="F3-nfavb98o" aid="A1-konejhqc">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="boy" x="3" y="0" angle="270"/>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Ping Pong Circulate" from="Outer 4 Dancers LH"
-       sequencer="perimeter" display="none">
+       sequencer="perimeter" display="none" vid="V1-s653uok3">
     <formation fid="F3-rhkec0q0" aid="A1-utbo8k2q">
       <dancer gender="girl" x="1" y="-3" angle="90"/>
       <dancer gender="girl" x="3" y="0" angle="90"/>
@@ -85,7 +85,7 @@
 
   <tam title="Ping Pong Circulate"
        from="Quarter Tag"
-       difficulty="1">
+       difficulty="1" vid="V1-eiq9zb1t">
      <formation fid="F3-roc084t6" aid="A1-qf1wbkk2">
        <dancer gender="boy" x="-1" y="-3" angle="90"/>
        <dancer gender="girl" x="1" y="-3" angle="90"/>
@@ -111,7 +111,7 @@
 
   <tam title="Ping Pong Circulate"
        from="Left-Handed Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-qvqf9ia2">
      <formation fid="F3-rz17g4ey" aid="A1-urp8j22a">
        <dancer gender="boy" x="-1" y="-3" angle="90"/>
        <dancer gender="girl" x="1" y="-3" angle="90"/>
@@ -139,7 +139,7 @@
        from="Quarter Tag"
        formation="Quarter Tag"
        sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-uf4qv2ak">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Forward" />
@@ -157,7 +157,7 @@
   <tam title="Boys Ping Pong Circulate"
        from="Left-Handed Quarter Tag"
        sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-swuv3ddv">
     <formation fid="F3-rz17g4ey" aid="A1-urp8j22a">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="1" y="-3" angle="90"/>
@@ -181,7 +181,7 @@
        from="Quarter Tag"
        formation="Quarter Tag"
        sequencer="gender-specific"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-pdaaheq6">
     <path>
     </path>
     <path>
@@ -198,7 +198,7 @@
   <tam title="Girls Ping Pong Circulate"
        from="Left-Handed Quarter Tag"
        sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-ex97c2gd">
     <formation fid="F3-rz17g4ey" aid="A1-urp8j22a">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="1" y="-3" angle="90"/>
@@ -221,7 +221,7 @@
 
   <tam title="Inside Path Ping Pong Circulate"
        from="Quarter Tag"
-       fractions="" difficulty="2">
+       fractions="" difficulty="2" vid="V1-yr5fzh02">
     <formation name="Quarter Tag" fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -243,7 +243,7 @@
 
   <tam title="Inside Path Ping Pong Circulate"
        from="Left-Handed Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-2o3etvfl">
     <formation fid="F3-rz17g4ey" aid="A1-n37uvq4s">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="1" y="-3" angle="90"/>
@@ -265,7 +265,7 @@
 
   <tam title="Outside Path Ping Pong Circulate"
        from="Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-wmwuadx5">
     <formation name="Quarter Tag" fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -288,7 +288,7 @@
 
   <tam title="Outside Path Ping Pong Circulate"
        from="Left-Handed Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-8b7ws5oy">
     <formation fid="F3-rz17g4ey" aid="A1-n37uvq4s">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="1" y="-3" angle="90"/>

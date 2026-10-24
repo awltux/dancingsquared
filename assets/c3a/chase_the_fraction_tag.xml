@@ -22,7 +22,7 @@
 -->
 <tamination title="Chase the fraction Tag">
 
-  <tam title="Chase the Tag" from="Back to Back Couples" fractions="3;2;2">
+  <tam title="Chase the Tag" from="Back to Back Couples" fractions="3;2;2" vid="V1-7d6yrkrd">
     <formation fid="F3-ik8242br" aid="A1-ga8dx6bd">
       <dancer gender="boy" y="2" x="1" angle="90" />
       <dancer gender="girl" y="2" x="-1" angle="90" />
@@ -40,7 +40,7 @@
     </path>
   </tam>
 
-  <tam title="Chase the Tag" from="Lines Facing Out" formation="Lines Facing Out" fractions="3;2;2">
+  <tam title="Chase the Tag" from="Lines Facing Out" formation="Lines Facing Out" fractions="3;2;2" vid="V1-gjcpomb1">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -65,7 +65,7 @@
     </path>
   </tam>
 
-  <tam title="Chase and Scatter" formation="Lines Facing Out" group=" " fractions="3;2">
+  <tam title="Chase and Scatter" formation="Lines Facing Out" group=" " fractions="3;2" vid="V1-lx97fgf9">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -93,7 +93,7 @@
     </path>
   </tam>
 
-  <tam title="Chase Back" formation="Lines Facing Out" group=" " fractions="3;2">
+  <tam title="Chase Back" formation="Lines Facing Out" group=" " fractions="3;2" vid="V1-kxk7mzrl">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -120,7 +120,7 @@
     </path>
   </tam>
 
-  <tam title="Chase Chain Thru" formation="Lines Facing Out" group=" " fractions="3;2">
+  <tam title="Chase Chain Thru" formation="Lines Facing Out" group=" " fractions="3;2" vid="V1-yzk11rqo">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -155,7 +155,7 @@
            xref-link="c3b/anything_the_top"
            xref-title="Chase the Top"/>
 
-  <tam title="Chase Your Leader" group=" " formation="Lines Facing Out">
+  <tam title="Chase Your Leader" group=" " formation="Lines Facing Out" vid="V1-j2jhg5ei">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="-2"/>
       <move select="Forward 2"/>
@@ -193,7 +193,7 @@
            xref-link="c1/chase_your_neighbor"
            xref-title="Chase Your Neighbor" xref-from="Lines Facing Out"/>
 
-  <tam title="Chaser's Delight" group=" " formation="Lines Facing Out">
+  <tam title="Chaser's Delight" group=" " formation="Lines Facing Out" vid="V1-fvlla6z7">
     <path>
       <move select="U-Turn Right" beats="3" offsetX="-2"/>
       <move select="Forward 2"/>

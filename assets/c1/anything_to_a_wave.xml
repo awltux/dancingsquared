@@ -25,7 +25,7 @@
   <tam title="Flip Back to a Wave"
        from="Right-Hand Wave"
        formation="Wave RH"
-       fractions="5.5" >
+       fractions="5.5"  vid="V1-6kbolpfb">
     <path>
       <move select="Hinge Right" />
       <move select="Forward 4" />
@@ -44,7 +44,7 @@
   <tam title="Flip Back to a Wave"
        from="Left-Hand Wave"
        formation="Wave LH"
-       fractions="5.5" >
+       fractions="5.5"  vid="V1-yahofv74">
     <path>
       <move select="Hinge Left" />
       <move select="Forward 4" />
@@ -61,7 +61,7 @@
   <tam title="Flip Back to a Wave"
        from="Right-Hand Waves"
        formation="Ocean Waves RH GBBG"
-       fractions="5.5" >
+       fractions="5.5"  vid="V1-dmcgwjvp">
     <path>
       <move select="Hinge Right" />
       <move select="Forward 4" />
@@ -89,7 +89,7 @@
   <tam title="Flip Back to a Wave"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       fractions="5.5" >
+       fractions="5.5"  vid="V1-9c07egha">
     <path>
       <move select="Hinge Left" />
       <move select="Forward 4" />
@@ -117,7 +117,7 @@
   <tam title="Flip Back to a Wave"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-ge4y1v76">
     <path>
       <move select="Lead Right" scaleY=".5"/>
       <move select="Forward 2" beats="3" />
@@ -145,7 +145,7 @@
   <tam title="Flip Back to a Wave"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-hbo9vagi">
     <path>
       <move select="Lead Left" scaleY=".5"/>
       <move select="Forward 2" beats="3" />
@@ -171,7 +171,7 @@
   </tam>
 
   <tam title="Square Chain Thru to a Wave"
-       from="Facing Couples">
+       from="Facing Couples" vid="V1-8hrpnmhh">
     <formation fid="F3-4ro3p815" aid="A1-yl2mr1qt">
       <dancer gender="boy" x="1" y="1.5" angle="270"/>
       <dancer gender="girl" x="-1" y="1.5" angle="270"/>
@@ -194,7 +194,7 @@
 
   <tam title="Square Chain Thru to a Wave"
        from="Lines"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-gatocbgs">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleY="1.5" />
@@ -228,7 +228,7 @@
   <tam title="Square Chain Thru to a Wave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="3;3;3" >
+       parts="3;3;3"  vid="V1-bvt1j7zt">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Lead Right" beats="2" scaleX=".5" scaleY="1.5" />
@@ -260,7 +260,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru to a Wave" from="Quarter Tag"
-    formation="Quarter Tag" fractions="2;3;3">
+    formation="Quarter Tag" fractions="2;3;3" vid="V1-yobr76u2">
     <path numbers="1 8" couples="2 4">
       <move select="Extend Left" scaleY="2" beats="2" />
       <move select="Swing Right" />
@@ -288,7 +288,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru to a Wave" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" fractions="2;3;3">
+       formation="Quarter Tag LH" fractions="2;3;3" vid="V1-qgtrdq89">
     <path>
       <move select="Forward" beats="2" />
       <move select="Swing Left" />
@@ -316,7 +316,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru to a Wave" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG" parts="2;3;3">
+       formation="Ocean Waves RH BGBG" parts="2;3;3" vid="V1-a7371qhf">
     <path>
       <move select="Forward 2" />
       <move select="Swing Right" />
@@ -340,7 +340,7 @@
   </tam>
 
   <tam title="Scoot Chain Thru to a Wave" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG" parts="2;3;3">
+       formation="Ocean Waves LH BGBG" parts="2;3;3" vid="V1-6ju3l72k">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Run Left" offsetX="1"/>
@@ -366,7 +366,7 @@
   <tam title="Square Thru 3 to a Wave" group=" "
        from="Facing Couples"
        formation="Facing Couples Compact"
-       fractions="2;1.5">
+       fractions="2;1.5" vid="V1-dyyar52b">
     <path numbers="1 4">
       <move select="Forward" scaleX=".5"/>
       <move select="Pull Left" scaleY=".5" />
@@ -384,7 +384,7 @@
   <tam title="Load the Boat to a Wave" group=" "
        from="Normal Lines"
        formation="Normal Lines"
-       fractions="2;2;3">
+       fractions="2;2;3" vid="V1-loddbugg">
     <path>
       <move select="Extend Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -418,7 +418,7 @@
   <tam title="Percolate, Outsides to a Wave" group=" "
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="2;1;1.5" >
+       fractions="2;1;1.5"  vid="V1-vtv7nhnn">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Left" beats="2" scaleX="2" />
@@ -447,7 +447,7 @@
   <tam title="Tag Back to a Wave to a Wave" group=" "
        from="Lines"
        formation="Normal Lines"
-       fractions="3" >
+       fractions="3"  vid="V1-zw7wjs15">
     <path>
       <move select="Lead Right" beats="3" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
@@ -473,7 +473,7 @@
   <tam title="Turn Thru to a Wave" group=" "
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="" >
+       fractions=""  vid="V1-kq8fk7oy">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Swing Right" hands="gripright" scaleX=".5" scaleY=".25" />

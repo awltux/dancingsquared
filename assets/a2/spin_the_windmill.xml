@@ -23,7 +23,7 @@
 <tamination title="Spin the Windmill">
 
   <tam title="Spin the Windmill Right" from="Quarter Tag"
-       formation="Quarter Tag" parts="3;3">
+       formation="Quarter Tag" parts="3;3" vid="V1-4i47psr5">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Spin the Windmill Right" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" parts="3;3">
+       formation="Quarter Tag LH" parts="3;3" vid="V1-z48btrze">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Spin the Windmill Right" from="3/4 Tag"
-       formation="3/4 Tag" parts="3;3">
+       formation="3/4 Tag" parts="3;3" vid="V1-xbn86wyq">
     <path>
       <move select="Quarter Right" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -105,7 +105,7 @@
   </tam>
 
   <tam title="Spin the Windmill Right" from="Double Pass Thru"
-       formation="Double Pass Thru" parts="5;3">
+       formation="Double Pass Thru" parts="5;3" vid="V1-v8nvkmct">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="Spin the Windmill Right" from="Trade By"
-       formation="Trade By" parts="5;3">
+       formation="Trade By" parts="5;3" vid="V1-uhsl6zkj">
     <path>
       <move select="Quarter Right" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -161,7 +161,7 @@
   </tam>
 
   <tam title="Spin the Windmill Left" from="Quarter Tag"
-       formation="Quarter Tag" parts="3;3">
+       formation="Quarter Tag" parts="3;3" vid="V1-uxc33iko">
     <path>
       <move select="Quarter Left" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -187,7 +187,7 @@
   </tam>
 
   <tam title="Spin the Windmill Left" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" parts="3;3">
+       formation="Quarter Tag LH" parts="3;3" vid="V1-qcb3u5y7">
     <path>
       <move select="Quarter Left" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -213,7 +213,7 @@
   </tam>
 
   <tam title="Spin the Windmill Left" from="3/4 Tag"
-       formation="3/4 Tag" parts="3;3">
+       formation="3/4 Tag" parts="3;3" vid="V1-act8gh33">
     <path>
       <move select="Quarter Left" />
       <move select="Forward 2" />
@@ -239,7 +239,7 @@
   </tam>
 
   <tam title="Spin the Windmill Left" from="Double Pass Thru"
-       formation="Double Pass Thru" parts="5;3">
+       formation="Double Pass Thru" parts="5;3" vid="V1-jn8g4q6w">
     <path>
       <move select="Quarter Left" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -267,7 +267,7 @@
   </tam>
 
   <tam title="Spin the Windmill Left" from="Trade By"
-       formation="Trade By" parts="5;3">
+       formation="Trade By" parts="5;3" vid="V1-d0hho1vy">
     <path>
       <move select="Quarter Left" />
       <move select="Forward 2" />
@@ -295,7 +295,7 @@
   </tam>
 
   <tam title="Left Spin the Windmill Right" from="Double Pass Thru"
-       formation="Double Pass Thru" parts="5;3">
+       formation="Double Pass Thru" parts="5;3" vid="V1-tyrpbyac">
     <path>
       <move select="Quarter Right" />
       <move select="Forward 2" />
@@ -323,7 +323,7 @@
   </tam>
 
   <tam title="Left Spin the Windmill Right" from="Trade By"
-       formation="Trade By" parts="5;3">
+       formation="Trade By" parts="5;3" vid="V1-8vzxr4ma">
     <path>
       <move select="Quarter Right" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -351,7 +351,7 @@
   </tam>
 
   <tam title="Left Spin the Windmill Left" from="Double Pass Thru"
-       formation="Double Pass Thru" parts="5;3">
+       formation="Double Pass Thru" parts="5;3" vid="V1-i1gdt5nr">
     <path>
       <move select="Quarter Left" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -379,7 +379,7 @@
   </tam>
 
   <tam title="Left Spin the Windmill Left" from="Trade By"
-       formation="Trade By" parts="5;3">
+       formation="Trade By" parts="5;3" vid="V1-f9saca6l">
     <path>
       <move select="Quarter Left" />
       <move select="Forward 2" />
@@ -407,7 +407,7 @@
   </tam>
 
   <tam title="Spin the Windmill Forward" from="Lines"
-    formation="Normal Lines" parts="5;3">
+    formation="Normal Lines" parts="5;3" vid="V1-k6480qar">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3.5" />
@@ -435,7 +435,7 @@
   </tam>
 
   <tam title="Spin the Windmill In" from="Quarter Tag"
-       formation="Quarter Tag" parts="3;3">
+       formation="Quarter Tag" parts="3;3" vid="V1-2zc7gf8e">
     <path>
       <move select="Lead Right" />
       <move select="Forward 2" />
@@ -461,7 +461,7 @@
   </tam>
 
   <tam title="Spin the Windmill In" from="3/4 Tag"
-       formation="3/4 Tag" parts="3;3">
+       formation="3/4 Tag" parts="3;3" vid="V1-ddxbcl71">
     <path>
       <move select="Quarter Left" offsetY="1"/>
       <move select="Forward 2" />
@@ -487,7 +487,7 @@
   </tam>
 
   <tam title="Spin the Windmill Out" from="Quarter Tag"
-       formation="Quarter Tag" parts="3;3">
+       formation="Quarter Tag" parts="3;3" vid="V1-8fu6p5fv">
     <path>
       <move select="Quarter Left" offsetY="1"/>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -514,7 +514,7 @@
   </tam>
 
   <tam title="Spin the Windmill Out" from="3/4 Tag"
-       formation="3/4 Tag" parts="3;3">
+       formation="3/4 Tag" parts="3;3" vid="V1-egstcuks">
     <path>
       <move select="Quarter Right" offsetY="-1"/>
       <move select="Lead Right" beats="4" scaleX="3" scaleY="3" />
@@ -541,7 +541,7 @@
   </tam>
 
   <tam title="Spin the Windmill Forward" from="Diamonds"
-       formation="Diamonds RH Girl Points" parts="3;3">
+       formation="Diamonds RH Girl Points" parts="3;3" vid="V1-w7teyg4r">
     <path>
       <move select="Swing Right"/>
       <move select="Swing Left"/>

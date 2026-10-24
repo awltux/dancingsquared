@@ -22,7 +22,7 @@
 -->
 <tamination title="Lift Off">
 
-  <tam title="Lift Off" group=" " fractions="3;4;2">
+  <tam title="Lift Off" group=" " fractions="3;4;2" vid="V1-d30itozj">
     <formation fid="F3-7ze4qv1j" aid="A1-1vf2jujn">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
@@ -56,7 +56,7 @@
     </path>
   </tam>
 
-  <tam title="Mirror Lift Off" group=" " fractions="3;4;2">
+  <tam title="Mirror Lift Off" group=" " fractions="3;4;2" vid="V1-arv56tlw">
     <formation fid="F3-7ze4qv1j" aid="A1-1vf2jujn">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Stable Concept">
 
-  <tam title="Stable Bend the Line" formation="Normal Lines" group="Stable">
+  <tam title="Stable Bend the Line" formation="Normal Lines" group="Stable" vid="V1-lrrto3a2">
     <path>
       <move select="Extend Right" beats="3" scaleY="2"/>
     </path>

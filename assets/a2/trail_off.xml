@@ -23,7 +23,7 @@
 <tamination title="Trail Off">
 
   <tam title="Trail Off" from="Right-Hand Box"
-       formation="Box RH Boys Lead">
+       formation="Box RH Boys Lead" vid="V1-nwllzvm5">
     <path numbers="2 3" couples="3 1">
       <move select="Run Right" scaleY="2" offsetX="-2" />
     </path>
@@ -33,7 +33,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Left-Hand Box" formation="Box LH">
+  <tam title="Trail Off" from="Left-Hand Box" formation="Box LH" vid="V1-ravvdbl1">
     <path numbers="1 4">
       <move select="Run Left" scaleY="2" offsetX="-2" />
     </path>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Right-Hand Z Facing Out">
+  <tam title="Trail Off" from="Right-Hand Z Facing Out" vid="V1-mg22jvdt">
     <formation fid="F3-km28j8ki" aid="A1-83w342bo">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
@@ -56,7 +56,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Left-Hand Z Facing Out">
+  <tam title="Trail Off" from="Left-Hand Z Facing Out" vid="V1-fmsvx8r4">
     <formation fid="F3-zmb3igvk" aid="A1-rkblren0">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>
@@ -69,7 +69,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Right-Hand Z Facing In">
+  <tam title="Trail Off" from="Right-Hand Z Facing In" vid="V1-aae01qev">
     <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -83,7 +83,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Left-Hand Z Facing In">
+  <tam title="Trail Off" from="Left-Hand Z Facing In" vid="V1-i8yi782e">
     <formation fid="F3-07nohwr6" aid="A1-kggk56dw">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -99,7 +99,7 @@
 
   <tam title="Trail Off"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-3vimu0ys">
     <path>
       <move select="Run Right" scaleY="2" offsetX="-1" />
     </path>
@@ -118,7 +118,7 @@
 
   <tam title="Trail Off"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-pm52ciwd">
     <path>
       <move select="Forward" />
       <move select="Swing Left" />
@@ -135,7 +135,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Right-Hand Zs" formation="Right-Hand Zs">
+  <tam title="Trail Off" from="Right-Hand Zs" formation="Right-Hand Zs" vid="V1-urmwogw5">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Swing Right"/>
@@ -152,7 +152,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Left-Hand Zs" formation="Left-Hand Zs">
+  <tam title="Trail Off" from="Left-Hand Zs" formation="Left-Hand Zs" vid="V1-4nsh16tb">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Swing Left"/>
@@ -171,7 +171,7 @@
 
   <tam title="Trail Off"
        from="Double Pass Thru"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-hsg41mqj">
     <path>
       <move select="Quarter Right" beats="2" offsetY="-1"/>
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="1"/>
@@ -190,7 +190,7 @@
 
   <tam title="Trail Off"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-gseufk3r">
     <path numbers="5 4">
       <move select="Run Left" beats="6" scaleX="2" scaleY="2" offsetX="-1" />
     </path>
@@ -212,7 +212,7 @@
 
   <tam title="Trail Off"
        from="Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-mypio9hz">
     <path>
       <move select="Forward"/>
       <move select="Flip Right" offsetX="1" offsetY=".5" />
@@ -233,7 +233,7 @@
 
   <tam title="Trail Off"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-vww9xacy">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".625" />
@@ -252,7 +252,7 @@
 
   <tam title="Trail Off"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-7hmx90zl">
     <path>
       <move select="Run Left" beats="5" offsetX="-2" offsetY=".5" />
     </path>
@@ -269,7 +269,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Right-Hand Z-Tag" formation="Quarter Z RH">
+  <tam title="Trail Off" from="Right-Hand Z-Tag" formation="Quarter Z RH" vid="V1-51epkzm2">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -286,7 +286,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="Left-Hand Z-Tag" formation="Quarter Z LH">
+  <tam title="Trail Off" from="Left-Hand Z-Tag" formation="Quarter Z LH" vid="V1-80lltti4">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -303,7 +303,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="T-Bones 1" formation="T-Bone URUR">
+  <tam title="Trail Off" from="T-Bones 1" formation="T-Bone URUR" vid="V1-j9x8qs38">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Swing Right" beats="4"/>
@@ -320,7 +320,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="T-Bones 2" formation="T-Bone RDRD">
+  <tam title="Trail Off" from="T-Bones 2" formation="T-Bone RDRD" vid="V1-jy0gjz85">
     <path>
       <move select="Run Right" beats="6" offsetX="-1"/>
     </path>
@@ -337,7 +337,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="T-Bones 3" formation="T-Bone DLDL">
+  <tam title="Trail Off" from="T-Bones 3" formation="T-Bone DLDL" vid="V1-ql6ibild">
     <path>
       <move select="Run Left" beats="6" offsetX="-1"/>
     </path>
@@ -354,7 +354,7 @@
     </path>
   </tam>
 
-  <tam title="Trail Off" from="T-Bones 4" formation="T-Bone LULU">
+  <tam title="Trail Off" from="T-Bones 4" formation="T-Bone LULU" vid="V1-t2q6rf2a">
     <path>
       <move select="Run Right" beats="4" offsetX="-1" scaleY="2"/>
     </path>
@@ -373,7 +373,7 @@
 
   <tam title="As Couples Trail Off"
        from="Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-gwj2vshi">
     <path>
       <move select="Extend Right" hands="right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Swing Right" beats="4" scaleX="1.5" scaleY="1.5" />
@@ -392,7 +392,7 @@
 
   <tam title="All 8 Trail Off"
        from="Mini-Waves"
-       formation="Static MiniWaves RH">
+       formation="Static MiniWaves RH" vid="V1-mwywvh2g">
     <path>
       <move select="Forward 3" />
       <move select="Swing Right" />

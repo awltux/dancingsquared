@@ -24,7 +24,7 @@
 
   <tam title="Double Pass Thru"
        from="Single Column" formation="Single Double Pass Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-z0zmt9pr">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -40,7 +40,7 @@
   <tam title="Double Pass Thru"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       difficulty="1">
+       difficulty="1" vid="V1-6tie465o">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Forward 2" />
@@ -66,7 +66,7 @@
   <tam title="Double Pass Thru"
        from="Quarter Tag"
        formation="Quarter Tag"
-       difficulty="2">
+       difficulty="2" vid="V1-a8pntbgk">
     <path>
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Forward" />
@@ -89,7 +89,7 @@
   </tam>
 
   <tam title="Double Pass Thru" formation="Quarter Z RH"
-       from="Right-Hand Z Tag" display="none">
+       from="Right-Hand Z Tag" display="none" vid="V1-gz8mew4h">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" beats="3" scaleX="2" scaleY="2"/>
@@ -105,7 +105,7 @@
     </path>
   </tam>
 
-  <tam title="Double Pass Thru" from="Tidal Column" difficulty="2">
+  <tam title="Double Pass Thru" from="Tidal Column" difficulty="2" vid="V1-qiudju2g">
     <formation fid="F3-asmxxr5t" aid="A1-2rlpi6kp">
       <dancer gender="boy" x="3.5" y="0" angle="180"/>
       <dancer gender="girl" x="2.5" y="0" angle="180"/>
@@ -135,7 +135,7 @@
   </tam>
 
   <tam title="Left Double Pass Thru" from="Double Pass Thru"
-       formation="Double Pass Thru" difficulty="2">
+       formation="Double Pass Thru" difficulty="2" vid="V1-9sflyxp1">
     <path>
       <move select="Extend Right" scaleY=".5" />
       <move select="Forward 2" />
@@ -161,7 +161,7 @@
   <tam title="Left Double Pass Thru"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       difficulty="3">
+       difficulty="3" vid="V1-mifqau2q">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Forward" />
@@ -183,7 +183,7 @@
     </taminator>
   </tam>
 
-  <tam title="Left Double Pass Thru" from="Tidal Column" difficulty="3">
+  <tam title="Left Double Pass Thru" from="Tidal Column" difficulty="3" vid="V1-p40rttn1">
     <formation fid="F3-asmxxr5t" aid="A1-2rlpi6kp">
       <dancer gender="boy" x="3.5" y="0" angle="180"/>
       <dancer gender="girl" x="2.5" y="0" angle="180"/>
@@ -215,7 +215,7 @@
   <tam title="Boys on a Diagonal Double Pass Thru"
        from="Double Pass Thru" group=" " sequencer="gender-specific"
        formation="Double Pass Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-uplvdoks">
     <path>
       <move select="Forward" beats="2" scaleX="2.5"/>
       <move select="Extend Right" beats="2" scaleX="1.5" scaleY="2"/>
@@ -232,7 +232,7 @@
   <tam title="Girls on a Diagonal Double Pass Thru"
        from="Double Pass Thru" group=" " sequencer="gender-specific"
        formation="Double Pass Thru"
-       difficulty="2">
+       difficulty="2" vid="V1-gq560rz2">
     <path>
     </path>
     <path>
@@ -248,7 +248,7 @@
   </tam>
 
   <!--  Above animations without the inactive dancers, for sequencer -->
-  <tam title="On a Diagonal Double Pass Thru" from="Beaus Only" display="none">
+  <tam title="On a Diagonal Double Pass Thru" from="Beaus Only" display="none" vid="V1-kt73xbny">
     <formation fid="F3-3b6dg5mk" aid="A1-juyy2zy0">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>
@@ -262,7 +262,7 @@
     </path>
   </tam>
 
-  <tam title="On a Diagonal Double Pass Thru" from="Belles Only" display="none">
+  <tam title="On a Diagonal Double Pass Thru" from="Belles Only" display="none" vid="V1-hizqxww2">
     <formation fid="F3-bnmkt6hc" aid="A1-outw42ga">
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>

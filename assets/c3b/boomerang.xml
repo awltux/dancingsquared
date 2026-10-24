@@ -22,7 +22,7 @@
 -->
 <tamination title="Boomerang">
 
-  <tam title="Boomerang" from="Right-Hand Box" fractions="3">
+  <tam title="Boomerang" from="Right-Hand Box" fractions="3" vid="V1-whrphh0x">
     <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="-2" x="1" angle="270"/>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Boomerang" from="Left-Hand Box"
-       formation="Box LH" fractions="3">
+       formation="Box LH" fractions="3" vid="V1-sq4nz001">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Run Right" offsetX="2" />
@@ -51,7 +51,7 @@
     </path>
   </tam>
 
-  <tam title="Boomerang" from="T-Bone Box" fractions="3">
+  <tam title="Boomerang" from="T-Bone Box" fractions="3" vid="V1-zdbygt2s">
     <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" y="1" x="1" angle="0"/>
       <dancer gender="girl" y="-1" x="1" angle="90"/>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Boomerang" from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-cf9e7roj">
     <path>
       <move select="Run Right" beats="3" offsetX="-1" />
       <move select="Run Right" beats="3" offsetX="1" />
@@ -88,7 +88,7 @@
   </tam>
 
   <tam title="Couples Twosome Boomerang" group=" "
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-5hz0vtw0">
     <path>
       <move select="Extend Right" scaleX="2" scaleY="1.5" beats="1.5"/>
       <move select="Run Right" scaleX=".5"/>
@@ -110,7 +110,7 @@
   </tam>
 
   <tam title="Tandem Twosome Boomerang" group=" "
-       formation="Column RH GBGB" fractions="3">
+       formation="Column RH GBGB" fractions="3" vid="V1-g4two0sn">
     <path>
       <move select="Run Left" offsetX="-2" />
       <move select="Run Left" offsetX="2" />

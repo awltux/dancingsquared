@@ -24,7 +24,7 @@
 
   <!-- Ends part of Grand Chain Eight, for sequencer  -->
   <tam title="Grand Chain Eight"
-       from="Ends Facing Only" sequencer="perimeter" display="no">
+       from="Ends Facing Only" sequencer="perimeter" display="no" vid="V1-o7ujh25i">
     <formation fid="F3-rc8fsiyp" aid="A1-v9dv17xd">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Chain Eight" from="Double Pass Thru" formation="Double Pass Thru">
+  <tam title="Grand Chain Eight" from="Double Pass Thru" formation="Double Pass Thru" vid="V1-u0jkckjw">
     <path>
       <move select="Stand" hands="right"/>
       <move select="Quarter Left" beats="2" offsetX="1"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Chain Eight" from="Lines">
+  <tam title="Grand Chain Eight" from="Lines" vid="V1-802wogx1">
     <formation fid="F3-1r9s5bst" aid="A1-mib7zc39">
       <dancer gender="boy" y="2" x="3" angle="270"/>
       <dancer gender="girl" y="2" x="1" angle="270"/>
@@ -100,7 +100,7 @@
 
   <tam title="Grand Chain Eight"
        from="Eight Chain Thru"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-3jun6vr8">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -126,7 +126,7 @@
 
   <tam title="Grand Chain Eight"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-8vmun22d">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2" />
       <move select="Quarter Left" hands="left" offsetX="1" />
@@ -146,7 +146,7 @@
     </path>
   </tam>
 
-  <tam title="Grand Chain Eight" from="Tidal Wave" formation="Tidal Wave">
+  <tam title="Grand Chain Eight" from="Tidal Wave" formation="Tidal Wave" vid="V1-4bcd4grm">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2.5"/>
       <move select="Quarter Left" offsetX="1"/>
@@ -170,7 +170,7 @@
 
   <tam title="Split Grand Chain Eight"
        from="T-Bones, Ends Facing"
-       formation="T-Bone ULRU">
+       formation="T-Bone ULRU" vid="V1-e2xtnw08">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Lead Right 1/2" offsetY="-.5" />
@@ -198,7 +198,7 @@
 
   <tam title="Split Grand Chain Eight"
        from="T-Bones, Centers Facing"
-       formation="T-Bone RUUL">
+       formation="T-Bone RUUL" vid="V1-fk94mx3f">
     <path>
       <move select="Stand" beats="2"/>
       <move select="Extend Right" beats="2.5" scaleY=".5"/>
@@ -226,7 +226,7 @@
 
   <tam title="Split Grand Chain Eight"
        from="T-Bones 3"
-       formation="T-Bone RLUU">
+       formation="T-Bone RLUU" vid="V1-dzkw1488">
     <path>
       <move select="Extend Left" scaleY=".5"/>
       <move select="Lead Left" beats="2.5" scaleX="1.5" scaleY=".5"/>
@@ -254,7 +254,7 @@
 
   <tam title="Split Grand Chain Eight"
        from="T-Bones 4"
-       formation="T-Bone UURL">
+       formation="T-Bone UURL" vid="V1-fqzbldak">
     <path>
       <move select="Stand" beats="1"/>
       <move select="Quarter Left" beats="1.5" offsetX="1" offsetY="-.5"/>
@@ -281,7 +281,7 @@
   </tam>
 
   <tam title="Heads Start Split Grand Chain Eight" group=" "
-       formation="Static Square">
+       formation="Static Square" vid="V1-gdlorxud">
     <path>
       <move select="Forward 2"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -310,7 +310,7 @@
   </tam>
 
   <tam title="Sides Start Split Grand Chain Eight" group=" "
-       formation="Static Square" display="none">
+       formation="Static Square" display="none" vid="V1-qwa0c322">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Quarter Left" beats="1.5" offsetX="1" offsetY="-.5"/>

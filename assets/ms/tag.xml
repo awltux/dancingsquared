@@ -23,7 +23,7 @@
 <tamination title="Tag the Line">
 
   <tam title="Tag the Line" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1">
+       formation="Two-Faced Line RH" difficulty="1" vid="V1-bipqw0vp">
     <path>
       <move select="Quarter Right" offsetX=".5" />
       <move select="Forward 3" />
@@ -38,7 +38,7 @@
 
   <tam title="Tag the Line"
        from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="2">
+       formation="Two-Faced Line LH" difficulty="2" vid="V1-px3rlipi">
     <path>
       <move select="Quarter Left" offsetX="-.5" />
       <move select="Forward 3" />
@@ -53,7 +53,7 @@
 
   <tam title="Tag the Line"
        from="Right-Hand Ocean Wave"
-       formation="Wave RH" difficulty="2">
+       formation="Wave RH" difficulty="2" vid="V1-qf6yzkjr">
     <path>
       <move select="Quarter Right" offsetX=".5" />
       <move select="Forward 3" />
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Tag the Line" from="Left-Hand Ocean Wave" formation="Wave LH" difficulty="2">
+  <tam title="Tag the Line" from="Left-Hand Ocean Wave" formation="Wave LH" difficulty="2" vid="V1-k8f6if1c">
     <path>
       <move select="Quarter Left" offsetX="-.5" />
       <move select="Forward 3" />
@@ -82,7 +82,7 @@
   <tam title="Tag the Line"
        from="Lines Facing In"
        formation="Normal Lines"
-       difficulty="2">
+       difficulty="2" vid="V1-66mwk6qt">
     <path>
       <move select="Quarter Right" offsetX="1" />
       <move select="Forward 4" />
@@ -103,7 +103,7 @@
     </path>
   </tam>
 
-  <tam title="Tag the Line" from="Lines Facing Out" formation="Lines Facing Out" difficulty="1">
+  <tam title="Tag the Line" from="Lines Facing Out" formation="Lines Facing Out" difficulty="1" vid="V1-aowhl5xy">
     <path>
       <move select="Quarter Left" offsetX="-1" />
       <move select="Forward 4" />
@@ -127,7 +127,7 @@
   <tam title="Tag the Line"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="1">
+       difficulty="1" vid="V1-99ywtn3c">
     <path>
       <move select="Quarter Right" offsetX="1" />
       <move select="Forward 4" />
@@ -151,7 +151,7 @@
   <tam title="Tag the Line"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       difficulty="2">
+       difficulty="2" vid="V1-axrnc7qv">
     <path>
       <move select="Quarter Left" offsetX="-1" />
       <move select="Forward 4" />
@@ -175,7 +175,7 @@
   <tam title="Tag the Line"
        from="Right-Hand Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-600pqb3p">
     <path>
       <move select="Quarter Right" offsetX="1" />
       <move select="Forward 4" />
@@ -196,7 +196,7 @@
     </path>
   </tam>
 
-  <tam title="Tag the Line" from="Tidal Line" formation="Tidal Line RH" difficulty="2">
+  <tam title="Tag the Line" from="Tidal Line" formation="Tidal Line RH" difficulty="2" vid="V1-w1nf3u5h">
     <path>
       <move select="Quarter Right" offsetX=".5" beats="2"/>
       <move select="Forward"  beats="2"/>
@@ -223,7 +223,7 @@
     </taminator>
   </tam>
 
-  <tam title="Line of 8 Tag the Line" from="Tidal Line" formation="Tidal Line RH" difficulty="2">
+  <tam title="Line of 8 Tag the Line" from="Tidal Line" formation="Tidal Line RH" difficulty="2" vid="V1-qs76zxpw">
     <path>
       <move select="Quarter Right" offsetX=".5" />
       <move select="Forward 3" />
@@ -250,7 +250,7 @@
     </taminator>
   </tam>
 
-  <tam title="_Finish Line of 8 Tag the Line" display="no">
+  <tam title="_Finish Line of 8 Tag the Line" display="no" vid="V1-wl0uzxin">
     <formation fid="F3-h0va17gx" aid="A1-42z7i765">
       <dancer gender="boy" x="3.5" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.5" y="-.5" angle="180"/>
@@ -275,7 +275,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 8 Left Tag the Line" display="no">
+  <tam title="_Finish Line of 8 Left Tag the Line" display="no" vid="V1-b5y0ez33">
     <formation fid="F3-tgzyc4u9" aid="A1-w1jsrtq1">
       <dancer gender="boy" x="3.5" y=".5" angle="180"/>
       <dancer gender="girl" x="2.5" y=".5" angle="180"/>
@@ -300,7 +300,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 8 Half Tag" display="no">
+  <tam title="_Finish Line of 8 Half Tag" display="no" vid="V1-ru90b2bt">
     <formation fid="F3-h0va17gx" aid="A1-42z7i765">
       <dancer gender="boy" x="3.5" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.5" y="-.5" angle="180"/>
@@ -321,7 +321,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 8 Left Half Tag" display="no">
+  <tam title="_Finish Line of 8 Left Half Tag" display="no" vid="V1-bzoptm2t">
     <formation fid="F3-tgzyc4u9" aid="A1-w1jsrtq1">
       <dancer gender="boy" x="3.5" y=".5" angle="180"/>
       <dancer gender="girl" x="2.5" y=".5" angle="180"/>
@@ -342,7 +342,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 6 Tag the Line" display="no">
+  <tam title="_Finish Line of 6 Tag the Line" display="no" vid="V1-zb773ddl">
     <formation fid="F3-76q0kmzt" aid="A1-a9sbkowl">
       <dancer gender="boy" x="3.75" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.25" y="-.5" angle="180"/>
@@ -362,7 +362,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 6 Left Tag the Line" display="no">
+  <tam title="_Finish Line of 6 Left Tag the Line" display="no" vid="V1-fhi9i53c">
     <formation fid="F3-729y8ywe" aid="A1-3w5pzdg4">
       <dancer gender="boy" x="3.75" y=".5" angle="180"/>
       <dancer gender="girl" x="2.25" y=".5" angle="180"/>
@@ -382,7 +382,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 6 Half Tag" display="no">
+  <tam title="_Finish Line of 6 Half Tag" display="no" vid="V1-k3o5hko7">
     <formation fid="F3-76q0kmzt" aid="A1-a9sbkowl">
       <dancer gender="boy" x="3.75" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.25" y="-.5" angle="180"/>
@@ -399,7 +399,7 @@
     </path>
   </tam>
 
-  <tam title="_Finish Line of 6 Left Half Tag" display="no">
+  <tam title="_Finish Line of 6 Left Half Tag" display="no" vid="V1-z4c58nh2">
     <formation fid="F3-729y8ywe" aid="A1-3w5pzdg4">
       <dancer gender="boy" x="3.75" y=".5" angle="180"/>
       <dancer gender="girl" x="2.25" y=".5" angle="180"/>

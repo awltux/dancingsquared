@@ -22,7 +22,7 @@
 -->
 <tamination title="Weave">
 
-  <tam title="Weave" from="Right-Hand Box">
+  <tam title="Weave" from="Right-Hand Box" vid="V1-dj2o8usp">
     <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
       <dancer gender="boy" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="90"/>
@@ -36,7 +36,7 @@
     </path>
   </tam>
 
-  <tam title="Weave" from="Left-Hand Box" formation="Box LH">
+  <tam title="Weave" from="Left-Hand Box" formation="Box LH" vid="V1-y32718mh">
     <path>
       <move select="Lead Left" />
     </path>
@@ -46,7 +46,7 @@
     </path>
   </tam>
 
-  <tam title="Weave" from="Single Eight Chain Thru">
+  <tam title="Weave" from="Single Eight Chain Thru" vid="V1-f0bcit93">
     <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="90"/>
@@ -65,7 +65,7 @@
   <tam title="Weave"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-gmbyke5q">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Hinge Left" scaleY=".5" />
@@ -85,7 +85,7 @@
   <tam title="Weave"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-i05p8nhh">
     <path>
       <move select="Lead Left" />
     </path>
@@ -105,7 +105,7 @@
   <tam title="Weave"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       fractions="" >
+       fractions=""  vid="V1-ixzvmwo0">
     <path>
       <move select="Lead Right" scaleX=".5" />
     </path>
@@ -125,7 +125,7 @@
   <tam title="Weave"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       fractions="" >
+       fractions=""  vid="V1-qv60pj8p">
     <path>
       <move select="Extend Left" beats="1.5" scaleY="1.5" />
       <move select="Hinge Right" scaleX=".5" scaleY=".5" />
@@ -145,7 +145,7 @@
   <tam title="Weave"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       fractions="" >
+       fractions=""  vid="V1-j62b4n5r">
     <path>
       <move select="Extend Left" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -168,7 +168,7 @@
 
   <tam title="As Couples Weave"
        formation="Two-Faced Lines RH"
-       group=" " >
+       group=" "  vid="V1-fjzxhusw">
     <path>
       <move select="Extend Right" hands="right" beats="3" scaleX="2" scaleY="3.5" />
       <move select="Lead Left" hands="both" beats="2" scaleX=".5" scaleY=".5" />
@@ -187,7 +187,7 @@
 
   <tam title="All 8 Weave"
        formation="Static MiniWaves RH"
-       group=" " >
+       group=" "  vid="V1-b5tnrtw0">
     <path>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2" />
       <move select="Hinge Left" />
@@ -206,7 +206,7 @@
 
   <tam title="Tandem Weave"
        formation="Column RH GBGB"
-       group=" ">
+       group=" " vid="V1-h54ygovt">
     <path>
       <move select="Counter Rotate Right 0 -2" beats="3" offsetY="-.5"/>
     </path>
@@ -226,7 +226,7 @@
 
   <tam title="Tandem Weave"
        formation="Column LH GBGB"
-       group=" " display="none">
+       group=" " display="none" vid="V1-u85hj27s">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="1.5"/>
       <move select="Counter Rotate Right 2 0" offsetY="1"/>

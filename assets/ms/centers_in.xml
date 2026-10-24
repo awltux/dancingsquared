@@ -25,7 +25,7 @@
   <tam title="Centers In"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       difficulty="1" >
+       difficulty="1"  vid="V1-51bwbeum">
     <path>
       <move select="Dodge Right" beats="2" offsetX="-1" />
     </path>
@@ -43,7 +43,7 @@
   <tam title="Centers In"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2" >
+       difficulty="2"  vid="V1-l7hv0vde">
     <path>
       <move select="Dodge Left" beats="2" offsetX="1" />
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Centers In" display="none"
-       from="Outer Right-Hand Mini-Wave">
+       from="Outer Right-Hand Mini-Wave" vid="V1-ifzvbxyi">
     <formation fid="F3-b49o2w1f" aid="A1-7mbzn6n5">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="Centers In" display="none"
-       from="Outer Left-Hand Mini-Wave">
+       from="Outer Left-Hand Mini-Wave" vid="V1-s79bv9ql">
     <formation fid="F3-2cg7ruit" aid="A1-yxteglwt">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>

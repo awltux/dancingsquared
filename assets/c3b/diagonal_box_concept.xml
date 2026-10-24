@@ -22,7 +22,7 @@
 -->
 <tamination title="Diagonal Box Concept">
 
-  <tam title="Diagonal Box Circulate" formation="Ocean Waves RH BGBG" group="Diagonal Box">
+  <tam title="Diagonal Box Circulate" formation="Ocean Waves RH BGBG" group="Diagonal Box" vid="V1-ho5gn3sc">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY="2"/>
       <move select="Hinge Right"/>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Diagonal Box Counter Rotate" formation="Ocean Waves RH GBGB" group="Diagonal Box">
+  <tam title="Diagonal Box Counter Rotate" formation="Ocean Waves RH GBGB" group="Diagonal Box" vid="V1-icetp7tf">
     <path couples="4 2">
       <move select="Lead Right" beats="5" scaleX="3" scaleY="4"/>
     </path>
@@ -57,7 +57,7 @@
     </path >
   </tam>
 
-  <tam title="Diagonal Box Scoot Back"  formation="Ocean Waves RH BGBG" group="Diagonal Box">
+  <tam title="Diagonal Box Scoot Back"  formation="Ocean Waves RH BGBG" group="Diagonal Box" vid="V1-henac40f">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY="2"/>
       <move select="Cast Right"/>

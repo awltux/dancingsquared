@@ -25,7 +25,7 @@
   <tam title="Flip the Diamond"
        from="Right-Hand Diamond"
        formation="Diamond RH"
-       difficulty="1">
+       difficulty="1" vid="V1-djlfg7zz">
     <path>
       <move select="Run Right" />
     </path>
@@ -37,7 +37,7 @@
   <tam title="Flip the Diamond"
        from="Left-Hand Diamond"
        formation="Diamond LH"
-       difficulty="2">
+       difficulty="2" vid="V1-db0by4ba">
     <path>
       <move select="Run Left" />
     </path>
@@ -49,7 +49,7 @@
   <tam title="Flip the Diamond"
        from="Facing Diamond"
        formation="Diamond Facing RH"
-       difficulty="2">
+       difficulty="2" vid="V1-hpzghz2e">
     <path>
       <move select="Flip Left" />
     </path>
@@ -61,7 +61,7 @@
   <tam title="Flip the Diamond"
        from="Facing Diamond, Left-Hand Centers"
        formation="Diamond Facing"
-       difficulty="2">
+       difficulty="2" vid="V1-7gro1y0d">
     <path>
       <move select="Flip Right" />
     </path>
@@ -73,7 +73,7 @@
   <tam title="Flip the Diamond"
        from="Right-Hand Diamonds"
        formation="Diamonds RH Girl Points"
-       difficulty="1">
+       difficulty="1" vid="V1-tuqyl2hq">
     <path>
       <move select="Lead Right" beats="3" scaleX="3" />
     </path>
@@ -91,7 +91,7 @@
   <tam title="Flip the Diamond"
        from="Left-Hand Diamonds"
        formation="Diamonds LH Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-41sj2y21">
     <path>
       <move select="Lead Left" beats="3" scaleX="3" />
     </path>
@@ -109,7 +109,7 @@
   <tam title="Flip the Diamond"
        from="Facing Diamonds, Right-Hand Wave"
        formation="Diamonds Facing Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-gbbll30p">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Flip the Diamond" from="Facing Diamonds, Left-Hand Wave"
-       formation="Diamonds Facing LH Girl Points" difficulty="2">
+       formation="Diamonds Facing LH Girl Points" difficulty="2" vid="V1-f239h0hu">
     <path>
       <move select="Forward 2" />
       <move select="Lead Left" />
@@ -150,7 +150,7 @@
 
   <tam title="Flip the Diamond"
        formation="Diamonds 3 and 1 Girl Points"
-       from="Right-Hand Wave, Points Facing Out" difficulty="2">
+       from="Right-Hand Wave, Points Facing Out" difficulty="2" vid="V1-sk2izziq">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -168,7 +168,7 @@
   </tam>
 
   <tam title="Flip the Diamond" from="Right-Hand Wave, Points Facing In"
-       difficulty="2">
+       difficulty="2" vid="V1-y1l2fyf4">
     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -191,7 +191,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Diamond" from="Left-Hand Wave, Points Facing Out" difficulty="2">
+  <tam title="Flip the Diamond" from="Left-Hand Wave, Points Facing Out" difficulty="2" vid="V1-94dhyf86">
     <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -214,7 +214,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Diamond" from="Left-Hand Wave, Points Facing In" difficulty="2">
+  <tam title="Flip the Diamond" from="Left-Hand Wave, Points Facing In" difficulty="2" vid="V1-eivkrzh3">
     <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -240,7 +240,7 @@
   <tam title="Flip the Diamond"
        from="Point-to-Point Diamonds"
        formation="Diamonds RH PTP Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-i3o6fatj">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -258,7 +258,7 @@
   <tam title="Flip the Diamond"
        from="Left-Hand Point-to-Point Diamonds"
        formation="Diamonds LH PTP Girl Points"
-       difficulty="2">
+       difficulty="2" vid="V1-vtykaad6">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -273,7 +273,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2" formation="Diamonds Facing PTP">
+  <tam title="Flip the Diamond" from="Facing Point-to-Point Diamonds, Right-Hand Centers" difficulty="2" formation="Diamonds Facing PTP" vid="V1-fi9ffaa2">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -288,7 +288,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2" formation="Diamonds Facing LH PTP">
+  <tam title="Flip the Diamond" from="Facing Point-to-Point Diamonds, Left-Hand Centers" difficulty="2" formation="Diamonds Facing LH PTP" vid="V1-76gv7spb">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -303,7 +303,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Diamond" from="Point-to-Point Diamonds 3" difficulty="2" formation="Interlocked Diamonds RH PTP Girl Points">
+  <tam title="Flip the Diamond" from="Point-to-Point Diamonds 3" difficulty="2" formation="Interlocked Diamonds RH PTP Girl Points" vid="V1-iyowm2g5">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" />
     </path>
@@ -318,7 +318,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Diamond" from="Point-to-Point Diamonds 4" difficulty="2">
+  <tam title="Flip the Diamond" from="Point-to-Point Diamonds 4" difficulty="2" vid="V1-97d5p8si">
     <formation fid="F3-x0vy384g" aid="A1-9wda6y80">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -340,7 +340,7 @@
   </tam>
 
   <tam title="Flip the Diamond"
-       from="Point-to-Point Diamonds 5" difficulty="2" formation="Interlocked Diamonds LH PTP Girl Points">
+       from="Point-to-Point Diamonds 5" difficulty="2" formation="Interlocked Diamonds LH PTP Girl Points" vid="V1-je53c6fh">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" />
     </path>
@@ -356,7 +356,7 @@
   </tam>
 
   <tam title="Flip the Diamond"
-       from="Point-to-Point Diamonds 6" difficulty="2">
+       from="Point-to-Point Diamonds 6" difficulty="2" vid="V1-bjzx8ohl">
     <formation fid="F3-8ogv2tf4" aid="A1-9qhj5pzk">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>

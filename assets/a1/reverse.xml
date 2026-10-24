@@ -23,7 +23,7 @@
 <tamination title="Reverse">
 
   <tam title="Reverse Rollaway" group="Reverse"
-       formation="Normal Lines">
+       formation="Normal Lines" vid="V1-yj0f7wb3">
     <path>
       <move select="Fold Right" hands="gripright" beats="1.5" scaleX=".6" scaleY=".5" />
       <move select="U-Turn Right" hands="gripright" beats="1.5" offsetX="1.2" offsetY="1" />
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Reverse Half Sashay" group="Reverse"
-       formation="Facing Couples" sequencer="no">
+       formation="Facing Couples" sequencer="no" vid="V1-u3flaleu">
     <path>
       <move select="Sashay Right" beats="4" />
     </path>
@@ -56,7 +56,7 @@
            xref-from="Facing Couples"/>
 
   <tam title="Reverse Courtesy Turn" group="Reverse"
-       formation="Couples Facing Out" >
+       formation="Couples Facing Out"  vid="V1-54cw5rqu">
     <path>
       <move select="Belle Reverse Wheel" scaleX="0.67" />
     </path>
@@ -75,7 +75,7 @@
            xref-title="Reverse Dixie Style to a Wave"/>
 
   <tam title="Reverse Circle to a Line" group="Reverse"
-       formation="Eight Chain Thru">
+       formation="Eight Chain Thru" vid="V1-oii14h8f">
     <path>
       <move select="Eighth Right" hands="gripboth" />
       <movement hands="gripboth" beats="3" cx1="0" cy1="-1.88" cx2="2.83" cy2="-1.88" x2="2.83" y2="0" cx3="1.33" cx4="1.33" cy4="2" x4="0" y4="2" />

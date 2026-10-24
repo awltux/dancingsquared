@@ -24,7 +24,7 @@
 
   <tam title="Cloverleaf"
        from="Couples Facing Out"
-       formation="Couples Facing Out" sequencer="exact">
+       formation="Couples Facing Out" sequencer="exact" vid="V1-barbn8io">
     <path>
       <move select="Lead Right" />
       <move select="Lead Right" />
@@ -39,7 +39,7 @@
 
   <tam title="Cloverleaf"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-r0lcu5fq">
     <path>
       <move select="Lead Right" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="1.5" />
@@ -68,7 +68,7 @@
 
   <tam title="Cloverleaf"
        from="Trade By"
-       formation="Trade By">
+       formation="Trade By" vid="V1-wvde62ak">
     <path>
       <move select="Lead Right" />
       <move select="Lead Right" beats="2" scaleX="2" scaleY="1.5" />
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Cloverleaf" from="3/4 Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-c2b00g4p">
     <path>
       <move select="Lead Right" beats="2" scaleY="2"/>
       <move select="Lead Right" beats="2" scaleX="2" scaleY="1.5" />
@@ -105,7 +105,7 @@
     </path>
   </tam>
 
-  <tam title="Cloverleaf" from="After Heads Pass Thru">
+  <tam title="Cloverleaf" from="After Heads Pass Thru" vid="V1-lsukeazg">
     <formation fid="F3-7ze4qv1j" aid="A1-1vf2jujn">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>

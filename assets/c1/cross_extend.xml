@@ -24,7 +24,7 @@
 
 
 
-  <tam title="Cross Extend" from="Right-Hand Box" formation="Box RH">
+  <tam title="Cross Extend" from="Right-Hand Box" formation="Box RH" vid="V1-o8obp01x">
   <path>
     <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
   </path>
@@ -34,7 +34,7 @@
   </tam>
 
   <tam title="Cross Extend" from="Left-Hand Box"
-       formation="Box LH Girls Lead">
+       formation="Box LH Girls Lead" vid="V1-qfodbyod">
   <path couples="3 1">
     <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
   </path>
@@ -43,7 +43,7 @@
   </path>
   </tam>
 
-  <tam title="Cross Extend" from="Right-Hand Waves" formation="Ocean Waves RH BGBG">
+  <tam title="Cross Extend" from="Right-Hand Waves" formation="Ocean Waves RH BGBG" vid="V1-g92ipjsa">
     <path>
     <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
     </path>
@@ -58,7 +58,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Extend" from="Left-Hand Waves" formation="Ocean Waves LH BGBG">
+  <tam title="Cross Extend" from="Left-Hand Waves" formation="Ocean Waves LH BGBG" vid="V1-b77w7aeh">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
     </path>
@@ -73,7 +73,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Extend" from="Quarter Tag" formation="Quarter Tag">
+  <tam title="Cross Extend" from="Quarter Tag" formation="Quarter Tag" vid="V1-646r5s2z">
     <path>
       <move select="Forward" beats="2"/>
     </path>
@@ -88,7 +88,7 @@
     </path>
   </tam>
 
-  <tam title="Cross Extend" from="Left-Hand Quarter Tag" formation="Quarter Tag LH">
+  <tam title="Cross Extend" from="Left-Hand Quarter Tag" formation="Quarter Tag LH" vid="V1-8ff8f7ok">
     <path>
       <move select="Extend Left" beats="2" scaleY="2"/>
     </path>
@@ -103,7 +103,7 @@
     </path>
   </tam>
 
-  <tam title="As Couples Cross Extend" group=" " from="" formation="Two-Faced Lines RH">
+  <tam title="As Couples Cross Extend" group=" " from="" formation="Two-Faced Lines RH" vid="V1-dom43v3u">
     <path>
       <move select="Dodge Right" hands="right" offsetX="2" scaleY="2" beats="5"/>
     </path>
@@ -118,7 +118,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Cross Extend" group=" " from="" formation="Column RH GBGB">
+  <tam title="Tandem Cross Extend" group=" " from="" formation="Column RH GBGB" vid="V1-fq8anf3f">
     <path>
       <move select="Forward"/>
       <move select="Extend Right"/>

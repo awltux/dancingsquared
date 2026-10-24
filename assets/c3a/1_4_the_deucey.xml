@@ -23,7 +23,7 @@
 <tamination title="1/4 (or 3/4) the Deucey">
 
   <tam title="1/4 the Deucey" from="Right-Hand Waves"
-       formation="Ocean Waves RH GBGB" fractions="2;2;2">
+       formation="Ocean Waves RH GBGB" fractions="2;2;2" vid="V1-t2liqw4n">
     <path numbers="1 8" couples="4 2">
       <move select="Hinge Right" beats="2"/>
       <move select="Hinge Left" beats="2"/>
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="1/4 the Deucey" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" fractions="2;2;2">
+       formation="Ocean Waves LH BGGB" fractions="2;2;2" vid="V1-tjtaps9k">
     <path>
       <move select="Hinge Left" beats="2"/>
       <move select="Extend Left" beats="2" scaleX="2" scaleY="2"/>
@@ -75,7 +75,7 @@
   </tam>
 
   <tam title="3/4 the Deucey" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" fractions="4.5;4.5;4.5">
+       formation="Ocean Waves RH BGGB" fractions="4.5;4.5;4.5" vid="V1-f2g78r39">
     <path>
       <move select="Cast Right"/>
       <move select="Run Right" beats="13.5" scaleX="2" scaleY="3"/>
@@ -101,7 +101,7 @@
   </tam>
 
   <tam title="3/4 the Deucey" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" fractions="4.5;4.5;4.5">
+       formation="Ocean Waves LH BGGB" fractions="4.5;4.5;4.5" vid="V1-as3xqnou">
     <path>
       <move select="Cast Left"/>
       <move select="Cast Right"/>

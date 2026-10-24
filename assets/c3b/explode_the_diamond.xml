@@ -22,7 +22,7 @@
 -->
 <tamination title="Explode the Diamond">
 
-  <tam title="Explode the Diamond" from="Right-Hand Diamonds">
+  <tam title="Explode the Diamond" from="Right-Hand Diamonds" vid="V1-bnta5mmc">
     <formation fid="F3-va6q5tqm" aid="A1-enpkglk4">
       <dancer gender="boy" y="3" x="2" angle="0"/>
       <dancer gender="girl" y="0" x="3" angle="270"/>
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Explode the Diamond" from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-4nynk5k7">
     <path>
       <move select="Lead Left" beats="3" scaleX=".5" scaleY="2" />
       <move select="Extend Right" beats="3" scaleX="3" scaleY=".5" />
@@ -65,7 +65,7 @@
     </path>
   </tam>
 
-  <tam title="Explode the Diamond" from="3/4 Tag" formation="3/4 Tag">
+  <tam title="Explode the Diamond" from="3/4 Tag" formation="3/4 Tag" vid="V1-aw62i4ba">
     <path>
       <move select="Flip Left"/>
     </path>

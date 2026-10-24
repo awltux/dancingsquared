@@ -25,7 +25,7 @@
   <tam title="Flip Your Neighbor"
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="5.5">
+       parts="5.5" vid="V1-6aco392f">
     <path>
       <move select="Lead Right" />
       <move select="Forward 4" />
@@ -44,7 +44,7 @@
   <tam title="Flip Your Neighbor"
        from="Left-Hand Wave"
        formation="Wave LH"
-       parts="5.5">
+       parts="5.5" vid="V1-qqoswrk0">
     <path>
       <move select="Lead Left" />
       <move select="Forward 4" />
@@ -63,7 +63,7 @@
   <tam title="Flip Your Neighbor"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="5.5" >
+       parts="5.5"  vid="V1-2rt0elqt">
     <path>
       <move select="Lead Right" />
       <move select="Forward 4" />
@@ -95,7 +95,7 @@
   <tam title="Flip Your Neighbor"
        from="Left-Hand Waves"
        formation="Ocean Waves LH GBBG"
-       parts="5.5" >
+       parts="5.5"  vid="V1-gbnftsym">
     <path>
       <move select="Lead Left" />
       <move select="Forward 4" />
@@ -127,7 +127,7 @@
   <tam title="Flip Your Neighbor"
        from="Right-Hand Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="5" >
+       parts="5"  vid="V1-kqgnvl1e">
     <path>
       <move select="Lead Right" scaleY=".5" beats="2"/>
       <move select="Forward" beats="2"/>
@@ -159,7 +159,7 @@
   <tam title="Flip Your Neighbor"
        from="Left-Hand Tidal Wave"
        formation="Tidal Wave LH BGGB"
-       parts="5" >
+       parts="5"  vid="V1-gqcpryki">
     <path>
       <move select="Lead Left" scaleY=".5" beats="2"/>
       <move select="Forward" beats="2"/>
@@ -192,7 +192,7 @@
   <tam title="Flip Your Cross Neighbor" group=" "
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="5.5">
+       parts="5.5" vid="V1-ibie8mij">
     <path>
       <move select="Lead Right" />
       <move select="Forward 4" />
@@ -211,7 +211,7 @@
   <tam title="Flip Your Criss Cross Neighbor" group=" "
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="5.5">
+       parts="5.5" vid="V1-4xg3izbt">
     <path>
       <move select="Lead Right" />
       <move select="Forward 4" />
@@ -228,7 +228,7 @@
   </tam>
 
   <tam title="Tag Your Neighbor" group=" "
-       formation="Two-Faced Line RH" parts="2">
+       formation="Two-Faced Line RH" parts="2" vid="V1-uzhl658a">
     <path>
       <!-- 1/2 tag the line -->
       <move select="Lead Right" beats="2" scaleY="2"/>
@@ -247,7 +247,7 @@
   </tam>
 
   <tam title="Tag Your Cross Neighbor" group=" "
-       formation="Two-Faced Line RH" parts="2">
+       formation="Two-Faced Line RH" parts="2" vid="V1-otnhqud2">
     <path>
       <move select="Lead Right" beats="2" scaleY="2"/>
       <move select="Extend Right" beats="1.5" scaleY="1.75"/>
@@ -262,7 +262,7 @@
   </tam>
 
   <tam title="Tag Your Criss Cross Neighbor" group=" "
-       formation="Two-Faced Line RH" parts="2">
+       formation="Two-Faced Line RH" parts="2" vid="V1-6umav6e0">
     <path>
       <move select="Lead Right" beats="2" scaleY="2"/>
       <move select="Extend Right" beats="1.5" scaleY="1.75"/>
@@ -278,7 +278,7 @@
 
   <tam title="Vertical Tag Your Neighbor" group=" "
        formation="Couples Facing Out"
-       fractions="4.5" >
+       fractions="4.5"  vid="V1-20mqz40r">
     <path>
       <!-- vertical 1/2 tag -->
       <move select="U-Turn Left" offsetX="-1.5"/>
@@ -300,7 +300,7 @@
 
   <tam title="Vertical Tag Your Cross Neighbor" group=" "
        formation="Couples Facing Out"
-       fractions="4.5" >
+       fractions="4.5"  vid="V1-s1q3hprv">
     <path>
       <!-- vertical 1/2 tag -->
       <move select="U-Turn Left" offsetX="-1.5"/>
@@ -322,7 +322,7 @@
 
   <tam title="Vertical Tag Your Criss Cross Neighbor" group=" "
        formation="Couples Facing Out"
-       fractions="4.5" >
+       fractions="4.5"  vid="V1-a1vtrgi5">
     <path>
       <!-- vertical 1/2 tag -->
       <move select="U-Turn Left" offsetX="-1.5"/>

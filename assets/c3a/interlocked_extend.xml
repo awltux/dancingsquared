@@ -22,7 +22,7 @@
 <tamination title="Interlocked Extend">
 
   <tam title="Interlocked Extend" from="Right-Hand Quarter Line"
-       formation="Quarter Lines RH">
+       formation="Quarter Lines RH" vid="V1-rhor7zx8">
     <path>
       <move select="Extend Left" beats="3" scaleY="2"/>
     </path>
@@ -38,7 +38,7 @@
   </tam>
 
   <tam title="Interlocked Extend" from="Left-Hand Quarter Line"
-       formation="Quarter Lines LH">
+       formation="Quarter Lines LH" vid="V1-t0yn1bnl">
     <path>
       <move select="Forward" beats="3"/>
     </path>

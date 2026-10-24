@@ -23,7 +23,7 @@
 <tamination title="Two-Faced Concept">
 
   <tam title="Two-Faced Alter and Circulate" group="Two-Faced"
-       formation="Two-Faced Lines RH" fractions="3;7.5;4">
+       formation="Two-Faced Lines RH" fractions="3;7.5;4" vid="V1-fks6zmdc">
     <path>
       <move select="Run Right" />
       <move select="Cast Left" />
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="Two-Faced Alter the Wave" group="Two-Faced"
-       formation="Two-Faced Line RH" fractions="3;4.5;4">
+       formation="Two-Faced Line RH" fractions="3;4.5;4" vid="V1-4uwdt1d4">
     <path>
       <move select="Run Right" />
       <move select="Cast Left" />
@@ -75,7 +75,7 @@
   </tam>
 
   <tam title="Two-Faced Change the Centers" group="Two-Faced"
-       formation="Two-Faced Line RH" fractions="3;3;3">
+       formation="Two-Faced Line RH" fractions="3;3;3" vid="V1-1wfwrny5">
     <path>
       <move select="Run Right"/>
       <move select="Swing Left"/>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="Two-Faced Change the Wave" group="Two-Faced"
-       formation="Two-Faced Line RH" fractions="3;3;3">
+       formation="Two-Faced Line RH" fractions="3;3;3" vid="V1-8cgl3xqq">
     <path>
       <move select="Run Right"/>
       <move select="Swing Left"/>
@@ -108,7 +108,7 @@
 
   <tam title="Two-Faced Delight" group="Two-Faced"
        formation="3/4 Lines RH"
-       fractions="3;3;3" >
+       fractions="3;3;3"  vid="V1-8g4tu2qk">
     <path>
       <move select="Quarter Right" offsetY="-1" />
       <move select="Lead Right" beats="4" scaleX="2" scaleY="3" />
@@ -139,7 +139,7 @@
   </tam>
 
   <tam title="Two-Faced Peel Chain Thru" group="Two-Faced"
-       formation="3/4 Lines RH">
+       formation="3/4 Lines RH" vid="V1-07o6em0t">
     <path>
       <move select="Run Right" beats="4" offsetX="-2"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Two-Faced Relay the Deucey" group="Two-Faced"
-       formation="Two-Faced Lines RH" fractions="3;4.5;3;3;3">
+       formation="Two-Faced Lines RH" fractions="3;4.5;3;3;3" vid="V1-g2cj4zl2">
     <path>
       <move select="Run Right" />
       <move select="Cast Left" />
@@ -205,7 +205,7 @@
   </tam>
 
   <tam title="Two-Faced Relay the Shadow" group="Two-Faced"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-1zajxg36">
     <path>
       <move select="Run Right" scaleY=".5"/>
       <move select="U-Turn Right" hands="left"/>
@@ -240,7 +240,7 @@
   </tam>
 
   <tam title="Two-Faced Relay the Top" group="Two-Faced"
-       formation="Two-Faced Lines RH" fractions="3;4.5;3">
+       formation="Two-Faced Lines RH" fractions="3;4.5;3" vid="V1-yobgs6ka">
     <path>
       <move select="Run Right"/>
       <move select="Cast Left"/>
@@ -270,7 +270,7 @@
   </tam>
 
   <tam title="Two-Faced Reverse the Top" group="Two-Faced"
-       formation="Two-Faced Line RH" fractions="4.5">
+       formation="Two-Faced Line RH" fractions="4.5" vid="V1-awlskou0">
     <path>
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3"/>
       <move select="Run Right"/>
@@ -282,7 +282,7 @@
   </tam>
 
   <tam title="Two-Faced Spin the Top" group="Two-Faced" fractions="3"
-       formation="Two-Faced Line RH">
+       formation="Two-Faced Line RH" vid="V1-964mcuy4">
     <path>
       <move select="Run Right"/>
       <move select="Cast Left"/>

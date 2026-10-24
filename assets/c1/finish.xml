@@ -24,7 +24,7 @@
 
   <tam title="Finish Alter the Wave" group="Finish"
        formation="Ocean Waves LH BGGB"
-       parts="4.5;4" >
+       parts="4.5;4"  vid="V1-8d8d6qci">
     <path>
       <move select="U-Turn Left" beats="4.5" />
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY="3" />
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Finish Brace Thru" group="Finish" sequencer="gender-specific">
+  <tam title="Finish Brace Thru" group="Finish" sequencer="gender-specific" vid="V1-dm0s88ma">
      <formation fid="F3-xzuj7y07" aid="A1-zolwt0mp">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
@@ -72,7 +72,7 @@
 
   <tam title="Finish Coordinate" group="Finish"
        formation="Column RH GBGB"
-       parts="1;3">
+       parts="1;3" vid="V1-bea03whl">
     <path>
       <move select="Lead Right" scaleX=".5" />
       <move select="Lead Right" scaleX="3" scaleY="1.5" beats="5" />
@@ -99,7 +99,7 @@
   </tam>
 
   <tam title="Finish Cross Chain And Roll" group="Finish"
-       formation="Trade By">
+       formation="Trade By" vid="V1-xiki78g1">
     <path>
       <move select="Belle Wheel" />
       <move select="Quarter Left" />
@@ -122,7 +122,7 @@
 
   <tam title="Finish Diamond Chain Thru" group="Finish"
        formation="Diamonds RH Girl Points"
-       parts="3" >
+       parts="3"  vid="V1-umnox4lv">
     <path>
       <move select="Stand" beats="3" />
       <move select="Cast Right" />
@@ -138,7 +138,7 @@
   </tam>
 
   <tam title="Finish Dixie Diamond" group="Finish"
-       formation="Ocean Waves LH GBBG">
+       formation="Ocean Waves LH GBBG" vid="V1-x06wbj2l">
     <path>
       <move select="U-Turn Left" />
     </path>
@@ -156,7 +156,7 @@
   <tam title="Finish Linear Cycle"
        group="Finish"
        formation="Ocean Waves RH BGGB"
-       fractions="4" >
+       fractions="4"  vid="V1-u9ua0c0u">
     <path>
       <move select="Forward 4" />
       <move select="Run Right" />
@@ -178,7 +178,7 @@
   </tam>
 
   <tam title="Finish Load the Boat" group="Finish"
-       formation="Lines Facing Out" fractions="2;3">
+       formation="Lines Facing Out" fractions="2;3" vid="V1-hagj1qcp">
     <path>
       <move select="Lead Left" scaleX="1.5" scaleY="3.5" beats="2" />
       <move select="Lead Left" scaleX="2.5" scaleY="3.5" beats="2.5" />
@@ -203,7 +203,7 @@
 
   <tam title="Finish Motivate" group="Finish"
        formation="Ocean Waves RH BGGB"
-       fractions="4.5;3" >
+       fractions="4.5;3"  vid="V1-qb6z7dxo">
     <path numbers="4 5" couples="3 1">
       <move select="Extend Right" beats="4.5" scaleX="2" scaleY="2" />
       <move select="Swing Right" />
@@ -227,7 +227,7 @@
   </tam>
 
   <tam title="Finish Pass and Roll" group="Finish"
-       formation="Trade By" >
+       formation="Trade By"  vid="V1-1pbxs6kp">
     <path>
       <move select="Flip Right" scaleY=".25" />
       <move select="Forward 3" />
@@ -255,7 +255,7 @@
   </tam>
 
   <tam title="Finish Pass the Ocean" group="Finish"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-4enjpcxm">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1" offsetY="1" />
     </path>
@@ -271,7 +271,7 @@
   </tam>
 
   <tam title="Finish Pass the Sea" group="Finish"
-       formation="Lines Facing Out">
+       formation="Lines Facing Out" vid="V1-mahx5wwn">
     <path>
       <move select="Lead Left" beats="2" />
     </path>
@@ -288,7 +288,7 @@
 
   <tam title="Finish Percolate" group="Finish"
        formation="Ocean Waves RH BGGB"
-       parts="2" >
+       parts="2"  vid="V1-mmkxlhe8">
     <path>
       <move select="Forward 2" />
       <move select="Hinge Right" />
@@ -313,7 +313,7 @@
   </tam>
 
   <tam title="Finish Recycle" group="Finish"
-       formation="Box RH" parts="2">
+       formation="Box RH" parts="2" vid="V1-3jz7qovr">
     <path>
       <move select="Counter Rotate Right 3 1" offsetY="-1"/>
       <move select="Quarter Right" beats="2"/>
@@ -325,7 +325,7 @@
   </tam>
 
   <tam title="Finish Relay the Deucey" group="Finish"
-    formation="Ocean Waves RH BGGB" parts="4.5;3;3;3">
+    formation="Ocean Waves RH BGGB" parts="4.5;3;3;3" vid="V1-d0zzy34q">
     <path>
       <move select="Forward 2" beats="4.5" />
       <move select="Forward 2" beats="3" />
@@ -358,7 +358,7 @@
 
   <tam title="Finish Relay the Shadow" group="Finish"
        formation="Tidal Wave RH BGGB"
-       parts="4.5" >
+       parts="4.5"  vid="V1-8bc2de6o">
     <path>
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3.5" />
       <move select="Hinge Right" beats="4" scaleX="3" />
@@ -386,7 +386,7 @@
 
   <tam title="Finish Relay the Top" group="Finish"
        formation="Ocean Waves RH BGGB"
-       parts="4.5;3" >
+       parts="4.5;3"  vid="V1-x1pbadj4">
     <path>
       <move select="Extend Right" beats="4.5" scaleX="2" scaleY="2" />
       <move select="Hinge Right" beats="3" />
@@ -410,7 +410,7 @@
   </tam>
 
   <tam title="Finish Remake" group="Finish"
-       formation="Ocean Waves LH BGGB" parts="3">
+       formation="Ocean Waves LH BGGB" parts="3" vid="V1-pda1blwl">
     <path>
       <move select="Swing Left"/>
       <move select="Cast Right"/>
@@ -427,7 +427,7 @@
     </path>
   </tam>
 
-  <tam title="Finish Rotary Spin" group="Finish">
+  <tam title="Finish Rotary Spin" group="Finish" vid="V1-85woq0pt">
      <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
@@ -453,7 +453,7 @@
   </tam>
 
   <tam title="Finish Spin Chain and Exchange the Gears" group="Finish"
-       formation="Ocean Waves RH BGGB" parts="4.5;3;4.5;4">
+       formation="Ocean Waves RH BGGB" parts="4.5;3;4.5;4" vid="V1-4g4f0c03">
     <path>
       <move select="Stand" beats="2" />
       <move select="Flip Right" beats="5.5" />
@@ -501,7 +501,7 @@
   </tam>
 
   <tam title="Finish Spin Chain the Gears" group="Finish"
-       formation="Ocean Waves RH BGGB" parts="4.5;3;4.5;3">
+       formation="Ocean Waves RH BGGB" parts="4.5;3;4.5;3" vid="V1-njtessej">
     <path>
       <move select="Stand" beats="2" />
       <move select="Flip Right" beats="5.5" />
@@ -531,7 +531,7 @@
   </tam>
 
   <tam title="Finish Spin Chain Thru" group="Finish"
-       formation="Ocean Waves RH BGGB" parts="4.5;3">
+       formation="Ocean Waves RH BGGB" parts="4.5;3" vid="V1-vgovjc7j">
     <path>
     </path>
     <path>
@@ -550,7 +550,7 @@
 
   <tam title="Finish Swing the Fractions" group="Finish"
        formation="Ocean Waves RH BGGB"
-       parts="3;4.5;3" >
+       parts="3;4.5;3"  vid="V1-ezsvwpbf">
     <path>
       <move select="Stand" beats="3" />
       <move select="Cast Right" />
@@ -579,7 +579,7 @@
 
   <tam title="Finish Tally Ho" group="Finish"
        formation="Tidal Wave RH BGGB"
-       parts="3" >
+       parts="3"  vid="V1-37onpgax">
     <path>
       <move select="Swing Right" scaleX=".5" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -602,7 +602,7 @@
   </tam>
 
   <tam title="Finish Triple Star Thru" group="Finish" sequencer="gender-specific"
-       formation="Normal Lines" parts="3.5" >
+       formation="Normal Lines" parts="3.5"  vid="V1-v7833k3w">
     <path>
       <move select="Extend Right" hands="left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Left" beats="1.5" offsetX="1" offsetY=".5" />

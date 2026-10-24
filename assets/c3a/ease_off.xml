@@ -24,7 +24,7 @@
 
   <tam title="Ease Off"
        from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-4ylzyd1x">
     <path>
       <move select="Quarter Right" offsetX="3" beats="3"/>
     </path>
@@ -41,7 +41,7 @@
     </path>
   </tam>
 
-  <tam title="Ease Off" from="Left-Hand Two-Faced Lines">
+  <tam title="Ease Off" from="Left-Hand Two-Faced Lines" vid="V1-3h57iaji">
     <formation fid="F3-njckelvh" aid="A1-fy8pq1x9">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="1" angle="180"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Ease Off" from="Right-Hand Waves"
-       formation="Ocean Waves RH GBGB">
+       formation="Ocean Waves RH GBGB" vid="V1-sfrk7dmk">
     <path numbers="1 8" couples="4 2">
       <move select="Quarter Right" offsetX="3" beats="3"/>
     </path>
@@ -83,7 +83,7 @@
   </tam>
 
   <tam title="Ease Off" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-jt9q1zvn">
     <path>
       <move select="Run Right" offsetX="-2" />
       <move select="Lead Right" scaleY="2" beats="2"/>

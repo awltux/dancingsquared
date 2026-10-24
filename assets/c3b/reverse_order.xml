@@ -23,7 +23,7 @@
 <tamination title="Reverse Order Concept">
 
   <tam title="Reverse Order Diamond Chain Thru" group="Reverse Order"
-       parts="4.5;3">
+       parts="4.5;3" vid="V1-h0noupy1">
     <formation fid="F3-p8t2f0pj" aid="A1-zmy9xmg7">
       <dancer gender="boy" y="2" x="-1" angle="90"/>
       <dancer gender="girl" y="2" x="-3" angle="90"/>
@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Reverse Order Mix" group="Reverse Order"
-       formation="Wave RH" parts="3">
+       formation="Wave RH" parts="3" vid="V1-vtgbc16k">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Dodge Right"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Reverse Order Pass the Ocean" group="Reverse Order"
-       formation="Eight Chain Thru" parts="2;1.5">
+       formation="Eight Chain Thru" parts="2;1.5" vid="V1-5z3oq61v">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY="2"/>
       <move select="Quarter Right"/>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="Reverse Order Recoil" group="Reverse Order"
-       formation="Wave RH" parts="3">
+       formation="Wave RH" parts="3" vid="V1-fu6u4fdi">
     <path>
       <move select="Run Right" offsetX="1"/>
       <move select="U-Turn Left" beats="4" hands="gripleft" offsetX="1" />
@@ -103,7 +103,7 @@
    </tam>
 
   <tam title="Reverse Order Remake" group="Reverse Order"
-       formation="Ocean Waves RH BGGB" parts="4.5;3">
+       formation="Ocean Waves RH BGGB" parts="4.5;3" vid="V1-ffkjduh5">
     <path>
       <move select="Cast Right"/>
       <move select="Stand" beats="3"/>
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="Reverse Order Right and Left Thru" group="Reverse Order"
-       formation="Lines Facing Out" parts="3">
+       formation="Lines Facing Out" parts="3" vid="V1-s26eq732">
     <path>
       <move select="Belle Wheel" scaleX=".67" />
       <move select="Pull Left" scaleX="2" scaleY=".5" />
@@ -151,7 +151,7 @@
   </tam>
 
   <tam title="Reverse Order Scramble" group="Reverse Order"
-       formation="Normal Lines" parts="6">
+       formation="Normal Lines" parts="6" vid="V1-ifn6rxc5">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -179,7 +179,7 @@
   </tam>
 
   <tam title="Reverse Order Travel Thru" group="Reverse Order"
-       formation="Two-Faced Line RH" parts="1.5">
+       formation="Two-Faced Line RH" parts="1.5" vid="V1-heddu0np">
     <path>
       <move select="Hinge Right" hands="right"/>
       <move select="Pull Left" scaleX="2" scaleY=".5" />

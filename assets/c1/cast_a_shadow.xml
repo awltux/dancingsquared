@@ -22,7 +22,7 @@
 <tamination title="Cast a Shadow">
 
   <tam title="Cast a Shadow" formation="3 and 1 lines #1"
-       from="3 and 1 Lines #1">
+       from="3 and 1 Lines #1" vid="V1-8urmuw84">
     <path>
       <move select="U-Turn Right" beats=".5" offsetY="-.75" />
       <move select="Forward 2" beats="1" />
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Cast a Shadow" formation="3 and 1 lines #4"
-       from="3 and 1 Lines #4">
+       from="3 and 1 Lines #4" vid="V1-mwlt5b6h">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".75" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

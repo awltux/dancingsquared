@@ -23,7 +23,7 @@
 <tamination title="Cross Ramble">
 
   <tam title="Cross Ramble" from="3/4 Tag" formation="3/4 Tag" parts="4"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-8k0cu2wq">
     <path>
       <move select="Lead Left" beats="1" scaleX=".5" />
       <move select="Lead Left" scaleX="3" scaleY="2.5" beats="3" />
@@ -48,7 +48,7 @@
   </tam>
 
   <tam title="Cross Ramble" from="3/4 Tag, Boys in Center"
-       parts="4" sequencer="gender-specific">
+       parts="4" sequencer="gender-specific" vid="V1-8k0cu2wq">
     <formation fid="F3-78uohvsi" aid="A1-cvq7pdsw">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Cross Ramble" from="3/4 Tag, Girls in Center"
-       parts="4" sequencer="gender-specific">
+       parts="4" sequencer="gender-specific" vid="V1-8k0cu2wq">
     <formation fid="F3-78uohvsi" aid="A1-kjfkuiyk">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>
@@ -110,7 +110,7 @@
   </tam>
 
   <tam title="_Cross Ramble Part 1" from="3/4 Tag" formation="3/4 Tag"
-       display="no" parts="4">
+       display="no" parts="4" vid="V1-ow4ndam9">
     <path>
       <move select="Lead Left" beats="1" scaleX=".5" />
       <move select="Lead Left" scaleX="3" scaleY="2.5" beats="3" />
@@ -127,7 +127,7 @@
   </tam>
 
   <tam title="_Cross Ramble Part 1" from="3/4 Tag LH" formation="3/4 Tag LH"
-       display="no" parts="4">
+       display="no" parts="4" vid="V1-slxr4pgt">
     <path>
       <move select="Lead Left" beats="1" scaleX=".5" />
       <move select="Lead Left" scaleX="3" scaleY="2.5" beats="3" />
@@ -146,7 +146,7 @@
   <tam title="Scoot and Cross Ramble"
        from="Quarter Tag"
        formation="Quarter Tag"
-       parts="5;4" sequencer="gender-specific">
+       parts="5;4" sequencer="gender-specific" vid="V1-bbyuiaw2">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -184,7 +184,7 @@
 
   <tam title="Scoot and Cross Ramble"
        from="Quarter Tag, Boys in Center"
-       parts="5;4" sequencer="gender-specific">
+       parts="5;4" sequencer="gender-specific" vid="V1-bbyuiaw2">
     <formation fid="F3-roc084t6" aid="A1-rjoptfq4">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="180"/>
@@ -228,7 +228,7 @@
 
   <tam title="Scoot and Cross Ramble"
        from="Quarter Tag, Girls in Center"
-       parts="5;4" sequencer="gender-specific">
+       parts="5;4" sequencer="gender-specific" vid="V1-bbyuiaw2">
     <formation fid="F3-roc084t6" aid="A1-njnmdxd4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="-3" angle="180"/>

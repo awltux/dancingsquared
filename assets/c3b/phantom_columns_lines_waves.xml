@@ -22,7 +22,7 @@
 -->
 <tamination title="Phantom Columns | Lines | Waves Concept">
 
-  <tam title="Phantom Columns Checkmate" group="Phantom Columns">
+  <tam title="Phantom Columns Checkmate" group="Phantom Columns" vid="V1-ylvk3lne">
     <formation fid="F3-ssg6hm1w" aid="A1-nrxhev80">
       <dancer gender="boy" x="3" y="3" angle="180"/>
       <dancer gender="girl" x="1" y="3" angle="180"/>
@@ -78,7 +78,7 @@
     </path>
   </tam>
 
-  <tam title="Phantom Columns Circulate" group="Phantom Columns">
+  <tam title="Phantom Columns Circulate" group="Phantom Columns" vid="V1-k5vgju67">
     <formation fid="F3-p36bbasc" aid="A1-5nn7jani">
       <dancer gender="boy" x="3" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
@@ -116,7 +116,7 @@
   </tam>
 
 
-  <tam title="Phantom Lines Chase Right" group="Phantom Lines">
+  <tam title="Phantom Lines Chase Right" group="Phantom Lines" vid="V1-sb7dpo2v">
     <formation fid="F3-5hj3zmdu" aid="A1-btdfy33y">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -165,7 +165,7 @@
     </path>
   </tam>
 
-  <tam title="Phantom Lines Swap Around" group="Phantom Lines">
+  <tam title="Phantom Lines Swap Around" group="Phantom Lines" vid="V1-ns5ivupb">
     <formation fid="F3-m43jlpt0" aid="A1-w3hirdbk">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -202,7 +202,7 @@
     </path>
   </tam>
 
-  <tam title="Phantom Waves Circulate" group="Phantom Waves">
+  <tam title="Phantom Waves Circulate" group="Phantom Waves" vid="V1-0rh6gdkp">
     <formation fid="F3-3kdhl4k4" aid="A1-gm5ndybg">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
@@ -241,7 +241,7 @@
     </path>
   </tam>
 
-  <tam title="Phantom Waves In-Roll Circulate" group="Phantom Waves">
+  <tam title="Phantom Waves In-Roll Circulate" group="Phantom Waves" vid="V1-lrz3nw0o">
     <formation fid="F3-3kdhl4k4" aid="A1-gm5ndybg">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>

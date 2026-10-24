@@ -23,7 +23,7 @@
 <tamination title="Criss Cross The Deucey">
 
   <tam title="Criss Cross the Deucey" from="Right-Hand Waves"
-       formation="Ocean Waves RH GBGB">
+       formation="Ocean Waves RH GBGB" vid="V1-rbdcryhu">
     <path couples="4 2">
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.75"/>
       <move select="Swing Left" scaleX=".75" scaleY=".75"/>
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Criss Cross the Deucey" from="Left-Hand Waves"
-       formation="Ocean Waves LH GBGB">
+       formation="Ocean Waves LH GBGB" vid="V1-hm1uyomp">
     <path>
       <move select="Lead Left" beats="2"/>
       <move select="Extend Left" beats="6" scaleX="4" scaleY="2"/>
@@ -66,7 +66,7 @@
     </path>
   </tam>
 
-  <tam title="Criss Cross the Deucey" from="T-Bones">
+  <tam title="Criss Cross the Deucey" from="T-Bones" vid="V1-at2qbs1x">
     <formation fid="F3-ovnuyu2t" aid="A1-a53esudl">
       <dancer gender="boy" y="3" x="1" angle="0"/>
       <dancer gender="girl" y="1" x="1" angle="90"/>
@@ -94,7 +94,7 @@
   </tam>
 
   <tam title="Criss Cross the Deucey" from="Squared Mini-Waves"
-       formation="Static MiniWaves RH">
+       formation="Static MiniWaves RH" vid="V1-hjcm2gjj">
     <path>
       <move select="Extend Right" beats="3" scaleX="3" scaleY="2"/>
       <move select="Swing Left"/>

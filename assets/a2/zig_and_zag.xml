@@ -25,7 +25,7 @@
   <tam title="Zig Zag"
        from="Double Pass Thru"
        formation="Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-145xr5rq">
     <path>
       <move select="Quarter Left" beats="2" offsetY="1" />
     </path>
@@ -43,7 +43,7 @@
   <tam title="Zig Zag"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" >
+       fractions=""  vid="V1-2wwdyf8u">
     <path>
       <move select="Quarter Right" beats="2" offsetY="-1" />
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Zig Zag"
-       from="Right-Hand Columns">
+       from="Right-Hand Columns" vid="V1-eouhphbx">
      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -82,7 +82,7 @@
 
   <tam title="Zig Zag"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-snxx9gxo">
     <path>
       <move select="Quarter Left" beats="2" offsetY="-1" />
     </path>
@@ -99,7 +99,7 @@
 
   <tam title="Zig Zag"
        from="Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-20hndgoq">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" />
     </path>
@@ -116,7 +116,7 @@
 
   <tam title="Zig Zag"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-7hxm7bt7">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" />
     </path>
@@ -133,7 +133,7 @@
 
   <tam title="Zig Zag"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-wqwwzj1w">
     <path>
       <move select="Quarter Right" beats="2" offsetX="-1" />
     </path>
@@ -148,7 +148,7 @@
     </path>
   </tam>
 
-  <tam title="Zig" from="Three Quarters Tag" formation="3/4 Tag">
+  <tam title="Zig" from="Three Quarters Tag" formation="3/4 Tag" vid="V1-64ll78ob">
     <path numbers="5 4">
       <move select="Quarter Right" offsetY="-1"/>
     </path>
@@ -164,7 +164,7 @@
   </tam>
 
   <tam title="As Couples Zig Zag" group="As Couples"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-5pxfz5tv">
     <path>
       <move select="BackHinge Right"/>
     </path>
@@ -180,7 +180,7 @@
   </tam>
 
   <tam title="As Couples Zag Zig" group="As Couples"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-59k2rjwj">
     <path>
       <move select="Hinge Right"/>
     </path>

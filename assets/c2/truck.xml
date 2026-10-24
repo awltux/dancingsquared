@@ -22,7 +22,7 @@
 -->
 <tamination title="Truck">
 
-  <tam title="Truck" from="Columns" sequencer="gender-specific" formation="Column RH GBGB">
+  <tam title="Truck" from="Columns" sequencer="gender-specific" formation="Column RH GBGB" vid="V1-oznzw9mc">
     <path>
       <move select="Dodge Right" hands="right"/>
     </path>
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Truck" from="Waves" sequencer="gender-specific" formation="Ocean Waves RH BGBG">
+  <tam title="Truck" from="Waves" sequencer="gender-specific" formation="Ocean Waves RH BGBG" vid="V1-vdw8ft4y">
 	<path>
       <move select="Dodge Left" hands="right"/>
 	</path>
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Reverse Truck" from="Double Pass Thru, Girls in Center"
-       sequencer="gender-specific">
+       sequencer="gender-specific" vid="V1-03n6qduh">
     <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>

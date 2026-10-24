@@ -61,6 +61,14 @@ setParser(DOMParser);
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ASSETS = corpusRoot();
+/**
+ * The corpus directory's path RELATIVE TO THE REPO ROOT, which is what `git status`/`git show` pathspecs use.
+ *
+ * DERIVED, NOT SPELLED. `engine/test/corpus-location.mjs` fails on any file that writes the corpus directory as a
+ * literal, and it is right to: the location is written down once (`vite.corpus.ts`) and reached through
+ * `corpusRoot()`, so a tool that needs the repo-relative form computes it from that one answer.
+ */
+const ASSETS_REL = path.relative(ROOT, ASSETS).split(path.sep).join('/');
 const REPORT = path.join(ROOT, 'DuplicateFormations.md');
 const DEG = Math.PI / 180;
 
@@ -153,9 +161,22 @@ export function loadFormations() {
   return { text, defs, problems };
 }
 
-/** Every inline `<formation>` in every live `<tam>`, with its offset, plus the symmetry each NAMED reference declares. */
-export function loadTams() {
-  const out = [];
+/**
+ * EVERY LIVE TAM IN THE CORPUS, with what a tagger needs about it: its level (the directory the call lives in), its
+ * file and ordinal, its title, the offsets of its own `<tam>` open tag, the fid of the inline block it authors (or
+ * null), and the formation it names (or null).
+ *
+ * WHY IT IS HERE AND NOT COPIED. `loadTams` below is this walk filtered to the tams that author a block; the variant
+ * tagger needs the SAME population (every tam, tagged or not), and two walks would be two ideas of what a tam is -
+ * the counts would be measured on different sets and the "every call variant carries a vid" check would not be
+ * measuring the set the tagger saw.
+ *
+ * THE ORDINAL IS THE LIVE BLOCK'S, confirmed by the title, because that is the rule `scripts/tam-blocks.mjs` exists
+ * to keep: `parseCallXml` skips the 20 commented-out tams and `liveTamBlocks` masks them out of the text, so the two
+ * lists agree. A file where they disagree is REPORTED rather than guessed at.
+ */
+export function walkTams() {
+  const files = [];
   /** formation name -> the `asymmetric` values of the tams that name it. A definition's completion is declared at
    *  the reference site, so a disagreement here is a corpus fact worth reporting rather than a tag decision. */
   const refs = new Map();
@@ -170,54 +191,91 @@ export function loadTams() {
         list.push({ level, file, title: tam.title, symmetry: tam.symmetry });
         refs.set(tam.formationAttr, list);
       }
-      if (blocks.length !== tams.length) {
-        out.push({ level, file, text, entries: [], problems: [`${level}/${file}: ${blocks.length} live <tam> block(s) but the parser returned ${tams.length}`] });
-        continue;
-      }
-      const entries = [];
       const problems = [];
-      for (let i = 0; i < tams.length; i++) {
-        const tam = tams[i];
-        if (tam.dancers.length === 0) continue; // no inline block: the tam names a definition, which carries the tags
-        const masked = maskComments(blocks[i].text);
-        const m = /<formation\b[^>]*>/.exec(masked);
-        if (!m) { problems.push(`${level}/${file}#${tam.title}: the parser read ${tam.dancers.length} inline dancer(s) but no <formation> open tag was found`); continue; }
-        const at = blocks[i].index + m.index;
-        const board = geometryOf(tam.dancers, tam.symmetry);
-        entries.push({
-          kind: 'inline',
-          level,
-          file,
-          title: tam.title,
-          // THE ORDINAL IS PART OF THE LABEL. A title is not an identity - `ms/allemande.xml` carries several
-          // `Allemande Left` tams, one per setup - so a report row addressed only by title names a call, not the
-          // definition the row is about. The index is the position in the live tam list, which `liveTamBlocks`
-          // and `parseCallXml` agree on (that is what `scripts/tam-blocks.mjs` exists to guarantee).
-          label: `${level}/${file} - ${tam.title || '(untitled)'} #${i}`,
-          written: tam.dancers.length,
-          size: board.dancers.length,
-          board,
-          writtenBoard: posesOf(tam.dancers),
-          // WHAT A REFACTOR NEEDS TO KNOW ABOUT THE REFERENCE SITE, carried here so the report can say whether a
-          // duplicate is *absorbable* without a second walk of the corpus: the tam's own ordinal (the block index),
-          // the declaration it completes under, how many `<path>` blocks it writes, and whether it is authored for a
-          // subset.
-          tamIndex: i,
-          symmetry: tam.symmetry,
-          paths: tam.paths.length,
-          actives: tam.actives,
-          // A tam may name a formation AND author a block; `buildCallImpl` gives the block priority, so the
-          // attribute is dead text today. Absorbing that tam would rewrite the attribute and silently re-point a
-          // reference a reader can see - refused, and reported.
-          formationAttr: tam.formationAttr,
-          fid: tam.formationTag.fid,
-          aid: tam.formationTag.aid,
-          at,
-          end: at + m[0].length,
-        });
+      const entries = [];
+      if (blocks.length !== tams.length) {
+        problems.push(`${level}/${file}: ${blocks.length} live <tam> block(s) but the parser returned ${tams.length}`);
+      } else {
+        for (let i = 0; i < tams.length; i++) {
+          const tam = tams[i];
+          const masked = maskComments(blocks[i].text);
+          const open = /<tam\b[^>]*>/.exec(masked);
+          const inline = /<formation\b[^>]*>/.exec(masked);
+          if (!open) { problems.push(`${level}/${file}#${tam.title}: the live block does not open with a <tam> tag`); continue; }
+          if (tam.dancers.length > 0 && !inline) {
+            problems.push(`${level}/${file}#${tam.title}: the parser read ${tam.dancers.length} inline dancer(s) but no <formation> open tag was found`);
+            continue;
+          }
+          entries.push({
+            level,
+            file,
+            tamIndex: i,
+            title: tam.title,
+            tam,
+            text,
+            block: blocks[i],
+            tagAt: blocks[i].index + open.index,
+            tagEnd: blocks[i].index + open.index + open[0].length,
+            inlineAt: inline ? blocks[i].index + inline.index : -1,
+            inlineEnd: inline ? blocks[i].index + inline.index + inline[0].length : -1,
+            formationAttr: tam.formationAttr,
+            fid: tam.formationTag.fid,
+            written: tam.dancers.length,
+            symmetry: tam.symmetry,
+            paths: tam.paths.length,
+            actives: tam.actives,
+          });
+        }
       }
-      out.push({ level, file, text, entries, problems });
+      files.push({ level, file, text, entries, problems });
     }
+  }
+  return { files, refs };
+}
+
+/** Every inline `<formation>` in every live `<tam>`, with its offset, plus the symmetry each NAMED reference declares. */
+export function loadTams() {
+  const { files, refs } = walkTams();
+  const out = [];
+  for (const f of files) {
+    const entries = [];
+    const problems = [...f.problems];
+    for (const e of f.entries) {
+      if (e.written === 0 || e.inlineAt < 0) continue; // no inline block: the tam names a definition, which carries the tags
+      const board = geometryOf(e.tam.dancers, e.tam.symmetry);
+      entries.push({
+        kind: 'inline',
+        level: e.level,
+        file: e.file,
+        title: e.title,
+        // THE ORDINAL IS PART OF THE LABEL. A title is not an identity - `ms/allemande.xml` carries several
+        // `Allemande Left` tams, one per setup - so a report row addressed only by title names a call, not the
+        // definition the row is about. The index is the position in the live tam list, which `liveTamBlocks`
+        // and `parseCallXml` agree on (that is what `scripts/tam-blocks.mjs` exists to guarantee).
+        label: `${e.level}/${e.file} - ${e.title || '(untitled)'} #${e.tamIndex}`,
+        written: e.written,
+        size: board.dancers.length,
+        board,
+        writtenBoard: posesOf(e.tam.dancers),
+        // WHAT A REFACTOR NEEDS TO KNOW ABOUT THE REFERENCE SITE, carried here so the report can say whether a
+        // duplicate is *absorbable* without a second walk of the corpus: the tam's own ordinal (the block index),
+        // the declaration it completes under, how many `<path>` blocks it writes, and whether it is authored for a
+        // subset.
+        tamIndex: e.tamIndex,
+        symmetry: e.tam.symmetry,
+        paths: e.paths,
+        actives: e.actives,
+        // A tam may name a formation AND author a block; `buildCallImpl` gives the block priority, so the
+        // attribute is dead text today. Absorbing that tam would rewrite the attribute and silently re-point a
+        // reference a reader can see - refused, and reported.
+        formationAttr: e.formationAttr,
+        fid: e.fid,
+        aid: e.tam.formationTag.aid,
+        at: e.inlineAt,
+        end: e.inlineEnd,
+      });
+    }
+    out.push({ level: f.level, file: f.file, text: f.text, entries, problems });
   }
   return { files: out, refs };
 }
@@ -700,7 +758,7 @@ export function write() {
   // THE TOOL OWNS EXACTLY THE FILES IT IS ABOUT TO WRITE. Anything else modified is work in progress that this tool
   // did not do and must not sweep into a corpus change (AGENTS.md §8 trap 16). The corpus files ARE the change, so
   // re-running after a partial write is legitimate - which is what makes this generator idempotent.
-  const owned = new Set([...files.map((f) => `assets/${f.rel}`), 'DuplicateFormations.md']);
+  const owned = new Set([...files.map((f) => `${ASSETS_REL}/${f.rel}`), 'DuplicateFormations.md']);
   const dirty = modifiedPaths().filter((p) => !owned.has(p));
   if (dirty.length) {
     console.log('refusing to write: the tree carries work this tool does not own. Modified:');

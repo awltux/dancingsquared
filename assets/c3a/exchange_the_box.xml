@@ -23,7 +23,7 @@
 <tamination title="Exchange the Boxes / Triangles">
 
   <tam title="Exchange the Box" from="Right-Hand Waves"
-       formation="Ocean Waves RH GBGB" parts="4;4;4">
+       formation="Ocean Waves RH GBGB" parts="4;4;4" vid="V1-nvht7y6o">
     <path couples="4 2">
       <move select="Forward 4"/>
       <move select="Run Right" beats="4"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Exchange the Box" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG" parts="4;4;4">
+       formation="Ocean Waves LH BGBG" parts="4;4;4" vid="V1-epfpicof">
     <path>
       <move select="Run Left" beats="4"/>
       <move select="Extend Right" beats="4" scaleX="4"/>
@@ -80,7 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Exchange the Box" from="Right-Hand Columns" parts="3;3;3" formation="Columns">
+  <tam title="Exchange the Box" from="Right-Hand Columns" parts="3;3;3" formation="Columns" vid="V1-fkzbnvca">
     <path couples="3 1">
       <move select="Run Right"/>
       <move select="Forward 2" beats="3"/>
@@ -112,7 +112,7 @@
   </tam>
 
   <tam title="Exchange the Box" from="Left-Hand Columns"
-       formation="Column LH GBGB" parts="3;3;3">
+       formation="Column LH GBGB" parts="3;3;3" vid="V1-46e2eaxj">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Extend Left" beats="2" scaleY="3"/>
@@ -144,7 +144,7 @@
   </tam>
 
   <tam title="Exchange the Box" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" parts="4;4;4">
+       formation="Two-Faced Lines RH" parts="4;4;4" vid="V1-eht91ylt">
     <path>
       <move select="Extend Left" beats="4" scaleX="4"/>
       <move select="Flip Right" beats="4" scaleY="1.5"/>
@@ -175,7 +175,7 @@
   </tam>
 
   <tam title="Exchange the Inside Triangles" from="Point-to-Point Diamonds"
-       formation="Diamonds RH PTP Girl Points" parts="5;5">
+       formation="Diamonds RH PTP Girl Points" parts="5;5" vid="V1-9zxn5jr9">
     <path>
       <move select="Lead Right" beats="5" scaleX="2"/>
       <move select="Lead Left" beats="5" scaleY="4"/>

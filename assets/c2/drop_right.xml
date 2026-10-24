@@ -26,7 +26,7 @@
 
   <tam title="Drop Right"
        from="Right-Hand Diamond"
-       formation="Diamond RH">
+       formation="Diamond RH" vid="V1-etmvombf">
     <path>
       <move select="Lead Right" beats="2" />
     </path>
@@ -35,7 +35,7 @@
     </path>
   </tam>
 
-  <tam title="Drop Right" from="Left-Hand Diamond" formation="Diamond LH">
+  <tam title="Drop Right" from="Left-Hand Diamond" formation="Diamond LH" vid="V1-40w624ei">
     <path>
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="1" />
     </path>
@@ -44,7 +44,7 @@
     </path>
   </tam>
 
-  <tam title="Drop Left" from="Right-Hand Diamond" formation="Diamond RH">
+  <tam title="Drop Left" from="Right-Hand Diamond" formation="Diamond RH" vid="V1-wxq29lqm">
     <path>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-1" />
     </path>
@@ -53,7 +53,7 @@
     </path>
   </tam>
 
-  <tam title="Drop Left" from="Left-Hand Diamond" formation="Diamond LH">
+  <tam title="Drop Left" from="Left-Hand Diamond" formation="Diamond LH" vid="V1-289so1or">
     <path>
       <move select="Lead Left" beats="2" />
     </path>

@@ -23,7 +23,7 @@
 <tamination title="Scoot and Weave">
 
   <tam title="Scoot and Weave" from="Right-Hand Box" formation="Box RH"
-       parts="5.5">
+       parts="5.5" vid="V1-lc5xclij">
     <path numbers="1 4">
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -37,7 +37,7 @@
     </path>
   </tam>
 
-  <tam title="Scoot and Weave" from="Left-Hand Box" formation="Box LH" parts="5">
+  <tam title="Scoot and Weave" from="Left-Hand Box" formation="Box LH" parts="5" vid="V1-rup3r6mj">
     <path>
       <move select="Flip Left" />
       <move select="Stand" beats="2" />
@@ -51,7 +51,7 @@
     </path>
   </tam>
 
-  <tam title="Scoot and Weave" from="Single Quarter Tag" formation="Single Quarter Tag" parts="5">
+  <tam title="Scoot and Weave" from="Single Quarter Tag" formation="Single Quarter Tag" parts="5" vid="V1-rwm8om1o">
     <path numbers="1 4">
       <move select="Extend Left" beats="2"/>
       <move select="Swing Right"/>
@@ -65,7 +65,7 @@
     </path>
   </tam>
 
-  <tam title="Scoot and Weave" from="Single Left Quarter Tag" formation="Single Left Quarter Tag" parts="5">
+  <tam title="Scoot and Weave" from="Single Left Quarter Tag" formation="Single Left Quarter Tag" parts="5" vid="V1-q37m715l">
     <path numbers="1 4">
       <move select="Extend Right" beats="2"/>
       <move select="Swing Left"/>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Scoot and Weave" from="Right-Hand Waves"
-    formation="Ocean Waves RH BGBG" parts="5">
+    formation="Ocean Waves RH BGBG" parts="5" vid="V1-8n1oetn8">
     <path>
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -106,7 +106,7 @@
   </tam>
 
   <tam title="Scoot and Weave" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG" parts="5">
+       formation="Ocean Waves LH BGBG" parts="5" vid="V1-0yr5rtcb">
     <path>
       <move select="Flip Left" />
       <move select="Stand" beats="2" />
@@ -132,7 +132,7 @@
   </tam>
 
   <tam title="Scoot and Weave" from="Right-Hand Columns"
-       formation="Column RH GBGB" parts="5">
+       formation="Column RH GBGB" parts="5" vid="V1-9ezkb1hq">
     <path>
       <move select="Run Right" scaleX=".5"/>
       <move select="Stand" beats="2" />
@@ -158,7 +158,7 @@
   </tam>
 
   <tam title="Scoot and Weave" from="Left-Hand Columns"
-       formation="Column LH GBGB" parts="5">
+       formation="Column LH GBGB" parts="5" vid="V1-r8t1k24r">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -184,7 +184,7 @@
   </tam>
 
   <tam title="Scoot and Weave" from="Quarter Tag"
-    formation="Quarter Tag" parts="5">
+    formation="Quarter Tag" parts="5" vid="V1-wzuf8c2d">
     <path>
       <move select="Extend Left" beats="2" scaleY="2" />
       <move select="Swing Right" />
@@ -210,7 +210,7 @@
   </tam>
 
   <tam title="Scoot and Weave" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" parts="5">
+       formation="Quarter Tag LH" parts="5" vid="V1-p0d0425a">
     <path>
       <move select="Forward" beats="2" />
       <move select="Swing Left" />
@@ -236,7 +236,7 @@
   </tam>
 
   <tam title="As Couples Scoot and Weave" from="Two-Faced Lines"
-    formation="Two-Faced Lines RH" parts="6">
+    formation="Two-Faced Lines RH" parts="6" vid="V1-y2rptki0">
     <path>
       <move select="Extend Right" beats="2" hands="right" scaleX="2"
         scaleY="1.5" />
@@ -266,7 +266,7 @@
   </tam>
 
   <tam formation="Static MiniWaves RH" title="All 8 Scoot and Weave"
-       from="Squared Mini-Waves" parts="7">
+       from="Squared Mini-Waves" parts="7" vid="V1-arm7agyy">
     <path>
       <move select="Forward 3"/>
       <move select="Swing Right"/>

@@ -23,7 +23,7 @@
 <tamination title="The Pulley">
 
   <tam title="Heads Spin the Pulley" from="Static Square"
-       formation="Static Square" parts="7.5;2">
+       formation="Static Square" parts="7.5;2" vid="V1-rw72ula3">
     <path>
       <move select="Extend Left" beats="3" scaleX="3" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>

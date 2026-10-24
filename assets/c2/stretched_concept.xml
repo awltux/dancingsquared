@@ -23,7 +23,7 @@
 <tamination title="Stretched Line, Wave, and Box Concept">
 
   <tam title="Stretched Line Crossfire" group="Stretched Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-7wvlhbtj">
     <path couples="3 1">
       <move select="Run Right" beats="6"  scaleY="1.25" offsetX="2"/>
     </path>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Stretched Line Tag the Line" group="Stretched Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-3wk6cv64">
     <path>
       <move select="Lead Right" beats="2.5" scaleX=".5"/>
       <move select="Extend Right" beats="2.5" scaleY=".5"/>
@@ -63,7 +63,7 @@
   </tam>
 
   <tam title="Stretched Line Turn and Deal" group="Stretched Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-nef9dj4z">
     <path>
       <move select="Lead Right" beats="2.5" scaleX="1.5" scaleY=".5"/>
       <move select="Quarter Right" beats="2.5" />
@@ -85,7 +85,7 @@
   </tam>
 
   <tam title="Stretched Line Wheel and Deal" group="Stretched Line"
-       formation="Tidal Line RH">
+       formation="Tidal Line RH" vid="V1-djyaepy3">
     <path>
       <move select="Run Right" beats="4" hands="gripright" offsetX="2" scaleX="1.5" scaleY="1.25"/>
     </path>
@@ -101,7 +101,7 @@
   </tam>
 
   <tam title="Stretched Wave Explode the Wave" group="Stretched Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-e6obxcm2">
     <path>
       <move select="Lead Right" beats="2" scaleX="1.5" scaleY=".5"/>
       <move select="Forward"/>
@@ -124,7 +124,7 @@
   </tam>
 
   <tam title="Stretched Wave Recycle" group="Stretched Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-9ocr8h1m">
     <path numbers="8 1">
       <move select="Run Right" beats="3" offsetX="2" scaleY="1.25"/>
     </path>

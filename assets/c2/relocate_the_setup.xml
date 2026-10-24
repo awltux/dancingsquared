@@ -23,7 +23,7 @@
 <tamination title="Relocate the Setup">
 
   <tam title="Relocate the Diamond" from="Twin Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-rez40y41">
     <path couples="3 1">
       <move select="Lead Right" beats="4.5" scaleX="3" scaleY="3"/>
     </path>
@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Relocate the Diamond" from="Point to Point Diamonds"
-       formation="Diamonds RH PTP Girl Points">
+       formation="Diamonds RH PTP Girl Points" vid="V1-1d0xr0r0">
     <path>
       <move select="Counter Rotate Right 4 2" beats="4.5" hands="right"/>
     </path>
@@ -54,7 +54,7 @@
     </path>
   </tam>
 
-  <tam title="Relocate the Hourglass" from="Right-Hand Hourglass">
+  <tam title="Relocate the Hourglass" from="Right-Hand Hourglass" vid="V1-aoa70czy">
     <formation fid="F3-iqx7hjst" aid="A1-vujkm8fz">
       <dancer gender="girl" y="2" x="-3" angle="90"/>
       <dancer gender="boy" y="3" x="0" angle="0"/>
@@ -75,7 +75,7 @@
     </path>
   </tam>
 
-  <tam title="Relocate the Hourglass" from="Facing Hourglass" formation="Hourglass Facing RH Box">
+  <tam title="Relocate the Hourglass" from="Facing Hourglass" formation="Hourglass Facing RH Box" vid="V1-1ib05xu9">
     <path>
       <move select="Counter Rotate Right 1 -5" beats="4.5"/>
     </path>
@@ -91,7 +91,7 @@
     </path>
   </tam>
 
-  <tam title="Relocate the Setup" from="Quarter Tag" formation="Quarter Tag">
+  <tam title="Relocate the Setup" from="Quarter Tag" formation="Quarter Tag" vid="V1-m2652lx1">
     <path>
       <move select="Counter Rotate Right 4 2" beats="4.5"/>
     </path>
@@ -107,7 +107,7 @@
     </path>
   </tam>
 
-  <tam title="Relocate the Setup" from="Tidal Wave" formation="Tidal Wave RH BGGB">
+  <tam title="Relocate the Setup" from="Tidal Wave" formation="Tidal Wave RH BGGB" vid="V1-xxubbagj">
     <path>
       <move select="Lead Right" scaleX="3.5" scaleY="3.5" beats="4.5"/>
     </path>
@@ -122,7 +122,7 @@
     </path>
   </tam>
 
-  <tam title="Relocate the Setup" from="Tidal Line" formation="Tidal Line RH">
+  <tam title="Relocate the Setup" from="Tidal Line" formation="Tidal Line RH" vid="V1-prk27qoc">
     <path>
       <move select="Lead Right" scaleX="3.5" scaleY="3.5" beats="4.5"/>
     </path>

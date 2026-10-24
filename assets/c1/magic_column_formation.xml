@@ -24,7 +24,7 @@
 
   <tam title="Magic Column Circulate"
        group="(Right-Hand Centers)"
-       fractions="2" >
+       fractions="2"  vid="V1-idnm0ked">
     <formation fid="F3-dy4b34sl" aid="A1-50p0u50t">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -49,7 +49,7 @@
 
   <tam title="Magic Column Circulate (6 dancers)"
        group="(Right-Hand Centers)"
-       fractions="2" >
+       fractions="2"  vid="V1-jbrebojy">
     <formation fid="F3-g5ur7ufr" aid="A1-4u1wewft">
       <dancer gender="boy" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -68,7 +68,7 @@
     </path>
   </tam>
 
-  <tam title="Magic Column Coordinate" group="(Right-Hand Centers)" fractions="6;3">
+  <tam title="Magic Column Coordinate" group="(Right-Hand Centers)" fractions="6;3" vid="V1-mp2ghhjd">
     <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp">
       <dancer gender="girl" y="1" x="-1" angle="90"/>
       <dancer gender="boy" y="3" x="1" angle="90"/>
@@ -101,7 +101,7 @@
   </tam>
 
   <tam title="Magic Column Split Circulate" group="(Right-Hand Centers)" fractions="2"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-bwhgts51">
     <path>
       <move select="Forward" beats="2" />
       <move select="Extend Left" beats="2" scaleY="2" />
@@ -119,7 +119,7 @@
   </tam>
 
   <tam title="Magic Column Transfer the Column" group="(Right-Hand Centers)"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-59bn9p0d">
     <path>
       <move select="Forward" beats="2" />
       <move select="Extend Left" beats="2" scaleY="2" />
@@ -147,7 +147,7 @@
   </tam>
 
   <tam title="Magic Column Transfer and" group="(Right-Hand Centers)"
-       formation="Magic Column RH" display="no">
+       formation="Magic Column RH" display="no" vid="V1-27bx6lcd">
     <path>
       <move select="Forward" beats="2" />
       <move select="Extend Left" beats="2" scaleY="2" />
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Magic Column Walk and Dodge" group="(Right-Hand Centers)"
-       formation="Magic Column RH">
+       formation="Magic Column RH" vid="V1-ql65zffo">
     <path>
       <move select="Forward" beats="2" />
       <move select="Extend Left" beats="2" scaleY="2" />
@@ -189,7 +189,7 @@
   <tam title="Magic Column Circulate"
        group="(Left-Hand Centers)"
        formation="Magic Column LH"
-       fractions="2" >
+       fractions="2"  vid="V1-rr9s40xr">
     <path numbers="2 7">
       <move select="Flip Right" beats="4" />
     </path>
@@ -208,7 +208,7 @@
 
   <tam title="Magic Column Circulate (6 dancers)"
        group="(Left-Hand Centers)"
-       fractions="2" >
+       fractions="2"  vid="V1-ua9o4mvi">
     <formation fid="F3-2l6ya1n0" aid="A1-k2q4rnee">
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -227,7 +227,7 @@
     </path>
   </tam>
 
-  <tam title="Magic Column Coordinate" group="(Left-Hand Centers)" fractions="6;3">
+  <tam title="Magic Column Coordinate" group="(Left-Hand Centers)" fractions="6;3" vid="V1-047ue6j7">
     <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
       <dancer gender="girl" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
@@ -290,7 +290,7 @@
 
 
   <tam title="Magic Column Split Circulate" group="(Left-Hand Centers)" fractions="2"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-le3k8he7">
     <path>
       <move select="Run Right" beats="4"/>
     </path>
@@ -307,7 +307,7 @@
     </path>
   </tam>
 
-  <tam title="Magic Column Transfer the Column" group="(Left-Hand Centers)">
+  <tam title="Magic Column Transfer the Column" group="(Left-Hand Centers)" vid="V1-vfo57ihj">
     <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
       <dancer gender="girl" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="1" angle="90"/>
@@ -340,7 +340,7 @@
     </path>
   </tam>
 
-  <tam title="Magic Column Transfer and" group="(Left-Hand Centers)" display="no">
+  <tam title="Magic Column Transfer and" group="(Left-Hand Centers)" display="no" vid="V1-9qyc29rb">
     <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
       <dancer gender="girl" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="1" angle="90"/>
@@ -368,7 +368,7 @@
   </tam>
 
   <tam title="Magic Column Walk and Dodge" group="(Left-Hand Centers)"
-       formation="Magic Column LH">
+       formation="Magic Column LH" vid="V1-a8qggymu">
     <path>
       <move select="Dodge Right" beats="4" />
     </path>

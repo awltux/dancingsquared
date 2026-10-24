@@ -22,7 +22,7 @@
 -->
 <tamination title="Zing">
 
-  <tam title="Zing" from="Right-Hand Box" formation="Box RH Compact">
+  <tam title="Zing" from="Right-Hand Box" formation="Box RH Compact" vid="V1-cev1msvs">
     <path numbers="1 4">
       <move select="Forward 2" beats="2.5"/>
       <move select="Quarter Right" beats="2" offsetX=".5" offsetY=".5"/>
@@ -33,7 +33,7 @@
     </path>
   </tam>
 
-  <tam title="Zing" from="Left-Hand Box" formation="Box LH Compact">
+  <tam title="Zing" from="Left-Hand Box" formation="Box LH Compact" vid="V1-hlvlnjma">
     <path>
       <move select="Run Right" offsetX="-1.5"/>
       <move select="Lead Right" scaleY="1.5"/>
@@ -44,7 +44,7 @@
     </path>
   </tam>
 
-  <tam title="Zing" from="T-Bone 1">
+  <tam title="Zing" from="T-Bone 1" vid="V1-a4b4m61a">
     <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
       <dancer gender="boy" x="1" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
@@ -59,7 +59,7 @@
     </path>
   </tam>
 
-  <tam title="Zing" from="T-Bone 2">
+  <tam title="Zing" from="T-Bone 2" vid="V1-54nzlo8o">
     <formation fid="F3-7b4wxvs2" aid="A1-rvj9jslu">
       <dancer gender="boy" x="1" y="-1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>
@@ -75,7 +75,7 @@
   </tam>
 
   <tam title="Zing" from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-pnsxvsni">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Lead Left" />
@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="Zing" from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-8jsjxa2z">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Quarter Left" beats="2.5" offsetX="1" offsetY="-1"/>
@@ -116,7 +116,7 @@
 
   <tam title="Zing"
        from="Double Pass Thru"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-94d73r09">
     <path>
       <move select="Forward" beats="2"/>
       <move select="Quarter Right" beats="2.5" offsetX="1" offsetY="1"/>
@@ -137,7 +137,7 @@
 
   <tam title="Zing"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-bkbggnwd">
     <path numbers="5 4">
       <move select="Run Right" offsetX="-1"/>
       <move select="Lead Right" />
@@ -157,7 +157,7 @@
   </tam>
 
   <tam title="Zing" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-5dr4ye0t">
     <path>
       <move select="Forward 2"/>
       <move select="Quarter Right" beats="2.5" offsetX="1"/>
@@ -177,7 +177,7 @@
   </tam>
 
   <tam title="Zing" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-bq19xp1y">
     <path>
       <move select="Run Right" scaleY=".5" offsetX="-2"/>
       <move select="Lead Right" />
@@ -196,7 +196,7 @@
     </path>
   </tam>
 
-  <tam title="Zing" from="Right-Hand Waves" formation="Ocean Waves RH BGGB">
+  <tam title="Zing" from="Right-Hand Waves" formation="Ocean Waves RH BGGB" vid="V1-ovv1zkt0">
     <path>
       <move select="Forward 2"/>
       <move select="Quarter Right" beats="2.5" offsetX="1"/>
@@ -215,7 +215,7 @@
     </path>
   </tam>
 
-  <tam title="Zing" from="Left-Hand Waves" formation="Ocean Waves LH BGGB">
+  <tam title="Zing" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" vid="V1-i9qo51aj">
     <path>
       <move select="Run Right" scaleY=".5" offsetX="-2"/>
       <move select="Lead Right" />
@@ -235,7 +235,7 @@
   </tam>
 
 
-  <tam title="Points Zing" from="Diamonds" formation="Diamonds RH Girl Points">
+  <tam title="Points Zing" from="Diamonds" formation="Diamonds RH Girl Points" vid="V1-5r51f7gf">
     <path numbers="6 3">
     </path>
     <path numbers="2 7">
@@ -250,7 +250,7 @@
   </tam>
 
 
-  <tam title="All 4 Couples Zing" from="" formation="Static MiniWaves RH" group=" ">
+  <tam title="All 4 Couples Zing" from="" formation="Static MiniWaves RH" group=" " vid="V1-o9niu3xn">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2"/>
       <move select="Quarter Right" offsetX="1"/>
@@ -271,7 +271,7 @@
     </path>
   </tam>
 
-  <tam title="As Couples Zing" from="" formation="Two-Faced Lines RH" group=" ">
+  <tam title="As Couples Zing" from="" formation="Two-Faced Lines RH" group=" " vid="V1-nocvfirg">
     <path>
       <move select="Extend Right" beats="4" hands="right" scaleX="2"/>
       <move select="Quarter Right" beats="4" hands="gripright" offsetX="3"/>
@@ -292,7 +292,7 @@
     </path>
   </tam>
 
-  <tam title="Butterfly Zing" from="" formation="Butterfly RH" group=" ">
+  <tam title="Butterfly Zing" from="" formation="Butterfly RH" group=" " vid="V1-7d4qbg82">
     <path>
       <move select="Lead Right" beats="3" scaleX="2" scaleY="2"/>
     </path>
@@ -310,7 +310,7 @@
     </path>
   </tam>
 
-  <tam title="Concentric Zing" from="" formation="Column RH GBGB" group=" ">
+  <tam title="Concentric Zing" from="" formation="Column RH GBGB" group=" " vid="V1-h97ycecc">
     <path>
       <move select="Run Left" scaleY="1.5" offsetX="-1"/>
       <move select="Forward 2"/>
@@ -329,7 +329,7 @@
     </path>
   </tam>
 
-  <tam title="&quot;O&quot; Zing" from="" formation="O RH" group=" ">
+  <tam title="&quot;O&quot; Zing" from="" formation="O RH" group=" " vid="V1-7ib6kn6n">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2"/>
       <move select="Quarter Right"/>
@@ -348,7 +348,7 @@
   </tam>
 
   <tam title="Stretch Zing" from="Right-Hand Columns" group=" "
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-id6bz6w1">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 2"/>
@@ -368,7 +368,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Zing" from="" formation="Column RH GBGB" group=" ">
+  <tam title="Tandem Zing" from="" formation="Column RH GBGB" group=" " vid="V1-lxkt310t">
     <path>
       <move select="Run Left" offsetX="-1"/>
       <move select="Forward 2"/>

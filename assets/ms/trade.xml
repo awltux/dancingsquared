@@ -23,7 +23,7 @@
 <tamination title="Trade Family">
 
   <tam title="Boys Trade" from="Right-Hand Wave, Boys Center"
-       formation="Wave RH Boys Center" difficulty="1" sequencer="no">
+       formation="Wave RH Boys Center" difficulty="1" sequencer="no" vid="V1-y1l80tfx">
     <path>
       <move select="Swing Left" beats="4"/>
     </path>
@@ -32,7 +32,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Right-Hand Wave, Boys End"
-       formation="Wave RH" difficulty="1" sequencer="no">
+       formation="Wave RH" difficulty="1" sequencer="no" vid="V1-y1l80tfx">
     <path>
       <move select="Run Right" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -41,7 +41,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Left-Hand Wave, Boys Center"
-       formation="Wave LH Boys Center" difficulty="1" sequencer="no">
+       formation="Wave LH Boys Center" difficulty="1" sequencer="no" vid="V1-c9ejinl6">
     <path>
       <move select="Swing Right" beats="4"/>
     </path>
@@ -50,7 +50,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Left-Hand Wave, Boys End"
-       formation="Wave LH" difficulty="1" sequencer="no">
+       formation="Wave LH" difficulty="1" sequencer="no" vid="V1-c9ejinl6">
     <path>
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1" sequencer="no">
+       formation="Two-Faced Line RH" difficulty="1" sequencer="no" vid="V1-szzx59rf">
     <path>
       <move select="Run Right" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -68,7 +68,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="1" sequencer="no">
+       formation="Two-Faced Line LH" difficulty="1" sequencer="no" vid="V1-ap1rhiqo">
     <path>
       <move select="Swing Left" beats="4"/>
     </path>
@@ -79,7 +79,7 @@
   <tam title="Boys Trade"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-i18y2tyn">
     <path>
       <move select="Run Right" scaleX="2" scaleY="2" />
     </path>
@@ -95,7 +95,7 @@
   <tam title="Boys Trade"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-lhn6pov4">
     <path>
     </path>
     <path>
@@ -109,7 +109,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Right-Hand Two-Faced Lines"
-      formation="Two-Faced Lines RH" difficulty="1" sequencer="no">
+      formation="Two-Faced Lines RH" difficulty="1" sequencer="no" vid="V1-squ24712">
     <path>
       <move select="Run Right" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -123,7 +123,7 @@
   </tam>
 
   <tam title="Boys Trade" from="Left-Hand Two-Faced Lines"
-      formation="Two-Faced Lines LH" difficulty="1" sequencer="no">
+      formation="Two-Faced Lines LH" difficulty="1" sequencer="no" vid="V1-jxwjh68d">
     <path>
     </path>
     <path>
@@ -139,7 +139,7 @@
   <tam title="Boys Trade"
        from="Waves, Boys in Center"
        formation="Ocean Waves RH GBBG"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-cbythrpr">
     <path>
     </path>
     <path>
@@ -155,7 +155,7 @@
   <tam title="Boys Trade"
        from="Waves, Boys Facing Out"
        formation="Ocean Waves RH GBGB"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-cbythrpr">
     <path>
     </path>
     <path>
@@ -169,7 +169,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Right-Hand Wave, Girls Center"
-       formation="Wave RH" difficulty="1" sequencer="no">
+       formation="Wave RH" difficulty="1" sequencer="no" vid="V1-kfcrlbin">
     <path>
     </path>
     <path>
@@ -178,7 +178,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Right-Hand Wave, Girls End"
-       formation="Wave RH Boys Center" difficulty="1" sequencer="no">
+       formation="Wave RH Boys Center" difficulty="1" sequencer="no" vid="V1-kfcrlbin">
     <path>
     </path>
     <path>
@@ -187,7 +187,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Left-Hand Wave, Girls Center"
-       formation="Wave LH" difficulty="1" sequencer="no">
+       formation="Wave LH" difficulty="1" sequencer="no" vid="V1-l4hlvtiw">
     <path>
     </path>
     <path>
@@ -196,7 +196,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Left-Hand Wave, Girls End"
-       formation="Wave LH Boys Center" difficulty="1" sequencer="no">
+       formation="Wave LH Boys Center" difficulty="1" sequencer="no" vid="V1-l4hlvtiw">
     <path>
     </path>
     <path>
@@ -205,7 +205,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1" sequencer="no">
+       formation="Two-Faced Line RH" difficulty="1" sequencer="no" vid="V1-z27l708t">
     <path>
     </path>
     <path>
@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="1" sequencer="no">
+       formation="Two-Faced Line LH" difficulty="1" sequencer="no" vid="V1-cyjsp1m6">
     <path>
     </path>
     <path>
@@ -225,7 +225,7 @@
   <tam title="Girls Trade"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-hgojw9xp">
     <path>
     </path>
     <path>
@@ -241,7 +241,7 @@
   <tam title="Girls Trade"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-jira0vhq">
     <path>
       <move select="Run Left" scaleY="2" />
     </path>
@@ -255,7 +255,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Right-Hand Two-Faced Lines"
-      formation="Two-Faced Lines RH" difficulty="1" sequencer="no">
+      formation="Two-Faced Lines RH" difficulty="1" sequencer="no" vid="V1-csu70bnk">
     <path>
     </path>
     <path>
@@ -269,7 +269,7 @@
   </tam>
 
   <tam title="Girls Trade" from="Left-Hand Two-Faced Lines"
-      formation="Two-Faced Lines LH" difficulty="1" sequencer="no">
+      formation="Two-Faced Lines LH" difficulty="1" sequencer="no" vid="V1-3iwdwocf">
     <path>
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -285,7 +285,7 @@
   <tam title="Girls Trade"
        from="Waves, Girls Facing Out"
        formation="Ocean Waves RH BGBG"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-aujn838d">
     <path>
     </path>
     <path>
@@ -300,7 +300,7 @@
 
 
   <tam title="Centers Trade" from="Right-Hand Wave"
-       formation="Wave RH" difficulty="1" sequencer="no">
+       formation="Wave RH" difficulty="1" sequencer="no" vid="V1-nux7l1d6">
     <path>
     </path>
     <path>
@@ -309,7 +309,7 @@
   </tam>
 
   <tam title="Centers Trade" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="1" sequencer="no">
+       formation="Wave LH" difficulty="1" sequencer="no" vid="V1-k4y850lx">
     <path>
     </path>
     <path>
@@ -318,7 +318,7 @@
   </tam>
 
   <tam title="Centers Trade" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1" sequencer="no">
+       formation="Two-Faced Line RH" difficulty="1" sequencer="no" vid="V1-beuxa6ko">
     <path>
     </path>
     <path>
@@ -327,7 +327,7 @@
   </tam>
 
   <tam title="Centers Trade" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="1" sequencer="no">
+       formation="Two-Faced Line LH" difficulty="1" sequencer="no" vid="V1-h3r9mpcb">
     <path>
       <move select="Swing Left" beats="4"/>
     </path>
@@ -338,7 +338,7 @@
   <tam title="Centers Trade"
        from="Lines"
        formation="Normal Lines"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-fxz55k4c">
     <path>
     </path>
     <path>
@@ -353,7 +353,7 @@
 
   <tam title="Centers Trade"
        from="Lines Facing Out"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-uyj2ftvn">
     <formation fid="F3-xzuj7y07" aid="A1-q3ttyu3n">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
@@ -375,7 +375,7 @@
   <tam title="Centers Trade"
        from="Waves"
        formation="Ocean Waves RH BGBG"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-8zayaskg">
     <path>
     </path>
     <path>
@@ -391,7 +391,7 @@
   <tam title="Centers Trade"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-b1lxroll">
     <path>
     </path>
     <path>
@@ -405,7 +405,7 @@
   </tam>
 
   <tam title="Trade" from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB" difficulty="1" sequencer="no">
+       formation="Ocean Waves RH BGGB" difficulty="1" sequencer="no" vid="V1-6ftnae66">
     <path>
       <move select="Swing Right"/>
     </path>
@@ -421,7 +421,7 @@
   </tam>
 
   <tam title="Trade" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB" difficulty="1" sequencer="no">
+       formation="Ocean Waves LH BGGB" difficulty="1" sequencer="no" vid="V1-x520y7zp">
     <path>
       <move select="Swing Left"/>
     </path>
@@ -437,7 +437,7 @@
   </tam>
 
   <tam title="Trade" from="Inverted Lines"
-       formation="Inverted Lines Ends Facing Out" difficulty="2" sequencer="no">
+       formation="Inverted Lines Ends Facing Out" difficulty="2" sequencer="no" vid="V1-yzv5x5pg">
     <path>
       <move select="Swing Left"/>
     </path>
@@ -455,7 +455,7 @@
   <tam title="Partner Trade"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-7xp2fglx">
     <path>
       <move select="Run Right" />
     </path>
@@ -467,7 +467,7 @@
   <tam title="Partner Trade"
        from="Couples Facing Out"
        formation="Couples Facing Out"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-zf0t3n3n">
     <path>
       <move select="Flip Left" />
     </path>
@@ -479,7 +479,7 @@
   <tam title="Partner Trade"
        from="Right-Hand Box"
        formation="Box RH"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-ab6enjg7">
     <path>
       <move select="Swing Right" />
     </path>
@@ -491,7 +491,7 @@
   <tam title="Partner Trade"
        from="Left-Hand Box"
        formation="Box LH"
-       difficulty="2" sequencer="no">
+       difficulty="2" sequencer="no" vid="V1-jy75bq9r">
     <path>
       <move select="Swing Left" />
     </path>
@@ -503,7 +503,7 @@
   <tam title="Partner Trade"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-0vi05c1f">
     <path>
       <move select="Flip Left" />
     </path>
@@ -521,7 +521,7 @@
   <tam title="Partner Trade"
        from="Completed Double Pass Thru"
        formation="Completed Double Pass Thru"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-4ifxq8o1">
     <path>
       <move select="Flip Left" />
     </path>
@@ -537,7 +537,7 @@
   </tam>
 
   <tam title="Ends Trade" from="Right-Hand Wave"
-       formation="Wave RH" difficulty="1">
+       formation="Wave RH" difficulty="1" vid="V1-hsxx7m1w">
     <path>
       <move select="Run Right" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -546,7 +546,7 @@
   </tam>
 
   <tam title="Ends Trade" from="Left-Hand Wave"
-       formation="Wave LH" difficulty="1">
+       formation="Wave LH" difficulty="1" vid="V1-gd9hmtkb">
     <path>
       <move select="Run Left" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -555,7 +555,7 @@
   </tam>
 
   <tam title="Ends Trade" from="Right-Hand Two-Faced Line"
-       formation="Two-Faced Line RH" difficulty="1">
+       formation="Two-Faced Line RH" difficulty="1" vid="V1-d86yflx6">
     <path>
       <move select="Run Right" beats="4" scaleX="1.5" scaleY="3"/>
     </path>
@@ -564,7 +564,7 @@
   </tam>
 
   <tam title="Ends Trade" from="Left-Hand Two-Faced Line"
-       formation="Two-Faced Line LH" difficulty="1">
+       formation="Two-Faced Line LH" difficulty="1" vid="V1-6108n4f5">
     <path>
     </path>
     <path>
@@ -575,7 +575,7 @@
   <tam title="Ends Trade"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       fractions="" difficulty="1">
+       fractions="" difficulty="1" vid="V1-yvdd6455">
     <path>
       <move select="Run Left" scaleY="3" />
     </path>
@@ -591,7 +591,7 @@
   <tam title="Ends Trade"
        from="Waves"
        formation="Ocean Waves RH BGBG"
-       difficulty="1" sequencer="no">
+       difficulty="1" sequencer="no" vid="V1-dar3uxo6">
     <path>
       <move select="Run Right" scaleY="3" />
     </path>
@@ -607,7 +607,7 @@
   <tam title="Couples Trade"
        from="Right-Hand Two-Faced Line"
        formation="Two-Faced Line RH"
-       difficulty="1">
+       difficulty="1" vid="V1-iyluvibz">
     <path>
       <move select="Run Right" hands="gripright" scaleX="1.5" scaleY="3" beats="6"/>
     </path>
@@ -619,7 +619,7 @@
   <tam title="Couples Trade"
        from="Compact Right-Hand Two-Faced Line"
        formation="Compact Two-Faced Line RH"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-prb5vd3p">
     <path>
       <move select="Run Right" hands="gripright" scaleX="1.5" scaleY="1.5" beats="6"/>
     </path>
@@ -631,7 +631,7 @@
   <tam title="Couples Trade"
        from="Left-Hand Two-Faced Line"
        formation="Two-Faced Line LH"
-       difficulty="1">
+       difficulty="1" vid="V1-6zoyluk4">
     <path>
       <move select="Run Left" hands="gripboth" scaleX=".5" beats="6"/>
     </path>
@@ -643,7 +643,7 @@
   <tam title="Couples Trade"
        from="Compact Left-Hand Two-Faced Line"
        formation="Compact Two-Faced Line LH"
-       difficulty="1" display="none">
+       difficulty="1" display="none" vid="V1-ytg1ktlc">
     <path>
       <move select="Run Left" hands="gripboth" scaleX=".5" scaleY=".5" beats="6"/>
     </path>
@@ -655,7 +655,7 @@
   <tam title="Couples Trade"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="2">
+       difficulty="2" vid="V1-hw2sx1ic">
     <path>
       <move select="Run Left" hands="gripleft" scaleY="3" beats="6"/>
     </path>
@@ -673,7 +673,7 @@
   <tam title="Couples Trade"
        from="Lines Facing In"
        formation="Normal Lines"
-       difficulty="3">
+       difficulty="3" vid="V1-a1v103x7">
     <path>
       <move select="Run Right" hands="gripright" scaleX="1.5" scaleY="3" beats="6"/>
     </path>
@@ -691,7 +691,7 @@
   <tam title="Couples Trade"
        from="Right-Hand Two-Faced Lines"
        formation="Two-Faced Lines RH"
-       difficulty="1">
+       difficulty="1" vid="V1-zfoob46a">
     <path>
       <move select="Run Right" hands="gripright" scaleX="1.5" scaleY="3" beats="6"/>
     </path>
@@ -709,7 +709,7 @@
   <tam title="Couples Trade"
        from="Left-Hand Two-Faced Lines"
        formation="Two-Faced Lines LH"
-       difficulty="1">
+       difficulty="1" vid="V1-52q88gix">
     <path>
       <move select="Run Left" hands="gripleft" scaleX="1.5" scaleY="3" beats="6"/>
     </path>
@@ -725,7 +725,7 @@
   </tam>
 
   <tam title="Couples Trade" from="Right-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line RH" difficulty="2">
+       formation="Two-Faced Tidal Line RH" difficulty="2" vid="V1-o3ggjp54">
     <path>
       <move select="Run Right" hands="gripright" scaleX="1.5" scaleY="1.5" beats="6"/>
     </path>
@@ -741,7 +741,7 @@
   </tam>
 
   <tam title="Couples Trade" from="Left-Hand Two-Faced Tidal Line"
-       formation="Two-Faced Tidal Line LH" difficulty="2">
+       formation="Two-Faced Tidal Line LH" difficulty="2" vid="V1-asgctz6f">
     <path>
       <move select="Run Left" hands="gripleft" scaleX="1.5" scaleY="1.5" beats="6"/>
     </path>
@@ -757,7 +757,7 @@
   </tam>
 
   <tam title="Couples Trade" from="Right-Hand Tidal Line"
-       formation="Tidal Line RH" difficulty="3">
+       formation="Tidal Line RH" difficulty="3" vid="V1-dteci6pz">
     <path>
       <move select="Run Right" hands="gripright" scaleX="3" scaleY="1.5" beats="6"/>
     </path>
@@ -773,7 +773,7 @@
   </tam>
 
   <tam title="Couples Trade" from="Left-Hand Tidal Line"
-       formation="Tidal Line LH" difficulty="3">
+       formation="Tidal Line LH" difficulty="3" vid="V1-1qitghn8">
     <path>
       <move select="Flip Left" hands="gripright" scaleY=".5" beats="6"/>
     </path>
@@ -795,7 +795,7 @@
 <tam title="Partner Trade"
        from="Facing Couples"
        formation="Facing Couples"
-       difficulty="2">
+       difficulty="2" vid="V1-1wagv83k">
     <path>
       <move select="Run Right" />
     </path>

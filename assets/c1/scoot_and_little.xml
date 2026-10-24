@@ -24,7 +24,7 @@
 
   <tam title="Little"
        from="Right-Hand Quarter Tag"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-lw02r70n">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
     </path>
@@ -42,7 +42,7 @@
 
   <tam title="Little"
        from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH">
+       formation="Quarter Tag LH" vid="V1-mroci040">
     <path>
       <move select="Extend Right" beats="6" scaleY="4" />
     </path>
@@ -60,7 +60,7 @@
 
   <tam title="Little"
        from="Right-Hand 3/4 Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-jt1oisl4">
     <path numbers="1 8" couples="4 2">
       <move select="Flip Right" offsetX="-1" />
       <move select="Forward 4" />
@@ -78,7 +78,7 @@
   </tam>
 
   <tam title="Little"
-       from="Left-Hand 3/4 Tag">
+       from="Left-Hand 3/4 Tag" vid="V1-4ggx2exo">
     <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-k0zvzsi6">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
@@ -103,7 +103,7 @@
 
   <tam title="Little"
        from="Right-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #1">
+       formation="Mixed Quarter Tag #1" vid="V1-o7stk6pu">
     <path>
       <move select="Lead Right" scaleX=".5" />
       <move select="Lead Left" beats="3.5" scaleX="3" scaleY=".5" />
@@ -122,7 +122,7 @@
 
   <tam title="Little"
        from="Left-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #6">
+       formation="Mixed Quarter Tag #6" vid="V1-yyf6l0og">
     <path>
       <move select="Flip Right" beats="2" offsetX="-1" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
@@ -142,7 +142,7 @@
 
   <tam title="Little"
        from="Diamonds"
-       formation="Diamonds RH Girl Points" >
+       formation="Diamonds RH Girl Points"  vid="V1-b131mrem">
     <path numbers="6 3">
       <move select="Flip Right" beats="6" offsetX="1" />
     </path>
@@ -161,7 +161,7 @@
     </path>
   </tam>
 
-  <tam title="Little" from ="&quot;I&quot; formation">
+  <tam title="Little" from ="&quot;I&quot; formation" vid="V1-045o9vlq">
     <formation fid="F3-8xcr0wxi" aid="A1-2esp05xa">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
@@ -183,7 +183,7 @@
     </path>
   </tam>
 
-  <tam title="Little" from="Hourglass" formation="Hourglass RH BP">
+  <tam title="Little" from="Hourglass" formation="Hourglass RH BP" vid="V1-72o4nu6j">
     <path>
       <move select="Quarter Right"/>
       <move select="Extend Left" beats="3" scaleX="3" scaleY="1.5"/>
@@ -204,7 +204,7 @@
 
   <tam title="Little, Points Go As You Are"
        from="Diamonds"
-       formation="Diamonds RH Girl Points" >
+       formation="Diamonds RH Girl Points"  vid="V1-v232g8c6">
     <path numbers="6 3">
       <move select="Flip Right" beats="6" offsetX="2" />
     </path>
@@ -223,7 +223,7 @@
 
   <tam title="Little, Outsides Out"
        from="Right-Hand 3/4 Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-lor3q4fs">
     <path numbers="1 8">
       <move select="Run Right" offsetX="-1" />
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
@@ -244,7 +244,7 @@
 
   <tam title="Left Little"
        from="Right-Hand Quarter Tag"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-vau51p9i">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Forward 3" />
@@ -262,7 +262,7 @@
 
   <tam title="Left Little"
        from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH">
+       formation="Quarter Tag LH" vid="V1-740so84l">
     <path>
       <move select="Extend Left" beats="3" scaleX="2" scaleY="2" />
       <move select="Forward 3" />
@@ -280,7 +280,7 @@
 
   <tam title="Left Little"
        from="Right-Hand 3/4 Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-xkdao9jp">
     <path>
       <move select="Flip Left" beats="5" scaleX="2" scaleY="2" />
       <move select="Forward" beats="2" />
@@ -299,7 +299,7 @@
 
   <tam title="Left Little"
        from="Left-Hand 3/4 Tag"
-       formation="3/4 Tag LH">
+       formation="3/4 Tag LH" vid="V1-l3vwmt69">
     <path>
       <move select="Flip Left" beats="5" scaleX="2" scaleY="2" />
       <move select="Forward" beats="2" />
@@ -318,7 +318,7 @@
 
   <tam title="Left Little"
        from="Right-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #1">
+       formation="Mixed Quarter Tag #1" vid="V1-cstdg6xj">
     <path>
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2.5" />
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
@@ -340,7 +340,7 @@
   <tam title="Scoot and Little"
        from="Quarter Tag"
        formation="Quarter Tag"
-       parts="5" >
+       parts="5"  vid="V1-mpfafg58">
     <path numbers="1 8" couples="2 4">
       <move select="Extend Left" beats="1.5" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -370,7 +370,7 @@
   <tam title="Scoot and Little"
        from="Left-Hand Quarter Tag"
        formation="Quarter Tag LH"
-       parts="5" >
+       parts="5"  vid="V1-3bu84e1v">
     <path numbers="1 8">
       <move select="Forward" beats="1.5" scaleX="1.5" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />

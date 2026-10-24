@@ -22,7 +22,7 @@
 -->
 <tamination title="Sidetrack">
 
-  <tam title="Sidetrack" from="Right-Hand Columns" parts="1.5;4">
+  <tam title="Sidetrack" from="Right-Hand Columns" parts="1.5;4" vid="V1-jxyzv0ga">
     <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Sidetrack" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" parts="1.5;4">
+       formation="Two-Faced Lines RH" parts="1.5;4" vid="V1-vt7ibz81">
     <path>
       <move select="Quarter Left" offsetX="1"/>
       <move select="Counter Rotate Right -2 -4" hands="right" beats="4"/>
@@ -75,7 +75,7 @@
     </path>
   </tam>
 
-  <tam title="Single Sidetrack" from="Right-Hand Columns" parts="1.5;4">
+  <tam title="Single Sidetrack" from="Right-Hand Columns" parts="1.5;4" vid="V1-iqscfrno">
     <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
@@ -104,7 +104,7 @@
     </path>
   </tam>
 
-  <tam title="Single Sidetrack" from="Column of 8" parts="1.5;4">
+  <tam title="Single Sidetrack" from="Column of 8" parts="1.5;4" vid="V1-5xhkbix1">
     <formation fid="F3-lx7jwbbb" aid="A1-fi5kp545">
       <dancer gender="boy" x="4.2" y="0" angle="0"/>
       <dancer gender="girl" x="3.0" y="0" angle="0"/>
@@ -133,7 +133,7 @@
     </path>
   </tam>
 
-  <tam title="Split Sidetrack" from="Right-Hand Columns" parts="1.5;2">
+  <tam title="Split Sidetrack" from="Right-Hand Columns" parts="1.5;2" vid="V1-7uiqegfi">
     <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
@@ -163,7 +163,7 @@
   </tam>
 
   <tam title="Split Sidetrack" from="Right-Hand Waves" parts="1.5;2"
-       formation="Ocean Waves RH BGBG">
+       formation="Ocean Waves RH BGBG" vid="V1-nh5ixtdg">
     <path>
       <move select="Quarter Left" offsetX="1"/>
       <move select="Counter Rotate Right 0 -2"/>

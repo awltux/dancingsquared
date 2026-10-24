@@ -25,7 +25,7 @@
   <tam title="Follow Your Neighbor"
        from="Right-Hand Box"
        formation="Box RH"
-       difficulty="1">
+       difficulty="1" vid="V1-akwvorfv">
     <path>
       <move select="Forward 2" beats="1.5" offsetY="-.25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -40,7 +40,7 @@
   <tam title="Follow Your Neighbor"
        from="Left-Hand Box"
        formation="Box LH"
-       difficulty="2">
+       difficulty="2" vid="V1-g19xavrf">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" />
       <move select="Run Left" scaleY=".5" />
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Follow Your Neighbor" from="Single Quarter Tag"
-       formation="Single Quarter Tag" difficulty="2">
+       formation="Single Quarter Tag" difficulty="2" vid="V1-g3728b6k">
     <path>
       <move select="Extend Left" beats="1.5" scaleY=".75"/>
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Follow Your Neighbor" from="Left-Hand Single Quarter Tag"
-       formation="Single Left Quarter Tag" difficulty="3">
+       formation="Single Left Quarter Tag" difficulty="3" vid="V1-fbykj72x">
     <path>
       <move select="Extend Right" beats="1.5" scaleY=".75"/>
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -80,7 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Follow Your Neighbor" display="none">
+  <tam title="Follow Your Neighbor" display="none" vid="V1-d2ffkm7s">
     <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
       <dancer gender="boy" x="-1.0" y="1" angle="0" />
       <dancer gender="girl" x="-1.0" y="-1" angle="270" />
@@ -96,7 +96,7 @@
     </path>
   </tam>
 
-  <tam title="Follow Your Neighbor" display="none">
+  <tam title="Follow Your Neighbor" display="none" vid="V1-i22kl40e">
     <formation fid="F3-vem78m16" aid="A1-vabff0x0">
       <dancer gender="boy" x="-1.0" y="-1" angle="0" />
       <dancer gender="girl" x="-1.0" y="1" angle="90" />
@@ -115,7 +115,7 @@
   <tam title="Follow Your Neighbor"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-wtmhyis4">
     <path>
       <move select="Forward 2" beats="1.5" offsetY="-.25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -139,7 +139,7 @@
   <tam title="Follow Your Neighbor"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       difficulty="2">
+       difficulty="2" vid="V1-q7i43z9n">
     <path>
       <move select="Lead Left" beats="2" scaleX="2" />
       <move select="Run Left" scaleY=".5" />
@@ -163,7 +163,7 @@
   <tam title="Follow Your Neighbor"
        from="Right-Hand Columns"
        formation="Column RH GBGB"
-       difficulty="2">
+       difficulty="2" vid="V1-xlkduqmm">
     <path>
       <move select="Lead Right" beats="2" scaleX="1.5" />
       <move select="Run Right" scaleX=".5" scaleY=".5" />
@@ -187,7 +187,7 @@
   <tam title="Follow Your Neighbor"
        from="Left-Hand Columns"
        formation="Column LH GBGB"
-       difficulty="2">
+       difficulty="2" vid="V1-ffdv3r9n">
     <path>
       <move select="Extend Left" scaleY=".5" />
       <move select="Swing Left" scaleX=".5" scaleY=".5" />
@@ -209,7 +209,7 @@
   </tam>
 
   <tam title="Follow Your Neighbor" from="Quarter Tag"
-       formation="Quarter Tag" difficulty="2">
+       formation="Quarter Tag" difficulty="2" vid="V1-l6f8s179">
     <path>
       <move select="Extend Left" scaleX="1.5" scaleY="1.5" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -233,7 +233,7 @@
   </tam>
 
   <tam title="Follow Your Neighbor" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" difficulty="3">
+       formation="Quarter Tag LH" difficulty="3" vid="V1-e93yg82m">
     <path>
       <move select="Forward" scaleX="1.5" />
       <move select="Swing Left" scaleX=".75" scaleY=".75" />
@@ -259,7 +259,7 @@
   <tam title="Follow Your Neighbor"
        from="T-Bones 1"
        formation="T-Bone DLDL"
-       difficulty="3">
+       difficulty="3" vid="V1-beb8tisv">
     <path>
       <move select="Lead Left" beats="2.5" scaleX="2.5" />
       <move select="Run Left" scaleX=".5" scaleY=".25" />
@@ -283,7 +283,7 @@
   <tam title="Follow Your Neighbor"
        from="T-Bones 2"
        formation="T-Bone RDRD"
-       difficulty="3">
+       difficulty="3" vid="V1-al8ccx3b">
     <path>
       <move select="Lead Right" beats="2.5" scaleX="2.5" />
       <move select="Run Right" scaleX=".5" scaleY=".25" />
@@ -305,7 +305,7 @@
   </tam>
 
   <tam title="Follow Your Neighbor" difficulty="3"
-       formation="T-Bone URUR" from="T-Bones 3">
+       formation="T-Bone URUR" from="T-Bones 3" vid="V1-5ixssd02">
     <path>
       <move select="Forward" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -327,7 +327,7 @@
   </tam>
 
   <tam title="Follow Your Neighbor" difficulty="3"
-       formation="T-Bone LULU" from="T-Bones 4">
+       formation="T-Bone LULU" from="T-Bones 4" vid="V1-ol3bjw4c">
     <path>
       <move select="Lead Right" beats="2.5" scaleX="1.5" />
       <move select="Run Right" scaleX=".5" scaleY=".25" />
@@ -351,7 +351,7 @@
   <tam title="Follow Your Neighbor and Spread"
        from="Right-Hand Box"
        formation="Box RH"
-       difficulty="1">
+       difficulty="1" vid="V1-xcn8czf5">
     <path>
       <move select="Forward 2" beats="1.5" offsetY="-.25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />
@@ -366,7 +366,7 @@
   <tam title="Follow Your Neighbor and Spread"
        from="Left-Hand Box"
        formation="Box LH"
-       difficulty="2">
+       difficulty="2" vid="V1-if8yq2ap">
     <path>
       <move select="Lead Left" beats="3" />
       <move select="Run Left" beats="4" />
@@ -381,7 +381,7 @@
   <tam title="Follow Your Neighbor and Spread"
        from="Ocean Waves"
        formation="Ocean Waves RH BGGB"
-       difficulty="1">
+       difficulty="1" vid="V1-0slyqkae">
     <path>
       <move select="Forward 2" beats="1.5" offsetY="-.25" />
       <move select="Swing Right" scaleX=".75" scaleY=".75" />

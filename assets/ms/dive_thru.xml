@@ -23,7 +23,7 @@
 <tamination title="Dive Thru">
 
   <tam title="Dive Thru" group=" "
-       formation="Pass Thru" difficulty="1">
+       formation="Pass Thru" difficulty="1" vid="V1-gk7hqdgq">
     <path>
       <move select="Extend Right" hands="right" scaleY=".5" />
       <move select="Extend Left" hands="right" scaleY=".5" />
@@ -45,7 +45,7 @@
   </tam>
 
   <tam title="Heads Arch, Sides Dive Thru" difficulty="2"
-       formation="Normal Lines" group=" ">
+       formation="Normal Lines" group=" " vid="V1-4ugrk02k">
     <path>
       <move select="Extend Left" hands="gripright" beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Right" hands="gripright" beats="1.5" scaleX="2" scaleY=".5" />
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Heads Wheel Around and make an Arch, Sides Dive Thru" group=" "
-       formation="Promenade 2" difficulty="2">
+       formation="Promenade 2" difficulty="2" vid="V1-j6n51m1t">
     <path>
       <move select="BackHinge Right" beats="1.25" scaleX=".5" scaleY=".5"/>
       <move select="HalfBackHinge Right" scaleX=".5" scaleY=".5" offsetX="-.35" offsetY=".35"/>

@@ -25,7 +25,7 @@
   <tam title="Right and Left Thru"
        from="Facing Couples"
        formation="Facing Couples Compact"
-       parts="3" difficulty="1" sequencer="no">
+       parts="3" difficulty="1" sequencer="no" vid="V1-empzgkxk">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="1.5" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1.5" scaleY=".5" />
@@ -55,7 +55,7 @@
        not touch the identity-coherence defect pinned in selection.mjs. -->
   <tam title="Right and Left Thru"
        from="Facing Couples"
-       parts="3" difficulty="1" sequencer="no" formation="Facing Couples Far">
+       parts="3" difficulty="1" sequencer="no" formation="Facing Couples Far" vid="V1-bmfeupbe">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="3" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="3" scaleY=".5" />
@@ -82,7 +82,7 @@
        procedure as the `Box the Gnat` separation-6 tam, which is the one that has held. -->
   <tam title="Right and Left Thru"
        from="Facing Couples"
-       parts="3" difficulty="1" sequencer="no" formation="Facing Couples Close">
+       parts="3" difficulty="1" sequencer="no" formation="Facing Couples Close" vid="V1-vo0a4wym">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="1" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="1" scaleY=".5" />
@@ -98,7 +98,7 @@
   <tam title="Right and Left Thru"
        from="Right-Hand Wave"
        formation="Wave RH"
-       parts="2" difficulty="1" sequencer="gender-specific">
+       parts="2" difficulty="1" sequencer="gender-specific" vid="V1-glq3a497">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2" />
       <move select="Beau Wheel" scaleX=".67" />
@@ -112,7 +112,7 @@
   <tam title="Right and Left Thru"
        from="Lines"
        formation="Normal Lines"
-       parts="3" difficulty="1" sequencer="gender-specific">
+       parts="3" difficulty="1" sequencer="gender-specific" vid="V1-rkmoqw89">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />
@@ -138,7 +138,7 @@
   <tam title="Right and Left Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="2" difficulty="1" sequencer="gender-specific">
+       parts="2" difficulty="1" sequencer="gender-specific" vid="V1-t8xpq6sw">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -164,7 +164,7 @@
   <tam title="Right and Left Thru"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGGB"
-       parts="2" difficulty="1" sequencer="gender-specific">
+       parts="2" difficulty="1" sequencer="gender-specific" vid="V1-ietcdslt">
     <path>
       <move select="Extend Right" beats="2" scaleY="2" />
       <move select="Beau Wheel" scaleX=".5" />
@@ -190,7 +190,7 @@
   <tam title="Right and Left Thru"
        from="Tidal Wave"
        formation="Tidal Wave RH BGGB"
-       parts="2" difficulty="1" sequencer="gender-specific">
+       parts="2" difficulty="1" sequencer="gender-specific" vid="V1-fp4bsbly">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5" />
       <move select="Beau Wheel" scaleX=".67" />
@@ -214,7 +214,7 @@
   </tam>
 
   <tam title="Heads Right and Left Thru and Back Away"
-       formation="Static Square" display="none" sequencer="gender-specific">
+       formation="Static Square" display="none" sequencer="gender-specific" vid="V1-ahtynhir">
     <path>
       <move select="Forward"/>
       <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
@@ -232,7 +232,7 @@
   </tam>
 
   <tam title="Sides Right and Left Thru and Back Away"
-       formation="Static Square" display="none" sequencer="gender-specific">
+       formation="Static Square" display="none" sequencer="gender-specific" vid="V1-uefr8wi8">
     <path/>
     <path/>
     <path>
@@ -250,7 +250,7 @@
   </tam>
 
   <tam title="Right and Left Thru and a Quarter More" group=" "
-       formation="Normal Lines" parts="3" difficulty="2" sequencer="gender-specific">
+       formation="Normal Lines" parts="3" difficulty="2" sequencer="gender-specific" vid="V1-lc8yzcsm">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleX="2" scaleY=".5" />
@@ -280,7 +280,7 @@
   <tam title="Right and Left Thru and a Quarter More" group=" " display="none"
        from="Eight Chain Thru"
        formation="Eight Chain Thru"
-       parts="2" difficulty="1" sequencer="gender-specific">
+       parts="2" difficulty="1" sequencer="gender-specific" vid="V1-h4bqv0x7">
     <path>
       <move select="Pull Left" scaleY=".5" />
       <move select="Extend Right" scaleY=".5" />
@@ -308,7 +308,7 @@
   </tam>
 
   <tam title="Centers Right and Left Thru, Full Turn" group=" "
-       formation="Double Pass Thru" parts="3" difficulty="2" sequencer="gender-specific">
+       formation="Double Pass Thru" parts="3" difficulty="2" sequencer="gender-specific" vid="V1-exl9y8l2">
     <path/>
     <path/>
     <path>
@@ -334,7 +334,7 @@
 <tam title="Right and Left Thru"
        from="Facing Couples"
        formation="Facing Couples"
-       parts="3" difficulty="1">
+       parts="3" difficulty="1" vid="V1-n3wgs979">
     <path>
       <move select="Pull Left" beats="1.5" scaleX="2" scaleY=".5" />
       <move select="Extend Right" beats="1.5" scaleX="2" scaleY=".5" />

@@ -24,7 +24,7 @@
 
   <tam title="Crazy Circulate" group="Crazy"
        formation="Ocean Waves RH BGBG"
-       parts="3;3;3" >
+       parts="3;3;3"  vid="V1-3j3ahyji">
     <path>
       <move select="Forward 4" beats="3" />
       <move select="Stand" beats="3" />
@@ -53,7 +53,7 @@
 
   <tam title="Crazy Circulate 3" group="Crazy"
        formation="Ocean Waves RH BGBG"
-       parts="9;9;9" >
+       parts="9;9;9"  vid="V1-q4na5l1r">
     <path>
       <move select="Forward 4" beats="3" />
       <move select="Run Right"/>
@@ -106,7 +106,7 @@
 
   <tam title="Crazy Circulate 1-2-2-3" group="Crazy"
        formation="Ocean Waves RH BGBG"
-       parts="3;6;6" >
+       parts="3;6;6"  vid="V1-8ls969h5">
     <path>
       <move select="Forward 4" beats="3" />
       <move select="Stand" hands="none" beats="6" />
@@ -144,7 +144,7 @@
   </tam>
 
   <tam title="Crazy Counter Rotate 1/4" group="Crazy"
-       formation="Two-Faced Tidal Line RH" parts="2;2;2">
+       formation="Two-Faced Tidal Line RH" parts="2;2;2" vid="V1-i9qctowu">
     <path>
       <move select="Lead Right" hands="right" beats="2" scaleX="3" scaleY="1.5" offsetY="-1"/>
       <move select="Stand" beats="2"/>
@@ -174,7 +174,7 @@
 
   <tam title="Crazy Flutterwheel" group="Crazy"
        formation="Normal Lines"
-       parts="8;8;8" >
+       parts="8;8;8"  vid="V1-wr5ocz57">
     <path>
       <move select="Forward" hands="nohands" beats="3.5" />
       <move select="Extend Left" hands="right" beats="1.5" scaleX="1.5" scaleY="1.5" />
@@ -228,7 +228,7 @@
 
   <tam title="Crazy Mix" group="Crazy"
        formation="Tidal Wave RH BGGB"
-       parts="3;3;3" >
+       parts="3;3;3"  vid="V1-gki8k11h">
     <path>
       <move select="Dodge Right" beats="1" scaleX=".5" scaleY=".5" />
       <move select="Swing Right" beats="2" scaleX=".5" scaleY=".5" />
@@ -267,7 +267,7 @@
 
   <tam title="Crazy Trade" group="Crazy"
        formation="Lines Facing Out"
-       parts="3;3;3" >
+       parts="3;3;3"  vid="V1-hndtd5gt">
     <path>
       <move select="Flip Left" />
       <move select="Run Right" />
@@ -294,7 +294,7 @@
     </path>
   </tam>
 
-  <tam title="Crazy Triangle Circulate" group="Crazy" parts="3;3;3">
+  <tam title="Crazy Triangle Circulate" group="Crazy" parts="3;3;3" vid="V1-er62zy3r">
     <formation fid="F3-z9mc9mm2" aid="A1-i3e3nn0e">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -327,7 +327,7 @@
     </path>
   </tam>
 
-  <tam title="1/2 Crazy Quarter Thru" group=" " parts="4.5">
+  <tam title="1/2 Crazy Quarter Thru" group=" " parts="4.5" vid="V1-inwzpg18">
     <formation fid="F3-vljpxzpx" aid="A1-k6w9pyol">
       <dancer gender="girl" x="3" y="3" angle="270"/>
       <dancer gender="boy" x="1" y="3" angle="90"/>
@@ -356,7 +356,7 @@
   </tam>
 
   <tam title="1/2 Crazy Right and Left Thru" group=" "
-       formation="Normal Lines" parts="5" >
+       formation="Normal Lines" parts="5"  vid="V1-4zgfnuen">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" />
       <move select="Extend Right" scaleX="2" scaleY=".5" />
@@ -390,7 +390,7 @@
 
   <tam title="3/4 Crazy Circulate" group=" "
        formation="Ocean Waves RH BGBG"
-       parts="3;3" >
+       parts="3;3"  vid="V1-jwlh69dk">
     <path>
       <move select="Forward 4" beats="3" />
       <move select="Stand" beats="3" />
@@ -417,7 +417,7 @@
 
   <tam title="Reverse Crazy Reverse Flutterwheel" group="Reverse Crazy"
        formation="Normal Lines"
-       parts="8;8;8" >
+       parts="8;8;8"  vid="V1-gbau6ngb">
     <path>
       <move select="Stand Alone" beats="8"/>
       <move select="Extend Right" beats="2" scaleX="1.5" scaleY="1.75" />
@@ -468,7 +468,7 @@
     </path>
   </tam>
 
-  <tam title="1/2 Reverse Crazy Tag Back" group="1/2 Reverse Crazy" parts="8.5">
+  <tam title="1/2 Reverse Crazy Tag Back" group="1/2 Reverse Crazy" parts="8.5" vid="V1-cyknmjrf">
     <formation fid="F3-u0r62dn0" aid="A1-at6cbz2y">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
@@ -513,7 +513,7 @@
   </tam>
 
   <tam title="1/2 Reverse Crazy 2/3 Recycle" group="1/2 Reverse Crazy"
-       parts="4.5" formation="Diamonds Facing LH Girl Points">
+       parts="4.5" formation="Diamonds Facing LH Girl Points" vid="V1-kpvoou7l">
     <path>
       <move select="Lead Left" beats="4.5" scaleY="5" />
       <move select="Cast Right" />
@@ -532,7 +532,7 @@
     </path>
   </tam>
 
-  <tam title="3/4 Reverse Crazy Follow Thru" group="3/4 Reverse Crazy" parts="3;3">
+  <tam title="3/4 Reverse Crazy Follow Thru" group="3/4 Reverse Crazy" parts="3;3" vid="V1-ljjn3hww">
     <formation fid="F3-xk54gzh8" aid="A1-iz6u7m90">
       <dancer gender="boy" x="3" y="0" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
@@ -569,7 +569,7 @@
   </tam>
 
   <tam title="3/4 Reverse Crazy Quarter Thru" group="3/4 Reverse Crazy"
-       formation="Ocean Waves LH BGGB" parts="4.5;4.5">
+       formation="Ocean Waves LH BGGB" parts="4.5;4.5" vid="V1-7jkccktk">
     <path>
       <move select="Stand Alone" beats="4.5"/>
       <move select="Stand Alone" beats="1.5"/>

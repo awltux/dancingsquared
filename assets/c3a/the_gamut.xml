@@ -22,7 +22,7 @@
 -->
 <tamination title="The Gamut">
 
-  <tam title="The Gamut" from="Right-Hand Waves" formation="Ocean Waves RH BGGB" fractions="7.5;4.5">
+  <tam title="The Gamut" from="Right-Hand Waves" formation="Ocean Waves RH BGGB" fractions="7.5;4.5" vid="V1-bxz4ysnq">
     <path>
       <move select="Forward 4"/>
       <move select="Run Right" beats="8" scaleX="2" scaleY="3"/>
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="The Gamut" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" fractions="7.5;4.5">
+  <tam title="The Gamut" from="Left-Hand Waves" formation="Ocean Waves LH BGGB" fractions="7.5;4.5" vid="V1-sx0qz62l">
     <path>
       <move select="Run Left" beats="8" scaleX="2" scaleY="3"/>
       <move select="Forward 4"/>
@@ -77,7 +77,7 @@
   </tam>
 
   <tam title="The Gamut" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH" fractions="7.5;4.5">
+       formation="Two-Faced Lines RH" fractions="7.5;4.5" vid="V1-94av9bkz">
     <path>
       <move select="Forward 4"/>
       <move select="Run Right" beats="8" scaleX="2" scaleY="3"/>
@@ -105,7 +105,7 @@
   </tam>
 
   <tam title="The Gamut" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH" fractions="7.5;4.5">
+       formation="Two-Faced Lines LH" fractions="7.5;4.5" vid="V1-67sdoxq4">
     <path>
       <move select="Run Left" beats="8" scaleX="2" scaleY="3"/>
       <move select="Forward 4"/>

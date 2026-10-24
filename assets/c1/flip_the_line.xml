@@ -22,7 +22,7 @@
 -->
 <tamination title="Flip the Line">
 
-  <tam title="Flip the Line 1/4" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Flip the Line 1/4" from="Right-Hand Wave" formation="Wave RH" vid="V1-wng98he8">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward" />
@@ -33,7 +33,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line 1/4" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Flip the Line 1/4" from="Left-Hand Wave" formation="Wave LH" vid="V1-oyyhbrmf">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2" />
       <move select="Forward" />
@@ -46,7 +46,7 @@
 
   <tam title="Flip the Line 1/4"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-fp7eujey">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward" />
@@ -67,7 +67,7 @@
 
   <tam title="Flip the Line 1/4"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-piykgjpl">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2" />
       <move select="Forward" />
@@ -88,7 +88,7 @@
 
   <tam title="Flip the Line 1/4"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-3a5vlnz5">
     <path>
       <move select="Lead Right" beats="3.5" />
     </path>
@@ -107,7 +107,7 @@
 
   <tam title="Flip the Line 1/4"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-brgb75dd">
     <path>
       <move select="Lead Left" beats="3.5" />
     </path>
@@ -124,7 +124,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line 1/2" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Flip the Line 1/2" from="Right-Hand Wave" formation="Wave RH" vid="V1-rews2nda">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward 2" offsetX=".5"/>
@@ -136,7 +136,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line 1/2" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Flip the Line 1/2" from="Left-Hand Wave" formation="Wave LH" vid="V1-9np5qlcp">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2" />
       <move select="Forward 2" offsetX=".5"/>
@@ -150,7 +150,7 @@
 
   <tam title="Flip the Line 1/2"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-5fu98ugs">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward 2" offsetX=".5"/>
@@ -173,7 +173,7 @@
 
   <tam title="Flip the Line 1/2"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-wtcf3gpv">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2" />
       <move select="Forward 2" offsetX=".5"/>
@@ -196,7 +196,7 @@
 
   <tam title="Flip the Line 1/2"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-lh567xzf">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2.5" />
     </path>
@@ -215,7 +215,7 @@
 
   <tam title="Flip the Line 1/2"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-sfnxi4hv">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2.5" />
     </path>
@@ -232,7 +232,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line 3/4" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Flip the Line 3/4" from="Right-Hand Wave" formation="Wave RH" vid="V1-vs9iwdna">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward 2" />
@@ -245,7 +245,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line 3/4" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Flip the Line 3/4" from="Left-Hand Wave" formation="Wave LH" vid="V1-uky6v41d">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2" />
       <move select="Forward 2" />
@@ -260,7 +260,7 @@
 
   <tam title="Flip the Line 3/4"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-ym12g604">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward 4" />
@@ -284,7 +284,7 @@
 
   <tam title="Flip the Line 3/4"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-pge8qil7">
     <path>
       <move select="Lead Left" beats="3.5" scaleY="2" />
       <move select="Forward 2" />
@@ -308,7 +308,7 @@
 
   <tam title="Flip the Line 3/4"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-0jdbos77">
     <path>
       <move select="Lead Right" beats="3" scaleY="1.5" />
       <move select="Extend Right" beats="2"/>
@@ -331,7 +331,7 @@
 
   <tam title="Flip the Line 3/4"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-pv0ung17">
     <path>
       <move select="Lead Left" beats="3" scaleY="1.5" />
       <move select="Extend Left" beats="2"/>
@@ -352,7 +352,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Flip the Line" from="Right-Hand Wave" formation="Wave RH" vid="V1-9d3u0mds">
     <path>
       <move select="Lead Right" beats="3.5" scaleX=".5" scaleY="2" />
       <move select="Forward 2" />
@@ -366,7 +366,7 @@
     </path>
   </tam>
 
-  <tam title="Flip the Line" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Flip the Line" from="Left-Hand Wave" formation="Wave LH" vid="V1-sckkq5av">
     <path>
       <move select="Lead Left" beats="3.5" scaleX=".5" scaleY="2" />
       <move select="Forward 2" />
@@ -382,7 +382,7 @@
 
   <tam title="Flip the Line"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-11z2g07e">
     <path>
       <move select="Lead Right" beats="3.5" scaleY="2" />
       <move select="Forward 4" />
@@ -407,7 +407,7 @@
 
   <tam title="Flip the Line"
        from="Left-Hand Waves"
-       formation="Ocean Waves LH BGGB">
+       formation="Ocean Waves LH BGGB" vid="V1-yjpl1hqh">
     <path>
       <move select="Lead Left" beats="3.5" scaleX=".5" scaleY="2" />
       <move select="Forward 2" />
@@ -432,7 +432,7 @@
 
   <tam title="Flip the Line"
        from="Right-Hand Tidal Wave"
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-yk45be8x">
     <path>
       <move select="Lead Right" beats="3" scaleY="1.5" />
       <move select="Extend Right" beats="2"/>
@@ -457,7 +457,7 @@
 
   <tam title="Flip the Line"
        from="Left-Hand Tidal Wave"
-       formation="Tidal Wave LH BGGB">
+       formation="Tidal Wave LH BGGB" vid="V1-can9x6pd">
     <path>
       <move select="Lead Left" beats="3" scaleY="1.5" />
       <move select="Extend Left" beats="2"/>
@@ -482,7 +482,7 @@
 
 
   <tam title="Concentric Flip the Line 1/4" group=" "
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-cuqfrqxf">
     <path>
       <move select="Lead Right" beats="3.5" scaleX="3" scaleY="2" />
       <move select="Forward" offsetX=".5"/>
@@ -501,7 +501,7 @@
   </tam>
 
   <tam title="Concentric Flip the Line 1/2" group=" "
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-mwbyr6dl">
     <path>
       <move select="Lead Right" beats="3.5" scaleX="3" scaleY="2" />
       <move select="Forward 3"/>
@@ -522,7 +522,7 @@
   </tam>
 
   <tam title="Concentric Flip the Line 3/4" group=" "
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-m8h1dt9t">
     <path>
       <move select="Lead Right" beats="3.5" scaleX="3" scaleY="2" />
       <move select="Forward 2"/>
@@ -545,7 +545,7 @@
   </tam>
 
   <tam title="Concentric Flip the Line" group=" "
-       formation="Tidal Wave RH BGGB">
+       formation="Tidal Wave RH BGGB" vid="V1-y5mxl94f">
     <path>
       <move select="Lead Right" beats="3.5" scaleX="1.5" scaleY="2" />
       <move select="Forward 5" />
@@ -570,7 +570,7 @@
   </tam>
 
   <tam title="Tandem Flip the Line 1/4" group="  "
-       formation="Ocean Waves RH BGGB Compact">
+       formation="Ocean Waves RH BGGB Compact" vid="V1-ekvq1de6">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2"/>
     </path>
@@ -589,7 +589,7 @@
   </tam>
 
   <tam title="Tandem Flip the Line 1/2" group="  "
-       formation="Ocean Waves RH BGGB Compact">
+       formation="Ocean Waves RH BGGB Compact" vid="V1-asndjf64">
     <path>
       <move select="Lead Right" beats="3" scaleX="2.5" scaleY="2"/>
       <move select="Forward 2"/>

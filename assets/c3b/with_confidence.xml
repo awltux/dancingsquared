@@ -23,7 +23,7 @@
 <tamination title="With Confidence">
 
   <tam title="With Confidence" from="Right-Hand Waves"
-       formation="Ocean Waves RH GBGB" fractions="3">
+       formation="Ocean Waves RH GBGB" fractions="3" vid="V1-uyz9ccga">
     <path couples="4 2">
       <move select="Forward 2" beats="3"/>
       <move select="Forward 2" hands="right"/>
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="With Confidence" from="Right-Hand Two-Faced Lines"
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-gqgl4ogv">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Forward" beats="3"/>
@@ -71,7 +71,7 @@
   </tam>
 
   <tam title="With Confidence" from="Left-Hand Waves"
-       formation="Ocean Waves LH BGBG">
+       formation="Ocean Waves LH BGBG" vid="V1-sgprxtzd">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="3"/>
       <move select="Forward" beats="3"/>
@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="With Confidence" from="Left-Hand Two-Faced Lines"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-cnwmptqw">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" scaleY="3"/>
       <move select="Extend Left" beats="3" hands="left" scaleX="2" scaleY="1"/>

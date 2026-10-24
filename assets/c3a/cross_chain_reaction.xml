@@ -22,7 +22,7 @@
 -->
 <tamination title="Cross Chain Reaction">
 
-  <tam title="Cross Chain Reaction" from="Quarter Tag" formation="Quarter Tag" fractions="5;3">
+  <tam title="Cross Chain Reaction" from="Quarter Tag" formation="Quarter Tag" fractions="5;3" vid="V1-7nmm4nru">
     <path numbers="1 8" couples="2 4">
       <move select="Stand" beats="3"/>
       <move select="Hinge Right" beats="2" scaleX="2"/>
@@ -53,7 +53,7 @@
   </tam>
 
   <tam title="Cross Chain Reaction" from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH" fractions="5;3">
+       formation="Quarter Tag LH" fractions="5;3" vid="V1-zg4mb761">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
@@ -86,7 +86,7 @@
   <tam title="Cross Chain Reaction"
        from="Right-Hand Quarter Lines"
        formation="Quarter Lines RH"
-       fractions="5;3" >
+       fractions="5;3"  vid="V1-sbsvobuc">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
@@ -121,7 +121,7 @@
   <tam title="Cross Chain Reaction"
        from="Left-Hand Quarter Lines"
        formation="Quarter Lines LH"
-       fractions="5;3" >
+       fractions="5;3"  vid="V1-xpl27uqh">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Hinge Right" beats="2" scaleX="2"/>
@@ -155,7 +155,7 @@
 
   <tam title="Cross Chain Reaction"
        from="Mixed Quarter Waves, Centers Right-Handed"
-       fractions="5;3"  formation="Mixed Quarter Tag #5">
+       fractions="5;3"  formation="Mixed Quarter Tag #5" vid="V1-uk9668gf">
     <path>
       <move select="Stand" beats="3"/>
       <move select="Quarter Left" beats="2" offsetX="-2" offsetY="1"/>
@@ -187,7 +187,7 @@
 
   <tam title="Cross Chain Reaction"
        from="Mixed Quarter Waves, Centers Left-Handed"
-       fractions="5;3" formation="Mixed Quarter Tag #2">
+       fractions="5;3" formation="Mixed Quarter Tag #2" vid="V1-kzzar6gl">
     <path>
       <move select="Forward"/>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="2"/>
@@ -216,7 +216,7 @@
   </tam>
 
   <tam title="Cross Chain Reaction" from="Right-Hand Two-Faced Line between Mini-Waves"
-       fractions="5;3">
+       fractions="5;3" vid="V1-vkd9zuw8">
      <formation fid="F3-idvq1344" aid="A1-dzij8kds">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
@@ -253,7 +253,7 @@
   </tam>
 
   <tam title="Cross Chain Reaction" from="Left-Hand Two-Faced Line between Mini-Waves"
-       fractions="5;3">
+       fractions="5;3" vid="V1-loybgqc5">
      <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>

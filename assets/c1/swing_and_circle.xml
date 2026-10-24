@@ -24,7 +24,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Right-Hand Quarter Tag"
-       formation="Quarter Tag">
+       formation="Quarter Tag" vid="V1-r7bc4dq6">
     <path numbers="1 8" couples="2 4">
       <move select="Stand" beats="3" hands="right" />
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2" />
@@ -45,7 +45,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Left-Hand Quarter Tag"
-       formation="Quarter Tag LH">
+       formation="Quarter Tag LH" vid="V1-zc4xny8t">
     <path numbers="1 8">
       <move select="Stand" beats="3" hands="right" />
       <move select="Dodge Right" beats="4" />
@@ -66,7 +66,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Right-Hand 3/4 Tag"
-       formation="3/4 Tag">
+       formation="3/4 Tag" vid="V1-px2gkalp">
     <path>
       <move select="Stand" beats="3" hands="right" />
       <move select="Run Right" beats="4" offsetX="-3"/>
@@ -87,7 +87,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Left-Hand 3/4 Tag"
-       formation="3/4 Tag LH">
+       formation="3/4 Tag LH" vid="V1-weyigk55">
     <path>
       <move select="Stand" beats="3" hands="right" />
       <move select="Flip Left" beats="4" />
@@ -108,7 +108,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Right-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #1">
+       formation="Mixed Quarter Tag #1" vid="V1-bav4buun">
     <path>
       <move select="Stand" beats="3" hands="right" />
       <move select="Extend Left" beats="4" scaleX="3" scaleY="2" />
@@ -129,7 +129,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Left-Hand Quarter Waves"
-       formation="Mixed Quarter Tag #6">
+       formation="Mixed Quarter Tag #6" vid="V1-djfn5b7x">
     <path>
       <move select="Stand" beats="3" hands="right" />
       <move select="Flip Left" beats="4" />
@@ -150,7 +150,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Right-Hand Diamonds"
-       formation="Diamonds RH Girl Points">
+       formation="Diamonds RH Girl Points" vid="V1-zdvqz44v">
     <path>
       <move select="Swing Right" />
       <move select="Swing Left" beats="4" />
@@ -171,7 +171,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Left-Hand Diamonds"
-       formation="Diamonds LH Girl Points">
+       formation="Diamonds LH Girl Points" vid="V1-kky3yw38">
     <path>
       <move select="Swing Left" />
       <move select="Swing Right" beats="4" />
@@ -192,7 +192,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Mixed Quarter Tag 1"
-       formation="Mixed Quarter Tag #5">
+       formation="Mixed Quarter Tag #5" vid="V1-sg9ivupn">
     <path>
       <move select="Stand" beats="3" hands="right" />
       <move select="Run Right" beats="4" offsetX="-3"/>
@@ -213,7 +213,7 @@
 
   <tam title="Swing and Circle 1/4"
        from="Mixed Quarter Tag 2"
-       formation="Mixed Quarter Tag #2">
+       formation="Mixed Quarter Tag #2" vid="V1-oqgltt4h">
     <path>
       <move select="Stand" beats="3" hands="right" />
       <move select="Dodge Right" beats="4" />

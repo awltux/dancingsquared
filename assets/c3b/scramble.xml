@@ -22,7 +22,7 @@
 -->
 <tamination title="Scramble">
 
-  <tam title="Scramble" from="Lines Facing Out" parts="2" formation="Lines Facing Out">
+  <tam title="Scramble" from="Lines Facing Out" parts="2" formation="Lines Facing Out" vid="V1-j8ecj9v4">
     <path>
       <move select="Lead Left" beats="2" scaleY="2"/>
       <move select="Extend Left" scaleY=".5"/>
@@ -49,7 +49,7 @@
     </path>
   </tam>
 
-  <tam title="Scramble" from="Inverted Lines, Ends Facing Out" parts="2">
+  <tam title="Scramble" from="Inverted Lines, Ends Facing Out" parts="2" vid="V1-ql716njp">
     <formation fid="F3-xq9nr45b" aid="A1-ibzt7xtj">
       <dancer gender="girl" x="2" y="1" angle="180"/>
       <dancer gender="boy" x="2" y="3" angle="0"/>
@@ -82,7 +82,7 @@
     </path>
   </tam>
 
-  <tam title="Central Scramble" formation="Lines Facing Out" group=" " parts="2">
+  <tam title="Central Scramble" formation="Lines Facing Out" group=" " parts="2" vid="V1-1qoozubn">
     <path>
       <move select="Quarter Left" beats="2" offsetX="-1"/>
       <move select="Extend Left" scaleY=".5"/>

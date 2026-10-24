@@ -25,7 +25,7 @@
   <tam title="Chase Right"
        from="Couples Facing Out"
        formation="Couples Facing Out"
-       difficulty="1">
+       difficulty="1" vid="V1-bbzr9z1n">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1" />
       <move select="Forward 2" />
@@ -40,7 +40,7 @@
   <tam title="Chase Right"
        from="Couples Facing Out Far"
        formation="Couples Facing Out Far"
-       difficulty="1" display="no">
+       difficulty="1" display="no" vid="V1-p9n665z8">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1" />
       <move select="Forward 4" />
@@ -55,7 +55,7 @@
   <tam title="Chase Right"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="1">
+       difficulty="1" vid="V1-pn0vq2ij">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1" />
       <move select="Forward 2" />
@@ -79,7 +79,7 @@
   <tam title="Chase Right"
        from="Trade By"
        formation="Trade By"
-       difficulty="2">
+       difficulty="2" vid="V1-ad15nigj">
     <path>
       <move select="U-Turn Right" beats="1.5" />
       <move select="Forward 2" />
@@ -100,7 +100,7 @@
     </path>
   </tam>
 
-  <tam title="Chase Right" from="T-Bones 1" difficulty="3">
+  <tam title="Chase Right" from="T-Bones 1" difficulty="3" vid="V1-cj4116ef">
      <formation fid="F3-4ohmtsct" aid="A1-wvufxukt">
       <dancer gender="boy" x="-3" y="1" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
@@ -125,7 +125,7 @@
     </path>
   </tam>
 
-  <tam title="Chase Right" from="T-Bones 2" difficulty="3" formation="T-Bone DRDR">
+  <tam title="Chase Right" from="T-Bones 2" difficulty="3" formation="T-Bone DRDR" vid="V1-z82euovn">
     <path>
       <move select="U-Turn Right" beats="1.5" offsetX="-1"/>
       <move select="Forward" />
@@ -148,7 +148,7 @@
     </path>
   </tam>
 
-  <tam title="Chase Right" from="T-Bones 3" difficulty="3">
+  <tam title="Chase Right" from="T-Bones 3" difficulty="3" vid="V1-d8ekjitx">
      <formation fid="F3-nug2yac5" aid="A1-a787ibcn">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="270"/>
@@ -178,7 +178,7 @@
   <tam title="Left Chase"
        from="Couples Facing Out"
        formation="Couples Facing Out"
-       difficulty="2">
+       difficulty="2" vid="V1-u7qo4i02">
     <path>
       <move select="Run Left" />
       <move select="Forward 4" beats="3" />
@@ -193,7 +193,7 @@
   <tam title="Left Chase"
        from="Couples Facing Out Far"
        formation="Couples Facing Out Far"
-       difficulty="2" display="no">
+       difficulty="2" display="no" vid="V1-t6l9aik9">
     <path>
       <move select="Run Left" />
       <move select="Forward 6" beats="5" />
@@ -208,7 +208,7 @@
   <tam title="Left Chase"
        from="Lines Facing Out"
        formation="Lines Facing Out"
-       difficulty="2">
+       difficulty="2" vid="V1-mcofampe">
     <path>
       <move select="Run Left" />
       <move select="Forward 4" beats="3" />
@@ -232,7 +232,7 @@
   <tam title="Left Chase"
        from="Trade By"
        formation="Trade By"
-       difficulty="2">
+       difficulty="2" vid="V1-ama95x66">
     <path>
       <move select="Run Left" />
       <move select="Forward 2" />
@@ -253,7 +253,7 @@
     </path>
   </tam>
 
-  <tam title="Left Chase" from="T-Bones 1" difficulty="3">
+  <tam title="Left Chase" from="T-Bones 1" difficulty="3" vid="V1-shc922mm">
      <formation fid="F3-4ohmtsct" aid="A1-wvufxukt">
       <dancer gender="boy" x="-3" y="1" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
@@ -282,7 +282,7 @@
     </path>
   </tam>
 
-  <tam title="Left Chase" from="T-Bones 2" difficulty="3" formation="T-Bone DRDR">
+  <tam title="Left Chase" from="T-Bones 2" difficulty="3" formation="T-Bone DRDR" vid="V1-od1ja4dm">
     <path>
       <move select="Run Left"/>
       <move select="Forward 2"/>
@@ -301,7 +301,7 @@
     </path>
   </tam>
 
-  <tam title="Left Chase" from="T-Bones 3" difficulty="3">
+  <tam title="Left Chase" from="T-Bones 3" difficulty="3" vid="V1-c683joag">
      <formation fid="F3-nug2yac5" aid="A1-a787ibcn">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="270"/>

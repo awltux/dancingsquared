@@ -22,7 +22,7 @@
 -->
 <tamination title="Oddly | Evenly Concept">
 
-  <tam title="Oddly Once Removed Reset" group="Oddly" fractions="4;2;4">
+  <tam title="Oddly Once Removed Reset" group="Oddly" fractions="4;2;4" vid="V1-g5khfzqu">
     <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
@@ -55,7 +55,7 @@
     </path>
   </tam>
 
-  <tam title="Oddly Tandem Remake" group="Oddly" fractions="3;3">
+  <tam title="Oddly Tandem Remake" group="Oddly" fractions="3;3" vid="V1-fnron008">
     <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
@@ -93,7 +93,7 @@
   </tam>
 
   <tam title="Oddly Tandem Swing and Mix" group="Oddly" fractions="4;4"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-fzyzrenk">
     <path>
       <move select="Counter Rotate Right 2 0" hands="right" offsetX="1"/>
       <move select="Counter Rotate Right 2 0" hands="right" offsetY="1"/>

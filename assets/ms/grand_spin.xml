@@ -39,7 +39,7 @@ FIGURE OF GRAND SPIN AS FOLLOWS:
 <tamination title="Grand Spin">
 
   <tam title="Sides Face, Grand Spin" formation="Static Square"
-       from="Static Square" group=" " fractions="5;7.5;2;4.5;3;6.5;3;5;7.5;2;4.5;3;6.5">
+       from="Static Square" group=" " fractions="5;7.5;2;4.5;3;6.5;3;5;7.5;2;4.5;3;6.5" vid="V1-i7d75pfu">
     <path>
       <move select="Forward 2"/>
       <move select="Extend Left" scaleY=".5"/>

@@ -22,7 +22,7 @@
 -->
 <tamination title="Track n">
 
-  <tam title="Track Zero" group=" ">
+  <tam title="Track Zero" group=" " vid="V1-nfclqvm8">
     <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
@@ -47,7 +47,7 @@
     </path>
   </tam>
 
-  <tam title="Track One" group=" ">
+  <tam title="Track One" group=" " vid="V1-kartfd1q">
     <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
@@ -72,7 +72,7 @@
     </path>
   </tam>
 
-  <tam title="Track Two" group=" " sequencer="no">
+  <tam title="Track Two" group=" " sequencer="no" vid="V1-sraueg80">
     <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
@@ -98,7 +98,7 @@
     </path>
   </tam>
 
-  <tam title="Track Three" group=" ">
+  <tam title="Track Three" group=" " vid="V1-py09dx6e">
     <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
@@ -126,7 +126,7 @@
     </path>
   </tam>
 
-  <tam title="Track Four" group=" ">
+  <tam title="Track Four" group=" " vid="V1-h93vgdae">
     <formation fid="F3-art5tker" aid="A1-tiyq74cz">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>

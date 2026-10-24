@@ -22,7 +22,7 @@
 -->
 <tamination title="Reverse Explode">
 
-  <tam title="Reverse Explode" from="Right-Hand Wave" formation="Wave RH">
+  <tam title="Reverse Explode" from="Right-Hand Wave" formation="Wave RH" vid="V1-smejt8tt">
     <path numbers="1 4">
       <move select="Quarter Left" offsetX="1" offsetY="-1" />
     </path>
@@ -31,7 +31,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Explode" from="Left-Hand Wave" formation="Wave LH">
+  <tam title="Reverse Explode" from="Left-Hand Wave" formation="Wave LH" vid="V1-ue7aoyim">
     <path>
       <move select="Quarter Right" offsetX="1" offsetY="1" />
     </path>
@@ -42,7 +42,7 @@
 
   <tam title="Reverse Explode"
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-9wz2xu3f">
     <path>
       <move select="Quarter Left" offsetX="1" offsetY="-1" />
     </path>
@@ -60,7 +60,7 @@
   <tam title="Reverse Explode"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGGB"
-       fractions="" >
+       fractions=""  vid="V1-rozpq9vo">
     <path>
       <move select="Quarter Right" offsetX="1" offsetY="1" />
     </path>
@@ -75,7 +75,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Explode" from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB">
+  <tam title="Reverse Explode" from="Right-Hand Tidal Wave" formation="Tidal Wave RH BGGB" vid="V1-1e7diz1k">
     <path>
       <move select="Quarter Left" offsetX="1" offsetY="-.5" />
     </path>
@@ -90,7 +90,7 @@
     </path>
   </tam>
 
-  <tam title="Reverse Explode" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB">
+  <tam title="Reverse Explode" from="Left-Hand Tidal Wave" formation="Tidal Wave LH BGGB" vid="V1-lu8h6rcw">
     <path>
       <move select="Quarter Right" offsetX="1" offsetY=".5" />
     </path>
@@ -105,7 +105,7 @@
     </path>
   </tam>
 
-  <tam title="All 8 Reverse Explode" from="" formation="Thar LH Boys" group=" ">
+  <tam title="All 8 Reverse Explode" from="" formation="Thar LH Boys" group=" " vid="V1-mju1h873">
     <path>
       <move select="Lead Right" beats="3" scaleY="2"/>
     </path>
@@ -120,7 +120,7 @@
     </path>
   </tam>
 
-  <tam title="As Couples Reverse Explode" from="" formation="Two-Faced Tidal Line RH" group=" ">
+  <tam title="As Couples Reverse Explode" from="" formation="Two-Faced Tidal Line RH" group=" " vid="V1-cn98poi7">
     <path>
       <move select="Quarter Left" beats="3" hands="right" offsetX="1" offsetY="-1.5"/>
     </path>
@@ -135,7 +135,7 @@
     </path>
   </tam>
 
-  <tam title="Concentric Reverse Explode" from="" group=" " formation="Tidal Wave RH BGGB">
+  <tam title="Concentric Reverse Explode" from="" group=" " formation="Tidal Wave RH BGGB" vid="V1-kmnj11tm">
     <path numbers="8 1">
       <move select="Forward 2"/>
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-1.5" />
@@ -154,7 +154,7 @@
 
   <tam title="Stretch Reverse Explode" group=" "
        from="Right-Hand Waves"
-       formation="Ocean Waves RH BGGB">
+       formation="Ocean Waves RH BGGB" vid="V1-wt24iwni">
     <path>
       <move select="Forward 2"/>
       <move select="Quarter Left" offsetX="1" offsetY="-1" />
@@ -171,7 +171,7 @@
     </path>
   </tam>
 
-  <tam title="Tandem Reverse Explode" from="" formation="Ocean Waves RH BGGB" group=" ">
+  <tam title="Tandem Reverse Explode" from="" formation="Ocean Waves RH BGGB" group=" " vid="V1-zxyhjd6y">
     <path>
       <move select="Extend Right" beats="3" scaleX="2.5" scaleY="1.5"/>
       <move select="Quarter Left" offsetX=".5" offsetY="-.5"/>

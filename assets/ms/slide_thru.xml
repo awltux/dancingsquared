@@ -24,7 +24,7 @@
 
   <tam title="Slide Thru"
        from="Facing Couples" sequencer="gender-specific"
-       formation="Facing Couples Compact" difficulty="1">
+       formation="Facing Couples Compact" difficulty="1" vid="V1-dr0dqk9x">
     <path>
       <move select="Extend Left" beats="2" scaleX="1.5" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1"/>
@@ -54,7 +54,7 @@
        absent from the Compact one, so the nearer authoring is followed. -->
   <tam title="Slide Thru"
        from="Facing Couples" sequencer="gender-specific"
-       difficulty="1" formation="Facing Couples Close">
+       difficulty="1" formation="Facing Couples Close" vid="V1-aylb1pu7">
     <path>
       <move select="Extend Left" beats="2" scaleX="1" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1"/>
@@ -66,7 +66,7 @@
   </tam>
 
   <tam title="Slide Thru" from="Sashayed Couples" sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-dr0dqk9x">
     <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
       <dancer gender="boy" x="-1.5" y="-1" angle="0"/>
       <dancer gender="girl" x="-1.5" y="1" angle="0"/>
@@ -83,7 +83,7 @@
 
   <tam title="Slide Thru"
        from="Lines" sequencer="gender-specific"
-       formation="Normal Lines" difficulty="1">
+       formation="Normal Lines" difficulty="1" vid="V1-5i5ks2xo">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1" offsetY="-.5" />
@@ -103,7 +103,7 @@
   </tam>
 
   <tam title="Slide Thru" from="Sashayed Lines" sequencer="gender-specific"
-       difficulty="2" formation="Sashayed Lines">
+       difficulty="2" formation="Sashayed Lines" vid="V1-5i5ks2xo">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5" />
       <move select="Quarter Left" beats="2" offsetX="1" offsetY="-.5" />
@@ -125,7 +125,7 @@
   <tam title="Slide Thru"
        from="Eight Chain Thru"
        formation="Eight Chain Thru" sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-4ce0vt3d">
     <path>
       <move select="Extend Left" beats="2" scaleY=".5" />
       <move select="Quarter Right" beats="2" offsetX="1" offsetY=".5" />
@@ -147,7 +147,7 @@
   <tam title="Slide Thru"
        from="Ocean Waves"
        formation="Ocean Waves RH BGBG" sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-0plhbahs">
     <path>
       <move select="Lead Right" beats="2" />
     </path>
@@ -167,7 +167,7 @@
 
   <tam title="Slide Thru"
        from="Same Sex Facing" sequencer="gender-specific"
-       difficulty="2">
+       difficulty="2" vid="V1-5i5ks2xo">
      <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>

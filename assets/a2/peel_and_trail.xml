@@ -22,7 +22,7 @@
 -->
 <tamination title="Peel and Trail">
 
-  <tam title="Peel and Trail" from="Right-Hand Box" formation="Box RH Compact">
+  <tam title="Peel and Trail" from="Right-Hand Box" formation="Box RH Compact" vid="V1-g297yeo8">
     <path>
       <move select="Forward 1.5" beats="3"/>
       <move select="Swing Right"/>
@@ -32,7 +32,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Left-Hand Box" formation="Box LH Compact">
+  <tam title="Peel and Trail" from="Left-Hand Box" formation="Box LH Compact" vid="V1-p6vkpwzm">
     <path>
       <move select="Run Right" beats="6" offsetX="-1.5"/>
     </path>
@@ -44,7 +44,7 @@
 
   <tam title="Peel and Trail"
        from="Right-Hand Columns"
-       formation="Column RH GBGB">
+       formation="Column RH GBGB" vid="V1-z9mf7zwe">
     <path numbers="6 3">
       <move select="Run Left" offsetX="-1" />
     </path>
@@ -63,7 +63,7 @@
 
   <tam title="Peel and Trail"
        from="Left-Hand Columns"
-       formation="Column LH GBGB">
+       formation="Column LH GBGB" vid="V1-h6jt4akb">
     <path>
       <move select="Forward" />
       <move select="Swing Left" />
@@ -80,7 +80,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Right-Hand Zs" formation="Right-Hand Zs">
+  <tam title="Peel and Trail" from="Right-Hand Zs" formation="Right-Hand Zs" vid="V1-dg0z0hnb">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Swing Right"/>
@@ -97,7 +97,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Left-Hand Zs" formation="Left-Hand Zs">
+  <tam title="Peel and Trail" from="Left-Hand Zs" formation="Left-Hand Zs" vid="V1-3fctgwx1">
     <path>
       <move select="Forward 2" beats="3"/>
       <move select="Swing Left"/>
@@ -116,7 +116,7 @@
 
   <tam title="Peel and Trail"
        from="Double Pass Thru"
-       formation="Double Pass Thru">
+       formation="Double Pass Thru" vid="V1-z4dd4cdl">
     <path>
       <move select="Flip Right" offsetX="1" />
     </path>
@@ -138,7 +138,7 @@
 
   <tam title="Peel and Trail"
        from="Completed Double Pass Thru"
-       formation="Completed Double Pass Thru">
+       formation="Completed Double Pass Thru" vid="V1-n7iv3099">
     <path numbers="5 4">
       <move select="Run Right" offsetX="-1" />
     </path>
@@ -160,7 +160,7 @@
 
   <tam title="Peel and Trail"
        from="Two-Faced Lines"
-       formation="Two-Faced Lines RH" >
+       formation="Two-Faced Lines RH"  vid="V1-tdlfcpt9">
     <path>
       <move select="Forward"/>
       <move select="Flip Right" offsetX="1" offsetY="0.5" />
@@ -182,7 +182,7 @@
   <tam title="Peel and Trail"
        from="Right-Hand Waves"
        formation="Ocean Waves RH BGBG"
-       fractions="" >
+       fractions=""  vid="V1-3z5p5hl0">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".25" />
       <move select="Swing Right" scaleX=".75" scaleY=".625" />
@@ -202,7 +202,7 @@
   <tam title="Peel and Trail"
        from="Left-Hand Waves"
        formation="Ocean Waves LH BGBG"
-       fractions="" >
+       fractions=""  vid="V1-wu8p62d7">
     <path>
       <move select="Flip Right" beats="5" offsetX="-2" offsetY="1.5" />
     </path>
@@ -219,7 +219,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Right-Hand Z Facing Out">
+  <tam title="Peel and Trail" from="Right-Hand Z Facing Out" vid="V1-861cc67f">
     <formation fid="F3-km28j8ki" aid="A1-83w342bo">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
@@ -232,7 +232,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Left-Hand Z Facing Out">
+  <tam title="Peel and Trail" from="Left-Hand Z Facing Out" vid="V1-dbq56i3e">
     <formation fid="F3-zmb3igvk" aid="A1-rkblren0">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>
@@ -245,7 +245,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Right-Hand Z Facing In">
+  <tam title="Peel and Trail" from="Right-Hand Z Facing In" vid="V1-8nufydtl">
     <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -259,7 +259,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Left-Hand Z Facing In">
+  <tam title="Peel and Trail" from="Left-Hand Z Facing In" vid="V1-pmtbt3bs">
     <formation fid="F3-07nohwr6" aid="A1-kggk56dw">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -273,7 +273,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Right-Hand Z-Tag" formation="Quarter Z RH">
+  <tam title="Peel and Trail" from="Right-Hand Z-Tag" formation="Quarter Z RH" vid="V1-cd9sj0n4">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Right" scaleX=".5" scaleY=".5"/>
@@ -290,7 +290,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="Left-Hand Z-Tag" formation="Quarter Z LH">
+  <tam title="Peel and Trail" from="Left-Hand Z-Tag" formation="Quarter Z LH" vid="V1-6eskf2lq">
     <path>
       <move select="Extend Left" beats="2" scaleX="2" scaleY=".5"/>
       <move select="Swing Left" scaleX=".5" scaleY=".5"/>
@@ -307,7 +307,7 @@
     </path>
   </tam>
 
-  <tam title="Peel and Trail" from="T-Bones 1" formation="T-Bone URUR">
+  <tam title="Peel and Trail" from="T-Bones 1" formation="T-Bone URUR" vid="V1-i26cs3nm">
     <path>
       <move select="Forward"/>
       <move select="Swing Right"/>
@@ -325,7 +325,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="T-Bones 2"
-       formation="T-Bone LULU">
+       formation="T-Bone LULU" vid="V1-p54y9wlo">
     <path>
       <move select="Run Left" beats="4" offsetX="-1"/>
     </path>
@@ -343,7 +343,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="T-Bones 3"
-       formation="T-Bone RDRD">
+       formation="T-Bone RDRD" vid="V1-wlmqsx4n">
     <path>
       <move select="Run Left" beats="4" offsetX="-1"/>
     </path>
@@ -361,7 +361,7 @@
   </tam>
 
   <tam title="Peel and Trail" from="T-Bones 4"
-       formation="T-Bone DLDL">
+       formation="T-Bone DLDL" vid="V1-wzat33wf">
     <path>
       <move select="Run Right" beats="4" offsetX="-1"/>
     </path>
@@ -379,7 +379,7 @@
   </tam>
 
   <tam title="As Couples Peel and Trail" group=" "
-       formation="Two-Faced Lines RH">
+       formation="Two-Faced Lines RH" vid="V1-mw2xqgr2">
     <path>
       <move select="Extend Right" beats="2" scaleX="2" scaleY="1.5" />
       <move select="Swing Right" beats="3" scaleX="1.5" scaleY="1.5" />
@@ -397,7 +397,7 @@
   </tam>
 
   <tam title="As Couples Peel and Trail" group=" " display="none"
-       formation="Two-Faced Lines LH">
+       formation="Two-Faced Lines LH" vid="V1-fsxaq4b9">
     <path>
       <move select="Belle Reverse Wheel" hands="gripleft" beats="5" offsetX="-2" offsetY="-1.5" />
     </path>
@@ -415,7 +415,7 @@
   </tam>
 
   <tam title="All 8 Peel and Trail" group=" "
-       formation="Static MiniWaves RH">
+       formation="Static MiniWaves RH" vid="V1-a4jnzoos">
     <path>
       <move select="Forward 3" />
       <move select="Swing Right" />

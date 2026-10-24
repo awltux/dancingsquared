@@ -22,7 +22,7 @@
 -->
 <tamination title="Take {n}">
 
-  <tam title="Take 0" group=" ">
+  <tam title="Take 0" group=" " vid="V1-eso3v0e0">
     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" y="-2" x="1" angle="270"/>
       <dancer gender="boy" y="-2" x="3" angle="270"/>
@@ -43,7 +43,7 @@
     </path>
   </tam>
 
-  <tam title="Take 1" group=" ">
+  <tam title="Take 1" group=" " vid="V1-pqyrtiz3">
     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" y="-2" x="1" angle="270"/>
       <dancer gender="boy" y="-2" x="3" angle="270"/>
@@ -68,7 +68,7 @@
     </path>
   </tam>
 
-  <tam title="Take 2" group=" ">
+  <tam title="Take 2" group=" " vid="V1-63opexpe">
     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" y="-2" x="1" angle="270"/>
       <dancer gender="boy" y="-2" x="3" angle="270"/>
@@ -93,7 +93,7 @@
     </path>
   </tam>
 
-  <tam title="Take 3" group=" ">
+  <tam title="Take 3" group=" " vid="V1-0kbpomz5">
     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" y="-2" x="1" angle="270"/>
       <dancer gender="boy" y="-2" x="3" angle="270"/>
@@ -118,7 +118,7 @@
     </path>
   </tam>
 
-  <tam title="Take 4" group=" ">
+  <tam title="Take 4" group=" " vid="V1-x3ipkvgk">
     <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
       <dancer gender="girl" y="-2" x="1" angle="270"/>
       <dancer gender="boy" y="-2" x="3" angle="270"/>

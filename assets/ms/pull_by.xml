@@ -22,7 +22,7 @@
 -->
 <tamination title="Pull By">
 
-  <tam title="Right Pull By" formation="Facing Couples Compact" group=" ">
+  <tam title="Right Pull By" formation="Facing Couples Compact" group=" " vid="V1-tqnf5u0z">
     <path>
       <move select="Pull Left" scaleX="1.5" scaleY=".5" beats="2"/>
       <move select="Extend Right" scaleX="1.5" scaleY=".5" beats="2"/>
@@ -33,7 +33,7 @@
     </path>
   </tam>
 
-  <tam title="Left Pull By" formation="Facing Couples Compact" group=" ">
+  <tam title="Left Pull By" formation="Facing Couples Compact" group=" " vid="V1-tf9g3fga">
     <path>
       <move select="Pull Right" scaleX="1.5" scaleY=".5" beats="2"/>
       <move select="Extend Left" scaleX="1.5" scaleY=".5" beats="2"/>
@@ -57,7 +57,7 @@
        `scaleX = 1`. The start formation is written INLINE at x = -1 so the engine's own mirror
        (180 degrees about the origin) places the second couple at x = +1. Everything else, including
        the group attribute, is copied unchanged. -->
-  <tam title="Right Pull By" group=" " formation="Facing Couples Close">
+  <tam title="Right Pull By" group=" " formation="Facing Couples Close" vid="V1-h7am9kwp">
     <path>
       <move select="Pull Left" scaleX="1" scaleY=".5" beats="2"/>
       <move select="Extend Right" scaleX="1" scaleY=".5" beats="2"/>
@@ -68,7 +68,7 @@
     </path>
   </tam>
 
-  <tam title="Left Pull By" group=" " formation="Facing Couples Close">
+  <tam title="Left Pull By" group=" " formation="Facing Couples Close" vid="V1-lbhcb2ec">
     <path>
       <move select="Pull Right" scaleX="1" scaleY=".5" beats="2"/>
       <move select="Extend Left" scaleX="1" scaleY=".5" beats="2"/>
@@ -83,7 +83,7 @@
   <!-- MIGRATED from the retired Basic levels when `b1`/`b2` were removed in favour of
        `ms` 2026. These are the (title, formation, from) combinations that existed ONLY under the
        Basic levels; every other Basic tam is already re-authored here. -->
-<tam title="Right Pull By" formation="Facing Couples" group=" ">
+<tam title="Right Pull By" formation="Facing Couples" group=" " vid="V1-7n8lu36u">
     <path>
       <move select="Pull Left" scaleX="2" scaleY=".5" beats="2"/>
       <move select="Extend Right" scaleX="2" scaleY=".5" beats="2"/>
@@ -94,7 +94,7 @@
     </path>
   </tam>
 
-<tam title="Left Pull By" formation="Facing Couples" group=" ">
+<tam title="Left Pull By" formation="Facing Couples" group=" " vid="V1-cejaaxjr">
     <path>
       <move select="Pull Right" scaleX="2" scaleY=".5" beats="2"/>
       <move select="Extend Left" scaleX="2" scaleY=".5" beats="2"/>

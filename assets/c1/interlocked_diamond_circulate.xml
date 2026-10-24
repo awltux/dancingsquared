@@ -24,7 +24,7 @@
 
   <tam title="Interlocked Diamond Circulate"
        from="Right-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-jnj4ur4s">
     <path numbers="6 3" couples="3 1">
       <move select="Lead Right" beats="3" scaleX="3" />
     </path>
@@ -42,7 +42,7 @@
 
   <tam title="Interlocked Diamond Circulate"
        from="Left-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds LH Girl Points">
+       formation="Interlocked Diamonds LH Girl Points" vid="V1-q0hyk5gk">
     <path>
       <move select="Lead Left" beats="3" scaleX="3" />
     </path>
@@ -59,7 +59,7 @@
   </tam>
 
   <tam title="Interlocked Diamond Circulate"
-       from="Facing Interlocked Diamonds 1" formation="Diamonds 3 and 1">
+       from="Facing Interlocked Diamonds 1" formation="Diamonds 3 and 1" vid="V1-5frwv46t">
     <path>
       <move select="Lead Right Passing" beats="3" scaleX="3"/>
     </path>
@@ -75,7 +75,7 @@
   </tam>
 
   <tam title="Interlocked Diamond Circulate"
-       from="Facing Interlocked Diamonds 2">
+       from="Facing Interlocked Diamonds 2" vid="V1-zvcouzoe">
     <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -98,7 +98,7 @@
 
   <tam title="Interlocked Diamond Circulate"
        from="Right-Hand Point-to-Point Interlocked Diamonds"
-       formation="Interlocked Diamonds RH PTP Girl Points">
+       formation="Interlocked Diamonds RH PTP Girl Points" vid="V1-a7u68w2d">
     <path numbers="2 7">
       <move select="Lead Right" beats="4" scaleX="4"/>
     </path>
@@ -115,7 +115,7 @@
 
   <tam title="Interlocked Diamond Circulate"
        from="Left-Hand Point-to-Point Interlocked Diamonds"
-       formation="Interlocked Diamonds LH PTP Girl Points">
+       formation="Interlocked Diamonds LH PTP Girl Points" vid="V1-3a90ardp">
     <path>
       <move select="Lead Left" beats="3" scaleX="2" />
     </path>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Interlocked Diamond Circulate"
-       from="Facing Interlocked Diamonds 3">
+       from="Facing Interlocked Diamonds 3" vid="V1-8km12g0i">
     <formation fid="F3-x0vy384g" aid="A1-9wda6y80">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
@@ -153,7 +153,7 @@
   </tam>
 
   <tam title="Interlocked Diamond Circulate"
-       from="Facing Interlocked Diamonds 4">
+       from="Facing Interlocked Diamonds 4" vid="V1-g9zt0g5l">
     <formation fid="F3-8ogv2tf4" aid="A1-9qhj5pzk">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
@@ -176,7 +176,7 @@
 
   <tam title="Cut the Interlocked Diamond"
        from="Right-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-dlojqesd">
     <path numbers="6 3" couples="3 1">
       <move select="Lead Right" beats="4" scaleX="3" />
     </path>
@@ -195,7 +195,7 @@
 
   <tam title="Cut the Interlocked Diamond"
        from="Left-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds LH Girl Points">
+       formation="Interlocked Diamonds LH Girl Points" vid="V1-udghmb15">
     <path>
       <move select="Lead Left" beats="4" scaleX="3" />
     </path>
@@ -213,7 +213,7 @@
   </tam>
 
   <tam title="Cut the Interlocked Diamond"
-       from="Left-Hand Points, Right-Hand Centers" formation="Diamonds 3 and 1">
+       from="Left-Hand Points, Right-Hand Centers" formation="Diamonds 3 and 1" vid="V1-k18yqqxw">
     <path>
       <move select="Forward 2" />
       <move select="Lead Right" />
@@ -232,7 +232,7 @@
   </tam>
 
   <tam title="Cut the Interlocked Diamond"
-       from="Points Facing In, Right-Hand Centers">
+       from="Points Facing In, Right-Hand Centers" vid="V1-fycnhhez">
     <formation fid="F3-9fwv30cs" aid="A1-4ek2lkpe">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -257,7 +257,7 @@
   </tam>
 
   <tam title="Cut the Interlocked Diamond"
-       from="Points Facing Out, Right-Hand Centers">
+       from="Points Facing Out, Right-Hand Centers" vid="V1-db8do634">
     <formation fid="F3-ewzhe0vg" aid="A1-fc3amq6a">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -282,7 +282,7 @@
   </tam>
 
   <tam title="Cut the Interlocked Diamond"
-       from="Right-Hand Points, Left-Hand Centers">
+       from="Right-Hand Points, Left-Hand Centers" vid="V1-wkejjm3f">
     <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -306,7 +306,7 @@
   </tam>
 
   <tam title="Cut the Interlocked Diamond"
-       from="Points Facing In, Left-Hand Centers">
+       from="Points Facing In, Left-Hand Centers" vid="V1-nf092xme">
     <formation fid="F3-x3ypejw6" aid="A1-694jilps">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -330,7 +330,7 @@
   </tam>
 
   <tam title="Cut the Interlocked Diamond"
-       from="Points Facing Out, Left-Hand Centers">
+       from="Points Facing Out, Left-Hand Centers" vid="V1-cv02yese">
     <formation fid="F3-lqyfsb12" aid="A1-dob97mog">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -355,7 +355,7 @@
 
   <tam title="Flip the Interlocked Diamond"
        from="Right-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds RH Girl Points">
+       formation="Interlocked Diamonds RH Girl Points" vid="V1-z2sfhh40">
     <path numbers="6 3">
       <move select="Lead Right" beats="2" scaleX="3" />
     </path>
@@ -372,7 +372,7 @@
 
   <tam title="Flip the Interlocked Diamond"
        from="Left-Hand Interlocked Diamonds"
-       formation="Interlocked Diamonds LH Girl Points">
+       formation="Interlocked Diamonds LH Girl Points" vid="V1-9mg06msg">
     <path>
       <move select="Lead Left" beats="2" scaleX="3" />
     </path>
@@ -388,7 +388,7 @@
   </tam>
 
   <tam title="Flip the Interlocked Diamond"
-       from="Left-Hand Points, Right-Hand Centers" formation="Diamonds 3 and 1">
+       from="Left-Hand Points, Right-Hand Centers" formation="Diamonds 3 and 1" vid="V1-scj8nwix">
     <path>
       <move select="Lead Right Passing" beats="3" scaleX="3"/>
     </path>
@@ -404,7 +404,7 @@
   </tam>
 
   <tam title="Flip the Interlocked Diamond"
-       from="Points Facing In, Right-Hand Centers">
+       from="Points Facing In, Right-Hand Centers" vid="V1-t1mfxbea">
     <formation fid="F3-9fwv30cs" aid="A1-4ek2lkpe">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -426,7 +426,7 @@
   </tam>
 
   <tam title="Flip the Interlocked Diamond"
-       from="Points Facing Out, Right-Hand Centers">
+       from="Points Facing Out, Right-Hand Centers" vid="V1-76fwwoa9">
     <formation fid="F3-ewzhe0vg" aid="A1-fc3amq6a">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
@@ -448,7 +448,7 @@
   </tam>
 
   <tam title="Flip the Interlocked Diamond"
-       from="Right-Hand Points, Left-Hand Centers">
+       from="Right-Hand Points, Left-Hand Centers" vid="V1-f837c3yy">
     <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -470,7 +470,7 @@
   </tam>
 
   <tam title="Flip the Interlocked Diamond"
-       from="Points Facing In, Left-Hand Centers">
+       from="Points Facing In, Left-Hand Centers" vid="V1-xl7r60jr">
     <formation fid="F3-x3ypejw6" aid="A1-694jilps">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
@@ -492,7 +492,7 @@
   </tam>
 
   <tam title="Flip the Interlocked Diamond"
-       from="Points Facing Out, Left-Hand Centers">
+       from="Points Facing Out, Left-Hand Centers" vid="V1-49wr79kf">
     <formation fid="F3-lqyfsb12" aid="A1-dob97mog">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>

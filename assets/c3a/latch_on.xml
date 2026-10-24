@@ -25,7 +25,7 @@
     <tam title="Latch On"
        from="Couples Facing Out"
        formation="Couples Facing Out"
-       parts="4" >
+       parts="4"  vid="V1-eiz7l8in">
     <path>
       <move select="Flip Right" beats="4" offsetX="-2" />
       <move select="Hinge Right"/>

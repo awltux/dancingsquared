@@ -71,14 +71,23 @@ export function buildCatalog(files: Record<string, string>): CatalogCall[] {
   return out;
 }
 
+/**
+ * THE CATALOGUE'S MATCH MARGIN — how much slack the teacher's sequencer adds ON TOP of the engine's
+ * `DEFAULT_MATCH_MAX`, so the effective tolerance is `DEFAULT_MATCH_MAX + CATALOG_MATCH_MARGIN` (1.5 + 1.5 = 3.0).
+ *
+ * WHY IT IS SMALL. A call is legal only when its start setup genuinely matches the board: ends are snap-clamped to
+ * formation slots, so an exact match scores ~0 and a wrong-formation force-fit is rejected. It must likewise stay
+ * under about 2.0, or e.g. a T-Bone start force-fits onto a Double Pass Thru board.
+ *
+ * IT IS A DIFFERENT FACT FROM THE ENGINE'S TOLERANCE, which is why it has its own name: both are `1.5`, and two
+ * harnesses that reproduce this catalogue (`engine/test/reading-census.mjs`, `engine/test/tools/cell-census.mjs`)
+ * used to write that `1.5` themselves — a margin and a tolerance spelled identically, one of them a copy.
+ */
+export const CATALOG_MATCH_MARGIN = 1.5;
+
 /** A Sequencer loaded with the given catalog calls (keyed by title). */
-export function makeSequencer(movesXml: string, formationsXml: string, calls: { title: string; xml: string }[], margin = 1.5): Sequencer {
+export function makeSequencer(movesXml: string, formationsXml: string, calls: { title: string; xml: string }[], margin = CATALOG_MATCH_MARGIN): Sequencer {
   const seq = new Sequencer(movesXml, formationsXml, calls.map((c) => ({ name: c.title, xml: c.xml })));
-  // Small match tolerance on top of the engine's DEFAULT_MATCH_MAX so a call is
-  // only legal when its start setup genuinely matches the board. Ends are
-  // snap-clamped to formation slots, so exact matches score ~0 and a wrong
-  // formation force-fit is rejected; keep the margin small (must stay under
-  // ~2.0, else e.g. a T-Bone start force-fits onto a Double Pass Thru board).
   seq.setMatchMargin(margin);
   return seq;
 }

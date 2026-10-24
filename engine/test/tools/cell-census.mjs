@@ -34,6 +34,10 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { Sequencer, setParser, buildCellLattice, geometryKey, CELL_ROUND, boardForFasrCode, matchFormations } from '../../dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+// THE CATALOGUE'S MATCH MARGIN, IMPORTED FROM THE GENERATOR THAT OWNS IT. This census builds the same catalogue
+// `poc-teacher/src/catalog.ts` builds, and it used to spell the margin `1.5` itself — the same number as the engine's
+// `DEFAULT_MATCH_MAX` and a different fact, which is how a margin and a tolerance come to be confused.
+import { CATALOG_MATCH_MARGIN } from '../../../poc-teacher/src/catalog.ts';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +69,7 @@ for (const f of MS_FILES) {
   for (const [title, blocks] of byTitle) entries.push({ name: title, xml: `<calls>\n${blocks.join('\n')}\n</calls>` });
 }
 const seq = new Sequencer(read('moves.xml'), read('formations.xml'), entries);
-seq.setMatchMargin(1.5);
+seq.setMatchMargin(CATALOG_MATCH_MARGIN);
 const TITLES = [...seq.library.callNames()];
 
 // ---------------------------------------------------------------- 1. the declared lattice

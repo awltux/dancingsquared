@@ -57,10 +57,12 @@
 // stale in the first place).
 //
 // THE CATALOGUE IS BUILT THE WAY THE GENERATOR BUILDS IT (`poc-teacher/src/catalog.ts`): one entry
-// per call TITLE per file, from `ms/*.xml`, with `display="no"` tams skipped and the engine's own
-// default match margin of 1.5. Reproducing that here rather than importing it is deliberate: the
-// generator is TypeScript in another package, and the numbers below are only comparable to the asset
-// if the call set is the same. `test/catalogue.mjs` pins the same census for `actives`.
+// per call TITLE per file, from `ms/*.xml`, with `display="no"` tams skipped. The BUILD is reproduced here — the
+// generator's `buildCatalog` also does things this census has no use for — but the two NUMBERS are imported from
+// their owners: `CATALOG_MATCH_MARGIN` from the generator, `DEFAULT_MATCH_MAX` from the engine. They used to be
+// written here as `1.5` and `1.5 + 1.5`, i.e. a margin and a tolerance spelled identically, and the numbers below
+// are only comparable to the stored asset if both are the ones the generator actually uses.
+// `test/catalogue.mjs` pins the same census for `actives`.
 // ============================================================================================
 
 import { readFileSync } from 'node:fs';
@@ -68,8 +70,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, matchFormations, partitionsFor, CODED_MOVE_NAMES } from '../dist/index.js';
+import { Sequencer, setParser, matchFormations, partitionsFor, CODED_MOVE_NAMES, DEFAULT_MATCH_MAX } from '../dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+// THE MARGIN, FROM THE GENERATOR THAT OWNS IT — a number, imported rather than a `Sequencer` built from the
+// teacher's package, so this census keeps constructing its own engine instance (a second one inside this harness
+// would be a behavioural change, not a refactor).
+import { CATALOG_MATCH_MARGIN } from '../../poc-teacher/src/catalog.ts';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -103,7 +109,7 @@ for (const f of MS_FILES) {
   for (const [title, blocks] of byTitle) entries.push({ name: title, xml: `<calls>\n${blocks.join('\n')}\n</calls>` });
 }
 const seq = new Sequencer(read('moves.xml'), read('formations.xml'), entries);
-seq.setMatchMargin(1.5);
+seq.setMatchMargin(CATALOG_MATCH_MARGIN);
 const titles = [...seq.library.callNames()];
 
 console.log('== the call set, reproduced from the generator ==');
@@ -407,8 +413,9 @@ console.log('\n== the multi-arity pool: what a MIXED reading could actually reac
       dancers: setup.map((d, i) => ({ id: i + 1, couple: d.couple ?? 0, gender: d.gender ?? 'phantom', x: d.x, y: d.y, heading: d.heading })),
     });
   }
-  // `parallelApply`'s own tolerance: DEFAULT_MATCH_MAX + the generator's margin.
-  const tol = 1.5 + 1.5;
+  // `parallelApply`'s own tolerance: DEFAULT_MATCH_MAX + the generator's margin, both named rather than written as
+  // `1.5 + 1.5` — where one of those 1.5s was the margin and the other was the tolerance.
+  const tol = DEFAULT_MATCH_MAX + CATALOG_MATCH_MARGIN;
   let matchingBoards = 0;
   let newApplications = 0;
   for (const title of mixedTitles) {

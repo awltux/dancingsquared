@@ -317,7 +317,11 @@ regenerated only when a session ends gets read as current state by the session a
     stray CR, tracked files only) **and the shape**: `` `n `` inserts a LEGAL CRLF, so **the signature is a comment
     line that does not start with its file's prefix** — searchable with
     `git grep -n '^[a-z][a-z0-9]*_[a-z]' -- '*.ts' '*.mjs'`, which found the one site and nothing else. Read the shape
-    of the line, not only its bytes.
+    of the line, not only its bytes. **IT HAPPENED AGAIN through a here-and-there `.Replace`: a comment that named
+    `` `board-key.ts` `` became a literal **0x08** (` `` `b `` ` is BACKSPACE), the file still parsed, every probe was
+    green, and `check-links` was the only instrument that saw it.** Worse, the repair attempt then did
+    `WriteAllText(path, $null)` and EMPTIED the file - trap 22 - which is why the guarded rewrite asserts the line
+    count before it writes. Write comments with the EDITOR TOOLS.
 25. **A request header a mode does not ADVERTISE is not merely refused — the request is never sent**, and the failure
     looks like a dead server. MEASURED: the game sent `x-dev-player` in every mode, so against `DSQ_AUTH=emulate` the
     demo drill came back as `TypeError — the server could not be reached`, with a lone `204 OPTIONS` and nothing

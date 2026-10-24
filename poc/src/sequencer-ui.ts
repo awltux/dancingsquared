@@ -18,6 +18,9 @@ import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-square
 import { displayCouple } from 'dancing-squared-stage';
 import { isZeroSetup } from './zero-formations';
 import { compareCallTitles } from './call-order';
+// THE NEXT-CALL LIST'S BOARD KEY, its own pure module: it decides whether a settle re-enumerates the catalogue
+// (686-692 ms) or not, and the panel cannot be loaded by a probe (see `board-key.ts`).
+import { boardKey } from './board-key';
 import { el, esc } from './dom';
 import { filterNames } from './call-filter';
 import { rowSources, stepSource } from './step-source';
@@ -2936,22 +2939,10 @@ export class SequencerController implements SequencerUI {
  * and therefore the only correct reading of it. The local copy this replaced knew only
  * `string | CallStep`, so it would have printed `[object Object]` for a grouped "while" step. */
 
-/**
- * Which board this is, for deciding whether the next-call list needs rebuilding.
- *
- * Position AND facing, because two boards that differ only in facings offer different calls, and a
- * position-only signature is exactly the trap the engine records for `boardSig`. Rounded, because the
- * evaluated frames are interpolations and only a materially different board should cost a rebuild.
- */
-const PARALLEL_PREFIX = '↔ ';
-const isParallelPick = (v: string): boolean => v.startsWith(PARALLEL_PREFIX);
-
-function boardKey(board: Board): string {
-  return board.dancers
-    .map((d) => `${d.id}:${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(4)}`)
-    .sort()
-    .join('|');
-}
+// THE NEXT-CALL LIST'S BOARD KEY IS `board-key.ts`, and this is where its doc comment used to sit: on TWO DEAD
+// DECLARATIONS (`PARALLEL_PREFIX`, `isParallelPick`), which nothing in the tree referenced - so the comment explained a
+// function it was not attached to, and the function itself could only be asked about by reading this file. Both
+// declarations are gone, the comment is on the function, and `poc/tools/board-key-probe.mjs` measures it.
 
 /** Backwards-compatible factory (used by main.ts). */
 export function initSequencer(stage: Stage): SequencerUI {

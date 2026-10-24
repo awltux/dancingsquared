@@ -34,6 +34,10 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, readAsset, loadEngine } from './lib/load.mjs';
+// THE MARKER'S SIZE IS `board-style.mjs`'s, not this file's: it is the body the contact rules measure, the same one
+// the animations are drawn with, and this tool carried a second declaration of it (R8's census,
+// `engine/test/tolerances.mjs`). One owner, imported.
+import { MARKER_UNITS } from './lib/board-style.mjs';
 import { couples, completeSet } from './lib/squared-set.mjs';
 
 const OUT_DIR = join(toolsDir, '..', 'diagrams');
@@ -59,7 +63,6 @@ const SCALE = 36; // pixels per board unit
 const OX = W / 2;
 const OY = 180;
 /** The same marker width the animations and the player use: one grid square of the floor. */
-const MARKER_UNITS = 0.48;
 
 const px = (x) => OX + x * SCALE;
 const py = (y) => OY - y * SCALE;

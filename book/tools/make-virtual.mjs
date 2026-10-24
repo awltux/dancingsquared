@@ -88,9 +88,11 @@ const OUT_INDEX = join(toolsDir, 'virtual-index.json');
 /** The levels an authoring may come from; the same two the book draws on. */
 const LEVELS = ['ms', 'plus'];
 
-/** The tolerance the XML's own rounding admits - four decimals on every coordinate (`callToXml`), and the
- *  engine's `startsFromFormation` uses the same 1e-3 for the same reason. */
-const ROUND_TRIP_TOL = 1e-3;
+/** The tolerance the XML's own rounding admits - four decimals on every coordinate (`callToXml`). IT IS THE ENGINE'S
+ *  NUMBER NOW, not a copy of it: this file used to write `1e-3` and note in a comment that `startsFromFormation` used
+ *  "the same 1e-3 for the same reason", which is a copy kept in step by prose. `XML_ROUND_TRIP_TOL` is that rule's one
+ *  name (`engine/src/tolerances.ts`), and `lib/load.mjs` asserts the export exists. */
+const ROUND_TRIP_TOL = loadEngine().XML_ROUND_TRIP_TOL;
 
 /** Boards `--discover` tries. A REPORT's input, bounded on purpose: this list is not a search the build runs. */
 const DISCOVER_BOARDS = [

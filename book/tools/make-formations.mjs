@@ -20,7 +20,10 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { toolsDir, readAsset, loadEngine } from './lib/load.mjs';
 import { Canvas, writePng } from './lib/raster.mjs';
-import { PALETTE, C } from './lib/board-style.mjs';
+// THE MARKER'S SIZE IS `board-style.mjs`'s, not this file's: this tool declared its own `R_UNITS = 0.48` - the same
+// number under a second name - while the module that owns the style exported `MARKER_UNITS`. One owner, imported
+// (R8's census, `engine/test/tolerances.mjs`).
+import { PALETTE, C, MARKER_UNITS } from './lib/board-style.mjs';
 import { completeSet, couples } from './lib/squared-set.mjs';
 
 // Re-exported because `make-positions.mjs` used to import it from here; the two tools now share the
@@ -39,7 +42,6 @@ const SIZE = 200;
  * fit a 13px radius was 1.3 squares across. A hair under a full square keeps two dancers at that
  * spacing reading as two dancers.
  */
-const R_UNITS = 0.48;
 const CENTRE = SIZE / 2;
 // THE ENGINE OWNS THE UNIT, so it is BOUND here rather than declared: `core.ts` defines `DEG` and `index.ts`
 // re-exports it, and this tool already loads the engine for every other engine answer it draws. MEASURED before the
@@ -396,7 +398,7 @@ function draw(canvas, dancers, view, bounds = null) {
 
   drawFloor(canvas, view, bounds);
   
-  const r = R_UNITS * view.scale;
+  const r = MARKER_UNITS * view.scale;
   const ink = Math.max(1, Math.min(1.2, r / 11));
   const inset = Math.max(1, r * 0.05);
 
@@ -477,7 +479,7 @@ function drawAnnotated(canvas, people, view, { fillOf, ring = [], caller = null 
 
   drawFloor(canvas, view);
 
-  const r = R_UNITS * view.scale;
+  const r = MARKER_UNITS * view.scale;
   const ink = Math.max(1, Math.min(1.2, r / 11));
   const inset = Math.max(1, r * 0.05);
 
@@ -738,7 +740,7 @@ function buildSequences(eng, files, index) {
     // The couple number each dancer is (their HOME couple), inside the marker: reading them round the
     // ring is the whole point of the figure, so they are drawn after the markers, in white, at the
     // same size the animation player uses.
-    const r = R_UNITS * view.scale;
+    const r = MARKER_UNITS * view.scale;
     const s = Math.max(1, Math.min(8, Math.round(r * 0.21)));
     for (const d of dancers) {
       const cx = panelView.ox + d.x * view.scale;

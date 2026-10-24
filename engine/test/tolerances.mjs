@@ -169,7 +169,9 @@ console.log('\n== 3. The numbers that decide a rule under a bare literal ==');
   check(div12.length === 0,
     `the per-dancer divisor is a bare 12 in 0 place(s) — it is SIGNATURE_DIVISOR (${div12.length} found)`);
 
-  // (b) `0.48`: the marker size has one owner, `board-style.mjs`, and every figure tool imports it.
+  // (b) `0.48`: the marker size has one owner, `board-style.mjs`, and every figure tool imports it. It was THREE
+  // declarations - the owner plus `make-diagrams.mjs` and `make-formations.mjs` - which is the exact defect
+  // `board-style.mjs`'s own header says it exists to prevent.
   const markers = [];
   for (const file of walk(path.join(root, 'book/tools'), ['.mjs'])) {
     const n = codeLines(fs.readFileSync(file, 'utf8')).filter((l) => l.includes('0.48')).length;
@@ -177,11 +179,8 @@ console.log('\n== 3. The numbers that decide a rule under a bare literal ==');
   }
   markers.sort();
   console.log(`     "0.48" sites: ${markers.join(', ') || 'none'}`);
-  check(JSON.stringify(markers) === JSON.stringify([
-    'book/tools/lib/board-style.mjs 1',
-    'book/tools/make-diagrams.mjs 1',
-    'book/tools/make-formations.mjs 1',
-  ]), `the marker size is declared in exactly 3 file(s) today: its owner and the two copies the book commit removes (${markers.length} found)`);
+  check(JSON.stringify(markers) === JSON.stringify(['book/tools/lib/board-style.mjs 1']),
+    `the marker size is declared in exactly 1 file, its owner (${markers.length} found: ${markers.join(', ') || 'none'})`);
 
   // (c) `swing-thru.ts`'s `3.0`: the reference's `minDistance`, now owned by `MIN_DISTANCE`. The DECLARATION is the
   // named side and is pinned separately from the uses.

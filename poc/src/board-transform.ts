@@ -42,6 +42,11 @@
 // anchors the position handle to, and the centre `snapRadial` and `radialArcFit` measure from. Passing it
 // explicitly is what lets the probe measure the rule against the same origin the board draws.
 
+// THE ENGINE'S "SHOULD BE EXACT" TOLERANCE, imported rather than spelled: `NO_RADIUS` below was a bare 1e-9 with its
+// own four lines of reasoning, and the engine names the same rule (`tolerances.ts`). A drag's degenerate pivot is the
+// same question the engine asks of a zero radius.
+import { EXACT_TOL } from 'dancing-squared-engine';
+
 /** A point in BOARD coordinates - the floor's own frame, which is the one the grid is drawn in. */
 export interface Point {
   x: number;
@@ -70,7 +75,7 @@ export const BOARD_CENTRE: Point = { x: 0, y: 0 };
  * anything a caller can place by hand - it exists to keep `r1 / r0` from being 0/0 on a dancer chosen as
  * the pivot.
  */
-const NO_RADIUS = 1e-9;
+const NO_RADIUS = EXACT_TOL;
 
 /**
  * The transform a drag from `p0` to `p1` means.

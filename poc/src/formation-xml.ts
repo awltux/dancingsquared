@@ -44,7 +44,7 @@
 // `formationToXml`, because the reader and the writer have to agree and that pair is already gated by the
 // engine's own round-trip harness (`engine/test/editor.mjs`); this module adds the NAME, the HALF and the VERDICT.
 
-import { formationToXml } from 'dancing-squared-engine';
+import { formationToXml, XML_ROUND_TRIP_TOL } from 'dancing-squared-engine';
 import type { FormDancer } from 'dancing-squared-engine';
 // THE HALF-SET RULE, imported rather than restated: the reader completes a formation with it, so the writer has
 // to find the half it would complete back to this board. THE EXTENSION IS EXPLICIT so bare node can load this
@@ -79,14 +79,17 @@ export interface FormationExport {
 }
 
 /**
- * THE TOLERANCE IS THE XML'S OWN, the same `1e-3` `startsFromFormation` uses: the exporter rounds to four
- * decimals, so a formation that has been through the corpus once comes back within about `1e-4`, and a board that
- * has just been dragged comes back at whatever the pointer gave it. An exact comparison would report `changed` for
- * a formation nobody touched. The engine's own normaliser for that comparison is private, so the shortest-angle
- * step below is this module's; the probe cross-checks the verdict against `startsFromFormation` on real calls, so
- * the two cannot drift apart without a check going red.
+ * THE TOLERANCE IS THE XML'S OWN, and it is the ENGINE'S NUMBER rather than a copy of it: the exporter rounds to four
+ * decimals, so a formation that has been through the corpus once comes back within about `1e-4`, and a board that has
+ * just been dragged comes back at whatever the pointer gave it. An exact comparison would report `changed` for a
+ * formation nobody touched.
+ *
+ * IT USED TO SAY "the same `1e-3` `startsFromFormation` uses" - a copy kept in step by a sentence, which nothing
+ * enforces. `XML_ROUND_TRIP_TOL` is that rule's one name (`engine/src/tolerances.ts`). The engine's own normaliser for
+ * that comparison is private, so the shortest-angle step below stays this module's, and the probe still cross-checks
+ * the verdict against `startsFromFormation` on real calls, so the two cannot drift apart without a check going red.
  */
-const TOL = 1e-3;
+const TOL = XML_ROUND_TRIP_TOL;
 
 const norm = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 

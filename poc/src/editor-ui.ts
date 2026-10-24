@@ -87,6 +87,10 @@ import {
   // THE EXPORT PRECISION: four decimals, one copy, in the engine (`export-format.ts`). `convert.ts`, `editor.ts` and
   // this panel each carried the same lambda before it was exported, which is why `export-format` is imported here.
   exportNumber,
+  // THE ENGINE'S "SHOULD BE EXACT" TOLERANCE. The panel's degenerate-radius checks, its "the connect wrote nothing"
+  // comparisons and its pose-error checks were a bare 1e-9; `tolerances.ts` names that rule, and the arc/tie thresholds
+  // that are NOT this rule keep their own names.
+  EXACT_TOL,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -1723,7 +1727,7 @@ export class EditorController implements EditorUI {
     // ring it started from.
     if (centre) {
       const r = Math.hypot(p0.x - centre.x, p0.y - centre.y);
-      if (!(r > 1e-9)) return null;
+      if (!(r > EXACT_TOL)) return null;
       return { cx: centre.x, cy: centre.y, r, sweep: turn };
     }
     if (own) {
@@ -1731,7 +1735,7 @@ export class EditorController implements EditorUI {
       // `setRunCircle`'s own snap-to-the-start is a no-op rather than a fight. The turn is kept as it is -
       // including a 361deg one, which rounding to whole revolutions would quietly make 360.
       const dist = Math.hypot(p0.x - own.cx, p0.y - own.cy);
-      if (!(dist > 1e-9)) return null;
+      if (!(dist > EXACT_TOL)) return null;
       const k = radius! / dist;
       return {
         cx: p0.x + (own.cx - p0.x) * k,
@@ -3104,7 +3108,7 @@ export class EditorController implements EditorUI {
     this.endAutoBtn.hidden = this.endOverride === null;
     const gap = this.endTargetGap(pairing);
     const deg = toDeg(gap.heading);
-    const connected = gap.pos < 1e-9 && Math.abs(deg) < 1e-9;
+    const connected = gap.pos < EXACT_TOL && Math.abs(deg) < EXACT_TOL;
     this.endInfoEl.innerHTML = connected
       ? `<b>${esc(target.name)}</b>: every dancer ends on its spot${this.endOverride ? ' (pairing changed by hand)' : ''}`
       : `ends ${gap.pos.toFixed(2)} units / ${Math.abs(deg).toFixed(0)}° from <b>${esc(target.name)}</b> — ` +
@@ -5382,14 +5386,14 @@ export class EditorController implements EditorUI {
     }
     const err = endPoseError(inst, ref);
     const deg = (err.heading * 180) / Math.PI;
-    if (err.pos < 1e-9 && err.heading < 1e-9) {
+    if (err.pos < EXACT_TOL && err.heading < EXACT_TOL) {
       this.cloneInfoEl.textContent = `end formation unchanged from "${ref.from || 'the source'}"${this.asClone ? ' · saving as a NEW setup' : ''}`;
       return;
     }
     const pairing = this.endPairing();
     const onTarget = pairing !== null && (() => {
       const gap = this.endTargetGap(pairing);
-      return gap.pos < 1e-9 && Math.abs(gap.heading) < 1e-9;
+      return gap.pos < EXACT_TOL && Math.abs(gap.heading) < EXACT_TOL;
     })();
     if (onTarget) {
       this.cloneInfoEl.innerHTML =

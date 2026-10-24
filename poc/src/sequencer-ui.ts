@@ -5,7 +5,7 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf, isGroupStep, groupCalls } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf, isGroupStep, groupCalls, EXACT_TOL } from 'dancing-squared-engine';
 import type { Board, CallStep, FormDancer, GroupStep, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
 import { stepLabel, CODED_MOVES } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
@@ -1678,7 +1678,7 @@ export class SequencerController implements SequencerUI {
     const starts = this.stepStarts;
     if (starts.length !== this.history.length) return this.history.length - 1;
     let row = 0;
-    for (let i = 0; i < starts.length; i++) if (this.playhead >= starts[i] - 1e-9) row = i;
+    for (let i = 0; i < starts.length; i++) if (this.playhead >= starts[i] - EXACT_TOL) row = i;
     return row;
   }
 

@@ -75,10 +75,9 @@ console.log('== 1. The tolerance literals still spelled inline ==');
   // neither duplicated nor documented as a named rule (a half-turn check, a matrix-identity test, a turn-direction
   // test, the POC view's force floor) - plus the POC's copies, which the app-side commit removes.
   const EXPECTED = {
-    '1e-9': [
-      'poc/src/editor-ui.ts 5',
-      'poc/src/sequencer-ui.ts 1',
-    ],
+    // EMPTY, and that is the strongest form of the pin: after the app-side commit there is no bare 1e-9 left, because
+    // the panel's zero comparisons are the engine's `EXACT_TOL`. One reappearing is red.
+    '1e-9': [],
     '1e-6': [
       'engine/src/formation-order.ts 1',
       'engine/src/moves.ts 2',

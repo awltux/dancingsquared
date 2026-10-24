@@ -37,15 +37,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../dist/index.js';
+import { Sequencer, setParser, DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from '../dist/index.js';
 import { corpusRoot } from 'dancing-squared-corpus';
 
 const TITLE = 'Single Circle Left Full';
 const FROM = 'Normal Lines';
-// NOT imported: these two come from `constants.ts` / `config.ts`, and a probe hard-codes them on
-// purpose so that moving one fails here loudly instead of being followed silently.
-const DEFAULT_MATCH_MAX = 1.5;
-const SEARCH_MATCH_MAX = 6.0;
+// THE TWO TOLERANCES ARE THE ENGINE'S, IMPORTED. They used to be copied here on purpose ("so that moving one fails
+// here loudly instead of being followed silently"), and the copy was not what did that: the per-tolerance tiling
+// counts pinned below are. Importing them is what keeps this witness measuring at the tolerance the engine actually
+// applies — a copy can only go stale.
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));

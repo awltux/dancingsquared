@@ -53,7 +53,7 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, chooseVirtual } from '../dist/index.js';
+import { Sequencer, setParser, chooseVirtual, SEARCH_MATCH_MAX } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -64,13 +64,17 @@ const read = (p) => fs.readFileSync(p, 'utf8');
 setParser(DOMParser);
 const seq = new Sequencer(read(path.join(assets, 'moves.xml')), read(path.join(assets, 'formations.xml')), callsByTitle(assets));
 
-// THE TOLERANCES, AND WHY ONLY ONE OF THEM IS A LITERAL. `applyToBoard` calls the applicator with `rebase = true`
+// THE TOLERANCES, AND WHY NEITHER IS A LITERAL HERE. `applyToBoard` calls the applicator with `rebase = true`
 // (`sequencer.ts`: `applyStepInner(..., true)`), which selects `DEFAULT_MATCH_MAX + margin` — the SAME tolerance
 // `virtualCall` defaults to. So the shipped comparison below is at EQUAL tolerance and needs no literal at all.
-// `SEARCH_MATCH_MAX` is used only by the calibration check, and the engine does NOT re-export it (`index.ts` omits
-// it), so it is written here and proved LIVE by a measurement rather than trusted (the pattern
-// `test/tools/parallel-group-probe.mjs` set).
-const SEARCH_MATCH_MAX = 6.0;
+// `SEARCH_MATCH_MAX` is used only by the calibration check, and it is IMPORTED: the engine exports both tolerances
+// now, and a copy here could only ever be a second spelling of the engine's number
+// (`src/sequencer/constants.ts`).
+//
+// WHAT REPLACED THE OLD COPY-AS-GUARD. The calibration's job was to prove the literal was live; with the engine's
+// own number it proves the sharper thing this harness actually relies on — that the two tolerances are NOT
+// interchangeable on this sample — and the pinned `calibPairs` / `tolChanged` counts below are what go red if
+// `SEARCH_MATCH_MAX` ever moves in a way that changes an answer. The pin is the guard; the copy never was.
 
 const allTitles = [...new Set(callsByTitle(assets).map((c) => c.name))].sort();
 

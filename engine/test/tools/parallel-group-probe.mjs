@@ -25,14 +25,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { Sequencer, setParser, DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
-// The two tolerances the grouping predicates use. The engine does not re-export them, and hard-coding
-// them here is deliberate: a probe must fail loudly if they move, not silently follow.
-const DEFAULT_MATCH_MAX = 1.5;
-const SEARCH_MATCH_MAX = 6.0;
+// The two tolerances the grouping predicates use, IMPORTED from the engine. They used to be copied here so that a
+// probe would "fail loudly if they move" — which this diagnostic cannot do, having no pin: a moved constant would
+// have changed its printed numbers and nothing else. The engine exports both now, and importing them is what makes
+// this measurement describe the engine that ships.
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));

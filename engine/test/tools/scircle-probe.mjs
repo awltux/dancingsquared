@@ -26,15 +26,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, boardAtBeat } from '../../dist/index.js';
+import { Sequencer, setParser, boardAtBeat, DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from '../../dist/index.js';
 import { corpusRoot } from 'dancing-squared-corpus';
 
 const TITLE = 'Single Circle Left Full';
 const FROM = 'Normal Lines';
-// The two tolerances the engine really uses, hard-coded on purpose: a probe must fail loudly if
-// they move, not silently follow. `constants.ts` / `config.ts` carry the same values.
-const DEFAULT_MATCH_MAX = 1.5; // interactive apply: parallelApply(rebase=true)
-const SEARCH_MATCH_MAX = 6.0;  // animator grouping + every sub-apply (rebase=false)
+// The two tolerances the engine really uses, IMPORTED from it. They used to be copied here "on purpose, so that a
+// probe fails loudly if they move"; this is a `TIER: none` diagnostic with no pin, so it could not fail loudly — it
+// could only measure at a tolerance the engine may have stopped using.
+//   DEFAULT_MATCH_MAX is the interactive apply: parallelApply(rebase=true)
+//   SEARCH_MATCH_MAX is the animator grouping and every sub-apply (rebase=false)
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));

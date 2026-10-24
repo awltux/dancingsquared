@@ -16,7 +16,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { Sequencer, setParser, DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -30,9 +30,9 @@ const seq = new Sequencer(
   callsByTitle(assets),
 );
 
-// The two tolerances `matchingVariantInfo` and `parallelApply` use.
-const DEFAULT_MATCH_MAX = 1.5;
-const SEARCH_MATCH_MAX = 6.0;
+// The two tolerances `matchingVariantInfo` and `parallelApply` use, IMPORTED from the engine rather than copied:
+// this is a `TIER: none` diagnostic with no pin of its own, so a copy here could not "fail loudly" — it would only
+// have measured with a stale ruler, quietly.
 const app = seq.applicator;
 const lib = seq.library;
 const matcher = seq.matcher;

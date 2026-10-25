@@ -1,4 +1,4 @@
-// THE THREE IDENTITIES OVER THE WHOLE CORPUS: SHAPE, ARRANGEMENT, VARIANT - MEASURED, NOT ASSERTED.
+// THE FOUR IDENTITIES OVER THE WHOLE CORPUS: SHAPE, ARRANGEMENT, SETUP, VARIANT - MEASURED, NOT ASSERTED.
 //
 // The id modules cite numbers that only a walk of the corpus can check. Prose that cites a measurement is a
 // promise; this harness is the measurement, and it is also the one place that would notice a COLLISION - two
@@ -14,6 +14,12 @@
 //   18 of 1,731 groups split        a gender relabelling genuinely separates two authorings of one call
 //   115 calls end same-shape-diff   the reason a formation-only state model cannot decide whether the NEXT
 //                                   gender-specific call fits (1,488 change arrangement; 1,373 change shape)
+//   the setup population            the arrangements the eight-physical boards split into once the ORDER is added:
+//                                   how many distinct setups, and how many arrangements carry more than one - the
+//                                   figure that shows the setup axis is not redundant with the arrangement one, in
+//                                   the same way 242 arrangements are not redundant with 198 shapes. Two boards
+//                                   share a setup id when they are one board up to rotation and translation, so
+//                                   the count is a property of the corpus rather than of the file layout.
 //   the variant population          every (level, title, formation fid) the corpus authors, and how many of
 //                                   them are authored more than once - the duplicate check is a collision gate,
 //                                   not a uniqueness rule: two authorings of one variant are normal and share
@@ -24,17 +30,22 @@
 // geometry correction moves - the re-keying a stored tag exists to prevent - so it is a failure here, naming the
 // definitions, before a variant is ever minted from one.
 //
+// The setup section also covers the seven GENERATED instances (`<level>/<family>.virtual.xml`): a placed instance
+// starts from the whole-set placement board, so its setup is an ordinary one and belongs in the same population.
+//
 // Run: node test/identity-census.mjs   (from engine/; the engine must be built)
 import fs from 'node:fs';
 import path from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
 import {
-  loadCallFromXml, parseCallXml, setParser, formationId, arrangementId, allPoses,
+  loadCallFromXml, parseCallXml, setParser, formationId, arrangementId, setupId, setupCanonical,
+  isSetupId, isPhysicalDancer, SETUP_DANCERS, allPoses,
   callVariantId, callVariantCanonical, parseFormationTags, isCallVariantId,
 } from '../dist/index.js';
-import { corpusRoot, filesOf, tamsOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, tamsOf, virtualFilesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -70,6 +81,50 @@ let endArrangementDiffers = 0;
 let endShapeDiffers = 0;
 /** Authorings whose STORED `vid` is not the id this harness mints independently, by name. */
 const vidMismatches = [];
+// THE SETUP POPULATION: the eight-physical starts only, and the one place the setup key space exists as a whole.
+const setups = new Set();
+const setupToArrangement = new Map();   // setup id -> arrangement id (it must be single-valued: a setup refines one arrangement)
+const arrangementToSetups = new Map();  // arrangement id -> Set of setup ids (how much the order splits each one)
+const setupIdToCanonical = new Map();   // id -> canonical (both the collision gate and determinism)
+/** Boards that are eight PHYSICAL dancers - the authored starts and the generated instances, counted together. */
+let eightPhysicalBoards = 0;
+let startsWithPhantom = 0;
+let skippedForSize = 0;
+/** A sample kept for the cost note: `setupId` canonicalises twice, so its price is measured, not assumed. */
+const timingSample = [];
+const virtualFailures = [];
+
+/**
+ * FOLD ONE START BOARD INTO THE SETUP POPULATION. The rule is the module's own predicate: the eight PHYSICAL
+ * dancers are the setup, a phantom is scaffolding, and a board that is not eight physical dancers has no setup to
+ * count (it is a subset unit, and the skip is counted so the denominator is visible).
+ */
+const countSetup = (start) => {
+  const physicalStart = { dancers: start.dancers.filter(isPhysicalDancer) };
+  if (physicalStart.dancers.length !== SETUP_DANCERS) {
+    skippedForSize++;
+    return;
+  }
+  eightPhysicalBoards++;
+  if (start.dancers.length !== SETUP_DANCERS) startsWithPhantom++;
+  const physicalArrangement = arrangementId(physicalStart);
+  const canonical = setupCanonical(start);
+  const setup = setupId(start);
+  setups.add(setup);
+  if (!arrangementToSetups.has(physicalArrangement)) arrangementToSetups.set(physicalArrangement, new Set());
+  arrangementToSetups.get(physicalArrangement).add(setup);
+  if (setupToArrangement.has(setup) && setupToArrangement.get(setup) !== physicalArrangement) {
+    setupToArrangement.set(setup, `CONFLICT: ${setupToArrangement.get(setup)} | ${physicalArrangement}`);
+  } else {
+    setupToArrangement.set(setup, physicalArrangement);
+  }
+  if (setupIdToCanonical.has(setup) && setupIdToCanonical.get(setup) !== canonical) {
+    setupIdToCanonical.set(setup, `COLLISION: ${setupIdToCanonical.get(setup)} | ${canonical}`);
+  } else {
+    setupIdToCanonical.set(setup, canonical);
+  }
+  if (timingSample.length < 200) timingSample.push(start);
+};
 
 for (const level of LEVELS) {
   for (const file of filesOf(level)) {
@@ -89,6 +144,8 @@ for (const level of LEVELS) {
         shapes.add(shape);
         arrangements.add(arrangement);
         if (fidOf(bundle) === null) shapesWithoutTag.add(shape);
+        // THE SETUP: an id only for the EIGHT PHYSICAL dancers - see `countSetup`.
+        countSetup(start);
         const key = `${bundle.title}|${shape}`;
         if (!byTitleShape.has(key)) byTitleShape.set(key, new Set());
         byTitleShape.get(key).add(arrangement);
@@ -118,6 +175,24 @@ for (const level of LEVELS) {
       } catch (err) {
         failedTitles.push(`${site.title || file}: ${err.message}`);
       }
+    }
+  }
+}
+
+// THE GENERATED INSTANCES, in the same population. A placed instance starts from the whole-set PLACEMENT board
+// (`corpus-inventory.mjs` records that this is deliberately not the source authoring's board), so its setup is an
+// ordinary eight-dancer one and leaving it out would report a population the book already plays from. One `<tam>`
+// per file is that harness's rule, so index 0 is the instance.
+let generated = 0;
+for (const level of LEVELS) {
+  for (const file of virtualFilesOf(level)) {
+    generated++;
+    try {
+      const xml = read(`${level}/${file}`);
+      const bundle = loadCallFromXml(xml, movesXml, formationsXml, 0, true);
+      countSetup({ dancers: allPoses(bundle, 0).map((p, i) => ({ ...p, gender: bundle.dancers[i].gender })) });
+    } catch (err) {
+      virtualFailures.push(`${level}/${file}: ${err.message}`);
     }
   }
 }
@@ -170,6 +245,50 @@ check(multiAuthored.length === 37, `37 variants are authored more than once (${m
 console.log(`  info  distinct variants: ${byVariant.size}`);
 console.log(`  info  variants with more than one authoring: ${multiAuthored.length}`);
 console.log(`  info  authorings per variant: ${(tams / byVariant.size).toFixed(2)}`);
+
+console.log('== the setup population: the order inside each arrangement ==');
+// THE SAMPLE, first, because every count below is a fraction of it: the eight-PHYSICAL starts among the authorings,
+// plus the generated instances. A setup id names one board up to rotation and translation, so two authorings that
+// stand the couples up the same way share one - the count is the corpus's, not the file layout's.
+check(generated === 7, `the ${generated} generated instances are in the sample with the authorings`);
+check(virtualFailures.length === 0, `every generated instance builds, so its placement board is measured (${virtualFailures.length} failed)`,
+  virtualFailures.join('; '));
+check(eightPhysicalBoards + skippedForSize === tams - failedTitles.length + generated,
+  `every board is either counted or skipped by name: ${eightPhysicalBoards} counted + ${skippedForSize} skipped = ${tams - failedTitles.length} built + ${generated} generated`);
+check(eightPhysicalBoards > 0 && setups.size > 0, `the sweep measured a population (${setups.size} setups over ${eightPhysicalBoards} board(s))`);
+{
+  const setupCollisions = [...setupIdToCanonical.entries()].filter(([, canonical]) => canonical.startsWith('COLLISION:'));
+  const aidConflicts = [...setupToArrangement.entries()].filter(([, aid]) => aid.startsWith('CONFLICT:'));
+  const multiSetupArrangements = [...arrangementToSetups.values()].filter((s) => s.size > 1);
+  const misidentified = [...setups].filter((s) => !isSetupId(s));
+  check(setupCollisions.length === 0, `no two setups mint one id (${setupCollisions.length} collisions)`,
+    setupCollisions.slice(0, 3).map(([id, c]) => `${id}: ${c}`).join('\n        '));
+  check(aidConflicts.length === 0, `a setup id implies exactly one arrangement id (${aidConflicts.length} conflicts)`,
+    aidConflicts.slice(0, 3).join('; '));
+  check(misidentified.length === 0, `every minted id passes isSetupId (${misidentified.length} did not)`);
+  check(setups.size === 172, `172 distinct setups (${setups.size})`);
+  check(arrangementToSetups.size === 167, `167 distinct arrangements over the same boards (${arrangementToSetups.size})`);
+  check(multiSetupArrangements.length === 5, `5 arrangements carry more than one setup (${multiSetupArrangements.length}) - the setup axis is not the arrangement axis`);
+  console.log(`  info  eight-physical boards: ${eightPhysicalBoards} (${eightPhysicalBoards - generated} authored starts + ${generated} generated instances), ${startsWithPhantom} carrying a phantom`);
+  console.log(`  info  generated instances counted: ${generated}`);
+  console.log(`  info  skipped (not eight physical dancers): ${skippedForSize}`);
+  console.log(`  info  distinct setups: ${setups.size}`);
+  console.log(`  info  arrangements over the same boards: ${arrangementToSetups.size}`);
+  console.log(`  info  arrangements carrying more than one setup: ${multiSetupArrangements.length}`);
+  const sizes = [...arrangementToSetups.values()].map((s) => s.size).sort((a, b) => b - a);
+  console.log(`  info  setups per arrangement, densest first: ${sizes.slice(0, 8).join(', ')}${sizes.length > 8 ? ', ...' : ''}`);
+  // THE COST: `setupCanonical` runs the canonicaliser twice (the arrangement's and the order's). Timed over the
+  // sample's own boards, ten passes each, and reported rather than pinned - a timing is the machine's, not the
+  // tree's, so it informs the header instead of gating the build.
+  const time = (fn) => {
+    const t0 = performance.now();
+    for (let r = 0; r < 10; r++) for (const b of timingSample) fn(b);
+    return ((performance.now() - t0) / (timingSample.length * 10)) * 1000;
+  };
+  const arrangementUs = time((b) => arrangementId(b));
+  const setupUs = time((b) => setupId(b));
+  console.log(`  info  arrangementId ${arrangementUs.toFixed(1)} us/board, setupId ${setupUs.toFixed(1)} us/board (${timingSample.length} boards x10)`);
+}
 
 console.log('');
 if (failures) { console.log(`${failures} FAILURE(S)`); process.exit(1); }

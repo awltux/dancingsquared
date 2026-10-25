@@ -56,8 +56,8 @@ check(ID_WIDTH === 8 && ID_BASE === 36, `every scheme is ${ID_WIDTH} characters 
 check(encodeId('formation', 0n) === 'F3-00000000', 'zero is all zeros');
 check(encodeId('formation', ID_SPACE - 1n) === 'F3-zzzzzzzz', 'the last code of the space is all z');
 check(encodeId('formation', ID_SPACE) === 'F3-00000000', 'one past the space wraps to zero (it is a reduction, not a truncation)');
-check(encodeId('arrangement', 0n) === 'A1-00000000' && encodeId('variant', 0n) === 'V1-00000000',
-  'and the other two schemes render the same digest under their own prefixes');
+check(encodeId('arrangement', 0n) === 'A1-00000000' && encodeId('setup', 0n) === 'S1-00000000' && encodeId('variant', 0n) === 'V1-00000000',
+  'and the other three schemes render the same digest under their own prefixes');
 check(ID_ALPHABET.length === ID_BASE && ID_ALPHABET === '0123456789abcdefghijklmnopqrstuvwxyz',
   "the alphabet is the digits then the letters, lower case, so `0` is not `o` and `1` is not `l`");
 

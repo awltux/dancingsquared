@@ -1,15 +1,17 @@
 // THE ID ENCODING AND THE DIGEST, SHARED BY EVERY DERIVED IDENTITY IN THIS TREE.
 //
-// WHY THIS MODULE EXISTS. Three keys are derived strings of the same shape: a formation's `F3-`, an arrangement's
-// `A1-` and a call variant's `V1-`. They differ in WHAT they digest, not in how a digest becomes characters, so
-// the alphabet, the width and the hash live here once. A second copy would be a second convention, and the first
-// one to be fixed is the one nobody looks at.
+// WHY THIS MODULE EXISTS. Four keys are derived strings of the same shape: a formation's `F3-`, an arrangement's
+// `A1-`, a setup's `S1-` and a call variant's `V1-`. They differ in WHAT they digest, not in how a digest becomes
+// characters, so the alphabet, the width and the hash live here once. A second copy would be a second convention,
+// and the first one to be fixed is the one nobody looks at. The chain is a refinement at each step: a setup is the
+// arrangement plus the order its dancers are listed in (`setup-id.ts`), and an arrangement is the formation plus
+// where the genders stand (`arrangement-id.ts`).
 //
-// ONE SHAPE FOR ALL THREE: eight characters, one 64-bit digest. The schemes used to differ - six characters over
-// 32 bits for a formation, eight over 64 for the other two - and the width arithmetic was the most delicate
-// paragraph in the file. It is gone because the difference bought nothing: a payload space of 36^width has to be
-// at least as wide as its digest, 36^6 = 2,176,782,336 is under 2^32 and 36^7 = 78,364,164,096 is over it, so six
-// was the most a 32-bit digest could fill - and the variant population, the largest of the three, was never going
+// ONE SHAPE FOR ALL FOUR: eight characters, one 64-bit digest. The schemes used to differ - six characters over
+// 32 bits for a formation, eight over 64 for the two that existed then - and the width arithmetic was the most
+// delicate paragraph in the file. It is gone because the difference bought nothing: a payload space of 36^width has
+// to be at least as wide as its digest, 36^6 = 2,176,782,336 is under 2^32 and 36^7 = 78,364,164,096 is over it, so
+// six was the most a 32-bit digest could fill - and the variant population, the largest of the four, was never going
 // to stay under its six-character risk. The measured price of dropping to one width is the 64-bit digest on the
 // formation path: 30.9 us per board against 20.7 us, which is 1.8% of a single `recognize` (567.6 us) and is paid
 // once per board read, never per frame.
@@ -41,8 +43,8 @@ export const ID_WIDTH = 8;
 /** The payload space of an id: 36^8 = 2,821,109,907,456, and every digest is reduced into it. */
 export const ID_SPACE = BigInt(ID_BASE) ** BigInt(ID_WIDTH);
 
-/** The three schemes. The value is the version prefix, and this table is where each is written down. */
-export type IdSchemeName = 'formation' | 'arrangement' | 'variant';
+/** The four schemes. The value is the version prefix, and this table is where each is written down. */
+export type IdSchemeName = 'formation' | 'arrangement' | 'setup' | 'variant';
 
 /**
  * THE SCHEMES, AND THE PREFIXES ARE HISTORY. A prefix is bumped when the scheme's *canonicalisation* or its
@@ -52,6 +54,7 @@ export type IdSchemeName = 'formation' | 'arrangement' | 'variant';
 export const ID_SCHEMES: Readonly<Record<IdSchemeName, string>> = {
   formation: 'F3-',
   arrangement: 'A1-',
+  setup: 'S1-',
   variant: 'V1-',
 };
 

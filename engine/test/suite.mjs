@@ -180,6 +180,14 @@ export const SUITE = [
   // run beside it, and that the arrangement canonicalisation is the formation one plus a suffix - which is what
   // keeps them one mechanism. Milliseconds: synthetic boards only.
   { h: 'arrangement-id', light: true },
+  // THE SETUP IDENTITY: the arrangement AND the order the call lists its dancers in - the key that says which two
+  // dancers are couple 1, where the arrangement id deliberately drops the order. Pins the format, the EIGHT-PHYSICAL
+  // guard (a ghost or a phantom gender is not one of the eight, and the count is of physical dancers, not array
+  // entries), that a phantom anywhere in the array changes nothing while an ARRAY REORDER does, the half-set rule
+  // (a written half and its complementary half are one setup), the rotationally symmetric case, and the two
+  // controls: the arrangement id run beside every split, and an order-only key measured to COLLIDE on a gender
+  // relabelling. Milliseconds: synthetic boards only; the corpus population is `identity-census`'s.
+  { h: 'setup-id', light: true },
   // EVERY FORMATION DEFINITION CARRIES ITS `fid` AND `aid`, and the duplicate table equals a fresh render. A tag is
   // a stored REFERENCE, so this is the gate that keeps the corpus's own bytes the reference set: all 292 named
   // definitions and all 636 inline blocks tagged and well formed, no duplicate name, a reconstituted half that

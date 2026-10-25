@@ -136,24 +136,28 @@ export interface FormationBoard {
 }
 
 /**
- * The same serialisation with ONE ADDITIONAL SYMBOL PER DANCER, which is how the arrangement id shares this
- * mechanism rather than copying it (see `arrangement-id.ts`).
+ * The same serialisation with ONE ADDITIONAL SYMBOL PER DANCER, which is how the arrangement id and the setup id
+ * share this mechanism rather than copying it (see `arrangement-id.ts` and `setup-id.ts`).
  *
  * THE EXTRA SYMBOL IS A SUFFIX, AND THE SORT IS BY GEOMETRY FIRST. Sorting the record *with* its suffix would
  * let a gender reorder two spots that share a coordinate, and then "the arrangement with gender stripped"
  * would no longer be the formation - a property `test/arrangement-id.mjs` pins, because it is what keeps the
  * two schemes one mechanism instead of two that drift.
+ *
+ * THE CALLBACK ALSO RECEIVES THE DANCER'S ARRAY INDEX, and that is the whole of the setup scheme's key: with
+ * `extra = (_d, i) => String(i)` the serialisation says WHICH DANCER SITS ON WHICH SPOT, so the array order is in
+ * the digest while rotation and translation still are not. The arrangement scheme ignores the argument.
  */
 export function canonicalOf<D extends FormationShape[number]>(
   board: { readonly dancers: readonly D[] },
-  extra?: (d: D) => string,
+  extra?: (d: D, index: number) => string,
 ): string {
   const step = (h: number): number => {
     const k = Math.round(h / FORMATION_ID_HEADING_STEP) % STEPS;
     return (k + STEPS) % STEPS;
   };
   const q = (v: number): number => Math.round(v / FORMATION_ID_GRID);
-  const spots = board.dancers.map((d) => ({ x: q(d.x), y: q(d.y), h: step(d.heading), extra: extra ? extra(d) : '' }));
+  const spots = board.dancers.map((d, i) => ({ x: q(d.x), y: q(d.y), h: step(d.heading), extra: extra ? extra(d, i) : '' }));
   let best: string | null = null;
   for (let turn = 0; turn < 4; turn++) {
     const turned = spots.map(({ x, y, h }) => {

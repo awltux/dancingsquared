@@ -913,12 +913,15 @@ export class EditorController implements EditorUI {
       going: goingOfTitle(name),
       symmetry: 1,
       // NO STORED TAGS, and saying so rather than omitting the field: a still frame is authored HERE, dancer by
-      // dancer, so it names no formation definition and there is no `<formation>` block whose `fid`/`aid` it could
-      // carry. `7980688` made the field required when a call-variant id started being minted from a definition's
-      // stored tag, and this literal - the only `CallBundle` the panel builds by hand - was left behind, so
-      // `npx tsc -p poc --noEmit` was red at THIS line on master while every probe was green. A bundle built by
-      // `synthesizeSetup` writes the same pair (`editor.ts`), which is the rule: a synthesised bundle has no tag.
-      formationTag: { fid: null, aid: null },
+      // dancer, so it names no formation definition and there is no `<formation>` block whose `fid`/`aid`/`sid` it
+      // could carry. `7980688` made `fid`/`aid` required when a call-variant id started being minted from a
+      // definition's stored tag, and this literal - the only `CallBundle` the panel builds by hand - was left
+      // behind. `c21a05c7` added `sid` and LEFT THE SAME LITERAL BEHIND A SECOND TIME, so the lesson is not "add the
+      // field" but "the shape is `FormationTag`'s": `npx tsc -p poc --noEmit` is the instrument that catches it, and
+      // it was red at THIS line on master both times while every probe stayed green.
+      // A bundle built by `synthesizeSetup` writes the same three nulls (`editor.ts`), which is the rule: a
+      // synthesised bundle has no tag.
+      formationTag: { fid: null, aid: null, sid: null },
     };
   }
 

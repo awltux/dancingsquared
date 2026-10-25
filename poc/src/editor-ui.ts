@@ -99,6 +99,10 @@ import {
   // would hold the trace by a whole turn, which is why the call sites below keep a normaliser at all - but it is
   // this one, so the seam is the engine's seam.
   normAngle,
+  // THE END BOARD'S SETUP ID, for the End setup row when no formation in the corpus names the shape: the id is the
+  // arrangement AND the authored order (`setup-id.ts`), and it is what the Board drawer's picker is keyed by, so it is
+  // the one thing a caller can look up where a name does not exist (`end-setup-state.ts`).
+  setupId,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -549,9 +553,12 @@ export class EditorController implements EditorUI {
   // Export <formation> ON THE END ROW: offered only when no formation in the corpus names the shape the call
   // finishes on, and the board is eight dancers. See end-setup-state.ts for why those two conditions.
   private exportEndFormationBtn = el<HTMLButtonElement>('edExportEndFormation');
-  /** The end board the last name was computed for, and the name, so a handle drag does not re-walk the corpus. */
-  private endNameKey = '';
-  private endNameValue = '';
+  /** The end board the last read was computed for, its corpus name and its setup id, so a handle drag does not re-walk
+   *  the corpus. ONE MEMO FOR BOTH, because the name and the id describe the same board: two memos could report two
+   *  different ends. */
+  private endInfoKey = '';
+  private endInfoName = '';
+  private endInfoSid: string | null = null;
   private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
   private placeEndBtn = el<HTMLButtonElement>('edPlaceEnd');
   // The End setup's rotation control: a 45-degree step either way, and the readout between them.
@@ -4844,22 +4851,28 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * THE CORPUS'S NAME FOR THE SHAPE THE CALL FINISHES ON, or '' when it has none - MEMOISED ON THAT BOARD.
+   * WHAT THE END BOARD IS, as far as this panel can say: the corpus's NAME for the shape the call finishes on
+   * (`''` when it has none) and the board's SETUP ID, which exists even then - MEMOISED ON THAT BOARD.
    *
    * `namedSetup` walks every formation of the call's size (each one completed and deduplicated before it is
    * compared), which is far too much to do on every render: a handle drag re-renders this panel many times a
    * second, and each of those would re-walk the corpus to answer a question whose answer only changes when the
    * END moves. So the answer is keyed on the end POSES - position, heading and gender of every dancer, at the
    * call's last beat - and recomputed only when that board is different.
+   *
+   * THE ID COMES FROM THE SAME BOARD AS THE NAME, and one memo holds both: the row reports them together, so a
+   * second read (or a second memo) could describe a different end - and `setupId` is cheap, so the cost of asking
+   * both is the name scan that was already paid.
    */
-  private endSetupName(call: CallBundle): string {
+  private endSetupInfo(call: CallBundle): { name: string; setupId: string | null } {
     const end = boardAtBeat(call, call.beats);
     const key = `${call.dancers.length}|${end.dancers.map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(4)},${d.gender}`).join(';')}`;
-    if (this.endNameKey !== key) {
-      this.endNameKey = key;
-      this.endNameValue = this.namedSetup(call, 'end');
+    if (this.endInfoKey !== key) {
+      this.endInfoKey = key;
+      this.endInfoName = this.namedSetup(call, 'end');
+      this.endInfoSid = setupId(end);
     }
-    return this.endNameValue;
+    return { name: this.endInfoName, setupId: this.endInfoSid };
   }
 
   /**
@@ -4873,11 +4886,14 @@ export class EditorController implements EditorUI {
    * different rule (that one is `setup-keep.ts`); THIS one is about the shape the call ENDS on: "add a check to the
    * call-changed event that calculates the end setup and looks it up in known formations. Set the End Setup to the
    * found formation, or show 'Unknown formation'. If the end formation is unknown and it's an 8-dancer board,
-   * provide an 'export <formation>' button on the 'End Setup' row."
+   * provide an 'export <formation>' button on the 'End Setup' row." And then: "if the end formation is identified but
+   * not named, use the sid instead - at least this way the formation can be found", which is what the third argument
+   * carries.
    */
   private renderEndSetupState() {
     const call = this.instance;
-    const state = endSetupState(call ? this.endSetupName(call) : '', call ? call.dancers.length : 0);
+    const info = call ? this.endSetupInfo(call) : { name: '', setupId: null };
+    const state = endSetupState(info.name, call ? call.dancers.length : 0, info.setupId);
     // THE LEADING OPTION IS THE STATEMENT, because it is the entry that means "nothing chosen" - and "nothing
     // chosen" is exactly "the corpus names no formation for this end". A note beside the control could disagree
     // with it; this cannot.

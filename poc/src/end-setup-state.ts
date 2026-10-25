@@ -21,6 +21,19 @@
 //
 // PURE AND SEPARATE FROM THE PANEL, because a rule that only exists inside a DOM method can be read but not measured
 // (AGENTS.md §8 trap 27): `poc/tools/end-setup-name-probe.mjs` drives every case here and checks the panel uses it.
+//
+// AND THE ID, WHEN THE BOARD HAS ONE BUT THE CORPUS HAS NO NAME FOR IT. Reported as: "The End Setup dropdown shows
+// 'Unknown formation' if the start setup doesn't have a name. With the advent of the sid on all catalog formations, if
+// the end formation is identified but not named, use the sid instead. At least this way the formation can be found."
+// The sid is the SETUP id - the arrangement AND the authored order the dancers are listed in (`setup-id.ts`) - and it
+// is the key the Board drawer's Setup picker is keyed by, so the id is the handle a caller can carry elsewhere: it is
+// the id that picker lists the setup under wherever the corpus authors one. MEASURED (`poc/tools/end-setup-name-probe.mjs`
+// over all 5424 call variants): 2480 ends are unnamed, every one of them carries an id, and 61 of those ids (59 of them
+// eight-dancer) are setups the Board picker already offers - so the id leads somewhere for a small population and is a
+// stable identity rather than nothing for the rest. It is NOT offered as a choice in this picker: that list is the
+// corpus's NAMES (`corpusFormationsOfSize`), so an id could not be resolved by `doEndFormation`, and an option nothing
+// can select is a trap. The row therefore STATES the id and leaves the way out where it was - the export, for a shape on
+// a board the corpus could hold.
 
 /** The picker's leading option: "nothing chosen", which is also "the end is not a named formation". */
 export const KEEP_END_PLACEHOLDER = '— keep the current end —';
@@ -37,13 +50,23 @@ interface EndSetupState {
 
 /**
  * What the End setup row says and offers for a call that finishes on `name`'s formation - or on none, when `name`
- * is empty. `dancers` is the board's size, which decides whether an export has anywhere to go.
+ * is empty. `dancers` is the board's size, which decides whether an export has anywhere to go; `setupId` is the END
+ * board's computed setup id, shown where it exists and the corpus has no name.
  */
-export function endSetupState(name: string | null | undefined, dancers: number): EndSetupState {
+export function endSetupState(
+  name: string | null | undefined,
+  dancers: number,
+  setupId?: string | null,
+): EndSetupState {
   const known = (name ?? '').trim() !== '';
+  const id = (setupId ?? '').trim();
   return {
-    placeholder: known ? KEEP_END_PLACEHOLDER : UNKNOWN_FORMATION,
-    // An export is for a shape the corpus does not name, on a board the corpus could hold: eight dancers.
+    // THE STATEMENT COMES FIRST AND THE ID BESIDE IT, because they answer different questions: "the corpus does not
+    // name this end" is still true, and `S1-…` is which setup it is. A bare id would read as a name this picker offers,
+    // and a caller would try to select it - the probe pins that wrong rule as its negative control.
+    placeholder: known ? KEEP_END_PLACEHOLDER : id === '' ? UNKNOWN_FORMATION : `${UNKNOWN_FORMATION} (${id})`,
+    // An export is for a shape the corpus does not name, on a board the corpus could hold: eight dancers. An id does
+    // not name the shape, so it does not remove the export.
     canExport: !known && dancers === 8,
   };
 }

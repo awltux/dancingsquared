@@ -25,6 +25,7 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer } from '../dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 
@@ -116,11 +117,9 @@ console.log('  (a family SHOULD have one shape: arrangement/sequence/relationshi
 // --------------------------------------------------------------- the engine
 
 const assets = corpusRoot();
-const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 const calls = [];
-for (const lv of levels) {
+for (const lv of ASSET_LEVELS) {
   const dir = path.join(assets, lv);
-  if (!existsSync(dir)) continue;
   for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }

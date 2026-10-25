@@ -59,6 +59,7 @@ import {
 } from '../dist/index.js';
 import { HOME_DANCERS } from '../dist/sequencer/identity.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 
@@ -237,11 +238,9 @@ console.log('  (0->5 is the half-sashay complement: the reason a reflection must
 // --------------------------------------------- 3. the engine's own templates
 
 const assets = corpusRoot();
-const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 const calls = [];
-for (const lv of levels) {
+for (const lv of ASSET_LEVELS) {
   const dir = path.join(assets, lv);
-  if (!existsSync(dir)) continue;
   for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }

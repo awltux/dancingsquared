@@ -62,6 +62,7 @@ import {
   formationReorderPermutation,
   completedFormation,
   DEFAULT_MATCH_MAX,
+  PERMISSION_LEVELS,
 } from '../engine/dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 import { liveTamBlocks } from './tam-blocks.mjs';
@@ -89,8 +90,10 @@ const REPORT = path.join(ROOT, 'DuplicateFormations.md');
 const PROVENANCE = path.join(ASSETS, 'formation-tag-provenance.json');
 const DEG = Math.PI / 180;
 
-/** Every level whose call files carry tams. `src/` holds the engine's own fixtures; `corpus-inventory` reads both. */
-export const TAG_LEVELS = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b', 'src'];
+/** Every level whose call files carry tams: the engine's programme order plus `src/` (its own fixtures, which
+ *  `corpus-inventory` reads as a level too). Imported rather than restated - this was the seventh copy of the
+ *  ten-level sequence (MEASURED, `git grep -n "'discovered'"`), and it is this file's own reader at line 236. */
+const TAG_LEVELS = [...PERMISSION_LEVELS, 'src'];
 
 const read = (p) => fs.readFileSync(path.join(ASSETS, p), 'utf8');
 

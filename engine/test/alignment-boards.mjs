@@ -60,6 +60,7 @@ import {
   REFERENCE_PAIR_SPOTS,
 } from '../dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 
@@ -76,9 +77,8 @@ const assets = corpusRoot();
 // named calls to constructed boards. All variants of a title are pooled so a call
 // with several setups can be matched from any of them.
 const byTitle = new Map();
-for (const lv of ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b']) {
+for (const lv of ASSET_LEVELS) {
   const dir = path.join(assets, lv);
-  if (!existsSync(dir)) continue;
   for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     const xml = readFileSync(path.join(dir, f), 'utf8');
     for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {

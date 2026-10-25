@@ -22,12 +22,13 @@
 //
 // Run: `npm run build && node test/gender-audit.mjs` from engine/.
 
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 
 import { setParser, Sequencer, parseFormations } from '../dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { ASSET_LEVELS } from './lib/engine-calls.mjs';
 
 setParser(DOMParser);
 
@@ -78,11 +79,9 @@ for (const [name, ds] of formations) judge('formation', name, ds.map((d) => d.ge
 console.log(`  ${formations.size} formations checked`);
 
 console.log('\n== Call setups (every <tam> with <dancer> elements) ==');
-const levels = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
 let tams = 0;
-for (const lv of levels) {
+for (const lv of ASSET_LEVELS) {
   const dir = path.join(corpusRoot(), lv);
-  if (!existsSync(dir)) continue;
   for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     const xml = readFileSync(path.join(dir, f), 'utf8');
     for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
@@ -101,9 +100,8 @@ console.log(`  ${tams} setups checked`);
 console.log('\n== Boards ==');
 // Registered with the full catalog so formation boards resolve.
 const calls = [];
-for (const lv of levels) {
+for (const lv of ASSET_LEVELS) {
   const dir = path.join(corpusRoot(), lv);
-  if (!existsSync(dir)) continue;
   for (const f of filesOf(lv).filter((x) => x.endsWith('.xml'))) {
     calls.push({ name: f.replace(/\.xml$/, ''), xml: readFileSync(path.join(dir, f), 'utf8') });
   }

@@ -25,7 +25,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { CODED_MOVES, CALL_SYNONYMS } from '../../dist/index.js';
+import { CODED_MOVES, CALL_SYNONYMS, PERMISSION_LEVELS } from '../../dist/index.js';
 // THE READING IS NOT DONE HERE ANY MORE. `packages/corpus` owns the walk, the parser and the block slicing, so
 // the harnesses, the book, the teacher and the game cannot come to disagree about what the corpus holds (AGENTS
 // §11.2.12). What stays in THIS module is the engine-facing policy: which levels a harness walks, the
@@ -33,7 +33,25 @@ import { CODED_MOVES, CALL_SYNONYMS } from '../../dist/index.js';
 // the `<call>` index).
 import { corpusRoot, filesOf, levelPath, pooledXmlOfTitle, titlesOf } from 'dancing-squared-corpus';
 
-export const ASSET_LEVELS = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+/**
+ * The levels a harness walks: THE ENGINE'S OWN PROGRAMME ORDER, not a copy of it.
+ *
+ * This used to be a hand-kept list of the same ten names in the same order, and so did four harnesses and a
+ * script - MEASURED before this change, `git grep -n "'discovered'"` found SEVEN copies of the sequence. Two
+ * failures came with the copies, both silent: a level added to the engine's ladder (or to the corpus) would leave
+ * every gate that walks a copy blind, and `ssd` names a level with NO asset directory (`permissions.ts` calls it "a
+ * synthesized alias level", ordered between Basic and Mainstream by `calls.xml`), so the copies carried an entry
+ * that `filesOf` answers `[]` for - and four harnesses then guarded that entry with `if (!existsSync(dir))
+ * continue`, which is how a missing level reads as "nothing to do" instead of as a fact.
+ *
+ * The engine owns the ORDER because a permission rule's scope IS the programme order (`levelRank`), and a corpus
+ * walk needs the same order for the pooling rule `callsByTitle` documents. So this derives.
+ *
+ * WHAT DERIVING DOES NOT BUY, and `corpus-inventory.mjs` now checks: that every folder the corpus HAS is named
+ * here. `levelsAvailable()` is the reader's answer to "which levels exist"; the ladder is the engine's answer to
+ * "which levels are known"; they can disagree in the direction that hides a programme's calls from every gate.
+ */
+export const ASSET_LEVELS = PERMISSION_LEVELS;
 
 /**
  * The corpus root a caller hands in must be THE corpus root. Every harness passes `assets` today, and the one

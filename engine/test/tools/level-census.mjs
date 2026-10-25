@@ -47,7 +47,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, buildCellLattice } from '../../dist/index.js';
+import { setParser, buildCellLattice, PERMISSION_LEVELS } from '../../dist/index.js';
 import { buildCatalog, makeSequencer } from '../../../poc-teacher/src/catalog.ts';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
@@ -71,9 +71,10 @@ const byTag = (node, tag) => {
 };
 const isHidden = (tam) => { const d = tam.getAttribute('display'); return d === 'no' || d === 'none'; };
 
-// The level ORDER is `poc/src/data.ts`'s own `levelOrder`, copied rather than imported: that file is
-// browser code (Vite `import.meta.glob`) and cannot be loaded here.
-const ORDER = ['discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+// The level ORDER is the engine's, not this file's. It used to be copied from `poc/src/data.ts`, with the reason that
+// that file is browser code (Vite `import.meta.glob`) and cannot be loaded here - true, and beside the point: the
+// order it holds IS `PERMISSION_LEVELS`, which the engine exports and this tool already loads `dist` for.
+const ORDER = PERMISSION_LEVELS;
 const msFiles = {};
 const perLevelFiles = new Map();
 const perLevelNames = new Map();

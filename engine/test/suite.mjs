@@ -104,6 +104,15 @@ export const SUITE = [
   // and a NEW unnamed tolerance are the same red. The header states what it deliberately does NOT name (authored data,
   // decoration, probe fixtures) and why the tie epsilons stay their own rule. ~0.2s: a source walk, no engine build.
   { h: 'tolerances', light: true },
+  // THE EXPORT SURFACE, AND A THIRD KIND OF CENSUS. The two above count SPELLINGS; this counts PUBLISHING - an
+  // `export` whose symbol no other module names, and a module no import reaches. MEASURED at landing over the seven
+  // TypeScript source trees: 202 modules, 1240 exported declarations, 6 exported to nobody at all, 129 exported
+  // only for their own file, and 5 modules with no importer (three `src/main.ts` a bundler reaches, two
+  // `vite-env.d.ts`) - the last a NAMED SET, so a new orphan fails. It skips `export *` barrels and package
+  // `main`/`types`/`exports` targets BY RULE, counts a mention in a comment as a use (the false negative is the
+  // safe direction: a false dead invites deleting live code), and exercises every rule on synthetic sources so a
+  // scan that reads nothing cannot report zero. MEASURED 7.7s in the light tier: a 606-file walk, no engine build.
+  { h: 'export-census', light: true },
   // THE EXPORT PRECISION, AND A CENSUS LIKE THE ONE ABOVE. The same four-decimal lambda was written in THREE files
   // (`convert.ts`'s `r`, `editor.ts`'s `rf`, the POC panel's `show`) with no export between them, so no probe could
   // import the rule: the engine's copies were only measured through a whole export round trip and the panel's by

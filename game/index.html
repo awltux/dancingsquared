@@ -162,6 +162,11 @@
                saying what will go — where a native `confirm()` is an API no probe can see. The ledger's own line
                ("Saved on this device: nothing yet") is what reports the result. -->
           <button id="startOver" type="button">Start over on this device</button>
+          <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
+               rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label — and
+               the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the
+               press that would have been the player's is made for them. Hidden outside the Drill's question view. -->
+          <button id="autoProgress" type="button" aria-pressed="false" hidden>Auto-progress: off</button>
           <button id="next" type="button" hidden>Next drill</button>
         </footer>
       </main>

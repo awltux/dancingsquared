@@ -217,6 +217,26 @@ let waypointCursor: number | null = null;
 let waypointHold: number | null = null;
 
 /**
+ * WHETHER THE DRILL MOVES ON BY ITSELF once a correct guess has been watched — the `Auto-progress` toggle's state.
+ *
+ * REPORTED: "add an auto-progress stateful button to the drills tab. This will automatically progress to the Next Drill
+ * after the current 2 second pause following a correct guess."
+ *
+ * IT IS A PREFERENCE, NOT A RULE OF THE GAME, so it is the SHELL's and it is held for the session rather than written
+ * into the saved record: `SaveState` carries what a run earned, and every field in it is a schema the loader must
+ * migrate (`save-state.ts`), which a view preference does not earn. So it resets on reload, and the button says which
+ * state it is in so that is visible rather than surprising.
+ */
+let autoProgress = false;
+
+/** Write the toggle's state onto it — `aria-pressed` AND the label, so the state is not colour-only. */
+function paintAutoProgress(): void {
+  els.autoProgress.setAttribute('aria-pressed', autoProgress ? 'true' : 'false');
+  els.autoProgress.textContent = `Auto-progress: ${autoProgress ? 'on' : 'off'}`;
+}
+
+
+/**
  * THE SAVED GAME — the record, the balance, the run ledger and the finished set, behind `SaveState`
  * (`game/save-state.ts`), which owns the rules over them. It is opened in `main()` before anything is issued;
  * the shell only ever reads it or calls one of its transitions, and `persist()` below is the one writer.
@@ -262,6 +282,7 @@ const els = {
   replayShortest: el<HTMLButtonElement>('replayShortest'),
   view: el<HTMLButtonElement>('view'),
   next: el<HTMLButtonElement>('next'),
+  autoProgress: el<HTMLButtonElement>('autoProgress'),
   practice: el<HTMLButtonElement>('practice'),
   startOver: el<HTMLButtonElement>('startOver'),
   loading: el('loading'),
@@ -1119,6 +1140,10 @@ function paintView(): void {
   // whichever screen painted last, which is how "Show me the answer" came to sit under a progress grid.
   els.review.hidden = !drillShowing || watchingDrill !== null;
   els.skip.hidden = !drillShowing || watchingDrill !== null || !skipOffered();
+  // THE TOGGLE BELONGS TO THE QUESTION VIEW: it changes what happens after a correct guess, and a watched drill is not
+  // answered at all. It stays visible on a SOLVED drill, because that is where a player who has just been through the
+  // whole cycle notices it and wants it for the next one.
+  els.autoProgress.hidden = !drillShowing || watchingDrill !== null;
   // ONE `Play` BUTTON, BOTH MODES: it plays whatever `panelLine()` says the panel is showing. A solved or watched drill
   // therefore gets the same button the solved Daily has — REPORTED as "I inadvertantly dropped the play button from the
   // Drill. Can it reuse the call list and Play button used in the solved Todays Daily?" — and "The shortest line" stays
@@ -1518,7 +1543,11 @@ function answer(choice: number | 'unknown'): void {
     // Drill's submission carries (§11: the server re-derives which option was correct, so this is the claim).
     drillOptions.push(result.call);
     drillScreen.say(`${result.call} — correct.`, 'ok');
-    startReplay(applier.motion([result.call], result.replayFrom as Board), 'advance');
+    // THE ANSWER THAT ENDS THE DRILL IS HELD, and an intermediate one is not. A finished drill's landing board is
+    // what `autoProgress` counts its pause on, so `LANDING_HOLD_MS` is what makes "after the two second pause"
+    // true; holding a MID-run answer would put the next question's options on screen two seconds before the board
+    // they are asked about, which is the confusion the hold exists to remove rather than add.
+    startReplay(applier.motion([result.call], result.replayFrom as Board), 'advance', controller?.atEnd ? LANDING_HOLD_MS : 0);
   } else {
     // A WRONG ANSWER STATES WHERE IT WENT, not just that it was wrong. The ending board is on screen by the
     // time this is read, so the sentence and the picture say the same thing.
@@ -2455,6 +2484,8 @@ function paintDaily(): void {
   const over = view.outcome !== 'playing';
   els.replayMine.hidden = !over;
   els.replayShortest.hidden = !over;
+  // A DRILL PREFERENCE, not a Daily one: the Daily has no "next drill" for it to move on to.
+  els.autoProgress.hidden = true;
   els.giveUp.hidden = over;
   els.undo.hidden = over;
   els.redo.hidden = over;
@@ -2506,11 +2537,19 @@ function startReplay(motion: SequenceMotion, outcome: ReplayOutcome, holdMs = 0)
  * THE PICTURE GOES BACK TO THE PANEL'S PAIR, which is where a replay begins and ends: `replay` is what `draw` samples
  * instead of the pair, so clearing it is what returns the boards — and `draw` has to be told, because the frame that
  * clears it has already painted the held landing frame.
+ *
+ * AND THIS IS WHERE `Auto-progress` FIRES, because it is the moment the two-second pause has run out: the motion is
+ * over, the picture is back, and the press that would have been the player's is made for them. The guard is the
+ * OFFER — `els.next` is hidden exactly when the advance would be refused (a demo run, A20, or a watched drill), so the
+ * toggle cannot send a request the button beside it would not have sent.
  */
 function endReplay(): void {
   replay = null;
   replayOutcome = 'settle';
   draw();
+  if (autoProgress && mode === 'drill' && !watchingDrill && controller?.atEnd && !els.next.hidden) {
+    issueCurrentDrill('advance');
+  }
 }
 
 function setBusy(busy: boolean): void {
@@ -2595,6 +2634,7 @@ function main(): void {
     css.setProperty(`--wp-${state}`, `#${colour.toString(16).padStart(6, '0')}`);
   }
   els.view.textContent = 'Switch to 3D';
+  paintAutoProgress();
   els.loading.hidden = true;
 
   // THE SAVED GAME IS READ BEFORE ANYTHING IS ISSUED, so the first drill is the one the player was on and
@@ -2621,6 +2661,13 @@ function main(): void {
   });
   els.modeDaily.addEventListener('click', () => setMode('daily'));
   els.next.addEventListener('click', () => issueCurrentDrill('advance'));
+  // THE SAME PRESS THE PLAYER WOULD MAKE (`els.next`), taken automatically once a solved drill's landing has been
+  // held — plus a repaint, because `issueCurrentDrill` re-derives the footer and must not leave a stale label.
+  els.autoProgress.addEventListener('click', () => {
+    autoProgress = !autoProgress;
+    paintAutoProgress();
+    paintView();
+  });
   els.review.addEventListener('click', review);
   els.skip.addEventListener('click', skipDrill);
   els.undo.addEventListener('click', undoDaily);

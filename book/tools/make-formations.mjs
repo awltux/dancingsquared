@@ -47,6 +47,19 @@ const CENTRE = SIZE / 2;
 // what makes the binding safe; `build()` calls the same loader again and Node answers it from cache.
 const DEG = loadEngine().DEG;
 
+// THE TOLERANCES THIS TOOL MEASURES WITH, named so a reader can tell the four rules apart. They are the BOOK's, not
+// the engine's: each decides whether a drawn arrangement is the shape the prose describes, and nothing here feeds a
+// call's legality, so they are pinned by the diagrams `check:book` re-draws rather than by `DEFAULT_MATCH_MAX`.
+//
+// 0.05 APPEARS TWICE ON PURPOSE, under two names: as a POSITION tolerance (two dancers on the same spot) and as a
+// FRACTION OF A RADIUS (how far a ring's markers sit inside the ring). They are the same number and different rules -
+// the R8 census's lesson - so merging them would tie a drawing inset to a geometry threshold.
+const POSITION_TOL = 0.01;
+const SAME_SPOT_TOL = 0.05;
+const INSET_FRACTION = 0.05;
+// `cos(0) = 1` and `cos(PI) = -1`, and 1e-6 is "the two facings are the same direction, to floating point".
+const FACING_COS_TOL = 1e-6;
+
 /**
  * The formations the book's formation page defines, matched to the library's own names.
  *
@@ -69,7 +82,7 @@ export const FORMATIONS = [
      */
     assert: (dancers) => {
       const radii = dancers.map((d) => Math.hypot(d.x, d.y));
-      if (Math.max(...radii) - Math.min(...radii) > 0.01) {
+      if (Math.max(...radii) - Math.min(...radii) > POSITION_TOL) {
         throw new Error(`the library's Circle is not a ring: radii ${radii.join(', ')}`);
       }
       for (const d of dancers) {
@@ -127,7 +140,7 @@ export const FORMATIONS = [
         y: d.y,
         angleDeg: d.angleDeg,
       }));
-      if (Math.abs(pair[0].y - pair[1].y) > 0.01 || Math.abs(Math.abs(pair[0].x - pair[1].x) - 2) > 0.01) {
+      if (Math.abs(pair[0].y - pair[1].y) > POSITION_TOL || Math.abs(Math.abs(pair[0].x - pair[1].x) - 2) > POSITION_TOL) {
         throw new Error('the couple taken from the Squared Set is not two dancers side by side');
       }
       if (pair[0].angleDeg !== pair[1].angleDeg) throw new Error('the couple does not share a facing');
@@ -296,9 +309,9 @@ export const FORMATIONS = [
 ];
 
 const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
-const sameSpot = (a, b) => Math.abs(a.x - b.x) < 0.05 && Math.abs(a.y - b.y) < 0.05;
-const sameFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) - 1) < 1e-6;
-const oppositeFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) + 1) < 1e-6;
+const sameSpot = (a, b) => Math.abs(a.x - b.x) < SAME_SPOT_TOL && Math.abs(a.y - b.y) < SAME_SPOT_TOL;
+const sameFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) - 1) < FACING_COS_TOL;
+const oppositeFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) + 1) < FACING_COS_TOL;
 
 /**
  * THE TWO-DANCER MEASURES. A facing pair and a tandem are the two ways two dancers line up, and both
@@ -323,7 +336,7 @@ function facingPartner(d, dancers) {
     const ay = o.y - d.y;
     const ahead = ax * dx + ay * dy;
     const across = Math.abs(ax * -dy + ay * dx);
-    if (ahead <= 0 || across > 0.01 || !oppositeFacing(o.angleDeg, d.angleDeg)) continue;
+    if (ahead <= 0 || across > POSITION_TOL || !oppositeFacing(o.angleDeg, d.angleDeg)) continue;
     if (!best || ahead < best.ahead) best = { dancer: o, ahead };
   }
   return best?.dancer ?? null;
@@ -337,8 +350,8 @@ function tandemBehind(d, dancers) {
       (o) =>
         o !== d &&
         sameFacing(o.angleDeg, d.angleDeg) &&
-        Math.abs(o.x - (d.x - 2 * dx)) < 0.01 &&
-        Math.abs(o.y - (d.y - 2 * dy)) < 0.01,
+        Math.abs(o.x - (d.x - 2 * dx)) < POSITION_TOL &&
+        Math.abs(o.y - (d.y - 2 * dy)) < POSITION_TOL,
     ) ?? null
   );
 }
@@ -355,8 +368,8 @@ function beside(d, dancers) {
     (o) =>
       o !== d &&
       sameFacing(o.angleDeg, d.angleDeg) &&
-      Math.abs((o.x - d.x) * dx + (o.y - d.y) * dy) < 0.01 &&
-      Math.abs(Math.abs((o.x - d.x) * -dy + (o.y - d.y) * dx) - 2) < 0.01,
+      Math.abs((o.x - d.x) * dx + (o.y - d.y) * dy) < POSITION_TOL &&
+      Math.abs(Math.abs((o.x - d.x) * -dy + (o.y - d.y) * dx) - 2) < POSITION_TOL,
   );
   return found ?? null;
 }
@@ -396,7 +409,7 @@ function draw(canvas, dancers, view, bounds = null) {
   
   const r = MARKER_UNITS * view.scale;
   const ink = Math.max(1, Math.min(1.2, r / 11));
-  const inset = Math.max(1, r * 0.05);
+  const inset = Math.max(1, r * INSET_FRACTION);
 
   // EVERY FACING NOSE FIRST, THEN EVERY BODY -- the same two passes the player uses. Drawn per
   // dancer, a nose is painted after the previous dancer's body and lands on top of it wherever two
@@ -477,7 +490,7 @@ function drawAnnotated(canvas, people, view, { fillOf, ring = [], caller = null 
 
   const r = MARKER_UNITS * view.scale;
   const ink = Math.max(1, Math.min(1.2, r / 11));
-  const inset = Math.max(1, r * 0.05);
+  const inset = Math.max(1, r * INSET_FRACTION);
 
   // Noses first, then bodies -- the same two passes the player uses, so a nose can never be painted
   // over the body it is passing.

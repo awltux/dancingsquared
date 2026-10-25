@@ -23,7 +23,7 @@
 <tamination title="Breaker Anything">
 
   <tam title="Breaker 3" from="Right-Hand Columns" fractions="4.5" vid="V1-z4j2ywjc">
-    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
       <dancer gender="girl" y="-1" x="-1" angle="90"/>
@@ -106,7 +106,7 @@
   </tam>
 
   <tam title="Breaker Mix" from="Right-Hand Columns" fractions="4.5" vid="V1-vho21gyn">
-    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
+    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7" sid="S1-6gibaso4">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
       <dancer gender="boy" y="-1" x="-1" angle="90"/>

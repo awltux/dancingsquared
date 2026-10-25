@@ -132,7 +132,7 @@
 
   <tam title="In-Roll Circulate" from="3 and 1 Lines #5"
        fractions="2" vid="V1-qc73u2y3">
-     <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
+     <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5" sid="S1-rurxeh2i">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -281,7 +281,7 @@
 
   <tam title="Out-Roll Circulate" from="3 and 1 Lines #5"
        fractions="3" vid="V1-3i1ju07e">
-    <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5">
+    <formation fid="F3-u6cmsz8f" aid="A1-tmfmueg5" sid="S1-rurxeh2i">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>

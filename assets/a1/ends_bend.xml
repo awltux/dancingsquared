@@ -24,7 +24,7 @@
 
   <!--  For sequencer  -->
   <tam title="Bend" display="none" sequencer="perimeter" vid="V1-cwcclc1k">
-    <formation fid="F3-326hjv3l" aid="A1-1rj59953">
+    <formation fid="F3-326hjv3l" aid="A1-1rj59953" sid="S1-svi54rju">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
     </formation>
@@ -55,7 +55,7 @@
 
   <tam title="Ends Bend" sequencer="no"
        from="Inverted Lines, Ends Facing Out" actives="Ends" vid="V1-okrilqw1">
-    <formation fid="F3-xq9nr45b" aid="A1-ibzt7xtj">
+    <formation fid="F3-xq9nr45b" aid="A1-ibzt7xtj" sid="S1-i29eco58">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>

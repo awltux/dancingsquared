@@ -106,7 +106,7 @@
   </tam>
 
   <tam title="Double Pass Thru" from="Tidal Column" difficulty="2" vid="V1-qiudju2g">
-    <formation fid="F3-asmxxr5t" aid="A1-2rlpi6kp">
+    <formation fid="F3-asmxxr5t" aid="A1-2rlpi6kp" sid="S1-tsfzswfi">
       <dancer gender="boy" x="3.5" y="0" angle="180"/>
       <dancer gender="girl" x="2.5" y="0" angle="180"/>
       <dancer gender="boy" x="1.5" y="0" angle="0"/>
@@ -184,7 +184,7 @@
   </tam>
 
   <tam title="Left Double Pass Thru" from="Tidal Column" difficulty="3" vid="V1-p40rttn1">
-    <formation fid="F3-asmxxr5t" aid="A1-2rlpi6kp">
+    <formation fid="F3-asmxxr5t" aid="A1-2rlpi6kp" sid="S1-tsfzswfi">
       <dancer gender="boy" x="3.5" y="0" angle="180"/>
       <dancer gender="girl" x="2.5" y="0" angle="180"/>
       <dancer gender="boy" x="1.5" y="0" angle="0"/>
@@ -249,7 +249,7 @@
 
   <!--  Above animations without the inactive dancers, for sequencer -->
   <tam title="On a Diagonal Double Pass Thru" from="Beaus Only" display="none" vid="V1-kt73xbny">
-    <formation fid="F3-3b6dg5mk" aid="A1-juyy2zy0">
+    <formation fid="F3-3b6dg5mk" aid="A1-juyy2zy0" sid="S1-l3uxy0u4">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>
     </formation>
@@ -263,7 +263,7 @@
   </tam>
 
   <tam title="On a Diagonal Double Pass Thru" from="Belles Only" display="none" vid="V1-hizqxww2">
-    <formation fid="F3-bnmkt6hc" aid="A1-outw42ga">
+    <formation fid="F3-bnmkt6hc" aid="A1-outw42ga" sid="S1-jnubn9i0">
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
     </formation>

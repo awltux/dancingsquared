@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="Good Show" from="Right-Hand Columns" vid="V1-zvnekkdq">
-    <formation fid="F3-lcwes2cr" aid="A1-4am07t7r">
+    <formation fid="F3-lcwes2cr" aid="A1-4am07t7r" sid="S1-w8g9n2z4">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>

@@ -209,7 +209,7 @@
   </tam>
 
   <tam title="Extend" from="Tidal Quarter Tag" difficulty="3" vid="V1-1fxhxsqj">
-    <formation fid="F3-h9kyi923" aid="A1-41ibmqxz">
+    <formation fid="F3-h9kyi923" aid="A1-41ibmqxz" sid="S1-2n1p8c4q">
       <dancer gender="boy" x="-1" y="-2" angle="90"/>
       <dancer gender="girl" x="0" y="-.5" angle="270"/>
       <dancer gender="boy" x="1" y="-2" angle="270"/>
@@ -230,7 +230,7 @@
   </tam>
 
   <tam title="Extend" from="Tidal Left Quarter Tag" difficulty="3" vid="V1-aspdei8n">
-    <formation fid="F3-ou0zgtv7" aid="A1-y9emy52f">
+    <formation fid="F3-ou0zgtv7" aid="A1-y9emy52f" sid="S1-j0o3malm">
       <dancer gender="boy" x="-1" y="-2" angle="270"/>
       <dancer gender="girl" x="0" y="-.5" angle="270"/>
       <dancer gender="boy" x="1" y="-2" angle="90"/>
@@ -283,7 +283,7 @@
   </tam>
 
   <tam title="Extend" from="Tidal 3/4 Tag" difficulty="3" vid="V1-twr30vsw">
-    <formation fid="F3-lj1g7cb5" aid="A1-xc0l7kax">
+    <formation fid="F3-lj1g7cb5" aid="A1-xc0l7kax" sid="S1-93f26e66">
       <dancer gender="boy" x="-1" y="-2" angle="90"/>
       <dancer gender="girl" x="0" y="-.5" angle="90"/>
       <dancer gender="boy" x="1" y="-2" angle="270"/>
@@ -302,7 +302,7 @@
   </tam>
 
   <tam title="Extend" from="Tidal Left 3/4 Tag" difficulty="3" vid="V1-2rbcmsu4">
-    <formation fid="F3-98coy9c9" aid="A1-tj623xgp">
+    <formation fid="F3-98coy9c9" aid="A1-tj623xgp" sid="S1-ky96vs8u">
       <dancer gender="boy" x="-1" y="-2" angle="270"/>
       <dancer gender="girl" x="0" y="-.5" angle="90"/>
       <dancer gender="boy" x="1" y="-2" angle="90"/>

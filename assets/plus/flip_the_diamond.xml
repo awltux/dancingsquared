@@ -169,7 +169,7 @@
 
   <tam title="Flip the Diamond" from="Right-Hand Wave, Points Facing In"
        difficulty="2" vid="V1-y1l2fyf4">
-    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
+    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc" sid="S1-sxnnumzo">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -192,7 +192,7 @@
   </tam>
 
   <tam title="Flip the Diamond" from="Left-Hand Wave, Points Facing Out" difficulty="2" vid="V1-94dhyf86">
-    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
+    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu" sid="S1-bscqkpno">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -215,7 +215,7 @@
   </tam>
 
   <tam title="Flip the Diamond" from="Left-Hand Wave, Points Facing In" difficulty="2" vid="V1-eivkrzh3">
-    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
+    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy" sid="S1-lv7bkvtg">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -319,7 +319,7 @@
   </tam>
 
   <tam title="Flip the Diamond" from="Point-to-Point Diamonds 4" difficulty="2" vid="V1-97d5p8si">
-    <formation fid="F3-x0vy384g" aid="A1-9wda6y80">
+    <formation fid="F3-x0vy384g" aid="A1-9wda6y80" sid="S1-rh846u2o">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -357,7 +357,7 @@
 
   <tam title="Flip the Diamond"
        from="Point-to-Point Diamonds 6" difficulty="2" vid="V1-bjzx8ohl">
-    <formation fid="F3-8ogv2tf4" aid="A1-9qhj5pzk">
+    <formation fid="F3-8ogv2tf4" aid="A1-9qhj5pzk" sid="S1-gx0g47zs">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>

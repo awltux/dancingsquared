@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Cross Cycle" from="Facing Couples" vid="V1-zxlvy0so">
-    <formation fid="F3-nlnlii69" aid="A1-3qas3yk3">
+    <formation fid="F3-nlnlii69" aid="A1-3qas3yk3" sid="S1-6hhsk7ua">
       <dancer gender="girl" x="2" y="-1" angle="180" />
       <dancer gender="boy" x="2" y="1" angle="180" />
     </formation>

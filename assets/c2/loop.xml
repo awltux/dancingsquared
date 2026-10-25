@@ -37,7 +37,7 @@
   </tam>
 
   <tam title="Boys In Loop 2" from="Blocks" group=" " sequencer="gender-specific" vid="V1-rhs763rp">
-     <formation fid="F3-051pdi2z" aid="A1-584humar">
+     <formation fid="F3-051pdi2z" aid="A1-584humar" sid="S1-4nzsef4k">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-3" angle="180"/>
       <dancer gender="boy" x="-1" y="3" angle="180"/>

@@ -23,7 +23,7 @@
 <tamination title="Press Ahead">
 
   <tam title="Press Ahead" from="Right-Hand Waves" vid="V1-rnll9be1">
-    <formation fid="F3-04ob0a8b" aid="A1-zoaw4fk3">
+    <formation fid="F3-04ob0a8b" aid="A1-zoaw4fk3" sid="S1-ytkh2skm">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Press Ahead" from="Left-Hand Waves" vid="V1-h8pycenl">
-    <formation fid="F3-t3ujr4rb" aid="A1-b6is9ivv">
+    <formation fid="F3-t3ujr4rb" aid="A1-b6is9ivv" sid="S1-au8m4vfa">
       <dancer gender="boy" x="-1" y="3" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Press Ahead" from="Right-Hand Two-Faced Lines" vid="V1-sqicuuek">
-    <formation fid="F3-stj9x6gj" aid="A1-s6s0gyz7">
+    <formation fid="F3-stj9x6gj" aid="A1-s6s0gyz7" sid="S1-hx6iyyew">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
@@ -89,7 +89,7 @@
   </tam>
 
   <tam title="Press Ahead" from="Left-Hand Two-Faced Lines" vid="V1-n9rc4ae8">
-    <formation fid="F3-nglpej47" aid="A1-j141jwnn">
+    <formation fid="F3-nglpej47" aid="A1-j141jwnn" sid="S1-w8nu8abi">
       <dancer gender="girl" x="-1" y="3" angle="180"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>
@@ -141,7 +141,7 @@
 
   <tam title="Ends Press Ahead" group=" "
        from="Lines Facing Out" vid="V1-71rnnaux">
-     <formation fid="F3-f16ry9ub" aid="A1-t367io1x">
+     <formation fid="F3-f16ry9ub" aid="A1-t367io1x" sid="S1-hwkknl28">
       <dancer gender="girl" x="-1" y="3" angle="180"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
@@ -161,7 +161,7 @@
 
   <tam title="Girls Press Ahead" group=" " sequencer="gender-specific"
        from="Right-Hand Waves" vid="V1-25phwed2">
-     <formation fid="F3-04ob0a8b" aid="A1-izfqeb55">
+     <formation fid="F3-04ob0a8b" aid="A1-izfqeb55" sid="S1-4mmygdqo">
       <dancer gender="boy" x="-1" y="3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="180"/>
       <dancer gender="boy" x="-1" y="-1" angle="0"/>

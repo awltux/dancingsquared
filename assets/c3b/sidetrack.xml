@@ -23,7 +23,7 @@
 <tamination title="Sidetrack">
 
   <tam title="Sidetrack" from="Right-Hand Columns" parts="1.5;4" vid="V1-jxyzv0ga">
-    <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf">
+    <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf" sid="S1-vupulrug">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
@@ -76,7 +76,7 @@
   </tam>
 
   <tam title="Single Sidetrack" from="Right-Hand Columns" parts="1.5;4" vid="V1-iqscfrno">
-    <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf">
+    <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf" sid="S1-vupulrug">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
@@ -105,7 +105,7 @@
   </tam>
 
   <tam title="Single Sidetrack" from="Column of 8" parts="1.5;4" vid="V1-5xhkbix1">
-    <formation fid="F3-lx7jwbbb" aid="A1-fi5kp545">
+    <formation fid="F3-lx7jwbbb" aid="A1-fi5kp545" sid="S1-pbiicyuk">
       <dancer gender="boy" x="4.2" y="0" angle="0"/>
       <dancer gender="girl" x="3.0" y="0" angle="0"/>
       <dancer gender="boy" x="1.8" y="0" angle="0"/>
@@ -134,7 +134,7 @@
   </tam>
 
   <tam title="Split Sidetrack" from="Right-Hand Columns" parts="1.5;2" vid="V1-7uiqegfi">
-    <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf">
+    <formation fid="F3-lcwes2cr" aid="A1-tvm6fntf" sid="S1-vupulrug">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>

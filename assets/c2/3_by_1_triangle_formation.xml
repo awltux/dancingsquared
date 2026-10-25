@@ -75,7 +75,7 @@
 
   <tam title="3 by 1 Triangle Circulate"
        from="&quot;H&quot; formation" vid="V1-ev1ata8e">
-     <formation fid="F3-m7qf07la" aid="A1-vu62q5g2">
+     <formation fid="F3-m7qf07la" aid="A1-vu62q5g2" sid="S1-ewimob6s">
       <dancer gender="girl" x="-3" y="3" angle="0"/>
       <dancer gender="boy" x="-3" y="-3" angle="180"/>
       <dancer gender="boy" x="0" y="1" angle="180"/>
@@ -97,7 +97,7 @@
 
   <tam title="3 by 1 Interlocked Triangle Circulate"
        from="Interlocked 3 by 1 Triangles" vid="V1-002w40ev">
-     <formation fid="F3-idvq1344" aid="A1-dzij8kds">
+     <formation fid="F3-idvq1344" aid="A1-dzij8kds" sid="S1-d9cop3ls">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -119,7 +119,7 @@
 
   <tam title="3 by 1 Interlocked Triangle Circulate"
        from="&quot;H&quot; formation" vid="V1-o4ffaq8p">
-     <formation fid="F3-spdukz0i" aid="A1-fegtx586">
+     <formation fid="F3-spdukz0i" aid="A1-fegtx586" sid="S1-9zeb2lsk">
       <dancer gender="girl" x="-3" y="3" angle="0"/>
       <dancer gender="boy" x="-3" y="-3" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>

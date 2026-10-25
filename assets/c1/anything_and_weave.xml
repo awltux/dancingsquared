@@ -23,7 +23,7 @@
 <tamination title="Weave">
 
   <tam title="Weave" from="Right-Hand Box" vid="V1-dj2o8usp">
-    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
+    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9" sid="S1-15hybw4k">
       <dancer gender="boy" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="90"/>
     </formation>
@@ -47,7 +47,7 @@
   </tam>
 
   <tam title="Weave" from="Single Eight Chain Thru" vid="V1-f0bcit93">
-    <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
+    <formation fid="F3-7qkeu9io" aid="A1-7wgyqrk2" sid="S1-jw2q6ob4">
       <dancer gender="boy" x="0" y="3" angle="270"/>
       <dancer gender="girl" x="0" y="1" angle="90"/>
     </formation>

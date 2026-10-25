@@ -55,7 +55,7 @@
   <tam title="Mirror Brace Thru" group="Mirror"
        from="Lines"
        fractions="3"  vid="V1-j380oqr6">
-     <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql">
+     <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql" sid="S1-gbe5t2ps">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>

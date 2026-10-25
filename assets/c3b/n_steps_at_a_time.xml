@@ -23,7 +23,7 @@
 <tamination title="n Steps At A Time">
 
   <tam title="1 Step at a Time" group=" " parts="3;3" vid="V1-mvyzx0w2">
-    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ewed1wws">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="-3" x="1" angle="270"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="2 Steps at a Time" group=" " parts="3;3" vid="V1-uuc2nbhy">
-    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ewed1wws">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="-3" x="1" angle="270"/>
@@ -81,7 +81,7 @@
   </tam>
 
   <tam title="3 Steps at a Time" group=" " parts="3;3" vid="V1-5fbakdbt">
-    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ewed1wws">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="-3" x="1" angle="270"/>
@@ -110,7 +110,7 @@
   </tam>
 
   <tam title="4 Steps at a Time" group=" " parts="3;0" vid="V1-rc5zt9wk">
-    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ewed1wws">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="-3" x="1" angle="270"/>

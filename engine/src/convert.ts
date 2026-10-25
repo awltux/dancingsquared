@@ -259,7 +259,7 @@ type DancerBase = { gender: Gender; x: number; y: number; angleDeg: number };
 
 /** The tags an element carries, or nulls when it carries none. Shared by both definition sites. */
 function tagOf(el: { getAttribute(name: string): string | null }): FormationTag {
-  return { fid: el.getAttribute('fid'), aid: el.getAttribute('aid') };
+  return { fid: el.getAttribute('fid'), aid: el.getAttribute('aid'), sid: el.getAttribute('sid') };
 }
 
 function parseFormationTagsImpl(xmlText: string): Map<string, FormationTag> {
@@ -390,7 +390,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
       sequencerMode: parseSequencerMode(tam.getAttribute('sequencer')),
       actives: tam.getAttribute('actives'),
       symmetry: parseSymmetry(tam.getAttribute('asymmetric')),
-      formationTag: inline ? tagOf(inline) : { fid: null, aid: null },
+      formationTag: inline ? tagOf(inline) : { fid: null, aid: null, sid: null },
       vid: tam.getAttribute('vid'),
     });
   }
@@ -579,7 +579,7 @@ export function parseFormations(xmlText: string): Map<string, DancerBase[]> {
   return parseFormationsImpl(xmlText);
 }
 
-/** The `fid`/`aid` every definition carries, by formation name. See `FormationTag`. */
+/** The `fid`/`aid`/`sid` every definition carries, by formation name. See `FormationTag`. */
 export function parseFormationTags(xmlText: string): Map<string, FormationTag> {
   return parseFormationTagsImpl(xmlText);
 }
@@ -631,6 +631,7 @@ export function formationToXml(
     `name="${esc(name)}"`,
     ...(tags?.fid ? [`fid="${esc(tags.fid)}"`] : []),
     ...(tags?.aid ? [`aid="${esc(tags.aid)}"`] : []),
+    ...(tags?.sid ? [`sid="${esc(tags.sid)}"`] : []),
   ].join(' ');
   return `  <formation ${attrs}>\n${lines.join('\n')}\n  </formation>`;
 }

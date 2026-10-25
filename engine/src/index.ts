@@ -112,14 +112,15 @@ export {
 } from './sequencer/arrangement-id.js';
 // THE SETUP IDENTITY: the arrangement AND the order the call lists its dancers in - the one key that says which
 // two dancers are couple 1, which is what the path pairing and the displayed colour read off the array. It refines
-// `A1-` the way `A1-` refines `F3-`, it names the EIGHT PHYSICAL dancers only (a phantom is scaffolding, not one
-// of the eight), and it refuses any other size rather than inventing an id for a subset unit. See `setup-id.ts`.
+// `A1-` the way `A1-` refines `F3-`, it names the PHYSICAL dancers only (a phantom is scaffolding, not one of
+// them), and it works at ANY size: a formation definition writes two dancers or eight, and the count is in the key.
+// That the eight-dancer WHOLE set is what a call or a sequence acts on is a rule about its callers, not a refusal
+// here. See `setup-id.ts`, and `isSetupId` beside the scheme it validates.
 export {
   setupId,
   setupCanonical,
   isSetupId,
   isPhysicalDancer,
-  SETUP_DANCERS,
   SETUP_ID_VERSION,
 } from './sequencer/setup-id.js';
 // THE CALL-VARIANT IDENTITY: (level, call title, the formation DEFINITION's stored `fid`). The fid is written on

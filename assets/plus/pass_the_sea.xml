@@ -24,7 +24,7 @@
 
   <tam title="Pass the Sea"
        from="Facing Couples" vid="V1-2q5sc957">
-    <formation fid="F3-nlnlii69" aid="A1-6r10ge6d">
+    <formation fid="F3-nlnlii69" aid="A1-6r10ge6d" sid="S1-23wt186o">
       <dancer gender="boy" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="270"/>
     </formation>

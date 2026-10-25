@@ -51,7 +51,7 @@
   </tam>
 
   <tam title="Courtesy Turn" from="Girls facing Boys" sequencer="gender-specific" vid="V1-phx0w0v4">
-    <formation fid="F3-p3qjle85" aid="A1-eqky5b8n">
+    <formation fid="F3-p3qjle85" aid="A1-eqky5b8n" sid="S1-0ci7n87s">
       <dancer gender="boy" x="1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="90"/>
       <dancer gender="boy" x="-1" y="3" angle="270"/>

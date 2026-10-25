@@ -23,7 +23,7 @@
 <tamination title="Step and Slide">
 
   <tam title="Step and Slide" from="Right-Hand Two-Faced Line" vid="V1-sq9e1xu2">
-    <formation fid="F3-la88ogb8" aid="A1-ypdxw964">
+    <formation fid="F3-la88ogb8" aid="A1-ypdxw964" sid="S1-d3fsbmzo">
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="-1" y="0" angle="90"/>
     </formation>
@@ -64,7 +64,7 @@
   </tam>
 
   <tam title="Step and Slide" from="Lines Facing Out" vid="V1-83glpqvd">
-    <formation fid="F3-xzuj7y07" aid="A1-05dph68t">
+    <formation fid="F3-xzuj7y07" aid="A1-05dph68t" sid="S1-juqjhq20">
       <dancer gender="girl" x="3" y="2" angle="90"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="girl" x="-1" y="2" angle="90"/>

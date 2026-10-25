@@ -23,7 +23,7 @@
 <tamination title="Offset Waves/Lines/Columns Concept">
 
   <tam title="Offset Lines Couples Circulate" group="Offset Lines" vid="V1-g1w5zi1j">
-     <formation fid="F3-rgjcv1ar" aid="A1-al2wimg1">
+     <formation fid="F3-rgjcv1ar" aid="A1-al2wimg1" sid="S1-uiyrd92g">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="180"/>
@@ -46,7 +46,7 @@
   </tam>
 
   <tam title="Offset Lines Bend the Line" group="Offset Lines" vid="V1-787ejdu4">
-     <formation fid="F3-920slcuf" aid="A1-ruw3qskb">
+     <formation fid="F3-920slcuf" aid="A1-ruw3qskb" sid="S1-awn1nskq">
       <dancer gender="boy" x="3" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Offset Lines Pass the Ocean" group="Offset Lines" vid="V1-dcew5ds1">
-     <formation fid="F3-yuvb19yr" aid="A1-r6bbwq4d">
+     <formation fid="F3-yuvb19yr" aid="A1-r6bbwq4d" sid="S1-2n92kr44">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>

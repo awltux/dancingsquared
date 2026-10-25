@@ -98,7 +98,7 @@
   </tam>
 
   <tam title="Lickety Split" from="T-Bones 2" vid="V1-f43qjgdt">
-    <formation fid="F3-eo4x6qpn" aid="A1-4jpeq613">
+    <formation fid="F3-eo4x6qpn" aid="A1-4jpeq613" sid="S1-bdnt5wgs">
       <dancer gender="boy" y="3" x="1" angle="90"/>
       <dancer gender="girl" y="1" x="1" angle="0"/>
       <dancer gender="girl" y="-1" x="1" angle="180"/>

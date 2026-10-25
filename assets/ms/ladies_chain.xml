@@ -286,7 +286,7 @@
 
   <tam title="On a Double Track, Ladies Chain" from="Double Pass Thru" group=" "
        sequencer="gender-specific" difficulty="2" vid="V1-7dgzvovg">
-    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
+    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj" sid="S1-olyhvbku">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -600,7 +600,7 @@
 
 <tam title="Ladies Chain" from="Double Pass Thru"
        sequencer="gender-specific" difficulty="2" vid="V1-d6ewjzq2">
-    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
+    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj" sid="S1-olyhvbku">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>

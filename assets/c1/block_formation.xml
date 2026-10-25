@@ -150,7 +150,7 @@
 
   <tam title="In Your Block Square Chain the Top" group="In Your Block"
        fractions="" vid="V1-zfwhzjzt">
-    <formation fid="F3-g3kqivc3" aid="A1-jdm78xhx">
+    <formation fid="F3-g3kqivc3" aid="A1-jdm78xhx" sid="S1-2kdpdz1c">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="1" angle="270"/>
       <dancer gender="boy" x="3" y="3" angle="270"/>
@@ -192,7 +192,7 @@
 
   <tam title="In Your Block Square Chain Thru" group="In Your Block"
        fractions="3.5;3;3;3"  vid="V1-gjvvwc7g">
-    <formation fid="F3-g3kqivc3" aid="A1-jdm78xhx">
+    <formation fid="F3-g3kqivc3" aid="A1-jdm78xhx" sid="S1-2kdpdz1c">
       <dancer gender="boy" x="1" y="1" angle="270"/>
       <dancer gender="girl" x="-3" y="1" angle="270"/>
       <dancer gender="boy" x="3" y="3" angle="270"/>

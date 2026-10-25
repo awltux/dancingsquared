@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="Dodge Load the Boat" group=" " vid="V1-3icdspgd">
-     <formation fid="F3-f3cmi7bf" aid="A1-s54jgzwx">
+     <formation fid="F3-f3cmi7bf" aid="A1-s54jgzwx" sid="S1-evgcnhq0">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="270"/>

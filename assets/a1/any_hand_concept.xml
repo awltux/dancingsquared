@@ -138,7 +138,7 @@
 
   <tam title="Any Hand Quarter Thru" parts="1.5"
        from="Inverted Lines, Ends Facing Out" vid="V1-8cdnic8s">
-    <formation fid="F3-xq9nr45b" aid="A1-15lti50r">
+    <formation fid="F3-xq9nr45b" aid="A1-15lti50r" sid="S1-odx6vemo">
       <dancer gender="boy" x="3" y="2" angle="90"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
       <dancer gender="boy" x="-1" y="2" angle="270"/>
@@ -284,7 +284,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Diamonds 3" parts="1.5" vid="V1-q4gg75u0">
-    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
+    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc" sid="S1-sxnnumzo">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -328,7 +328,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Diamonds 5" parts="1.5" vid="V1-uwid8kjz">
-    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
+    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy" sid="S1-lv7bkvtg">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -353,7 +353,7 @@
   </tam>
 
   <tam title="Any Hand Quarter Thru" from="Diamonds 6" parts="1.5" vid="V1-unbpf8jy">
-    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
+    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu" sid="S1-bscqkpno">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -566,7 +566,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Diamonds 3" parts="4.5" vid="V1-ditsbx4a">
-    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
+    <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc" sid="S1-sxnnumzo">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -610,7 +610,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Diamonds 5" parts="4.5" vid="V1-lnptw6dt">
-    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy">
+    <formation fid="F3-u1yhu85g" aid="A1-8dssbkhy" sid="S1-lv7bkvtg">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -635,7 +635,7 @@
   </tam>
 
   <tam title="Any Hand 3/4 Thru" from="Diamonds 6" parts="4.5" vid="V1-68h3okxs">
-    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu">
+    <formation fid="F3-blhvm4n8" aid="A1-j20x3teu" sid="S1-bscqkpno">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="270"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>

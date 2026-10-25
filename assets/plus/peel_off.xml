@@ -51,7 +51,7 @@
   <tam title="Peel Off"
        from="Right-Hand Z Facing In"
        difficulty="1" vid="V1-420hcu1c">
-    <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8">
+    <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8" sid="S1-irtygmlw">
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
     </formation>
@@ -66,7 +66,7 @@
   <tam title="Peel Off"
        from="Left-Hand Z Facing In"
        difficulty="1" vid="V1-xn91uiup">
-    <formation fid="F3-07nohwr6" aid="A1-kggk56dw">
+    <formation fid="F3-07nohwr6" aid="A1-kggk56dw" sid="S1-ru9d3g6k">
       <dancer gender="boy" x="0" y="1" angle="180"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
     </formation>
@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Peel Off" from="Right-Hand Z Facing Out" difficulty="2" vid="V1-jcu3wtp2">
-    <formation fid="F3-km28j8ki" aid="A1-83w342bo">
+    <formation fid="F3-km28j8ki" aid="A1-83w342bo" sid="S1-tqtq4s6k">
       <dancer gender="boy" x="0" y="1" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
     </formation>
@@ -92,7 +92,7 @@
   </tam>
 
   <tam title="Peel Off" from="Left-Hand Z Facing Out" difficulty="2" vid="V1-5pp4repn">
-    <formation fid="F3-zmb3igvk" aid="A1-rkblren0">
+    <formation fid="F3-zmb3igvk" aid="A1-rkblren0" sid="S1-jpqz7gps">
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>
     </formation>

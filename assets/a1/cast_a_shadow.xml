@@ -82,7 +82,7 @@
 
   <tam title="Cast a Shadow"
        from="Right-Hand Two-Faced Lines" vid="V1-hhjlg66n">
-     <formation fid="F3-p8t2f0pj" aid="A1-zs75tk63">
+     <formation fid="F3-p8t2f0pj" aid="A1-zs75tk63" sid="S1-p9wdt1k4">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="90"/>
@@ -114,7 +114,7 @@
 
   <tam title="Cast a Shadow"
        from="Left-Hand Two-Faced Lines" vid="V1-nbi1hbl4">
-     <formation fid="F3-njckelvh" aid="A1-2xeilizd">
+     <formation fid="F3-njckelvh" aid="A1-2xeilizd" sid="S1-figmwwy0">
       <dancer gender="girl" x="3" y="2" angle="90"/>
       <dancer gender="boy" x="1" y="2" angle="90"/>
       <dancer gender="boy" x="-1" y="2" angle="270"/>
@@ -199,7 +199,7 @@
   </tam>
 
   <tam title="Heads Cast a Shadow" group=" " vid="V1-zgriv9yq">
-    <formation fid="F3-cd6blrmh" aid="A1-g67guzj5">
+    <formation fid="F3-cd6blrmh" aid="A1-g67guzj5" sid="S1-dzptlgya">
       <dancer gender="girl" x="0" y="3" angle="180"/>
       <dancer gender="boy" x="0" y="1.5" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="270"/>

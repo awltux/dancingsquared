@@ -179,7 +179,7 @@ export function placeVirtual(
     formation: startFormation,
     // A SYNTHESISED variant is not a corpus definition, so it carries no stored tags; what identifies it is
     // `virtual.sourceStart` (the source authoring's own formation id), already carried below.
-    formationTag: { fid: null, aid: null },
+    formationTag: { fid: null, aid: null, sid: null },
     parts: source.parts,
     taminator: source.taminator,
     dancers: placed,

@@ -251,7 +251,7 @@
   </tam>
 
   <tam title="_Finish Line of 8 Tag the Line" display="no" vid="V1-wl0uzxin">
-    <formation fid="F3-h0va17gx" aid="A1-42z7i765">
+    <formation fid="F3-h0va17gx" aid="A1-42z7i765" sid="S1-5h6ld5u2">
       <dancer gender="boy" x="3.5" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.5" y="-.5" angle="180"/>
       <dancer gender="boy" x="1.5" y="-.5" angle="180"/>
@@ -276,7 +276,7 @@
   </tam>
 
   <tam title="_Finish Line of 8 Left Tag the Line" display="no" vid="V1-b5y0ez33">
-    <formation fid="F3-tgzyc4u9" aid="A1-w1jsrtq1">
+    <formation fid="F3-tgzyc4u9" aid="A1-w1jsrtq1" sid="S1-49jar4ny">
       <dancer gender="boy" x="3.5" y=".5" angle="180"/>
       <dancer gender="girl" x="2.5" y=".5" angle="180"/>
       <dancer gender="boy" x="1.5" y=".5" angle="180"/>
@@ -301,7 +301,7 @@
   </tam>
 
   <tam title="_Finish Line of 8 Half Tag" display="no" vid="V1-ru90b2bt">
-    <formation fid="F3-h0va17gx" aid="A1-42z7i765">
+    <formation fid="F3-h0va17gx" aid="A1-42z7i765" sid="S1-5h6ld5u2">
       <dancer gender="boy" x="3.5" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.5" y="-.5" angle="180"/>
       <dancer gender="boy" x="1.5" y="-.5" angle="180"/>
@@ -322,7 +322,7 @@
   </tam>
 
   <tam title="_Finish Line of 8 Left Half Tag" display="no" vid="V1-bzoptm2t">
-    <formation fid="F3-tgzyc4u9" aid="A1-w1jsrtq1">
+    <formation fid="F3-tgzyc4u9" aid="A1-w1jsrtq1" sid="S1-49jar4ny">
       <dancer gender="boy" x="3.5" y=".5" angle="180"/>
       <dancer gender="girl" x="2.5" y=".5" angle="180"/>
       <dancer gender="boy" x="1.5" y=".5" angle="180"/>
@@ -343,7 +343,7 @@
   </tam>
 
   <tam title="_Finish Line of 6 Tag the Line" display="no" vid="V1-zb773ddl">
-    <formation fid="F3-76q0kmzt" aid="A1-a9sbkowl">
+    <formation fid="F3-76q0kmzt" aid="A1-a9sbkowl" sid="S1-gv93hfpx">
       <dancer gender="boy" x="3.75" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.25" y="-.5" angle="180"/>
       <dancer gender="boy" x="0.75" y="-.5" angle="180"/>
@@ -363,7 +363,7 @@
   </tam>
 
   <tam title="_Finish Line of 6 Left Tag the Line" display="no" vid="V1-fhi9i53c">
-    <formation fid="F3-729y8ywe" aid="A1-3w5pzdg4">
+    <formation fid="F3-729y8ywe" aid="A1-3w5pzdg4" sid="S1-72o8lzsl">
       <dancer gender="boy" x="3.75" y=".5" angle="180"/>
       <dancer gender="girl" x="2.25" y=".5" angle="180"/>
       <dancer gender="boy" x="0.75" y=".5" angle="180"/>
@@ -383,7 +383,7 @@
   </tam>
 
   <tam title="_Finish Line of 6 Half Tag" display="no" vid="V1-k3o5hko7">
-    <formation fid="F3-76q0kmzt" aid="A1-a9sbkowl">
+    <formation fid="F3-76q0kmzt" aid="A1-a9sbkowl" sid="S1-gv93hfpx">
       <dancer gender="boy" x="3.75" y="-.5" angle="180"/>
       <dancer gender="girl" x="2.25" y="-.5" angle="180"/>
       <dancer gender="boy" x="0.75" y="-.5" angle="180"/>
@@ -400,7 +400,7 @@
   </tam>
 
   <tam title="_Finish Line of 6 Left Half Tag" display="no" vid="V1-z4c58nh2">
-    <formation fid="F3-729y8ywe" aid="A1-3w5pzdg4">
+    <formation fid="F3-729y8ywe" aid="A1-3w5pzdg4" sid="S1-72o8lzsl">
       <dancer gender="boy" x="3.75" y=".5" angle="180"/>
       <dancer gender="girl" x="2.25" y=".5" angle="180"/>
       <dancer gender="boy" x="0.75" y=".5" angle="180"/>

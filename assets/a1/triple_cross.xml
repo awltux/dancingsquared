@@ -24,7 +24,7 @@
 
   <tam title="Triple Cross"
        from="Right-Hand Columns" vid="V1-nwrfeozi">
-    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
       <dancer gender="girl" y="-1" x="-1" angle="90"/>
@@ -46,7 +46,7 @@
 
   <tam title="Triple Cross"
        from="Left-Hand Columns" vid="V1-5totaznf">
-    <formation fid="F3-dhnw1kx1" aid="A1-cl87xbbn">
+    <formation fid="F3-dhnw1kx1" aid="A1-cl87xbbn" sid="S1-6efrebpw">
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="-1" x="-1" angle="270"/>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Triple Cross" from="Right-Hand Box between Couples" vid="V1-pavgltco">
-    <formation fid="F3-mgilzw9x" aid="A1-lhyug3s7">
+    <formation fid="F3-mgilzw9x" aid="A1-lhyug3s7" sid="S1-dpn31hpk">
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="-1" angle="90" />
       <dancer gender="girl" y="-1" x="-1" angle="90" />
@@ -88,7 +88,7 @@
   </tam>
 
   <tam title="Triple Cross" from="Left-Hand Box between Couples" vid="V1-pkpw4rcq">
-    <formation fid="F3-424fi6bp" aid="A1-zxj5yo9z">
+    <formation fid="F3-424fi6bp" aid="A1-zxj5yo9z" sid="S1-703gi1rc">
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="-1" angle="270" />
       <dancer gender="girl" y="-1" x="-1" angle="270" />

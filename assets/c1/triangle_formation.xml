@@ -128,7 +128,7 @@
 
   <tam title="Inpoint Triangle Circulate"
        from="Tandem Centers"  vid="V1-nnyftywk">
-     <formation fid="F3-2sx178nq" aid="A1-0z0ts7xo">
+     <formation fid="F3-2sx178nq" aid="A1-0z0ts7xo" sid="S1-sbiaedw0">
       <dancer gender="boy" x="0" y="-3" angle="270"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="270"/>
@@ -265,7 +265,7 @@
 
   <tam title="Tandem-Based Triangle Circulate"
        from="Hourglass with Right-Hand Tandem Triangles" vid="V1-yizr96q3">
-     <formation fid="F3-tmpa6y0d" aid="A1-tl5u49r1">
+     <formation fid="F3-tmpa6y0d" aid="A1-tl5u49r1" sid="S1-thn6x0v6">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="0" angle="90"/>
       <dancer gender="boy" x="-2" y="3" angle="0"/>

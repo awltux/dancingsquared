@@ -25,7 +25,7 @@
   <tam title="Magic Column Circulate"
        group="(Right-Hand Centers)"
        fractions="2"  vid="V1-idnm0ked">
-    <formation fid="F3-dy4b34sl" aid="A1-50p0u50t">
+    <formation fid="F3-dy4b34sl" aid="A1-50p0u50t" sid="S1-hhssy72i">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>
@@ -50,7 +50,7 @@
   <tam title="Magic Column Circulate (6 dancers)"
        group="(Right-Hand Centers)"
        fractions="2"  vid="V1-jbrebojy">
-    <formation fid="F3-g5ur7ufr" aid="A1-4u1wewft">
+    <formation fid="F3-g5ur7ufr" aid="A1-4u1wewft" sid="S1-io13s541">
       <dancer gender="boy" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>
@@ -69,7 +69,7 @@
   </tam>
 
   <tam title="Magic Column Coordinate" group="(Right-Hand Centers)" fractions="6;3" vid="V1-mp2ghhjd">
-    <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp">
+    <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp" sid="S1-9os95ip0">
       <dancer gender="girl" y="1" x="-1" angle="90"/>
       <dancer gender="boy" y="3" x="1" angle="90"/>
       <dancer gender="girl" y="-3" x="1" angle="90"/>
@@ -209,7 +209,7 @@
   <tam title="Magic Column Circulate (6 dancers)"
        group="(Left-Hand Centers)"
        fractions="2"  vid="V1-ua9o4mvi">
-    <formation fid="F3-2l6ya1n0" aid="A1-k2q4rnee">
+    <formation fid="F3-2l6ya1n0" aid="A1-k2q4rnee" sid="S1-lxuxckcv">
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -228,7 +228,7 @@
   </tam>
 
   <tam title="Magic Column Coordinate" group="(Left-Hand Centers)" fractions="6;3" vid="V1-047ue6j7">
-    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
+    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln" sid="S1-r78hhz5k">
       <dancer gender="girl" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="-3" x="1" angle="270"/>
@@ -308,7 +308,7 @@
   </tam>
 
   <tam title="Magic Column Transfer the Column" group="(Left-Hand Centers)" vid="V1-vfo57ihj">
-    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
+    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln" sid="S1-wiuvndas">
       <dancer gender="girl" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="1" angle="90"/>
       <dancer gender="girl" y="3" x="-1" angle="90"/>
@@ -341,7 +341,7 @@
   </tam>
 
   <tam title="Magic Column Transfer and" group="(Left-Hand Centers)" display="no" vid="V1-9qyc29rb">
-    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln">
+    <formation fid="F3-3zu9lyyj" aid="A1-0uzaf9ln" sid="S1-wiuvndas">
       <dancer gender="girl" y="1" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="1" angle="90"/>
       <dancer gender="girl" y="3" x="-1" angle="90"/>

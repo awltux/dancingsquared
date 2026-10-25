@@ -23,7 +23,7 @@
 <tamination title="Ocean Wave Family">
 
   <tam title="Step to a Wave" from="Facing Dancers" difficulty="2" vid="V1-ggej82kk">
-    <formation fid="F3-ikm3hpag" aid="A1-qflf7i9w">
+    <formation fid="F3-ikm3hpag" aid="A1-qflf7i9w" sid="S1-zuhc0yn7">
       <dancer gender="boy" x="1.5" y="0" angle="180"/>
     </formation>
     <path>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Step to a Left-Hand Wave" from="Facing Dancers" difficulty="2" vid="V1-4n59inbb">
-    <formation fid="F3-ikm3hpag" aid="A1-qflf7i9w">
+    <formation fid="F3-ikm3hpag" aid="A1-qflf7i9w" sid="S1-zuhc0yn7">
       <dancer gender="boy" x="1.5" y="0" angle="180"/>
     </formation>
     <path>

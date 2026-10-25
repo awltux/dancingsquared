@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="Central Ramble" group="Central" vid="V1-6xlwmhnd">
-    <formation fid="F3-4ablgjmv" aid="A1-iw06f7c1">
+    <formation fid="F3-4ablgjmv" aid="A1-iw06f7c1" sid="S1-0137regc">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="180"/>

@@ -25,7 +25,7 @@
   <tam title="Wind the Bobbin"
        from="Right-Hand Columns"
        fractions="1;4.5;3"  vid="V1-zsefq09m">
-      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+      <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
         <dancer gender="girl" y="3" x="-1" angle="90"/>
         <dancer gender="boy" y="1" x="-1" angle="90"/>
         <dancer gender="girl" y="-1" x="-1" angle="90"/>

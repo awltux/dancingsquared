@@ -117,7 +117,7 @@
 
   <tam title="Box Circulate"
        from="T-Bone 1" display="none" vid="V1-xy339ba7">
-    <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
+    <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde" sid="S1-hgr8nfr0">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="270"/>
     </formation>
@@ -131,7 +131,7 @@
 
   <tam title="Box Circulate"
        from="T-Bone 2" display="none" vid="V1-16mfhqjt">
-    <formation fid="F3-vem78m16" aid="A1-vabff0x0">
+    <formation fid="F3-vem78m16" aid="A1-vabff0x0" sid="S1-jxuqpf1o">
       <dancer gender="boy" x="-1" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="-1" angle="180"/>
     </formation>
@@ -982,7 +982,7 @@
   <tam title="Column Circulate"
        from="Right-Hand Columns of 3"
        fractions="1.5" difficulty="2" vid="V1-y1fkxyty">
-    <formation fid="F3-3xrbiews" aid="A1-1jn093gq">
+    <formation fid="F3-3xrbiews" aid="A1-1jn093gq" sid="S1-arg0jrxx">
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -1001,7 +1001,7 @@
   <tam title="Column Circulate"
        from="Left-Hand Columns of 3"
        fractions="1.5" difficulty="2" vid="V1-dzrvzzny">
-    <formation fid="F3-sdcmdl6f" aid="A1-d7ifd5p5">
+    <formation fid="F3-sdcmdl6f" aid="A1-d7ifd5p5" sid="S1-ze6pxkzl">
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>

@@ -1,4 +1,4 @@
-// A SETUP'S IDENTITY: THE ARRANGEMENT **AND** THE ORDER THE CALL LISTS THE EIGHT PHYSICAL DANCERS IN.
+// A SETUP'S IDENTITY: THE ARRANGEMENT **AND** THE ORDER THE CALL LISTS ITS DANCERS IN - AT ANY SIZE.
 //
 // WHAT THIS ADDS TO ITS NEIGHBOURS. A formation id drops gender, position, rotation AND array order. An arrangement
 // id puts the genders back on their spots and still drops the order, deliberately (`test/arrangement-id.mjs` pins
@@ -16,15 +16,20 @@
 // the corpus's authored-setup identity `variantIdentity` (`library.ts`, which also holds the paths, the title and
 // the `from`/`formation` names), and NOT a call variant (`V1-`).
 //
-// EIGHT PHYSICAL DANCERS, AND PHANTOMS ARE IGNORED. A setup is the whole set. `isPhysicalDancer` is the one rule -
-// not a ghost (`isGhost`) and not `gender: 'phantom'` - and the key is taken over the surviving dancers RE-INDEXED
-// 0..7, so a phantom's position in the array changes neither the numbering nor the geometry. This DIVERGES from
-// the two schemes beside it on purpose: `formation-id.ts` keeps ghosts in the shape ("GHOSTS ARE PART OF THE
-// SHAPE" - a phantom occupies a spot the dancers are avoiding) and `arrangement-id.ts` gives them the symbol `p`.
-// A setup is about where the eight people stand and how they are numbered; a phantom is the scaffolding the engine
-// surrounds them with (`bodies.ts`: it "does not occupy collision space"). A 2-, 4- or 6-dancer shape is a
-// MATCHABLE UNIT for a virtual call's source (`VirtualCallInfo.sourceStart`/`sourceFid`), not a setup, and this
-// module refuses it rather than inventing an identity for a size the idea does not cover.
+// ANY SIZE, AND PHANTOMS ARE IGNORED. The first version of this scheme refused anything that was not EIGHT physical
+// dancers, because a call variant and a sequence start from a whole eight-dancer board. That guard is gone: a
+// formation DEFINITION writes whatever size it writes - two, three, four, six or eight - and the corpus tags every
+// definition with the setup id it has, so the generator must name the size it is given. The count is already in the
+// key (`canonicalOf`'s `${n}|` prefix, with the dancers re-indexed 0..n-1), so a four-dancer setup can never
+// collide with an eight-dancer one, and the eight-dancer rule now lives where it belongs: as a rule about what a
+// CALL or a SEQUENCE acts on, not as a refusal here. `isPhysicalDancer` is unchanged - not a ghost (`isGhost`) and
+// not `gender: 'phantom'` - so a phantom's position in the array changes neither the numbering nor the geometry,
+// and the only refusal left is a board with NO physical dancers (an id over nothing names nothing). That still
+// DIVERGES from the two schemes beside it on purpose: `formation-id.ts` keeps ghosts in the shape ("GHOSTS ARE
+// PART OF THE SHAPE" - a phantom occupies a spot the dancers are avoiding) and `arrangement-id.ts` gives them the
+// symbol `p`; a setup is about where the people stand and how they are numbered, and a phantom is the scaffolding
+// the engine surrounds them with (`bodies.ts`: it "does not occupy collision space"). NO DEFINITION CARRIES ONE
+// TODAY, MEASURED: `git grep 'gender="phantom"' assets/` finds none, so the rule costs the corpus nothing.
 //
 // THE CANONICALISATION is the arrangement's, then `#`, then the SAME canonicaliser with the array index as the
 // per-dancer extra symbol:
@@ -45,10 +50,11 @@
 // must a gender relabelling, which arrives through the arrangement half.
 //
 // HALF SETS. The corpus writes half a formation and `reconstituteWholeSet` supplies the other half, in the same
-// order (written dancers, then their 180-degree antipodes). The input here is a COMPLETE board, because a four-
-// dancer board can legitimately be whole (a two-couple set) so no size heuristic can tell the two apart; the
-// completion is the caller's, and `test/setup-id.mjs` pins that a half and its COMPLEMENTARY half - the whole set
-// turned 180 degrees - mint one id.
+// order (written dancers, then their 180-degree antipodes). The input here is a COMPLETE board - a four-dancer
+// board can legitimately be whole (a two-couple set), so no size heuristic can tell the two apart - and the
+// completion is the caller's: `test/setup-id.mjs` pins that a half and its COMPLEMENTARY half (the whole set turned
+// 180 degrees) mint one id, and `scripts/tag-formations.mjs` tags a definition from its completed geometry, exactly
+// as it does for `fid` and `aid`.
 //
 // WHAT IT DOES NOT DO: it does not enumerate the finite set of VALID setups the symmetry and partner rules permit.
 // It names whatever order it is given, and the count of valid setups is a separate question with its own
@@ -59,15 +65,15 @@
 // cannot be mistaken for an old one. The input string is the arrangement CANONICALISATION, not its rendered `A1-`
 // id, so a future encoding bump does not cascade into setup ids.
 //
-// POPULATION AND COST, MEASURED by `test/identity-census.mjs` over ms+plus: **172 distinct setups over 1,224
-// eight-physical boards** - 1,217 of the 1,769 built authorings, plus the 7 generated instances - with **167 distinct
-// arrangements over the same boards, 5 of which carry more than one setup** (the figure that says the setup axis is
-// not the arrangement axis), **0 id collisions**, and **552 builds refused** because they are not eight physical
-// dancers. The birthday risk over 172 ids in a 36^8 = 2,821,109,907,456 space is 172^2 / (2 * 36^8) = 5.2e-9. The
-// cost of canonicalising twice, over the same 200-board sample x10 and two runs: `arrangementId` 55.0 us/board and
-// `setupId` 106.9 us/board on the first, 45.0 and 88.4 on the repeat - i.e. a second canonicalisation, paid when an
-// id is MINTED; no hot path calls it. Those counts are pinned in the census, in the commit that measures them,
-// because they move with the corpus.
+// POPULATION AND COST, MEASURED by `test/identity-census.mjs` over ms+plus and pinned there, in the commit that
+// measures them, because they move with the corpus: **250 distinct setups over 1,776 boards** - every board the
+// corpus builds, 1,769 authoring starts plus the 7 generated instances, with 0 refused - over **242 distinct
+// arrangements, 8 of which carry more than one setup**. The birthday risk over 250 ids in a 36^8 =
+// 2,821,109,907,456 space is 250^2 / (2 * 36^8) = 1.1e-8. The cost of canonicalising twice, over the same 200-board
+// sample x10: `arrangementId` 32.4 us/board and `setupId` 62.2 us/board - a second canonicalisation, paid when an
+// id is MINTED; no hot path calls it. THE TAGGED CORPUS is a larger sample than that census and is pinned where the
+// tags live: 292 named definitions + 636 inline blocks mint **640 distinct setups**, of which **288 definitions are
+// duplicates** (the same stored `sid`), recorded in `DuplicateFormations.md` by `scripts/tag-formations.mjs`.
 
 import type { Board, SeqDancer } from './types.js';
 import type { Gender } from '../types.js';
@@ -80,14 +86,8 @@ import { encodeId, fnv1a64, isIdOf, ID_SCHEMES } from './id-code.js';
 export const SETUP_ID_VERSION = ID_SCHEMES.setup;
 
 /**
- * THE WHOLE SET: the number of PHYSICAL dancers a setup has. Exported so an instrument reads it rather than
- * restating eight, and so the refusal below is a named rule instead of a literal.
- */
-export const SETUP_DANCERS = 8;
-
-/**
- * Whether a board's entry is one of the eight people the setup is about: not a ghost, and not a dancer whose
- * gender is `phantom`. The one rule, shared by the id and by every census that counts the population.
+ * Whether a board's entry is one of the people the setup is about: not a ghost, and not a dancer whose gender is
+ * `phantom`. The one rule, shared by the id and by every census that counts the population.
  */
 export function isPhysicalDancer(d: { readonly isGhost?: boolean; readonly gender?: Gender }): boolean {
   return !d.isGhost && d.gender !== 'phantom';
@@ -99,21 +99,22 @@ function physical(board: Board): SeqDancer[] {
 }
 
 /**
- * THE SETUP'S CANONICAL SERIALISATION, or `null` when the board is not eight physical dancers.
+ * THE SETUP'S CANONICAL SERIALISATION, or `null` when the board has NO physical dancers.
  *
  * A REFUSAL IS A VALUE, like `recognize` and `setupForFormation`: a corpus walk skips the row and reports the
- * count, and a caller with the wrong size learns it here rather than getting an id minted over half a set.
+ * count. An EMPTY physical set is the only thing refused - see the header for why the eight-dancer guard this
+ * function used to carry is gone.
  */
 export function setupCanonical(board: Board): string | null {
   const dancers = physical(board);
-  if (dancers.length !== SETUP_DANCERS) return null;
+  if (dancers.length === 0) return null;
   const placed: Board = { ...board, dancers };
   return `${arrangementCanonical(placed)}#${canonicalOf(placed, (_d, index) => String(index))}`;
 }
 
 /**
  * The board's setup id: the scheme's prefix and the tree's one eight-character payload, or `null` when the board
- * is not a setup.
+ * has no physical dancers.
  */
 export function setupId(board: Board): string | null {
   const canonical = setupCanonical(board);

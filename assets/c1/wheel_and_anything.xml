@@ -77,7 +77,7 @@
 
   <tam title="Wheel And Touch 1/4"
        from="Trade By" group="Wheel And" vid="V1-nc28qrqi">
-     <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
+     <formation fid="F3-39npqtaz" aid="A1-qkw66agr" sid="S1-y95hcb68">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="3" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
@@ -105,7 +105,7 @@
 
   <tam title="Reverse Wheel and Touch a Quarter" group="Reverse Wheel and"
        from="Trade By" vid="V1-4bc5sryj">
-    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
+    <formation fid="F3-39npqtaz" aid="A1-qkw66agr" sid="S1-y95hcb68">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="3" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>

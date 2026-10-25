@@ -1,5 +1,5 @@
-// EVERY FORMATION DEFINITION CARRIES ITS `fid` AND `aid`, THE DUPLICATE TABLE IS CURRENT, AND EVERY CARRIED TAG IS
-// ONE THAT WAS MINTED.
+// EVERY FORMATION DEFINITION CARRIES ITS `fid`, `aid` AND `sid`, THE DUPLICATE TABLE IS CURRENT, AND EVERY CARRIED
+// TAG IS ONE THAT WAS MINTED.
 //
 // WHY THIS GATE EXISTS. A formation id is a content address, so a geometry edit mints a new one - and a REFERENCE
 // that has to survive such an edit cannot be the content address. The tree used to solve that with
@@ -8,6 +8,13 @@
 // the reference set, so the checks that used to guard the ledger now guard the bytes: every definition tagged, every
 // tag well formed, every carried tag recorded as minted, and the duplicate table equal to a fresh render.
 //
+// THE THREE TAGS REFINE ONE ANOTHER: `fid` names the shape (gender, order and placement dropped), `aid` adds where
+// the genders stand, and `sid` adds the ORDER the dancers are listed in - so a duplicate is now a definition with
+// the same SETUP (same `sid`), a strict subset of the arrangement-based duplicates this table used to list. The
+// `sid` is minted from the definition's OWN completed board while `fid`/`aid` may be inherited from a near-twin at
+// tolerance, so the refinement is checked where the two coarser tags are rooted and the mismatches are COUNTED in
+// the report rather than claimed away.
+//
 // A TAG IS A UID, SO THIS GATE DOES NOT RE-DERIVE ONE. `scripts/tag-formations.mjs` used to re-compute every tag
 // from the corpus's current geometry and refuse a tag no definition computed. That is the wrong test for a UID: it
 // makes a legitimate correction a re-mint, and a re-mint moves every call-variant id hanging off the tag. The
@@ -15,12 +22,13 @@
 // corpus agree in both directions, which is a NAMED SET (§11.2.8): it fails when a tag is carried but unrecorded
 // (a typo, or a hand-written attribute) and when a tag is recorded but carried by nothing (a retired shape).
 // MEASURED when this changed: shifting `Facing Dancers Close` by 0.2 - the ids quantise positions to 0.25, so a
-// smaller nudge cannot move one - produced 2 problems under the old rule and 0 under this one.
+// smaller nudge cannot move one - produced 2 problems under the old rule and 0 under this one. THAT CHECK NOW
+// COVERS `sid` TOO, which matters most for it: the setup id is the one tag a `formation-reorder` run moves.
 //
 // THE CHECKS, and the wrong rule each rules out (all of them are in `scripts/tag-formations.mjs`'s `tagProblems`,
 // imported rather than restated):
 //   - every definition tagged           (the wrong rule: tag `formations.xml` and forget the inline blocks)
-//   - `isFormationId`/`isArrangementId` (the wrong rule: any twelve-character string is an "id")
+//   - `isFormationId`/`isArrangementId`/`isSetupId` (the wrong rule: any twelve-character string is an "id")
 //   - no duplicate `<formation name>`   (the wrong rule: let the parser's Map hide the second definition)
 //   - a reconstituted half that does not put two dancers on one spot (the wrong rule: tag a geometry the engine
 //     would never build)
@@ -31,8 +39,9 @@
 //     enforced at MINTING time by `assignTags`, which refuses a reflected target; the audit used to hold a second
 //     copy that compared geometry, and that copy is the one that had to go (§11.4.4)
 //
-// AND IT IS NOT VACUOUS: the tag-removal control loads a COPY of the model with two tags removed and requires the
-// same analysis to name both, so a gate that found nothing because nothing was looked at cannot pass.
+// AND IT IS NOT VACUOUS: the tag-removal control loads a COPY of the model with one tag of each kind removed and
+// requires the same analysis to name all three, so a gate that found nothing because nothing was looked at cannot
+// pass.
 //
 // THE SAMPLE IS PRINTED because a census that cannot say how big its sample was is a census nobody can argue with:
 // MEASURED at this commit, 292 named definitions + 636 inline blocks over 500 files.
@@ -56,8 +65,8 @@ console.log('== the tags are present ==');
 check(named.length > 0 && inline.length > 0,
   `the sample is not empty: ${named.length} named definition(s) + ${inline.length} inline block(s) over ${files.length} file(s)`);
 check(refs.size > 0, `${refs.size} named formation(s) are referenced by at least one tam`);
-const untagged = all.filter((e) => !e.fid || !e.aid);
-check(untagged.length === 0, `every definition carries both tags (${all.length - untagged.length} of ${all.length})`,
+const untagged = all.filter((e) => !e.fid || !e.aid || !e.sid);
+check(untagged.length === 0, `every definition carries all three tags (${all.length - untagged.length} of ${all.length})`,
   untagged.slice(0, 5).map((e) => e.label).join('; '));
 
 console.log('\n== the tags hold together ==');
@@ -72,12 +81,12 @@ console.log('\n== the record is the reference: a tag is a UID, not a digest ==')
 {
   const record = loadProvenance();
   check(record !== null, 'the record of mintings exists (assets/formation-tag-provenance.json)');
-  const tags = all.flatMap((e) => [e.fid, e.aid]).filter(Boolean);
+  const tags = all.flatMap((e) => [e.fid, e.aid, e.sid]).filter(Boolean);
   check(tags.length > 0, `the sample is not empty: ${new Set(tags).size} distinct tag(s) over ${all.length} definition(s)`);
 
   // NEGATIVE CONTROL 1: a tag carried by the corpus and recorded nowhere is a typo or a hand-written attribute.
   const droppedFid = named[0].fid;
-  const withoutRow = { fids: new Map(record.fids), aids: new Map(record.aids) };
+  const withoutRow = { fids: new Map(record.fids), aids: new Map(record.aids), sids: new Map(record.sids) };
   withoutRow.fids.delete(droppedFid);
   const unrecorded = tagProblems(formations, files, withoutRow).filter((p) => p.includes(droppedFid) && /no recorded minting/.test(p));
   check(unrecorded.length === 1, `a carried tag with no recorded minting is reported: ${droppedFid} (${named[0].name})`,
@@ -85,10 +94,19 @@ console.log('\n== the record is the reference: a tag is a UID, not a digest ==')
 
   // NEGATIVE CONTROL 2: the other direction. A recorded tag nothing carries is a leftover, and a set that only
   // failed when it shrank would pass this one.
-  const retired = { fids: new Map(record.fids), aids: new Map(record.aids) };
+  const retired = { fids: new Map(record.fids), aids: new Map(record.aids), sids: new Map(record.sids) };
   retired.fids.set('F3-aaaaaaaa', 'a shape nothing carries');
   const leftover = tagProblems(formations, files, retired).filter((p) => p.includes('F3-aaaaaaaa') && /no definition carries/.test(p));
   check(leftover.length === 1, 'a recorded tag no definition carries is reported: a retired shape\'s row');
+
+  // NEGATIVE CONTROL 3, FOR THE THIRD TAG. The setup id is the one a reorder moves, so an unrecorded `sid` is the
+  // failure this design most needs to catch: exactly the sort of typo a hand edit introduces.
+  const droppedSid = named.find((d) => d.sid)?.sid;
+  const withoutSid = { fids: new Map(record.fids), aids: new Map(record.aids), sids: new Map(record.sids) };
+  withoutSid.sids.delete(droppedSid);
+  const sidUnrecorded = tagProblems(formations, files, withoutSid).filter((p) => p.includes(droppedSid) && /no recorded minting/.test(p));
+  check(sidUnrecorded.length >= 1, `a carried sid with no recorded minting is reported: ${droppedSid}`,
+    sidUnrecorded.join('; ') || 'nothing was reported');
 
   // THE RULE THIS GATE CHANGED TO HOLD. A geometry correction must NOT red the audit, or the only repair is a
   // re-mint, which moves every variant id hanging off the tag the design exists to protect. The quantum is 0.25, so
@@ -141,20 +159,29 @@ console.log('\n== the record is the reference: a tag is a UID, not a digest ==')
 
 console.log('\n== NOT VACUOUS: a tag removed is a tag reported ==');
 {
-  // TWO DEFECTS IN A COPY, one named and one inline, so the check is exercised on both definition sites. Nothing is
-  // written: the model is in memory and `tagProblems` only reads it.
+  // THREE DEFECTS IN A COPY, one per tag and spread over both definition sites, so each kind of tag is exercised.
+  // Nothing is written: the model is in memory and `tagProblems` only reads it.
+  const firstInlineFile = files.find((x) => x.entries.length > 0);
   const doctor = { ...formations, defs: formations.defs.map((d, i) => (i === 0 ? { ...d, fid: null } : d)) };
   const filesDoctor = files.map((f) => ({
     ...f,
-    entries: f.entries.map((e, i) => (f === files.find((x) => x.entries.length > 0) && i === 0 ? { ...e, aid: null } : e)),
+    entries: f.entries.map((e, i) => {
+      if (f !== firstInlineFile) return e;
+      if (i === 0) return { ...e, aid: null };
+      if (i === 1) return { ...e, sid: null };
+      return e;
+    }),
   }));
   const complaints = tagProblems(doctor, filesDoctor);
   const aboutNamed = complaints.filter((p) => p.includes(named[0].label) && /untagged/.test(p));
-  const firstInline = files.find((x) => x.entries.length > 0)?.entries[0];
+  const firstInline = firstInlineFile?.entries[0];
+  const secondInline = firstInlineFile?.entries[1];
   const aboutInline = complaints.filter((p) => firstInline && p.includes(firstInline.label) && /untagged/.test(p));
+  const aboutSid = complaints.filter((p) => secondInline && p.includes(secondInline.label) && /untagged/.test(p));
   check(aboutNamed.length === 1, `the named definition with its fid removed is reported: ${named[0].name}`);
   check(aboutInline.length === 1, `the inline block with its aid removed is reported: ${firstInline?.title ?? '(none)'}`);
-  check(complaints.length === 2, `and NOTHING ELSE is reported for that copy (${complaints.length} complaint(s))`, complaints.join('; '));
+  check(aboutSid.length === 1, `the inline block with its sid removed is reported: ${secondInline?.title ?? '(none)'}`);
+  check(complaints.length === 3, `and NOTHING ELSE is reported for that copy (${complaints.length} complaint(s))`, complaints.join('; '));
 }
 
 console.log('\n=================');

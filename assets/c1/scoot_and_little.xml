@@ -79,7 +79,7 @@
 
   <tam title="Little"
        from="Left-Hand 3/4 Tag" vid="V1-4ggx2exo">
-    <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-k0zvzsi6">
+    <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-k0zvzsi6" sid="S1-9v21o1f0">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>
@@ -162,7 +162,7 @@
   </tam>
 
   <tam title="Little" from ="&quot;I&quot; formation" vid="V1-045o9vlq">
-    <formation fid="F3-8xcr0wxi" aid="A1-2esp05xa">
+    <formation fid="F3-8xcr0wxi" aid="A1-2esp05xa" sid="S1-s4kw6cfc">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="1.5" y="0" angle="90"/>

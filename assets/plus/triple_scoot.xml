@@ -73,7 +73,7 @@
 
   <tam title="Double Scoot"
        from="Right-Hand Columns of 6" vid="V1-23fhdhhj">
-    <formation fid="F3-3xrbiews" aid="A1-1jn093gq">
+    <formation fid="F3-3xrbiews" aid="A1-1jn093gq" sid="S1-arg0jrxx">
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
@@ -95,7 +95,7 @@
 
   <tam title="Double Scoot"
        from="Left-Hand Columns of 6" vid="V1-36enkbwn">
-    <formation fid="F3-sdcmdl6f" aid="A1-d7ifd5p5">
+    <formation fid="F3-sdcmdl6f" aid="A1-d7ifd5p5" sid="S1-ze6pxkzl">
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
       <dancer gender="girl" x="2" y="-1" angle="0"/>

@@ -124,7 +124,7 @@
   </tam>
 
   <tam title="Eight by Flip the Diamond" group="Eight by" vid="V1-gwxp531j">
-    <formation fid="F3-tiew821m" aid="A1-ldvgnm9s">
+    <formation fid="F3-tiew821m" aid="A1-ldvgnm9s" sid="S1-tgnmplxs">
       <dancer gender="boy"  x="0" y="6" angle="0"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="boy" x="0" y="-2" angle="180"/>

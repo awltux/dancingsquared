@@ -1,16 +1,23 @@
-// DIRECT TAGS ON FORMATION DEFINITIONS: `fid` (formation id) and `aid` (arrangement id).
+// DIRECT TAGS ON FORMATION DEFINITIONS: `fid` (formation id), `aid` (arrangement id) and `sid` (setup id).
 //
 // THE RULE, which is the user's and replaces the root ledger:
 //   * a formation definition writes HALF the set; the whole is `reconstituteWholeSet(written)` - the written
 //     dancers plus the same dancers rotated 180 degrees about the origin, skipped when the written shape already
-//     contains its own antipodes. Both ids are taken over THAT geometry, never over the written half;
-//   * an untagged definition is matched against the definitions that already carry tags. A FORMATION match
-//     (shape, gender ignored) inherits the `fid` and keeps its own computed `aid`; an ARRANGEMENT match (shape
-//     AND genders) is a DUPLICATE and inherits both. The alignment must be a ROTATION - a reflected match is a
-//     different id, because `canonicalOf` never mirrors;
+//     contains its own antipodes. All three ids are taken over THAT geometry, never over the written half;
+//   * THEY REFINE ONE ANOTHER: a formation id drops gender, order and placement; an arrangement id adds where the
+//     genders stand; a setup id adds the ORDER the dancers are listed in. So one `fid` carries several `aid`s and
+//     one `aid` carries several `sid`s, and a `sid` implies an `aid` implies a `fid`;
+//   * an untagged definition is matched against the definitions that already carry tags. A SETUP match (same shape,
+//     same genders AND the same order) is a DUPLICATE and inherits all three; an ARRANGEMENT match with a different
+//     ORDER inherits the `fid` and `aid` and mints its OWN `sid`, because it is a different setup - the couples are
+//     numbered differently - and absorbing it would rotate the board; a FORMATION match inherits the `fid` and keeps
+//     its computed `aid` and `sid`; no match means the definition is new and all three are computed. The alignment
+//     must be a ROTATION - a reflected match is a different id, because `canonicalOf` never mirrors;
 //   * a duplicate inside a call's embedded formation is recorded in `DuplicateFormations.md` so the call can be
 //     refactored to name the `formations.xml` definition (`scripts/reorder-formation.mjs`);
-//   * no match means the definition is new, and its tags are the computed ids.
+//   * a duplicate is a definition with the SAME `sid`. Definitions that share an arrangement but order the dancers
+//     differently are NOT duplicates: they are different setups, and the report says how many there are so the
+//     narrowing from the arrangement-based table is visible rather than silent.
 //
 // WHY TAGS AND NOT A LEDGER. `fid`/`aid` are stored on the definition, so they are authoritative by construction:
 // a geometry edit cannot re-key a reference, and there is nothing to alias. That is the whole of the simplification
@@ -24,6 +31,12 @@
 // MEASURED when this changed: 163 of the fids are rooted by a named definition alone, and shifting
 // `Facing Dancers Close` by 0.2 (the ids quantise positions to 0.25) produced 2 problems under the old rule and 0
 // under this one.
+//
+// THE `sid` MAKES THAT CONSEQUENCE SHARPER, and it is stated here rather than left to be discovered: a setup id
+// names the ORDER, so a `formation-reorder` run (or any order-changing edit) moves what the id would compute, and
+// the stored tag does NOT follow by itself. Moving one is a hand decision - append the new minting, retire the old
+// row by hand, with the reason in the commit - the same rule the record already states for a retired shape. That is
+// what "immutable" buys: an order edit cannot silently re-key a reference.
 //
 // WHY THE ORDER OF THE MATCH IS EXACT-FIRST. `formationId` already quotients out rotation and translation, so two
 // definitions of one shape share an id EXACTLY, and the nine `Ocean Waves` names (one geometry, nine gender
@@ -56,8 +69,10 @@ import {
   reconstituteWholeSet,
   formationId,
   arrangementId,
+  setupId,
   isFormationId,
   isArrangementId,
+  isSetupId,
   matchFormations,
   formationReorderPermutation,
   completedFormation,
@@ -111,7 +126,11 @@ const read = (p) => fs.readFileSync(path.join(ASSETS, p), 'utf8');
 export function loadProvenance() {
   if (!fs.existsSync(PROVENANCE)) return null;
   const raw = JSON.parse(fs.readFileSync(PROVENANCE, 'utf8'));
-  return { fids: new Map(Object.entries(raw.fids ?? {})), aids: new Map(Object.entries(raw.aids ?? {})) };
+  return {
+    fids: new Map(Object.entries(raw.fids ?? {})),
+    aids: new Map(Object.entries(raw.aids ?? {})),
+    sids: new Map(Object.entries(raw.sids ?? {})),
+  };
 }
 
 /**
@@ -127,10 +146,10 @@ export function renderProvenance(record) {
     for (const key of [...map.keys()].sort()) out[key] = map.get(key);
     return out;
   };
-  const about = 'Where each formation and arrangement tag was minted. APPEND-ONLY, and authoritative: a tag is'
+  const about = 'Where each formation, arrangement and setup tag was minted. APPEND-ONLY, and authoritative: a tag is'
     + ' minted from a geometry once, and a later geometry correction does not move it. Written by'
     + ' scripts/tag-formations.mjs --write; read by engine/test/formation-tags.mjs and by no runtime code.';
-  return `${JSON.stringify({ about, version: 1, fids: sorted(record.fids), aids: sorted(record.aids) }, null, 2)}\n`;
+  return `${JSON.stringify({ about, version: 2, fids: sorted(record.fids), aids: sorted(record.aids), sids: sorted(record.sids) }, null, 2)}\n`;
 }
 
 /** Blank out comments without moving a single byte, so an offset survives the mask (`scripts/tam-blocks.mjs`). */
@@ -210,6 +229,7 @@ export function loadFormations() {
       declaredAsymmetric: declared,
       fid: tags.get(name)?.fid ?? null,
       aid: tags.get(name)?.aid ?? null,
+      sid: tags.get(name)?.sid ?? null,
       at: opens[i]?.at ?? -1,
       end: opens[i]?.end ?? -1,
     };
@@ -276,6 +296,8 @@ export function walkTams() {
             inlineEnd: inline ? blocks[i].index + inline.index + inline[0].length : -1,
             formationAttr: tam.formationAttr,
             fid: tam.formationTag.fid,
+            aid: tam.formationTag.aid,
+            sid: tam.formationTag.sid,
             written: tam.dancers.length,
             symmetry: tam.symmetry,
             paths: tam.paths.length,
@@ -326,7 +348,8 @@ export function loadTams() {
         // reference a reader can see - refused, and reported.
         formationAttr: e.formationAttr,
         fid: e.fid,
-        aid: e.tam.formationTag.aid,
+        aid: e.aid,
+        sid: e.sid,
         at: e.inlineAt,
         end: e.inlineEnd,
       });
@@ -360,12 +383,12 @@ export function assignTags(formations, tamFiles) {
 
   const untaggedNamed = [];
   for (const d of formations.defs) {
-    if (d.fid && d.aid) add(d);
+    if (d.fid && d.aid && d.sid) add(d);
     else untaggedNamed.push(d);
   }
   // Everything an inline block can inherit from: every named definition (tagged now, or tagged in this pass) plus
   // the inline blocks already carrying tags.
-  for (const f of tamFiles) for (const e of f.entries) if (e.fid && e.aid) add(e);
+  for (const f of tamFiles) for (const e of f.entries) if (e.fid && e.aid && e.sid) add(e);
 
   /**
    * WHETHER AN ENTRY MINTS ITS OWN ID, i.e. its tags are the ids its geometry computes. Only a ROOTED entry may be
@@ -384,16 +407,24 @@ export function assignTags(formations, tamFiles) {
   const resolve = (entry) => {
     const fid = formationId(entry.board);
     const aid = arrangementId(entry.board);
+    // THE SETUP, from the definition's OWN completed geometry. It is COMPUTED rather than inherited across a
+    // tolerance match, unlike fid and aid: a setup is the geometry AND the order, so two boards that agree only
+    // within the matcher's tolerance are two setups, and borrowing one's id would list a non-duplicate as one.
+    // An EXACT setup match inherits it, where the value is by construction the same.
+    const sid = setupId(entry.board);
     const shapeOf = (kind) => byFid[kind].get(fid) ?? [];
     const exactNamed = shapeOf('named');
     const exactInline = shapeOf('inline');
     const exact = exactNamed.length ? exactNamed : exactInline;
     if (exact.length) {
+      const dup = exact.find((e) => e.sid === sid);
+      if (dup) return { fid: dup.fid, aid: dup.aid, sid: dup.sid, match: { kind: 'duplicate', target: dup } };
+      // The same arrangement in another ORDER is not a duplicate: it inherits the two coarser tags and mints its
+      // own setup id, because the couples are numbered differently.
       const twin = exact.find((e) => e.aid === aid);
-      const target = twin ?? exact[0];
-      return twin
-        ? { fid: target.fid, aid: target.aid, match: { kind: 'duplicate', target } }
-        : { fid: target.fid, aid, match: { kind: 'shape', target } };
+      if (twin) return { fid: twin.fid, aid: twin.aid, sid, match: { kind: 'order', target: twin } };
+      const target = exact[0];
+      return { fid: target.fid, aid, sid, match: { kind: 'shape', target } };
     }
     // No exact shape: the near-duplicates. An ARRANGEMENT match is the stronger finding and is checked first,
     // because inheriting a shape's fid while keeping a computed aid would leave a duplicate looking distinct.
@@ -425,30 +456,41 @@ export function assignTags(formations, tamFiles) {
     const arr = near(true);
     if (arr) {
       if (arr.tied) notes.push(`${entry.label}: two arrangements match at error ${arr.error.toFixed(3)}; took ${arr.target.label} (named and inline searched in order)`);
-      return { fid: arr.target.fid, aid: arr.target.aid, match: { kind: 'duplicate', target: arr.target, tolerance: arr.error } };
+      return { fid: arr.target.fid, aid: arr.target.aid, sid, match: { kind: 'order', target: arr.target, tolerance: arr.error } };
     }
     const shape = near(false);
     if (shape) {
       if (shape.tied) notes.push(`${entry.label}: two shapes match at error ${shape.error.toFixed(3)}; took ${shape.target.label}`);
-      return { fid: shape.target.fid, aid, match: { kind: 'shape', target: shape.target, tolerance: shape.error } };
+      return { fid: shape.target.fid, aid, sid, match: { kind: 'shape', target: shape.target, tolerance: shape.error } };
     }
-    return { fid, aid, match: { kind: 'fresh' } };
+    return { fid, aid, sid, match: { kind: 'fresh' } };
   };
 
   const tag = (entry) => {
-    if (entry.fid && entry.aid) {
+    if (entry.fid && entry.aid && entry.sid) {
       // ALREADY TAGGED IS AUTHORITATIVE. Re-resolving would make a verification run re-classify a definition
       // against a pool that now contains definitions the first run had not reached yet, so the report would move
       // without the corpus moving. `problems()` audits what was stored instead.
       entry.newFid = entry.fid;
       entry.newAid = entry.aid;
+      entry.newSid = entry.sid;
+      return entry;
+    }
+    if (entry.fid && entry.aid) {
+      // PARTIALLY TAGGED IS THE ONE-TAG-AT-A-TIME CASE: a definition tagged with fid and aid but not yet with a
+      // setup. Those two are authoritative (a re-resolve could move an inherited fid), so only the sid is minted.
+      entry.newFid = entry.fid;
+      entry.newAid = entry.aid;
+      entry.newSid = setupId(entry.board);
+      add({ ...entry, fid: entry.fid, aid: entry.aid, sid: entry.newSid });
       return entry;
     }
     const r = resolve(entry);
     entry.newFid = r.fid;
     entry.newAid = r.aid;
+    entry.newSid = r.sid;
     entry.match = r.match;
-    add({ ...entry, fid: r.fid, aid: r.aid });
+    add({ ...entry, fid: r.fid, aid: r.aid, sid: r.sid });
     return entry;
   };
 
@@ -461,28 +503,33 @@ export function assignTags(formations, tamFiles) {
 /**
  * THE DUPLICATES, DERIVED FROM THE TAGS THE CORPUS NOW CARRIES - not from the order the tags were assigned in.
  *
- * One arrangement belongs to one definition; a second definition carrying the same `aid` is the same setup under
- * another spelling. This is a pure function of the tag set, so a verification run and a write run agree, and a
- * refactor that removes a duplicate removes its row by itself.
+ * One SETUP belongs to one definition; a second definition carrying the same `sid` is the same setup under another
+ * spelling. `sid` refines `aid`, which refines `fid`, so this is a subset of the arrangement-based duplicates this
+ * table used to list: a definition that shares an arrangement but orders its dancers differently is a DIFFERENT
+ * setup (its couples are numbered differently) and is not a duplicate. This is a pure function of the tag set, so a
+ * verification run and a write run agree, and a refactor that removes a duplicate removes its row by itself.
  *
  * THE CANONICAL MEMBER OF A GROUP IS THE FIRST NAMED DEFINITION in `formations.xml` order, else the first inline
  * definition in document order - named first so a duplicate always points at the definition a call can be
  * refactored to name.
  */
 export function duplicateGroups(formations, tamFiles) {
-  const all = [...formations.defs.map((d) => ({ e: d, tag: d.fid && d.aid ? { fid: d.fid, aid: d.aid } : { fid: d.newFid, aid: d.newAid } })),
-    ...tamFiles.flatMap((f) => f.entries.map((e) => ({ e, tag: e.fid && e.aid ? { fid: e.fid, aid: e.aid } : { fid: e.newFid, aid: e.newAid } })))];
+  const tagOfEntry = (e) => (e.fid && e.aid && e.sid
+    ? { fid: e.fid, aid: e.aid, sid: e.sid }
+    : { fid: e.newFid, aid: e.newAid, sid: e.newSid });
+  const all = [...formations.defs.map((d) => ({ e: d, tag: tagOfEntry(d) })),
+    ...tamFiles.flatMap((f) => f.entries.map((e) => ({ e, tag: tagOfEntry(e) })))];
   const groups = new Map();
   for (const m of all) {
-    const list = groups.get(m.tag.aid) ?? [];
+    const list = groups.get(m.tag.sid) ?? [];
     list.push(m);
-    groups.set(m.tag.aid, list);
+    groups.set(m.tag.sid, list);
   }
   const rows = [];
-  for (const [aid, list] of groups) {
+  for (const [sid, list] of groups) {
     if (list.length < 2) continue;
     const canonical = list.find((m) => m.e.kind === 'named') ?? list[0];
-    for (const m of list) if (m !== canonical) rows.push({ e: m.e, tag: m.tag, canonical: canonical.e, aid });
+    for (const m of list) if (m !== canonical) rows.push({ e: m.e, tag: m.tag, canonical: canonical.e, sid });
   }
   return rows;
 }
@@ -565,7 +612,25 @@ export function renderReport(formations, tamFiles, rows, notes, refs) {
   const all = [...named, ...inline];
   const fids = new Set(all.map((e) => e.fid ?? e.newFid));
   const aids = new Set(all.map((e) => e.aid ?? e.newAid));
+  const sids = new Set(all.map((e) => e.sid ?? e.newSid));
   const inherited = all.filter((e) => (e.fid ?? e.newFid) !== formationId(e.board));
+  // DEFINITIONS THAT SHARE AN ARRANGEMENT BUT NOT THE ORDER. They are NOT duplicates (the couple numbering differs),
+  // and the count is reported so the narrowing from the arrangement-based table is visible rather than silent.
+  const setupsByArrangement = new Map();
+  for (const e of all) {
+    const aid = e.aid ?? e.newAid;
+    const sid = e.sid ?? e.newSid;
+    if (!setupsByArrangement.has(aid)) setupsByArrangement.set(aid, { definitions: 0, setups: new Set() });
+    const group = setupsByArrangement.get(aid);
+    group.definitions++;
+    group.setups.add(sid);
+  }
+  const orderGroups = [...setupsByArrangement.values()].filter((g) => g.setups.size > 1);
+  const orderDefinitions = orderGroups.reduce((n, g) => n + g.definitions, 0);
+  // WHERE THE STORED AID IS NOT THE ARRANGEMENT THE SID EMBEDS. `sid` is minted from the definition's own board and
+  // `aid` may be inherited from a near-twin at tolerance, so the two can name neighbouring arrangements. Counted so
+  // the refinement the tags have where BOTH are rooted is stated as the conditional fact it is.
+  const aidDiffers = all.filter((e) => (e.aid ?? e.newAid) !== arrangementId(e.board)).length;
   // A DEFINITION IS COMPLETED BY THE REFERENCE SITE'S DECLARATION, so a name whose tams disagree has no single
   // board: one tam dances it as written and another doubles it. Reported, because the tag has to pick one and the
   // corpus is what should decide.
@@ -585,25 +650,36 @@ export function renderReport(formations, tamFiles, rows, notes, refs) {
   lines.push('GENERATED by `scripts/tag-formations.mjs --write`; do not edit. Regenerated and compared byte for byte');
   lines.push('by `engine/test/formation-tags.mjs`.');
   lines.push('');
-  lines.push('A duplicate is a definition whose **arrangement** (shape AND where the genders stand) is already carried');
-  lines.push('by another definition, so it is the same setup under a second spelling. The ids come from the geometry');
-  lines.push('(`reconstituteWholeSet` of the written half), and a `refactor` row is closed by making the call name the');
-  lines.push('`formations.xml` definition instead of carrying its own copy of the geometry.');
+  lines.push('A duplicate is a definition whose **setup** — shape, where the genders stand **and** the order the');
+  lines.push('dancers are listed in — is already carried by another definition, so it is the same setup under a second');
+  lines.push('spelling. The ids come from the geometry (`reconstituteWholeSet` of the written half), and a `refactor`');
+  lines.push('row is closed by making the call name the `formations.xml` definition instead of carrying its own copy of');
+  lines.push('the geometry.');
+  lines.push('');
+  lines.push('The tags refine one another where BOTH are rooted in the same definition: `fid` names the shape, `aid`');
+  lines.push('adds where the genders stand, `sid` adds the order. `sid` is minted from the definition\'s own board, while');
+  lines.push(`\`fid\`/\`aid\` may be inherited from a near-twin at tolerance, so ${aidDiffers} definition(s) here carry an`);
+  lines.push('`aid` that is not the arrangement their `sid` embeds.');
+  lines.push('');
+  lines.push(`${orderDefinitions} definition(s) over ${orderGroups.length} arrangement(s) share an arrangement with another`);
+  lines.push('definition but list the dancers in a different ORDER: those are different setups (their couples are');
+  lines.push('numbered differently), so they are deliberately NOT rows in this table.');
   lines.push('');
   lines.push(`- named definitions: ${named.length}`);
   lines.push(`- inline definitions: ${inline.length}`);
   lines.push(`- distinct formation ids: ${fids.size}`);
   lines.push(`- distinct arrangement ids: ${aids.size}`);
+  lines.push(`- distinct setup ids: ${sids.size}`);
   lines.push(`- duplicates: ${rows.length} (${sorted.filter((r) => r.out.action === 'refactor').length} to refactor, ${sorted.filter((r) => r.out.action === 'keep-embedded').length} kept embedded, ${sorted.filter((r) => r.out.action === 'keep-named').length} named pairs)`);
   lines.push('');
   if (!sorted.length) {
     lines.push('No duplicate definitions.');
   } else {
-    lines.push('| definition | dancers | duplicate of | fid | aid | outcome |');
-    lines.push('|---|---|---|---|---|---|');
+    lines.push('| definition | dancers | duplicate of | fid | aid | sid | outcome |');
+    lines.push('|---|---|---|---|---|---|---|');
     for (const { r, out } of sorted) {
       const where = r.e.kind === 'named' ? `named - ${r.e.name}` : r.e.label;
-      lines.push(`| ${where} | ${r.e.written} written / ${r.e.size} whole | ${r.canonical.label} | ${r.tag.fid} | ${r.tag.aid} | ${out.action}: ${out.why} |`);
+      lines.push(`| ${where} | ${r.e.written} written / ${r.e.size} whole | ${r.canonical.label} | ${r.tag.fid} | ${r.tag.aid} | ${r.tag.sid} | ${out.action}: ${out.why} |`);
     }
   }
   if (notes.length) {
@@ -615,8 +691,10 @@ export function renderReport(formations, tamFiles, rows, notes, refs) {
   lines.push('');
   lines.push('## Inherited ids');
   lines.push('');
-  lines.push('A definition whose tag is not the content address of its own geometry. That is deliberate: the tag is a');
-  lines.push('REFERENCE, and an inherited one points at the definition the corpus already has for this setup.');
+  lines.push('A definition whose `fid` is not the content address of its own geometry. That is deliberate: the tag is a');
+  lines.push('REFERENCE, and an inherited one points at the definition the corpus already has for this shape. (The `sid`');
+  lines.push('is minted from the definition\'s own board and is not inherited across a tolerance match; it is inherited');
+  lines.push('only where it already equals the same setup.)');
   lines.push('');
   if (!inherited.length) lines.push('None: every tag is the id its own geometry computes.');
   else {
@@ -663,8 +741,12 @@ function analyse() {
 }
 
 /** Insert the missing attributes into one open tag, at the offset that closes it. */
-function insert(tagEnd, addFid, addAid) {
-  const attrs = [addFid ? `fid="${addFid}"` : null, addAid ? `aid="${addAid}"` : null].filter(Boolean).join(' ');
+function insert(tagEnd, addFid, addAid, addSid) {
+  const attrs = [
+    addFid ? `fid="${addFid}"` : null,
+    addAid ? `aid="${addAid}"` : null,
+    addSid ? `sid="${addSid}"` : null,
+  ].filter(Boolean).join(' ');
   return { at: tagEnd - 1, text: ` ${attrs}` };
 }
 
@@ -675,10 +757,11 @@ function editsFor(entries) {
     if (e.at < 0) continue;
     const addFid = !e.fid ? e.newFid : null;
     const addAid = !e.aid ? e.newAid : null;
-    if (!addFid && !addAid) continue;
+    const addSid = !e.sid ? e.newSid : null;
+    if (!addFid && !addAid && !addSid) continue;
     // An id is never invented here: it is the computed one or an inherited one, and `problems()` refuses anything
     // that is not a well-formed id before this runs.
-    edits.push(insert(e.end, addFid, addAid));
+    edits.push(insert(e.end, addFid, addAid, addSid));
   }
   return edits.sort((a, b) => b.at - a.at);
 }
@@ -710,12 +793,13 @@ export function tagProblems(formations, tamFiles, provenance = loadProvenance())
   for (const f of tamFiles) out.push(...f.problems);
   for (const e of all) {
     if (e.written === 0 && e.kind === 'inline') out.push(`${e.label}: the inline block has no <dancer> children`);
-    if (!e.fid || !e.aid) {
+    if (!e.fid || !e.aid || !e.sid) {
       out.push(`${e.label}: untagged (run \`node scripts/tag-formations.mjs --write\`)`);
       continue;
     }
     if (!isFormationId(e.fid)) out.push(`${e.label}: fid "${e.fid}" is not a formation id`);
     if (!isArrangementId(e.aid)) out.push(`${e.label}: aid "${e.aid}" is not an arrangement id`);
+    if (!isSetupId(e.sid)) out.push(`${e.label}: sid "${e.sid}" is not a setup id`);
     const where = e.kind === 'inline' ? coincident(e.board) : null;
     if (where) out.push(`${e.label}: the reconstituted set puts two dancers on one spot (${where.join(', ')})`);
   }
@@ -728,6 +812,12 @@ export function tagProblems(formations, tamFiles, provenance = loadProvenance())
     if (seen && seen !== e.fid) out.push(`aid ${e.aid} names fid ${seen} on one definition and fid ${e.fid} on ${e.label}`);
     aidToFid.set(e.aid, e.fid);
   }
+  // A SETUP IS NOT CHECKED AGAINST AN ARRANGEMENT, and that is a measurement rather than an omission. `sid` is
+  // minted from the definition's OWN board, while `fid`/`aid` may be INHERITED from a near-twin at tolerance, so a
+  // definition's stored aid can name a slightly different arrangement from the one its sid embeds. MEASURED when
+  // this rule was tried: 4 sids carried under two different aids (`S1-juqjhq20` under `A1-05dph68t` and
+  // `A1-s1g73ymw` is `Lines Facing Out` and `Phantom Lines Out`). The tags still refine one another where BOTH are
+  // rooted; the report says how many definitions are not, so the difference is visible instead of asserted away.
 
   // EVERY CARRIED TAG IS ONE THAT WAS MINTED, AND THE RECORD OF THE MINTING IS THE REFERENCE.
   //
@@ -756,13 +846,16 @@ export function tagProblems(formations, tamFiles, provenance = loadProvenance())
   }
   const byFid = new Map();
   const byAid = new Map();
+  const bySid = new Map();
   for (const e of all) {
     byFid.set(e.fid, [...(byFid.get(e.fid) ?? []), e]);
     byAid.set(e.aid, [...(byAid.get(e.aid) ?? []), e]);
+    bySid.set(e.sid, [...(bySid.get(e.sid) ?? []), e]);
   }
   for (const [kind, carried, recorded] of [
     ['fid', byFid, provenance.fids],
     ['aid', byAid, provenance.aids],
+    ['sid', bySid, provenance.sids],
   ]) {
     for (const [tag, members] of carried) {
       if (!recorded.has(tag)) {
@@ -805,7 +898,7 @@ export function check() {
   console.log(`  duplicates:         ${rows.length} (${refactors} still to refactor - recorded in DuplicateFormations.md)`);
   for (const n of notes) console.log(`  note  ${n}`);
   for (const p of found) console.log(`  FAIL ${p}`);
-  if (!found.length) console.log('  ok   every definition carries a well-formed fid and aid, and the duplicate table is current');
+  if (!found.length) console.log('  ok   every definition carries a well-formed fid, aid and sid, and the duplicate table is current');
   return found.length === 0 ? 0 : 1;
 }
 
@@ -831,14 +924,15 @@ export function write() {
   // correction that changes a board's arrangement cannot silently move what a tag means; and a row is never dropped,
   // so a shape that leaves the corpus is a decision a person takes in the file. Both refusals exist because `--write`
   // is the one command anybody re-runs on an unfamiliar tree.
-  const record = loadProvenance() ?? { fids: new Map(), aids: new Map() };
-  const carried = { fid: new Set(), aid: new Set() };
+  const record = loadProvenance() ?? { fids: new Map(), aids: new Map(), sids: new Map() };
+  const carried = { fid: new Set(), aid: new Set(), sid: new Set() };
   let minted = 0;
   for (const f of files) {
     for (const e of f.entries) {
       const tags = [
         ['fids', 'fid', e.fid ?? e.newFid],
         ['aids', 'aid', e.aid ?? e.newAid],
+        ['sids', 'sid', e.sid ?? e.newSid],
       ];
       for (const [collection, kind, tag] of tags) {
         if (!tag) continue;
@@ -849,7 +943,7 @@ export function write() {
       }
     }
   }
-  const retired = [['fids', 'fid'], ['aids', 'aid']].flatMap(([collection, kind]) => [...record[collection].keys()]
+  const retired = [['fids', 'fid'], ['aids', 'aid'], ['sids', 'sid']].flatMap(([collection, kind]) => [...record[collection].keys()]
     .filter((tag) => !carried[kind].has(tag))
     .map((tag) => `${kind} ${tag} (${record[collection].get(tag)})`));
   if (retired.length) {
@@ -873,7 +967,7 @@ export function write() {
   // LINE ENDINGS ARE NOT PART OF THE RENDER, for the reason `problems()` gives about the report (trap 2).
   const currentProvenance = fs.existsSync(PROVENANCE) ? fs.readFileSync(PROVENANCE, 'utf8').replace(/\r\n/g, '\n') : null;
   if (currentProvenance !== nextProvenance) fs.writeFileSync(PROVENANCE, nextProvenance, 'utf8');
-  console.log(`tag-formations: ${added} tag pair(s) added across ${changed} file(s), ${minted} minting(s) recorded; DuplicateFormations.md rendered`);
+  console.log(`tag-formations: ${added} tag set(s) added across ${changed} file(s), ${minted} minting(s) recorded; DuplicateFormations.md rendered`);
   return 0;
 }
 
@@ -891,6 +985,7 @@ if (invokedDirectly) {
           canonical: r.canonical.label,
           fid: r.tag.fid,
           aid: r.tag.aid,
+          sid: r.tag.sid,
           ...outcomeOf(r),
           // The PLAN, for a caller that applies it: the pairing mode and whether the paths actually move.
           ...(plan.ok ? { mode: plan.mode, permutation: plan.plan.permutation } : {}),

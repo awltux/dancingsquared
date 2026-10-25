@@ -23,7 +23,7 @@
 <tamination title="Explode the Diamond">
 
   <tam title="Explode the Diamond" from="Right-Hand Diamonds" vid="V1-bnta5mmc">
-    <formation fid="F3-va6q5tqm" aid="A1-enpkglk4">
+    <formation fid="F3-va6q5tqm" aid="A1-enpkglk4" sid="S1-jyrjtq2k">
       <dancer gender="boy" y="3" x="2" angle="0"/>
       <dancer gender="girl" y="0" x="3" angle="270"/>
       <dancer gender="boy" y="-3" x="2" angle="180"/>

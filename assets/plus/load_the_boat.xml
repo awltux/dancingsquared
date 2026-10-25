@@ -25,7 +25,7 @@
   <!-- Ends part of Load the Boat, for sequencer  -->
   <tam title="Load the Boat"
        from="Ends Facing Only" sequencer="perimeter" display="no" vid="V1-pw9vb4i8">
-    <formation fid="F3-rc8fsiyp" aid="A1-v9dv17xd">
+    <formation fid="F3-rc8fsiyp" aid="A1-v9dv17xd" sid="S1-knp9y1r0">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
     </formation>
@@ -47,7 +47,7 @@
 
   <tam title="Load the Boat"
        from="Ends Back-to-Back Only" sequencer="perimeter" display="no" vid="V1-louadlmw">
-    <formation fid="F3-326hjv3l" aid="A1-obe0xlb5">
+    <formation fid="F3-326hjv3l" aid="A1-obe0xlb5" sid="S1-tykzlar4">
       <dancer gender="boy" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="180"/>
     </formation>
@@ -65,7 +65,7 @@
 
   <tam title="Load the Boat" display="no"
        from="Ends in Mini-Waves" sequencer="perimeter" vid="V1-h6c6f0x2">
-    <formation fid="F3-w609x5oh" aid="A1-o9kd3sxr">
+    <formation fid="F3-w609x5oh" aid="A1-o9kd3sxr" sid="S1-m76a4t3k">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     </formation>
@@ -237,7 +237,7 @@
 
   <tam title="Load the Boat" from="Diamonds, Points Facing"
        parts="3;3;3" difficulty="3" vid="V1-lcyh7r51">
-     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
+     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc" sid="S1-sxnnumzo">
       <dancer gender="boy" x="0" y="-3" angle="180"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -331,7 +331,7 @@
   <tam title="Load the Boat"
        from="T-Bones, Ends Facing In"
        parts="3;3;3" difficulty="3" vid="V1-zx6bfmii">
-     <formation fid="F3-dlap8ufn" aid="A1-ogmrzrlb">
+     <formation fid="F3-dlap8ufn" aid="A1-ogmrzrlb" sid="S1-bex9imfg">
       <dancer gender="boy" x="-1" y="-3" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
@@ -366,7 +366,7 @@
   <tam title="Load the Boat"
        from="T-Bones, Ends Facing Out"
        parts="3;3;3" difficulty="3" vid="V1-ehono6mm">
-     <formation fid="F3-nug2yac5" aid="A1-l4exd4ol">
+     <formation fid="F3-nug2yac5" aid="A1-l4exd4ol" sid="S1-absmtx0k">
       <dancer gender="boy" x="-1" y="-3" angle="180"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>

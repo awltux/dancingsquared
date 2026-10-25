@@ -25,7 +25,7 @@
   <tam title="Peel the Top"
        from="Left-Hand Z"
        parts="3" difficulty="1" vid="V1-g038nlqg">
-    <formation fid="F3-07nohwr6" aid="A1-kggk56dw">
+    <formation fid="F3-07nohwr6" aid="A1-kggk56dw" sid="S1-ru9d3g6k">
       <dancer gender="boy" x="0" y="1" angle="180"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
     </formation>
@@ -43,7 +43,7 @@
   <tam title="Peel the Top"
        from="Right-Hand Z"
        parts="3" difficulty="1" vid="V1-vj1mv5wp">
-    <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8">
+    <formation fid="F3-bjhfreu0" aid="A1-szmkgdh8" sid="S1-irtygmlw">
       <dancer gender="boy" x="0" y="-1" angle="180"/>
       <dancer gender="girl" x="2" y="-1" angle="180"/>
     </formation>

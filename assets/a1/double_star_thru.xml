@@ -108,7 +108,7 @@
   <tam title="Triple Star Thru"
        from="Double Pass Thru"
        parts="3;3" sequencer="gender-specific" vid="V1-gxfavhtw">
-    <formation fid="F3-7i4q346d" aid="A1-4mhq1h73">
+    <formation fid="F3-7i4q346d" aid="A1-4mhq1h73" sid="S1-599y9ikc">
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="-1" y="1" angle="0"/>

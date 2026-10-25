@@ -14,12 +14,13 @@
 //   18 of 1,731 groups split        a gender relabelling genuinely separates two authorings of one call
 //   115 calls end same-shape-diff   the reason a formation-only state model cannot decide whether the NEXT
 //                                   gender-specific call fits (1,488 change arrangement; 1,373 change shape)
-//   the setup population            the arrangements the eight-physical boards split into once the ORDER is added:
-//                                   how many distinct setups, and how many arrangements carry more than one - the
-//                                   figure that shows the setup axis is not redundant with the arrangement one, in
-//                                   the same way 242 arrangements are not redundant with 198 shapes. Two boards
-//                                   share a setup id when they are one board up to rotation and translation, so
-//                                   the count is a property of the corpus rather than of the file layout.
+//   the setup population            the arrangements the boards split into once the ORDER is added: how many
+//                                   distinct setups, and how many arrangements carry more than one - the figure
+//                                   that shows the setup axis is not redundant with the arrangement one, in the same
+//                                   way 242 arrangements are not redundant with 198 shapes. Two boards share a setup
+//                                   id when they are one board up to rotation and translation, so the count is a
+//                                   property of the corpus rather than of the file layout. EVERY size is in the
+//                                   sample, because a formation definition writes whatever size it writes.
 //   the variant population          every (level, title, formation fid) the corpus authors, and how many of
 //                                   them are authored more than once - the duplicate check is a collision gate,
 //                                   not a uniqueness rule: two authorings of one variant are normal and share
@@ -42,7 +43,7 @@ import { DOMParser } from '@xmldom/xmldom';
 
 import {
   loadCallFromXml, parseCallXml, setParser, formationId, arrangementId, setupId, setupCanonical,
-  isSetupId, isPhysicalDancer, SETUP_DANCERS, allPoses,
+  isSetupId, isPhysicalDancer, allPoses,
   callVariantId, callVariantCanonical, parseFormationTags, isCallVariantId,
 } from '../dist/index.js';
 import { corpusRoot, filesOf, tamsOf, virtualFilesOf } from 'dancing-squared-corpus';
@@ -81,32 +82,32 @@ let endArrangementDiffers = 0;
 let endShapeDiffers = 0;
 /** Authorings whose STORED `vid` is not the id this harness mints independently, by name. */
 const vidMismatches = [];
-// THE SETUP POPULATION: the eight-physical starts only, and the one place the setup key space exists as a whole.
+// THE SETUP POPULATION: every board, at every size, and the one place the setup key space exists as a whole.
 const setups = new Set();
-const setupToArrangement = new Map();   // setup id -> arrangement id (it must be single-valued: a setup refines one arrangement)
+const setupToArrangement = new Map();   // setup id -> arrangement id (single-valued where both tags are rooted)
 const arrangementToSetups = new Map();  // arrangement id -> Set of setup ids (how much the order splits each one)
 const setupIdToCanonical = new Map();   // id -> canonical (both the collision gate and determinism)
-/** Boards that are eight PHYSICAL dancers - the authored starts and the generated instances, counted together. */
-let eightPhysicalBoards = 0;
+/** Boards that named a setup - the authored starts and the generated instances, counted together. */
+let setupBoards = 0;
 let startsWithPhantom = 0;
-let skippedForSize = 0;
+let refusedBoards = 0;
 /** A sample kept for the cost note: `setupId` canonicalises twice, so its price is measured, not assumed. */
 const timingSample = [];
 const virtualFailures = [];
 
 /**
- * FOLD ONE START BOARD INTO THE SETUP POPULATION. The rule is the module's own predicate: the eight PHYSICAL
- * dancers are the setup, a phantom is scaffolding, and a board that is not eight physical dancers has no setup to
- * count (it is a subset unit, and the skip is counted so the denominator is visible).
+ * FOLD ONE START BOARD INTO THE SETUP POPULATION. The rule is the module's own: the PHYSICAL dancers are the setup
+ * (a phantom is scaffolding), and the ONLY refusal is a board with none of them. A board of two or six dancers is a
+ * setup of that size, because a formation definition writes whatever size it writes.
  */
 const countSetup = (start) => {
-  const physicalStart = { dancers: start.dancers.filter(isPhysicalDancer) };
-  if (physicalStart.dancers.length !== SETUP_DANCERS) {
-    skippedForSize++;
+  if (!start.dancers.some(isPhysicalDancer)) {
+    refusedBoards++;
     return;
   }
-  eightPhysicalBoards++;
-  if (start.dancers.length !== SETUP_DANCERS) startsWithPhantom++;
+  setupBoards++;
+  if (start.dancers.some((d) => !isPhysicalDancer(d))) startsWithPhantom++;
+  const physicalStart = { dancers: start.dancers.filter(isPhysicalDancer) };
   const physicalArrangement = arrangementId(physicalStart);
   const canonical = setupCanonical(start);
   const setup = setupId(start);
@@ -144,7 +145,7 @@ for (const level of LEVELS) {
         shapes.add(shape);
         arrangements.add(arrangement);
         if (fidOf(bundle) === null) shapesWithoutTag.add(shape);
-        // THE SETUP: an id only for the EIGHT PHYSICAL dancers - see `countSetup`.
+        // THE SETUP: an id for every board with at least one physical dancer - see `countSetup`.
         countSetup(start);
         const key = `${bundle.title}|${shape}`;
         if (!byTitleShape.has(key)) byTitleShape.set(key, new Set());
@@ -247,15 +248,16 @@ console.log(`  info  variants with more than one authoring: ${multiAuthored.leng
 console.log(`  info  authorings per variant: ${(tams / byVariant.size).toFixed(2)}`);
 
 console.log('== the setup population: the order inside each arrangement ==');
-// THE SAMPLE, first, because every count below is a fraction of it: the eight-PHYSICAL starts among the authorings,
-// plus the generated instances. A setup id names one board up to rotation and translation, so two authorings that
-// stand the couples up the same way share one - the count is the corpus's, not the file layout's.
+// THE SAMPLE, first, because every count below is a fraction of it: every board the corpus builds, at whatever size
+// (a formation definition writes two dancers or eight), plus the generated instances. A setup id names one board up
+// to rotation and translation, so two authorings that stand the couples up the same way share one - the count is the
+// corpus's, not the file layout's.
 check(generated === 7, `the ${generated} generated instances are in the sample with the authorings`);
 check(virtualFailures.length === 0, `every generated instance builds, so its placement board is measured (${virtualFailures.length} failed)`,
   virtualFailures.join('; '));
-check(eightPhysicalBoards + skippedForSize === tams - failedTitles.length + generated,
-  `every board is either counted or skipped by name: ${eightPhysicalBoards} counted + ${skippedForSize} skipped = ${tams - failedTitles.length} built + ${generated} generated`);
-check(eightPhysicalBoards > 0 && setups.size > 0, `the sweep measured a population (${setups.size} setups over ${eightPhysicalBoards} board(s))`);
+check(setupBoards + refusedBoards === tams - failedTitles.length + generated,
+  `every board is either counted or refused by name: ${setupBoards} counted + ${refusedBoards} refused = ${tams - failedTitles.length} built + ${generated} generated`);
+check(setupBoards > 0 && setups.size > 0, `the sweep measured a population (${setups.size} setups over ${setupBoards} board(s))`);
 {
   const setupCollisions = [...setupIdToCanonical.entries()].filter(([, canonical]) => canonical.startsWith('COLLISION:'));
   const aidConflicts = [...setupToArrangement.entries()].filter(([, aid]) => aid.startsWith('CONFLICT:'));
@@ -266,12 +268,12 @@ check(eightPhysicalBoards > 0 && setups.size > 0, `the sweep measured a populati
   check(aidConflicts.length === 0, `a setup id implies exactly one arrangement id (${aidConflicts.length} conflicts)`,
     aidConflicts.slice(0, 3).join('; '));
   check(misidentified.length === 0, `every minted id passes isSetupId (${misidentified.length} did not)`);
-  check(setups.size === 172, `172 distinct setups (${setups.size})`);
-  check(arrangementToSetups.size === 167, `167 distinct arrangements over the same boards (${arrangementToSetups.size})`);
-  check(multiSetupArrangements.length === 5, `5 arrangements carry more than one setup (${multiSetupArrangements.length}) - the setup axis is not the arrangement axis`);
-  console.log(`  info  eight-physical boards: ${eightPhysicalBoards} (${eightPhysicalBoards - generated} authored starts + ${generated} generated instances), ${startsWithPhantom} carrying a phantom`);
+  check(setups.size === 250, `250 distinct setups (${setups.size})`);
+  check(arrangementToSetups.size === 242, `242 distinct arrangements over the same boards (${arrangementToSetups.size})`);
+  check(multiSetupArrangements.length === 8, `8 arrangements carry more than one setup (${multiSetupArrangements.length}) - the setup axis is not the arrangement axis`);
+  console.log(`  info  setup boards: ${setupBoards} (${setupBoards - generated} authored starts + ${generated} generated instances), ${startsWithPhantom} carrying a phantom`);
   console.log(`  info  generated instances counted: ${generated}`);
-  console.log(`  info  skipped (not eight physical dancers): ${skippedForSize}`);
+  console.log(`  info  refused (no physical dancers): ${refusedBoards}`);
   console.log(`  info  distinct setups: ${setups.size}`);
   console.log(`  info  arrangements over the same boards: ${arrangementToSetups.size}`);
   console.log(`  info  arrangements carrying more than one setup: ${multiSetupArrangements.length}`);

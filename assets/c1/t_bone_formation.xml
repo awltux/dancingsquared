@@ -23,7 +23,7 @@
 <tamination title="T-Bone Formation">
 
   <tam title="Circulate" from="" fractions="" group="(T-Bone)" vid="V1-bjavyajx">
-     <formation fid="F3-4ohmtsct" aid="A1-wvufxukt">
+     <formation fid="F3-4ohmtsct" aid="A1-wvufxukt" sid="S1-ddi2q95k">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Split Circulate" from="" fractions="" group="(T-Bone)" vid="V1-bka1w86t">
-     <formation fid="F3-4ohmtsct" aid="A1-wvufxukt">
+     <formation fid="F3-4ohmtsct" aid="A1-wvufxukt" sid="S1-ddi2q95k">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="180"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Scoot Back" from="" group="(T-Bone)" vid="V1-yn9ftf2j">
-     <formation fid="F3-jsf4eay5" aid="A1-ohmk2yf7">
+     <formation fid="F3-jsf4eay5" aid="A1-ohmk2yf7" sid="S1-1ptdo30e">
       <dancer gender="girl" x="-1" y="3" angle="0"/>
       <dancer gender="boy" x="-1" y="1" angle="270"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -92,7 +92,7 @@
   <tam title="Follow Your Neighbor"
        from="Left-Handed T-Bone"
        group="(T-Bone)"  vid="V1-erzuysar">
-     <formation fid="F3-ovnuyu2t" aid="A1-ztpvmshx">
+     <formation fid="F3-ovnuyu2t" aid="A1-ztpvmshx" sid="S1-zh25787w">
       <dancer gender="girl" x="1" y="3" angle="0"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>

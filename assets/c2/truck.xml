@@ -54,7 +54,7 @@
 
   <tam title="Reverse Truck" from="Double Pass Thru, Girls in Center"
        sequencer="gender-specific" vid="V1-03n6qduh">
-    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
+    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj" sid="S1-9e4h2z7s">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>

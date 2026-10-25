@@ -383,7 +383,7 @@
   </tam>
 
   <tam title="Triple Line Step and Fold" group=" "  vid="V1-q70wh6sw">
-     <formation fid="F3-d1osiqrj" aid="A1-dff4xa6h">
+     <formation fid="F3-d1osiqrj" aid="A1-dff4xa6h" sid="S1-654veg54">
        <dancer gender="boy" x="-4" y="1" angle="0"/>
        <dancer gender="girl" x="-4" y="-1" angle="0"/>
        <dancer gender="boy" x="0" y="1" angle="0"/>

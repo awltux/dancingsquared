@@ -23,7 +23,7 @@
 <tamination title="Belles and Beaus (naming convention)">
 
   <tam title="Belles Walk, Beaus Dodge" group=" " vid="V1-1obtuk91">
-     <formation fid="F3-1r9s5bst" aid="A1-6ow969x5">
+     <formation fid="F3-1r9s5bst" aid="A1-6ow969x5" sid="S1-93m3etos">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
@@ -70,7 +70,7 @@
   </tam>
 
   <tam title="Beaus Walk, Belles Dodge" group=" " vid="V1-j6ez94hz">
-    <formation fid="F3-mgilzw9x" aid="A1-lhyug3s7">
+    <formation fid="F3-mgilzw9x" aid="A1-lhyug3s7" sid="S1-dpn31hpk">
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>

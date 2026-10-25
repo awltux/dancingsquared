@@ -21,58 +21,58 @@
 <formations>
 
   <!-- USE ASYMETRIC IN TAM ELEMENT TO USE THESE -->
-  <formation name="Facing Dancers Close" asymmetric="true" fid="F3-4eaptgb9" aid="A1-iaex97sm">
+  <formation name="Facing Dancers Close" asymmetric="true" fid="F3-4eaptgb9" aid="A1-iaex97sm" sid="S1-i7hdlp9w">
     <dancer gender="boy" x="-1" y="0" angle="0"/>
     <dancer gender="girl" x="1" y="0" angle="180"/>
   </formation>
 
-  <formation name="Facing Dancers Compact" asymmetric="true" fid="F3-ikm3hpag" aid="A1-3cshzjrf">
+  <formation name="Facing Dancers Compact" asymmetric="true" fid="F3-ikm3hpag" aid="A1-3cshzjrf" sid="S1-z1aw6zie">
     <dancer gender="boy" x="-1.5" y="0" angle="0"/>
     <dancer gender="girl" x="1.5" y="0" angle="180"/>
   </formation>
 
-  <formation name="Facing Dancers" asymmetric="true" fid="F3-arv7s5g4" aid="A1-9mbsdlqv">
+  <formation name="Facing Dancers" asymmetric="true" fid="F3-arv7s5g4" aid="A1-9mbsdlqv" sid="S1-xdwmkg3y">
     <dancer gender="boy" x="-2" y="0" angle="0"/>
     <dancer gender="girl" x="2" y="0" angle="180"/>
   </formation>
 
-  <formation name="Facing Dancers Far" asymmetric="true" fid="F3-2k1m4j6x" aid="A1-fh92910i">
+  <formation name="Facing Dancers Far" asymmetric="true" fid="F3-2k1m4j6x" aid="A1-fh92910i" sid="S1-cozysa5g">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="3" y="0" angle="180"/>
   </formation>
 
   <!-- Across a Squared Set -->
-  <formation name="Opposite Boy" asymmetric="true" fid="F3-a96hcz3k" aid="A1-ccowvfcc">
+  <formation name="Opposite Boy" asymmetric="true" fid="F3-a96hcz3k" aid="A1-ccowvfcc" sid="S1-uostwncr">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="boy" x="3" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Opposite Girl" asymmetric="true" fid="F3-1wax0okh" aid="A1-bakmgrx3">
+  <formation name="Opposite Girl" asymmetric="true" fid="F3-1wax0okh" aid="A1-bakmgrx3" sid="S1-7huokwdf">
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="1" angle="180"/>
   </formation>
 
-  <formation name="Adjacent Dancers Close" asymmetric="true" fid="F3-fyv6hgct" aid="A1-rb3s0gfi">
+  <formation name="Adjacent Dancers Close" asymmetric="true" fid="F3-fyv6hgct" aid="A1-rb3s0gfi" sid="S1-2k5ho6kk">
     <dancer gender="boy" x="-1" y="0" angle="90"/>
     <dancer gender="girl" x="1" y="0" angle="90"/>
   </formation>
 
-  <formation name="Adjacent Dancers Compact" asymmetric="true" fid="F3-d6rs2nzs" aid="A1-7qzxkew9">
+  <formation name="Adjacent Dancers Compact" asymmetric="true" fid="F3-d6rs2nzs" aid="A1-7qzxkew9" sid="S1-5nqf0g3m">
     <dancer gender="boy" x="-1.5" y="0" angle="90"/>
     <dancer gender="girl" x="1.5" y="0" angle="90"/>
   </formation>
 
-  <formation name="Adjacent Dancers" asymmetric="true" fid="F3-8ayhpcg4" aid="A1-9lerytlh">
+  <formation name="Adjacent Dancers" asymmetric="true" fid="F3-8ayhpcg4" aid="A1-9lerytlh" sid="S1-ck5y7rci">
     <dancer gender="boy" x="-2" y="0" angle="90"/>
     <dancer gender="girl" x="2" y="0" angle="90"/>
   </formation>
 
-  <formation name="Adjacent Dancers Far" asymmetric="true" fid="F3-7574gf95" aid="A1-elprrnog">
+  <formation name="Adjacent Dancers Far" asymmetric="true" fid="F3-7574gf95" aid="A1-elprrnog" sid="S1-kjembft0">
     <dancer gender="boy" x="-3" y="0" angle="90"/>
     <dancer gender="girl" x="3" y="0" angle="90"/>
   </formation>
 
-  <formation name="Corner Dancers Far" asymmetric="true" fid="F3-wfy7ftrk" aid="A1-uk3nh9oz">
+  <formation name="Corner Dancers Far" asymmetric="true" fid="F3-wfy7ftrk" aid="A1-uk3nh9oz" sid="S1-bd114bhg">
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
   </formation>
@@ -81,731 +81,731 @@
 
 
   <!--  Two-couple formations  -->
-  <formation name="Facing Couples" fid="F3-nlnlii69" aid="A1-6r10ge6d">
+  <formation name="Facing Couples" fid="F3-nlnlii69" aid="A1-6r10ge6d" sid="S1-23wt186o">
     <dancer gender="boy" x="-2" y="1" angle="0" />
     <dancer gender="girl" x="-2" y="-1" angle="0" />
   </formation>
 
-  <formation name="Facing Couples Compact" fid="F3-4ro3p815" aid="A1-yl2mr1qt">
+  <formation name="Facing Couples Compact" fid="F3-4ro3p815" aid="A1-yl2mr1qt" sid="S1-0s095ers">
     <dancer gender="boy" x="-1.5" y="1" angle="0" />
     <dancer gender="girl" x="-1.5" y="-1" angle="0" />
   </formation>
 
-  <formation name="Facing Couples Close" fid="F3-xud0oaar" aid="A1-k1o5a9dv">
+  <formation name="Facing Couples Close" fid="F3-xud0oaar" aid="A1-k1o5a9dv" sid="S1-chvifj4s">
     <dancer gender="boy" x="-1" y="1" angle="0" />
     <dancer gender="girl" x="-1" y="-1" angle="0" />
   </formation>
 
-  <formation name="Facing Couples Far" fid="F3-rj0qnzj7" aid="A1-5ok70lr7">
+  <formation name="Facing Couples Far" fid="F3-rj0qnzj7" aid="A1-5ok70lr7" sid="S1-kcs4y8qk">
     <dancer gender="boy" x="-3" y="1" angle="0" />
     <dancer gender="girl" x="-3" y="-1" angle="0" />
   </formation>
 
-  <formation name="Couples Facing Out" fid="F3-ik8242br" aid="A1-27lc8wm5">
+  <formation name="Couples Facing Out" fid="F3-ik8242br" aid="A1-27lc8wm5" sid="S1-4fikl8z0">
     <dancer gender="girl" x="-2" y="1" angle="180" />
     <dancer gender="boy" x="-2" y="-1" angle="180" />
   </formation>
 
-  <formation name="Couples Facing Out Compact" fid="F3-gchze2lb" aid="A1-osqtysb9">
+  <formation name="Couples Facing Out Compact" fid="F3-gchze2lb" aid="A1-osqtysb9" sid="S1-tmpy76t8">
     <dancer gender="girl" x="-1.5" y="1" angle="180" />
     <dancer gender="boy" x="-1.5" y="-1" angle="180" />
   </formation>
 
-  <formation name="Couples Facing Out Far" fid="F3-rsd1uwyz" aid="A1-y01oz9g5">
+  <formation name="Couples Facing Out Far" fid="F3-rsd1uwyz" aid="A1-y01oz9g5" sid="S1-uxigrseg">
     <dancer gender="girl" x="-3" y="1" angle="180" />
     <dancer gender="boy" x="-3" y="-1" angle="180" />
   </formation>
 
-  <formation name="Couples Facing Out Close" fid="F3-4mubexmh" aid="A1-4if1uqr3">
+  <formation name="Couples Facing Out Close" fid="F3-4mubexmh" aid="A1-4if1uqr3" sid="S1-0vf8obdk">
     <dancer gender="girl" x="-1" y="1" angle="180" />
     <dancer gender="boy" x="-1" y="-1" angle="180" />
   </formation>
 
-  <formation name="Two-Faced Line RH" fid="F3-la88ogb8" aid="A1-ypdxw964">
+  <formation name="Two-Faced Line RH" fid="F3-la88ogb8" aid="A1-ypdxw964" sid="S1-d3fsbmzo">
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Compact Two-Faced Line RH" fid="F3-oy971ug0" aid="A1-209z27jy">
+  <formation name="Compact Two-Faced Line RH" fid="F3-oy971ug0" aid="A1-209z27jy" sid="S1-o1euszwg">
     <dancer gender="boy" x="0" y="1.5" angle="0"/>
     <dancer gender="girl" x="0" y=".5" angle="0"/>
   </formation>
 
-  <formation name="Two-Faced Line LH" fid="F3-gst70eqg" aid="A1-oxtzaqjk">
+  <formation name="Two-Faced Line LH" fid="F3-gst70eqg" aid="A1-oxtzaqjk" sid="S1-8ddnrbzo">
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="0" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Compact Two-Faced Line LH" fid="F3-tucet6rm" aid="A1-jrgub2is">
+  <formation name="Compact Two-Faced Line LH" fid="F3-tucet6rm" aid="A1-jrgub2is" sid="S1-qf33odzo">
     <dancer gender="boy" x="0" y="-.5" angle="0"/>
     <dancer gender="girl" x="0" y="-1.5" angle="0"/>
   </formation>
 
-  <formation name="Box RH" fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
+  <formation name="Box RH" fid="F3-nqygzvp3" aid="A1-b0hdpgj9" sid="S1-15hybw4k">
     <dancer gender="boy" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Box RH Compact" fid="F3-j3lfx3mn" aid="A1-w6la6o45">
+  <formation name="Box RH Compact" fid="F3-j3lfx3mn" aid="A1-w6la6o45" sid="S1-sbh7dib8">
     <dancer gender="boy" x="-1.5" y="1" angle="0"/>
     <dancer gender="girl" x="-1.5" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Box RH Close" fid="F3-qoly6tk9" aid="A1-zfrdo3mz">
+  <formation name="Box RH Close" fid="F3-qoly6tk9" aid="A1-zfrdo3mz" sid="S1-zhazf73c">
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Box RH Boys Lead" fid="F3-nqygzvp3" aid="A1-3ay5cyub">
+  <formation name="Box RH Boys Lead" fid="F3-nqygzvp3" aid="A1-3ay5cyub" sid="S1-oypxre10">
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
   </formation>
 
-  <formation name="Box LH" fid="F3-0pwss2ox" aid="A1-m4dsj3np">
+  <formation name="Box LH" fid="F3-0pwss2ox" aid="A1-m4dsj3np" sid="S1-0xrhx40w">
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Box LH Compact" fid="F3-vxdgozd5" aid="A1-dobgkzkl">
+  <formation name="Box LH Compact" fid="F3-vxdgozd5" aid="A1-dobgkzkl" sid="S1-uobqjqt4">
     <dancer gender="boy" x="-1.5" y="1" angle="180"/>
     <dancer gender="girl" x="-1.5" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Box LH Close" fid="F3-3ienatj7" aid="A1-nt8eouhf">
+  <formation name="Box LH Close" fid="F3-3ienatj7" aid="A1-nt8eouhf" sid="S1-v2iisqfg">
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Box LH Girls Lead" fid="F3-0pwss2ox" aid="A1-eq3pd9yr">
+  <formation name="Box LH Girls Lead" fid="F3-0pwss2ox" aid="A1-eq3pd9yr" sid="S1-jelp7yro">
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
   </formation>
 
-  <formation name="Wave RH" fid="F3-9vxgr91a" aid="A1-bieo87yo">
+  <formation name="Wave RH" fid="F3-9vxgr91a" aid="A1-bieo87yo" sid="S1-q7j4q130">
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Compact Wave RH" fid="F3-kl44f788" aid="A1-uj8pej5w">
+  <formation name="Compact Wave RH" fid="F3-kl44f788" aid="A1-uj8pej5w" sid="S1-qw50v7g4">
     <dancer gender="boy" x="0" y="1.5" angle="0"/>
     <dancer gender="girl" x="0" y="0.5" angle="180"/>
   </formation>
 
-  <formation name="Wave RH Boys Center" fid="F3-9vxgr91a" aid="A1-iybh0ai8">
+  <formation name="Wave RH Boys Center" fid="F3-9vxgr91a" aid="A1-iybh0ai8" sid="S1-plscgpzo">
     <dancer gender="boy" x="0" y="1" angle="180"/>
     <dancer gender="girl" x="0" y="3" angle="0"/>
   </formation>
 
-  <formation name="Wave LH" fid="F3-ogn0v1rs" aid="A1-jr1mn61e">
+  <formation name="Wave LH" fid="F3-ogn0v1rs" aid="A1-jr1mn61e" sid="S1-4d5opats">
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Compact Wave LH" fid="F3-m06nqfnm" aid="A1-g2o3kjf2">
+  <formation name="Compact Wave LH" fid="F3-m06nqfnm" aid="A1-g2o3kjf2" sid="S1-yg04zmbc">
     <dancer gender="boy" x="0" y="-1.5" angle="0"/>
     <dancer gender="girl" x="0" y="-0.5" angle="180"/>
   </formation>
 
-  <formation name="Wave LH Boys Center" fid="F3-ogn0v1rs" aid="A1-rf23ddc0">
+  <formation name="Wave LH Boys Center" fid="F3-ogn0v1rs" aid="A1-rf23ddc0" sid="S1-9h0smi2c">
     <dancer gender="boy" x="0" y="-1" angle="180"/>
     <dancer gender="girl" x="0" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Wave RH GBBG" fid="F3-9vxgr91a" aid="A1-iybh0ai8">
+  <formation name="Wave RH GBBG" fid="F3-9vxgr91a" aid="A1-iybh0ai8" sid="S1-7easn80s">
     <dancer gender="girl" x="0" y="3" angle="0"/>
     <dancer gender="boy" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Wave LH GBBG" fid="F3-ogn0v1rs" aid="A1-rf23ddc0">
+  <formation name="Wave LH GBBG" fid="F3-ogn0v1rs" aid="A1-rf23ddc0" sid="S1-lkrqukki">
     <dancer gender="girl" x="0" y="-3" angle="0"/>
     <dancer gender="boy" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Diamond RH" fid="F3-f4mg9jy6" aid="A1-mim05bcg">
+  <formation name="Diamond RH" fid="F3-f4mg9jy6" aid="A1-mim05bcg" sid="S1-9gj6a4n0">
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="1" y="0" angle="270"/>
   </formation>
 
-  <formation name="Diamond RH Girl Points" fid="F3-f4mg9jy6" aid="A1-pbl2m1jc">
+  <formation name="Diamond RH Girl Points" fid="F3-f4mg9jy6" aid="A1-pbl2m1jc" sid="S1-2685ua8k">
     <dancer gender="girl" x="0" y="3" angle="0"/>
     <dancer gender="boy" x="1" y="0" angle="270"/>
   </formation>
 
-  <formation name="Diamond LH" fid="F3-92zpkt50" aid="A1-w96qgs5s">
+  <formation name="Diamond LH" fid="F3-92zpkt50" aid="A1-w96qgs5s" sid="S1-pp88pljo">
     <dancer gender="boy" x="0" y="3" angle="180"/>
     <dancer gender="girl" x="1" y="0" angle="90"/>
   </formation>
 
-  <formation name="Diamond LH Boys Center" fid="F3-92zpkt50" aid="A1-x375j5ii">
+  <formation name="Diamond LH Boys Center" fid="F3-92zpkt50" aid="A1-x375j5ii" sid="S1-yz1h25xw">
     <dancer gender="boy" x="1" y="0" angle="90"/>
     <dancer gender="girl" x="0" y="3" angle="180"/>
   </formation>
 
-  <formation name="Diamond Facing" fid="F3-1o1qgwqc" aid="A1-pexela1c">
+  <formation name="Diamond Facing" fid="F3-1o1qgwqc" aid="A1-pexela1c" sid="S1-jijfd4ec">
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="1" y="0" angle="90"/>
   </formation>
 
-  <formation name="Diamond Facing RH" fid="F3-eojjrwwe" aid="A1-m1k4p4tc">
+  <formation name="Diamond Facing RH" fid="F3-eojjrwwe" aid="A1-m1k4p4tc" sid="S1-eh22pkd8">
     <dancer gender="boy" x="0" y="3" angle="180"/>
     <dancer gender="girl" x="1" y="0" angle="270"/>
   </formation>
 
-  <formation name="Diamond Compact" fid="F3-5ixmif05" aid="A1-kbtyda6x">
+  <formation name="Diamond Compact" fid="F3-5ixmif05" aid="A1-kbtyda6x" sid="S1-l2oe8duw">
     <dancer gender="boy" x="0" y="1.5" angle="0"/>
     <dancer gender="girl" x="1" y="0" angle="270"/>
   </formation>
 
-  <formation name="Single Double Pass Thru" fid="F3-slbcbgsw" aid="A1-le2zzx7m">
+  <formation name="Single Double Pass Thru" fid="F3-slbcbgsw" aid="A1-le2zzx7m" sid="S1-njkx61cg">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="-1" y="0" angle="0"/>
   </formation>
 
-  <formation name="Single Double Pass Thru Close" fid="F3-qdav0dje" aid="A1-fro70ddy">
+  <formation name="Single Double Pass Thru Close" fid="F3-qdav0dje" aid="A1-fro70ddy" sid="S1-orjfypig">
     <dancer gender="boy" x="-1.5" y="0" angle="0"/>
     <dancer gender="girl" x="-.5" y="0" angle="0"/>
   </formation>
 
-  <formation name="Single Eight Chain Thru" fid="F3-7qkeu9io" aid="A1-7wgyqrk2">
+  <formation name="Single Eight Chain Thru" fid="F3-7qkeu9io" aid="A1-7wgyqrk2" sid="S1-jw2q6ob4">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="-1" y="0" angle="180"/>
   </formation>
 
-  <formation name="Single Quarter Tag" fid="F3-l03it9px" aid="A1-jzjdnuad">
+  <formation name="Single Quarter Tag" fid="F3-l03it9px" aid="A1-jzjdnuad" sid="S1-bwvakaii">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Single Left Quarter Tag" fid="F3-24al15mr" aid="A1-n12i06ih">
+  <formation name="Single Left Quarter Tag" fid="F3-24al15mr" aid="A1-n12i06ih" sid="S1-cu9nohsm">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Single 3/4 Tag" fid="F3-pso00wwz" aid="A1-rr8w5lmb">
+  <formation name="Single 3/4 Tag" fid="F3-pso00wwz" aid="A1-rr8w5lmb" sid="S1-5w0r8oyi">
     <dancer gender="boy" x="-3" y="0" angle="180"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Single Left 3/4 Tag" fid="F3-eyhlwb7x" aid="A1-2zmcbnmf">
+  <formation name="Single Left 3/4 Tag" fid="F3-eyhlwb7x" aid="A1-2zmcbnmf" sid="S1-izulvf2q">
     <dancer gender="boy" x="-3" y="0" angle="180"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Tandem Girls Lead" fid="F3-slbcbgsw" aid="A1-le2zzx7m">
+  <formation name="Tandem Girls Lead" fid="F3-slbcbgsw" aid="A1-le2zzx7m" sid="S1-njkx61cg">
     <dancer gender="boy" x="-3" y="0" angle="0"/>
     <dancer gender="girl" x="-1" y="0" angle="0"/>
   </formation>
 
-  <formation name="Square RH" fid="F3-chqpk82a" aid="A1-nm9y2ifa">
+  <formation name="Square RH" fid="F3-chqpk82a" aid="A1-nm9y2ifa" sid="S1-5zlepmsc">
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="90"/>
   </formation>
 
-  <formation name="Square LH" fid="F3-h4pcldyy" aid="A1-8ad92sra">
+  <formation name="Square LH" fid="F3-h4pcldyy" aid="A1-8ad92sra" sid="S1-09ldkmbs">
     <dancer gender="boy" x="-1" y="1" angle="270"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Square Facing Out LH" fid="F3-cewx13tu" aid="A1-k1qqz7lu">
+  <formation name="Square Facing Out LH" fid="F3-cewx13tu" aid="A1-k1qqz7lu" sid="S1-4ix84jf0">
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="270"/>
   </formation>
 
-  <formation name="Square Facing Out RH" fid="F3-kl12cnei" aid="A1-dh5l5kr8">
+  <formation name="Square Facing Out RH" fid="F3-kl12cnei" aid="A1-dh5l5kr8" sid="S1-at0ypzmk">
     <dancer gender="boy" x="-1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Star RH" fid="F3-h85f608i" aid="A1-2rxn5uti">
+  <formation name="Star RH" fid="F3-h85f608i" aid="A1-2rxn5uti" sid="S1-vn73sav0">
     <dancer gender="boy" x="1" y="0" angle="270"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Star LH" fid="F3-to2un8mi" aid="A1-kr8bxgmy">
+  <formation name="Star LH" fid="F3-to2un8mi" aid="A1-kr8bxgmy" sid="S1-99usnutg">
     <dancer gender="boy" x="1" y="0" angle="90"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Star Facing" fid="F3-dhygvqy2" aid="A1-ctc4bodm">
+  <formation name="Star Facing" fid="F3-dhygvqy2" aid="A1-ctc4bodm" sid="S1-cmslb1t0">
     <dancer gender="boy" x="1" y="0" angle="90"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Block" fid="F3-yi3bn367" aid="A1-oywa1f03">
+  <formation name="Block" fid="F3-yi3bn367" aid="A1-oywa1f03" sid="S1-hlssgylo">
     <dancer gender="boy" x="-2" y="2" angle="0" />
     <dancer gender="girl" x="-2" y="-2" angle="0" />
   </formation>
 
   <!-- Four Couple Formations    -->
-  <formation name="Static Square" fid="F3-3h40wv4v" aid="A1-lpsx94q3">
+  <formation name="Static Square" fid="F3-3h40wv4v" aid="A1-lpsx94q3" sid="S1-ej06ka4s">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="1" y="-3" angle="90"/>
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Squared Set" fid="F3-3h40wv4v" aid="A1-lpsx94q3">
+  <formation name="Squared Set" fid="F3-3h40wv4v" aid="A1-lpsx94q3" sid="S1-ej06ka4s">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="1" y="-3" angle="90"/>
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Static Facing Out" fid="F3-zc0x1jpv" aid="A1-bsiin94l">
+  <formation name="Static Facing Out" fid="F3-zc0x1jpv" aid="A1-bsiin94l" sid="S1-k4h9dcuc">
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="1" y="-3" angle="270"/>
     <dancer gender="girl" x="-1" y="-3" angle="270"/>
   </formation>
 
-  <formation name="Right and Left Grand Static Square" fid="F3-8dyawmgx" aid="A1-dhzxrej3">
+  <formation name="Right and Left Grand Static Square" fid="F3-8dyawmgx" aid="A1-dhzxrej3" sid="S1-4hk6w3lk">
     <dancer gender="boy" x="-1" y="-3" angle="0"/>
     <dancer gender="girl" x="1" y="-3" angle="180"/>
     <dancer gender="boy" x="3" y="-1" angle="90"/>
     <dancer gender="girl" x="3" y="1" angle="270"/>
   </formation>
 
-  <formation name="Wrong Way Grand Static Square" fid="F3-8dyawmgx" aid="A1-uo2i94jf">
+  <formation name="Wrong Way Grand Static Square" fid="F3-8dyawmgx" aid="A1-uo2i94jf" sid="S1-jfir2y10">
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
     <dancer gender="boy" x="1" y="-3" angle="180"/>
     <dancer gender="girl" x="3" y="-1" angle="90"/>
     <dancer gender="boy" x="3" y="1" angle="270"/>
   </formation>
 
-  <formation name="Right and Left Grand Circle" fid="F3-boa6dh1y" aid="A1-1ngi0i4u">
+  <formation name="Right and Left Grand Circle" fid="F3-boa6dh1y" aid="A1-1ngi0i4u" sid="S1-m3auhvn0">
     <dancer gender="boy" x="-1" y="-2.414" angle="337.5"/>
     <dancer gender="girl" x="1" y="-2.414" angle="202.5"/>
     <dancer gender="boy" x="2.414" y="-1" angle="67.5"/>
     <dancer gender="girl" x="2.414" y="1" angle="292.5"/>
   </formation>
 
-  <formation name="Wrong Way Grand Circle" fid="F3-boa6dh1y" aid="A1-zgq9wx5i">
+  <formation name="Wrong Way Grand Circle" fid="F3-boa6dh1y" aid="A1-zgq9wx5i" sid="S1-xh9y8rs4">
     <dancer gender="girl" x="-1" y="-2.414" angle="337.5"/>
     <dancer gender="boy" x="1" y="-2.414" angle="202.5"/>
     <dancer gender="girl" x="2.414" y="-1" angle="67.5"/>
     <dancer gender="boy" x="2.414" y="1" angle="292.5"/>
   </formation>
 
-  <formation name="Static MiniWaves RH" fid="F3-bee67rgz" aid="A1-m38and0b">
+  <formation name="Static MiniWaves RH" fid="F3-bee67rgz" aid="A1-m38and0b" sid="S1-nddn37uc">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="1" y="-3" angle="270"/>
   </formation>
 
-  <formation name="Static MiniWaves LH" fid="F3-95vqznb3" aid="A1-47qh2445">
+  <formation name="Static MiniWaves LH" fid="F3-95vqznb3" aid="A1-47qh2445" sid="S1-xg7v232g">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-3" angle="270"/>
     <dancer gender="girl" x="1" y="-3" angle="90"/>
   </formation>
 
-  <formation name="Static BackToBack" fid="F3-w1v0tyaj" aid="A1-yqfwgpod">
+  <formation name="Static BackToBack" fid="F3-w1v0tyaj" aid="A1-yqfwgpod" sid="S1-gjy0aykw">
     <dancer gender="boy" x="-2" y="0" angle="0"/>
     <dancer gender="girl" x="-4" y="0" angle="180"/>
     <dancer gender="boy" x="0" y="2" angle="270"/>
     <dancer gender="girl" x="0" y="4" angle="90"/>
   </formation>
 
-  <formation name="Static Facing" fid="F3-hjl1o6mh" aid="A1-oqc3z1f9">
+  <formation name="Static Facing" fid="F3-hjl1o6mh" aid="A1-oqc3z1f9" sid="S1-fbz46iow">
     <dancer gender="boy" x="-4" y="0" angle="0"/>
     <dancer gender="girl" x="-2" y="0" angle="180"/>
     <dancer gender="boy" x="0" y="4" angle="270"/>
     <dancer gender="girl" x="0" y="2" angle="90"/>
   </formation>
 
-  <formation name="Static Girls Lead" fid="F3-2sfwvydx" aid="A1-6pgc5aib">
+  <formation name="Static Girls Lead" fid="F3-2sfwvydx" aid="A1-6pgc5aib" sid="S1-b5vdr1bw">
     <dancer gender="boy" x="-4" y="0" angle="0"/>
     <dancer gender="girl" x="-2" y="0" angle="0"/>
     <dancer gender="boy" x="0" y="4" angle="270"/>
     <dancer gender="girl" x="0" y="2" angle="270"/>
   </formation>
 
-  <formation name="Single File Promenade" fid="F3-t4r58bik" aid="A1-md0jroew">
+  <formation name="Single File Promenade" fid="F3-t4r58bik" aid="A1-md0jroew" sid="S1-kz7gnnek">
     <dancer gender="boy" x="-2.414" y="1" angle="258"/>
     <dancer gender="girl" x="-2.414" y="-1" angle="292"/>
     <dancer gender="boy" x="1" y="2.414" angle="158"/>
     <dancer gender="girl" x="-1" y="2.414" angle="202"/>
   </formation>
 
-  <formation name="Single File Reverse Promenade" fid="F3-oen1kjuj" aid="A1-kfgkgqz7">
+  <formation name="Single File Reverse Promenade" fid="F3-oen1kjuj" aid="A1-kfgkgqz7" sid="S1-78bzyts4">
     <dancer gender="boy" x="-2.414" y="1" angle="90"/>
     <dancer gender="girl" x="-2.414" y="-1" angle="90"/>
     <dancer gender="boy" x="1" y="2.414" angle="0"/>
     <dancer gender="girl" x="-1" y="2.414" angle="0"/>
   </formation>
 
-  <formation name="Promenade" fid="F3-szrgk1br" aid="A1-oo15o3ev">
+  <formation name="Promenade" fid="F3-szrgk1br" aid="A1-oo15o3ev" sid="S1-lbyjkssc">
     <dancer gender="boy" x="1.414" y="1.414" angle="135"/>
     <dancer gender="girl" x="2.121" y="2.121" angle="135"/>
     <dancer gender="boy" x="1.414" y="-1.414" angle="45"/>
     <dancer gender="girl" x="2.121" y="-2.121" angle="45"/>
   </formation>
 
-  <formation name="Promenade 2" fid="F3-szrgk1br" aid="A1-oo15o3ev">
+  <formation name="Promenade 2" fid="F3-szrgk1br" aid="A1-oo15o3ev" sid="S1-50eurzek">
     <dancer gender="boy" x="2" y="0" angle="90"/>
     <dancer gender="girl" x="3" y="0" angle="90"/>
     <dancer gender="boy" x="0" y="2" angle="180"/>
     <dancer gender="girl" x="0" y="3" angle="180"/>
   </formation>
 
-  <formation name="Four Dancer Star Promenade" fid="F3-pfeb66sv" aid="A1-urg4q7ez">
+  <formation name="Four Dancer Star Promenade" fid="F3-pfeb66sv" aid="A1-urg4q7ez" sid="S1-c4by18dw">
     <dancer gender="boy" x="0" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="1" y="0" angle="90"/>
     <dancer gender="girl" x="-1" y="3" angle="270"/>
   </formation>
 
-  <formation name="Wrong Way Four Dancer Star Promenade" fid="F3-6vc52sy7" aid="A1-ongoob1v">
+  <formation name="Wrong Way Four Dancer Star Promenade" fid="F3-6vc52sy7" aid="A1-ongoob1v" sid="S1-yh2dcuue">
     <dancer gender="girl" x="0" y="1" angle="0"/>
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="1" y="0" angle="270"/>
     <dancer gender="boy" x="1" y="3" angle="270"/>
   </formation>
 
-  <formation name="Star Promenade" fid="F3-3tuezk19" aid="A1-o43iy0yl">
+  <formation name="Star Promenade" fid="F3-3tuezk19" aid="A1-o43iy0yl" sid="S1-chbzwf58">
     <dancer gender="boy" x="1" y="0" angle="90"/>
     <dancer gender="girl" x="3" y="0" angle="90"/>
     <dancer gender="boy" x="0" y="1" angle="180"/>
     <dancer gender="girl" x="0" y="3" angle="180"/>
   </formation>
 
-  <formation name="Reverse Star Promenade" fid="F3-xz5t9pjr" aid="A1-rw1ck391">
+  <formation name="Reverse Star Promenade" fid="F3-xz5t9pjr" aid="A1-rw1ck391" sid="S1-snj3bod8">
     <dancer gender="boy" x="3" y="0" angle="270"/>
     <dancer gender="girl" x="1" y="0" angle="270"/>
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Stars RH" fid="F3-p67uc7j0" aid="A1-x1oq5iq2">
+  <formation name="Stars RH" fid="F3-p67uc7j0" aid="A1-x1oq5iq2" sid="S1-nosi9a08">
     <dancer gender="boy" x="3" y="0" angle="270"/>
     <dancer gender="girl" x="2" y="1" angle="0"/>
     <dancer gender="boy" x="-1" y="0" angle="270"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
   </formation>
 
-  <formation name="Stars LH" fid="F3-5ryuu2x8" aid="A1-g87b7tey">
+  <formation name="Stars LH" fid="F3-5ryuu2x8" aid="A1-g87b7tey" sid="S1-x3u9r5xo">
     <dancer gender="boy" x="3" y="0" angle="90"/>
     <dancer gender="girl" x="2" y="1" angle="180"/>
     <dancer gender="boy" x="-1" y="0" angle="90"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
   </formation>
 
-  <formation name="Normal Lines" fid="F3-1r9s5bst" aid="A1-mib7zc39">
+  <formation name="Normal Lines" fid="F3-1r9s5bst" aid="A1-mib7zc39" sid="S1-hb373q3o">
     <dancer gender="boy" x="2" y="-3" angle="180" />
     <dancer gender="girl" x="2" y="-1" angle="180" />
     <dancer gender="boy" x="2" y="1" angle="180" />
     <dancer gender="girl" x="2" y="3" angle="180" />
   </formation>
 
-  <formation name="Normal Lines Compact" fid="F3-4e1uo531" aid="A1-pku76h5x">
+  <formation name="Normal Lines Compact" fid="F3-4e1uo531" aid="A1-pku76h5x" sid="S1-ti5ri1jw">
     <dancer gender="boy" x="1.5" y="-3" angle="180" />
     <dancer gender="girl" x="1.5" y="-1" angle="180" />
     <dancer gender="boy" x="1.5" y="1" angle="180" />
     <dancer gender="girl" x="1.5" y="3" angle="180" />
   </formation>
 
-  <formation name="Sashayed Lines" fid="F3-1r9s5bst" aid="A1-q27idb99">
+  <formation name="Sashayed Lines" fid="F3-1r9s5bst" aid="A1-q27idb99" sid="S1-4upypjh8">
     <dancer gender="girl" x="-2" y="3" angle="0"/>
     <dancer gender="boy" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Lines Facing Out" fid="F3-xzuj7y07" aid="A1-05dph68t">
+  <formation name="Lines Facing Out" fid="F3-xzuj7y07" aid="A1-05dph68t" sid="S1-juqjhq20">
     <dancer gender="girl" x="-2" y="3" angle="180"/>
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Lines Facing Out Compact" fid="F3-9gboj6dj" aid="A1-l7zeku39">
+  <formation name="Lines Facing Out Compact" fid="F3-9gboj6dj" aid="A1-l7zeku39" sid="S1-mcya20fs">
     <dancer gender="girl" x="-1.5" y="3" angle="180"/>
     <dancer gender="boy" x="-1.5" y="1" angle="180"/>
     <dancer gender="girl" x="-1.5" y="-1" angle="180"/>
     <dancer gender="boy" x="-1.5" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Z RH GBBG" fid="F3-p6z7socf" aid="A1-6s93fdz9">
+  <formation name="Z RH GBBG" fid="F3-p6z7socf" aid="A1-6s93fdz9" sid="S1-rkoon5iy">
     <dancer gender="girl" x="-4" y="1" angle="0"/>
     <dancer gender="boy" x="-2.5" y="1" angle="0"/>
     <dancer gender="boy" x="-2.5" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Right-Hand Zs" fid="F3-khp8vqum" aid="A1-8dwpc3go">
+  <formation name="Right-Hand Zs" fid="F3-khp8vqum" aid="A1-8dwpc3go" sid="S1-yfjhc4vg">
     <dancer gender="girl" x="-4" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Left-Hand Zs" fid="F3-181fn5fu" aid="A1-b76bphyy">
+  <formation name="Left-Hand Zs" fid="F3-181fn5fu" aid="A1-b76bphyy" sid="S1-cpkpk714">
     <dancer gender="girl" x="-4" y="-1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves" fid="F3-4ablgjmv" aid="A1-t2fif4z7"> <!-- for sequencer formation select -->
+  <formation name="Ocean Waves" fid="F3-4ablgjmv" aid="A1-t2fif4z7" sid="S1-1kdffw9m"> <!-- for sequencer formation select -->
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves RH BGGB" fid="F3-4ablgjmv" aid="A1-t2fif4z7">
+  <formation name="Ocean Waves RH BGGB" fid="F3-4ablgjmv" aid="A1-t2fif4z7" sid="S1-1kdffw9m">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves RH BGGB Compact" fid="F3-4tsqu67b" aid="A1-0nsuszbv">
+  <formation name="Ocean Waves RH BGGB Compact" fid="F3-4tsqu67b" aid="A1-0nsuszbv" sid="S1-ijpcxkgy">
     <dancer gender="boy" x="-1.5" y="3" angle="0"/>
     <dancer gender="girl" x="-1.5" y="1" angle="180"/>
     <dancer gender="girl" x="-1.5" y="-1" angle="0"/>
     <dancer gender="boy" x="-1.5" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves LH BGGB" fid="F3-jk0u0kn1" aid="A1-t3395rcd">
+  <formation name="Ocean Waves LH BGGB" fid="F3-jk0u0kn1" aid="A1-t3395rcd" sid="S1-xkca9flo">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Ocean Waves RH GBBG" fid="F3-4ablgjmv" aid="A1-gamazakz">
+  <formation name="Ocean Waves RH GBBG" fid="F3-4ablgjmv" aid="A1-gamazakz" sid="S1-0zt2nvqy">
     <dancer gender="girl" x="-2" y="3" angle="0"/>
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves LH GBBG" fid="F3-jk0u0kn1" aid="A1-nbdxp8qx">
+  <formation name="Ocean Waves LH GBBG" fid="F3-jk0u0kn1" aid="A1-nbdxp8qx" sid="S1-40rxkqew">
     <dancer gender="girl" x="-2" y="3" angle="180"/>
     <dancer gender="boy" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Ocean Waves RH BGBG" fid="F3-4ablgjmv" aid="A1-v2gxpog9">
+  <formation name="Ocean Waves RH BGBG" fid="F3-4ablgjmv" aid="A1-v2gxpog9" sid="S1-s0axncxw">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves LH BGBG" fid="F3-jk0u0kn1" aid="A1-paoctnf9">
+  <formation name="Ocean Waves LH BGBG" fid="F3-jk0u0kn1" aid="A1-paoctnf9" sid="S1-w636q2r8">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Ocean Waves RH GBGB" fid="F3-4ablgjmv" aid="A1-ie5f8l9h">
+  <formation name="Ocean Waves RH GBGB" fid="F3-4ablgjmv" aid="A1-ie5f8l9h" sid="S1-yzndw940">
     <dancer gender="girl" x="-2" y="3" angle="0"/>
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Ocean Waves LH GBGB" fid="F3-jk0u0kn1" aid="A1-chkoa865">
+  <formation name="Ocean Waves LH GBGB" fid="F3-jk0u0kn1" aid="A1-chkoa865" sid="S1-ib7somj0">
     <dancer gender="girl" x="-2" y="3" angle="180"/>
     <dancer gender="boy" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Circle" fid="F3-1f145gba" aid="A1-1f4efkjq">
+  <formation name="Circle" fid="F3-1f145gba" aid="A1-1f4efkjq" sid="S1-8dufsjvg">
     <dancer gender="boy" x="-1" y="-2.414" angle="67.5"/>
     <dancer gender="girl" x="1" y="-2.414" angle="112.5"/>
     <dancer gender="boy" x="2.414" y="-1" angle="157.5"/>
     <dancer gender="girl" x="2.414" y="1" angle="-157.5"/>
   </formation>
 
-  <formation name="Alamo Wave" fid="F3-imy1u3eo" aid="A1-0qtn4sm8">
+  <formation name="Alamo Wave" fid="F3-imy1u3eo" aid="A1-0qtn4sm8" sid="S1-wrbu6p80">
     <dancer gender="boy" x="-2.414" y="1" angle="-22.5"/>
     <dancer gender="girl" x="-2.414" y="-1" angle="202.5"/>
     <dancer gender="boy" x="1" y="2.414" angle="247.5"/>
     <dancer gender="girl" x="-1" y="2.414" angle="112.5"/>
   </formation>
 
-  <formation name="Alamo Wave Inverted" fid="F3-imy1u3eo" aid="A1-kmkna2sc">
+  <formation name="Alamo Wave Inverted" fid="F3-imy1u3eo" aid="A1-kmkna2sc" sid="S1-o8dtyga0">
     <dancer gender="boy" x="-2.414" y="1" angle="157.5178" />
     <dancer gender="girl" x="-2.414" y="-1" angle="22.4822" />
     <dancer gender="boy" x="-1" y="-2.414" angle="-112.4822" />
     <dancer gender="girl" x="1" y="-2.414" angle="112.4822" />
   </formation>
 
-  <formation name="Two-Faced Lines" fid="F3-p8t2f0pj" aid="A1-zs75tk63">
+  <formation name="Two-Faced Lines" fid="F3-p8t2f0pj" aid="A1-zs75tk63" sid="S1-p9wdt1k4">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Two-Faced Lines RH" fid="F3-p8t2f0pj" aid="A1-zs75tk63">
+  <formation name="Two-Faced Lines RH" fid="F3-p8t2f0pj" aid="A1-zs75tk63" sid="S1-p9wdt1k4">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Two-Faced Lines RH Compact" fid="F3-0cpks7zb" aid="A1-qidppjk3">
+  <formation name="Two-Faced Lines RH Compact" fid="F3-0cpks7zb" aid="A1-qidppjk3" sid="S1-gmlyh9h0">
     <dancer gender="boy" x="-1.5" y="3" angle="0"/>
     <dancer gender="girl" x="-1.5" y="1" angle="0"/>
     <dancer gender="girl" x="-1.5" y="-1" angle="180"/>
     <dancer gender="boy" x="-1.5" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Two-Faced Lines LH" fid="F3-njckelvh" aid="A1-2xeilizd">
+  <formation name="Two-Faced Lines LH" fid="F3-njckelvh" aid="A1-2xeilizd" sid="S1-figmwwy0">
     <dancer gender="girl" x="-2" y="3" angle="180"/>
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Thar LH Boys" fid="F3-djgm8ct1" aid="A1-kg3l3pin">
+  <formation name="Thar LH Boys" fid="F3-djgm8ct1" aid="A1-kg3l3pin" sid="S1-fms7252w">
     <dancer gender="boy" x="-1" y="0" angle="270"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="0" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Thar LH Girls" fid="F3-djgm8ct1" aid="A1-03d3du5h">
+  <formation name="Thar LH Girls" fid="F3-djgm8ct1" aid="A1-03d3du5h" sid="S1-haosa3he">
     <dancer gender="girl" x="-1" y="0" angle="270"/>
     <dancer gender="boy" x="-3" y="0" angle="90"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Thar RH Boys" fid="F3-9sxbib8b" aid="A1-2mi95old">
+  <formation name="Thar RH Boys" fid="F3-9sxbib8b" aid="A1-2mi95old" sid="S1-ojcmftr0">
     <dancer gender="boy" x="-1" y="0" angle="90"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="0" y="-1" angle="180"/>
     <dancer gender="girl" x="0" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Thar RH Girls" fid="F3-9sxbib8b" aid="A1-zhjmdy83">
+  <formation name="Thar RH Girls" fid="F3-9sxbib8b" aid="A1-zhjmdy83" sid="S1-setc4wd6">
     <dancer gender="girl" x="-1" y="0" angle="90"/>
     <dancer gender="boy" x="-3" y="0" angle="270"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Diamonds" fid="F3-va6q5tqm" aid="A1-4te3m3k0">
+  <formation name="Diamonds" fid="F3-va6q5tqm" aid="A1-4te3m3k0" sid="S1-kuqssw5w">
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="-2" angle="90"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="-2" angle="270"/>
   </formation>
-  <formation name="Diamonds RH Girl Points" fid="F3-va6q5tqm" aid="A1-4te3m3k0">
+  <formation name="Diamonds RH Girl Points" fid="F3-va6q5tqm" aid="A1-4te3m3k0" sid="S1-kuqssw5w">
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="-2" angle="90"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="-2" angle="270"/>
   </formation>
 
-  <formation name="Diamonds LH Girl Points" fid="F3-sazo3jn8" aid="A1-cpwvhthi">
+  <formation name="Diamonds LH Girl Points" fid="F3-sazo3jn8" aid="A1-cpwvhthi" sid="S1-8vj9ysdw">
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="0" y="-1" angle="180"/>
     <dancer gender="girl" x="3" y="-2" angle="90"/>
   </formation>
 
-  <formation name="Diamonds Facing Girl Points" fid="F3-jy6andim" aid="A1-wsr5i58w">
+  <formation name="Diamonds Facing Girl Points" fid="F3-jy6andim" aid="A1-wsr5i58w" sid="S1-dgpvogkk">
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="-2" angle="90"/>
   </formation>
 
-  <formation name="Diamonds Facing LH Girl Points" fid="F3-9xs9oi7o" aid="A1-u5cm923q">
+  <formation name="Diamonds Facing LH Girl Points" fid="F3-9xs9oi7o" aid="A1-u5cm923q" sid="S1-aub2hso4">
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="-3" y="-2" angle="90"/>
     <dancer gender="boy" x="0" y="-1" angle="180"/>
     <dancer gender="girl" x="3" y="-2" angle="270"/>
   </formation>
 
-  <formation name="Diamonds RH PTP Girl Points" fid="F3-tz9rl51s" aid="A1-men3cfw0">
+  <formation name="Diamonds RH PTP Girl Points" fid="F3-tz9rl51s" aid="A1-men3cfw0" sid="S1-09x6ctjk">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
     <dancer gender="boy" x="1" y="-3" angle="270"/>
     <dancer gender="girl" x="0" y="-5" angle="180"/>
   </formation>
 
-  <formation name="Diamonds LH PTP Girl Points" fid="F3-ce43rbsg" aid="A1-4eb97dmo">
+  <formation name="Diamonds LH PTP Girl Points" fid="F3-ce43rbsg" aid="A1-4eb97dmo" sid="S1-vw3do3bs">
     <dancer gender="boy" x="-1" y="-3" angle="270"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
     <dancer gender="boy" x="1" y="-3" angle="90"/>
     <dancer gender="girl" x="0" y="-5" angle="0"/>
   </formation>
 
-  <formation name="Diamonds Facing PTP" fid="F3-uwwg1rcw" aid="A1-qq6aem6o">
+  <formation name="Diamonds Facing PTP" fid="F3-uwwg1rcw" aid="A1-qq6aem6o" sid="S1-ipmrizi8">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
     <dancer gender="boy" x="1" y="-3" angle="270"/>
     <dancer gender="girl" x="0" y="-5" angle="0"/>
   </formation>
 
-  <formation name="Diamonds Facing LH PTP" fid="F3-ryle6ork" aid="A1-zxfvsd34">
+  <formation name="Diamonds Facing LH PTP" fid="F3-ryle6ork" aid="A1-zxfvsd34" sid="S1-g2tavibc">
     <dancer gender="boy" x="-1" y="-3" angle="270"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
     <dancer gender="boy" x="1" y="-3" angle="90"/>
     <dancer gender="girl" x="0" y="-5" angle="180"/>
   </formation>
 
-  <formation name="Diamonds 3 and 1 Girl Points" fid="F3-7kcomvce" aid="A1-hxuqc30g">
+  <formation name="Diamonds 3 and 1 Girl Points" fid="F3-7kcomvce" aid="A1-hxuqc30g" sid="S1-clgxaino">
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="-2" angle="270"/>
   </formation>
 
-  <formation name="Diamonds 3 and 1" fid="F3-vlh9cwbw" aid="A1-2exx29mq">
+  <formation name="Diamonds 3 and 1" fid="F3-vlh9cwbw" aid="A1-2exx29mq" sid="S1-vzxgwfk4">
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="0" y="-1" angle="180"/>
     <dancer gender="girl" x="3" y="-2" angle="90"/>
   </formation>
 
-  <formation name="Interlocked Diamonds RH Girl Points" fid="F3-u0r62dn0" aid="A1-spjeuvv6">
+  <formation name="Interlocked Diamonds RH Girl Points" fid="F3-u0r62dn0" aid="A1-spjeuvv6" sid="S1-8js1q3xg">
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="-2" angle="90"/>
     <dancer gender="boy" x="0" y="-1" angle="180"/>
     <dancer gender="girl" x="3" y="-2" angle="270"/>
   </formation>
 
-  <formation name="Interlocked Diamonds LH Girl Points" fid="F3-whmjjop2" aid="A1-lfq543ps">
+  <formation name="Interlocked Diamonds LH Girl Points" fid="F3-whmjjop2" aid="A1-lfq543ps" sid="S1-7ysoevkw">
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="-2" angle="90"/>
   </formation>
 
-  <formation name="Interlocked Diamonds RH PTP Girl Points" fid="F3-ppnzg034" aid="A1-1nknm600">
+  <formation name="Interlocked Diamonds RH PTP Girl Points" fid="F3-ppnzg034" aid="A1-1nknm600" sid="S1-jinn6380">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
     <dancer gender="boy" x="1" y="-3" angle="270"/>
     <dancer gender="girl" x="0" y="-5" angle="180"/>
   </formation>
 
-  <formation name="Interlocked Diamonds LH PTP Girl Points" fid="F3-sw02d9fk" aid="A1-y2ww6o40">
+  <formation name="Interlocked Diamonds LH PTP Girl Points" fid="F3-sw02d9fk" aid="A1-y2ww6o40" sid="S1-gnfp680o">
     <dancer gender="boy" x="-1" y="-3" angle="270"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
     <dancer gender="boy" x="1" y="-3" angle="90"/>
     <dancer gender="girl" x="0" y="-5" angle="0"/>
   </formation>
 
-  <formation name="Once Removed Diamonds Tandem Centers" fid="F3-mshu4nkk" aid="A1-mcd6475m">
+  <formation name="Once Removed Diamonds Tandem Centers" fid="F3-mshu4nkk" aid="A1-mcd6475m" sid="S1-1gpg3cuw">
     <dancer gender="girl" x="0" y="5" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="-1" angle="90"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Diamond Between Kouples" fid="F3-xjurb2t5" aid="A1-r30l66pb">
+  <formation name="Diamond Between Kouples" fid="F3-xjurb2t5" aid="A1-r30l66pb" sid="S1-1dhd5kc4">
     <dancer gender="girl" x="0" y="1" angle="0"/>
     <dancer gender="boy" x="1.5" y="0" angle="90"/>
     <dancer gender="girl" x="3.0" y="1" angle="0"/>
@@ -813,140 +813,140 @@
   </formation>
 
 
-  <formation name="Inverted Lines Ends Facing Out" fid="F3-xq9nr45b" aid="A1-15lti50r">
+  <formation name="Inverted Lines Ends Facing Out" fid="F3-xq9nr45b" aid="A1-15lti50r" sid="S1-odx6vemo">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Inverted Lines Ends Facing In" fid="F3-xpndd93x" aid="A1-0yxo4g85">
+  <formation name="Inverted Lines Ends Facing In" fid="F3-xpndd93x" aid="A1-0yxo4g85" sid="S1-9on304pg">
     <dancer gender="boy" x="2" y="-3" angle="180" />
     <dancer gender="girl" x="2" y="-1" angle="0" />
     <dancer gender="boy" x="2" y="1" angle="0" />
     <dancer gender="girl" x="2" y="3" angle="180" />
   </formation>
 
-  <formation name="3 and 1 lines #1" fid="F3-9ud8qqgd" aid="A1-6shh6g9x">
+  <formation name="3 and 1 lines #1" fid="F3-9ud8qqgd" aid="A1-6shh6g9x" sid="S1-rkmidx10">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="3 and 1 lines #2" fid="F3-afnubval" aid="A1-hshyx4yd">
+  <formation name="3 and 1 lines #2" fid="F3-afnubval" aid="A1-hshyx4yd" sid="S1-1ge51mvo">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="3 and 1 lines #3" fid="F3-ptgvautp" aid="A1-37eaagpx">
+  <formation name="3 and 1 lines #3" fid="F3-ptgvautp" aid="A1-37eaagpx" sid="S1-gkbh3tb8">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="3 and 1 lines #4" fid="F3-km139yvj" aid="A1-atiaqs91">
+  <formation name="3 and 1 lines #4" fid="F3-km139yvj" aid="A1-atiaqs91" sid="S1-z98hx4qk">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="3 and 1 lines #5" fid="F3-u6cmsz8f" aid="A1-dz26mymj">
+  <formation name="3 and 1 lines #5" fid="F3-u6cmsz8f" aid="A1-dz26mymj" sid="S1-0ja0d9uk">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="3 and 1 lines #6" fid="F3-lit8rynj" aid="A1-nxcjiw8t">
+  <formation name="3 and 1 lines #6" fid="F3-lit8rynj" aid="A1-nxcjiw8t" sid="S1-bqsz4e6s">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="3 and 1 lines #7" fid="F3-k9frz2rj" aid="A1-plj4o6bj">
+  <formation name="3 and 1 lines #7" fid="F3-k9frz2rj" aid="A1-plj4o6bj" sid="S1-sql6zn6c">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="3 and 1 lines #8" fid="F3-cimsa5il" aid="A1-kirx6kj9">
+  <formation name="3 and 1 lines #8" fid="F3-cimsa5il" aid="A1-kirx6kj9" sid="S1-xyejfzk4">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="-2" y="-1" angle="180"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Concentric Diamonds RH" fid="F3-fg6jr5fn" aid="A1-pqwb4r7d">
+  <formation name="Concentric Diamonds RH" fid="F3-fg6jr5fn" aid="A1-pqwb4r7d" sid="S1-z0w91vd4">
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
     <dancer gender="boy" x="2" y="0" angle="270"/>
     <dancer gender="girl" x="4" y="0" angle="270"/>
   </formation>
 
-  <formation name="Concentric Diamonds Mixed" fid="F3-bfkk28lv" aid="A1-y7tabytn">
+  <formation name="Concentric Diamonds Mixed" fid="F3-bfkk28lv" aid="A1-y7tabytn" sid="S1-qzml2rd0">
     <dancer gender="boy" x="0" y="3" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
     <dancer gender="boy" x="2" y="0" angle="90"/>
     <dancer gender="girl" x="4" y="0" angle="270"/>
   </formation>
 
-  <formation name="Quarter Tag" fid="F3-roc084t6" aid="A1-qf1wbkk2">
+  <formation name="Quarter Tag" fid="F3-roc084t6" aid="A1-qf1wbkk2" sid="S1-e6y282q8">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Quarter Tag LH" fid="F3-rz17g4ey" aid="A1-n37uvq4s">
+  <formation name="Quarter Tag LH" fid="F3-rz17g4ey" aid="A1-n37uvq4s" sid="S1-e4rdpnj4">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="3/4 Tag" fid="F3-78uohvsi" aid="A1-1icb6ye6">
+  <formation name="3/4 Tag" fid="F3-78uohvsi" aid="A1-1icb6ye6" sid="S1-6iv4ddlq">
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-lc099v5o">
+  <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-lc099v5o" sid="S1-v4ezppb2">
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Quarter Lines RH" fid="F3-00kg8wpm" aid="A1-v8h3j0t2">
+  <formation name="Quarter Lines RH" fid="F3-00kg8wpm" aid="A1-v8h3j0t2" sid="S1-0gb2g8o8">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="1" angle="0"/>
     <dancer gender="girl" x="0" y="3" angle="0"/>
   </formation>
 
-  <formation name="Quarter Lines LH" fid="F3-a7fc3n8i" aid="A1-q851wjps">
+  <formation name="Quarter Lines LH" fid="F3-a7fc3n8i" aid="A1-q851wjps" sid="S1-kv9wjaf0">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
     <dancer gender="girl" x="0" y="-3" angle="0"/>
   </formation>
 
-  <formation name="3/4 Lines RH" fid="F3-vg8zjub2" aid="A1-gzq3crc4">
+  <formation name="3/4 Lines RH" fid="F3-vg8zjub2" aid="A1-gzq3crc4" sid="S1-255y4myg">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="1" angle="0"/>
     <dancer gender="girl" x="0" y="3" angle="0"/>
   </formation>
 
-  <formation name="3/4 Lines LH" fid="F3-8yj622tq" aid="A1-dvzxj5gq">
+  <formation name="3/4 Lines LH" fid="F3-8yj622tq" aid="A1-dvzxj5gq" sid="S1-ihu5c9ec">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -954,56 +954,56 @@
   </formation>
 
   <!-- More exhaustive enumeration of mixed quarter tags -->
-  <formation name="Mixed Quarter Tag #1" fid="F3-1v115cf0" aid="A1-zpndk57m">
+  <formation name="Mixed Quarter Tag #1" fid="F3-1v115cf0" aid="A1-zpndk57m" sid="S1-nnvqdl6o">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #2" fid="F3-lgl8fetg" aid="A1-rt9mpbp8">
+  <formation name="Mixed Quarter Tag #2" fid="F3-lgl8fetg" aid="A1-rt9mpbp8" sid="S1-6ibuk4n4">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #3" fid="F3-idvq1344" aid="A1-moqkxui4">
+  <formation name="Mixed Quarter Tag #3" fid="F3-idvq1344" aid="A1-moqkxui4" sid="S1-mt3mkb4g">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #4" fid="F3-6jy7bllw" aid="A1-6ppiwl32">
+  <formation name="Mixed Quarter Tag #4" fid="F3-6jy7bllw" aid="A1-6ppiwl32" sid="S1-v7qarmq4">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #5" fid="F3-349dzyd8" aid="A1-uoe4xxas">
+  <formation name="Mixed Quarter Tag #5" fid="F3-349dzyd8" aid="A1-uoe4xxas" sid="S1-5lfcq2ew">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #6" fid="F3-tjy15pec" aid="A1-uvbqakga">
+  <formation name="Mixed Quarter Tag #6" fid="F3-tjy15pec" aid="A1-uvbqakga" sid="S1-ke8f11co">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #7" fid="F3-a9qgc3sg" aid="A1-yur55z2m">
+  <formation name="Mixed Quarter Tag #7" fid="F3-a9qgc3sg" aid="A1-yur55z2m" sid="S1-qiek0w2k">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Quarter Tag #8" fid="F3-w1f29bwo" aid="A1-dj8n9qqc">
+  <formation name="Mixed Quarter Tag #8" fid="F3-w1f29bwo" aid="A1-dj8n9qqc" sid="S1-3qoyxc88">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
@@ -1011,14 +1011,14 @@
   </formation>
 
   <!-- Like a Quarter Tag but outsides are lined up to make Zs with centers   -->
-  <formation name="Quarter Z RH" fid="F3-8oaqzv6f" aid="A1-jux3dwq1">
+  <formation name="Quarter Z RH" fid="F3-8oaqzv6f" aid="A1-jux3dwq1" sid="S1-son39mds">
     <dancer gender="girl" x="-2" y="3" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Quarter Z LH" fid="F3-6jdrnzyb" aid="A1-69slbne7">
+  <formation name="Quarter Z LH" fid="F3-6jdrnzyb" aid="A1-69slbne7" sid="S1-xuv534wq">
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -1026,7 +1026,7 @@
   </formation>
 
   <!-- Outsides spread apart -->
-  <formation name="Quarter H" fid="F3-eb3s5d76" aid="A1-m2jip08s">
+  <formation name="Quarter H" fid="F3-eb3s5d76" aid="A1-m2jip08s" sid="S1-cswbljm4">
     <dancer gender="girl" x="-2" y="3" angle="0"/>
     <dancer gender="boy" x="0" y="-3" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -1034,147 +1034,147 @@
   </formation>
 
   <!-- Column-like formations -->
-  <formation name="Double Pass Thru" fid="F3-7i4q346d" aid="A1-v1s9nkeh">
+  <formation name="Double Pass Thru" fid="F3-7i4q346d" aid="A1-v1s9nkeh" sid="S1-tb15gh44">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Double Pass Thru for Blocks" fid="F3-7i4q346d" aid="A1-28i78rtj">
+  <formation name="Double Pass Thru for Blocks" fid="F3-7i4q346d" aid="A1-28i78rtj" sid="S1-f1icpmww">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="1" y="1" angle="180"/>
     <dancer gender="girl" x="1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Completed Double Pass Thru" fid="F3-art5tker" aid="A1-tiyq74cz">
+  <formation name="Completed Double Pass Thru" fid="F3-art5tker" aid="A1-tiyq74cz" sid="S1-16bv5hrc">
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Eight Chain Thru" fid="F3-p3qjle85" aid="A1-m5hwmyc7">
+  <formation name="Eight Chain Thru" fid="F3-p3qjle85" aid="A1-m5hwmyc7" sid="S1-a707fhxk">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
   </formation>
 
-  <formation name="Zero Box" fid="F3-p3qjle85" aid="A1-m5hwmyc7">
+  <formation name="Zero Box" fid="F3-p3qjle85" aid="A1-m5hwmyc7" sid="S1-sirp70u0">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Pass Thru" fid="F3-p3qjle85" aid="A1-m5hwmyc7">
+  <formation name="Pass Thru" fid="F3-p3qjle85" aid="A1-m5hwmyc7" sid="S1-a707fhxk">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
   </formation>
 
-  <formation name="Trade By" fid="F3-39npqtaz" aid="A1-qkw66agr">
+  <formation name="Trade By" fid="F3-39npqtaz" aid="A1-qkw66agr" sid="S1-y95hcb68">
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
   </formation>
 
-  <formation name="Columns" fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
+  <formation name="Columns" fid="F3-lcwes2cr" aid="A1-d6x4wfd7" sid="S1-6gibaso4">
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
     <dancer gender="boy" x="1" y="-1" angle="180"/>
     <dancer gender="girl" x="3" y="-1" angle="180"/>
   </formation>
   
-  <formation name="Columns LH BGBG" fid="F3-dhnw1kx1" aid="A1-gvyshelj">
+  <formation name="Columns LH BGBG" fid="F3-dhnw1kx1" aid="A1-gvyshelj" sid="S1-5gvso5e0">
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="1" y="-1" angle="0"/>
     <dancer gender="boy" x="3" y="-1" angle="0"/>
   </formation>
   
-  <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+  <formation name="Column RH GBGB" fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="1" y="-1" angle="180"/>
     <dancer gender="boy" x="3" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Column LH GBGB" fid="F3-dhnw1kx1" aid="A1-u9rhjvpb">
+  <formation name="Column LH GBGB" fid="F3-dhnw1kx1" aid="A1-u9rhjvpb" sid="S1-i5lj98ts">
     <dancer gender="boy" x="-3" y="-1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
     <dancer gender="boy" x="1" y="-1" angle="0"/>
     <dancer gender="girl" x="3" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Magic Column RH" fid="F3-dy4b34sl" aid="A1-of3jfsav">
+  <formation name="Magic Column RH" fid="F3-dy4b34sl" aid="A1-of3jfsav" sid="S1-uqd4p6nc">
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="1" y="-1" angle="180"/>
     <dancer gender="boy" x="3" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Magic Column LH" fid="F3-3zu9lyyj" aid="A1-844gzps3">
+  <formation name="Magic Column LH" fid="F3-3zu9lyyj" aid="A1-844gzps3" sid="S1-qz86cbhc">
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="1" y="-1" angle="0"/>
     <dancer gender="boy" x="3" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Columns RH Ends In" fid="F3-mgilzw9x" aid="A1-i8zf8i0p">
+  <formation name="Mixed Columns RH Ends In" fid="F3-mgilzw9x" aid="A1-i8zf8i0p" sid="S1-7wky52z8">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Columns LH Ends In" fid="F3-424fi6bp" aid="A1-t9l4nb55">
+  <formation name="Mixed Columns LH Ends In" fid="F3-424fi6bp" aid="A1-t9l4nb55" sid="S1-ifck9s84">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Columns RH Ends Out" fid="F3-2ezs6w63" aid="A1-1dptrwq1">
+  <formation name="Mixed Columns RH Ends Out" fid="F3-2ezs6w63" aid="A1-1dptrwq1" sid="S1-361uhj18">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Columns LH Ends Out" fid="F3-1kozhs63" aid="A1-t8xv4xjl">
+  <formation name="Mixed Columns LH Ends Out" fid="F3-1kozhs63" aid="A1-t8xv4xjl" sid="S1-0f0vjjzc">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Columns RH Centers In" fid="F3-ulg5445f" aid="A1-u1m4flh5">
+  <formation name="Mixed Columns RH Centers In" fid="F3-ulg5445f" aid="A1-u1m4flh5" sid="S1-fb7krcas">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Columns LH Centers In" fid="F3-smv4a0px" aid="A1-u0hx0bqx">
+  <formation name="Mixed Columns LH Centers In" fid="F3-smv4a0px" aid="A1-u0hx0bqx" sid="S1-y82160w4">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Mixed Columns RH Centers Out" fid="F3-b49o2w1f" aid="A1-9azywmjh">
+  <formation name="Mixed Columns RH Centers Out" fid="F3-b49o2w1f" aid="A1-9azywmjh" sid="S1-iomnvo08">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Mixed Columns LH Centers Out" fid="F3-2cg7ruit" aid="A1-jn85t85l">
+  <formation name="Mixed Columns LH Centers Out" fid="F3-2cg7ruit" aid="A1-jn85t85l" sid="S1-eblfp3jo">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
@@ -1182,236 +1182,236 @@
   </formation>
 
 
-  <formation name="Two-Faced Tidal Line RH" fid="F3-2mt6c2zt" aid="A1-gdpspdjv">
+  <formation name="Two-Faced Tidal Line RH" fid="F3-2mt6c2zt" aid="A1-gdpspdjv" sid="S1-or7uo1fe">
     <dancer gender="boy" x="0" y="3.5" angle="0"/>
     <dancer gender="girl" x="0" y="2.5" angle="0"/>
     <dancer gender="girl" x="0" y="1.5" angle="180"/>
     <dancer gender="boy" x="0" y=".5" angle="180"/>
   </formation>
 
-  <formation name="Two-Faced Tidal Line LH" fid="F3-o2s9zbbt" aid="A1-x0fmiwjl">
+  <formation name="Two-Faced Tidal Line LH" fid="F3-o2s9zbbt" aid="A1-x0fmiwjl" sid="S1-6bh938ly">
     <dancer gender="girl" x="0" y="3.5" angle="180"/>
     <dancer gender="boy" x="0" y="2.5" angle="180"/>
     <dancer gender="boy" x="0" y="1.5" angle="0"/>
     <dancer gender="girl" x="0" y=".5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Inverted Line RH" fid="F3-my2vu35f" aid="A1-u0fm4k1x">
+  <formation name="Tidal Inverted Line RH" fid="F3-my2vu35f" aid="A1-u0fm4k1x" sid="S1-wc1amrrq">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="0"/>
     <dancer gender="girl" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Tidal Inverted Line LH" fid="F3-79h194rd" aid="A1-bspj17ex">
+  <formation name="Tidal Inverted Line LH" fid="F3-79h194rd" aid="A1-bspj17ex" sid="S1-ivbi4a5q">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-pn7j2b9d">
+  <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-pn7j2b9d" sid="S1-ebuqena2">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Tidal Line LH" fid="F3-2ntdg2yx" aid="A1-atcn1yrz">
+  <formation name="Tidal Line LH" fid="F3-2ntdg2yx" aid="A1-atcn1yrz" sid="S1-khdw3plm">
     <dancer gender="boy" x="0" y="-2.5" angle="0"/>
     <dancer gender="girl" x="0" y="-3.5" angle="0"/>
     <dancer gender="boy" x="0" y="-.5" angle="0"/>
     <dancer gender="girl" x="0" y="-1.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Wave" fid="F3-svw0dvrr" aid="A1-y8ioixzx">
+  <formation name="Tidal Wave" fid="F3-svw0dvrr" aid="A1-y8ioixzx" sid="S1-26lcdlyw">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="girl" x="0" y="-1.5" angle="180"/>
     <dancer gender="boy" x="0" y="-.5" angle="0"/>
   </formation>
-  <formation name="Tidal Wave RH BGGB" fid="F3-svw0dvrr" aid="A1-y8ioixzx">
+  <formation name="Tidal Wave RH BGGB" fid="F3-svw0dvrr" aid="A1-y8ioixzx" sid="S1-26lcdlyw">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="girl" x="0" y="-1.5" angle="180"/>
     <dancer gender="boy" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Wave RH GBBG" fid="F3-svw0dvrr" aid="A1-6cmp7dtp">
+  <formation name="Tidal Wave RH GBBG" fid="F3-svw0dvrr" aid="A1-6cmp7dtp" sid="S1-d4i2ka6w">
     <dancer gender="girl" x="0" y="-3.5" angle="180"/>
     <dancer gender="boy" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Wave RH BGBG" fid="F3-svw0dvrr" aid="A1-stppo8uf">
+  <formation name="Tidal Wave RH BGBG" fid="F3-svw0dvrr" aid="A1-stppo8uf" sid="S1-4cn0111q">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Wave LH BGGB" fid="F3-iwtnj3ih" aid="A1-3bygiq8v">
+  <formation name="Tidal Wave LH BGGB" fid="F3-iwtnj3ih" aid="A1-3bygiq8v" sid="S1-gi1grdkg">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="girl" x="0" y="-1.5" angle="0"/>
     <dancer gender="boy" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Inverted Tidal Line RH" fid="F3-my2vu35f" aid="A1-fb2af3zz">
+  <formation name="Inverted Tidal Line RH" fid="F3-my2vu35f" aid="A1-fb2af3zz" sid="S1-cbtfcqi4">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="girl" x="0" y="-1.5" angle="0"/>
     <dancer gender="boy" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Inverted Tidal Line LH" fid="F3-79h194rd" aid="A1-y1adc2i7">
+  <formation name="Inverted Tidal Line LH" fid="F3-79h194rd" aid="A1-y1adc2i7" sid="S1-obl5j4r4">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="girl" x="0" y="-1.5" angle="180"/>
     <dancer gender="boy" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #1" fid="F3-fvqo421l" aid="A1-ocnuepnf">
+  <formation name="Tidal 3 and 1 Line #1" fid="F3-fvqo421l" aid="A1-ocnuepnf" sid="S1-uli7b66e">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #2" fid="F3-iuf0736h" aid="A1-luem7nkh">
+  <formation name="Tidal 3 and 1 Line #2" fid="F3-iuf0736h" aid="A1-luem7nkh" sid="S1-icjdxlji">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="boy" x="0" y="-1.5" angle="0"/>
     <dancer gender="girl" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #3" fid="F3-59zr95on" aid="A1-fuw5ubmt">
+  <formation name="Tidal 3 and 1 Line #3" fid="F3-59zr95on" aid="A1-fuw5ubmt" sid="S1-ny8us3qy">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #4" fid="F3-ppfmkkg9" aid="A1-m2ugs1sp">
+  <formation name="Tidal 3 and 1 Line #4" fid="F3-ppfmkkg9" aid="A1-m2ugs1sp" sid="S1-jvgmzd32">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #5" fid="F3-bzqmizeh" aid="A1-dtclx9i1">
+  <formation name="Tidal 3 and 1 Line #5" fid="F3-bzqmizeh" aid="A1-dtclx9i1" sid="S1-ygzbk5i6">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="0"/>
     <dancer gender="girl" x="0" y="-.5" angle="180"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #6" fid="F3-xjr276nd" aid="A1-t8xr947t">
+  <formation name="Tidal 3 and 1 Line #6" fid="F3-xjr276nd" aid="A1-t8xr947t" sid="S1-luf8hycu">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="180"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #7" fid="F3-kmrqei55" aid="A1-cmxf7g61">
+  <formation name="Tidal 3 and 1 Line #7" fid="F3-kmrqei55" aid="A1-cmxf7g61" sid="S1-slk90x1q">
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-2.5" angle="180"/>
     <dancer gender="boy" x="0" y="-1.5" angle="0"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal 3 and 1 Line #8" fid="F3-6h1zhnib" aid="A1-88jhu0iv">
+  <formation name="Tidal 3 and 1 Line #8" fid="F3-6h1zhnib" aid="A1-88jhu0iv" sid="S1-10ulsu56">
     <dancer gender="boy" x="0" y="-3.5" angle="180"/>
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-1.5" angle="0"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
   </formation>
 
-  <formation name="Tidal Wave of 6" fid="F3-s5alguwm" aid="A1-9wj2r65e">
+  <formation name="Tidal Wave of 6" fid="F3-s5alguwm" aid="A1-9wj2r65e" sid="S1-j25bfj8k">
     <dancer gender="boy" x="2.5" y="0" angle="90"/>
     <dancer gender="girl" x="0" y="-5" angle="0"/>
     <dancer gender="girl" x="0" y="-3" angle="180"/>
     <dancer gender="boy" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Compact Wave of 6" fid="F3-4xpxcg1r" aid="A1-yhndstmf">
+  <formation name="Compact Wave of 6" fid="F3-4xpxcg1r" aid="A1-yhndstmf" sid="S1-kxa06yop">
     <dancer gender="boy" x="0" y=".5" angle="180"/>
     <dancer gender="girl" x="0" y="1.5" angle="0"/>
     <dancer gender="girl" x="0" y="2.5" angle="180"/>
   </formation>
 
-  <formation name="I-Beam" fid="F3-mjc15xen" aid="A1-u5jdby8f">
+  <formation name="I-Beam" fid="F3-mjc15xen" aid="A1-u5jdby8f" sid="S1-b4z72w1a">
     <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
     <dancer gender="girl" x="1" y="-3.5" angle="90"/>
     <dancer gender="boy" x="0" y="-2" angle="180"/>
     <dancer gender="girl" x="0" y="-.67" angle="0"/>
   </formation>
 
-  <formation name="H-Beam" fid="F3-y2s8f4ot" aid="A1-kn1kob8x">
+  <formation name="H-Beam" fid="F3-y2s8f4ot" aid="A1-kn1kob8x" sid="S1-ues3biba">
     <dancer gender="boy" x="-1" y="-3.5" angle="0"/>
     <dancer gender="girl" x="1" y="-3.5" angle="180"/>
     <dancer gender="boy" x="0" y="-2" angle="180"/>
     <dancer gender="girl" x="0" y="-.67" angle="0"/>
   </formation>
 
-  <formation name="I-Column" fid="F3-jk57ucl9" aid="A1-p2k76hqx">
+  <formation name="I-Column" fid="F3-jk57ucl9" aid="A1-p2k76hqx" sid="S1-y30od1e6">
     <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
     <dancer gender="girl" x="1" y="-3.5" angle="90"/>
     <dancer gender="boy" x="0" y="-2" angle="270"/>
     <dancer gender="girl" x="0" y="-.67" angle="270"/>
   </formation>
 
-  <formation name="Misshapen I-Beam" fid="F3-1hodly2s" aid="A1-42w7q98s">
+  <formation name="Misshapen I-Beam" fid="F3-1hodly2s" aid="A1-42w7q98s" sid="S1-1t62efdk">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="1" y="-3" angle="90"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="0" y="-1" angle="0"/>
   </formation>
 
-  <formation name="X-Beam" fid="F3-jdjceisn" aid="A1-ja6djz5z">
+  <formation name="X-Beam" fid="F3-jdjceisn" aid="A1-ja6djz5z" sid="S1-oz0qbxjq">
     <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
     <dancer gender="girl" x="1" y="-3.5" angle="90"/>
     <dancer gender="boy" x="0" y="-2" angle="180"/>
     <dancer gender="girl" x=".67" y="0" angle="0"/>
   </formation>
 
-  <formation name="Misshapen X-Beam" fid="F3-uqgt47vn" aid="A1-p5qh4pqn">
+  <formation name="Misshapen X-Beam" fid="F3-uqgt47vn" aid="A1-p5qh4pqn" sid="S1-7zuq5ace">
     <dancer gender="boy" x="-1" y="-3" angle="90"/>
     <dancer gender="girl" x="1" y="-3" angle="90"/>
     <dancer gender="boy" x="0" y="-3" angle="180"/>
     <dancer gender="girl" x="1" y="0" angle="0"/>
   </formation>
 
-  <formation name="Hourglass RH BP" fid="F3-iqx7hjst" aid="A1-zbckmj8d">
+  <formation name="Hourglass RH BP" fid="F3-iqx7hjst" aid="A1-zbckmj8d" sid="S1-se7k97aa">
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Hourglass RH GP" fid="F3-iqx7hjst" aid="A1-vujkm8fz">
+  <formation name="Hourglass RH GP" fid="F3-iqx7hjst" aid="A1-vujkm8fz" sid="S1-z8iqh9hc">
     <dancer gender="girl" x="-2" y="-3" angle="180"/>
     <dancer gender="boy" x="-3" y="0" angle="90"/>
     <dancer gender="girl" x="-2" y="3" angle="0"/>
     <dancer gender="boy" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Hourglass LH BP" fid="F3-g43tpo99" aid="A1-ming6sab">
+  <formation name="Hourglass LH BP" fid="F3-g43tpo99" aid="A1-ming6sab" sid="S1-idp12fky">
     <dancer gender="boy" x="-2" y="-3" angle="0"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="0" y="1" angle="180"/>
   </formation>
 
-  <formation name="Hourglass Facing LH Box" fid="F3-eeqbxagd" aid="A1-50sqmw7h">
+  <formation name="Hourglass Facing LH Box" fid="F3-eeqbxagd" aid="A1-50sqmw7h" sid="S1-nwx4v9nm">
     <dancer gender="boy" x="-2" y="-3" angle="0"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
   </formation>
 
-  <formation name="Hourglass Facing RH Box" fid="F3-qgsw1xbh" aid="A1-xuy09n8j">
+  <formation name="Hourglass Facing RH Box" fid="F3-qgsw1xbh" aid="A1-xuy09n8j" sid="S1-fcrtbn1u">
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="-2" y="3" angle="0"/>
@@ -1419,28 +1419,28 @@
   </formation>
 
   <!--  Galaxy points are tweaked to fix handholds   -->
-  <formation name="Galaxy RH GP" fid="F3-urv775kg" aid="A1-o5zac0oe">
+  <formation name="Galaxy RH GP" fid="F3-urv775kg" aid="A1-o5zac0oe" sid="S1-gob81c4w">
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="0" y="3.1" angle="0"/>
   </formation>
 
-  <formation name="Galaxy LH GP" fid="F3-40vqarba" aid="A1-6a71s66i">
+  <formation name="Galaxy LH GP" fid="F3-40vqarba" aid="A1-6a71s66i" sid="S1-y8bd42ei">
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="0" y="3.1" angle="180"/>
   </formation>
 
-  <formation name="Galaxy Facing RH Box" fid="F3-glqo2xb4" aid="A1-cd4zazrc">
+  <formation name="Galaxy Facing RH Box" fid="F3-glqo2xb4" aid="A1-cd4zazrc" sid="S1-dhoyk7lo">
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="0" y="3.1" angle="180"/>
   </formation>
 
-  <formation name="Galaxy Facing LH Box" fid="F3-khac4wb2" aid="A1-7jp5jee8">
+  <formation name="Galaxy Facing LH Box" fid="F3-khac4wb2" aid="A1-7jp5jee8" sid="S1-sqed54c6">
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
@@ -1448,13 +1448,13 @@
   </formation>
 
   <!-- Block diagonal lower left to upper right  -->
-  <formation name="Blocks" fid="F3-g3kqivc3" aid="A1-jdm78xhx">
+  <formation name="Blocks" fid="F3-g3kqivc3" aid="A1-jdm78xhx" sid="S1-cpkqpytw">
     <dancer gender="boy" x="-3" y="3" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
-  <formation name="Facing Blocks Right" fid="F3-g3kqivc3" aid="A1-jdm78xhx">
+  <formation name="Facing Blocks Right" fid="F3-g3kqivc3" aid="A1-jdm78xhx" sid="S1-cpkqpytw">
     <dancer gender="boy" x="-3" y="3" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
@@ -1462,140 +1462,140 @@
   </formation>
 
   <!-- Block diagonal lower right to upper left  -->
-  <formation name="Facing Blocks Left" fid="F3-ziapvoy3" aid="A1-bxr3ppdr">
+  <formation name="Facing Blocks Left" fid="F3-ziapvoy3" aid="A1-bxr3ppdr" sid="S1-9thdqf5s">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-3" angle="0"/>
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Galaxy 5" fid="F3-9ptpa3ds" aid="A1-56ocxy4u">
+  <formation name="Galaxy 5" fid="F3-9ptpa3ds" aid="A1-56ocxy4u" sid="S1-f5iiwp1c">
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="0" y="3.1" angle="0"/>
   </formation>
 
-  <formation name="Galaxy 6" fid="F3-oy892rq8" aid="A1-d7oipzlw">
+  <formation name="Galaxy 6" fid="F3-oy892rq8" aid="A1-d7oipzlw" sid="S1-3uf5ikhm">
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="-3" y="0" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="0" y="3.1" angle="0"/>
   </formation>
 
-  <formation name="Galaxy 7" fid="F3-6vnbalmo" aid="A1-w0b17b88">
+  <formation name="Galaxy 7" fid="F3-6vnbalmo" aid="A1-w0b17b88" sid="S1-jq43zj8s">
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="0" y="3.1" angle="180"/>
   </formation>
 
-  <formation name="Galaxy 8" fid="F3-5x628ric" aid="A1-dyvdce7e">
+  <formation name="Galaxy 8" fid="F3-5x628ric" aid="A1-dyvdce7e" sid="S1-txjauu62">
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="-3" y="0" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="0" y="3.1" angle="180"/>
   </formation>
 
-  <formation name="Blocks Facing Out" fid="F3-051pdi2z" aid="A1-6rf37nkz">
+  <formation name="Blocks Facing Out" fid="F3-051pdi2z" aid="A1-6rf37nkz" sid="S1-socbyqc4">
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-3" y="-3" angle="180"/>
     <dancer gender="girl" x="-1" y="3" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Blocks RH" fid="F3-zia5eb2j" aid="A1-0yj0r3zj">
+  <formation name="Blocks RH" fid="F3-zia5eb2j" aid="A1-0yj0r3zj" sid="S1-fh85g38g">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-3" angle="180"/>
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Butterfly RH" fid="F3-khmhmci1" aid="A1-0qtroqqz">
+  <formation name="Butterfly RH" fid="F3-khmhmci1" aid="A1-0qtroqqz" sid="S1-fl7mn51w">
     <dancer gender="boy" x="-3" y="3" angle="0"/>
     <dancer gender="girl" x="-3" y="-3" angle="180"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="Butterfly LH" fid="F3-fu4lw3wh" aid="A1-2dtfxem1">
+  <formation name="Butterfly LH" fid="F3-fu4lw3wh" aid="A1-2dtfxem1" sid="S1-f1drpf5k">
     <dancer gender="boy" x="-3" y="3" angle="180"/>
     <dancer gender="girl" x="-3" y="-3" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Butterfly In" fid="F3-wt3ibgap" aid="A1-qrx9dj49">
+  <formation name="Butterfly In" fid="F3-wt3ibgap" aid="A1-qrx9dj49" sid="S1-qb5lpwco">
     <dancer gender="boy" x="-3" y="3" angle="0"/>
     <dancer gender="girl" x="-3" y="-3" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="Butterfly Out" fid="F3-k9zxp2q3" aid="A1-x0ynou69">
+  <formation name="Butterfly Out" fid="F3-k9zxp2q3" aid="A1-x0ynou69" sid="S1-x7juflas">
     <dancer gender="boy" x="-3" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="3" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
   </formation>
 
-  <formation name="Butterfly Chain Thru" fid="F3-kb4esbxt" aid="A1-4lb40jwf">
+  <formation name="Butterfly Chain Thru" fid="F3-kb4esbxt" aid="A1-4lb40jwf" sid="S1-s25fmv38">
     <dancer gender="boy" x="-3" y="3" angle="0"/>
     <dancer gender="girl" x="-3" y="-3" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
   </formation>
 
-  <formation name="Butterfly Trade By" fid="F3-b2ofpvqb" aid="A1-i7bkdssh">
+  <formation name="Butterfly Trade By" fid="F3-b2ofpvqb" aid="A1-i7bkdssh" sid="S1-t9d9axh0">
     <dancer gender="boy" x="-3" y="-3" angle="180"/>
     <dancer gender="girl" x="-3" y="3" angle="180"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="O RH" fid="F3-m3tzqpxr" aid="A1-kcezn877">
+  <formation name="O RH" fid="F3-m3tzqpxr" aid="A1-kcezn877" sid="S1-6fqg42vw">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="180"/>
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="O LH" fid="F3-5966r6h1" aid="A1-rc14jgk7">
+  <formation name="O LH" fid="F3-5966r6h1" aid="A1-rc14jgk7" sid="S1-jroyfnog">
     <dancer gender="boy" x="-3" y="1" angle="180"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="3" angle="180"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="O In" fid="F3-mjlyk2jj" aid="A1-a32v24vn">
+  <formation name="O In" fid="F3-mjlyk2jj" aid="A1-a32v24vn" sid="S1-w04604b0">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="O Out" fid="F3-1stodz2j" aid="A1-q52jp05l">
+  <formation name="O Out" fid="F3-1stodz2j" aid="A1-q52jp05l" sid="S1-5396dybo">
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="3" angle="180"/>
     <dancer gender="boy" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="O Eight Chain Thru" fid="F3-hp05noin" aid="A1-1ym945wh">
+  <formation name="O Eight Chain Thru" fid="F3-hp05noin" aid="A1-1ym945wh" sid="S1-y6xpr12w">
     <dancer gender="boy" x="-3" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-1" angle="0"/>
     <dancer gender="boy" x="-1" y="-3" angle="180"/>
     <dancer gender="girl" x="-1" y="3" angle="180"/>
   </formation>
 
-  <formation name="O Trade By" fid="F3-kk7r16il" aid="A1-5tcmox3r">
+  <formation name="O Trade By" fid="F3-kk7r16il" aid="A1-5tcmox3r" sid="S1-l6binbu0">
     <dancer gender="boy" x="-3" y="-1" angle="180"/>
     <dancer gender="girl" x="-3" y="1" angle="180"/>
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Sausage RH" fid="F3-i7qs3ybp" aid="A1-pikc2ntj">
+  <formation name="Sausage RH" fid="F3-i7qs3ybp" aid="A1-pikc2ntj" sid="S1-uj66gbsg">
     <dancer gender="boy" x="-4" y="0" angle="90"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="0" y="1" angle="0"/>
@@ -1604,189 +1604,189 @@
 
  <!--   These are T-Bones, boys as trailers in a column and the girls facing out
         DLDL is 'down,left,down,left' reading the bottom line from left to right  -->
-  <formation name="T-Bone DLDL" fid="F3-qbmjx7cj" aid="A1-7dpdwnkr">
+  <formation name="T-Bone DLDL" fid="F3-qbmjx7cj" aid="A1-7dpdwnkr" sid="S1-4s6yygsk">
     <dancer gender="girl" x="-3" y="-1" angle="270"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="1" y="-1" angle="270"/>
     <dancer gender="boy" x="3" y="-1" angle="180"/>
   </formation>
 
-  <formation name="T-Bone DRDR" fid="F3-k64551hp" aid="A1-l0shswzn">
+  <formation name="T-Bone DRDR" fid="F3-k64551hp" aid="A1-l0shswzn" sid="S1-4566k564">
     <dancer gender="girl" x="-3" y="-1" angle="270"/>
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="1" y="-1" angle="270"/>
     <dancer gender="boy" x="3" y="-1" angle="0"/>
   </formation>
 
-  <formation name="T-Bone URUR" fid="F3-jsf4eay5" aid="A1-ohmk2yf7">
+  <formation name="T-Bone URUR" fid="F3-jsf4eay5" aid="A1-ohmk2yf7" sid="S1-1ptdo30e">
     <dancer gender="girl" x="-3" y="-1" angle="90"/>
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="1" y="-1" angle="90"/>
     <dancer gender="boy" x="3" y="-1" angle="0"/>
   </formation>
 
-  <formation name="T-Bone RDRD" fid="F3-ovnuyu2t" aid="A1-ztpvmshx">
+  <formation name="T-Bone RDRD" fid="F3-ovnuyu2t" aid="A1-ztpvmshx" sid="S1-zh25787w">
     <dancer gender="girl" x="-3" y="1" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="1" y="1" angle="90"/>
     <dancer gender="boy" x="3" y="1" angle="180"/>
   </formation>
 
-  <formation name="T-Bone URRD" fid="F3-hixdm7jx" aid="A1-u9nk83ur">
+  <formation name="T-Bone URRD" fid="F3-hixdm7jx" aid="A1-u9nk83ur" sid="S1-usxsdz96">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="1" angle="270"/>
     <dancer gender="girl" x="-1" y="-1" angle="270"/>
     <dancer gender="boy" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="T-Bone ULLD" fid="F3-chbf53tp" aid="A1-0qij1j83">
+  <formation name="T-Bone ULLD" fid="F3-chbf53tp" aid="A1-0qij1j83" sid="S1-7fdj9jt6">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="-1" angle="90"/>
     <dancer gender="boy" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="T-Bone DRRU" fid="F3-8jt629e3" aid="A1-0zsf4p3p">
+  <formation name="T-Bone DRRU" fid="F3-8jt629e3" aid="A1-0zsf4p3p" sid="S1-gm6sykk2">
     <dancer gender="boy" x="-1" y="3" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="270"/>
     <dancer gender="girl" x="-1" y="-1" angle="270"/>
     <dancer gender="boy" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone ULRU" fid="F3-mx7qw8zz" aid="A1-gnc2m2sz">
+  <formation name="T-Bone ULRU" fid="F3-mx7qw8zz" aid="A1-gnc2m2sz" sid="S1-93tt2pl4">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone URLU" fid="F3-dlap8ufn" aid="A1-2wdq0q9r">
+  <formation name="T-Bone URLU" fid="F3-dlap8ufn" aid="A1-2wdq0q9r" sid="S1-geyaxcl0">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="270"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone DLLU" fid="F3-mu73srxb" aid="A1-sjpquv05">
+  <formation name="T-Bone DLLU" fid="F3-mu73srxb" aid="A1-sjpquv05" sid="S1-yh519uha">
     <dancer gender="boy" x="-1" y="3" angle="180"/>
     <dancer gender="girl" x="-1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="-1" angle="90"/>
     <dancer gender="boy" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone DRLD" fid="F3-nug2yac5" aid="A1-ibhetlqd">
+  <formation name="T-Bone DRLD" fid="F3-nug2yac5" aid="A1-ibhetlqd" sid="S1-wx3ojnqs">
     <dancer gender="boy" x="-1" y="3" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="270"/>
     <dancer gender="girl" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="T-Bone DLRD" fid="F3-bsskawv9" aid="A1-3xol3xdh">
+  <formation name="T-Bone DLRD" fid="F3-bsskawv9" aid="A1-3xol3xdh" sid="S1-m40sg2mc">
     <dancer gender="boy" x="-1" y="3" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="T-Bone LUUR" fid="F3-7mphv7cb" aid="A1-ejctkiht">
+  <formation name="T-Bone LUUR" fid="F3-7mphv7cb" aid="A1-ejctkiht" sid="S1-4bqtffog">
     <dancer gender="boy" x="-1" y="3" angle="90"/>
     <dancer gender="girl" x="1" y="3" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="T-Bone RUUL" fid="F3-zy410h5b" aid="A1-vvbb9y71">
+  <formation name="T-Bone RUUL" fid="F3-zy410h5b" aid="A1-vvbb9y71" sid="S1-njkl8o14">
     <dancer gender="boy" x="-1" y="3" angle="270"/>
     <dancer gender="girl" x="1" y="3" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="-1" y="-1" angle="0"/>
   </formation>
 
-  <formation name="T-Bone LDDR" fid="F3-8olin5iz" aid="A1-r0nan08h">
+  <formation name="T-Bone LDDR" fid="F3-8olin5iz" aid="A1-r0nan08h" sid="S1-3nw4hwvk">
     <dancer gender="boy" x="-1" y="3" angle="90"/>
     <dancer gender="girl" x="1" y="3" angle="90"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="T-Bone RDDL" fid="F3-7ze4qv1j" aid="A1-07lgj1l3">
+  <formation name="T-Bone RDDL" fid="F3-7ze4qv1j" aid="A1-07lgj1l3" sid="S1-6f87wjjw">
     <dancer gender="boy" x="-1" y="3" angle="270"/>
     <dancer gender="girl" x="1" y="3" angle="270"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="-1" y="-1" angle="180"/>
   </formation>
 
-  <formation name="T-Bone LULU" fid="F3-2j48z38d" aid="A1-5n1tsjmz">
+  <formation name="T-Bone LULU" fid="F3-2j48z38d" aid="A1-5n1tsjmz" sid="S1-c7pzjn70">
     <dancer gender="boy" x="-1" y="3" angle="90"/>
     <dancer gender="girl" x="-1" y="1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="90"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone ULUL" fid="F3-fn4fgvyt" aid="A1-1d9e0a2n">
+  <formation name="T-Bone ULUL" fid="F3-fn4fgvyt" aid="A1-1d9e0a2n" sid="S1-pd42whpo">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="1" angle="90"/>
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="-1" y="-3" angle="90"/>
   </formation>
 
-  <formation name="T-Bone LDLD" fid="F3-4ohmtsct" aid="A1-xj77qhph">
+  <formation name="T-Bone LDLD" fid="F3-4ohmtsct" aid="A1-xj77qhph" sid="S1-f6xs6x28">
     <dancer gender="boy" x="-1" y="3" angle="90"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="90"/>
     <dancer gender="girl" x="-1" y="-3" angle="180"/>
   </formation>
 
-  <formation name="T-Bone URDR" fid="F3-mduvt2j1" aid="A1-72v6xe8z">
+  <formation name="T-Bone URDR" fid="F3-mduvt2j1" aid="A1-72v6xe8z" sid="S1-cbjnuge6">
      <dancer gender="girl" x="-1" y="3" angle="0"/>
      <dancer gender="boy" x="-1" y="1" angle="270"/>
      <dancer gender="girl" x="-1" y="-1" angle="180"/>
      <dancer gender="boy" x="-1" y="-3" angle="270"/>
   </formation>
 
-  <formation name="T-Bone RLUU" fid="F3-iic6hjuf" aid="A1-75x60tfd">
+  <formation name="T-Bone RLUU" fid="F3-iic6hjuf" aid="A1-75x60tfd" sid="S1-zi1fkwsg">
     <dancer gender="boy" x="-1" y="3" angle="270"/>
     <dancer gender="girl" x="-1" y="1" angle="90"/>
     <dancer gender="boy" x="-1" y="-1" angle="0"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone UURL" fid="F3-51byqgkn" aid="A1-wds1pi0d">
+  <formation name="T-Bone UURL" fid="F3-51byqgkn" aid="A1-wds1pi0d" sid="S1-kfjaweu4">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="1" angle="0"/>
     <dancer gender="boy" x="-1" y="-1" angle="270"/>
     <dancer gender="girl" x="-1" y="-3" angle="90"/>
   </formation>
 
-  <formation name="T-Bone LRDU" fid="F3-eaqk2jsr" aid="A1-q5pp9c1b">
+  <formation name="T-Bone LRDU" fid="F3-eaqk2jsr" aid="A1-q5pp9c1b" sid="S1-vjhz1xiw">
     <dancer gender="boy" x="-1" y="3" angle="90"/>
     <dancer gender="girl" x="-1" y="1" angle="270"/>
     <dancer gender="boy" x="-1" y="-1" angle="180"/>
     <dancer gender="girl" x="-1" y="-3" angle="0"/>
   </formation>
 
-  <formation name="T-Bone UDLR" fid="F3-irjw4zkz" aid="A1-or98pmq1">
+  <formation name="T-Bone UDLR" fid="F3-irjw4zkz" aid="A1-or98pmq1" sid="S1-xrjn55mk">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="90"/>
     <dancer gender="girl" x="-1" y="-3" angle="270"/>
   </formation>
 
-  <formation name="T-Bone UDLL" fid="F3-o9tliph3" aid="A1-wqem0uz9">
+  <formation name="T-Bone UDLL" fid="F3-o9tliph3" aid="A1-wqem0uz9" sid="S1-l1qig530">
     <dancer gender="boy" x="-1" y="3" angle="0"/>
     <dancer gender="girl" x="-1" y="1" angle="180"/>
     <dancer gender="boy" x="-1" y="-1" angle="90"/>
     <dancer gender="girl" x="-1" y="-3" angle="90"/>
   </formation>
 
-  <formation name="T-Bone Couples 1" fid="F3-5qrkwacd" aid="A1-6xk5kskf">
+  <formation name="T-Bone Couples 1" fid="F3-5qrkwacd" aid="A1-6xk5kskf" sid="S1-4i1t6xfq">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="-1" y="-2" angle="270"/>
   </formation>
 
-  <formation name="T-Bone Couples 2" fid="F3-on5swm9f" aid="A1-2j7hheit">
+  <formation name="T-Bone Couples 2" fid="F3-on5swm9f" aid="A1-2j7hheit" sid="S1-tj37z5bs">
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
     <dancer gender="girl" x="1" y="-2" angle="270"/>
@@ -1794,7 +1794,7 @@
   </formation>
 
   <!--  Formations with phantoms  -->
-  <formation name="Phantom Formation In" fid="F3-guai8fy7" aid="A1-ch9bydfb">
+  <formation name="Phantom Formation In" fid="F3-guai8fy7" aid="A1-ch9bydfb" sid="S1-dzn2w6bo">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="3" y="2" angle="270"/>
@@ -1803,7 +1803,7 @@
     <dancer gender="phantom" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Phantom Formation RH" fid="F3-hspvvvwx" aid="A1-nn9jwa4f">
+  <formation name="Phantom Formation RH" fid="F3-hspvvvwx" aid="A1-nn9jwa4f" sid="S1-7941s6nk">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="180"/>
     <dancer gender="boy" x="3" y="2" angle="270"/>
@@ -1812,7 +1812,7 @@
     <dancer gender="phantom" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Phantom Formation LH" fid="F3-ya7xppob" aid="A1-3k1vo4ev">
+  <formation name="Phantom Formation LH" fid="F3-ya7xppob" aid="A1-3k1vo4ev" sid="S1-6onwf0j8">
     <dancer gender="boy" x="-2" y="3" angle="180"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="3" y="2" angle="90"/>
@@ -1821,7 +1821,7 @@
     <dancer gender="phantom" x="-2" y="-3" angle="0"/>
   </formation>
 
-  <formation name="Phantom Formation Two-Faced" fid="F3-pe2wfvmh" aid="A1-qdkzx8zd">
+  <formation name="Phantom Formation Two-Faced" fid="F3-pe2wfvmh" aid="A1-qdkzx8zd" sid="S1-utmh4s3o">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="1" y="2" angle="90"/>
@@ -1830,7 +1830,7 @@
     <dancer gender="phantom" x="-2" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Phantom Lines In" fid="F3-kmnlcxfo" aid="A1-aa8iey92">
+  <formation name="Phantom Lines In" fid="F3-kmnlcxfo" aid="A1-aa8iey92" sid="S1-qrzz9hko">
     <dancer gender="boy" x="2" y="3" angle="180"/>
     <dancer gender="girl" x="2" y="1" angle="180"/>
     <dancer gender="boy" x="2" y="-1" angle="180"/>
@@ -1839,7 +1839,7 @@
     <dancer gender="phantom" x="2" y="-5" angle="180"/>
   </formation>
 
-  <formation name="Phantom Lines Out" fid="F3-6ua6gk3i" aid="A1-s1g73ymw">
+  <formation name="Phantom Lines Out" fid="F3-6ua6gk3i" aid="A1-s1g73ymw" sid="S1-juqjhq20">
     <dancer gender="girl" x="-2" y="3" angle="180"/>
     <dancer gender="boy" x="-2" y="1" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
@@ -1848,7 +1848,7 @@
     <dancer gender="phantom" x="-2" y="5" angle="180"/>
   </formation>
 
-  <formation name="Phantom Waves RH" fid="F3-htmgti7a" aid="A1-jg0em34a">
+  <formation name="Phantom Waves RH" fid="F3-htmgti7a" aid="A1-jg0em34a" sid="S1-gc0ybvqg">
     <dancer gender="boy" x="2" y="3" angle="180"/>
     <dancer gender="girl" x="2" y="1" angle="0"/>
     <dancer gender="boy" x="2" y="-1" angle="180"/>
@@ -1857,21 +1857,21 @@
     <dancer gender="phantom" x="2" y="-5" angle="180"/>
   </formation>
 
-  <formation name="Phantom Waves LH" fid="F3-0mjnwi2r" aid="A1-gmlquc6j">
+  <formation name="Phantom Waves LH" fid="F3-0mjnwi2r" aid="A1-gmlquc6j" sid="S1-pi6ydci8">
     <dancer gender="boy" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-2" y="3" angle="180"/>
     <dancer gender="boy" x="-1" y="-2" angle="90"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
   </formation>
 
-  <formation name="Phantom Two-Faced RH" fid="F3-5qrkwacd" aid="A1-6xk5kskf">
+  <formation name="Phantom Two-Faced RH" fid="F3-5qrkwacd" aid="A1-6xk5kskf" sid="S1-4i1t6xfq">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="girl" x="-3" y="-2" angle="270"/>
     <dancer gender="boy" x="-1" y="-2" angle="270"/>
   </formation>
 
-  <formation name="Tidal Line Girls Disconnected" fid="F3-2ntdg2yx" aid="A1-4w3an8p5">
+  <formation name="Tidal Line Girls Disconnected" fid="F3-2ntdg2yx" aid="A1-4w3an8p5" sid="S1-ssvs77rs">
     <dancer gender="girl" x="0" y="-2.5" angle="0"/>
     <dancer gender="boy" x="0" y="-3.5" angle="0"/>
     <dancer gender="girl" x="0" y="-.5" angle="0"/>
@@ -1879,21 +1879,21 @@
   </formation>
 
   <!--  Phantom formations for snapping  -->
-  <formation name="Phantom Snap Formation 1" fid="F3-ylykvej1" aid="A1-ujr7eqg7">
+  <formation name="Phantom Snap Formation 1" fid="F3-ylykvej1" aid="A1-ujr7eqg7" sid="S1-dzn2w6bo">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="3" y="2" angle="270"/>
     <dancer gender="girl" x="1" y="2" angle="270"/>
   </formation>
 
-  <formation name="Phantom Snap Formation 2" fid="F3-51xgg19v" aid="A1-i0lsqaib">
+  <formation name="Phantom Snap Formation 2" fid="F3-51xgg19v" aid="A1-i0lsqaib" sid="S1-zzzj7muu">
     <dancer gender="boy" x="-2" y="-1" angle="0"/>
     <dancer gender="girl" x="-2" y="-3" angle="0"/>
     <dancer gender="boy" x="3" y="-2" angle="90"/>
     <dancer gender="girl" x="1" y="-2" angle="90"/>
   </formation>
 
-  <formation name="Triple Boxes" fid="F3-xauew1fg" aid="A1-bwonie8q">
+  <formation name="Triple Boxes" fid="F3-xauew1fg" aid="A1-bwonie8q" sid="S1-riulsffk">
     <dancer gender="boy" x="1.5" y="3" angle="0"/>
     <dancer gender="girl" x="1.5" y="1" angle="0"/>
     <dancer gender="girl" x="-1.5" y="1" angle="0"/>
@@ -1902,7 +1902,7 @@
     <dancer gender="phantom" x="1.5" y="-5" angle="0"/>
   </formation>
 
-  <formation name="Triple Boxes Close" fid="F3-1l8cucma" aid="A1-46y4c7m6">
+  <formation name="Triple Boxes Close" fid="F3-1l8cucma" aid="A1-46y4c7m6" sid="S1-i93revs4">
     <dancer gender="boy" x="1" y="3" angle="90"/>
     <dancer gender="girl" x="1" y="1" angle="90"/>
     <dancer gender="girl" x="-1" y="1" angle="90"/>
@@ -1911,7 +1911,7 @@
     <dancer gender="phantom" x="1" y="-5" angle="90"/>
   </formation>
 
-  <formation name="Triple Lines" fid="F3-1bul6qzv" aid="A1-opwdxpzx">
+  <formation name="Triple Lines" fid="F3-1bul6qzv" aid="A1-opwdxpzx" sid="S1-98xp7f50">
     <dancer gender="boy" x="0" y="3" angle="180"/>
     <dancer gender="girl" x="0" y="1" angle="0"/>
     <dancer gender="girl" x="4" y="1" angle="180"/>
@@ -1920,7 +1920,7 @@
     <dancer gender="phantom" x="4" y="-3" angle="180"/>
   </formation>
 
-  <formation name="Triple Columns" fid="F3-m4vsgc9d" aid="A1-1d6zwg57">
+  <formation name="Triple Columns" fid="F3-m4vsgc9d" aid="A1-1d6zwg57" sid="S1-3bajpd82">
     <dancer gender="boy" x="3" y="2" angle="180"/>
     <dancer gender="girl" x="3" y="0" angle="180"/>
     <dancer gender="girl" x="1" y="0" angle="0"/>
@@ -1930,49 +1930,49 @@
   </formation>
 
   <!-- Siamese formations -->
-  <formation name="Siamese Box 1" fid="F3-w9cby7yv" aid="A1-7b83eeid">
+  <formation name="Siamese Box 1" fid="F3-w9cby7yv" aid="A1-7b83eeid" sid="S1-4nfrvpus">
     <dancer gender="boy" x="-2" y="3" angle="0"/>
     <dancer gender="girl" x="-2" y="1" angle="0"/>
     <dancer gender="boy" x="-3" y="-2" angle="0"/>
     <dancer gender="girl" x="-1" y="-2" angle="0"/>
   </formation>
 
-  <formation name="Siamese Box 2" fid="F3-i10519fr" aid="A1-0ok5h5n9">
+  <formation name="Siamese Box 2" fid="F3-i10519fr" aid="A1-0ok5h5n9" sid="S1-e399v9hs">
     <dancer gender="boy" x="-2" y="-3" angle="0"/>
     <dancer gender="girl" x="-2" y="-1" angle="0"/>
     <dancer gender="boy" x="-3" y="2" angle="0"/>
     <dancer gender="girl" x="-1" y="2" angle="0"/>
   </formation>
 
-  <formation name="Siamese Box 3" fid="F3-z27yb0jb" aid="A1-8uvd58s5">
+  <formation name="Siamese Box 3" fid="F3-z27yb0jb" aid="A1-8uvd58s5" sid="S1-e2x079n4">
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
     <dancer gender="girl" x="-2" y="-1" angle="180"/>
     <dancer gender="boy" x="-3" y="2" angle="0"/>
     <dancer gender="girl" x="-1" y="2" angle="0"/>
   </formation>
 
-  <formation name="Siamese Wave" fid="F3-l9g357iz" aid="A1-4t0mffdb">
+  <formation name="Siamese Wave" fid="F3-l9g357iz" aid="A1-4t0mffdb" sid="S1-tvawlqn8">
     <dancer gender="boy" x="0" y="3.5" angle="0"/>
     <dancer gender="girl" x="0" y="2.5" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="180"/>
     <dancer gender="girl" x="1" y="1" angle="180"/>
   </formation>
 
-  <formation name="Siamese Wave 2" fid="F3-dsb5p502" aid="A1-zqftwnpc">
+  <formation name="Siamese Wave 2" fid="F3-dsb5p502" aid="A1-zqftwnpc" sid="S1-u5e8vl6c">
     <dancer gender="boy" x="0" y="0.5" angle="180"/>
     <dancer gender="girl" x="0" y="1.5" angle="180"/>
     <dancer gender="boy" x="1.0" y="3.0" angle="0"/>
     <dancer gender="girl" x="-1.0" y="3.0" angle="0"/>
   </formation>
 
-  <formation name="Siamese 2-Faced Line" fid="F3-gst76257" aid="A1-m3nd1rhb">
+  <formation name="Siamese 2-Faced Line" fid="F3-gst76257" aid="A1-m3nd1rhb" sid="S1-il7g18v8">
     <dancer gender="boy" x="0" y="3.5" angle="0"/>
     <dancer gender="girl" x="0" y="2.5" angle="0"/>
     <dancer gender="boy" x="-1" y="1" angle="0"/>
     <dancer gender="girl" x="1" y="1" angle="0"/>
   </formation>
 
-  <formation name="Siamese 2-Faced Line 2" fid="F3-m3sjhs6a" aid="A1-6if4ug0c">
+  <formation name="Siamese 2-Faced Line 2" fid="F3-m3sjhs6a" aid="A1-6if4ug0c" sid="S1-n5c55img">
     <dancer gender="boy" x="0" y="1.5" angle="0"/>
     <dancer gender="girl" x="0" y=".5" angle="0"/>
     <dancer gender="boy" x="-1" y="3" angle="0"/>

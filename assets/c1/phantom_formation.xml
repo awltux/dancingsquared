@@ -180,7 +180,7 @@
   </tam>
 
   <tam title="Phantom Motivate" group="Phantom" fractions="4;4.5;3" vid="V1-h8h3r1ri">
-    <formation fid="F3-o8o7de3l" aid="A1-v2v49njz">
+    <formation fid="F3-o8o7de3l" aid="A1-v2v49njz" sid="S1-igggyhb0">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="boy" x="3" y="2" angle="90"/>
@@ -254,7 +254,7 @@
   </tam>
 
   <tam title="Phantom Tally Ho" group="Phantom" fractions="2" vid="V1-8baj83st">
-    <formation fid="F3-k0cnz9ij" aid="A1-n18bo64h">
+    <formation fid="F3-k0cnz9ij" aid="A1-n18bo64h" sid="S1-x4b8v2c4">
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="2" angle="90"/>

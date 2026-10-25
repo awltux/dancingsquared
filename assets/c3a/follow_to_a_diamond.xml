@@ -24,7 +24,7 @@
 
   <tam title="Follow to a Diamond"
        from="Right-Hand Box" vid="V1-9kqdp7o9">
-    <formation name="Box RH" fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
+    <formation name="Box RH" fid="F3-nqygzvp3" aid="A1-b0hdpgj9" sid="S1-15hybw4k">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
     </formation>

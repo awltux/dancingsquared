@@ -23,7 +23,7 @@
 <tamination title="Boomerang">
 
   <tam title="Boomerang" from="Right-Hand Box" fractions="3" vid="V1-whrphh0x">
-    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
+    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9" sid="S1-65nbalxg">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="-2" x="1" angle="270"/>
     </formation>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Boomerang" from="T-Bone Box" fractions="3" vid="V1-zdbygt2s">
-    <formation fid="F3-vem78m16" aid="A1-0lvvqwsk">
+    <formation fid="F3-vem78m16" aid="A1-0lvvqwsk" sid="S1-63jk43e4">
       <dancer gender="boy" y="1" x="1" angle="0"/>
       <dancer gender="girl" y="-1" x="1" angle="90"/>
     </formation>

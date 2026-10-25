@@ -322,7 +322,7 @@
 
 
   <tam title="Magic Column File to a Line" group=" " vid="V1-cnazjuxs">
-    <formation fid="F3-dy4b34sl" aid="A1-59iygw2f">
+    <formation fid="F3-dy4b34sl" aid="A1-59iygw2f" sid="S1-fvh8gl08">
       <dancer gender="boy" y="3" x="1" angle="90"/>
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="-1" angle="270"/>

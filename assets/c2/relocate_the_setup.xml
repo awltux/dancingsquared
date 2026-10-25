@@ -55,7 +55,7 @@
   </tam>
 
   <tam title="Relocate the Hourglass" from="Right-Hand Hourglass" vid="V1-aoa70czy">
-    <formation fid="F3-iqx7hjst" aid="A1-vujkm8fz">
+    <formation fid="F3-iqx7hjst" aid="A1-vujkm8fz" sid="S1-z8iqh9hc">
       <dancer gender="girl" y="2" x="-3" angle="90"/>
       <dancer gender="boy" y="3" x="0" angle="0"/>
       <dancer gender="girl" y="2" x="3" angle="270"/>

@@ -127,7 +127,7 @@
 
   <tam title="Criss Cross the Shadow"
        from="3 and 1 Lines, Centers In" vid="V1-am79vrof">
-     <formation fid="F3-km139yvj" aid="A1-4rmatmmn">
+     <formation fid="F3-km139yvj" aid="A1-4rmatmmn" sid="S1-aplpftkq">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="0"/>
@@ -155,7 +155,7 @@
 
   <tam title="Criss Cross the Shadow"
        from="3 and 1 Lines, Centers Out" vid="V1-6veuu4zl">
-     <formation fid="F3-u6cmsz8f" aid="A1-q5uo0n3z">
+     <formation fid="F3-u6cmsz8f" aid="A1-q5uo0n3z" sid="S1-6t04odw0">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-2" y="1" angle="180"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>

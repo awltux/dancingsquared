@@ -24,7 +24,7 @@
 
   <tam title="Counter Rotate"
        from="Right-Hand Waves" vid="V1-6qqtqx00">
-     <formation fid="F3-4tsqu67b" aid="A1-0nsuszbv">
+     <formation fid="F3-4tsqu67b" aid="A1-0nsuszbv" sid="S1-ijpcxkgy">
       <dancer gender="boy" x="3" y="1.5" angle="270"/>
       <dancer gender="girl" x="1" y="1.5" angle="90"/>
       <dancer gender="girl" x="-1" y="1.5" angle="270"/>
@@ -64,7 +64,7 @@
 
   <tam title="Counter Rotate"
        from="Right-Hand Tidal Wave" vid="V1-8csrj7we">
-     <formation fid="F3-svw0dvrr" aid="A1-y8ioixzx">
+     <formation fid="F3-svw0dvrr" aid="A1-y8ioixzx" sid="S1-26lcdlyw">
       <dancer gender="boy" x="-3.5" y="0" angle="90"/>
       <dancer gender="girl" x="-2.5" y="0" angle="270"/>
       <dancer gender="girl" x="-1.5" y="0" angle="90"/>
@@ -285,7 +285,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Magic Columns, Right-Hand Centers" vid="V1-n6b67663">
-    <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp">
+    <formation fid="F3-dy4b34sl" aid="A1-ld3qskcp" sid="S1-ya19u65y">
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
       <dancer gender="boy" y="-1" x="-1" angle="90"/>
@@ -322,7 +322,7 @@
   </tam>
 
   <tam title="Counter Rotate" from="Parallelogram" vid="V1-fsptqd4k">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>

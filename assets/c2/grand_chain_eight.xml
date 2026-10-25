@@ -25,7 +25,7 @@
   <!-- Ends part of Grand Chain Eight, for sequencer  -->
   <tam title="Grand Chain Eight"
        from="Ends Facing Only" sequencer="perimeter" display="no" vid="V1-o7ujh25i">
-    <formation fid="F3-rc8fsiyp" aid="A1-v9dv17xd">
+    <formation fid="F3-rc8fsiyp" aid="A1-v9dv17xd" sid="S1-knp9y1r0">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
     </formation>
@@ -67,7 +67,7 @@
   </tam>
 
   <tam title="Grand Chain Eight" from="Lines" vid="V1-802wogx1">
-    <formation fid="F3-1r9s5bst" aid="A1-mib7zc39">
+    <formation fid="F3-1r9s5bst" aid="A1-mib7zc39" sid="S1-hb373q3o">
       <dancer gender="boy" y="2" x="3" angle="270"/>
       <dancer gender="girl" y="2" x="1" angle="270"/>
       <dancer gender="boy" y="2" x="-1" angle="270"/>

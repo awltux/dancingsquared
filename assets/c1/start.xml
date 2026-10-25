@@ -24,7 +24,7 @@
 
   <tam title="Those Facing, Start Right and Left Thru"
        group=" " fractions="3" vid="V1-5ajkcj34">
-    <formation fid="F3-xq9nr45b" aid="A1-29gqlyvl">
+    <formation fid="F3-xq9nr45b" aid="A1-29gqlyvl" sid="S1-8omo8jje">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="0"/>
@@ -50,7 +50,7 @@
 
   <tam title="Men Start, Pass the Ocean"
        group=" " sequencer="gender-specific" fractions="3" vid="V1-5whmpyhi">
-    <formation fid="F3-xq9nr45b" aid="A1-qxx8rqmh">
+    <formation fid="F3-xq9nr45b" aid="A1-qxx8rqmh" sid="S1-knr52tjm">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-1" angle="0"/>
@@ -107,7 +107,7 @@
 
   <tam title="Ladies Start, Touch 1/4 and Cross"
        group=" " sequencer="gender-specific" fractions="2.5" vid="V1-gtpcapjd">
-    <formation fid="F3-biv4yxlj" aid="A1-mfq9hdy9">
+    <formation fid="F3-biv4yxlj" aid="A1-mfq9hdy9" sid="S1-7ins4jxo">
       <dancer gender="boy" x="-1" y="3" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -135,7 +135,7 @@
 
   <tam title="Girls Start, Spin the Top"
        group=" " sequencer="gender-specific" fractions="3" vid="V1-pl0id02v">
-    <formation fid="F3-4ablgjmv" aid="A1-s6mlcwkt">
+    <formation fid="F3-4ablgjmv" aid="A1-s6mlcwkt" sid="S1-i2xqcmuw">
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="boy" x="-2" y="-1" angle="0"/>

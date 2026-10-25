@@ -39,7 +39,7 @@
   </tam>
 
   <tam title="Flare Out to a Line" from="Left-Hand Two-Faced Lines" vid="V1-4hbrvjcl">
-    <formation fid="F3-njckelvh" aid="A1-j8hx34d9">
+    <formation fid="F3-njckelvh" aid="A1-j8hx34d9" sid="S1-yylh7p4c">
       <dancer gender="girl" x="-2" y="3" angle="180"/>
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="boy" x="-2" y="-1" angle="0"/>

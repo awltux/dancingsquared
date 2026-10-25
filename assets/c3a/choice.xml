@@ -90,7 +90,7 @@
   </tam>
 
   <tam title="Cut the Diamonder's Choice" group=" " parts="5" vid="V1-92x08ehd">
-    <formation fid="F3-v3lgu8ej" aid="A1-bkxo8lz7">
+    <formation fid="F3-v3lgu8ej" aid="A1-bkxo8lz7" sid="S1-d6yo85ou">
       <dancer gender="boy" x="-1" y="-2.5" angle="90"/>
       <dancer gender="girl" x="0" y="-.5" angle="180"/>
       <dancer gender="boy" x="1" y="-2.5" angle="270"/>

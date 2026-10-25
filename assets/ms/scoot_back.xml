@@ -79,7 +79,7 @@
   </tam>
 
   <tam title="Scoot Back" display="none" vid="V1-2t2274mt">
-    <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde">
+    <formation fid="F3-7b4wxvs2" aid="A1-uwd12wde" sid="S1-hgr8nfr0">
       <dancer gender="boy" x="-1.0" y="1" angle="0" />
       <dancer gender="girl" x="-1.0" y="-1" angle="270" />
     </formation>
@@ -94,7 +94,7 @@
   </tam>
 
   <tam title="Scoot Back" display="none" vid="V1-0yhjyi4b">
-    <formation fid="F3-vem78m16" aid="A1-vabff0x0">
+    <formation fid="F3-vem78m16" aid="A1-vabff0x0" sid="S1-j4bn2w7g">
       <dancer gender="boy" x="-1.0" y="-1" angle="0" />
       <dancer gender="girl" x="-1.0" y="1" angle="90" />
     </formation>

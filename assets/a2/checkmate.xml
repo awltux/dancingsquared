@@ -24,7 +24,7 @@
 
   <tam title="Checkmate"
        from="Right-Hand Columns" vid="V1-j30zrtt0">
-     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -55,7 +55,7 @@
 
   <tam title="Checkmate"
        from="Left-Hand Columns" vid="V1-gaqovvjh">
-     <formation fid="F3-dhnw1kx1" aid="A1-u9rhjvpb">
+     <formation fid="F3-dhnw1kx1" aid="A1-u9rhjvpb" sid="S1-i5lj98ts">
       <dancer gender="boy" x="1" y="-3" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
@@ -86,7 +86,7 @@
 
   <tam title="Checkmate"
        from="Double Pass Thru" vid="V1-lkg3zxjv">
-    <formation fid="F3-7i4q346d" aid="A1-v1s9nkeh">
+    <formation fid="F3-7i4q346d" aid="A1-v1s9nkeh" sid="S1-tb15gh44">
       <dancer gender="boy" y="3" x="1" angle="270" />
       <dancer gender="girl" y="3" x="-1" angle="270" />
       <dancer gender="boy" y="1" x="1" angle="270" />
@@ -124,7 +124,7 @@
 
   <tam title="Checkmate"
        from="Completed Double Pass Thru" vid="V1-mn14o0xz">
-    <formation fid="F3-art5tker" aid="A1-tiyq74cz">
+    <formation fid="F3-art5tker" aid="A1-tiyq74cz" sid="S1-16bv5hrc">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="1" angle="90"/>

@@ -24,7 +24,7 @@
 
   <tam title="Checkover"
        from="Right-Hand Columns" vid="V1-n951jkjc">
-    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7">
+    <formation fid="F3-lcwes2cr" aid="A1-d6x4wfd7" sid="S1-6gibaso4">
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="90"/>
       <dancer gender="boy" y="-1" x="-1" angle="90"/>

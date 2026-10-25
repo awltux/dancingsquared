@@ -23,7 +23,7 @@
 <tamination title="Z Axle">
 
   <tam title="&quot;Z&quot; Axle" from="Right-Hand Outfacing Z" parts="4;3" vid="V1-taoef2yn">
-    <formation fid="F3-df6beb94" aid="A1-9nvj7ark">
+    <formation fid="F3-df6beb94" aid="A1-9nvj7ark" sid="S1-312o1pzw">
       <dancer gender="boy" x="2" y="-1" angle="0" />
       <dancer gender="girl" x="0" y="-1" angle="180" />
     </formation>
@@ -40,7 +40,7 @@
   </tam>
 
   <tam title="&quot;Z&quot; Axle" from="Left-Hand Outfacing Z" parts="4;3" vid="V1-ypappogo">
-	  <formation fid="F3-ychuz3du" aid="A1-xz4cz9wu">
+	  <formation fid="F3-ychuz3du" aid="A1-xz4cz9wu" sid="S1-hldo9lnc">
 	    <dancer gender="boy" x="2" y="1" angle="0" />
 	    <dancer gender="girl" x="0" y="1" angle="180" />
 	  </formation>
@@ -57,7 +57,7 @@
   </tam>
 
   <tam title="&quot;Z&quot; Axle" from="Right-Hand Tandem Z" parts="4;3" vid="V1-tkg5v637">
-	  <formation fid="F3-km28j8ki" aid="A1-w0joe90u">
+	  <formation fid="F3-km28j8ki" aid="A1-w0joe90u" sid="S1-qmp2obq0">
 	    <dancer gender="boy" x="2" y="1" angle="0" />
 	    <dancer gender="girl" x="0" y="1" angle="0" />
 	  </formation>
@@ -74,7 +74,7 @@
   </tam>
 
   <tam title="&quot;Z&quot; Axle" from="Left-Hand Tandem Z" parts="4;3" vid="V1-09rl17si">
-    <formation fid="F3-zmb3igvk" aid="A1-cajnavzu">
+    <formation fid="F3-zmb3igvk" aid="A1-cajnavzu" sid="S1-19zxx7j0">
       <dancer gender="boy" x="2" y="-1" angle="0" />
       <dancer gender="girl" x="0" y="-1" angle="0" />
     </formation>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="Pass &quot;Z&quot; Axle" from="Right-Hand Infacing Z" parts="2;4;3" vid="V1-787zugiu">
-	  <formation fid="F3-yw58ox5e" aid="A1-fcr23g1q">
+	  <formation fid="F3-yw58ox5e" aid="A1-fcr23g1q" sid="S1-fgbnbc48">
 	    <dancer gender="boy" x="2" y="1" angle="180" />
 	    <dancer gender="girl" x="0" y="1" angle="0" />
 	  </formation>
@@ -112,7 +112,7 @@
   </tam>
 
   <tam title="Pass &quot;Z&quot; Axle" from="Left-Hand Infacing Z" parts="2;4;3" vid="V1-ptqkwt0x">
-    <formation fid="F3-528kin3k" aid="A1-2iz0o37g">
+    <formation fid="F3-528kin3k" aid="A1-2iz0o37g" sid="S1-f94wxvao">
       <dancer gender="boy" x="2" y="-1" angle="180" />
       <dancer gender="girl" x="0" y="-1" angle="0" />
     </formation>

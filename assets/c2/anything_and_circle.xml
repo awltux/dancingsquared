@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Diamond Circulate and Circle 1/4" group=" " parts="3" vid="V1-6ab0268j">
-    <formation fid="F3-ev2d73d1" aid="A1-1xeae1xz">
+    <formation fid="F3-ev2d73d1" aid="A1-1xeae1xz" sid="S1-in9babza">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="boy" x="-3" y="1" angle="0"/>

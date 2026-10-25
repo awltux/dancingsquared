@@ -289,7 +289,7 @@
   <tam title="Diamond Circulate"
        from="Diamonds with Center Two-Faced Line 4"
        difficulty="3" display="no" vid="V1-idxn6vo6">
-    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8" sid="S1-1gozgxr4">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>

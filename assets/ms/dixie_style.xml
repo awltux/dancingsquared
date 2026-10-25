@@ -118,7 +118,7 @@
   <tam title="Dixie Style to a Wave"
        from="Double Pass Thru"
        difficulty="1"  vid="V1-wn4gfqxc">
-    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
+    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj" sid="S1-9e4h2z7s">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
@@ -173,7 +173,7 @@
   <tam title="Dixie Style to a Wave"
        from="Tidal Column"
        difficulty="3" vid="V1-piw3o7sc">
-    <formation fid="F3-asmxxr5t" aid="A1-0wb74fjz">
+    <formation fid="F3-asmxxr5t" aid="A1-0wb74fjz" sid="S1-ixbg38qa">
       <dancer gender="boy" x="0" y="-3.5" angle="90"/>
       <dancer gender="girl" x="0" y="-2.5" angle="90"/>
       <dancer gender="boy" x="0" y="-0.5" angle="270"/>
@@ -297,7 +297,7 @@
   <tam title="Reverse Dixie Style to a Wave"
        from="Double Pass Thru"
        difficulty="2"  vid="V1-6vxg5vui">
-    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj">
+    <formation fid="F3-7i4q346d" aid="A1-d7s5awpj" sid="S1-9e4h2z7s">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="0"/>
@@ -352,7 +352,7 @@
   <tam title="Reverse Dixie Style to a Wave"
        from="Tidal Column"
        difficulty="3" vid="V1-m9uzry9u">
-    <formation fid="F3-asmxxr5t" aid="A1-0wb74fjz">
+    <formation fid="F3-asmxxr5t" aid="A1-0wb74fjz" sid="S1-ixbg38qa">
       <dancer gender="boy" x="0" y="-3.5" angle="90"/>
       <dancer gender="girl" x="0" y="-2.5" angle="90"/>
       <dancer gender="boy" x="0" y="-0.5" angle="270"/>

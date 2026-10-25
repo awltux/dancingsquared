@@ -25,7 +25,7 @@
   <tam title="Pass the Axle"
        from="Eight Chain Thru"
        parts="2;4;3"  vid="V1-ajtxkd4d">
-    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7">
+    <formation fid="F3-p3qjle85" aid="A1-m5hwmyc7" sid="S1-a707fhxk">
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
@@ -60,7 +60,7 @@
   <tam title="The Axle"
        from="Trade By"
        parts="4;3"  vid="V1-klitktxe">
-    <formation name="Trade By" fid="F3-39npqtaz" aid="A1-qkw66agr">
+    <formation name="Trade By" fid="F3-39npqtaz" aid="A1-qkw66agr" sid="S1-y95hcb68">
       <dancer gender="girl" y="3" x="1" angle="90"/>
       <dancer gender="boy" y="3" x="-1" angle="90"/>
       <dancer gender="girl" y="1" x="-1" angle="270"/>

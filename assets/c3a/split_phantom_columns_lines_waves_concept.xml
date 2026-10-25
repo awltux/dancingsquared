@@ -23,7 +23,7 @@
 <tamination title="Split Phantom Columns-Lines-Waves Concept">
 
   <tam title="Split Phantom Columns Triple Cross" group="Split Phantom Columns" vid="V1-1b9h4cu8">
-    <formation fid="F3-p36bbasc" aid="A1-r8m4u2o2">
+    <formation fid="F3-p36bbasc" aid="A1-r8m4u2o2" sid="S1-d839ufbo">
       <dancer gender="boy" x="3" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="girl" x="3" y="-1" angle="0"/>
@@ -58,7 +58,7 @@
   </tam>
 
   <tam title="Split Phantom Columns Something New" group="Split Phantom Columns" vid="V1-bo9qqo02">
-    <formation fid="F3-p36bbasc" aid="A1-r8m4u2o2">
+    <formation fid="F3-p36bbasc" aid="A1-r8m4u2o2" sid="S1-d839ufbo">
       <dancer gender="boy" x="3" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="girl" x="3" y="-1" angle="0"/>
@@ -96,7 +96,7 @@
 
 
   <tam title="Split Phantom Lines Acey Deucey" group="Split Phantom Lines" vid="V1-c22pdv7x">
-    <formation fid="F3-ssg6hm1w" aid="A1-kra6jgp4">
+    <formation fid="F3-ssg6hm1w" aid="A1-kra6jgp4" sid="S1-0z1ezr0g">
       <dancer gender="boy" x="3" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="girl" x="1" y="-3" angle="0"/>
@@ -133,7 +133,7 @@
   </tam>
 
   <tam title="Split Phantom Lines Load the Boat" group="Split Phantom Lines" vid="V1-gn1ec8ca">
-    <formation fid="F3-7e40lhvo" aid="A1-bbgfw4ps">
+    <formation fid="F3-7e40lhvo" aid="A1-bbgfw4ps" sid="S1-r2noh9q4">
       <dancer gender="boy" x="1" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="0"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>
@@ -197,7 +197,7 @@
 
 
   <tam title="Split Phantom Waves In Roll Circulate" group="Split Phantom Waves" vid="V1-ggqsc7c1">
-    <formation fid="F3-p36bbasc" aid="A1-gq7zxieo">
+    <formation fid="F3-p36bbasc" aid="A1-gq7zxieo" sid="S1-wpzw4t78">
       <dancer gender="boy" x="1" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>
@@ -234,7 +234,7 @@
   </tam>
 
   <tam title="Split Phantom Waves Split Counter Rotate" group="Split Phantom Waves" vid="V1-b90b1w90">
-    <formation fid="F3-p36bbasc" aid="A1-gq7zxieo">
+    <formation fid="F3-p36bbasc" aid="A1-gq7zxieo" sid="S1-wpzw4t78">
       <dancer gender="boy" x="1" y="3" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>

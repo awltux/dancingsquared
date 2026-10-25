@@ -182,19 +182,22 @@ export const SUITE = [
   // keeps them one mechanism. Milliseconds: synthetic boards only.
   { h: 'arrangement-id', light: true },
   // THE SETUP IDENTITY: the arrangement AND the order the call lists its dancers in - the key that says which two
-  // dancers are couple 1, where the arrangement id deliberately drops the order. Pins the format, the EIGHT-PHYSICAL
-  // guard (a ghost or a phantom gender is not one of the eight, and the count is of physical dancers, not array
-  // entries), that a phantom anywhere in the array changes nothing while an ARRAY REORDER does, the half-set rule
-  // (a written half and its complementary half are one setup), the rotationally symmetric case, and the two
-  // controls: the arrangement id run beside every split, and an order-only key measured to COLLIDE on a gender
-  // relabelling. Milliseconds: synthetic boards only; the corpus population is `identity-census`'s.
+  // dancers are couple 1, where the arrangement id deliberately drops the order. Pins the format, that EVERY size
+  // mints one (2, 4, 6 and 8, four distinct ids - the eight-dancer guard the scheme first shipped with is gone
+  // because a formation definition writes whatever size it writes) with a board of no physical dancers as the only
+  // refusal, that a phantom anywhere in the array changes nothing while an ARRAY REORDER does, the half-set rule (a
+  // written half and its complementary half are one setup), the rotationally symmetric case, and the two controls:
+  // the arrangement id run beside every split, and an order-only key measured to COLLIDE on a gender relabelling.
+  // Milliseconds: synthetic boards only; the corpus population is `identity-census`'s.
   { h: 'setup-id', light: true },
-  // EVERY FORMATION DEFINITION CARRIES ITS `fid` AND `aid`, and the duplicate table equals a fresh render. A tag is
-  // a stored REFERENCE, so this is the gate that keeps the corpus's own bytes the reference set: all 292 named
-  // definitions and all 636 inline blocks tagged and well formed, no duplicate name, a reconstituted half that
+  // EVERY FORMATION DEFINITION CARRIES ITS `fid`, `aid` AND `sid`, and the duplicate table equals a fresh render. A
+  // tag is a stored REFERENCE, so this is the gate that keeps the corpus's own bytes the reference set: all 292
+  // named definitions and all 636 inline blocks tagged and well formed, no duplicate name, a reconstituted half that
   // never puts two dancers on one spot, `aid -> fid` single-valued, and every carried tag RECORDED as minted in
-  // `assets/formation-tag-provenance.json` - in both directions, so a typo and a leftover are both failures. It
-  // does NOT re-derive a tag from geometry: a tag is a UID, and a geometry correction that red here would force a
+  // `assets/formation-tag-provenance.json` - in both directions, for all three tags, so a typo and a leftover are
+  // both failures. The duplicate relation is the same `sid` (the same setup), a subset of the arrangement-based one,
+  // and the report counts the definitions that share an arrangement but order differently rather than listing them.
+  // It does NOT re-derive a tag from geometry: a tag is a UID, and a geometry correction that red here would force a
   // re-mint and move every variant id hanging off the tag. Rotation-not-reflection is enforced at MINTING time by
   // `assignTags`. Not vacuous: it also runs the same analysis over a copy with two tags removed, over a record
   // missing one row, over a record naming a shape nothing carries, and over a 0.2 geometry correction (which must

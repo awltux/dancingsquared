@@ -23,7 +23,7 @@
 <tamination title="Disconnected Concept">
 
   <tam title="Boys Disconnected Crossfire" group="Boys Disconnected" sequencer="gender-specific" vid="V1-hwp021si">
-     <formation fid="F3-0r6r9zgd" aid="A1-7xyj03tj">
+     <formation fid="F3-0r6r9zgd" aid="A1-7xyj03tj" sid="S1-1ndcg3ps">
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="0" y="-.6" angle="0"/>
       <dancer gender="boy" x="0" y="1.8" angle="0"/>
@@ -192,7 +192,7 @@
 
   <tam title="Same Sex Disconnected Crossfire" group=" "
        sequencer="gender-specific" vid="V1-87a9d934">
-     <formation fid="F3-5iiqlbux" aid="A1-zm67bhhr">
+     <formation fid="F3-5iiqlbux" aid="A1-zm67bhhr" sid="S1-zojklg0c">
       <dancer gender="girl" x="0" y="3.5" angle="0"/>
       <dancer gender="boy" x="0" y="2.5" angle="0"/>
       <dancer gender="girl" x="0" y=".5" angle="0"/>
@@ -219,7 +219,7 @@
   </tam>
 
   <tam title="Disconnected Columns of 3 Circulate" group=" " vid="V1-ecujwbx0">
-     <formation fid="F3-s0cevrmz" aid="A1-ydoi5dbv">
+     <formation fid="F3-s0cevrmz" aid="A1-ydoi5dbv" sid="S1-ccxqcesq">
       <dancer gender="boy" x="1" y="4" angle="270"/>
       <dancer gender="girl" x="1" y="0" angle="270"/>
       <dancer gender="boy" x="1" y="-4" angle="270"/>

@@ -90,7 +90,7 @@
   </tam>
 
   <tam title="Step and Flip" from="3 and 1 Lines #7" vid="V1-jkm62ey1">
-    <formation fid="F3-k9frz2rj" aid="A1-5et06l9p">
+    <formation fid="F3-k9frz2rj" aid="A1-5et06l9p" sid="S1-cp4tlfzg">
       <dancer gender="boy" y="2" x="1" angle="90"/>
       <dancer gender="girl" y="2" x="3" angle="90"/>
       <dancer gender="boy" y="2" x="-3" angle="90"/>
@@ -128,7 +128,7 @@
 
   <tam title="Step and Flip"
        from="Tidal Line" vid="V1-74eeo9r6">
-    <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-k9coh0rt">
+    <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-k9coh0rt" sid="S1-igiynpwq">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="0"/>
       <dancer gender="boy" x="0" y=".5" angle="0"/>
@@ -309,7 +309,7 @@
   </tam>
 
   <tam title="As Couples Step and Flip" group=" " vid="V1-0899m8a1">
-    <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-k9coh0rt">
+    <formation name="Tidal Line RH" fid="F3-5iiqlbux" aid="A1-k9coh0rt" sid="S1-igiynpwq">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="0"/>
       <dancer gender="boy" x="0" y=".5" angle="0"/>

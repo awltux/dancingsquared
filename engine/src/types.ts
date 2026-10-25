@@ -117,14 +117,19 @@ export type SequencerMode = 'perimeter' | 'exact' | 'gender-specific' | 'no';
 export type Symmetry = 1 | 2;
 
 /**
- * A DEFINITION'S STORED TAGS: the formation id (`fid`) and the arrangement id (`aid`) written on the definition
- * itself, in `assets/formations.xml` or on a `<tam>`'s inline `<formation>`.
+ * A DEFINITION'S STORED TAGS: the formation id (`fid`), the arrangement id (`aid`) and the setup id (`sid`)
+ * written on the definition itself, in `assets/formations.xml` or on a `<tam>`'s inline `<formation>`.
  *
  * WHY THEY ARE STORED AND NOT COMPUTED. A formation id is a content address, so a geometry edit mints a new one, and
  * a REFERENCE that has to survive such an edit cannot be the content address. The reference used to live in a
  * generated ledger plus a hand-written alias file; it now lives here, where it is authoritative by construction and
- * needs nothing to alias. `formationId(board)`/`arrangementId(board)` are still the CONTENT addresses - they are what
- * the tagger computes a tag FROM, and what any board that matches no tagged definition still has.
+ * needs nothing to alias. `formationId(board)`/`arrangementId(board)`/`setupId(board)` are still the CONTENT
+ * addresses - they are what the tagger computes a tag FROM, and what any board that matches no tagged definition
+ * still has.
+ *
+ * THEY REFINE ONE ANOTHER: a formation id names the shape (gender, order and placement dropped), an arrangement id
+ * adds where the genders stand, and a setup id adds the ORDER the dancers are listed in. So one `fid` carries
+ * several `aid`s, and one `aid` carries several `sid`s (`sid` implies `aid` implies `fid`).
  *
  * A NULL IS NOT A FAILURE AT THIS LAYER: the parser is a byte reader, and whether every definition carries its tags
  * is `engine/test/formation-tags.mjs`'s question.
@@ -132,6 +137,7 @@ export type Symmetry = 1 | 2;
 export interface FormationTag {
   fid: string | null;
   aid: string | null;
+  sid: string | null;
 }
 
 export interface CallBundle {

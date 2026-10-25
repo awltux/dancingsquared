@@ -40,7 +40,7 @@
 
   <tam title="Make Magic"
        from="Centers Left-Hand Box" vid="V1-p0bsllld">
-     <formation fid="F3-424fi6bp" aid="A1-t9l4nb55">
+     <formation fid="F3-424fi6bp" aid="A1-t9l4nb55" sid="S1-ifck9s84">
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="3" x="-1" angle="270"/>
       <dancer gender="boy" y="1" x="1" angle="90"/>

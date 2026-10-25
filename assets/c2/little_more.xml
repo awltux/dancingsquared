@@ -87,7 +87,7 @@
 
   <tam title="Little More"
        from="Left-Hand 3/4 Tag" fractions="6" vid="V1-yi19sv9e">
-    <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-k0zvzsi6">
+    <formation name="3/4 Tag LH" fid="F3-muub1v0a" aid="A1-k0zvzsi6" sid="S1-9v21o1f0">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>
       <dancer gender="girl" x="0" y="-3" angle="0"/>

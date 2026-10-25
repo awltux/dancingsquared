@@ -24,7 +24,7 @@
 
   <tam title="Reverse Order Diamond Chain Thru" group="Reverse Order"
        parts="4.5;3" vid="V1-h0noupy1">
-    <formation fid="F3-p8t2f0pj" aid="A1-zmy9xmg7">
+    <formation fid="F3-p8t2f0pj" aid="A1-zmy9xmg7" sid="S1-z4tcsxfk">
       <dancer gender="boy" y="2" x="-1" angle="90"/>
       <dancer gender="girl" y="2" x="-3" angle="90"/>
       <dancer gender="girl" y="2" x="3" angle="270"/>

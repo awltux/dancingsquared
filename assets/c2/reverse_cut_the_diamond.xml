@@ -23,7 +23,7 @@
 <tamination title="Reverse Cut the Diamond">
 
   <tam title="Reverse Cut the Diamond" from="Right-Hand Diamond" vid="V1-cz988cil">
-    <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg">
+    <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg" sid="S1-9gj6a4n0">
       <dancer gender="boy" y="0" x="3" angle="270" />
       <dancer gender="girl" y="-1" x="0" angle="180" />
     </formation>
@@ -195,7 +195,7 @@
 
   <tam title="Reverse Cut the Diamond"
        from="Interlocked Diamonds 4" vid="V1-8tf8vmas">
-    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8" sid="S1-1gozgxr4">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -285,7 +285,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 3" vid="V1-jhjyacc6">
-    <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4">
+    <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4" sid="S1-d02kdgtc">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -307,7 +307,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 4" vid="V1-aulh8mwd">
-    <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0">
+    <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0" sid="S1-f2k633ws">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -328,7 +328,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 5" vid="V1-vao5vfns">
-    <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g">
+    <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g" sid="S1-q3br7ee4">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -349,7 +349,7 @@
   </tam>
 
   <tam title="Reverse Cut the Diamond" from="Point-to-Point Diamonds 6" vid="V1-3cto1ndh">
-    <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4">
+    <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4" sid="S1-3slustkg">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -370,7 +370,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Right-Hand Diamond" vid="V1-s9y77aeq">
-    <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg">
+    <formation fid="F3-f4mg9jy6" aid="A1-mim05bcg" sid="S1-9gj6a4n0">
       <dancer gender="boy" y="0" x="3" angle="270" />
       <dancer gender="girl" y="-1" x="0" angle="180" />
     </formation>
@@ -527,7 +527,7 @@
 
   <tam title="Reverse Flip the Diamond"
        from="Interlocked Diamonds 4" vid="V1-v2yyg5ff">
-    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8">
+    <formation fid="F3-xyg0xcme" aid="A1-rll1cxm8" sid="S1-1gozgxr4">
       <dancer gender="boy" x="0" y="-3" angle="0"/>
       <dancer gender="girl" x="-3" y="-2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -609,7 +609,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 3" vid="V1-tl0w71w1">
-    <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4">
+    <formation fid="F3-xxr0mjl4" aid="A1-v8tzd5g4" sid="S1-d02kdgtc">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>
@@ -630,7 +630,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 4" vid="V1-u65j9pke">
-    <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0">
+    <formation fid="F3-y2gx8fh4" aid="A1-nwpj44c0" sid="S1-f2k633ws">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="0"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -651,7 +651,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 5" vid="V1-r832a2nb">
-    <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g">
+    <formation fid="F3-dpl1mx4o" aid="A1-aqqxb58g" sid="S1-q3br7ee4">
       <dancer gender="boy" x="-1" y="-3" angle="270"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="270"/>
@@ -672,7 +672,7 @@
   </tam>
 
   <tam title="Reverse Flip the Diamond" from="Point-to-Point Diamonds 6" vid="V1-gl8ef2du">
-    <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4">
+    <formation fid="F3-ee301ytk" aid="A1-i9dm0yo4" sid="S1-3slustkg">
       <dancer gender="boy" x="-1" y="-3" angle="90"/>
       <dancer gender="girl" x="0" y="-1" angle="180"/>
       <dancer gender="boy" x="1" y="-3" angle="90"/>

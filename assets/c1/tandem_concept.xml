@@ -640,7 +640,7 @@
   </tam>
 
   <tam title="Tandem Quarter Thru" group="Tandem" fractions="2" vid="V1-pq1jalpa">
-     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>

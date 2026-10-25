@@ -23,7 +23,7 @@
 <tamination title="Funny Concept">
 
   <tam title="Funny Split Circulate 2" group="Funny" parts="3" vid="V1-6dihkfwe">
-     <formation fid="F3-7fdwrg6w" aid="A1-drknye0g">
+     <formation fid="F3-7fdwrg6w" aid="A1-drknye0g" sid="S1-qttmgzda">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="180"/>
@@ -50,7 +50,7 @@
   </tam>
 
   <tam title="Funny Diamond Circulate" group="Funny" vid="V1-yiwqvfx9">
-     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc">
+     <formation fid="F3-ehs0d26m" aid="A1-fg51xrlc" sid="S1-sxnnumzo">
       <dancer gender="boy" x="-3" y="0" angle="90"/>
       <dancer gender="girl" x="-2" y="3" angle="0"/>
       <dancer gender="boy" x="-1" y="0" angle="270"/>
@@ -74,7 +74,7 @@
   <tam title="Funny Slide Thru 9 Times" group="Funny"
        sequencer="gender-specific"
        parts="3;3;3;3;3;3;3;3" vid="V1-cu9ekkei">
-     <formation fid="F3-j0fitg98" aid="A1-lotiuxkk">
+     <formation fid="F3-j0fitg98" aid="A1-lotiuxkk" sid="S1-0b0vlz7s">
       <dancer gender="girl" x="-3" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="-3" angle="90"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
@@ -148,7 +148,7 @@
     </taminator>
   </tam>
   <tam title="Funny Square Thru 3" group="Funny" from="Funny Lines" parts="4;2.5" vid="V1-lvlcjc2a">
-    <formation fid="F3-siomu2h6" aid="A1-6t8ruais">
+    <formation fid="F3-siomu2h6" aid="A1-6t8ruais" sid="S1-ft0hsc8y">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
       <dancer gender="girl" x="-1" y="2" angle="180"/>

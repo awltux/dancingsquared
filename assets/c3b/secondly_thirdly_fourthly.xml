@@ -73,7 +73,7 @@
   </tam>
 
   <tam title="Secondly Tandem Reset" group="Secondly" fractions="3;3;3" vid="V1-tjluss69">
-    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-jiiu8lmk">
       <dancer gender="girl" y="1" x="1" angle="270"/>
       <dancer gender="boy" y="3" x="1" angle="270"/>
       <dancer gender="girl" y="3" x="-1" angle="90"/>

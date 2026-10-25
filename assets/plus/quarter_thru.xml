@@ -25,7 +25,7 @@
   <tam title="Quarter Thru"
        from="Right-Hand Box"
        parts="1.5"  vid="V1-yd12t264">
-    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9">
+    <formation fid="F3-nqygzvp3" aid="A1-b0hdpgj9" sid="S1-15hybw4k">
       <dancer gender="boy" y="2" x="1" angle="270"/>
       <dancer gender="girl" y="2" x="-1" angle="90"/>
     </formation>

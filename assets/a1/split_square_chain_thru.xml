@@ -99,7 +99,7 @@
   <tam title="Split Square Chain Thru"
        from="Center Wave"
        parts="1;2;6"  vid="V1-d3gfi93o">
-    <formation fid="F3-tpbvr6qa" aid="A1-sfuhwv80">
+    <formation fid="F3-tpbvr6qa" aid="A1-sfuhwv80" sid="S1-p3lx4lso">
       <dancer gender="boy" x="-1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
       <dancer gender="boy" x="0" y="1.5" angle="0"/>
@@ -287,7 +287,7 @@
   <tam title="Left Split Square Chain Thru"
        from="T-Bones, Center Wave"
        parts="1;2;6"  vid="V1-ie53pqeq">
-    <formation fid="F3-8xcr0wxi" aid="A1-hisj0sdi">
+    <formation fid="F3-8xcr0wxi" aid="A1-hisj0sdi" sid="S1-bomqyirs">
       <dancer gender="boy" x="-1" y="3" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
       <dancer gender="boy" x="0" y=".5" angle="0"/>

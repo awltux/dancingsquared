@@ -77,7 +77,7 @@
   </tam>
 
   <tam title="Rip Off" from="Magic Columns" vid="V1-bqf24ugs">
-    <formation fid="F3-3zu9lyyj" aid="A1-3r4zgz9r">
+    <formation fid="F3-3zu9lyyj" aid="A1-3r4zgz9r" sid="S1-6vj4v49g">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>
@@ -115,7 +115,7 @@
   </tam>
 
   <tam title="Mirror Rip Off" from="Magic Columns" vid="V1-tygl7wd5">
-    <formation fid="F3-3zu9lyyj" aid="A1-3r4zgz9r">
+    <formation fid="F3-3zu9lyyj" aid="A1-3r4zgz9r" sid="S1-6vj4v49g">
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="1" angle="180"/>
       <dancer gender="boy" x="1" y="-1" angle="0"/>

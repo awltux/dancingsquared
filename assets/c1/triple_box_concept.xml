@@ -23,7 +23,7 @@
 <tamination title="Triple Box Concept">
 
   <tam title="Triple Box Circulate" group="Triple Box" vid="V1-lj5tuwct">
-    <formation fid="F3-k39vf938" aid="A1-i33i8ka2">
+    <formation fid="F3-k39vf938" aid="A1-i33i8ka2" sid="S1-ngsi14ww">
       <dancer gender="boy" x="2" y="3" angle="0"/>
       <dancer gender="girl" x="2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
@@ -52,7 +52,7 @@
   </tam>
 
   <tam title="Triple Box Counter Rotate" group="Triple Box" vid="V1-n6t6sizq">
-    <formation fid="F3-f3ytl3sw" aid="A1-14vlwysy">
+    <formation fid="F3-f3ytl3sw" aid="A1-14vlwysy" sid="S1-0sutxzd6">
       <dancer gender="boy" x="2" y="5" angle="0"/>
       <dancer gender="girl" x="2" y="3" angle="180"/>
       <dancer gender="girl" x="2" y="1" angle="180"/>
@@ -208,7 +208,7 @@
   </tam>
 
   <tam title="Triple Box Pass the Ocean" group="Triple Box" vid="V1-prtwrowo">
-    <formation fid="F3-0pksxc4i" aid="A1-oog05hc4">
+    <formation fid="F3-0pksxc4i" aid="A1-oog05hc4" sid="S1-acgn09ww">
       <dancer gender="boy" x="1" y="5" angle="270"/>
       <dancer gender="girl" x="-1" y="5" angle="270"/>
       <dancer gender="boy" x="1" y="1" angle="270"/>
@@ -243,7 +243,7 @@
   </tam>
 
   <tam title="Triple Box Peel and Trail" group="Triple Box" vid="V1-6nfeks43">
-    <formation fid="F3-4ewj7tpw" aid="A1-4xfk759y">
+    <formation fid="F3-4ewj7tpw" aid="A1-4xfk759y" sid="S1-b6mj2gbc">
       <dancer gender="boy" x="-1" y="5" angle="90"/>
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
@@ -486,7 +486,7 @@
   </tam>
 
   <tam title="Triple Line Turn and Deal" group="Triple Line" vid="V1-k6gwvxi8">
-    <formation fid="F3-lrvlmnlr" aid="A1-12p3p4zn">
+    <formation fid="F3-lrvlmnlr" aid="A1-12p3p4zn" sid="S1-5mytnq62">
       <dancer gender="boy" x="4" y="3" angle="0"/>
       <dancer gender="girl" x="4" y="1" angle="0"/>
       <dancer gender="girl" x="0" y="1" angle="0"/>
@@ -515,7 +515,7 @@
   </tam>
 
   <tam title="Triple Wave 2/3 Recycle" group="Triple Wave" vid="V1-ovhto00r">
-    <formation fid="F3-xlusuvgt" aid="A1-383c6pox">
+    <formation fid="F3-xlusuvgt" aid="A1-383c6pox" sid="S1-7agnoxvw">
       <dancer gender="boy" x="4" y="-1" angle="0"/>
       <dancer gender="girl" x="4" y="-3" angle="180"/>
       <dancer gender="girl" x="0" y="1" angle="180"/>
@@ -544,7 +544,7 @@
   </tam>
 
   <tam title="Triple Wave Recycle" group="Triple Wave" vid="V1-s1yhzu9a">
-    <formation fid="F3-gkqh4598" aid="A1-2jrsgmrw">
+    <formation fid="F3-gkqh4598" aid="A1-2jrsgmrw" sid="S1-26lcdlyw">
       <dancer gender="boy" x="0" y="3.5" angle="0"/>
       <dancer gender="girl" x="0" y="2.5" angle="180"/>
       <dancer gender="girl" x="0" y="1.5" angle="0"/>

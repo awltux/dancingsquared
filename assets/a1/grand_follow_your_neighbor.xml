@@ -23,7 +23,7 @@
 <tamination title="Grand Follow Your Neighbor">
 
   <tam title="Grand Follow Your Neighbor" from="Right-Hand Columns" vid="V1-3pah1o8u">
-  <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+  <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="-1" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>
@@ -80,7 +80,7 @@
   </tam>
 
   <tam title="Grand Follow Your Neighbor" from="Right-Hand Columns of 6" vid="V1-1pko8gdo">
-    <formation fid="F3-3xrbiews" aid="A1-1jn093gq">
+    <formation fid="F3-3xrbiews" aid="A1-1jn093gq" sid="S1-arg0jrxx">
       <dancer gender="girl" x="1" y="-2" angle="270"/>
       <dancer gender="boy" x="1" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="2" angle="270"/>
@@ -104,7 +104,7 @@
   </tam>
 
   <tam title="Grand Follow Your Neighbor" from="Left-Hand Columns of 6" vid="V1-8p81hak8">
-    <formation fid="F3-sdcmdl6f" aid="A1-d7ifd5p5">
+    <formation fid="F3-sdcmdl6f" aid="A1-d7ifd5p5" sid="S1-ze6pxkzl">
       <dancer gender="girl" x="1" y="-2" angle="90"/>
       <dancer gender="boy" x="1" y="0" angle="90"/>
       <dancer gender="girl" x="1" y="2" angle="90"/>
@@ -128,7 +128,7 @@
   </tam>
 
   <tam title="Grand Follow Your Neighbor and Spread" from="Right-Hand Columns" vid="V1-dq0zzas8">
-  <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+  <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="-1" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>

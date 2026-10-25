@@ -60,7 +60,7 @@
 
   <tam title="Inlet"
        from="3 and 1 Lines" vid="V1-wp76sxos">
-     <formation fid="F3-km139yvj" aid="A1-oxqajud5">
+     <formation fid="F3-km139yvj" aid="A1-oxqajud5" sid="S1-3j1vqva8">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>

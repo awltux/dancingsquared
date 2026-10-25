@@ -23,7 +23,7 @@
 <tamination title="Parallelogram Concept">
 
   <tam title="Parallelogram Acey Deucey" from="" group="Parallelogram" vid="V1-v98w8698">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Parallelogram Bend the Line" from="" group="Parallelogram" vid="V1-kdvx9pol">
-     <formation fid="F3-zxowtkrk" aid="A1-6dykt7i0">
+     <formation fid="F3-zxowtkrk" aid="A1-6dykt7i0" sid="S1-t7dw2qc2">
       <dancer gender="girl" x="-2" y="1" angle="180"/>
       <dancer gender="boy" x="-2" y="-1" angle="180"/>
       <dancer gender="boy" x="-2" y="-3" angle="180"/>
@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Parallelogram Cast Off 3/4" from="" group="Parallelogram" vid="V1-71oqkzn1">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Parallelogram In Roll Circulate" from="" group="Parallelogram" vid="V1-65u1x0xf">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -107,7 +107,7 @@
   </tam>
 
   <tam title="Parallelogram Pass the Ocean" from="" group="Parallelogram" vid="V1-2lvd56gc">
-     <formation fid="F3-o3whua9s" aid="A1-0st16upm">
+     <formation fid="F3-o3whua9s" aid="A1-0st16upm" sid="S1-s9nrwo6o">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
@@ -132,7 +132,7 @@
   </tam>
 
   <tam title="Parallelogram Recycle" from="" group="Parallelogram" vid="V1-n9h7rlsq">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -155,7 +155,7 @@
   </tam>
 
   <tam title="Parallelogram Scoot Back" from="" group="Parallelogram" vid="V1-yrwhuazy">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -180,7 +180,7 @@
   </tam>
 
   <tam title="Parallelogram Slide Thru" from="" group="Parallelogram" vid="V1-lrk7c8qi">
-     <formation fid="F3-o3whua9s" aid="A1-0st16upm">
+     <formation fid="F3-o3whua9s" aid="A1-0st16upm" sid="S1-s9nrwo6o">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>
@@ -205,7 +205,7 @@
   </tam>
 
   <tam title="Parallelogram Split Circulate" from="" group="Parallelogram" vid="V1-yag9ci05">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>
@@ -226,7 +226,7 @@
   </tam>
 
   <tam title="Parallelogram Walk and Dodge" from="" group="Parallelogram" vid="V1-4b68wu3a">
-     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue">
+     <formation fid="F3-kkxv8e4w" aid="A1-p0o2v1ue" sid="S1-l83h7d10">
       <dancer gender="boy" x="-2" y="1" angle="0"/>
       <dancer gender="girl" x="-2" y="-1" angle="180"/>
       <dancer gender="girl" x="-2" y="-3" angle="0"/>

@@ -43,7 +43,7 @@
   </tam>
 
   <tam title="Release Crossfire" group="Release" fractions="3" vid="V1-rxfz402s">
-    <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus">
+    <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus" sid="S1-o2f05c4g">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -70,7 +70,7 @@
   </tam>
 
   <tam title="Release Cycle and Wheel" group="Release" fractions="3" vid="V1-qehuph4h">
-    <formation fid="F3-00kg8wpm" aid="A1-xsu0sig6">
+    <formation fid="F3-00kg8wpm" aid="A1-xsu0sig6" sid="S1-hqvtylgc">
       <dancer gender="girl" x="0" y="1" angle="0"/>
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>
@@ -96,7 +96,7 @@
   </tam>
 
   <tam title="Release Left Turn and Deal" group="Release" fractions="3" vid="V1-d6u6cjob">
-    <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus">
+    <formation fid="F3-w1f29bwo" aid="A1-mf6r3yus" sid="S1-o2f05c4g">
       <dancer gender="boy" x="-3" y="1" angle="180"/>
       <dancer gender="girl" x="-3" y="-1" angle="0"/>
       <dancer gender="boy" x="0" y="-1" angle="0"/>
@@ -151,7 +151,7 @@
   </tam>
 
   <tam title="Release Offset Waves Out Roll Circulate" group="Release" fractions="3" vid="V1-yw9gt7p9">
-    <formation fid="F3-roc084t6" aid="A1-oartgelk">
+    <formation fid="F3-roc084t6" aid="A1-oartgelk" sid="S1-plz8y0gc">
       <dancer gender="girl" x="0" y="1" angle="180"/>
       <dancer gender="boy" x="0" y="3" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="180"/>

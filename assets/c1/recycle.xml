@@ -138,7 +138,7 @@
   </tam>
 
   <tam title="All Eight Recycle" from="I-Beam 2" vid="V1-6wn8lsa9">
-    <formation fid="F3-zyopwyj5" aid="A1-rkuk5u3d">
+    <formation fid="F3-zyopwyj5" aid="A1-rkuk5u3d" sid="S1-elasdvy6">
       <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
       <dancer gender="girl" x="1" y="-3.5" angle="90"/>
       <dancer gender="boy" x="0" y="-2" angle="0"/>
@@ -162,7 +162,7 @@
   </tam>
 
   <tam title="All Eight Recycle" from="I-Beam 3" vid="V1-pn5z99o7">
-    <formation fid="F3-zcucexl1" aid="A1-phqmg9tz">
+    <formation fid="F3-zcucexl1" aid="A1-phqmg9tz" sid="S1-hv7qd2wm">
       <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
       <dancer gender="girl" x="1" y="-3.5" angle="270"/>
       <dancer gender="boy" x="0" y="-2" angle="180"/>
@@ -186,7 +186,7 @@
   </tam>
 
   <tam title="All Eight Recycle" from="I-Beam 4" vid="V1-u6jgt7cj">
-    <formation fid="F3-n22zkro1" aid="A1-idu4r4wp">
+    <formation fid="F3-n22zkro1" aid="A1-idu4r4wp" sid="S1-b2gjdoq6">
       <dancer gender="boy" x="-1" y="-3.5" angle="270"/>
       <dancer gender="girl" x="1" y="-3.5" angle="90"/>
       <dancer gender="boy" x="0" y="-2" angle="0"/>
@@ -278,7 +278,7 @@
   </tam>
 
   <tam title="All 8 Cycle and Wheel" from="I-Beam 5" vid="V1-0fmjt7jz">
-    <formation fid="F3-uqx6mk3x" aid="A1-z43p96yz">
+    <formation fid="F3-uqx6mk3x" aid="A1-z43p96yz" sid="S1-15a3l06a">
       <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
       <dancer gender="girl" x="1" y="-3.5" angle="90"/>
       <dancer gender="boy" x="0" y="-2" angle="180"/>
@@ -301,7 +301,7 @@
   </tam>
 
   <tam title="All 8 Cycle and Wheel" from="I-Beam 6" vid="V1-gq2v0jio">
-    <formation fid="F3-35qoilp7" aid="A1-d1poeust">
+    <formation fid="F3-35qoilp7" aid="A1-d1poeust" sid="S1-ilaznc7e">
       <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
       <dancer gender="girl" x="1" y="-3.5" angle="90"/>
       <dancer gender="boy" x="0" y="-2" angle="0"/>
@@ -324,7 +324,7 @@
   </tam>
 
   <tam title="All 8 Cycle and Wheel" from="I-Beam 7" vid="V1-3w33ychp">
-    <formation fid="F3-wnj3fj3p" aid="A1-2j660euf">
+    <formation fid="F3-wnj3fj3p" aid="A1-2j660euf" sid="S1-qs7is7ee">
       <dancer gender="boy" x="-1" y="-3.5" angle="90"/>
       <dancer gender="girl" x="1" y="-3.5" angle="270"/>
       <dancer gender="boy" x="0" y="-2" angle="180"/>
@@ -345,7 +345,7 @@
   </tam>
 
   <tam title="All 8 Cycle and Wheel" from="I-Beam 8" vid="V1-g1gf810h">
-    <formation fid="F3-x03bltff" aid="A1-ogqfzy7x">
+    <formation fid="F3-x03bltff" aid="A1-ogqfzy7x" sid="S1-0zuzl00q">
       <dancer gender="boy" x="-1" y="-3.5" angle="270"/>
       <dancer gender="girl" x="1" y="-3.5" angle="90"/>
       <dancer gender="boy" x="0" y="-2" angle="0"/>

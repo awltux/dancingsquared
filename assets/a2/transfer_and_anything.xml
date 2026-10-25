@@ -65,7 +65,7 @@
   </tam>
 
   <tam title="Transfer and" from="T-Bones 1" vid="V1-feu0wive">
-    <formation fid="F3-olxqsvcv" aid="A1-x5l38lrp">
+    <formation fid="F3-olxqsvcv" aid="A1-x5l38lrp" sid="S1-awnwbr3i">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -91,7 +91,7 @@
   </tam>
 
   <tam title="Transfer and" from="T-Bones 2" vid="V1-58fybah3">
-    <formation fid="F3-pwh54y57" aid="A1-5do2wkup">
+    <formation fid="F3-pwh54y57" aid="A1-5do2wkup" sid="S1-htv7ijne">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="0"/>
@@ -117,7 +117,7 @@
   </tam>
 
   <tam title="Transfer and" from="T-Bones 3" vid="V1-kfop49e1">
-    <formation fid="F3-2fwd44ic" aid="A1-c4wsesoo">
+    <formation fid="F3-2fwd44ic" aid="A1-c4wsesoo" sid="S1-zq6rlhw0">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -143,7 +143,7 @@
   </tam>
 
   <tam title="Transfer and" from="T-Bones 4" vid="V1-qjgegfed">
-    <formation fid="F3-43oqwpra" aid="A1-hk8rk5by">
+    <formation fid="F3-43oqwpra" aid="A1-hk8rk5by" sid="S1-o3gszyfw">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="270"/>
@@ -244,7 +244,7 @@
   </tam>
 
   <tam title="Transfer and Crossfire" group="Transfer and" vid="V1-5funk1g6">
-     <formation fid="F3-olxqsvcv" aid="A1-x5l38lrp">
+     <formation fid="F3-olxqsvcv" aid="A1-x5l38lrp" sid="S1-awnwbr3i">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -273,7 +273,7 @@
   </tam>
 
   <tam title="Transfer and Cut the Diamond" group="Transfer and" vid="V1-0isx8ed2">
-     <formation fid="F3-2fwd44ic" aid="A1-c4wsesoo">
+     <formation fid="F3-2fwd44ic" aid="A1-c4wsesoo" sid="S1-zq6rlhw0">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="90"/>
@@ -329,7 +329,7 @@
   </tam>
 
   <tam title="Transfer and Peel and Trail" group="Transfer and" vid="V1-pad7ma0t">
-     <formation fid="F3-462oelr2" aid="A1-w7khqvvk">
+     <formation fid="F3-462oelr2" aid="A1-w7khqvvk" sid="S1-u8f37g9q">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="1" angle="90"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -358,7 +358,7 @@
   </tam>
 
   <tam title="Transfer and Peel the Top" group="Transfer and" vid="V1-yrpgwyg1">
-     <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b">
+     <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b" sid="S1-v8eupt2k">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="90"/>
@@ -389,7 +389,7 @@
 
   <tam title="Transfer and Quarter Thru"
        from="Columns" group="Transfer and" vid="V1-i0erd2hm">
-     <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b">
+     <formation fid="F3-lcwes2cr" aid="A1-qut2ms5b" sid="S1-v8eupt2k">
       <dancer gender="girl" x="-1" y="3" angle="90"/>
       <dancer gender="boy" x="-1" y="-1" angle="90"/>
       <dancer gender="girl" x="-1" y="1" angle="90"/>
@@ -471,7 +471,7 @@
   </tam>
 
   <tam title="Transfer and Turn and Deal" group="Transfer and" vid="V1-4b2jtqi7">
-     <formation fid="F3-pwh54y57" aid="A1-5do2wkup">
+     <formation fid="F3-pwh54y57" aid="A1-5do2wkup" sid="S1-oa61iblu">
       <dancer gender="girl" x="1" y="3" angle="90"/>
       <dancer gender="boy" x="1" y="1" angle="90"/>
       <dancer gender="girl" x="1" y="-1" angle="180"/>

@@ -23,7 +23,7 @@
 <tamination title="Open Up the Column">
 
   <tam title="Open Up the Column" from="Right-Hand Columns" fractions="3;4.5" vid="V1-jj46iuu9">
-    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+    <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" y="3" x="-1" angle="90"/>
       <dancer gender="boy" y="1" x="-1" angle="90"/>
       <dancer gender="girl" y="-1" x="-1" angle="90"/>
@@ -74,7 +74,7 @@
   </tam>
 
   <tam title="2 By 1 Open Up the Column" from="Columns of 3" vid="V1-0innwj1f">
-    <formation fid="F3-3xrbiews" aid="A1-tx5fag4u">
+    <formation fid="F3-3xrbiews" aid="A1-tx5fag4u" sid="S1-5swrstz5">
       <dancer gender="boy"     y="2" x="1" angle="270" />
       <dancer gender="boy"     y="0"  x="1" angle="270" />
       <dancer gender="girl"    y="-2"  x="1" angle="270" />

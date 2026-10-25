@@ -166,7 +166,7 @@
 
   <tam title="Dixie Grand" from="Trade By" formation="Trade By"
        parts="3;2" difficulty="2" vid="V1-0jqec0im">
-    <formation fid="F3-39npqtaz" aid="A1-qkw66agr">
+    <formation fid="F3-39npqtaz" aid="A1-qkw66agr" sid="S1-jmaja134">
       <dancer gender="girl" x="-3" y="1" angle="180"/>
       <dancer gender="boy" x="3" y="1" angle="0"/>
       <dancer gender="girl" x="-1" y="-1" angle="0"/>
@@ -298,7 +298,7 @@
 
   <tam title="Dixie Grand" from="Magic Columns Right-Hand Centers" parts="2;3"
        difficulty="2" vid="V1-llfzxv9v">
-    <formation fid="F3-dy4b34sl" aid="A1-pjjbrfqb">
+    <formation fid="F3-dy4b34sl" aid="A1-pjjbrfqb" sid="S1-0ek9ljy4">
       <dancer gender="boy" x="-1" y="1" angle="0"/>
       <dancer gender="girl" x="3" y="-1" angle="0"/>
       <dancer gender="boy" x="-1" y="-1" angle="180"/>
@@ -336,7 +336,7 @@
 
   <tam title="Dixie Grand" from="Magic Columns Left-Hand Centers" parts="2;3"
        difficulty="2" vid="V1-v0r79ye5">
-    <formation fid="F3-3zu9lyyj" aid="A1-sxyzjgbn">
+    <formation fid="F3-3zu9lyyj" aid="A1-sxyzjgbn" sid="S1-d40mjwnc">
       <dancer gender="boy" x="-3" y="1" angle="0"/>
       <dancer gender="girl" x="1" y="-1" angle="0"/>
       <dancer gender="boy" x="-3" y="-1" angle="180"/>

@@ -25,7 +25,7 @@
   <tam title="Grand Quarter Thru"
        from="Right-Hand Columns"
        parts="2"  vid="V1-4fdwmnoz">
-     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj">
+     <formation fid="F3-lcwes2cr" aid="A1-3qe98uwj" sid="S1-ip5eii9o">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="-1" angle="270"/>
       <dancer gender="girl" x="1" y="1" angle="270"/>
@@ -49,7 +49,7 @@
   </tam>
 
   <tam title="Grand Quarter Thru" from="Right-Hand Columns of 6" parts="2" vid="V1-3ntaymeg">
-    <formation fid="F3-76pg7qim" aid="A1-id85x5va">
+    <formation fid="F3-76pg7qim" aid="A1-id85x5va" sid="S1-lw2thfqv">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
@@ -109,7 +109,7 @@
   </tam>
 
   <tam title="Grand Left Quarter Thru" from="Left-Hand Columns of 6" vid="V1-9iextzoq">
-    <formation fid="F3-yhjzm6r3" aid="A1-fxvn8w11">
+    <formation fid="F3-yhjzm6r3" aid="A1-fxvn8w11" sid="S1-mfulcur7">
       <dancer gender="girl" x="1" y="-3" angle="90"/>
       <dancer gender="boy" x="1" y="0" angle="90"/>
       <dancer gender="girl" x="1" y="3" angle="90"/>
@@ -173,7 +173,7 @@
   </tam>
 
   <tam title="Grand 3/4 Thru" from="Right-Hand Columns of 6" parts="4.5" vid="V1-nl36gzru">
-    <formation fid="F3-76pg7qim" aid="A1-id85x5va">
+    <formation fid="F3-76pg7qim" aid="A1-id85x5va" sid="S1-lw2thfqv">
       <dancer gender="girl" x="1" y="-3" angle="270"/>
       <dancer gender="boy" x="1" y="0" angle="270"/>
       <dancer gender="girl" x="1" y="3" angle="270"/>
@@ -243,7 +243,7 @@
   </tam>
 
   <tam title="Grand Left 3/4 Thru" from="Left-Hand Columns of 6" parts="4.5" vid="V1-dxsxct58">
-    <formation fid="F3-yhjzm6r3" aid="A1-fxvn8w11">
+    <formation fid="F3-yhjzm6r3" aid="A1-fxvn8w11" sid="S1-mfulcur7">
       <dancer gender="girl" x="1" y="-3" angle="90"/>
       <dancer gender="boy" x="1" y="0" angle="90"/>
       <dancer gender="girl" x="1" y="3" angle="90"/>

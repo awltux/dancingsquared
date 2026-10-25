@@ -23,7 +23,7 @@
 <tamination title="Reverse The Top">
 
   <tam title="Reverse the Top" from="Facing Couples" parts="6.5" vid="V1-n5tcebxo">
-    <formation fid="F3-nlnlii69" aid="A1-6r10ge6d">
+    <formation fid="F3-nlnlii69" aid="A1-6r10ge6d" sid="S1-23wt186o">
       <dancer gender="boy" y="2" x="1" angle="270" />
       <dancer gender="girl" y="2" x="-1" angle="270" />
     </formation>

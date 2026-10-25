@@ -1060,7 +1060,7 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
     // reference into `formations.xml`.
     formation: null,
     // An EDITOR-authored bundle starts from a board, not from a corpus definition, so it has no stored tags.
-    formationTag: { fid: null, aid: null },
+    formationTag: { fid: null, aid: null, sid: null },
     // THE SAME BODY: a synthesised setup re-poses the call on a different start set, which cannot change how it goes.
     // Leaving it off would make a `- Far` authoring indistinguishable from a plain one once re-posed.
     going: core.going,
@@ -1168,7 +1168,7 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
     // NULL, for the same reason as `synthesizeSetup`: an EMBED-mode authoring with a user's label.
     formation: null,
     // An EDITOR-authored bundle starts from a board, not from a corpus definition, so it has no stored tags.
-    formationTag: { fid: null, aid: null },
+    formationTag: { fid: null, aid: null, sid: null },
     going: coreA.going,
     parts: coreA.parts,
     taminator: coreA.taminator,

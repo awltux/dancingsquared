@@ -1,23 +1,25 @@
-// A SETUP'S IDENTITY IS THE ARRANGEMENT **AND** THE ORDER THE EIGHT PHYSICAL DANCERS ARE LISTED IN.
+// A SETUP'S IDENTITY IS THE ARRANGEMENT **AND** THE ORDER THE DANCERS ARE LISTED IN, AT ANY SIZE.
 //
 // WHAT THIS HARNESS PINS. Section 1 the format, that it is the shared encoder rather than a copy, and that it is a
-// different string from the arrangement and formation ids; 2 the EIGHT-PHYSICAL guard, which is what separates it
-// from `dancers.length === 8`; 3 that a phantom is not in the key at all, wherever it sits in the array, and that
-// the engine's identity stamps (`id`, `couple`) are not either; 4 the invariances (rotation, translation) and the
-// one thing that must NOT be invariant - the ARRAY ORDER - with `arrangementId` run beside every split as the
-// control, because "the arrangement is enough" is exactly the plausible wrong rule and it is the rule this scheme
-// exists to replace; 5 that the canonicalisation is the arrangement's plus a suffix, which is what keeps the two
-// schemes one mechanism; 6 the HALF-SET rule, against `reconstituteWholeSet`: a half and its COMPLEMENTARY half are
-// one setup; 7 the rotationally symmetric case, where the arrangement canonicalisation has a tie and the order
-// string is what resolves it; 8 the control in the other direction - a scheme built from the order alone collides
-// on a gender relabelling.
+// different string from the arrangement and formation ids; 2 that EVERY size mints one (2, 4, 6 and 8 all, four
+// distinct ids) and that the only refusal is a board with no physical dancers - the eight-PHYSICAL guard this
+// scheme first shipped with is deliberately gone, because a formation DEFINITION writes whatever size it writes; 3
+// that a phantom is not in the key at all, wherever it sits in the array, and that the engine's identity stamps
+// (`id`, `couple`) are not either; 4 the invariances (rotation, translation) and the one thing that must NOT be
+// invariant - the ARRAY ORDER - with `arrangementId` run beside every split as the control, because "the arrangement
+// is enough" is exactly the plausible wrong rule and it is the rule this scheme exists to replace; 5 that the
+// canonicalisation is the arrangement's plus a suffix, which is what keeps the two schemes one mechanism; 6 the
+// HALF-SET rule, against `reconstituteWholeSet`: a half and its COMPLEMENTARY half are one setup; 7 the rotationally
+// symmetric case, where the arrangement canonicalisation has a tie and the order string is what resolves it; 8 the
+// control in the other direction - a scheme built from the order alone collides on a gender relabelling.
 //
-// WHAT IS NOT HERE. The corpus population (how many distinct setups the eight-physical authoring starts and the
-// generated instances carry) is pinned by `identity-census.mjs`, which walks the corpus and is not a light gate.
+// WHAT IS NOT HERE. The corpus population (how many distinct setups the authoring starts and the generated
+// instances carry, and how many definitions share one) is pinned by `identity-census.mjs` and by
+// `scripts/tag-formations.mjs`'s report, neither of which is a light gate.
 //
 // Run: node test/setup-id.mjs   (from engine/; the engine must be built)
 import {
-  setupId, setupCanonical, isSetupId, isPhysicalDancer, SETUP_DANCERS, SETUP_ID_VERSION,
+  setupId, setupCanonical, isSetupId, isPhysicalDancer, SETUP_ID_VERSION,
   formationId, arrangementId, arrangementCanonical, canonicalOf, encodeId, fnv1a64,
   makeSquaredSet, reconstituteWholeSet,
 } from '../dist/index.js';
@@ -67,18 +69,30 @@ check(!isSetupId(formationId(home)), 'and a formation id');
 check(!isSetupId('Circle'), 'and a formation name');
 check(!isSetupId(id.slice(0, -1)) && !isSetupId(`${id}q`), 'and a short and a long payload');
 
-console.log('== 2. the eight-PHYSICAL guard, not a count of array entries ==');
-check(SETUP_DANCERS === 8, `a setup is ${SETUP_DANCERS} physical dancers`);
+console.log('== 2. ANY size, and only an empty physical set refuses ==');
 check(isPhysicalDancer({ gender: 'boy' }) && isPhysicalDancer({ gender: 'girl' }), 'a boy and a girl are physical');
 check(!isPhysicalDancer({ gender: 'phantom' }), 'a phantom gender is not');
 check(!isPhysicalDancer({ gender: 'boy', isGhost: true }), 'and a ghost is not, whatever its gender says');
+// THE RELAXED DEFINITION: a formation definition writes two dancers or eight, so a setup id must name the size it
+// is given. The count is in the key, so the sizes cannot collide.
+check(typeof setupCanonical(home) === 'string' && typeof id === 'string', 'an eight-dancer board gets a setup id');
+const sizes = new Map([['8', home]]);
+for (const n of [2, 4, 6]) {
+  const b = board(home.dancers.slice(0, n));
+  sizes.set(String(n), b);
+  check(typeof setupId(b) === 'string', `${n} dancers get a setup id too (the scheme names the size it is given)`);
+  check(setupCanonical(b) !== null, `and a canonicalisation (${n} dancers)`);
+}
+const sizeIds = [...sizes.entries()].map(([n, b]) => [n, setupId(b)]);
+check(new Set(sizeIds.map(([, sid]) => sid)).size === sizeIds.length,
+  `the four sizes mint four DIFFERENT ids (${sizeIds.map(([n, sid]) => `${n}:${sid}`).join(', ')})`);
 const seven = home.dancers.slice(0, 7);
-check(setupId(board(seven)) === null, 'seven dancers get no setup id');
-check(setupId(board([...seven, ghost(seven[0])])) === null, 'and neither do seven PHYSICAL dancers plus a ghost');
-check(setupId(board([...seven, phantomGender(seven[0])])) === null, 'nor seven plus a phantom-gender dancer');
-check(setupCanonical(board(seven)) === null, 'the canonicalisation refuses too, so no id can be built past the guard');
-for (const n of [2, 4, 6]) check(setupId(board(home.dancers.slice(0, n))) === null, `${n} dancers get no setup id`);
-check(typeof setupCanonical(home) === 'string' && typeof id === 'string', 'an eight-dancer board gets both');
+check(typeof setupId(board(seven)) === 'string', 'seven physical dancers are a setup of seven, not a refusal');
+// THE ONLY REFUSAL LEFT: nothing to name. A board whose every dancer is a phantom has no physical set.
+const allPhantom = board(home.dancers.map((d) => ({ ...d, gender: 'phantom' })));
+check(setupId(allPhantom) === null, 'a board with no physical dancers gets no setup id');
+check(setupCanonical(allPhantom) === null, 'and its canonicalisation refuses too, so no id can be built past it');
+check(setupId(board([])) === null, 'as does an empty board');
 
 console.log('== 3. a phantom is not in the key, wherever it sits ==');
 for (const at of [0, 3, 8]) {
@@ -153,14 +167,18 @@ console.log('== 6. the half-set rule: a half and its COMPLEMENTARY half are one 
   ];
   const asPlaced = (ds) => ds.map((d, i) => ({ id: i + 1, couple: 0, gender: d.gender, x: d.x, y: d.y, angleDeg: d.heading / DEG }));
   const asBoard = (ds) => board(ds.map((d) => ({ id: d.id, couple: d.couple, gender: d.gender, x: d.x, y: d.y, heading: d.angleDeg * DEG })));
-  check(setupId(asBoard(asPlaced(half))) === null, 'a written half is four physical dancers, so it is not a setup');
+  const halfId = setupId(asBoard(asPlaced(half)));
+  check(typeof halfId === 'string',
+    `a written half is a setup of FOUR dancers in its own right, now that the scheme names any size (${halfId})`);
   const whole = reconstituteWholeSet(asPlaced(half));
   const wholeId = setupId(asBoard(whole));
   check(whole.length === 8 && typeof wholeId === 'string', `the completion is the whole set (${whole.length} dancers, ${wholeId})`);
+  check(wholeId !== halfId, 'and the whole set is not the half: the count is part of the key, so a caller must complete first');
   const complement = whole.slice(4);
-  check(setupId(asBoard(complement)) === null, 'the other half on its own is four dancers, so it is not a setup either');
+  check(setupId(asBoard(complement)) === halfId,
+    'the COMPLEMENTARY half is the same four-dancer setup - it is that half turned 180 degrees, and the ids are rotation-invariant');
   check(setupId(asBoard(reconstituteWholeSet(complement))) === wholeId,
-    'completing the COMPLEMENTARY half mints the same setup id (it is the whole board turned 180 degrees)');
+    'completing the COMPLEMENTARY half mints the whole set\'s id (the whole board turned 180 degrees)');
   const reordered = [half[2], half[3], half[0], half[1]];
   const reorderedWhole = asBoard(reconstituteWholeSet(asPlaced(reordered)));
   check(arrangementId(reorderedWhole) === arrangementId(asBoard(whole)),

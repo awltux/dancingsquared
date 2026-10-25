@@ -23,7 +23,7 @@
 <tamination title="Interlocked Triangle Formation">
 
   <tam title="Inside Interlocked Triangle Circulate" group=" " vid="V1-14udxhd5">
-    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c">
+    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c" sid="S1-xynmdmfw">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-3" y="2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -44,7 +44,7 @@
   </tam>
 
   <tam title="Outside Interlocked Triangle Circulate" group=" " vid="V1-0bu49sd0">
-    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c">
+    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c" sid="S1-xynmdmfw">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-3" y="2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -64,7 +64,7 @@
   </tam>
 
   <tam title="Inpoint Interlocked Triangle Circulate" group=" " vid="V1-qredo7ck">
-    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c">
+    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c" sid="S1-xynmdmfw">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-3" y="2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>
@@ -86,7 +86,7 @@
   </tam>
 
   <tam title="Outpoint Interlocked Triangle Circulate" group=" " vid="V1-a9agqd2v">
-    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c">
+    <formation fid="F3-u0r62dn0" aid="A1-lo99kz4c" sid="S1-xynmdmfw">
       <dancer gender="boy" x="3" y="2" angle="270"/>
       <dancer gender="girl" x="-3" y="2" angle="90"/>
       <dancer gender="boy" x="0" y="-1" angle="180"/>

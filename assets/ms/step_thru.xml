@@ -95,7 +95,7 @@
   </tam>
 
   <tam title="Step Thru" from="Compact Right-Hand Waves" display="none" vid="V1-823rvpz1">
-    <formation fid="F3-hdi09wtx" aid="A1-v7fpom7v">
+    <formation fid="F3-hdi09wtx" aid="A1-v7fpom7v" sid="S1-2kudlywc">
       <dancer gender="boy" x="-2" y="1.5" angle="0"/>
       <dancer gender="girl" x="-2" y="0.5" angle="180"/>
       <dancer gender="girl" x="-2" y="-0.5" angle="0"/>
@@ -131,7 +131,7 @@
   </tam>
 
   <tam title="Step Thru" from="Compact Left-Hand Waves" display="none" vid="V1-bbgh3box">
-    <formation fid="F3-bl1dj7mx" aid="A1-pcosv3vn">
+    <formation fid="F3-bl1dj7mx" aid="A1-pcosv3vn" sid="S1-dn9nsj02">
       <dancer gender="boy" x="-2" y="1.5" angle="180"/>
       <dancer gender="girl" x="-2" y="0.5" angle="0"/>
       <dancer gender="girl" x="-2" y="-0.5" angle="180"/>

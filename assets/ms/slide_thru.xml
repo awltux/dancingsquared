@@ -67,7 +67,7 @@
 
   <tam title="Slide Thru" from="Sashayed Couples" sequencer="gender-specific"
        difficulty="2" vid="V1-dr0dqk9x">
-    <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv">
+    <formation fid="F3-4ro3p815" aid="A1-ay7rlwfv" sid="S1-xd57elhg">
       <dancer gender="boy" x="-1.5" y="-1" angle="0"/>
       <dancer gender="girl" x="-1.5" y="1" angle="0"/>
     </formation>
@@ -168,7 +168,7 @@
   <tam title="Slide Thru"
        from="Same Sex Facing" sequencer="gender-specific"
        difficulty="2" vid="V1-5i5ks2xo">
-     <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql">
+     <formation fid="F3-1r9s5bst" aid="A1-xo3wwqql" sid="S1-gbe5t2ps">
       <dancer gender="boy" x="-2" y="3" angle="0"/>
       <dancer gender="girl" x="-2" y="1" angle="0"/>
       <dancer gender="boy" x="-2" y="-3" angle="0"/>

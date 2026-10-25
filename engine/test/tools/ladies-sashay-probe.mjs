@@ -1,8 +1,9 @@
 // CAN THE SEQUENCER DANCE "Ladies In, Men Sashay" / "Girls Center, Boys Sashay"?
 //
 // Asked directly: "can the current sequencer now handle 'girls center, boys sashay'". The call is
-// authored in this repo as `Ladies In, Men Sashay` (CALLERLAB's title, and what `assets/src/
-// calls.xml` registers at b1 and ssd); the ceder corpus writes it `Ladies Center & Men Sashay`; the
+// authored in this repo as `Ladies In, Men Sashay` (CALLERLAB's title, and what `assets/src/calls.xml`'s
+// `b1/` and `ssd/` index rows name - both of those levels are retired now, and the rows are upstream
+// history); the ceder corpus writes it `Ladies Center & Men Sashay`; the
 // user's wording is the modern gender-neutral one for the same figure. All8's notation table calls it
 // `LyIMS` / "Ladies In And The Men Sashay".
 //

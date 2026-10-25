@@ -5983,3 +5983,43 @@ the filter and the picker rebuild that follow it were not driven in the browser)
 was not seen for a count that HAS formations. The probe suite also did not finish in the time available -
 it was still running after fifteen minutes, against a usual three, which is worth a look on its own and is
 NOT attributable to this change (no probe exercises these controls).
+
+**SSD RETIRED — measured, then removed from the ladder, the app level and the teacher's curriculum.** CALLERLAB's
+2025 vote replaced Basic, Mainstream and SSD with one Mainstream programme, effective 2026; the book has said so since
+it was written (`book/08-reference/programme-membership.md`), the code had not. `ssd` was the only level in
+`PERMISSION_LEVELS` with no directory in the corpus - it was a VIEW the POC synthesized from `assets/src/calls.xml`'s
+`ssd/…` links - so the work was three removals with one measured lead.
+
+MEASURED BEFORE REMOVING, and these are the numbers the commits carry:
+
+  * 72 `ssd/…` index rows, 58 distinct basenames. 57 resolve to a file the corpus already carries at `ms` or
+    `discovered`; ONE (`circle_to_a_line`) resolves to `plus/`, whose title is `Circle to a Line` - so the app's
+    synthesized level was **289 duplicate catalogue entries** plus ONE title presented as Mainstream, and its
+    Mainstream-and-below pool goes 324 -> 323.
+  * No shipped permission rule named `ssd`: all 17 rules in `permissions.ts` are at `ms`, so no rule's scope moved
+    when the entry left the order. `PermissionLevel` is deliberately `| string`, so the TESTS were the instrument,
+    not the type checker - `engine/test/permissions.mjs`'s order pins, its lone-deny fixture and its "a rule above
+    the active level is not consulted" case now use `discovered`, the earliest level left.
+  * THE LADDER AND THE CORPUS ARE NOW THE SAME SET: nine levels, nine directories, plus the `src` index.
+    `engine/test/corpus-inventory.mjs`'s folder gate loses its single documented exception (`NO_FOLDER` is empty) and
+    becomes an equality in both directions; the negative control still removes `ms` and requires the failure. The
+    missing-level tolerance keeps one witness, and it changes to `filesOf('b1')` - a retired level, no directory.
+  * THE TEACHER'S GATE WAS RED FOR A REASON THIS READ FOUND, not for SSD logic: its two built-in programmes named 12
+    calls the corpus does not carry (`All 4 Couples Promenade 1/4`, `Heads Lead Right`, `Circle Four Left Full`, …),
+    all in the 2026 programme's Session 1. Removing the SSD programme alone took `verify:teacher` from 3 failures to
+    2; retitling the 11 that have a corpus authoring took it to 1; and the twelfth - `All 4 Couples Wrong Way
+    Promenade 1/4` - has NO authoring anywhere (the family authors wrong-way 1/2, 3/4 and full only), so it is
+    dropped, with the reason on the programme's doc comment. `verify:teacher` is now **GREEN**, the first time in
+    this repo's record.
+
+WHAT WAS NOT DONE, deliberately: the 72 `ssd/…` rows in `assets/src/calls.xml` are left verbatim (upstream's index,
+and the record of what SSD contained - after the removal nothing reads them at runtime); `poc/src/data.ts`'s
+`sequencerCallsUpTo` still falls back to the HIGHEST level for a name the ladder does not know, which is unreachable
+from the UI now and is left as documented behaviour; and no browser was driven, so the level selector is claimed only
+at the data level (`availableLevels()` = the nine corpus levels).
+
+THE GATES, on the final tree: engine light tier 64 harnesses, 56 ok, the same 8 reds master carries by name;
+`poc/verify.cjs` the same 2; the POC probe suite 72 probes, the same 3; `verify:teacher` 3 failures -> 0;
+`check:book` green throughout. `npx tsc -p poc` was ALSO red on master before this work started -
+`poc/src/editor-ui.ts` was missing the `sid` field `c21a05c7` added to `FormationTag`, the same literal `7980688` had
+left behind once before - and that repair is its own commit here.

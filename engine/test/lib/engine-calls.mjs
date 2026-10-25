@@ -36,20 +36,18 @@ import { corpusRoot, filesOf, levelPath, pooledXmlOfTitle, titlesOf } from 'danc
 /**
  * The levels a harness walks: THE ENGINE'S OWN PROGRAMME ORDER, not a copy of it.
  *
- * This used to be a hand-kept list of the same ten names in the same order, and so did four harnesses and a
- * script - MEASURED before this change, `git grep -n "'discovered'"` found SEVEN copies of the sequence. Two
- * failures came with the copies, both silent: a level added to the engine's ladder (or to the corpus) would leave
- * every gate that walks a copy blind, and `ssd` names a level with NO asset directory (`permissions.ts` calls it "a
- * synthesized alias level", ordered between Basic and Mainstream by `calls.xml`), so the copies carried an entry
- * that `filesOf` answers `[]` for - and four harnesses then guarded that entry with `if (!existsSync(dir))
- * continue`, which is how a missing level reads as "nothing to do" instead of as a fact.
+ * This used to be a hand-kept list of the same names in the same order, and so did four harnesses and a script -
+ * MEASURED when it was consolidated, `git grep -n "'discovered'"` found SEVEN copies of the sequence. Two failures
+ * came with the copies, both silent: a level added to the engine's ladder (or to the corpus) would leave every gate
+ * that walks a copy blind, and a retired level could outlive its directory inside a list nobody re-reads (`ssd` was
+ * such an entry: synthesized by the POC, never an asset directory, retired with the 2026 CALLERLAB replacement).
  *
  * The engine owns the ORDER because a permission rule's scope IS the programme order (`levelRank`), and a corpus
  * walk needs the same order for the pooling rule `callsByTitle` documents. So this derives.
  *
- * WHAT DERIVING DOES NOT BUY, and `corpus-inventory.mjs` now checks: that every folder the corpus HAS is named
- * here. `levelsAvailable()` is the reader's answer to "which levels exist"; the ladder is the engine's answer to
- * "which levels are known"; they can disagree in the direction that hides a programme's calls from every gate.
+ * WHAT DERIVING DOES NOT BUY, and `corpus-inventory.mjs` checks: that every folder the corpus HAS is named here.
+ * `levelsAvailable()` is the reader's answer to "which levels exist"; the ladder is the engine's answer to "which
+ * levels are known"; they can disagree in the direction that hides a programme's calls from every gate.
  */
 export const ASSET_LEVELS = PERMISSION_LEVELS;
 

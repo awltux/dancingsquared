@@ -21,17 +21,23 @@ Declared conventions (measured, and the numbers live in the harnesses named besi
 |---|---|---|
 | `ms/`, `plus/`, `a1/`, `a2/`, `c1/`, `c2/`, `c3a/`, `c3b/` | The programme levels: one XML file per call family, one or more `<tam>` per file. **66 + 50 + 36 + 26 + 87 + 79 + 84 + 66 = 494 files.** | upstream Taminations |
 | `discovered/` | Calls found while working this corpus and not authored upstream (5 files, 7 tams). | this repo |
-| `src/calls.xml` | Upstream's **master call index**: 690 `<call link="level/file" title="…">` rows, with `?animname=` fragments selecting one tam in a multi-tam file. Not animation data — the POC reads it to synthesise the one level the corpus has no directory for (`ssd`). | upstream Taminations |
+| `src/calls.xml` | Upstream's **master call index**: 690 `<call link="level/file" title="…">` rows, with `?animname=` fragments selecting one tam in a multi-tam file. Not animation data. **No runtime reader any more**: the POC used it to synthesise the retired `ssd` level, and what reads it now is the engine's index check (`engine/test/corpus-inventory.mjs`). Its 72 `ssd/…` rows are upstream history — see below. | upstream Taminations |
 | `moves.xml` | The move primitives: **156** `<path>` definitions, each a chain of cubic Béziers. The one file whose `<move>` modifiers (`offsetX`, `scaleX`, `beats`, `hands`, `reflect`) the engine implements — `engine/src/convert.ts` is the only reader of them in either codebase. | upstream Taminations |
 | `formations.xml` | **292** `<formation name="…">` entries under a `<formations>` root: a name, its dancers' spots and facings, and its stored `fid`/`aid` (below). **MODIFIED from upstream** — `d244996` rotated `Static Square` by 90°, so do not "restore" it. Also a generated mirror of an upstream Dart list, so it drifts in both directions (`taminations.md` §2.3, §9.6). | upstream Taminations, then this repo |
 | `fsm-ms.json` | The generated Mainstream resolve state machine (291 catalogue entries, 3,934 edges — `engine/test/fsm-asset.mjs` pins both), serialised so the FSM view and the teacher app open instantly. | `node scripts/build-fsm-asset.mjs` |
 | `formation-tag-provenance.json` | Where every `fid`/`aid` was minted — **984 tags, append-only**. A tag is a UID, not a digest: it is minted from a geometry once and then authoritative, so a legitimate geometry correction does not move it and must not become a re-mint. The audit checks this record and the corpus agree **in both directions** (a carried tag with no record is a typo; a recorded tag nothing carries is a retired shape). **No runtime code reads it** — unlike the deleted `formation-roots.json`, it never answers "what does this board compute to". | `node scripts/tag-formations.mjs --write` |
 | `<level>/<family>.virtual.xml` | Whole-set instances generated for the book. **Not authored data** — see below. | `node book/tools/make-virtual.mjs` |
 
-**`ssd` has no directory, and that is not a gap.** `PERMISSION_LEVELS` names ten levels but the corpus carries
-nine directories: `ssd` is a VIEW of calls authored under `ms`/`plus`/`a1`, whose basenames `src/calls.xml` records,
-and the POC synthesises it at load time (`poc/src/data.ts`). So `filesOf('ssd')` is `[]` — by design, and
-`engine/test/corpus-inventory.mjs` pins that a missing level is an empty list rather than an error.
+**`ssd` was a VIEW, never a directory — and it is retired.** The ladder names nine levels and the corpus carries
+nine level directories, the same nine: the two sets are equal, and `engine/test/corpus-inventory.mjs` fails if either
+side moves. Until the 2026 CALLERLAB replacement of Basic/Mainstream/SSD (`book/08-reference/programme-membership.md`)
+the ladder also named `ssd`, which had no assets: it was synthesized by the POC from `src/calls.xml`'s `ssd/…` links
+as a view of calls authored under `ms`/`plus`/`a1`. MEASURED when it was removed: 72 `ssd/…` index rows, 58 distinct
+basenames, 57 of them resolving to a file the corpus already carries at `ms` or `discovered` and one
+(`circle_to_a_line`) to `plus/` — so the view contributed exactly one title to the app's pool (289 duplicate
+catalogue entries otherwise). The rows above are left verbatim: they are upstream's index, and the record of what
+SSD contained. A level with no directory is still an empty list rather than an error — the reader's tolerance is
+pinned with a retired level's name (`filesOf('b1')`).
 
 ## A call file's shape
 

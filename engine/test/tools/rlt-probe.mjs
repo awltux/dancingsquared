@@ -166,7 +166,7 @@ console.log(`  ${TABLE.length - tblFail} of ${TABLE.length} agree with CALLERLAB
 console.log('\n=== every authored Right and Left Thru, by file and setup ===');
 const levelOf = (f) => path.basename(path.dirname(f));
 const blocks = [];
-for (const lv of ['ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2']) {
+for (const lv of ['ms', 'plus', 'a1', 'a2', 'c1', 'c2']) {
   const dir = path.join(assets, lv);
   let files = [];
   try { files = filesOf(lv).filter((f) => f === 'right_and_left_thru.xml'); } catch { continue; }

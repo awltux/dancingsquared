@@ -84,12 +84,11 @@ function listingOf(level: string): Listing {
  * `engine/test/catalogue.mjs` pins (Circulate: `c1` at 7, `ms` at 2528). So this reader preserves what the filesystem gives, exactly as the reader it replaces did, and
  * making the order deterministic belongs in its own change with its own re-measurement.
  *
- * A MISSING LEVEL IS EMPTY, NOT AN ERROR: the level ladder names `ssd`, which has NO asset directory
- * (`engine/src/sequencer/permissions.ts`: "a synthesized alias level", ordered between Basic and Mainstream by
- * `calls.xml`), and a reader that threw would make every caller carry a list of the levels that happen to exist
- * today. MEASURED: this paragraph named `discovered` as a second witness until it was checked — `assets/discovered/`
- * exists, with five files — so the tolerance has ONE witness, not two, and `engine/test/corpus-inventory.mjs` pins
- * it by asking `filesOf('ssd')` for an empty array.
+ * A MISSING LEVEL IS EMPTY, NOT AN ERROR: a reader that threw would make every caller carry a list of the levels that
+ * happen to exist today. MEASURED: this paragraph used to name `ssd`, the level the POC synthesized with no asset
+ * directory; it was retired with CALLERLAB's 2026 replacement (Basic/Mainstream/SSD became one Mainstream programme),
+ * so the witness is now a level the ladder no longer names at all - `b1`, retired with the Basic levels - and
+ * `engine/test/corpus-inventory.mjs` pins the tolerance by asking `filesOf('b1')` for an empty array.
  *
  * THE GENERATED INSTANCES ARE EXCLUDED, which is the whole reason this function exists rather than each caller
  * walking the directory: `<level>/<family>.virtual.xml` is generated geometry (`virtual.ts`), and a census that

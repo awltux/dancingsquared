@@ -246,8 +246,8 @@ console.log('\n== The file order, and why it is not sorted ==');
   }
   check(sortThrew && before.every((f, i) => filesOf('ms')[i] === f),
     'sorting the returned list throws, and leaves the cached order unchanged');
-  check(filesOf('ssd').length === 0 && Array.isArray(filesOf('ssd')),
-    'a level with no directory is an empty list, not an error (the levels `PERMISSION_LEVELS` names but no assets carry)');
+  check(filesOf('b1').length === 0 && Array.isArray(filesOf('b1')),
+    'a level with no directory is an empty list, not an error (a RETIRED level: `b1` has no assets and the ladder no longer names it)');
 }
 
 // -----------------------------------------------------------------------------------------------------------
@@ -366,21 +366,21 @@ console.log('\n== The pool order is the caller\'s, and it is still highest-first
 }
 
 // A LEVEL LIST IS POLICY IN EXACTLY ONE PLACE, AND THE CORPUS'S FOLDERS ARE THE OTHER HALF OF THE FACT.
-// `ASSET_LEVELS` is now the engine's `PERMISSION_LEVELS` (see `lib/engine-calls.mjs`), so a level added to the ladder
+// `ASSET_LEVELS` is the engine's `PERMISSION_LEVELS` (see `lib/engine-calls.mjs`), so a level added to the ladder
 // reaches every harness at once - but nothing tied the ladder to the FOLDERS that exist. This is a ONE-WAY check,
-// not an equality, because the two disagree legitimately in one direction:
+// because the two can disagree in one direction:
 //
 //   * every folder the corpus HAS must be named by the ladder. That is the dangerous direction: a new programme's
 //     calls would be invisible to every harness that pools through `callsByTitle`, and no gate would say so.
-//   * a ladder entry with NO folder is deliberate (`ssd`, the alias level), so it is a NAMED SET: an entry joins it
-//     only by being added here, with its reason.
+//   * a ladder entry with NO folder is a NAMED SET, and it is EMPTY now: `ssd` was the one entry and it was retired
+//     with the 2026 CALLERLAB replacement. An entry joins the set only by being added here, with its reason.
 console.log('\n== The level ladder names every folder the corpus has ==');
 {
   const folders = levelsAvailable().sort();
   const declared = [...new Set(LEVELS)].sort();
   const unnamed = folders.filter((l) => !declared.includes(l));
   // A NAMED SET, and one-directional: grows when a ladder level gains no authorings without being explained here.
-  const NO_FOLDER = ['ssd'];
+  const NO_FOLDER = [];
   const noFolder = declared.filter((l) => !folders.includes(l));
   // THE NEGATIVE CONTROL: the same comparison against a ladder with a real folder removed must fail AND name it, so
   // this check cannot pass by comparing a list with itself.
@@ -391,7 +391,7 @@ console.log('\n== The level ladder names every folder the corpus has ==');
   check(unnamed.length === 0,
     `every one of the ${folders.length} folders under assets/ is named by the level list (${unnamed.length} unnamed: ${unnamed.join(', ') || 'none'})`);
   check(noFolder.join(',') === NO_FOLDER.join(','),
-    `the only ladder entry with no folder is the documented alias level (${noFolder.length}: ${noFolder.join(', ') || 'none'})`);
+    `no ladder entry lacks a folder, so the ladder and the corpus are the same set (${noFolder.length}: ${noFolder.join(', ') || 'none'})`);
 }
 
 console.log('\n=================');

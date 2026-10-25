@@ -50,14 +50,25 @@ import type { Going } from '../going.js';
 /** The programme order, weakest first. A rule at a LATER index overrides one at an earlier index.
  *
  * THE ENGINE OWNS THIS LIST and `poc/src/data.ts` imports it, because the app's level selector and the
- * engine's override order have to agree - when they were two hand-kept copies they drifted. `ssd` has no
- * asset directory of its own: it is a synthesized alias level, and it sits here because `calls.xml`
- * orders it between Basic and Mainstream.
+ * engine's override order have to agree - when they were two hand-kept copies they drifted.
  *
  * `b1` and `b2` were removed when the Basic levels were retired in favour of `ms` 2026. The four calls
- * that existed only there were migrated into `ms/` first, so no capability was lost. */
+ * that existed only there were migrated into `ms/` first, so no capability was lost.
+ *
+ * `ssd` WAS REMOVED when CALLERLAB dropped SSD and replaced Basic/Mainstream/SSD with the single Mainstream
+ * programme of 2026 (`book/08-reference/programme-membership.md`). It was never an asset directory: the POC
+ * synthesized it from `assets/src/calls.xml`'s `ssd/…` links as a VIEW of calls authored under `ms`/`plus`/`a1`.
+ * MEASURED before the removal: 72 `ssd/…` index rows, 58 distinct basenames, of which 57 resolve to a file the
+ * corpus already carries at `ms` or `discovered` and ONE (`circle_to_a_line`) to `plus/` - so the view supplied
+ * exactly ONE title (`Circle to a Line`) to the app's Mainstream-and-below pool, and 289 duplicate catalogue
+ * entries to its level selector. No shipped permission rule named `ssd` (all 17 are at `ms`), so no rule's scope
+ * moved when the entry left the order.
+ *
+ * THE LADDER AND THE CORPUS NOW AGREE EXACTLY: these nine names are nine directories under `assets/`, plus the
+ * `src` index. `engine/test/corpus-inventory.mjs` compares them both ways and fails on a folder nobody names; a
+ * future level with no authorings has to be added to that gate's exception list, with its reason. */
 export const PERMISSION_LEVELS = [
-  'discovered', 'ssd', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b',
+  'discovered', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b',
 ] as const;
 
 export type PermissionLevel = (typeof PERMISSION_LEVELS)[number] | string;

@@ -72,13 +72,12 @@ const seq = new Sequencer(
 const square = seq.boardForFormation('Static Square');
 
 console.log('== the level order is the programme order ==');
-check(levelRank('discovered') < levelRank('ssd'), 'discovered sorts before ssd');
-check(levelRank('ssd') < levelRank('ms'), 'ssd sorts before ms');
+check(levelRank('discovered') < levelRank('ms'), 'discovered sorts before ms');
 check(levelRank('ms') < levelRank('plus'), 'ms sorts before plus');
 check(levelRank('plus') < levelRank('a1'), 'plus sorts before a1');
-check(PERMISSION_LEVELS.length === 10, `10 levels are ordered (got ${PERMISSION_LEVELS.length})`);
-check(PERMISSION_LEVELS.join(',') === 'discovered,ssd,ms,plus,a1,a2,c1,c2,c3a,c3b',
-  `b1 and b2 are gone from the order (${PERMISSION_LEVELS.join(',')})`);
+check(PERMISSION_LEVELS.length === 9, `9 levels are ordered (got ${PERMISSION_LEVELS.length})`);
+check(PERMISSION_LEVELS.join(',') === 'discovered,ms,plus,a1,a2,c1,c2,c3a,c3b',
+  `b1, b2 and ssd are gone from the order (${PERMISSION_LEVELS.join(',')})`);
 check(levelRank('nonsense') === PERMISSION_LEVELS.length,
   'an unknown level sorts LAST, so a rule naming one is specific rather than ignored');
 
@@ -131,8 +130,8 @@ console.log('\n== (4) LEVEL OVERRIDE: a later level lifts an earlier deny ==');
 console.log('\n== (5) "never" is just a rule no level overrides ==');
 {
   // Identical machinery, no special case: a lone deny is simply never contradicted.
-  const chain = [{ call: ['Frobnicate'], level: 'ssd', decision: 'deny', reason: 'not a real call' }];
-  for (const lv of ['ssd', 'ms', 'plus', 'c3b']) {
+  const chain = [{ call: ['Frobnicate'], level: 'discovered', decision: 'deny', reason: 'not a real call' }];
+  for (const lv of ['discovered', 'ms', 'plus', 'c3b']) {
     check(evaluatePermissions(chain, { call: 'Frobnicate', level: lv }).allowed === false,
       `a lone deny holds at ${lv} - there is no level that lifts it`);
   }
@@ -143,9 +142,9 @@ console.log('\n== (6) a rule ABOVE the active level is not consulted ==');
   // The app registers only calls up to the chosen level, so a rule from a later one cannot apply:
   // honouring it would let an unloaded programme forbid a call the loaded one allows.
   check(seq.mayOffer('Dosado', 'All 8').allowed === false, 'at MS the built-in MS rule applies');
-  seq.setActiveLevel('ssd');
+  seq.setActiveLevel('discovered');
   check(seq.mayOffer('Dosado', 'All 8').allowed === true,
-    'at SSD the MS rule is not yet introduced, so nothing forbids it');
+    'at DISCOVERED the MS rule is not yet introduced, so nothing forbids it');
   seq.setActiveLevel('ms');
 }
 

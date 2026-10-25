@@ -15,6 +15,10 @@ import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } 
 import { parseStoredModules } from './stored-modules';
 import { loadUserFormations } from './formations';
 import { corpusFormationsOfSize } from './tam-xml';
+// THE NATIVE SEQUENCE DOCUMENT: the spec is `SequenceSyntax.md`, the rules are this module, and the panel only supplies
+// the three live resolvers (the setup catalogue, the formation labels, the variant library).
+import { idsOf, parseSequenceDoc, resolveSequence, sequenceToJson, SEQUENCE_FORMAT, SEQUENCE_VERSION } from './sequence-json';
+import type { SequenceDocJson, SequenceDancer, SequenceResolvers, SequenceStepJson, SetupRefJson, StepRefJson } from './sequence-json';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import { displayCouple } from 'dancing-squared-stage';
 import { compareCallTitles } from './call-order';
@@ -175,6 +179,11 @@ export class SequencerController implements SequencerUI {
   private all8ImportBtn = el<HTMLButtonElement>('seqAll8Import');
   private all8ExportBtn = el<HTMLButtonElement>('seqAll8Export');
   private all8InfoEl = el<HTMLSpanElement>('seqAll8Info');
+  // THE NATIVE SEQUENCE DOCUMENT (JSON): `sequence-json.ts` is the format, this is its two buttons and its box.
+  private jsonText = el<HTMLTextAreaElement>('seqJsonText');
+  private jsonImportBtn = el<HTMLButtonElement>('seqJsonImport');
+  private jsonExportBtn = el<HTMLButtonElement>('seqJsonExport');
+  private jsonInfoEl = el<HTMLSpanElement>('seqJsonInfo');
   private subsetInfoEl = el<HTMLDivElement>('seqSubsetInfo');
   /**
    * THE SUBSETS THE CALLER HAS LIT UP, by the name the engine resolves them with. A SET rather than one
@@ -2263,36 +2272,50 @@ export class SequencerController implements SequencerUI {
       }
       this.startBoard = startBoard ?? undefined;
       const startLabel = spec?.code ?? spec?.formation ?? '';
-
-      // A LOAD IS A NEW DOCUMENT: the undo history belongs to the sequence being replaced, so both stacks are
-      // dropped rather than left to undo an edit into a sequence the caller has navigated away from.
-      this.undoStack.length = 0;
-      this.redoStack.length = 0;
-      this.history = this.seq.flatten(steps);
-      this.rewindToStart();
-      let refused = 0;
-      for (const name of this.history) {
-        const r = this.seq.applyStep(name);
-        if (!r.legal) refused++;
-      }
-      this.lastTraceKey = '';
-      this.refreshCallSelect();
-      this.syncAnimation();
-      // The sequence is parked at its END (`syncAnimation`), so settle there: the loaded module's final
-      // formation is what the next-call list should answer from. `seekTo` below re-settles if the
-      // browse view asked to park on a particular call instead.
-      this.settlePlayhead();
-      const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
-      if (idx >= 0) this.seekTo(idx);
-      this.setStatus(this.stop ? 'warn' : 'ok', [
-        `loaded ${this.history.length} call(s)`,
-        startLabel ? `from ${startLabel}` : '',
-        refused ? `${refused} refused` : '',
-        // The walk's own verdict, which is the one that decides where the ANIMATION ends. Named
-        // because a count does not tell the user that the last frame is the board before that call.
-        this.stop ? `stops at "${this.stop.call}" - ${this.stop.reason}` : '',
-      ].filter(Boolean).join(', '));
+      this.loadSteps(steps, atCall, startLabel);
     }, 'Loading the sequence…');
+  }
+
+  /**
+   * Put `steps` on the board from `this.startBoard`, as ONE load: everything a load has to do, in the order a load
+   * must do it.
+   *
+   * SHARED, because All8's import and the sequence document's import are the same act with two syntaxes in front of
+   * them - and the third caller is the module list. One body means a refused step, the undo reset, the settle and the
+   * report cannot differ between the three.
+   *
+   * CALLED INSIDE `runBusy`, with `this.startBoard` already set by the caller (the caller is the one that knows
+   * whether its start came from a FASR code, a catalogue row or exact poses).
+   */
+  private loadSteps(steps: ModuleStep[], atCall: string | undefined, startLabel: string) {
+    // A LOAD IS A NEW DOCUMENT: the undo history belongs to the sequence being replaced, so both stacks are
+    // dropped rather than left to undo an edit into a sequence the caller has navigated away from.
+    this.undoStack.length = 0;
+    this.redoStack.length = 0;
+    this.history = this.seq.flatten(steps);
+    this.rewindToStart();
+    let refused = 0;
+    for (const name of this.history) {
+      const r = this.seq.applyStep(name);
+      if (!r.legal) refused++;
+    }
+    this.lastTraceKey = '';
+    this.refreshCallSelect();
+    this.syncAnimation();
+    // The sequence is parked at its END (`syncAnimation`), so settle there: the loaded module's final
+    // formation is what the next-call list should answer from. `seekTo` below re-settles if the
+    // browse view asked to park on a particular call instead.
+    this.settlePlayhead();
+    const idx = atCall === undefined ? -1 : this.history.findIndex((s) => callKey(s) === callKey(atCall));
+    if (idx >= 0) this.seekTo(idx);
+    this.setStatus(this.stop ? 'warn' : 'ok', [
+      `loaded ${this.history.length} call(s)`,
+      startLabel ? `from ${startLabel}` : '',
+      refused ? `${refused} refused` : '',
+      // The walk's own verdict, which is the one that decides where the ANIMATION ends. Named
+      // because a count does not tell the user that the last frame is the board before that call.
+      this.stop ? `stops at "${this.stop.call}" - ${this.stop.reason}` : '',
+    ].filter(Boolean).join(', '));
   }
 
   /** Move the playhead to the START of history step `idx`.
@@ -2498,6 +2521,174 @@ export class SequencerController implements SequencerUI {
     const unmapped = (text.match(/\[[^\]]+\]/g) ?? []).length;
     this.all8InfoEl.textContent = `${names.length} calls exported`
       + (unmapped > 0 ? ` · ${unmapped} with no All8 abbreviation (in brackets)` : '');
+  }
+
+  // ---------------------------------------------------------------- the sequence document
+
+  /**
+   * THE THREE QUESTIONS `sequence-json.ts` CANNOT ANSWER ALONE, answered from the live app.
+   *
+   * The catalogue is the Board drawer's own setup list (`setupRows`, keyed by `sid`), so a document's `sid` resolves to
+   * exactly the board that picker would stand up; the labels are the corpus bridge (`resolveStartFormation`) and then
+   * the engine's own formation library; and a `vid` is the registered variant whose stored tag it is
+   * (`Sequencer.variantByVid`). None of the three is re-implemented here.
+   */
+  private sequenceResolvers(): SequenceResolvers {
+    const asDancers = (dancers: readonly FormDancer[]): SequenceDancer[] =>
+      dancers.map((d) => ({ gender: d.gender ?? 'phantom', x: d.x, y: d.y, heading: d.heading }));
+    return {
+      setup: (sid) => {
+        const row = this.setupRows.find((r) => r.sid === sid);
+        return row ? { sid: row.sid, fid: row.fid, aid: row.aid, display: row.display, dancers: asDancers(row.dancers) } : null;
+      },
+      formation: (name) => {
+        const spec = resolveStartFormation(name);
+        const board = spec
+          ? spec.formation
+            ? this.seq.boardForSetup(spec.formation)
+            : boardForFasrCode(spec.code ?? '', (l) => {
+                const template = LETTER_TEMPLATE[l];
+                return template ? this.seq.boardForFormation(template) : null;
+              }).board
+          : this.seq.boardForSetup(name) ?? this.seq.boardForFormation(name);
+        return board ? { dancers: asDancers(board.dancers), label: name } : null;
+      },
+      variant: (vid) => {
+        const found = this.seq.variantByVid(vid);
+        return found ? { title: found.title } : null;
+      },
+    };
+  }
+
+  /**
+   * EXPORT the sequence as a native document: the start board (ids plus the caption), every step with the call-variant
+   * id the walk matched, and the end board.
+   *
+   * THE IDS ARE THE POINT. A name can be respelled and a title retitled; `sid`/`aid`/`fid` name the definition and the
+   * order, and `vid` names the authoring (level, title, start definition), so a re-import resolves the same boards and
+   * the same calls without matching by name at all. A step the walk could not match carries no `vid` - the document says
+   * what is unknown rather than inventing it - and is counted in the report.
+   */
+  private exportSequence() {
+    if (this.history.length === 0) {
+      this.jsonInfoEl.textContent = 'nothing to export — add calls first';
+      return;
+    }
+    const boardDoc = (board: Board, fallback: string): SetupRefJson => {
+      const ids = idsOf(board);
+      const row = ids.sid ? this.setupRows.find((r) => r.sid === ids.sid) : undefined;
+      const ref: SetupRefJson = {};
+      if (ids.sid) ref.sid = ids.sid;
+      if (ids.aid) ref.aid = ids.aid;
+      if (ids.fid) ref.fid = ids.fid;
+      const label = row?.display ?? this.seq.knownFormation(board) ?? fallback;
+      ref.name = label;
+      // THE EXACT POSES only where no catalogue row carries the id: they are the unambiguous form, and repeating them
+      // on every export would make the document large for no information.
+      if (!row) ref.dancers = board.dancers.filter((d) => !d.isGhost).map((d) => ({ gender: d.gender, x: d.x, y: d.y, heading: d.heading }));
+      return ref;
+    };
+    const steps: SequenceStepJson[] = [];
+    let stamped = 0;
+    let unmatched = 0;
+    for (const [i, step] of this.history.entries()) {
+      if (isGroupStep(step)) {
+        steps.push({ groups: step.groups.map((g) => ({ selection: g.selection, calls: groupCalls(g) })) });
+        continue;
+      }
+      // A MODULE STEP IS A NAME, NOT A VARIANT: its own `vid` would be the first of its calls, which is a different
+      // thing and would import as that call alone. The module name is the step, and it resolves against the library.
+      if (typeof step === 'string' && this.seq.isModule(step)) {
+        steps.push(step);
+        continue;
+      }
+      const info = this.seq.sequenceInfo(this.flat, this.beatAtStep(i), this.startBoard);
+      const vid = info?.variant.vid ?? null;
+      if (vid) stamped++;
+      else unmatched++;
+      if (typeof step === 'string') {
+        steps.push(vid ? { call: step, vid } : step);
+        continue;
+      }
+      const ref: StepRefJson = { call: step.call };
+      if (step.selection !== undefined) ref.selection = step.selection;
+      if (vid) ref.vid = vid;
+      steps.push(ref);
+    }
+    const startBoard = this.startBoard ?? this.seq.startBoard();
+    const endBoard = this.seq.evaluateSequence(this.flat, this.totalBeats, this.startBoard).board;
+    const doc: SequenceDocJson = {
+      format: SEQUENCE_FORMAT,
+      version: SEQUENCE_VERSION,
+      name: this.moduleNameInput.value.trim() || 'untitled sequence',
+      start: boardDoc(startBoard, 'start'),
+      steps,
+    };
+    const end = boardDoc(endBoard, 'end');
+    if (end.sid || end.dancers) doc.end = end;
+    const text = sequenceToJson(doc);
+    this.jsonText.value = text;
+    const report = `exported ${steps.length} step(s)`
+      + (stamped ? ` · ${stamped} with a call-variant id` : '')
+      + (unmatched ? ` · ${unmatched} with none (the walk matched no variant)` : '');
+    this.jsonInfoEl.textContent = report;
+    navigator.clipboard.writeText(text).then(
+      () => { this.jsonInfoEl.textContent = `${report} · copied`; },
+      () => { this.jsonInfoEl.textContent = `${report} · clipboard unavailable`; },
+    );
+  }
+
+  /**
+   * IMPORT a native sequence document: resolve it, stand its start board up, then load the steps by the one shared
+   * path.
+   *
+   * A REFUSAL IS THE WHOLE DOCUMENT OR NONE OF IT: the parse, the start and every step are resolved BEFORE the board is
+   * touched, so a document with one bad step leaves the sequence on screen exactly as it was, with the step's index and
+   * the reason in the status line. What the resolver tolerated (a `vid` this level does not hold, a name that disagrees
+   * with an id) is said afterwards rather than swallowed.
+   */
+  private importSequence() {
+    this.runBusy(() => {
+      const text = this.jsonText.value;
+      if (!text.trim()) {
+        this.jsonInfoEl.textContent = 'nothing to import';
+        return;
+      }
+      const parsed = parseSequenceDoc(text);
+      if (!parsed.ok) {
+        this.setStatus('error', `✗ ${parsed.reason}`);
+        return;
+      }
+      const resolved = resolveSequence(parsed.doc, this.sequenceResolvers());
+      if (!resolved.ok) {
+        this.setStatus('error', `✗ ${resolved.reason}`);
+        return;
+      }
+      this.playing = false;
+      this.playBtn.textContent = '▶ Play';
+      // THE START BOARD, through the same call the Board drawer uses, so the identity rules (home match, the registry
+      // overlay, `UNKNOWN_COUPLE` away from home) are the ones a picked setup gets - not a second board builder.
+      this.seq.setSetupBoard(resolved.sequence.start.dancers, resolved.sequence.start.label);
+      this.startBoard = this.seq.startBoard();
+      this.loadSteps(resolved.sequence.steps, undefined, resolved.sequence.start.label);
+      // THE DECLARED END IS A CHECK. The replay is the board; a document whose `end` disagrees is reporting a mistake
+      // (or a corpus revision), which is worth saying and is not a reason to refuse the sequence.
+      const declared = parsed.doc.end;
+      if (declared?.sid) {
+        const endBoard = this.seq.evaluateSequence(this.flat, this.totalBeats, this.startBoard).board;
+        const actual = idsOf(endBoard).sid;
+        if (actual !== declared.sid) {
+          this.jsonInfoEl.textContent = `end check: the document says ${declared.sid}, the sequence ends on ${actual ?? 'an unnamed board'}`;
+        } else {
+          this.jsonInfoEl.textContent = `end check: ends on ${actual}, as the document says`;
+        }
+      } else {
+        this.jsonInfoEl.textContent = `${resolved.sequence.steps.length} step(s) loaded`;
+      }
+      if (resolved.sequence.notes.length) {
+        this.jsonInfoEl.textContent += ` · ${resolved.sequence.notes.join(' · ')}`;
+      }
+    }, 'Importing the sequence…');
   }
 
   /**
@@ -2751,6 +2942,8 @@ export class SequencerController implements SequencerUI {
     this.saveModuleBtn.addEventListener('click', () => this.saveModule());
     this.all8ImportBtn.addEventListener('click', () => this.importAll8());
     this.all8ExportBtn.addEventListener('click', () => this.exportAll8());
+    this.jsonImportBtn.addEventListener('click', () => this.importSequence());
+    this.jsonExportBtn.addEventListener('click', () => this.exportSequence());
     this.setFormationBtn.addEventListener('click', () => this.setBoardFormation());
     this.boardRotInput.addEventListener('change', () => this.applyBoardRot());
     this.view2dEl.addEventListener('change', () => {

@@ -160,6 +160,16 @@ export interface CallBundle {
    * edit would move.
    */
   formationTag: FormationTag;
+  /**
+   * THE CALL-VARIANT ID this authoring realises - the corpus's stored `vid` tag (`V1-…`), or null on an authoring that
+   * carries none (a virtual/synthesised bundle, a hand-built one).
+   *
+   * IT IS CARRIED RATHER THAN MINTED because the mint is `callVariantId(level, title, fid)` and the LEVEL is the
+   * directory the tam lives in, which `CallBundle` does not know - the library pools a title's tams across levels. So a
+   * consumer that has to NAME the variant a step applied (a sequence document, a report) reads the tag the corpus
+   * wrote, and the one consumer that needs to go the other way (`CallLibrary.variantByVid`) searches this field.
+   */
+  vid: string | null;
   // Whether the sequencer may MATCH this variant from a board. False only for
   // `sequencerMode === 'no'`. Anything that hunts for a variant to apply must filter on
   // this; anything that merely LISTS variants (the picker, `variantStarts`, the FSM

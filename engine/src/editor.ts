@@ -1061,6 +1061,8 @@ export function synthesizeSetup(core: CallBundle, setup: NewSetup): CallBundle {
     formation: null,
     // An EDITOR-authored bundle starts from a board, not from a corpus definition, so it has no stored tags.
     formationTag: { fid: null, aid: null, sid: null },
+    // ...and no stored VARIANT tag either: `vid` names an authoring the corpus wrote.
+    vid: null,
     // THE SAME BODY: a synthesised setup re-poses the call on a different start set, which cannot change how it goes.
     // Leaving it off would make a `- Far` authoring indistinguishable from a plain one once re-posed.
     going: core.going,
@@ -1169,6 +1171,8 @@ export function synthesizeSetupChain(coreA: CallBundle, coreB: CallBundle, spec:
     formation: null,
     // An EDITOR-authored bundle starts from a board, not from a corpus definition, so it has no stored tags.
     formationTag: { fid: null, aid: null, sid: null },
+    // ...and no stored VARIANT tag either: `vid` names an authoring the corpus wrote.
+    vid: null,
     going: coreA.going,
     parts: coreA.parts,
     taminator: coreA.taminator,

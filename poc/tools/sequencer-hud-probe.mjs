@@ -86,7 +86,7 @@ console.log('\n== the secondary tools are DRAWERS, closed by default ==');
 for (const [id, holds] of [
   ['seqSolve', ['seqTabGetout', 'seqTabGetin', 'seqTabFix', 'seqSolveRun', 'seqSolveApply', 'seqFixList', 'seqMatrixInfo']],
   ['seqBoard', ['seqFormation', 'seqSetFormation', 'seqBoardRot', 'seqView2d', 'seqFasr']],
-  ['seqLibrary', ['seqModuleName', 'seqSaveModule', 'seqModules', 'seqAll8Text', 'seqAll8Import', 'seqAll8Export']],
+  ['seqLibrary', ['seqModuleName', 'seqSaveModule', 'seqModules', 'seqAll8Text', 'seqAll8Import', 'seqAll8Export', 'seqJsonText', 'seqJsonImport', 'seqJsonExport', 'seqJsonInfo']],
   ['seqAdvanced', ['seqMargin', 'seqCopyPos']],
 ]) {
   const d = drawer(id);

@@ -216,6 +216,16 @@
               <textarea id="seqAll8Text" class="wide" rows="3"
                 placeholder="Paste All8 figures, e.g.  H-SqTh4 --DoSaD --SwThr B-RunR --Cpl.C --ChDTL --PsOcn --A8Cir --Sw&Pr"></textarea>
             </div>
+            <div class="row">
+              <label title="A native SEQUENCE DOCUMENT in JSON: the start setup (by setup id, formation name, or exact poses), the calls in order, and the end setup. SequenceSyntax.md is the spec, written so a person or a model can convert a caller's text into one; Export stamps the fid/aid/sid/vid ids on it so the document is exact and re-importable.">Sequence</label>
+              <button id="seqJsonImport" title="Parse the JSON below as a sequence document and load it: the start board, then the calls in order. Every refusal is named (an unknown setup id, an unknown call, a step the engine cannot dance).">Import</button>
+              <button id="seqJsonExport" title="Write the sequence on the board (and in the timeline) as a JSON sequence document - the start setup by its ids and name, every step with its call-variant id, and the end setup - into the box below and on the clipboard.">Export</button>
+              <span id="seqJsonInfo" class="part"></span>
+            </div>
+            <div class="row">
+              <textarea id="seqJsonText" class="wide" rows="6"
+                placeholder='Paste a sequence document, e.g.  { "format": "dancing-squared/sequence", "version": 1, "start": { "formation": "Zero Box" }, "steps": ["Right and Left Thru", "Veer Left"] }'></textarea>
+            </div>
           </details>
           <details class="seq-drawer" id="seqAdvanced">
             <summary>Advanced — matching tolerance and diagnostics</summary>

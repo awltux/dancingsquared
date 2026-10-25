@@ -448,6 +448,30 @@ export class CallLibrary {
     return this.sequencerVariants(name).length > 0;
   }
 
+  /**
+   * The variant a stored `vid` names, with its call title - or null when this library does not hold it.
+   *
+   * THE INVERSE OF `callVariantId`, AND IT IS A SEARCH RATHER THAN A DECODE. The id is a digest of (level, title,
+   * start definition's `fid`), and a digest cannot be read back; but the corpus wrote the tag onto every tam, the
+   * bundle carries it (`CallBundle.vid`), so the answer is "the registered variant whose own tag is this one". The
+   * LEVEL is the half the bundle does not know (the library pools a title's tams across levels) - which is exactly
+   * why the tag is carried rather than minted here.
+   *
+   * NULL IS THE HONEST ANSWER, and the caller decides: a sequence document that names a `vid` this library cannot
+   * resolve falls back to the call's name, and a document that names only the id is refused by number. A scan over
+   * every registered variant is ~30k comparisons once per import, not per step, because callers cache the answer.
+   */
+  variantByVid(vid: string): { title: string; variant: CallBundle } | null {
+    const want = vid.trim().toLowerCase();
+    if (want === '') return null;
+    for (const [name, variants] of this.variants) {
+      for (const variant of variants) {
+        if (variant.vid !== null && variant.vid.toLowerCase() === want) return { title: name, variant };
+      }
+    }
+    return null;
+  }
+
   moduleNames(): IterableIterator<string> {
     return this.modules.keys();
   }

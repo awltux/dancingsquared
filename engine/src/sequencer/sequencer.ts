@@ -656,6 +656,16 @@ export class Sequencer {
     return this.matcher.findMatchingVariant(board, callName, maxError);
   }
 
+  /**
+   * The registered variant a stored `vid` names, with its call title - or null when this library does not hold it.
+   *
+   * The passthrough exists for the same reason `knownFormation`'s does: a consumer (a sequence document's importer)
+   * must not reach into the library, and the search is the library's own rule (`CallLibrary.variantByVid`).
+   */
+  variantByVid(vid: string): { title: string; variant: CallBundle } | null {
+    return this.library.variantByVid(vid);
+  }
+
   knownFormation(board: Board): string | null {
     return this.matcher.knownFormation(board);
   }

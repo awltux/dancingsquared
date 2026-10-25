@@ -550,6 +550,10 @@ function buildCallImpl(
     // an inline block has no name to look one up by. A named reference carries nulls here - its definition, not the
     // tam, holds the tags.
     formationTag: tam.formationTag,
+    // THE VARIANT'S OWN STORED TAG, carried so a consumer can name the authoring a step applied (`vid` is minted from
+    // the level, the title and the start definition's `fid`, and the level is the FILE's - which this layer sees and
+    // `CallBundle` does not). Null when the corpus wrote none.
+    vid: tam.vid,
     // HOW this body goes, DERIVED from the title at the one place a CallBundle is born. `going.ts` carries the reason it
     // is derived rather than authored (these tams are app-exported, so an authored attribute needs the exporter and its
     // survival gate; a derived label cannot be lost) and the measurement that says it must be a label, not a distance.

@@ -929,6 +929,8 @@ export class EditorController implements EditorUI {
       // A bundle built by `synthesizeSetup` writes the same three nulls (`editor.ts`), which is the rule: a
       // synthesised bundle has no tag.
       formationTag: { fid: null, aid: null, sid: null },
+      // ...AND NO STORED VARIANT TAG EITHER (`vid` names an authoring the corpus wrote).
+      vid: null,
     };
   }
 

@@ -12,6 +12,7 @@ import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo, a
 import type { SetupRow } from './setup-catalogue';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
+import type { StartSpec } from './modules';
 import { parseStoredModules } from './stored-modules';
 import type { StoredModule } from './stored-modules';
 import { loadUserFormations } from './formations';
@@ -363,6 +364,11 @@ export class SequencerController implements SequencerUI {
     // rather than being deduped against a half-built one.
     this.registerUserFormations();
     for (const c of sequencerCallsUpTo('ms')) this.seq.register(c.name, c.xml);
+    // THE SETUP CATALOGUE BEFORE THE MODULES, because a saved module records its start board BY ID and restoring it
+    // needs the catalogue that resolves an `sid`. It was built after the restore, so a stored start could not be
+    // resolved at registration time and the module had to be registered ungated - a rule that applies on a level change
+    // and not at startup is worse than no rule.
+    this.populateFormations();
     this.loadModules();
     // RESTORE BEFORE DRAWING, so the drawer can ask the library whether each module actually registered.
     // It drew first, which made every row look live - including one the engine had refused.
@@ -379,7 +385,6 @@ export class SequencerController implements SequencerUI {
     this.seq.setMatchMargin(parseFloat(this.marginInput.value) || 0);
 
     this.wireEvents();
-    this.populateFormations();
     // AFTER the catalogue is in, so the user's own shapes are added to a library that already has
     // the corpus in it rather than being deduped against a half-built one.
     this.registerUserFormations();
@@ -635,15 +640,36 @@ export class SequencerController implements SequencerUI {
     // during startup and take the whole app down.
     this.modules = parseStoredModules(localStorage.getItem(MODULES_STORAGE_KEY));
   }
-  /** Register the ceder-translated corpus modules that are fully replayable. */
+  /**
+   * Register the ceder-translated corpus modules that are fully replayable, WITH THE BOARD EACH ONE WAS WRITTEN FOR.
+   *
+   * THE START IS A GATE, NOT A LABEL: the engine only offers a module from a board that matches its declared start, so
+   * this is what stops the 168 modules written for a Zero Line or Zero Box being offered from the home square (where
+   * their first call or two apply and the rest refuse). A label this engine cannot stand up leaves the module ungated -
+   * registered without a start, which is the behaviour it had before - rather than being dropped or gated on a board
+   * that is not the one the corpus means.
+   */
   private registerCederModules() {
-    for (const m of validCederModules()) this.seq.registerModule(m.name, m.steps);
+    // THE LABELS ARE FEW AND THE MODULES ARE MANY (294 modules over three labels), and a board build is a formation
+    // lookup: caching by LABEL makes this a handful of builds per level change instead of one pair per module. The cache
+    // is local, so a level change rebuilds it and it cannot go stale against the library.
+    const byLabel = new Map<string, Matchable[] | null>();
+    const dancersFor = (label: string | undefined): Matchable[] | undefined => {
+      if (!label) return undefined;
+      if (!byLabel.has(label)) byLabel.set(label, this.startBoardFor(label)?.board?.dancers ?? null);
+      return byLabel.get(label) ?? undefined;
+    };
+    for (const m of validCederModules()) {
+      const start = dancersFor(m.startFormation);
+      const end = dancersFor(m.endFormation);
+      this.seq.registerModule(m.name, m.steps, { ...(start ? { start } : {}), ...(end ? { end } : {}) });
+    }
   }
   private persistModules() {
     localStorage.setItem(MODULES_STORAGE_KEY, JSON.stringify(this.modules));
   }
   /**
-   * Put every stored module into the CURRENT library.
+   * Put every stored module into the CURRENT library, with the boards it recorded.
    *
    * A MODULE THE ENGINE REFUSES IS SKIPPED AND KEPT. `registerModule` throws when the name is already a
    * call, and this runs from the constructor and again on every level change (`rebuildSeq`), so an
@@ -651,15 +677,30 @@ export class SequencerController implements SequencerUI {
    * existed - which is exactly the sort of stored value `stored-modules.ts` already drops bad entries
    * for. It is NOT dropped here: the drawer still lists it, and that is the only way the caller can see
    * it and delete it. `refreshModulesList` marks it, and the delete path does not care why it is dead.
+   *
+   * A START THE CATALOGUE CANNOT RESOLVE LEAVES THE MODULE UNGATED, rather than unregistered: the store said where it
+   * begins, this build cannot stand that board up, and a module missing from the picker is a module the caller cannot
+   * use at all. The drawer's load reports the same refusal by name when the module is clicked.
    */
   private restoreModules() {
     for (const m of this.modules) {
       try {
-        this.seq.registerModule(m.name, m.calls);
+        this.seq.registerModule(m.name, m.calls, this.storedBoards(m));
       } catch {
         // Left in `this.modules` on purpose; see above.
       }
     }
+  }
+  /** The boards a stored module recorded, as the engine's matcher takes them: geometry, with identity where known. */
+  private storedBoards(m: StoredModule): { start?: Matchable[]; end?: Matchable[] } {
+    const read = (ref: SetupRefJson | undefined, what: string): Matchable[] | undefined => {
+      if (!ref) return undefined;
+      const resolved = resolveSetupRef(ref, this.sequenceResolvers(), what);
+      return 'reason' in resolved ? undefined : resolved.start.dancers;
+    };
+    const start = read(m.start, 'module start');
+    const end = read(m.end, 'module end');
+    return { ...(start ? { start } : {}), ...(end ? { end } : {}) };
   }
   /**
    * The saved modules, each one CLICKABLE to load it, with a `×` to delete it.
@@ -2304,15 +2345,8 @@ export class SequencerController implements SequencerUI {
       // A label that does not resolve is a FAILURE, not an approximation: nothing is loaded and the
       // reason is announced, because a silently wrong board is worse than no board.
       const declared = startFormation?.trim();
-      const spec = resolveStartFormation(declared);
-      const startBoard = !spec
-        ? null
-        : spec.formation
-          ? this.seq.boardForSetup(spec.formation)
-          : boardForFasrCode(spec.code ?? '', (l) => {
-              const name = LETTER_TEMPLATE[l];
-              return name ? this.seq.boardForFormation(name) : null;
-            }).board;
+      const start = this.startBoardFor(declared);
+      const startBoard = start?.board ?? null;
       if (declared && !startBoard) {
         this.history = [];
         this.startBoard = undefined;
@@ -2320,13 +2354,13 @@ export class SequencerController implements SequencerUI {
         this.lastTraceKey = '';
         this.refreshCallSelect();
         this.syncAnimation();
-        this.setStatus('error', spec
-          ? `cannot load: starts from a "${declared}", which resolves to ${spec.code} - but the engine could not build that board.`
+        this.setStatus('error', start?.spec
+          ? `cannot load: starts from a "${declared}", which resolves to ${start.spec.code} - but the engine could not build that board.`
           : `cannot load: starts from a "${declared}", and this engine cannot put the dancers into that formation in the RIGHT arrangement. Replaying it from home would dance different calls, so it is refused rather than approximated.`);
         return;
       }
       this.startBoard = startBoard ?? undefined;
-      const startLabel = spec?.code ?? spec?.formation ?? '';
+      const startLabel = start?.spec?.code ?? start?.spec?.formation ?? '';
       this.loadSteps(steps, atCall, startLabel);
     }, 'Loading the sequence…');
   }
@@ -2584,6 +2618,31 @@ export class SequencerController implements SequencerUI {
   // ---------------------------------------------------------------- the sequence document
 
   /**
+   * The board a CORPUS START LABEL names, and the spec it resolved through - or null when the label is empty or one this
+   * app has never heard of.
+   *
+   * ONE BUILDER FOR EVERY CALLER, because the label bridge is a rule and not an implementation detail: the browse view's
+   * open, the sequence document's formation resolver, and the start board a ceder module is REGISTERED with all have to
+   * agree, or the picker offers a module from a board the loader would not stand up.
+   *
+   * `{ board: null, spec }` is the third answer and it is not the same as `null`: the label IS one of the corpus's, and
+   * this engine cannot build the arrangement it means - a failure worth naming rather than falling back from.
+   */
+  private startBoardFor(label: string | undefined): { board: Board | null; spec: StartSpec } | null {
+    const declared = label?.trim();
+    if (!declared) return null;
+    const spec = resolveStartFormation(declared);
+    if (!spec) return null;
+    const board = spec.formation
+      ? this.seq.boardForSetup(spec.formation)
+      : boardForFasrCode(spec.code ?? '', (l) => {
+          const name = LETTER_TEMPLATE[l];
+          return name ? this.seq.boardForFormation(name) : null;
+        }).board;
+    return { board: board ?? null, spec };
+  }
+
+  /**
    * THE THREE QUESTIONS `sequence-json.ts` CANNOT ANSWER ALONE, answered from the live app.
    *
    * The catalogue is the Board drawer's own setup list (`setupRows`, keyed by `sid`), so a document's `sid` resolves to
@@ -2600,14 +2659,11 @@ export class SequencerController implements SequencerUI {
         return row ? { sid: row.sid, fid: row.fid, aid: row.aid, display: row.display, dancers: asDancers(row.dancers) } : null;
       },
       formation: (name) => {
-        const spec = resolveStartFormation(name);
-        const board = spec
-          ? spec.formation
-            ? this.seq.boardForSetup(spec.formation)
-            : boardForFasrCode(spec.code ?? '', (l) => {
-                const template = LETTER_TEMPLATE[l];
-                return template ? this.seq.boardForFormation(template) : null;
-              }).board
+        // THE CORPUS LABELS FIRST, through the one builder the loader uses; then the engine's own names, which is what a
+        // hand-written document most often carries (`Static Square`, `Eight Chain Thru`).
+        const bridged = this.startBoardFor(name);
+        const board = bridged
+          ? bridged.board
           : this.seq.boardForSetup(name) ?? this.seq.boardForFormation(name);
         return board ? { dancers: asDancers(board.dancers), label: name } : null;
       },

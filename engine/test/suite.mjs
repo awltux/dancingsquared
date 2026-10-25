@@ -406,6 +406,13 @@ export const SUITE = [
   // the animation lands exactly on the applied board, and that `collapseModule` composes a matrix
   // across it. Fast: one board, a handful of applies.
   { h: 'modules', light: true },
+  // A module is a SEQUENCE, so it now says where it begins: a declared `start` gates it exactly as a call's
+  // authored `<tam>` start gates the call, and a module with no declaration keeps the old step-trial behaviour.
+  // Pins that a module written for an Eight Chain Thru is NOT offered from the home square (the 168 corpus
+  // modules written for a Zero Line/Zero Box were all offered from everywhere before), that the SAME steps
+  // without a start still are - the negative control that proves the gate did the work - and that the declared
+  // boards come back readable. Fast: one call, a handful of boards.
+  { h: 'module-start', light: true },
   { h: 'mainstream', light: true },
   { h: 'matrix', light: true },
   { h: 'matrix-getout', light: true },

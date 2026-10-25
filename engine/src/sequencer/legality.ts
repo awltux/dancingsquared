@@ -9,6 +9,7 @@ import { CallLibrary } from './library.js';
 import { SequencerConfig } from './config.js';
 import { DEFAULT_MATCH_MAX, SEARCH_MATCH_MAX } from './constants.js';
 import { CODED_MOVES, applyCodedMove } from './coded-moves.js';
+import { matchFormations } from './match.js';
 import type { Board } from './types.js';
 
 export class LegalityChecker {
@@ -24,6 +25,34 @@ export class LegalityChecker {
    * current board AND (b) ends in a known formation. */
   legalCalls(board: Board): string[] {
     return this.legalWithResults(board).map((x) => x.name);
+  }
+
+  /**
+   * THE MODULES THAT BEGIN HERE, which is the same question a call's start answers.
+   *
+   * MEASURED WHY IT IS A GATE. A module is a sequence, and 168 of the 294 corpus modules are written for a Zero Line or
+   * a Zero Box; the picker offered every one of them from every board because all it did was try the steps. From home,
+   * 126 of the 294 applied - and the ones that applied often did so only for their first call or two, so the caller
+   * found out the board was wrong by a refusal in the middle of the module (`ceder-7046` reaches its fourth call and
+   * then `Right and Left Grand` refuses from the `T-Bone RDRD` a square set produces).
+   *
+   * A CALL IS MATCHED THIS WAY ALREADY - `findMatchingVariant` tests its authored start against the board within the
+   * interactive tolerance - so a module with a declared start is matched by the same `matchFormations` at the same
+   * tolerance. The gate is on the START BOARD only because the END needs no gate: applying the steps THAT FOLLOW from a
+   * module is what `legalWithResults` already enumerates from the board the module leaves behind.
+   *
+   * A MODULE THAT DECLARED NO START IS NOT GATED. `moduleStart` returning null is "no declaration", not "home": those
+   * modules keep the pre-existing behaviour (their own first step decides), which is what a caller who saved one before
+   * the field existed gets.
+   */
+  private moduleStartsHere(name: string, board: Board): boolean {
+    const start = this.library.moduleStart(name);
+    if (!start || start.length === 0) return true;
+    const src = this.matcher.matchables(board);
+    // A DIFFERENT DANCER COUNT CANNOT BE THE SAME SETUP, and asking `matchFormations` would spend the scan to say so.
+    if (src.length !== start.length) return false;
+    const tol = DEFAULT_MATCH_MAX + this.config.matchMargin;
+    return matchFormations(src, start, tol) !== null;
   }
 
   /**
@@ -50,6 +79,7 @@ export class LegalityChecker {
       if (res.legal) out.push({ name, res });
     }
     for (const mname of this.library.moduleNames()) {
+      if (!this.moduleStartsHere(mname, board)) continue;
       const res = this.applicator.applyToBoard(board, mname);
       if (res.legal) out.push({ name: mname, res });
     }
@@ -69,6 +99,9 @@ export class LegalityChecker {
       if (res.legal && this.matcher.knownFormation(res.board) !== null) out.push({ name, res });
     }
     for (const mname of this.library.moduleNames()) {
+      // THE SAME START GATE AS THE INTERACTIVE LIST: a search that could reach a module from a board it was not written
+      // for would return a getout the picker refuses to play.
+      if (!this.moduleStartsHere(mname, board)) continue;
       const tightApply = this.applicator.applyToBoard(board, mname);
       if (!tightApply.legal || this.matcher.knownFormation(tightApply.board) === null) continue;
       const res = this.applicator.applySearch(board, mname);

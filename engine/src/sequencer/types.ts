@@ -3,6 +3,8 @@
 import type { Gender } from '../types.js';
 // A VALUE IMPORT, and it is safe: `selection.ts` imports nothing, so the pair cannot cycle.
 import { splitSelection } from './selection.js';
+// A TYPE ONLY: `match.js` holds the tolerant-matching form a module's declared start is stored in.
+import type { Matchable } from './match.js';
 
 /** A dancer in the sequencer's board, carrying identity. */
 export interface SeqDancer {
@@ -273,6 +275,25 @@ export function parseStep(label: string): ModuleStep | null {
  * call may carry an optional dancer selection. */
 export interface Module {  name: string;
   calls: ModuleStep[];
+  /**
+   * THE BOARD THE MODULE WAS WRITTEN FOR, when its author declared one.
+   *
+   * A module is a sequence, and a sequence starts somewhere: 168 of the 294 corpus modules are written for a Zero Line
+   * or a Zero Box, and one replayed from the home square dancers different calls (`ceder-7046` refuses at its fourth
+   * call - `Right and Left Grand` from the `T-Bone RDRD` a square reaches). Before this field the picker offered every
+   * registered module from every board, so the only way a caller learned the board was wrong was a refusal mid-module.
+   *
+   * ABSENT MEANS "NO DECLARATION", which is NOT "starts from home": a module registered without a start keeps the old
+   * behaviour (its own first step's start decides, through the applicator). The distinction matters because the loader
+   * that knows where a module starts (`poc/src/stored-modules.ts`) may legitimately not know for an older entry.
+   *
+   * Stored in the TOLERANT-MATCHING form a formation is matched in (`Matchable`), so the check is the same geometric
+   * one a call's start goes through, and it needs no catalogue name to be resolvable.
+   */
+  start?: Matchable[];
+  /** The board its author says it ENDS on, in the same form. The replay is authoritative - this is a CHECK, and it is
+   *  what a sequence asks "which calls may follow this module" from. */
+  end?: Matchable[];
   level?: string;
   tags?: string[];
   notes?: string;

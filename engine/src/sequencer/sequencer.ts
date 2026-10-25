@@ -276,9 +276,21 @@ export class Sequencer {
 
   /** Register a user module. THROWS if the name is already a CALL - a module resolves before a call in
    *  `flatten`, so the name would be taken over and the call left unappliable. See
-   *  `CallLibrary.registerModule` for the measurement. */
-  registerModule(name: string, calls: ModuleStep[]): void {
-    this.library.registerModule(name, calls);
+   *  `CallLibrary.registerModule` for the measurement, and for what a declared `start`/`end` does. */
+  registerModule(name: string, calls: ModuleStep[], boards: { start?: readonly Matchable[]; end?: readonly Matchable[] } = {}): void {
+    this.library.registerModule(name, calls, boards);
+  }
+
+  /** The board a module declared as its start, or null when it declared none (which is NOT "home" - see
+   *  `CallLibrary.moduleStart`). */
+  moduleStart(name: string): Matchable[] | null {
+    return this.library.moduleStart(name);
+  }
+
+  /** The board a module declared as its end, or null. The replay stays authoritative; this is what a consumer asks
+   *  "what may follow this module" from. */
+  moduleEnd(name: string): Matchable[] | null {
+    return this.library.moduleEnd(name);
   }
 
   /** Drop a USER module again, so the picker stops offering it. See `CallLibrary.unregisterModule` for

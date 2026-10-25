@@ -126,7 +126,7 @@ const restore = (() => {
   const j = ui.indexOf('\n  }\n', i);
   return ui.slice(i, j < 0 ? i + 1400 : j);
 })();
-check(/try \{[\s\S]{0,120}?this\.seq\.registerModule\(m\.name, m\.calls\);[\s\S]{0,80}?\} catch/.test(restore),
+check(/try \{[\s\S]{0,160}?this\.seq\.registerModule\(m\.name, m\.calls, this\.storedBoards\(m\)\);[\s\S]{0,80}?\} catch/.test(restore),
   '`restoreModules` catches per module, so a stored module the engine now refuses cannot throw out of the constructor');
 check(!/splice|filter|this\.modules\s*=/.test(restore),
   'and it does NOT drop it: a module left in storage with nothing on screen to delete it from is unreachable');

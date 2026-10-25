@@ -110,7 +110,7 @@ function canonicalJson(value: unknown): string {
 
 export class CallLibrary {
   private readonly variants: Map<string, CallBundle[]> = new Map();
-  private readonly modules: Map<string, ModuleStep[]> = new Map(); // module name -> module steps
+  private readonly modules: Map<string, Module> = new Map(); // module name -> steps AND the boards it was written between
   private readonly namedFormations: { name: string; dancers: Matchable[] }[] = [];
   private readonly uniqueFormations: { name: string; dancers: Matchable[] }[] = [];
   /** Names added by `registerFormation` rather than read from `formations.xml`. See its note. */
@@ -228,7 +228,18 @@ export class CallLibrary {
     if (added.length) this.variants.set(key, kept.concat(added));
   }
 
-  registerModule(name: string, calls: ModuleStep[]): void {
+  /**
+   * Register a module: its steps, and optionally the two boards it was written between.
+   *
+   * THE BOARDS ARE OPTIONAL AND A MODULE WITHOUT A START KEEPS THE OLD BEHAVIOUR. `start` is the module's answer to
+   * "where does this begin", and `legality.ts` refuses to offer the module from any other board - which is what a call
+   * gets from its `<tam>` start, and what 168 of the 294 corpus modules were missing. `end` is carried as data (the
+   * replay stays authoritative) so a consumer can ask what may follow the module.
+   *
+   * A `start` is stored AS GIVEN, in the tolerant-matching form: it is geometry, not a name, so nothing has to resolve a
+   * formation label, and the comparison is `matchFormations` - the same one a call's setup match uses.
+   */
+  registerModule(name: string, calls: ModuleStep[], boards: { start?: readonly Matchable[]; end?: readonly Matchable[] } = {}): void {
     const key = canonicalName(name);
     // A MODULE MAY NOT TAKE A CALL'S NAME. `flatten` resolves a name to a MODULE BEFORE a call, so
     // registering one under a call's title makes the title mean the module's contents everywhere a
@@ -255,7 +266,12 @@ export class CallLibrary {
       if (isGroupStep(c)) return { groups: c.groups.map((g) => ({ selection: g.selection, calls: groupCalls(g).map(canonicalName) })) };
       return { ...(c.selection ? { selection: c.selection } : {}), call: canonicalName(c.call) };
     };
-    this.modules.set(key, calls.map(norm));
+    // THE BOARDS ARE COPIED, like the calls: a caller that keeps editing the array it passed must not be able to change
+    // what a registered module starts from without re-registering it.
+    const module: Module = { name: key, calls: calls.map(norm) };
+    if (boards.start && boards.start.length) module.start = boards.start.map((d) => ({ ...d }));
+    if (boards.end && boards.end.length) module.end = boards.end.map((d) => ({ ...d }));
+    this.modules.set(key, module);
   }
 
   /**
@@ -370,7 +386,24 @@ export class CallLibrary {
   }
 
   getModules(): Module[] {
-    return [...this.modules.entries()].map(([name, calls]) => ({ name, calls }));
+    return [...this.modules.values()];
+  }
+
+  /**
+   * The board a module declared as its START, or null when it declared none.
+   *
+   * NULL IS NOT HOME. A module with no declaration keeps the pre-existing rule - its own first step decides, through the
+   * applicator - where a declared start is a GEOMETRIC GATE. The two answers differ, so `legality.ts` reads this null
+   * and skips the gate rather than comparing the board to the home square.
+   */
+  moduleStart(name: string): Matchable[] | null {
+    return this.modules.get(canonicalName(name))?.start ?? null;
+  }
+
+  /** The board a module declared as its END, or null when it declared none. The replay stays authoritative: this is
+   *  what a consumer asks "what may follow it" from, and a disagreement is reported rather than obeyed. */
+  moduleEnd(name: string): Matchable[] | null {
+    return this.modules.get(canonicalName(name))?.end ?? null;
   }
 
   // ---- read accessors ----
@@ -481,7 +514,7 @@ export class CallLibrary {
   }
 
   getModule(name: string): ModuleStep[] | undefined {
-    return this.modules.get(canonicalName(name));
+    return this.modules.get(canonicalName(name))?.calls;
   }
 
   getNamedFormations(): { name: string; dancers: Matchable[] }[] {
@@ -573,7 +606,7 @@ export class CallLibrary {
         const canonical = canonicalName(name);
         if (this.modules.has(canonical)) {
           if (stack.includes(canonical)) continue; // cycle guard
-          expand(this.modules.get(canonical)!, [...stack, canonical]);
+          expand(this.modules.get(canonical)!.calls, [...stack, canonical]);
         } else if (hasSelection) {
           // Only wrap a step in a CallStep object when it carries a dancer
           // selection; a plain call stays a plain string so downstream

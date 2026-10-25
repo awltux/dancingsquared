@@ -8,7 +8,7 @@
 import type { ClassInstance, TipConfig } from './teacher';
 import { DEFAULT_TIP_CONFIG } from './teacher';
 import type { Programme } from './programme';
-import { ssdProgramme, mainstream2026Programme } from './programme';
+import { mainstream2026Programme } from './programme';
 
 const STORE_KEY = 'dsTeacherData';
 const PROG_KEY = 'dsTeacherProgrammes';
@@ -90,7 +90,7 @@ export class TeacherStore {
         /* fall through to defaults */
       }
     }
-    return [ssdProgramme(), mainstream2026Programme()];
+    return [mainstream2026Programme()];
   }
 
   saveProgrammes(): void {

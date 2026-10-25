@@ -8,7 +8,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import { setParser } from 'dancing-squared-engine';
 
 import { buildCatalog, makeSequencer } from './src/catalog.ts';
-import { ssdProgramme, mainstream2026Programme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
+import { mainstream2026Programme, parseProgramme, serializeProgramme, buildClassFromProgramme } from './src/programme.ts';
 import {
   availableTitles,
   fitsAround,
@@ -426,15 +426,16 @@ check(inserted.length === sampleTip.length + 1, 'insertInto adds one');
 check(removed.length === sampleTip.length - 1, 'removeAt removes one');
 
 console.log('\n== Programme import / export ==');
-const def = ssdProgramme();
+// THE DEFAULT PROGRAMME IS THE ONLY ONE now: `ssdProgramme()` went when CALLERLAB retired SSD and replaced
+// Basic/Mainstream/SSD with the single Mainstream programme of 2026. Everything below reads `def`, so the
+// round-trip and the course build are measured against the programme a teacher is actually offered.
+const def = mainstream2026Programme();
 check(def.sessions.length >= 3, `default programme has >= 3 sessions (${def.sessions.length})`);
 check(def.sessions.every((s) => s.calls.length > 0), 'default programme sessions each have calls');
-check(def.sessions.length === 12, `SSD programme has 12 sessions (${def.sessions.length})`);
 const resolveAll = (calls) => calls.every((c) => catalog.some((x) => x.title === c));
-check(def.sessions.every((s) => resolveAll(s.calls)), 'every SSD session call resolves in the catalog');
+check(def.sessions.every((s) => resolveAll(s.calls)), 'every session call resolves in the catalog');
 const ms26 = mainstream2026Programme();
 check(ms26.sessions.length === 19, `Mainstream 2026 has 19 sessions (${ms26.sessions.length})`);
-check(ms26.sessions.every((s) => resolveAll(s.calls)), 'every Mainstream 2026 call resolves in the catalog');
 
 console.log('\n== Formation table (get-ins / get-outs) ==');
 const { buildFormationTable } = await import('./src/formation-table.ts');

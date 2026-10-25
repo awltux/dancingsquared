@@ -17,13 +17,20 @@ export interface Programme {
 }
 
 /** The Mainstream 2026 teaching programme (19 sessions), built from the lesson
- * plan by matching each item to a call that resolves in the catalog. */
+ * plan by matching each item to a call that resolves in the catalog.
+ *
+ * ONE FAMILY NOTE, because a reader will check it: the promenade family authors a RIGHT-WAY 1/4, 1/2, 3/4 and a full
+ * turn, and a WRONG-WAY 1/2, 3/4 and a full turn - there is no wrong-way 1/4 anywhere in the corpus
+ * (`ms/promenade.xml`), so the plan has no entry for one. The retired SSD programme named
+ * `All 4 Couples Wrong Way Promenade 1/4`, which resolved to nothing; the entry went with it rather than being
+ * retitled to a call the corpus does not carry.
+ */
 export function mainstream2026Programme(): Programme {
   return {
     name: 'Mainstream 2026',
     level: 'ms',
     sessions: [
-      { name: 'Session 1', calls: ['Circle Left', 'Circle Left 1/4', 'Circle Left 1/2', 'Circle Left 3/4', 'Circle Right', 'Circle Right 1/4', 'Circle Right 1/2', 'Circle Right 3/4', 'Circle Four Left Full', 'Circle Four Right Full', 'Circle Four Left 1/4', 'Circle Four Right 1/4', 'Circle Four Left 1/2', 'Circle Four Right 1/2', 'Circle Four Left 3/4', 'Circle Four Right 3/4', 'Single Circle Left Full', 'Single Circle Right Full', 'Single Circle Left 1/4', 'Single Circle Right 1/4', 'Single Circle Left 1/2', 'Single Circle Right 1/2', 'Single Circle Left 3/4', 'Single Circle Right 3/4', 'Dosado', 'All 4 Couples Promenade 1/4', 'All 4 Couples Promenade 1/2', 'All 4 Couples Promenade 3/4', 'All 4 Couples Promenade Full', 'Single File Promenade', 'All 4 Couples Wrong Way Promenade 1/4', 'All 4 Couples Wrong Way Promenade 1/2', 'All 4 Couples Wrong Way Promenade 3/4', 'All 4 Couples Wrong Way Promenade Full', 'Turn Partner by the Right', 'Turn Partner by the Left', 'Left Arm Turn 3/4', 'Centers Arm Turn 3/4', 'Allemande Left', 'Right Hand Star', 'Left Hand Star', 'Right-Hand Star 1/4', 'Right-Hand Star 1/2', 'Right-Hand Star 3/4', 'Right-Hand Star a Full Turn', 'Left-Hand Star 1/4', 'Left-Hand Star 1/2', 'Left-Hand Star 3/4', 'Left-Hand Star a Full Turn', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Pass Thru'] },
+      { name: 'Session 1', calls: ['Circle Left', 'Circle Left 1/4', 'Circle Left 1/2', 'Circle Left 3/4', 'Circle Right', 'Circle Right 1/4', 'Circle Right 1/2', 'Circle Right 3/4', 'Circle Four Left', 'Circle Four Right', 'Circle Four Left 1/4', 'Circle Four Right 1/4', 'Circle Four Left 1/2', 'Circle Four Right 1/2', 'Circle Four Left 3/4', 'Circle Four Right 3/4', 'Single Circle Left', 'Single Circle Right', 'Single Circle Left 1/4', 'Single Circle Right 1/4', 'Single Circle Left 1/2', 'Single Circle Right 1/2', 'Single Circle Left 3/4', 'Single Circle Right 3/4', 'Dosado', 'Promenade 1/4', 'Promenade 1/2', 'Promenade 3/4', 'Promenade', 'Single File Promenade', 'Wrong Way Promenade 1/2', 'Wrong Way Promenade 3/4', 'Wrong Way Promenade', 'Turn Partner by the Right', 'Turn Partner by the Left', 'Left Arm Turn 3/4', 'Centers Arm Turn 3/4', 'Allemande Left', 'Right Hand Star', 'Left Hand Star', 'Right-Hand Star 1/4', 'Right-Hand Star 1/2', 'Right-Hand Star 3/4', 'Right-Hand Star a Full Turn', 'Left-Hand Star 1/4', 'Left-Hand Star 1/2', 'Left-Hand Star 3/4', 'Left-Hand Star a Full Turn', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Pass Thru'] },
       { name: 'Session 2', calls: ['Wheel Around', 'Reverse Wheel Around', 'Courtesy Turn', 'Right and Left Thru', 'Swing Your Partner', 'Swing Your Corner', 'Ladies Chain', 'Head Ladies Chain', 'Side Ladies Chain', 'Four Ladies Chain', 'Four Ladies Chain 3/4'] },
       { name: 'Session 3', calls: ['Ladies In, Men Sashay', 'U-Turn Back', 'Girls Backtrack', 'Heads Separate', 'Sides Separate', 'Heads Pass Thru, Separate Around 1 to a Line', 'Heads Pass Thru, Separate Around 2 to a Line', 'Around One to a Line', 'Around Two to a Line', 'Heads Pass Thru, Separate Around 1 and Come Into the Middle', 'Heads Pass Thru, Separate Around 2 and Come Into the Middle', 'Around One and Come Into the Middle', 'Around Two and Come Into the Middle'] },
       { name: 'Session 4', calls: ['Lead Right', 'Lead Left', 'Veer Left', 'Veer Right', 'Chain Down the Line', 'Star Thru', 'Couples Circulate', 'Centers Circulate', 'Ends Circulate', 'Bend the Line'] },
@@ -42,27 +49,6 @@ export function mainstream2026Programme(): Programme {
       { name: 'Session 17', calls: ['Centers Cross Run', 'Ends Cross Run'] },
       { name: 'Session 18', calls: ['3/4 Tag the Line', 'Left 3/4 Tag the Line', 'Quarter Tag', 'Half Tag', 'Left Half Tag'] },
       { name: 'Session 19', calls: ['Left Swing Thru', 'Reverse Wheel Around'] }],
-  };
-}
-
-/** The SSD (Standard Square Dance) teaching programme, 12 sessions. */
-export function ssdProgramme(): Programme {
-  return {
-    name: 'SSD Teaching Programme',
-    level: 'ssd',
-    sessions: [
-      { name: 'Session 1', calls: ['Circle Left', 'Circle Left 1/4', 'Circle Left 1/2', 'Circle Left 3/4', 'Circle Right', 'Circle Right 1/4', 'Circle Right 1/2', 'Circle Right 3/4', 'Forward and Back', 'Heads Forward and Back', 'Dosado', 'Dosado to a Wave', 'Swing Your Partner', 'Swing Your Corner', 'All 4 Couples Promenade 1/4', 'All 4 Couples Promenade 1/2', 'All 4 Couples Promenade 3/4', 'All 4 Couples Promenade Full', 'Single File Promenade', 'All 4 Couples Wrong Way Promenade 1/4', 'All 4 Couples Wrong Way Promenade 1/2', 'All 4 Couples Wrong Way Promenade 3/4', 'All 4 Couples Wrong Way Promenade Full', 'Star Promenade', 'Allemande Left', 'Allemande Left in the Alamo Style', 'Turn Partner by the Right', 'Turn Partner by the Left', 'Left Arm Turn 3/4', 'Centers Arm Turn 3/4', 'Right and Left Grand', 'Weave the Ring', 'Wrong Way Grand', 'Left Hand Star', 'Right Hand Star', 'Right-Hand Star 1/4', 'Right-Hand Star 1/2', 'Right-Hand Star 3/4', 'Right-Hand Star a Full Turn', 'Left-Hand Star 1/4', 'Left-Hand Star 1/2', 'Left-Hand Star 3/4', 'Left-Hand Star a Full Turn', 'Courtesy Turn', 'Courtesy Turn and a Quarter More', 'Ladies Chain', 'Head Ladies Chain', 'Side Ladies Chain', 'Four Ladies Chain', 'Pass Thru', 'Wheel Around', 'Reverse Wheel Around', 'Heads Wheel Around'] },
-      { name: 'Session 2', calls: ['Star Thru', 'Heads Star Thru', 'Slide Thru', 'Half Sashay', 'Rollaway', 'Ladies In, Men Sashay'] },
-      { name: 'Session 3', calls: ['California Twirl', 'Bend the Line', 'Line of 8, Bend the Line', 'U-Turn Back', 'Boys Turn Back', 'Girls Turn Back', 'Girls Backtrack', 'Dive Thru'] },
-      { name: 'Session 4', calls: ['Square Thru 2', 'Square Thru 3', 'Square Thru 4', 'Square Thru 1 1/2', 'Square Thru 2 1/2', 'Square Thru 3 1/2', 'Grand Square', 'Heads Face, Grand Square', 'Sides Face, Grand Square', 'Boys Face your Partner, Grand Square', 'Girls Face your Partner, Grand Square'] },
-      { name: 'Session 5', calls: ['Lead Right', 'Lead Left', 'Heads Lead Right', 'Heads Lead Left', 'Veer Left', 'Veer Right', 'Couples Circulate', 'Centers Circulate', 'Ends Circulate', 'All 8 Circulate', 'Box Circulate', 'Column Circulate', 'Split Circulate', 'Outer 6 Circulate', 'Trade', 'Couples Trade', 'Boys Trade', 'Girls Trade', 'Centers Trade', 'Ends Trade', 'Chain Down the Line'] },
-      { name: 'Session 6', calls: ['Right and Left Thru', 'Right and Left Thru and a Quarter More', 'Flutterwheel', 'Reverse Flutterwheel', 'All 4 Women Lead Flutterwheel', 'All 4 Men Lead Reverse Flutterwheel', 'Flutterwheel and Sweep a Quarter', 'Reverse Flutterwheel and Sweep a Quarter', 'Recycle and Sweep a Quarter'] },
-      { name: 'Session 7', calls: ['Heads Pass Thru, Separate Around 1 to a Line', 'Heads Pass Thru, Separate Around 1 and Come Into the Middle', 'Heads Pass Thru, Separate Around 2 to a Line', 'Heads Pass Thru, Separate Around 2 and Come Into the Middle', 'Centers Split the Outside Couple', 'Wheel and Deal', 'Double Pass Thru', 'Left Double Pass Thru', 'First Couple Go Left, Next Couple Go Left', 'First Couple Go Left, Next Couple Go Right', 'First Couple Go Right, Next Couple Go Left', 'First Couple Go Right, Next Couple Go Right'] },
-      { name: 'Session 8', calls: ['Step to a Wave', 'Heads Step to a Wave', 'Step to a Left-Hand Wave', 'Dosado to a Wave', 'Allemande Left in the Alamo Style', 'Balance', 'Trade', 'Couples Trade', 'Boys Trade', 'Girls Trade', 'Centers Trade', 'Ends Trade', 'Swing Thru', 'Left Swing Thru', 'Boys Run', 'Girls Run', 'Centers Run', 'Ends Run', 'Centers Cross Run', 'Ends Cross Run'] },
-      { name: 'Session 9', calls: ['Pass the Ocean', 'Heads Pass the Ocean', 'Sides Pass the Ocean', 'Extend', 'Zoom', 'Centers Zoom', 'Ends Zoom'] },
-      { name: 'Session 10', calls: ['Centers In', 'Cast Off Three Quarters', 'Centers Cast Off Three Quarters', 'Very Centers Cast Off Three Quarters', 'Ferris Wheel', 'Partner Trade', 'Trade By'] },
-      { name: 'Session 11', calls: ['Box the Gnat', 'Hinge', 'Centers Hinge', 'Couples Hinge', 'Very Centers Hinge', 'Touch a Quarter', 'Left Touch a Quarter', 'Touch a Half', 'All 8 Circulate', 'Column Circulate', 'Centers Circulate', 'Ends Circulate', 'Tag the Line', '3/4 Tag the Line', 'Quarter Tag', 'Half Tag', 'Left Half Tag'] },
-      { name: 'Session 12', calls: ['Split Circulate', 'Box Circulate', 'Boys Fold', 'Girls Fold', 'Ends Fold', 'Ends Cross Fold', 'Scoot Back', 'Recycle'] }],
   };
 }
 

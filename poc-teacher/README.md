@@ -127,7 +127,7 @@ poc-teacher/
   src/
     main.ts             UI + routing + all the wiring
     teacher.ts          Core model & tip generation (headless-testable)
-    programme.ts        Programmes / SSD curriculum
+    programme.ts        Programmes / the Mainstream 2026 curriculum
     catalog.ts          Call catalog built from the taminations XML
   verify.mjs            Headless test suite (Node type-stripping)
 ```

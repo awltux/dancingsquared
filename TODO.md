@@ -445,6 +445,20 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   made and reverted: WeakMap object-identity keying is stricter than the string-keyed `matchMemo`, so
   measure that first.
 
+- [ ] **51. FOUR ENGINE MODULES ARE 1300-1700 LINES, AND SIZE IS NOT THE MEASUREMENT THAT SAYS SO.** `[measured]`
+  A line count over the tree (`Get-Content <f> | Measure-Object -Line`) puts `engine/src/sequencer/applicator.ts`
+  at **1658**, `alignment.ts` **1582**, `sequencer.ts` **1562**, `sequence.ts` **1342**; outside the engine
+  `packages/stage/scene.ts` **1509**, `book/tools/build-site.mjs` **1389**, `game/src/net/api.ts` **963**,
+  `engine/src/sequencer/all8-notation.ts` **981**, `scripts/tag-formations.mjs` **866** and `poc/src/browser.ts`
+  **853** (36 methods, 2 exports). The longest lines are NOT the signal: `poc/src/fsm-view.ts` is only 418 lines but
+  carries **18** over 200 characters (minified layout data), and `poc/src/editor-ui.ts` is **6113** lines with 19 -
+  a UI shell whose size is item-shaped rather than rule-shaped.
+  **THE R6 PRECEDENT IS THE METHOD, NOT THE TARGET**: R6 extracted four modules and each extraction was justified by
+  a rule that could not be probed where it lived (`export-format.ts`, `same-move.ts`, `board-key.ts`,
+  `board-period.ts`) - never by a line count. So the next step is a MEASUREMENT per module (what rule is unreachable
+  from a probe, how many call sites agree on it), not a split. Filed rather than started because a 1600-line module
+  split with no measured lead is churn, and the probes that would prove the split live in the `all` tier.
+
 ---
 
 ## P4 — hygiene, by design, or deferred by decision
@@ -532,6 +546,29 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   Converting them needs the engine's rule to be importable from each (it is), and then the §4 census extended to the
   probe trees so a nineteenth cannot reappear — a mechanical pass with a full POC probe run, which is why it is filed
   rather than ridden in on the sweep that found it.
+
+- [ ] **49. `MS_PER_BEAT` IS DECLARED TWICE AND DERIVED A THIRD TIME - AND THE GAME'S COMMENT SAYS IT IS REUSED.** `[measured]`
+  `game/src/puzzle/config.ts:195` exports `MS_PER_BEAT = 500` under a comment saying "The POC's `MS_PER_BEAT` (500,
+  i.e. 120 beats a minute), reused rather than re-chosen", and `poc/src/sequencer-ui.ts:104` declares its OWN private
+  `const MS_PER_BEAT = 500` with no import in either direction. MEASURED, `git grep -n MS_PER_BEAT`: the two
+  declarations, the game's consumers (`game/src/ui/playhead.ts` and `game/test/playhead-probe.mjs`), and
+  `poc-teacher/src/preview.ts:110`, which derives `60000 / PREVIEW_BPM` because the teacher previews at its own tempo.
+  So a sentence is the only thing keeping two app constants equal — the copy-without-a-gate failure `AGENTS.md`
+  §11.2.9 names. **The fix is a decision about ownership before it is code**: the engine owns beats (and
+  `SIGNATURE_DIVISOR` already sits in `sequencer/constants.ts`), but a playback tempo is presentation, so either one
+  owner plus an injectable BPM, or two copies plus a probe that compares them. `square-dancing.md:3278` states the
+  number as a convention, so it moves with whichever decision is taken.
+
+- [ ] **50. THE GAME'S TWO `corpusCalls()` LOADERS ARE DELIBERATE TWINS, AND THEIR POOLING HALF IS THE DUPLICATE.** `[measured]`
+  `game/src/data/assets.ts` (57 lines) enumerates the corpus through Vite's `import.meta.glob`;
+  `game/src/data/corpus-node.ts` (156 lines) goes through `filesOf`/`readFile` from `dancing-squared-corpus`. Both
+  export `corpusCalls()`, both carry the same measurement written twice (`62 titles from 66 files` becoming
+  **322** — `assets.ts:35,46` and `corpus-node.ts:58,73`), and both skip generated instances by the same predicate.
+  The ENUMERATION cannot be shared (the browser build has no `fs`), and that is the documented reason for the twins -
+  but the POOLING half is fs-free: a `pooledByTitle(files: Record<path, xml>)` in `packages/corpus/blocks.ts` (~10
+  lines, the module that already owns the `<tam>` slice) would take each loader's map and return the same title list,
+  leaving only the enumeration per environment. Filed rather than done because the proof is a `game` probe run
+  (`game/tools/verify-probes.mjs`) showing the two still agree, and that suite is minutes long.
 
 ---
 

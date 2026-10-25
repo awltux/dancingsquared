@@ -293,7 +293,11 @@ regenerated only when a session ends gets read as current state by the session a
     Mirror the TURN, which is all `poseFor` reads from a facing curve.
 19. **A Vite dev server watching `game/src` fights the editor's atomic write.** MEASURED: `EBUSY … main.ts.tmp` killed
     the server (exit 1) and the next three edits failed with `EIO` — trap 5's error, here the watcher holding the
-    file. Retrying does not clear it: stop the dev server, confirm the port free, then edit.
+    file. Retrying does not clear it: stop the dev server, confirm the port free, then edit. **IT IS THE WATCHER, NOT
+    A LOCK**: the same thing then hit `poc/src/editor-ui.ts` under the POC dev server on 5173 — four identical
+    `ReplaceFileW EIO` failures while `git status` was clean and an exclusive `FileStream` open of that exact file
+    succeeded — and stopping that one server made the identical edit go through first time. Look for the directory's
+    watcher (`Get-NetTCPConnection -State Listen`, and the `vite` process's own command line), not for a file lock.
 20. **Never kill every `node` process (`Stop-Process -Name node`, `taskkill /IM node.exe`).** The harness, the runners,
     dev servers and the probes are all `node`: MEASURED, a smoke test ending in `Stop-Process -Name node` killed the
     session that issued it. Stop by id (`job_kill`, the `$PID` you captured), and confirm with a port check

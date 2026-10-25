@@ -137,7 +137,6 @@ import { keptSetupIndex } from './setup-keep';
 // What the End setup row says about the shape the call finishes on, and whether it can be exported - a pure rule, so
 // a probe can measure it rather than read the panel (see end-setup-state.ts).
 import { endSetupState } from './end-setup-state';
-import { isZeroSetup } from './zero-formations';
 // THE GROUP GATE'S COMPARISON, for the reason `grid-magnet.ts` is its own module: the rule is arithmetic over engine
 // types, and a probe can only MEASURE it if it can import it. Five probes carried a copy before this.
 import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameCurve, sameFacingCurve, sameTrace, sameTravel, travelGap } from './same-move';
@@ -3053,17 +3052,13 @@ export class EditorController implements EditorUI {
       (n > 1 ? ` · ${n} selected (edits apply to all, each in its own frame)` : '') +
       (this.instanceEdited ? ' · edited' : '') +
       // THE COLOURS ARE STILL DRAWN, AND THAT IS SAID HERE rather than left to be inferred from the table's
-      // "-" column: `displayCouple` numbers a dancer with no home couple by its PAIR IN THE LIST ORDER when
-      // the setup is one of `ZERO_FORMATIONS`, so the board is coloured (and labelled) while the engine's
-      // `couple` stays UNKNOWN. Without the note the two would read as a contradiction - a red dancer whose
-      // couple column says nothing. A setup that is NOT in the list keeps one grey, and the note says which
-      // of the two this board is, because "the colours are missing" and "the colours are missing HERE" are
-      // different reports.
-      (unknown === call.dancers.length
-        ? isZeroSetup(call.formation, call.from)
-          ? ' · no home identity (not a squared set) — colours follow the list order'
-          : ' · no home identity (not a squared set) — one colour, because this setup is not a zero formation'
-        : '');
+      // "-" column: on a board whose dancers all have no home couple, `displayCouple` draws each of them the
+      // colour of the PAIR it sits in in the list order (`browser.ts` passes `enabled: true`), so the board is
+      // coloured while the engine's `couple` stays UNKNOWN. Without the note the two would read as a
+      // contradiction - a red dancer whose couple column says nothing. It says NOTHING ABOUT A NUMBER on
+      // purpose: this board draws no couple label (a display-only pair has no head or side to name), so the
+      // colour is the whole of the claim.
+      (unknown === call.dancers.length ? ' · no home identity (not a squared set) — colours follow the list order' : '');
   }
 
   /**

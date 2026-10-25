@@ -1,9 +1,11 @@
-// THE SETUPS WHOSE DANCER ORDER IS A SQUARE-SET ORDER, and so the only ones drawn a colour per pair.
+// THE SETUPS WHOSE DANCER ORDER IS A SQUARE-SET ORDER, and so the only ones the SEQUENCER may draw a colour per pair
+// when the engine has no home couple for them.
 //
 // WHY A LIST AND NOT A RULE. A board is coloured by home couple, and home couple is data: `assignHomeIdentity`
-// can only name a board that IS a squared set up to a rotation/reflection (MEASURED: **6 of the 291** formations
-// in `assets/formations.xml`), so everything else - a Zero Line, a Zero Box, a column, a line of 6, a circle -
-// comes back `UNKNOWN_COUPLE` and is drawn one grey. Drawing those by their order instead is only truthful where
+// can only name a board that IS a squared set up to a rotation/reflection - six of the formations in
+// `assets/formations.xml`, a figure `poc/tools/display-couple-probe.mjs` prints live - so everything else - a Zero
+// Line, a Zero Box, a column, a line of 6, a circle - comes back `UNKNOWN_COUPLE` and is drawn one grey. Drawing
+// those by their order instead is only truthful where
 // the ORDER really is square-set order - `[0,1]` the south couple, `[2,3]` the east - and whether a given
 // formation is authored that way is NOT readable from its geometry: the same eight spots are four couplings
 // under four different identities, which is the canonical-identity problem `PLAN.md` §3 records as unsolved. So
@@ -21,12 +23,15 @@
 // WHAT IS DELIBERATELY NOT HERE. `Static Square` and the five other formations the engine already identifies
 // need no entry - their own couples win over any order, so an entry would be dead weight (and the probe says so
 // if one is added). Everything else in the corpus is absent because its order has not been put through the
-// reorder process, and colouring it by position would be a guess dressed as a couple number.
+// reorder process.
 //
-// SCOPE: THE SETUP ONLY. A sequence's FIRST formation, or the call on the Call editor's board. A mid-sequence
-// board's array order is a leftover of the setup, not a statement about where the dancers stand, which is why
-// the sequencer asks this question about its START board (`SequencerController.startIsZeroOrder`) and never
-// about the board under the playhead.
+// SCOPE: THE SEQUENCER'S START BOARD, and only that. A sequence's array order is fixed when its start formation is
+// set and carried through every call, so the first formation is where a pair in that order means a couple; asked of
+// a mid-sequence board the same answer would be an accident of how the setup was authored, which is why the
+// sequencer asks this question about its START board (`SequencerController.startIsZeroOrder`) and never about the
+// board under the playhead. THE CALL EDITOR DOES NOT ASK IT AT ALL: its board is beat 0 of one call, so it draws the
+// pair colour on every setup and no couple NUMBER on any of them (`displayCouple`, `browser.ts`), which is why
+// `isZeroSetup` has exactly one caller left.
 export const ZERO_FORMATIONS: readonly string[] = [
   'Circle',
   'Normal Lines',

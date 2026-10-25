@@ -1,22 +1,27 @@
-// THE COLOUR A BOARD WITH NO HOME IDENTITY IS DRAWN IN, THE LIST OF SETUPS THAT ENABLES IT, AND THE THREE
-// VIEWS THAT MUST AGREE.
+// THE COLOUR A BOARD WITH NO HOME IDENTITY IS DRAWN IN, THE LIST OF SETUPS THAT STILL GATES IT, AND THE VIEWS THAT
+// MUST AGREE.
 //
 // Reported: "How can I get the dancer colour coding to appear for the formations in the zero setup? it appears
 // to be something related to this text in the ui 'no home identity (not a squared set)' ... e.g. zero lines,
-// zero colums etc", and then the shape of the answer: "it would be nice if there was an array of
-// formations/arrangement titles that are deemed zeros. and this enabled colour displays ... But only when they
-// are the first formation in a sequence or in the call editor".
+// zero colums etc", and then, about the other app, "some calls show as grey dancers, which makes differentiating
+// them more difficult".
 //
 // THE DIAGNOSIS IN THE REPORT IS EXACT. `assignHomeIdentity` stamps `couple` by matching the start formation to
-// the home square, so MEASURED, **6 of the 291** formations in `assets/formations.xml` carry one; the other 285
-// come back `UNKNOWN_COUPLE` and `coupleColor(0)` draws every dancer the same grey. Worse, the two views
-// disagreed: the sequencer has had a display-only fallback for years, while the browse/edit board
-// (`browser.ts`, which is what the Call editor previews through) passed `d.couple ?? 0` straight to the avatar -
-// the SAME board coloured in one panel and grey in the other.
+// the home square, so it names only six of the formations in `assets/formations.xml` (this probe prints the live
+// figure - 292 carried one when the screen was changed); the rest come back `UNKNOWN_COUPLE` and `coupleColor(0)`
+// draws every dancer the same grey. Worse, the two views disagreed: the sequencer has had a display-only fallback
+// for years, while the browse/edit board (`browser.ts`, which is what the Call editor previews through) passed
+// `d.couple ?? 0` straight to the avatar - the SAME board coloured in one panel and grey in the other.
 //
-// SO THE FALLBACK IS PAIR BY PAIR AND ONLY WHERE THE PAIRING IS A DECISION: `displayCouple` recolours an
-// anonymous dancer by `floor(index / 2) + 1`, and only when the setup's name is in `ZERO_FORMATIONS`. The list
-// is not derivable - four identities share one set of spots, which is `PLAN.md` §3's canonical-identity
+// SO THE FALLBACK IS PAIR BY PAIR: `displayCouple` recolours an anonymous dancer by `floor(index / 2) + 1`. WHERE IT
+// IS ALLOWED IS THE CALLER'S DECISION, and the two POC screens now decide differently ON PURPOSE, because they claim
+// different things about the number:
+//   - the browse/edit board passes `enabled: true` for EVERY board and draws NO couple number (`DancerView`'s
+//     `labelled` is false), so the colour says only "a pair in this board's authored order" - the same claim the
+//     game makes, which is why it passes `true` too. That is the change the second report asked for.
+//   - the sequencer still gates the colour on its START board's name against `ZERO_FORMATIONS`, because a sequence's
+//     array order is the setup's and only a listed setup has had that order put through the reorder process.
+// The list is not derivable - four identities share one set of spots, which is `PLAN.md` §3's canonical-identity
 // problem - so it is written down, one name per line, and this probe measures it against the corpus.
 //
 // WHAT IS MEASURED, and the alternative each check rules out:
@@ -24,9 +29,8 @@
 //      plausible wrong rule: always number by position, red here for 8 of 8 dancers);
 //   2. an enabled anonymous board gets 1,1,2,2,3,3,4,4 - a PAIR per colour, not one colour per dancer (red
 //      for `(i % 4) + 1` at 6 of 8) and not one grey;
-//   3. DISABLED MEANS GREY: a board whose setup is not in the list keeps couple 0, which is the whole of the
-//      "only where it is a decision" requirement - the plausible wrong rule here is enabling on any anonymous
-//      board, which is red for 8 of 8;
+//   3. DISABLED MEANS GREY: a caller that says `false` keeps couple 0, which is what the sequencer asks for on a
+//      start setup it cannot justify - the plausible wrong rule there is enabling on any anonymous board;
 //   4. THE HALF-SET CASE, where the rule earns its keep: a half-set formation is completed by turning the
 //      written dancers 180 degrees about the centre, so written `1,2` completes to `1,2,3,4` and the fallback
 //      reproduces the TRUE home couples - measured against the engine's own squared set, not a restatement;
@@ -35,8 +39,9 @@
 //      two boys;
 //   6. every listed name is a formation the corpus carries (a typo is otherwise a silent no-op) and one the
 //      engine cannot identify (a listed squared set would be dead weight, and its order is not zero order);
-//   7. three render paths ask the question - the browse/edit board through `browser.ts`, the sequencer through
-//      `startIsZeroOrder`, the editor's own line of words - and each imports the list rather than restating it.
+//   7. the render paths ask for what they claim: the browse/edit board colours every board and labels none of
+//      them, the sequencer decides from its start board and draws through the same function, and the editor's
+//      own line of words says the colours are the list order rather than an identity.
 //
 // Run: node tools/display-couple-probe.mjs   (from poc/)
 
@@ -83,12 +88,12 @@ const colourBy = (couples, enabled) => couples.map((couple, i) => displayCouple(
   check(drawn.every((c) => c >= 1 && c <= 4), '2c every colour is one the palette holds');
 }
 
-// ---- 3. an anonymous board whose setup is not listed keeps ONE grey ---------------------------------------
+// ---- 3. a caller can still keep ONE grey, and only the sequencer asks for that ----------------------------
 {
   const drawn = colourBy([0, 0, 0, 0, 0, 0, 0, 0], false);
-  check(drawn.every((c) => c === 0), `3a a setup that is not a zero formation is drawn with no couple colour (${drawn.join(',')})`);
+  check(drawn.every((c) => c === 0), `3a a caller that passes \`false\` is drawn with no couple colour (${drawn.join(',')})`);
   const enableOnAny = colourBy([0, 0, 0, 0, 0, 0, 0, 0], true);
-  check(enableOnAny.join(',') !== drawn.join(','), '3b NEGATIVE CONTROL: enabling on every anonymous board is not the same board, so 3a measures the LIST and not the absence of identity');
+  check(enableOnAny.join(',') !== drawn.join(','), '3b NEGATIVE CONTROL: enabling on every anonymous board is not the same board, so 3a measures the caller\'s decision and not the absence of identity');
 }
 
 // ---- 4. the half-set case, against the engine's own home couples ------------------------------------------
@@ -154,20 +159,33 @@ const colourBy = (couples, enabled) => couples.map((couple, i) => displayCouple(
   );
 }
 
-// ---- 7. the three render paths ask the question, in one place --------------------------------------------
+// ---- 7. the render paths ask for what they claim: colour everywhere, numbers nowhere ----------------------
 {
   const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
   const browser = read('poc/src/browser.ts');
   const sequencer = read('poc/src/sequencer-ui.ts');
   const editor = read('poc/src/editor-ui.ts');
-  check(/const zeroOrder = isZeroSetup\(call\.formation, call\.from\)/.test(browser), '7a the browse/edit board decides from the call\'s own setup names');
-  check(/new DancerView\(d, displayCouple\(d, i, zeroOrder\)\)/.test(browser), '7b ...and builds its avatar (and marker) through `displayCouple`');
-  check(!/d\.couple \?\? 0/.test(browser), '7c the grey-avatar shape (`d.couple ?? 0`) is gone from the browse/edit board');
-  check(/import \{ displayCouple \} from 'dancing-squared-stage'/.test(browser) && /import \{ isZeroSetup \} from '\.\/zero-formations'/.test(browser), '7d ...imported from the SHARED stage package (the game imports the same rule), not restated');
-  check(/this\.zeroStartFlag = isZeroSetup\(this\.seq\.knownFormation\(start\)\)/.test(sequencer), '7e the sequencer decides from its START board, not the board under the playhead');
-  check(/displayCouple\(d, i, zeroOrder\)/.test(sequencer) && !/const displayCouple =/.test(sequencer), '7f ...and draws through the same function, with no private copy left behind');
-  check(/isZeroSetup\(call\.formation, call\.from\)/.test(editor), '7g the editor says which of the two kinds of board it is showing');
-  check(/no home identity \(not a squared set\)/.test(editor), '7h ...in the same line the report quoted, rather than somewhere else');
+  check(
+    /const couples = dancers\.map\(\(d, i\) => displayCouple\(d, i, true\)\)/.test(browser),
+    '7a the browse/edit board colours EVERY board, its beat-0 setup being the one whose array order means anything',
+  );
+  check(
+    /new DancerView\(d, couples\[i\], false, false\)/.test(browser),
+    '7b ...and draws NO couple number on it - the fourth argument is `labelled`, and leaving it at its `true` default is the plausible wrong rule',
+  );
+  check(!/displayCouple\(d, i, zeroOrder\)/.test(browser), '7c the colour is no longer gated on the setup\'s name');
+  check(!/isZeroSetup/.test(browser), '7d ...and the browse/edit board no longer consults the list at all');
+  check(
+    /import \{ displayCouple \} from 'dancing-squared-stage'/.test(browser),
+    '7e ...imported from the SHARED stage package (the game imports the same rule), not restated',
+  );
+  check(/this\.zeroStartFlag = isZeroSetup\(this\.seq\.knownFormation\(start\)\)/.test(sequencer), '7f the sequencer still decides from its START board, not the board under the playhead');
+  check(/displayCouple\(d, i, zeroOrder\)/.test(sequencer) && !/const displayCouple =/.test(sequencer), '7g ...and draws through the same function, with no private copy left behind');
+  check(
+    /no home identity \(not a squared set\) — colours follow the list order/.test(editor),
+    '7h the editor says the colours are the list order rather than an identity',
+  );
+  check(!/one colour, because this setup is not a zero formation/.test(editor), '7i ...and no longer says any board is one colour, because none of them is');
 }
 
 // ---- 8. the matcher's own answer for a named setup, on a zero formation and on one that is not -----------

@@ -91,6 +91,14 @@ import {
   // comparisons and its pose-error checks were a bare 1e-9; `tolerances.ts` names that rule, and the arc/tie thresholds
   // that are NOT this rule keep their own names.
   EXACT_TOL,
+  // ONE RADIAN NORMALISER, THE ENGINE'S. This file carried `Math.atan2(Math.sin(a), Math.cos(a))` under a comment
+  // saying the engine's was private to `editor.ts`; that was already false when it was written (`moves.ts` exports
+  // `normAngle`), and an `atan2` spelling is a DIFFERENT rule at the endpoint rather than a copy of this one:
+  // MEASURED in `engine/test/angle-normalisation.mjs` §2, `atan2` returns -PI for -PI where `normAngle` returns +PI
+  // (the rule keeps (-PI, PI]), and it drifts as |a| grows where the modulo is exact. A facing delta that wrapped
+  // would hold the trace by a whole turn, which is why the call sites below keep a normaliser at all - but it is
+  // this one, so the seam is the engine's seam.
+  normAngle,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -257,9 +265,6 @@ const handsShort = (h: Hands): string => HANDS_SHORT[h] ?? h;
  *  by construction rather than by comment (AGENTS.md 5). */
 const show = exportNumber;
 const toDeg = (rad: number): number => (rad * 180) / Math.PI;
-/** The shortest signed angle equal to `a`, in (-PI, PI]. The engine's own is private to `editor.ts`, and
- *  a facing delta that wrapped would hold the trace by a whole turn. */
-const normAngle = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 const toRad = (deg: number): number => (deg * Math.PI) / 180;
 
 /**
@@ -3030,7 +3035,7 @@ export class EditorController implements EditorUI {
         const t = i / 8;
         const ha = bezierAngle(a.rotate ?? a.translate, t);
         const hb = bezierAngle(b.rotate ?? b.translate, t);
-        const dd = Math.atan2(Math.sin(ha - hb), Math.cos(ha - hb));
+        const dd = normAngle(ha - hb);
         gap = Math.max(gap, Math.abs((dd * 180) / Math.PI));
       }
       return { dancer: d, gap };
@@ -5071,7 +5076,7 @@ export class EditorController implements EditorUI {
       const p = poseFor(d, inst.beats);
       const t = poses[pairing[i]];
       pos = Math.max(pos, Math.hypot(p.x - t.x, p.y - t.y));
-      heading = Math.max(heading, Math.abs(Math.atan2(Math.sin(p.heading - t.heading), Math.cos(p.heading - t.heading))));
+      heading = Math.max(heading, Math.abs(normAngle(p.heading - t.heading)));
     });
     return { pos, heading };
   }

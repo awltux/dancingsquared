@@ -44,7 +44,7 @@
 // `formationToXml`, because the reader and the writer have to agree and that pair is already gated by the
 // engine's own round-trip harness (`engine/test/editor.mjs`); this module adds the NAME, the HALF and the VERDICT.
 
-import { formationToXml, XML_ROUND_TRIP_TOL } from 'dancing-squared-engine';
+import { formationToXml, normAngle, XML_ROUND_TRIP_TOL } from 'dancing-squared-engine';
 import type { FormDancer } from 'dancing-squared-engine';
 // THE HALF-SET RULE, imported rather than restated: the reader completes a formation with it, so the writer has
 // to find the half it would complete back to this board. THE EXTENSION IS EXPLICIT so bare node can load this
@@ -85,18 +85,18 @@ export interface FormationExport {
  * formation nobody touched.
  *
  * IT USED TO SAY "the same `1e-3` `startsFromFormation` uses" - a copy kept in step by a sentence, which nothing
- * enforces. `XML_ROUND_TRIP_TOL` is that rule's one name (`engine/src/tolerances.ts`). The engine's own normaliser for
- * that comparison is private, so the shortest-angle step below stays this module's, and the probe still cross-checks
- * the verdict against `startsFromFormation` on real calls, so the two cannot drift apart without a check going red.
+ * enforces. `XML_ROUND_TRIP_TOL` is that rule's one name (`engine/src/tolerances.ts`), and the shortest-angle step is
+ * the engine's `normAngle` too: this module said the engine's normaliser "is private", which was never true (`moves.ts`
+ * exports it), and an `atan2` spelling is a DIFFERENT rule at the seam rather than a copy - MEASURED in
+ * `engine/test/angle-normalisation.mjs` §2, `atan2(sin, cos)` returns -PI for -PI where `normAngle` returns +PI.
+ * The probe still cross-checks the verdict against `startsFromFormation` on real calls, so the two cannot drift.
  */
 const TOL = XML_ROUND_TRIP_TOL;
-
-const norm = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 
 /** Two spots are the same place, facing the same way, holding the same gender. */
 function sameSpot(a: FormDancer, b: FormDancer, tol = TOL): boolean {
   if (Math.abs(a.x - b.x) > tol || Math.abs(a.y - b.y) > tol) return false;
-  if (Math.abs(norm(a.heading - b.heading)) > tol) return false;
+  if (Math.abs(normAngle(a.heading - b.heading)) > tol) return false;
   // A spot with no declared gender (a phantom, or a formation written without one) does not constrain the other
   // side - the same rule `startsFromFormation` applies, and for the same reason: the format lets `gender` default.
   return b.gender === undefined || a.gender === b.gender;

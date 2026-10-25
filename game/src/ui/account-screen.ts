@@ -21,7 +21,7 @@ import type { AuthMode, SignedIn } from '../net/auth.ts';
 import type { Standing } from '../net/standing.ts';
 import { el } from './dom.ts';
 
-export interface AccountCallbacks {
+interface AccountCallbacks {
   signIn: (email: string, password: string) => void;
   signUp: (email: string, password: string) => void;
   confirm: (email: string, code: string) => void;
@@ -29,7 +29,7 @@ export interface AccountCallbacks {
 }
 
 /** Everything the row draws from, all of it already decided elsewhere. */
-export interface AccountView {
+interface AccountView {
   readonly standing: Standing;
   readonly mode: AuthMode | null;
   readonly player: SignedIn | null;

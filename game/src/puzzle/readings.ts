@@ -18,7 +18,7 @@ import type { MoveReading } from './types.ts';
 /** The engine's own name for the whole-board selection (`Sequencer.mayOffer` normalises `null` to it). */
 export const WHOLE_BOARD = 'All 8';
 
-export interface ReadingSection {
+interface ReadingSection {
   /** The heading: the engine's own vocabulary — "All 8" for the whole board, otherwise the group's name. */
   label: string;
   readings: MoveReading[];

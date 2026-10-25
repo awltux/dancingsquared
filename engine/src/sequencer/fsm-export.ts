@@ -7,19 +7,19 @@
 
 import type { FsmAmendment } from './fsm-store.js';
 
-export interface FsmSnapshotEdge {
+interface FsmSnapshotEdge {
   call: string;
   endFormation: string | null;
   source: 'build' | 'amendment';
   amendedAt?: string;
 }
 
-export interface FsmSnapshotState {
+interface FsmSnapshotState {
   formation: string;
   edges: FsmSnapshotEdge[];
 }
 
-export interface FsmLedgerEntry {
+interface FsmLedgerEntry {
   id: number;
   kind: 'amend' | 'remove' | 'add-formation';
   formation: string;

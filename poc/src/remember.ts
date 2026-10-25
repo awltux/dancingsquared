@@ -25,7 +25,7 @@ const KEY = 'dsq-remember-ui';
  * level would set a value against the wrong list and then have the level's change handler rebuild the
  * options and discard it.
  */
-export const REMEMBER_ORDER: readonly string[] = [
+const REMEMBER_ORDER: readonly string[] = [
   // The browse view: level narrows the call list, the call fills the setup list.
   'levelSelect',
   'callSelect',

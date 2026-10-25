@@ -465,10 +465,10 @@ export const SUFFIX_TOKENS: Record<string, string> = { ToWav: ' to a Wave', '1-1
  * A designator can ride on the modifier itself (`A-1/2of-` = "All ... 1/2 of ..."), so
  * `prefixModifier` returns the designator separately rather than dropping it.
  */
-export const PREFIX_TOKENS: Record<string, string> = { '1/2of': '1/2 ' };
+const PREFIX_TOKENS: Record<string, string> = { '1/2of': '1/2 ' };
 
 /** The prefix a token applies to the FOLLOWING call, with the designator group that scoped it. */
-export function prefixModifier(token: string): { group?: string; prefix: string } | null {
+function prefixModifier(token: string): { group?: string; prefix: string } | null {
   const t = normalizeToken(token);
   for (const [key, prefix] of Object.entries(PREFIX_TOKENS)) {
     if (t === key) return { prefix };
@@ -483,7 +483,7 @@ export function prefixModifier(token: string): { group?: string; prefix: string 
  * its own. A modifier with nothing to modify is NOT a reading - which is what keeps a leading
  * `--1-1/2` (two published corpus lines, `! --1-1/2 --PasTh --AL`) an honest unreadable token
  * rather than a silent no-op. */
-export function isModifierToken(token: string): boolean {
+function isModifierToken(token: string): boolean {
   return !!(SUFFIX_TOKENS[normalizeToken(token)] || prefixModifier(token));
 }
 

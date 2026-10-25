@@ -9,12 +9,15 @@
 // packages/corpus, packages/stage, poc/src, poc-teacher/src, api/src, game/src): 202 modules, 1240 exported
 // declarations, of which SIX are mentioned in no other file AND used zero further times in their own, and 129 are
 // used ONLY inside their own module - the `export` keyword buying nothing, which a de-export fixes by construction.
+// Those 129 were de-exported in the commit that followed this census (1111 exported declarations remain), so the
+// ceiling below is now ZERO: §4.5's "no unused export" is the rule, not the 129. The six dead exports are still
+// pinned BY NAME so this gate fails when one is removed as well as when a seventh appears: a cleanup must come back
+// here and take its pin with it.
 // FIVE modules have no importer at all, and every one is an ENTRY rather than an orphan: three `src/main.ts` (a
 // bundler reaches them; no import names them) and two `vite-env.d.ts` (Vite's ambient types) - so the module pin is
 // a NAMED SET of five, and a sixth has to be explained here. Eleven module(s) are reached through a package's
 // `main`/`types`/`exports` instead of a path, and twenty-two are public through an `export *` barrel; both are
-// excluded by rule rather than by name. The six dead exports are pinned BY NAME so this gate fails when one is
-// removed as well as when a seventh appears: a cleanup must come back here and take its pin with it.
+// excluded by rule rather than by name.
 //
 // WHAT COUNTS AS A USE, AND WHY THE ERRORS POINT ONE WAY. A use is the identifier in ANY other file, comments
 // included, as a whole word - deliberately generous. Being generous means a symbol named only in a comment reads as
@@ -258,12 +261,11 @@ check(JSON.stringify(result.orphans) === JSON.stringify(ENTRY_ONLY),
   `the only modules nothing imports are the ${ENTRY_ONLY.length} entry points and Vite typings (${result.orphans.length} found)`,
   `found: ${result.orphans.join('; ') || 'none'}`);
 
-// THE EXPORT-ONLY DEBT: a CEILING, so it may only fall. These are the `export` keywords that buy nothing - the symbol
-// is used, but only inside its own module - and de-exporting one is safe by construction (no other file names it).
-// MEASURED at landing: 129. A change that adds one has to de-export it, which is the point. The figure is a COUNT
-// rather than a named set on purpose: 129 names would be a second copy of the tree, and the direction that matters
-// (a new unnecessary export) is the one a ceiling catches.
-const INTERNAL_ONLY_MAX = 129;
+// THE EXPORT-ONLY SURFACE: a CEILING of ZERO, because §4.5 states the rule rather than a budget - an `export` no
+// other file names is dead surface. MEASURED at landing: 129 (69 files, game/src 32, api/src 31, poc/src 29,
+// engine/src 23, poc-teacher/src 14), all de-exported in the commit that followed; a count rather than a named set
+// because the direction that matters is a NEW unnecessary export, and that is what a ceiling of zero catches.
+const INTERNAL_ONLY_MAX = 0;
 check(result.internalOnly.length <= INTERNAL_ONLY_MAX,
   `the export-only surface is at most ${INTERNAL_ONLY_MAX} declarations (${result.internalOnly.length} today; a CEILING, it may only fall)`,
   result.internalOnly.length > INTERNAL_ONLY_MAX ? result.internalOnly.slice(INTERNAL_ONLY_MAX).join('; ') : '');

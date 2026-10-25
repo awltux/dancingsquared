@@ -11,13 +11,13 @@
 import { Sequencer } from 'dancing-squared-engine';
 import type { Board } from 'dancing-squared-engine';
 
-export interface FormationTable {
+interface FormationTable {
   getIns: Record<string, string[]>; // formation name -> sequence from home to that formation
   getOuts: Record<string, string[]>; // formation name -> sequence from that formation back home
 }
 
 /** Curated standard formations we want get-ins/get-outs for (home forms excluded). */
-export const RECOGNIZED_FORMATIONS = [
+const RECOGNIZED_FORMATIONS = [
   'Normal Lines',
   'Double Pass Thru',
   'Quarter Tag',
@@ -104,7 +104,7 @@ export function buildFormationTable(
  * "finish in square" definition. Callers use this to safely try a cached get-out
  * and fall back to the live search when it doesn't apply to the specific board.
  */
-export function closesHome(
+function closesHome(
   seq: Sequencer,
   board: Board,
   path: string[],

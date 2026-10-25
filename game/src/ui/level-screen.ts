@@ -11,7 +11,7 @@ import { blockCells, blockSummary, isReplayable, isWatchable, type CellState } f
 import { el } from './dom.ts';
 
 /** What the shell knows about the level, as the screen needs it. */
-export interface LevelView {
+interface LevelView {
   readonly levelIndex: number;
   /** How many drills the level has PUBLISHED — the denominator, never the block's 100. */
   readonly length: number;

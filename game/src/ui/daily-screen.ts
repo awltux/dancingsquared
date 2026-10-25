@@ -37,7 +37,7 @@ interface El {
   callSubsets: HTMLElement;
 }
 
-export interface DailyCallbacks {
+interface DailyCallbacks {
   /** Play one reading's own spelling. */
   play: (call: string) => void;
   /** Play TWO readings at once — the label `A || B`, which the engine reads back as a group step. */

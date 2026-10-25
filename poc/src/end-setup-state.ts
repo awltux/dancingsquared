@@ -28,7 +28,7 @@ export const KEEP_END_PLACEHOLDER = '— keep the current end —';
 /** What that option says instead when the corpus cannot name the shape the call finishes on. */
 export const UNKNOWN_FORMATION = 'Unknown formation';
 
-export interface EndSetupState {
+interface EndSetupState {
   /** The text of the picker's leading (empty-valued) option. */
   readonly placeholder: string;
   /** Whether the row offers `Export <formation>` for this board. */

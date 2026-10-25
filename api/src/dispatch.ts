@@ -51,7 +51,7 @@ export interface EmulatorLike {
   handle(request: ApiRequest): Promise<ApiResult | null>;
 }
 
-export interface DispatchOptions {
+interface DispatchOptions {
   /** The identity mode's emulator, or null in a mode that has none (`dev`, `cognito`). ORDER MATTERS: see below. */
   readonly emulator: EmulatorLike | null;
   /** Where a handler's throw is reported. The message never reaches the client. */

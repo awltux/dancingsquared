@@ -406,7 +406,7 @@ function parseCallXmlImpl(xmlText: string): TamRaw[] {
 export const MIRROR_EPS = 0.01;
 
 /** Anything placed on the floor: both the formation registry's dancers and a tam's own carry these. */
-export type PlacedDancer = { x: number; y: number; angleDeg: number; mirror?: boolean };
+type PlacedDancer = { x: number; y: number; angleDeg: number; mirror?: boolean };
 
 /** Whether a set already CONTAINS its own 180-degree partners, and so is already whole. */
 export function hasAntipode(dancers: readonly PlacedDancer[]): boolean {
@@ -695,7 +695,7 @@ export function callMeta(xmlText: string): CallMeta {
  * remove. Every failure names what the file actually holds, so a call site can be fixed without opening
  * the data.
  */
-export type TamSelector =
+type TamSelector =
   | number
   | string
   | { title: string; formation?: string; from?: string; nth?: number };

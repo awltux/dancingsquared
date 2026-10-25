@@ -27,7 +27,7 @@ export type Standing =
   | 'unranked';
 
 /** The four facts the rule is a function of, each read from somewhere that already knows it. */
-export interface StandingFacts {
+interface StandingFacts {
   /** Whether `VITE_API_BASE` is set — the one switch every caller asks before reaching for the network. */
   readonly configured: boolean;
   /** The mode `/health` reported, or null while discovery has not answered or has failed. */
@@ -79,7 +79,7 @@ export function mayWrite(standing: Standing): boolean {
 }
 
 /** The facts the offer of a sign-in form is a function of. */
-export interface SignInOfferFacts {
+interface SignInOfferFacts {
   readonly mode: AuthMode | null;
   /** The routes `/health` advertised: empty in `dev`, the emulator's five in `emulate`, and empty for a PINNED build. */
   readonly signin: readonly string[];

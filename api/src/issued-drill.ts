@@ -15,7 +15,7 @@ import type { DrillProgress, IssuedDrill } from './drill-regime.ts';
 import type { Puzzle } from 'dancing-squared-game';
 
 /** The drill a request is about, with everything the server had to check to believe in it. */
-export interface Issued {
+interface Issued {
   readonly issued: IssuedDrill;
   /** The Progress row as read, and the revision a later transaction must still find. */
   readonly progress: DrillProgress;

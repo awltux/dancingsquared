@@ -23,7 +23,7 @@ import { MAX_CALL_LENGTH } from './press-log.ts';
  * types the `add` branch as having a call and the other two as having none, so a log this build cannot replay
  * cannot be constructed in the first place. A `string | null` field would make `session.play(null)` typecheck.
  */
-export type MoveIn = { readonly kind: 'add'; readonly call: string } | { readonly kind: 'undo' | 'redo'; readonly call: null };
+type MoveIn = { readonly kind: 'add'; readonly call: string } | { readonly kind: 'undo' | 'redo'; readonly call: null };
 
 /** A recorded move: what the player did, not what it amounted to. The stamp is the SERVER's arrival time. */
 export type DailyMove = MoveIn & { readonly atMs: number };
@@ -40,7 +40,7 @@ export type DailyMove = MoveIn & { readonly atMs: number };
 export const MAX_DAILY_MOVES = 300;
 
 /** A move as the request carries it, or the refusal to answer. `atMs` is the SERVER's, so it is not here. */
-export type ParsedMove =
+type ParsedMove =
   | { readonly ok: true; readonly move: MoveIn }
   | { readonly ok: false; readonly code: string; readonly message: string };
 

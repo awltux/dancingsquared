@@ -23,7 +23,7 @@
 // day-derived rule above, measured to disagree exactly where the issued set is not that month.
 
 /** The two boards the app reads. A mode, not a date, is what decides the meaning of "period". */
-export type BoardMode = 'drill' | 'daily';
+type BoardMode = 'drill' | 'daily';
 
 /**
  * The period string a run of `mode` is ranked under.

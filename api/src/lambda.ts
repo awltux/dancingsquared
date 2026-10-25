@@ -22,7 +22,7 @@ import { dispatch, parseBody, type EmulatorLike } from './dispatch.ts';
 import { PLANNED_ENDPOINTS, ROUTES } from './routes.ts';
 
 /** The HTTP API's event, as much of it as this adapter reads. Everything is `unknown` until `asRequest` looks. */
-export interface HttpApiEvent {
+interface HttpApiEvent {
   readonly rawPath?: unknown;
   readonly rawQueryString?: unknown;
   readonly headers?: unknown;
@@ -32,13 +32,13 @@ export interface HttpApiEvent {
 }
 
 /** What an API Gateway HTTP API answers with, payload 2.0. */
-export interface HttpApiResponse {
+interface HttpApiResponse {
   readonly statusCode: number;
   readonly headers: Record<string, string>;
   readonly body: string;
 }
 
-export interface LambdaOptions {
+interface LambdaOptions {
   readonly deps: Deps;
   /** The identity mode's emulator, or null in a mode that has none. */
   readonly emulator?: EmulatorLike | null;

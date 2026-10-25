@@ -348,7 +348,7 @@ const ORIGIN_ROTS = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (-
 // ------------------------------------------------------------------ circle fit
 
 /** A cubic that follows a circle: the circle, how far the curve strays from it, and how far round it goes. */
-export interface CircleFit {
+interface CircleFit {
   cx: number;
   cy: number;
   r: number;

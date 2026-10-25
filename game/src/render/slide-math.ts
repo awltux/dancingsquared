@@ -9,7 +9,7 @@
 // incoming board arrives where the right one was. At `t = 1` the incoming board is EXACTLY in the right slot, so the
 // commit can swap the roles without moving anything and the picture does not jump.
 
-export interface SlideOffsets {
+interface SlideOffsets {
   /** Where the board that is leaving sits. */
   left: number;
   /** Where the board that is moving into the left slot sits. */

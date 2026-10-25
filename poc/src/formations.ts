@@ -59,7 +59,7 @@ export function loadUserFormations(): UserFormation[] {
   }
 }
 
-export function saveUserFormations(list: UserFormation[]): void {
+function saveUserFormations(list: UserFormation[]): void {
   try {
     localStorage.setItem(KEY, JSON.stringify(list));
   } catch {
@@ -122,7 +122,7 @@ const DETACH_KEY = 'dsFormationDetachments';
  * It is deliberately NOT a change to the library: the shape keeps matching, so nothing else in the
  * app inherits a hole. The panel simply declines to apply that name to that instance.
  */
-export interface DetachedLabel {
+interface DetachedLabel {
   formation: string;
   /** The catalogue call id and setup index - the same identity the editor's edits use. */
   callId: string;
@@ -130,7 +130,7 @@ export interface DetachedLabel {
   detachedAt: string;
 }
 
-export function loadDetachments(): DetachedLabel[] {
+function loadDetachments(): DetachedLabel[] {
   try {
     const raw = localStorage.getItem(DETACH_KEY);
     if (!raw) return [];
@@ -141,7 +141,7 @@ export function loadDetachments(): DetachedLabel[] {
   }
 }
 
-export function saveDetachments(list: DetachedLabel[]): void {
+function saveDetachments(list: DetachedLabel[]): void {
   try {
     localStorage.setItem(DETACH_KEY, JSON.stringify(list));
   } catch {
@@ -149,7 +149,7 @@ export function saveDetachments(list: DetachedLabel[]): void {
   }
 }
 
-export function isDetached(formation: string, callId: string, setupIdx: number): boolean {
+function isDetached(formation: string, callId: string, setupIdx: number): boolean {
   return loadDetachments().some((d) => d.formation === formation && d.callId === callId && d.setupIdx === setupIdx);
 }
 
@@ -190,7 +190,7 @@ export function reattachLabel(formation: string, callId: string, setupIdx: numbe
  *
  * A name from the shipped corpus is never filtered: this is about user-defined labels only.
  */
-export interface AppliedLabel {
+interface AppliedLabel {
   name: string | null;
   /** The detected name, when it was NOT applied - so the panel can name the label it declined. */
   suppressed: string | null;

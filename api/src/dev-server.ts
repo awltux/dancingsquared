@@ -166,7 +166,7 @@ function health(opened: OpenedStore, auth: AuthMode, identityNote: string, emula
   };
 }
 
-export interface DevServer {
+interface DevServer {
   readonly port: number;
   readonly store: ItemStore;
   readonly label: string;
@@ -181,7 +181,7 @@ export interface DevServer {
 }
 
 /** How a probe or a stack script starts this server. Every field is optional; the defaults are the local run. */
-export interface DevServerOptions {
+interface DevServerOptions {
   readonly port?: number;
   readonly seed?: boolean;
   readonly opened?: OpenedStore;

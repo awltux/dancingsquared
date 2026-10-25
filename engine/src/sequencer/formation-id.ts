@@ -128,7 +128,7 @@ export function formationCanonical(board: FormationBoard): string {
  * that board is a call's start poses (`allPoses(bundle, 0)`), with no dancer identity to carry. Inventing an id
  * and a couple per dancer would be inventing identity (AGENTS §4.3) for a digest that ignores it.
  */
-export type FormationShape = ReadonlyArray<{ x: number; y: number; heading: number }>;
+type FormationShape = ReadonlyArray<{ x: number; y: number; heading: number }>;
 
 /** A board reduced to what the digest reads — any object whose `dancers` carry a spot and a facing. */
 export interface FormationBoard {

@@ -53,7 +53,7 @@ export const FACING_COUPLE_MAX = 6.0;
  * separation, because the corpus authors the same unit at 2, 3, 4 and 6 — an absolute tolerance that
  * admits the 6 would be far too loose at the 2.
  */
-export const LATERAL_FRACTION_SLOP = 0.1;
+const LATERAL_FRACTION_SLOP = 0.1;
 
 /** How far from `COUPLE_WIDTH` a pair may stand and still be standing as a couple. */
 export const COUPLE_WIDTH_TOL = 0.35;

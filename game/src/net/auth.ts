@@ -30,7 +30,7 @@ const NO_IDENTITY = { anonymous: true } as const;
 export type AuthMode = 'dev' | 'emulate' | 'cognito';
 
 /** What the server said about how it knows who is asking. */
-export interface AuthDiscovery {
+interface AuthDiscovery {
   readonly mode: AuthMode;
   /**
    * The sign-in routes the server actually serves: empty in `dev`, the emulator's five in `emulate`.
@@ -71,7 +71,7 @@ export async function discoverAuth(deps: ApiDeps): Promise<ApiResult<AuthDiscove
 }
 
 /** What a successful signup answers. `confirmCode` is present only while the account is unconfirmed. */
-export interface SignupAnswer {
+interface SignupAnswer {
   readonly email: string;
   readonly playerId: string;
   readonly confirmed: boolean;
@@ -145,7 +145,7 @@ export async function signIn(email: string, password: string, deps: ApiDeps, now
  * that refreshed speculatively would burn the session it was trying to keep; `refreshIfExpired` is the only
  * caller, and it asks the clock first.
  */
-export async function refreshSession(deps: ApiDeps, nowMs = Date.now()): Promise<ApiResult<SignedIn>> {
+async function refreshSession(deps: ApiDeps, nowMs = Date.now()): Promise<ApiResult<SignedIn>> {
   const current = readSession(deps);
   if (!current) return { ok: false, failure: { code: 'no_session', message: 'there is no session to refresh' } };
   const answer = await apiCall<Record<string, unknown>>(deps, '/auth/refresh', { method: 'POST', body: { refreshToken: current.refreshToken } }, NO_IDENTITY);

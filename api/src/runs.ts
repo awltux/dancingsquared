@@ -45,7 +45,7 @@ export interface RunSubmission {
 }
 
 /** A refusal as the handlers report it: a code for a program and a sentence for a person. */
-export interface RunRefusal {
+interface RunRefusal {
   readonly code: string;
   readonly message: string;
 }
@@ -57,7 +57,7 @@ export interface RunRefusal {
  * (the wall time since it was issued, which the Progress row knows), and the Daily's start is not a fact the
  * server holds in this slice. A claim beyond this is not a slow player; it is a broken or dishonest one.
  */
-export const MAX_CLOCK_SECONDS = 24 * 60 * 60;
+const MAX_CLOCK_SECONDS = 24 * 60 * 60;
 
 /** The slack allowed on the Drill's clock bound, for the difference between the client's clock and the server's. */
 export const CLOCK_SKEW_SECONDS = 5;
@@ -200,7 +200,7 @@ export function asHints(stored: StoredItem | null): HintLedger | null {
 }
 
 /** What a stored run needs: the submission, the SERVER's answer about the puzzle, and the score. */
-export interface RunRecordParts {
+interface RunRecordParts {
   readonly submission: RunSubmission;
   /** The seed the puzzle was regenerated from — the server's fact, never the client's. */
   readonly seed: number;
@@ -323,7 +323,7 @@ export function asBoard(stored: StoredItem | null): BoardValue | null {
  * Writing it is also what makes the row readable in the console, which is the same reason the adapter flattens an
  * item.
  */
-export interface BoardRow extends BoardValue {
+interface BoardRow extends BoardValue {
   readonly playerId: string;
 }
 

@@ -30,7 +30,7 @@ const FIGURE_WORDS = [
 ];
 
 /** A short theme word drawn from a tip's most common call family. */
-export function tipTheme(titles: string[], familyOf: (t: string) => string): string {
+function tipTheme(titles: string[], familyOf: (t: string) => string): string {
   const counts = new Map<string, number>();
   for (const t of titles) {
     const fam = familyOf(t);

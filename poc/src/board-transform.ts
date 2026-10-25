@@ -59,7 +59,7 @@ export interface Point {
  * `scale` is never negative, because it is a ratio of two distances. A negative scale would be a
  * half-turn wearing a scale's clothes, and the axis does not turn anybody.
  */
-export interface BoardTransform {
+interface BoardTransform {
   scale: number;
   /** The shift applied AFTER the scale, so the dragged point lands on the pointer. */
   dx: number;

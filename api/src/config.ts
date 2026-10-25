@@ -50,10 +50,10 @@ export interface Config {
 export type AuthMode = 'dev' | 'emulate' | 'cognito';
 
 /** The AWS region used when nothing says otherwise. `eu-west-2` because that is where the book deploys. */
-export const DEFAULT_REGION = 'eu-west-2';
+const DEFAULT_REGION = 'eu-west-2';
 
 /** The table a developer gets with no configuration at all. */
-export const DEFAULT_TABLE = 'dancing-squared-dev';
+const DEFAULT_TABLE = 'dancing-squared-dev';
 
 /** The port DynamoDB Local listens on in `api/docker-compose.yml`. */
 export const DEFAULT_DDB_ENDPOINT = 'http://127.0.0.1:8000';

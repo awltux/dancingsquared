@@ -48,7 +48,7 @@ const endAtEnd = (title: string): { end: string; base: string } | null => {
   return null;
 };
 
-export interface CallTitleParts {
+interface CallTitleParts {
   /** The name with a trailing fraction and a trailing end word taken off. */
   base: string;
   /** The end word (`Home`), or '' when the title carries none. */

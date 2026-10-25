@@ -64,7 +64,7 @@ export { COUPLE_WIDTH, COUPLE_WIDTH_TOL } from './couples.js';
  * into disagreeing about what a couple is - which is exactly how `boardHasCoupleGenderPairs` and the
  * partner logic came to be two implementations of one rule.
  */
-export function boardHasCoupleGenderPairs(board: Board): boolean {
+function boardHasCoupleGenderPairs(board: Board): boolean {
   const phys = board.dancers.filter((d) => !d.isGhost);
   if (phys.length === 0 || phys.length % 2 !== 0) return false;
   const pairs = findCouplePairs(board);

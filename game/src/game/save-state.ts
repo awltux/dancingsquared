@@ -44,7 +44,7 @@ import {
 } from './store.ts';
 
 /** What the caller knows that the state does not: the issued drill, the Daily in flight, and the clock. */
-export interface PersistParts {
+interface PersistParts {
   levelIndex: number;
   /** The ISSUED-drill id. */
   position: number;

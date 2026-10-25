@@ -27,7 +27,7 @@
 // remaining coded moves the catalogue cannot supply are the `Face *` pivots alone.
 
 /** The part of a catalogue entry this needs: the setups are what a formation names. */
-export interface FsmCatalogEntry {
+interface FsmCatalogEntry {
   id: string;
   level: string;
   title: string;

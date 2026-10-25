@@ -31,7 +31,7 @@ import type { ModuleStep } from 'dancing-squared-engine';
 export type CallSource = 'derived' | 'derived+catalogue' | 'catalogue' | 'mixed' | 'module';
 
 /** One call and the source that claimed it - what a `mixed` row needs to be answerable. */
-export interface SourcedCall {
+interface SourcedCall {
   call: string;
   source: CallSource;
 }
@@ -57,7 +57,7 @@ export function callSource(name: string): CallSource {
  * predicate so the two branches cannot disagree.
  */
 /** What the WALK recorded for a step: the source that actually animated it. */
-export type WalkedSource = 'derived' | 'catalogue' | 'mixed';
+type WalkedSource = 'derived' | 'catalogue' | 'mixed';
 
 export function stepSource(
   step: ModuleStep,

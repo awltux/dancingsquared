@@ -42,24 +42,24 @@ export const CODED_MOVE_BEATS = 1;
 export const RUN_TRADE_BEATS = 4;
 
 /** Timeline length of `Fold` in beats: CALLERLAB's own `Timing: 2` for the call. */
-export const FOLD_BEATS = 2;
+const FOLD_BEATS = 2;
 
 /** Timeline length of `Cross Fold` in beats: CALLERLAB's own `Timing: 4` for the call. */
-export const CROSS_FOLD_BEATS = 4;
+const CROSS_FOLD_BEATS = 4;
 
 /** Timeline length of `Sweep a Quarter` in beats: CALLERLAB's own `Timing: 2`. */
-export const SWEEP_BEATS = 2;
+const SWEEP_BEATS = 2;
 
 /** Timeline length of `Fan the Top` in beats: CALLERLAB's own `Timing: 4`. */
-export const FAN_THE_TOP_BEATS = 4;
+const FAN_THE_TOP_BEATS = 4;
 
 /** Timeline length of `Roll`, in beats — the reference's `QuarterLeft`/`QuarterRight` carry
  * `beats: 1.5` (`moves.dart:56-58`), and `Roll` is exactly that move chosen per dancer. */
-export const ROLL_BEATS = 1.5;
+const ROLL_BEATS = 1.5;
 
 /** Timeline length of `Swing Thru`, in beats: CALLERLAB's own `Timing: 6` for the call, and the
  * authored tams agree closely enough that the timeline does not shift materially. */
-export const SWING_THRU_BEATS = 6;
+const SWING_THRU_BEATS = 6;
 
 /**
  * `Do Sa Do` / `Dosado` — a DERIVED call whose net motion is the IDENTITY: every dancer steps around
@@ -81,7 +81,7 @@ export const SWING_THRU_BEATS = 6;
  *
  * Beats are the authored tams' own 4, so the timeline does not move.
  */
-export const DOSADO_BEATS = 4;
+const DOSADO_BEATS = 4;
 
 /** How far a "facing dancer" may stand, and the bearing tolerance on "directly in front". The
  * corpus's `Do Sa Do` boards put the pairs 2 apart (waves, an Eight Chain Thru, the allemande pose)

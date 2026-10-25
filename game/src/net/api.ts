@@ -27,7 +27,7 @@ import { parsePuzzle, parseReadings } from '../puzzle/parse.ts';
 import type { MoveReading, Puzzle } from '../puzzle/types.ts';
 
 /** A refusal as the API writes it: a code for a program and a sentence for a person. */
-export interface ApiFailure {
+interface ApiFailure {
   readonly code: string;
   readonly message: string;
 }
@@ -118,7 +118,7 @@ export function normaliseBase(configured: string | undefined): string {
 }
 
 /** The base URL as configured. */
-export function apiBase(): string {
+function apiBase(): string {
   const configured = import.meta.env?.VITE_API_BASE;
   return normaliseBase(typeof configured === 'string' ? configured : undefined);
 }
@@ -378,7 +378,7 @@ export async function replayDrill(index: number, deps: ApiDeps = browserDeps()):
 }
 
 /** A finished drill, read to WATCH back: its position, the level it belongs to, and the boards the level published. */
-export interface DrillToWatch {
+interface DrillToWatch {
   readonly index: number;
   readonly levelIndex: number;
   readonly seed: number;
@@ -424,7 +424,7 @@ export async function fetchDrillReplay(index: number, deps: ApiDeps = browserDep
 
 /** The published Daily challenge: a seed, the level it was validated at, whether this build can play it, and —
  * now that the client generates nothing — the puzzle that seed names. */
-export interface DailyChallenge {
+interface DailyChallenge {
   readonly day: string;
   readonly levelIndex: number;
   readonly seed: number;
@@ -529,7 +529,7 @@ export async function dailyChallenge(level: number, day: string, deps: ApiDeps =
  * a player is held. When it runs out the last answer is handed over with `gaveUp: true`, so the panel can say the server
  * did not finish rather than pretending nothing happened.
  */
-export interface DailyPollHandlers {
+interface DailyPollHandlers {
   /** A fresh answer: ready with boards, or a refusal, or another "not ready". */
   readonly onAnswer: (answer: ApiResult<DailyChallenge>, state: { readonly attempt: number; readonly gaveUp: boolean }) => void;
 }
@@ -602,7 +602,7 @@ export interface RunSubmission {
 }
 
 /** What the server decided about a run — the numbers the player is actually scored and credited on. */
-export interface RunOutcome {
+interface RunOutcome {
   readonly run: {
     readonly runId: string;
     readonly score: number;
@@ -668,7 +668,7 @@ export async function submitRun(submission: RunSubmission, deps: ApiDeps = brows
 }
 
 /** What the server made of one press: its own verdict, and the wrong tries it has recorded so far. */
-export interface PressAnswer {
+interface PressAnswer {
   readonly verdict: 'correct' | 'wrong';
   readonly attempts: number;
   readonly presses: number;
@@ -710,7 +710,7 @@ export async function recordDrillAnswer(
 }
 
 /** What the server made of one reveal: the call it named for that step, and whether it was news to it. */
-export interface RevealAnswer {
+interface RevealAnswer {
   /** The call the server looked up for the step. Never empty: the endpoint refuses a step the drill does not have. */
   readonly call: string;
   /** False when this step had already been recorded, which is the ordinary case for a second press. */
@@ -825,7 +825,7 @@ export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps(
 }
 
 /** One run as `POST /me/runs:bulk` takes it: the device's own record, and nothing the server could re-derive (A26). */
-export interface LedgerEntry {
+interface LedgerEntry {
   readonly runId: string;
   readonly mode: 'drill' | 'daily';
   readonly levelIndex: number;
@@ -900,7 +900,7 @@ export async function recordDailyMove(
 }
 
 /** One rank on a board: who, their score, and how many runs earned it. */
-export interface BoardEntry {
+interface BoardEntry {
   readonly playerId: string;
   readonly score: number;
   readonly runs: number;
@@ -970,7 +970,7 @@ export async function fetchLeaderboard(
 }
 
 /** What the server made of an import. */
-export interface LedgerImport {
+interface LedgerImport {
   readonly imported: number;
   readonly skipped: number;
   readonly total: number;

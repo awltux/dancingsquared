@@ -32,7 +32,7 @@ import type { MoveReading } from './types.ts';
 import { parallelLabel, readingSpelling } from './readings.ts';
 
 /** What a click resolves to. The screen renders these; it does not decide between them. */
-export type PickDecision =
+type PickDecision =
   /** Play one reading, spelled the way the line carries it (`Heads Circle Left`, or the bare call for the whole board). */
   | { readonly kind: 'play'; readonly call: string }
   /** Hold `reading` as the first half of a two-group step, replacing any half already armed. */

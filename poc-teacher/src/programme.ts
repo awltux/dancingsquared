@@ -5,7 +5,7 @@
 
 import type { CallRef, ClassInstance, Student } from './teacher';
 
-export interface ProgrammeSession {
+interface ProgrammeSession {
   name: string;
   calls: string[]; // call titles
 }

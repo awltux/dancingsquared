@@ -107,11 +107,12 @@ export const SUITE = [
   // THE EXPORT SURFACE, AND A THIRD KIND OF CENSUS. The two above count SPELLINGS; this counts PUBLISHING - an
   // `export` whose symbol no other module names, and a module no import reaches. MEASURED at landing over the seven
   // TypeScript source trees: 202 modules, 1240 exported declarations, 6 exported to nobody at all, 129 exported
-  // only for their own file, and 5 modules with no importer (three `src/main.ts` a bundler reaches, two
-  // `vite-env.d.ts`) - the last a NAMED SET, so a new orphan fails. It skips `export *` barrels and package
-  // `main`/`types`/`exports` targets BY RULE, counts a mention in a comment as a use (the false negative is the
-  // safe direction: a false dead invites deleting live code), and exercises every rule on synthetic sources so a
-  // scan that reads nothing cannot report zero. MEASURED 7.7s in the light tier: a 606-file walk, no engine build.
+  // only for their own file (all 129 since de-exported, so the ceiling is ZERO and 1111 declarations remain), and 5
+  // modules with no importer (three `src/main.ts` a bundler reaches, two `vite-env.d.ts`) - the last a NAMED SET, so
+  // a new orphan fails. It skips `export *` barrels and package `main`/`types`/`exports` targets BY RULE, counts a
+  // mention in a comment as a use (the false negative is the safe direction: a false dead invites deleting live
+  // code), and exercises every rule on synthetic sources so a scan that reads nothing cannot report zero.
+  // MEASURED 7.7s in the light tier: a 606-file walk, no engine build.
   { h: 'export-census', light: true },
   // THE EXPORT PRECISION, AND A CENSUS LIKE THE ONE ABOVE. The same four-decimal lambda was written in THREE files
   // (`convert.ts`'s `r`, `editor.ts`'s `rf`, the POC panel's `show`) with no export between them, so no probe could

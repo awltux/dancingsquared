@@ -53,7 +53,7 @@ import type { FormDancer } from 'dancing-squared-engine';
 import { completeHalfSet } from './half-set.ts';
 
 /** Which of the four things this block is, if it is pasted into `assets/formations.xml`. */
-export type FormationVerdict = 'add' | 'same' | 'reordered' | 'changed';
+type FormationVerdict = 'add' | 'same' | 'reordered' | 'changed';
 
 export interface FormationExport {
   /** The name the block carries, trimmed - `parseFormations` skips a `<formation>` with no `name`. */

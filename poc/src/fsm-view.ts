@@ -32,13 +32,13 @@ export interface FsmEdgeData {
  * call's identity everywhere else, and they are enough to FIND the `<tam>`: the pair is unique per
  * authoring, which is exactly why `register` keys variants on it.
  */
-export interface FsmStateInfoData {
+interface FsmStateInfoData {
   embedded: boolean;
   title: string;
   from: string;
 }
 
-export interface FsmGraphData {
+interface FsmGraphData {
   states: string[];
   edges: Record<string, FsmEdgeData[]>;
   /** Per-state identity for the states whose key does not say it. Absent on a schema <3 asset. */

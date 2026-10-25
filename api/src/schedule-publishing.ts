@@ -43,7 +43,7 @@ export function seasonVersion(poolVersion: string, season: number): string {
 }
 
 /** A level's season: the entries, and the seeds the scan skipped on the way (reported, never silent). */
-export interface Season {
+interface Season {
   readonly levelIndex: number;
   readonly entries: ScheduleEntry[];
   readonly skipped: { seed: number; reason: string }[];

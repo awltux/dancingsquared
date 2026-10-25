@@ -150,7 +150,7 @@ import { endSetupState } from './end-setup-state';
 import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameCurve, sameFacingCurve, sameTrace, sameTravel, travelGap } from './same-move';
 import type { CurveKind } from './same-move';
 
-export interface EditorUI {
+interface EditorUI {
   setActive(a: boolean): void;
   /** Open the INSTANCE editor on one call and one setup, as if both had been chosen from the lists. */
   openCall(callId: string, setupIdx: number): void;
@@ -164,7 +164,7 @@ export interface EditorUI {
 }
 
 /** What the editor needs from the rest of the app. */
-export interface EditorHost {
+interface EditorHost {
   /** Show a call bundle (a still frame or a synthesized/edited instance) and let it ANIMATE. */
   preview(call: CallBundle): void;
   /** Show a call with the playhead PARKED at an absolute beat, animation off.

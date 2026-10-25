@@ -23,7 +23,7 @@ import { Player } from './player';
 import type { BoardRead } from './sequencer-ui';
 
 /** What the browse view needs from the rest of the app. */
-export interface BrowserHost {
+interface BrowserHost {
   /** Open the SEQUENCE view with `steps` loaded, the playhead at the first step playing `atCall`,
    * and `startFormation` naming where the corpus says the module begins when that is not home (so
    * the sequence view can say its replay is an approximation). A saved module can hold a "while" step,

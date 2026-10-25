@@ -20,7 +20,7 @@ import { Sequencer } from 'dancing-squared-engine';
 import { taminationTitle, tamSitesOf } from 'dancing-squared-corpus/blocks';
 import type { TamSite } from 'dancing-squared-corpus/blocks';
 
-export interface CallSetup {
+interface CallSetup {
   label: string;
   from: string;
 }

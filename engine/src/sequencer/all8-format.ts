@@ -63,7 +63,7 @@ export interface All8Call {
  *   `(3)`  - get-outs to AL, RLG, or Prom
  *   `(*)`  - "I haven't worked the resolve yet"
  */
-export interface All8GetoutLink {
+interface All8GetoutLink {
   /** The label exactly as published inside the brackets: `1`, `12`, `1*`, `*`. */
   label: string;
   /** How many calls of the RESOLVED figure precede the marker. `-1` would mean it precedes them

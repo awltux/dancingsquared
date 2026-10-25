@@ -25,7 +25,7 @@ import type { ItemStore } from './ports.ts';
  * is, and because the ISSUED record already carries them (`IssuedDrill`), so a stored row that disagrees with
  * itself is a corruption finding rather than a puzzle question.
  */
-export interface StoredDrill {
+interface StoredDrill {
   readonly scheduleVersion: string;
   readonly generatorVersion: string;
   readonly seed: number;
@@ -113,7 +113,7 @@ export async function storeDrills(
 }
 
 /** What reading one published drill produced. */
-export type DrillRead = { readonly ok: true; readonly puzzle: Puzzle } | { readonly ok: false; readonly reason: string };
+type DrillRead = { readonly ok: true; readonly puzzle: Puzzle } | { readonly ok: false; readonly reason: string };
 
 /**
  * The published boards for one position, or why they cannot be served.

@@ -6,9 +6,9 @@
 
 import type { CallBundle } from 'dancing-squared-engine';
 
-export type PlayPhase = 'start' | 'play' | 'end';
+type PlayPhase = 'start' | 'play' | 'end';
 
-export interface PlayerOptions {
+interface PlayerOptions {
   /** Reads the current playback speed multiplier (e.g. from the speed select). */
   speed: () => number;
   msPerBeat?: number;

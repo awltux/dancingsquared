@@ -522,7 +522,7 @@ export function loadEdits(): CallEdit[] {
 export function persistEdits(list: CallEdit[]) {
   catalog.persistEdits(list);
 }
-export function appliedEdits(): CallEdit[] {
+function appliedEdits(): CallEdit[] {
   return catalog.appliedEdits();
 }
 export function setApplied(edit: CallEdit, on: boolean) {

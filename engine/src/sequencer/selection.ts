@@ -226,7 +226,7 @@ export function splitSelection(raw: string): { selection?: string; call: string 
  * `(heads ∩ boys) ∪ (sides ∩ girls)`. MEASURED before this existed: every one of those phrases
  * resolved to `null`, and "Head Ladies" resolved to ALL FOUR heads because it was a phrase mapping.
  */
-export interface GroupTerm {
+interface GroupTerm {
   /** Group keys, intersected in order. */
   keys: string[];
   /** A negated term is SUBTRACTED from the union of the positive ones. */

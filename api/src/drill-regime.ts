@@ -290,7 +290,7 @@ export function replayDrill(
 }
 
 /** The result of advancing a drill. A refusal carries prose, because the client shows it. */
-export type AdvanceOutcome =
+type AdvanceOutcome =
   | { readonly kind: 'done'; readonly progress: DrillProgress }
   | { readonly kind: 'refused'; readonly reason: string };
 
@@ -346,7 +346,7 @@ export function finishDrill(progress: DrillProgress, id: string, passed: boolean
  * IT WRITES NOTHING. No `issued`, no revision, no press log — a rewatch that touched the row would be a replay the
  * player could be charged for, which is the opposite of what the block's own cells offer.
  */
-export type WatchOutcome =
+type WatchOutcome =
   | { readonly kind: 'watch'; readonly entry: ScheduleEntry; readonly passed: boolean }
   | { readonly kind: 'refused'; readonly code: string; readonly reason: string };
 

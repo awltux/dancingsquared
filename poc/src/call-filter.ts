@@ -11,7 +11,7 @@
 // source: the DOM part is three lines that build options from what this returns.
 
 /** The part of a catalogue entry the filter looks at. */
-export interface FilterableCall {
+interface FilterableCall {
   id: string;
   title: string;
   level: string;

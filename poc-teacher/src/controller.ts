@@ -30,7 +30,7 @@ import { buildClassFromProgramme, serializeProgramme } from './programme';
 import { serializeModules } from './modules';
 import { sanitizeText, clampNum } from './util';
 
-export interface ControllerDeps {
+interface ControllerDeps {
   store: TeacherStore;
   tour: Tour;
   preview: Preview;

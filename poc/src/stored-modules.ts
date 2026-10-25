@@ -23,7 +23,7 @@
 import type { CallStep, GroupLane, GroupStep, ModuleStep } from 'dancing-squared-engine';
 
 /** A saved module as the sequencer persists it: the engine's `Module`, narrowed to what is read. */
-export interface StoredModule {
+interface StoredModule {
   name: string;
   calls: ModuleStep[];
 }

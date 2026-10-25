@@ -17,7 +17,7 @@
 import type { BoardView } from '../net/api.ts';
 import { el } from './dom.ts';
 
-export interface BoardCallbacks {
+interface BoardCallbacks {
   /** Load (or reload) the board, in whatever mode the app is in. */
   load: () => void;
 }

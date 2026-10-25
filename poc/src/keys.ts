@@ -25,7 +25,7 @@
 // would be a second thing to get wrong.
 
 /** The part of a KeyboardEvent this module reads. A real one satisfies it; a probe builds a plain object. */
-export interface KeyEventLike {
+interface KeyEventLike {
   key: string;
   ctrlKey: boolean;
   metaKey: boolean;
@@ -69,7 +69,7 @@ export interface KeyBinding {
 }
 
 /** The listener surface this module needs. `document` satisfies it; a probe passes a stub. */
-export type KeyTarget = Pick<Document, 'addEventListener' | 'removeEventListener'>;
+type KeyTarget = Pick<Document, 'addEventListener' | 'removeEventListener'>;
 
 /** Letters and named keys are compared the same way, so one lowercase pass covers both. */
 export function normaliseKey(key: string): string {

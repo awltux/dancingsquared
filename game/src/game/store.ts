@@ -152,7 +152,7 @@ export interface SavedGame {
 }
 
 /** What a load produced: the state (or null), whether writing works at all, and how many records were unusable. */
-export interface LoadResult {
+interface LoadResult {
   state: SavedGame | null;
   /** False when the storage refused — private mode, a blocked origin. The screen says so. */
   saving: boolean;

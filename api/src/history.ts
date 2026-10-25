@@ -20,7 +20,7 @@ import type { StoredItem } from './ports.ts';
 export const MAX_IMPORTED_RUNS = 200;
 
 /** The longest transcript one imported run may name, which is the Daily's allowance with room to spare. */
-export const MAX_IMPORTED_CALLS = 64;
+const MAX_IMPORTED_CALLS = 64;
 
 /** One imported run, as the row stores it: the device's own words, marked as unverified and never scored. */
 export interface HistoryRun {
@@ -74,7 +74,7 @@ export function asHistoryItem(run: HistoryRun): Record<string, unknown> {
   };
 }
 
-export interface LedgerRefusal {
+interface LedgerRefusal {
   readonly code: string;
   readonly message: string;
 }

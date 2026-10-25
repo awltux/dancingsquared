@@ -9,7 +9,7 @@ import { isKnownCouple } from './constants.js';
 import type { Board, SeqDancer } from './types.js';
 import type { DancerSpec } from '../types.js';
 
-export interface HomeDancer {
+interface HomeDancer {
   id: number;
   couple: number;
   gender: 'boy' | 'girl';

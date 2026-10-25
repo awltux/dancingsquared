@@ -140,7 +140,7 @@ function text(body: unknown, field: string): string | null {
   return typeof value === 'string' ? value.trim() : null;
 }
 
-export interface EmulatorOptions {
+interface EmulatorOptions {
   readonly store: ItemStore;
   readonly clock: Clock;
   /** The HMAC secret. A per-process secret is fine: a token that does not survive a restart is a session. */

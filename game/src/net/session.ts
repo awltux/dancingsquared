@@ -82,7 +82,7 @@ export function accessTokenOf(store: SessionStore): string | null {
 }
 
 /** Every field of a session, checked: a shape that half-parsed would send half an identity. */
-export function asSession(raw: unknown): Session | null {
+function asSession(raw: unknown): Session | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const value = raw as Record<string, unknown>;
   if (typeof value.accessToken !== 'string' || value.accessToken === '') return null;

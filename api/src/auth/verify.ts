@@ -25,9 +25,9 @@ export interface JwtClaims {
 }
 
 /** A source of the verification key for one token, or null when it cannot offer one. */
-export type KeySource = (header: { alg: string; kid?: string }) => ReturnType<typeof createPublicKey> | Buffer | null;
+type KeySource = (header: { alg: string; kid?: string }) => ReturnType<typeof createPublicKey> | Buffer | null;
 
-export interface VerifyOptions {
+interface VerifyOptions {
   readonly issuer: string;
   /** The expected audience. Cognito puts `aud` on an ID token and `client_id` on an ACCESS token, so both are read. */
   readonly audience: string;

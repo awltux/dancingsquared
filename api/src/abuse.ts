@@ -23,7 +23,7 @@ export const MAX_TRACKED_CODES = 8;
 /** The ceiling for one code's count. Past this the code stops growing; the total does not. */
 export const MAX_COUNT_PER_CODE = 1000;
 
-export interface Abuse {
+interface Abuse {
   /** Every refusal attributed to this player, including the ones whose code is no longer tallied. */
   readonly total: number;
   /** The per-code tally, most recently refused last. */
@@ -50,7 +50,7 @@ export function asAbuse(stored: { readonly value: Readonly<Record<string, unknow
 }
 
 /** The stored form, field by field. */
-export function asAbuseItem(abuse: Abuse): Record<string, unknown> {
+function asAbuseItem(abuse: Abuse): Record<string, unknown> {
   return { total: abuse.total, codes: abuse.codes.map((entry) => ({ code: entry.code, count: entry.count })), lastAtMs: abuse.lastAtMs };
 }
 
@@ -69,7 +69,7 @@ export function countRefusal(current: Abuse, code: string, nowMs: number): Abuse
 }
 
 /** A refusal's code, as the API writes it, or a word for a body that is not one. */
-export function refusalCode(body: unknown): string {
+function refusalCode(body: unknown): string {
   const code = (body as { error?: { code?: unknown } } | null)?.error?.code;
   return typeof code === 'string' && code !== '' ? code : 'unknown';
 }
@@ -80,7 +80,7 @@ export function refusalCode(body: unknown): string {
  * A CAS LOOP, like every other read-modify-write here: two refusals arriving together both hold the row, and one of
  * them must lose and re-read rather than overwrite the other's count.
  */
-export async function recordRefusal(deps: Deps, playerId: string, code: string): Promise<boolean> {
+async function recordRefusal(deps: Deps, playerId: string, code: string): Promise<boolean> {
   const key = abuseKey(playerId);
   for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
     const stored = await deps.store.get(key);

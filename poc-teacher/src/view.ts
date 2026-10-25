@@ -19,7 +19,7 @@ export interface ProbModal {
   archivedNote?: string; // note kept from a previous prioritisation, for re-prioritising
 }
 
-export interface ViewDeps {
+interface ViewDeps {
   store: TeacherStore;
   seq: Sequencer;
   esc: (s: string) => string;

@@ -52,7 +52,7 @@ export function validCederModules(): CederModuleRef[] {
 }
 
 /** What `validCederModules` hands the app: the steps plus the corpus's own formation labels. */
-export interface CederModuleRef {
+interface CederModuleRef {
   name: string;
   steps: (string | CallStep)[];
   startFormation?: string;

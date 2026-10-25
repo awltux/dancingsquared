@@ -25,7 +25,7 @@ export interface CallRef {
   setup: string; // display label of the setup (e.g. "Static Square")
 }
 
-export interface Attendance {
+interface Attendance {
   [studentId: string]: boolean; // true = present
 }
 
@@ -68,7 +68,7 @@ export interface Tip {
   titles: string[]; // the call sequence
 }
 
-export const refKey = (r: { title: string; setupIdx: number }): string => `${r.title}#${r.setupIdx}`;
+const refKey = (r: { title: string; setupIdx: number }): string => `${r.title}#${r.setupIdx}`;
 
 /** Whether a call-position is already present (planned or taught) in a session. */
 function hasCallPosition(s: SessionPlan, r: { title: string; setupIdx: number }): boolean {
@@ -77,7 +77,7 @@ function hasCallPosition(s: SessionPlan, r: { title: string; setupIdx: number })
 }
 
 /** Remove duplicate call-positions from a list, keeping the first occurrence. */
-export function dedupeCallRefs<T extends { title: string; setupIdx: number }>(list: T[]): T[] {
+function dedupeCallRefs<T extends { title: string; setupIdx: number }>(list: T[]): T[] {
   const seen = new Set<string>();
   const out: T[] = [];
   for (const r of list) {
@@ -110,7 +110,7 @@ function nextSessionFor(cls: ClassInstance, s: SessionPlan): SessionPlan {
 // ---------------------------------------------------------------- TeacherModel
 
 /** Domain operations over a single ClassInstance. */
-export class TeacherModel {
+class TeacherModel {
   private readonly cls: ClassInstance;
 
   constructor(cls: ClassInstance) {
@@ -384,7 +384,7 @@ export interface TipConfig {
 
 export const DEFAULT_TIP_CONFIG: TipConfig = { repeatProb: 0.2, priorityProb: 0.7, currentProb: 0.6, prevProb: 0.4 };
 
-export interface TipGenOpts {
+interface TipGenOpts {
   minLen?: number;
   maxLen?: number;
   count?: number;
@@ -462,7 +462,7 @@ function hasApplicable(seq: Sequencer, board: import('dancing-squared-engine').B
 }
 
 /** Generates / edits practice tips for a class using the engine Sequencer. */
-export class TipGenerator {
+class TipGenerator {
   private readonly seq: Sequencer;
   private readonly available: Set<string>;
   private readonly priority: Map<string, number>;

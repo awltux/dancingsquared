@@ -67,7 +67,7 @@ const HANDS: readonly { hand: ArmTurnHand; spellings: readonly string[] }[] = [
 ];
 
 /** The shape `coded-moves.ts` registers; kept structural so this module never imports the registry. */
-export interface ArmTurnDef {
+interface ArmTurnDef {
   aliases: string[];
   beats: number;
   precondition: (b: Board) => string | null;

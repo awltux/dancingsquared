@@ -34,7 +34,7 @@ export interface Press {
  * writes: a spend that cannot name a call is REFUSED instead (`nothing_to_name`), because a hint that cannot say
  * anything is not a hint. A row written before the naming moved may still hold `''`, which `asHints` reads.
  */
-export interface HintEvent {
+interface HintEvent {
   readonly step: number;
   readonly call: string;
   readonly atMs: number;

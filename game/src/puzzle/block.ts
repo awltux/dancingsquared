@@ -29,7 +29,7 @@ export const CELL_COUNT = LEVEL_SIZE;
  */
 export type CellState = 'done-passed' | 'done-not-passed' | 'next' | 'published' | 'unpublished';
 
-export interface BlockInput {
+interface BlockInput {
   /** How many drills the level has published. Fewer than `CELL_COUNT` is the ordinary case today. */
   readonly length: number;
   /** The positions the progress row calls finished. */
@@ -47,7 +47,7 @@ export interface BlockInput {
   readonly next: number | null;
 }
 
-export interface Cell {
+interface Cell {
   readonly index: number;
   readonly state: CellState;
 }

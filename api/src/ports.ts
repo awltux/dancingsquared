@@ -105,7 +105,7 @@ export interface Clock {
 }
 
 /** How a caller's identity was established. The three modes of DESIGN.md 11.2, named where they are produced. */
-export type IdentitySource = 'dev' | 'emulator' | 'cognito';
+type IdentitySource = 'dev' | 'emulator' | 'cognito';
 
 /**
  * Who is asking, and on what authority.

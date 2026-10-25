@@ -50,7 +50,7 @@ export function savedModules(): NamedSequence[] {
 }
 
 /** Every named sequence the app knows, ceder corpus first then the caller's own. */
-export function allModules(): NamedSequence[] {
+function allModules(): NamedSequence[] {
   const ceder = validCederModules().map((m) => ({
     name: m.name,
     steps: m.steps,
@@ -96,7 +96,7 @@ export function allModules(): NamedSequence[] {
  * matters. The 270 that still stop from `[B1c]` are the engine's ordinary coverage gaps, the same class
  * the get-out corpus reports, not a mis-set board.
  */
-export interface StartSpec {
+interface StartSpec {
   /** An engine formation name, for a board the formation library gets right (home). */
   formation?: string;
   /** An All8 `[arrangement]LETTER[sequence][relationship]` code, for everything else. */

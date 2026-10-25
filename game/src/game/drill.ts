@@ -21,11 +21,11 @@ import { sameBoardById, type Board } from 'dancing-squared-engine';
 import { arrangementKey, waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
 import type { Puzzle, PuzzleOption, PuzzleStep } from '../puzzle/types.ts';
 
-export type AnswerKind = 'correct' | 'wrong' | 'illegal';
+type AnswerKind = 'correct' | 'wrong' | 'illegal';
 /** The illegal choice is answered by this token, because it has no index into `moves`. */
 export type Answer = number | 'unknown';
 
-export interface AnswerResult {
+interface AnswerResult {
   kind: AnswerKind;
   /** The engine's own reason. Present only for `illegal`. */
   reason?: string;

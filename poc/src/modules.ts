@@ -40,12 +40,20 @@ export interface NamedSequence {
   endFormation?: string;
 }
 
-/** The caller's saved modules, read through the one parser that validates them. */
+/**
+ * The caller's saved modules, read through the one parser that validates them.
+ *
+ * THE STORED START IS CARRIED THROUGH, so a saved module opened from the browse view's "used by" list starts where it
+ * was saved, exactly as it does from the library drawer. The label rather than the `sid`, because that is the form every
+ * other `NamedSequence` carries and `openSequence` resolves; a saved module with no stored start (one saved before the
+ * field existed) has no label and opens from home, which is what it always did.
+ */
 export function savedModules(): NamedSequence[] {
   return parseStoredModules(localStorage.getItem(MODULES_STORAGE_KEY)).map((m) => ({
     name: m.name,
     steps: m.calls,
     source: 'saved' as const,
+    ...(m.start?.name ? { startFormation: m.start.name } : {}),
   }));
 }
 

@@ -267,16 +267,16 @@ console.log('\n== 6. the panel imports the codec, restores the start the way the
 {
   const ui = fs.readFileSync(path.join(POC_DIR, 'src', 'sequencer-ui.ts'), 'utf8');
   const html = fs.readFileSync(path.join(POC_DIR, 'index.html'), 'utf8');
-  check(/import \{ idsOf, parseSequenceDoc, resolveSequence, sequenceToJson, SEQUENCE_FORMAT, SEQUENCE_VERSION \} from '\.\/sequence-json'/.test(ui),
+  check(/import \{ idsOf, parseSequenceDoc, resolveSequence, resolveSetupRef, sequenceToJson, SEQUENCE_FORMAT, SEQUENCE_VERSION \} from '\.\/sequence-json'/.test(ui),
     'the panel imports the codec rather than restating it');
   check(/private importSequence\(\)[\s\S]{0,900}?parseSequenceDoc\(text\)[\s\S]{0,900}?resolveSequence\(parsed\.doc, this\.sequenceResolvers\(\)\)/.test(ui),
     'Import is parse-then-resolve, in that order, with the live resolvers');
   check(/this\.seq\.setSetupBoard\(resolved\.sequence\.start\.dancers, resolved\.sequence\.start\.label\)/.test(ui),
     'the start board goes through `setSetupBoard` - the call the Board drawer uses - so the identity rules are the same');
   check(/private exportSequence\(\)[\s\S]{0,4000}?sequenceToJson\(doc\)/.test(ui), 'Export writes the document through `sequenceToJson`');
-  check(/private loadSteps\(steps: ModuleStep\[\], atCall: string \| undefined, startLabel: string\)/.test(ui) &&
-    (ui.match(/this\.loadSteps\(/g) ?? []).length >= 2,
-    'All8, Browse and the document share ONE `loadSteps`, so a load cannot differ between the three');
+  check(/private loadSteps\(steps: ModuleStep\[\], atCall: string \| undefined, startLabel: string, notes: string\[\] = \[\]\)/.test(ui) &&
+    (ui.match(/this\.loadSteps\(/g) ?? []).length >= 3,
+    'All8, Browse, the document and the saved-module list share ONE `loadSteps`, so a load cannot differ between them');
   check(/id="seqJsonText"/.test(html) && /id="seqJsonImport"/.test(html) && /id="seqJsonExport"/.test(html) && /id="seqJsonInfo"/.test(html),
     'the drawer carries the box, the two buttons and the report line');
   check(/SequenceSyntax\.md/.test(html), 'and the row points at SequenceSyntax.md, which is the spec this probe executes');

@@ -6,18 +6,19 @@
 import * as THREE from 'three';
 
 import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf, isGroupStep, groupCalls, EXACT_TOL, setupId } from 'dancing-squared-engine';
-import type { Board, CallStep, FormDancer, GroupStep, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
+import type { Board, CallStep, FormDancer, GroupStep, Matchable, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
 import { stepLabel, CODED_MOVES } from 'dancing-squared-engine';
 import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo, availableSetups } from './data';
 import type { SetupRow } from './setup-catalogue';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { parseStoredModules } from './stored-modules';
+import type { StoredModule } from './stored-modules';
 import { loadUserFormations } from './formations';
 import { corpusFormationsOfSize } from './tam-xml';
 // THE NATIVE SEQUENCE DOCUMENT: the spec is `SequenceSyntax.md`, the rules are this module, and the panel only supplies
 // the three live resolvers (the setup catalogue, the formation labels, the variant library).
-import { idsOf, parseSequenceDoc, resolveSequence, sequenceToJson, SEQUENCE_FORMAT, SEQUENCE_VERSION } from './sequence-json';
+import { idsOf, parseSequenceDoc, resolveSequence, resolveSetupRef, sequenceToJson, SEQUENCE_FORMAT, SEQUENCE_VERSION } from './sequence-json';
 import type { SequenceDocJson, SequenceDancer, SequenceResolvers, SequenceStepJson, SetupRefJson, StepRefJson } from './sequence-json';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import { displayCouple } from 'dancing-squared-stage';
@@ -278,7 +279,12 @@ export class SequencerController implements SequencerUI {
    * new call". It now opens another lane and Done is the way out.
    */
   private parallel: ParallelEntry | null = null;
-  private modules: Module[] = [];
+  /**
+   * The caller's saved modules, as the STORE holds them: the steps plus the two boards they dance between.
+   * `StoredModule` rather than the engine's `Module`, because the engine is told the boards separately when a
+   * module is registered (`registerModule`) and the drawer has to render what the caller actually saved.
+   */
+  private modules: StoredModule[] = [];
   private active = false;
   /** Display-only rotation (radians) applied about the set centre so the whole
    * board can be aligned against the reference grid (e.g. 45°). */
@@ -668,7 +674,7 @@ export class SequencerController implements SequencerUI {
    * propagation to fight, and the two controls cannot be hit by the same click.
    */
   private refreshModulesList() {
-    const row = (m: { name: string; calls: ModuleStep[] }, i: number) => {
+    const row = (m: StoredModule, i: number) => {
       // NOT REGISTERED: the engine refused the name, because it is already a call. The row STAYS LISTED -
       // that is the only way the caller can see it and delete it - and it SAYS SO, because a row that
       // quietly does nothing when clicked is the same silent failure the refusal exists to end. The engine
@@ -680,7 +686,14 @@ export class SequencerController implements SequencerUI {
         ? 'Load this module into the sequence'
         : 'This module is NOT registered: its name is already a call, and a module takes its name over, so the engine refused it. Delete it, or save it again under a name of its own.';
       return `<span class="seq-module" data-mod="${i}" title="${esc(title)}">`
-        + `<b>${esc(m.name)}</b></span>: ${esc(m.calls.map(stepLabel).join(' · '))}`
+        + `<b>${esc(m.name)}</b></span>`
+        // WHERE IT STARTS AND ENDS, from the module's own record. A module saved before the fields existed has no start
+        // and gets no badge - it loads from home, and pretending otherwise would be a claim the store cannot support.
+        + (m.start
+          ? ` <span class="seq-mod-boards" title="The board this module was saved on, and the board it ends on: loading it stands the dancers up there, and the end is what says which calls may follow it.">`
+            + `${esc(m.start.name ?? 'unnamed board')} → ${esc(m.end?.name ?? 'unnamed board')}</span>`
+          : '')
+        + `: ${esc(m.calls.map(stepLabel).join(' · '))}`
         + (live ? '' : ' <i class="seq-mod-dead">not registered — its name is already a call</i>')
         + `<button class="seq-mod-del" data-mod-del="${i}" aria-label="Delete saved module ${esc(m.name)}"`
         + ' title="Delete this saved module for good: it goes from this list, from this browser\'s storage,'
@@ -1026,12 +1039,54 @@ export class SequencerController implements SequencerUI {
       this.setStatus('warn', `${(err as Error).message} Nothing was saved.`);
       return;
     }
-    this.modules.push({ name, calls: [...this.history] });
+    this.modules.push({
+      name,
+      calls: [...this.history],
+      // THE MODULE RECORDS THE TWO BOARDS IT DANCES BETWEEN, in the same shape a sequence document writes them, so
+      // loading it later stands the dancers up where it was written rather than at home. `this.startBoard` is the
+      // board the sequence being saved was loaded on (undefined at home, which `seq.startBoard()` supplies).
+      start: this.setupRefOfBoard(this.startBoard ?? this.seq.startBoard(), 'start'),
+      end: this.setupRefOfBoard(this.seq.evaluateSequence(this.flat, this.totalBeats, this.startBoard).board, 'end'),
+    });
     this.persistModules();
     this.refreshModulesList();
     this.refreshCallSelect();
-    this.setStatus('ok', `Saved module "${name}"`);
+    const saved = this.modules[this.modules.length - 1];
+    this.setStatus('ok', `Saved module "${name}" from ${saved.start?.name ?? 'home'} to ${saved.end?.name ?? 'an unnamed board'}`);
     this.moduleNameInput.value = '';
+  }
+
+  /**
+   * LOAD a saved module from the library drawer, standing up the board it RECORDED rather than the home square.
+   *
+   * THE STORED BOARD IS RESOLVED, NOT APPROXIMATED: `resolveSetupRef` is the resolver a sequence document's `start`
+   * goes through, asked with the same catalogue, formation labels and variant library - so a `sid` here is the board the
+   * Board drawer stands up, exactly as it is for an imported document. A start this app cannot resolve REFUSES BY NAME
+   * and loads nothing: a module replayed from the wrong board dances different calls, which reads as "the module is
+   * broken" (the distinction `resolveStartFormation` was introduced for).
+   *
+   * A MODULE SAVED BEFORE THE FIELD EXISTED carries no `start`, and goes through `openSequence` with no start formation -
+   * which is the from-home replay it has always had, unchanged.
+   */
+  private loadModule(index: number) {
+    const m = this.modules[index];
+    if (!m) return;
+    const start = m.start;
+    if (!start) { this.openSequence(m.calls); return; }
+    this.runBusy(() => {
+      const read = resolveSetupRef(start, this.sequenceResolvers(), `saved module "${m.name}" start`);
+      if ('reason' in read) {
+        this.setStatus('error', `✗ ${read.reason}`);
+        return;
+      }
+      this.playing = false;
+      this.playBtn.textContent = '▶ Play';
+      // Through the SAME board builder the Board drawer and the document's import use, so the identity rules (home
+      // match, the registry overlay, `UNKNOWN_COUPLE` away from home) are the ones a picked setup gets.
+      this.seq.setSetupBoard(read.start.dancers, read.start.label);
+      this.startBoard = this.seq.startBoard();
+      this.loadSteps(m.calls, undefined, read.start.label, read.notes);
+    }, 'Loading the saved module…');
   }
 
   /**
@@ -2280,14 +2335,16 @@ export class SequencerController implements SequencerUI {
    * Put `steps` on the board from `this.startBoard`, as ONE load: everything a load has to do, in the order a load
    * must do it.
    *
-   * SHARED, because All8's import and the sequence document's import are the same act with two syntaxes in front of
-   * them - and the third caller is the module list. One body means a refused step, the undo reset, the settle and the
-   * report cannot differ between the three.
+   * SHARED, because All8's import, the sequence document's import, the browse view's open and a saved module all need the
+   * same act with a different syntax in front of it. One body means a refused step, the undo reset, the settle and the
+   * report cannot differ between the four.
    *
    * CALLED INSIDE `runBusy`, with `this.startBoard` already set by the caller (the caller is the one that knows
-   * whether its start came from a FASR code, a catalogue row or exact poses).
+   * whether its start came from a FASR code, a catalogue row or exact poses). `notes` is for what the CALLER's resolver
+   * tolerated - a stored board whose ids disagree, say - so it lands in the one report line rather than a second write
+   * that would overwrite the load's own.
    */
-  private loadSteps(steps: ModuleStep[], atCall: string | undefined, startLabel: string) {
+  private loadSteps(steps: ModuleStep[], atCall: string | undefined, startLabel: string, notes: string[] = []) {
     // A LOAD IS A NEW DOCUMENT: the undo history belongs to the sequence being replaced, so both stacks are
     // dropped rather than left to undo an edit into a sequence the caller has navigated away from.
     this.undoStack.length = 0;
@@ -2315,6 +2372,7 @@ export class SequencerController implements SequencerUI {
       // The walk's own verdict, which is the one that decides where the ANIMATION ends. Named
       // because a count does not tell the user that the last frame is the board before that call.
       this.stop ? `stops at "${this.stop.call}" - ${this.stop.reason}` : '',
+      ...notes,
     ].filter(Boolean).join(', '));
   }
 
@@ -2561,6 +2619,27 @@ export class SequencerController implements SequencerUI {
   }
 
   /**
+   * A board as a document writes it: the ids, a readable caption, and the exact poses only where no catalogue row
+   * carries the id.
+   *
+   * ONE CONVERSION FOR EVERY BOARD THE APP WRITES DOWN - the sequence document's `start`/`end` and a saved module's
+   * `start`/`end` - because a module that recorded its board differently from a document would be a second format, and
+   * the two are the same data. The poses are the unambiguous form and are repeated only when they are the ONLY form: a
+   * catalogue `sid` already says everything they say, and repeating them would make every export needlessly large.
+   */
+  private setupRefOfBoard(board: Board, fallback: string): SetupRefJson {
+    const ids = idsOf(board);
+    const row = ids.sid ? this.setupRows.find((r) => r.sid === ids.sid) : undefined;
+    const ref: SetupRefJson = {};
+    if (ids.sid) ref.sid = ids.sid;
+    if (ids.aid) ref.aid = ids.aid;
+    if (ids.fid) ref.fid = ids.fid;
+    ref.name = row?.display ?? this.seq.knownFormation(board) ?? fallback;
+    if (!row) ref.dancers = board.dancers.filter((d) => !d.isGhost).map((d) => ({ gender: d.gender, x: d.x, y: d.y, heading: d.heading }));
+    return ref;
+  }
+
+  /**
    * EXPORT the sequence as a native document: the start board (ids plus the caption), every step with the call-variant
    * id the walk matched, and the end board.
    *
@@ -2574,20 +2653,6 @@ export class SequencerController implements SequencerUI {
       this.jsonInfoEl.textContent = 'nothing to export — add calls first';
       return;
     }
-    const boardDoc = (board: Board, fallback: string): SetupRefJson => {
-      const ids = idsOf(board);
-      const row = ids.sid ? this.setupRows.find((r) => r.sid === ids.sid) : undefined;
-      const ref: SetupRefJson = {};
-      if (ids.sid) ref.sid = ids.sid;
-      if (ids.aid) ref.aid = ids.aid;
-      if (ids.fid) ref.fid = ids.fid;
-      const label = row?.display ?? this.seq.knownFormation(board) ?? fallback;
-      ref.name = label;
-      // THE EXACT POSES only where no catalogue row carries the id: they are the unambiguous form, and repeating them
-      // on every export would make the document large for no information.
-      if (!row) ref.dancers = board.dancers.filter((d) => !d.isGhost).map((d) => ({ gender: d.gender, x: d.x, y: d.y, heading: d.heading }));
-      return ref;
-    };
     const steps: SequenceStepJson[] = [];
     let stamped = 0;
     let unmatched = 0;
@@ -2621,10 +2686,10 @@ export class SequencerController implements SequencerUI {
       format: SEQUENCE_FORMAT,
       version: SEQUENCE_VERSION,
       name: this.moduleNameInput.value.trim() || 'untitled sequence',
-      start: boardDoc(startBoard, 'start'),
+      start: this.setupRefOfBoard(startBoard, 'start'),
       steps,
     };
-    const end = boardDoc(endBoard, 'end');
+    const end = this.setupRefOfBoard(endBoard, 'end');
     if (end.sid || end.dancers) doc.end = end;
     const text = sequenceToJson(doc);
     this.jsonText.value = text;
@@ -2989,8 +3054,8 @@ export class SequencerController implements SequencerUI {
       if (del?.dataset.modDel != null) { this.deleteModule(Number(del.dataset.modDel)); return; }
       const t = (e.target as HTMLElement).closest('.seq-module') as HTMLElement | null;
       if (t?.dataset.mod == null) return;
-      const m = this.modules[Number(t.dataset.mod)];
-      if (m) this.openSequence(m.calls);
+      // BY INDEX, and the loading (the stored start board included) lives in `loadModule`.
+      this.loadModule(Number(t.dataset.mod));
     });
     // The timeline: a click on a ROW seeks and, for a FIGURE, re-opens it; a click on its `×` removes the
     // step; the row is a tab stop with Enter/Space/Delete on it - a sequencer's two most common actions after

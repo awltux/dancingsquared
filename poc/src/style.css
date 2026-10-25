@@ -502,6 +502,10 @@ html, body {
    rather than a decoration. It is NOT hidden: a module that cannot be registered is exactly the one the
    caller has to see in order to delete it. */
 #seqPanel #seqModules .seq-mod-dead { color: var(--warn); font-style: italic; }
+/* WHERE A SAVED MODULE STARTS AND ENDS. Dim, because it is a caption beside the module's own name rather than a
+   state to act on - and its own `→` rather than a `,` because the two labels are a journey, and the pair is what
+   says whether the next call a caller has in mind can follow this one. */
+#seqPanel #seqModules .seq-mod-boards { color: var(--dim); }
 /* THE TRANSPORT IS PINNED, so play, position and speed are reachable from anywhere in the timeline - the
    old panel put them between the search buttons and the list, where a long sequence pushed them off the
    panel. */

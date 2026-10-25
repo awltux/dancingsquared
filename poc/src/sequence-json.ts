@@ -366,7 +366,17 @@ function labelOf(ref: SetupRefJson, fallback: string): string {
   return ref.name ?? ref.formation ?? fallback;
 }
 
-function resolveSetup(ref: SetupRefJson, r: SequenceResolvers, what: string): { start: ResolvedStart } | { reason: string } {
+/**
+ * One board reference resolved to the eight poses to stand up, or the reason it cannot be.
+ *
+ * EXPORTED BECAUSE A SAVED MODULE RECORDS ITS BOARDS IN THE SAME SHAPE and must resolve them the same way - the drawer's
+ * load and a document's import are the same question, and a second reader of `sid`s is how the two would drift. `what`
+ * names the field in the refusal, so a caller reading a message knows whether it was a document's `start` or a module's.
+ *
+ * Everything tolerated comes back in `notes` (an `aid`/`fid` that disagrees with the setup's own chain) rather than
+ * being silently preferred or refused: the `sid` is authoritative, and the disagreement is worth saying out loud.
+ */
+export function resolveSetupRef(ref: SetupRefJson, r: SequenceResolvers, what = 'start'): { start: ResolvedStart; notes: string[] } | { reason: string } {
   // THE EXACT POSES WIN, because they are the only form that cannot be reinterpreted by a later catalogue.
   if (ref.dancers) {
     if (ref.dancers.length !== 8) {
@@ -380,6 +390,7 @@ function resolveSetup(ref: SetupRefJson, r: SequenceResolvers, what: string): { 
         fid: ref.fid ?? null,
         aid: ref.aid ?? null,
       },
+      notes: [],
     };
   }
   if (ref.sid !== undefined) {
@@ -390,7 +401,7 @@ function resolveSetup(ref: SetupRefJson, r: SequenceResolvers, what: string): { 
     if (ref.aid !== undefined && ref.aid !== row.aid) notes.push(`${what}.aid ${ref.aid} disagrees with the setup's ${row.aid}`);
     return {
       start: { dancers: row.dancers, label: ref.name ?? row.display, sid: row.sid, fid: row.fid, aid: row.aid },
-      ...(notes.length ? { notes } : {}),
+      notes,
     };
   }
   if (ref.formation !== undefined) {
@@ -406,6 +417,7 @@ function resolveSetup(ref: SetupRefJson, r: SequenceResolvers, what: string): { 
         fid: ref.fid ?? null,
         aid: ref.aid ?? null,
       },
+      notes: [],
     };
   }
   return { reason: `${what} needs one of "sid", "formation" or "dancers"` };
@@ -442,9 +454,9 @@ function resolveStepRef(
  * in `notes` so the caller can say it out loud.
  */
 export function resolveSequence(doc: SequenceDocJson, r: SequenceResolvers): SequenceResult {
-  const startRead = resolveSetup(doc.start, r, 'start');
+  const startRead = resolveSetupRef(doc.start, r, 'start');
   if ('reason' in startRead) return { ok: false, reason: startRead.reason };
-  const notes: string[] = [...((startRead as { notes?: string[] }).notes ?? [])];
+  const notes: string[] = [...startRead.notes];
   const steps: ModuleStep[] = [];
   for (const [i, raw] of doc.steps.entries()) {
     if (typeof raw === 'string') {

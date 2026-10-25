@@ -154,7 +154,12 @@ check(/failed to load: \$\{esc\(\(err as Error\)\.message\)\}/.test(browser), 'a
 check(/textContent = `end formation unavailable: \$\{\(err as Error\)\.message\}`/.test(browser), 'while the SAME expression in a textContent is left alone, where escaping would print &amp; to the caller');
 // THE TIMELINE is the saved history list now, one row per step, and it is where a MODULE's name and every
 // call name reach markup. Both are escaped; the row's own numbers are not text at all.
-check(/<b>\$\{esc\(m\.name\)\}<\/b><\/span>: \$\{esc\(m\.calls\.map\(stepLabel\)\.join\(/.test(seq), 'the module list escapes the name the caller typed and the call names in it');
+check(/<b>\$\{esc\(m\.name\)\}<\/b>/.test(seq) && /\$\{esc\(m\.calls\.map\(stepLabel\)\.join\(/.test(seq),
+  'the module list escapes the name the caller typed and the call names in it');
+// AND THE TWO BOARD LABELS the row shows: a formation's name is authored data like any other, and it arrives
+// from the catalogue or from a hand-written store, not from this module.
+check(/\$\{esc\(m\.start\.name \?\? /.test(seq) && /\$\{esc\(m\.end\?\.name \?\? /.test(seq),
+  'and the two board labels it now shows, which come from the catalogue rather than from this code');
 check(/<span class="seq-name">\$\{esc\(stepLabel\(step\)\)\}<\/span>/.test(seq), 'and so does the timeline row for every step in the saved history');
 check(/\$\{esc\(title\)\}/.test(seq), 'including the row\'s tooltip, which carries the engine\'s own refusal reason');
 check(/Formation: <b>\$\{esc\(fasr\.formation/.test(seq), 'and the FASR readout, whose formation can be one the caller defined');

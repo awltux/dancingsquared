@@ -27,7 +27,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, levelsAvailable } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -37,7 +37,7 @@ engine.setParser(DOMParser);
 const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = levelsAvailable().filter((level) => level !== 'src');
 // THE FOUR `.xml` FILES UNDER THE LEVEL DIRECTORIES THAT ARE NOT CALLS: the moves registry and three rule
 // tables. They sit in a level directory because that is where the loader looks, so a coverage check that
 // merely counts `*.xml` is always four short - and a check with a magic floor cannot say WHICH four.

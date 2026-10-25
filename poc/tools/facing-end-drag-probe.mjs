@@ -32,7 +32,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, levelsAvailable } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'dist', 'index.js')).href);
@@ -41,7 +41,7 @@ engine.setParser(DOMParser);
 
 const movesXml = fs.readFileSync(path.join(corpusRoot(), 'moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8');
-const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = levelsAvailable().filter((level) => level !== 'src');
 /** Every `.xml` under the level directories - the corpus's own count, so coverage can be an EQUALITY. */
 const CALL_FILES = LEVELS.reduce((n, level) => n
   + filesOf(level).filter((f) => f.endsWith('.xml')).length, 0);

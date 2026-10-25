@@ -28,7 +28,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { corpusRoot, filesOf } from 'dancing-squared-corpus';
+import { corpusRoot, filesOf, levelsAvailable } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
@@ -51,7 +51,7 @@ const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const formations = engine.parseFormations(formationsXml);
 const DEG = Math.PI / 180;
-const LEVELS = fs.readdirSync(path.join(corpusRoot())).filter((d) => !d.includes('.') && d !== 'src');
+const LEVELS = levelsAvailable().filter((level) => level !== 'src');
 
 // ---------------------------------------------------------------- the panel's own list, mirrored
 /** `sameArrangement`, mirrored: order-independent, position + heading + gender, every spot consumed. */

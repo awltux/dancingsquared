@@ -609,7 +609,7 @@ export interface CallMeta {
  *
  * This is the CORPUS format, and the round trip is the point: a formation a user labels is
  * stored locally so it can be recognized immediately, and this is how it gets into the corpus -
- * pasted into `pom/src/assets/formations.xml`, where the next `parseFormations` reads it like
+ * pasted into `assets/formations.xml`, where the next `parseFormations` reads it like
  * any other. `convert.mjs`-side symmetry is deliberate: the parser and the writer live side by
  * side so neither can drift from the other without the round-trip gate noticing.
  *

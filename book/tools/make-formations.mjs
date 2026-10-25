@@ -26,10 +26,6 @@ import { Canvas, writePng } from './lib/raster.mjs';
 import { PALETTE, C, MARKER_UNITS } from './lib/board-style.mjs';
 import { completeSet, couples } from './lib/squared-set.mjs';
 
-// Re-exported because `make-positions.mjs` used to import it from here; the two tools now share the
-// one implementation in `lib/squared-set.mjs`.
-export { completeSet };
-
 const OUT_DIR = join(toolsDir, '..', 'formations');
 const CACHE = join(toolsDir, '.cache', 'formations');
 const INDEX = join(toolsDir, 'formations-index.json');
@@ -471,7 +467,7 @@ function makeView(dancers, also = []) {
  *     ring never crosses the mark that shows which way the dancer faces.
  *
  * NO NUMBERS, deliberately: no other diagram in this family carries them, and both pages name their
- * dancers in words. The numbering has its own picture (`make-positions.mjs`).
+ * dancers in words. The numbering has its own picture - `make-diagrams.mjs`'s `couple-numbers.svg`.
  */
 function drawAnnotated(canvas, people, view, { fillOf, ring = [], caller = null }) {
   const px = (v) => view.ox + v * view.scale;

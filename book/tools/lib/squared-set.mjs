@@ -1,6 +1,6 @@
 // The squared set, as the engine's own formation library writes it, carrying the manual's numbers.
 //
-// SHARED BY TWO TOOLS. `make-positions.mjs` draws the annotated position diagrams as SVG and
+// SHARED BY TWO TOOLS. `make-diagrams.mjs` draws the annotated position diagrams as SVG and
 // `make-formations.mjs` draws the small formation diagrams as PNG; both need the same eight dancers
 // with the same couple and dancer numbers, and deriving that twice is how two pictures of the same
 // thing end up disagreeing. Nothing here is hand-typed: the geometry is the library's, and the

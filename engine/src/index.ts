@@ -335,7 +335,6 @@ export {
   endPoses,
   closureDiscrepancy,
   correctEndTo,
-  alignTargetToStart,
 } from './editor.js';
 export type { FormDancer, NewSetup, ChainSpec, ClosureDiscrepancy, Rigid } from './editor.js';
 

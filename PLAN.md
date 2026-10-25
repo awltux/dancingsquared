@@ -4796,22 +4796,24 @@ small module that its probes now IMPORT instead of restating:
 | the next-call list's board key | `poc/src/board-key.ts` | four lines at the bottom of `sequencer-ui.ts`, with its doc comment sitting on two DEAD declarations (`PARALLEL_PREFIX`, `isParallelPick`, both deleted) |
 | which leaderboard period a run is on | `game/src/puzzle/board-period.ts` | `main.ts`, over module state and `Date.now()`, where no probe could ask it anything |
 
-**Recorded, NOT actioned, and why:**
+**Recorded, then ACTIONED — both R6 leftovers are closed, and this is how:**
 
-1. **`alignTargetToStart` (`engine/src/editor.ts`) is exported, BOUND by a Gherkin tag, and called by nothing.**
-   `git grep`: three code hits, all its own declaration or the `index.ts` re-export, plus
-   `features/call_editor.feature:70` (`@bind:closureDiscrepancy @bind:alignTargetToStart`). `bind-audit.mjs` resolves
-   a `@bind:` name against the package's exports, so the tag is green while the scenario's own Then-step ("the target
-   must be re-ordered into the call's dancer order BY GEOMETRY, via the call's start poses") has no executable witness
+1. **`alignTargetToStart` (`engine/src/editor.ts`) was exported, BOUND by a Gherkin tag, and called by nothing.**
+   `git grep` found its declaration, the `index.ts` re-export and
+   `features/call_editor.feature:70` (`@bind:closureDiscrepancy @bind:alignTargetToStart`). `bind-audit.mjs` resolves a
+   `@bind:` name against the package's exports, so the tag was green while the scenario's own Then-step ("the target
+   must be re-ordered into the call's dancer order BY GEOMETRY, via the call's start poses") had no executable witness
    behind it: the ordering is `closureDiscrepancy`'s and `correctEndTo`'s, both of which call `orderLikeCore` directly
-   with the same start-pose construction. **Action: delete the function and drop its tag, or make the scenario call it
-   - a feature-file migration either way, so it is its own commit, never a footnote to a refactor.**
-2. **`poc/src/editor-ui.ts` still carries its own `normAngle`, under a stale reason.** Line ~364 says "The engine's own
-   is private to `editor.ts`" - DISPROVED: `moves.ts` exports `normAngle`, `editor.ts` imports it, and
-   `poc/tools/mirror-moves-probe.mjs` and `start-pose-drag-probe.mjs` mirror the same lambda a third and fourth time.
-   **Action: measure whether the panel's `atan2(sin, cos)` agrees with `moves.ts`'s modulo form bit for bit over a large
-   sample FIRST, then import it if it does and record the ulp if it does not** - the engine's own history says the two
-   spellings differ in the last bits (`angle-normalisation.mjs`), so this is a measurement, not a tidy-up.
+   with the same start-pose construction. **DONE**: the wrapper deleted, its `index.ts` re-export removed and the
+   `@bind:alignTargetToStart` tag dropped. **`alignFormationToCore` - the function it wrapped - STAYS**, and this item
+   is the record of why the pair had to be told apart: the wrapper had no caller anywhere, the function has five
+   (`poc/src/data.ts`, `poc/src/editor-ui.ts`, `editor.mjs`, `behaviour-audit.mjs`, and three `@bind:` tags).
+2. **`poc/src/editor-ui.ts` carried its own `normAngle`, under a stale reason.** The comment ("The engine's own is
+   private to `editor.ts`") was DISPROVED: `moves.ts` exports `normAngle`, `editor.ts` imports it, and two probes mirror
+   the same lambda again. **DONE**: `poc/src` imports the engine's at all three sites (two in `editor-ui.ts`, one in
+   `formation-xml.ts`), and the difference is recorded where it matters: `atan2(sin, cos)` is the CLOSED [-PI, PI]
+   interval, so a half-turn delta used to read -180 degrees in the panel's readouts and now reads +180 - the same
+   heading, the engine's seam. The probes that still mirror it are `TODO.md` item 48.
 
 **R7 — catalogue construction: measured, then fixed.** The lead said three live builders needed consolidating. Measured
 (`engine/test/tam-readers.mjs`, §3's row), two of the three were already `dancing-squared-corpus` projections and the

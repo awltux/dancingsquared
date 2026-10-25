@@ -67,7 +67,7 @@ Feature: Synthesizing a Missing Setup (the Call Editor)
     #          congruent formation, which is what makes a synthesized setup look like a deliberate
     #          lead-in rather than a shuffle.
 
-  @bind:closureDiscrepancy @bind:alignTargetToStart
+  @bind:closureDiscrepancy
   Scenario: Closure is measured against a dancer SET, not an array order
     Given a call and an intended end formation
     When the discrepancy between them is measured

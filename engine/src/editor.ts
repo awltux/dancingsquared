@@ -259,6 +259,9 @@ function orderLikeCore(coreStart: { x: number; y: number }[], formation: FormDan
  *
  * INDEX INDEPENDENCE: the correspondence between the two lists is DERIVED from
  * geometry (see deriveFormationMapping) and never assumed from array order.
+ *
+ * IT IS LIVE, unlike the wrapper that was deleted beside it: `poc/src/data.ts`, `poc/src/editor-ui.ts`, `editor.mjs`,
+ * `behaviour-audit.mjs` and three `@bind:` tags all use this. The rule and the name stay.
  */
 export function alignFormationToCore(
   coreStart: { x: number; y: number }[],
@@ -1204,8 +1207,9 @@ export interface ClosureDiscrepancy {
  * Measure how far each dancer's end diverges from the intended target. `target`
  * is treated as a dancer SET and re-ordered into the call's dancer order by
  * geometry (via the call's start poses), so the correspondence is derived rather
- * than assumed from array position. Build the target with `alignTargetToStart`
- * (or use the call's own start poses for a round-trip fix).
+ * than assumed from array position. Build the target from the call's own start
+ * poses for a round-trip fix (`call.dancers.map((d) => poseFor(d, 0))`) - the
+ * re-ordering is this function's, and no separate alignment call is needed.
  */
 export function closureDiscrepancy(call: CallBundle, target: FormDancer[]): ClosureDiscrepancy {
   const actual = endPoses(call);
@@ -1219,20 +1223,6 @@ export function closureDiscrepancy(call: CallBundle, target: FormDancer[]): Clos
     if (he > maxHeadingErr) maxHeadingErr = he;
   }
   return { actual, target: ordered, maxPosErr, maxHeadingErr };
-}
-
-/**
- * Align a picked target FORMATION to the call's START poses (which carry the
- * correct dancer identities), returning a FormDancer[] in the call's dancer
- * order. Aligning to the start — not the possibly-misaligned end — keeps each
- * dancer assigned to their own intended spot.
- */
-export function alignTargetToStart(call: CallBundle, formation: FormDancer[]): FormDancer[] {
-  const start = call.dancers.map((d) => {
-    const p = poseFor(d, 0);
-    return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
-  });
-  return alignFormationToCore(start, formation);
 }
 
 /**

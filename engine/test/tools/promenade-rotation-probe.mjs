@@ -5,10 +5,12 @@
 // fraction). The rotation comes from couple 1's ANCHOR, and an anchor is a SNAP of that couple's
 // midpoint to one of the four axis points, so the rotation is a whole number of quarter turns. On an
 // ALAMO ring the STORED labels put couple 1's two dancers 180 degrees apart and their midpoint at the
-// middle of the set (radius 1.13), which snaps to an arbitrary side; the pairs read off the floor put
-// couple 1's midpoint in the 1st quadrant at radius 3.00, which snaps to north.
+// middle of the set (radius 1.13), which snaps to an arbitrary side; the floor-pair read the engine now
+// performs puts couple 1's midpoint in the 1st quadrant at radius 3.00, which snaps to north.
 //
-// This prints the rotation the call reads, both ways, and what the fraction lands on.
+// It prints, per board, the rotation the call reads and what the fraction lands on, then re-derives the
+// home set turned by that angle and reports how far the result is from it. The second number is what
+// makes the first a claim rather than an angle: "the ring is home, turned".
 //
 // Usage: node engine/test/tools/promenade-rotation-probe.mjs
 

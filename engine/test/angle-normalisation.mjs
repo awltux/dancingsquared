@@ -13,7 +13,8 @@
 //     (`moves.normAngle`);
 //   * [-PI, PI]                          — 2 (`identity.normAngle`, `matcher.normAngleWrap`);
 //   * `atan2(sin, cos)`                  — 5 (`core.ts`, `formation-order.norm`, `editor.ts`, `couples.ts`,
-//     `progression.ts`);
+//     `progression.ts` — the last of which has itself since been deleted as dead code, so the count is the
+//     pre-consolidation one and four of the five files survive);
 //   * `abs(normalised difference)` as a named helper — 3 (`match.ts`, `fan-the-top.ts`, `swing-thru.ts`), and the
 //     same composition folded in one place — 1 (`matrix.ts`);
 //   * [0, 2PI)                           — 1 (`cells.ts`);

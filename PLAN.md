@@ -2871,24 +2871,28 @@ frame, worst **6.32 units**, and `anim-convergence` pinned 7 of the single-call 
     couple number to the RESULT - which is the change this repo reverted TWICE (it cost 2 figures;
     `progression.ts`) and which contradicts "identity is data". **That is the real decision, and it is
     the user's, not an animation tweak's.**
-  - **THE READING HALF IS DONE, AND IT IS FREE.** The pairing read at the point of use could only see
-    partners standing SIDE BY SIDE with the same heading, so on an Alamo ring it found no mate, returned
-    null and left the stored labels standing - whose "couple centres" are the MIDDLE OF THE SET (radius
-    **1.13**, against **3.00** for the real pairs). `progression.ts` now has a FACING pass for that
-    arrangement, behind a guard: it fires only when EVERY stored pair is outside the couple band, i.e.
-    when the board's own labels pair every dancer with somebody on the far side. MEASURED effect: a
-    `Promenade 1/2` from 7046's end ring ended **-90 degrees from home** and now ends **EXACTLY HOME**
-    (`tools/promenade-rotation-probe.mjs`), because the ring reads as half a turn out. Figures stay
-    **116 of 188**, get-out behaviour and conformance are byte-identical, `anim-convergence` keeps its 7
-    pins, `verify:light` green.
-  - **THE GUARD IS LOAD-BEARING, AND FINDING THAT OUT COST A CENSUS ROUND-TRIP.** Without it the facing
-    pass fires on `figm130` too, whose board is two squeezed LINES (floor pairs 1.5 apart, midpoints at
-    the four CORNERS) carrying one stored pair that IS inside the band, 2.50 apart. Pairs read off a
-    line are line adjacency, not couples, so the ring test fired on a body that is not a ring and refused
-    its `Promenade`: figures **116 -> 115**, three runs each way, and `tools/promenade-figure-stop-probe.mjs`
-    names the victim. The guard is the measurement that separates the two cases - the Alamo ring has all
-    four stored pairs ~6.0 apart, figm130 has one at 2.50. Gated in `promenade.mjs` §4c, which checks the
-    witness really is an Alamo ring before using it.
+  - **THE READING HALF IS LIVE, BUT ITS FIRST MODULE WAS DEAD AND IS NOW GONE.** The pairing read at the
+    point of use is `sequencer/couples.ts`: `findCouplePairs` tries SIDE BY SIDE, then FACING, then WAVE,
+    and `currentCoupleNumbers` is the reading callers take. It exists because the stored labels on an
+    Alamo ring put a pair's two dancers 180 degrees apart with their "couple centre" at the MIDDLE OF THE
+    SET (radius **1.13**, against **3.00** for the real pairs). `sequencer/progression.ts` was an EARLIER
+    spelling of the same read, with a FACING pass behind a guard; the authored Promenade family
+    (`4d8a82b`) deleted its three call sites in `coded-moves.ts` and nothing imported it after that.
+    MEASURED before deletion: `git grep -n "progressedCoupleNumbers"` found the definition and nothing
+    else, and `git grep -rn "from '.*progression"` found no import anywhere in the tree. Deleted, header
+    and all, because §4.5's "no unused export" is exactly this case: a rule nobody calls is a claim
+    nobody checked. The CALLERLAB convention it quoted is still cited at `applicator.ts:1579` and in
+    PLAN.md's Phase E item 1.
+  - **AND THE NUMBERS THIS ENTRY QUOTED WERE STALE, SO THEY ARE RE-MEASURED HERE RATHER THAN REPEATED.**
+    It claimed a `Promenade 1/2` from 7046's end ring ended **-90 degrees from home** and then **EXACTLY
+    HOME**, with the guard "gated in `promenade.mjs` §4c". `engine/test/promenade.mjs` was deleted by
+    `4d8a82b` as well (MEASURED: `Test-Path engine/test/promenade.mjs` -> False), so no §4c exists.
+    MEASURED today, `node engine/test/tools/promenade-rotation-probe.mjs`: the same ring ends **45.0
+    degrees from home** (closest pair 2.000), and a Static Square half promenade ends **-180.0**
+    (0.000107 from the turned home). What gates the promenade reading now is `getout-convention.mjs` and
+    `call-reading.mjs`, both light. The retired guard's measurement - unguarded, the FACING pass also
+    fired on `figm130`'s two squeezed LINES and figures went **116 -> 115** - is history about a branch
+    that no longer exists; `tools/promenade-figure-stop-probe.mjs` still names that board.
   - **STILL OPEN, and it is the identity decision above**: on the 13 boards whose floor pairs and
     declared couples disagree, a promenade still shows the couples separating. Its size is the same
     before and after this round, and no animation change can reduce it.

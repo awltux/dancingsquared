@@ -1336,22 +1336,21 @@ own "the Couples Promenade to the Man's home position", i.e. applying the tempor
 RESULT — the change this repo reverted twice for 2 figures, and which contradicts "identity is data".
 That decision belongs to the project, not to an animation tweak.
 
-**The reading half IS done, and it is free.** The point-of-use pairing read could only see partners
-standing SIDE BY SIDE with the same heading, so on an Alamo ring it found no mate, returned null, and let
-the stored labels stand — whose "couple centres" are the MIDDLE OF THE SET (radius **1.13**, against
-**3.00** for the real pairs). `progression.ts` now has a FACING pass, guarded to fire only when EVERY
-stored pair is outside the couple band, i.e. when the labels pair every dancer with somebody on the far
-side. MEASURED: a `Promenade 1/2` from 7046's end ring ended **-90 degrees from home** and now ends
-**EXACTLY HOME** (`tools/promenade-rotation-probe.mjs`), because the ring reads as half a turn out.
-Figures stay **116 of 188**; get-out behaviour and conformance byte-identical; `anim-convergence` keeps
-its 7 pins; `verify:light` green.
+**The reading half is live, but its first module was dead and is gone.** The point-of-use pairing read is
+now `couples.ts`: `findCouplePairs` tries side by side, then facing, then wave, and
+`currentCoupleNumbers` is the reading callers take. It exists because the stored labels on an Alamo ring
+put a pair's two dancers 180 degrees apart with their "couple centre" at the MIDDLE OF THE SET (radius
+**1.13**, against **3.00** for the real pairs). `progression.ts` was an earlier spelling of the same
+read, with a FACING pass behind a guard; the authored Promenade family (`4d8a82b`) deleted its call
+sites and nothing imported it afterwards, so it was deleted (MEASURED: `git grep -n
+"progressedCoupleNumbers"` found the definition and nothing else, and no file imported `progression`).
 
-**The guard is load-bearing, and that cost a census round-trip.** Unguarded, the facing pass also fires on
-`figm130`, whose board is two squeezed LINES (floor pairs 1.5 apart, midpoints at the four CORNERS)
-carrying one stored pair that IS inside the band, 2.50 apart; pairs read off a line are line adjacency
-and not couples, so the ring test fired on a body that is not a ring and refused its `Promenade`:
-figures **116 → 115**, three runs each way, with `tools/promenade-figure-stop-probe.mjs` naming the
-victim. Gated in `promenade.mjs` §4c, which checks the witness really is an Alamo ring before using it.
+**The numbers that stood here were stale, and the gate they named no longer exists.** This text used to
+say a `Promenade 1/2` from 7046's end ring ended **-90 degrees from home** and then **EXACTLY HOME**,
+gated in `promenade.mjs` §4c — a file `4d8a82b` deleted (MEASURED: `Test-Path` → False). MEASURED today
+with `node engine/test/tools/promenade-rotation-probe.mjs`: the same ring ends **45.0 degrees from
+home** (closest pair 2.000), and a Static Square half promenade ends **-180.0**. What gates the reading
+now is `getout-convention.mjs` and `call-reading.mjs`.
 
 **The call editor now edits an INSTANCE — the start formation and its arrangement, the end formation,
 and the moves — and the `<tam>` round trip is MEASURED.** Until now the editor could only RE-FRAME a

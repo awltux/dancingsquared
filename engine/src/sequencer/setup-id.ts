@@ -8,8 +8,9 @@
 //   * `convert.ts` pairs the authored `<path>` list with the dancers BY INDEX, and replays ONE path for a pair -
 //     `path = resolvedPaths[Math.floor(i / 2)]` - so the array order decides which dancer dances which path and
 //     which pairs share one;
-//   * a board the engine cannot stamp is drawn a colour per INDEX PAIR (`displayCouple`, in `packages/stage`), and
-//     the zero-setup convention is "indices 0,1 are couple 1, 2,3 couple 2, ...".
+//   * a board the engine cannot stamp is drawn a colour per INDEX PAIR (`displayCouple`, in `packages/stage`), on the
+//     rule that indices 0,1 are the first pair, 2,3 the second, and so on - the order is the element's, so the pair is
+//     the element's too.
 //
 // So a setup is (arrangement, index -> spot order), and two calls at two levels with the same starting arrangement
 // and order share one setup id. It is NOT All8's FASR `FormationSetup`/`setupForFormation` (`alignment.ts`), NOT

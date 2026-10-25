@@ -1683,16 +1683,20 @@ findings, each with the measurement that produced it:
    so the drawn border and the words cannot drift. The border is a flat square annulus in board coordinates — a
    `LineLoop` would be a hairline, and a state told by a hairline is not one a player can read.
 7. **Every board is drawn in FOUR colours, and most of them had none.** The engine knows a dancer's home couple only
-   for the formations it can identify — MEASURED at level 1, **6 of the 44** start boards — so the other 38 came back
-   with `couple: 0` on every dancer and `coupleColor(0)` is one grey: eight dancers nobody can tell apart. Reported as
-   "can the game boards display the dancer couple colours, even if the formations aren't in the start formations
-   list". The board view now colours through `displayCouple` (`packages/stage`, the rule the POC already had, moved
-   there so both apps import ONE implementation), with `enabled: true` for every board; a couple the engine does know
-   wins, because that branch returns it first. **THE NUMBER LABEL IS DRAWN ONLY FOR A KNOWN COUPLE**: `coupleTag`
-   spells a couple "1h"/"2s", which claims a head or a side, and a pair derived from the array order has not earned
-   that claim — so the game turns the label off for exactly those dancers, which is why `DancerView`'s `labelled` is
-   separate from its `couple`. The POC leaves the label on and gates the fallback by formation name instead, because
-   its boards are the ones its editor reads couple numbers off.
+   for the formations it can identify — MEASURED at level 1, **6 of the 44** start boards when this was written (the
+   level's pool has since been re-cut: `game/test/board-colours-probe.mjs` prints the live census, and its pins are the
+   numbers to read) — so the rest came back with `couple: 0` on every dancer and `coupleColor(0)` is one grey: eight
+   dancers nobody can tell apart. Reported as "can the game boards display the dancer couple colours, even if the
+   formations aren't in the start formations list". The board view now colours through `displayCouple`
+   (`packages/stage`, the rule both apps import so there is ONE implementation), which takes no option: a couple the
+   engine does know wins, because that branch returns it first, and every other dancer takes the colour of the pair it
+   sits in in the board's own order. **THE NUMBER LABEL IS DRAWN ONLY FOR A KNOWN COUPLE**: `coupleTag` spells a couple
+   "1h"/"2s", which claims a head or a side, and a pair derived from the array order has not earned that claim — so the
+   game turns the label off for exactly those dancers, which is why `DancerView`'s `labelled` is separate from its
+   `couple`. The POC's sequencer draws the same colours and DOES show the number on every setup, because "which pair is
+   this" is what a caller reads off that board; the browse/edit board follows the game and labels none of them. The
+   approved-setup list that used to gate the POC's sequencer (`poc/src/zero-formations.ts`) is retired — `sid` makes
+   every defined formation element a setup whose order is its own data, so there is nothing to approve.
 8. **A solved waypoint FLASHES, and a change of pair SLIDES instead of jumping.** REPORTED: "Add a success animation
    to a waypoint when a waypoint is solved. Currently, there is no feedback other than changing the outline colour.
    Also, it jumps to the next waypoint instantly, and this is confusing to the player." The jump was a defect in

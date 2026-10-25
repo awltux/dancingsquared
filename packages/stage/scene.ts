@@ -1302,9 +1302,10 @@ export class DancerView {
    *
    * `labelled` DRAWS THE COUPLE NUMBER beside the avatar, and it is separate from `couple` because the two claims differ:
    * a caller with a DISPLAY-ONLY couple (a pair derived from the board's own order, see `displayCouple`) has a colour
-   * worth drawing and no number worth asserting - `coupleTag` spells it "1h"/"2s", which names a head or a side. The POC's
-   * call/browse board passes `false` for every dancer and the game passes `false` for exactly those display-only couples,
-   * drawing the number only where the engine stamped a real home couple; the POC's sequencer leaves it on. */
+   * worth drawing and a number that names the PAIR rather than a measured home couple - `coupleTag` spells it "1h"/"2s",
+   * which names a head or a side. The split is therefore per screen: the POC's sequencer leaves it on for EVERY setup
+   * (that board is where a caller reads which pair stands where), while the POC's call/browse board and the game draw the
+   * number only where the engine stamped a real home couple. */
   constructor(spec: DancerSpec, couple = 0, ghost = false, labelled = true) {
     const color = coupleColor(couple);
     const parts = buildAvatar(color, ghost, spec.gender);

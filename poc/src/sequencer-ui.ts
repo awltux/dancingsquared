@@ -17,7 +17,6 @@ import { loadUserFormations } from './formations';
 import { corpusFormationsOfSize } from './tam-xml';
 import { DancerView, buildHandConnectors, buildFlatMarker } from 'dancing-squared-stage';
 import { displayCouple } from 'dancing-squared-stage';
-import { isZeroSetup } from './zero-formations';
 import { compareCallTitles } from './call-order';
 // THE NEXT-CALL LIST'S BOARD KEY, its own pure module: it decides whether a settle re-enumerates the catalogue
 // (686-692 ms) or not, and the panel cannot be loaded by a probe (see `board-key.ts`).
@@ -310,13 +309,6 @@ export class SequencerController implements SequencerUI {
   private lastTraceKey = '';
   /** The identity the dancer VIEWS were built for. See `viewKeyOf` and `renderBoard`. */
   private viewKey = '';
-  /** Whether the views were built with a pair colour from the ORDER. See `startIsZeroOrder`; it is
-   *  compared in `renderBoard` because it changes the avatar without changing the board's identity. */
-  private viewZeroOrder = false;
-  /** The start board `zeroStartFlag` was measured from, and the answer, so `recognize` - a scan over
-   *  every named formation - is not run per frame. */
-  private zeroStartFrom: Board | null = null;
-  private zeroStartFlag = false;
   private lastReadout = '';
   /**
    * UNDO/REDO AS SNAPSHOTS OF `history`, not as a stack of inverse operations.
@@ -1092,21 +1084,20 @@ export class SequencerController implements SequencerUI {
       this.stage.scene.remove(v.selectionRing);
     }
     for (const m of this.markers) this.stage.scene.remove(m);
-    // DISPLAY-ONLY couple colour, in the one function the browse/editor board uses too - see
-    // `displayCouple`. A board with no real home identity is recoloured from its ORDER, and ONLY when its
-    // setup is a formation in `ZERO_FORMATIONS` - see `startIsZeroOrder` for why the question is asked about
-    // this sequence's START board and not about the board under the playhead. This value never reaches the
-    // engine board.
-    const zeroOrder = this.startIsZeroOrder();
+    // THE COLOUR IS THE SHARED RULE, and there is nothing here to decide: `displayCouple` draws the engine's home
+    // couple where it has one and otherwise the PAIR the dancer sits in in this board's own order. That order is the
+    // start formation element's (`sid` is the arrangement AND the order), and the engine carries it through every
+    // call, so the same two dancers are the same colour for the whole sequence. It is not a second identity: this
+    // value never reaches the engine board, whose `couple` stays UNKNOWN for a setup the engine cannot name.
     this.views = board.dancers.map(
       (d, i) =>
         new DancerView(
           { gender: d.gender, x: 0, y: 0, angleDeg: 0, path: [] },
-          displayCouple(d, i, zeroOrder),
+          displayCouple(d, i),
           !!d.isGhost,
         ),
     );
-    this.markers = board.dancers.map((d, i) => buildFlatMarker(d.gender, displayCouple(d, i, zeroOrder)));
+    this.markers = board.dancers.map((d, i) => buildFlatMarker(d.gender, displayCouple(d, i)));
     for (const v of this.views) {
       v.group.visible = this.active && !this.use2d;
       this.stage.scene.add(v.group);
@@ -1124,36 +1115,6 @@ export class SequencerController implements SequencerUI {
     // ones. The names are re-resolved against the board that just arrived - see `applySubsetMarks`.
     this.applySubsetMarks();
     this.viewKey = SequencerController.viewKeyOf(board);
-    this.viewZeroOrder = zeroOrder;
-  }
-
-  /**
-   * Whether this SEQUENCE's first formation is one whose dancer order is square-set order - the only boards
-   * that may be drawn a colour per pair when the engine has no home couple for them (`displayCouple`).
-   *
-   * THE START BOARD, NEVER THE ONE UNDER THE PLAYHEAD, and the difference is the whole point. A sequence's
-   * array order is fixed when its start formation is set and carried through every call, so the first
-   * formation is where a pair in that order means a couple - asked of a mid-sequence board the same answer
-   * would be an accident of how the setup was authored. It also has to be a property of the SETUP and not of
-   * the frame, or the dancers would change colour as the playhead crossed beat 0.
-   *
-   * MEMOISED ON `startBoard`'s OWN OBJECT, because `knownFormation` scans the whole named-formation
-   * library and this is read from `renderBoard`, which runs per frame. `undefined` means "the live board IS
-   * home" - real identities, so the answer is no and nothing needs scanning.
-   *
-   * THE NAME COMES FROM `knownFormation`, NOT `recognize`, and that is measured rather than assumed: the
-   * curated `recognize` names **none** of `Circle`, `Normal Lines Compact` or `Columns` (it answers null for
-   * all three, which is why the Formation field in the drawer shows "?"), while `knownFormation` names each of
-   * them - it is the permissive scan, and a name is exactly what this needs.
-   */
-  private startIsZeroOrder(): boolean {
-    const start = this.startBoard;
-    if (!start) return false;
-    if (this.zeroStartFrom !== start) {
-      this.zeroStartFrom = start;
-      this.zeroStartFlag = isZeroSetup(this.seq.knownFormation(start));
-    }
-    return this.zeroStartFlag;
   }
 
   private renderBoard(board: Board, walk?: WalkCycle) {
@@ -1162,15 +1123,13 @@ export class SequencerController implements SequencerUI {
     // identity or array order differs from the one the views were built for draws the wrong dancers in
     // the right places. See `viewKeyOf` for the ceder-7046 report that this was.
     //
-    // THE ZERO-ORDER FLAG IS PART OF THAT, and it is not in `viewKeyOf` because it is not a property of the
-    // board: two setups can agree on identity (all UNKNOWN) and order and disagree about being in
-    // `ZERO_FORMATIONS`, which is a change of COLOUR only. Compared here rather than folded into the key
-    // because the key is built from dancers and this is a decision about the setup.
-    const zeroOrder = this.startIsZeroOrder();
+    // THE COLOUR NEEDS NO SEPARATE COMPARISON ANY MORE. It is read off the dancers (home couple, else the index pair),
+    // and `viewKeyOf` already carries the order, the genders and every `couple` - so a board that would be drawn in
+    // different colours has a different key. When the colour was gated on the start setup's NAME it could change with
+    // identity and order untouched, which is why a flag used to live beside the key.
     if (
       this.views.length !== board.dancers.length ||
-      this.viewKey !== SequencerController.viewKeyOf(board) ||
-      this.viewZeroOrder !== zeroOrder
+      this.viewKey !== SequencerController.viewKeyOf(board)
     ) {
       this.rebuildViews(board);
     }

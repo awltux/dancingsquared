@@ -369,14 +369,15 @@ class BoardView {
       // `couple: 0` on every dancer and `coupleColor(0)` is one grey) — reported as "can the game boards display the
       // dancer couple colours, even if the formations aren't in the start formations list".
       //
-      // `displayCouple` is the SHARED rule (`packages/stage`), and the game passes `enabled: true` for every board:
-      // it draws no couple NUMBER and no head/side letter for an unknown couple (see `labelled` below), so the colour
-      // says only "these two are a pair in this formation's authored order" — and telling eight dancers apart is the
-      // colour's whole job here. Where the engine DOES know the couples they win, because the first branch returns
-      // `d.couple`. The POC gates the same function by formation name because its boards are read for couple numbers,
-      // which is a different screen with a different claim; both call one function rather than keeping two copies.
+      // `displayCouple` is the SHARED rule (`packages/stage`) and it takes no option, because there is none: the rule
+      // colours every board. It draws no couple NUMBER and no head/side letter for an unknown couple (see `labelled`
+      // below), so the colour says only "these two are a pair in this formation's authored order" — and telling eight
+      // dancers apart is the colour's whole job here. Where the engine DOES know the couples they win, because the
+      // first branch returns `d.couple`. The POC's sequencer draws the same colours and does show the couple number on
+      // every setup, because "which pair is this" is what a caller reads off that board; both screens call one
+      // function rather than keeping two copies.
       const knownCouple = typeof d.couple === 'number' && d.couple > 0;
-      const couple = displayCouple(d, i, true);
+      const couple = displayCouple(d, i);
       // `DancerView` READS ONLY `gender` AT CONSTRUCTION — the avatar shape and its colour — so the rest of
       // `DancerSpec` is empty ON PURPOSE. `x`/`y`/`angleDeg` are the pose it is HANDED every frame by
       // `update`, and `path` is the authored track that only a call bundle has; a drill board is a snapshot,

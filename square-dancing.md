@@ -4493,48 +4493,54 @@ catalogue. The editor's `Export <formation>` is the way to PRODUCE a block in a 
 dancer table with the swap button, export, paste) — the tool then derives what the callers need, which is the
 part a diff of `formations.xml` cannot tell you.
 
-**AND THE DANCER COLOURS FOLLOW THAT ORDER, WHICH IS WHY THE TWO ARE ONE SUBJECT.** Reported as: "How can I get
-the dancer colour coding to appear for the formations in the zero setup? … e.g. zero lines, zero colums etc",
+**AND THE DANCER COLOURS FOLLOW THAT ORDER, WHICH IS WHY THE TWO ARE STILL ONE SUBJECT.** Reported as: "How can I
+get the dancer colour coding to appear for the formations in the zero setup? … e.g. zero lines, zero colums etc",
 then "it would be nice if there was an array of formations/arrangement titles that are deemed zeros. and this
 enabled colour displays … But only when they are the first formation in a sequence or in the call editor". A
 board is coloured by HOME COUPLE, and identity is data: `assignHomeIdentity` matches the start formation to the
-home square, which MEASURED succeeds for **6 of the 291** formations in `formations.xml`. The other 285 come back
-with `UNKNOWN_COUPLE` on every dancer, and `coupleColor(0)` is one grey — correct for the engine (a placeholder
-must not be readable as an identity) and useless on screen. The two views had also drifted apart: the sequencer
-had a display-only order fallback, and the browse/edit board (`browser.ts`, which is what the Call editor
-previews through) passed `d.couple ?? 0` straight to the avatar, so the SAME setup was coloured in one panel and
-grey in the other.
+home square, which MEASURED succeeds for **6 of the 292** formations in `formations.xml`
+(`poc/tools/display-couple-probe.mjs` prints the live figure). The other 286 come back with `UNKNOWN_COUPLE` on every
+dancer, and `coupleColor(0)` is one grey — correct for the engine (a placeholder must not be readable as an identity)
+and useless on screen. The two views had also drifted apart: the sequencer had a display-only order fallback, and the
+browse/edit board (`browser.ts`, which is what the Call editor previews through) passed `d.couple ?? 0` straight to the
+avatar, so the SAME setup was coloured in one panel and grey in the other.
 
-THE RULE IS A LIST, NOT A GUESS. `poc/src/zero-formations.ts` names the setups whose authored dancer order IS
-square-set order — 24 of them today — and `displayCouple` recolours an anonymous dancer as its PAIR IN THE ORDER
-(`floor(index / 2) + 1`) when the caller enables it. The list cannot be derived, because four identities share one
-set of spots (§9's canonical-identity problem), so it is a written decision with a gate behind each name: the reorder
-process and `engine/test/formation-order.mjs` are what establish that a formation's pairs are its couples. `Circle`
-is the exception that proves the gate's shape — its partners toe **45°** towards the ring centre, so the narrow
-geometric test ("partners side by side facing the same way, pairs going S, E, N, W", which MEASURED passes for
-exactly 23 formations) refuses it, while the reorder does not. That test is printed by the probe as the candidate set
-rather than enforced as the list, because "these two are partners" is what identity is undecidable about.
+THE RULE IS THE ELEMENT'S ORDER, AND IT NEEDS NO APPROVAL LIST. `displayCouple` (`packages/stage`) draws the engine's
+couple where there is one and otherwise the PAIR the dancer sits in in the board's own order — `floor(index / 2) + 1`.
+That order is the formation element's, because the board is built from the element (the sequencer's setup picker hands
+over the row's dancers, a call variant hands over its own start `<formation>`, the game hands over a start board), and
+`sid` is exactly the identity that says "this arrangement, in this order" (see `engine/src/sequencer/setup-id.ts`). The
+colour therefore claims one thing — "these two are a pair in this element's authored order" — which is true by
+construction, and never "these two are couple 2 in the square".
 
-**AND THE CALL EDITOR NO LONGER CONSULTS THE LIST AT ALL.** Reported again as "some calls show as grey dancers,
-which makes differentiating them more difficult": the browse/edit board (`browser.ts`) now passes
-`displayCouple(d, i, true)` for every setup and builds the avatar with `labelled: false`, so four pair colours are
-drawn on every call and no couple NUMBER is asserted anywhere on that screen — `coupleTag` spells the number
-"1h"/"2s", which names a head or a side nobody measured, and the colour already carries the couple index. The
-board is beat 0 of one call, so its array order is the setup's, which is what makes the pair colour the right
-claim; the game's drill boards have been drawn exactly this way for the same reason. The sequencer keeps the gate
-— it still greys a START setup whose name is not in the list — so the list has one consumer left.
+**THE LIST THAT USED TO GATE IT IS RETIRED, AND WHY IT WAS WRONG IS WORTH KEEPING.** `poc/src/zero-formations.ts` named
+24 setups whose authored order had been verified as square-set order — `Circle` the exception that proves the gate's
+shape, because its partners toe **45°** towards the ring centre, so the narrow geometric test ("partners side by side
+facing the same way, pairs going S, E, N, W", which MEASURED passes for exactly 23 formations) refuses it while the
+reorder does not — and the sequencer passed `false` to `displayCouple` unless its start board's NAME was in that list.
+Gating a COLOUR on a NAME is what broke: a setup reached through the Board picker was grey unless its own name happened
+to be listed, and the 274 setups that exist only as a call's inline `<formation>` block were never listed at all. Now
+that every defined formation element carries a `sid` — and the Board picker offers all 484 of them — nothing is left to
+approve, so the list, `isZeroSetup`, `startIsZeroOrder` and the `enabled` argument are gone and the pair colour is the
+default on every board, on both apps. MEASURED: only **8 of those 484** setups are boards the engine can stamp a couple
+on, so a rule that coloured only known couples would leave 476 of them grey.
 
-SCOPE, AND THE HALF-SET BONUS. The Call editor's board IS a start setup, which is why it may colour by order at
-all. The sequencer asks the list about its START board only (`startIsZeroOrder`, named by `knownFormation` —
-measured: the curated `recognize` names **none** of `Circle`, `Normal Lines Compact` or `Columns`, so the obvious
-namer is the wrong one), never about the board under the playhead: a mid-sequence array order is a leftover of the
-setup, not a statement about where the dancers stand, and gating on the frame would change the colours as the
-playhead crossed beat 0. A half-set formation needs nothing extra — the reader completes it by turning each dancer
-180° about the centre, which takes the south pair to the north pair and the east pair to the west, so a written
-`1,1,2,2` completes to `1,1,2,2,3,3,4,4`; `poc/tools/display-couple-probe.mjs` measures that against the engine's
-own squared set rather than restating it, and its revert controls (a colour gated on the setup's name, or a
-`labelled` left at its default in the Call editor, or `(i % 4) + 1` per dancer, or a private copy of the rule in
-the sequencer) each turn a different check red. The engine's `couple`, `sequence`, `corner` and `fasrKey` are
-untouched, and the editor's table still prints "-" — which is why its info line says the colours follow the list
-order rather than an identity.
+THE COUPLE **NUMBER** IS STILL A PER-SCREEN DECISION. `DancerView`'s `labelled` is separate from its `couple` because
+the two claims differ: the sequencer draws the number on every setup ("which pair is this" is what a caller reads off
+that board), while the browse/edit board and the game draw the colour only — `coupleTag` spells a number "1h"/"2s",
+which names a head or a side, and for a pair derived from the authored order that letter is the pair index rather than a
+measured head or side. The browse/edit board is beat 0 of one call, so its array order is the setup's, which is what
+makes the pair colour the right claim there; the game's drill boards have been drawn that way for the same reason.
+
+SCOPE, AND THE HALF-SET BONUS. A sequence's array order is the start setup's and the engine carries it through every
+call (`ApplyResult` maps the board's dancers and `reorderLike` fixes the order), so a pair is the same two dancers for
+the whole sequence and the colours do not move as the playhead crosses beat 0 — and a board the engine DID identify
+keeps its real couples, which is why a squared set still reads `3,3,2,2,1,1,4,4`. A half-set formation needs nothing
+extra: the reader completes it by turning each dancer 180° about the centre, which takes the south pair to the north
+pair and the east pair to the west, so a written `1,1,2,2` completes to `1,1,2,2,3,3,4,4`;
+`poc/tools/display-couple-probe.mjs` measures that against the engine's own squared set rather than restating it, and
+its revert controls (a rule that repainted a known couple, `(i % 4) + 1` per dancer, a colour counted separately for
+the completed half, a third argument at a call site, or the list's names reappearing in a render path) each turn a
+different check red. The engine's `couple`, `sequence`, `corner` and `fasrKey` are untouched, and the editor's table
+still prints "-" — which is why its info line says the colours follow the list order rather than an identity.
 

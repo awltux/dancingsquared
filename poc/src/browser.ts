@@ -547,21 +547,21 @@ export class CallBrowser {
     this.dancers = dancers;
     // EVERY BOARD ON THIS SCREEN IS DRAWN IN FOUR COLOURS AND NO BOARD CARRIES A COUPLE NUMBER. A board is
     // coloured by home couple, which is data: `assignHomeIdentity` can name only the handful of formations in
-    // `assets/formations.xml` that ARE a squared set up to a rotation/reflection (six of them; the live figure is
-    // printed by `poc/tools/display-couple-probe.mjs`), so everything else came back `UNKNOWN_COUPLE` and
+    // `assets/formations.xml` that ARE a squared set up to a rotation/reflection (MEASURED: 6 of the 292, and
+    // `poc/tools/display-couple-probe.mjs` prints the live figure), so everything else came back `UNKNOWN_COUPLE` and
     // `coupleColor(0)` drew all eight dancers one grey - "some calls show as grey dancers, which makes
-    // differentiating them more difficult". `displayCouple` recolours such a dancer by the PAIR it sits in in the
-    // board's own order, and a call editor board IS a start setup (beat 0 of the call being edited), which is the
-    // one board whose array order is the setup's.
+    // differentiating them more difficult". `displayCouple` is now THE rule rather than an opt-in fallback: it colours
+    // such a dancer by the PAIR it sits in in the board's own order, and a call editor board IS a start setup (beat 0
+    // of the call being edited), so that order is the setup's.
     //
-    // SO THERE IS NO NAME GATE HERE. The colour says exactly one thing - "these two are a pair in this board's
-    // authored order" - and the couple NUMBER is what would overclaim: `DancerView`'s fourth argument is
-    // `labelled`, and the game draws the same split for the same reason (`stage-view.ts`: colour always, the
-    // number only for a couple the engine actually stamped). `coupleTag` spells the number "1h"/"2s", naming a
-    // head or a side nobody measured here, and the colour already carries the couple index, so this board turns
-    // the label off rather than qualifying it. The dancers' own `couple` is untouched - only the colour the
-    // avatar and the floor marker are built with.
-    const couples = dancers.map((d, i) => displayCouple(d, i, true));
+    // SO THERE IS NO NAME GATE HERE, AND NO COUPLE NUMBER. The colour says exactly one thing - "these two are a pair
+    // in this board's authored order" - and the couple NUMBER is what would overclaim: `DancerView`'s fourth argument
+    // is `labelled`, and the game draws the same split for the same reason (`stage-view.ts`: colour always, the number
+    // only for a couple the engine actually stamped). `coupleTag` spells the number "1h"/"2s", naming a head or a side
+    // nobody measured here, and the colour already carries the pair index, so this board turns the label off rather
+    // than qualifying it. The dancers' own `couple` is untouched - only the colour the avatar and the floor marker are
+    // built with.
+    const couples = dancers.map((d, i) => displayCouple(d, i));
     this.views = dancers.map((d, i) => new DancerView(d, couples[i], false, false));
     this.markers = dancers.map((d, i) => buildFlatMarker(d.gender, couples[i]));
     for (let i = 0; i < this.views.length; i++) {

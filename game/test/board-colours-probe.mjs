@@ -7,7 +7,9 @@
 // dancers nobody can tell apart.
 //
 // THE RULE IS `displayCouple` (`packages/stage`, shared with the POC): a dancer with a real home couple is drawn in it,
-// and one without is drawn in the colour of the PAIR it sits in in the board's own order. This probe measures the rule
+// and one without is drawn in the colour of the PAIR it sits in in the board's own order. The rule takes no `enabled`
+// flag: that flag existed for the POC's 24-name approved-setup list, which is retired — so this call is the same two
+// arguments as the POC's two call sites. This probe measures the rule
 // over the game's own boards AND checks that the game's render module actually calls it — the renderer itself imports
 // `three` and cannot be loaded here, so the source check is the only way to gate the call site (the POC's own
 // `display-couple-probe.mjs` gates its two call sites the same way).
@@ -30,7 +32,7 @@ const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
   if (!cond) failures++;
 };
-const colours = (board) => board.dancers.map((d, i) => displayCouple(d, i, true));
+const colours = (board) => board.dancers.map((d, i) => displayCouple(d, i));
 const pairing = (board) => board.dancers.map((_, i) => (Math.floor(i / 2) % 4) + 1);
 
 const LEVEL = levelSpec(1);
@@ -89,8 +91,10 @@ console.log('\n== 4. the game calls the rule, and not the old expression ==');
 {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const source = fs.readFileSync(path.join(here, '..', 'src', 'render', 'stage-view.ts'), 'utf8');
-  check(/displayCouple\(d, i, true\)/.test(source),
-    'the board view derives each dancer’s colour through `displayCouple(d, i, true)`');
+  check(/displayCouple\(d, i\)/.test(source),
+    'the board view derives each dancer’s colour through `displayCouple(d, i)` — the rule, with no option to opt out');
+  check(!/displayCouple\([^)]*,[^)]*,/.test(source),
+    'and passes it no third argument: the `enabled` flag that used to gate the colour on an approved formation name is gone');
   check(!/d\.couple \?\? 0/.test(source),
     'and the grey-avatar expression (`d.couple ?? 0`) is gone from it — the line this change replaced');
   check(/knownCouple\)/.test(source) && /const knownCouple = typeof d\.couple === 'number' && d\.couple > 0/.test(source),

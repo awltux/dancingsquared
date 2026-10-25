@@ -3061,11 +3061,11 @@ export class EditorController implements EditorUI {
       (this.instanceEdited ? ' · edited' : '') +
       // THE COLOURS ARE STILL DRAWN, AND THAT IS SAID HERE rather than left to be inferred from the table's
       // "-" column: on a board whose dancers all have no home couple, `displayCouple` draws each of them the
-      // colour of the PAIR it sits in in the list order (`browser.ts` passes `enabled: true`), so the board is
-      // coloured while the engine's `couple` stays UNKNOWN. Without the note the two would read as a
-      // contradiction - a red dancer whose couple column says nothing. It says NOTHING ABOUT A NUMBER on
-      // purpose: this board draws no couple label (a display-only pair has no head or side to name), so the
-      // colour is the whole of the claim.
+      // colour of the PAIR it sits in in the list order (`browser.ts` draws the board through the shared rule,
+      // with no option to opt out), so the board is coloured while the engine's `couple` stays UNKNOWN. Without
+      // the note the two would read as a contradiction - a red dancer whose couple column says nothing. It says
+      // NOTHING ABOUT A NUMBER on purpose: this board draws no couple label (a pair in the authored order has no
+      // head or side to name), so the colour is the whole of the claim.
       (unknown === call.dancers.length ? ' · no home identity (not a squared set) — colours follow the list order' : '');
   }
 

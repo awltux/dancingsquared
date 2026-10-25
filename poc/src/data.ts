@@ -1,6 +1,8 @@
-// Browser data layer: discovers every per-level call XML via Vite `?raw` glob,
-// plus `ssd` level aliases from calls.xml, and exposes the level-grouped
-// catalog + loader. Keeps convert.ts bundler agnostic.
+// Browser data layer: discovers every per-level call XML via Vite `?raw` glob
+// and exposes the level-grouped catalog + loader. Keeps convert.ts bundler
+// agnostic. It used to ALSO synthesize an `ssd` level from `src/calls.xml`;
+// CALLERLAB retired SSD with the 2026 Mainstream programme, so the level went
+// with it (see `engine/src/sequencer/permissions.ts` for the measurements).
 //
 // Many files bundle several distinct calls (e.g. circle.xml contains "Circle
 // Left", "Circle Right", "Circle Four Left 1/4", ...). Each distinct <tam>
@@ -31,7 +33,6 @@ import type { CallBundle, FormDancer } from 'dancing-squared-engine';
 
 import movesXml from '@corpus/moves.xml?raw';
 import formationsXml from '@corpus/formations.xml?raw';
-import callsXml from '@corpus/src/calls.xml?raw';
 // The order the call lists are shown in - `<name> <fraction>[ <end>]`, not alphabetical. See `call-order.ts`.
 import { compareCallTitles } from './call-order';
 // How a call is written as a `<tam>`: with an embedded start formation, or naming one the corpus carries.
@@ -59,7 +60,6 @@ export interface CallInfo {
   family: string | null;
   setups: { label: string; from: string }[];
   tamIndices: number[]; // indices into the file's <tam> list for this title
-  isAlias?: boolean; // true for the synthesized `ssd` level aliases
 }
 
 // A user-authored call edit (from the call editor). `applied` means it is
@@ -107,12 +107,13 @@ function storageSet(key: string, value: string) {
  * edit-override persistence. A single shared instance is created at module load. */
 export class Catalog {
   // THE ENGINE OWNS THE LEVEL ORDER, so the selector here and the permission layer's override order
-  // cannot drift. `ssd` is listed even though it has no asset directory: it is a synthesized alias
-  // level, ordered between Basic and Mainstream by `calls.xml`.
+  // cannot drift. It is NINE programme levels, and every one of them is a directory in the corpus
+  // (`engine/test/corpus-inventory.mjs` fails if either side moves).
   private readonly levelOrder: readonly string[] = PERMISSION_LEVELS;
   // Bump whenever the bundled call data changes: applied edit override flags
   // are cleared so the live catalog returns to the shipped version.
-  private readonly dataVersion = '5';
+  // 6: the `ssd` level was retired, so an override keyed on an `ssd/…` call id no longer has a call.
+  private readonly dataVersion = '6';
   private readonly editsKey = 'dsSetups';
   private readonly versionKey = 'dsDataVersion';
 
@@ -178,46 +179,6 @@ export class Catalog {
     return out;
   }
 
-  /**
-   * Synthesize the `ssd` level from `calls.xml`'s own links.
-   *
-   * WHY ONLY `ssd`. `ssd` is the one level the corpus carries no directory for: it is a VIEW of calls
-   * that are authored under `ms`/`plus`/`a1`, and `calls.xml` says which basename each of its entries
-   * comes from. `b1` and `b2` used to be synthesized here the same way; both directories were removed
-   * when the Basic levels were retired in favour of `ms` 2026, and their `calls.xml` links are upstream
-   * history that must no longer conjure the levels back. Measured before dropping them: every `b1`/`b2`
-   * basename resolves at `ms`/`plus`/`a1`, so nothing is lost - and the four calls that existed ONLY
-   * under `b1`/`b2` were migrated into `ms/` first.
-   */
-  private buildAliases(catalog: CallInfo[], xmlMap: Map<string, string>): CallInfo[] {
-    const aliases: CallInfo[] = [];
-    const doc = new DOMParser().parseFromString(callsXml, 'application/xml');
-    for (const call of Array.from(doc.getElementsByTagName('call'))) {
-      const link = call.getAttribute('link') || '';
-      const m = /^(ssd)\/([^?]+)/.exec(link);
-      if (!m) continue;
-      const level = m[1];
-      const base = m[2];
-      if (xmlMap.has(`${level}/${base}`)) continue;
-      for (const found of catalog.filter((c) => c.file.split('/')[1] === base)) {
-        const id = `${level}/${base}::${found.title}`;
-        if (aliases.some((a) => a.id === id)) continue;
-        aliases.push({
-          id,
-          level,
-          file: found.file,
-          title: found.title,
-          family: found.family,
-          setups: found.setups,
-          tamIndices: found.tamIndices,
-          isAlias: true,
-        });
-      }
-    }
-    aliases.sort((a, b) => this.byLevelThenTitle(a, b));
-    return aliases;
-  }
-
   /** Load the catalog over the network with real progress. Idempotent. */
   loadCatalog(onProgress?: (phase: 'download' | 'parse', frac: number) => void): Promise<void> {
     if (!this.loadPromise) {
@@ -259,8 +220,11 @@ export class Catalog {
           catalog.push(...this.parseCatalogFile(xml, file));
         }
         catalog.sort((a, b) => this.byLevelThenTitle(a, b));
-        const aliases = this.buildAliases(catalog, xmlMap);
-        this.fullCatalog = [...catalog, ...aliases].sort((a, b) => this.byLevelThenTitle(a, b));
+        // THE CATALOGUE IS THE FILES. It used to be `[...catalog, ...buildAliases(...)]`, an `ssd` view
+        // synthesized from `src/calls.xml`; that view was 289 entries duplicating calls this walk already
+        // offers at their real levels, and one title the corpus does not carry there at all
+        // (`Circle to a Line`, authored at Plus). Both went with SSD's retirement.
+        this.fullCatalog = catalog;
         onProgress?.('parse', 1);
       })();
     }
@@ -479,19 +443,12 @@ export class Catalog {
     const maxIdx = idx >= 0 ? idx : this.levelOrder.length - 1;
     const order: string[] = [];
     const parts = new Map<string, string[]>();
-    const files = new Map<string, Set<string>>();
     for (let k = maxIdx; k >= 0; k--) {
       const lv = this.levelOrder[k];
       for (const c of this.fullCatalog) {
         if (c.level !== lv) continue;
-        // An ALIAS entry points at the same file as the real one, so contributing both would
-        // register the identical tam twice. Keep the first (highest-level) contribution.
-        const seen = files.get(c.title) ?? new Set<string>();
-        if (seen.has(c.file)) continue;
         const xml = this.registrationXml(c);
         if (xml == null) continue;
-        seen.add(c.file);
-        files.set(c.title, seen);
         if (!parts.has(c.title)) {
           parts.set(c.title, []);
           order.push(c.title);

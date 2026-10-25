@@ -44,16 +44,16 @@ check(setupForFormation(setups, 'Static Square') === 0, 'a formation that names 
 check(setupForFormation(setups, null) === 0, 'and so does a row with no formation at all (an embedded state)');
 check(setupForFormation([], 'Wave RH') === 0, 'an empty setup list cannot index out of bounds');
 
-// Two authorings of one title at two levels. The lower level used to be `b1`, removed with the Basic
-// levels; `ssd` takes its place as the earliest level left, and the point of the case is only that the
-// two levels differ.
+// Two authorings of one title at two levels, and the point of the case is only that the two levels differ.
+// `discovered` is the earliest level the ladder names now: b1/b2 went with the Basic levels, and the `ssd`
+// alias level that stood in for them went when CALLERLAB retired SSD.
 const catalog = [
-  { id: 'ssd/right and left thru::Right and Left Thru', level: 'ssd', title: 'Right and Left Thru', setups },
+  { id: 'discovered/right and left thru::Right and Left Thru', level: 'discovered', title: 'Right and Left Thru', setups },
   { id: 'ms/right and left thru::Right and Left Thru', level: 'ms', title: 'Right and Left Thru', setups: [setups[1]] },
 ];
 check(fsmCatalogEntry(catalog, 'Right and Left Thru', 'ms')?.id.startsWith('ms/') === true,
   'the level of the tree decides WHICH authoring of a title is meant');
-check(fsmCatalogEntry(catalog, 'Right and Left Thru', 'plus')?.id.startsWith('ssd/') === true,
+check(fsmCatalogEntry(catalog, 'Right and Left Thru', 'plus')?.id.startsWith('discovered/') === true,
   'and a level with no such title falls back to an authoring that exists rather than resolving to nothing');
 check(fsmCatalogEntry(catalog, 'Face Right', 'ms') === null, 'a call the catalogue does not hold resolves to NOTHING - a coded move is not guessed at');
 check(fsmTarget(catalog, 'Right and Left Thru', 'Wave RH', 'ms')?.setupIdx === 0,

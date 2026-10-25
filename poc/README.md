@@ -26,7 +26,7 @@ Equivalently, inside `poc/`: `npm install`, then `npm run dev` (after the
 engine is built).
 
 Open the URL Vite prints (default `http://localhost:5173`). Use the HUD to
-pick a **level** (SSD, MS, Plus, A1, A2, C1, C2, C3A, C3B, or "All
+pick a **level** (MS, Plus, A1, A2, C1, C2, C3A, C3B, or "All
 levels"), which filters the **Call** dropdown, choose a
 setup, and play/pause, scrub, and change speed. Drag to orbit the camera. Each
 avatar has a small yellow **"nose" cone** marking its facing direction so
@@ -95,9 +95,9 @@ gate on this shape.
 
 ### Composing
 
-- Pick a **level** (SSD, MS, Plus, A1, …) to restrict which calls are available.
-  Levels are **cumulative** (each builds on the earlier ones — e.g. MS includes
-  SSD), unlike the browse mode, which shows only the calls
+- Pick a **level** (MS, Plus, A1, …) to restrict which calls are available.
+  Levels are **cumulative** (each builds on the earlier ones — e.g. Plus includes
+  MS), unlike the browse mode, which shows only the calls
   specific to the selected level. Choose **Who** acts (default `All 8`), pick a call and press
   **Add to sequence** — the board
   advances, illegal calls are rejected with a reason. The call picker shows
@@ -262,7 +262,7 @@ only contains the browser/renderer layer:
 
 | Path | Purpose |
 |------|---------|
-| `src/data.ts` | Browser layer: `?raw`-imports the XML assets (via `import.meta.glob`), **splits multi-call files** so every distinct `<tam>` title is its own call, builds the level-grouped catalog (incl. the `ssd` synthesized aliases), exposes `availableCalls()` / `loadCall()`. |
+| `src/data.ts` | Browser layer: `?raw`-imports the XML assets (via `import.meta.glob`), **splits multi-call files** so every distinct `<tam>` title is its own call, builds the level-grouped catalog, exposes `availableCalls()` / `loadCall()`. |
 | `src/scene.ts` | Three.js adapter: floor grid, low-poly **wireframe** humanoids (torso/head/2-seg arm IK/legs with a beat-synced **walk cycle** via `WalkCycle`), hand-hold connectors, path trails. |
 | `src/main.ts` | Playhead (beats → ms), HUD wiring, play/pause/step/scrub, level filter, mode switch, frame loop. |
 | `src/sequencer-ui.ts` | Sequencer panel: apply calls on the board, FASR readout, getout + fix-it buttons. |
@@ -495,7 +495,7 @@ requires it to fail** — a check that cannot fail on the bug it was written for
 check on the source rather than on behaviour, said plainly: the wiring is invisible to the engine
 harnesses and the Vite app cannot run in this sandbox.
 
-**Level** narrows the same three call lists to one programme — MS, SSD, A1, … — and opens on
+**Level** narrows the same three call lists to one programme — MS, Plus, A1, … — and opens on
 **MS**. It sits directly under **Mode** and is the same control the browse and sequence panels
 carry: the options come from the loaded catalogue rather than a hard-coded list, and **All levels**
 is one of them, so the selector decides what the lists *offer* without ever putting the rest of the
@@ -1976,13 +1976,13 @@ is closed on leaving the editor for the same reason.
   asserting the body points along (or opposite) the orbit correctly.
 - **The full catalog is wired in** (`src/data.ts` uses `import.meta.glob` over
   the per-level XML folders): real calls across **MS**, Plus, A1, A2,
-  C1, C2, C3A, C3B load through the same converter, plus **SSD level aliases**
-  (Standard Square Dance) derived from `src/calls.xml`. `npm run verify` runs a
+  C1, C2, C3A, C3B load through the same converter. `npm run verify` runs a
   full-catalog scan and confirms every call loads. Non-call files (moves
   definitions and rule references without a `<tam>`) are excluded.
 - **The per-level XML folders ARE the animations** fetched from the web
   `taminations-multiplatform` repo (`Taminations/src/assets/*`). `b1` and `b2` were
   retired in favour of `ms` 2026; the four calls that existed only there were migrated
-  into `ms/`. **SSD**
-  has no directory in that data and groups the same calls as MS, so SSD entries
-  are aliases that load the shared ms/plus animation.
+  into `ms/`. The `ssd` level went the same way when CALLERLAB retired SSD and
+  replaced Basic/Mainstream/SSD with one Mainstream programme: it had no directory,
+  it was a view synthesized from `src/calls.xml`, and the catalogue is now exactly
+  the files the corpus carries.

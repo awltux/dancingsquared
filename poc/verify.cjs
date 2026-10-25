@@ -248,7 +248,13 @@ check(Math.abs(lead.x - pstart.x) < 1e-9 && Math.abs(lead.y - pstart.y) < 1e-9, 
 // Try to load every call across all levels (mirroring ON) to prove the
 // pipeline scales to the full catalog.
 console.log('== Catalog scan (all levels) ==');
-const levels = ['b1', 'b2', 'ms', 'plus', 'a1', 'a2', 'c1', 'c2', 'c3a', 'c3b'];
+// THE DIRECTORIES ARE THE LEVELS, so the scan asks the corpus rather than carrying a list: this one named `b1` and
+// `b2` for years after both were retired, and `filesOf`-style emptiness made that silent (the loop skipped them).
+const assetsDir = path.join(__dirname, '../assets');
+const levels = fs.readdirSync(assetsDir, { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .map((d) => d.name)
+  .filter((l) => l !== 'src');
 let total = 0;
 let loaded = 0;
 const failures2 = [];

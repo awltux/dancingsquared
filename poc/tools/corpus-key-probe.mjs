@@ -176,7 +176,6 @@ check(/^import \{ corpusFileOf \} from '\.\/corpus-key';$/m.test(dataSrc),
 const keysByRule = (src) => /const file = corpusFileOf\(p\);/.test(src) &&
   /xmlMap\.set\(file, await levelLoaders\[p\]\(\)\);/.test(src);
 const noOldShape = (src) => !/`\.\/assets\/\$\{/.test(src) && !/'\.\/assets\//.test(src);
-const aliasByRule = (src) => /xmlMap\.has\(`\$\{level\}\/\$\{base\}`\)/.test(src);
 const lookupByEntry = (src) => (src.match(/this\.levelXml\.get\(entry\.file\)/g) || []).length === 2;
 /** THE SECOND DEFECT: `parseCatalogFile` reads the file's `<tamination title>` out of `levelXml`, so the map
  *  has to be published BEFORE the walk. It used to be assigned after it, which left every `family` empty and
@@ -190,8 +189,7 @@ const publishesMapFirst = (src) => {
 
 check(keysByRule(dataSrc), 'and keys every globbed file by the derived name when it builds the map');
 check(noOldShape(dataSrc),
-  'NO old-shape template is left anywhere in data.ts - the four lookups that missed were two `levelXml.get` calls, the alias check, and the key the map was built with');
-check(aliasByRule(dataSrc), 'the `ssd` alias check asks the map for the same `level/base` the map was keyed by');
+  'NO old-shape template is left anywhere in data.ts - the four lookups that missed were two `levelXml.get` calls, the alias check that existed then, and the key the map was built with');
 check(lookupByEntry(dataSrc),
   'and both lookups that load a call\'s XML (`loadCallBase`, `registrationXml`) read it by `entry.file`');
 check(publishesMapFirst(dataSrc),
@@ -210,9 +208,6 @@ check(publishesMapFirst(dataSrc),
 
   const oldKeys = swapAll(dataSrc, 'const file = corpusFileOf(p);', 'const file = p;');
   check(oldKeys !== dataSrc && !keysByRule(oldKeys), 'using the glob key as the map key fails the keying check');
-
-  const oldAlias = swapAll(dataSrc, 'xmlMap.has(`${level}/${base}`)', 'xmlMap.has(`./assets/${level}/${base}.xml`)');
-  check(oldAlias !== dataSrc && !aliasByRule(oldAlias), 'the old alias key fails the alias check');
 
   // The reverted ORDER, built by moving the assignment after the walk: the control differs from the shipped
   // code in exactly one thing, which is where the map is published.

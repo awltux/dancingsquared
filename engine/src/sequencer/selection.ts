@@ -309,8 +309,3 @@ export function parseGroupExpression(raw: string): GroupExpression | null {
   if (usable.length === 1 && usable[0].keys.length < 2) return null;
   return { terms: usable, words: consumed };
 }
-
-/** Whether a selection string is a COMBINATION (more than one group involved). */
-export function isCombinedSelection(sel: string): boolean {
-  return parseGroupExpression(sel) !== null;
-}

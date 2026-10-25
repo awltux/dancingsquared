@@ -108,6 +108,3 @@ export function compareCallTitles(a: string, b: string): number {
   // Two titles that agree on all three are compared as they are written, so the order is still total.
   return a.localeCompare(b, 'en');
 }
-
-/** The same order over objects that carry a `title`, for the panels that sort call records rather than strings. */
-export const compareCallsByTitle = (a: { title: string }, b: { title: string }): number => compareCallTitles(a.title, b.title);

@@ -9,10 +9,10 @@
 // packages/corpus, packages/stage, poc/src, poc-teacher/src, api/src, game/src): 202 modules, 1240 exported
 // declarations, of which SIX are mentioned in no other file AND used zero further times in their own, and 129 are
 // used ONLY inside their own module - the `export` keyword buying nothing, which a de-export fixes by construction.
-// Those 129 were de-exported in the commit that followed this census (1111 exported declarations remain), so the
-// ceiling below is now ZERO: §4.5's "no unused export" is the rule, not the 129. The six dead exports are still
-// pinned BY NAME so this gate fails when one is removed as well as when a seventh appears: a cleanup must come back
-// here and take its pin with it.
+// BOTH POPULATIONS ARE GONE NOW: the 129 were de-exported (1111 exported declarations remain) and the six were
+// DELETED, in the two commits that followed this census. Its pins therefore hold EMPTY SETS and a ceiling of ZERO -
+// §4.5's "no unused export" as a rule rather than a budget, with this file as the reason a new one cannot appear
+// silently.
 // FIVE modules have no importer at all, and every one is an ENTRY rather than an orphan: three `src/main.ts` (a
 // bundler reaches them; no import names them) and two `vite-env.d.ts` (Vite's ambient types) - so the module pin is
 // a NAMED SET of five, and a sixth has to be explained here. Eleven module(s) are reached through a package's
@@ -234,19 +234,16 @@ console.log(`    ${result.exports} exported declaration(s) scanned, ${result.sta
 check(result.scanned > 150 && result.exports > 800,
   `the walk saw a source tree rather than a handful of files (${result.scanned} modules, ${result.exports} exports)`);
 
-// A NAMED SET: fails when the debt GROWS (a new export nobody calls) and when it SHRINKS (one was removed, so this
-// pin is now wrong - the cleanup brings its own edit here).
-const DEAD = [
-  'api/src/levels.ts: registeredFor',
-  'api/src/press-log.ts: currentStep',
-  'engine/src/sequencer/selection.ts: isCombinedSelection',
-  'game/src/game/season.ts: seasonLength',
-  'poc-teacher/src/formation-table.ts: isHome',
-  'poc/src/call-order.ts: compareCallsByTitle',
-].sort();
+// A NAMED SET, and it is EMPTY: the six declarations this pin held were deleted in the commit that followed the
+// census (nothing named them, so deletion took no consumer with it). It still fails when a new dead export appears -
+// the direction that matters - and a name REMOVED from the tree without this list shrinking would fail too, which is
+// what makes deleting a pinned symbol an explicit edit here rather than a silent success.
+const DEAD = [];
 check(JSON.stringify(result.dead) === JSON.stringify(DEAD),
-  `the ${DEAD.length} exported declaration(s) nobody calls are exactly the ones this pin names (${result.dead.length} found)`,
-  `found: ${result.dead.join('; ') || 'none'}\n        pinned: ${DEAD.join('; ')}`);
+  DEAD.length === 0
+    ? `no exported declaration is published to nobody (${result.dead.length} found)`
+    : `the ${DEAD.length} exported declaration(s) nobody calls are exactly the ones this pin names (${result.dead.length} found)`,
+  `found: ${result.dead.join('; ') || 'none'}\n        pinned: ${DEAD.join('; ') || 'none'}`);
 
 // ENTRY POINTS ARE ORPHANS BY CONSTRUCTION. A bundler reaches `main.ts` and no import names it; `vite-env.d.ts` is
 // Vite's own ambient file. Pinned by name rather than excused by a pattern, so a genuinely new orphan fails.

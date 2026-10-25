@@ -158,11 +158,6 @@ export function publishableLevels(): number[] {
   return levels;
 }
 
-/** How many of a level's titles the corpus actually carries — reported, never asserted (the ladder census). */
-export function registeredFor(level: LevelSpec): number {
-  return runtimeFor(level).registered;
-}
-
 /**
  * Whether a move list, played from the puzzle's start board, actually SOLVES the Daily.
  *

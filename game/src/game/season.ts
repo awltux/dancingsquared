@@ -19,8 +19,3 @@ export { SEASON_POOL_VERSION };
 export function seasonPuzzleFor(position: number): Puzzle {
   return SEASON_PUZZLES[schedulePosition(position)];
 }
-
-/** How many baked puzzles there are. Equal to the fixture's length by construction, and asserted by the probe. */
-export function seasonLength(): number {
-  return SEASON_PUZZLES.length;
-}

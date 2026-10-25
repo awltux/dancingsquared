@@ -30,31 +30,9 @@ const RECOGNIZED_FORMATIONS = [
   'Ocean Waves RH',
 ];
 
-// The exact home squared-set pose of each dancer id (from the engine's home set).
-const HOME_POS: Record<number, { x: number; y: number; heading: number }> = {
-  1: { x: 1, y: 3, heading: -Math.PI / 2 },
-  2: { x: -1, y: 3, heading: -Math.PI / 2 },
-  3: { x: 3, y: -1, heading: Math.PI },
-  4: { x: 3, y: 1, heading: Math.PI },
-  5: { x: -1, y: -3, heading: Math.PI / 2 },
-  6: { x: 1, y: -3, heading: Math.PI / 2 },
-  7: { x: -3, y: 1, heading: 0 },
-  8: { x: -3, y: -1, heading: 0 },
-};
-
-/** Whether `board` is exactly back home (positions + facing within tolerance). */
-export function isHome(board: Board): boolean {
-  if (board.dancers.length !== 8) return false;
-  for (const d of board.dancers) {
-    const h = HOME_POS[d.id];
-    if (!h) return false;
-    if (Math.hypot(d.x - h.x, d.y - h.y) > 0.05) return false;
-    let dh = Math.abs(d.heading - h.heading) % (2 * Math.PI);
-    if (dh > Math.PI) dh = 2 * Math.PI - dh;
-    if (dh > 0.05) return false;
-  }
-  return true;
-}
+// The exact home squared-set pose of each dancer id is `HOME_POS`'s, which lived here for `isHome`; both went when
+// `isHome` did (nothing imported it — `poc-teacher/verify.mjs` imports `buildFormationTable` only, and the engine's
+// own home set is `HOME_DANCERS` in `engine/src/sequencer/identity.ts`, which is the one a reader should use).
 
 /**
  * Build a formation table from the current available-call set. Mutates `seq`'s

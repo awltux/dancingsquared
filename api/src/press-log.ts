@@ -53,17 +53,3 @@ export function wrongPresses(presses: readonly Press[], correctCalls: readonly s
 export function explains(presses: readonly Press[], calls: readonly string[]): boolean {
   return calls.every((call, step) => presses.some((press) => press.step === step && press.call === call));
 }
-
-/**
- * The step the player is deciding, derived from what they have already pressed.
- *
- * A DRILL ADVANCES ONLY ON THE CORRECT CALL, so the current step is the first one whose correct option has not been
- * pressed — which is why this needs the press log and not the client's own report of where it is. It is what
- * `POST /me/hints` names a call for, and it is the answer the machine on screen would give.
- */
-export function currentStep(presses: readonly Press[], correctCalls: readonly string[]): number {
-  for (let step = 0; step < correctCalls.length; step++) {
-    if (!presses.some((press) => press.step === step && press.call === correctCalls[step])) return step;
-  }
-  return correctCalls.length;
-}

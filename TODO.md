@@ -510,6 +510,29 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   verified by the output-diff the R3/R4 refactors used. The measured list is here so that pass starts from a census
   rather than a grep.
 
+- [ ] **47. TWENTY-ONE LINE-NUMBER CITATIONS IN COMMENTS, WHICH `AGENTS.md` §4.2 FORBIDS PINNING.** `[measured]`
+  A source walk over `engine/src`, `engine/test`, `poc/src`, `poc/tools`, `poc-teacher/src`, `api/src`, `game/src`,
+  `packages`, `book/tools` and `scripts` (comment lines only, the walk itself a throwaway script — it is not a gate)
+  found **21** citations of the form `<file>:<line>` across **11** files: `applicator.ts`'s `moves.ts:32`,
+  `engine/test/disjoint-copies.mjs`'s `applicator.ts:1401` / `virtual-call.ts:194` / `match.ts:290`,
+  `engine/test/tools/callerlab-diff.mjs`'s three `convert.ts:` citations, `game/test/session-undo-probe.mjs`'s three
+  `session.ts:` ones, and `poc/tools/run-circle-probe.mjs`'s `editor.ts:800-802`. Every one drifts silently the moment
+  its target moves, which is why the rule is to name the SYMBOL and the command that measures it. Left alone because
+  each rewrite needs its target READ first, and a wrong symbol is worse than a stale number — this is a pass with its
+  own gate run, not a search-and-replace.
+
+- [ ] **48. THE RADIAN NORMALISER IS STILL COPIED IN THE HARNESSES, PROBES AND TWO BOOK TOOLS.** `[measured]`
+  `poc/src` now imports the engine's `normAngle` (this sweep), and `engine/test/angle-normalisation.mjs` §4 keeps
+  `engine/src` at exactly one spelling plus `core.ts`'s documented survivor. **What is left is everything outside both
+  censuses**: `git grep -c "atan2(Math.sin"` finds **41 occurrences in 34 files** — 18 `poc/tools/` probes (20
+  occurrences, `mirror-moves-probe.mjs` and `start-pose-drag-probe.mjs` among them, both restating the rule in a probe
+  rather than importing it), 12 `engine/test/` files (17 occurrences: `behaviour-audit.mjs` 3, `sequencer.mjs` 3,
+  `angle-normalisation.mjs` 2 quoting the alternatives it rules out, and 7 `tools/` diagnostics),
+  `book/tools/make-formations.mjs` and `make-virtual.mjs`, `core.ts`'s survivor and this item's own comment mention.
+  Converting them needs the engine's rule to be importable from each (it is), and then the §4 census extended to the
+  probe trees so a nineteenth cannot reappear — a mechanical pass with a full POC probe run, which is why it is filed
+  rather than ridden in on the sweep that found it.
+
 ---
 
 ## P1 — FOUND BY THE ITEM 7 CENSUS AT `8cfe8a1`

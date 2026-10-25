@@ -259,6 +259,11 @@ export type {
   ComplianceLevel,
 } from './sequencer/alignment.js';
 export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SAME_BOARD_TOL, SIGNATURE_DIVISOR } from './sequencer/constants.js';
+// THE UNKNOWN-COUPLE SENTINEL, exported because a caller that BUILDS a board from geometry has to write it: the
+// sequencer's `setSetupBoard` does, and the POC's setup catalogue builds the same board to take the ids over it.
+// A setup away from home has no home couple (`assignHomeIdentity` can only name a squared set), and writing `0`
+// at the call site would be a second spelling of this constant, so the number is the engine's.
+export { UNKNOWN_COUPLE } from './sequencer/constants.js';
 // THE TWO MATCH TOLERANCES ARE PART OF THE SURFACE, because measuring with them is what a probe does.
 //
 // Five files outside the engine used to COPY them — `test/disjoint-copies.mjs`, `test/scircle-instance.mjs` and three

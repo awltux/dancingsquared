@@ -46,6 +46,7 @@ import { applyMoveToBoard, applyFaceInOutToBoard, FaceLeft, FaceRight, FaceHalf 
 import { CODED_MOVE_NAMES, applyCodedMove, applyCodedToSelection, codedMoveApplies, findCodedMove } from './coded-moves.js';
 import { authoredStepWins } from './apply-source.js';
 import { formationId } from './formation-id.js';
+import { setupId } from './setup-id.js';
 import type { VirtualOutcome } from './virtual-call.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
@@ -561,6 +562,60 @@ export class Sequencer {
     this.matcher.clearCaches();
     this.solver.clearCaches();
     return true;
+  }
+
+  /**
+   * Set the board to a SETUP GIVEN AS GEOMETRY: the dancers on the spots they stand on, IN THE ORDER GIVEN.
+   *
+   * WHY THIS EXISTS BESIDE `setSetup(name)`. A name resolves through the LIBRARY, whose key is geometry up to
+   * congruence and which keeps one representative name per shape - so it cannot stand up the other setups that
+   * share a shape, and the board it builds is the library's template, in the library's order. A caller choosing a
+   * start SETUP (`sid`: the arrangement AND the order the corpus lists its dancers in) needs the element's own
+   * order, because that order is what says which two dancers are couple 1 (`setup-id.ts`). This takes the geometry
+   * as data instead of looking a name up.
+   *
+   * IDENTITY IS STILL DATA. The board comes from `boardFromMatchables`: home identity (id/couple) is stamped when
+   * the geometry matches the home square, gender comes from the declared dancers, and a setup away from home keeps
+   * `UNKNOWN_COUPLE` rather than inventing one from the array index. `name` is the setup's corpus name WHERE IT HAS
+   * ONE, and it only authorises the FASR registry overlay: `setupIdentifiedBoard` is all-or-nothing against the
+   * registry's spot keys, so a setup that is not that registered zero setup comes back untouched. That keeps the
+   * FASR readout as good as the name path gives it for the formations the registry covers, while the ORDER and the
+   * geometry remain the caller's.
+   *
+   * ORDER IS PRESERVED, which is the property the name path cannot promise: dancer `i` of the board is dancer `i`
+   * of `dancers` (AGENTS §4.3 - a board rebuilt by any component comes back in the order it was given).
+   */
+  setSetupBoard(dancers: Matchable[], name?: string | null): void {
+    const declared = dancers.map((d) => (d.gender ?? 'phantom') as 'boy' | 'girl' | 'phantom');
+    const anon = this.boardFromMatchables(dancers);
+    // THE HOME MATCH IGNORES GENDER. `boardFromMatchables` matches the geometry to the home square and then takes
+    // the home dancer's GENDER for each spot, so a home-SHAPED setup whose genders stand differently came back
+    // re-arranged - MEASURED: `O In`, `O Out` and two square-shaped inline blocks lost their declared genders and
+    // their setup ids moved. A caller choosing a SETUP has declared the genders, so that answer is discarded and
+    // the board is built exactly as declared (no home identity, because this geometry is not the home set's).
+    let board: Board = anon.dancers.every((d, i) => d.gender === declared[i])
+      ? anon
+      : {
+          dancers: dancers.map((p, i) => ({
+            id: i + 1,
+            couple: UNKNOWN_COUPLE,
+            gender: declared[i],
+            x: p.x,
+            y: p.y,
+            heading: p.heading,
+          })),
+        };
+    if (name) {
+      const identified = this.setupIdentifiedBoard(name, board);
+      // THE OVERLAY IS A RELABELLING OR NOTHING. `identifyByAssignment` takes each dancer's GENDER from the
+      // registry's home dancer, so a board whose SPOTS match a registered setup but whose genders or order do not
+      // would be silently RE-ARRANGED into it. The setup id is the arrangement AND the order, so the overlay is
+      // applied only when it leaves the id unchanged.
+      if (identified && setupId(identified) === setupId(board)) board = identified;
+    }
+    this.board = board;
+    this.matcher.clearCaches();
+    this.solver.clearCaches();
   }
 
   /**

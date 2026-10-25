@@ -41,6 +41,12 @@ import { callTamXml } from './tam-xml';
 import { corpusFileOf } from './corpus-key';
 // The generated whole-set instances are not authorings, and the panel must not offer them as calls.
 import { isVirtualFile } from 'dancing-squared-corpus/virtual';
+// THE START SETUPS the sequencer's Board picker offers: the corpus's own `<formation>` elements, deduped by `sid`.
+// The module is pure (texts and parsed tams in, rows out) so `poc/tools/setup-picker-probe.mjs` can build the same
+// catalogue from the real corpus rather than reading the panel.
+import { buildSetupCatalogue } from './setup-catalogue';
+import type { SetupCatalogue, SetupSourceFile, SetupTam } from './setup-catalogue';
+import type { Matchable } from 'dancing-squared-engine';
 
 // Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
 // into the main bundle). loadCatalog() fetches them all and reports real
@@ -122,6 +128,8 @@ export class Catalog {
   private fullCatalog: CallInfo[] = [];
   private levelXml = new Map<string, string>();
   private loadPromise: Promise<void> | null = null;
+  /** Every level file's tams, as the setup catalogue reads them; filled by the ONE catalog parse. */
+  private setupSources: SetupSourceFile[] = [];
 
   /** Raw moves/formations XML strings (for the sequencer). */
   readonly movesXmlText = movesXml;
@@ -149,6 +157,11 @@ export class Catalog {
       return [];
     }
     if (tams.length === 0) return [];
+    // THE START SETUPS COME FROM THIS SAME PARSE. An inline `<formation>` block is a setup definition, and the
+    // Board picker reads the tams this walk has already parsed, so it costs no second parse of 500 files.
+    if (tams.some((t) => t.dancers.length > 0)) {
+      this.setupSources.push({ file, tams: tams.map((tam, index) => ({ index, tam })) });
+    }
     const byTitle = new Map<string, number[]>();
     tams.forEach((t, i) => {
       const key = t.title || file;
@@ -183,6 +196,7 @@ export class Catalog {
   loadCatalog(onProgress?: (phase: 'download' | 'parse', frac: number) => void): Promise<void> {
     if (!this.loadPromise) {
       this.loadPromise = (async () => {
+        this.setupSources = [];
         // A GLOB'S KEY ENDS WITH THE FILE'S OWN NAME, so the suffix test applies to it directly. The generated
         // whole-set instances (`ms/circle.virtual.xml`) are the BOOK's artefacts, not authorings: offering one in
         // the call list would put invented geometry in the catalogue. The Node readers get the same exclusion from
@@ -237,6 +251,15 @@ export class Catalog {
 
   availableLevels(): string[] {
     return this.levelOrder.filter((lv) => this.fullCatalog.some((c) => c.level === lv));
+  }
+
+  /**
+   * THE START SETUPS the sequencer's Board picker offers: every eight-dancer setup the corpus authors, deduped by
+   * `sid` (see `poc/src/setup-catalogue.ts` for the population and the label rule), plus the caller's own labelled
+   * shapes. Built from the corpus elements this catalog parse already collected, so it costs no second walk.
+   */
+  availableSetups(userFormations: { name: string; dancers: readonly (Matchable & { gender?: string })[] }[]): SetupCatalogue {
+    return buildSetupCatalogue({ formationsXml: this.formationsXmlText, files: this.setupSources, userFormations });
   }
 
   // ---- edits ----
@@ -472,6 +495,12 @@ export function availableCalls(): CallInfo[] {
 }
 export function availableLevels(): string[] {
   return catalog.availableLevels();
+}
+/** THE START SETUPS the Board picker offers. See `Catalog.availableSetups`. */
+export function availableSetups(
+  userFormations: { name: string; dancers: readonly (Matchable & { gender?: string })[] }[] = [],
+): SetupCatalogue {
+  return catalog.availableSetups(userFormations);
 }
 export function loadEdits(): CallEdit[] {
   return catalog.loadEdits();

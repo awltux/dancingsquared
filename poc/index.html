@@ -182,11 +182,11 @@
             <div id="seqMatrixInfo" class="small"></div>
           </details>
           <details class="seq-drawer" id="seqBoard">
-            <summary>Board — formation, rotation, view, FASR</summary>
+            <summary>Board — setup, rotation, view, FASR</summary>
             <div class="row">
-              <label for="seqFormation">Formation</label>
-              <select id="seqFormation" class="wide"></select>
-              <button id="seqSetFormation" title="Jump the board to the chosen formation">Set</button>
+              <label for="seqFormation" title="The START SETUP. Each option is a setup id (S1-…): one arrangement — where the dancers stand, which way they face, their genders — AND the order they are listed in, which is what fixes the couples. The label reads [formation name] setup name, where the formation name is the shape (the FID) and the setup name is the corpus's own name for that one setup.">Setup</label>
+              <select id="seqFormation" class="wide" title="The start setup, by SID. The label is [formation name] setup name; an option's tooltip carries the fid, the aid and the other names the same setup was authored under."></select>
+              <button id="seqSetFormation" title="Jump the board to the chosen setup">Set</button>
             </div>
             <div class="row">
               <label for="seqBoardRot" title="Rotate the displayed board (degrees)">Rot</label>

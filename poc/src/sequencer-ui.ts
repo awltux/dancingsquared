@@ -5,10 +5,11 @@
 
 import * as THREE from 'three';
 
-import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf, isGroupStep, groupCalls, EXACT_TOL } from 'dancing-squared-engine';
+import { Sequencer, computeHandholds, sampleTrail, splitSelection, parseAll8Figures, formatAll8Figures, boardForFasrCode, FORMATIONS_FOR_LETTER, fasrooOf, isGroupStep, groupCalls, EXACT_TOL, setupId } from 'dancing-squared-engine';
 import type { Board, CallStep, FormDancer, GroupStep, Matchable, Module, ModuleStep, Pose, SequenceStop } from 'dancing-squared-engine';
 import { stepLabel, CODED_MOVES } from 'dancing-squared-engine';
-import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo } from './data';
+import { movesXmlText, formationsXmlText, availableLevels, sequencerCallsUpTo, availableSetups } from './data';
+import type { SetupRow } from './setup-catalogue';
 import { validCederModules } from './ceder-modules';
 import { callKey, LETTER_TEMPLATE, MODULES_STORAGE_KEY, resolveStartFormation } from './modules';
 import { parseStoredModules } from './stored-modules';
@@ -225,7 +226,11 @@ export class SequencerController implements SequencerUI {
    * has to gate the rings without re-resolving the selections - see `applySubsetMarks`.
    */
   private litIds = new Set<number>();
-  private formationNames: string[] = [];
+  /**
+   * THE SETUPS THE BOARD PICKER OFFERS, in display order: one row per `sid` (see `poc/src/setup-catalogue.ts`).
+   * The select's VALUE is the row's `sid`, which is also how the current board is reflected back into it.
+   */
+  private setupRows: SetupRow[] = [];
 
   // State.
   private seq: Sequencer;
@@ -376,15 +381,34 @@ export class SequencerController implements SequencerUI {
     this.requestFrame();
   }
 
-  /** Fill the formation dropdown with every named formation the sequencer knows. */
+  /**
+   * Fill the Board picker with the corpus's SETUPS, one option per `sid`.
+   *
+   * NOT THE LIBRARY'S NAMES. `listFormations()` is `CallLibrary.getUniqueFormations()`, keyed on geometry up to
+   * congruence - one representative per SHAPE - so every setup that shares an `fid` with a listed name was hidden:
+   * `Normal Lines`/`Sashayed Lines` are one shape and two arrangements, `Columns`/`Column RH GBGB` likewise, and
+   * the setups carried only as a call's inline `<formation>` block were not in the name list at all. The catalogue
+   * (`poc/src/setup-catalogue.ts`) reads every definition, completes the half sets, dedupes by `sid` and labels each
+   * row `[shape name] setup name`; the ids and the derivation are pinned by `poc/tools/setup-picker-probe.mjs`.
+   *
+   * THE OPTION'S `title` CARRIES THE IDS: the three tags, the other names the same setup was authored under
+   * (`Static Square`/`Squared Set`) and where the element lives. The list is ordered by shape name then setup name,
+   * so `[Lines] Normal Lines` sits under `[Lines]`.
+   */
   private populateFormations() {
     const prev = this.formationSelect.value;
     this.formationSelect.innerHTML = '';
     this.formationSelect.add(new Option('— current board —', ''));
-    this.formationNames = this.seq.listFormations();
-    for (const f of this.formationNames) this.formationSelect.add(new Option(f, f));
-    if (prev && this.formationNames.includes(prev)) this.formationSelect.value = prev;
-    else this.formationSelect.value = '';
+    this.setupRows = availableSetups(loadUserFormations()).rows;
+    for (const row of this.setupRows) {
+      const option = new Option(row.display, row.sid);
+      option.title =
+        `${row.sid} · ${row.fid} · ${row.aid}` +
+        (row.aliases.length ? ` · also: ${row.aliases.join(', ')}` : '') +
+        ` · ${row.source}`;
+      this.formationSelect.add(option);
+    }
+    this.formationSelect.value = prev && this.setupRows.some((r) => r.sid === prev) ? prev : '';
   }
 
   /**
@@ -485,14 +509,22 @@ export class SequencerController implements SequencerUI {
     this.populateFormations();
   }
 
-  /** Jump the board into the chosen formation and clear the current sequence. */
+  /**
+   * Jump the board into the chosen SETUP and clear the current sequence.
+   *
+   * THE GEOMETRY COMES FROM THE CATALOGUE'S ELEMENT, NOT FROM THE LIBRARY: `setSetupBoard` takes the completed
+   * dancers in the element's own ORDER, which is the half of the identity the FID cannot carry (`sid` = arrangement
+   * AND order). A remembered value whose setup no longer exists is refused out loud rather than ignored.
+   */
   private setBoardFormation() {
-    const name = this.formationSelect.value;
-    if (!name) return;
-    if (!this.seq.setSetup(name)) {
-      this.setStatus('error', `✗ unknown formation "${name}"`);
+    const sid = this.formationSelect.value;
+    if (!sid) return;
+    const row = this.setupRows.find((r) => r.sid === sid);
+    if (!row) {
+      this.setStatus('error', `✗ unknown setup "${sid}"`);
       return;
     }
+    this.seq.setSetupBoard(row.dancers, row.name);
     this.history.length = 0;
     this.playing = false;
     this.playhead = 0;
@@ -500,9 +532,9 @@ export class SequencerController implements SequencerUI {
     this.flat = [];
     this.playBtn.textContent = '▶ Play';
     this.lastTraceKey = '';
-    // The sequence now begins from this formation, not from home.
+    // The sequence now begins from this setup, not from home.
     this.startBoard = this.seq.startBoard();
-    this.statusEl.textContent = `board set to ${this.seq.recognize(this.seq.board)?.name ?? name}`;
+    this.statusEl.textContent = `board set to ${row.display}`;
     this.updateFormationSelect();
     this.render();
     this.refreshCallSelect();
@@ -519,10 +551,10 @@ export class SequencerController implements SequencerUI {
     this.updateCurrentTrace();
   }
 
-  /** Keep the formation dropdown reflecting the board's current recognised state. */
+  /** Keep the Board picker reflecting the setup the board is standing in, by ID. */
   private updateFormationSelect() {
-    const name = this.seq.recognize(this.seq.board)?.name;
-    this.formationSelect.value = name && this.formationNames.includes(name) ? name : '';
+    const sid = setupId(this.seq.board);
+    this.formationSelect.value = sid !== null && this.setupRows.some((r) => r.sid === sid) ? sid : '';
   }
 
   /** THE COMPOSER'S HINT LINE: what the picker is offering, and - while a figure is being built - which
@@ -1537,12 +1569,15 @@ export class SequencerController implements SequencerUI {
     // it turns "the board looks odd" into "[0L1pH+] vs the [0L1pL'] all8 draws".
     const board = this.seq.evaluateSequence(this.flat, this.playhead, this.startBoard).board;
     const code = this.fasrooCode(board);
+    // THE SETUP the board is standing in, by ID: the Board picker selects on this value, so showing it here is how
+    // "which setup is this" is answered when the board was reached by dancing rather than by the picker.
+    const setup = setupId(board);
     const codeText = code
       ? `<br>FASROO: <b>${code.code}</b>${code.note ? ` <i>(${code.note})</i>` : ''}` +
         `<span class="small" title="${FASROO_ORIENTATION_NOTE}"> ·?</span>`
       : '';
     const fasrText =
-      `Formation: <b>${esc(fasr.formation ?? '?')}</b> · ${fasr.arrangement}<br>` +
+      `Formation: <b>${esc(fasr.formation ?? '?')}</b> · ${fasr.arrangement}${setup ? ` · Setup <b>${esc(setup)}</b>` : ''}<br>` +
       `Sequence: <b>${fasr.sequence}</b>${rel}${codeText}`;
     // THE SEQUENCE ITSELF IS NO LONGER PART OF THIS BLOCK. It has its own zone (`renderTimeline`), which is
     // the point of the redesign: the FASR reading is state, the sequence is the document.

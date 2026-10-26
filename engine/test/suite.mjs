@@ -377,6 +377,12 @@ export const SUITE = [
   // A SCOPED call must charge its beats AND move. `Head Boys Dosado` used to be applied, charged zero
   // beats, and animate nothing - the walk could not find a variant for a scoped step, and the authored
   // motion (`Opposite Boy`, a closing circular path) was never followed. ~1s.
+  // A TITLE THAT NAMES A RELATION NEEDS A BOARD THAT CARRIES COUPLES. `Dosado your Partner` is authored from the
+  // two-dancer shape `Adjacent Dancers Close`, so a `Right and Left Grand Circle` tiled it four times and the call
+  // was legal on geometry alone while the board carried `UNKNOWN_COUPLE` for all eight dancers - REPORTED as "from
+  // 'Right and Left Grande Circle' I'm offered 'Dosado your partner' as the valid answer". `relations.ts` is the
+  // rule; this pins the title-is-the-claim half, the two boards and the refusal. ~1s, so it is in `light`.
+  { h: 'relations', light: true },
   { h: 'scoped-animation', light: true },
   // EVERY SCOPED CODED STEP x the six whole-set selections, and it is the gate for the SENTENCE the entry
   // above states. It was written with the `Do Sa Do` fix and then registered NOWHERE - which is the hole

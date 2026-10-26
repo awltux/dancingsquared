@@ -264,6 +264,9 @@ export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SA
 // A setup away from home has no home couple (`assignHomeIdentity` can only name a squared set), and writing `0`
 // at the call site would be a second spelling of this constant, so the number is the engine's.
 export { UNKNOWN_COUPLE } from './sequencer/constants.js';
+// THE RELATION RULE (relations.ts): a title that names your partner or your corner needs a board that carries home
+// couples. Exported because the game's offer census measures it and a probe must import the rule, not restate it.
+export { relationNamedBy, carriesCouples, relationRefusal } from './sequencer/relations.js';
 // THE TWO MATCH TOLERANCES ARE PART OF THE SURFACE, because measuring with them is what a probe does.
 //
 // Five files outside the engine used to COPY them — `test/disjoint-copies.mjs`, `test/scircle-instance.mjs` and three

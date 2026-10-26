@@ -141,11 +141,17 @@ console.log('\n== 2. the run is CHARGED for what was recorded, and a claim it ca
 {
   const { store, deps, solution } = await fresh();
   await getPuzzle(read('h2'), deps);
+  // THE HINT IS TAKEN BEFORE THE LINE IS RECORDED, and that is the ORDER a player does it in: a hint is what you take
+  // when you are stuck, which is before the moves that unstuck you. It also keeps the scenario a real one — a hint taken
+  // from a SOLVED board has nothing to name (`POST /me/hints` answers `409 nothing_to_name`, which is the rule §10 states
+  // and `hint-event-probe`'s own section 1 relies on), so recording the whole line first made this probe depend on the
+  // look-up inventing a call for a run that was already over.
+  await grant(store, 'h2', 1);
+  const spent = await postHint(hint('h2', LEVEL, DAY), deps);
+  check(spent.status === STATUS.ok, `the hint is spent before the line is recorded (${spent.status} ${spent.body.error?.code ?? ''})`);
   // THE LINE IS PLAYED BEFORE IT IS SUBMITTED: the recorded moves are what the run is scored on and the claim is
   // cross-checked against them (A22's Daily half).
   await recordLine('h2', LEVEL, DAY, solution, deps);
-  await grant(store, 'h2', 1);
-  await postHint(hint('h2', LEVEL, DAY), deps);
   now += 60_000;
 
   // THE LYING SUBMISSION: a hint was taken and the run claims none. The charge is the RECORDED spend (A23).

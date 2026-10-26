@@ -16,6 +16,7 @@ import { bodyGap, worstBodyGap, type BodyPair } from './bodies.js';
 import { apply5, dancerMatrix, poseToVec, type Mat5 } from '../matrix.js';
 import { splitSelection, resolveReading } from './selection.js';
 import { readCallName } from './call-name.js';
+import { relationRefusal } from './relations.js';
 import { EXACT_TOL } from '../tolerances.js';
 import type { CallTitle } from './call-titles.js';
 import type { CallNameHow } from './call-name.js';
@@ -547,6 +548,12 @@ export class CallApplicator {
     rebase: boolean,
     allowParallel: boolean,
   ): ApplyResult {
+    // A TITLE THAT NAMES A RELATION NEEDS A BOARD THAT KNOWS ITS COUPLES. The check is FIRST because the tiling below
+    // would otherwise succeed on geometry alone and silently read "the adjacent dancer" as "your partner" — REPORTED as
+    // "From Right and Left Grand Circle I'm offered Dosado your partner as the valid answer. I'm not sure that is a legal
+    // call from that position." `relations.ts` carries the rule, the measurement and why the refusal is ours.
+    const relationRefused = relationRefusal(board, callName);
+    if (relationRefused) return { board: cloneBoard(board), legal: false, reason: relationRefused };
     if (this.library.hasModule(callName)) {
       if (stack.includes(callName)) {
         return { board: cloneBoard(board), legal: false, reason: `Module cycle: ${callName}` };

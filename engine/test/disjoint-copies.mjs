@@ -42,6 +42,14 @@
 // MEASUREMENT rather than a first step to a merge: 24 of 1140 pairs move even after the two by-design classes are
 // set aside. The decision is TODO.md item 41.
 //
+// RE-MEASURED when the RELATION RULE landed (`relations.ts`: a title that names your partner or your corner needs a
+// board that carries home couples). The population, the sample and the row count are UNCHANGED — 1140 pairs, 66
+// disagreeing rows — and the class of rows that NAMES a relation moved: 4 left `A-ONLY` (61 -> 57) and 3 arrived in a
+// NEW class, `B-ONLY/A-refused`, because A now refuses a partner call on a board whose dancers are all
+// `UNKNOWN_COUPLE` while the resolver's search never reads the relation at all. Its witness is `3 and 1 lines #1 /
+// Partner Trade`. So the direction is stated: A is the STRICTER search by exactly these, and the class is a FACT this
+// harness pins (it fails if it grows AND if it disappears). Digest `0646b122f16893e2`.
+//
 // TIER AND SAMPLE. LIGHT: every 7th named formation x every 7th sub-8 title, MEASURED at ~4 s. `--all` sweeps the
 // whole population (138 x 409) and is a diagnostic, not a gate. The sample rule is printed, and the two are never
 // compared as like-for-like (§11.2.10).
@@ -229,14 +237,17 @@ const PINS = {
   pairs: 1140,
   skippedOdd: 40,
   unusable: 0,
-  buckets: { 'A-ONLY': 61, 'A-WHOLE-BOARD': 76, 'B-ONLY': 0, 'BOTH-REFUSE': 954, 'DIFF-GROUP': 6, SAME: 43 },
-  dims: { 'A-ONLY/B-searches-nothing': 18, 'A-ONLY/constraint': 43, 'DIFF-GROUP/partial-copies': 4, 'DIFF-GROUP/search': 2 },
-  digest: '87de7fd0acdeaa49',
+  buckets: { 'A-ONLY': 57, 'A-WHOLE-BOARD': 76, 'B-ONLY': 3, 'BOTH-REFUSE': 958, 'DIFF-GROUP': 6, SAME: 40 },
+  dims: { 'A-ONLY/B-searches-nothing': 17, 'A-ONLY/constraint': 40, 'B-ONLY/A-refused': 3, 'DIFF-GROUP/partial-copies': 4, 'DIFF-GROUP/search': 2 },
+  digest: '0646b122f16893e2',
   calibPairs: 214,
   tolChanged: 4,
   witnesses: {
     'A-ONLY/B-searches-nothing': { key: '3 and 1 lines #1 / Chase the Tag [A-ONLY/B-searches-nothing]', aKey: '1,2,5,6', bKey: '' },
     'A-ONLY/constraint': { key: '3 and 1 lines #1 / Dixie Grand [A-ONLY/constraint]', aKey: '1,2,5,6', bKey: '' },
+    // THE RELATION RULE'S OWN ROW: `Partner Trade` needs to know who is whose partner, this board has no couples, so A
+    // refuses it where the search still places four. The class arrived with the rule and this is its witness.
+    'B-ONLY/A-refused': { key: '3 and 1 lines #1 / Partner Trade [B-ONLY/A-refused]', aKey: '', bKey: '1,2,5,6' },
     'DIFF-GROUP/partial-copies': { key: '3 and 1 lines #1 / Single Circle Left 1/2 [DIFF-GROUP/partial-copies]', aKey: '1,6|2,5', bKey: '1,6' },
     // THE "WHO DANCES WHAT" CASE: both place one group of four, covering four dancers, and each picks a different
     // four — the two search orders breaking a symmetric tie differently. This is the row a merge would have to decide.

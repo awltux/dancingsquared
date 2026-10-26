@@ -784,6 +784,10 @@ function startOver(): void {
     drillScreen.say('This browser blocks local storage, so there is nothing here to forget.', 'bad');
     return;
   }
+  // WHETHER A SERVER WAS IN PLAY, taken BEFORE the two fields below are cleared: with one, the block's cells come from
+  // the server's Progress row and this reset cannot move them; without one the cleared save IS the progress, so there is
+  // nothing left to explain.
+  const serverWasInPlay = serverRegime !== null || serverDrill !== null;
   controller = null;
   daily = null;
   serverDrill = null;
@@ -802,6 +806,21 @@ function startOver(): void {
   dailyMoveLog = Promise.resolve();
   paintLedger();
   paintBalance();
+  // WHAT THE BUTTON CANNOT DO, SAID WHERE THE PLAYER IS LOOKING, because the alternative is concluding it is broken.
+  // With a server configured the block is drawn from `serverRegime` — the server's Progress row — so the
+  // `GET /drill/current` below answers exactly as before and the cells fill straight back in. REPORTED as "Start over
+  // on this device button doesnt seem to delete the drill progress." THAT IS THE DESIGN: the drills and the Daily are
+  // generated and PUBLISHED on the server from one shared schedule (`scheduleKey(level)` holds the seeds, `drillKey`
+  // and `boardKey` the published puzzles), so every player is served the same ones and a score is comparable, while a
+  // player's own row records only how far they have got. A client cannot reset that, and it would not help if it
+  // could: a fresh regime is a new anonymous player looking at the SAME schedule. The reset that regenerates them is
+  // server-side — an operator's action, not a button in the app.
+  if (serverWasInPlay) {
+    drillScreen.say(
+      "Forgotten on this device: its saved runs and hints. Your drill progress is the server's and stays — the drills and the Daily are generated there, the same ones for every player, so only a reset on the server changes them.",
+      'info',
+    );
+  }
   issueCurrentDrill('current');
 }
 

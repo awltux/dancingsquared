@@ -160,7 +160,11 @@
           <!-- THE ONE CONTROL THAT DELETES SOMETHING (DESIGN.md §15 Q18). It is a FOOTER control rather than a
                browser dialog because the armed state is a rule the shell owns — two presses, with the second one
                saying what will go — where a native `confirm()` is an API no probe can see. The ledger's own line
-               ("Saved on this device: nothing yet") is what reports the result. -->
+               ("Saved on this device: nothing yet") is what reports the result.
+               IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever could:
+               the drills and the Daily are generated and published there from one shared schedule, so every player is
+               served the same ones — which is what makes a score comparable — while a player's row holds only their
+               own progress. `startOver` in `main.ts` says exactly that in the panel after the clear. -->
           <button id="startOver" type="button">Start over on this device</button>
           <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
                rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label — and

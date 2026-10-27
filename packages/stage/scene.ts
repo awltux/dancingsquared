@@ -544,6 +544,14 @@ export function createStage(canvas: HTMLCanvasElement, opts: { floor?: boolean }
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  /**
+   * THE RATIO IS CAPPED AT 2, AND THE CAP IS MEASURED RATHER THAN ASSUMED.
+   *
+   * A phone at dpr 3 paying a 2.25x pixel cost for a difference nobody can see on a moving board is the trade this refuses.
+   * MEASURED by driving the game at `--force-device-scale-factor=3` in a 490 px-wide window: `devicePixelRatio` 3, the
+   * canvas's CSS width 490 px and its BACKING width 980 px — exactly 2x, so the cap is in force and is not a comment that
+   * never ran. A device at dpr 1 or 2 is unaffected.
+   */
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   const controls = new OrbitControls(camera, canvas);

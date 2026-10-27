@@ -1,4 +1,5 @@
-// TIER: none — one-shot diagnostic; nothing runs it. Recorded: TODO.md.
+// TIER: all — registered in `engine/test/suite.mjs` (`sub: 'tools'`, non-light): it PINS the one number that is a
+// property of the rule rather than of the corpus, and the sweep is ~30 s.
 // WHAT SETUP DOES EACH INITIAL-FORMATION PATH ACTUALLY PRODUCE?
 //
 // Reported: "when I apply a module or a Call to a sequence and it is the first item in the sequence,
@@ -8,7 +9,7 @@
 // Three paths can stand the dancers up, and they do NOT agree:
 //   - `boardForFormation(name)` - the ANONYMOUS template (it is also `Sequencer.setFormation`, the path
 //     the Formation-tab harnesses use to build identity-free boards ON PURPOSE). Geometry plus the
-//     formation's DECLARED genders and nothing else: 129 of the 134 named formations carry NO home
+//     formation's DECLARED genders and nothing else: every offered formation but FIVE carries NO home
 //     couple at all, so there is no sequence and no relationship to be in.
 //   - `boardForSetup(name)` - what the APP uses (the Set dropdown's `setSetup`, and the module start in
 //     `sequencer-ui.ts`). Since the canonical-identity work it consults the setup registry first and
@@ -73,9 +74,13 @@ for (const [letter, names] of Object.entries(FORMATIONS_FOR_LETTER)) for (const 
 
 console.log('=== A. the offered formations: boardForFormation(name) vs the arrangement-0 in-sequence code ===');
 let anonymous = 0, differ = 0, same = 0;
+// THE POPULATION ITSELF, counted so the pins can say what they are a proportion OF: an anonymous count alone cannot
+// tell "the rule changed" from "the library grew", which is exactly how the old pin rotted.
+let OFFERED = 0;
 for (const name of seq.listFormations()) {
   const byName = seq.boardForFormation(name);
   if (!byName || byName.dancers.length !== 8) continue;
+  OFFERED++;
   const letter = letterFor.get(name);
   const known = byName.dancers.filter((d) => (d.couple ?? 0) > 0).length;
   if (known === 0) anonymous++;
@@ -115,8 +120,15 @@ for (const letter of Object.keys(FORMATIONS_FOR_LETTER)) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// PIN. Two numbers, measured, and the instrument that produced them was BROKEN for every row before
-// this commit - so the pin is what keeps the fix from regressing silently.
+// PIN. The instrument that produced these was BROKEN for every row before the commit that added them, so the pins
+// are what keep the fix from regressing silently.
+//
+// WHAT IS PINNED AND WHY IT IS NOT THE COUNT IT USED TO BE. The pin was `anonymous === 129`, measured when
+// `listFormations()` offered 134 names - and it went RED at 133 not because the rule changed but because the LIBRARY
+// grew by four anonymous formations. A count that tracks a growing population is not a FACT about the rule
+// (AGENTS §11.2.8): what the anonymous path can identify is bounded by GEOMETRY, so the number that means something
+// is the IDENTIFIED few, and the population is printed beside it. MEASURED today: 138 offered, all 138 stand up eight
+// dancers, 133 anonymous, **5 identified** - the same five as when the population was 134.
 // ---------------------------------------------------------------------------------------------
 console.log('\n=== D. pins ===');
 let failures = 0;
@@ -125,8 +137,9 @@ const pin = (label, got, want) => {
   if (!ok) failures++;
   console.log(`  ${ok ? 'ok  ' : 'FAIL'}  ${label}: ${JSON.stringify(got)}${ok ? '' : ` (expected ${JSON.stringify(want)})`}`);
 };
-pin('offered formations that are anonymous by name', anonymous, 129);
-// Only the 9 names that carry an All8 LETTER can be compared at all - the other 125 offered formations
+pin('offered formations the ANONYMOUS path can identify (a home-like geometry, so a bounded few)', OFFERED - anonymous, 5);
+console.log(`  ..   of ${OFFERED} offered formations, ${anonymous} are anonymous - NOT pinned: it tracks the corpus, and grew 129 -> 133 with four new formations`);
+// Only the 9 names that carry an All8 LETTER can be compared at all - the other 129 offered formations
 // have no letter, so there is no arrangement-0 code to differ FROM, and they are counted in neither
 // column. Of those 9, 8 differ from their letter's arrangement-0/in-sequence code and 1 agrees.
 pin('offered formations that differ from their arrangement-0/in-sequence code', differ, 8);

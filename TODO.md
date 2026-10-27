@@ -576,17 +576,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   enforced**: every file under `engine/test/` is either registered in `engine/test/suite.mjs` or stamped, and
   `engine/test/harness-registry.mjs` fails when one is neither — so this TODO cannot recur silently.
 
-- [ ] **41. TWO UNREGISTERED INSTRUMENTS ARE ALREADY ROTTED.** `[measured]` by the R2 triage, which ran every
-  unregistered probe that is gate-shaped (checks + a non-zero exit; 17 of them). Two fail today, and neither is
-  registered, so nothing has noticed:
-  - **`engine/test/tools/setup-path-probe.mjs`** — exit 1 in 30.3 s: "1 PIN(S) MOVED".
-  - **`engine/test/tools/swing-thru-rule.mjs`** — exit 1 in 4.1 s: "SWING THRU RULE: 1 check(s) FAILED".
-    Its header says the rule was "kept as a tool rather than thrown away" — the transcribed rule and the engine
-    have since diverged, which is exactly the stale-copy shape AGENTS §11.2.9 describes. A decision is owed:
-    re-pin it to today's behaviour (and say what moved), or retire it. It was NOT registered as a red gate: a
-    permanently-failing entry trains everyone to ignore the tier. Both are stamped `Recorded: TODO.md` until
-    decided.
-
 - [ ] **40. THE 45-DEGREE ALIGNMENT TIE-BREAK IS DECIDED BY ONE ULP — the one thing angle normalisation found.**
   `[measured]`
   The engine's 21 normalisation expressions in seven interval conventions became one (`moves.ts`'s `normAngle`, gated

@@ -1,4 +1,5 @@
-// TIER: none — one-shot diagnostic; nothing runs it. Recorded: TODO.md.
+// TIER: all — registered in `engine/test/suite.mjs` (`sub: 'tools'`, non-light): this is the validated specification
+// Phase 9e-2 rests on, and its pin is now the shape today's engine produces rather than a defect it used to find.
 // The transcribed `Swing Thru` rule, and the evidence that it is right — kept as a tool rather than
 // thrown away with the probe that produced it, because PLAN.md Phase 9e-2 rests on it.
 //
@@ -21,9 +22,11 @@
 //     positions and facings — so the wave arm is right, not merely plausible;
 //   * on `Eight Chain Thru` the box has no hand pairs at all, so the arm that acts there is the
 //     Facing Couples Rule; and
-//   * two candidate answers for that second arm are REFUTED (trade the facing pairs in place, and
-//     `Pass the Ocean` then the wave rule), with `Pass the Ocean` on a box picking the Tidal Wave
-//     variant and on a Double Pass Thru landing two dancers on the same spot.
+//   * ONE candidate for that second arm is REFUTED (trade the facing pairs in place), and the OTHER —
+//     `Pass the Ocean` then the wave rule — is NO LONGER REFUTED: it used to land two dancers on the same spot from a
+//     `Double Pass Thru`, and MEASURED today it puts all eight on distinct spots, so Phase 9e-2 can no longer dismiss
+//     it on that ground and must settle it on the rule itself. `Pass the Ocean` on a box still picks the Tidal Wave
+//     variant. The check that used to assert the stacking now asserts the distinctness, so a regression is red.
 //
 // The hand primitives, from `call_context.dart` (note MUTUAL right-to-right, which the first draft
 // got wrong as right-to-left — the measurement caught it):
@@ -162,17 +165,25 @@ for (const form of ['Eight Chain Thru', 'Trade By', 'Double Pass Thru']) {
   }
 }
 
-console.log('\n== a separate defect this found: Pass the Ocean on these boxes ==');
+console.log('\n== Pass the Ocean on these boxes, and the refutation that has GONE ==');
 {
   const b = seq.boardForFormation('Eight Chain Thru');
   const po = seq.applyToBoard(b, 'Pass the Ocean');
   console.log(`  Eight Chain Thru + Pass the Ocean -> ${po.legal ? `${row(po.board)} (${seq.knownFormation(po.board)})` : 'refused'}`);
   const dpt = seq.boardForFormation('Double Pass Thru');
   const po2 = seq.applyToBoard(dpt, 'Pass the Ocean');
-  if (po2.legal) {
+  // RE-PINNED, AND THE DIRECTION IS THE POINT. This check used to assert the OPPOSITE - that the result STACKS two
+  // dancers on one spot, which is what refuted `Pass the Ocean` as the Facing-Couples arm. MEASURED now: it applies and
+  // puts all EIGHT on distinct spots, so that refutation is gone and the tool must not keep claiming it. What it pins
+  // instead is the shape today's engine produces, so a regression back to stacking is red here - and the header says
+  // what the removal leaves open for Phase 9e-2.
+  if (!po2.legal) {
+    check(false, 'Double Pass Thru + Pass the Ocean is REFUSED - a change this tool must report, not absorb');
+  } else {
     const spots = po2.board.dancers.map((d) => `${d.x.toFixed(2)},${d.y.toFixed(2)}`);
-    const dup = spots.length !== new Set(spots).size;
-    check(dup, `Double Pass Thru + Pass the Ocean puts ${dup ? 'TWO DANCERS ON THE SAME SPOT' : 'every dancer on its own spot'}`);
+    const distinct = new Set(spots).size;
+    check(distinct === 8,
+      `Double Pass Thru + Pass the Ocean puts every dancer on its own spot (${distinct} of 8 distinct) - the "two dancers on the same spot" refutation this tool recorded is GONE`);
   }
 }
 

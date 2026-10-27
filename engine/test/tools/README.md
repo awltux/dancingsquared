@@ -83,6 +83,10 @@ so a new one is a decision and a removal updates the pin in the same commit.
   header; the general measurement is `promenade-rotation-probe` / `promenade-pair-probe`), `zero-line-raw-probe`
   (no header; `zero-line-probe` answers it).
 - **Stamped**: the remaining 99 files here plus `engine/test/map-tips.mjs`, the generator PLAN.md describes.
-- **Two rotted instruments found and recorded, not registered**: `setup-path-probe` ("1 PIN(S) MOVED", 30 s) and
-  `swing-thru-rule` ("1 check(s) FAILED", 4 s) — a permanently red gate trains everyone to ignore the tier, so
-  their stamps point at `TODO.md`, where the decision to re-pin or retire them lives.
+- **Two rotted instruments were found here and are now GATES** (TODO item 41's decision, made in favour of `fix`):
+  `setup-path-probe` (30 s) and `swing-thru-rule` (4 s) are registered non-light, with a pin that holds today:
+  `setup-path-probe` pins the FIVE formations the anonymous setup path can identify — a property of geometry —
+  instead of the raw anonymous count (129), which went red when the library grew four formations rather than when
+  the rule changed, and `swing-thru-rule` pins the eight distinct spots today's engine produces where it used to
+  pin the opposite (two dancers stacked, which is what refuted that Facing-Couples candidate; the header says what
+  that removal leaves open).

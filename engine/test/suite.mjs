@@ -512,6 +512,15 @@ export const SUITE = [
   // R2 triage: it passes in ~32 s and nothing registered covered it — `canonical-identity-probe` USES the
   // registry, it does not check it. Registered here rather than left to be re-run by hand.
   { h: 'setup-registry-probe', sub: 'tools', light: false, why: 'checks the setup registry three ways: All8\'s published diagrams, the zero-line property, and identity round-trip (~32 s)' },
+  // THE TWO ROTTED INSTRUMENTS TODO ITEM 41 FOUND, now gates instead. Both were `TIER: none` and both exited 1, so
+  // nothing noticed for months. Each is registered with a pin that holds TODAY and says what changed:
+  // `setup-path-probe` had pinned a raw anonymous-FORMATION COUNT (129), which went red when the library grew four
+  // formations rather than when the rule changed - it now pins the five the anonymous path CAN identify, a property
+  // of geometry, and prints the population beside it. `swing-thru-rule` had pinned a DEFECT ("Pass the Ocean lands two
+  // dancers on one spot") that today's engine no longer has, so it now pins the distinctness and the header states that
+  // one refutation of that candidate is gone. Registered non-light: ~30 s and ~4 s of corpus sweeps.
+  { h: 'setup-path-probe', sub: 'tools', light: false, why: 'pins the five formations the anonymous setup path can identify, and prints the arrangement-0 comparison for every offered formation (~30 s)' },
+  { h: 'swing-thru-rule', sub: 'tools', light: false, why: 'the transcribed Swing Thru rule against the engine\'s own tams, plus what today\'s engine does to the two Facing-Couples candidates (~4 s)' },
   // "CAN THE SEQUENCER DO X" IS A MEASUREMENT, NOT A MEMORY. Asked whether it handles what a caller
   // says as "girls center, boys sashay" - authored here as `Ladies In, Men Sashay`, and written
   // `Ladies Center & Men Sashay` by the corpus. It does: legal from a Circle, an EXACT variant match,

@@ -546,25 +546,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   find what `getout` leaves behind (match memo, FSM store, `adjustToNextSetup`) and show `reset()` does not
   clear it.
 
-- [ ] **36. FIVE HARNESSES ASSUME A CORPUS SHAPE THAT MOVED, SO THEIR REDS ARE HARNESS BUGS.** `[measured]`
-  at `8cfe8a1`. Each was re-run and the assumption named; none is an engine defect, and each reds the whole
-  harness rather than one check:
-  - `circle-four.mjs:124` reads `applied.lanes.find(...)` after `applied.legal` failed — a REFUSAL carries no
-    lanes, so the harness dies with `TypeError` and exit 1 instead of reporting. Same missing guard at
-    `editor.mjs:1501` (`path[-1]` is undefined when the tam carries a facing curve on all 8 moves).
-  - `arrangement-picker.mjs:120` asserts `Columns LH is offered`, and `Columns LH` has existed in NO revision
-    of `formations.xml` (the corpus spelling is `Columns LH BGBG`), so the check can never pass and the two
-    `if (p('Columns LH'))` witnesses below it never run.
-  - `features.mjs:113-115` pools all of `circle.xml` under one name and then takes the SMALLEST setup, which
-    is now a 2-dancer `Facing Dancers` pair — so its "8-dancer" board is built with 4 dancers and the
-    parallel-apply checks ask the wrong question.
-  - `mainstream.mjs:25-35` registers each ms file by `callMeta(xml).title`, i.e. its FIRST tam's title, which
-    for `circle.xml` is now `Circle Left - Stop at Home` — so `Circle Left` is unregistered and four checks
-    fail on `Unknown call: Circle Left`. (This is AGENTS trap 7 again: register by TITLE, not by file.)
-  - `step-forward.mjs:424/500/574` build their sample traces with `Array.from({length: total+1})`, and
-    `Array.from({length: 9.5}).length` is **9** — so with the corpus's new 8.5-beat promenade `trace[8.5]` is
-    `undefined`. A re-pin alone cannot clear those two checks; the sampling must take half beats.
-
 - [x] **37. THE FSM ASSET'S STALENESS IS INVISIBLE TO EVERY CHANGE-TIME GATE.** `[measured]` at `8cfe8a1`;
   **CLOSED in `agent/one-fsm-asset`.** `assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed
   stale for the many commits since, and the reason was structural rather than accidental: the writer

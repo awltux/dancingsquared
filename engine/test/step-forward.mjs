@@ -392,7 +392,7 @@ console.log('\n== 7. the scrub animates it: the walk charges it and the board MO
   // shows the step out and the step back rather than nothing at all.
   const round = ['Heads Step Forward and Back if Possible'];
   const roundBeats = seq.sequenceBeats(round, square);
-  const roundTrace = Array.from({ length: roundBeats + 1 }, (_, b) => dist(seq.evaluateSequence(round, b, square).board, heads[0]));
+  const roundTrace = Array.from({ length: Math.floor(roundBeats) + 1 }, (_, b) => dist(seq.evaluateSequence(round, b, square).board, heads[0]));
   console.log(`    a lone round trip over ${roundBeats} beats: ${roundTrace.map((d) => d.toFixed(2)).join(', ')}`);
   check(roundBeats === 4 && seq.sequenceStop(round, square) === null,
     `danced alone it is walkable and costs its own ${roundBeats} beats`);
@@ -495,7 +495,7 @@ console.log('\n== 9. a deferred group that RETURNS is shown stepping in and back
   const total = seq.sequenceBeats([step], square);
   const atBeat = (b) => seq.evaluateSequence([step], b, square).board;
   const dist = (board, ref, id) => Math.hypot(pose(board, id).x - pose(ref, id).x, pose(board, id).y - pose(ref, id).y);
-  const trace = Array.from({ length: total + 1 }, (_, b) => dist(atBeat(b), square, heads[0]));
+  const trace = Array.from({ length: Math.floor(total) + 1 }, (_, b) => dist(atBeat(b), square, heads[0]));
   console.log(`    ${stepLabel(step)} - ${total} beats`);
   console.log(`    the stepping dancer's distance from its start at each beat: ${trace.map((d) => d.toFixed(2)).join(', ')}`);
   check(total === 8, `the pair costs the promenade's ${total} beats`);
@@ -511,6 +511,12 @@ console.log('\n== 9. a deferred group that RETURNS is shown stepping in and back
     'and the last frame of the scrub is still the applied board');
 
   // THE ROUND TRIP ITSELF: out, still, back.
+  //
+  // THE LAST BEAT IS READ BY ITS INDEX, NOT BY `total`, and that is a harness bug repaired rather than a re-pin: a
+  // fractional `total` makes `trace[total]` undefined, so `Math.abs(undefined - 1) < 1e-9` is false and the check
+  // reported the round trip as broken when the real finding was `the pair costs 8.5 beats, not 8` three lines up.
+  // MEASURED: `Array.from({ length: 9.5 }).length` is 9, so the sample at the last INTEGER beat is `trace.length - 1`.
+  const lastBeat = trace.length - 1;
   const forward = trace.findIndex((d) => d > 1.9);
   const back = trace.length - 1 - [...trace].reverse().findIndex((d) => d > 1.9);
   const still = trace.filter((d) => d > 1.9).length;
@@ -518,7 +524,7 @@ console.log('\n== 9. a deferred group that RETURNS is shown stepping in and back
     'it steps OUT over its own two beats (1.000 at beat 1, 2.000 at beat 2)');
   check(forward === 2 && still === 5,
     `it then STANDS STILL for ${still} beats (the middle of the call)`);
-  check(Math.abs(trace[total - 1] - 1) < 1e-9 && trace[total] === 0,
+  check(Math.abs(trace[lastBeat - 1] - 1) < 1e-9 && trace[lastBeat] === 0,
     'and steps BACK over the last two beats, finishing home - the step in and the step out are both visible, which is what a two-point interpolation could not show');
   check(back === total - 2, `with the step back starting exactly two beats before the end (beat ${back} of ${total}), as the request says ("at the end of the call ... they step back")`);
   check(trace.some((d) => d > 1.9), 'SHOWN TO FAIL: the dancers DO move through the middle of this step - the reported "dont move" is the absence of the round trip, not a step that was never taken');
@@ -556,7 +562,7 @@ console.log('\n== 10. `Forward and Back` is the round trip under the name a call
   const aloneBeats = seq.sequenceBeats(alone, square);
   check(aloneBeats === 4, `a lone "Heads Forward and Back" costs ${aloneBeats} beats - two out and two back`);
   check(seq.sequenceStop(alone, square) === null, 'and it does not stop the walk, so there is a timeline to animate over at all');
-  const aloneTrace = Array.from({ length: aloneBeats + 1 }, (_, b) => dist(seq.evaluateSequence(alone, b, square).board, square, heads[0]));
+  const aloneTrace = Array.from({ length: Math.floor(aloneBeats) + 1 }, (_, b) => dist(seq.evaluateSequence(alone, b, square).board, square, heads[0]));
   console.log(`    the stepping dancer's distance from its start at each beat: ${aloneTrace.map((d) => d.toFixed(2)).join(', ')}`);
   check(Math.abs(aloneTrace[1] - 1) < 1e-9 && Math.abs(aloneTrace[2] - 2) < 1e-9
     && Math.abs(aloneTrace[3] - 1) < 1e-9 && aloneTrace[4] === 0,
@@ -570,19 +576,19 @@ console.log('\n== 10. `Forward and Back` is the round trip under the name a call
   // way back is clear and the heads return - over the LAST two beats of an 8-beat step, not the first two.
   const span = { groups: [{ selection: 'Sides', call: 'Promenade 1/2 to Home' }, { selection: 'Heads', call: 'Forward and Back' }] };
   const spanBeats = seq.sequenceBeats([span], square);
-  const spanTrace = Array.from({ length: spanBeats + 1 }, (_, b) => dist(seq.evaluateSequence([span], b, square).board, square, heads[0]));
+  const spanTrace = Array.from({ length: Math.floor(spanBeats) + 1 }, (_, b) => dist(seq.evaluateSequence([span], b, square).board, square, heads[0]));
   console.log(`    ${stepLabel(span)} - ${spanBeats} beats; the stepping dancer: ${spanTrace.map((d) => d.toFixed(2)).join(', ')}`);
   check(spanBeats === 8, `the step costs the PARTNER's ${spanBeats} beats, not the round trip's 4`);
   const out = spanTrace.findIndex((d) => d > 1.9);
   const backAt = spanTrace.length - 1 - [...spanTrace].reverse().findIndex((d) => d > 1.9);
   check(out === 2, `it is out at its own two beats (beat ${out}) and then stands still`);
-  check(backAt === spanBeats - 2 && spanTrace[spanBeats] === 0,
+  check(backAt === spanBeats - 2 && spanTrace[spanTrace.length - 1] === 0,
     `and it steps BACK over the last two beats (from beat ${backAt} of ${spanBeats}), so the out-and-back spans the sibling rather than finishing early`);
 
   // (c) THE SAME RULE AS THE OTHER SPELLING, on the same witness. This is the assertion that makes the entry a
   // rename of a measured behaviour rather than a second implementation of it.
   const other = { groups: [{ selection: 'Sides', call: 'Promenade 1/2 to Home' }, { selection: 'Heads', call: 'Step Forward and Back if Possible' }] };
-  const otherTrace = Array.from({ length: spanBeats + 1 }, (_, b) => dist(seq.evaluateSequence([other], b, square).board, square, heads[0]));
+  const otherTrace = Array.from({ length: Math.floor(spanBeats) + 1 }, (_, b) => dist(seq.evaluateSequence([other], b, square).board, square, heads[0]));
   check(JSON.stringify(spanTrace) === JSON.stringify(otherTrace),
     'and on that witness it moves the dancers exactly as `Step Forward and Back if Possible` does, beat for beat');
 

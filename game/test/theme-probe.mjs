@@ -113,17 +113,19 @@ console.log('\n== 2. the real stylesheet ==');
   const { used, defined } = varsOf(CSS);
   check(used.length > 20, `it asks for ${used.length} custom properties`);
   const provided = new Set([...Object.keys(CSS_VARS), ...defined]);
-  // THE ONE PROPERTY THE STYLESHEET READS THAT THIS TABLE DOES NOT OWN: the panel's size is `ui/layout.ts`'s decision,
-  // written onto the document by the shell because a stylesheet cannot call a function. Exempt BY NAME rather than by a
-  // pattern, and the exemption carries its own rule below — a value the script provides must have a CSS fallback, or the
-  // first paint before the script runs is a sheet of zero height.
-  const PROVIDED_ELSEWHERE = new Set(['--panel-size']);
+  // THE TWO PROPERTIES THE STYLESHEET READS THAT THIS TABLE DOES NOT OWN, both written by the shell because a stylesheet
+  // cannot call a function: the panel's size (`ui/layout.ts`) and the level path's column count (`ui/level-map.ts`).
+  // Exempt BY NAME rather than by pattern, and each exemption carries its own rule below — a value the script provides must
+  // have a CSS default, or the first paint before the script runs has a sheet of zero height or a path of ten columns.
+  const PROVIDED_ELSEWHERE = new Set(['--panel-size', '--level-columns']);
   const missing = used.filter((name) => !provided.has(name) && !PROVIDED_ELSEWHERE.has(name));
   check(missing.length === 0, `and every one of them is defined (${missing.length} missing)`, missing.join(', '));
   check([...PROVIDED_ELSEWHERE].every((name) => used.includes(name)),
     `and the ${PROVIDED_ELSEWHERE.size} propert(y|ies) the shell provides are read here (${[...PROVIDED_ELSEWHERE].join(', ')})`);
-  check(defined.includes('--panel-size') || /var\(--panel-size,\s*\d+px\)/.test(CSS),
-    'and it carries a pre-script default — a `:root` declaration or an inline fallback — so the first paint has a panel');
+  const noDefault = [...PROVIDED_ELSEWHERE].filter((name) => !defined.includes(name)
+    && !new RegExp(`var\\(${name},\\s*[^)]+\\)`).test(CSS));
+  check(noDefault.length === 0, `and each carries a pre-script default (${noDefault.join(', ') || 'none missing'})`,
+    noDefault.join(', '));
   // THE OTHER DIRECTION: a token nothing reads is dead weight, and AGENTS.md 4.5 has no room for it. The three waypoint
   // colours and the motion numbers are read by TypeScript rather than CSS, so they are exempt BY NAME.
   const readElsewhere = new Set(['--wp-solved', '--wp-next', '--wp-locked', '--t-slide', '--t-celebrate', '--t-enter']);

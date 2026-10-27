@@ -90,6 +90,12 @@
              rebuilt on every paint, so it holds no authored cells. -->
         <section id="level" aria-live="polite">
           <p id="levelHeading"></p>
+          <!-- THE PROGRESS TRACK: the heading's "3 of 100 done" as a filled bar. The value is written by
+               `ui/level-screen.ts` from `blockSummary` — published length as the denominator, never the block's 100 — and
+               the element carries `role="progressbar"` so the number is not only a width. -->
+          <div id="levelProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Level progress">
+            <span id="levelProgressFill"></span>
+          </div>
           <div id="levelBlock"></div>
           <!-- SHOWN ONLY WHEN THE BLOCK IS FULL: the level is over, and the shell re-issues, which is what lets the
                server promote. A player is never teleported to the next level. -->

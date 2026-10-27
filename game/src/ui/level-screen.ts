@@ -8,7 +8,16 @@
 // TEXT GOES IN VIA `textContent`, NEVER `innerHTML` (AGENTS.md §6). Every string here is a number or a word this file
 // writes itself, but the rule is the file's, not the data's.
 import { blockCells, blockSummary, isReplayable, isWatchable, type CellState } from '../puzzle/block.ts';
+import { columnsFor, mapFor } from './level-map.ts';
 import { el } from './dom.ts';
+
+/**
+ * How tall one row of the path is, in pixels. A node is `NODE_PX` across and the row gives it a finger's width of space
+ * either side, so a hundred drills come to `rows * 40` — at the panel's 340 px and eight columns that is 13 rows, 520 px,
+ * a scroll rather than a squashed grid. The number lives here rather than in the stylesheet because the container's height
+ * is COMPUTED from the row count, and a second copy in CSS would be the one that drifts.
+ */
+const NODE_ROW_PX = 40;
 
 /** What the shell knows about the level, as the screen needs it. */
 interface LevelView {
@@ -29,6 +38,9 @@ interface El {
   heading: HTMLElement;
   block: HTMLElement;
   nextLevel: HTMLButtonElement;
+  /** The progress track, and the span inside it that carries the width — a `<div>` cannot be a bar with `::after` cleanly. */
+  progress: HTMLElement;
+  progressFill: HTMLElement;
 }
 
 /** What each state is called to a screen reader, since the cell itself shows only its number. */
@@ -71,6 +83,8 @@ export class LevelScreen {
       heading: el('levelHeading'),
       block: el('levelBlock'),
       nextLevel: el<HTMLButtonElement>('levelNext'),
+      progress: el('levelProgress'),
+      progressFill: el('levelProgressFill'),
     };
     this.els.nextLevel.addEventListener('click', () => this.onNextLevel());
   }
@@ -96,9 +110,39 @@ export class LevelScreen {
     this.els.heading.textContent = view.note
       ?? `Level ${view.levelIndex} — ${summary.done} of ${summary.published} done, ${summary.passed} passed`;
 
+    // THE PROGRESS BAR IS THE HEADER'S FACT, DRAWN: "3 of 100 done" is a sentence, and the same number as a filled track is
+    // read at a glance. Its denominator is the PUBLISHED length (what the server has handed out), never the block's 100 —
+    // a bar that filled a level the publisher has not written yet would be a promise.
+    const share = summary.published > 0 ? Math.round((summary.done / summary.published) * 100) : 0;
+    this.els.progress.setAttribute('aria-valuenow', String(share));
+    this.els.progressFill.style.width = `${share}%`;
+
+    // THE PATH, FROM `ui/level-map.ts`: a serpentine whose consecutive nodes are neighbours, which is the whole reason it
+    // replaces the grid this screen used to build (see that module's header).
+    //
+    // THE COLUMN COUNT COMES FROM THE CONTAINER'S OWN WIDTH, and the node's size comes back from the column count as a CSS
+    // variable — MEASURED, a rule keyed on the viewport put ten columns into a 304 px card and 28 px nodes overlapped by
+    // 3 px. `columnsFor` reads `clientWidth`, which is 0 before the section is shown; it answers the floor then, and the
+    // next paint (every state change repaints) has a real width.
+    const map = mapFor(cells.length, columnsFor(this.els.block.clientWidth));
     this.els.block.replaceChildren();
-    for (const cell of cells) {
+    this.els.block.style.height = `${map.rows * NODE_ROW_PX}px`;
+    this.els.block.style.setProperty('--level-columns', String(map.columns));
+
+    // NO CONNECTOR LINE, AND THAT IS A MEASUREMENT RATHER THAN AN OMISSION. An SVG polyline through the node centres was
+    // drawn and looked at twice: at the 30 px pitch this path uses, the horizontal runs pass UNDER each node's own circle,
+    // so the line either hides completely (2 px stroke) or shows through the node as a bar inside it (8 px, MEASURED in the
+    // browser). A connector that has to weave around the dots it joins is not worth the machinery; the serpentine itself
+    // carries the adjacency, and `level-map-probe.mjs` pins it.
+
+    for (const [i, cell] of cells.entries()) {
+      const node = map.nodes[i];
+      if (!node) continue;
       const wording = `Drill ${cell.index + 1}: ${WORDING[cell.state]}`;
+      const place = (element: HTMLElement): void => {
+        element.style.left = `${node.x}%`;
+        element.style.top = `${node.y}%`;
+      };
       // THREE STATES ARE CONTROLS: the issued drill, a skipped one to REATTEMPT, and a PASSED one to WATCH BACK. The
       // last is what makes a completed level openable — the same split the server makes between the write that reopens a
       // skipped position and the read that shows a passed one.
@@ -107,13 +151,14 @@ export class LevelScreen {
         button.type = 'button';
         button.className = `cell ${cell.state}`;
         button.textContent = MARK[cell.state];
-        // EACH CONTROL SAYS WHICH IT IS IN ITS ACCESSIBLE NAME, because the number alone reads as a drill the player has
-        // not done — and the whole point of both closed cells is that they have.
+        // EACH CONTROL SAYS WHICH IT IS IN ITS ACCESSIBLE NAME, because the mark alone does not say which drill it is —
+        // and the whole point of both closed cells is that they have been played.
         button.setAttribute(
           'aria-label',
           isReplayable(cell.state) ? `${wording} — reattempt it` : isWatchable(cell.state) ? `${wording} — watch it back` : wording,
         );
         button.addEventListener('click', () => this.onPlay(cell.index));
+        place(button);
         this.els.block.append(button);
         continue;
       }
@@ -122,6 +167,7 @@ export class LevelScreen {
       // AN UNPUBLISHED CELL SHOWS NOTHING, because a mark would promise a drill that does not exist.
       span.textContent = MARK[cell.state];
       span.setAttribute('aria-label', wording);
+      place(span);
       this.els.block.append(span);
     }
 

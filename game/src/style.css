@@ -168,24 +168,57 @@ button[data-busy="true"]::after {
   }
 }
 
-/* THE LEVEL BLOCK (DESIGN.md §15 Q17(v)): ten cells to a row, so a 100-drill level is the 10x10 it is meant to be.
-   `grid-template-columns: repeat(10, 1fr)` rather than a fixed cell size, because the panel is 340px on a desktop and
-   most of a phone's width in the browser — a fixed size would either overflow the narrow case or look lost in the wide
-   one. `aspect-ratio: 1` keeps the cells square as the column width flexes. */
+/* THE LEVEL PATH (DESIGN.md §15 Q17(v)): a serpentine of nodes, not a grid of cells.
+   REPORTED as "still looking very messy". The 10 x 10 grid was the messiest thing in the panel: a hundred near-identical
+   squares read as a table to fill in, and its row changes jumped from the right-hand edge back to the left, so there was
+   no path to follow. `ui/level-map.ts` now answers where each node sits — eight columns on a narrow panel, twelve on a wide
+   one, each row reversed so consecutive drills are neighbours — and this rule only places them. THE HEIGHT IS COMPUTED
+   FROM THE ROW COUNT by the screen (`rows * 40 px`), which is why there is no fixed height here. */
 #levelBlock {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: var(--space-xs);
-  margin-top: 10px;
+  position: relative;
+  margin-top: var(--space-md);
+}
+
+/* THE PROGRESS TRACK under the heading: "3 of 100 done" as a filled bar. Green because it is the same fact as a solved
+   node's fill, and the fill is the only coloured part so an empty level reads as empty rather than as a broken bar. */
+#levelProgress {
+  height: 8px;
+  margin-top: var(--space-sm);
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+}
+
+#levelProgressFill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--ok);
+}
+
+/* THE BAR ANIMATES ONLY WHEN MOTION IS ALLOWED: a track that eases is a nice touch, and a player who asked for less
+   movement gets the same information instantly. */
+@media (prefers-reduced-motion: no-preference) {
+  #levelProgressFill {
+    transition: width var(--t-enter) var(--ease);
+  }
 }
 
 /* THE CELL SHOWS A MARK, NOT A NUMBER, and its state is the fill, the border AND the glyph — three signals, so a
    colour-vision difference costs nothing. The number lives in each cell's `aria-label` because at 31 px a two-digit
    label is the mess this replaced (`ui/level-screen.ts`'s MARK header has the measurement). The ROUND shape is what
-   turns a spreadsheet of numerals into a progress matrix: a hundred squares read as cells to fill in, a hundred circles
-   read as steps taken. */
+   turns a spreadsheet of numerals into a journey: a hundred squares read as cells to fill in, a hundred circles as steps
+   taken. `translate(-50%, -50%)` puts the node's CENTRE on the percentage the map gave. */
 #levelBlock .cell {
+  position: absolute;
+  /* THE NODE'S WIDTH IS DERIVED FROM THE COLUMN COUNT the screen writes, so it can never overflow its column: the container
+     is fluid (a 300 px panel, a 393 px sheet) and a fixed 28 px node overlapped by 3 px in a 304 px card. `aspect-ratio`
+     keeps it round at whatever width the formula gives. */
+  width: calc(100% / var(--level-columns, 10) - var(--space-xs));
   aspect-ratio: 1;
+  max-height: 32px;
+  transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
   padding: 0;

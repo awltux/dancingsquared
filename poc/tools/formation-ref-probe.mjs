@@ -24,7 +24,8 @@ const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 // because they spell their line break `\s*\n\s*` and `\s` eats the `\r`; the negative control at the foot
 // of this file spells it `\n` and therefore replaced NOTHING, so `backwards` was the real source and the
 // control could never pass. A control that cannot pass demonstrates nothing, and this one had been failing
-// for that reason alone. `square-dancing.md:4265` fixed four reds of this exact class in another probe.
+// for that reason alone. `square-dancing.md`'s FOUR PRE-EXISTING REDS note records the same class being
+// fixed four times in `start-pose-drag-probe.mjs`.
 const read = (p) => fs.readFileSync(path.join(POC_DIR, 'src', p), 'utf8').replace(/\r\n/g, '\n');
 
 let failures = 0;

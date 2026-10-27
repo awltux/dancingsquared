@@ -293,8 +293,8 @@ check(definitions.length === 1 && definitions[0].startsWith('moves.ts:'),
 // the module that reads dancer angles. It is on the public surface (`index.ts` re-exports `core.js`), so the way to
 // use it is to import it — `poc/tools/end-spin-probe.mjs` has always done exactly that (`const DEG = engine.DEG`).
 //
-// WHAT THIS REPLACED, MEASURED when §5 landed: `engine/src` held TWO declarations — `core.ts:8` and a bare copy in
-// `formation-order.ts:57`, four lines below a comment listing the module's imports — and `book/tools` held a third, in
+// WHAT THIS REPLACED, MEASURED when §5 landed: `engine/src` held TWO declarations — `core.ts`'s `DEG` and a bare copy
+// in `formation-order.ts`, just below that module's import block — and `book/tools` held a third, in
 // `make-formations.mjs`, which loads the engine already for every other answer it draws.
 //
 // THE CENSUS STOPS AT THE PACKAGES THAT OWN THE UNIT, on purpose. Outside them a local `DEG` is not automatically a

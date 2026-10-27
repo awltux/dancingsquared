@@ -5,7 +5,8 @@
 // puzzle (options legal, distinct, solvable, reproducible). It never plays one, so it cannot see the
 // two rules that only exist once a player starts pressing buttons:
 //
-//   * THE TRUNCATION RULE (`session.ts:123-125`). A new move clears the redo stack, because the undone
+//   * THE TRUNCATION RULE (`Session.play`, which sets `redoStack.length = 0`). A new move clears the redo
+//     stack, because the undone
 //     moves were ALTERNATIVES to the move just played and a redo of one would splice together a path
 //     that never happened. The failure this catches is a session that keeps a stale redo stack: the
 //     player undoes, plays something else, and can still "redo" the discarded branch — walking to a
@@ -13,7 +14,8 @@
 //     a rule that only ever pushed to the redo stack would pass 5 and 6 and fail 7, and a rule that
 //     never cleared the stack is exactly the alternative check 7 rules out.
 //
-//   * THE ILLEGAL-CALL RULE (`session.ts:116-118`). A refused call is a VERDICT, not a step: the
+//   * THE ILLEGAL-CALL RULE (`Session.play`'s `if (refusal) return { verdict: 'illegal', … }`). A refused
+//     call is a VERDICT, not a step: the
 //     session returns `illegal` with the applier's reason verbatim and does NOT move, does NOT record
 //     a move, and does NOT create a redo entry. Check 3 is the negative control for the plausible
 //     wrong rule "a refusal is recorded as a move" — that would silently mark a player's illegal
@@ -132,7 +134,8 @@ console.log('\n== 2. a legal move that does not reach the goal is `wrong`, and I
 {
   const s = fresh();
   const r = s.play('go-b');
-  // Rules out "wrong means refused": a dead end is a legal, recorded move (session.ts:112-114).
+  // Rules out "wrong means refused": a dead end is a legal, recorded move (the `Verdict` type's `wrong`
+  // member, which `Session.play` returns for any applied move that misses the goal).
   check(r.verdict === 'wrong', `play('go-b') verdicts 'wrong' (${r.verdict})`);
   check(s.board === B, 'the session moved to B');
   check(s.moves.length === 1 && s.moves[0] === 'go-b', `moves is ['go-b'] (${JSON.stringify(s.moves)})`);

@@ -42,7 +42,8 @@ const CENTRE = SIZE / 2;
 // THE ENGINE OWNS THE UNIT, so it is BOUND here rather than declared: `core.ts` defines `DEG` and `index.ts`
 // re-exports it, and this tool already loads the engine for every other engine answer it draws. MEASURED before the
 // change: this file carried its own `const DEG = Math.PI / 180` — a third spelling of a constant the engine exports
-// (the other two were `core.ts:8` and `formation-order.ts:57`), kept alive by nothing but having been written first.
+// (the other two were `DEG` in `core.ts` and a bare copy in `formation-order.ts`), kept alive by nothing but
+// having been written first.
 // It cannot `import` the CJS `dist` directly, so it goes through `loadEngine()`, whose export-surface assertion is
 // what makes the binding safe; `build()` calls the same loader again and Node answers it from cache.
 const DEG = loadEngine().DEG;

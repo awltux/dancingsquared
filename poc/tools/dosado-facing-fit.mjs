@@ -6,12 +6,12 @@
 // is exactly BACK TO BACK, each facing its own home side, while the path rotates the pair about its midpoint.
 //
 // WHY, BY CONSTRUCTION. A `rotate` curve is `(0,0) -> (cx3,0) -> (cx4,cy4) -> (x4,y4)` - `cy3` is always 0, as
-// `tamination.dtd` says - and `poseFor` reads it as a TURN: `a = angle(1) - angle(0)`
-// (`engine/src/core.ts:111-131`). The direction at t=0 is therefore ALWAYS +x and the whole turn rides on the
+// `tamination.dtd` says - and `poseFor` in `engine/src/core.ts` reads it as a TURN: `a = angle(1) - angle(0)`.
+// The direction at t=0 is therefore ALWAYS +x and the whole turn rides on the
 // last segment, `(x4,y4) - (cx4,cy4)`. EVERY movement of every `Facing Dancers *` tam our editor exported has
 // `y4 == cy4`, i.e. a turn of EXACTLY 0 - four zeros per path, both paths. (The editor can only express a turn
-// through that last segment, because its export writes `cx3=cx1 cx4=cx2 cy4=cy2 x4=x2 y4=y2` and drops the
-// editor Bezier's own `cy1`: `poc/src/editor.ts:2281`.)
+// through that last segment, because `bezRotAttr` in `engine/src/editor.ts` writes
+// `cx3=cx1 cx4=cx2 cy4=cy2 x4=x2 y4=y2` and drops the editor Bezier's own `cy1`.)
 //
 // WHAT THIS DOES. The turn each movement needs is the change in the BEARING TO THE PARTNER, sampled on the
 // DRAWN poses (`evaluateVariantAt` with `rebase = false`, exactly as `animateParallelBoard` matches a group -

@@ -66,9 +66,9 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true }).filter((e) =
       if (call.dancers.length !== 8) continue;
       built++;
       // THE REAL FORMATION IS THE `formation` ATTRIBUTE. `from` is a label FOR THE USER, and the engine
-      // resolves the dancers from `formationAttr` (convert.ts:324) - so comparing a recognised name against
-      // `from` compares it against free text. Null here means the formation was EMBEDDED in the tam rather
-      // than named, which is a different case again.
+      // resolves the dancers from `formationAttr` (`buildCallImpl` in `convert.ts`) - so comparing a
+      // recognised name against `from` compares it against free text. Null here means the formation was
+      // EMBEDDED in the tam rather than named, which is a different case again.
       const real = (tam.formationAttr ?? '').trim();
       calls.push({ level, file: f, call, realFormation: real || null });
     }

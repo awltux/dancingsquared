@@ -41,11 +41,11 @@
 // slack was chosen for. That is roughly 200x the precision noise `RADIAL_ARC_SWEEP_TOL` exists to cover,
 // so calling it noise is what the measurement no longer supports.
 //
-//   `:437` "every dancer-move on a ring is offered the fit" measures SOME refusals, never none: it was
+//   "every dancer-move on a ring is offered the fit" measures SOME refusals, never none: it was
 //          162 of 170 when this was written and 180 of 188 the same day, because the corpus is in flight.
 //          The RATIO is the finding and the count is a snapshot - do not pin the count, and do not treat
 //          either as the thing to fix.
-//   `:359` "the limit sits in an EMPTY band wider than twice the slack" measures a band of 1.744deg.
+//   "the limit sits in an EMPTY band wider than twice the slack" measures a band of 1.744deg.
 //
 // THEY CANNOT BOTH BE SATISFIED, AND THE INTERVAL IS EMPTY - this is arithmetic on the probe's own two
 // measured populations, not an opinion:

@@ -3,13 +3,13 @@
 // THE TWO PATHS, and they are genuinely two. Both cut a whole-set board into disjoint copies of a k-dancer setup,
 // and they share nothing but the per-group primitive `matchFormations`:
 //
-//   A  the PICKER: `Sequencer.applyToBoard` -> `applicator.parallelApply` (`applicator.ts:1401` -> `partition`
-//      :1623 / `partitionPartial` :1654). Anchored on the LOWEST UNPLACED INDEX and returns the FIRST full tiling in
+//   A  the PICKER: `Sequencer.applyToBoard` -> `applicator.parallelApply`, which calls `partition` then
+//      `partitionPartial`. Anchored on the LOWEST UNPLACED INDEX and returns the FIRST full tiling in
 //      index order; the partial reading packs as many groups as fit, per anchor lowest-error-then-gendered.
-//   B  the VIRTUAL RESOLUTION: `Sequencer.virtualCall` -> `resolveVirtual` (`virtual-call.ts:194`) ->
-//      `matchFormationsAll` (`match.ts:290`). Every k-subset, sorted by error, greedily packed; the `tiled` reading
+//   B  the VIRTUAL RESOLUTION: `Sequencer.virtualCall` -> `virtual-call.ts`'s `resolveVirtual` ->
+//      `matchFormationsAll` in `match.ts`. Every k-subset, sorted by error, greedily packed; the `tiled` reading
 //      needs n/k copies, the `partial` reading is ONE copy by construction; a reflected placement and any placement
-//      whose END the engine cannot name are dropped (`virtual-call.ts:245,268,295`), and `chooseVirtual` picks.
+//      whose END the engine cannot name are dropped (`resolveVirtual`'s `note(...)` sites), and `chooseVirtual` picks.
 //
 // So they can disagree about who dances what, and NOTHING ELSE IN THE TREE COMPARES THEM. `virtual-call.mjs` pins a
 // placement against the board and the source; `parallel-group-probe.mjs` compares the animator's predicate with the
@@ -27,11 +27,12 @@
 // THE DIMENSIONS are measured, not judged:
 //   constraint          B found placements and dropped them all because the END is unnamed — the owner's
 //                       start-and-end-named constraint (TODO item 39) doing its job. By design.
-//   partial-copies      B's partial reading is ONE copy; A's packs as many as fit. By design (`virtual-call.ts:267`).
+//   partial-copies      B's partial reading is ONE copy; A's packs as many as fit. By design (`resolveVirtual`'s
+//                       PARTIAL block, one `matchFormations` call).
 //   B-searches-nothing  B found no placement at all where A found a group. A real difference in the searches.
 //   search              both placed the SAME number of dancers and picked DIFFERENT ones — the "who dances what"
 //                       case, and the one a merge of the two searches would have to decide.
-//   A-refused           A placed nothing and B did (the `allowsGoing` filter is A-only, `applicator.ts:1411`).
+//   A-refused           A placed nothing and B did (the `allowsGoing` filter is A-only, in `parallelApply`).
 //
 // WHAT IT MEASURED, on the tree it landed: 1140 (board, title) pairs in ~4 s — 954 both-refuse, 43 agree, 76 are
 // WHOLE-BOARD readings (a different question: counted, never compared), and **67 DISAGREE**, digest

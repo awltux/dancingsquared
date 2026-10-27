@@ -524,17 +524,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   verified by the output-diff the R3/R4 refactors used. The measured list is here so that pass starts from a census
   rather than a grep.
 
-- [ ] **47. TWENTY-ONE LINE-NUMBER CITATIONS IN COMMENTS, WHICH `AGENTS.md` §4.2 FORBIDS PINNING.** `[measured]`
-  A source walk over `engine/src`, `engine/test`, `poc/src`, `poc/tools`, `poc-teacher/src`, `api/src`, `game/src`,
-  `packages`, `book/tools` and `scripts` (comment lines only, the walk itself a throwaway script — it is not a gate)
-  found **21** citations of the form `<file>:<line>` across **11** files: `applicator.ts`'s `moves.ts:32`,
-  `engine/test/disjoint-copies.mjs`'s `applicator.ts:1401` / `virtual-call.ts:194` / `match.ts:290`,
-  `engine/test/tools/callerlab-diff.mjs`'s three `convert.ts:` citations, `game/test/session-undo-probe.mjs`'s three
-  `session.ts:` ones, and `poc/tools/run-circle-probe.mjs`'s `editor.ts:800-802`. Every one drifts silently the moment
-  its target moves, which is why the rule is to name the SYMBOL and the command that measures it. Left alone because
-  each rewrite needs its target READ first, and a wrong symbol is worse than a stale number — this is a pass with its
-  own gate run, not a search-and-replace.
-
 - [ ] **48. THE RADIAN NORMALISER IS STILL COPIED IN THE HARNESSES, PROBES AND TWO BOOK TOOLS.** `[measured]`
   `poc/src` now imports the engine's `normAngle` (this sweep), and `engine/test/angle-normalisation.mjs` §4 keeps
   `engine/src` at exactly one spelling plus `core.ts`'s documented survivor. **What is left is everything outside both

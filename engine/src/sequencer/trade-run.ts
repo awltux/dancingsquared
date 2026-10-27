@@ -25,7 +25,7 @@
 // inferred. Static reading of the reference was inconclusive: `math/bezier.dart:71-76` takes
 // the facing from the TANGENT of the rotation curve, and for `RunRight` (where `brotate =
 // btranslate`) that tangent at the endpoint points 180 degrees from the start, while
-// `rolling()` (`:79-88`) special-cases 180 to the halfway tangent, which points -90. Feeding
+// `rolling()`, which special-cases 180 to the halfway tangent, which points -90. Feeding
 // the authored variants their OWN declared formation and reading the end board settles it, and
 // the corpus independently corroborates it: the shipped `B-Run` motion leaves partners 4-6
 // units apart in 6 published promenade get-outs, whereas an exchange keeps the wave a wave.

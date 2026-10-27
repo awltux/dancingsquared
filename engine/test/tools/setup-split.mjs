@@ -16,7 +16,7 @@
 // Three measurements separate them:
 //
 //   1. DECOMPOSITION. matchFormations folds position and facing into one number
-//      (facing counts 0.5 per radian, match.ts:105). Re-running the match with all
+//      (facing counts 0.5 per radian, `greedyAssign` in `match.ts`). Re-running the match with all
 //      headings zeroed finds the best POSITIONAL alignment on its own; the facings are then
 //      scored under that same mapping. If the positions overlay a setup and only the
 //      facings differ, the failure is not an arrangement gap at all.
@@ -131,7 +131,8 @@ for (const c of cases) {
     const src0 = target.map((d) => toMatchable(d, true));
     const tgt0 = v.map((d) => toMatchable(d, true));
     // Headings are zeroed on BOTH sides, so the match is purely positional and the
-    // reported error is the total positional offset (match.ts:105 collapses to distance).
+    // reported error is the total positional offset (`greedyAssign` collapses to distance when every
+    // heading is zero).
     const m0 = matchFormations(src0, tgt0, 1e3);
     if (!m0) continue;
     const posErr = m0.error / n;

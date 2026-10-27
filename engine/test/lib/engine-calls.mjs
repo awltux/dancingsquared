@@ -115,7 +115,8 @@ export function implementedTitles(assets) {
  *
  * A title defined at two levels contributes TWO authorings of the same call, and
  * `FormationMatcher.findMatchingVariant` resolves an EQUAL error by array order
- * (`matcher.ts:86-91`: only a strict improvement or a reflect/non-reflect tie changes the
+ * (`findMatchingVariant`'s `better` test: only a strict improvement beyond
+ * `FormationMatcher.REFLECT_TIE_EPS`, or a reflect/non-reflect tie, changes the
  * winner). So the order of the pool decides which authoring runs whenever both match the
  * same board, and walking `ASSET_LEVELS` ascending handed every such tie to the LOWEST
  * level.

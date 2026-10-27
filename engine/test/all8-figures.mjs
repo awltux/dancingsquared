@@ -186,7 +186,7 @@ console.log('\n== 2. does the engine HAVE every call it read? (gated) ==');
     if (undeclared.length) note(`${undeclared.length} are NOT declared anywhere: ${undeclared.sort().join(', ')}`);
     if (unknown.includes('Ferris Wheel')) {
       console.log('        NOTE `Ferris Wheel` is NOT a missing call - it has nine <tam> definitions and');
-      console.log('        fails to LOAD (sequencer.ts:59 swallows the error in a bare `catch`). See PLAN.md.');
+      console.log('        fails to LOAD (a bare `catch` in `sequencer.ts` was swallowing the error). See PLAN.md.');
     }
   } else {
     ok(`the engine has all ${names.length} of them (catalogue title, coded move, or selection + base)`);

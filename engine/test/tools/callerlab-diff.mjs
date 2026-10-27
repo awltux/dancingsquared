@@ -159,8 +159,8 @@ for (const { name, xml } of callsByTitle(assets)) {
   // `from` attribute was read alone, so a tam that declares only `formation="..."` looked like a call
   // with NO setups at all: `Dive Thru` is authored as `formation="Pass Thru"` with no `from`, and the
   // report said "engine setups: [none]" for the very pair it was flagging. The engine has always done
-  // the opposite - convert.ts:414 - `label: t.from || t.formationAttr || '(default)'`, and
-  // convert.ts:324 builds the setup from `formationAttr` when the tam has no inline dancers. So the
+  // the opposite - `setupLabel` in `convert.ts` is `formation || from || '(default)'`, and
+  // `buildCallImpl` builds the setup from `formationAttr` when the tam has no inline dancers. So the
   // label the engine can START the call from is `from`, else `formation`, and that is what is read.
   for (const block of xml.match(/<tam\b[\s\S]*?<\/tam>/g) ?? []) {
     const from = (block.match(/\bfrom="([^"]*)"/) ?? [])[1] ?? '';
@@ -290,7 +290,7 @@ for (const c of extra.slice(0, 25)) console.log(`      ${String(figFreq.get(c)).
 // one name with a stray space counted twice, and the list was split on " and " BEFORE parenthesised
 // asides were stripped); and round 39's (only the `from` attribute was read, so a tam declaring only
 // `formation=` looked like a call with NO setups - `Dive Thru` reported "engine setups: [none]" for the
-// very pair being flagged, while convert.ts:414 has always fallen back to `formationAttr`).
+// very pair being flagged, while `setupLabel` in `convert.ts` has always fallen back to `formationAttr`).
 //
 // With all three fixed: (C) is NINE names, of which one is a residual split-word artefact (`one m an
 // and one w oman`), leaving EIGHT genuine - Couple, Mini-Wave, Ocean Wave, One-Faced Line, Facing

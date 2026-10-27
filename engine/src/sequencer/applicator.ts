@@ -1025,7 +1025,7 @@ export class CallApplicator {
       // direction ("and Roll" is the reason this exists).
       //
       // THE SIGN WAS INVERTED. `Move.turn` is documented in the engine's own vocabulary as
-      // "net heading change in radians (+ = left / CCW)" (`moves.ts:32`), and `FaceLeft` is
+      // "net heading change in radians (+ = left / CCW)" (`Move.turn`'s doc in `moves.ts`), and `FaceLeft` is
       // `mv('Face Left', 0, 0, +PI/2)` - so a POSITIVE net delta is a LEFT turn. This used to
       // write `delta > 0 ? 'right' : 'left'`, i.e. exactly backwards, so every consumer of the
       // metadata would have rolled the wrong way. Nothing consumed it yet, which is why no gate

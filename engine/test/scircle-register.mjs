@@ -18,7 +18,8 @@
 // This harness registers the SAME title twice, with a DIFFERENT authored setup each time, and asks
 // how many setups the library ends up holding. Both are kept is the only acceptable answer: the two
 // setups are different `formation`s of the same call, and the app itself reaches `register` from two
-// separate code paths (`sequencer-ui.ts:165` and `:392`) without clearing the library in between.
+// separate code paths (`sequencer-ui.ts`'s constructor loop over `sequencerCallsUpTo('ms')` and its
+// level-change loop over `sequencerCallsUpTo(level)`) without clearing the library in between.
 //
 // Usage: node engine/test/scircle-register.mjs
 import { readFileSync } from 'node:fs';

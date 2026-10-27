@@ -230,7 +230,8 @@ console.log('\n== 4. the library is untouched, and the panel asks for a size rat
   check(allEight && names.length > 0,
     `the sequencer's library offers ${names.length} names and EVERY ONE of them is eight dancers - the engine pin and the four harnesses that walk it are untouched (MEASURED, this was 134 when the check was written)`);
 
-  // ---- the host answers for a size. THE `!== 8` BRANCH IS GONE (MEASURED, `sequencer-ui.ts:404`): the
+  // ---- the host answers for a size. THE `!== 8` BRANCH IS GONE (MEASURED: `sequencer-ui.ts`'s
+  // `startFormations(dancers)` returns `corpusFormationsOfSize(dancers)`): the
   // host returns the corpus at EVERY size now, so the eight-dancer library this probe section exists to
   // protect is no longer consulted for the picker at all. The assertion follows the source rather than the
   // source following the assertion.

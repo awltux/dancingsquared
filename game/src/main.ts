@@ -46,7 +46,8 @@ import { mayWrite, signInOffered, standingOf, type Standing } from './net/standi
 import { SaveState } from './game/save-state.ts';
 import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { seasonPuzzleFor } from './game/season.ts';
-import { GameStage, OUTLINE_COLOR, type StagePair, type ViewMode } from './render/stage-view.ts';
+import { GameStage, type StagePair, type ViewMode } from './render/stage-view.ts';
+import { applyTheme } from './ui/theme.ts';
 import { waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
 import { boardCaption } from './puzzle/caption.ts';
 import { replayLine, callAt, type ReplayLine } from './puzzle/replay-line.ts';
@@ -2664,14 +2665,11 @@ function frame(nowMs: number): void {
 }
 
 function main(): void {
+  // THE THEME GOES ON BEFORE ANYTHING IS PAINTED: `ui/theme.ts` is the one table the stylesheet, the stage and this
+  // shell read, and it is injected rather than duplicated in CSS. That includes the legend's `--wp-*` swatches, which
+  // used to be copied here from `OUTLINE_COLOR` — the copy was correct and was still a second definition.
+  applyTheme();
   stage.setMode(viewMode);
-  // THE LEGEND'S SWATCHES ARE THE STAGE'S OWN COLOURS, copied rather than restated: `OUTLINE_COLOR` defines the
-  // three states once and these custom properties are what `style.css` reads, so a border and the key beside it
-  // cannot drift apart.
-  const css = document.documentElement.style;
-  for (const [state, colour] of Object.entries(OUTLINE_COLOR)) {
-    css.setProperty(`--wp-${state}`, `#${colour.toString(16).padStart(6, '0')}`);
-  }
   els.view.textContent = 'Switch to 3D';
   paintAutoProgress();
   els.loading.hidden = true;

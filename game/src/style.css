@@ -8,12 +8,10 @@
  * the left. The stage frames the floor around the space that is left, so the panel's WIDTH IS A FACT THE
  * LAYOUT DEPENDS ON — hence a fixed width rather than a content-sized one. */
 :root {
-  --bg: #0b1016;
-  --ink: #eef4f8;
-  --dim: #9fb2c0;
-  --ok: #7fe3a1;
-  --bad: #ff8f8f;
-  --accent: #ffd166;
+  /* THE TOKENS ARE INJECTED AT BOOT by `ui/theme.ts` (`applyTheme`): the colours, radii and durations live in ONE
+     table that the stylesheet, the stage (a WebGL material cannot read a custom property) and the probes all read,
+     so nothing in this file repeats a value. What stays here is the layout number this file owns and the root type
+     size the scale is relative to. */
   --panel: 340px;
   font-size: 18px;
 }
@@ -53,8 +51,8 @@ body {
   width: var(--panel);
   padding: 20px 20px 28px;
   overflow-y: auto;
-  background: rgba(8, 13, 19, 0.92);
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--panel-bg);
+  border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -88,15 +86,15 @@ body {
   font-size: 0.95rem;
   font-family: inherit;
   color: var(--ink);
-  background: #16222e;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
   cursor: pointer;
 }
 
 #modes button[aria-pressed="true"] {
   border-color: var(--accent);
-  background: #22303d;
+  background: var(--pressed);
   font-weight: 600;
 }
 
@@ -124,10 +122,10 @@ button[data-busy="true"]::after {
   width: 14px;
   height: 14px;
   flex: 0 0 auto;
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  border: 2px solid var(--line-strong);
   border-top-color: var(--accent);
   border-radius: 50%;
-  animation: mode-busy-spin 0.8s linear infinite;
+  animation: mode-busy-spin var(--t-spin) linear infinite;
 }
 
 @keyframes mode-busy-spin {
@@ -168,23 +166,23 @@ button[data-busy="true"]::after {
   font-size: 0.7rem;
   font-family: inherit;
   color: var(--ink);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 4px;
-  background: #121c26;
+  border: 1px solid var(--line);
+  border-radius: var(--r-cell);
+  background: var(--surface);
 }
 
 /* A DONE DRILL IS FILLED; whether it was PASSED is the difference between the two fills, which is the whole reason the
    progress row carries a pass set. The unchecked one is dimmer rather than a different hue, so the block still reads at
    a glance on a small screen and to a colour-blind eye. */
 #levelBlock .cell.done-passed {
-  background: #2f6f4f;
-  border-color: #3d8a63;
+  background: var(--done-passed);
+  border-color: var(--done-passed-line);
 }
 
 #levelBlock .cell.done-not-passed {
-  background: #2a3b46;
-  border-color: rgba(255, 255, 255, 0.22);
-  color: rgba(255, 255, 255, 0.55);
+  background: var(--done-skipped);
+  border-color: var(--line);
+  color: var(--ink-soft);
 }
 
 /* A SKIPPED DRILL IS A CONTROL TOO, and it has to be distinguishable from the next one at a glance: the block now has
@@ -199,7 +197,7 @@ button[data-busy="true"]::after {
 }
 
 #levelBlock button.cell.done-not-passed:hover {
-  background: #354a58;
+  background: var(--done-skipped-hover);
 }
 
 /* THE WAY ON: the drill the server has issued. It keeps the 44px touch height the rest of the page uses where it can,
@@ -208,20 +206,20 @@ button[data-busy="true"]::after {
    longer the block's ONLY control: a skipped drill is pressable too, and the rule for that is the one just below.) */
 #levelBlock .cell.next {
   border: 2px solid var(--accent);
-  background: #22303d;
+  background: var(--pressed);
   font-weight: 700;
   cursor: pointer;
 }
 
 #levelBlock .cell.published {
   border-style: dashed;
-  background: #121c26;
-  color: rgba(255, 255, 255, 0.4);
+  background: var(--surface);
+  color: var(--ink-faint);
 }
 
 /* AN UNPUBLISHED CELL IS EMPTY ON PURPOSE: a number would promise a drill that does not exist. */
 #levelBlock .cell.unpublished {
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: var(--line-ghost);
   background: transparent;
 }
 
@@ -240,9 +238,9 @@ button[data-busy="true"]::after {
   font-size: 0.95rem;
   font-family: inherit;
   color: var(--ink);
-  background: #16222e;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
   cursor: pointer;
 }
 
@@ -253,9 +251,9 @@ button[data-busy="true"]::after {
 #account {
   margin-top: 12px;
   padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  background: #121d28;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  background: var(--surface);
 }
 
 #accountStatus {
@@ -288,9 +286,9 @@ button[data-busy="true"]::after {
   font-family: inherit;
   font-size: 0.9rem;
   color: var(--ink);
-  background: #0d1620;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
 }
 
 #accountForm button,
@@ -300,9 +298,9 @@ button[data-busy="true"]::after {
   font-family: inherit;
   font-size: 0.9rem;
   color: var(--ink);
-  background: #16222e;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-field);
   cursor: pointer;
 }
 
@@ -349,13 +347,13 @@ button[data-busy="true"]::after {
   align-items: baseline;
   padding: 4px 6px;
   border: 1px solid transparent;
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+  border-bottom-color: var(--line-soft);
   font-size: 0.9rem;
 }
 
 #boardList li.you {
   border-color: var(--accent);
-  border-radius: 6px;
+  border-radius: var(--r-field);
 }
 
 #boardList li .rank {
@@ -410,9 +408,9 @@ button[data-busy="true"]::after {
   font-family: inherit;
   font-size: 0.95rem;
   color: var(--ink);
-  background: #0d1620;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
 }
 
 #callSearch:focus-visible,
@@ -444,9 +442,9 @@ button[data-busy="true"]::after {
   font-family: inherit;
   font-size: 0.85rem;
   color: var(--ink);
-  background: #16222e;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-pill);
   cursor: pointer;
 }
 
@@ -455,7 +453,7 @@ button[data-busy="true"]::after {
 }
 
 .call-subset[aria-pressed="true"] {
-  background: #1d2f3f;
+  background: var(--pressed);
   border-color: var(--accent);
   font-weight: 600;
 }
@@ -499,9 +497,9 @@ button[data-busy="true"]::after {
   font-size: 1rem;
   font-family: inherit;
   color: var(--ink);
-  background: #16222e;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
   cursor: pointer;
   text-align: left;
 }
@@ -546,7 +544,7 @@ button[data-busy="true"]::after {
 .offer.armed {
   border-color: var(--accent);
   border-width: 3px;
-  background: #1d2f3f;
+  background: var(--pressed);
 }
 
 /* THE INSTRUCTION FOR THE INTERACTION. It is not empty while a run is playing: with nothing armed it says how to arm a
@@ -577,9 +575,9 @@ button[data-busy="true"]::after {
   font-size: 1.05rem;
   line-height: 1.4;
   color: var(--ink);
-  background: #16222e;
+  background: var(--control);
   border: 2px solid var(--accent);
-  border-radius: 10px;
+  border-radius: var(--r-control);
 }
 
 #dailyResult[hidden] {
@@ -640,9 +638,9 @@ button[data-busy="true"]::after {
   font-size: 1.1rem;
   font-family: inherit;
   color: var(--ink);
-  background: #16222e;
-  border: 2px solid rgba(255, 255, 255, 0.18);
-  border-radius: 10px;
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
   cursor: pointer;
   text-align: left;
 }
@@ -675,9 +673,9 @@ button[data-busy="true"]::after {
   font-size: 1rem;
   font-family: inherit;
   color: var(--ink);
-  background: #1d2b38;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
   cursor: pointer;
 }
 
@@ -702,9 +700,9 @@ button[data-busy="true"]::after {
   font-size: 1rem;
   font-family: inherit;
   color: var(--ink);
-  background: #1d2b38;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
   cursor: pointer;
   list-style: none;
 }
@@ -765,7 +763,7 @@ button[data-busy="true"]::after {
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--ink);
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 6px var(--shadow-text);
   pointer-events: none;
 }
 
@@ -799,16 +797,16 @@ button[data-busy="true"]::after {
   font-weight: 700;
   line-height: 1;
   color: var(--accent);
-  background: rgba(255, 209, 102, 0.12);
+  background: var(--accent-ghost);
   border: 2px solid var(--accent);
-  border-radius: 16px;
+  border-radius: var(--r-card);
   cursor: pointer;
   z-index: 2;
-  transition: background 120ms ease, opacity 120ms ease;
+  transition: background var(--t-press) var(--ease), opacity var(--t-press) var(--ease);
 }
 
 .wp-nav:hover:not(:disabled) {
-  background: rgba(255, 209, 102, 0.26);
+  background: var(--accent-soft);
 }
 
 /* A PRESSED CONTROL HAS TO BE VISIBLE AS FOCUSED, not only as hovered: this is a real button and the keyboard reaches
@@ -859,15 +857,15 @@ button[data-busy="true"]::after {
 }
 
 .wp-key-solved {
-  color: var(--wp-solved, #7fe3a1);
+  color: var(--wp-solved, var(--ok));
 }
 
 .wp-key-next {
-  color: var(--wp-next, #6fb7ff);
+  color: var(--wp-next, var(--next));
 }
 
 .wp-key-locked {
-  color: var(--wp-locked, #ff8f8f);
+  color: var(--wp-locked, var(--bad));
 }
 
 /* THE REPLAY LIST — the calls a solved line was made of, as text. WRAPPED RATHER THAN CHIPS, because the list is a

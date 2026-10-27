@@ -121,17 +121,13 @@ function walkAt(beat: number): { phase: number } {
 export type ViewMode = '2d' | '3d';
 
 /**
- * THE BORDER PALETTE, and it is three STATES rather than three shades: solved, next, locked.
- *
- * GREEN AND RED ARE THE GAME'S OWN `--ok` AND `--bad`, so a border reads as the same signal as the verdict text;
- * BLUE IS NEW and is the colour the palette did not have. The shell copies these into CSS custom properties for the
- * legend, so the drawn border and the swatch beside it cannot drift.
+ * THE BORDER PALETTE LIVES IN THE THEME (`ui/theme.ts`) AND IS RE-EXPORTED HERE, because this module is the scene's
+ * vocabulary for it: an outline colour is what the stage paints, and `main.ts` reads the same three values for the
+ * legend's keys. They used to be DEFINED here and copied into CSS custom properties by the shell — one fact with two
+ * definitions — which is why the table lives in a module with no `three` in it and a probe can read it.
  */
-export const OUTLINE_COLOR: Record<WaypointState, number> = {
-  solved: 0x7fe3a1,
-  next: 0x6fb7ff,
-  locked: 0xff8f8f,
-};
+import { OUTLINE_COLOR } from '../ui/theme.ts';
+export { OUTLINE_COLOR };
 
 /**
  * HOW THE BORDER IS DRAWN: a flat square ANNULUS just outside the floor's edge, in board coordinates.

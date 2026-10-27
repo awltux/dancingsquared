@@ -519,17 +519,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   pass, not a sweep: for each, does the number answer "the same after a file" (then it is the engine's) or "close
   enough for THIS measurement" (then it stays, with the reason in place)?
 
-- [ ] **50. THE GAME'S TWO `corpusCalls()` LOADERS ARE DELIBERATE TWINS, AND THEIR POOLING HALF IS THE DUPLICATE.** `[measured]`
-  `game/src/data/assets.ts` (57 lines) enumerates the corpus through Vite's `import.meta.glob`;
-  `game/src/data/corpus-node.ts` (156 lines) goes through `filesOf`/`readFile` from `dancing-squared-corpus`. Both
-  export `corpusCalls()`, both carry the same measurement written twice (`62 titles from 66 files` becoming
-  **322** — `assets.ts:35,46` and `corpus-node.ts:58,73`), and both skip generated instances by the same predicate.
-  The ENUMERATION cannot be shared (the browser build has no `fs`), and that is the documented reason for the twins -
-  but the POOLING half is fs-free: a `pooledByTitle(files: Record<path, xml>)` in `packages/corpus/blocks.ts` (~10
-  lines, the module that already owns the `<tam>` slice) would take each loader's map and return the same title list,
-  leaving only the enumeration per environment. Filed rather than done because the proof is a `game` probe run
-  (`game/tools/verify-probes.mjs`) showing the two still agree, and that suite is minutes long.
-
 ---
 
 ## P1 — FOUND BY THE ITEM 7 CENSUS AT `8cfe8a1`

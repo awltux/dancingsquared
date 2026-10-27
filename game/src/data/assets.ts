@@ -11,7 +11,10 @@
 // transform, so anything importing it needs the bundler, while `src/puzzle/**` must stay loadable by bare
 // Node for the probes. Keeping it here makes the split a property of the import graph rather than a
 // convention someone has to remember.
-import { parseCallXml } from 'dancing-squared-engine';
+// THE POOLING RULE, from the corpus package rather than the engine: it needs the `<tam>` slice, not a DOM parse, and
+// `packages/corpus` is the module that owns it — which also keeps the engine's document parser out of the browser
+// bundle for a title list.
+import { pooledByTitle } from 'dancing-squared-corpus/blocks';
 import { isVirtualFile } from 'dancing-squared-corpus/virtual';
 
 const MOVES = import.meta.glob('@corpus/moves.xml', { query: '?raw', import: 'default', eager: true });
@@ -28,34 +31,31 @@ export const movesXml = only(MOVES, 'moves.xml');
 export const formationsXml = only(FORMATIONS, 'formations.xml');
 
 /**
- * Every Mainstream call the corpus carries, as `{ name, xml }` with the name taken from `callMeta`.
+ * Every Mainstream call the corpus carries, as `{ name, xml }` with the name being a `<tam>` TITLE.
  *
- * REGISTRATION IS BY TITLE, never by file basename (AGENTS.md trap 7: a position into an authored list is
- * not an identity). A file that yields no title is a moves/rule file rather than a call and is skipped —
- * measured when the pool was generated (P1), which is why this names **62 titles from 66 files**: one per
- * file, because `callMeta(xml).title` is the FIRST tam's and the corpus's other 260 tam titles go unnamed.
- * `game/src/data/corpus-node.ts` measures the same two numbers and is the twin of this file.
+ * REGISTRATION IS BY TITLE, never by file basename (AGENTS.md trap 7: a position into an authored list is not an
+ * identity), and one pair is emitted per tam title rather than per file: MEASURED, the per-FILE reading named 66 calls
+ * where the corpus carries **315 distinct titles over 66 files** (`game/test/corpus-twins-probe.mjs`). That number is
+ * not pinned here — it moves with the corpus — the probe prints it and fails if the two loaders ever disagree. A file
+ * that yields no title is a moves/rule file rather than a call and contributes nothing.
  *
  * THE FILE ORDER IS THE DIRECTORY'S, and it does not need to be the pool's: `poolFor` selects from the
  * ORDERED title list in `src/puzzle/calls-data.ts`, so this only has to supply the XML for a title.
  */
 export function corpusCalls(): { name: string; xml: string }[] {
-  const out: { name: string; xml: string }[] = [];
-  const seen = new Set<string>();
-  // ONE PAIR PER TAM TITLE, not one per file — the twin of `corpus-node.ts`'s walk, and of its measurement: 62
-  // names became 322, and level 1 went from registering one of its ten titles to registering its pool.
+  // ONE PAIR PER TAM TITLE, not one per file — and the walk is the CORPUS PACKAGE's, not this file's any more. The
+  // pooling rule was written twice (here and in `corpus-node.ts`), each copy carrying the same measurement; it now
+  // lives in `packages/corpus/blocks.ts::pooledByTitle`, the module that already owns the `<tam>` slice, so this file
+  // is only the ENUMERATION — which is the half a browser and a Node process genuinely cannot share.
+  // `game/test/corpus-twins-probe.mjs` is the gate that the two loaders still agree.
   //
   // THE GENERATED INSTANCES ARE SKIPPED BY KEY. `ms/circle.virtual.xml` holds a whole-set instance the BOOK's
   // generator placed, not an authored call: registering it would put invented geometry into the game's pool. The
   // Node loader gets the same exclusion from `filesOf`; this glob is a SECOND enumeration (Vite's), so it applies
   // the same predicate — imported from the corpus package, never restated (AGENTS §11.4.4, §1).
-  for (const path of Object.keys(CALL_FILES).filter((p) => !isVirtualFile(p)).sort()) {
-    const xml = String(CALL_FILES[path]);
-    for (const tam of parseCallXml(xml)) {
-      if (!tam.title || seen.has(tam.title)) continue;
-      seen.add(tam.title);
-      out.push({ name: tam.title, xml });
-    }
-  }
-  return out;
+  const files = Object.keys(CALL_FILES)
+    .filter((path) => !isVirtualFile(path))
+    .sort()
+    .map((path) => ({ file: path, xml: String(CALL_FILES[path]) }));
+  return pooledByTitle(files).map(({ name, xml }) => ({ name, xml }));
 }

@@ -102,3 +102,50 @@ export function taminationTitle(xml: string): string | null {
   const m = /<tamination\b[^>]*\btitle="([^"]*)"/.exec(stripComments(xml));
   return m === null ? null : decodeEntities(m[1]);
 }
+
+/** One corpus file, already read: its name for a message and its bytes. */
+export interface CorpusFileText {
+  file: string;
+  xml: string;
+}
+
+/** One pooled call: a TITLE, and the FILE's bytes to register under it. */
+export interface PooledCall {
+  name: string;
+  xml: string;
+  file: string;
+}
+
+/**
+ * EVERY `<tam>` TITLE ACROSS A SET OF FILES, once each, paired with the file it came from — the POOLING half of a
+ * corpus loader, which is the same rule in the browser and in Node.
+ *
+ * WHY IT IS HERE. The game has two loaders on purpose — `src/data/assets.ts` enumerates through Vite's
+ * `import.meta.glob` and `src/data/corpus-node.ts` through `filesOf`/`readFile` — because a browser build has no `fs`.
+ * The ENUMERATION cannot be shared. The POOLING can, and was written twice: walk each file's tams, take each title
+ * once, and hand the whole FILE's text to the caller for that title. MEASURED today: **66 files, 315 distinct titles**
+ * (`game/test/corpus-twins-probe.mjs`, which also proves the two loaders agree); the per-FILE reading named 66. The
+ * two comments used to carry "62 titles became 322", the same measurement before the corpus moved — which is exactly
+ * why the number lives in a gate now rather than in prose twice (AGENTS §11.2.9).
+ *
+ * A FILE'S TEXT, NOT THE BLOCK'S, and that is the registration contract rather than laziness: `Sequencer.register`
+ * takes a whole document and pools every tam in it, and `registerByTitle` then scopes by title. Handing it the block
+ * would be a second shape of document that the engine would have to accept for no gain.
+ *
+ * FIRST WINS ON A DUPLICATE TITLE, in the caller's file order, which is the directory's — the same order both loaders
+ * used. A title with no text is skipped: a moves/rule file has no `<tam>` and contributes nothing.
+ */
+export function pooledByTitle(files: readonly CorpusFileText[]): PooledCall[] {
+  const out: PooledCall[] = [];
+  const seen = new Set<string>();
+  for (const { file, xml } of files) {
+    // THE SLICE IS THE ONE ABOVE, so a commented-out `<tam>` is not a title here either (the reason this module
+    // exists) - and `index` is unused because the file's text is what the caller registers.
+    for (const site of tamSitesOf('', file, xml)) {
+      if (!site.title || seen.has(site.title)) continue;
+      seen.add(site.title);
+      out.push({ name: site.title, xml, file });
+    }
+  }
+  return out;
+}

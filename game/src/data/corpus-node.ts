@@ -22,6 +22,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 import { setParser, callMeta, parseCallXml } from 'dancing-squared-engine';
+// THE POOLING RULE, from the corpus package: `assets.ts` uses the same one, and only the ENUMERATION differs between
+// a browser (a Vite glob) and this file (the filesystem).
+import { pooledByTitle } from 'dancing-squared-corpus/blocks';
 // THE WALK IS THE ONE READER'S. `filesOf`/`readFile` are `packages/corpus`, so the game, the API, the harnesses,
 // the book and the teacher enumerate the corpus the same way — and none of them can count a commented-out `<tam>`
 // as an authoring. What stays here is the game's own policy: `ms` only, one whole-file `{name, xml}` per title,
@@ -51,13 +54,12 @@ function corpusFiles(): { file: string; xml: string }[] {
 }
 
 /**
- * Every Mainstream call the corpus carries, as `{ name, xml }` with the name taken from `callMeta`.
+ * Every Mainstream call the corpus carries, as `{ name, xml }` with the name being a `<tam>` TITLE.
  *
- * REGISTRATION IS BY TITLE (AGENTS.md trap 7: a position into an authored list is not an identity), and a
- * file that yields no title is a moves/rule file rather than a call — `engine/test/mainstream.mjs` skips it
- * the same way. MEASURED, and it is the number that limits the pool: **62 titles, one per file**, because
- * `callMeta(xml).title` is the FIRST `<tam>`'s title and every other tam in the file goes unnamed. The
- * corpus actually carries **322 distinct tam titles** — see `corpusTamTitles` below, which is the difference.
+ * REGISTRATION IS BY TITLE (AGENTS.md trap 7: a position into an authored list is not an identity), and a file that
+ * yields no title is a moves/rule file rather than a call — `engine/test/mainstream.mjs` skips it the same way.
+ * MEASURED: **315 distinct titles over 66 files** (`game/test/corpus-twins-probe.mjs`), against the 66 the per-FILE
+ * reading named; `corpusTamTitles` below is the sorted view of the same pooling.
  *
  * THE FILE ORDER IS THE DIRECTORY'S, and it does not need to be the pool's: `poolFor` selects from the
  * ORDERED title list in `src/puzzle/calls-data.ts`, so this only has to supply the XML for a title.
@@ -67,48 +69,42 @@ function corpusFiles(): { file: string; xml: string }[] {
  */
 function corpusCalls(): { name: string; xml: string }[] {
   if (cachedCalls) return cachedCalls;
-  const out: { name: string; xml: string }[] = [];
-  const seen = new Set<string>();
-  // ONE PAIR PER TAM TITLE, not one per file. A title is the call's identity and a file is a FAMILY of calls, so
-  // the old walk named 62 of the corpus's 322 Mainstream titles and handed each the whole document. MEASURED: with
-  // the per-file walk level 1 registered ONE of its ten titles. `registerByTitle` then takes only that title's own
+  // ONE PAIR PER TAM TITLE, not one per file. A title is the call's identity and a file is a FAMILY of calls, so the
+  // old walk named 62 of the corpus's 322 Mainstream titles and handed each the whole document. MEASURED: with the
+  // per-file walk level 1 registered ONE of its ten titles. `registerByTitle` then takes only that title's own
   // authorings, so `Boys Trade` stops matching `Partner Trade`'s. The census that justifies it: 62 -> 322 names,
   // 1791 -> 4960 legal applications over the 138 named formations, and no formation losing one.
-  for (const { xml } of corpusFiles()) {
-    for (const tam of parseCallXml(xml)) {
-      if (!tam.title || seen.has(tam.title)) continue;
-      seen.add(tam.title);
-      out.push({ name: tam.title, xml });
-    }
-  }
-  cachedCalls = out;
-  return out;
+  //
+  // THE WALK IS THE CORPUS PACKAGE's (`pooledByTitle`), not this file's: the same pooling was written here AND in
+  // `assets.ts`, each copy carrying that measurement, and only the ENUMERATION differs between a browser and Node.
+  cachedCalls = pooledByTitle(corpusFiles()).map(({ name, xml }) => ({ name, xml }));
+  return cachedCalls;
 }
 
 /**
- * EVERY tam title the corpus carries, across every file — 322 distinct ones, where `corpusCalls` offers 62.
+ * EVERY tam title the corpus carries, across every file — **322** distinct ones, and `corpusCalls` now offers the
+ * same 322 because it pools per TITLE too; this function is the SORTED view of the same pooling, for a caller that
+ * wants the whole list rather than a registration order.
  *
- * WHY THIS EXISTS, AND WHY IT IS THE DIFFERENCE THAT MATTERS TO A CURATED POOL. `corpusCalls` names each FILE
- * after its first tam, which is what the app has always drawn: one call per file. A hand-curated
- * `CALLS_IN_ORDER` can name any call the corpus holds, though, and `Circle Left 3/4` is a title four different
- * tams carry (Static Square, Circle, Normal Lines, Normal Lines Compact) while `Circle Left 3/4 Home` is four
- * more — so "does the pool name a real call" and "can the level loader register it" are two different
- * questions with two different answers, and a probe that conflated them would report the second as if the
- * call did not exist.
+ * WHY IT STILL EXISTS AFTER THAT CHANGE. `corpusCalls` answers "what may a level register", in the directory's file
+ * order and first-title-wins; this answers "what does the corpus hold", sorted, with no registration semantics. A
+ * hand-curated `CALLS_IN_ORDER` can name any call the corpus carries, though — `Circle Left 3/4` is a title four
+ * different tams carry (Static Square, Circle, Normal Lines, Normal Lines Compact) while `Circle Left 3/4 Home` is four
+ * more — so "does the pool name a real call" and "can the level loader register it" are still two questions, and a
+ * probe that conflated them would report the second as if the call did not exist.
  *
- * IT READS THE SAME FILES AS `corpusCalls` rather than opening its own — AGENTS.md's rule that there is one
- * `fs` reader for the corpus, so the two cannot disagree about what the corpus holds.
+ * IT READS THE SAME FILES AS `corpusCalls` rather than opening its own, and now the same POOLING — AGENTS.md's rule
+ * that there is one `fs` reader for the corpus, and one slice of its text, so the two cannot disagree about what a
+ * title is.
  *
  * IT IS NODE-ONLY, unlike the applier seam both loaders share: its one caller is the probe, and the browser
  * has no use for a list of titles it cannot register.
  */
 export function corpusTamTitles(): string[] {
   if (cachedTamTitles) return cachedTamTitles;
-  const titles = new Set<string>();
-  for (const { xml } of corpusFiles()) {
-    for (const tam of parseCallXml(xml)) if (tam.title) titles.add(tam.title);
-  }
-  cachedTamTitles = [...titles].sort();
+  // THE SAME POOLING as `corpusCalls`, so "every title" and "the titles the pool registers" cannot disagree about
+  // what a title is: the difference between them is only that `corpusCalls` stops at the first file that carries one.
+  cachedTamTitles = pooledByTitle(corpusFiles()).map(({ name }) => name).sort();
   return cachedTamTitles;
 }
 

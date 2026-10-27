@@ -13,12 +13,14 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 // with two copies — one resolved from this package's `node_modules`, one from the workspace's — can
 // behave as two engines that agree on nothing. Pointing the specifier at the sibling workspace's built
 // `dist` makes every importer, including `dancing-squared-stage`, share one module instance. The map
-// carries the six subpath entries as well as the bare specifier, so a consumer can import a tier.
+// carries the six subpath entries as well as the bare specifier, so a consumer can import a tier - as a
+// LIST, because a string alias also matches everything under it (`vite.engine.ts`'s header has the
+// measurement of the dev-server failure that produced).
 export default defineConfig({
   root: '.',
   base: './',
   resolve: {
-    alias: { ...engineAlias, ...corpusAlias },
+    alias: [...engineAlias, ...corpusAlias],
   },
   server: {
     port: 8089,

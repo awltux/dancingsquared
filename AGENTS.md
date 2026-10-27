@@ -385,6 +385,15 @@ regenerated only when a session ends gets read as current state by the session a
     touched engine source, `npm run build:book` stopped at `7 placement problem(s) … the engine minted no call-variant
     id`, and the identical tree was green after `npm run build:engine` alone (7 placements, 1 refusal). Rebuild
     **before** gating, and when a gate is red straight after a rebase, ask what it loaded before asking what you broke.
+35. **A VITE ALIAS WRITTEN AS A STRING ALSO MATCHES EVERYTHING UNDER IT, AND THE FIRST MATCH WINS** — so a bare
+    `'pkg': …/index.js` entry swallows `pkg/ids` and rewrites it to `…/index.js/ids`. MEASURED: the game's
+    `src/puzzle/caption.ts` imported `dancing-squared-engine/ids` and the dev server answered
+    `[plugin:vite:import-analysis] Failed to resolve import`, on a tree where every gate was green — the check that
+    "pinned the alias map" (`engine/test/entry-tiers.mjs`) matched the KEYS as text and never asked what a specifier
+    RESOLVED, and no app imported a subpath until that commit. The map is now a LIST with the bare specifier anchored
+    (`/^pkg$/`), and the gate imports it and replays Vite's matcher (`importee === find || importee.startsWith(find +
+    '/')`, quoted from `vite/dist/node`, which does not export it). **A pin that reads config TEXT measures spelling,
+    not behaviour.**
 
 ---
 

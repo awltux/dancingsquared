@@ -27,7 +27,7 @@
 // Run: node engine/test/entry-tiers.mjs   (reads text and package.json; no engine build)
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ENGINE = path.resolve(here, '..');
@@ -201,14 +201,40 @@ const exportKeys = Object.keys(pkg.exports ?? {}).filter((k) => k !== '.').map((
 check(JSON.stringify(exportKeys) === JSON.stringify(EXPECTED_ENTRIES),
   `package.json publishes exactly those six (${exportKeys.join(', ')})`);
 
-const viteEnginePath = path.join(REPO, 'vite.engine.ts');
-let aliasKeys = [];
-if (fs.existsSync(viteEnginePath)) {
-  aliasKeys = [...read(viteEnginePath).matchAll(/'dancing-squared-engine\/([a-z0-9]+)'\s*:/g)].map((m) => m[1]).sort();
+// THE ALIAS MAP IS IMPORTED, NOT READ AS TEXT, because the text version measured the wrong thing. It matched
+// `'dancing-squared-engine/<name>':` against the file, so it asked whether each entry was SPELLED and never whether a
+// subpath RESOLVED. MEASURED, on a tree where this whole harness was green: `game/src/puzzle/caption.ts` imported
+// `dancing-squared-engine/ids` and the game's dev server answered `[plugin:vite:import-analysis] Failed to resolve
+// import "dancing-squared-engine/ids"`. The cause was the map's SHAPE - an object whose bare key was a STRING, which
+// Vite also matches as a prefix, so the first entry swallowed the subpath and rewrote it to `<dist>/index.js/ids`.
+//
+// THE MATCHER BELOW IS A COPY OF VITE'S, and that is stated rather than hidden: `resolve.alias`'s string form is
+// `importee === find || importee.startsWith(find + '/')`, its RegExp form is `find.test(importee)`, and the FIRST
+// matching entry wins (quoted from `vite/dist/node` at 5.4.21; Vite does not export it, so it cannot be imported).
+// The data it is applied to is OURS, and the question it answers - which replacement does THIS specifier land on - is
+// the one that failed.
+const { engineAlias, ENGINE: ALIASED_ENGINE } = await import(pathToFileURL(path.join(REPO, 'vite.engine.ts')).href);
+const matchesAlias = (find, importee) =>
+  find instanceof RegExp ? find.test(importee) : importee === find || importee.startsWith(`${find}/`);
+const replacedFor = (specifier) => engineAlias.find((a) => matchesAlias(a.find, specifier))?.replacement ?? null;
+const endsWithEntry = (replacement, name) =>
+  typeof replacement === 'string' && replacement.split(path.sep).join('/').endsWith(`engine/dist/entries/${name}.js`);
+check(Array.isArray(engineAlias), 'the engine alias map is a list, so the bare specifier can be anchored rather than a key');
+check(ALIASED_ENGINE === ENGINE, `and it points at this checkout's engine (${ALIASED_ENGINE})`);
+check(replacedFor('dancing-squared-engine') !== null
+  && replacedFor('dancing-squared-engine').split(path.sep).join('/').endsWith('engine/dist/index.js'),
+  'the bare specifier resolves to the engine\'s index');
+// THE NEGATIVE CONTROL: the SAME question asked of the shape that broke. A string bare entry matches the subpath, and
+// the anchored one this map uses does not - so the check above cannot pass by accident.
+check(matchesAlias('dancing-squared-engine', 'dancing-squared-engine/ids'),
+  'a STRING bare entry would swallow the subpath (the measured cause of the dev-server failure)');
+check(!matchesAlias(/^dancing-squared-engine$/, 'dancing-squared-engine/ids'),
+  'while the anchored entry does not, which is why this map is an array');
+for (const name of EXPECTED_ENTRIES) {
+  check(endsWithEntry(replacedFor(`dancing-squared-engine/${name}`), name),
+    `and "${`dancing-squared-engine/${name}`}" resolves to engine/dist/entries/${name}.js`,
+    `got ${String(replacedFor(`dancing-squared-engine/${name}`))}`);
 }
-check(JSON.stringify(aliasKeys) === JSON.stringify(EXPECTED_ENTRIES),
-  `vite.engine.ts aliases exactly those six (${aliasKeys.join(', ') || 'none'})`,
-  'both Vite apps alias the specifier into engine/dist; a missing key is a dev-time resolution failure');
 
 for (const name of EXPECTED_ENTRIES) {
   const text = read(path.join(ENTRIES_DIR, `${name}.ts`));

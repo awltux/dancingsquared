@@ -42,9 +42,10 @@ export default defineConfig({
   // confusing precisely because most of the engine is current. Pointing at the sibling workspace
   // makes this app always build against the engine it lives beside, which is what the repo's npm
   // workspaces layout intends. `engineAlias` also carries the six SUBPATH entries and says why the
-  // alias is about one engine instance rather than only about resolution.
+  // alias is about one engine instance rather than only about resolution. Both maps are LISTS, and the
+  // bare engine specifier inside `engineAlias` is anchored, so a subpath is not swallowed by it.
   resolve: {
-    alias: { ...engineAlias, ...corpusAlias },
+    alias: [...engineAlias, ...corpusAlias],
   },
   server: {
     port: 5173,

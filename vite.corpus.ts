@@ -16,11 +16,15 @@
 // (`game/src/data/corpus-node.ts`) reads the same directory through `CORPUS`.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Alias } from 'vite';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 /** The repository's one copy of the tamination corpus: `assets/` at the root. */
 export const CORPUS = path.join(here, 'assets');
 
+// THE LIST FORM, not an object keyed by specifier, so the three configs compose it with `engineAlias` (which is a list
+// for a load-bearing reason of its own: a string `find` also matches everything under it - `vite.engine.ts`'s header
+// carries the measurement). One shape for both maps, one spread per config.
 /** The specifier the Vite apps glob the corpus by, so no app counts `../` to reach it. */
-export const corpusAlias: Record<string, string> = { '@corpus': CORPUS };
+export const corpusAlias: Alias[] = [{ find: '@corpus', replacement: CORPUS }];

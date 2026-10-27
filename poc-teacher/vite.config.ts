@@ -38,7 +38,7 @@ export default defineConfig({
   // `@corpus` is the repository's one corpus (`assets/` at the root) AND the one FSM asset, named once in
   // `vite.corpus.ts`. The alias is not a convenience here: a relative path's `../` count is exactly what broke
   // the game's corpus glob (§8 trap 26), and a glob that misses compiles to `{}` in silence.
-  resolve: { alias: { ...corpusAlias } },
+  resolve: { alias: [...corpusAlias] },
   server: {
     port: 5174,
     open: false,

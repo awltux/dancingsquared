@@ -35,6 +35,7 @@ import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { resultCard } from './puzzle/result-card.ts';
 import { statsFor } from './game/stats.ts';
 import { shareText } from './ui/share-text.ts';
+import { frameDelta, shouldAnimate } from './ui/frame-clock.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
 import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
@@ -2694,8 +2695,26 @@ function toggleView(): void {
   draw();
 }
 
+/**
+ * THE ONE PLACE THAT ASKS FOR THE NEXT FRAME, and the one place that refuses to while the page is hidden.
+ *
+ * A HIDDEN TAB GETS NO FRAME REQUESTS. A browser throttles `requestAnimationFrame` to nothing in a background tab anyway, so
+ * continuing to ask is pure battery — and an installed app on a phone is exactly where that shows. `shouldAnimate` is
+ * `ui/frame-clock.ts`'s rule; `frameRequested` is the guard that stops the visibility listener from scheduling a SECOND loop
+ * alongside the running one, which would double every animation step.
+ */
+function schedule(): void {
+  if (frameRequested || !shouldAnimate(document.visibilityState)) return;
+  frameRequested = true;
+  requestAnimationFrame(frame);
+}
+let frameRequested = false;
+
 function frame(nowMs: number): void {
-  const dt = lastFrameMs === 0 ? 16 : Math.min(100, nowMs - lastFrameMs);
+  frameRequested = false;
+  // THE CLAMP AND THE FIRST-FRAME STEP COME FROM ui/frame-clock.ts, where rame-clock-probe.mjs can reach them: a tab
+  // hidden for minutes would otherwise hand the playhead the whole gap and a 320 ms slide would complete in one jump.
+  const dt = frameDelta(nowMs, lastFrameMs);
   lastFrameMs = nowMs;
   // THE PLAYHEAD'S PHASE, NOT ITS `isRunning`: a LINE drawn to its end HOLDS that frame for two seconds
   // (`LANDING_HOLD_MS`), and the loop has to keep painting it. `isRunning` stays false through the hold on purpose, so
@@ -2751,7 +2770,7 @@ function frame(nowMs: number): void {
   // positions, and the stage owns no clock of its own.
   stage.tick(nowMs);
   stage.render();
-  requestAnimationFrame(frame);
+  schedule();
 }
 
 function main(): void {
@@ -2856,6 +2875,16 @@ function main(): void {
     draw();
   });
 
+  // THE LOOP STOPS WHEN THE PAGE IS HIDDEN AND STARTS AGAIN WHEN IT IS NOT (AGENTS.md §4.4's battery note, and a phone in a
+  // pocket is where it shows). THE FIRST FRAME AFTER A RESUME IS A FIRST FRAME: `lastFrameMs = 0` makes `frameDelta` charge the
+  // nominal step rather than the hidden gap — the clamp would catch it anyway, but "we have no previous frame" is the honest
+  // description of a tab that has just come back.
+  document.addEventListener('visibilitychange', () => {
+    if (!shouldAnimate(document.visibilityState)) return;
+    lastFrameMs = 0;
+    schedule();
+  });
+
   // THE FRAME LOOP STARTS FIRST, because the stage owns no loop of its own and a paused one is a black canvas.
   // THE FIRST DRILL THEN WAITS FOR THE IDENTITY: with a server, `bootAccount` learns the mode and applies it, which
   // is what issues the drill with an identity the browser is allowed to send; offline there is nothing to learn and
@@ -2870,7 +2899,7 @@ function main(): void {
     });
   }
 
-  requestAnimationFrame(frame);
+  schedule();
   if (apiConfigured()) void bootAccount();
   else applyMode('drill');
 }

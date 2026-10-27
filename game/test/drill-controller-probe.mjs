@@ -256,7 +256,10 @@ console.log('\n== the waypoints: a puzzle is a sequence of FORMATIONS, not of st
   const collapse = new DrillController(twoStep(B, B2));
   const v0 = collapse.view();
   check(v0.waypoints.length === 2, `three route boards, TWO waypoints — the end is the formation the middle already was (${v0.waypoints.length})`);
-  check(v0.waypoints[0] === A && v0.waypoints[1] === B, 'and each is the route’s own board, for the picture');
+  // AND THE LAST ONE IS THE LANDING, not the first board of the run it collapsed: the collapse counts formations, and the
+  // picture has to be the pose the route ends on. `B2` is `B`'s arrangement a metre along, so a keep-first collapse drew a
+  // board one stage early (see `waypointBoards`).
+  check(v0.waypoints[0] === A && v0.waypoints[1] === B2, 'and the last one is the route’s own last board, for the picture');
   check(v0.progress === 0, 'the start is waypoint 1, so nothing is behind the player yet');
   collapse.answer(0);
   check(collapse.view().stepIndex === 1 && collapse.view().progress === 1, 'a step that changes the formation advances the waypoint');

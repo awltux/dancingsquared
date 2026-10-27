@@ -589,7 +589,7 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
 
       // GATE: the start and the goal must be tellable apart, or the puzzle is "these look the same".
       if (sameBoardById(start, goal)) return 'the goal board is the start board';
-      // AND TELLABLE APART AS AN ARRANGEMENT, which is the same rule at the grain a player reads. `arrangementKey`
+      // AND TELLABLE APART AS AN ARRANGEMENT, which is the same rule at the grain a player reads. The relation
       // is the engine's congruence — positions and headings, quotiented by the eight rotations and both reflections —
       // so a ROTATED copy of the start arrives here as the same formation. MEASURED, this is exactly what widening the
       // candidates to boards exposed: 2 of 24 Daily routes ended in their own start's arrangement. A goal may differ
@@ -603,6 +603,17 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
       // no name at all: it is a legal state the engine has no template for, the player never sees it captioned, and
       // gating every board would leave the level with no puzzles.
       if (applier.formationOf(goal) === null) return 'the goal board is no formation the corpus defines';
+
+      // GATE: NO STAGE MAY STAY IN THE ARRANGEMENT IT LEFT. The start-vs-goal gate above is this rule at the two ends;
+      // this is the same rule applied to every step, and it is what `walkDaily` already refuses for a Daily
+      // (`leavesArrangement`). WITHOUT IT the waypoint list and the picture disagree: `waypointBoards` collapses a
+      // trailing run to one waypoint, so a last call that lands in the arrangement the set was already in showed a target
+      // ONE STAGE EARLY — and a one-board list degenerates entirely, because `waypointPair(1, …)` puts waypoint 0 in both
+      // slots. MEASURED on the shipped bake: 2 of 108 puzzles carried such a trailing stage. REPORTED as "the target
+      // setup is displayed in its default orientation … it doesn't look like the final setup".
+      for (let i = 0; i < path.length - 1; i++) {
+        if (sameArrangement(path[i], path[i + 1])) return `step ${i + 1} leaves the set in the arrangement it was already in`;
+      }
 
       // GATE: every board on the intended path must be able to CARRY its step — three legal options with
       // pairwise-distinct endings. Checked here, before the options are built, because a path through a

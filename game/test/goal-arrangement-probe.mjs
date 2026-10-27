@@ -31,7 +31,8 @@ import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { applierFor } from '../src/data/corpus-node.ts';
-import { ARRANGEMENT_TOL, reachedGoal, sameArrangement } from '../src/puzzle/arrangement.ts';
+import { ARRANGEMENT_TOL, reachedGoal, sameArrangement, waypointBoards } from '../src/puzzle/arrangement.ts';
+import { waypointPair } from '../src/puzzle/waypoint-pair.ts';
 import { SEASON_PUZZLES } from '../src/game/season-data.ts';
 import { PlaySession } from '../src/puzzle/session.ts';
 
@@ -130,6 +131,57 @@ console.log('\n== 4. the CENSUS: no drill in the baked season offers the goal as
   check(puzzles > 0 && options > 0, `the census walked ${puzzles} puzzle(s) and ${options} option(s)`);
   for (const line of offenders.slice(0, 10)) console.log(`  OFFER ${line}`);
   check(offenders.length === 0, `no distractor is the goal's arrangement (${offenders.length} offender(s))`);
+}
+
+console.log('\n== 5. the waypoint list is the ROUTE, and its last board is the LANDING, in its own orientation ==');
+{
+  // REPORTED: "The game offers a drill of 'Circle Right 1/2' starting from 'Circle' to 'Circle' … but the target setup is
+  // displayed in its default orientation. Because of this it doesnt look like the final setup." The generator ALREADY
+  // applies every call and carries the boards (`path`), so nothing needs re-running; what could lose the orientation was
+  // the waypoint COLLAPSE, which kept the first board of a run and so could hide the landing — measured at 2 of 108
+  // before this rule.
+  let puzzles = 0;
+  let suppressed = 0;
+  let targetNotLanding = 0;
+  let noOpStages = 0;
+  for (const puzzle of SEASON_PUZZLES) {
+    puzzles++;
+    const waypoints = waypointBoards(puzzle.path);
+    if (waypoints.length !== puzzle.path.length) suppressed++;
+    if (!sameBoardById(waypoints[waypoints.length - 1], puzzle.goal)) targetNotLanding++;
+    for (let i = 0; i < puzzle.path.length - 1; i++) if (sameArrangement(puzzle.path[i], puzzle.path[i + 1])) noOpStages++;
+    // THE TARGET THE PAIR ACTUALLY DRAWS at the end of the route: the right-hand slot of the last pair.
+    const shown = waypointPair(waypoints.length, waypoints.length - 1, null, null);
+    if (!sameBoardById(waypoints[shown.rightIndex], puzzle.goal)) targetNotLanding++;
+  }
+  check(puzzles > 0, `the walk covered the whole bake (${puzzles} puzzle(s))`);
+  check(noOpStages === 0, `no stage stays in the arrangement it left (${noOpStages} in the bake)`);
+  check(suppressed === 0, `so no stage is suppressed by the collapse (${suppressed} suppressed)`);
+  check(targetNotLanding === 0, `and the pair's last right-hand board IS the landing board, by identity (${targetNotLanding} wrong)`);
+
+  // NEGATIVE CONTROL, on a hand-built path: a run of two boards in ONE arrangement keeps the FIRST board for the waypoint
+  // it collapses, but the LAST waypoint must be the route's own last board. A `waypointBoards` that kept the first of the
+  // run fails exactly this.
+  const base = SEASON_PUZZLES[0].path[0];
+  const drift = { dancers: base.dancers.map((d, i) => (i === 0 ? { ...d, x: d.x + 0.03 } : d)) };
+  const list = waypointBoards([base, drift]);
+  check(list.length === 1, `two boards in one arrangement are one waypoint (${list.length})`);
+  check(list[0] === drift, 'NEGATIVE CONTROL: and the waypoint is the LAST board, because that is the one the route ends on — a keep-first collapse fails here');
+  // AND A RETURN IS STILL THREE WAYPOINTS, each shown in its own orientation. The middle board is the base turned by
+  // 22.5 degrees, which is NOT one of the eight symmetries, so it is a different arrangement — a TRANSLATION would be the
+  // same one and would prove nothing.
+  const half = Math.PI / 8;
+  const turned = {
+    dancers: base.dancers.map((d) => ({
+      ...d,
+      x: Math.cos(half) * d.x - Math.sin(half) * d.y,
+      y: Math.sin(half) * d.x + Math.cos(half) * d.y,
+      heading: d.heading + half,
+    })),
+  };
+  const twoStages = waypointBoards([base, turned, base]);
+  check(twoStages.length === 3, `A -> B -> A is three waypoints (${twoStages.length})`);
+  check(twoStages[2] === base, 'and the third is the board the route returns to, so the landing is what is drawn');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

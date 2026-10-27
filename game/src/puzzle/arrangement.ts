@@ -105,6 +105,19 @@ export function reachedGoal(board: Board, goal: Board): boolean {
  * THE START IS ALWAYS WAYPOINT 1, and this returns the boards themselves rather than keys or names: a caller wants
  * the picture to show. Progress is counted against the same boards with `sameArrangement`, so nothing here depends on a
  * key that quantises.
+ *
+ * THE LAST WAYPOINT IS THE ROUTE'S LAST BOARD, whichever board the collapse would have kept. A run of boards that share
+ * an arrangement keeps its FIRST board for every waypoint but the last — the collapse is about "a call that stayed in its
+ * arrangement is not a new waypoint", not about which POSE to draw. The final waypoint is the picture the player is
+ * working towards, so it has to be the board the route actually ends on, in its own orientation. REPORTED: "The game
+ * offers a drill of 'Circle Right 1/2' starting from 'Circle' to 'Circle' … but the target setup is displayed in its
+ * default orientation … it doesn't look like the final setup." MEASURED on the shipped bake: 2 of 108 puzzles had a
+ * trailing run, and for both the pair's right-hand slot showed a board one stage early (0.083 and 0.001 from the landing);
+ * a one-board list degenerates completely, because `waypointPair(1, …)` puts waypoint 0 in BOTH slots, so the target
+ * became the START board.
+ *
+ * The count is unchanged, and `waypointReached` compares arrangements, so progress and the win test are untouched: the
+ * board substituted here is in the same arrangement as the one it replaces.
  */
 export function waypointBoards(path: readonly Board[]): Board[] {
   const out: Board[] = [];
@@ -113,6 +126,8 @@ export function waypointBoards(path: readonly Board[]): Board[] {
     if (last && sameArrangement(last, board)) continue;
     out.push(board);
   }
+  const landing = path[path.length - 1];
+  if (landing && out[out.length - 1] !== landing) out[out.length - 1] = landing;
   return out;
 }
 

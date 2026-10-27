@@ -342,8 +342,11 @@ console.log('\n== 7. the waypoints are formations, and undo rewinds the progress
   const run = new DailyRun(p, stub, 0, 4);
   const v = run.view(0);
   check(v.waypoints.length === 2, `three route boards, TWO waypoints — C is the formation B already was (${v.waypoints.length})`);
-  check(v.waypoints[0].board === A && v.waypoints[1].board === B, 'and each carries the route’s own board, for the picture');
-  check(v.waypoints[0].label === 'Squared Set' && v.waypoints[1].label === 'Ocean Wave',
+  // THE LAST WAYPOINT IS THE LANDING, not the first board of the run it collapsed: the count is about "a call that stayed
+  // in its arrangement is not a new waypoint", the picture is about the pose the player is working towards. C here is B's
+  // arrangement a metre to the right, so a keep-first collapse drew B and the target never matched the goal's orientation.
+  check(v.waypoints[0].board === A && v.waypoints[1].board === C, 'and the last one is the route’s own last board, for the picture');
+  check(v.waypoints[0].label === 'Squared Set' && v.waypoints[1].label === 'Ocean Wave, moved',
     `with the recogniser's name as the caption (${v.waypoints.map((w) => w.label).join(' → ')})`);
   check(v.progress === 0, 'the start is waypoint 1, so nothing is behind the player yet');
 

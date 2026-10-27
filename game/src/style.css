@@ -58,12 +58,27 @@ body {
   height: 100%;
   width: var(--panel-size);
   padding: var(--space-xl) var(--space-xl) var(--space-xl);
-  overflow-y: auto;
+  /* THREE ROWS AND NO WHOLE-PANEL SCROLL: the header, the scrolling body (`#panelScroll`) and the pinned footer. The
+     panel itself does not scroll, because a footer that scrolls away is the reported defect ("the primary action went off
+     the bottom edge") — see `index.html`'s comment on the wrapper. `minmax(0, 1fr)` is what lets the middle row shrink
+     below its content instead of growing the grid. */
+  overflow: hidden;
   background: var(--panel-bg);
   border-right: 1px solid var(--line);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--space-lg);
+}
+
+/* THE CONTENT COLUMN. It is the only thing that scrolls, and the scrollbar's width is taken from the cards rather than
+   drawn over them. */
+#panelScroll {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: var(--space-xs);
 }
 
 #head h1 {
@@ -674,10 +689,12 @@ button[data-busy="true"]::after {
    line, after the press. */
 
 #foot {
-  margin-top: auto;
+  /* A GRID ROW THAT NEVER MOVES, not `margin-top: auto` in a scrolling column: the panel's third row is the footer, so it
+     is pinned under the scrolling body however tall the question or the result card gets. */
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  min-height: 0;
 }
 
 #foot button {
@@ -971,6 +988,108 @@ button[data-busy="true"]::after {
   outline-offset: 2px;
 }
 
+/* THE RESULT CARD — the scored moment, built by `ui/drill-screen.ts` from `puzzle/result-card.ts`'s answer.
+   REPORTED: "still looking very messy" and "time to make the UI more gamified". A solved drill used to write one sentence in
+   the verdict slot, in the same voice as a refusal; this is a card with a rank (three stars, one of them the accent), the
+   score in the reading voice, the working as a two-column list, and the badges as pills. The grid is `auto 1fr` so the
+   labels align and the values are tabular — a column of numbers that does not jitter as it changes. */
+.result-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+  padding: var(--space-lg);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+}
+
+.result-stars {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin: 0;
+  font-size: var(--fs-heading);
+  letter-spacing: 0.1em;
+}
+
+/* AN EMPTY STAR IS THE BORDER'S OWN WEIGHT, not a faint accent: the rank has to be readable when only one of three is
+   earned, and a dim amber would read as a printing fault. */
+.result-stars .star {
+  color: var(--line-strong);
+}
+
+.result-stars .star.filled {
+  color: var(--accent);
+}
+
+.result-stars-count {
+  font-size: var(--fs-small);
+  letter-spacing: 0;
+  color: var(--dim);
+}
+
+.result-headline {
+  margin: 0;
+  font-size: var(--fs-control);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.result-terms {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-xs) var(--space-sm);
+  margin: 0;
+  font-size: var(--fs-small);
+}
+
+.result-terms dt {
+  color: var(--dim);
+}
+
+.result-terms dd {
+  margin: 0;
+  text-align: right;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-badges li {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--fs-small);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+}
+
+/* THE SERVER'S FOOTNOTE, added under a card by `DrillScreen.amend` — what the round trip answered, in the card's own
+   quiet voice, and in the refusal's colour when the answer was a refusal (the local score still stands either way). */
+.result-note {
+  margin: 0;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--line-soft);
+  font-size: var(--fs-small);
+  color: var(--dim);
+}
+
+.result-note[data-kind="bad"] {
+  color: var(--bad);
+}
+
+.result-note[data-kind="ok"] {
+  color: var(--ok);
+}
+
 /* ===================================================================================================================
    COMPOSITION: A SECTION IS A CARD, AND ONE CONTROL IS THE ACTION.
    ===================================================================================================================
@@ -983,14 +1102,14 @@ button[data-busy="true"]::after {
        somewhere to land. Everything else keeps its outline and its raised fill and waits.
    What this aims at is HIERARCHY, not decoration: no new colour enters the palette, and every value used here is a token
    (`theme-probe.mjs` fails on a literal). */
-#panel > section {
+#panelScroll > section {
   background: var(--card);
   border: 1px solid var(--line-soft);
   border-radius: var(--r-card);
   padding: var(--space-lg);
 }
 
-#panel > section#board {
+#panelScroll > section#board {
   /* the board list is a read, not a task: it scrolls rather than pushing the footer off the screen */
   max-height: 40vh;
   overflow-y: auto;

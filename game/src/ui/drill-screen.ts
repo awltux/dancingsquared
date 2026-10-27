@@ -12,6 +12,7 @@
 // does not own, and AGENTS.md §6 requires it to be impossible for any of it to become markup. The one place
 // markup is built is static, with no interpolation.
 import type { DrillController, DrillView } from '../game/drill.ts';
+import { BADGE_TEXT, type ResultCard } from '../puzzle/result-card.ts';
 import { el } from './dom.ts';
 
 /** The elements this screen owns, resolved once and named, so a missing id fails at the first read. */
@@ -131,9 +132,99 @@ export class DrillScreen {
     this.els.verdict.dataset['kind'] = kind;
   }
 
+  /**
+   * THE SCORED MOMENT — stars, the score, the working and the badges — in place of the verdict sentence.
+   *
+   * REPORTED as "still looking very messy, UI design wise" and, before that, "time to make the UI more gamified": a solved
+   * drill produced one line of prose in the same slot and the same voice as a refusal, which is the one moment of reward
+   * the game has. `puzzle/result-card.ts` decides WHAT the card says (and is gated by `result-card-probe.mjs`); this method
+   * is only how it looks, which is why it takes the card rather than computing any of it.
+   *
+   * THE STARS ARE ONE ACCESSIBLE STRING, not three glyphs a screen reader would read as "black star black star white
+   * star": the row carries `aria-label="3 of 3 stars"` and the glyphs are `aria-hidden`. The `N of 3` is also written
+   * beside them, so the count survives a font that cannot draw ★.
+   */
+  card(card: ResultCard): void {
+    const box = document.createElement('div');
+    box.className = 'result-card';
+    box.dataset['stars'] = String(card.stars);
+
+    const stars = document.createElement('p');
+    stars.className = 'result-stars';
+    stars.setAttribute('aria-label', `${card.stars} of 3 stars`);
+    for (let i = 1; i <= 3; i++) {
+      const glyph = document.createElement('span');
+      glyph.setAttribute('aria-hidden', 'true');
+      glyph.className = i <= card.stars ? 'star filled' : 'star';
+      glyph.textContent = i <= card.stars ? '★' : '☆';
+      stars.append(glyph);
+    }
+    const count = document.createElement('span');
+    count.className = 'result-stars-count';
+    count.textContent = `${card.stars} of 3`;
+    stars.append(count);
+
+    const headline = document.createElement('p');
+    headline.className = 'result-headline';
+    const scoreTerm = card.terms.find((term) => term.label === 'Score');
+    headline.textContent = `${card.headline} — ${scoreTerm?.value ?? '0'} points`;
+
+    const terms = document.createElement('dl');
+    terms.className = 'result-terms';
+    for (const term of card.terms) {
+      if (term.label === 'Score') continue; // the headline carries it, in the bigger voice
+      const dt = document.createElement('dt');
+      dt.textContent = term.label;
+      const dd = document.createElement('dd');
+      dd.textContent = term.value;
+      terms.append(dt, dd);
+    }
+
+    box.append(stars, headline, terms);
+    if (card.badges.length) {
+      const badges = document.createElement('ul');
+      badges.className = 'result-badges';
+      for (const badge of card.badges) {
+        const item = document.createElement('li');
+        item.textContent = BADGE_TEXT[badge];
+        badges.append(item);
+      }
+      box.append(badges);
+    }
+
+    this.els.verdict.replaceChildren(box);
+    this.els.verdict.dataset['kind'] = 'ok';
+  }
+
   /** Drop the verdict line, for a screen that is about to ask a different question. */
   clearVerdict(): void {
     this.els.verdict.textContent = '';
     delete this.els.verdict.dataset['kind'];
+  }
+
+  /**
+   * ADD a line to whatever the verdict slot holds, instead of replacing it.
+   *
+   * THE SERVER'S ANSWER ARRIVES AFTER THE LOCAL SCORE, and it used to overwrite the card with a sentence — MEASURED in the
+   * browser: a solved drill showed "Recorded — the server scores it 100 points…" where the stars had been a moment
+   * earlier, because `submitSolvedRun` called `say`. A card is the moment; the server's confirmation is a footnote to it,
+   * so it is appended (and a refusal on the same path is appended too, in the refusal's own colour, because the local
+   * score still stands). When there is no card — a demo, a revealed run — this degrades to `say`, which is the same
+   * behaviour that path had before.
+   */
+  amend(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
+    const card = this.els.verdict.querySelector('.result-card');
+    if (!card) {
+      this.say(text, kind);
+      return;
+    }
+    let note = card.querySelector('.result-note');
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'result-note';
+      card.append(note);
+    }
+    note.textContent = text;
+    (note as HTMLElement).dataset['kind'] = kind;
   }
 }

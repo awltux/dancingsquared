@@ -32,6 +32,7 @@ import { boardPeriodOf } from './puzzle/board-period.ts';
 import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
+import { resultCard } from './puzzle/result-card.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
 import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
@@ -1787,6 +1788,19 @@ function finishDrill(): void {
   // `game/test/standing-probe.mjs`) — consulted at the one call site that was missing it.
   const demoOnly = serverIssued() && !mayWrite(currentStanding());
   const scored = `Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points`;
+  // THE CARD IS THE REWARD, AND THE SENTENCE IS THE EXCEPTION. A ranked solve paints the scored moment — stars, the score,
+  // the working, the badges — and every other outcome keeps a sentence, because "this did not count" has no star rating
+  // that would not be a lie. `puzzle/result-card.ts` decides what the card says; `ui/drill-screen.ts` only builds it.
+  const runFacts = {
+    level: controller.puzzleRef.level,
+    shortest: controller.puzzleRef.shortest,
+    moves: controller.puzzleRef.shortest,
+    clockSeconds,
+    hintsUsed: 0,
+    attempts: controller.attempts,
+  };
+  const best = save.best;
+  const card = resultCard(runFacts, score, best !== null && score.score > best);
   // THE VERDICT SAYS WHAT THE RUN IS WORTH, and a shown answer changes that to nothing (DESIGN.md §15 Q16, A28): the
   // score is still shown — the player solved it and the clock ran — and the sentence says which standing it bought,
   // which is none. The reason is stated in the same line rather than in the ledger's unranked clause alone, because
@@ -1797,7 +1811,7 @@ function finishDrill(): void {
   } else if (controller.revealed.length > 0) {
     drillScreen.say(`${scored}, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
   } else {
-    drillScreen.say(`${scored}.`, 'ok');
+    drillScreen.card(card);
   }
   els.review.hidden = true;
   // THE DRILL IS OVER, so there is nothing left to skip: "Next drill" is the way on from here, and Q21 is why it no
@@ -1851,7 +1865,7 @@ function issuedSeed(): number {
 function creditLocally(): void {
   const revealed = controller !== null && controller.revealed.length > 0;
   const success = save.countSuccess(position, { revealed });
-  if (success.granted) drillScreen.say(`Solved — and that earned a hint (${save.hints.hints} of 3 held).`, 'ok');
+  if (success.granted) drillScreen.amend(`Solved — and that earned a hint (${save.hints.hints} of 3 held).`, 'ok');
 }
 
 /**
@@ -1898,7 +1912,7 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     // EXCEPTION TO "THE LOCAL RULE COUNTS IT", and not an exception here — `creditLocally` applies A28 itself, so
     // the outage path and the offline path agree about what a shown answer is worth.
     creditLocally();
-    drillScreen.say(`The server would not record this run: ${answer.failure.message}`, 'bad');
+    drillScreen.amend(`The server would not record this run: ${answer.failure.message}`, 'bad');
     paintBalance();
     persist();
     return;
@@ -1915,7 +1929,7 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
   const standing = answer.value.run.ranked
     ? ` Board: ${answer.value.board.score} over ${answer.value.board.runs} run(s).`
     : ' Not ranked: you were shown the answer, so it earns no hint and does not reach the board.';
-  drillScreen.say(`Recorded — the server scores it ${answer.value.run.score} points.${standing}${clamped}`, answer.value.run.ranked ? 'ok' : 'info');
+  drillScreen.amend(`Recorded — the server scores it ${answer.value.run.score} points.${standing}${clamped}`, answer.value.run.ranked ? 'ok' : 'info');
   paintBalance();
   persist();
 }

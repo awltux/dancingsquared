@@ -78,6 +78,12 @@
           </nav>
         </header>
 
+        <!-- THE SCROLLING BODY AND THE PINNED FOOTER. REPORTED as "still looking very messy": the panel was one column that
+             scrolled as a whole, so a tall question (or a solved drill's result card) pushed the footer's buttons past the
+             bottom edge and the primary action went off-screen. `#panelScroll` holds the content and owns the scrolling;
+             `#foot` is a grid row that never moves. The ids inside are unchanged, because `el()` resolves them. -->
+        <div id="panelScroll">
+
         <!-- THE LEVEL IS THE DRILL TAB'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown
              BEFORE the question because it says where the player is. The cells come from `puzzle/block.ts`, whose
              rule is gated by `test/block-probe.mjs`; this markup only gives them somewhere to go. The block is
@@ -137,6 +143,8 @@
           <p id="boardStatus"></p>
           <ol id="boardList"></ol>
         </section>
+
+        </div>
 
         <footer id="foot">
           <!-- THE HINT ROW IS SHARED: the balance is earned on the drill line and spent on the Daily

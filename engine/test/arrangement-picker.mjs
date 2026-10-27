@@ -27,7 +27,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
-import { DEG, Sequencer, parseFormations, setParser, setStartFormation, loadCallFromXml, normalizeInstance } from '../dist/index.js';
+import { DEG, Sequencer, completedFormation, parseFormations, setParser, setStartFormation, loadCallFromXml, normalizeInstance } from '../dist/index.js';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
@@ -45,16 +45,11 @@ const check = (ok, what, detail = '') => {
 };
 
 /**
- * The corpus's HALF-SET rule, which `poc/src/tam-xml.ts` applies before measuring a formation: a named
- * formation is authored as half the set it stands for, so the played shape is the written dancers plus
- * the same dancers rotated 180 degrees about the origin, keeping their genders.
+ * The corpus's HALF-SET rule is the ENGINE's `completedFormation`, imported rather than copied: this harness used to
+ * spell it out here, and so did `poc/src/half-set.ts` and `poc/src/tam-xml.ts`. It is PREPARATION rather than the
+ * judge - what is under test is the arrangement key below - so importing it measures the picker against the shape the
+ * app actually stands up, which is the rule the engine owns.
  */
-function completeHalfSet(poses) {
-  const mirror = poses.map((p) => ({ x: -p.x, y: -p.y, heading: p.heading + Math.PI, gender: p.gender }));
-  const merged = poses.concat(mirror);
-  const stacked = merged.some((a, i) => merged.some((b, j) => i !== j && Math.hypot(a.x - b.x, a.y - b.y) < 0.01));
-  return stacked ? poses : merged;
-}
 
 /** The arrangement key: the rounded (x, y, heading, gender) of every spot, as an order-independent set. */
 function keyOf(poses) {
@@ -75,7 +70,7 @@ const sameArrangement = (a, b) => {
 function arrangementsOfSize(size) {
   const out = [];
   for (const [name, ds] of all) {
-    const poses = completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
+    const poses = completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
     if (poses.length === size) out.push({ name, poses });
   }
   out.sort((a, b) => a.name.localeCompare(b.name));
@@ -143,7 +138,7 @@ const size8 = bySize.get(8);
 const COLUMNS = ['Columns', 'Column RH GBGB', 'Columns LH BGBG', 'Column LH GBGB'];
 const posesOf = (name) => {
   const ds = all.get(name);
-  return ds ? completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }))) : null;
+  return ds ? completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }))) : null;
 };
 // `parseFormations` is keyed by name including case, and the corpus spells these with a lower-case `l`
 // in "3 and 1 lines" - so a direct `get` is what this needs, and `null` means the name moved.

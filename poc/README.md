@@ -1456,7 +1456,7 @@ Asked for as: *"the formation uses symmetry about the origin of the board to onl
 dancers. The missing dancers are reconstituted at load time by duplication and rotation about the
 center by 180 deg."* The written dancers are the first half, in list order, with the gender at each
 spot; the reader rebuilds the rest by duplicating them and turning them 180° about the board
-centre (`half-set.ts`, and `hasAntipode` in `convert.ts` where the parser decides). MEASURED
+centre (the engine's `completedFormation`, and `hasAntipode` in `convert.ts` where the parser decides). MEASURED
 (`poc/tools/formation-export-probe.mjs`): **281 of the 291** corpus formations are authored as
 half a set, and the export writes **the count the file authored for all 291** — completing every
 block back to its own board, worst position error **0**, every one exporting as `same`. The name

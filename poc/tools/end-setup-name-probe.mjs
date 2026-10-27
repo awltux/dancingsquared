@@ -45,7 +45,6 @@ const ROOT = path.join(POC_DIR, '..');
 const { endSetupState, KEEP_END_PLACEHOLDER, UNKNOWN_FORMATION } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'end-setup-state.ts')).href
 );
-const { completeHalfSet } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 const { buildSetupCatalogue } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href);
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
@@ -110,7 +109,7 @@ const formations = engine.parseFormations(formationsXml);
 const formationsOfSize = (dancers) => {
   const out = [];
   for (const [name, ds] of formations) {
-    const poses = completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: (d.angleDeg * Math.PI) / 180, gender: d.gender })));
+    const poses = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: (d.angleDeg * Math.PI) / 180, gender: d.gender })));
     if (poses.length === dancers) out.push({ name, poses });
   }
   return out;

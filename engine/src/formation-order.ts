@@ -177,8 +177,32 @@ export function compassLetters(order: CompassPoint[]): string {
   return order.map((point) => point[0].toUpperCase()).join('');
 }
 
-/** A formation's completed (whole-set) dancers, for a caller that has only the authored half. */
-export function completedFormation(authored: FormDancer[]): FormDancer[] {
+/**
+ * A formation's dancers AS THE WHOLE SET - because an authored formation entry is only ever HALF of one.
+ *
+ * A named formation is written as HALF the set it represents: the corpus's own convention, "2 dancers in xml is
+ * displayed as 4 dancers, 4 dancers in xml is displayed as 8". So the played shape is the written dancers plus the
+ * same dancers rotated 180 degrees about the origin, which keeps their genders.
+ *
+ * A SHAPE THAT ALREADY CONTAINS ITS OWN ANTIPODES IS A WHOLE SET however few dancers it lists, and is returned
+ * UNCHANGED: doubling it would stack two dancers on one spot. The engine's parser makes the same decision from the
+ * tam's `symmetry` declaration and, when there is none, by geometry (`convert.ts`'s `hasAntipode`, against
+ * `MIRROR_EPS`, which stays that module's rule); this is the same question asked of POSES rather than of the
+ * parser's `angleDeg` dancers, which is why it is a second spelling and not a substitution.
+ *
+ * MEASURED on the corpus: 0 of `formations.xml`'s 292 formations is already whole, so the guard is inert there - it
+ * is here because a dragged or hand-authored board can be whole, and the POC's `formation-xml.ts` and
+ * `setup-catalogue.ts` both call this on exactly such boards. Note the tolerance: this is `XML_ROUND_TRIP_TOL`, the
+ * engine's "the same spots after a file" number, where the POC module this replaced carried a bare `0.01` - no
+ * corpus formation sits between the two values (none has an antipodal pair at all), and a board whose dancers are
+ * within `1e-2` of each other is not a board that can dance either way.
+ */
+export function completedFormation(authored: FormDancer[], tol = XML_ROUND_TRIP_TOL): FormDancer[] {
+  // ALREADY WHOLE: some dancer's antipode is another dancer of the same list.
+  const alreadyWhole = authored.some((a) =>
+    authored.some((b) => a !== b && Math.abs(a.x + b.x) <= tol && Math.abs(a.y + b.y) <= tol),
+  );
+  if (alreadyWhole) return [...authored];
   return [...authored, ...authored.map((d) => ({ x: -d.x, y: -d.y, heading: d.heading + Math.PI, gender: d.gender }))];
 }
 

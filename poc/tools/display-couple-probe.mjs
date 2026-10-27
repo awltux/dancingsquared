@@ -55,7 +55,6 @@ const ROOT = path.join(POC_DIR, '..');
 const DEG = Math.PI / 180;
 
 const { displayCouple } = await import(pathToFileURL(path.join(ROOT, 'packages', 'stage', 'display-couple.ts')).href);
-const { completeHalfSet } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 const { buildSetupCatalogue } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href);
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
 engine.setParser(DOMParser);
@@ -116,7 +115,7 @@ const colourBy = (couples) => couples.map((couple, i) => displayCouple({ couple 
   const home = engine.makeSquaredSet().dancers;
   const byCouple = (c) => home.filter((d) => d.couple === c);
   const half = [1, 2].flatMap((c) => byCouple(c)).map((d) => ({ x: d.x, y: d.y, heading: d.heading, gender: d.gender }));
-  const full = completeHalfSet(half);
+  const full = engine.completedFormation(half);
   const truth = full.map((p) => home.find((h) => Math.hypot(h.x - p.x, h.y - p.y) < 1e-9)?.couple ?? 0);
   check(full.length === 8 && truth.every((c) => c > 0), `4a the written half completes to 8 spots the engine's square names (couples ${truth.join(',')})`);
   check(truth.join(',') === '1,1,2,2,3,3,4,4', `4b the antipode of couple 1 is couple 3, and of 2 is 4 (${truth.join(',')})`);
@@ -132,7 +131,7 @@ const colourBy = (couples) => couples.map((couple, i) => displayCouple({ couple 
   const formations = engine.parseFormations(xml);
   let anonymous = 0;
   for (const [, ds] of formations) {
-    const full = completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
+    const full = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
     const stamped = engine.assignHomeIdentity(full.map((p) => ({ ...p, angleDeg: p.heading / DEG, path: [] })));
     if (!stamped.every((d) => (d.couple ?? 0) > 0)) anonymous++;
   }

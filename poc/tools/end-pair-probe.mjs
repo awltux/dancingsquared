@@ -36,7 +36,6 @@ engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 // THE CORPUS'S HALF-SET RULE, imported rather than re-spelled: the panel's end target is the formation as
 // `corpusFormationsOfSize` builds it, so the witness below has to be the same shape the picker offers.
-const half = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 
 const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
@@ -371,7 +370,7 @@ console.log('\n== 7. The panel\'s own argument, and the reported witness ==');
     asset('ms/right_and_left_grand.xml'), movesXml, formationsXml,
     { title: 'Right and Left Grand', from: '1/4 Tag' }));
   const ds = engine.parseFormations(formationsXml).get('Right and Left Grand Circle');
-  const target = half.completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * engine.DEG, gender: d.gender })));
+  const target = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * engine.DEG, gender: d.gender })));
   check(target.length === call.dancers.length, `the reported end setup is offered at the call's own size (${target.length} dancers)`);
   const genders = call.dancers.map((d) => d.gender);
   const startNoGender = call.dancers.map((d) => { const q = engine.poseFor(d, 0); return { x: q.x, y: q.y, heading: q.heading }; });

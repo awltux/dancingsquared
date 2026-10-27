@@ -46,10 +46,10 @@ const engine = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'di
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
-// THE RULE ITSELF, imported rather than restated (AGENTS.md §5): the module, the half-set rule it is given poses
-// in, and nothing of the panel's.
+// THE RULE ITSELF, imported rather than restated (AGENTS.md §5): the module, and nothing of the panel's. The half-set
+// rule it is given poses in and the spot comparison it decides with are the engine's (`completedFormation`,
+// `sameSpotExact`), used below through `engine` rather than reached for through the POC.
 const { formationExportXml } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'formation-xml.ts')).href);
-const { completeHalfSet } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -73,7 +73,7 @@ const toRad = (d) => (d * Math.PI) / 180;
 const resolved = (name) => {
   const authored = corpus.get(name);
   if (!authored) return null;
-  return completeHalfSet(authored.map((d) => ({ x: d.x, y: d.y, heading: toRad(d.angleDeg), gender: d.gender })));
+  return engine.completedFormation(authored.map((d) => ({ x: d.x, y: d.y, heading: toRad(d.angleDeg), gender: d.gender })));
 };
 
 /** Back through the engine's READER: the dancers a pasted block would AUTHOR, and how many formations it names. */
@@ -83,7 +83,7 @@ const readAuthored = (xml) => {
   for (const [, ds] of map) for (const d of ds) spots.push({ x: d.x, y: d.y, heading: toRad(d.angleDeg), gender: d.gender });
   return { named: map.size, spots };
 };
-const complete = (spots) => completeHalfSet(spots.map((p) => ({ ...p })));
+const complete = (spots) => engine.completedFormation(spots.map((p) => ({ ...p })));
 
 // THE SPOT COMPARISON IS THE ENGINE'S, imported rather than restated (AGENTS §5). It used to be a local mirror with
 // its own `TOL = 1e-3`, an `atan2` normaliser and a STRICT gender equality - three ways for the judge to disagree
@@ -357,7 +357,7 @@ console.log('\n== 7. the panel: the button beside the tam export, one handler, t
   // THE ARITHMETIC IS NOT IN THE PANEL - the reason `formation-xml.ts` exists. The panel is full of `Math.atan2`
   // for other concerns (the board transform, the arc fits), so the check names what would be a SECOND
   // implementation of THIS rule: the spot comparison, the half, and the block writer.
-  const restated = (src) => /sameSpot\(|sameSpotsIgnoringOrder|completeHalfSet/.test(src) || /<formation name=/.test(src);
+  const restated = (src) => /sameSpot\(|sameSpotsIgnoringOrder|completeHalfSet|completedFormation\(/.test(src) || /<formation name=/.test(src);
   check(!restated(ui), 'and neither the spot comparison, the half set, nor the <formation> writer is restated in the panel');
 
   // THE CONTROLS: each check above fails on the fault it was written for.
@@ -373,7 +373,7 @@ console.log('\n== 7. the panel: the button beside the tam export, one handler, t
   check(/xmlEl/.test(paned) && !/xmlEl/.test(handler), 'and writing the block into the pane fails the clipboard-only check');
   const inlined = ui.replace('const spots = instanceTable(call).map((r) => r.start);', 'function sameSpot(a: FormDancer, b: FormDancer) { return a === b; }\n    const spots = instanceTable(call).map((r) => r.start);');
   check(inlined !== ui && restated(inlined) && !restated(ui), 'and restating the spot comparison in the panel fails the check that it is not there');
-  const halved = ui.replace('const spots = instanceTable(call).map((r) => r.start);', 'const h = completeHalfSet(spots);\n    const spots = instanceTable(call).map((r) => r.start);');
+  const halved = ui.replace('const spots = instanceTable(call).map((r) => r.start);', 'const h = engine.completedFormation(spots);\n    const spots = instanceTable(call).map((r) => r.start);');
   check(restated(halved) && !restated(ui), 'and halving the set there fails the check that the half is the module\'s');
   const moved = html.replace(/<button id="edExportFormation"[\s\S]*?<\/button>\n\s*/, '');
   check(moved !== html && moved.indexOf('id="edExportFormation"') < 0, 'deleting the button fails the placement check');

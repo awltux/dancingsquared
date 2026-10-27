@@ -19,9 +19,10 @@
 //      parser keeps the tam's own `formation="Name"` attribute - was not consulted, and the chain used
 //      `??`, so the `''` the app passes for exactly those tams defeated every fallback below it.
 //
-// This probe pins the rule and the decision. THE RULE IS IMPORTED (`src/half-set.ts`), not restated: this
-// file can be imported under plain node and `tam-xml.ts` cannot (it pulls `formations.xml?raw`), which is
-// the whole reason the rule was extracted.
+// This probe pins the rule and the decision. THE RULE IS IMPORTED FROM THE ENGINE (`completedFormation` in
+// `engine/src/formation-order.ts`), not restated and not re-exported through the panel: the POC used to carry its own
+// copy in `src/half-set.ts` because `tam-xml.ts` cannot be imported under plain node (it pulls
+// `formations.xml?raw`), and the engine's export makes that copy unnecessary.
 //
 // Run: node tools/formation-shape-probe.mjs   (from poc/; the engine must be built)
 import fs from 'node:fs';
@@ -31,7 +32,6 @@ import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
-const half = await import(pathToFileURL(path.join(POC, 'src', 'half-set.ts')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
@@ -60,11 +60,11 @@ const four = [{ x: -1, y: -3, heading: 0, gender: 'boy' }, { x: 1, y: -3, headin
   { x: 3, y: -1, heading: Math.PI / 2, gender: 'boy' }, { x: 3, y: 1, heading: -Math.PI / 2, gender: 'girl' }];
 const whole = [{ x: 1, y: 1, heading: 0, gender: 'boy' }, { x: -1, y: -1, heading: Math.PI, gender: 'girl' }];
 
-check(half.completeHalfSet(two).length === 4, `a 2-dancer formation plays as 4 (got ${half.completeHalfSet(two).length})`);
-check(half.completeHalfSet(two.slice(0, 1)).length === 2, 'and a 1-dancer one as 2 - the size is doubled, not forced to eight');
-check(half.completeHalfSet(four).length === 8, `a 4-dancer formation plays as 8 (got ${half.completeHalfSet(four).length})`);
-check(half.completeHalfSet(six).length === 12, `a 6-dancer formation plays as 12 (got ${half.completeHalfSet(six).length})`);
-check(half.completeHalfSet(whole) === whole || half.completeHalfSet(whole).length === 2,
+check(engine.completedFormation(two).length === 4, `a 2-dancer formation plays as 4 (got ${engine.completedFormation(two).length})`);
+check(engine.completedFormation(two.slice(0, 1)).length === 2, 'and a 1-dancer one as 2 - the size is doubled, not forced to eight');
+check(engine.completedFormation(four).length === 8, `a 4-dancer formation plays as 8 (got ${engine.completedFormation(four).length})`);
+check(engine.completedFormation(six).length === 12, `a 6-dancer formation plays as 12 (got ${engine.completedFormation(six).length})`);
+check(engine.completedFormation(whole) === whole || engine.completedFormation(whole).length === 2,
   'and a shape that ALREADY contains its own antipodes is left alone rather than stacked');
 
 // THE NEGATIVE CONTROL for the whole probe, and the defect itself: the rule this replaced mirrored FOUR
@@ -72,7 +72,7 @@ check(half.completeHalfSet(whole) === whole || half.completeHalfSet(whole).lengt
 const oldRule = (poses) => (poses.length === 4
   ? poses.concat(poses.map((p) => ({ x: -p.x, y: -p.y, heading: p.heading + Math.PI, gender: p.gender })))
   : poses);
-check(oldRule(two).length === 2 && half.completeHalfSet(two).length === 4,
+check(oldRule(two).length === 2 && engine.completedFormation(two).length === 4,
   'the OLD rule leaves a 2-dancer formation at 2 while the real one completes it - so the two are distinguishable');
 
 // ------------------------------------------------------------------ 2. the export decision, end to end
@@ -82,7 +82,7 @@ const posesOf = (name) => {
   const key = engine.canonicalName(name);
   for (const [n, ds] of formats) {
     if (engine.canonicalName(n) !== key) continue;
-    return half.completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * Math.PI / 180, gender: d.gender })));
+    return engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * Math.PI / 180, gender: d.gender })));
   }
   return null;
 };
@@ -141,18 +141,24 @@ check(old.includes('<formation>') && !/formation="Facing Couples Far"/.test(old)
 console.log('\n== 3. the wiring: the rule is imported, and the name chain reaches the setup ==');
 
 const tam = readSource('src/tam-xml.ts');
-check(/import \{ completeHalfSet \} from '\.\/half-set';/.test(tam),
-  '`tam-xml.ts` IMPORTS the rule rather than keeping a private copy a probe cannot reach');
-check(!/function completeHalfSet/.test(tam), 'and does not also define it');
+check(/import \{[^}]*\bcompletedFormation\b[^}]*\} from 'dancing-squared-engine';/.test(tam),
+  '`tam-xml.ts` IMPORTS the engine\'s rule rather than keeping a private copy a probe cannot reach');
+check(!/function completedFormation|function completeHalfSet/.test(tam), 'and does not also define it');
 check(/const label = name \|\| call\.formation \|\| call\.from \|\| call\.title;/.test(tam),
   'the export name chain consults `call.formation` - the parser\'s record of the tam\'s own setup');
 check(!/name \?\? \(call\.from/.test(tam), 'and no longer treats the app\'s empty string as a name');
-check(/export function completeHalfSet/.test(readSource('src/half-set.ts')), 'the module exports the rule');
+// THE POC NO LONGER OWNS A COPY AT ALL: the module the rule used to live in is gone, which is what "import it" means
+// once the engine exports it. A re-introduced copy is caught by this check rather than by a reviewer noticing.
+check(!fs.existsSync(path.join(POC, 'src', 'half-set.ts')), 'and the POC carries no `half-set.ts` of its own');
 
 {
   // AND THE SOURCE CHECKS FAIL ON THE FAULTS THEY WERE WRITTEN FOR.
-  const noImport = tam.replace("import { completeHalfSet } from './half-set';", '');
-  check(noImport !== tam && !/from '\.\/half-set'/.test(noImport), 'removing the import fails the import check');
+  const noImport = tam.replace(/import \{[^}]*\bcompletedFormation\b[^}]*\} from 'dancing-squared-engine';/, '');
+  check(noImport !== tam && !/completedFormation/.test(noImport.split('\n').filter((l) => l.includes('from ')).join('\n')),
+    'removing the import fails the import check');
+  const withCopy = `${tam}\nfunction completedFormation(poses) { return poses; }\n`;
+  check(/function completedFormation|function completeHalfSet/.test(withCopy),
+    'and putting a local definition back fails the "does not also define it" check');
   const oldChain = tam.replace('const label = name || call.formation || call.from || call.title;', 'const label = name ?? (call.from || call.title);');
   check(oldChain !== tam && !/call\.formation \|\| call\.from/.test(oldChain), 'restoring the old chain fails the chain checks');
 }

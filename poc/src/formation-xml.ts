@@ -13,8 +13,9 @@
 //
 // WHAT IS WRITTEN: HALF THE SET, which is how the corpus authors every entry and how the reader reads one - the
 // missing dancers are reconstituted at load time by duplicating the written ones and turning them 180 degrees
-// about the BOARD CENTRE (`half-set.ts`, and `hasAntipode` in `convert.ts` where the parser decides). The first
-// half is the authored one, because that is the order `completeHalfSet` produces and the order the parser then
+// about the BOARD CENTRE (the engine's `completedFormation`, and `hasAntipode` in `convert.ts` where the parser
+// decides). The first
+// half is the authored one, because that is the order `completedFormation` produces and the order the parser then
 // pairs paths against. MEASURED over the corpus (`poc/tools/formation-export-probe.mjs`): **281 of the 291**
 // formations are authored as half a set, and the half written here reproduces the authored COUNT for all 291 -
 // the ten whole ones cannot be halved and are written out in full.
@@ -40,17 +41,15 @@
 // into `reordered` with exactly 2 of 8 spots differing.
 //
 // PURE, and it takes the corpus lookup as an argument, so a probe can drive every verdict without a browser - the
-// same trade `half-set.ts`, `scrub-keep.ts` and `move-nav.ts` make. The block itself is written by the engine's
+// same trade `scrub-keep.ts` and `move-nav.ts` make. The block itself is written by the engine's
 // `formationToXml`, because the reader and the writer have to agree and that pair is already gated by the
 // engine's own round-trip harness (`engine/test/editor.mjs`); this module adds the NAME, the HALF and the VERDICT.
 
-import { formationToXml, sameSpotExact } from 'dancing-squared-engine';
+// THE HALF-SET RULE IS THE ENGINE'S, imported rather than restated: the reader completes a formation with it, so the
+// writer has to find the half it would complete back to this board. It used to be `poc/src/half-set.ts` - a copy kept
+// only so that a probe could import it, which the engine's own export makes unnecessary.
+import { completedFormation, formationToXml, sameSpotExact } from 'dancing-squared-engine';
 import type { FormDancer } from 'dancing-squared-engine';
-// THE HALF-SET RULE, imported rather than restated: the reader completes a formation with it, so the writer has
-// to find the half it would complete back to this board. THE EXTENSION IS EXPLICIT so bare node can load this
-// module (`poc/tools/formation-export-probe.mjs` does), which `allowImportingTsExtensions` allows and
-// `fsm-view.ts`'s `./dom.ts` already relies on.
-import { completeHalfSet } from './half-set.ts';
 
 /** Which of the four things this block is, if it is pasted into `assets/formations.xml`. */
 type FormationVerdict = 'add' | 'same' | 'reordered' | 'changed';
@@ -103,11 +102,11 @@ function sameSpotsIgnoringOrder(a: FormDancer[], b: FormDancer[]): boolean {
  * THE DANCERS TO WRITE: the half the reader would complete back to this board, or every dancer when there is no
  * such half.
  *
- * THE HALF IS THE FIRST ONE, because that is the order `completeHalfSet` builds (`written` then `written` turned
+ * THE HALF IS THE FIRST ONE, because that is the order `completedFormation` builds (`written` then `written` turned
  * 180 degrees about the origin) and therefore the order a corpus entry of half a set has - so writing the first
  * half of a board that came from the corpus reproduces the corpus's own block, dancer for dancer.
  *
- * IT IS CHECKED RATHER THAN ASSUMED. `completeHalfSet` returns its input unchanged when the input already
+ * IT IS CHECKED RATHER THAN ASSUMED. `completedFormation` returns its input unchanged when the input already
  * contains its own antipodes (two dancers would otherwise stack on one spot), so a set that is whole cannot be
  * halved - and a set that is NOT symmetric about the centre would lose dancers if it were. So the half is used
  * only when completing it gives back this board, index for index; otherwise every dancer is written, which is
@@ -122,7 +121,7 @@ function sameSpotsIgnoringOrder(a: FormDancer[], b: FormDancer[]): boolean {
 function halfOf(spots: FormDancer[]): FormDancer[] {
   if (spots.length < 4 || spots.length % 2 !== 0) return spots;
   const half = spots.slice(0, spots.length / 2);
-  const completed = completeHalfSet(half.map((p) => ({ ...p })));
+  const completed = completedFormation(half.map((p) => ({ ...p })));
   if (completed.length !== spots.length) return spots;
   return completed.every((p, i) => sameSpotExact(p, spots[i])) ? half : spots;
 }

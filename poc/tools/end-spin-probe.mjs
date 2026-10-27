@@ -31,7 +31,6 @@ import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
-const half = await import(pathToFileURL(path.join(POC, 'src', 'half-set.ts')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
@@ -298,7 +297,7 @@ console.log('\n== 4. the reported fault: the placed end MARCHES round in 45-degr
   const src = engine.normalizeInstance(engine.loadCallFromXml(asset('ms/right_and_left_grand.xml'), movesXml, formationsXml,
     { title: 'Right and Left Grand', from: 'Quarter Tag Facing' }));
   const ds = engine.parseFormations(formationsXml).get('Right and Left Grand Circle');
-  const base = ds ? half.completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }))) : null;
+  const base = ds ? engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }))) : null;
   console.log(`    witness: "${src.title}" from "${src.from}" (${src.dancers.length} dancers) onto "Right and Left Grand Circle"`);
   check(!!base && base.length === src.dancers.length, "the corpus still offers the reported end setup at the call's own size");
   if (base) {

@@ -37,8 +37,9 @@
 // the probe is the instrument that says so rather than the picker quietly trusting a stale value.
 //
 // THE COMPLETION RULE IS THE CORPUS'S, not this file's. A definition writes half a set unless it DECLARES itself
-// whole - `asymmetric="true"` on a named `<formation>`, or `symmetry="1"` on a `<tam>` - and `poc/src/half-set.ts`
-// is the rule (`completeHalfSet`, already pinned by `poc/tools/formation-shape-probe.mjs`). MEASURED at eight
+// whole - `asymmetric="true"` on a named `<formation>`, or `symmetry="1"` on a `<tam>` - and the rule is the engine's
+// `completedFormation` (`formation-order.ts`), pinned by `engine/test/formation-order.mjs` and by
+// `poc/tools/formation-shape-probe.mjs`. MEASURED at eight
 // dancers: 0 named definitions declare `asymmetric` (the 11 that do are all two-dancer) and 0 inline blocks declare
 // `symmetry="1"`, so the declaration branch is inert on today's corpus and is here because it is the rule.
 //
@@ -47,6 +48,7 @@
 // what the corpus carries, not what a programme's call set reaches.
 import {
   arrangementId,
+  completedFormation,
   formationId,
   parseFormations,
   setupId,
@@ -54,10 +56,9 @@ import {
   UNKNOWN_COUPLE,
 } from 'dancing-squared-engine';
 import type { Board, FormDancer, Matchable } from 'dancing-squared-engine';
-// THE `.ts` EXTENSION IS FOR THE PROBE, the same trade `fsm-view.ts` makes: `poc/tools/setup-picker-probe.mjs`
-// loads this module under node's type stripping, and node does not guess an extension. Legal because the POC never
-// emits - `tsc` is the typecheck and Vite does the transpiling (`poc/tsconfig.json` says so).
-import { completeHalfSet } from './half-set.ts';
+// LOADED AS SOURCE BY A PROBE (`poc/tools/setup-picker-probe.mjs`), which is why this module has no relative import
+// at all: anything it needed would have to be extension-explicit for node's type stripping. The half-set rule used
+// to be one of those (`./half-set.ts`); it is the engine's `completedFormation` now, which needs no such trade.
 
 const DEG = Math.PI / 180;
 
@@ -212,7 +213,7 @@ export function buildSetupCatalogue(input: SetupCatalogueInput): SetupCatalogue 
 
   for (const [name, written] of parseFormations(input.formationsXml)) {
     const poses = written.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }));
-    const dancers = whole.has(name) ? poses : completeHalfSet(poses);
+    const dancers = whole.has(name) ? poses : completedFormation(poses);
     if (dancers.length !== SETUP_PICKER_SIZE) continue;
     const id = idsOf(dancers);
     if (!id) continue;
@@ -228,7 +229,7 @@ export function buildSetupCatalogue(input: SetupCatalogueInput): SetupCatalogue 
         heading: d.angleDeg * DEG,
         gender: (d.gender ?? 'boy') as 'boy' | 'girl' | 'phantom',
       }));
-      const dancers = tam.symmetry === 1 ? poses : completeHalfSet(poses);
+      const dancers = tam.symmetry === 1 ? poses : completedFormation(poses);
       if (dancers.length !== SETUP_PICKER_SIZE) continue;
       const id = idsOf(dancers);
       if (!id) continue;

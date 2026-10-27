@@ -21,10 +21,9 @@
 // Anything else embeds the block, which is what every export did until now and is always correct.
 
 import formationsXmlText from '@corpus/formations.xml?raw';
-import { DEG, callToXmlNamed, canonicalName, parseFormations } from 'dancing-squared-engine';
+import { DEG, callToXmlNamed, canonicalName, completedFormation, parseFormations } from 'dancing-squared-engine';
 import type { CallBundle, FormDancer, Gender, Symmetry } from 'dancing-squared-engine';
 import { findUserFormation } from './formations';
-import { completeHalfSet } from './half-set';
 
 /** The corpus's own formations, parsed once. Keyed by name, holding the AUTHORED dancers in degrees. */
 let corpusFormations: Map<string, { x: number; y: number; angleDeg: number; gender?: Gender }[]> | null = null;
@@ -64,7 +63,7 @@ export function corpusFormationPoses(name: string): FormDancer[] | null {
   const authored = corpusOf(name);
   if (authored) {
     const asPoses = authored.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender }));
-    return completeHalfSet(asPoses);
+    return completedFormation(asPoses);
   }
   // A USER FORMATION ONLY COUNTS ONCE THE CALLER HAS ADDED IT TO THE CORPUS - see the note above: a
   // reference to a shape that lives in one browser's storage is a call nobody else can load.
@@ -73,8 +72,10 @@ export function corpusFormationPoses(name: string): FormDancer[] | null {
   return null;
 }
 
-// The half-set rule itself now lives in `half-set.ts`, so that a probe can import it rather than restate
-// it: this module cannot be imported by anything but the bundler (it pulls `formations.xml?raw`).
+// The half-set rule is the ENGINE's `completedFormation` (`formation-order.ts`), imported rather than restated -
+// the POC used to keep its own copy in `half-set.ts` so that a probe could import it, which is what the engine's
+// version makes unnecessary. This module itself cannot be imported by anything but the bundler (it pulls
+// `formations.xml?raw`), which is why the rule may not live here.
 
 /**
  * EVERY NAMED FORMATION THE CORPUS CAN STAND UP AT A GIVEN SIZE, as start poses.
@@ -133,7 +134,7 @@ export function corpusFormationsOfSize(dancers: number): { name: string; poses: 
   corpusFormations ??= parseFormations(formationsXmlText);
   const out: { name: string; poses: FormDancer[] }[] = [];
   for (const [name, ds] of corpusFormations) {
-    const poses = completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
+    const poses = completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
     if (poses.length !== dancers) continue;
     out.push({ name, poses });
   }

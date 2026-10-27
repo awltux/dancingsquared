@@ -17,8 +17,9 @@
 //
 // The pickers live in `editor-ui.ts` and `sequencer-ui.ts`, which are TypeScript under Vite with a
 // DOM and cannot run here - so the engine and the data are measured, and the panel's use of them is
-// read from the source. The half-set rule is mirrored here from `engine/src/sequencer/library.ts`,
-// `toWholeSet`, which is the engine's own answer to "how many dancers is this formation".
+// read from the source. The half-set rule is the engine's `completedFormation` (`formation-order.ts`), imported here
+// and by the panel rather than mirrored; `library.ts`'s `toWholeSet` is the sequencer's `Matchable` form of it, which
+// completes FOUR only and says why in place.
 //
 // Run: node tools/formation-size-probe.mjs   (from poc/)
 
@@ -235,7 +236,6 @@ console.log('\n== 4. the library is untouched, and the panel asks for a size rat
   // host returns the corpus at EVERY size now, so the eight-dancer library this probe section exists to
   // protect is no longer consulted for the picker at all. The assertion follows the source rather than the
   // source following the assertion.
-  const half = fs.readFileSync(path.join(POC_DIR, 'src', 'half-set.ts'), 'utf8');
   check(/startFormations\(dancers: number\)/.test(seqUi) && /return corpusFormationsOfSize\(dancers\)/.test(seqUi),
     'the host asks for a SIZE and answers it from the CORPUS');
   check(/startFormations\(dancers: number\): \{ name: string; poses: FormDancer\[\] \}\[\];/.test(ui) &&
@@ -244,11 +244,12 @@ console.log('\n== 4. the library is untouched, and the panel asks for a size rat
   check(/import \{ corpusFormationsOfSize \} from '\.\/tam-xml'/.test(seqUi) &&
     /export function corpusFormationsOfSize\(dancers: number\)/.test(tam),
     'the corpus list is built by the module that already parses formations.xml, rather than a second reader of it');
-  // THE ALREADY-WHOLE TEST MOVED. It used to be read out of `tam-xml.ts`; that rule was extracted into
-  // `half-set.ts` so a probe could IMPORT it rather than mirror it (§4.3), and `tam-xml.ts` now imports it.
-  check(/const poses = completeHalfSet\(/.test(tam) && /export function completeHalfSet\(/.test(half) &&
-    /Math\.hypot\(a\.x - b\.x, a\.y - b\.y\) < 0\.01/.test(half),
-    'and it applies the half-set rule including the already-whole test, which now lives in `half-set.ts` and is imported rather than restated');
+  // THE ALREADY-WHOLE TEST IS THE ENGINE'S. It used to be read out of `tam-xml.ts`; it was extracted into the POC's
+  // `half-set.ts` so a probe could import rather than mirror it (§4.3), and the rule is now the engine's own
+  // `completedFormation` - so the POC copy is gone and the check is that `tam-xml.ts` takes the engine's.
+  check(/const poses = completedFormation\(/.test(tam) && !/function completeHalfSet|function completedFormation/.test(tam) &&
+    !fs.existsSync(path.join(POC_DIR, 'src', 'half-set.ts')),
+    'and it applies the engine\'s half-set rule including the already-whole test, imported rather than restated');
 
   // ---- the editor filters, and re-filters when the size moves
   const ensure = bodyOf(ui, '  private ensureStartFormations(') || '';

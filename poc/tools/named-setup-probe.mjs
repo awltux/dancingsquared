@@ -32,7 +32,6 @@ import { corpusRoot, filesOf, levelsAvailable } from 'dancing-squared-corpus';
 
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const engine = await import(pathToFileURL(path.join(POC, '..', 'engine', 'dist', 'index.js')).href);
-const half = await import(pathToFileURL(path.join(POC, 'src', 'half-set.ts')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
 
@@ -79,7 +78,7 @@ function formationsOfSize(n) {
   if (cache.has(n)) return cache.get(n);
   const out = [];
   for (const [name, ds] of formations) {
-    const poses = half.completeHalfSet(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
+    const poses = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
     if (poses.length !== n) continue;
     out.push({ name, poses });
   }

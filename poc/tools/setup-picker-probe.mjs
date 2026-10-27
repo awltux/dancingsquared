@@ -47,13 +47,15 @@ import {
   formationId,
   arrangementId,
   UNKNOWN_COUPLE,
+  // THE HALF-SET RULE, the engine's (it used to be `poc/src/half-set.ts`, imported by path - one of the copies the
+  // engine's own `completedFormation` makes unnecessary).
+  completedFormation,
 } from 'dancing-squared-engine';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const { buildSetupCatalogue, sharedShapeName, SETUP_PICKER_SIZE } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href
 );
-const { completeHalfSet } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'half-set.ts')).href);
 
 setParser(DOMParser);
 const DEG = Math.PI / 180;
@@ -133,7 +135,7 @@ console.log('\n== 3. the corpus\'s stored tags are the computed ones (independen
   const problems = [];
   let seen = 0;
   const compare = (what, poses, stored, symmetric) => {
-    const dancers = symmetric ? completeHalfSet(poses) : poses;
+    const dancers = symmetric ? completedFormation(poses) : poses;
     if (dancers.length !== SETUP_PICKER_SIZE) return;
     seen++;
     const board = { dancers: dancers.map((p, i) => ({ id: i + 1, couple: UNKNOWN_COUPLE, gender: p.gender ?? 'phantom', x: p.x, y: p.y, heading: p.heading })) };

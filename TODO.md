@@ -488,15 +488,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   ones `PLAN.md` §2 records. Attribute it before trusting any census row, and re-measure the recorded 116 /
   124-of-265 / FSM 155 rows once the corpus settles.
 
-- [ ] **33. Six more call selectors would die the same way item 1 did.** `[measured]`
-  `poc/verify.cjs` has five further `{ title, … }` selector literals — `Brace Thru` (twice, lines 60 and 61),
-  `Pass Thru` (166), `Circle Left` (188) and `Wheel Around` (224), as of `15d17ea` — and
-  `poc/tools/end-spin-probe.mjs` has one. All six resolve to exactly one tam **today**, so they were
-  deliberately left alone in `15d17ea` rather than rewritten speculatively. Each is one legitimate second
-  authoring away from the same throw-at-the-gate failure, and the corpus is being edited. Cheapest
-  prevention is to route them through the plural helper `listAuthorings` if and when one of them is touched
-  for another reason; there is no reason to churn five working call sites now.
-
 - [ ] **34. `Beaus`/`Belles` is INCOMPLETE where only some of a board's couples are recognised.** `[measured]`
   Found while fixing item 2, filed rather than fixed because it is a separate decision about the FALLBACK.
   `beauBelle` groups dancers by their derived couple NUMBER and then requires each number to hold exactly two

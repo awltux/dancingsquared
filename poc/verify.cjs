@@ -50,6 +50,43 @@ function listAuthorings(file, xml, movesXml, formationsXml) {
   }
 }
 
+/**
+ * THE CALL SELECTORS THIS FILE LOADS BY NAME ARE PINNED AS NAMED CHECKS, not left as a throw inside a load.
+ *
+ * WHY. Each of them names ONE tam today, and that is a fact about the CORPUS rather than about the selector: a second
+ * authoring of the same call, from the same setup, makes `selectTam` refuse - correctly, it will not guess - and the
+ * refusal is a THROW in the middle of this file, so everything after it measures nothing (AGENTS §11.2.1). That is
+ * exactly what happened when `50d3e95` migrated a second `Allemande Left` from `Left-Hand Waves` into
+ * `ms/allemande.xml`: the gate died at the throw and the checks below never ran.
+ *
+ * So the uniqueness is asserted FIRST, one line per selector, and a corpus edit that breaks one of them produces a
+ * named FAIL next to the selector instead of an exception. The predicate is the engine's own `selectTam` - re-counting
+ * the match here would be a copy of the rule that picks the tam (AGENTS §5) - and its message already names the count.
+ *
+ * THE SIXTH SELECTOR, `end-spin-probe.mjs`'s `Right and Left Grand` from `Quarter Tag Facing`, is pinned the same way
+ * in that probe; it is listed here because the census that found this item counted six.
+ */
+const SINGULAR_SELECTORS = [
+  ['../assets/a1/brace_thru.xml', { title: 'Brace Thru', from: 'Lines, Boys Ends' }],
+  ['../assets/ms/pass_thru.xml', { title: 'Pass Thru', from: 'Lines', formation: 'Normal Lines' }],
+  ['../assets/ms/circle.xml', { title: 'Circle Left', formation: 'Static Square' }],
+  ['../assets/ms/wheel_around.xml', { title: 'Wheel Around', from: 'Lines' }],
+  ['../assets/ms/right_and_left_grand.xml', { title: 'Right and Left Grand', from: 'Quarter Tag Facing' }],
+];
+console.log('== the call selectors this gate loads by name are still unique ==');
+for (const [file, selector] of SINGULAR_SELECTORS) {
+  let refusal = null;
+  try {
+    eng.selectTam(eng.parseCallXml(read(file)), selector);
+  } catch (e) {
+    refusal = e.message;
+  }
+  const named = `${JSON.stringify(selector)} in ${file}`;
+  check(refusal === null, refusal === null
+    ? `${named} still names exactly one tam, so the load below cannot throw`
+    : `${named} no longer names ONE tam: ${refusal}`);
+}
+
 // ------------------------------------------------------------- move resolution
 console.log('== Move registry resolution ==');
 const moves = parseMoves(movesXml);

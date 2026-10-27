@@ -294,6 +294,19 @@ console.log('\n== 4. the reported fault: the placed end MARCHES round in 45-degr
   //
   // THE CALLER'S OWN WITNESS, named the way the corpus names a tam - by title and `from`, never by list
   // position, because a hand-added tam shifts every index.
+  //
+  // AND THE UNIQUENESS IS A CHECK, NOT A THROW: a second authoring from the same setup makes `selectTam` refuse - a
+  // throw in the middle of this file, which would skip every check below it (AGENTS §11.2.1). The predicate is the
+  // engine's own `selectTam`, and its message names the count.
+  let selectorRefusal = null;
+  try {
+    engine.selectTam(engine.parseCallXml(asset('ms/right_and_left_grand.xml')), { title: 'Right and Left Grand', from: 'Quarter Tag Facing' });
+  } catch (e) {
+    selectorRefusal = e.message;
+  }
+  check(selectorRefusal === null, selectorRefusal === null
+    ? 'the witness selector still names exactly one tam, so the load below cannot throw'
+    : `the witness selector no longer names ONE tam: ${selectorRefusal}`);
   const src = engine.normalizeInstance(engine.loadCallFromXml(asset('ms/right_and_left_grand.xml'), movesXml, formationsXml,
     { title: 'Right and Left Grand', from: 'Quarter Tag Facing' }));
   const ds = engine.parseFormations(formationsXml).get('Right and Left Grand Circle');

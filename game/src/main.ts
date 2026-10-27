@@ -48,6 +48,7 @@ import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedul
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, OUTLINE_COLOR, type StagePair, type ViewMode } from './render/stage-view.ts';
 import { waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
+import { boardCaption } from './puzzle/caption.ts';
 import { replayLine, callAt, type ReplayLine } from './puzzle/replay-line.ts';
 import { ReplayList } from './ui/replay-list.ts';
 import { DrillScreen } from './ui/drill-screen.ts';
@@ -402,20 +403,37 @@ function paintWaypoints(): void {
   const current = currentPair();
   if (!current) {
     els.labelHere.textContent = 'Setup';
+    // NO HOVER WHEN THERE IS NO BOARD, or the previous puzzle's id would sit over a panel showing nothing.
+    els.labelHere.removeAttribute('title');
     els.labelGoal.textContent = 'Next waypoint';
+    els.labelGoal.removeAttribute('title');
     els.waypointPrev.hidden = true;
     els.waypointNext.hidden = true;
     els.waypointLegend.hidden = true;
     return;
   }
-  const { pair, info } = current;
+  const { pair, info, stage } = current;
   const count = info.boards.length;
-  const caption = (index: number, role: string): string => {
-    const label = info.labels[index];
-    return label ? `${role}, ${index + 1} of ${count} — ${label}` : `${role}, ${index + 1} of ${count}`;
-  };
-  els.labelHere.textContent = caption(pair.leftIndex, pair.live ? 'Setup' : 'Waypoint');
-  els.labelGoal.textContent = caption(pair.rightIndex, pair.rightIndex === count - 1 ? 'Goal' : 'Next waypoint');
+  // THE WORDS ARE THE WAYPOINT'S AND THE HOVER IS THE DRAWN BOARD'S — the two come apart on the live pair, whose left
+  // panel is the player's own board. `puzzle/caption.ts` states the rule and why the name cannot answer for it.
+  const here = boardCaption({
+    index: pair.leftIndex,
+    count,
+    role: pair.live ? 'Setup' : 'Waypoint',
+    label: info.labels[pair.leftIndex] ?? '',
+    board: stage.left,
+  });
+  const next = boardCaption({
+    index: pair.rightIndex,
+    count,
+    role: pair.rightIndex === count - 1 ? 'Goal' : 'Next waypoint',
+    label: info.labels[pair.rightIndex] ?? '',
+    board: stage.right,
+  });
+  els.labelHere.textContent = here.text;
+  els.labelHere.title = here.hover;
+  els.labelGoal.textContent = next.text;
+  els.labelGoal.title = next.hover;
   // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the arrows are HIDDEN rather than shown disabled:
   // the smallest puzzle is two waypoints, and two grey arrows would advertise a route that does not exist.
   const paged = count > 2;

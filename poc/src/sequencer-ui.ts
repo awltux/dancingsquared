@@ -1126,7 +1126,12 @@ export class SequencerController implements SequencerUI {
       // match, the registry overlay, `UNKNOWN_COUPLE` away from home) are the ones a picked setup gets.
       this.seq.setSetupBoard(read.start.dancers, read.start.label);
       this.startBoard = this.seq.startBoard();
+      // THE VERDICT IS READ BEFORE THE LOAD, because the load moves the live board to the sequence's END and the
+      // composition has to be asked from the board the module STARTS on.
+      const note = this.moduleCallNote(this.startBoard ?? this.seq.startBoard(), m.name);
       this.loadSteps(m.calls, undefined, read.start.label, read.notes);
+      // Appended to `loadSteps`' own report rather than replacing it, so the load's counts survive.
+      this.setStatus(this.stop ? 'warn' : 'ok', `${this.statusEl.textContent}${note}`);
     }, 'Loading the saved module…');
   }
 
@@ -1917,7 +1922,14 @@ export class SequencerController implements SequencerUI {
       }
       this.pushUndo();
       const expanded = this.seq.flatten([name]);
-      this.history.push(...expanded);
+      // A MODULE IS ONE STEP. `flatten` is what the ENGINE dances - it turns a module into its calls so the walk, the
+      // timing and the export see calls - but the HISTORY is the caller's own list of steps, and a module is one of
+      // them. Pushing its calls made a seven-call module seven rows, so it could only be undone, reordered or deleted
+      // one call at a time, which is the one thing a call variant cannot do. The panel already reads a row as "one or
+      // more flat steps" (`beatAtStep`, `historyRowOfFlat`, `rowSources`), so the row keeps the module's own duration
+      // and its own source marker while staying ONE row.
+      if (expanded.length > 1) this.history.push(name);
+      else this.history.push(...expanded);
       // PARALLEL MODE CANNOT SURVIVE A NEW CALL: its remainder and its history index both belong to the
       // step that has just been superseded.
       this.setParallel(null);
@@ -1948,11 +1960,29 @@ export class SequencerController implements SequencerUI {
         this.statusEl.textContent = `✓ ${name} · ${remaining} left — press While… to give them their own call in the same slot (or Add again later to put several in one lane)`;
       } else {
         this.statusEl.textContent = `✓ ${name}${expanded.length > 1 ? ` (${expanded.length} calls)` : ''}`;
+        // WHETHER IT IS ONE CALL, said out loud. A module that cannot compose still plays - the walk flattens it - so
+        // this is information rather than a refusal, and it is the one place the caller learns their module is its
+        // calls rather than a single call.
+        if (expanded.length > 1) this.statusEl.textContent += this.moduleCallNote(from, name);
       }
       this.render();
       this.refreshCallSelect();
       this.syncAnimation();
     }, 'Adding the call…');
+  }
+
+  /**
+   * WHETHER A MODULE PLAYS AS ONE CALL, as a sentence for the status line - and WHY NOT when it does not.
+   *
+   * `Sequencer.moduleCall` composes the module's whole step list into one bundle, which is what the timeline row is
+   * standing in for. When it refuses, the reason names the step, so a caller can act on it; when it succeeds, the end
+   * board's name is the useful half, because that is what the next call has to start from.
+   */
+  private moduleCallNote(board: Board, name: string): string {
+    const read = this.seq.moduleCall(board, name);
+    return read.legal
+      ? ` · plays as one call to ${read.bundle.module?.endFormation ?? 'an unnamed board'}`
+      : ` · plays as its calls, not one call: ${read.reason}`;
   }
 
   /** The lane the picker is offering calls to and Apply appends to. */
@@ -2383,10 +2413,12 @@ export class SequencerController implements SequencerUI {
     // dropped rather than left to undo an edit into a sequence the caller has navigated away from.
     this.undoStack.length = 0;
     this.redoStack.length = 0;
-    this.history = this.seq.flatten(steps);
+    // THE STEPS AS THE DOCUMENT WROTE THEM, so a module stays ONE row here too: `flatten` below is what the walk and the
+    // beats use, and it is asked for explicitly rather than by rewriting the caller's list.
+    this.history = [...steps];
     this.rewindToStart();
     let refused = 0;
-    for (const name of this.history) {
+    for (const name of this.seq.flatten(this.history)) {
       const r = this.seq.applyStep(name);
       if (!r.legal) refused++;
     }

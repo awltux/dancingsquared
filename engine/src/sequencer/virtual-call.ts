@@ -45,7 +45,7 @@
 // approximating one, and the sweep reports how often that is the only placement available.
 
 import { allPoses, poseFor } from '../core.js';
-import { normalizeInstance, padSegment } from '../editor.js';
+import { normalizeInstance, padSegment, cloneSegs } from '../editor.js';
 import { matchFormations, matchFormationsAll, type Matchable } from './match.js';
 import { boardMatchables } from './cells.js';
 import { formationId } from './formation-id.js';
@@ -146,7 +146,7 @@ export function placeVirtual(
       return spec(d, [padSegment(pose, pose, beats)]);
     }
     placement[hit.copy][hit.from] = i;
-    return spec(d, clonePath(source.dancers[hit.from].path));
+    return spec(d, cloneSegs(source.dancers[hit.from].path));
   });
   placement.forEach((copy, index) => {
     const missing = copy.indexOf(-1);
@@ -432,10 +432,6 @@ function spec(board: SeqDancer, path: Seg[]): DancerSpec {
     couple: board.couple,
     mirror: false,
   };
-}
-
-function clonePath(path: readonly Seg[]): Seg[] {
-  return path.map((s) => ({ ...s, translate: { ...s.translate }, rotate: s.rotate ? { ...s.rotate } : null }));
 }
 
 function describe(reasons: ReadonlyMap<string, number>): string {

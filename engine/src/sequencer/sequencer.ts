@@ -27,6 +27,7 @@ import {
 } from './fsm-table.js';
 import { makeSquaredSet, cloneBoard } from './board.js';
 import { normAngle } from '../moves.js';
+import { poseFor } from '../core.js';
 import { bodyGap, worstBodyGap, BODY_OVERLAP_EPS, type BodyPair } from './bodies.js';
 import {
   evaluatePermissions,
@@ -48,6 +49,8 @@ import { authoredStepWins } from './apply-source.js';
 import { formationId } from './formation-id.js';
 import { setupId } from './setup-id.js';
 import type { VirtualOutcome } from './virtual-call.js';
+import { composeModuleCall } from './module-call.js';
+import type { ModuleCallOutcome } from './module-call.js';
 import { analyzeFasr } from './fasr.js';
 import { normalisedState, ORIENTATION_STEP } from './fsm.js';
 import { STANDARD_FORMATIONS, UNKNOWN_COUPLE, canonicalName } from './constants.js';
@@ -59,6 +62,19 @@ import type { LaneRun } from './types.js';
 import type { CallBundle } from '../types.js';
 
 export { assignHomeIdentity } from './identity.js';
+
+/**
+ * HOW FAR A COMPOSED MODULE'S TRACK MAY LAND FROM THE REPLAY'S BOARD, dancer for dancer.
+ *
+ * 0.02 IS NOT INVENTED HERE: it is the tolerance `engine/test/anim-convergence.mjs` already accepts between the last
+ * frame it draws and the board it is drawn against (`CONVERGE_TOL`), and the reason is the same one — a continuous track
+ * against boards the engine SNAPS after every call. MEASURED over the 294-module corpus (`poc/tools/module-call-probe.mjs`):
+ * 58 compose, and the worst residue among them is 1.64e-3, so the bound has 12x of headroom over what composes. SEVEN
+ * modules land beyond it (the least at 4.2e-2) and are refused — the same snap accumulating further, not a wrong chain —
+ * and that is the safe direction: a refused module still plays call by call, where a composition placed 0.04 away from
+ * the replay would move the board the next call starts from.
+ */
+const MODULE_CONVERGE_TOL = 0.02;
 
 export class Sequencer {
   board: Board;
@@ -705,6 +721,52 @@ export class Sequencer {
   /** Hit/miss counts for the virtual-call cache, which lives beside the matcher's other two. */
   virtualCacheStats(): { hits: number; misses: number; size: number } {
     return this.matcher.virtualCacheStats();
+  }
+
+  /**
+   * A NAMED MODULE READ AS ONE CALL from `board` — the whole sequence composed into a single bundle, or the reason it is
+   * not one.
+   *
+   * THE RULE IS `composeModuleCall`'s AND THE RESOLUTION IS THIS ENGINE'S: `SequenceAnalyzer.moduleTracks` supplies the
+   * per-dancer local tracks (it is the class that owns which variant a step takes and what it costs), and this method
+   * supplies the two things a pure function cannot reach — the module's own steps (`library.getModule`) and the engine's
+   * namer. Exactly the split `virtualCall` above uses, and for the same reason.
+   *
+   * IT DOES NOT CHANGE THE BOARD. This asks a question; applying the composed call is the caller's business, and an
+   * uncomposable module is still playable call by call (`flatten` + `applyStep`), which is why a refusal here is data
+   * rather than an error.
+   */
+  moduleCall(board: Board, name: string): ModuleCallOutcome {
+    const steps = this.library.getModule(name);
+    if (!steps) return { legal: false, reason: `Unknown module: ${name}`, tried: 'the module list' };
+    const tracks = this.analyzer.moduleTracks(board, steps);
+    if ('reason' in tracks) return { legal: false, reason: tracks.reason, tried: tracks.tried };
+    const composed = composeModuleCall(board, name, tracks, (b) => this.matcher.knownFormation(b));
+    if (!composed.legal) return composed;
+    // THE COMPOSITION IS JUDGED BY THE REPLAY, which is the independent observable: `evaluateSequence` walks the module's
+    // own steps and answers where they land, and nothing in the composition was used to produce that answer.
+    //
+    // A RESIDUE IS EXPECTED AND BOUNDED, not a defect. The applicator SNAPS every call onto the formation it lands in
+    // (`applyWholeBoard` ends in `matcher.snapBoard`), and one continuous path cannot reproduce a snap taken between its
+    // segments — so the composed end is the AUTHORED chain end and the replay's is the same chain after the snaps. The
+    // bound is `MODULE_CONVERGE_TOL`, whose comment carries the corpus measurement and the seven modules it refuses.
+    const walked = this.evaluateSequence(this.library.flatten([...steps]), composed.bundle.beats, board).board;
+    let residue = 0;
+    for (const [i, d] of composed.bundle.dancers.entries()) {
+      const p = poseFor(d, composed.bundle.beats);
+      const w = walked.dancers[i];
+      residue = Math.max(residue, Math.hypot(p.x - w.x, p.y - w.y), Math.abs(normAngle(p.heading - w.heading)));
+    }
+    if (residue > MODULE_CONVERGE_TOL) {
+      return {
+        legal: false,
+        reason: `${JSON.stringify(name)}: its composed track does not reproduce the replay (worst dancer ${residue.toExponential(1)})`,
+        tried: 'the replay',
+      };
+    }
+    // THE END IS THE REPLAY'S BOARD: that is the board the next call has to start from, and the caller should not have to
+    // re-walk the module to learn it.
+    return { legal: true, bundle: composed.bundle, end: walked, residue };
   }
 
   /**

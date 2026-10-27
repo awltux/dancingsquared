@@ -419,6 +419,12 @@ export const SUITE = [
   // without a start still are - the negative control that proves the gate did the work - and that the declared
   // boards come back readable. Fast: one call, a handful of boards.
   { h: 'module-start', light: true },
+  // A MODULE COMPOSED INTO ONE CALL: the whole step list as a single whole-set `CallBundle`, which is what lets the panel
+  // insert a module as one row instead of N. Pins the claim that matters - the composed end board IS the replay's end
+  // board dancer for dancer (1.4e-15 on the fixture), that one composed call costs what the flattened steps cost, that a
+  // scoped step's four unselected dancers hold, and the named refusals ("while", coded move, a step that does not apply).
+  // Its negative control reconstructs an out-of-order chain, which every other check would pass. Fast: three calls.
+  { h: 'module-call', light: true },
   { h: 'mainstream', light: true },
   { h: 'matrix', light: true },
   { h: 'matrix-getout', light: true },

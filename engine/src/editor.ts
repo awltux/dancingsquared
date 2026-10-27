@@ -1307,7 +1307,15 @@ export interface InstanceDancer {
   moves: Seg[];
 }
 
-function cloneSegs(path: Seg[]): Seg[] {
+/**
+ * A COPY of a path, segment by segment.
+ *
+ * EXPORTED BECAUSE TWO SYNTHESISERS NEED THE SAME RULE: a placed virtual call (`virtual-call.ts`) and a composed module
+ * call (`module-call.ts`) both hand out paths taken from an authoring, and a bundle a caller may edit must not share
+ * segment objects with the library's copy. This used to exist twice — here and as `clonePath` there — which is one copy
+ * too many for four lines that must never disagree about what a segment is.
+ */
+export function cloneSegs(path: readonly Seg[]): Seg[] {
   return path.map((s) => ({
     beats: s.beats,
     hands: s.hands,

@@ -224,6 +224,32 @@ export interface CallBundle {
    * `undefined` on everything the corpus or the editor produced, so an existing caller cannot observe a change.
    */
   virtual?: VirtualCallInfo;
+  /**
+   * SET ONLY ON A SYNTHESISED BUNDLE built from a NAMED MODULE's own steps - the module read as ONE call.
+   *
+   * A module is a sequence, and until this existed a caller could only ever see it as N calls: the panel flattened it
+   * into its steps, and nothing could hand back one geometry for it. This is the marker that says the bundle is that
+   * whole sequence composed into one track, and it is the same idea as `virtual` one level up - invented geometry that
+   * every census must be able to tell from an authored tam (§11.2.4's neighbour).
+   *
+   * `undefined` on every authored, virtual-placed and editor-made bundle, so no existing caller can observe a change.
+   */
+  module?: ModuleCallInfo;
+}
+
+/**
+ * WHERE A COMPOSED MODULE CALL CAME FROM. Carried on the bundle rather than inferred from its title, because a module
+ * and a call can share a name in a report and the two are different claims.
+ */
+export interface ModuleCallInfo {
+  /** The module's name, which is also the bundle's `title`. */
+  name: string;
+  /** The FLATTENED steps, in order, as `stepLabel` reads them - so a scoped step keeps its selection in the label. */
+  steps: string[];
+  /** The namer's name for the board the module was composed FROM. Never null: an unnamed start is a refusal. */
+  startFormation: string;
+  /** The namer's name for the board the composition ENDS on. Never null: an unnamed end is a refusal. */
+  endFormation: string;
 }
 
 /**

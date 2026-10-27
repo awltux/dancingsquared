@@ -32,7 +32,11 @@ import { readCallName } from './call-name.js';
 import { fasrKey, homeFasrKey } from './fasr.js';
 import type { Board, CallStep, GroupStep, ModuleStep, SeqDancer, VariantMatch } from './types.js';
 import { groupCalls, isGroupStep, stepCall, stepLabel } from './types.js';
-import type { CallBundle } from '../types.js';
+import type { CallBundle, Seg } from '../types.js';
+// THE MODULE-AS-ONE-CALL COMPOSITION: this class resolves a module into local tracks, and `module-call.ts` assembles
+// them. The dependency runs one way - `module-call.ts` knows nothing about the analyzer.
+import type { ModuleStepTrack, ModuleTracks } from './module-call.js';
+import { normalizeInstance } from '../editor.js';
 
 const rot = (a: number, v: { x: number; y: number }) => ({
   x: v.x * Math.cos(a) - v.y * Math.sin(a),
@@ -64,6 +68,19 @@ const FACING_EPS = 1e-3;
  * quarter turn and every real translation on the straight-line branch.
  */
 const POSE_CHANGE_MIN = 1e-2;
+
+/**
+ * ONE STEP'S READING, as `SequenceAnalyzer.stepMatch` returns it: the whole-board match, or the SUBSET match a scoped
+ * step is answered from.
+ */
+interface StepMatch {
+  kind: 'whole' | 'subset';
+  match: VariantMatch;
+  /** The BOARD indices a subset reading acts on, in the subset's own order. Absent for a whole-board reading. */
+  selected?: number[];
+  /** The offset the subset's sub-board was centred by. A subset match is in the centred frame, so this puts it back. */
+  centre?: { x: number; y: number };
+}
 
 /** One flat step of a recorded replay. */
 interface ReplayStep {
@@ -388,24 +405,26 @@ export class SequenceAnalyzer {
     };
   }
 
-  /** Find the call variant that applies to `board` (WHOLE-BOARD first, else the
-   * PARALLEL-subset path) and return its beat count and, when available, the
-   * variant itself. */
-  private matchingVariantInfo(
-    board: Board,
-    name: string,
-    selection?: string,
-  ): { beats: number; variant: CallBundle | null } | null {
-    // A SCOPED STEP IS LOOKED UP AGAINST ITS OWN SUBSET, and without this a scoped call has no
-    // variant at all: the walk charged it ZERO BEATS and skipped it, so `evaluateSequence` returned
-    // the start board on every frame. MEASURED on `Head Boys Dosado` from a squared set -
-    // `sequenceBeats` was 0 while `stepBeats` said 4, and nothing animated.
-    //
-    // WHY THE SUBSET AND NOT A CODED RULE. `Do Sa Do` is derived with the IDENTITY transform (step
-    // around your partner and back to your own spot), so applying it moves nobody and there is no
-    // path to animate - while the AUTHORED tams carry real motion (`Opposite Boy`: 2 dancers, 8
-    // beats, 8 per path). Reading the variant the way `applySelected` does - select, centre on the
-    // subset's own origin, match - is what reaches that motion.
+  /**
+   * THE READING A STEP GETS, as a MATCH and not only a beat count: which authored variant, which board dancer takes
+   * which of its dancers, and - for a scoped step - which dancers the reading acts on and the offset its sub-board was
+   * centred by.
+   *
+   * ONE PLACE ANSWERS "WHICH VARIANT", for the timing (`stepBeats`), the animation walk (`replayWalk`) and the module
+   * composition (`moduleTracks`). It used to be the body of `matchingVariantInfo` alone; a second reading written for
+   * the composition would have been a copy that could drift from the one the walk charges - the exact failure the
+   * paragraphs below record ("a scoped call has no variant at all: the walk charged it ZERO BEATS").
+   *
+   * A SCOPED STEP IS LOOKED UP AGAINST ITS OWN SUBSET, and without this a scoped call has no variant at all: the walk
+   * charged it ZERO BEATS and skipped it, so `evaluateSequence` returned the start board on every frame. MEASURED on
+   * `Head Boys Dosado` from a squared set - `sequenceBeats` was 0 while `stepBeats` said 4, and nothing animated.
+   *
+   * WHY THE SUBSET AND NOT A CODED RULE. `Do Sa Do` is derived with the IDENTITY transform (step around your partner and
+   * back to your own spot), so applying it moves nobody and there is no path to animate - while the AUTHORED tams carry
+   * real motion (`Opposite Boy`: 2 dancers, 8 beats, 8 per path). Reading the variant the way `applySelected` does -
+   * select, centre on the subset's own origin, match - is what reaches that motion.
+   */
+  private stepMatch(board: Board, name: string, selection?: string): StepMatch | null {
     if (selection) {
       const ids = this.resolveSelection(board, selection);
       if (ids && ids.length > 0) {
@@ -416,25 +435,46 @@ export class SequenceAnalyzer {
         cx /= selected.length;
         cy /= selected.length;
         const subBoard: Board = { dancers: selected.map((d) => ({ ...d, x: d.x - cx, y: d.y - cy })) };
-        // `findMatchingVariant` is the applicator's own whole-board predicate, run on the sub-board -
-        // which is exactly the first reading `applySelected` tries.
+        // `findMatchingVariant` is the applicator's own whole-board predicate, run on the sub-board - which is exactly
+        // the first reading `applySelected` tries.
         const sub = this.matcher.findMatchingVariant(subBoard, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
-        if (sub) return { beats: Math.max(...sub.variant.dancers.map((d) => dancerBeats(d))), variant: sub.variant };
+        if (sub) {
+          return {
+            kind: 'subset',
+            match: sub,
+            selected: selected.map((d) => board.dancers.indexOf(d)),
+            centre: { x: cx, y: cy },
+          };
+        }
       }
     }
     const m = this.matcher.findMatchingVariant(board, name, DEFAULT_MATCH_MAX + this.config.matchMargin);
-    if (m) return { beats: Math.max(...m.variant.dancers.map((d) => dancerBeats(d))), variant: m.variant };
-    // THE SAME PREDICATE `parallelApply` USES, because the two disagreeing is what makes a call
-    // "apply but not exist". `parallelApply` takes `partition(...) ?? partitionPartial(...)` at the
-    // tolerance `applyToBoardInner` hands it - DEFAULT when re-basing, which is what `replayWalk`
-    // does. This used to ask `partitionExists` (FULL tilings only) at SEARCH, and there are boards
-    // where NO variant tiles FULLY while one tiles PARTIALLY.
+    return m ? { kind: 'whole', match: m } : null;
+  }
+
+  /** Find the call variant that applies to `board` (WHOLE-BOARD first, else the
+   * PARALLEL-subset path) and return its beat count and, when available, the
+   * variant itself. */
+  private matchingVariantInfo(
+    board: Board,
+    name: string,
+    selection?: string,
+  ): { beats: number; variant: CallBundle | null } | null {
+    // The reading itself is `stepMatch`'s - see there for why a scoped step is looked up against its own subset.
+    const hit = this.stepMatch(board, name, selection);
+    if (hit) return { beats: Math.max(...hit.match.variant.dancers.map((d) => dancerBeats(d))), variant: hit.match.variant };
+    // THE SAME PREDICATE `parallelApply` USES, because the two disagreeing is what makes a call "apply but not exist".
+    // `parallelApply` takes `partition(...) ?? partitionPartial(...)` at the tolerance `applyToBoardInner` hands it -
+    // DEFAULT when re-basing, which is what `replayWalk` does. This used to ask `partitionExists` (FULL tilings only) at
+    // SEARCH, and there are boards where NO variant tiles FULLY while one tiles PARTIALLY.
     //
-    // MEASURED on ceder-7046: `Swing Thru` from the `Double Pass Thru` the module reaches is applied
-    // by variant #10 through `partitionPartial(DEFAULT)`; no variant tiles fully at SEARCH, so the
-    // walk charged the call 0 beats and `evaluateSequence` then aborted - returning the board BEFORE
-    // the call, which is the reported "last frame jumps the board back". See
-    // `engine/test/tools/7046-swing-thru-probe.mjs`.
+    // MEASURED on ceder-7046: `Swing Thru` from the `Double Pass Thru` the module reaches is applied by variant #10
+    // through `partitionPartial(DEFAULT)`; no variant tiles fully at SEARCH, so the walk charged the call 0 beats and
+    // `evaluateSequence` then aborted - returning the board BEFORE the call, which is the reported "last frame jumps the
+    // board back". See `engine/test/tools/7046-swing-thru-probe.mjs`.
+    //
+    // A TILING IS NOT A TRACK, which is why this fallback answers the TIMING only: there is no single mapping to compose
+    // from, so `moduleTracks` refuses such a step by name instead of guessing one of the copies.
     const tol = DEFAULT_MATCH_MAX + this.config.matchMargin;
     const variants = this.library.matchableVariants(name);
     {
@@ -450,6 +490,96 @@ export class SequenceAnalyzer {
       }
     }
     return null;
+  }
+
+  /**
+   * A MODULE RESOLVED INTO PER-DANCER LOCAL TRACKS - the input `composeModuleCall` cannot compute alone.
+   *
+   * WHY IT LIVES HERE. Which variant a step takes, what it costs and which board it starts from are THIS class's
+   * questions (`stepMatch`, `stepBeats`, the applicator), and a composer that re-derived any of them would be a second
+   * reading of one rule.
+   *
+   * THE APPLICATOR WALKS THE CHAIN, and that is deliberate: `applyStep` is what says the step APPLIES and what board it
+   * leaves, so the next step is read against the board the engine itself produced rather than against a board this method
+   * reconstructed from its own tracks. Whether the tracks are RIGHT is judged afterwards and elsewhere: `Sequencer.
+   * moduleCall` compares the composed end against the replay (`evaluateSequence`, an observable nothing here contributed
+   * to), which is the check that catches a subset call the applicator answers from the WHOLE board (`Cross Run`,
+   * `applicator.ts`'s own note) or any other divergence between the reading taken here and the one taken there.
+   *
+   * WHAT IT REFUSES, each by name: a "while" figure (several authorings dance at once, so there is no single track); a
+   * coded move with no authored tam, using `stepBeats`' own precedence so the charge and the track cannot disagree; a
+   * REFLECTED placement (the loop format cannot carry a mirrored track - AGENTS §8 trap 18); and a step that does not
+   * apply, or that has no whole-board authoring at all.
+   *
+   * IT IS STRICTER THAN `replayWalk` IN ONE PLACE, deliberately. The walk records a SCOPED step as walkable when a variant
+   * matched its subset, even when the apply refused it (`walkable: info !== null` while `after` is the unchanged board),
+   * so `sequenceStop` reports no stop for a step nothing happened on. This refuses at the apply, because a track built
+   * from a refused step would claim motion the engine did not do. MEASURED over the corpus: 4 of the 294 modules are in
+   * that gap (`poc/tools/module-call-probe.mjs` names them), and the difference is left to its own change rather than
+   * quietly resolved here in either direction.
+   */
+  moduleTracks(board: Board, steps: readonly ModuleStep[]): ModuleTracks | { reason: string; tried: string } {
+    const flat = this.library.flatten([...steps]);
+    if (flat.length === 0) return { reason: 'the module has no steps', tried: 'its step list' };
+    const n = board.dancers.length;
+    const tracks: ModuleStepTrack[] = [];
+    let start: { x: number; y: number; heading: number }[] | null = null;
+    let cur = board;
+    for (const [i, step] of flat.entries()) {
+      const label = stepLabel(step);
+      const what = `step ${i + 1} of ${flat.length} (${label})`;
+      if (isGroupStep(step)) {
+        return { reason: `${what} is a "while" figure: several authorings dance at once, so it has no single track`, tried: what };
+      }
+      const spec = this.readStep(step);
+      const coded = findCodedMove(spec.call);
+      // THE SAME PRECEDENCE `stepBeats` USES: a coded move is charged its rule's beats and has no authored path, unless
+      // an authored tam wins the step (`authoredWins`), which is then the track this composes.
+      if (coded && !spec.selection && !this.authoredWins(cur, spec.call)) {
+        return { reason: `${what} is a coded move: it has a derived rule and no authored track`, tried: what };
+      }
+      const applied = this.applicator.applyStep(cur, step);
+      if (!applied.legal) {
+        return { reason: `${what} does not apply from the board it starts on: ${applied.reason ?? 'refused'}`, tried: what };
+      }
+      const hit = this.stepMatch(cur, spec.call, spec.selection ?? undefined);
+      if (!hit) {
+        return { reason: `${what} has no whole-board authoring from the board it starts on`, tried: what };
+      }
+      if (hit.match.reflect) {
+        return { reason: `${what} mirrors its track, which the loop format cannot express`, tried: what };
+      }
+      // THE MATCH IS AGAINST THE NORMALISED GEOMETRY (`variantMatchable`), so the PATH must be normalised too: a mirrored
+      // source dancer's path is replayed with its pose negated, and appending it verbatim would place a track that starts
+      // somewhere else. `placeVirtual` normalises for the same reason.
+      const source = normalizeInstance(hit.match.variant);
+      const beats = this.stepBeats(cur, step);
+      // A DANCER THE READING DOES NOT ACT ON HOLDS, and their pose for this step is the one they already stand in.
+      const poses = cur.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.heading }));
+      const paths: (readonly Seg[] | null)[] = cur.dancers.map(() => null);
+      const moved = hit.kind === 'whole' ? cur.dancers.map((_, k) => k) : hit.selected ?? [];
+      const cx = hit.centre?.x ?? 0;
+      const cy = hit.centre?.y ?? 0;
+      for (const [j, at] of moved.entries()) {
+        // For a whole-board reading the match is indexed by BOARD index, which is `j`; for a subset it is indexed by the
+        // SUB-BOARD's dancer, which is also `j` in the subset's own order.
+        const from = hit.match.mapping[j];
+        const track = source.dancers[from];
+        if (!track) {
+          return { reason: `${what}: the match maps a board dancer to a source dancer it does not have`, tried: what };
+        }
+        paths[at] = track.path;
+        // THE REBASED START, in the applicator's own frame (`applyWholeBoard`), with the centring offset a subset reading
+        // removed put back (`applySelectedInner`).
+        const base = rebasedPose(poseFor(track, 0), hit.match);
+        poses[at] = { x: base.x + cx, y: base.y + cy, heading: base.heading };
+      }
+      if (start === null) start = poses;
+      tracks.push({ label, beats, paths });
+      cur = applied.board;
+    }
+    if (start === null) return { reason: 'the module has no steps', tried: 'its step list' };
+    return { start, steps: tracks };
   }
 
   /** The board a REPLAY starts from: the caller's explicit start board when

@@ -161,6 +161,11 @@ export type {
   VirtualOptions,
   VirtualOutcome,
 } from './sequencer/virtual-call.js';
+// THE MODULE AS ONE CALL: a named module's steps composed into a single whole-set bundle, the same shape a call variant
+// has. The rules that decide whether a step can be composed at all are the analyzer's (`moduleTracks`), and
+// `Sequencer.moduleCall` is the thin delegate that supplies the module's steps and the engine's namer.
+export { composeModuleCall } from './sequencer/module-call.js';
+export type { ComposedModule, ModuleCallOutcome, ModuleStepTrack, ModuleTracks } from './sequencer/module-call.js';
 // The mixed-arity (multi-size) grouping enumeration. Exported for the REPORTER that pins its measured
 // yield — see `partitionsFor` for why it is deliberately wired to nothing else.
 export { partitionsFor, MIXED_PARTITION_CAP } from './sequencer/applicator.js';

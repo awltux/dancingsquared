@@ -56,7 +56,7 @@ export class AccountScreen {
 
   constructor(private readonly on: AccountCallbacks) {
     this.els = {
-      row: el('account'),
+      row: el('accountRow'),
       status: el('accountStatus'),
       form: el<HTMLFormElement>('accountForm'),
       email: el<HTMLInputElement>('accountEmail'),

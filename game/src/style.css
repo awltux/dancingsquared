@@ -73,6 +73,7 @@ body {
 /* THE CONTENT COLUMN. It is the only thing that scrolls, and the scrollbar's width is taken from the cards rather than
    drawn over them. */
 #panelScroll {
+  grid-row: 2;
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
@@ -81,33 +82,207 @@ body {
   padding-right: var(--space-xs);
 }
 
+/* THE PANEL'S THREE ROWS ARE PLACED EXPLICITLY, NOT BY ORDER. `paintChrome` hides the header on a narrow viewport's
+   landing page, and a `display: none` child is REMOVED from the grid — which slid the scrolling body into the header's
+   `auto` row and the footer into the `minmax(0, 1fr)` row. MEASURED at 500 x 757 as `grid-template-rows: 279px 0px 0px`
+   with the footer's two lines drawn 33 px below the panel's bottom edge, clipped away by `overflow: hidden`. Placement by
+   name cannot slide. */
+#head {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* A HIDDEN HEADER IS NOT MERELY INVISIBLE: `display` is set just above, and an author `display` beats the user agent's
+   `[hidden]` rule. `main.ts`'s `paintChrome` hides it on a narrow viewport's landing page, where the banner has nothing in
+   it and the sheet has no height to spare. */
+#head[hidden] {
+  display: none;
+}
+
 #head h1 {
   margin: 0;
   font-size: var(--fs-title);
   letter-spacing: 0.01em;
 }
 
+/* THE BANNER: THE WAY BACK AND WHERE THE PLAYER IS, one row, on every page. It is a flex row with the text as its only
+   growing cell, so the pips and the standing that join it in a later step sit at the ends without pushing the regime line
+   around — and the row is a fixed minimum height so a page with a short regime does not shift the content above it when
+   the player navigates. */
+#bannerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 32px;
+}
+
 #regime {
-  margin: 6px 0 0;
+  flex: 1;
+  margin: 0;
   color: var(--dim);
   font-size: var(--fs-body);
 }
 
-/* THE MODE SWITCH. Two buttons rather than a select: the choice is the game's top-level one, and a native
-   select on a phone opens a picker that hides the board behind it. `aria-pressed` carries the state, so the
-   pressed look is not the only signal. */
-#modes {
-  display: flex;
-  gap: var(--space-sm);
-  margin-top: 12px;
+/* THE BACK BUTTON IS A CONTROL AND NOT A LINK, because it does not go where a link's href says: it goes to the page's
+   PARENT (`ui/pages.ts`'s `backTarget`), which is a fact about the pages rather than about history. It is sized for a
+   thumb even though it is small on screen — the same 44 px rule every other control here follows. */
+#bannerBack {
+  flex: none;
+  min-height: 32px;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--fs-control);
+  color: var(--ink);
+  background: var(--control);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  cursor: pointer;
 }
 
-#modes button {
-  flex: 1;
+#bannerBack:hover {
+  border-color: var(--accent);
+}
+
+/* A SENTENCE THAT OUTLIVES A NAVIGATION — a deep link that named nothing, most often. It sits above the page rather than
+   inside one, because the page it is about is the one the player is NOT on. */
+#notice {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--dim);
+  font-size: var(--fs-small);
+  line-height: 1.35;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+
+#notice[data-kind="ok"] {
+  color: var(--ok);
+}
+
+#notice[data-kind="bad"] {
+  color: var(--bad);
+}
+
+/* A PAGE IS A CARD AND ITS HEADING IS ITS TITLE. `display: flex` is on the page so a card's children stack with the
+   scale's gap rather than the browser's default margin, which is why the `[hidden]` rule below has to exist: an author
+   `display` beats the user agent's `[hidden]` rule, and a hidden page that still displays is the whole router working
+   for nothing. */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.page[hidden] {
+  display: none;
+}
+
+.page > h2 {
+  margin: 0;
+  font-size: var(--fs-heading);
+  font-weight: 600;
+}
+
+/* A focused heading gets NO outline: it is focused to MOVE the reading position after a navigation, not to show a
+   control. The visible ring would read as "this text is a button". */
+.page > h2:focus {
+  outline: none;
+}
+
+.page > h3 {
+  margin: var(--space-sm) 0 0;
+  color: var(--dim);
+  font-size: var(--fs-control);
+  font-weight: 600;
+}
+
+.page-lede {
+  margin: 0;
+  color: var(--dim);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+
+.page-note {
+  margin: 0;
+  color: var(--dim);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+
+/* THE MENU. One stacked column of full-width controls rather than a grid: these are five different destinations with
+   unequal names, and a phone's thumb reaches a column more reliably than a corner. */
+#landingNav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0;
+}
+
+#landingNav button {
   min-height: 44px;
   padding: var(--space-sm) var(--space-md);
-  font-size: var(--fs-body);
+  font-size: var(--fs-control);
   font-family: inherit;
+  color: var(--ink);
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
+  cursor: pointer;
+  text-align: left;
+}
+
+#landingNav button:hover {
+  border-color: var(--accent);
+}
+
+/* ONE PRIMARY, AS EVERYWHERE ELSE IN THE APP: the game's own door is the accent-filled control, and the rest of the menu
+   keeps its outline. MEASURED on the first version of this page, which accented the account button as well: two highlighted
+   buttons in a column of six says nothing about which one to press. */
+#landingNav #goLevels {
+  border-color: var(--accent);
+  background: var(--pressed);
+  font-weight: 600;
+}
+
+/* THE HELP PAGE'S RULES, as a definition list because that is what they are: a name and the rule behind it. LAY OUT AS A
+   COLUMN, NOT AS TWO. REPORTED: "The content for the sub headings isnt flowing well. The content should be below the
+   heading, not indented to the right." A two-column definition list is the platform's classic presentation, and it spends
+   half the card on an indent: at 500 px the rule gets ~150 px and reads as a letterbox, and even on the desktop the eye
+   has to travel back and forth to pair a name with its paragraph. So the name is a line and the rule is a paragraph under
+   it — the ordinary reading order, and the same shape on both layouts. */
+.help-list {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+
+.help-list dt {
+  margin: var(--space-md) 0 var(--space-xs);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* THE FIRST NAME SITS UNDER THE LEDE WITHOUT ITS OWN GAP, or the list starts with a doubled space. */
+.help-list dt:first-child {
+  margin-top: 0;
+}
+
+.help-list dd {
+  margin: 0;
+  color: var(--dim);
+}
+
+/* THE SETUP PAGE'S CONTROLS ARE A COLUMN, like the menu's, because they are set-once preferences rather than a toolbar. */
+#setup > button {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  font-family: inherit;
+  font-size: var(--fs-body);
   color: var(--ink);
   background: var(--control);
   border: 2px solid var(--line);
@@ -115,10 +290,44 @@ body {
   cursor: pointer;
 }
 
-#modes button[aria-pressed="true"] {
+#setup > button:hover {
+  border-color: var(--accent);
+}
+
+/* THE ONE CONTROL THAT DELETES SOMETHING IS MARKED AS SUCH, in the palette's own warning colour rather than a new one. */
+#setup #startOver {
+  border-color: var(--bad);
+}
+
+/* THE BOARD PAGE'S MODE CHOOSER: which of the two boards is being read. It is a filter and not a mode switch, which is
+   why it is two small buttons rather than the full-width pair the menu uses. */
+#boardMode {
+  display: flex;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0 0;
+}
+
+#boardMode button {
+  min-height: 36px;
+  padding: var(--space-xs) var(--space-md);
+  font-family: inherit;
+  font-size: var(--fs-small);
+  color: var(--ink);
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
+  cursor: pointer;
+}
+
+#boardMode button[aria-pressed="true"] {
   border-color: var(--accent);
   background: var(--pressed);
   font-weight: 600;
+}
+
+#boardMode button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* A BUTTON IS WORKING. REPORTED: "The Today's Daily button seems to hang the app" — the press is a server round trip
@@ -284,15 +493,14 @@ button[data-busy="true"]::after {
   background: transparent;
 }
 
-#level .cell:focus-visible,
+#levels .cell:focus-visible,
 #levelNext:focus-visible,
-#toLevel:focus-visible {
+#bannerBack:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-#levelNext,
-#toLevel {
+#levelNext {
   min-height: 44px;
   margin-top: 10px;
   padding: var(--space-sm) var(--space-md);
@@ -305,11 +513,11 @@ button[data-busy="true"]::after {
   cursor: pointer;
 }
 
-/* THE ACCOUNT ROW (DESIGN.md §11.2): under the regime line and above the mode switch, because whether a run is
-   ranked is a fact about the SESSION rather than about either mode. It is `hidden` until the app has something
-   true to say, so an offline build and a `dev` server draw nothing here at all.
-   THE TOUCH TARGETS MATCH THE MODE SWITCH's 44px — the audience is the reason that number was chosen there. */
-#account {
+/* THE ACCOUNT ROW (DESIGN.md §11.2): on its own page, because whether a run is ranked is a fact about the SESSION rather
+   than about either game. It is `hidden` until the app has something true to say, so an offline build and a `dev` server
+   draw nothing here at all — which is why the page carries a sentence of its own that is true either way.
+   THE TOUCH TARGETS ARE 44px — the audience is the reason that number was chosen. */
+#accountRow {
   margin-top: 12px;
   padding: var(--space-md) var(--space-md);
   border: 1px solid var(--line);
@@ -374,11 +582,13 @@ button[data-busy="true"]::after {
   margin-top: 10px;
 }
 
-/* THE BOARD PANEL. Tabular figures again, because a column of scores that shifts by a pixel per digit is a column
-   nobody can compare down. `you` is marked by a border rather than a colour alone, so the marking is not the only
-   signal (the same reason the mode switch carries `aria-pressed`). */
-#boardHeading {
-  margin: 0 0 4px;
+/* THE BOARD PAGE. Tabular figures again, because a column of scores that shifts by a pixel per digit is a column nobody
+   can compare down. `you` is marked by a border rather than a colour alone, so the marking is not the only signal (the
+   same reason the board's mode filter carries `aria-pressed`).
+   `#boardHeading` IS THE PAGE'S `<h2>` now, so the caption that says WHICH board this is is `#boardCaption` and is styled
+   as the line it is. */
+#boardCaption {
+  margin: 0;
   color: var(--ink);
   font-size: var(--fs-control);
   font-weight: 600;
@@ -755,59 +965,12 @@ button[data-busy="true"]::after {
   border-color: var(--accent);
 }
 
-/* THE "MORE OPTIONS" DISCLOSURE. REPORTED as "Some of the current buttons seem like overkill": the four controls now
-   inside it are set-once preferences or housekeeping rather than moves in the game, and the reason each one moved is in
-   `index.html` beside it. `<details>` carries the open/closed state and the announcement for free, so there is no
-   scripted menu to get wrong — but a `summary` is not a `button`, so it needs the button's look stated explicitly,
-   which is the only reason this rule exists. `list-style: none` and the `::-webkit-details-marker` rule remove the
-   platform triangle: the marker is a second visual language next to the rest of the footer, and the accent border on
-   `[open]` says the same thing in the language the page already speaks. */
-#more {
-  margin: 0;
-}
-
-#more > summary {
-  min-height: 48px;
-  padding: var(--space-md) var(--space-lg);
-  font-size: var(--fs-control);
-  font-family: inherit;
-  color: var(--ink);
-  background: var(--raised);
-  border: 2px solid var(--line);
-  border-radius: var(--r-control);
-  cursor: pointer;
-  list-style: none;
-}
-
-#more > summary::-webkit-details-marker {
-  display: none;
-}
-
-#more > summary:hover,
-#more[open] > summary {
-  border-color: var(--accent);
-}
-
-#more > summary:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* THE BODY KEEPS THE FOOTER'S OWN SPACING, because these are the same controls they were before the disclosure: a
-   `.more-body` with no gap would stack them flush and read as a different kind of thing. */
-.more-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  margin-top: 10px;
-}
-
-/* THE EMPTY CASE IS POSSIBLE AND MUST NOT LEAVE A DEAD ROW: `#autoProgress` is hidden outside a drill question, and
-   the other three are always visible, so the body is never empty today — but the rule costs nothing and a future
-   fifth control would otherwise open onto a box of nothing. */
-.more-body:empty {
-  display: none;
-}
+/* THE "MORE OPTIONS" DISCLOSURE IS GONE, and this note replaces it rather than sitting beside a stale rule: REPORTED as
+   "Some of the current buttons seem like overkill", the four controls it held were set-once preferences or housekeeping,
+   and they are now the SETUP PAGE. A page is the better answer than a drawer over the game once pages exist — the drawer
+   was the answer to "the footer is cluttered", and it left the 2D/3D switch and the device reset two taps deep in a bar
+   that was trying to be a menu. Nothing was deleted: `#view`, `#autoProgress` and `#startOver` are on `#setup`, and
+   `shell-controls-probe.mjs` pins which controls are the game's own moves and which are housekeeping. */
 
 #loading {
   position: absolute;
@@ -1170,6 +1333,7 @@ button[data-busy="true"]::after {
 }
 
 #foot {
+  grid-row: 3;
   padding-top: var(--space-lg);
   border-top: 1px solid var(--line-soft);
 }
@@ -1192,10 +1356,11 @@ button[data-busy="true"]::after {
    and it lives inside a no-preference query because a reduced-motion player has asked for exactly this not to happen. */
 @media (prefers-reduced-motion: no-preference) {
   #foot button:active,
+  #landingNav button:active,
+  #bannerBack:active,
   .offer:active,
   .answer:active,
-  .call-subset:active,
-  #more > summary:active {
+  .call-subset:active {
     transform: translateY(1px);
   }
 }
@@ -1242,15 +1407,18 @@ button[data-busy="true"]::after {
     display: none;
   }
 
-  #modes button {
-    min-height: 40px;
-  }
+  /* AND THE REGIME LINE GOES TOO: it says "The Drill — drill 1 of 100, level 1", which is the same two facts the level
+     card states — the page is in the heading and the position is in the card. On a phone that duplication cost the
+     content column another ~20 px of a sheet that has none to spare.
 
-  /* AND THE REGIME LINE GOES TOO: it says "The Drill — drill 1 of 100, level 1", which is the same two facts the level card
-     below it states — the mode is in the pressed tab and the position is in the heading. On a phone that duplication cost the
-     content column another ~20 px of a sheet that has none to spare. */
+     THE BACK BUTTON IS WHAT IS LEFT OF THE BANNER HERE, and it is the row's whole point: on a sheet the way back must be
+     above the content, because the browser's own back gesture is not available in an installed app. */
   #regime {
     display: none;
+  }
+
+  #bannerRow {
+    min-height: 36px;
   }
 
   /* THE LEVEL HEADING IS ONE LINE ON A SHEET, ellipsised rather than wrapped: at 500 px "Level 1 — 0 of 100 done, 0 passed"
@@ -1316,11 +1484,10 @@ button[data-busy="true"]::after {
     gap: var(--space-sm);
   }
 
-  /* ONLY THE ACTION AND THE DISCLOSURE SPAN BOTH COLUMNS. MEASURED on the first two-up attempt: a `span 2` on EVERY button
-     put them back one per row and the footer stayed 250 px tall. The primary and `More options` are the two a thumb reaches
-     for; a pair of secondary controls (Undo / Redo, Play / The shortest line) sits two-up between them. */
+  /* ONLY THE ACTION AND A SHARE ROW SPAN BOTH COLUMNS. MEASURED on the first two-up attempt: a `span 2` on EVERY button
+     put them back one per row and the footer stayed 250 px tall. The primary is the one a thumb reaches for; a pair of
+     secondary controls (Undo / Redo, Play / The shortest line) sits two-up between them. */
   #foot #next,
-  #foot #more,
   #foot .result-share {
     grid-column: span 2;
   }

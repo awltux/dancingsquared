@@ -64,6 +64,7 @@ import { AccountScreen } from './ui/account-screen.ts';
 import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { Replay, LANDING_HOLD_MS } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
+import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -71,16 +72,34 @@ type AppMode = 'drill' | 'daily';
 type ReplayOutcome = 'advance' | 'settle';
 
 const PLAYHEAD = new Replay();
+/**
+ * THE PLAY MODE — what the next drill-shaped request is about, and which half of the board a run belongs to.
+ *
+ * IT IS NOT THE PAGE. A page is a place in the app (`ui/pages.ts`); a mode is which of the two games is being played, and
+ * only three pages play one. Help is not a mode, so visiting it must not re-issue the Daily and restart a clock — which is
+ * why `applyPage` sets this for the two play pages and leaves it alone everywhere else.
+ */
 let mode: AppMode = 'drill';
 /**
- * WHICH OF THE DRILL TAB'S TWO VIEWS IS SHOWING — the level's block, or the drill itself.
+ * WHERE THE PLAYER IS, as the router understands it — the authority for every visibility decision in this file.
  *
- * THE DRILL TAB HAS TWO VIEWS AND STILL TWO MODES, which is why this is not a third `AppMode`: a mode is something a
- * player plays, and the level is where the mode is entered from. The grid is the HOME (a player lands on it, including
- * after a reload, so the block is visible whenever progress is interesting) and the drill is entered from one cell.
+ * `mode` is derived from this rather than held alongside it, so "which panel is showing" has ONE answer and it is the one
+ * in the URL (`ui/pages.ts`). The Drill's block and its question used to be two views of one tab, selected by a
+ * `drillView` flag this file no longer carries: they are two PAGES (`#/levels` and `#/drill`), and a flag that says which
+ * half of one tab is showing has no meaning when the location says it.
  */
-let drillView: 'level' | 'drill' = 'level';
+let page: Page = 'landing';
 let viewMode: ViewMode = '2d';
+
+/**
+ * WHICH BOARD the board page is showing. It is the board's OWN filter rather than the last play mode, because the board is
+ * a read: a player who has never opened a drill can still read the Daily board, and a player who just played the Daily
+ * does not want the Drill board without asking for it.
+ */
+let boardMode: AppMode = 'drill';
+
+/** The hash this app last applied, so a URL it already wrote does not re-enter `applyPage` through `hashchange`. */
+let appliedHash: string | null = null;
 
 /** The level's engine seam. One per level, rebuilt when the level changes, shared by both modes. */
 let applier: GameApplier | null = null;
@@ -289,12 +308,38 @@ const els = {
   waypointNext: el<HTMLButtonElement>('waypointNext'),
   waypointLegend: el('waypointLegend'),
   regime: el('regime'),
-  modeDrill: el<HTMLButtonElement>('modeDrill'),
-  modeDaily: el<HTMLButtonElement>('modeDaily'),
+  head: el('head'),
+  bannerBack: el<HTMLButtonElement>('bannerBack'),
+  notice: el('notice'),
+  landing: el('landing'),
+  setupPage: el('setup'),
+  helpPage: el('help'),
+  accountPage: el('account'),
+  levelsPanel: el('levels'),
   drillPanel: el('drill'),
-  levelPanel: el('level'),
-  toLevel: el<HTMLButtonElement>('toLevel'),
   dailyPanel: el('daily'),
+  boardPanel: el('board'),
+  // THE HEADINGS ARE NAMED ONE BY ONE RATHER THAN LOOKED UP FROM `pageHeadingId`, because that lookup is a computed id
+  // (`el()` takes a literal) and `shell-controls-probe.mjs` is what proves every id this file asks for exists.
+  headings: {
+    landing: el('landingHeading'),
+    setup: el('setupHeading'),
+    help: el('helpHeading'),
+    account: el('accountHeading'),
+    levels: el('levelsHeading'),
+    drill: el('drillHeading'),
+    daily: el('dailyHeading'),
+    board: el('boardHeading'),
+  } satisfies Record<Page, HTMLElement>,
+  goAccount: el<HTMLButtonElement>('goAccount'),
+  goHelp: el<HTMLButtonElement>('goHelp'),
+  goLevels: el<HTMLButtonElement>('goLevels'),
+  goDaily: el<HTMLButtonElement>('goDaily'),
+  goSetup: el<HTMLButtonElement>('goSetup'),
+  goBoard: el<HTMLButtonElement>('goBoard'),
+  landingStatus: el('landingStatus'),
+  boardModeDrill: el<HTMLButtonElement>('boardModeDrill'),
+  boardModeDaily: el<HTMLButtonElement>('boardModeDaily'),
   balance: el('balance'),
   ledger: el('ledger'),
   hint: el<HTMLButtonElement>('hint'),
@@ -314,7 +359,10 @@ const els = {
 };
 
 const drillScreen = new DrillScreen(answer);
-const levelScreen = new LevelScreen(levelPlay, levelNextLevel);
+// A CELL PRESS IS A NAVIGATION: the drill is a page, so the press writes its URL and `applyPage` opens it through
+// `openDrillPage` → `levelPlay`. That is what makes the browser's back button leave the drill for the block, and a reload
+// of `#/drill/3` reopen the same position instead of forgetting it.
+const levelScreen = new LevelScreen((index) => navigate({ page: 'drill', drillIndex: index }), levelNextLevel);
 // A PARALLEL STEP IS ONE LINE ELEMENT (`Sides Trade || Heads Dosado`), which the applier reads back with the engine's
 // own `parseStep`, so `playDailyCall` is the whole path: the session applies it, the line records the label and the
 // server replays it. Nothing distinct to record, and nothing to keep in step with the single-call path.
@@ -456,6 +504,12 @@ function paintWaypoints(): void {
     els.labelHere.removeAttribute('title');
     els.labelGoal.textContent = 'Next waypoint';
     els.labelGoal.removeAttribute('title');
+    // NOTHING IS ON THE FLOOR, SO NOTHING NAMES IT. Both captions are centred in the single-board layout and a page with no
+    // puzzle never reaches the branch below that hides one of them — REPORTED as a caption reading "NextWwaypoint" on a menu
+    // page at 500 px, which is the two labels drawn on top of each other. The text stays in the DOM (it is what the next
+    // paint replaces) and the labels are hidden until there is a board to name.
+    els.labelHere.hidden = true;
+    els.labelGoal.hidden = true;
     els.waypointPrev.hidden = true;
     els.waypointNext.hidden = true;
     els.waypointLegend.hidden = true;
@@ -572,7 +626,7 @@ function paintBalance(): void {
   // THE HINT BUTTON BELONGS TO THE DAILY, because that is the mode it is spent on (DESIGN.md 10), and it is
   // hidden rather than merely disabled once the run is over — there is nothing left to be hinted.
   const playing = daily !== null && daily.view(performance.now()).outcome === 'playing';
-  els.hint.hidden = mode !== 'daily' || !playing;
+  els.hint.hidden = page !== 'daily' || !playing;
   // A SPENT-OUT BALANCE DOES NOT DISABLE IT, and that is a correction rather than an oversight. It used to be
   // `disabled = hints <= 0 || !playing`, which meant `takeHint`'s own sentence - "You have no hints - one is earned
   // every ten solved drills" - could NEVER RUN, because a disabled button does not fire a click. REPORTED: "Nothing
@@ -598,8 +652,33 @@ function paintAccount(): void {
     player,
     offersForm: signInOffered({ mode: authMode, signin: signinRoutes, pinned: apiDeps.modeOverride !== undefined }),
   });
+  paintLanding();
   paintLedger();
   paintBalance();
+}
+
+/**
+ * The landing page's two session facts, in the words the button and the sentence use.
+ *
+ * THE BUTTON NAMES ITSELF FOR THE SESSION, because "Register or sign in" is the wrong label for a player who already has:
+ * a page whose menu offers to register someone who is signed in is a page that has not read its own state. The sentence
+ * beside it says what an account changes, in the same voice as the ledger — `offline` has nothing to sign in TO, and
+ * saying that is more honest than offering a form that would have nowhere to go.
+ */
+function paintLanding(): void {
+  els.goAccount.textContent = player ? 'Your account' : 'Register or sign in';
+  const standing = currentStanding();
+  if (player) {
+    els.landingStatus.textContent = `Signed in as ${player.email}. Your runs are recorded on the server.`;
+    return;
+  }
+  if (standing === 'offline') {
+    els.landingStatus.textContent = 'No server is configured, so there is no account to sign in to: everything is kept on this device.';
+    return;
+  }
+  els.landingStatus.textContent = standing === 'ranked'
+    ? 'No account needed on this server — it names the player for you. Signing in still keeps your progress under an email.'
+    : 'Playing without an account: everything works, and your runs stay on this device unranked until you sign in.';
 }
 
 /**
@@ -653,8 +732,9 @@ async function bootAccount(): Promise<void> {
   // knows whether this browser may send a device id at all, and it is a mode the shell has just learned.
   rememberAuthMode(authMode);
   paintAccount();
-  // AND ONLY NOW IS THE FIRST QUESTION ASKED, with an identity the server will accept.
-  applyMode('drill');
+  // AND ONLY NOW IS THE FIRST QUESTION ASKED, with an identity the server will accept — by the page the URL names, which
+  // is the landing page unless the player came back to a bookmarked one.
+  bootPage();
 }
 
 /** Sign in, and re-read everything the session decides. The refusals are the server's own sentences (§11.2). */
@@ -767,8 +847,11 @@ async function doSignOut(): Promise<void> {
  */
 function accountChanged(): void {
   paintAccount();
-  if (mode === 'drill') issueCurrentDrill('current');
-  else issueDaily();
+  // ONLY A PLAY PAGE RE-ISSUES: the same request is answered differently for a different identity, so a drill on screen
+  // is stale the moment the session changes — but a player signing in on the account page has nothing on screen to
+  // re-ask, and issuing anyway would put a run in flight nobody asked for. The page they go to next issues its own.
+  if (page === 'levels' || page === 'drill') issueCurrentDrill('current');
+  else if (page === 'daily') issueDaily();
 }
 
 // ------------------------------------------------------------------------------------------------ the board
@@ -778,26 +861,38 @@ function accountChanged(): void {
  *
  * THIS FUNCTION'S ONLY JOB IS NAMING ITS TWO INPUTS, and the split is the point: the rule ("a Daily board is the UTC
  * day, a Drill board is the set the SERVER issued, and null is an answer") is a pure function a probe can drive, and
- * everything that fed it here is shell state — `mode`, `serverIssued()`, `practiceRun`, and the clock. The rule used to
- * live in this file whole, and the drill half consulted `seasonOf(Date.now())`, which ranked runs on a board their
- * drill did not come from (`puzzle/board-period.ts`'s header has the measurement).
+ * everything that fed it here is shell state — the board's own mode, `serverIssued()`, `practiceRun`, and the clock. The
+ * rule used to live in this file whole, and the drill half consulted `seasonOf(Date.now())`, which ranked runs on a board
+ * their drill did not come from (`puzzle/board-period.ts`'s header has the measurement).
  *
  * `utcDay(new Date())` IS the daily half's own answer: the day IS the challenge, so the client computing it cannot
  * disagree with the server. The drill half reads the ISSUED drill's schedule version and nothing else.
+ *
+ * THE MODE IS THE BOARD PAGE'S OWN (`boardMode`), not the last mode played: the board is a read, and a player who has
+ * never opened a drill must still be able to read the Daily board.
  */
 function boardPeriod(): string | null {
   const issued = serverIssued() ? serverDrill : null;
-  return boardPeriodOf(mode, utcDay(new Date()), issued?.scheduleVersion ?? null);
+  return boardPeriodOf(boardMode, utcDay(new Date()), issued?.scheduleVersion ?? null);
+}
+
+/** Choose which board the page shows, and re-read it. Two buttons rather than the last mode played — see `boardPeriod`. */
+function switchBoardMode(next: AppMode): void {
+  boardMode = next;
+  els.boardModeDrill.setAttribute('aria-pressed', String(next === 'drill'));
+  els.boardModeDaily.setAttribute('aria-pressed', String(next === 'daily'));
+  void loadBoard();
 }
 
 /**
- * Load the board for the mode the app is in, and show it.
+ * Load the board for the board page's mode, and show it.
  *
- * IT IS ON DEMAND, because a board is a request and this panel is opened by a press. A build with no server gets the
- * sentence rather than a spinner that can never finish, and a refusal is shown in the server's own words.
+ * IT IS ON DEMAND, because a board is a request: the page is the press that asks for it, and its own button reloads it. A
+ * build with no server gets the sentence rather than a spinner that can never finish, and a refusal is shown in the
+ * server's own words.
  */
 async function loadBoard(): Promise<void> {
-  boardScreen.open();
+  boardScreen.clear();
   if (!apiConfigured()) {
     boardScreen.say('There is no server configured, so there is no board to show — this device keeps your own runs only.');
     return;
@@ -808,7 +903,7 @@ async function loadBoard(): Promise<void> {
     return;
   }
   boardScreen.setBusy(true);
-  const answer = await fetchLeaderboard(mode, level?.index ?? save.levelIndex, period);
+  const answer = await fetchLeaderboard(boardMode, level?.index ?? save.levelIndex, period);
   boardScreen.setBusy(false);
   if (!answer.ok) {
     boardScreen.say(`The board could not be read: ${answer.failure.message}`, 'bad');
@@ -1072,66 +1167,285 @@ function recordDailyRun(seed: number, elapsedSeconds: number, score: number): nu
   });
 }
 
-/**
- * Switch to a mode from a CLICK on the mode switch.
- *
- * CLICKING THE MODE YOU ARE ALREADY IN DOES NOTHING. Without this the Drill button re-issues the current
- * drill and throws away the player's progress, which is not what a tab that already looks selected should do
- * — and the Daily keeps its clock while the Drill restarts, which is two behaviours for one control.
- * (A stuck player has "Show me the answer"; a restart is not a feature this control implies.)
- *
- * IT IS A WRAPPER AROUND `applyMode` AND NOT A GUARD INSIDE IT, which is a defect the browser found within
- * minutes of the guard being written: `main` opens with `mode === 'drill'` already, so a guarded `setMode`
- * returned immediately and started NOTHING — an empty page whose only live control was the 3D switch. The
- * opening call needs the unguarded version, and the click needs the guard, so the two are two functions.
- */
-function setMode(next: AppMode): void {
-  if (next === mode) return;
-  applyMode(next);
-}
+// ---------------------------------------------------------------------------------------------- the pages
 
-/** Put the app in `next`, whatever it was in before. */
-function applyMode(next: AppMode): void {
-  mode = next;
+/**
+ * Put the app on the page a route names, whatever it was on before.
+ *
+ * ONE FUNCTION, ONE ORDER, and every step is there for a reason:
+ *   1. TEAR DOWN the run the player is leaving — a half-finished slide, a watched drill, a review line, an armed reset.
+ *      It is done FIRST, like the mode switch it replaces, so nothing below can be painted from the old puzzle.
+ *   2. SET `page` and, for the two play pages only, the mode. THE MODE IS NOT THE PAGE: visiting Help must not re-issue
+ *      the Daily and restart the clock a player has already spent, so a page that plays nothing leaves `mode` alone.
+ *   3. PAINT the page (exactly one section), the chrome (title and back button) and the footer's page-dependent controls.
+ *   4. ENTER the page — issue the drill, open the daily, load the board — because which page you are on is what decides
+ *      what is in flight. This is the step that used to be `applyMode`'s tail.
+ *
+ * A URL NEVER ADVANCES THE SEASON: every path here ISSUES the drill the player is already on or reopens a closed cell,
+ * and `drillIndex` can only ever name a position (`openDrillPage`).
+ */
+function applyPage(route: Route, focus: boolean): void {
+  const next = route.page;
   waypointCursor = null;
   waypointHold = null;
   // A HALF-FINISHED SLIDE BELONGS TO THE PUZZLE THE PLAYER JUST LEFT, so it is stopped rather than carried across —
-  // and the pair is FORGOTTEN, so the next mode's boards are painted rather than slid to from this one's.
+  // and the pair is FORGOTTEN, so the next page's boards are painted rather than slid to from this one's.
   stage.forgetPair();
   PLAYHEAD.cancel();
   replay = null;
   // A REVIEW OR A WATCHED DRILL BELONGS TO THE PUZZLE THE PLAYER JUST LEFT, like the walk it samples: its line is that
-  // puzzle's, so it goes with the motion rather than being carried into the next mode's footer.
+  // puzzle's, so it goes with the motion rather than being carried into the next page's footer.
   shownCalls = null;
   playingLine = null;
   watchingDrill = null;
   replayList.hide();
-  // A MODE SWITCH DISARMS "START OVER": it is the clearest sign the player has moved on, and a control still armed
+  // A PAGE CHANGE DISARMS "START OVER": it is the clearest sign the player has moved on, and a control still armed
   // minutes later would fire on one stray press.
   startOverArmed = false;
   paintStartOver();
-  // A MODE SWITCH RETURNS TO THE LEVEL. The block is the Drill tab's home, so entering the mode shows where the
-  // player is and the drill is entered from a cell — including after a reload, which is the whole point of a
-  // progress screen. The drill is still ISSUED below, because which drill is next is the SERVER's fact and the grid
-  // takes it as an input rather than deriving it (`levelView`).
-  if (mode === 'drill') drillView = 'level';
+  // NOTHING IN THE FOOTER BELONGS TO EVERY PAGE, so every page-dependent control is withdrawn here and revealed by the
+  // paint of the page that owns it. MEASURED in a browser: without this the Daily's Hint, Undo, Redo and Give up stayed on
+  // screen behind the board, because the footer had been painted by a page the player had left.
+  hideFooterControls();
+
+  page = next;
+  if (next === 'levels' || next === 'drill') mode = 'drill';
+  if (next === 'daily') mode = 'daily';
+  // AND THE REGIME LINE IS ONE OF THEM: it says which drill the player is on, which is a fact about a play page. A stale
+  // one over the board read "Today's Daily — 2026-10-27" beside a Drill leaderboard, which is the kind of contradiction a
+  // player is right to distrust.
+  if (next !== 'levels' && next !== 'drill' && next !== 'daily') els.regime.textContent = '';
+
+  paintPages();
+  paintChrome();
   paintView();
-  els.dailyPanel.hidden = mode !== 'daily';
-  els.modeDrill.setAttribute('aria-pressed', String(mode === 'drill'));
-  els.modeDaily.setAttribute('aria-pressed', String(mode === 'daily'));
+  // A REDIRECT CARRIES ITS SENTENCE. `replacePage` applies another page immediately (through `hashchange`), and that
+  // application clears the notice as its first act — so the sentence a deep link's refusal has to say is handed over here
+  // rather than written before the redirect and wiped by it.
+  const carried = pendingNotice;
+  pendingNotice = null;
+  if (carried) notice(carried.text, carried.kind);
+  else notice('');
+  if (focus) els.headings[next].focus();
+
+  switch (next) {
+    case 'levels':
+      issueCurrentDrill('current');
+      break;
+    case 'drill':
+      openDrillPage(route.drillIndex);
+      break;
+    case 'daily':
+      issueDaily();
+      break;
+    case 'board':
+      // THE DRILL BOARD NAMES A PUBLISHED SET, AND A DEVICE THAT HAS NOT BEEN GIVEN A DRILL DOES NOT KNOW IT: the version
+      // comes from the server's answer (`puzzle/board-period.ts` — null is an answer, and a date computed here is the
+      // measured defect that module exists for). So the page opens on the DAILY's board, whose period is the UTC day the
+      // client can compute, and says why — an empty board presented as the standings would be worse than either.
+      if (boardMode === 'drill' && boardPeriod() === null) {
+        boardMode = 'daily';
+        notice('The Drill board holds the season the server issued, and this device has not been given a drill yet — this is the Daily board.');
+      }
+      els.boardModeDrill.setAttribute('aria-pressed', String(boardMode === 'drill'));
+      els.boardModeDaily.setAttribute('aria-pressed', String(boardMode === 'daily'));
+      void loadBoard();
+      break;
+    default:
+      // NOT A PLAY PAGE, so the footer's text is repainted from the record it is about (a balance and a ledger do not
+      // change by navigating, but they are the only two lines left on this page and a stale one is worse than none).
+      paintLedger();
+      paintBalance();
+      break;
+  }
+}
+
+/**
+ * Go to a page, THROUGH THE URL.
+ *
+ * `location.hash` IS THE NAVIGATION, and that is the point of the router: the browser's own back button, a reload, a
+ * bookmark and this app's back button then all reach the same page by the same route, and there is no second state to
+ * keep in step. The one case that does not fire `hashchange` is a press for the page already showing, so that case
+ * applies the route directly — a second press on "How to play" must not do nothing.
+ */
+function navigate(route: Route): void {
+  const hash = hashFor(route);
+  if (location.hash === hash) {
+    applyPage(route, true);
+    return;
+  }
+  location.hash = hash;
+}
+
+/** A URL that named nothing is REPLACED rather than pushed, so the bogus one does not sit in the back history. */
+function replacePage(route: Route, said?: { text: string; kind: 'ok' | 'bad' | 'info' }): void {
+  if (said) pendingNotice = said;
+  const hash = hashFor(route);
+  if (location.hash === hash) {
+    applyPage(route, true);
+    return;
+  }
+  location.replace(`#${hash.slice(1)}`);
+}
+
+/**
+ * Keep the address bar on the drill that is actually on screen.
+ *
+ * `history.replaceState` AND NOT `location.hash`, because a hash write IS a navigation (`hashchange` → `applyPage` →
+ * `openDrillPage`) and this must not re-enter the router: the drill is already issued and showing, and re-applying the page
+ * would issue it a second time. A REPLACE rather than a push, because a drill is not a place to go back to — "back" from a
+ * drill is the block, which is the banner's job.
+ *
+ * WHY IT IS NEEDED AT ALL: "Next drill" advances the position without changing the page, so without this the URL kept
+ * naming the drill the player had just finished — and a reload, a bookmark or a shared link then replayed the wrong one.
+ */
+function syncDrillUrl(): void {
+  if (page !== 'drill') return;
+  const route: Route = { page: 'drill', drillIndex: position };
+  const hash = hashFor(route);
+  if (location.hash === hash) return;
+  history.replaceState(null, '', hash);
+}
+
+/**
+ * Land on the page the URL names.
+ *
+ * A RELOAD LANDS WHERE THE PLAYER WAS, which is the whole reason the location is in the URL: `#/daily` opened from a
+ * bookmark is the same page as `#/daily` reached by a press, and a bare URL is the menu. NO FOCUS IS MOVED HERE: the
+ * player has not pressed anything, and stealing focus on load makes a screen reader announce a page title that the reader
+ * is already announcing.
+ */
+function bootPage(): void {
+  applyPage(pageFor(location.hash), false);
+  // THE BOOT OVERLAY IS THE BOOT'S. It is shown by `bootAccount` while the identity is discovered, and the pages that
+  // issue something hide it themselves when the issue lands. A page that plays nothing — the menu, help, the account, the
+  // board — issues nothing, so nothing would ever hide it: MEASURED in a browser as the menu sitting behind an opaque
+  // "Asking the server how it identifies players…" overlay. It is hidden after the page is applied rather than before,
+  // because the issue inside `applyPage` owns the overlay while it runs.
+  if (page !== 'levels' && page !== 'drill' && page !== 'daily') els.loading.hidden = true;
+}
+/** One sentence in the shared notice, or none. The kind is what colour it takes, as everywhere else in the shell. */
+function notice(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
+  els.notice.hidden = text === '';
+  els.notice.textContent = text;
+  if (text === '') els.notice.removeAttribute('data-kind');
+  else els.notice.dataset['kind'] = kind;
+}
+
+/** A sentence for the page a redirect is ABOUT to show — see `applyPage`. */
+let pendingNotice: { text: string; kind: 'ok' | 'bad' | 'info' } | null = null;
+
+/**
+ * Withdraw every control that belongs to a particular page or run.
+ *
+ * THE FOOTER IS SHARED AND ITS CONTROLS ARE NOT: `#balance` and `#ledger` are true on every page, and everything else is
+ * about a run or a question. One function that puts them all away is what makes "nothing is left over from the last page"
+ * a property rather than a list of habits — the Daily's Undo came to sit under the board without it.
+ */
+function hideFooterControls(): void {
+  els.hint.hidden = true;
   els.review.hidden = true;
   els.skip.hidden = true;
+  els.undo.hidden = true;
+  els.redo.hidden = true;
+  els.giveUp.hidden = true;
   els.next.hidden = true;
-  // THE PRACTICE OFFER IS ABOUT THE DRILL ON SCREEN, so a mode switch withdraws it: what the server refused was that
+  // THE PRACTICE OFFER IS ABOUT THE DRILL ON SCREEN, so a page change withdraws it: what the server refused was that
   // drill, and an offer left standing would invite a practice run for a failure the player has moved past.
   els.practice.hidden = true;
-  els.undo.hidden = mode !== 'daily';
-  els.redo.hidden = mode !== 'daily';
-  els.giveUp.hidden = mode !== 'daily';
   els.replayMine.hidden = true;
   els.replayShortest.hidden = true;
-  if (mode === 'drill') issueCurrentDrill('current');
-  else issueDaily();
+}
+
+/** Exactly one page section is on screen. The panel visibility is the SHELL's, not a screen's, so a screen cannot hide one. */
+function paintPages(): void {
+  els.landing.hidden = page !== 'landing';
+  els.setupPage.hidden = page !== 'setup';
+  els.helpPage.hidden = page !== 'help';
+  els.accountPage.hidden = page !== 'account';
+  els.levelsPanel.hidden = page !== 'levels';
+  els.drillPanel.hidden = page !== 'drill';
+  els.dailyPanel.hidden = page !== 'daily';
+  els.boardPanel.hidden = page !== 'board';
+}
+
+/**
+ * The banner and the document title, both a function of the page alone.
+ *
+ * THE TITLE IS THE PAGE'S: a two-page-deep app whose tab always says "Dancing Squared" is an app whose browser history is
+ * unreadable, and the installed window has no other title. The BACK BUTTON IS A PLACE (the page's parent, not the last
+ * history step) and its visible text is short so the row stays thin, with the destination in the accessible name and in
+ * the hover title — WCAG's label-in-name rule holds because "Back" is the first word of "Back to the menu".
+ */
+function paintChrome(): void {
+  document.title = page === 'landing' ? pageTitle('landing') : `${pageTitle(page)} · Dancing Squared`;
+  const target = backTarget(page);
+  els.bannerBack.hidden = target === null;
+  // A PAGE WITH NOTHING TO SAY IN THE BANNER GIVES THE ROW BACK ON A SHEET. On a narrow viewport the header's own content
+  // is hidden (`h1` and the regime line, style.css), so on the one page with no back button the row would be an empty band
+  // at the top of the only surface a phone has — MEASURED at 500 x 757, where the sheet is 348 px and the band took ~90. The
+  // desktop header stays: its `h1` is the app's name and it is in this row.
+  els.head.hidden = target === null && layout.panelSide === 'bottom';
+  if (target === null) {
+    els.bannerBack.textContent = '';
+    els.bannerBack.removeAttribute('aria-label');
+    els.bannerBack.removeAttribute('title');
+    return;
+  }
+  const label = backLabel(page);
+  els.bannerBack.textContent = '‹ Back';
+  els.bannerBack.setAttribute('aria-label', label);
+  els.bannerBack.title = label;
+}
+
+/**
+ * The Drill page, which a URL may name a POSITION of.
+ *
+ * THREE ANSWERS, and each one is a rule:
+ *   * `#/drill` with no position means "the drill I am on". A drill in flight is simply shown — nothing is asked for; with
+ *     nothing in flight it is the block, and the sentence says so.
+ *   * a position this season has not got is refused ONLY WHERE THE LENGTH IS THE DEVICE'S OWN FACT, which is the offline
+ *     schedule. With a server the length is the PUBLISHED one and is not known until the answer arrives, so an out-of-range
+ *     position is left to the server's own refusal (`POST /drill/replay` answers `no_entry`) rather than to a guess from a
+ *     fixture that happens to be a tenth as long — the guess would refuse a drill that exists.
+ *   * a position IS OPENED BY `levelPlay`, the same function a pressed cell runs, so a deep link and a press cannot disagree
+ *     about what a closed cell means: the issued drill, a replay of a passed one, or a reattempt of a closed one.
+ *
+ * AND NOTHING HERE ADVANCES THE SEASON: `levelPlay` opens what the URL named, or refuses; the one issue it can cause is
+ * `current`, which is a read of the position the player is already on.
+ */
+function openDrillPage(index: number | null): void {
+  if (index === null) {
+    if (controller && !controller.atEnd) {
+      paintView();
+      return;
+    }
+    replacePage({ page: 'levels', drillIndex: null }, {
+      text: 'There is no drill in flight on this device, so the block is where you are.',
+      kind: 'info',
+    });
+    return;
+  }
+  // THE DEVICE'S OWN SEASON IS THE ONLY LENGTH KNOWN BEFORE ASKING. `apiConfigured()` is the same switch every other
+  // offline decision reads, so this is not a second opinion about where the drills come from.
+  if (!apiConfigured()) {
+    const view = levelView();
+    if (index < 0 || index >= view.length) {
+      replacePage({ page: 'levels', drillIndex: null }, {
+        text: `This level has ${view.length} drill${view.length === 1 ? '' : 's'}, so drill ${index + 1} is not one of them.`,
+        kind: 'bad',
+      });
+      return;
+    }
+  }
+  // THE POSITION IS READ, NOT ASSUMED: with no drill in flight the one the player is on is issued, which is what makes a
+  // deep link to the CURRENT position open it instead of an empty panel. That is `current` — a read of where the player
+  // already is, never an advance.
+  if (!controller) issueCurrentDrill('current');
+  // WHAT A CLOSED CELL MEANS IS `levelPlay`'S RULE and not a second copy of it here. Its refusals land in the drill panel's
+  // verdict slot, which on this page is ON SCREEN — which is why a refused deep link no longer has to guess where to put a
+  // word.
+  levelPlay(index);
 }
 
 // ----------------------------------------------------------------------------------------------- the drill
@@ -1225,19 +1539,19 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // `paintView`'s decision, taken here rather than left to whichever call ran last.
   paintView();
   renderLevel();
+  syncDrillUrl();
 }
 
 /**
- * Show whichever view the Drill tab is on.
+ * Paint what the current PAGE implies for the footer and for a watched drill.
  *
- * THE PANEL VISIBILITY IS THE SHELL'S, not a screen's — the same rule `applyMode` already applies to the two modes,
- * one level down: a screen that hid itself could not be shown by the boot.
+ * THE PAGE IS THE ONLY INPUT. `paintPages` has already put exactly one section on screen, so "is the drill showing" is
+ * `page === 'drill'` — a fact in the URL rather than a second piece of shell state that a screen's repaint could leave
+ * disagreeing with it. That is the defect this replaces: `applyMode` and `paintView` each claimed the panel, and whichever
+ * ran last won.
  */
 function paintView(): void {
-  const levelShowing = mode === 'drill' && drillView === 'level';
-  const drillShowing = mode === 'drill' && drillView === 'drill';
-  els.levelPanel.hidden = !levelShowing;
-  els.drillPanel.hidden = !drillShowing;
+  const drillShowing = page === 'drill';
   // A WATCHED DRILL HAS NO QUESTION, so the panel says what it is instead of drawing one: the screen removes the options
   // (a disabled button under a replay still reads as the question) and the answering handlers are inert.
   if (watchingDrill && drillShowing) {
@@ -1248,22 +1562,18 @@ function paintView(): void {
         : `Drill ${watched.index + 1} — closed without a pass. Watching the calls that solve it.`,
     );
   }
-  // THE FOOTER'S DRILL CONTROLS BELONG TO THE DRILL VIEW, and this is the one place that decides it: on the block
-  // there is no question to reveal or skip, and a control that looks live and does nothing is worse than one that is
-  // absent (`drill-screen.ts` records the same rule for a failed issue). They are re-derived here rather than left as
-  // whichever screen painted last, which is how "Show me the answer" came to sit under a progress grid.
+  // THE FOOTER'S DRILL CONTROLS BELONG TO THE DRILL PAGE, and this is the one place that decides it: on the block there is
+  // no question to reveal or skip, and a control that looks live and does nothing is worse than one that is absent
+  // (`drill-screen.ts` records the same rule for a failed issue). They are re-derived here rather than left as whichever
+  // screen painted last, which is how "Show me the answer" came to sit under a progress grid.
   els.review.hidden = !drillShowing || watchingDrill !== null;
   els.skip.hidden = !drillShowing || watchingDrill !== null || !skipOffered();
-  // THE TOGGLE BELONGS TO THE QUESTION VIEW: it changes what happens after a correct guess, and a watched drill is not
-  // answered at all. It stays visible on a SOLVED drill, because that is where a player who has just been through the
-  // whole cycle notices it and wants it for the next one.
-  els.autoProgress.hidden = !drillShowing || watchingDrill !== null;
   // ONE `Play` BUTTON, BOTH MODES: it plays whatever `panelLine()` says the panel is showing. A solved or watched drill
   // therefore gets the same button the solved Daily has — REPORTED as "I inadvertantly dropped the play button from the
   // Drill. Can it reuse the call list and Play button used in the solved Todays Daily?" — and "The shortest line" stays
   // the Daily's own second source, so it is hidden on the block and in the drill view.
-  if (mode !== 'drill') return;
-  const line = drillShowing ? panelLine() : null;
+  if (!drillShowing) return;
+  const line = panelLine();
   els.replayMine.hidden = line === null;
   els.replayShortest.hidden = true;
   if (line) {
@@ -1359,14 +1669,10 @@ function levelPlay(index: number): void {
     // THE VIEW IS SWITCHED BY WHICHEVER PATH SHOWS A DRILL, not here: a refused reattempt must leave the player on the
     // block with the server's sentence, and switching first would leave them looking at the panel of the previous drill.
     if (apiConfigured()) void startReplayDrill(index);
-    else {
-      drillView = 'drill';
-      startDrill(index);
-    }
+    else startDrill(index);
     return;
   }
   if (!controller) return;
-  drillView = 'drill';
   paintView();
 }
 
@@ -1418,7 +1724,6 @@ function showDrillReplay(info: { index: number; levelIndex: number; puzzle: Puzz
   serverRecordedRun = false;
   useLevel(spec);
   controller = new DrillController(info.puzzle, {});
-  drillView = 'drill';
   els.regime.textContent = `The Drill — drill ${info.index + 1}, level ${spec.index}`;
   drillScreen.clearVerdict();
   drillScreen.say(
@@ -1432,6 +1737,7 @@ function showDrillReplay(info: { index: number; levelIndex: number; puzzle: Puzz
   // THE LIST AND THE ONE `Play` BUTTON ARE `paintView`'S, because that function is what decides which footer controls the
   // drill view offers — so the calls appear the same way a solved drill's do, and `Play` plays them through the same
   // motion. It is called above, and this function only has to hand the panel its puzzle.
+  syncDrillUrl();
   draw();
 }
 
@@ -1454,7 +1760,6 @@ async function startReplayDrill(index: number): Promise<void> {
   }
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
-  drillView = 'drill';
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -1472,8 +1777,6 @@ async function startReplayDrill(index: number): Promise<void> {
  * block and answers with the next level's first drill — so this asks, and does not move the player itself.
  */
 function levelNextLevel(): void {
-  drillView = 'level';
-  paintView();
   issueCurrentDrill('current');
 }
 
@@ -2042,13 +2345,13 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
       : 'Pass each waypoint in order, ending on the goal board. Undo is free; the allowance is not.',
     'info',
   );
-  // THE SHARED CHROME IS PAINTED ONLY WHERE THE DAILY IS THE MODE ON SCREEN. The header, the board captions, the board
-  // itself and the footer buttons all belong to whichever panel is showing, and this answer can land while the player
-  // has gone back to the drills — which is now the ORDINARY case, because the fetch does not hold the app. Without this
-  // guard a challenge that finished creating in the background would replace the drill's header and footer with the
+  // THE SHARED CHROME IS PAINTED ONLY WHERE THE DAILY IS THE PAGE ON SCREEN. The header, the board captions, the board
+  // itself and the footer buttons all belong to whichever page is showing, and this answer can land while the player
+  // has gone back to the menu — which is now the ORDINARY case, because the fetch does not hold the app. Without this
+  // guard a challenge that finished creating in the background would replace another page's header and footer with the
   // Daily's, under a board the player is in the middle of reading. The state above is set either way; `keepDaily()`
-  // paints all of it on the next switch into the mode.
-  if (mode === 'daily') {
+  // paints all of it on the next switch into the page.
+  if (page === 'daily') {
     els.regime.textContent = dailyRegime();
     paintDaily();
     draw();
@@ -2091,24 +2394,15 @@ function startDaily(): void {
 let dailyPoll: { day: string; levelIndex: number; stop: () => void } | null = null;
 
 /**
- * Show that today's challenge is being CREATED, on the control the player pressed.
+ * Show that today's challenge is being CREATED.
  *
- * THE BUTTON IS THE INDICATOR because it is the thing that was pressed and it stays on screen in BOTH modes — so a
- * player who carried on with the drills can still see that the Daily is coming. The animation is CSS on `[data-busy]`
- * (`style.css`), the accessible name says what is happening, and `aria-busy` is set so a screen reader is told rather
- * than shown: the state is carried by three signals and not by a spinner alone, which is this app's rule for anything
- * a colour-vision difference or a still screenshot would otherwise hide.
+ * THE PAGE IS THE INDICATOR NOW, and that is what pages changed: it used to be the mode TAB's spinner, because a tab was
+ * on screen whatever else was; the Daily is a page, so its button takes the player to it and the sentence that says
+ * "creating today's challenge" is on the page they are looking at. `aria-busy` is still set on the section, so a screen
+ * reader is TOLD as well as shown — the rule that state must never be carried by motion alone still holds.
  */
 function setDailyBusy(busy: boolean): void {
-  if (busy) {
-    els.modeDaily.dataset['busy'] = 'true';
-    els.modeDaily.setAttribute('aria-busy', 'true');
-    els.modeDaily.setAttribute('aria-label', "Today's Daily — creating today's challenge…");
-  } else {
-    delete els.modeDaily.dataset['busy'];
-    els.modeDaily.removeAttribute('aria-busy');
-    els.modeDaily.removeAttribute('aria-label');
-  }
+  els.dailyPanel.toggleAttribute('aria-busy', busy);
 }
 
 /** Cancel the poll, if there is one. Called when it finishes, when the level changes, and on a fresh issue. */
@@ -2144,9 +2438,10 @@ function startServerDaily(): void {
   if (dailyPoll && dailyPoll.day === day && dailyPoll.levelIndex === levelIndex) return; // already polling this one
   stopDailyPoll();
   setDailyBusy(true);
-  // A PENDING PANEL ONLY WHERE A PANEL IS ON SCREEN. In the Drill mode the player is looking at a board and must not
-  // have it replaced by a message about the other tab; the button's spinner is the whole indicator there.
-  if (mode === 'daily') dailyScreen.pending("Creating today's challenge — this takes a few seconds the first time.");
+  // THE SENTENCE GOES ON THE DAILY'S PAGE, which is where the press has taken the player. A poll can only start from that
+  // page (`issueDaily` is called by `applyPage`), so this is never written about a page nobody is looking at — and the
+  // guard stays because the alternative is a background answer painting another page's prompt.
+  if (page === 'daily') dailyScreen.pending("Creating today's challenge — this takes a few seconds the first time.");
   const handle = pollDaily(levelIndex, day, browserDeps(), {
     onAnswer: (answer, state) => onDailyAnswer(answer, state, day, levelIndex),
   });
@@ -2179,7 +2474,7 @@ function onDailyAnswer(
     finish();
     daily = null;
     dailyScreen.say(`No Daily from the server: ${answer.failure.message}`, 'bad');
-    if (mode === 'daily') {
+    if (page === 'daily') {
       dailyScreen.pending(`Today's Daily is unavailable — ${answer.failure.message}`);
       els.regime.textContent = "Today's Daily — unavailable";
     }
@@ -2191,7 +2486,7 @@ function onDailyAnswer(
     finish();
     daily = null;
     dailyScreen.say(`Today's Daily was published against pool ${answer.value.poolVersion}, and this build serves ${MAIN_POOL.version}.`, 'bad');
-    if (mode === 'daily') {
+    if (page === 'daily') {
       dailyScreen.pending(`Today's Daily is unavailable — it was published against pool ${answer.value.poolVersion}.`);
       els.regime.textContent = "Today's Daily — unavailable";
     }
@@ -2207,7 +2502,7 @@ function onDailyAnswer(
       ? 'the server is still creating it after a couple of minutes — try again in a moment'
       : 'the server sent no boards for it';
     dailyScreen.say(`No Daily yet: ${answer.value.ready ? 'the answer carried no puzzle' : why}.`, 'info');
-    if (mode === 'daily') {
+    if (page === 'daily') {
       dailyScreen.pending(`Today's Daily is not ready — ${why}.`);
       els.regime.textContent = "Today's Daily — not ready yet";
     }
@@ -2420,7 +2715,7 @@ async function spendOnServer(levelIndex: number): Promise<ApiResult<HintSpend>> 
  * against for the same reason. The bookkeeping still happens; only the paint is conditional.
  */
 function sayInDaily(message: string, tone: 'ok' | 'bad' | 'info'): void {
-  if (mode === 'daily') dailyScreen.say(message, tone);
+  if (page === 'daily') dailyScreen.say(message, tone);
 }
 
 /**
@@ -2490,7 +2785,7 @@ async function takeHint(): Promise<void> {
   // THE FOOTER IS SHARED CHROME AND THE PANEL IS THE DAILY'S: the balance is painted either way, and the Daily's
   // panel is only repainted where the Daily is what the player is looking at.
   paintBalance();
-  if (mode === 'daily') paintDaily();
+  if (page === 'daily') paintDaily();
   persist();
 }
 
@@ -2613,13 +2908,15 @@ function paintDaily(): void {
   // `reviewWhich` is the shell's memory of which of the two is on screen; the list is rebuilt only when the line itself
   // changes, because this paint runs on every event.
   const over = view.outcome !== 'playing';
-  els.replayMine.hidden = !over;
-  els.replayShortest.hidden = !over;
-  // A DRILL PREFERENCE, not a Daily one: the Daily has no "next drill" for it to move on to.
-  els.autoProgress.hidden = true;
-  els.giveUp.hidden = over;
-  els.undo.hidden = over;
-  els.redo.hidden = over;
+  // THE DAILY'S OWN CONTROLS, GUARDED BY THE PAGE AND NOT ONLY BY THE RUN: a poll answer or a resumed clock can repaint
+  // this while the player is somewhere else, and a `Undo` left on screen under a help page would be a control for a run
+  // nobody can see. The drill's page paints its own footer in `paintView`, so the two cannot fight over the same button.
+  const onDaily = page === 'daily';
+  els.replayMine.hidden = !over || !onDaily;
+  els.replayShortest.hidden = !over || !onDaily;
+  els.giveUp.hidden = over || !onDaily;
+  els.undo.hidden = over || !onDaily;
+  els.redo.hidden = over || !onDaily;
   // THE LIST IS THE SAME PANEL IN BOTH MODES (`panelLine`), so it is shown and hidden by the same rule here and in
   // `paintView`. A given-up run with no moves of its own has nothing to list, and says so only when `Play` is pressed.
   const line = over ? panelLine() : null;
@@ -2798,21 +3095,32 @@ function main(): void {
   // would throw away a half-played one to learn something that does not change which drill it is.
   player = heldSession();
   paintLedger();
+  paintAccount();
 
-  els.modeDrill.addEventListener('click', () => setMode('drill'));
-  els.toLevel.addEventListener('click', () => {
-    drillView = 'level';
-    paintView();
-    renderLevel();
+  // THE NAVIGATION. Every destination is a hash, so these handlers only ever WRITE A URL: `hashchange` is what applies
+  // the page. That is what makes the browser's own back button, a reload and a bookmark the same mechanism as a press
+  // here, rather than three behaviours to keep in step.
+  els.goAccount.addEventListener('click', () => navigate({ page: 'account', drillIndex: null }));
+  els.goHelp.addEventListener('click', () => navigate({ page: 'help', drillIndex: null }));
+  els.goLevels.addEventListener('click', () => navigate({ page: 'levels', drillIndex: null }));
+  els.goDaily.addEventListener('click', () => navigate({ page: 'daily', drillIndex: null }));
+  els.goSetup.addEventListener('click', () => navigate({ page: 'setup', drillIndex: null }));
+  els.goBoard.addEventListener('click', () => navigate({ page: 'board', drillIndex: null }));
+  // THE BACK BUTTON IS A PLACE, not a history step (`backTarget`), so a player who wandered Help → Account → back gets
+  // the menu rather than Account. A page with no parent hides the button (`paintChrome`).
+  els.bannerBack.addEventListener('click', () => {
+    const target = backTarget(page);
+    if (target !== null) navigate({ page: target, drillIndex: null });
   });
-  els.modeDaily.addEventListener('click', () => setMode('daily'));
+  window.addEventListener('hashchange', () => applyPage(pageFor(location.hash), true));
+  els.boardModeDrill.addEventListener('click', () => switchBoardMode('drill'));
+  els.boardModeDaily.addEventListener('click', () => switchBoardMode('daily'));
   els.next.addEventListener('click', () => issueCurrentDrill('advance'));
   // THE SAME PRESS THE PLAYER WOULD MAKE (`els.next`), taken automatically once a solved drill's landing has been
   // held — plus a repaint, because `issueCurrentDrill` re-derives the footer and must not leave a stale label.
   els.autoProgress.addEventListener('click', () => {
     autoProgress = !autoProgress;
     paintAutoProgress();
-    paintView();
   });
   els.review.addEventListener('click', review);
   els.skip.addEventListener('click', skipDrill);
@@ -2864,6 +3172,9 @@ function main(): void {
     // THE BOARD SWITCHER FOLLOWS THE LAYOUT, so a resize across the breakpoint adds or removes it with the framing.
     paintBoardTabs();
     paintWaypoints();
+    // AND THE BANNER DOES TOO: whether it is drawn at all depends on the layout (`paintChrome`), so a resize across the
+    // breakpoint has to re-ask.
+    paintChrome();
     applyInsets();
   };
   applyLayout();
@@ -2886,9 +3197,9 @@ function main(): void {
   });
 
   // THE FRAME LOOP STARTS FIRST, because the stage owns no loop of its own and a paused one is a black canvas.
-  // THE FIRST DRILL THEN WAITS FOR THE IDENTITY: with a server, `bootAccount` learns the mode and applies it, which
-  // is what issues the drill with an identity the browser is allowed to send; offline there is nothing to learn and
-  // the fixture's drill is issued here.
+  // THE FIRST PAGE THEN WAITS FOR THE IDENTITY: with a server, `bootAccount` learns the mode and applies the URL's
+  // page, which is what issues the first drill with an identity the browser is allowed to send; offline there is nothing
+  // to learn and the page is applied here.
   // THE INSTALLABLE APP: THE SERVICE WORKER IS REGISTERED IN A BUILT BUNDLE ONLY. In development it would sit between
   // Vite's module graph and the page, caching the very URLs the dev server rewrites — import.meta.env.PROD is the guard
   // rather than a check for a hostname. Registration is BEST-EFFORT: a browser that refuses (a file:// build, a private
@@ -2901,7 +3212,7 @@ function main(): void {
 
   schedule();
   if (apiConfigured()) void bootAccount();
-  else applyMode('drill');
+  else bootPage();
 }
 
 main();

@@ -1,63 +1,90 @@
-// THE SHELL'S CONTROLS: WHICH ARE PRIMARY, WHICH LIVE UNDER "MORE", AND THAT EVERY ID THE SCRIPT ASKS FOR EXISTS.
+// THE SHELL'S PAGES: ONE SECTION PER PAGE, ONE HEADING PER SECTION, ONE WAY BACK, AND NOTHING LEFT OF THE TABS.
 //
-// REPORTED: "Some of the current buttons seem like overkill for the kind of game it's supposed to be. Perhaps some can
-// be retired." MEASURED in the markup at the time: the footer drew THREE controls that are never hidden (`#view`,
-// `#boardToggle`, `#startOver`) on top of up to seven mode-dependent ones, so the Daily showed ten at once and Next —
-// the one action that matters — was the smallest thing on screen. Four moved into a `<details id="more">` disclosure:
-// the 2D/3D switch, the leaderboard read, the auto-progress toggle and the device reset. NOTHING was deleted, so this
-// probe is about PLACEMENT, and it is the only thing standing between "decluttered" and "the Hint button went missing".
+// REPORTED: "Lets introduce pages and a simple navigation system. All pages have a thin banner ... a back button." The
+// app used to be ONE screen with two mode tabs (`#modes`) and four sections shown and hidden by hand, with a `#toLevel`
+// button and a `<details id="more">` disclosure in the footer. All three are gone, and the failure this probe exists for
+// is the ordinary one: a control or an id left behind by that change, or a page that has no heading to focus and no
+// way back — none of which a green typecheck would notice, because `el()` only fails in a browser.
 //
 // WHAT IT PINS, and each check has a reason to exist:
 //   1. EVERY `el('id')` / `getElementById('id')` in the app's source resolves to exactly one `id="…"` in `index.html`.
-//      That is the contract `ui/dom.ts` claims in its own header — "a missing one is a typo in the markup" — and until
-//      now nothing checked it: `el` throws at the first property read, which is a browser-only failure (AGENTS.md
-//      trap 27's family). A duplicate id is worse than a missing one, because `getElementById` silently returns the
-//      first and the second copy is inert markup that still passes every screenshot.
-//   2. THE CLASSIFICATION. Every PRIMARY id is outside the disclosure and every SECONDARY id is inside it. Burying the
-//      Hint button and unburying the 3D switch are both failures here rather than judgement calls later.
-//   3. NOTHING ELSE IS BURIED. The disclosure's `button`s are exactly the four named secondaries, so a future control
-//      cannot be parked there without this list being edited in the same commit.
+//      That is the contract `ui/dom.ts` claims in its own header — "a missing one is a typo in the markup" — and it used
+//      to be checked by this file alone (AGENTS.md trap 27's family: a browser-only failure).
+//   2. THE PAGES. One `<section class="page">` per page in the model, its id equal to the page's name, and its `<h2>` the
+//      id `pageHeadingId` returns with `tabindex="-1"` — the element the router focuses after a navigation. A page whose
+//      heading id drifted is a navigation that silently focuses nothing.
+//   3. THE NAVIGATION. The landing page offers every other page exactly once, in the model's order, and each button has a
+//      handler that navigates to that page. A destination added to the model and forgotten in the menu is a page nobody can
+//      reach; a button pointing at the wrong page is worse.
+//   4. THE BANNER. The way back exists, and `paintChrome` hides it from `backTarget` rather than from a second table.
+//   5. THE RETIRED CONTROLS are gone from the markup AND from the script AND from the stylesheet. A leftover `el('toLevel')`
+//      is a runtime throw; a leftover rule is dead CSS nobody dares delete.
+//   6. THE FOOTER still holds the game's own moves and nothing else, and the SETUP page holds the housekeeping, so
+//      "decluttered" cannot become "the Hint button went missing" — the defect the footer's first probe was written for.
 //
-// THE NEGATIVE CONTROLS run the same two rules on synthetic markup (`whichPrimaryAreBuried`, `whichSecondaryAreLoose`),
-// because a check whose subject is the real file cannot tell a rule from a coincidence: MEASURED, the parser below is
-// what fails on `hint` inside the disclosure, while every real-file check stays green.
+// THE NEGATIVE CONTROLS run the same readers over synthetic markup, because a check whose subject is the real file cannot
+// tell a rule from a coincidence: MEASURED, `pagesWithHeadings` fails on a section whose heading id is another page's,
+// and `retiredLeftovers` fails on one `#toLevel` in the footer.
 //
-// Usage: node game/test/shell-controls-probe.mjs   (no engine build needed: it reads text)
+// Usage: node game/test/shell-controls-probe.mjs   (no engine build needed: it reads text and the pure page model)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { backTarget, pageHeadingId } from '../src/ui/pages.ts';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GAME = path.resolve(HERE, '..');
 const SRC = path.join(GAME, 'src');
 const HTML = path.join(GAME, 'index.html');
+const CSS = path.join(GAME, 'src/style.css');
+const MAIN = path.join(GAME, 'src/main.ts');
 
 let failures = 0;
-const check = (cond, msg) => {
-  console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
+const check = (cond, msg, detail = '') => {
+  console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg + (cond || !detail ? '' : ` — ${detail}`));
   if (!cond) failures++;
 };
 
-/** Controls that must stay on the main surface: the moves of the game, and the way back. */
-const PRIMARY = [
+/** Every page the model has, in the order the landing page offers them — derived, never re-typed. */
+const PAGES = ['landing', 'setup', 'help', 'account', 'levels', 'drill', 'daily', 'board'];
+
+/** The controls that are the GAME's own moves: they belong in the footer, on the page that plays. */
+const FOOTER = [
   'hint', 'review', 'skip', 'undo', 'redo', 'giveUp', 'replayMine', 'replayShortest', 'practice', 'next',
-  'modeDrill', 'modeDaily', 'toLevel', 'levelNext', 'waypointPrev', 'waypointNext',
-  'accountSignIn', 'accountSignUp', 'accountConfirm', 'accountSignOut', 'callSearch',
 ];
-/** Controls that are set-once preferences or housekeeping, and why each one moved (also stated beside it in the markup). */
-const SECONDARY = ['view', 'boardToggle', 'autoProgress', 'startOver'];
+/** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
+const PAGE_CONTROLS = {
+  account: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut'],
+  daily: ['callSearch', 'callSubsets', 'offer'],
+  levels: ['levelNext', 'levelBlock'],
+};
+/** Set-once preferences and housekeeping: they belong on the Setup page, and nowhere else. */
+const SECONDARY = ['view', 'autoProgress', 'startOver'];
+/**
+ * THE MENU, in the order the report named the destinations — "Register/Login, Help, Drill Level, Today's Daily, Setup" —
+ * plus the board, which already existed unlisted. It is a table rather than the model's own order because the two are
+ * genuinely different facts: the model lists the pages, and the menu chooses which of them are DESTINATIONS. `drill` is
+ * the exception that proves it: a drill is entered from a cell on the level block, and a menu button for "a drill" would
+ * have to guess which one.
+ */
+const MENU = ['account', 'help', 'levels', 'daily', 'setup', 'board'];
+/** What the router and the Setup page replaced. Nothing may name these any more, in any file. */
+const RETIRED = ['modeDrill', 'modeDaily', 'toLevel', 'moreToggle'];
 
 const html = fs.readFileSync(HTML, 'utf8');
+const css = fs.readFileSync(CSS, 'utf8');
+const main = fs.readFileSync(MAIN, 'utf8');
 
-/** The disclosure's text, by tag nesting depth — `<details>` may nest, so a regex to the next `</details>` is wrong. */
-const blockOf = (source, id) => {
-  const open = source.match(new RegExp(`<details[^>]*id="${id}"[^>]*>`, 'i'));
+const idsIn = (text) => [...text.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
+
+/** The text of one element, by tag depth — a `<section>` may hold another `<section>`, so "to the next close" is wrong. */
+const blockOf = (source, tag, id) => {
+  const open = source.match(new RegExp(`<${tag}[^>]*\\bid="${id}"[^>]*>`, 'i'));
   if (!open) return null;
   let depth = 0;
-  let i = open.index;
-  for (; i < source.length; i++) {
-    if (source.startsWith('<details', i)) depth++;
-    else if (source.startsWith('</details', i)) {
+  for (let i = open.index; i < source.length; i++) {
+    if (source.startsWith(`<${tag}`, i)) depth++;
+    else if (source.startsWith(`</${tag}`, i)) {
       depth--;
       if (depth === 0) return source.slice(open.index, source.indexOf('>', i) + 1);
     }
@@ -65,37 +92,42 @@ const blockOf = (source, id) => {
   return source.slice(open.index);
 };
 
-const more = blockOf(html, 'more');
-const idsIn = (text) => [...text.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
+/** The `<section class="page" id="…">` elements, as the ids the router hides and shows. */
+const pageSections = (source) => [...source.matchAll(/<section\b[^>]*\bclass="page"[^>]*>|<section\b[^>]*\bid="[^"]+"[^>]*\bclass="page"[^>]*>/g)]
+  .map((m) => /\bid="([^"]+)"/.exec(m[0])?.[1] ?? '(none)');
 
-/** Which PRIMARY controls the disclosure has swallowed — the reported mistake, as a rule. */
-const whichPrimaryAreBuried = (markup) => {
-  const block = blockOf(markup, 'more');
-  if (!block) return [];
-  const inside = new Set(idsIn(block));
-  return PRIMARY.filter((id) => inside.has(id));
-};
-/** Which SECONDARY controls are still loose on the main surface. */
-const whichSecondaryAreLoose = (markup) => {
-  const block = blockOf(markup, 'more') ?? '';
-  const inside = new Set(idsIn(block));
-  return SECONDARY.filter((id) => !inside.has(id));
+/** Every page's heading id, as the markup states it: the `<h2>` inside that page's section. */
+const headingOf = (source, id) => {
+  const block = blockOf(source, 'section', id) ?? '';
+  const h2 = block.match(/<h2\b[^>]*>/i)?.[0] ?? '';
+  return { id: /\bid="([^"]+)"/.exec(h2)?.[1] ?? '', focusable: /\btabindex="-1"/.test(h2) };
 };
 
-console.log('\n== 1. the checks, on markup a reader can check by eye ==');
+/** Which page-heading ids are wrong: a section whose `<h2>` is not the id the model gives that page. */
+const pagesWithWrongHeading = (source) => PAGES
+  .filter((page) => headingOf(source, page).id !== pageHeadingId(page))
+  .map((page) => `${page} wants ${pageHeadingId(page)} and has ${headingOf(source, page).id || 'none'}`);
+
+/** Which retired names still appear, per file. */
+const retiredLeftovers = (source, names) => names.filter((name) => new RegExp(`\\b${name}\\b`).test(source));
+
+console.log('\n== 1. the readers, on markup a reader can check by eye ==');
 {
-  const buried = `<footer><details id="more"><summary>More</summary><button id="hint">Hint</button></details><button id="next">Next</button></footer>`;
-  check(whichPrimaryAreBuried(buried).join() === 'hint', 'a PRIMARY control inside the disclosure is caught (hint)');
-  check(whichSecondaryAreLoose(buried).length === SECONDARY.length, 'and a SECONDARY control left outside it is caught too');
-  // THE CORRECT SHAPE, built from the lists themselves so a control added to either one is exercised here too: all four
-  // secondaries inside the disclosure, a primary outside it, and both rules silent.
-  const good = `<footer><details id="more"><summary>More</summary>${SECONDARY.map((id) => `<button id="${id}"></button>`).join('')}</details><button id="hint">Hint</button></footer>`;
-  check(whichPrimaryAreBuried(good).length === 0 && whichSecondaryAreLoose(good).length === 0, 'the right shape passes both rules');
-  // A NESTED DETAILS must not fool the block reader into cutting at the inner `</details>`, or a primary control placed
-  // after it reads as buried.
-  const nested = `<details id="more"><summary>More</summary><details><summary>inner</summary></details><div id="startOver"></div></details><button id="hint"></button>`;
-  check(whichPrimaryAreBuried(nested).length === 0, 'a nested disclosure does not end the outer one early');
-  check(idsIn(blockOf(nested, 'more') ?? '').includes('startOver'), 'and the outer block still holds what follows the inner one');
+  // A section whose `<h2>` carries ANOTHER page's heading id: the navigation focuses the wrong element, or nothing.
+  const wrong = '<section id="help" class="page"><h2 id="setupHeading" tabindex="-1">Help</h2></section>';
+  check(pagesWithWrongHeading(wrong).length > 0, 'a page whose heading id is another page\'s is caught (help/setupHeading)',
+    pagesWithWrongHeading(wrong).join('; '));
+  const good = '<section id="help" class="page"><h2 id="helpHeading" tabindex="-1">Help</h2></section>';
+  check(pagesWithWrongHeading(good).length === PAGES.length - 1,
+    `and the right one is silent for that page (${PAGES.length - 1} others still missing from this fragment, by design)`);
+  // THE FOCUS TARGET: a heading without `tabindex` cannot be focused, so the router's focus call would be a no-op.
+  check(headingOf('<section id="help" class="page"><h2 id="helpHeading">x</h2></section>', 'help').focusable === false,
+    'a heading that cannot be focused is visible to the reader (no tabindex)');
+  check(blockOf('<section id="a"><section id="b"></section><p id="c"></p></section>', 'section', 'a')?.includes('id="c"'),
+    'a nested section does not end the outer one early');
+  check(retiredLeftovers('<button id="toLevel">Back</button>', RETIRED).join() === 'toLevel',
+    'a retired control is found by name (toLevel)');
+  check(retiredLeftovers('<button id="bannerBack">Back</button>', RETIRED).length === 0, 'and the replacement is not a leftover');
 }
 
 console.log('\n== 2. every id the script asks for is in the page, exactly once ==');
@@ -127,32 +159,94 @@ console.log('\n== 2. every id the script asks for is in the page, exactly once =
   check(missing.length === 0, `and every one of them exists in index.html (${missing.length} missing)`, missing.join('; '));
 }
 
-console.log('\n== 3. the real classification ==');
+console.log('\n== 3. one section per page, and one heading per section ==');
 {
-  check(more !== null, 'index.html carries the "more" disclosure');
-  const buried = whichPrimaryAreBuried(html);
-  check(buried.length === 0, `no PRIMARY control is inside it (${buried.join(', ') || 'none'})`, buried.join(', '));
-  const loose = whichSecondaryAreLoose(html);
-  check(loose.length === 0, `and every SECONDARY control is inside it (${loose.join(', ') || 'none'} loose)`, loose.join(', '));
-  // THE MEMBERSHIP PIN: the disclosure holds exactly the four secondaries, so parking a fifth control in it is an edit to
-  // this list in the same commit. A NAMED SET fails when it shrinks AND grows (AGENTS.md 11.2.8).
-  const inBlock = idsIn(more ?? '');
-  const buttonsInBlock = [...(more ?? '').matchAll(/<button[^>]*id="([^"]+)"/g)].map((m) => m[1]).sort();
-  check(JSON.stringify(buttonsInBlock) === JSON.stringify([...SECONDARY].sort()),
-    `the disclosure's buttons are exactly the four secondaries (${buttonsInBlock.join(', ')})`, inBlock.join(', '));
-  check(idsIn(more ?? '').includes('moreToggle'), 'and it is opened by a real summary the keyboard can reach');
+  const sections = pageSections(html);
+  check(sections.length === PAGES.length, `index.html carries ${sections.length} page sections for ${PAGES.length} pages`,
+    sections.join(', '));
+  const missing = PAGES.filter((page) => !sections.includes(page));
+  check(missing.length === 0, `and their ids ARE the page names, so no translation table exists (${missing.join(', ') || 'none'} missing)`);
+  const wrong = pagesWithWrongHeading(html);
+  check(wrong.length === 0, `every page's <h2> is the id the model gives it (${wrong.join('; ') || 'none'} wrong)`, wrong.join('; '));
+  const unfocusable = PAGES.filter((page) => !headingOf(html, page).focusable);
+  check(unfocusable.length === 0, `and every one is focusable, which is what a navigation focuses (${unfocusable.join(', ') || 'none'})`);
+  // THE ROUTER'S OWN TABLE: `paintPages` hides exactly eight sections, one per page, from `page`. A ninth anything there
+  // would be a section nothing can show.
+  const hides = [...main.matchAll(/els\.\w+\.hidden = page !== '([a-z]+)';/g)].map((m) => m[1]);
+  check(JSON.stringify(hides.slice().sort()) === JSON.stringify(PAGES.slice().sort()),
+    `paintPages hides exactly the model's pages, from the page alone (${hides.join(', ')})`, hides.join(', '));
 }
 
-console.log('\n== 4. the clutter the report was about has actually gone ==');
+console.log('\n== 4. the landing page reaches every other page, and the banner has the way back ==');
 {
-  // THE CEILING: a footer button outside the disclosure that carries no `hidden` attribute is drawn in EVERY mode — the
-  // exact thing that made ten controls appear at once. Zero is the measured shape after this change; the number may only
-  // fall, and a deliberate new always-on control has to be re-pinned here.
+  const nav = blockOf(html, 'nav', 'landingNav') ?? '';
+  const buttons = [...nav.matchAll(/<button[^>]*id="([^"]+)"/g)].map((m) => m[1]);
+  const expected = MENU.map((page) => `go${page[0].toUpperCase()}${page.slice(1)}`);
+  check(JSON.stringify(buttons) === JSON.stringify(expected),
+    `the menu offers every destination once, in the report's order (${buttons.join(', ')})`, buttons.join(', '));
+  // AND EVERY ONE OF THOSE BUTTONS NAVIGATES TO ITS OWN PAGE — derived from the name, so a button that points at the wrong
+  // page is a failure here rather than a dead end a player finds.
+  const unwired = MENU.filter((page) => {
+    const id = `go${page[0].toUpperCase()}${page.slice(1)}`;
+    return !main.includes(`els.${id}.addEventListener('click', () => navigate({ page: '${page}'`);
+  });
+  check(unwired.length === 0, `and each one navigates to the page it names (${unwired.join(', ') || 'none'} unwired)`, unwired.join(', '));
+  // REACHABILITY: the menu plus the two pages that are entered another way — landing is where you are, and a drill is
+  // entered from a cell (`levelScreen`'s callback navigates to `#/drill/<n>`) — must cover the model exactly, so no page
+  // can be added to the router and reachable from nowhere.
+  const reachable = new Set(['landing', 'drill', ...MENU]);
+  const unreachable = PAGES.filter((page) => !reachable.has(page));
+  check(unreachable.length === 0, `every page is reachable, by the menu or by a cell (${unreachable.join(', ') || 'none'} stranded)`);
+  check(main.includes("navigate({ page: 'drill', drillIndex: index })"),
+    'and the drill is entered by a cell press that writes its own URL');
+  const banner = blockOf(html, 'div', 'bannerRow') ?? '';
+  check(idsIn(banner).includes('bannerBack') && idsIn(banner).includes('regime'),
+    'the banner carries the back button and the line that says where the player is');
+  check(main.includes('els.bannerBack.hidden = target === null') && main.includes('backTarget(page)'),
+    'and paintChrome hides it from the page model\'s backTarget rather than from a second table');
+  // THE MODEL'S OWN TABLE, as a control on the check above: only the landing page may have no way back.
+  const parentless = PAGES.filter((page) => backTarget(page) === null);
+  check(JSON.stringify(parentless) === '["landing"]', `and only the landing page is parentless (${parentless.join(', ')})`);
+}
+
+console.log('\n== 5. the retired controls are gone from markup, script and stylesheet ==');
+{
+  for (const name of RETIRED) {
+    const where = [
+      new RegExp(`\\bid="${name}"`).test(html) ? 'index.html' : '',
+      new RegExp(`'${name}'`).test(main) ? 'main.ts' : '',
+      new RegExp(`#${name}\\b`).test(css) ? 'style.css' : '',
+    ].filter(Boolean);
+    check(where.length === 0, `#${name} is named nowhere (${where.join(', ') || 'nowhere'})`, where.join(', '));
+  }
+  // THE MODE TAB'S OWN STYLES, which are `#modes` rules rather than an id: the block was ~25 lines of tab styling.
+  check(!/#modes\b/.test(css), 'and the mode-tab rules are gone from the stylesheet too');
+  check(!/\.more-body\b/.test(css), 'and so is the disclosure body\'s rule');
+}
+
+console.log('\n== 6. the footer holds the game\'s moves, each page its own controls, Setup the housekeeping ==');
+{
   const foot = html.slice(html.indexOf('<footer id="foot">'), html.indexOf('</footer>'));
-  const outsideMore = foot.replace(blockOf(html, 'more') ?? '', '');
-  const alwaysOn = [...outsideMore.matchAll(/<button\b[^>]*>/g)].filter((m) => !/\bhidden\b/.test(m[0])).length;
-  check(alwaysOn === 0, `no footer button is drawn in every mode any more (${alwaysOn} always-on)`);
-  check(SECONDARY.length === 4, `and four controls moved behind one tap (${SECONDARY.length})`);
+  const footIds = idsIn(foot);
+  const missingFooter = FOOTER.filter((id) => !footIds.includes(id));
+  check(missingFooter.length === 0, `every move of the game is in the footer (${missingFooter.join(', ') || 'none'} missing)`,
+    missingFooter.join(', '));
+  for (const [page, ids] of Object.entries(PAGE_CONTROLS)) {
+    const block = blockOf(html, 'section', page) ?? '';
+    const here = new Set(idsIn(block));
+    const missing = ids.filter((id) => !here.has(id));
+    check(missing.length === 0, `and ${page}'s own controls are on its page (${missing.join(', ') || 'none'} missing)`, missing.join(', '));
+  }
+  const setup = blockOf(html, 'section', 'setup') ?? '';
+  const setupIds = idsIn(setup);
+  check(JSON.stringify(SECONDARY.filter((id) => setupIds.includes(id)).sort()) === JSON.stringify([...SECONDARY].sort()),
+    `and every housekeeping control is on the Setup page (${setupIds.filter((id) => SECONDARY.includes(id)).join(', ')})`);
+  const buried = SECONDARY.filter((id) => footIds.includes(id));
+  check(buried.length === 0, `with none of them left in the footer (${buried.join(', ') || 'none'})`, buried.join(', '));
+  // THE CEILING: a footer button that carries no `hidden` attribute is drawn on every page — the exact thing that made ten
+  // controls appear at once. Zero is the measured shape after this change; the number may only fall.
+  const alwaysOn = [...foot.matchAll(/<button\b[^>]*>/g)].filter((m) => !/\bhidden\b/.test(m[0])).length;
+  check(alwaysOn === 0, `no footer button is drawn on every page any more (${alwaysOn} always-on)`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

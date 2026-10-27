@@ -5,6 +5,10 @@
 // DEMAND rather than with the page, because a board is a request and a player who came to play should not pay for
 // one they did not ask for.
 //
+// IT OWNS NO VISIBILITY EITHER, and that is the change pages forced: the board used to be a panel shown and hidden by a
+// footer button, and it is now a PAGE whose visibility is the router's (`main.ts`'s `paintPages`). A screen that hid
+// its own section could not be shown by a navigation, which is the failure `paintView` already carries a note about.
+//
 // IT SAYS WHAT IT IS SHOWING, AND WHEN IT IS ONLY PART OF IT. Three things a standings panel can get wrong are all
 // visible here rather than implied: WHICH board (the mode, the level and the period are written down, because
 // "the leaderboard" is three facts and a player comparing across levels is comparing nothing — §6 "the level id is
@@ -18,13 +22,12 @@ import type { BoardView } from '../net/api.ts';
 import { el } from './dom.ts';
 
 interface BoardCallbacks {
-  /** Load (or reload) the board, in whatever mode the app is in. */
+  /** Load (or reload) the board, in whatever mode the board page is set to. */
   load: () => void;
 }
 
 interface El {
-  panel: HTMLElement;
-  heading: HTMLElement;
+  caption: HTMLElement;
   load: HTMLButtonElement;
   status: HTMLElement;
   list: HTMLElement;
@@ -36,8 +39,7 @@ export class LeaderboardScreen {
 
   constructor(private readonly on: BoardCallbacks) {
     this.els = {
-      panel: el('board'),
-      heading: el('boardHeading'),
+      caption: el('boardCaption'),
       load: el<HTMLButtonElement>('boardToggle'),
       status: el('boardStatus'),
       list: el('boardList'),
@@ -53,7 +55,7 @@ export class LeaderboardScreen {
    * than by hiding the board from a stranger.
    */
   show(board: BoardView, you: string | null): void {
-    this.els.heading.textContent = boardHeading(board);
+    this.els.caption.textContent = boardHeading(board);
     this.els.list.replaceChildren();
     if (board.entries.length === 0) {
       const note = document.createElement('li');
@@ -97,17 +99,11 @@ export class LeaderboardScreen {
     this.els.status.dataset['kind'] = kind;
   }
 
-  /** Show the panel (a third button, not a third mode: a board is not something a player plays). */
-  open(): void {
-    this.els.panel.hidden = false;
-  }
-
-  /** Collapse the panel and forget the list, so a board from another mode is never left on screen. */
-  close(): void {
-    this.els.panel.hidden = true;
+  /** Clear the page for a reload: the old caption over a board that is being re-read is a stale fact on screen. */
+  clear(): void {
     this.els.list.replaceChildren();
+    this.els.caption.textContent = '';
     this.els.status.textContent = '';
-    this.els.heading.textContent = '';
   }
 
   /** Disable the button while a request is in flight, so a double press cannot race the first. */

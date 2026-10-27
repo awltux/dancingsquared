@@ -96,8 +96,13 @@ console.log('\n== 4. the shell: the app layer supplies the two facts and derives
   const main = fs.readFileSync(path.join(here, '..', 'src', 'main.ts'), 'utf8');
   const shell = /function boardPeriod\(\): string \| null \{[\s\S]{0,400}?\n\}/.exec(main)?.[0] ?? '';
   check(shell.length > 0, 'the thin `boardPeriod()` shell was found, so the next checks are about it rather than about nothing');
-  check(/boardPeriodOf\(mode, utcDay\(new Date\(\)\), issued\?\.scheduleVersion \?\? null\)/.test(shell),
-    'it passes the mode, the UTC day and the ISSUED drill\'s schedule version - all three as arguments');
+  // THE FIRST ARGUMENT IS A VARIABLE, NOT THE NAME `mode`, SINCE THE APP GREW PAGES. The board is its own page with its
+  // own filter (`boardMode`), because a board is a READ and a player who has never opened a drill must still be able to
+  // read the Daily board. The property this check exists for is unchanged — three arguments, none of them derived in the
+  // shell — so it is pinned by SHAPE rather than by the name of one variable, which was the check that went red when the
+  // page landed.
+  check(/boardPeriodOf\([A-Za-z_$][\w$]*, utcDay\(new Date\(\)\), issued\?\.scheduleVersion \?\? null\)/.test(shell),
+    'it passes a mode, the UTC day and the ISSUED drill\'s schedule version - all three as arguments');
   check(/serverIssued\(\) \? serverDrill : null/.test(shell),
     'and "the issued drill" is the app\'s own predicate, so a practice drill cannot be mistaken for one');
   check(!/seasonOf|\.slice\(0, 7\)/.test(shell), 'and it derives no period of its own: no season and no month arithmetic in the shell');

@@ -57,14 +57,116 @@
       </nav>
 
       <main id="panel">
+        <!-- THE BANNER: ONE THIN ROW ON EVERY PAGE (REPORTED: "All pages have a thin banner containing current hints
+             icons, login status, current score for drills and daily, a back button"). It holds the way back and where the
+             player is; the hints, the standing and the two scores join it beside the regime line, which is why the row is
+             a flex row whose middle cell is the text.
+
+             IT SITS INSIDE THE PANEL RATHER THAN OVER THE CANVAS, and that is a measured decision: the canvas's own top
+             strip carries the board captions and the board switcher, so a banner over it would cover the two things that
+             say what the boards are. The header row is also the row the retired mode switch freed, so the sheet's
+             measured content height does not shrink to pay for it. -->
         <header id="head">
           <h1>Dancing Squared</h1>
-          <p id="regime"></p>
-          <!-- THE ACCOUNT ROW IS THE SIGN-IN SURFACE (DESIGN.md §11.2), and it starts HIDDEN because both the
-               offline game and a `dev` server have no account to offer: `ui/account-screen.ts` reveals it only
-               when there is something true to say, and the form inside it only when `/health` advertises sign-in
-               routes — a form at a server that would answer 404 is the failure reading that list avoids. -->
-          <section id="account" hidden>
+          <div id="bannerRow">
+            <button id="bannerBack" type="button" hidden>‹ Back</button>
+            <p id="regime"></p>
+          </div>
+        </header>
+
+        <!-- THE SCROLLING BODY AND THE PINNED FOOTER. REPORTED as "still looking very messy": the panel was one column that
+             scrolled as a whole, so a tall question (or a solved drill's result card) pushed the footer's buttons past the
+             bottom edge and the primary action went off-screen. `#panelScroll` holds the content and owns the scrolling;
+             `#foot` is a grid row that never moves. The ids inside are unchanged, because `el()` resolves them. -->
+        <div id="panelScroll">
+
+        <!-- A SENTENCE THAT OUTLIVES A NAVIGATION. REPORTED as "Lets introduce pages": a page change used to be a panel
+             swap, so a refusal could always be written into the panel it belonged to. With pages a refusal can arrive
+             for a page the player is not on — a deep link to a drill that is not there — and a message in a hidden
+             section is a message nobody reads. `notice` is the one place for those, and it is `hidden` when it has
+             nothing to say so it costs no height. -->
+        <p id="notice" role="status" hidden></p>
+
+        <!-- THE LANDING PAGE. REPORTED: "Lets introduce pages and a simple navigation system." It is the menu and the
+             only page with no back button, and it says the two facts a player needs before choosing: who they are and
+             what is kept. The buttons are in the order the report listed them. -->
+        <section id="landing" class="page" hidden>
+          <h2 id="landingHeading" tabindex="-1">Dancing Squared</h2>
+          <p class="page-lede">Two boards, one question: which call gets the square from the arrangement on the left to the one on the right?</p>
+          <nav id="landingNav" aria-label="Pages">
+            <button id="goAccount" type="button">Register or sign in</button>
+            <button id="goHelp" type="button">How to play</button>
+            <button id="goLevels" type="button">Drill Level</button>
+            <button id="goDaily" type="button">Today's Daily</button>
+            <button id="goSetup" type="button">Setup</button>
+            <button id="goBoard" type="button">The board</button>
+          </nav>
+          <!-- WHO YOU ARE, SAID ONCE. The banner carries it on every page; here it is the reason to press the account
+               button, so it is written as a sentence rather than as a status chip. -->
+          <p id="landingStatus" class="page-note"></p>
+        </section>
+
+        <!-- THE SETUP PAGE: the set-once preferences and the housekeeping, which used to be a `<details>` disclosure in
+             the footer. A page is the right home for them now that there are pages — a disclosure was the answer to "the
+             footer is cluttered", and a destination is a better answer than a tap that opens a drawer over the game. -->
+        <section id="setup" class="page" hidden>
+          <h2 id="setupHeading" tabindex="-1">Setup</h2>
+          <h3>The stage</h3>
+          <!-- THE 2D/3D SWITCH. The design's own default is 2D ("a Drill question is geometry"), and a player changes
+               this once or never. -->
+          <button id="view" type="button">Switch to 2D</button>
+          <h3>Playing</h3>
+          <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
+               rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label — and
+               the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the press
+               that would have been the player's is made for them. -->
+          <button id="autoProgress" type="button" aria-pressed="false">Auto-progress: off</button>
+          <h3>This device</h3>
+          <!-- IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever could:
+               the drills and the Daily are generated and published there from one shared schedule, so every player is
+               served the same ones — which is what makes a score comparable — while a player's row holds only their own
+               progress. The two presses (the second one saying what will go) are a rule the shell owns rather than a
+               native `confirm()`, which is an API no probe can see (§15 Q18), and `startOver` in `main.ts` says exactly
+               that in the panel after the clear. It is on THIS page and not in the footer because it is the one control
+               that deletes something, which is the last thing that should sit under a thumb next to Next. -->
+          <button id="startOver" type="button">Start over on this device</button>
+        </section>
+
+        <!-- THE HELP PAGE. Written from the rules the game actually implements, one entry per rule a player cannot infer
+             from the board: what the two boards are, what a drill is, what the Daily's clock does, the two-group gesture
+             (the one control with no visible affordance), what the stars mean, and what an account changes. -->
+        <section id="help" class="page" hidden>
+          <h2 id="helpHeading" tabindex="-1">How to play</h2>
+          <p class="page-lede">The two boards are two moments of one square. The left board is where you are; the right one is the arrangement you are trying to reach. Every question is one call that gets you there.</p>
+          <dl class="help-list">
+            <dt>The Drill</dt>
+            <dd>The season's calls in order, ten to a level. Each drill is one call; answer it and the next one is yours. A cell you have passed can be reopened to watch its calls back, and a cell you closed without a pass can be attempted again.</dd>
+            <dt>Today's Daily</dt>
+            <dd>One puzzle, the same for everyone, once a day. Its clock starts the first time you open it, and the time you spend away from the page is charged to the run — so a Daily is a sitting rather than something to leave running.</dd>
+            <dt>Two-group steps</dt>
+            <dd>Some calls only happen when two groups do different things at once. Hold Shift and click a call to begin a two-group step, then pick a call under another group. The line above the answers says which reading is armed, and pressing it again puts the reading down.</dd>
+            <dt>Stars</dt>
+            <dd>Three stars is a clean run at par: no hint, no wrong answer, the shortest line, and no slower than par. Losing either half of that — a wasted call, or a time over par — is two stars, and losing both is one. Being solved is never zero.</dd>
+            <dt>Hints</dt>
+            <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots beside the hint button are what you hold, filled for what is there.</dd>
+            <dt>Signing in</dt>
+            <dd>Without an account you can play everything; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
+          </dl>
+          <p class="page-note">The banner is on every page: the way back on the left, and what you hold and what you are worth beside it.</p>
+        </section>
+
+        <!-- THE ACCOUNT PAGE (DESIGN.md §11.2). Its ROW starts hidden because both the offline game and a `dev` server
+             have no account to offer: `ui/account-screen.ts` reveals the row only when there is something true to say, and
+             the form inside it only when `/health` advertises sign-in routes — a form at a server that would answer 404 is
+             the failure reading that list avoids. The section's id is the PAGE's, so the page model and the markup agree on
+             eight names and no translation table. -->
+        <section id="account" class="page" hidden>
+          <h2 id="accountHeading" tabindex="-1">Your account</h2>
+          <!-- WHAT AN ACCOUNT IS FOR, said on every build: the row below it is hidden when there is nothing to offer
+               (an offline game, a `dev` server whose header already names the player), and a page with only a heading is
+               a page that reads as broken. This sentence is true whether or not the form is. -->
+          <p class="page-note">An account puts your runs on the server, which is what lets them be ranked and what puts your name on the board. Without one the game is complete and everything stays on this device.</p>
+          <div id="accountRow" hidden>
             <p id="accountStatus"></p>
             <form id="accountForm" hidden>
               <input id="accountEmail" type="email" name="email" autocomplete="username" placeholder="you@example.com" aria-label="Email address" />
@@ -75,27 +177,15 @@
               <button id="accountConfirm" type="button" hidden>Confirm</button>
             </form>
             <button id="accountSignOut" type="button" hidden>Sign out</button>
-          </section>
-          <!-- THE TWO MODES ARE A CHOICE, NOT A SETTING: the Drill is the regime in order and the Daily is
-               one issued challenge, and each has its own panel below. Switching keeps a Daily already in
-               progress rather than restarting its clock — see `setMode` in `main.ts`. -->
-          <nav id="modes">
-            <button id="modeDrill" type="button" aria-pressed="true">The Drill</button>
-            <button id="modeDaily" type="button" aria-pressed="false">Today's Daily</button>
-          </nav>
-        </header>
+          </div>
+        </section>
 
-        <!-- THE SCROLLING BODY AND THE PINNED FOOTER. REPORTED as "still looking very messy": the panel was one column that
-             scrolled as a whole, so a tall question (or a solved drill's result card) pushed the footer's buttons past the
-             bottom edge and the primary action went off-screen. `#panelScroll` holds the content and owns the scrolling;
-             `#foot` is a grid row that never moves. The ids inside are unchanged, because `el()` resolves them. -->
-        <div id="panelScroll">
-
-        <!-- THE LEVEL IS THE DRILL TAB'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown
-             BEFORE the question because it says where the player is. The cells come from `puzzle/block.ts`, whose
-             rule is gated by `test/block-probe.mjs`; this markup only gives them somewhere to go. The block is
-             rebuilt on every paint, so it holds no authored cells. -->
-        <section id="level" aria-live="polite">
+        <!-- THE LEVEL IS THE DRILL'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown BEFORE the
+             question because it says where the player is. The cells come from `puzzle/block.ts`, whose rule is gated by
+             `test/block-probe.mjs`; this markup only gives them somewhere to go. The block is rebuilt on every paint, so
+             it holds no authored cells. -->
+        <section id="levels" class="page" aria-live="polite" hidden>
+          <h2 id="levelsHeading" tabindex="-1">The drill level</h2>
           <p id="levelHeading"></p>
           <!-- THE PROGRESS TRACK: the heading's "3 of 100 done" as a filled bar. The value is written by
                `ui/level-screen.ts` from `blockSummary` — published length as the denominator, never the block's 100 — and
@@ -109,16 +199,15 @@
           <button id="levelNext" type="button" hidden>Start the next level</button>
         </section>
 
-        <section id="drill" aria-live="polite" hidden>
-          <!-- THE WAY BACK. The grid is the destination and the drill is entered from it, so a drill screen with no
-               way back would be a one-way door. -->
-          <button id="toLevel" type="button">Back to the level</button>
+        <section id="drill" class="page" aria-live="polite" hidden>
+          <h2 id="drillHeading" tabindex="-1">Drill</h2>
           <p id="prompt"></p>
           <div id="answers"></div>
           <div id="verdict" role="status"></div>
         </section>
 
-        <section id="daily" aria-live="polite" hidden>
+        <section id="daily" class="page" aria-live="polite" hidden>
+          <h2 id="dailyHeading" tabindex="-1">Today's Daily</h2>
           <p id="dailyPrompt"></p>
           <!-- THE ROUTE, as a sequence of ARRANGEMENTS rather than calls (DESIGN.md §9.1): a waypoint is an
                arrangement the player has stood in, so two different calls that leave the same setup both satisfy it. -->
@@ -146,15 +235,21 @@
           <div id="dailyResult" hidden></div>
         </section>
 
-        <!-- THE BOARD IS A PANEL AND NOT A THIRD MODE: a mode is something a player PLAYS, and a board is a read
-             (DESIGN.md §6, §11). It is loaded on demand — a board is a request, and a player who came to play
-             should not pay for one they did not ask for. It says which board it is showing, because "the
-             leaderboard" is three facts (§6: mode, level, period) and comparing across levels is comparing
-             nothing. -->
-        <section id="board" aria-live="polite" hidden>
-          <p id="boardHeading"></p>
+        <!-- THE BOARD IS A PAGE AND NOT A MODE: a mode is something a player PLAYS, and a board is a read (DESIGN.md §6,
+             §11). It is loaded when the page is entered — the page IS the request — and reloaded by its own button. It
+             says which board it is showing, because "the leaderboard" is three facts (§6: mode, level, period) and
+             comparing across levels is comparing nothing. The two buttons choose the mode half of that, so a player who
+             has never opened a drill can still read yesterday's Daily board. -->
+        <section id="board" class="page" aria-live="polite" hidden>
+          <h2 id="boardHeading" tabindex="-1">The board</h2>
+          <div id="boardMode" role="group" aria-label="Which board">
+            <button id="boardModeDrill" type="button" aria-pressed="true">The Drill</button>
+            <button id="boardModeDaily" type="button" aria-pressed="false">Today's Daily</button>
+          </div>
+          <p id="boardCaption"></p>
           <p id="boardStatus"></p>
           <ol id="boardList"></ol>
+          <button id="boardToggle" type="button">Reload the board</button>
         </section>
 
         </div>
@@ -188,41 +283,6 @@
           </div>
           <button id="replayMine" type="button" hidden>Play</button>
           <button id="replayShortest" type="button" hidden>The shortest line</button>
-          <!-- THE SECONDARY CONTROLS, ONE TAP AWAY. REPORTED: "Some of the current buttons seem like overkill for the
-               kind of game it's supposed to be." MEASURED at the time of the report: the footer always drew THREE buttons
-               that are never hidden (`view`, `boardToggle`, `startOver`) plus up to seven mode-dependent ones, so the
-               Daily showed ten at once and the one action that matters — Next — was the smallest thing on screen.
-               WHAT MOVED AND WHY. These four are set-once preferences or housekeeping, not moves in the game:
-                 * `#view` — the 2D/3D switch: the design's own default is 2D ("a Drill question is geometry"), and a
-                   player changes it once or never;
-                 * `#boardToggle` — a read (§6), not a mode; it becomes the Board tab when the phone shell lands;
-                 * `#autoProgress` — a toggle that changes what the NEXT correct guess does, not this one;
-                 * `#startOver` — the one control that deletes something (§15 Q18), which is the last thing that should
-                   sit under a thumb next to Next.
-               NOTHING WAS DELETED: every one of the four still works, still keeps its own `hidden` logic (which is why
-               each keeps its id), and a probe (`game/test/shell-controls-probe.mjs`) pins which controls are primary
-               and which are secondary, so burying one of the primary ones later is a gate failure rather than a
-               judgement call. `<details>` rather than a scripted menu because it is a disclosure the browser already
-               knows how to announce, keyboard and all. -->
-          <details id="more">
-            <summary id="moreToggle">More options</summary>
-            <div class="more-body">
-              <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
-                   rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label —
-                   and the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the
-                   press that would have been the player's is made for them. Hidden outside the Drill's question view. -->
-              <button id="autoProgress" type="button" aria-pressed="false" hidden>Auto-progress: off</button>
-              <button id="boardToggle" type="button">Show the board</button>
-              <button id="view" type="button">Switch to 2D</button>
-              <!-- IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever
-                   could: the drills and the Daily are generated and published there from one shared schedule, so every
-                   player is served the same ones — which is what makes a score comparable — while a player's row holds
-                   only their own progress. The two presses (the second one saying what will go) are a rule the shell
-                   owns rather than a native `confirm()`, which is an API no probe can see (§15 Q18), and `startOver` in
-                   `main.ts` says exactly that in the panel after the clear. -->
-              <button id="startOver" type="button">Start over on this device</button>
-            </div>
-          </details>
           <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order
                is not the season's, so it is offered by name rather than substituted quietly, and the label says what
                taking it means. -->

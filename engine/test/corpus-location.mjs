@@ -94,6 +94,20 @@ const ROOTS = [
 ];
 const SOURCE = /\.(ts|mjs|cjs|js)$/;
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.vite', 'coverage']);
+/**
+ * GENERATED DIRECTORIES ARE NOT SOURCE, and they are named by PATH rather than by directory name.
+ *
+ * MEASURED, and it was the gate's own defect: `book/tools/.cache/` is gitignored (`book/.gitignore`) and written by
+ * `npm run check:book`; its files spell `'assets'` and each performs its own `.xml` walk, so this census reported
+ * **7 unexpected spellings and 1 unpinned walk** on a tree where nothing had been edited — the red was the book's
+ * build output. A gate that is red after every book build is a gate nobody reads (AGENTS.md §3), and the run that
+ * lands this also re-ran the census with the cache removed: `PASS` over 599 source files.
+ *
+ * BY PATH, NOT BY NAME: a directory called `.cache` somewhere else would be walked, because it would be ours until
+ * proven otherwise. The set is named here so the next exception is a visible edit, and the `check` below fails if it
+ * grows.
+ */
+const GENERATED_DIRS = new Set(['book/tools/.cache']);
 // SCRATCH IS NOT SOURCE. `_*.mjs` is the repo's own scratch convention (`poc/tools/verify-probes.mjs` skips
 // the same names, and AGENTS.md §5 says a scratch probe is throwaway), and those files are untracked. The one
 // other exclusion is THIS file: its subject is spelling shapes, so its samples and patterns are spellings —
@@ -115,8 +129,9 @@ function walk(target, out) {
   }
   for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
     if (entry.isDirectory()) {
-      if (SKIP_DIRS.has(entry.name)) continue;
-      walk(path.posix.join(target, entry.name), out);
+      const sub = path.posix.join(target, entry.name);
+      if (SKIP_DIRS.has(entry.name) || GENERATED_DIRS.has(sub)) continue;
+      walk(sub, out);
     } else if (SOURCE.test(entry.name)) {
       const rel = path.posix.join(target, entry.name);
       if (!SKIP_FILES.has(rel) && !isScratch(rel)) out.push(rel);
@@ -171,6 +186,12 @@ console.log(`  measured over ${scanned.length} source files; ${found.size} carry
 const unexpected = [...found.keys()].filter((rel) => !PINNED.has(rel)).sort();
 const vanished = [...PINNED.keys()].filter((rel) => !found.has(rel)).sort();
 check(scanned.length > 400, `the walk found the tree (${scanned.length} source files; a zero here is a FAILURE, not a pass)`);
+// THE GENERATED-DIRECTORY EXEMPTION, pinned as a NAMED SET (AGENTS.md §11.2.8: fails when it shrinks AND grows) and
+// distinguished from the NAME rule beside it — a directory merely CALLED `.cache` is still source, because the exemption
+// names the book's build output rather than a shape.
+check(GENERATED_DIRS.size === 1, `one generated directory is exempt from the census (${GENERATED_DIRS.size})`);
+check([...GENERATED_DIRS].every((dir) => dir.endsWith('/.cache')), 'it is named by path, and it is a cache directory');
+check(!SKIP_DIRS.has('.cache'), 'so a directory called `.cache` anywhere else is still walked as source');
 check(fs.existsSync(path.join(REPO, 'engine/test/corpus-location.mjs')),
   'the one excluded file is this gate itself, and it exists (an exclusion that names nothing excludes nothing)');
 check(found.size > 0, `the census is not vacuous (${found.size} files)`);

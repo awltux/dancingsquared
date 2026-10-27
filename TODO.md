@@ -391,10 +391,11 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   It uses **6.0** where interactive matching uses `DEFAULT_MATCH_MAX = 1.5`; it is deliberately permissive
   for legality. Review whether it should follow the tight recognition threshold.
 
-- [ ] **17. `compliesWithSetup` has no production caller.** `[recorded]`
-  The FASR setup-matching half was built and wired nowhere; ditto the observation that the **`Circle` FSM
-  state is an island** — every edge into it comes from `Circle` itself, and `Static Square` has zero edges
-  to it, so "from Static Square, hold hands, ladies in, men sashay" is not a supported sequence.
+- [ ] **17. The `Circle` FSM state is an island.** `[recorded]`
+  Every edge into it comes from `Circle` itself, and `Static Square` has zero edges to it, so "from Static Square,
+  hold hands, ladies in, men sashay" is not a supported sequence. (The FASR setup-matching half that shared this item
+  is RETIRED: `compliesWithSetup` had no production caller, and the record of why it went, and what would bring it
+  back, is in `engine/src/sequencer/alignment.ts` where Part 4 used to be.)
 
 - [ ] **18. The `Facing Dancers Close` tam carries 6 beats of movement in a call charged 8.** `[recorded]`
   Every dancer is STILL from t=6.5 to 8.0. "Left alone" deliberately.

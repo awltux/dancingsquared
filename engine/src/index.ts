@@ -237,7 +237,6 @@ export {
   CANONICAL_INDEX,
   FORMATION_SETUP_CODE,
   setupForFormation,
-  compliesWithSetup,
   fasrooOf,
   ORIENTATION_STEP_DEG,
 } from './sequencer/alignment.js';
@@ -261,7 +260,6 @@ export type {
   RelationshipState,
   CoupleToSpot,
   FormationSetup,
-  ComplianceLevel,
 } from './sequencer/alignment.js';
 export { canonicalName, FORMATION_SYNONYMS, CALL_SYNONYMS, STANDARD_FINISHES, SAME_BOARD_TOL, SIGNATURE_DIVISOR } from './sequencer/constants.js';
 // THE UNKNOWN-COUPLE SENTINEL, exported because a caller that BUILDS a board from geometry has to write it: the

@@ -20,7 +20,7 @@ import { DOMParser } from '@xmldom/xmldom';
 import {
   Sequencer, setParser, setupForFormation, boardsForAlignment, boardFromDiagram, parseAlignmentId,
   arrangementFor, sequenceFor, canonicalBoard, FORMATION_SETUP_CODE, FORMATIONS_FOR_LETTER,
-  coupleToSpot, rotationBetweenBoards, compliesWithSetup, letterForFormation,
+  coupleToSpot, rotationBetweenBoards, letterForFormation,
 } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -180,25 +180,7 @@ for (const [formation, code] of Object.entries(FORMATION_SETUP_CODE)) {
   if (setup.formation !== formation) fail(`${formation}: setup reports formation ${setup.formation}`);
 }
 
-// ---------------------------------------------------------------- 4. the compliance levels
-console.log('\n=== 4. a compliance level REJECTS what it should ===');
-{
-  const setup = setupForFormation('Normal Lines', templateFor);
-  const square = seq.boardForFormation('Static Square');
-  const cases = [
-    ['a square against the L1o setup at every level', square, 'Static Square', ['formation', 'arrangement', 'sequence', 'relationship']],
-    ['the L1o board at every level', setup.board, 'Normal Lines', ['formation', 'arrangement', 'sequence', 'relationship']],
-  ];
-  for (const [label, board, name, levels] of cases) {
-    for (const level of levels) {
-      const r = compliesWithSetup(board, setup, level, { formationName: name });
-      console.log(`  ${label.padEnd(42)} ${level.padEnd(13)} ${r.ok ? 'ok' : `refused: ${r.reason}`}`);
-    }
-  }
-  const squareAtFormation = compliesWithSetup(square, setup, 'formation', { formationName: 'Static Square' });
-  if (squareAtFormation.ok) fail('a square was accepted as the L1o setup at FORMATION level');
-  else ok('the compliance check refuses a board of the wrong formation');
-}
+// (section 4 - the compliance levels - went with `compliesWithSetup`, which had no production caller.)
 
 console.log(`\n${failures ? `${failures} FAILURE(S)` : 'all checks passed'}`);
 process.exit(failures ? 1 : 0);

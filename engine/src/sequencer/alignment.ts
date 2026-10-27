@@ -1441,51 +1441,14 @@ export function setupForFormation(
 
 // =====================================================================
 // Part 4: MATCHING a start board against what a module requires.
+//
+// RETIRED, AND THE ITEM IS STILL OPEN. `compliesWithSetup` and its `ComplianceLevel` were built here and had no
+// production caller: only `engine/test/tools/setup-registry-probe.mjs` asked them anything, so an unused EXPORT was
+// being kept alive by the probe written for it (AGENTS §4.5, "an unused branch is a claim nobody checked"). The
+// predicate went with the probe section in one change; the FEATURE it was the first half of - a corpus label like
+// `Zero Line` treated as a REQUIREMENT the replay must honour, rather than a hint silently resolved to a board in
+// the wrong arrangement - is a design item, not a refactor, and it returns with the caller that needs it.
 // =====================================================================
-
-/**
- * How much of a setup a caller needs to have honoured, weakest first.
- *
- * A corpus label like `Zero Line` is a REQUIREMENT, not a hint: a module written for a zero line
- * replayed from a square dances different calls. The engine could not express that, so a label was
- * silently resolved to a board in the wrong ARRANGEMENT - which looked right, because the arrangement
- * only fixes the gender pattern. This is the missing half.
- */
-export type ComplianceLevel = 'formation' | 'arrangement' | 'sequence' | 'relationship';
-
-/** Whether a board satisfies a setup at the requested level, with the reason when it does not. */
-export function compliesWithSetup(
-  board: Board,
-  setup: FormationSetup,
-  level: ComplianceLevel,
-  opts: { formationName?: string | null } = {},
-): { ok: boolean; reason?: string } {
-  const name = opts.formationName ?? setup.formation;
-  if (level === 'formation') {
-    return letterForFormation(name) === setup.letter
-      ? { ok: true }
-      : { ok: false, reason: `the board is not a ${setup.formation} (its letter is ${letterForFormation(name) ?? 'unknown'}, the setup needs [${setup.letter}])` };
-  }
-  const read = arrangementFor(board, setup.letter);
-  if (level === 'arrangement') {
-    const want = parseAlignmentId(setup.code)!.arrangement;
-    return read.candidates.includes(want)
-      ? { ok: true }
-      : { ok: false, reason: `the board is not in arrangement ${want} of [${setup.letter}] (it reads ${read.number ?? read.candidates.join('/') ?? 'nothing'})` };
-  }
-  const sequence = sequenceFor(board).code;
-  if (level === 'sequence') {
-    const want = parseAlignmentId(setup.code)!.sequence;
-    return sequence === want
-      ? { ok: true }
-      : { ok: false, reason: `the board is not in sequence ${want} (it reads ${sequence ?? 'nothing'})` };
-  }
-  const want = parseAlignmentId(setup.code)!.relationship;
-  const rel = relationshipStateOf(board, setup.letter).code;
-  return rel === want
-    ? { ok: true }
-    : { ok: false, reason: `the board's relationship is ${rel ?? 'undefined for this formation'}, the setup needs '${want}'` };
-}
 
 /**
  * Build the board an All8 `[FASR]` setup CODE names, with no diagram needed.

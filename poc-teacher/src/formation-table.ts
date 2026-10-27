@@ -6,10 +6,11 @@
 // is meant to be supplemented with manually curated sequences.
 //
 // IMPORTANT caveat: a get-out is valid for the arrangement it was generated from.
-// At use time the caller should verify it still closes the specific board (see
-// closesHome), and fall back to the live search when it doesn't.
+// At use time the caller should verify it still closes the specific board - replay it with `applyToBoard` and check
+// `isAt('Static Square', board)` - and fall back to the live search when it doesn't. That verification used to live
+// here as a private `closesHome`; MEASURED, nothing called it, so the three lines belong to the caller and the
+// function went (an unused branch is a claim nobody checked, AGENTS §4.5).
 import { Sequencer } from 'dancing-squared-engine';
-import type { Board } from 'dancing-squared-engine';
 
 interface FormationTable {
   getIns: Record<string, string[]>; // formation name -> sequence from home to that formation
@@ -59,7 +60,7 @@ export function buildFormationTable(
     if (!getIn || !getIn.length) continue;
     // Verify the get-in actually reaches f, then find a get-out home. The getout only returns a path when it reaches
     // home (reachesTarget), so a found get-out is known to close from the get-in's resulting arrangement. Use-time
-    // callers should re-verify against the specific board (see closesHome).
+    // callers should re-verify against the specific board (replay with `applyToBoard`, then `isAt`).
     let cur = home;
     let ok = true;
     for (const c of getIn) {
@@ -80,25 +81,4 @@ export function buildFormationTable(
     }
   }
   return { getIns, getOuts };
-}
-
-/**
- * Use-time check: does `path` take `board` (via `seq`, which doesn't mutate) back
- * to the squared set? The get-out search restores identity + sequence, so landing
- * on the squared set (geometric) means it closed home — matching the app's
- * "finish in square" definition. Callers use this to safely try a cached get-out
- * and fall back to the live search when it doesn't apply to the specific board.
- */
-function closesHome(
-  seq: Sequencer,
-  board: Board,
-  path: string[],
-): boolean {
-  let cur = board;
-  for (const c of path) {
-    const r = seq.applyToBoard(cur, c);
-    if (!r.legal) return false;
-    cur = r.board;
-  }
-  return seq.isAt('Static Square', cur);
 }

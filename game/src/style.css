@@ -1233,16 +1233,55 @@ button[data-busy="true"]::after {
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
 
-  /* THE BOARD CAPTIONS MOVE WITH THE BOARDS. On the desktop they are placed across the width left by the column; here
-     the column is a sheet, so they are centred on each half of the full width, above the sheet. */
-  #labelHere {
-    left: 25%;
-    top: calc(10px + env(safe-area-inset-top));
+  /* THE HEADER GOES COMPACT ON A SHEET, because on a phone the sheet is only ~46 % of the screen and the header is competing
+     with the content for it. MEASURED at 500 x 757 with the desktop header: the h1, the regime line and the two 48 px mode
+     tabs took ~190 of the sheet's 348 px, leaving the level card a 27 px scroll window. The app's name is not needed on every
+     screen (the browser tab and the installed icon carry it), so on a sheet it goes; the regime line stays because it says
+     where the player is. */
+  #head h1 {
+    display: none;
   }
 
+  #modes button {
+    min-height: 40px;
+  }
+
+  /* AND THE REGIME LINE GOES TOO: it says "The Drill — drill 1 of 100, level 1", which is the same two facts the level card
+     below it states — the mode is in the pressed tab and the position is in the heading. On a phone that duplication cost the
+     content column another ~20 px of a sheet that has none to spare. */
+  #regime {
+    display: none;
+  }
+
+  /* THE LEVEL HEADING IS ONE LINE ON A SHEET, ellipsised rather than wrapped: at 500 px "Level 1 — 0 of 100 done, 0 passed"
+     wraps to two lines and the second pushed the path out of the content column. The whole sentence stays in the DOM for a
+     screen reader. */
+  #levelHeading {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* THE BOARD CAPTIONS MOVE WITH THE BOARDS, AND ONE IS SHOWN. On the desktop they are placed across the width left by the
+     column; here the column is a sheet and the stage draws ONE board, so there is one caption and it is centred — MEASURED
+     at 500 x 757, the old 25 %/75 % placement cut "Setup, 1 of 2 — …" off the left edge and put the other caption over a
+     board nobody could see. `max-width` keeps a long formation name inside the viewport instead of running off it. */
+  #labelHere,
   #labelGoal {
-    left: 75%;
-    top: calc(10px + env(safe-area-inset-top));
+    left: 50%;
+    right: auto;
+    max-width: calc(100% - 32px);
+    text-align: center;
+    top: calc(58px + env(safe-area-inset-top));
+  }
+
+  /* THE BOARD SWITCHER SITS UNDER THE CAPTION, CENTRED ON THE BOARD — not on the space a desktop column leaves, which on this
+     layout is the whole width plus the sheet's own height. MEASURED at 500 x 757: the desktop rule put it over the board's
+     top-right corner, on top of the caption. */
+  #boardTabs {
+    top: calc(var(--space-xs) + env(safe-area-inset-top));
+    left: 50%;
+    max-width: calc(100% - var(--space-md));
   }
 
   /* THE WAYPOINT ARROWS WERE A DESKTOP SIZE. `clamp(220px, 38vh, 420px)` tall is most of a phone's board area, and 64 px
@@ -1266,5 +1305,30 @@ button[data-busy="true"]::after {
   #waypointLegend {
     top: calc(46px + env(safe-area-inset-top));
     font-size: var(--fs-small);
+  }
+
+  /* THE FOOTER GOES TWO-UP ON A SHEET. MEASURED at 500 x 757: the pinned footer's four stacked rows took 250 of the sheet's
+     348 px, leaving the content column 90 px — the level card was a sliver. Two columns halve that, and the primary action
+     and `More options` still span the full width because they are the ones a thumb reaches for. */
+  #foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+  }
+
+  /* ONLY THE ACTION AND THE DISCLOSURE SPAN BOTH COLUMNS. MEASURED on the first two-up attempt: a `span 2` on EVERY button
+     put them back one per row and the footer stayed 250 px tall. The primary and `More options` are the two a thumb reaches
+     for; a pair of secondary controls (Undo / Redo, Play / The shortest line) sits two-up between them. */
+  #foot #next,
+  #foot #more,
+  #foot .result-share {
+    grid-column: span 2;
+  }
+
+  /* The rows that are TEXT keep their full width, so a sentence is not set in a 160 px column. */
+  #balance,
+  #ledger,
+  #replayBox {
+    grid-column: span 2;
   }
 }

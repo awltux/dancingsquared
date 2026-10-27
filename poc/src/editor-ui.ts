@@ -99,6 +99,11 @@ import {
   // would hold the trace by a whole turn, which is why the call sites below keep a normaliser at all - but it is
   // this one, so the seam is the engine's seam.
   normAngle,
+  // HOW FAR ONE MOVE TURNS THE FRAME THE NEXT ONE STARTS IN - the engine's own `poseFor` arithmetic, which this
+  // file used to restate as a private `frameTurn`. It lives in the engine now because the panel is TypeScript
+  // inside Vite and a probe cannot import it, so the rule could only be measured by reading this file's source;
+  // `poc/tools/facing-chain-probe.mjs` imports it instead, and still reads this file for the CALL.
+  moveTurn,
   // THE END BOARD'S SETUP ID, for the End setup row when no formation in the corpus names the shape: the id is the
   // arrangement AND the authored order (`setup-id.ts`), and it is what the Board drawer's picker is keyed by, so it is
   // the one thing a caller can look up where a name does not exist (`end-setup-state.ts`).
@@ -449,28 +454,6 @@ const floorToLocal = (f: MoveFrame, x: number, y: number): { lx: number; ly: num
     ly: -Math.sin(f.heading) * dx + Math.cos(f.heading) * dy,
   };
 };
-
-/**
- * THE ANGLE A MOVE TURNS THE FRAME THE NEXT MOVE STARTS IN - `poseFor`'s own `a`, and the exact quantity that
- * swings a dancer's tail when a curve is edited.
- *
- * IT IS NOT THE EXIT HEADING, which is the quantity this panel used to guard on and the reason a travel edit
- * was left unguarded. `poseFor` advances the frame by `bezierAngle(facing, 1) - bezierAngle(facing, 0)`
- * (`engine/src/core.ts`), read off the move's FACING when it has one and off its TRAVEL when it has not: a
- * departure direction is where the dancer is already facing, so the turn the move contributes is the CHANGE in
- * its own curve's direction, not the direction itself. For an authored `<rotate>` curve the two readings agree
- * (the format has no `cy3`, so the start tangent is the +X axis and the `0` term is identically 0) - which is
- * why the facing guard was right about facings and wrong about everything else. For a travel curve they do NOT:
- * the arc fit rewrites the departure tangent as well as the arrival one, so it changes this angle, rotates every
- * later move's local curve on the floor, and carries the rest of the track off the circle the caller is fitting
- * to. MEASURED (`poc/tools/radial-arc-fit-probe.mjs` section 9): fitting one curve of `Promenade Full` moves a
- * later end point by up to **4.9e-1** units, and holding the tail takes the worst of 3936 end points to
- * **2.8e-15** - the rounding of the rotation, eleven orders below the 4th decimal the assets are written in.
- */
-function frameTurn(seg: Seg): number {
-  const facing = seg.rotate ?? seg.translate;
-  return bezierAngle(facing, 1) - bezierAngle(facing, 0);
-}
 
 /**
  * THE THREE POINTS A CURVE IS DRAWN FROM, and the local fields each one owns.
@@ -1675,9 +1658,9 @@ export class EditorController implements EditorUI {
    *  "It should appear on all four of the quarter moves, unless fixing one has thrown out the end points of the
    *  other curves ... If so, this should be prevented by pinning the subsequent end point while adjusting the
    *  controls." It did throw them out - fitting one curve of `Promenade Full` carried a later end point 0.49
-   *  units off the ring - because `frameTurn` reads the TRAVEL curve when the move has no facing, and the fit
-   *  rewrites both of that curve's tangents. `frameTurn` is the guard now, for facings and travel alike; see it
-   *  for the algebra and section 9 of `radial-arc-fit-probe.mjs` for the measurement.
+   *  units off the ring - because `moveTurn` (the engine's, imported) reads the TRAVEL curve when the move has
+   *  no facing, and the fit rewrites both of that curve's tangents. `moveTurn` is the guard now, for facings and
+   *  travel alike; see its doc for the algebra and section 9 of `radial-arc-fit-probe.mjs` for the measurement.
    *
    *  The delta is PER DANCER, because the selection shares the local numbers and not the frame they land in. It
    *  compounds correctly through a drag: each pointer move writes the curve ABSOLUTELY and holds the tail by the
@@ -1690,18 +1673,18 @@ export class EditorController implements EditorUI {
     for (const d of this.selectedSorted()) {
       const seg = next.dancers[d]?.path[at];
       if (!seg) continue;
-      const before = frameTurn(seg);
+      const before = moveTurn(seg);
       // THE DANCER COMES WITH THE SEGMENT, because an absolute write is per-dancer: the selection shares a
       // LOCAL end point, not the frame it lands in, so the conversion has to be done inside this loop.
       const patched = f(seg, d);
       next = setMove(next, d, at, patched);
       changed = true;
-      // ANY WRITE THAT TURNS THE FRAME HOLDS THE TAIL, whichever curve it wrote - see `frameTurn` for why the
+      // ANY WRITE THAT TURNS THE FRAME HOLDS THE TAIL, whichever curve it wrote - see `moveTurn` for why the
       // guard is that angle rather than the FACING TAB. The two gestures that must NOT be compensated twice
       // hold themselves: an END POINT drag goes through `moveCurveEnd`, which carries the exit handle as a
       // vector, so it leaves this angle exactly unchanged and the delta here is 0 (`radial-arc-fit-probe.mjs`
       // section 9 checks that on the corpus rather than taking it on trust).
-      const delta = normAngle(frameTurn(patched) - before);
+      const delta = normAngle(moveTurn(patched) - before);
       if (delta !== 0) next = holdFollowingTrace(next, d, at, delta);
     }
     return changed ? next : null;
@@ -2496,8 +2479,8 @@ export class EditorController implements EditorUI {
     // WHAT THE FIT WILL DO TO THE REST OF THE TRACK, taken before the write because after it there is nothing to
     // compare against: the fit rewrites the curve's DEPARTURE tangent as well as its arrival one, so the frame
     // the next move is played in turns and the tail would swing OFF THE CIRCLE the caller is fitting to. The
-    // write path holds it (`foldMoveChange`, via `frameTurn`), and this is the number the message reports.
-    const turned = toDeg(normAngle(frameTurn({ ...seg, translate: { ...seg.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } }) - frameTurn(seg)));
+    // write path holds it (`foldMoveChange`, via `moveTurn`), and this is the number the message reports.
+    const turned = toDeg(normAngle(moveTurn({ ...seg, translate: { ...seg.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } }) - moveTurn(seg)));
     this.commitMoveChange(
       (s) => ({ ...s, translate: { ...s.translate, cx1: c1.lx, cy1: c1.ly, cx2: c2.lx, cy2: c2.ly } }),
       `d${this.moveDancer}:arc`,
@@ -2649,14 +2632,14 @@ export class EditorController implements EditorUI {
    * tell the new behaviour from the old one except by watching the floor. This is the sentence that says
    * which one they have, and the number is the turn of the frame, which is now the only thing that changed.
    *
-   * IT SPEAKS FOR A TRAVEL DRAG TOO, since the hold is no longer the facing tab's alone (see `frameTurn`): a
+   * IT SPEAKS FOR A TRAVEL DRAG TOO, since the hold is no longer the facing tab's alone (see `moveTurn`): a
    * control point that turns a move the dancer has no facing curve for swings the tail exactly the same way,
    * and the caller is told in the terms of the curve they were dragging rather than of a facing they never set.
    */
   private noteTraceHold(before: Seg, facing: boolean) {
     const after = this.instance?.dancers[this.moveDancer]?.path[this.moveIndex];
     if (!after) return;
-    const turned = toDeg(normAngle(frameTurn(after) - frameTurn(before)));
+    const turned = toDeg(normAngle(moveTurn(after) - moveTurn(before)));
     if (Math.abs(turned) > 0.05) {
       this.statusEl.textContent = facing
         ? `turned the end facing ${turned.toFixed(1)}° - the following trace is held where it was`

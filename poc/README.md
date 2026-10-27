@@ -1026,8 +1026,9 @@ one, and a move's own curve IS the frame the next move is played in — so the f
 round the floor and carried the next curve off the ring it was being fitted to: **0.49 units** on `Promenade
 Full`, caught by the same report as the condition *"unless fixing one has thrown out the end points of the other
 curves ... this should be prevented by pinning the subsequent end point while adjusting the controls."* The write
-path now holds the following trace by the turn of `frameTurn` — the angle `poseFor` actually advances the frame
-by, read off the move's facing when it has one and its travel when it has not — so every later end point stays
+path now holds the following trace by the turn of `moveTurn` — the engine's name for the angle `poseFor`
+actually advances the frame by, read off the move's facing when it has one and its travel when it has not — so
+every later end point stays
 within **2.8e-15** units of where it was. It is the same `holdFollowingTrace` the Facing tab has always used, and
 the guard is the ANGLE rather than the tab, so a control-point drag holds the tail too; an END-POINT drag needs no
 compensation at all, because `moveCurveEnd` carries the exit handle as a vector and leaves that angle within

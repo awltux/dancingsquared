@@ -238,19 +238,35 @@ console.log(`\n== a three-step drag leaves the trace where it started ==`);
 // tail: `moveCurveEnd` does, by carrying the exit handle as a vector so the angle cannot change, but a write
 // that moves a CONTROL does not - and the arc fit, which rewrites both of a travel curve's tangents, carried a
 // later end point of `Promenade Full` **0.49 units** off the ring it was being fitted to. The guard is now
-// `frameTurn`, the angle `poseFor` actually advances the frame by, so it fires for exactly the writes that turn
-// that angle and is the identity for the ones that do not (`radial-arc-fit-probe.mjs` section 9 measures both).
-// That is a fact about the app's source, which cannot be executed here (`editor-ui.ts` is TypeScript inside
-// Vite), so it is read - the same limit, and the same answer, as `facing-handle-probe.mjs` records for the drag
-// write rules themselves.
-console.log(`\n== the panel calls it, for every write that turns the frame ==`);
+// `moveTurn` - the engine's `poseFor` arithmetic - so it fires for exactly the writes that turn that angle and
+// is the identity for the ones that do not (`radial-arc-fit-probe.mjs` section 9 measures both).
+//
+// THE ALGEBRA IS IMPORTED RATHER THAN READ, and that is the difference from the version of this section that
+// shipped first: `moveTurn` was a private `frameTurn` in the panel, so the only way to measure it here was to
+// regex the panel's own source - a copy of the rule, one edit away from measuring nothing (AGENTS §5). It moved
+// to `engine/src/core.ts`, so the first check below is now a VALUE check with a negative control, and the panel
+// is read only for the CALL, which is a fact about the app's source that cannot be executed here.
+console.log(`\n== the panel holds the trace, by the angle the engine says the move turns ==`);
 {
+  // THE RULE ITSELF, with the plausible wrong rule beside it. A travel curve that departs along +X and arrives at
+  // 90deg turns the frame by 90deg, and there the exit heading and the turn AGREE - so the control curve below
+  // departs at 45deg instead: the turn is the CHANGE (45deg), the exit heading is the direction it ends on
+  // (90deg), and a guard built on the second is what made a control-point drag look harmless.
+  const curve = { cx1: 1, cy1: 1, cx2: 1, cy2: 0, x2: 1, y2: 1 }; // departs at 45deg, arrives at 90deg
+  const seg = { beats: 1, hands: 'none', translate: curve, rotate: null };
+  const turn = engine.moveTurn(seg);
+  const exit = engine.arrivalAngle(curve);
+  check(Math.abs(turn - Math.PI / 4) < 1e-12, `\`moveTurn\` is the CHANGE in the curve's direction (${(turn * DEG).toFixed(3)}deg for a curve departing 45deg and arriving 90deg)`);
+  check(Math.abs(exit - turn) > 1e-3, `and it is NOT the exit heading (${(exit * DEG).toFixed(3)}deg) - the negative control for the rule this probe exists to pin`);
+  check(engine.moveTurn({ ...seg, rotate: curve, translate: { cx1: 1, cy1: 0, cx2: 1, cy2: 0, x2: 1, y2: 0 } }) === turn,
+    'and it reads the FACING curve when the move has one, as `poseFor` does');
+
   const ui = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
-  check(/const before = frameTurn\(seg\);/.test(ui), 'the fold reads the frame the next move starts in, before the write');
-  check(/const delta = normAngle\(frameTurn\(patched\) - before\);[\s\S]{0,120}?holdFollowingTrace\(next, d, at, delta\)/.test(ui),
+  check(/const before = moveTurn\(seg\);/.test(ui), 'the fold reads the frame the next move starts in, before the write');
+  check(/const delta = normAngle\(moveTurn\(patched\) - before\);[\s\S]{0,120}?holdFollowingTrace\(next, d, at, delta\)/.test(ui),
     'and holds the following trace by the turn of THAT angle - on either tab, since a move with no facing reads its heading off its own travel curve');
-  check(/function frameTurn\(seg: Seg\): number \{[\s\S]{0,200}?bezierAngle\(facing, 1\) - bezierAngle\(facing, 0\)/.test(ui),
-    'the angle is `poseFor`\'s own: the CHANGE in the curve\'s direction rather than the direction it ends on, which is the difference that made a control-point drag look harmless');
+  check(/^\s*moveTurn,$/m.test(ui) && !/function frameTurn/.test(ui),
+    'and the panel TAKES it from the engine rather than declaring its own copy, which is what this section used to have to read out of the source');
   check(/this\.noteTraceHold\(seg, facing\);/.test(ui),
     'and the drag SAYS the trace was held, on either tab, so the behaviour is visible rather than merely absent');
   check(/const stepInto = \(j: number\)[\s\S]{0,240}?bezierAngle\(s\.rotate \?\? s\.translate, 0\)/.test(ui),

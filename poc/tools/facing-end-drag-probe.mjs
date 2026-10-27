@@ -201,7 +201,7 @@ console.log('\n== 4. the tile: which patch each handle goes through ==');
     'an ARC still takes the earlier branch, where the whole curve is rebuilt from its parameters and the control point is derived rather than carried');
   // `noteTraceHold` reports the turn of the FRAME, so it speaks for the control drag and stays silent for the
   // end point - which is the honest split. It is no longer the facing tab's alone: a travel control drag turns
-  // the frame the same way (see `frameTurn`), so the call passes the tab rather than assuming it.
+  // the frame the same way (see `moveTurn`, the engine's), so the call passes the tab rather than assuming it.
   check(/this\.noteTraceHold\(seg, facing\);/.test(drag),
     'and the status line still runs after a drag, on whichever tab, so the drag that DOES turn the frame is the one that says so');
 }

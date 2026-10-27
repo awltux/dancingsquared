@@ -62,6 +62,9 @@ import {
   // The quarter arc: the one shape the instance editor can lock a curve to.
   bezierAngle,
   bezierPoint,
+  // THE TURN ONE CURVE MAKES is the ENGINE's rule, imported rather than restated: this harness used to spell
+  // `bezierAngle(t, 1) - bezierAngle(t, 0)` inline in two places, which is a copy of `curveTurn` (§5).
+  curveTurn,
   callMeta,
   ARC_K,
   ARC_TOL,
@@ -1840,7 +1843,7 @@ console.log('\n== the circle a curve follows, and the tolerance that decides "cl
       for (const seg of dancer.path) {
         const x = fitCircle(seg.translate, ARC_FIT_TOL);
         if (!x) continue;
-        const turn = normAngle(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0));
+        const turn = normAngle(curveTurn(seg.translate));
         worstTurn = Math.max(worstTurn, Math.abs(turn - x.sweep));
       }
     }
@@ -2091,7 +2094,7 @@ console.log('\n== 25. A run of moves laid on one circle ==');
     const totalBeats = d.path.slice(r.s, r.e + 1).reduce((a, g) => a + g.beats, 0);
     for (let k = r.s; k <= r.e; k++) {
       const seg = nd.path[k];
-      const turn = Math.abs(normAngle(bezierAngle(seg.translate, 1) - bezierAngle(seg.translate, 0)));
+      const turn = Math.abs(normAngle(curveTurn(seg.translate)));
       const share = d.path[k].beats / totalBeats;
       worst.ratio = Math.max(worst.ratio, Math.abs(turn - Math.abs(r.fit.sweep) * share));
       facingChecked++;

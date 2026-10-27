@@ -3644,7 +3644,8 @@ the FIT, which rewrites the departure tangent as well as the arrival one. MEASUR
 authorings (62 fits, 3936 end points re-evaluated): the fit alone moves a later end point by up to 4.86e-1 units,
 and 44 of the 62 fits move something - which is the next quarter being pushed off its circle.
 
-THE GUARD IS NOW THE ANGLE ITSELF (`frameTurn` in `editor-ui.ts`), for facings and travel curves alike, so
+THE GUARD IS NOW THE ANGLE ITSELF (`moveTurn` in the engine's `core.ts`, which is `poseFor`'s own arithmetic and
+which the panel imports), for facings and travel curves alike, so
 `holdFollowingTrace` fires for exactly the writes that turn the frame. Every later end point then moves 2.75e-15
 units - the rounding of the rotation, eleven orders below the fourth decimal the assets are written in - and the
 END POINT drag is untouched by the change: over the same 80 moves, `moveCurveEnd` leaves the frame turn within

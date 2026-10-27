@@ -13,7 +13,7 @@
 // Bezier convention taminations uses (`Movement.fromTransform`).
 
 import type { BezierData, CallBundle, DancerSpec, Gender, Hands, Pose, Seg, Symmetry } from './types.js';
-import { DEG, bezierAngle, bezierPoint, poseFor } from './core.js';
+import { DEG, bezierAngle, bezierPoint, curveTurn, poseFor } from './core.js';
 // THE HAND STATE'S MIRROR, imported rather than restated: `mirrorDancerMoves` swaps left for right exactly
 // as the converter's own `reflect="-1"` does, and this is the one definition of that rule.
 // `esc` comes from the same module for the same reason: it is the XML escape rule, this module writes `<tam>`
@@ -706,8 +706,10 @@ export function runTurn(call: CallBundle, index: number, kFrom: number, kTo: num
   if (!dancer) return 0;
   let total = 0;
   for (let k = Math.max(0, kFrom); k <= kTo && k < dancer.path.length; k++) {
-    const t = dancer.path[k].translate;
-    total += normAngle(bezierAngle(t, 1) - bezierAngle(t, 0));
+    // THE TRAVEL CURVE ONLY, deliberately: this is how far the run's PATH goes round, which is what a fitted
+    // circle's sweep is compared against. A move with a facing curve turns its frame by `moveTurn`, a different
+    // quantity, so `curveTurn(seg)` rather than `moveTurn(seg)`.
+    total += normAngle(curveTurn(dancer.path[k].translate));
   }
   return total;
 }

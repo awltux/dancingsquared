@@ -97,6 +97,40 @@ export function curveAngle(b: BezierData, t: number): number {
   return bezierAngle(b, t);
 }
 
+/**
+ * HOW FAR ONE CURVE TURNS THE HEADING over its whole length, in radians: the angle it is played in, less the
+ * angle it starts at.
+ *
+ * NOT THE EXIT HEADING, and the difference is the whole reason this exists as a function. An exit heading is
+ * where the dancer ends up facing; this is the CHANGE, which is what `poseFor` advances the frame by, and the
+ * two disagree on every curve that does not depart along the frame it is played in. A `rotate` curve always
+ * does (the format has no `cy3`, so its start tangent is the +X axis and the second term is identically 0),
+ * which is why an exit-heading guard looks right on facings and is wrong on everything else.
+ */
+export function curveTurn(b: BezierData): number {
+  return curveAngle(b, 1) - curveAngle(b, 0);
+}
+
+/**
+ * THE ANGLE A MOVE TURNS THE FRAME THE NEXT MOVE STARTS IN — `poseFor`'s own `a`, taken over the whole move.
+ *
+ * `poseFor` advances the frame by the curve's angle at `t` less its angle at 0, read off the move's FACING
+ * curve when it has one and off its TRAVEL curve when it has not: a departure direction is where the dancer is
+ * already facing, so the turn a move contributes is the change in its own curve's direction, not the direction
+ * itself. A travel curve edited on its own therefore moves this angle, rotates every later move's local curve
+ * on the floor, and carries the rest of the track off it — MEASURED (`poc/tools/radial-arc-fit-probe.mjs`
+ * section 9): fitting one curve of `Promenade Full` moves a later end point by up to **4.9e-1** units, and
+ * holding the tail takes the worst of 3936 end points to **2.8e-15**, the rounding of the rotation, eleven
+ * orders below the 4th decimal the assets are written in.
+ *
+ * NOT `Move.turn` (`moves.ts`): that is the turn a CODIFIED move declares in the engine's vocabulary, this is
+ * the turn an AUTHORED curve actually makes. The two are meant to agree for a catalogue move and are read for
+ * different reasons — nothing derives one from the other.
+ */
+export function moveTurn(seg: Seg): number {
+  return curveTurn(seg.rotate ?? seg.translate);
+}
+
 // ---------------------------------------------------------------- Transform
 // 2D affine transform = rotation+translation (no scale/shear). apply(T, p) = R*p + t.
 

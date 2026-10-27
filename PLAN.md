@@ -6023,3 +6023,32 @@ THE GATES, on the final tree: engine light tier 64 harnesses, 56 ok, the same 8 
 `check:book` green throughout. `npx tsc -p poc` was ALSO red on master before this work started -
 `poc/src/editor-ui.ts` was missing the `sid` field `c21a05c7` added to `FormationTag`, the same literal `7980688` had
 left behind once before - and that repair is its own commit here.
+**THE ENGINE'S SURFACE IS SIX JOB ENTRIES, AND A GATE KEEPS THEM VIEWS.** The package published one specifier and
+`src/index.ts` re-exported 44 modules as one flat surface - 380 names, 331 runtime, over 59 modules - so a consumer that
+only draws a dancer evaluated the whole engine. MEASURED, module closure: barrel 59 of 59; `core` 8; `document` 4;
+`ids` 18; `authoring` 16; `sequencer` 54; `all8` 2. The six entries are re-export VIEWS with explicit name lists, not
+`export *` and not a split of the barrel: a wildcard from the same modules published 12 names the barrel deliberately
+withholds (`KNOWN_FORMATION_MAX`, `HOME_DANCERS`, `isKnownCouple`, ...), and nothing moves out of `"."`, so the book's
+`REQUIRED` list, the 197 `new Sequencer(` sites and the probes were untouched. `engine/test/entry-tiers.mjs` (light)
+pins the acyclicity, each entry's name set against the barrel's selection for its modules, its closure CEILING (8/4/18/
+16/54/2, may only fall), the re-export-only shape, and the three-way agreement of `package.json`'s `exports`, the six
+files and `vite.engine.ts`'s aliases. `vite.engine.ts` is the new one-place alias map both Vite apps spread, keeping
+the single-instance guarantee and making the subpaths resolvable.
+
+TWO IMPLICIT CONTRACTS were written at the point of use in the same change. The solver queries now take a board
+(`opts.board` on `getout`/`getin`/`fixIt`, a parameter on `matrixGetout`/`legalNext`), additive with `this.board` as
+the default, and `poc-teacher/src/formation-table.ts` - the shape trap 13 described, `reset(); getout(); reset();
+apply(...)` - now takes `startBoard()` once and passes boards, with no `reset` in the loop. And the constructor's
+`calls` argument is documented as TITLE -> DOCUMENT with each document registered whole: the approved plan would have
+flipped it to `registerByTitle` if every site were title-keyed, but the census (197 constructions: 124 `callsByTitle`,
+17 `[]`, 9 two-argument, the rest literals or variables) found deliberately file-keyed harness sites, so the plan's
+fallback applied - keep the default, state the hazard and its size (124 tams under one name; 1791 vs 4960 legal counts).
+
+LEFT OPEN, deliberately: no consumer is migrated to an entry yet. The intended first witnesses are measured and ready -
+`poc/src/setup-catalogue.ts` imports exactly the ids+document layer and `poc/src/sequence-json.ts` the three ids - and
+each migration is its own commit with the app's gate (the poc editor would drop from the 59-module barrel to the
+16-module authoring entry).
+
+GATES, on the final tree: engine light tier **69 harnesses, 61 ok, the same 8 reds** master carries by name (shape-
+census, verify, sequencer, circle-four, step-forward, group-calls, scircle-instance, scircle-register); `entry-tiers`
+green at 0.1s; `poc/verify.cjs` the same 2 reds; `npx tsc -p poc` clean; `verify:teacher` PASSES (0); `check:book` 0.

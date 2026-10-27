@@ -57,25 +57,25 @@ body {
   left: 0;
   height: 100%;
   width: var(--panel-size);
-  padding: 20px 20px 28px;
+  padding: var(--space-xl) var(--space-xl) var(--space-xl);
   overflow-y: auto;
   background: var(--panel-bg);
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-xl);
 }
 
 #head h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--fs-title);
   letter-spacing: 0.01em;
 }
 
 #regime {
   margin: 6px 0 0;
   color: var(--dim);
-  font-size: 0.95rem;
+  font-size: var(--fs-body);
 }
 
 /* THE MODE SWITCH. Two buttons rather than a select: the choice is the game's top-level one, and a native
@@ -83,15 +83,15 @@ body {
    pressed look is not the only signal. */
 #modes {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   margin-top: 12px;
 }
 
 #modes button {
   flex: 1;
   min-height: 44px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--fs-body);
   font-family: inherit;
   color: var(--ink);
   background: var(--control);
@@ -122,7 +122,7 @@ button[data-busy="true"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
 button[data-busy="true"]::after {
@@ -160,22 +160,26 @@ button[data-busy="true"]::after {
 #levelBlock {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  gap: 4px;
+  gap: var(--space-xs);
   margin-top: 10px;
 }
 
-/* THE CELL SHOWS ITS NUMBER and nothing else; its state is the background and the border, and its wording is the
-   `aria-label` the screen writes (a 100-cell grid has no room for words, and colour is never the only signal). */
+/* THE CELL SHOWS A MARK, NOT A NUMBER, and its state is the fill, the border AND the glyph — three signals, so a
+   colour-vision difference costs nothing. The number lives in each cell's `aria-label` because at 31 px a two-digit
+   label is the mess this replaced (`ui/level-screen.ts`'s MARK header has the measurement). The ROUND shape is what
+   turns a spreadsheet of numerals into a progress matrix: a hundred squares read as cells to fill in, a hundred circles
+   read as steps taken. */
 #levelBlock .cell {
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   padding: 0;
-  font-size: 0.7rem;
+  font-size: var(--fs-small);
+  line-height: 1;
   font-family: inherit;
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: var(--r-cell);
+  border-radius: var(--r-pill);
   background: var(--surface);
 }
 
@@ -210,11 +214,12 @@ button[data-busy="true"]::after {
 
 /* THE WAY ON: the drill the server has issued. It keeps the 44px touch height the rest of the page uses where it can,
    but a cell is square and ten of them share the panel's width, so the visual affordance carries the rest: an accent
-   border and the cursor. `min-height` is deliberately NOT set here — it would break the square and the row. (It is no
-   longer the block's ONLY control: a skipped drill is pressable too, and the rule for that is the one just below.) */
+   ring, the accent GLYPH and the cursor. `min-height` is deliberately NOT set here — it would break the square and the
+   row. (It is no longer the block's ONLY control: a skipped drill is pressable too, and the rule for that is below.) */
 #levelBlock .cell.next {
   border: 2px solid var(--accent);
   background: var(--pressed);
+  color: var(--accent);
   font-weight: 700;
   cursor: pointer;
 }
@@ -225,7 +230,7 @@ button[data-busy="true"]::after {
   color: var(--ink-faint);
 }
 
-/* AN UNPUBLISHED CELL IS EMPTY ON PURPOSE: a number would promise a drill that does not exist. */
+/* AN UNPUBLISHED CELL IS EMPTY ON PURPOSE: a mark would promise a drill that does not exist. */
 #levelBlock .cell.unpublished {
   border-color: var(--line-ghost);
   background: transparent;
@@ -242,8 +247,8 @@ button[data-busy="true"]::after {
 #toLevel {
   min-height: 44px;
   margin-top: 10px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--fs-body);
   font-family: inherit;
   color: var(--ink);
   background: var(--control);
@@ -258,7 +263,7 @@ button[data-busy="true"]::after {
    THE TOUCH TARGETS MATCH THE MODE SWITCH's 44px — the audience is the reason that number was chosen there. */
 #account {
   margin-top: 12px;
-  padding: 10px 12px;
+  padding: var(--space-md) var(--space-md);
   border: 1px solid var(--line);
   border-radius: var(--r-control);
   background: var(--surface);
@@ -267,7 +272,7 @@ button[data-busy="true"]::after {
 #accountStatus {
   margin: 0;
   color: var(--dim);
-  font-size: 0.85rem;
+  font-size: var(--fs-small);
   line-height: 1.35;
 }
 
@@ -282,7 +287,7 @@ button[data-busy="true"]::after {
 #accountForm {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-sm);
   margin-top: 10px;
 }
 
@@ -290,9 +295,9 @@ button[data-busy="true"]::after {
   flex: 1 1 9rem;
   min-width: 0;
   min-height: 44px;
-  padding: 6px 8px;
+  padding: var(--space-xs) var(--space-sm);
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   color: var(--ink);
   background: var(--field);
   border: 1px solid var(--line);
@@ -302,9 +307,9 @@ button[data-busy="true"]::after {
 #accountForm button,
 #accountSignOut {
   min-height: 44px;
-  padding: 8px 10px;
+  padding: var(--space-sm) var(--space-md);
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   color: var(--ink);
   background: var(--control);
   border: 2px solid var(--line);
@@ -327,14 +332,14 @@ button[data-busy="true"]::after {
 #boardHeading {
   margin: 0 0 4px;
   color: var(--ink);
-  font-size: 1rem;
+  font-size: var(--fs-control);
   font-weight: 600;
 }
 
 #boardStatus {
   margin: 0 0 8px;
   color: var(--dim);
-  font-size: 0.85rem;
+  font-size: var(--fs-small);
   line-height: 1.35;
 }
 
@@ -351,12 +356,12 @@ button[data-busy="true"]::after {
 
 #boardList li {
   display: flex;
-  gap: 8px;
+  gap: var(--space-sm);
   align-items: baseline;
-  padding: 4px 6px;
+  padding: var(--space-xs) var(--space-xs);
   border: 1px solid transparent;
   border-bottom-color: var(--line-soft);
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
 }
 
 #boardList li.you {
@@ -381,7 +386,7 @@ button[data-busy="true"]::after {
 
 #prompt,
 #dailyPrompt {
-  font-size: 1.15rem;
+  font-size: var(--fs-heading);
   line-height: 1.35;
   margin: 0 0 14px;
 }
@@ -391,7 +396,7 @@ button[data-busy="true"]::after {
 #dailyReadout {
   margin: 0 0 14px;
   color: var(--dim);
-  font-size: 0.95rem;
+  font-size: var(--fs-body);
   font-variant-numeric: tabular-nums;
 }
 
@@ -404,7 +409,7 @@ button[data-busy="true"]::after {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
   margin: 0 0 12px;
 }
 
@@ -412,9 +417,9 @@ button[data-busy="true"]::after {
   flex: 1 1 12rem;
   min-width: 0;
   min-height: 44px;
-  padding: 6px 10px;
+  padding: var(--space-xs) var(--space-md);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: var(--fs-body);
   color: var(--ink);
   background: var(--field);
   border: 1px solid var(--line);
@@ -431,14 +436,14 @@ button[data-busy="true"]::after {
    hid everything and a board with nothing legal left. Tabular figures so it does not reflow as it counts down. */
 .call-count {
   color: var(--dim);
-  font-size: 0.85rem;
+  font-size: var(--fs-small);
   font-variant-numeric: tabular-nums;
 }
 
 .call-subsets {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-sm);
   flex: 1 1 100%;
 }
 
@@ -446,9 +451,9 @@ button[data-busy="true"]::after {
    and the pressed pill gets a solid border plus a tick-free but unmistakable fill for everyone else. */
 .call-subset {
   min-height: 34px;
-  padding: 4px 10px;
+  padding: var(--space-xs) var(--space-md);
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: var(--fs-small);
   color: var(--ink);
   background: var(--control);
   border: 2px solid var(--line);
@@ -471,7 +476,7 @@ button[data-busy="true"]::after {
 #offer {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: var(--space-sm);
   margin-bottom: 14px;
 }
 
@@ -480,7 +485,7 @@ button[data-busy="true"]::after {
    a row reading "Head Boys Dosado" under a heading that already says "Head Boys" is the sentence twice. */
 #offer .offer-group {
   margin: 10px 0 0;
-  font-size: 0.82rem;
+  font-size: var(--fs-small);
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -496,13 +501,13 @@ button[data-busy="true"]::after {
 #offer .offer-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-sm);
 }
 
 .offer {
   min-height: 48px;
-  padding: 10px 14px;
-  font-size: 1rem;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--fs-control);
   font-family: inherit;
   color: var(--ink);
   background: var(--control);
@@ -533,7 +538,7 @@ button[data-busy="true"]::after {
    coloured alone, so it survives a colour-vision difference (the same rule the hinted call follows). */
 #dailyWaypoints {
   margin: 0 0 10px;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   line-height: 1.6;
   color: var(--dim);
   word-break: break-word;
@@ -561,7 +566,7 @@ button[data-busy="true"]::after {
    a paragraph with no text would still advance the layout by a line. */
 #offerPairHint {
   margin: 0 0 10px;
-  font-size: 0.88rem;
+  font-size: var(--fs-small);
   color: var(--dim);
 }
 
@@ -572,15 +577,15 @@ button[data-busy="true"]::after {
 #line {
   margin: 0 0 12px;
   color: var(--dim);
-  font-size: 0.95rem;
+  font-size: var(--fs-body);
   line-height: 1.4;
   word-break: break-word;
 }
 
 #dailyResult {
   margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 1.05rem;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--fs-control);
   line-height: 1.4;
   color: var(--ink);
   background: var(--control);
@@ -597,7 +602,7 @@ button[data-busy="true"]::after {
 #balance {
   margin: 0 0 4px;
   color: var(--dim);
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
 }
 
 /* THE LOCAL LEDGER LINE, under the hint balance: same voice as the balance, one step quieter, because it is
@@ -605,7 +610,7 @@ button[data-busy="true"]::after {
 #ledger {
   margin: 0 0 8px;
   color: var(--dim);
-  font-size: 0.85rem;
+  font-size: var(--fs-small);
   font-variant-numeric: tabular-nums;
 }
 
@@ -614,7 +619,7 @@ button[data-busy="true"]::after {
   margin-top: 16px;
   min-height: 3.2em;
   line-height: 1.4;
-  font-size: 1rem;
+  font-size: var(--fs-control);
 }
 
 #verdict[data-kind="ok"],
@@ -635,15 +640,15 @@ button[data-busy="true"]::after {
 #answers {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-md);
 }
 
 /* 56px MINIMUM: a comfortable touch target, and the reason the buttons are full width rather than a row of
    three that would each be too narrow to read a call name in. */
 .answer {
   min-height: 56px;
-  padding: 12px 16px;
-  font-size: 1.1rem;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--fs-control);
   font-family: inherit;
   color: var(--ink);
   background: var(--control);
@@ -672,13 +677,13 @@ button[data-busy="true"]::after {
   margin-top: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-md);
 }
 
 #foot button {
   min-height: 48px;
-  padding: 10px 14px;
-  font-size: 1rem;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--fs-control);
   font-family: inherit;
   color: var(--ink);
   background: var(--raised);
@@ -704,8 +709,8 @@ button[data-busy="true"]::after {
 
 #more > summary {
   min-height: 48px;
-  padding: 10px 14px;
-  font-size: 1rem;
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--fs-control);
   font-family: inherit;
   color: var(--ink);
   background: var(--raised);
@@ -734,7 +739,7 @@ button[data-busy="true"]::after {
 .more-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-md);
   margin-top: 10px;
 }
 
@@ -751,7 +756,7 @@ button[data-busy="true"]::after {
   display: grid;
   place-items: center;
   background: var(--bg);
-  font-size: 1.2rem;
+  font-size: var(--fs-heading);
 }
 
 #loading[hidden] {
@@ -767,7 +772,7 @@ button[data-busy="true"]::after {
   top: 14px;
   margin: 0;
   transform: translateX(-50%);
-  font-size: 1.05rem;
+  font-size: var(--fs-control);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--ink);
@@ -801,7 +806,7 @@ button[data-busy="true"]::after {
   transform: translateY(-50%);
   width: 64px;
   height: clamp(220px, 38vh, 420px);
-  font-size: 2.6rem;
+  font-size: var(--fs-glyph);
   font-weight: 700;
   line-height: 1;
   color: var(--accent);
@@ -847,7 +852,7 @@ button[data-busy="true"]::after {
   left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.5);
   transform: translateX(-50%);
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   color: var(--dim);
   pointer-events: none;
   z-index: 2;
@@ -898,7 +903,7 @@ button[data-busy="true"]::after {
 #replayCalls {
   margin: 0;
   padding-left: 1.4em;
-  font-size: 0.9rem;
+  font-size: var(--fs-body);
   line-height: 1.5;
   color: var(--dim);
   max-height: 9.5em;
@@ -921,6 +926,68 @@ button[data-busy="true"]::after {
 }
 
 /* ===================================================================================================================
+   COMPOSITION: A SECTION IS A CARD, AND ONE CONTROL IS THE ACTION.
+   ===================================================================================================================
+   REPORTED: "still looking very messy, UI design wise." The panel was a single flat column of controls at one weight, so
+   every element competed with every other and nothing said what to do next. Three rules do most of the work:
+     * a section is a CARD on its own surface, so the level, the question, the Daily and the board read as separate things
+       rather than as one long list;
+     * the footer is a BAR with a hairline, because it is sited apart from the content rather than being more of it;
+     * the ONE control that moves the game on — Next — is the only accent-filled button on the screen, so the eye has
+       somewhere to land. Everything else keeps its outline and its raised fill and waits.
+   What this aims at is HIERARCHY, not decoration: no new colour enters the palette, and every value used here is a token
+   (`theme-probe.mjs` fails on a literal). */
+#panel > section {
+  background: var(--card);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-card);
+  padding: var(--space-lg);
+}
+
+#panel > section#board {
+  /* the board list is a read, not a task: it scrolls rather than pushing the footer off the screen */
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+#foot {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--line-soft);
+}
+
+/* THE ACTION. `--on-accent` is the dark ink amber takes; its contrast pair is in `theme-probe.mjs` with the rest. */
+#next {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+#next:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+/* A PRESS IS ACKNOWLEDGED WITH ONE PIXEL. It is the smallest motion that reads as "the tap landed", it costs no layout,
+   and it lives inside a no-preference query because a reduced-motion player has asked for exactly this not to happen. */
+@media (prefers-reduced-motion: no-preference) {
+  #foot button:active,
+  .offer:active,
+  .answer:active,
+  .call-subset:active,
+  #more > summary:active {
+    transform: translateY(1px);
+  }
+}
+
+/* THE LEVEL BLOCK'S NUMBERS ARE A CELL'S INDEX, NOT TEXT: the smallest step in the scale, and tabular so the grid stays a
+   grid as its numbers change. */
+#levelBlock .cell {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===================================================================================================================
    THE NARROW VIEWPORT: THE PANEL BECOMES A SHEET ACROSS THE BOTTOM.
    ===================================================================================================================
    THIS IS THE ONE MEDIA QUERY IN THE FILE, and it is a MIRROR of `ui/layout.ts` rather than a second decision: the
@@ -930,7 +997,7 @@ button[data-busy="true"]::after {
 
    WHY 899 AND NOT 900: `max-width` is inclusive, so 899 is the widest viewport that is still narrow, which is what
    `layoutFor(899, …)` answers. MEASURED at 393 x 852 the sheet is 392 px tall and the boards get the 460 px above it,
-   where the old 340 px column left them 53 px each. */
+   where the old 340 px column left the pair **22 px** of width each. */
 @media (max-width: 899px) {
   #panel {
     top: auto;
@@ -965,7 +1032,7 @@ button[data-busy="true"]::after {
   .wp-nav {
     width: 44px;
     height: clamp(160px, 24vh, 240px);
-    font-size: 2rem;
+    font-size: var(--fs-glyph);
     border-radius: var(--r-control);
   }
 
@@ -979,6 +1046,6 @@ button[data-busy="true"]::after {
 
   #waypointLegend {
     top: calc(46px + env(safe-area-inset-top));
-    font-size: 0.85rem;
+    font-size: var(--fs-small);
   }
 }

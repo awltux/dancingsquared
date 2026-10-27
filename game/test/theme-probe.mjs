@@ -26,7 +26,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { COLOR, CSS_VARS, OUTLINE_COLOR, RADIUS, MOTION, applyTheme } from '../src/ui/theme.ts';
+import { COLOR, CSS_VARS, OUTLINE_COLOR, RADIUS, MOTION, SPACE, TYPE, applyTheme } from '../src/ui/theme.ts';
 import { CELEBRATE_MS } from '../src/render/celebrate.ts';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -179,6 +179,7 @@ console.log('\n== 4. WCAG AA, computed from the table ==');
     ['a panel edge', COLOR.line, panel, 3, 'a border is UI, not text'],
     ['a control edge', COLOR.line, control, 3, 'every button outline'],
     ['a strong edge', COLOR.lineStrong, control, 3, 'the focused and armed outline'],
+    ['the action\'s label on the accent fill', COLOR.onAccent, parseColour(COLOR.accent), 4.5, 'the Next button is the one filled control'],
   ];
   for (const [what, fg, b, min, why] of PAIRS) {
     // A TRANSLUCENT FOREGROUND IS COMPOSITED OVER ITS BACKGROUND FIRST. A ratio taken against `rgba(255,255,255,0.4)`
@@ -194,6 +195,47 @@ console.log('\n== 5. the celebration duration is the module that owns it ==');
   check(MOTION.celebrate === `${CELEBRATE_MS}ms`, `MOTION.celebrate is celebrate.ts's ${CELEBRATE_MS} ms`);
   const flashesPerSecond = 1000 / CELEBRATE_MS;
   check(flashesPerSecond < 3, `which is ${flashesPerSecond.toFixed(1)} flashes/s, under the three-per-second bound`);
+}
+
+console.log('\n== 6. the type and space scales, and the ceiling on the first ==');
+{
+  // THE BASE SIZE IS NOT A STEP: `:root`'s `font-size` is what every `rem` in the ladder is relative to, so it is the one
+  // declaration exempt from "a font size is a token" — and it is exempt by CONTEXT (inside `:root`), not by value.
+  const body = CSS.replace(/:root\s*\{[\s\S]*?\}/, '');
+  const sizes = [...body.matchAll(/font-size:\s*([^;]+);/g)].map((m) => m[1].trim());
+  check(sizes.length > 5, `the stylesheet sets ${sizes.length} font sizes (a zero here is a FAILURE, not a pass)`);
+  const literalSizes = sizes.filter((v) => !/^var\(--fs-[a-z]+\)$/.test(v));
+  check(literalSizes.length === 0, `every one of them is a scale step (${literalSizes.length} literal)`, literalSizes.join(', '));
+  const usedSteps = new Set(sizes.map((v) => /^var\(--fs-([a-z]+)\)$/.exec(v)?.[1]).filter(Boolean));
+  const knownSteps = new Set(Object.keys(TYPE));
+  const unknown = [...usedSteps].filter((step) => !knownSteps.has(step));
+  check(unknown.length === 0, `and every step is one TYPE defines (${unknown.join(', ') || 'none'} unknown)`);
+  // THE CEILING, NOT AN EQUALITY: the ladder may only SHRINK (AGENTS.md §11.2.8's ceiling pin). It was seven steps and is
+  // six after the level block's numbers became marks; MEASURED before this pass the stylesheet asked for THIRTEEN distinct
+  // sizes, six of them within 0.05 rem of a neighbour — a rattle, not a hierarchy.
+  check(Object.keys(TYPE).length <= 7, `the ladder has ${Object.keys(TYPE).length} steps, against a ceiling of 7`);
+  check(usedSteps.size <= Object.keys(TYPE).length,
+    `and the stylesheet uses ${usedSteps.size} of them, so no size exists that nothing reads`);
+  const ladder = Object.keys(TYPE);
+  check(sizes.includes(`var(--fs-${ladder[0]})`) && sizes.includes(`var(--fs-${ladder[ladder.length - 1]})`),
+    `and it reaches both ends of it (${ladder[0]} and ${ladder[ladder.length - 1]}) — a ladder nothing uses is a ladder nobody needed`);
+  // NEGATIVE CONTROL: an in-between size is exactly what the pass removed, and it fails the literal rule above and only
+  // that rule — the ceiling check would pass, because 0.93 rem would still be one more VALUE but the same step count.
+  const sneaky = `#x { font-size: 0.93rem; }`;
+  check([...sneaky.matchAll(/font-size:\s*([^;]+);/g)].map((m) => m[1]).some((v) => !/^var\(--fs-/.test(v)),
+    'an in-between size fails the literal rule (the negative control)');
+
+  // THE SPACE SCALE: every gap and padding is a step or an explicit zero. A composite padding is two steps.
+  const spaces = [...body.matchAll(/\b(?:gap|padding):\s*([^;]+);/g)].map((m) => m[1].trim());
+  check(spaces.length > 10, `and it sets ${spaces.length} gaps or paddings`);
+  const straySpaces = spaces.filter((v) => !/^(0|var\(--space-[a-z]+\))$/.test(v)
+    && !/^var\(--space-[a-z]+\) var\(--space-[a-z]+\)$/.test(v)
+    && !/^var\(--space-[a-z]+\) var\(--space-[a-z]+\) var\(--space-[a-z]+\)( var\(--space-[a-z]+\))?$/.test(v)
+    // the sheet's safe-area padding is geometry, not a scale step: it must follow the device's inset
+    && !/^calc\(var\(--space-[a-z]+\) \+ env\(safe-area-inset-bottom\)\)$/.test(v));
+  check(straySpaces.length === 0, `and every one is a space step or a zero (${straySpaces.length} stray)`, straySpaces.join(' | '));
+  const usedSpace = new Set(spaces.flatMap((v) => [...v.matchAll(/var\(--space-([a-z]+)\)/g)].map((m) => m[1])));
+  check(usedSpace.size === Object.keys(SPACE).length, `and all ${Object.keys(SPACE).length} space steps are in use (${usedSpace.size})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

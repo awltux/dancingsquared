@@ -40,6 +40,24 @@ const WORDING: Record<CellState, string> = {
   unpublished: 'not published yet',
 };
 
+/**
+ * THE CELL'S MARK, one glyph per state — and the NUMBER IS GONE.
+ *
+ * REPORTED as "still looking very messy, UI design wise", and the 10 x 10 grid of two-digit numbers was the messiest
+ * thing in the panel: MEASURED at the panel's 340 px width a cell is 31 px, its number is two digits wide, and a hundred
+ * near-identical numerals read as a spreadsheet rather than as progress. A mark says the same thing in one symbol: a tick
+ * is solved, a replay arrow is a drill closed without being passed (and pressable to reattempt), a play triangle is the
+ * drill the server has issued. THE NUMBER IS NOT LOST — it is in each cell's `aria-label` ("Drill 12: solved"), which is
+ * where a two-digit label belongs on a 31 px target.
+ */
+const MARK: Record<CellState, string> = {
+  'done-passed': '✓',
+  'done-not-passed': '↺',
+  next: '▶',
+  published: '',
+  unpublished: '',
+};
+
 export class LevelScreen {
   private readonly els: El;
 
@@ -88,7 +106,7 @@ export class LevelScreen {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `cell ${cell.state}`;
-        button.textContent = String(cell.index + 1);
+        button.textContent = MARK[cell.state];
         // EACH CONTROL SAYS WHICH IT IS IN ITS ACCESSIBLE NAME, because the number alone reads as a drill the player has
         // not done — and the whole point of both closed cells is that they have.
         button.setAttribute(
@@ -101,8 +119,8 @@ export class LevelScreen {
       }
       const span = document.createElement('span');
       span.className = `cell ${cell.state}`;
-      // AN UNPUBLISHED CELL SHOWS NOTHING, because its number would be a promise of a drill that does not exist.
-      span.textContent = cell.state === 'unpublished' ? '' : String(cell.index + 1);
+      // AN UNPUBLISHED CELL SHOWS NOTHING, because a mark would promise a drill that does not exist.
+      span.textContent = MARK[cell.state];
       span.setAttribute('aria-label', wording);
       this.els.block.append(span);
     }

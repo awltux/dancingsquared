@@ -40,6 +40,13 @@ export const COLOR = {
   pressed: '#22303d',
   /** An input's field, one step BELOW a control so a form reads as recessed. */
   field: '#0d1620',
+  /**
+   * A section's own surface inside the panel. The panel is translucent over a canvas, so a card that needs to read as a
+   * distinct block has to be a SOLID colour — a second translucent layer would let the dancers show through the text.
+   */
+  panelCard: '#101a23',
+  /** The ink a control filled with `accent` takes: dark, because amber is a light colour. */
+  onAccent: '#12181c',
 
   /** Text. `dim` is the one secondary voice: never a smaller contrast, only a lighter one. */
   ink: '#eef4f8',
@@ -89,11 +96,50 @@ export const COLOR = {
 
 /** Corner radii, so a card and a pill cannot disagree about the language. */
 export const RADIUS = {
-  cell: '4px',
   field: '8px',
   control: '10px',
   card: '14px',
   pill: '999px',
+} as const;
+
+/**
+ * THE TYPE SCALE, SIX STEPS, and the ceiling is the rule: `theme-probe.mjs` fails if the stylesheet uses a seventh size.
+ *
+ * WHAT IT REPLACED. MEASURED before this pass, `style.css` asked for THIRTEEN distinct sizes (0.7, 0.82, 0.85, 0.88,
+ * 0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2, 1.5, 2.6 rem) across its labels: six of them differed by 0.03–0.05 rem, which is
+ * not a hierarchy a reader can see, only a rattle. REPORTED as "still looking very messy, UI design wise", and this is
+ * one of the things that makes it so. The ladder keeps the sizes that carry a job — the cell number, the quiet label,
+ * body, a control's label, a heading, the title — and the rest snap onto the nearest one.
+ */
+export const TYPE = {
+  /** Eyebrows, counters, legends, a level cell's mark: uppercase or tabular, never a sentence. */
+  small: '0.82rem',
+  /** Body text: prompts, verdicts, the call list. */
+  body: '0.95rem',
+  /** A control's own label, and the board captions. */
+  control: '1.05rem',
+  /** A section heading inside the panel. */
+  heading: '1.2rem',
+  /** The product's name, once. */
+  title: '1.5rem',
+  /**
+   * The waypoint arrows' `‹`/`›` glyph — a pictogram, not text, and the one size outside the reading hierarchy. It is in
+   * the ladder so the stylesheet never needs a literal, and it is deliberately the largest step.
+   */
+  glyph: '2.6rem',
+} as const;
+
+/**
+ * THE SPACE SCALE. Four steps and a half: everything in the panel is separated by one of these, so a card's padding and
+ * the gap between two cards cannot disagree by two pixels. The values are the ones the stylesheet already used most
+ * (4, 8, 10, 14) plus 20 for the panel's own inset.
+ */
+export const SPACE = {
+  xs: '4px',
+  sm: '8px',
+  md: '10px',
+  lg: '14px',
+  xl: '20px',
 } as const;
 
 /**
@@ -164,7 +210,6 @@ export const CSS_VARS: Readonly<Record<string, string>> = {
   '--accent-ghost': COLOR.accentGhost,
   '--accent-soft': COLOR.accentSoft,
   '--shadow-text': COLOR.shadowText,
-  '--r-cell': RADIUS.cell,
   '--r-field': RADIUS.field,
   '--r-control': RADIUS.control,
   '--r-card': RADIUS.card,
@@ -175,6 +220,19 @@ export const CSS_VARS: Readonly<Record<string, string>> = {
   '--t-celebrate': MOTION.celebrate,
   '--t-spin': MOTION.spin,
   '--ease': MOTION.ease,
+  '--fs-small': TYPE.small,
+  '--fs-body': TYPE.body,
+  '--fs-control': TYPE.control,
+  '--fs-heading': TYPE.heading,
+  '--fs-title': TYPE.title,
+  '--fs-glyph': TYPE.glyph,
+  '--space-xs': SPACE.xs,
+  '--space-sm': SPACE.sm,
+  '--space-md': SPACE.md,
+  '--space-lg': SPACE.lg,
+  '--space-xl': SPACE.xl,
+  '--card': COLOR.panelCard,
+  '--on-accent': COLOR.onAccent,
   '--wp-solved': `#${OUTLINE_COLOR.solved.toString(16).padStart(6, '0')}`,
   '--wp-next': `#${OUTLINE_COLOR.next.toString(16).padStart(6, '0')}`,
   '--wp-locked': `#${OUTLINE_COLOR.locked.toString(16).padStart(6, '0')}`,

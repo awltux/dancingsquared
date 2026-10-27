@@ -35,7 +35,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, CODED_MOVE_NAMES } from '../../dist/index.js';
+import { normAngle,  Sequencer, setParser, CODED_MOVE_NAMES } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -49,7 +49,7 @@ const seq = new Sequencer(
 );
 const home = seq.boardForFormation('Static Square');
 const SELECTIONS = ['Heads', 'Sides', 'Centers', 'Ends', 'Boys', 'Girls'];
-const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+const angDiff = (a, b) => Math.abs(normAngle(a - b));
 /** How far the board at `b` is from the board the step started on - WORST dancer, position or heading. */
 const travel = (b) => b.dancers.reduce((m, d) => {
   const s = home.dancers.find((x) => x.id === d.id);

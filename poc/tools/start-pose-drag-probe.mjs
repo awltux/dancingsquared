@@ -78,8 +78,7 @@ const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 const DEG = Math.PI / 180;
 const ORIGIN = { x: 0, y: 0 };
 /** The shortest signed angle equal to `a`, in (-PI, PI]. Mirrored from `editor-ui.ts`. */
-const normAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
-const degGap = (a, b) => (Math.abs(normAngle(a - b)) * 180) / Math.PI;
+const degGap = (a, b) => (Math.abs(engine.normAngle(a - b)) * 180) / Math.PI;
 
 /** EVERY CALL THAT LOADS. A file the asset edits have broken is skipped, not fatal - the sweep just has to
  *  end up big enough that a single skipped call cannot make any of the checks vacuous, which section 1 pins. */
@@ -140,7 +139,7 @@ const turnStarts = (call, indices, theta) => {
   let out = call;
   for (const i of indices) {
     const d = call.dancers[i];
-    if (d) out = engine.setDancerStart(out, i, { x: d.x, y: d.y, heading: normAngle(d.angleDeg * DEG + theta) });
+    if (d) out = engine.setDancerStart(out, i, { x: d.x, y: d.y, heading: engine.normAngle(d.angleDeg * DEG + theta) });
   }
   return out;
 };
@@ -166,7 +165,7 @@ const orbitStarts = (call, indices, theta, centre) => {
     out = engine.setDancerStart(out, i, {
       x: centre.x + Math.cos(theta) * px - Math.sin(theta) * py,
       y: centre.y + Math.sin(theta) * px + Math.cos(theta) * py,
-      heading: normAngle(d.angleDeg * DEG + theta),
+      heading: engine.normAngle(d.angleDeg * DEG + theta),
     });
   }
   return out;
@@ -462,13 +461,13 @@ check(worstUntouched2 < 1e-9, `an UNSELECTED dancer is not touched at all (worst
 // ------------------------------------------------------------------ 3. the wrap, so a drag cannot spin the set
 console.log('\n== 3. the shortest way round, so a drag past the far side cannot spin the set ==');
 
-check(Math.abs(normAngle(-6.0) - (2 * Math.PI - 6.0)) < 1e-12,
+check(Math.abs(engine.normAngle(-6.0) - (2 * Math.PI - 6.0)) < 1e-12,
   `the base angle -6.0 rad is read as +${fmt(2 * Math.PI - 6.0)} rad, the SHORT way round`);
-check(Math.abs(normAngle(6.0) - (6.0 - 2 * Math.PI)) < 1e-12, `and +6.0 is read as ${fmt(6.0 - 2 * Math.PI)}`);
+check(Math.abs(engine.normAngle(6.0) - (6.0 - 2 * Math.PI)) < 1e-12, `and +6.0 is read as ${fmt(6.0 - 2 * Math.PI)}`);
 {
   // A dancer at heading 3.0 rad facing a pointer that lands at -3.0 rad: the raw difference is -6.0 rad, and
   // without the wrap that would turn the dancer by nearly a full circle the wrong way.
-  const theta = normAngle(-3.0 - 3.0);
+  const theta = engine.normAngle(-3.0 - 3.0);
   check(Math.abs(theta) < Math.PI, `a raw delta of -6.0 rad becomes ${fmt(theta)} rad (|delta| < PI)`);
   check(degGap(theta, 2 * Math.PI - 6.0) < 1e-9, 'which is the SAME heading, reached the short way');
   check(degGap(3.0 + theta, -3.0) < 1e-9, 'and it lands on the heading the pointer asked for');

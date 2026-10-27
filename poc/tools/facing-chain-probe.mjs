@@ -46,7 +46,6 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const rot = (x, y, a) => ({ x: x * Math.cos(a) - y * Math.sin(a), y: x * Math.sin(a) + y * Math.cos(a) });
 const fmt = (p) => `(${p.x.toFixed(4)}, ${p.y.toFixed(4)}) @ ${(p.heading * DEG).toFixed(2)}deg`;
 
@@ -85,7 +84,7 @@ const spun = { ...r0, cx2: rot(r0.cx2, r0.cy2, DELTA).x, cy2: rot(r0.cx2, r0.cy2
 const edited = engine.setMove(base, d, k, { ...path0[k], rotate: spun });
 
 const endHeading = (call) => engine.bezierAngle(call.dancers[d].path[k].rotate, 1) * DEG;
-const dh = norm((endHeading(edited) - endHeading(base)) / DEG) * DEG;
+const dh = engine.normAngle((endHeading(edited) - endHeading(base)) / DEG) * DEG;
 console.log(`\n== the edit ==`);
 console.log(`   the heading move ${k + 1} ends on: ${endHeading(base).toFixed(3)}deg -> ${endHeading(edited).toFixed(3)}deg (a change of ${dh.toFixed(3)}deg)`);
 
@@ -94,7 +93,7 @@ const boundary = (call, j) => engine.poseFor(call.dancers[d], engine.moveBeatRan
 const pEnd0 = boundary(base, k);
 const pEnd1 = boundary(edited, k);
 console.log(`   the pose it ends on: ${fmt(pEnd0)} -> ${fmt(pEnd1)}`);
-console.log(`   the position moved ${Math.hypot(pEnd0.x - pEnd1.x, pEnd0.y - pEnd1.y).toExponential(2)} units; the heading moved ${norm(pEnd1.heading - pEnd0.heading) * DEG === 0 ? '0' : (norm(pEnd1.heading - pEnd0.heading) * DEG).toFixed(6)}deg`);
+console.log(`   the position moved ${Math.hypot(pEnd0.x - pEnd1.x, pEnd0.y - pEnd1.y).toExponential(2)} units; the heading moved ${engine.normAngle(pEnd1.heading - pEnd0.heading) * DEG === 0 ? '0' : (engine.normAngle(pEnd1.heading - pEnd0.heading) * DEG).toFixed(6)}deg`);
 check(Math.hypot(pEnd0.x - pEnd1.x, pEnd0.y - pEnd1.y) < 1e-9,
   'THE MOVE ITSELF DOES NOT MOVE: a facing edit writes no translation, so the position the move ends on is bit-identical');
 
@@ -112,7 +111,7 @@ for (let j = k + 1; j < path0.length; j++) {
   const want = { x: pEnd0.x + v.x, y: pEnd0.y + v.y };
   const off = Math.hypot(q1.x - want.x, q1.y - want.y);
   if (off > worstOff) { worstOff = off; worstAt = j; }
-  const headingShift = norm(q1.heading - q0.heading) * DEG;
+  const headingShift = engine.normAngle(q1.heading - q0.heading) * DEG;
   if (Math.abs(headingShift - dh) > 1e-6) headingsAllShifted = false;
   console.log(`   move ${j + 1}: ${fmt(q0)} -> ${fmt(q1)}  (rotated by the edit: ${off.toExponential(1)} units off, heading shifted ${headingShift.toFixed(3)}deg)`);
 }
@@ -139,7 +138,7 @@ console.log(`\n== the drawn trace ==`);
   for (let j = k + 1; j < path0.length; j++) {
     const a = dirOf(base, j);
     const b = dirOf(edited, j);
-    console.log(`   move ${j + 1}: drawn from ${a.dir.toFixed(2)}deg to ${b.dir.toFixed(2)}deg (swung ${norm((b.dir - a.dir) / DEG) * DEG === 0 ? '0' : (norm((b.dir - a.dir) / DEG) * DEG).toFixed(2)}deg), same length ${a.len.toFixed(4)} -> ${b.len.toFixed(4)}`);
+    console.log(`   move ${j + 1}: drawn from ${a.dir.toFixed(2)}deg to ${b.dir.toFixed(2)}deg (swung ${engine.normAngle((b.dir - a.dir) / DEG) * DEG === 0 ? '0' : (engine.normAngle((b.dir - a.dir) / DEG) * DEG).toFixed(2)}deg), same length ${a.len.toFixed(4)} -> ${b.len.toFixed(4)}`);
   }
 }
 
@@ -156,7 +155,7 @@ console.log(`\n== the drawn trace ==`);
 console.log(`\n== the following trace, HELD (a facing edit changes the rotation and nothing else) ==`);
 {
   const deg = (r) => r * DEG;
-  const normDeg = (a) => Math.atan2(Math.sin(a / DEG), Math.cos(a / DEG)) * DEG;
+  const normDeg = (a) => engine.normAngle(a / DEG) * DEG;
   const held = engine.holdFollowingTrace(edited, d, k, DELTA);
   // The floor direction the dancer leaves each move on: its own local curve, placed in the frame the move
   // starts in - the same construction the drawn-trace section above uses.
@@ -214,7 +213,7 @@ console.log(`\n== a three-step drag leaves the trace where it started ==`);
     const before = engine.bezierAngle(s.rotate ?? s.translate, 1);
     const patched = { ...s, rotate: { ...s.rotate, x2, y2 } };
     const next = engine.setMove(cur, d, k, patched);
-    const delta = norm(engine.bezierAngle(patched.rotate, 1) - before);
+    const delta = engine.normAngle(engine.bezierAngle(patched.rotate, 1) - before);
     return delta === 0 ? next : engine.holdFollowingTrace(next, d, k, delta);
   };
   let cur = base;

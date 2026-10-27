@@ -48,7 +48,6 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 const seq = new engine.Sequencer(movesXml, formationsXml, callsByTitle(assets));
 
@@ -116,7 +115,7 @@ for (const { file, call } of calls) {
     for (let i = 0; i < derived.length; i++) {
       const a = f.poses[derived[i]];
       const b = f.poses[i];
-      const d = Math.hypot(a.x - b.x, a.y - b.y) + Math.abs(norm(a.heading - b.heading)) * 0.5;
+      const d = Math.hypot(a.x - b.x, a.y - b.y) + Math.abs(engine.normAngle(a.heading - b.heading)) * 0.5;
       if (d > worstIndexSend) {
         worstIndexSend = d;
         worstWitness = `${file} -> ${f.name}`;
@@ -167,7 +166,7 @@ for (const ci of [0, Math.floor(calls.length / 2), calls.length - 1]) {
     for (let i = 0; i < call.dancers.length; i++) {
       const a = engine.poseFor(manual.dancers[i], manual.beats);
       const b = engine.poseFor(whole.dancers[i], whole.beats);
-      worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(norm(a.heading - b.heading)));
+      worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(engine.normAngle(a.heading - b.heading)));
     }
     // Did `correctEndTo` keep the pairing it was handed? It derives the correspondence from the ordered
     // target, so the answer is not automatic - and the question is whether that re-derivation is the
@@ -215,14 +214,14 @@ const OVERRIDE_CALL = calls[0];
     for (const i of [a, b]) {
       const p = engine.poseFor(after.dancers[i], after.beats);
       const t = f.poses[swapped[i]];
-      worstLanding = Math.max(worstLanding, Math.hypot(p.x - t.x, p.y - t.y), Math.abs(norm(p.heading - t.heading)));
+      worstLanding = Math.max(worstLanding, Math.hypot(p.x - t.x, p.y - t.y), Math.abs(engine.normAngle(p.heading - t.heading)));
     }
     // (b) EVERY OTHER DANCER'S END is exactly what it was
     for (let i = 0; i < call.dancers.length; i++) {
       if (i === a || i === b) continue;
       const p = engine.poseFor(after.dancers[i], after.beats);
       const q = engine.poseFor(before.dancers[i], before.beats);
-      worstUntouched = Math.max(worstUntouched, Math.hypot(p.x - q.x, p.y - q.y), Math.abs(norm(p.heading - q.heading)));
+      worstUntouched = Math.max(worstUntouched, Math.hypot(p.x - q.x, p.y - q.y), Math.abs(engine.normAngle(p.heading - q.heading)));
     }
     // (c) and the SWAPPED dancers' earlier moves are untouched too: only the last one is re-aimed.
     for (const i of [a, b]) {

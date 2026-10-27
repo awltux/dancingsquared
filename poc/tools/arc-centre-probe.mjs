@@ -40,7 +40,6 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 // Every arc the panel would offer a centre for: every travel curve of every 8-dancer call in the ms level,
 // WITH a move before it (the joint is the thing being measured).
@@ -72,10 +71,10 @@ const pose = (call, i, k, end) => {
 };
 const worldDir = (call, i, k, t) => {
   const p = engine.poseFor(call.dancers[i], engine.moveBeatRange(call.dancers[i], k).from);
-  return norm(engine.bezierAngle(call.dancers[i].path[k].translate, t) + p.heading);
+  return engine.normAngle(engine.bezierAngle(call.dancers[i].path[k].translate, t) + p.heading);
 };
 /** The corner at the joint: how far the previous move's departure misses this move's arrival. */
-const corner = (call, i, k) => Math.abs(norm(worldDir(call, i, k - 1, 1) - worldDir(call, i, k, 0)));
+const corner = (call, i, k) => Math.abs(engine.normAngle(worldDir(call, i, k - 1, 1) - worldDir(call, i, k, 0)));
 
 // ---------------------------------------------------------------- 1. the arc and the radius, exactly
 console.log('\n== 1. The arc, the radius and the start are EXACTLY what they were ==');
@@ -92,7 +91,7 @@ console.log('\n== 1. The arc, the radius and the start are EXACTLY what they wer
       worstShape = Math.max(worstShape, Math.abs(fit.relDev - a.fit.relDev));
       const s0 = pose(a.call, a.i, a.k, false);
       const s1 = pose(after, a.i, a.k, false);
-      worstStart = Math.max(worstStart, Math.hypot(s1.x - s0.x, s1.y - s0.y), Math.abs(norm(s1.heading - s0.heading)));
+      worstStart = Math.max(worstStart, Math.hypot(s1.x - s0.x, s1.y - s0.y), Math.abs(engine.normAngle(s1.heading - s0.heading)));
       const e0 = pose(a.call, a.i, a.k, true);
       const e1 = pose(after, a.i, a.k, true);
       const r0 = Math.hypot(e0.x - s0.x, e0.y - s0.y);
@@ -133,7 +132,7 @@ console.log('\n== 2. The transition from the previous move: no new corner, and n
       // rotated with the arc the swing would cancel itself out.
       const h0 = pose(a.call, a.i, a.k, false).heading;
       const h1 = pose(after, a.i, a.k, false).heading;
-      worstFrame = Math.max(worstFrame, Math.abs(norm(h1 - h0)));
+      worstFrame = Math.max(worstFrame, Math.abs(engine.normAngle(h1 - h0)));
       // The previous move's own start and finish do not move; only its departure turns.
       const p0 = pose(a.call, a.i, a.k - 1, false);
       const p1 = pose(after, a.i, a.k - 1, false);
@@ -182,7 +181,7 @@ console.log('\n== 3. The other version of the absorb cannot do anything (see `po
       const c = call.dancers[a.i].path[a.k - 1].rotate;
       return c ? engine.bezierAngle(c, 1) - engine.bezierAngle(c, 0) : 0;
     };
-    worstTurn = Math.max(worstTurn, Math.abs(norm(turnOf(out) - turnOf(a.call))));
+    worstTurn = Math.max(worstTurn, Math.abs(engine.normAngle(turnOf(out) - turnOf(a.call))));
     const before = pose(a.call, a.i, a.k, true);
     const after = pose(out, a.i, a.k, true);
     worstWorld = Math.max(worstWorld, Math.hypot(after.x - before.x, after.y - before.y));

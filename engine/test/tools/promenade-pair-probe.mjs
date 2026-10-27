@@ -23,7 +23,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '../../dist/index.js';
+import { normAngle,  Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { startBoardFor } from '../lib/all8-boards.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -63,7 +63,7 @@ function pairsOf(board) {
       dist: Math.hypot(vx, vy),
       along: vx * Math.cos(d.heading) + vy * Math.sin(d.heading),
       perp: Math.abs(-vx * Math.sin(d.heading) + vy * Math.cos(d.heading)),
-      dHeading: Math.abs(Math.atan2(Math.sin(o.heading - d.heading), Math.cos(o.heading - d.heading))),
+      dHeading: Math.abs(normAngle(o.heading - d.heading)),
     };
   };
   const isPair = (d, o) => {

@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { normAngle,  Sequencer, setParser } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { ALL8_FIGURE_START, figureEngineCalls, loadAll8Figures } from '../lib/all8-figures.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -74,7 +74,7 @@ for (const s of prom) {
       const along = vx * Math.cos(d.heading) + vy * Math.sin(d.heading);
       const perp = Math.abs(-vx * Math.sin(d.heading) + vy * Math.cos(d.heading));
       const beside = Math.abs(dist - 2) < 0.35
-        && Math.abs(Math.atan2(Math.sin(o.heading - d.heading), Math.cos(o.heading - d.heading))) < 0.2;
+        && Math.abs(normAngle(o.heading - d.heading)) < 0.2;
       if (!((along > 1.4 && perp < 1.5 && dist >= 1.4 && dist <= 3.6) || beside)) continue;
       taken.add(d.id);
       taken.add(o.id);

@@ -92,7 +92,6 @@ const DEG = Math.PI / 180;
  *  version took its angles from, and that is exactly what went wrong. */
 const BOARD_AXIS_ANGLE = { x: 0, y: Math.PI / 2 };
 /** The shortest signed angle equal to `a`, in (-PI, PI]. Mirrored from `editor-ui.ts`. */
-const normAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 /** EVERY CALL THAT LOADS. A file the asset edits have broken is skipped, not fatal - the sweep just has to
  *  end up big enough that a single skipped call cannot make any of the checks vacuous, which section 1 pins. */
@@ -180,7 +179,7 @@ function compare(before, after, axis) {
     out.pos = Math.max(out.pos, Math.hypot(b[s].x - want.x, b[s].y - want.y));
     // THE HEADING IS MIRRORED ABOUT THE DANCER'S OWN FACING, whichever of the two axes was asked for - see the
     // header; the axis enters the POSITION reference above and not this one.
-    out.heading = Math.max(out.heading, Math.abs(normAngle(b[s].heading - (2 * h0 - a[s].heading))));
+    out.heading = Math.max(out.heading, Math.abs(engine.normAngle(b[s].heading - (2 * h0 - a[s].heading))));
   }
   for (let k = 0; k < before.path.length && k < after.path.length; k++) {
     if (after.path[k].hands !== engine.swapLR(before.path[k].hands)) out.handsWrong++;
@@ -278,7 +277,7 @@ for (const { where, call } of calls()) {
       }
       const altPoses = poses(alt);
       for (let s = 0; s < altPoses.length; s++) {
-        worstHeadingAgrees = Math.max(worstHeadingAgrees, Math.abs(normAngle(altPoses[s].heading - b[s].heading)));
+        worstHeadingAgrees = Math.max(worstHeadingAgrees, Math.abs(engine.normAngle(altPoses[s].heading - b[s].heading)));
       }
       // 2. HANDS.
       for (let k = 0; k < d.path.length; k++) {
@@ -316,7 +315,7 @@ for (const { where, call } of calls()) {
         where,
         i,
         moves: d.path.length,
-        call: engine.setDancerStart(call, i, { x: d.x, y: d.y, heading: normAngle(d.angleDeg * DEG + Math.PI / 4) }),
+        call: engine.setDancerStart(call, i, { x: d.x, y: d.y, heading: engine.normAngle(d.angleDeg * DEG + Math.PI / 4) }),
         dancers: [i],
       });
     }
@@ -646,7 +645,7 @@ check(pool.length >= 40 && diagonal.length >= 100,
       const theta = axisAngle(h0, 'y');
       const S = { x: d.x, y: d.y };
       const mirrored = applyMirror(call, i, (s, k) => segRule(s, 'x'));
-      const turned = engine.setDancerStart(mirrored, i, { x: d.x, y: d.y, heading: normAngle(h0 + Math.PI) });
+      const turned = engine.setDancerStart(mirrored, i, { x: d.x, y: d.y, heading: engine.normAngle(h0 + Math.PI) });
       // ITS OWN REFERENCE, not `compare`'s: a RIGID mirror reflects the positions AND the headings about the one
       // line, which is exactly what the shipped rule does not do for Y.
       const a = poses(d);
@@ -655,7 +654,7 @@ check(pool.length >= 40 && diagonal.length >= 100,
       for (let s = 0; s < a.length; s++) {
         const want = reflectWorld(a[s], theta, S);
         r.pos = Math.max(r.pos, Math.hypot(b[s].x - want.x, b[s].y - want.y));
-        r.heading = Math.max(r.heading, Math.abs(normAngle(b[s].heading - (2 * theta - a[s].heading))));
+        r.heading = Math.max(r.heading, Math.abs(engine.normAngle(b[s].heading - (2 * theta - a[s].heading))));
       }
       r.startMoved = Math.max(r.startMoved, Math.abs(turned.dancers[i].angleDeg - d.angleDeg));
     }

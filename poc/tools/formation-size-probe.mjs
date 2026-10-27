@@ -39,11 +39,10 @@ const formationsXml = asset('formations.xml');
 const LEVELS = levelsAvailable().filter((level) => level !== 'src');
 
 const DEG = Math.PI / 180;
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 /** `toWholeSet`, mirrored: the written dancers are HALF the set unless they already contain antipodes. */
 function complete(poses) {
-  const mirror = poses.map((p) => ({ x: -p.x, y: -p.y, heading: norm(p.heading + Math.PI), gender: p.gender }));
+  const mirror = poses.map((p) => ({ x: -p.x, y: -p.y, heading: engine.normAngle(p.heading + Math.PI), gender: p.gender }));
   const merged = poses.concat(mirror);
   const stacked = merged.some((a, i) => merged.some((b, j) => i !== j && Math.hypot(a.x - b.x, a.y - b.y) < 0.01));
   return stacked ? poses : merged;
@@ -159,7 +158,7 @@ console.log('\n== 2. the catalogue: four-dancer calls are the SECOND-LARGEST gro
       for (let j = i + 1; j < poses.length; j++) d.push(Math.hypot(poses[i].x - poses[j].x, poses[i].y - poses[j].y));
     }
     const mean = d.reduce((a, b) => a + b, 0) / (d.length || 1) || 1;
-    const rel = poses.map((p) => Math.round((norm(p.heading - poses[0].heading) / DEG) * 10) / 10).sort((a, b) => a - b);
+    const rel = poses.map((p) => Math.round((engine.normAngle(p.heading - poses[0].heading) / DEG) * 10) / 10).sort((a, b) => a - b);
     return `${d.map((v) => Math.round((v / mean) * 500)).sort((a, b) => a - b).join(',')}|${rel.join(',')}`;
   };
   const fourKey = new Map(corpusFormationsOfSize(4).map((n) => [fingerprint(complete(asPoses(formations.get(n)))), n]));

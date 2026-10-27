@@ -39,7 +39,6 @@ const check = (cond, msg) => {
   if (cond) console.log('  ok   ' + msg);
   else { failures++; console.log('  FAIL ' + msg); }
 };
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 // THE CORPUS: every call in the ms level, every dancer, every move that has something after it (the claim
 // is about the moves that follow).
@@ -82,7 +81,7 @@ console.log('\n== 1. How much would a drag swing WITHOUT the hold? ==');
   for (const c of cases) {
     const t = c.seg.translate;
     const raw = { ...t, x2: t.x2 + DX, y2: t.y2 + DY };
-    const da = Math.abs(norm(engine.bezierAngle(raw, 1) - engine.bezierAngle(t, 1)));
+    const da = Math.abs(engine.normAngle(engine.bezierAngle(raw, 1) - engine.bezierAngle(t, 1)));
     degs.push(da * DEG);
     if (da * DEG > 1) turned++;
     if (da * DEG > worst) {
@@ -112,14 +111,14 @@ console.log('\n== 2. With the exit handle held: the tail is the old tail, CARRIE
     const p0 = engine.poseFor(before.dancers[c.i], range.to);
     const p1 = engine.poseFor(after.dancers[c.i], range.to);
     const shift = { x: p1.x - p0.x, y: p1.y - p0.y };
-    worstExit = Math.max(worstExit, Math.abs(norm(engine.bezierAngle(held, 1) - engine.bezierAngle(c.seg.translate, 1))));
+    worstExit = Math.max(worstExit, Math.abs(engine.normAngle(engine.bezierAngle(held, 1) - engine.bezierAngle(c.seg.translate, 1))));
     const b0 = boundaries(before, c.i);
     const b1 = boundaries(after, c.i);
     let pos = 0;
     let head = 0;
     for (let j = c.k + 1; j < b0.length; j++) {
       pos = Math.max(pos, Math.hypot(b1[j].x - b0[j].x - shift.x, b1[j].y - b0[j].y - shift.y));
-      head = Math.max(head, Math.abs(norm(b1[j].heading - b0[j].heading)));
+      head = Math.max(head, Math.abs(engine.normAngle(b1[j].heading - b0[j].heading)));
     }
     const bucket = byFacing[String(c.facing)];
     bucket.n++;
@@ -147,11 +146,11 @@ console.log('\n== 3. Without the hold, the tail follows - and the two cases diff
   for (const c of cases) {
     const t = c.seg.translate;
     const raw = engine.setMove(c.call, c.i, c.k, { ...c.seg, translate: { ...t, x2: t.x2 + DX, y2: t.y2 + DY } });
-    if (Math.abs(norm(engine.bezierAngle(raw.dancers[c.i].path[c.k].translate, 1) - engine.bezierAngle(t, 1))) * DEG > 1) travelTurnedWithFacing += c.facing ? 1 : 0;
+    if (Math.abs(engine.normAngle(engine.bezierAngle(raw.dancers[c.i].path[c.k].translate, 1) - engine.bezierAngle(t, 1))) * DEG > 1) travelTurnedWithFacing += c.facing ? 1 : 0;
     const b0 = boundaries(c.call, c.i);
     const b1 = boundaries(raw, c.i);
     let head = 0;
-    for (let j = c.k + 1; j < b0.length; j++) head = Math.max(head, Math.abs(norm(b1[j].heading - b0[j].heading)));
+    for (let j = c.k + 1; j < b0.length; j++) head = Math.max(head, Math.abs(engine.normAngle(b1[j].heading - b0[j].heading)));
     if (c.facing) {
       if (head * DEG > 0.01) movedWithFacing++;
       worstWith = Math.max(worstWith, head * DEG);

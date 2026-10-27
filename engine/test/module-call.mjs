@@ -22,7 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, poseFor } from '../dist/index.js';
+import { Sequencer, normAngle, setParser, poseFor } from '../dist/index.js';
 import { corpusRoot } from 'dancing-squared-corpus';
 
 setParser(DOMParser);
@@ -53,11 +53,10 @@ function convergence(bundle, steps, board) {
   for (const [i, d] of bundle.dancers.entries()) {
     const p = poseFor(d, bundle.beats);
     const w = walked.dancers[i];
-    worst = Math.max(worst, Math.hypot(p.x - w.x, p.y - w.y), Math.abs(normalise(p.heading - w.heading)));
+    worst = Math.max(worst, Math.hypot(p.x - w.x, p.y - w.y), Math.abs(normAngle(p.heading - w.heading)));
   }
   return worst;
 }
-const normalise = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 console.log('== 1. a module from home composes into ONE call ==');
 // TWO CALLS THE PICKER OFFERS FROM HOME IN THIS ORDER, so the fixture is a real chain rather than one chosen by hand and
@@ -113,7 +112,7 @@ if (scoped.legal) {
   const held = scoped.bundle.dancers.filter((d) => {
     const p0 = poseFor(d, 0);
     const p1 = poseFor(d, scoped.bundle.beats);
-    return Math.hypot(p0.x - p1.x, p0.y - p1.y) < 1e-9 && Math.abs(normalise(p0.heading - p1.heading)) < 1e-9;
+    return Math.hypot(p0.x - p1.x, p0.y - p1.y) < 1e-9 && Math.abs(normAngle(p0.heading - p1.heading)) < 1e-9;
   });
   check(held.length === 4, `exactly the four dancers the selection does not name stand still for the step (${held.length} held)`);
   const worstScoped = convergence(scoped.bundle, SCOPED, HOME);

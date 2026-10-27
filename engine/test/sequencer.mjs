@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance, faceInOutStates, makeSquaredSet, boardSig } from '../dist/index.js';
+import { normAngle,  setParser, Sequencer, buildCallVariants, boardAtBeat, formationToXml, parseFormations, parseCallXml, parseMoves, buildCall, normalizeInstance, faceInOutStates, makeSquaredSet, boardSig } from '../dist/index.js';
 import { roleUniformMotions, segsEqual } from '../dist/sequencer/matcher.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -216,7 +216,7 @@ console.log('== Sequencer: Face In / Face Out is a QUARTER TURN, not "point at t
 // second one is what caught it: the headings stay on the grid.
 {
   const QUARTER = Math.PI / 2;
-  const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  const norm = (a) => normAngle(a);
   const onGrid = (h) => Math.abs(h - Math.round(h / QUARTER) * QUARTER) < 1e-6;
   const cdpd = seq.boardForFormation('Completed Double Pass Thru');
   check(!!cdpd, 'the witness board exists: a Completed Double Pass Thru');
@@ -745,7 +745,7 @@ console.log('== Sequencer: Do Sa Do is formation-independent, because its author
     for (const d of after.dancers) {
       const o = b.get(d.id);
       pos = Math.max(pos, Math.hypot(d.x - o.x, d.y - o.y));
-      ang = Math.max(ang, Math.abs(Math.atan2(Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading))));
+      ang = Math.max(ang, Math.abs(normAngle(d.heading - o.heading)));
     }
     return { pos, ang };
   };
@@ -1054,7 +1054,7 @@ console.log('\n== Sequencer: `Promenade 1/2` is the ring HALF WAY round, not hom
       '...and every pairwise distance is unchanged (a rotation of the set, not a new arrangement)');
     const turns = half.board.dancers.map((d) => {
       const o = square.dancers.find((x) => x.id === d.id);
-      return Math.atan2(Math.sin(d.heading - o.heading), Math.cos(d.heading - o.heading));
+      return normAngle(d.heading - o.heading);
     });
     const turn = turns[0];
     check(turns.every((t) => Math.abs(t - turn) < 1e-6),

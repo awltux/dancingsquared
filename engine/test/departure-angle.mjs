@@ -45,6 +45,7 @@ import path from 'node:path';
 import { DOMParser } from '@xmldom/xmldom';
 
 import {
+  normAngle,
   allPoses, arrivalAngle, bezierAngle, curveAngle, departureAngle, mirrorDancerMoves, padSegment,
   setDancerPath, setParser,
 } from '../dist/index.js';
@@ -59,7 +60,6 @@ const check = (cond, msg, detail) => {
 };
 const DEG = Math.PI / 180;
 const deg = (r) => (r / DEG).toFixed(3);
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 /** A one-dancer bundle whose path is written in that dancer's own frame, built through the editor's own setter. */
 const bundleWith = (segments, heading = Math.PI / 2) => {
@@ -85,7 +85,7 @@ const bundleWith = (segments, heading = Math.PI / 2) => {
   return setDancerPath(base, 0, segments);
 };
 const headings = (bundle, instants) => instants.map((t) => allPoses(bundle, t)[0].heading);
-const worst = (a, b) => a.reduce((w, x, i) => Math.max(w, Math.abs(norm(x - b[i]))), 0);
+const worst = (a, b) => a.reduce((w, x, i) => Math.max(w, Math.abs(normAngle(x - b[i]))), 0);
 
 // ---------------------------------------------------------------------------------------------------------------
 console.log('== 1. a hold mirrors to itself (the witness) ==');
@@ -100,7 +100,7 @@ console.log('== 1. a hold mirrors to itself (the witness) ==');
   console.log(`    the hold's facing curve: cx3=${hold.rotate.cx1} cx4=${hold.rotate.cx2} cy4=${hold.rotate.cy2} x4=${hold.rotate.x2} y4=${hold.rotate.y2}`);
   check(hold.rotate.cx1 === 0 && hold.rotate.cy1 === 0 && hold.rotate.cx2 === hold.rotate.x2 && hold.rotate.cy2 === hold.rotate.y2,
     'the fixture is the degenerate curve: C1 = P0 and C2 = P3, so its derivative vanishes at BOTH ends');
-  check(original.every((h) => Math.abs(norm(h - start)) < 1e-12),
+  check(original.every((h) => Math.abs(normAngle(h - start)) < 1e-12),
     `and the unmirrored hold does not turn (${deg(start)} degrees at every instant)`);
   // A reflection negates every turn, so a curve with no turn comes back unchanged — about the dancer's own start
   // facing, which maps a heading h to `2*start - h`.
@@ -122,18 +122,18 @@ console.log('\n== 2. the datum is the DEPARTURE DIRECTION, not zero (the discrim
   const rotate = { cx1: 0, cy1: 0, cx2: 1, cy2: 1, x2: 0, y2: 1 };
   const translate = { cx1: 1 / 3, cy1: 0, cx2: 2 / 3, cy2: 0, x2: 1, y2: 0 };
   const bundle = bundleWith([{ beats: 4, hands: 'none', translate, rotate }]);
-  check(Math.abs(norm(departureAngle(rotate) - 45 * DEG)) < 1e-12,
+  check(Math.abs(normAngle(departureAngle(rotate) - 45 * DEG)) < 1e-12,
     `a curve at rest departs along its first control offset (${deg(departureAngle(rotate))} degrees, not 0)`);
-  check(Math.abs(norm(arrivalAngle(rotate) - 180 * DEG)) < 1e-12,
+  check(Math.abs(normAngle(arrivalAngle(rotate) - 180 * DEG)) < 1e-12,
     `and arrives along its own exit (${deg(arrivalAngle(rotate))} degrees)`);
   const start = headings(bundle, [0])[0];
-  const turn = norm(headings(bundle, [4])[0] - start);
-  check(Math.abs(norm(turn - 135 * DEG)) < 1e-12,
+  const turn = normAngle(headings(bundle, [4])[0] - start);
+  check(Math.abs(normAngle(turn - 135 * DEG)) < 1e-12,
     `so the move turns the dancer 135 degrees — the sweep from departure to arrival (${deg(turn)}), NOT 0`);
   // THE REJECTED RULE, measured rather than described: ruling that "a curve at rest has no turn" predicts a turn
   // of 0 for this move. The check above is what fails under it, and this one says by how much.
   const rejected = 0;
-  check(Math.abs(norm(turn - rejected)) > 1 * DEG,
+  check(Math.abs(normAngle(turn - rejected)) > 1 * DEG,
     `CONTROL: the rejected rule predicts ${deg(rejected)} degrees here, so the check above is the one that catches it`);
   const mirrorOf = mirrorDancerMoves(bundle, 0, 'y');
   const want = headings(bundle, [0, 1, 2, 3, 4]).map((h) => 2 * start - h);
@@ -189,13 +189,13 @@ console.log('\n== 3. the limit, judged by sampling just inside each end ==');
   for (const { level, file, curve } of curves) {
     if (curve.cx1 === 0 && curve.cy1 === 0) {
       rested++;
-      const drift = Math.abs(norm(departureAngle(curve) - bezierAngle(curve, EPS)));
+      const drift = Math.abs(normAngle(departureAngle(curve) - bezierAngle(curve, EPS)));
       worstDeparture = Math.max(worstDeparture, drift);
       if (drift > 1e-6) disagreeing.push(`${level}/${file}: departure ${deg(drift)} degrees`);
     }
     if (curve.x2 - curve.cx2 === 0 && curve.y2 - curve.cy2 === 0) {
       collapsed++;
-      const drift = Math.abs(norm(arrivalAngle(curve) - bezierAngle(curve, 1 - EPS)));
+      const drift = Math.abs(normAngle(arrivalAngle(curve) - bezierAngle(curve, 1 - EPS)));
       worstArrival = Math.max(worstArrival, drift);
       if (drift > 1e-6) disagreeing.push(`${level}/${file}: arrival ${deg(drift)} degrees`);
     }
@@ -214,14 +214,14 @@ console.log('\n== 4. the census: continuity, and what the corpus cannot show =='
   // THE DEFECT WAS A JUMP, so the invariant is continuity of the TURN, and the two readings compared are the ones
   // `poseFor` actually applies: the whole turn is `angle(t) - departure`.
   const TOL = 1e-3; // rad — the sampled rate over EPS is small, and the control below is a whole pi
-  const turnNow = (b, t) => norm(curveAngle(b, t) - departureAngle(b));
-  const turnBefore = (b, t) => norm(bezierAngle(b, t) - bezierAngle(b, 0));
+  const turnNow = (b, t) => normAngle(curveAngle(b, t) - departureAngle(b));
+  const turnBefore = (b, t) => normAngle(bezierAngle(b, t) - bezierAngle(b, 0));
   const jumpedNow = [];
   const jumpedBefore = [];
   for (const { level, file, curve } of curves) {
     for (const [at, inside] of [[0, EPS], [1, 1 - EPS]]) {
-      if (Math.abs(norm(turnNow(curve, at) - turnNow(curve, inside))) > TOL) jumpedNow.push(`${level}/${file} at t=${at}`);
-      if (Math.abs(norm(turnBefore(curve, at) - turnBefore(curve, inside))) > TOL) jumpedBefore.push(`${level}/${file} at t=${at}`);
+      if (Math.abs(normAngle(turnNow(curve, at) - turnNow(curve, inside))) > TOL) jumpedNow.push(`${level}/${file} at t=${at}`);
+      if (Math.abs(normAngle(turnBefore(curve, at) - turnBefore(curve, inside))) > TOL) jumpedBefore.push(`${level}/${file} at t=${at}`);
     }
   }
   for (const j of jumpedNow.slice(0, 6)) console.log(`     DISCONTINUOUS ${j}`);
@@ -236,8 +236,8 @@ console.log('\n== 4. the census: continuity, and what the corpus cannot show =='
   const place = { x: 3, y: 1, heading: Math.PI / 2 };
   const hold = padSegment(place, place, 8).rotate;
   const mirroredHold = { ...hold, cx1: -hold.cx1, cx2: -hold.cx2, x2: -hold.x2 };
-  const beforeJump = Math.abs(norm(turnBefore(mirroredHold, 1) - turnBefore(mirroredHold, 1 - EPS)));
-  const nowJump = Math.abs(norm(turnNow(mirroredHold, 1) - turnNow(mirroredHold, 1 - EPS)));
+  const beforeJump = Math.abs(normAngle(turnBefore(mirroredHold, 1) - turnBefore(mirroredHold, 1 - EPS)));
+  const nowJump = Math.abs(normAngle(turnNow(mirroredHold, 1) - turnNow(mirroredHold, 1 - EPS)));
   check(beforeJump > 3 && nowJump < TOL,
     `CONTROL: a MIRRORED hold jumps by ${deg(beforeJump)} degrees under the old datum and ${deg(nowJump)} under this one`);
 }

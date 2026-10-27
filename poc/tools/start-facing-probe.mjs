@@ -54,8 +54,7 @@ const movesXml = fs.readFileSync(path.join(corpusRoot(), 'moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(corpusRoot(), 'formations.xml'), 'utf8');
 const LEVELS = levelsAvailable().filter((level) => level !== 'src');
 const DEG = Math.PI / 180;
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
-const deg = (r) => (norm(r) * 180) / Math.PI;
+const deg = (r) => (engine.normAngle(r) * 180) / Math.PI;
 const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
 
 let failures = 0;
@@ -105,7 +104,7 @@ function poseOld(dancer, t, headingMode = 'rotation') {
     rem -= local;
   }
   const finalHeading = headingMode === 'travel' ? travelHeading : heading;
-  if (dancer.mirror) return { heading: norm(finalHeading + Math.PI) };
+  if (dancer.mirror) return { heading: engine.normAngle(finalHeading + Math.PI) };
   return { heading: finalHeading };
 }
 

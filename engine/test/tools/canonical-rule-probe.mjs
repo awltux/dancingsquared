@@ -21,7 +21,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, boardsForAlignment, boardFromDiagram, parseAlignmentId, FORMATIONS_FOR_LETTER, REFERENCE_PAIR_SPOTS, arrangementFor, sequenceFor } from '../../dist/index.js';
+import { normAngle,  Sequencer, setParser, boardsForAlignment, boardFromDiagram, parseAlignmentId, FORMATIONS_FOR_LETTER, REFERENCE_PAIR_SPOTS, arrangementFor, sequenceFor } from '../../dist/index.js';
 import { HOME_DANCERS } from '../../dist/sequencer/identity.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -98,7 +98,7 @@ function referenceBoyId(template, letter) {
   return null;
 }
 
-const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+const angDiff = (a, b) => Math.abs(normAngle(a - b));
 const bearingFrom = (cx, cy, p) => Math.atan2(p.y - cy, p.x - cx);
 
 // ---- candidate rule A: the reference boy nearest his home bearing, using the REFERENCE PAIR SPOTS

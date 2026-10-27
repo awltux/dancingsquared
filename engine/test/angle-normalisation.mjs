@@ -46,7 +46,7 @@
 // constant, and to the one book tool that used to declare a copy of it.
 //
 // Run: node test/angle-normalisation.mjs   (from engine/; needs `engine/dist`, no corpus and no parser)
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -285,6 +285,54 @@ check(JSON.stringify(foldFiles) === JSON.stringify(EXPECTED_FOLDS),
 const definitions = hits(/function normAngle|const normAngle\b|export const normAngle/);
 check(definitions.length === 1 && definitions[0].startsWith('moves.ts:'),
   `normAngle is defined exactly once, in moves.ts — ${definitions.length} definition(s)`, definitions.join('; '));
+
+// ---------------------------------------------------------------------------------------------------------------
+// 4b. THE SAME CENSUS OVER THE CONSUMERS, because a copy in a PROBE is the one the app's rule cannot outvote.
+//
+// WHY IT WAS NOT HERE. §4 stops at `engine/src`, on the argument that a probe's own arithmetic is its independence.
+// That argument covers a probe that JUDGES a rule; it does not cover one that merely normalises an angle to compare
+// two headings, and MEASURED, that was 41 sites across 34 files - 16 in `engine/test`, 23 in `poc/tools`, 2 in
+// `book/tools` - each a one-line `Math.atan2(Math.sin(a), Math.cos(a))`, which is a DIFFERENT rule at the seam (§2:
+// -PI vs +PI) rather than a copy. They now import `normAngle`; this is the gate that keeps a nineteenth out.
+//
+// TWO SURVIVORS, both named with the reason they stay, and the set fails when it GROWS (a new copy, the defect) and
+// when it SHRINKS (a survivor was converted without re-reading why it was kept).
+const CONSUMER_TREES = ['engine/test', 'poc/src', 'poc/tools', 'poc-teacher/src', 'api', 'game', 'packages', 'book/tools', 'scripts'];
+const CONSUMER_EXT = /\.(?:ts|mjs|cjs|js)$/;
+const CONSUMER_SKIP = /(?:^|\/)(?:node_modules|dist|\.git)\//;
+const REPO = path.resolve(here, '..', '..');
+const consumerFiles = [];
+for (const tree of CONSUMER_TREES) {
+  const abs = path.join(REPO, tree);
+  if (!existsSync(abs)) continue;
+  for (const f of readdirSync(abs, { recursive: true })) {
+    if (typeof f !== 'string' || !CONSUMER_EXT.test(f)) continue;
+    const rel = `${tree}/${f.split(path.sep).join('/')}`;
+    if (CONSUMER_SKIP.test(rel)) continue;
+    consumerFiles.push(rel);
+  }
+}
+consumerFiles.sort();
+// A ZERO FROM A WALK THAT READ NOTHING IS NOT A PASS: the population is asserted and printed, the same rule §4 uses.
+check(consumerFiles.length > 150, `the consumer walk found ${consumerFiles.length} files over ${CONSUMER_TREES.length} trees`);
+const consumerHits = [];
+for (const rel of consumerFiles) {
+  const text = stripComments(readFileSync(path.join(REPO, rel), 'utf8'));
+  text.split('\n').forEach((line, i) => {
+    if (/atan2\(Math\.sin/.test(line)) consumerHits.push(`${rel}:${i + 1}`);
+  });
+}
+const consumerFilesWithAtan2 = [...new Set(consumerHits.map((h) => h.slice(0, h.lastIndexOf(':'))))].sort();
+const CONSUMER_SURVIVORS = [
+  // QUOTES the rejected rule: §2 measures `atan2(sin, cos)` against `normAngle` and needs both spellings to do it.
+  'engine/test/angle-normalisation.mjs',
+  // DELIBERATELY ENGINE-FREE: this probe's header promises it needs no engine build (pure geometry from
+  // `packages/stage`), and a `normAngle` import would make a two-second geometry sweep wait on `tsc`.
+  'poc/tools/radial-grid-probe.mjs',
+];
+check(JSON.stringify(consumerFilesWithAtan2) === JSON.stringify(CONSUMER_SURVIVORS),
+  `the only atan2(sin, cos) left outside engine/src are the two documented survivors: ${consumerFilesWithAtan2.join(', ') || '(none)'}`,
+  `expected ${CONSUMER_SURVIVORS.join(', ')} — was 41 sites across 34 files`);
 
 // ---------------------------------------------------------------------------------------------------------------
 // 5. THE SAME RULE FOR `DEG`, one order of magnitude simpler.

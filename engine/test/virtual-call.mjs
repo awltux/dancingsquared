@@ -22,7 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { allPoses, callVariantId, formationId, isCallVariantId, Sequencer, setParser, chooseVirtual, resolveVirtual } from '../dist/index.js';
+import { allPoses, callVariantId, formationId, isCallVariantId, normAngle, Sequencer, setParser, chooseVirtual, resolveVirtual } from '../dist/index.js';
 import { callsByTitle } from './lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -41,7 +41,6 @@ const check = (ok, msg) => {
     console.log(`  FAIL ${msg}`);
   }
 };
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 // ---------------------------------------------------------------- the population
 // The library has no title list of its own; the pooled catalogue does, and it is the same set the sequencer was
@@ -134,7 +133,7 @@ console.log('\n== 2. The placement: the board is where it starts, and the track 
     let worstStart = 0;
     b.dancers.forEach((d, i) => {
       const p = board.dancers[i];
-      worstStart = Math.max(worstStart, Math.hypot(d.x - p.x, d.y - p.y), Math.abs(norm((d.angleDeg * Math.PI) / 180 - p.heading)));
+      worstStart = Math.max(worstStart, Math.hypot(d.x - p.x, d.y - p.y), Math.abs(normAngle((d.angleDeg * Math.PI) / 180 - p.heading)));
     });
     check(worstStart < 1e-9, `every dancer starts exactly where the board has them (worst ${worstStart.toExponential(1)})`);
     // IDENTITY: the array order is the renderer's binding, and a rebuilt board must come back in order.
@@ -341,7 +340,7 @@ console.log('\n== 5. The cache: keyed on the pose set, refusals included ==');
   const turned = { dancers: square.dancers.map((d) => {
     const c = Math.cos(Math.PI / 2);
     const s = Math.sin(Math.PI / 2);
-    return { ...d, x: d.x * c - d.y * s, y: d.x * s + d.y * c, heading: norm(d.heading + Math.PI / 2) };
+    return { ...d, x: d.x * c - d.y * s, y: d.x * s + d.y * c, heading: normAngle(d.heading + Math.PI / 2) };
   }) };
   check(seq.knownFormation(turned) === 'Static Square', `a square turned 90 degrees is still named Static Square (${seq.knownFormation(turned)})`);
   const miss0 = seq.virtualCacheStats().misses;

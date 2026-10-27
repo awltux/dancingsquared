@@ -309,7 +309,6 @@ export const FORMATIONS = [
   { slug: 'promenade', title: 'Promenade', as: 'Promenade' },
 ];
 
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 const sameSpot = (a, b) => Math.abs(a.x - b.x) < SAME_SPOT_TOL && Math.abs(a.y - b.y) < SAME_SPOT_TOL;
 const sameFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) - 1) < FACING_COS_TOL;
 const oppositeFacing = (a, b) => Math.abs(Math.cos((a - b) * DEG) + 1) < FACING_COS_TOL;

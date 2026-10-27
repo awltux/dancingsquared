@@ -22,7 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, boardsForAlignment, boardForAlignment, parseAlignmentId, arrangementFor, analyzeFasr } from '../../dist/index.js';
+import { normAngle,  Sequencer, setParser, boardsForAlignment, boardForAlignment, parseAlignmentId, arrangementFor, analyzeFasr } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -230,7 +230,7 @@ const ALL8_L = {
 
   // HOME_DANCERS: couple 3 north, 2 east, 1 south, 4 west.
   const HOME_BEARING = { 1: -Math.PI / 2, 2: 0, 3: Math.PI / 2, 4: Math.PI };
-  const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  const angDiff = (a, b) => Math.abs(normAngle(a - b));
   /** Orientation cost: how far each couple's centroid bearing is from its home bearing. Lower = more home-like. */
   const orientationCost = (b) => {
     const n = b.dancers.length;

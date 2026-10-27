@@ -492,7 +492,7 @@ console.log('\n== Coded body-relative moves replay and animate (feature: sequenc
   // Replaying a coded move matches the live apply, frame for frame at the end.
   // Headings are compared modulo 2pi: authored headings are not normalised while
   // pivots return angles wrapped to (-pi, pi].
-  const angSame = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b))) < 1e-9;
+  const angSame = (a, b) => Math.abs(normAngle(a - b)) < 1e-9;
   seq.setBoard(home);
   seq.apply('Face Right');
   const live = seq.board;
@@ -746,7 +746,7 @@ console.log('\n== A zero must restore facings, not just positions (feature: zero
   const home = seq.startBoard();
   const posKey = (b) => b.dancers.map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)}`).join(';');
   const turned = (b) => b.dancers.some((d, i) =>
-    Math.abs(Math.atan2(Math.sin(d.heading - home.dancers[i].heading), Math.cos(d.heading - home.dancers[i].heading))) > 0.05);
+    Math.abs(normAngle(d.heading - home.dancers[i].heading)) > 0.05);
   const pivots = [...seq.legalCalls(home)].filter((n) => {
     const r = seq.applyToBoard(home, n);
     return r.legal && posKey(r.board) === posKey(home) && turned(r.board);
@@ -809,7 +809,7 @@ console.log('\n== The animation lands on the applied board (feature: sequence_re
 {
   // Dancers are compared BY ID: a board's array order is not meaningful, and
   // comparing by index here would itself report a phantom "discontinuity".
-  const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+  const angDiff = (a, b) => Math.abs(normAngle(a - b));
 
   // 1. Every apply must leave the board's dancer ORDER alone, because the renderer
   //    pairs its per-dancer views with the board by array position.

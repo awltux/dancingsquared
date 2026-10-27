@@ -84,7 +84,6 @@ function reasonKind(reason) {
   return 'other: ' + reason;
 }
 
-const normalise = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 console.log(`== the sample: ${modules.length} replayable corpus modules ==`);
 check(modules.length > 200, `the walk found the corpus (${modules.length} modules)`);
@@ -130,7 +129,7 @@ for (const m of modules) {
   for (const [i, d] of r.bundle.dancers.entries()) {
     const p = engine.poseFor(d, r.bundle.beats);
     const w = walked.dancers[i];
-    worst = Math.max(worst, Math.hypot(p.x - w.x, p.y - w.y), Math.abs(normalise(p.heading - w.heading)));
+    worst = Math.max(worst, Math.hypot(p.x - w.x, p.y - w.y), Math.abs(engine.normAngle(p.heading - w.heading)));
   }
   if (worst > worstEnd) { worstEnd = worst; worstEndName = m.name; }
   residueGap = Math.max(residueGap, Math.abs(worst - r.residue));

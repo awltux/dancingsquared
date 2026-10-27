@@ -35,7 +35,6 @@ const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const DEG = 180 / Math.PI;
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -127,7 +126,7 @@ function sweepOf(pts, c) {
   let prev = Math.atan2(pts[0].y - c.cy, pts[0].x - c.cx);
   for (let i = 1; i < pts.length; i++) {
     const a = Math.atan2(pts[i].y - c.cy, pts[i].x - c.cx);
-    sum += norm(a - prev);
+    sum += engine.normAngle(a - prev);
     prev = a;
   }
   return sum;
@@ -275,13 +274,13 @@ for (const { call } of calls) {
       const t = k === 0 ? 0 : engine.moveBeatRange(dancer, k - 1).to;
       const p = engine.poseFor(dancer, t);
       const near = (spots) => spots.filter((s) => Math.hypot(s.x - p.x, s.y - p.y) <= SPOT_TOL);
-      const headOk = (hits) => hits.some((h) => Math.abs(norm(h.heading - p.heading)) <= HEAD_TOL);
+      const headOk = (hits) => hits.some((h) => Math.abs(engine.normAngle(h.heading - p.heading)) <= HEAD_TOL);
       const sHit = near(S);
       const eHit = near(E);
       const cHit = near(catalogue);
       J.total++;
       if (k > 0 && k < n) J.interior++;
-      if (sHit.length) { J.onStart++; if (headOk(sHit)) { J.onStartHead++; headErrOwn.push(...sHit.map((h) => Math.abs(norm(h.heading - p.heading)) * DEG)); } }
+      if (sHit.length) { J.onStart++; if (headOk(sHit)) { J.onStartHead++; headErrOwn.push(...sHit.map((h) => Math.abs(engine.normAngle(h.heading - p.heading)) * DEG)); } }
       if (eHit.length) { J.onEnd++; if (headOk(eHit)) J.onEndHead++; }
       if (cHit.length) { J.onAny++; if (headOk(cHit)) J.onAnyHead++; }
       if (k > 0 && k < n) interiorOnSpot.push(cHit.length > 0);
@@ -327,7 +326,7 @@ for (const { call } of calls) {
       const before = dirOf(dancer, b - DELTA, b);
       const after = dirOf(dancer, b, b + DELTA);
       if (before === null || after === null) continue;
-      const c = Math.abs(norm(after - before)) * DEG;
+      const c = Math.abs(engine.normAngle(after - before)) * DEG;
       corners.push(c);
       (dancer.path[k - 1].rotate ? cornersWithFacing : cornersWithoutFacing).push(c);
     }
@@ -363,7 +362,7 @@ for (const { call } of calls) {
       const travel = dirOf(dancer, mid - DELTA, mid + DELTA);
       if (travel === null) return;
       const p = engine.poseFor(dancer, mid);
-      const off = Math.abs(norm(p.heading - travel)) * DEG;
+      const off = Math.abs(engine.normAngle(p.heading - travel)) * DEG;
       facings.push(Math.min(off, 360 - off));
     });
   });
@@ -425,8 +424,8 @@ for (const { level, file, call } of calls) {
         // The predicted heading is the frame's heading plus the local angle profile of the FACING curve, read as a
         // TURN - see the note above on why its datum is subtracted, and why that datum comes from the engine.
         const b = seg.rotate ?? seg.translate;
-        const predHead = norm(start.heading + engine.curveAngle(b, t) - engine.departureAngle(b));
-        const dh = Math.abs(norm(predHead - truth.heading));
+        const predHead = engine.normAngle(start.heading + engine.curveAngle(b, t) - engine.departureAngle(b));
+        const dh = Math.abs(engine.normAngle(predHead - truth.heading));
         samples++;
         if (dp > worstPos) worstPos = dp;
         if (dh > worstHead) { worstHead = dh; worstAt = `${level}/${file} dancer ${i + 1} move ${k + 1} t=${t}`; }

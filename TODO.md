@@ -524,17 +524,13 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   verified by the output-diff the R3/R4 refactors used. The measured list is here so that pass starts from a census
   rather than a grep.
 
-- [ ] **48. THE RADIAN NORMALISER IS STILL COPIED IN THE HARNESSES, PROBES AND TWO BOOK TOOLS.** `[measured]`
-  `poc/src` now imports the engine's `normAngle` (this sweep), and `engine/test/angle-normalisation.mjs` §4 keeps
-  `engine/src` at exactly one spelling plus `core.ts`'s documented survivor. **What is left is everything outside both
-  censuses**: `git grep -c "atan2(Math.sin"` finds **41 occurrences in 34 files** — 18 `poc/tools/` probes (20
-  occurrences, `mirror-moves-probe.mjs` and `start-pose-drag-probe.mjs` among them, both restating the rule in a probe
-  rather than importing it), 12 `engine/test/` files (17 occurrences: `behaviour-audit.mjs` 3, `sequencer.mjs` 3,
-  `angle-normalisation.mjs` 2 quoting the alternatives it rules out, and 7 `tools/` diagnostics),
-  `book/tools/make-formations.mjs` and `make-virtual.mjs`, `core.ts`'s survivor and this item's own comment mention.
-  Converting them needs the engine's rule to be importable from each (it is), and then the §4 census extended to the
-  probe trees so a nineteenth cannot reappear — a mechanical pass with a full POC probe run, which is why it is filed
-  rather than ridden in on the sweep that found it.
+- [ ] **48b. THE `1e-3` COPIES IN THE PROBES, WHICH ITEM 40 ADJUDICATED AS DELIBERATE.** `[measured]`
+  The normaliser half of the old item 48 is done and its record is in the commit that converted it; what remains is
+  the tolerance, and item 40's close-out already argues it: **12 `engine/test/` and 11 `poc/tools/` files spell
+  `1e-3`**, and a probe's own tolerance is not automatically a copy of `XML_ROUND_TRIP_TOL` — the self-containment
+  rule (§5) is why several of them spell it. Converting one is a decision per site, so this is filed as a reading
+  pass, not a sweep: for each, does the number answer "the same after a file" (then it is the engine's) or "close
+  enough for THIS measurement" (then it stays, with the reason in place)?
 
 - [ ] **49. `MS_PER_BEAT` IS DECLARED TWICE AND DERIVED A THIRD TIME - AND THE GAME'S COMMENT SAYS IT IS REUSED.** `[measured]`
   `game/src/puzzle/config.ts:195` exports `MS_PER_BEAT = 500` under a comment saying "The POC's `MS_PER_BEAT` (500,

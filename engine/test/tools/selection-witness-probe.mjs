@@ -13,7 +13,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { normAngle,  Sequencer, setParser } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -30,7 +30,7 @@ const SELECTIONS = ['Heads', 'Sides', 'Centers', 'Ends', 'Boys', 'Girls', 'Leade
 const CALLS = ['Pass Thru', 'Right and Left Thru', 'Square Thru 3', 'Square Thru 4', 'Star Thru', 'Swing Thru',
   'Touch a Quarter', 'Circulate', 'Flutterwheel', 'Trade', 'Run', 'Scoot Back', 'Hinge', 'Bend the Line'];
 
-const angDiff = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b)));
+const angDiff = (a, b) => Math.abs(normAngle(a - b));
 
 for (const formation of ['Static Square', 'Ocean Waves', 'Normal Lines', 'Two-Faced Lines', 'Eight Chain Thru', 'Double Pass Thru']) {
   const start = seq.boardForFormation(formation);

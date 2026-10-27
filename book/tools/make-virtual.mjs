@@ -79,6 +79,7 @@ import { corpusRoot, filesOf, levelsAvailable, readFile, tamsOf, VIRTUAL_SUFFIX,
 
 import { loadEngine, readAsset, toolsDir } from './lib/load.mjs';
 import { loadTags } from './lib/variants.mjs';
+const normAngle = loadEngine().normAngle;
 
 const PLACEMENTS = join(toolsDir, 'virtual-placements.json');
 const OUT_INDEX = join(toolsDir, 'virtual-index.json');
@@ -204,7 +205,7 @@ function poseDrift(eng, a, b) {
   if (a.dancers.length !== b.dancers.length) return Infinity;
   const pa = posesOf(eng, a);
   const pb = posesOf(eng, b);
-  const turn = (d) => Math.abs(Math.atan2(Math.sin(d), Math.cos(d)));
+  const turn = (d) => Math.abs(normAngle(d));
   let worst = 0;
   for (let i = 0; i < pa.length; i++) {
     for (let j = 0; j < pa[i].poses.length; j++) {

@@ -125,7 +125,7 @@ else {
   for (let i = 0; i < call.dancers.length; i++) {
     const a = engine.poseFor(call.dancers[i], 0);
     const b = engine.poseFor(back.dancers[i], 0);
-    worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(Math.atan2(Math.sin(a.heading - b.heading), Math.cos(a.heading - b.heading))));
+    worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(engine.normAngle(a.heading - b.heading)));
   }
 }
 console.log(`    re-parsed from the text alone: ${back.dancers.length} dancer(s), worst start-pose error ${fmt(worst)}`);

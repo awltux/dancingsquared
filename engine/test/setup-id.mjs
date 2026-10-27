@@ -18,7 +18,7 @@
 // `scripts/tag-formations.mjs`'s report, neither of which is a light gate.
 //
 // Run: node test/setup-id.mjs   (from engine/; the engine must be built)
-import {
+import { normAngle, 
   setupId, setupCanonical, isSetupId, isPhysicalDancer, SETUP_ID_VERSION,
   formationId, arrangementId, arrangementCanonical, canonicalOf, encodeId, fnv1a64,
   makeSquaredSet, reconstituteWholeSet,
@@ -122,7 +122,7 @@ check(setupId(translate(home, 2.5, -7)) === id, 'a translation keeps the id');
   // A cyclic shift by one COUPLE is not a free reorder on this board: its couples sit a quarter turn apart, so the
   // shift and a rotation are the same board and the id must NOT change. That is measured, not asserted.
   const samePose = (a, b) => Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9
-    && Math.abs(Math.atan2(Math.sin(a.heading - b.heading), Math.cos(a.heading - b.heading))) < 1e-9
+    && Math.abs(normAngle(a.heading - b.heading)) < 1e-9
     && a.gender === b.gender;
   const turn = [0, 1, 2, 3].find((k) => rotate(home, k).dancers.every((d, i) => samePose(d, shifted.dancers[i])));
   check(turn !== undefined, `a cyclic shift of the array by one couple IS a quarter turn of this board (turn ${turn})`);

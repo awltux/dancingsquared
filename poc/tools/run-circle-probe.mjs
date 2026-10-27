@@ -71,7 +71,6 @@ const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
 const DEG = 180 / Math.PI;
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -205,7 +204,7 @@ for (const [lvl, f] of files) {
       };
       for (let kk = from + 1; kk <= to; kk++) {
         const bb = engine.moveBeatRange(nd, kk - 1).to;
-        const c = Math.abs(norm(dirOf(nd, bb + 1e-3, bb) - dirOf(nd, bb, bb - 1e-3)));
+        const c = Math.abs(engine.normAngle(dirOf(nd, bb + 1e-3, bb) - dirOf(nd, bb, bb - 1e-3)));
         worstCorner = Math.max(worstCorner, Math.min(c, 2 * Math.PI - c) * DEG);
       }
     }

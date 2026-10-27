@@ -591,7 +591,7 @@ console.log('\n== 9. and a fit leaves every later end point exactly where it was
           const facing = s.rotate ?? s.translate;
           return engine.bezierAngle(facing, 1) - engine.bezierAngle(facing, 0);
         };
-        const delta = Math.atan2(Math.sin(turnOf(patch(seg)) - turnOf(seg)), Math.cos(turnOf(patch(seg)) - turnOf(seg)));
+        const delta = engine.normAngle(turnOf(patch(seg)) - turnOf(seg));
         const before = endsOf(call);
         // (a) THE WRITE AS IT WAS: the patch alone, which is the reported defect.
         const asWas = driftOf(call, before, (c) => {

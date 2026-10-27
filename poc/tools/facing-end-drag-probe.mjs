@@ -80,7 +80,7 @@ const dragControl = (r, x, y) => ({ ...r, cx2: x, cy2: y }); // c2 moves, p3 unt
 const OLD_endPoint = (r, x, y) => ({ ...r, x2: x, y2: y }); // p3 moves alone - the reported bug
 
 const heading = (r) => engine.bezierAngle(r, 1);
-const angleGap = (a, b) => Math.abs(Math.atan2(Math.sin(a - b), Math.cos(a - b))) * (180 / Math.PI);
+const angleGap = (a, b) => Math.abs(engine.normAngle(a - b)) * (180 / Math.PI);
 const handleLen = (r) => Math.hypot(r.x2 - r.cx2, r.y2 - r.cy2);
 
 // ---------------------------------------------------------------- 1. the rule, exactly

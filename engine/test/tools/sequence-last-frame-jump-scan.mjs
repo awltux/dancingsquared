@@ -15,7 +15,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '../../dist/index.js';
+import { Sequencer, normAngle, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
 
@@ -33,7 +33,6 @@ const templateForLetter = (l) => {
   return null;
 };
 const START = { 'static square': null, 'squared set': null, 'zero line': 'L1o', 'zero box': 'B1c' };
-const norm = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 
 function walkJson(dir, out = []) {
   for (const e of readdirSync(dir)) {
@@ -67,7 +66,7 @@ for (const file of walkJson(path.join(root, 'modules'))) {
     const b = before.dancers.find((x) => x.id === d.id);
     if (!b) { maxDist = Infinity; break; }
     maxDist = Math.max(maxDist, Math.hypot(b.x - d.x, b.y - d.y));
-    maxTurn = Math.max(maxTurn, Math.abs(norm(b.heading - d.heading)));
+    maxTurn = Math.max(maxTurn, Math.abs(normAngle(b.heading - d.heading)));
   }
   if (maxDist > 0.05) {
     flipped++;

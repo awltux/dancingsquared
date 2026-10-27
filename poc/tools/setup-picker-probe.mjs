@@ -37,7 +37,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 import { corpusRoot, filesOf } from 'dancing-squared-corpus';
-import {
+import { normAngle, 
   setParser,
   parseFormations,
   parseFormationTags,
@@ -228,7 +228,7 @@ console.log('\n== 7. the selection round trip, against a real Sequencer ==');
     missing.slice(0, 5).join(', '));
 
   const samePose = (a, b) => Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9
-    && Math.abs(Math.atan2(Math.sin(a.heading - b.heading), Math.cos(a.heading - b.heading))) < 1e-9
+    && Math.abs(normAngle(a.heading - b.heading)) < 1e-9
     && a.gender === b.gender;
   const sidMismatch = [];
   const orderMismatch = [];

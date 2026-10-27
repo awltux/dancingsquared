@@ -144,7 +144,7 @@ export class DrillScreen {
    * star": the row carries `aria-label="3 of 3 stars"` and the glyphs are `aria-hidden`. The `N of 3` is also written
    * beside them, so the count survives a font that cannot draw ★.
    */
-  card(card: ResultCard): void {
+  card(card: ResultCard, share: string | null = null): void {
     const box = document.createElement('div');
     box.className = 'result-card';
     box.dataset['stars'] = String(card.stars);
@@ -190,6 +190,15 @@ export class DrillScreen {
         badges.append(item);
       }
       box.append(badges);
+    }
+    // THE SHARE LINE, when the shell has one: a plain sentence the player can select and paste, which is the whole mechanic
+    // (Wordle's grid, without the tracker). NO CLIPBOARD CALL HERE: `navigator.clipboard` is refused on a `file://` build and
+    // needs a user gesture to be sure of, and a button that sometimes silently fails is worse than text that always works.
+    if (share !== null) {
+      const line = document.createElement('p');
+      line.className = 'result-share';
+      line.textContent = share;
+      box.append(line);
     }
 
     this.els.verdict.replaceChildren(box);

@@ -33,6 +33,8 @@ import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { resultCard } from './puzzle/result-card.ts';
+import { statsFor } from './game/stats.ts';
+import { shareText } from './ui/share-text.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
 import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
@@ -554,7 +556,18 @@ function paintBalance(): void {
   // THE UNRANKED CLAUSE IS ON THE BALANCE BECAUSE THE BALANCE IS WHAT A DEMO CANNOT CHANGE (DESIGN.md §11.2): a
   // signed-out spend is answered `401`, so what is on screen is this device's own copy rather than the server's —
   // and saying so is the difference between a player who knows nothing is kept and one who finds out later.
-  els.balance.textContent = currentStanding() === 'unranked' ? `${held} — this device's own balance, not the server's` : held;
+  const words = currentStanding() === 'unranked' ? `${held} — this device's own balance, not the server's` : held;
+  // THE BALANCE IS A REWARD METER AS WELL AS A SENTENCE (Clash Royale's pips, Duolingo's hearts): three slots, filled for
+  // what is held. The glyphs are `aria-hidden` and the sentence beside them says the same thing in words, so a screen
+  // reader hears one fact rather than "black circle black circle white circle".
+  const pips = document.createElement('span');
+  pips.className = 'hint-pips';
+  pips.setAttribute('aria-hidden', 'true');
+  const filled = Math.max(0, Math.min(3, save.hints.hints));
+  pips.textContent = '●'.repeat(filled) + '○'.repeat(3 - filled);
+  const said = document.createElement('span');
+  said.textContent = words;
+  els.balance.replaceChildren(pips, said);
   // THE HINT BUTTON BELONGS TO THE DAILY, because that is the mode it is spent on (DESIGN.md 10), and it is
   // hidden rather than merely disabled once the run is over — there is nothing left to be hinted.
   const playing = daily !== null && daily.view(performance.now()).outcome === 'playing';
@@ -982,10 +995,21 @@ function paintLedger(): void {
     els.ledger.textContent = 'Saving is off — this browser blocks local storage, so progress will not be kept.';
     return;
   }
+  // THE DEVICE'S OWN TOTALS RIDE WITH THE LEDGER, because that line is already the one honest sentence about what this
+  // device keeps. `game/stats.ts` decides what a streak is (distinct days, a run of them, alive until the day ends) and its
+  // probe pins the calendar; this only chooses the words. THE DAY IS THE SERVER'S when a Daily is on screen — a Daily is
+  // published for a day — and the local UTC day otherwise (`utcDay`, the same helper the poller uses, so the two cannot
+  // disagree about which day it is).
+  const today = dailyDay !== '' ? dailyDay : utcDay(new Date());
+  const totals = statsFor(save.runs, today);
+  const streak = totals.streak.days > 0
+    ? `${totals.streak.days}-day Daily streak${totals.streak.today ? '' : ' (play today to keep it)'}`
+    : '';
+  const drills = totals.drills === 1 ? '1 drill' : `${totals.drills} drills`;
   const kept =
     count === 0
       ? 'Saved on this device: nothing yet'
-      : `Saved on this device: ${count} run${count === 1 ? '' : 's'}${best === null ? '' : ` · best ${best}`}`;
+      : `Saved on this device: ${drills}${best === null ? '' : ` · best ${best}`}${streak === '' ? '' : ` · ${streak}`}`;
   // AN UNRANKED LEDGER IS A FUNNEL, NOT A SCOREBOARD (DESIGN.md §11.2): the runs are real and kept, and they are not
   // ranked — which is the fact the old line left implicit until the server refused the submission.
   //
@@ -1811,7 +1835,9 @@ function finishDrill(): void {
   } else if (controller.revealed.length > 0) {
     drillScreen.say(`${scored}, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
   } else {
-    drillScreen.card(card);
+    // THE CARD CARRIES THE SHARE LINE: one sentence a player can select and paste, built by `ui/share-text.ts` from the
+    // same numbers the card shows. A drill has no day, so the line carries none.
+    drillScreen.card(card, shareText({ stars: card.stars, score: score.score, elapsedSeconds: score.elapsedSeconds, day: null }));
   }
   els.review.hidden = true;
   // THE DRILL IS OVER, so there is nothing left to skip: "Next drill" is the way on from here, and Q21 is why it no

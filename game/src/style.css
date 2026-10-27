@@ -650,7 +650,16 @@ button[data-busy="true"]::after {
 #balance {
   margin: 0 0 4px;
   color: var(--dim);
-  font-size: var(--fs-body);
+  font-size: var(--fs-small);
+}
+
+/* THE PIPS ARE THE SAME FACT AS A METER (Clash Royale's pips, Duolingo's hearts): three glyphs, filled for what is held, in
+   the accent the interface uses for "you have this". They are `aria-hidden` and the sentence beside them says it in words,
+   so the display is never the only signal. */
+#balance .hint-pips {
+  margin-right: var(--space-sm);
+  color: var(--accent);
+  letter-spacing: 0.15em;
 }
 
 /* THE LOCAL LEDGER LINE, under the hint balance: same voice as the balance, one step quieter, because it is
@@ -1107,6 +1116,18 @@ button[data-busy="true"]::after {
 
 /* THE SERVER'S FOOTNOTE, added under a card by `DrillScreen.amend` — what the round trip answered, in the card's own
    quiet voice, and in the refusal's colour when the answer was a refusal (the local score still stands either way). */
+/* THE SHARE LINE: a sentence the player can select and paste (Wordle's mechanic, without the tracker). Selectable
+   text on purpose - a clipboard call is refused on a `file://` build and needs a gesture to be sure of, and a button
+   that sometimes does nothing is worse than text that always works. */
+.result-share {
+  margin: 0;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--line-soft);
+  font-size: var(--fs-small);
+  color: var(--ink);
+  user-select: all;
+}
+
 .result-note {
   margin: 0;
   padding-top: var(--space-sm);

@@ -151,26 +151,45 @@
           </div>
           <button id="replayMine" type="button" hidden>Play</button>
           <button id="replayShortest" type="button" hidden>The shortest line</button>
-          <button id="view" type="button">Switch to 2D</button>
+          <!-- THE SECONDARY CONTROLS, ONE TAP AWAY. REPORTED: "Some of the current buttons seem like overkill for the
+               kind of game it's supposed to be." MEASURED at the time of the report: the footer always drew THREE buttons
+               that are never hidden (`view`, `boardToggle`, `startOver`) plus up to seven mode-dependent ones, so the
+               Daily showed ten at once and the one action that matters — Next — was the smallest thing on screen.
+               WHAT MOVED AND WHY. These four are set-once preferences or housekeeping, not moves in the game:
+                 * `#view` — the 2D/3D switch: the design's own default is 2D ("a Drill question is geometry"), and a
+                   player changes it once or never;
+                 * `#boardToggle` — a read (§6), not a mode; it becomes the Board tab when the phone shell lands;
+                 * `#autoProgress` — a toggle that changes what the NEXT correct guess does, not this one;
+                 * `#startOver` — the one control that deletes something (§15 Q18), which is the last thing that should
+                   sit under a thumb next to Next.
+               NOTHING WAS DELETED: every one of the four still works, still keeps its own `hidden` logic (which is why
+               each keeps its id), and a probe (`game/test/shell-controls-probe.mjs`) pins which controls are primary
+               and which are secondary, so burying one of the primary ones later is a gate failure rather than a
+               judgement call. `<details>` rather than a scripted menu because it is a disclosure the browser already
+               knows how to announce, keyboard and all. -->
+          <details id="more">
+            <summary id="moreToggle">More options</summary>
+            <div class="more-body">
+              <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
+                   rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label —
+                   and the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the
+                   press that would have been the player's is made for them. Hidden outside the Drill's question view. -->
+              <button id="autoProgress" type="button" aria-pressed="false" hidden>Auto-progress: off</button>
+              <button id="boardToggle" type="button">Show the board</button>
+              <button id="view" type="button">Switch to 2D</button>
+              <!-- IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever
+                   could: the drills and the Daily are generated and published there from one shared schedule, so every
+                   player is served the same ones — which is what makes a score comparable — while a player's row holds
+                   only their own progress. The two presses (the second one saying what will go) are a rule the shell
+                   owns rather than a native `confirm()`, which is an API no probe can see (§15 Q18), and `startOver` in
+                   `main.ts` says exactly that in the panel after the clear. -->
+              <button id="startOver" type="button">Start over on this device</button>
+            </div>
+          </details>
           <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order
                is not the season's, so it is offered by name rather than substituted quietly, and the label says what
                taking it means. -->
           <button id="practice" type="button" hidden>Practice offline — this one will not count</button>
-          <button id="boardToggle" type="button">Show the board</button>
-          <!-- THE ONE CONTROL THAT DELETES SOMETHING (DESIGN.md §15 Q18). It is a FOOTER control rather than a
-               browser dialog because the armed state is a rule the shell owns — two presses, with the second one
-               saying what will go — where a native `confirm()` is an API no probe can see. The ledger's own line
-               ("Saved on this device: nothing yet") is what reports the result.
-               IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever could:
-               the drills and the Daily are generated and published there from one shared schedule, so every player is
-               served the same ones — which is what makes a score comparable — while a player's row holds only their
-               own progress. `startOver` in `main.ts` says exactly that in the panel after the clear. -->
-          <button id="startOver" type="button">Start over on this device</button>
-          <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
-               rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label — and
-               the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the
-               press that would have been the player's is made for them. Hidden outside the Drill's question view. -->
-          <button id="autoProgress" type="button" aria-pressed="false" hidden>Auto-progress: off</button>
           <button id="next" type="button" hidden>Next drill</button>
         </footer>
       </main>

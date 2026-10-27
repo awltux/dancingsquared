@@ -685,6 +685,60 @@ button[data-busy="true"]::after {
   border-color: var(--accent);
 }
 
+/* THE "MORE OPTIONS" DISCLOSURE. REPORTED as "Some of the current buttons seem like overkill": the four controls now
+   inside it are set-once preferences or housekeeping rather than moves in the game, and the reason each one moved is in
+   `index.html` beside it. `<details>` carries the open/closed state and the announcement for free, so there is no
+   scripted menu to get wrong — but a `summary` is not a `button`, so it needs the button's look stated explicitly,
+   which is the only reason this rule exists. `list-style: none` and the `::-webkit-details-marker` rule remove the
+   platform triangle: the marker is a second visual language next to the rest of the footer, and the accent border on
+   `[open]` says the same thing in the language the page already speaks. */
+#more {
+  margin: 0;
+}
+
+#more > summary {
+  min-height: 48px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: #1d2b38;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+#more > summary::-webkit-details-marker {
+  display: none;
+}
+
+#more > summary:hover,
+#more[open] > summary {
+  border-color: var(--accent);
+}
+
+#more > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* THE BODY KEEPS THE FOOTER'S OWN SPACING, because these are the same controls they were before the disclosure: a
+   `.more-body` with no gap would stack them flush and read as a different kind of thing. */
+.more-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* THE EMPTY CASE IS POSSIBLE AND MUST NOT LEAVE A DEAD ROW: `#autoProgress` is hidden outside a drill question, and
+   the other three are always visible, so the body is never empty today — but the rule costs nothing and a future
+   fifth control would otherwise open onto a box of nothing. */
+.more-body:empty {
+  display: none;
+}
+
 #loading {
   position: absolute;
   inset: 0;

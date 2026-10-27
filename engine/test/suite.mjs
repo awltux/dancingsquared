@@ -115,6 +115,14 @@ export const SUITE = [
   // code), and exercises every rule on synthetic sources so a scan that reads nothing cannot report zero.
   // MEASURED 7.7s in the light tier: a 606-file walk, no engine build.
   { h: 'export-census', light: true },
+  // THE ENTRY POINTS, AND THE RULES THAT KEEP THE SPLIT HONEST. `package.json` publishes seven specifiers: `"."` (the
+  // complete surface) and six job entries (`core`, `document`, `ids`, `authoring`, `sequencer`, `all8`). Each entry is
+  // a VIEW of the barrel restricted to its modules, and this gate fails when one ADDS a name the barrel withholds
+  // (`KNOWN_FORMATION_MAX` is deliberately unpublished), DROPS a public name from the modules it claims, grows past its
+  // measured module closure (the ceiling is what stops the draw-only entry from dragging the sequencer in), stops being
+  // re-export-only, or disagrees with `package.json` / `vite.engine.ts`. The declared modules are PARSED FROM THE FILES,
+  // so there is no second list to keep in step, and every rule carries a synthetic negative control. Pure text: ~0.1s.
+  { h: 'entry-tiers', light: true },
   // THE EXPORT PRECISION, AND A CENSUS LIKE THE ONE ABOVE. The same four-decimal lambda was written in THREE files
   // (`convert.ts`'s `r`, `editor.ts`'s `rf`, the POC panel's `show`) with no export between them, so no probe could
   // import the rule: the engine's copies were only measured through a whole export round trip and the panel's by

@@ -279,8 +279,10 @@ regenerated only when a session ends gets read as current state by the session a
     `recognize` refuses the same board — the two namers disagree on purpose.
 11. **`boardSig` is positions-only**; anything facing-dependent must key on the full pose.
 12. **`parallel.groups` holds dancer OBJECTS, not ids** — comparing them against `d.id` invented 18 false cases.
-13. **`Sequencer.getout()`/`fixIt()` search the Sequencer's OWN board** — call `setBoard(board)` first; the failure is
-    silent.
+13. **The solver queries default to the Sequencer's OWN board** — `getout`/`getin`/`fixIt` take `opts.board`,
+    `matrixGetout` and `legalNext` take the board as their argument, and with none of them the answer is about a
+    different board and the failure is silent. Pass the board, or call `setBoard(board)` first; since the parameter
+    landed, `poc-teacher/src/formation-table.ts` has no `reset` in its get-in/get-out loop at all.
 14. **`snapMaxError` bounds the MEAN match error, not a dancer.**
 15. **A module's last flat step is often charged 0 beats** — the owner is the last step whose own beats are non-zero.
 16. **Never leave the tree dirty with someone else's work in it**, including the corpus XML, which is regularly

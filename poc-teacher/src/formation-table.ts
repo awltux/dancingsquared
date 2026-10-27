@@ -35,8 +35,13 @@ const RECOGNIZED_FORMATIONS = [
 // own home set is `HOME_DANCERS` in `engine/src/sequencer/identity.ts`, which is the one a reader should use).
 
 /**
- * Build a formation table from the current available-call set. Mutates `seq`'s
- * state (resets it), so callers should pass a disposable sequencer.
+ * Build a formation table from the current available-call set.
+ *
+ * IT DOES NOT MUTATE `seq`'s BOARD: every search takes its board (`getout({ …, board })`, `matrixGetout(board)`) and
+ * every replay step uses `applyToBoard`, whose result is the next board. The old shape was
+ * `reset(); getout(); reset(); apply(...); getout()` and it depended on the reset ordering — the searches read
+ * `this.board` silently, which is AGENTS §8 trap 13. The only state it still reads is the START board
+ * (`startBoard()`, a clone), so a caller may hand in a shared sequencer.
  */
 export function buildFormationTable(
   seq: Sequencer,
@@ -47,28 +52,30 @@ export function buildFormationTable(
   const budget = opts.budget ?? 400;
   const getIns: Record<string, string[]> = {};
   const getOuts: Record<string, string[]> = {};
+  const home = seq.startBoard();
 
   for (const f of RECOGNIZED_FORMATIONS) {
-    seq.reset();
-    const getIn = seq.getout({ target: f, maxCalls: getInMax, budget });
+    const getIn = seq.getout({ target: f, maxCalls: getInMax, budget, board: home });
     if (!getIn || !getIn.length) continue;
-    // Verify the get-in actually reaches f, then find a get-out home. The getout
-    // only returns a path when it reaches home (reachesTarget), so a found get-out
-    // is known to close from the get-in's resulting arrangement. Use-time callers
-    // should re-verify against the specific board (see closesHome).
-    seq.reset();
+    // Verify the get-in actually reaches f, then find a get-out home. The getout only returns a path when it reaches
+    // home (reachesTarget), so a found get-out is known to close from the get-in's resulting arrangement. Use-time
+    // callers should re-verify against the specific board (see closesHome).
+    let cur = home;
     let ok = true;
-    for (const c of getIn) if (!seq.apply(c).legal) { ok = false; break; }
-    if (!ok || !seq.isAt(f)) continue;
+    for (const c of getIn) {
+      const r = seq.applyToBoard(cur, c);
+      if (!r.legal) { ok = false; break; }
+      cur = r.board;
+    }
+    if (!ok || !seq.isAt(f, cur)) continue;
     getIns[f] = getIn;
-    // Prefer the matrix-derived get-out: if the get-in's resulting board is the
-    // image of home under a rigid, self-inverse call, that SAME call is an exact,
-    // replayable single-step get-out (M² = I), no search required. Fall back to
-    // the live search otherwise.
-    const matrixOut = seq.matrixGetout();
+    // Prefer the matrix-derived get-out: if the get-in's resulting board is the image of home under a rigid,
+    // self-inverse call, that SAME call is an exact, replayable single-step get-out (M² = I), no search required.
+    // Fall back to the live search otherwise.
+    const matrixOut = seq.matrixGetout(cur);
     if (matrixOut && matrixOut.length) getOuts[f] = matrixOut;
     else {
-      const getOut = seq.getout({ target: 'Static Square', maxCalls: getOutMax, budget });
+      const getOut = seq.getout({ target: 'Static Square', maxCalls: getOutMax, budget, board: cur });
       if (getOut && getOut.length) getOuts[f] = getOut;
     }
   }

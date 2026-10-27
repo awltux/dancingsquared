@@ -31,7 +31,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
-import { setParser, Sequencer, matchFormations } from '../dist/index.js';
+import { RAD_TO_DEG,  setParser, Sequencer, matchFormations } from '../dist/index.js';
 import { corpusRoot } from 'dancing-squared-corpus';
 setParser(DOMParser);
 
@@ -41,7 +41,6 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const DEG = 180 / Math.PI;
 // THE CORPUS IS AT THE REPO ROOT, AND THIS HARNESS IS RUN FROM `engine/` BY THE SUITE. A bare
 // 'assets/...' resolves against the working directory, which is `engine/` under `verify-suite.mjs` and the
 // repo root when the file is run by hand -- so it worked standalone and failed in the gate. Anchor it.
@@ -93,7 +92,7 @@ for (const tol of TOLERANCES) {
     }
     if (Math.abs(m.rot) > 1e-9) {
       reoriented++;
-      if (examples.length < 5) examples.push(`${name}: rot ${Math.round(m.rot * DEG)}`);
+      if (examples.length < 5) examples.push(`${name}: rot ${Math.round(m.rot * RAD_TO_DEG)}`);
     }
     if (m.reflect) reflected++;
   }
@@ -110,7 +109,7 @@ console.log('\n== 2. CONTROL: rotation is solved, not ignored ==');
   const target = rotated(sq.dancers, Math.PI / 2);
   const m = align(sq.dancers, target, 6.0);
   check(m !== null, 'a quarter-turned square still matches');
-  check(m !== null && Math.abs(Math.abs(m.rot) - Math.PI / 2) < 1e-6, `and the matcher reports the quarter turn it used (${m ? Math.round(m.rot * DEG) : '-'} deg)`);
+  check(m !== null && Math.abs(Math.abs(m.rot) - Math.PI / 2) < 1e-6, `and the matcher reports the quarter turn it used (${m ? Math.round(m.rot * RAD_TO_DEG) : '-'} deg)`);
   check(m !== null && m.error < 1e-6, `at zero error (${m ? m.error.toExponential(1) : '-'})`);
 }
 
@@ -123,7 +122,7 @@ console.log('\n== 3. the 8-fold POSITIONAL case: headings are what keep the diag
   const flat = sq.dancers.map((d) => ({ ...d, heading: 0 }));
   const m = align(flat, flat, 6.0);
   check(m !== null, 'a heading-stripped square still matches itself');
-  check(m !== null && Math.abs(m.rot) < 1e-9, `and the alignment chosen is 0 deg, not one of the diagonals (${m ? Math.round(m.rot * DEG) : '-'} deg)`);
+  check(m !== null && Math.abs(m.rot) < 1e-9, `and the alignment chosen is 0 deg, not one of the diagonals (${m ? Math.round(m.rot * RAD_TO_DEG) : '-'} deg)`);
   check(m !== null && m.reflect === false, 'and direct, not reflected');
   // THE DIAGONAL REALLY IS A TIE HERE, or the check above would be vacuous -- a diagonal that simply did
   // not fit would leave nothing for the tie-break to decide. Turning the flat square by 45 degrees leaves
@@ -141,7 +140,7 @@ console.log('\n== 4. CONTROL: a diagonal IS reachable when it is the only fit ==
   const target = rotated(sq.dancers, Math.PI / 4);
   const m = align(sq.dancers, target, 6.0);
   check(m !== null, 'a 45-degree-rotated square still matches');
-  check(m !== null && Math.abs(Math.abs(m.rot) - Math.PI / 4) < 1e-6, `and a diagonal rotation is reported (${m ? Math.round(m.rot * DEG) : '-'} deg)`);
+  check(m !== null && Math.abs(Math.abs(m.rot) - Math.PI / 4) < 1e-6, `and a diagonal rotation is reported (${m ? Math.round(m.rot * RAD_TO_DEG) : '-'} deg)`);
 }
 
 console.log('\n== 5. a reflection-symmetric shape is still read DIRECT ==');

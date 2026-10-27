@@ -70,7 +70,6 @@ const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const DEG = 180 / Math.PI;
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -205,7 +204,7 @@ for (const [lvl, f] of files) {
       for (let kk = from + 1; kk <= to; kk++) {
         const bb = engine.moveBeatRange(nd, kk - 1).to;
         const c = Math.abs(engine.normAngle(dirOf(nd, bb + 1e-3, bb) - dirOf(nd, bb, bb - 1e-3)));
-        worstCorner = Math.max(worstCorner, Math.min(c, 2 * Math.PI - c) * DEG);
+        worstCorner = Math.max(worstCorner, Math.min(c, 2 * Math.PI - c) * engine.RAD_TO_DEG);
       }
     }
   }
@@ -278,7 +277,7 @@ if (!closed) {
   check(done === 1, `and the engine takes it once the beats are even (${beats.length} moves of 2 beats)`);
   const refit = engine.fitCircleRun(next, closed.d, cf, closed.to);
   check(!!refit && Math.abs(refit.r - wanted) / wanted < 0.02, `the orbit comes back at the radius asked for (${refit ? refit.r.toFixed(3) : 'not a circle'} against ${wanted.toFixed(3)})`);
-  check(!!refit && Math.abs(Math.abs(refit.sweep) - 2 * Math.PI) < 0.05, `and it is still ONE full turn (${refit ? (Math.abs(refit.sweep) * DEG).toFixed(2) : '?'}deg)`);
+  check(!!refit && Math.abs(Math.abs(refit.sweep) - 2 * Math.PI) < 0.05, `and it is still ONE full turn (${refit ? (Math.abs(refit.sweep) * engine.RAD_TO_DEG).toFixed(2) : '?'}deg)`);
   const nb0 = cf === 0 ? 0 : engine.moveBeatRange(next.dancers[closed.d], cf - 1).to;
   const q0 = engine.poseFor(next.dancers[closed.d], nb0);
   const q1 = engine.poseFor(next.dancers[closed.d], engine.moveBeatRange(next.dancers[closed.d], closed.to).to);
@@ -363,7 +362,7 @@ for (const [lvl, f] of files) {
           if (keep < 0.9) { destroyed++; losses.push(`${lvl}/${f} ${from + 1}..${to + 1}: ${(keep * 100).toFixed(0)}%`); }
           // The turn, read off the re-laid run rather than assumed.
           const refit = engine.fitCircleRun(next, d, from, to);
-          if (refit) worstTurn = Math.max(worstTurn, Math.abs(refit.sweep - own.sweep) * DEG);
+          if (refit) worstTurn = Math.max(worstTurn, Math.abs(refit.sweep - own.sweep) * engine.RAD_TO_DEG);
         }
       }
     }
@@ -447,7 +446,7 @@ if (ring) {
     return Math.hypot(p.x - startsBefore[i].x, p.y - startsBefore[i].y);
   }));
   check(movedStart < 1e-9, `no dancer's START moved (worst ${movedStart.toExponential(1)} units) - that is what makes the radius follow rather than be chosen`);
-  const sweepChange = Math.max(...after.map((f, d) => Math.abs(f.sweep - before[d].sweep) * DEG));
+  const sweepChange = Math.max(...after.map((f, d) => Math.abs(f.sweep - before[d].sweep) * engine.RAD_TO_DEG));
   check(sweepChange < 1e-2, `and every orbit still goes as far round as it did (worst change ${sweepChange.toExponential(1)}deg), so it still closes`);
 }
 

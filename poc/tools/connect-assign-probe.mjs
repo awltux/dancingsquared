@@ -32,7 +32,6 @@ const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'en
 const asset = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const DEG = 180 / Math.PI;
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -50,8 +49,8 @@ const motion = (from, to) => {
   return { x: c * dx - s * dy, y: s * dx + c * dy, h: engine.normAngle(to.heading - from.heading) };
 };
 const sameMotion = (a, b, tol, tolDeg) =>
-  Math.abs(a.x - b.x) < tol && Math.abs(a.y - b.y) < tol && Math.abs(engine.normAngle(a.h - b.h)) < tolDeg / DEG;
-const fmt = (m) => `(${m.x.toFixed(4)}, ${m.y.toFixed(4)}) @ ${(m.heading * DEG).toFixed(2)}deg`;
+  Math.abs(a.x - b.x) < tol && Math.abs(a.y - b.y) < tol && Math.abs(engine.normAngle(a.h - b.h)) < tolDeg / engine.RAD_TO_DEG;
+const fmt = (m) => `(${m.x.toFixed(4)}, ${m.y.toFixed(4)}) @ ${(m.heading * engine.RAD_TO_DEG).toFixed(2)}deg`;
 
 const src = engine.normalizeInstance(engine.loadCallFromXml(asset('ms/circle.xml'), movesXml, formationsXml, 0));
 const assets = corpusRoot();
@@ -106,10 +105,10 @@ console.log(`   source "${src.from}": ${src.dancers.length} dancers, ${src.dance
     const ref = [];
     for (let i = 0; i < 8; i++) {
       for (let j = i + 1; j < 8; j++) {
-        const da = Math.round(Math.abs(engine.normAngle(starts[i].heading - starts[j].heading)) * DEG);
+        const da = Math.round(Math.abs(engine.normAngle(starts[i].heading - starts[j].heading)) * engine.RAD_TO_DEG);
         const same = Math.abs(engine.normAngle(motion(starts[i], anchors[i]).x - motion(starts[j], anchors[j]).x)) < 0.01 &&
           Math.abs(engine.normAngle(motion(starts[i], anchors[i]).y - motion(starts[j], anchors[j]).y)) < 0.01 &&
-          Math.abs(engine.normAngle(motion(starts[i], anchors[i]).h - motion(starts[j], anchors[j]).h)) < 0.5 / DEG;
+          Math.abs(engine.normAngle(motion(starts[i], anchors[i]).h - motion(starts[j], anchors[j]).h)) < 0.5 / engine.RAD_TO_DEG;
         (same ? acc : ref).push(da);
         if (same) {
           if (da === 180) counts.opposite++;
@@ -205,7 +204,7 @@ console.log('\n== the ancestor its own first move leaves behind, and how symmetr
   const bucket = new Map();
   for (let i = 0; i < 8; i++) {
     for (let j = i + 1; j < 8; j++) {
-      const da = Math.round(Math.abs(engine.normAngle(starts[i].heading - starts[j].heading)) * DEG);
+      const da = Math.round(Math.abs(engine.normAngle(starts[i].heading - starts[j].heading)) * engine.RAD_TO_DEG);
       if (!bucket.has(da)) bucket.set(da, []);
       bucket.get(da).push([i, j]);
     }
@@ -218,7 +217,7 @@ console.log('\n== the ancestor its own first move leaves behind, and how symmetr
     for (const [i, j] of pairs) {
       const a = motion(starts[i], anchors[i]);
       const b = motion(starts[j], anchors[j]);
-      worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(engine.normAngle(a.h - b.h)) * DEG / DEG);
+      worst = Math.max(worst, Math.hypot(a.x - b.x, a.y - b.y), Math.abs(engine.normAngle(a.h - b.h)) * engine.RAD_TO_DEG / engine.RAD_TO_DEG);
     }
     console.log(`     ${da}deg apart: ${pairs.length} pair(s), walk-in motions differ by up to ${worst.toFixed(4)} units`);
   }
@@ -283,7 +282,7 @@ console.log('\n== is the compare too strict? the noise floor against the refusal
             const t = s / 16;
             const ha = engine.bezierAngle(a.rotate ?? a.translate, t);
             const hb = engine.bezierAngle(b.rotate ?? b.translate, t);
-            worst = Math.max(worst, Math.abs((engine.normAngle(ha - hb) * DEG)));
+            worst = Math.max(worst, Math.abs((engine.normAngle(ha - hb) * engine.RAD_TO_DEG)));
           }
           facings.push(worst);
         }
@@ -378,7 +377,7 @@ console.log('\n== the refused pads, number by number ==');
         for (const k of ['cx1', 'cy1', 'cx2', 'cy2', 'x2', 'y2']) fields[k] = Math.abs(a.translate[k] - b.translate[k]);
         const turn = (idx) => {
           const s = engine.poseFor(clone.dancers[idx], 0);
-          return engine.normAngle(anchors[idx].heading - s.heading) * DEG;
+          return engine.normAngle(anchors[idx].heading - s.heading) * engine.RAD_TO_DEG;
         };
         rows.push({ name, i: i + 1, j: j + 1, a, b, fields, worst: Math.max(...Object.values(fields)), sa: straight(a.translate), sb: straight(b.translate), ta: turn(i), tb: turn(j) });
       }
@@ -401,7 +400,7 @@ console.log('\n== the refused pads, number by number ==');
   // DIFFERENTLY. The line is identical to the last bit; what differs is the rotate curve the same pad
   // writes, whose job is to carry the heading to the anchor's. Is that difference ever spurious - the
   // same total turn, refused anyway?
-  const sameTurn = (r) => Math.abs(engine.normAngle((r.ta - r.tb) / DEG)) < 0.5 / DEG;
+  const sameTurn = (r) => Math.abs(engine.normAngle((r.ta - r.tb) / engine.RAD_TO_DEG)) < 0.5 / engine.RAD_TO_DEG;
   const identicalLine = rows.filter((r) => r.worst === 0);
   const sameTurnRefused = identicalLine.filter(sameTurn);
   const turnGaps = identicalLine.map((r) => Math.abs(r.ta - r.tb)).sort((x, y) => x - y);
@@ -451,9 +450,9 @@ console.log('\n== the symmetry of the boundary, and of every formation offered =
         if (d < best) { best = d; bestH = Math.abs(engine.normAngle(q.heading - rh)); }
       }
       worst.pos = Math.max(worst.pos, best);
-      worst.head = Math.max(worst.head, bestH * DEG);
+      worst.head = Math.max(worst.head, bestH * engine.RAD_TO_DEG);
     }
-    return { ok: worst.pos < tol && worst.head < tol * DEG, ...worst };
+    return { ok: worst.pos < tol && worst.head < tol * engine.RAD_TO_DEG, ...worst };
   };
   const boundary = anchors.map((p) => ({ x: p.x, y: p.y, heading: p.heading }));
   const b180 = symmetry(boundary, 180, 1e-9);
@@ -492,7 +491,7 @@ console.log('\n== the symmetry of the boundary, and of every formation offered =
     const which = [];
     for (let i = 0; i < 8; i++) {
       for (let j = i + 1; j < 8; j++) {
-        const da = Math.round(Math.abs(engine.normAngle(starts[i].heading - starts[j].heading)) * DEG);
+        const da = Math.round(Math.abs(engine.normAngle(starts[i].heading - starts[j].heading)) * engine.RAD_TO_DEG);
         if (da !== 90) continue;
         const a = clone.dancers[i].path[0];
         const b = clone.dancers[j].path[0];
@@ -513,7 +512,7 @@ console.log('\n== the symmetry of the boundary, and of every formation offered =
   const ends = src.dancers.map((d) => engine.poseFor(d, src.beats));
   for (let i = 0; i < 8; i++) {
     const e = ends[i];
-    console.log(`     d${i + 1}: (${e.x.toFixed(4)}, ${e.y.toFixed(4)}) @ ${(e.heading * DEG).toFixed(2)}deg   r=${Math.hypot(e.x, e.y).toFixed(4)}`);
+    console.log(`     d${i + 1}: (${e.x.toFixed(4)}, ${e.y.toFixed(4)}) @ ${(e.heading * engine.RAD_TO_DEG).toFixed(2)}deg   r=${Math.hypot(e.x, e.y).toFixed(4)}`);
   }
   const e180 = symmetry(ends.map((p) => ({ x: p.x, y: p.y, heading: p.heading })), 180, 1e-9);
   const e90 = symmetry(ends.map((p) => ({ x: p.x, y: p.y, heading: p.heading })), 90, 1e-9);

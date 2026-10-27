@@ -32,7 +32,6 @@ const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const DEG = 180 / Math.PI;
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -82,10 +81,10 @@ console.log('\n== 1. How much would a drag swing WITHOUT the hold? ==');
     const t = c.seg.translate;
     const raw = { ...t, x2: t.x2 + DX, y2: t.y2 + DY };
     const da = Math.abs(engine.normAngle(engine.bezierAngle(raw, 1) - engine.bezierAngle(t, 1)));
-    degs.push(da * DEG);
-    if (da * DEG > 1) turned++;
-    if (da * DEG > worst) {
-      worst = da * DEG;
+    degs.push(da * engine.RAD_TO_DEG);
+    if (da * engine.RAD_TO_DEG > 1) turned++;
+    if (da * engine.RAD_TO_DEG > worst) {
+      worst = da * engine.RAD_TO_DEG;
       worstAt = `${c.file} dancer ${c.i + 1} move ${c.k + 1}`;
     }
   }
@@ -128,10 +127,10 @@ console.log('\n== 2. With the exit handle held: the tail is the old tail, CARRIE
     worstHead = Math.max(worstHead, head);
     checked++;
   }
-  console.log(`    ${checked} moves dragged; the exit direction moved by at most ${(worstExit * DEG).toExponential(1)}deg`);
-  console.log(`      with a facing curve (${byFacing.true.n}): worst tail position error ${byFacing.true.pos.toExponential(1)}, worst heading error ${(byFacing.true.head * DEG).toExponential(1)}deg`);
-  console.log(`      without one (${byFacing.false.n}): worst tail position error ${byFacing.false.pos.toExponential(1)}, worst heading error ${(byFacing.false.head * DEG).toExponential(1)}deg`);
-  check(worstExit * DEG < 1e-12, 'the direction the dancer leaves on is unchanged, to floating-point noise, in every case');
+  console.log(`    ${checked} moves dragged; the exit direction moved by at most ${(worstExit * engine.RAD_TO_DEG).toExponential(1)}deg`);
+  console.log(`      with a facing curve (${byFacing.true.n}): worst tail position error ${byFacing.true.pos.toExponential(1)}, worst heading error ${(byFacing.true.head * engine.RAD_TO_DEG).toExponential(1)}deg`);
+  console.log(`      without one (${byFacing.false.n}): worst tail position error ${byFacing.false.pos.toExponential(1)}, worst heading error ${(byFacing.false.head * engine.RAD_TO_DEG).toExponential(1)}deg`);
+  check(worstExit * engine.RAD_TO_DEG < 1e-12, 'the direction the dancer leaves on is unchanged, to floating-point noise, in every case');
   check(worstPos < 1e-9 && worstHead < 1e-9, 'and every later boundary is the old one carried by the distance the end point moved - same headings, same shape: the rest of the dance keeps doing what it did');
 }
 
@@ -146,17 +145,17 @@ console.log('\n== 3. Without the hold, the tail follows - and the two cases diff
   for (const c of cases) {
     const t = c.seg.translate;
     const raw = engine.setMove(c.call, c.i, c.k, { ...c.seg, translate: { ...t, x2: t.x2 + DX, y2: t.y2 + DY } });
-    if (Math.abs(engine.normAngle(engine.bezierAngle(raw.dancers[c.i].path[c.k].translate, 1) - engine.bezierAngle(t, 1))) * DEG > 1) travelTurnedWithFacing += c.facing ? 1 : 0;
+    if (Math.abs(engine.normAngle(engine.bezierAngle(raw.dancers[c.i].path[c.k].translate, 1) - engine.bezierAngle(t, 1))) * engine.RAD_TO_DEG > 1) travelTurnedWithFacing += c.facing ? 1 : 0;
     const b0 = boundaries(c.call, c.i);
     const b1 = boundaries(raw, c.i);
     let head = 0;
     for (let j = c.k + 1; j < b0.length; j++) head = Math.max(head, Math.abs(engine.normAngle(b1[j].heading - b0[j].heading)));
     if (c.facing) {
-      if (head * DEG > 0.01) movedWithFacing++;
-      worstWith = Math.max(worstWith, head * DEG);
+      if (head * engine.RAD_TO_DEG > 0.01) movedWithFacing++;
+      worstWith = Math.max(worstWith, head * engine.RAD_TO_DEG);
     } else {
-      if (head * DEG > 0.01) movedWithout++;
-      worstWithout = Math.max(worstWithout, head * DEG);
+      if (head * engine.RAD_TO_DEG > 0.01) movedWithout++;
+      worstWithout = Math.max(worstWithout, head * engine.RAD_TO_DEG);
     }
   }
   console.log(`    writing x2/y2 alone: with a facing curve ${movedWithFacing} moves turn the tail (worst ${worstWith.toFixed(2)}deg) but ${travelTurnedWithFacing} change the DIRECTION OF TRAVEL;`);

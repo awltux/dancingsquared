@@ -52,7 +52,6 @@ import { DOMParser } from '@xmldom/xmldom';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
-const DEG = Math.PI / 180;
 
 const { displayCouple } = await import(pathToFileURL(path.join(ROOT, 'packages', 'stage', 'display-couple.ts')).href);
 const { buildSetupCatalogue } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href);
@@ -131,8 +130,8 @@ const colourBy = (couples) => couples.map((couple, i) => displayCouple({ couple 
   const formations = engine.parseFormations(xml);
   let anonymous = 0;
   for (const [, ds] of formations) {
-    const full = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
-    const stamped = engine.assignHomeIdentity(full.map((p) => ({ ...p, angleDeg: p.heading / DEG, path: [] })));
+    const full = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * engine.DEG, gender: d.gender })));
+    const stamped = engine.assignHomeIdentity(full.map((p) => ({ ...p, angleDeg: p.heading / engine.DEG, path: [] })));
     if (!stamped.every((d) => (d.couple ?? 0) > 0)) anonymous++;
   }
   const identified = formations.size - anonymous;
@@ -151,7 +150,7 @@ const colourBy = (couples) => couples.map((couple, i) => displayCouple({ couple 
   const rows = buildSetupCatalogue({ formationsXml: xml, files: sources }).rows;
   const identifiable = rows.filter((r) =>
     engine
-      .assignHomeIdentity(r.dancers.map((p) => ({ ...p, angleDeg: p.heading / DEG, path: [] })))
+      .assignHomeIdentity(r.dancers.map((p) => ({ ...p, angleDeg: p.heading / engine.DEG, path: [] })))
       .every((d) => (d.couple ?? 0) > 0),
   );
   check(rows.length > 0, `5b the Board picker offers ${rows.length} setups, the population the colour has to reach`);

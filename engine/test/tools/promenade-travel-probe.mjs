@@ -23,7 +23,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { Sequencer, setParser } from '../../dist/index.js';
+import { RAD_TO_DEG,  Sequencer, setParser } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { startBoardFor } from '../lib/all8-boards.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -68,7 +68,6 @@ for (const name of seq.listFormations()) add(name, seq.boardForFormation(name));
   }
 }
 
-const DEG = 180 / Math.PI;
 const STEP = 0.25;
 
 for (const call of ['Promenade', 'Promenade 1/2']) {
@@ -119,7 +118,7 @@ for (const call of ['Promenade', 'Promenade 1/2']) {
     }
     const spread = Math.max(0, ...[...byCouple.values()].map((v) => Math.max(...v) - Math.min(...v)));
 
-    rows.push({ name, minPair, worstMove, spreadDeg: spread * DEG, travel });
+    rows.push({ name, minPair, worstMove, spreadDeg: spread * RAD_TO_DEG, travel });
   }
 
   rows.sort((a, c) => a.minPair - c.minPair);

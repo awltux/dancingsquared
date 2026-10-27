@@ -34,7 +34,6 @@ const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const DEG = 180 / Math.PI;
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -180,9 +179,9 @@ for (const { call } of calls) {
     });
   });
 }
-const sweeps = fits.map((f) => Math.abs(f.sweep) * DEG);
-const atQuarter = fits.filter((f) => Math.abs(Math.abs(f.sweep) * DEG - 90) <= 0.5);
-const shallow = fits.filter((f) => Math.abs(f.sweep) * DEG < 60);
+const sweeps = fits.map((f) => Math.abs(f.sweep) * engine.RAD_TO_DEG);
+const atQuarter = fits.filter((f) => Math.abs(Math.abs(f.sweep) * engine.RAD_TO_DEG - 90) <= 0.5);
+const shallow = fits.filter((f) => Math.abs(f.sweep) * engine.RAD_TO_DEG < 60);
 console.log(`    ${fits.length} of ${allMoves} travel curves lie on a circle at 2% of the radius (${pct(fits.length, allMoves)}%)`);
 console.log(`    their sweeps: min ${Math.min(...sweeps).toFixed(1)}deg, median ${median(sweeps).toFixed(1)}deg, MAX ${Math.max(...sweeps).toFixed(1)}deg`);
 console.log(`    ${atQuarter.length} of them sweep a full quarter (${pct(atQuarter.length, fits.length)}%), ${shallow.length} sweep less than 60deg (${pct(shallow.length, fits.length)}%)`);
@@ -195,7 +194,7 @@ check(fits.length > 100, 'circular travel is common enough to matter');
 // RUN_ARC_MAX), so that one move cannot be locked. What the check is FOR survives the change and is what it
 // now asserts: no single move is anything like a whole turn, so a 360deg orbit is necessarily a CHAIN. The
 // count over a quarter is reported, not asserted away.
-const overQuarter = fits.filter((f) => Math.abs(f.sweep) * DEG > 90.5);
+const overQuarter = fits.filter((f) => Math.abs(f.sweep) * engine.RAD_TO_DEG > 90.5);
 check(Math.max(...sweeps) < 180,
   `NO single move sweeps half a turn or more (max ${Math.max(...sweeps).toFixed(1)}deg), so a 360deg orbit is necessarily a CHAIN of moves (part 2) - and ${overQuarter.length} of ${fits.length} do sweep past a quarter turn, which the arc lock's 90deg limit refuses to lock`);
 // `alreadyArc === 0` WAS PART OF THIS AND IS GONE, for the same reason: it is a property of the CORPUS, and
@@ -227,7 +226,7 @@ for (const { level, file, call } of calls) {
         e = cand;
       }
       if (best && e > s) {
-        const sweep = Math.abs(sweepOf(best.pts, best.c) * DEG);
+        const sweep = Math.abs(sweepOf(best.pts, best.c) * engine.RAD_TO_DEG);
         if (sweep >= MIN_SWEEP_DEG) runs.push({ level, file, i, s, e, sweep, r: best.c.r, moves: e - s + 1, beats: 0 });
         s = e + 1;
       } else {
@@ -253,13 +252,13 @@ check(runs.filter((r) => r.sweep > 180).length > 0, 'and some of those orbits ar
 // ============================================================ 3. joints on formation spots
 console.log('\n== 3. Are a move\'s ends FIXED POINTS of a formation? ==');
 const catalogue = [];
-for (const [, poses] of formations) for (const p of poses) catalogue.push({ x: p.x, y: p.y, heading: p.angleDeg / DEG });
+for (const [, poses] of formations) for (const p of poses) catalogue.push({ x: p.x, y: p.y, heading: p.angleDeg / engine.RAD_TO_DEG });
 console.log(`    the picker offers ${formations.size} formations = ${catalogue.length} placed spots`);
 
 const SPOT_TOL = 1e-3;
-const HEAD_TOL = 1 / DEG; // 1 degree
+const HEAD_TOL = 1 / engine.RAD_TO_DEG; // 1 degree
 
-const startSpots = (call) => call.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg / DEG }));
+const startSpots = (call) => call.dancers.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg / engine.RAD_TO_DEG }));
 const endSpots = (call) => engine.endPoses(call).map((p) => ({ x: p.x, y: p.y, heading: p.heading }));
 
 const J = { total: 0, interior: 0, onStart: 0, onStartHead: 0, onEnd: 0, onEndHead: 0, onAny: 0, onAnyHead: 0 };
@@ -280,7 +279,7 @@ for (const { call } of calls) {
       const cHit = near(catalogue);
       J.total++;
       if (k > 0 && k < n) J.interior++;
-      if (sHit.length) { J.onStart++; if (headOk(sHit)) { J.onStartHead++; headErrOwn.push(...sHit.map((h) => Math.abs(engine.normAngle(h.heading - p.heading)) * DEG)); } }
+      if (sHit.length) { J.onStart++; if (headOk(sHit)) { J.onStartHead++; headErrOwn.push(...sHit.map((h) => Math.abs(engine.normAngle(h.heading - p.heading)) * engine.RAD_TO_DEG)); } }
       if (eHit.length) { J.onEnd++; if (headOk(eHit)) J.onEndHead++; }
       if (cHit.length) { J.onAny++; if (headOk(cHit)) J.onAnyHead++; }
       if (k > 0 && k < n) interiorOnSpot.push(cHit.length > 0);
@@ -326,7 +325,7 @@ for (const { call } of calls) {
       const before = dirOf(dancer, b - DELTA, b);
       const after = dirOf(dancer, b, b + DELTA);
       if (before === null || after === null) continue;
-      const c = Math.abs(engine.normAngle(after - before)) * DEG;
+      const c = Math.abs(engine.normAngle(after - before)) * engine.RAD_TO_DEG;
       corners.push(c);
       (dancer.path[k - 1].rotate ? cornersWithFacing : cornersWithoutFacing).push(c);
     }
@@ -362,7 +361,7 @@ for (const { call } of calls) {
       const travel = dirOf(dancer, mid - DELTA, mid + DELTA);
       if (travel === null) return;
       const p = engine.poseFor(dancer, mid);
-      const off = Math.abs(engine.normAngle(p.heading - travel)) * DEG;
+      const off = Math.abs(engine.normAngle(p.heading - travel)) * engine.RAD_TO_DEG;
       facings.push(Math.min(off, 360 - off));
     });
   });
@@ -434,7 +433,7 @@ for (const { level, file, call } of calls) {
   });
 }
 console.log(`    ${samples} samples over every move of every dancer; worst position disagreement ${worstPos.toExponential(2)} units`);
-console.log(`    worst HEADING disagreement ${(worstHead * DEG).toExponential(2)}deg${worstAt ? ` (${worstAt})` : ''}`);
+console.log(`    worst HEADING disagreement ${(worstHead * engine.RAD_TO_DEG).toExponential(2)}deg${worstAt ? ` (${worstAt})` : ''}`);
 check(worstPos < 1e-9 && worstHead < 1e-9, 'the stored local curves and (boundary pose + world curve) carry the SAME information to float precision, so an editor may freely choose which space the user works in');
 
 // ============================================================ 7. are the panel's two primitives degraded?

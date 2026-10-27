@@ -5,7 +5,27 @@
 
 import type { BezierData, CallBundle, DancerSpec, Hands, Pose, Seg } from './types.js';
 
+/**
+ * DEGREES -> RADIANS: the factor that takes a degree measure to radians.
+ *
+ * NOT A NORMALISER and not a tolerance: it is a unit. `angle-normalisation.mjs` §5 is the census that keeps it
+ * declared once in `engine/src` and taken from the engine by `book/tools`.
+ */
 export const DEG = Math.PI / 180;
+
+/**
+ * RADIANS -> DEGREES: the RECIPROCAL of `DEG`, and a different unit rather than the same one upside down.
+ *
+ * WHY IT HAS ITS OWN NAME, MEASURED. Thirteen harnesses and probes declared `const DEG = 180 / Math.PI` — the
+ * reciprocal under `DEG`'s own name — and a factor under the wrong name is a silent inversion waiting for one edit:
+ * re-pointing such a site at the engine's `DEG` multiplies by 0.01745 instead of 57.29 and every degree figure in
+ * the file is off by a factor of 3,283, with nothing red. So the engine names both units, `x * RAD_TO_DEG` reads as
+ * the conversion it is, and a site that needs degrees says so. `angle-normalisation.mjs` §5b pins one declaration.
+ *
+ * A CONSTANT RATHER THAN A `toDeg()` FUNCTION, because every use is a multiplication inside a template literal
+ * (`` `${(d.heading * RAD_TO_DEG).toFixed(1)}deg` ``) and a call would read worse at every one of them.
+ */
+export const RAD_TO_DEG = 180 / Math.PI;
 
 // ---------------------------------------------------------------- Bezier
 

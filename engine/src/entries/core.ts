@@ -10,7 +10,7 @@
 //
 // The ceiling is in that harness: an import here that reaches the sequencer would grow this closure past it.
 export type { SequencerMode, Gender, Hands, BezierData, Seg, DancerSpec, Symmetry, FormationTag, CallBundle, ModuleCallInfo, VirtualCallInfo, Pose } from '../types.js';
-export { DEG, bezierPoint, bezierAngle, departureAngle, arrivalAngle, curveAngle, curveTurn, moveTurn, ident, fromPosAngle, mul, apply, translateBy, rotateBy, poseFor, dancerBeats, allPoses, sampleTrail, sampleTrailRange } from '../core.js';
+export { DEG, RAD_TO_DEG, bezierPoint, bezierAngle, departureAngle, arrivalAngle, curveAngle, curveTurn, moveTurn, ident, fromPosAngle, mul, apply, translateBy, rotateBy, poseFor, dancerBeats, allPoses, sampleTrail, sampleTrailRange } from '../core.js';
 export type { HeadingMode, Transform } from '../core.js';
 export { PI, normAngle, Stand, Forward, Back, FaceLeft, FaceRight, FaceHalf, UTurnLeft, applyMoveToState, moveMatrix, faceInOutStates, applyMoveToBoard, applyFaceInOutToBoard } from '../moves.js';
 export type { Move, MoveDancer } from '../moves.js';

@@ -23,7 +23,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DOMParser } from '@xmldom/xmldom';
 
-import { normAngle,  Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '../../dist/index.js';
+import { RAD_TO_DEG,  normAngle,  Sequencer, setParser, boardForFasrCode, FORMATIONS_FOR_LETTER } from '../../dist/index.js';
 import { callsByTitle } from '../lib/engine-calls.mjs';
 import { startBoardFor } from '../lib/all8-boards.mjs';
 import { corpusRoot } from 'dancing-squared-corpus';
@@ -129,7 +129,6 @@ for (const name of seq.listFormations()) add(name, seq.boardForFormation(name));
   add('ceder-10530 body', seq.evaluateSequence(MODULE, seq.sequenceBeats(MODULE, square), square).board);
 }
 
-const DEG = 180 / Math.PI;
 const STEP = 0.25;
 
 /** The angle of a pair's midpoint about the set centre at beat `b`, and the members' angles. */
@@ -193,7 +192,7 @@ for (const call of ['Promenade', 'Promenade 1/2']) {
       const sa = memberSweep.get(a.id) ?? 0;
       const sc = memberSweep.get(c.id) ?? 0;
       if (Math.sign(sa) !== Math.sign(sc) && Math.abs(sa) > 0.05 && Math.abs(sc) > 0.05) reversals++;
-      worstMemberSpread = Math.max(worstMemberSpread, Math.abs(sa - sc) * DEG);
+      worstMemberSpread = Math.max(worstMemberSpread, Math.abs(sa - sc) * RAD_TO_DEG);
       const s = sep.get(i);
       if (s) worstSepSpread = Math.max(worstSepSpread, s.max - s.min);
     });
@@ -201,7 +200,7 @@ for (const call of ['Promenade', 'Promenade 1/2']) {
     rows.push({
       call, name, pairs: pairs.length, unpaired: unpaired.length,
       reversals, worstMemberSpread, worstSepSpread, closestPair,
-      midSweep: [...sweep.values()].map((v) => v * DEG),
+      midSweep: [...sweep.values()].map((v) => v * RAD_TO_DEG),
     });
   }
 }
@@ -278,7 +277,7 @@ for (const nm of ['7046 end ring', 'ceder-10530 body']) {
     });
     console.log(`  ${nm} - ${label}:`);
     for (const r2 of rows2) {
-      console.log(`      couple ${r2.num}: #${r2.ids.join(',#')}  midpoint (${r2.mx.toFixed(2)},${r2.my.toFixed(2)})  anchor ${r2.anchor} at ${(r2.angle * DEG).toFixed(0)}deg`);
+      console.log(`      couple ${r2.num}: #${r2.ids.join(',#')}  midpoint (${r2.mx.toFixed(2)},${r2.my.toFixed(2)})  anchor ${r2.anchor} at ${(r2.angle * RAD_TO_DEG).toFixed(0)}deg`);
     }
     console.log(`      anchors ${anchors.join(',')} (${new Set(anchors).size} distinct)  CCW turns ${turns.map((t) => t.toFixed(0)).join(',')}  in-sequence ${turns.every((t) => Math.abs(t - 90) < 1e-6)}`);
   };

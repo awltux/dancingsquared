@@ -40,14 +40,13 @@ const check = (cond, msg) => {
   if (cond) console.log(`  ok   ${msg}`);
   else { failures++; console.log(`  FAIL ${msg}`); }
 };
-const DEG = 180 / Math.PI;
 const norm = (a) => { while (a > Math.PI) a -= 2 * Math.PI; while (a <= -Math.PI) a += 2 * Math.PI; return a; };
 const fmt = (n) => (Math.round(n * 1000) / 1000).toFixed(3);
 /** A FACING IS A DIRECTION, SO +180 AND -180 ARE THE SAME ONE: fold the sign before comparing, or a mirror
  *  comparison fails on an angle that landed a float on the other side of pi (the same signed-zero class of
  *  defect as the formation-order digest's `mm()`, `066de4e`). */
 const dir = (h) => {
-  const d = Math.round(norm(h) * DEG);
+  const d = Math.round(norm(h) * engine.RAD_TO_DEG);
   return (d === -180 ? 180 : d);
 };
 

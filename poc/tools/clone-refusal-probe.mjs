@@ -46,7 +46,6 @@ const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const DEG = 180 / Math.PI;
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -54,7 +53,7 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 
-const fmt = (p) => `(${p.x.toFixed(4)}, ${p.y.toFixed(4)}) @ ${(p.heading * DEG).toFixed(2)}deg`;
+const fmt = (p) => `(${p.x.toFixed(4)}, ${p.y.toFixed(4)}) @ ${(p.heading * engine.RAD_TO_DEG).toFixed(2)}deg`;
 const bez = (t) => `(${t.cx1.toFixed(4)}, ${t.cy1.toFixed(4)}, ${t.cx2.toFixed(4)}, ${t.cy2.toFixed(4)}, ${t.x2.toFixed(4)}, ${t.y2.toFixed(4)})`;
 
 const entry = callsByTitle(assets).find((c) => c.name === CALL);
@@ -112,7 +111,7 @@ console.log(`== the reported witness ==`);
 console.log(`   "${CALL}" (from "${src.from}", ${src.dancers.length} dancers, ${src.dancers[0].path.length} moves)`);
 console.log(`   cloned onto ${formationLabel} (${poses.length} dancers), then connected`);
 console.log(`   its poses:`);
-for (let i = 0; i < poses.length; i++) console.log(`     spot ${i + 1}: (${poses[i].x.toFixed(4)}, ${poses[i].y.toFixed(4)}) @ ${(poses[i].heading * DEG).toFixed(2)}deg ${poses[i].gender ?? ''}`);
+for (let i = 0; i < poses.length; i++) console.log(`     spot ${i + 1}: (${poses[i].x.toFixed(4)}, ${poses[i].y.toFixed(4)}) @ ${(poses[i].heading * engine.RAD_TO_DEG).toFixed(2)}deg ${poses[i].gender ?? ''}`);
 
 // ---------------------------------------------------------------- what the connect wrote, dancer by dancer
 console.log(`\n== the chain the connect writes ==`);
@@ -137,7 +136,7 @@ for (let i = 0; i < connected.dancers.length; i++) {
   const seg = connected.dancers[i].path[0];
   const s = src.dancers[i].path[0];
   console.log(
-    `   d${i + 1}: ${fmt(start)} --walk in--> ${fmt(anchor)}  turn ${(engine.normAngle(anchor.heading - start.heading) * DEG).toFixed(2)}deg` +
+    `   d${i + 1}: ${fmt(start)} --walk in--> ${fmt(anchor)}  turn ${(engine.normAngle(anchor.heading - start.heading) * engine.RAD_TO_DEG).toFixed(2)}deg` +
       `\n        the connect wrote  ${bez(seg.translate)} ${straight(seg.translate) ? '(a straight line)' : '(curved)'} rotate ${seg.rotate ? 'explicit' : 'none'}` +
       `\n        the call's own 1st  ${bez(s.translate)} ${straight(s.translate) ? '(a straight line)' : '(curved)'} rotate ${s.rotate ? 'explicit' : 'none'}`,
   );
@@ -178,7 +177,7 @@ console.log(`   the facings are ${facingOk ? 'the same' : 'DIFFERENT'}`);
     const t = s / 16;
     const ha = engine.bezierAngle(A.rotate ?? A.translate, t);
     const hb = engine.bezierAngle(B.rotate ?? B.translate, t);
-    worst = Math.max(worst, Math.abs(engine.normAngle(ha - hb) * DEG));
+    worst = Math.max(worst, Math.abs(engine.normAngle(ha - hb) * engine.RAD_TO_DEG));
   }
   console.log(`   their headings differ by up to ${worst.toFixed(3)}deg at the same instant`);
 }
@@ -190,7 +189,7 @@ console.log(
 console.log(`\n== where the difference comes from ==`);
 for (const i of [0, 2]) {
   const s = src.dancers[i].path[0];
-  const turn = s.rotate ? engine.bezierAngle(s.rotate, 1) * DEG : 0;
+  const turn = s.rotate ? engine.bezierAngle(s.rotate, 1) * engine.RAD_TO_DEG : 0;
   console.log(`   the call's own first move for d${i + 1}: ${bez(s.translate)}, ending at ${turn.toFixed(2)}deg of turn`);
 }
 {
@@ -201,7 +200,7 @@ for (const i of [0, 2]) {
   const startB = engine.poseFor(src.dancers[2], 0);
   console.log(`   the source's own boundary poses: d1 ${fmt(anchorA)}, d3 ${fmt(anchorB)}`);
   console.log(`   the source's own start poses    : d1 ${fmt(startA)}, d3 ${fmt(startB)}`);
-  console.log(`   the call's own first move turns d1 by ${(engine.normAngle(anchorA.heading - startA.heading) * DEG).toFixed(2)}deg and d3 by ${(engine.normAngle(anchorB.heading - startB.heading) * DEG).toFixed(2)}deg`);
+  console.log(`   the call's own first move turns d1 by ${(engine.normAngle(anchorA.heading - startA.heading) * engine.RAD_TO_DEG).toFixed(2)}deg and d3 by ${(engine.normAngle(anchorB.heading - startB.heading) * engine.RAD_TO_DEG).toFixed(2)}deg`);
 }
 check(travelOk && facingOk,
   'dancers 1 and 3 ARE editable: their paths and their turns agree to within the windows, so the panel opens both tabs - this is the check that fails on the window it was reported against');

@@ -74,6 +74,9 @@ import {
   // probe measures THAT rather than a copy of it, and `DEG` with it, which is the engine's own conversion.
   rotateFormation,
   DEG,
+  // THE OTHER DIRECTION, and a separate constant for the reason it has its own name: thirteen probes used to declare
+  // `DEG = 180 / Math.PI` and a factor under the wrong unit is an inversion nothing goes red on.
+  RAD_TO_DEG,
   placeDancerEnd,
   // The mirror below the Edit row: the whole reflection - which line it is about, what it does to the travel
   // and facing channels and to the hands - is the engine's, so `poc/tools/mirror-moves-probe.mjs` measures the
@@ -273,8 +276,12 @@ const handsShort = (h: Hands): string => HANDS_SHORT[h] ?? h;
  *  this is the SAME function, so a value read out of the table and typed back in is the number the exporter writes,
  *  by construction rather than by comment (AGENTS.md 5). */
 const show = exportNumber;
-const toDeg = (rad: number): number => (rad * 180) / Math.PI;
-const toRad = (deg: number): number => (deg * Math.PI) / 180;
+// THE TWO UNITS ARE THE ENGINE'S, both of them: `DEG` (degrees -> radians) and `RAD_TO_DEG` (radians -> degrees) are
+// separate constants because a factor under the wrong name is a silent inversion - TODO item 46 found thirteen probes
+// holding the reciprocal under `DEG`'s own name. These two helpers stay because the panel reads them as verbs at 60
+// call sites; their bodies are the engine's numbers, not copies of them.
+const toDeg = (rad: number): number => rad * RAD_TO_DEG;
+const toRad = (deg: number): number => deg * DEG;
 
 /**
  * How closely a curve must follow a circle before the arc-centre handle is OFFERED, as a fraction of the

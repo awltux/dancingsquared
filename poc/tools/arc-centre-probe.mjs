@@ -33,7 +33,6 @@ const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 const movesXml = asset('moves.xml');
 const formationsXml = asset('formations.xml');
-const DEG = 180 / Math.PI;
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -144,13 +143,13 @@ console.log('\n== 2. The transition from the previous move: no new corner, and n
       kinkWithout = Math.max(kinkWithout, Math.abs(corner(alone, a.i, a.k) - corner(a.call, a.i, a.k)));
     }
   }
-  console.log(`    where the previous move HAS a departure direction (${arcs.length - arcsNoDirection} of ${arcs.length}), the corner moves by ${(worstCorner * DEG).toExponential(1)}deg; the frame by ${(worstFrame * DEG).toExponential(1)}deg; the previous move's own ends by ${worstPrevEnds.toExponential(1)}`);
-  console.log(`    the other ${arcsNoDirection} arcs follow a move whose exit handle has no length at all: there is no direction there to turn, so its joint takes the swing (up to ${(cornerNoDirection * DEG).toFixed(1)}deg) and the panel says so instead of pretending otherwise`);
-  check(worstCorner * DEG < 1e-9, 'the joint is EXACTLY as smooth as it was: the previous move departs along the arc\'s new arrival direction, so a swing cannot introduce a corner');
-  check(worstFrame * DEG < 1e-9, 'and the frame this arc is played in does not rotate - which is what keeps the swing VISIBLE instead of cancelling it');
+  console.log(`    where the previous move HAS a departure direction (${arcs.length - arcsNoDirection} of ${arcs.length}), the corner moves by ${(worstCorner * engine.RAD_TO_DEG).toExponential(1)}deg; the frame by ${(worstFrame * engine.RAD_TO_DEG).toExponential(1)}deg; the previous move's own ends by ${worstPrevEnds.toExponential(1)}`);
+  console.log(`    the other ${arcsNoDirection} arcs follow a move whose exit handle has no length at all: there is no direction there to turn, so its joint takes the swing (up to ${(cornerNoDirection * engine.RAD_TO_DEG).toFixed(1)}deg) and the panel says so instead of pretending otherwise`);
+  check(worstCorner * engine.RAD_TO_DEG < 1e-9, 'the joint is EXACTLY as smooth as it was: the previous move departs along the arc\'s new arrival direction, so a swing cannot introduce a corner');
+  check(worstFrame * engine.RAD_TO_DEG < 1e-9, 'and the frame this arc is played in does not rotate - which is what keeps the swing VISIBLE instead of cancelling it');
   check(worstPrevEnds < 1e-9, 'and the previous move still starts and finishes where it did: only its departure direction turned');
-  console.log(`    without the re-aim, the same gesture leaves a corner of up to ${(kinkWithout * DEG).toFixed(1)}deg - the fault the re-aim prevents`);
-  check(kinkWithout * DEG > 5, 'and that negative control is large: the rigid swing alone kinks the joint by the swing angle');
+  console.log(`    without the re-aim, the same gesture leaves a corner of up to ${(kinkWithout * engine.RAD_TO_DEG).toFixed(1)}deg - the fault the re-aim prevents`);
+  check(kinkWithout * engine.RAD_TO_DEG > 5, 'and that negative control is large: the rigid swing alone kinks the joint by the swing angle');
 }
 
 // ---------------------------------------------------------------- 3. why the absorb is on the exit

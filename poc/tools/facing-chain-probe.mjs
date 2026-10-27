@@ -37,7 +37,6 @@ engine.setParser(DOMParser);
 const { callsByTitle } = await import(pathToFileURL(path.join(POC_DIR, '..', 'engine', 'test', 'lib', 'engine-calls.mjs')).href);
 
 const CALL = process.argv[2] ?? 'Circle Left';
-const DEG = 180 / Math.PI;
 const assets = corpusRoot();
 const asset = (p) => fs.readFileSync(path.join(assets, p), 'utf8');
 
@@ -47,7 +46,7 @@ const check = (cond, msg) => {
   else { failures++; console.log('  FAIL ' + msg); }
 };
 const rot = (x, y, a) => ({ x: x * Math.cos(a) - y * Math.sin(a), y: x * Math.sin(a) + y * Math.cos(a) });
-const fmt = (p) => `(${p.x.toFixed(4)}, ${p.y.toFixed(4)}) @ ${(p.heading * DEG).toFixed(2)}deg`;
+const fmt = (p) => `(${p.x.toFixed(4)}, ${p.y.toFixed(4)}) @ ${(p.heading * engine.RAD_TO_DEG).toFixed(2)}deg`;
 
 const entry = callsByTitle(assets).find((c) => c.name === CALL);
 if (!entry) {
@@ -78,13 +77,13 @@ console.log(`   dancer ${d + 1} has ${path0.length} moves; editing move ${k + 1}
 
 // THE EDIT, as the Facing tab's r3 handle makes it: every number in the final control span of the facing
 // Bezier rotated, which turns the heading the move ends on by exactly that angle and nothing else.
-const DELTA = 10 / DEG;
+const DELTA = 10 / engine.RAD_TO_DEG;
 const r0 = path0[k].rotate;
 const spun = { ...r0, cx2: rot(r0.cx2, r0.cy2, DELTA).x, cy2: rot(r0.cx2, r0.cy2, DELTA).y, x2: rot(r0.x2, r0.y2, DELTA).x, y2: rot(r0.x2, r0.y2, DELTA).y };
 const edited = engine.setMove(base, d, k, { ...path0[k], rotate: spun });
 
-const endHeading = (call) => engine.bezierAngle(call.dancers[d].path[k].rotate, 1) * DEG;
-const dh = engine.normAngle((endHeading(edited) - endHeading(base)) / DEG) * DEG;
+const endHeading = (call) => engine.bezierAngle(call.dancers[d].path[k].rotate, 1) * engine.RAD_TO_DEG;
+const dh = engine.normAngle((endHeading(edited) - endHeading(base)) / engine.RAD_TO_DEG) * engine.RAD_TO_DEG;
 console.log(`\n== the edit ==`);
 console.log(`   the heading move ${k + 1} ends on: ${endHeading(base).toFixed(3)}deg -> ${endHeading(edited).toFixed(3)}deg (a change of ${dh.toFixed(3)}deg)`);
 
@@ -93,7 +92,7 @@ const boundary = (call, j) => engine.poseFor(call.dancers[d], engine.moveBeatRan
 const pEnd0 = boundary(base, k);
 const pEnd1 = boundary(edited, k);
 console.log(`   the pose it ends on: ${fmt(pEnd0)} -> ${fmt(pEnd1)}`);
-console.log(`   the position moved ${Math.hypot(pEnd0.x - pEnd1.x, pEnd0.y - pEnd1.y).toExponential(2)} units; the heading moved ${engine.normAngle(pEnd1.heading - pEnd0.heading) * DEG === 0 ? '0' : (engine.normAngle(pEnd1.heading - pEnd0.heading) * DEG).toFixed(6)}deg`);
+console.log(`   the position moved ${Math.hypot(pEnd0.x - pEnd1.x, pEnd0.y - pEnd1.y).toExponential(2)} units; the heading moved ${engine.normAngle(pEnd1.heading - pEnd0.heading) * engine.RAD_TO_DEG === 0 ? '0' : (engine.normAngle(pEnd1.heading - pEnd0.heading) * engine.RAD_TO_DEG).toFixed(6)}deg`);
 check(Math.hypot(pEnd0.x - pEnd1.x, pEnd0.y - pEnd1.y) < 1e-9,
   'THE MOVE ITSELF DOES NOT MOVE: a facing edit writes no translation, so the position the move ends on is bit-identical');
 
@@ -107,11 +106,11 @@ for (let j = k + 1; j < path0.length; j++) {
   const q0 = boundary(base, j);
   const q1 = boundary(edited, j);
   // Where q1 SHOULD be if the rest were rigidly rotated by dh about pEnd0.
-  const v = rot(q0.x - pEnd0.x, q0.y - pEnd0.y, dh / DEG);
+  const v = rot(q0.x - pEnd0.x, q0.y - pEnd0.y, dh / engine.RAD_TO_DEG);
   const want = { x: pEnd0.x + v.x, y: pEnd0.y + v.y };
   const off = Math.hypot(q1.x - want.x, q1.y - want.y);
   if (off > worstOff) { worstOff = off; worstAt = j; }
-  const headingShift = engine.normAngle(q1.heading - q0.heading) * DEG;
+  const headingShift = engine.normAngle(q1.heading - q0.heading) * engine.RAD_TO_DEG;
   if (Math.abs(headingShift - dh) > 1e-6) headingsAllShifted = false;
   console.log(`   move ${j + 1}: ${fmt(q0)} -> ${fmt(q1)}  (rotated by the edit: ${off.toExponential(1)} units off, heading shifted ${headingShift.toFixed(3)}deg)`);
 }
@@ -133,12 +132,12 @@ console.log(`\n== the drawn trace ==`);
     const q1 = engine.bezierPoint(s, 1);
     const w0 = { x: a.x + Math.cos(a.heading) * q0.x - Math.sin(a.heading) * q0.y, y: a.y + Math.sin(a.heading) * q0.x + Math.cos(a.heading) * q0.y };
     const w1 = { x: a.x + Math.cos(a.heading) * q1.x - Math.sin(a.heading) * q1.y, y: a.y + Math.sin(a.heading) * q1.x + Math.cos(a.heading) * q1.y };
-    return { dir: Math.atan2(w1.y - w0.y, w1.x - w0.x) * DEG, len: Math.hypot(w1.x - w0.x, w1.y - w0.y), from: w0 };
+    return { dir: Math.atan2(w1.y - w0.y, w1.x - w0.x) * engine.RAD_TO_DEG, len: Math.hypot(w1.x - w0.x, w1.y - w0.y), from: w0 };
   };
   for (let j = k + 1; j < path0.length; j++) {
     const a = dirOf(base, j);
     const b = dirOf(edited, j);
-    console.log(`   move ${j + 1}: drawn from ${a.dir.toFixed(2)}deg to ${b.dir.toFixed(2)}deg (swung ${engine.normAngle((b.dir - a.dir) / DEG) * DEG === 0 ? '0' : (engine.normAngle((b.dir - a.dir) / DEG) * DEG).toFixed(2)}deg), same length ${a.len.toFixed(4)} -> ${b.len.toFixed(4)}`);
+    console.log(`   move ${j + 1}: drawn from ${a.dir.toFixed(2)}deg to ${b.dir.toFixed(2)}deg (swung ${engine.normAngle((b.dir - a.dir) / engine.RAD_TO_DEG) * engine.RAD_TO_DEG === 0 ? '0' : (engine.normAngle((b.dir - a.dir) / engine.RAD_TO_DEG) * engine.RAD_TO_DEG).toFixed(2)}deg), same length ${a.len.toFixed(4)} -> ${b.len.toFixed(4)}`);
   }
 }
 
@@ -154,8 +153,8 @@ console.log(`\n== the drawn trace ==`);
 // trace bit-identical and moving only the headings. This is the measurement that says it does.
 console.log(`\n== the following trace, HELD (a facing edit changes the rotation and nothing else) ==`);
 {
-  const deg = (r) => r * DEG;
-  const normDeg = (a) => engine.normAngle(a / DEG) * DEG;
+  const deg = (r) => r * engine.RAD_TO_DEG;
+  const normDeg = (a) => engine.normAngle(a / engine.RAD_TO_DEG) * engine.RAD_TO_DEG;
   const held = engine.holdFollowingTrace(edited, d, k, DELTA);
   // The floor direction the dancer leaves each move on: its own local curve, placed in the frame the move
   // starts in - the same construction the drawn-trace section above uses.
@@ -255,8 +254,8 @@ console.log(`\n== the panel holds the trace, by the angle the engine says the mo
   const seg = { beats: 1, hands: 'none', translate: curve, rotate: null };
   const turn = engine.moveTurn(seg);
   const exit = engine.arrivalAngle(curve);
-  check(Math.abs(turn - Math.PI / 4) < 1e-12, `\`moveTurn\` is the CHANGE in the curve's direction (${(turn * DEG).toFixed(3)}deg for a curve departing 45deg and arriving 90deg)`);
-  check(Math.abs(exit - turn) > 1e-3, `and it is NOT the exit heading (${(exit * DEG).toFixed(3)}deg) - the negative control for the rule this probe exists to pin`);
+  check(Math.abs(turn - Math.PI / 4) < 1e-12, `\`moveTurn\` is the CHANGE in the curve's direction (${(turn * engine.RAD_TO_DEG).toFixed(3)}deg for a curve departing 45deg and arriving 90deg)`);
+  check(Math.abs(exit - turn) > 1e-3, `and it is NOT the exit heading (${(exit * engine.RAD_TO_DEG).toFixed(3)}deg) - the negative control for the rule this probe exists to pin`);
   check(engine.moveTurn({ ...seg, rotate: curve, translate: { cx1: 1, cy1: 0, cx2: 1, cy2: 0, x2: 1, y2: 0 } }) === turn,
     'and it reads the FACING curve when the move has one, as `poseFor` does');
 

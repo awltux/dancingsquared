@@ -50,7 +50,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { DEG, normAngle } from '../dist/index.js';
+import { DEG, RAD_TO_DEG, normAngle } from '../dist/index.js';
 
 let failures = 0;
 const check = (cond, msg, detail) => {
@@ -345,15 +345,14 @@ check(JSON.stringify(consumerFilesWithAtan2) === JSON.stringify(CONSUMER_SURVIVO
 // in `formation-order.ts`, just below that module's import block — and `book/tools` held a third, in
 // `make-formations.mjs`, which loads the engine already for every other answer it draws.
 //
-// THE CENSUS STOPS AT THE PACKAGES THAT OWN THE UNIT, on purpose. Outside them a local `DEG` is not automatically a
-// copy of this value: MEASURED tree-wide, 25 further declarations exist in the probes, and **13 of them are
-// `180 / Math.PI` — the RECIPROCAL — under the same name** (`rotation-tiebreak`, `arc-centre-probe`, `arm-turn-probe`,
-// `call-formations-probe`, `clone-refusal-probe`, `connect-assign-probe`, `end-pair-probe`, `facing-chain-probe`,
-// `move-end-probe`, `run-circle-probe`, `wysiwyg-path-probe`, `promenade-pair-probe`, `promenade-travel-probe`).
-// Re-pointing one of those at the engine would INVERT its factor, so converting them is a rename, not an import, and
-// it is recorded in `TODO.md` rather than smuggled in here. What this section does pin is the thing that was wrong:
-// no package that owns the unit may spell it twice.
-console.log('\n== 5. `DEG` is declared once, in core.ts, and the book takes it from the engine ==');
+// THE CENSUS NOW REACHES THE PROBES, because the reciprocal is now the engine's own constant and a copy is a copy.
+// MEASURED when this landed: 25 declarations existed outside the owning packages, and **13 of them were
+// `180 / Math.PI` - the RECIPROCAL - under `DEG`'s own name** (`rotation-tiebreak`, `arc-centre-probe`,
+// `arm-turn-probe`, `call-formations-probe`, `clone-refusal-probe`, `connect-assign-probe`, `end-pair-probe`,
+// `facing-chain-probe`, `move-end-probe`, `run-circle-probe`, `wysiwyg-path-probe`, `promenade-pair-probe`,
+// `promenade-travel-probe`). Re-pointing one of those at `DEG` would have INVERTED its factor in silence - by
+// 3,283x - which is why the engine names the second unit (`RAD_TO_DEG`) instead of leaving callers to divide.
+console.log('\n== 5. `DEG` and `RAD_TO_DEG` are declared once each, in core.ts, and the book takes DEG from the engine ==');
 
 // THE VALUE ITSELF, so the spelling checks below are about a constant that is really pi/180.
 check(DEG === Math.PI / 180, `the exported DEG is Math.PI / 180 (${DEG})`);
@@ -364,11 +363,17 @@ check(degDefinitions.length === 1 && degDefinitions[0].startsWith('core.ts:'),
   `DEG is declared exactly once under engine/src, in core.ts — ${degDefinitions.length} definition(s)`,
   degDefinitions.join('; '));
 
-// (b) THE RECIPROCAL IS NOT THIS CONSTANT. A NAMED SET of zero files: `180 / Math.PI` under the name `DEG` is the
-// other unit wearing this one's name, and `engine/src` writes the reciprocal as `rad / DEG` (`formation-order.ts`).
+// (b) THE RECIPROCAL IS NOT THIS CONSTANT, and it now has a name of its own, declared in the same place. A NAMED SET
+// of zero files for the old spelling: `180 / Math.PI` under the name `DEG` is the other unit wearing this one's name.
 const degReciprocal = hits(/const DEG = 180 \/ Math\.PI/);
 check(degReciprocal.length === 0,
   `no file under engine/src calls the reciprocal DEG (${degReciprocal.length} do)`, degReciprocal.join('; '));
+const radToDegDefinitions = hits(/const RAD_TO_DEG = 180 \/ Math\.PI/);
+check(radToDegDefinitions.length === 1 && radToDegDefinitions[0].startsWith('core.ts:'),
+  `RAD_TO_DEG is declared exactly once under engine/src, in core.ts — ${radToDegDefinitions.length} definition(s)`,
+  radToDegDefinitions.join('; '));
+check(RAD_TO_DEG === 180 / Math.PI && Math.abs(RAD_TO_DEG * DEG - 1) < 1e-15,
+  `and it is DEG's exact reciprocal (${RAD_TO_DEG} * ${DEG} = ${RAD_TO_DEG * DEG})`);
 
 // (c) THE BOOK DRAWS FROM THE SAME UNIT, and loads the engine for every other engine value it needs, so it declares
 // none of its own. A NAMED SET of zero files — a declaration BOUND to the engine (`= loadEngine().DEG`) is not
@@ -388,6 +393,19 @@ for (const f of bookFiles) {
 }
 check(bookDegs.length === 0,
   `no book tool declares its own DEG — the engine's is loaded (${bookDegs.length} do)`, bookDegs.join('; '));
+
+// (d) AND THE PROBES SPECIALISE IT, which is where the reciprocal actually lived: a local `DEG = 180 / Math.PI` in a
+// harness or a probe is the other unit under this one's name. A NAMED SET of zero files over the §4b walk.
+const consumerReciprocal = [];
+for (const rel of consumerFiles) {
+  const text = stripComments(readFileSync(path.join(REPO, rel), 'utf8'));
+  text.split('\n').forEach((line, i) => {
+    if (/const (?:DEG|RAD) = 180 \/ Math\.PI/.test(line)) consumerReciprocal.push(`${rel}:${i + 1}`);
+  });
+}
+check(consumerReciprocal.length === 0,
+  `no harness or probe declares the reciprocal under its own name (${consumerReciprocal.length} do) — MEASURED 13 when this landed`,
+  consumerReciprocal.join('; '));
 
 console.log(`\n${failures === 0 ? 'angle-normalisation: all checks hold' : `angle-normalisation: ${failures} FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

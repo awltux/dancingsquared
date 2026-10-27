@@ -446,19 +446,28 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   made and reverted: WeakMap object-identity keying is stricter than the string-keyed `matchMemo`, so
   measure that first.
 
-- [ ] **51. FOUR ENGINE MODULES ARE 1300-1700 LINES, AND SIZE IS NOT THE MEASUREMENT THAT SAYS SO.** `[measured]`
-  A line count over the tree (`Get-Content <f> | Measure-Object -Line`) puts `engine/src/sequencer/applicator.ts`
-  at **1658**, `alignment.ts` **1582**, `sequencer.ts` **1562**, `sequence.ts` **1342**; outside the engine
-  `packages/stage/scene.ts` **1509**, `book/tools/build-site.mjs` **1389**, `game/src/net/api.ts` **963**,
-  `engine/src/sequencer/all8-notation.ts` **981**, `scripts/tag-formations.mjs` **866** and `poc/src/browser.ts`
-  **853** (36 methods, 2 exports). The longest lines are NOT the signal: `poc/src/fsm-view.ts` is only 418 lines but
-  carries **18** over 200 characters (minified layout data), and `poc/src/editor-ui.ts` is **6113** lines with 19 -
-  a UI shell whose size is item-shaped rather than rule-shaped.
-  **THE R6 PRECEDENT IS THE METHOD, NOT THE TARGET**: R6 extracted four modules and each extraction was justified by
-  a rule that could not be probed where it lived (`export-format.ts`, `same-move.ts`, `board-key.ts`,
-  `board-period.ts`) - never by a line count. So the next step is a MEASUREMENT per module (what rule is unreachable
-  from a probe, how many call sites agree on it), not a split. Filed rather than started because a 1600-line module
-  split with no measured lead is churn, and the probes that would prove the split live in the `all` tier.
+- [ ] **51. THE BIG MODULES: MEASURED, AND NO SPLIT IS JUSTIFIED YET.** `[measured]` (re-measured; the numbers below are
+  today's)
+  A line count over the tree puts `engine/src/sequencer/sequencer.ts` at **1880**, `applicator.ts` **1719**,
+  `alignment.ts` **1634**, `sequence.ts` **1521**, `packages/stage/scene.ts` **1602**, `book/tools/build-site.mjs`
+  **1447**, `game/src/net/api.ts` **1013**, `engine/src/sequencer/all8-notation.ts` **1010**,
+  `scripts/tag-formations.mjs` **1000** and `poc/src/browser.ts` **902**. `poc/src/editor-ui.ts` is **6364**.
+  **THE LINE COUNT IS NOT THE LEAD, and this is now measured rather than asserted.** The size of the four engine
+  modules is a CONTAINER effect, not a rule buried in a large body: `applicator.ts` is a 1250-line class with **34**
+  methods and only **one** exported function, `sequencer.ts` a 1802-line class with **125** methods, `sequence.ts` a
+  1359-line class with **31**, and `alignment.ts` **21** exported functions with no class at all. The longest BODY in
+  each is small - `partition`/`partitionPartial` 53 lines, `buildFsmTable` **210**, `moduleTracks` 63,
+  `fasrooOf` 95, `boardsForAlignment` 87 - so there is no function to break up, and a class split by line count would
+  move methods whose only shared property is their caller.
+  THE TWO REAL LEADS, both outside the engine and both about a RULE that cannot be probed where it lives (the R6
+  method, never a size):
+  * `poc/src/fsm-view.ts` is **430** lines with **18** over 200 characters: minified layout data in a template literal,
+    i.e. a table that is DATA and cannot be measured or edited safely as prose (`engine/README.md`'s module-as-a-call
+    is the shape it wants).
+  * `applicator.ts`'s **34 methods on one class** is the only container the engine has that a *rule* could be hiding
+    in, and the way to find out is a census of which of them a probe can reach - not a split.
+  FILED, DELIBERATELY NOT STARTED: a 1700-line module split with no measured lead is churn, and the probes that would
+  prove one live in the `all` tier.
 
 ---
 
@@ -597,39 +606,32 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
     permanently-failing entry trains everyone to ignore the tier. Both are stamped `Recorded: TODO.md` until
     decided.
 
-- [ ] **40. ANGLE NORMALISATION — what was left, and the TIE-BREAK THIS FOUND.** `[measured]`
-  The engine's 21 expressions in seven interval conventions became one (`moves.ts`'s `normAngle`, gated by
-  `engine/test/angle-normalisation.mjs`). Two loose ends, one inside the engine and one outside:
-  - **`core.ts`'s mirrored-half heading still spells `atan2(sin(h + PI), cos(h + PI))`** — the one substitution
-    that was reverted, because replacing it MOVED A GEOMETRIC TIE-BREAK. `behaviour-audit`'s two 45-degree-offset
-    checks went from the identity mapping to a two-step cyclic shift `[6,7,0,1,2,3,4,5]`, and the audit's own
-    FAIL/PASS counts moved 149/2 → 147/4. **BISECTED file by file**: restoring `core.ts` alone restores the
-    mapping; the while-vs-modulo choice of the rule's body does NOT (measured — the loop body still flipped it).
-    Restoring `core.ts`'s atan2 spelling restored 149/2. So the survivor is on the record with its measurement,
-    and the finding underneath is worth its own unit:
-  - **THE 45-DEGREE ALIGNMENT TIE-BREAK IS DECIDED BY ONE ULP.** Two alignments of a rotated squared set are
-    equally exact — the mirrored dancers' headings differ in the last bit and the winner moves — so
-    `deriveFormationMapping`'s `bestErr` comparison should break near-ties EXPLICITLY, the way `match.ts`'s
-    `TIE_EPS` (1e-9) already does for formation matching, instead of letting a rounding decide. Not done here:
-    it is a behaviour change, and this unit's intent was to consolidate with NO behaviour change. Witness and
-    probes to re-run: `behaviour-audit`'s "Index independence: editor joins ignore array order" section, and
+- [ ] **40. THE 45-DEGREE ALIGNMENT TIE-BREAK IS DECIDED BY ONE ULP — the one thing angle normalisation found.**
+  `[measured]`
+  The engine's 21 normalisation expressions in seven interval conventions became one (`moves.ts`'s `normAngle`, gated
+  by `engine/test/angle-normalisation.mjs`), and every copy outside the engine has since gone the same way: the
+  harnesses, the probes and the two book tools import it, `poc/src` imports it, and §4b of that harness now walks the
+  consumer trees and pins the two documented survivors (`angle-normalisation.mjs` itself, which quotes the rejected
+  rule, and `radial-grid-probe.mjs`, which promises no engine build). What is left is INLINE arithmetic -
+  `git grep -c "180 / Math.PI"` finds **12 occurrences in 5 files** (`radial-arc-fit-probe.mjs` 6,
+  `named-setup-probe.mjs` 3, `facing-end-drag-probe.mjs`, `poc/src/editor-ui.ts`, `poc/src/sequencer-ui.ts`) - and
+  those are the OTHER unit, which now has the engine's name (`RAD_TO_DEG`): converting them is a reading pass, not a
+  copy hunt.
+  - **`core.ts`'s mirrored-half heading still spells `atan2(sin(h + PI), cos(h + PI))`, and that is a FACT with a
+    measurement**: replacing it MOVED A GEOMETRIC TIE-BREAK. `behaviour-audit`'s two 45-degree-offset checks went from
+    the identity mapping to a two-step cyclic shift `[6,7,0,1,2,3,4,5]`, and the audit's FAIL/PASS counts moved
+    149/2 → 147/4. **BISECTED file by file**: restoring `core.ts` alone restores the mapping; the while-vs-modulo
+    choice of the rule's body does NOT. §4 of the harness states it as a bound and keeps the survivor on the record.
+  - **THE FINDING UNDERNEATH IS STILL OPEN, and it is a behaviour change**: two alignments of a rotated squared set
+    are equally exact - the mirrored dancers' headings differ in the last bit and the winner moves - so
+    `deriveFormationMapping`'s `bestErr` comparison should break near-ties EXPLICITLY, the way `match.ts`'s `TIE_EPS`
+    (1e-9) already does for formation matching, instead of letting a rounding decide. Witness and probes to re-run:
+    `behaviour-audit`'s "Index independence: editor joins ignore array order" section, and
     `poc/tools/end-pair-probe.mjs` (2278 pairings).
-  What is still OUTSIDE the engine, with the reason each was left:
-  - **`poc/src`, 5 sites** — `formation-xml.ts:91` and `editor-ui.ts:364` (`atan2(sin, cos)`), `editor-ui.ts`
-    (a while-loop pair), and two inline `atan2`s. Left because **~30 `poc/tools` probes read `poc/src` as SOURCE
-    TEXT and assert what it spells** (`end-spin-probe.mjs`, `move-nav-probe.mjs`, `named-setup-probe.mjs`,
-    `mirror-moves-probe.mjs`, `start-pose-drag-probe.mjs`'s "Mirrored from `editor-ui.ts`"), so changing the
-    panel is a migration of those audits rather than a substitution. The panel CAN import the engine's
-    `normAngle` (it already imports the engine by package name); the audits are the work.
-  - **`book/tools`, 1 site** — `make-formations.mjs:293`. Left because the engine export list is ASSERTED in
-    `book/tools/lib/load.mjs` (`REQUIRED`) and `check:book` compares GENERATED figures: a last-bit change is a
-    figure re-generation, which §11.2.9 says not to do while something else is being adjudicated.
-  - **The probes' own copies (~26 in `poc/tools`, plus `game/test` and `engine/test/tools`)** — deliberate per
-    §5 self-containment: a probe that imports the rule cannot be the independent judge of it.
-  - **DEGREE moduli** (`poc/src/tam-xml.ts`, `book/tools/lib/squared-set.mjs`, `book/tools/make-diagrams.mjs`,
-    `poc/tools/dosado-facing-fit.mjs`, and four in `engine/src`: `editor.ts:2684`, `formation-order.ts:160/163`,
-    `alignment.ts:1123/1131`) — codomain `[0, 360)` or `[-180, 180)`, not `(-PI, PI]`; converting through radians
-    would change their arithmetic for nothing. They are not this rule.
+  - **DEGREE moduli are NOT this rule** and are left alone with the reason in place: `poc/src/tam-xml.ts`,
+    `book/tools/lib/squared-set.mjs`, `book/tools/make-diagrams.mjs`, `poc/tools/dosado-facing-fit.mjs` and four in
+    `engine/src` have codomain `[0, 360)` or `[-180, 180)`, so converting them through radians would change their
+    arithmetic for nothing.
 
 ---
 

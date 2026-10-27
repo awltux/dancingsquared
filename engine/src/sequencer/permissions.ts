@@ -298,6 +298,17 @@ export function evaluatePermissions(
  *                  deliberate `allow` in this list. There is no separate "never" flag, and that is the
  *                  point: the same mechanism expresses both, so neither is a special case.
  */
+/**
+ * THE REASON THE TWO COLUMN RULES GIVE, stated once.
+ *
+ * `boardId` is a single string rather than an array (unlike `call` and `group`), so covering a shape the corpus
+ * spells under two ids takes two entries - and two entries with two hand-kept copies of one sentence is exactly the
+ * drift the arrays were introduced to stop. So the sentence is a constant and the entries differ only in their key.
+ */
+const DOSADO_FROM_COLUMN_REASON =
+  'Dosado starts from Facing Dancers, and a column has nobody in front of them - every dancer faces the same way, '
+  + 'so pairing dancers across the columns is not a Do Sa Do.';
+
 export const PERMISSION_RULES: readonly PermissionRule[] = [
   {
     // `Circle Four` IS A FOUR-DANCER CALL, so only a four-dancer reading may dance it: the heads or the
@@ -413,6 +424,46 @@ export const PERMISSION_RULES: readonly PermissionRule[] = [
       'Do Sa Do starts from Facing Dancers, and a Static Square is not one - the dancers face across the '
       + 'set, not at a partner. The tiling can pair them six apart, but only by walking the bodies '
       + 'through each other. `Heads Dosado` / `Sides Dosado` are the scoped forms and still available.',
+  },
+  {
+    // DOSADO FROM A PLAIN COLUMN - refused at MS. REPORTED: "The game has offered dosado from Columns. This is not a
+    // valid call."
+    //
+    // WHY A RULE AND NOT A MEASUREMENT, the third time this file records the same shape of decision: `Dosado` is
+    // authored from `Facing Dancers`, `Facing Dancers Far`/`Close`/`Compact`, `Adjacent Dancers Close` and
+    // `Opposite Boy` - every one a pair with a dancer IN FRONT of it - and a plain column has nobody in front of
+    // anybody, because all eight dancers face the same way. The tiling still succeeds, pairing neighbours across the
+    // columns, so the geometry says yes and the call is not a Do Sa Do.
+    //
+    // AND THE SCOPED FORMS ARE NOT THE ANSWER HERE, unlike the square-set rule above: MEASURED, `Heads Dosado` does
+    // not apply from a column at all (`applyToBoard` refuses it for every one of the four spellings), so the reason
+    // below deliberately names no alternative rather than offering one that cannot be danced.
+    //
+    // KEYED ON THE FORMATION ID BECAUSE NO NAME REACHES THESE BOARDS. MEASURED: `recognize` names none of `Columns`,
+    // `Columns LH BGBG`, `Column RH GBGB`, `Column LH GBGB`; the corpus spells that one shape four ways across the two
+    // ids below, and `formation-id.ts` calls the id the shape up to rotation, so two entries cover all four spellings
+    // and any later authoring of it. `boardId` is a single string rather than an array, which is the only reason this
+    // is two entries and not one - the shared reason is a constant so they cannot drift.
+    //
+    // THE DRILL'S OWN BOARD CARRIES THE SAME ID, which is what makes the rule bite where the report came from:
+    // MEASURED over all sixteen column formations in the corpus, `boardForFormation` and `boardForSetup` agree
+    // exactly, and `Columns`/`Column LH GBGB` are among the start boards the level-1, 3 and 6 pools generate from.
+    call: ['Dosado'],
+    group: ['All 8'],
+    boardId: 'F3-lcwes2cr',
+    level: 'ms',
+    decision: 'deny',
+    reason: DOSADO_FROM_COLUMN_REASON,
+  },
+  {
+    // THE MIRROR OF THE SHAPE ABOVE: `Columns LH BGBG` and `Column LH GBGB`. Same call, same reading, same cause -
+    // see the entry above for the measurement and the reason the key is an id.
+    call: ['Dosado'],
+    group: ['All 8'],
+    boardId: 'F3-dhnw1kx1',
+    level: 'ms',
+    decision: 'deny',
+    reason: DOSADO_FROM_COLUMN_REASON,
   },
   {
     // THE AUTHORING FAMILY AS ONE RULE. `- Close`, `- Normal` and `- Far` are three SETUPS of one couple

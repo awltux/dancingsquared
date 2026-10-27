@@ -70,6 +70,12 @@ const seq = new Sequencer(
   callsByTitle(assets),
 );
 const square = seq.boardForFormation('Static Square');
+/**
+ * EVERY formation name the corpus carries, read from `formations.xml` rather than from a list in this file: the column
+ * sections below find their subjects by NAME PATTERN, so a new authoring of the shape arrives here by itself.
+ */
+const FORMATION_NAMES = [...readFileSync(path.join(assets, 'formations.xml'), 'utf8')
+  .matchAll(/<formation name="([^"]+)"/g)].map((m) => m[1]);
 
 console.log('== the level order is the programme order ==');
 check(levelRank('discovered') < levelRank('ms'), 'discovered sorts before ms');
@@ -681,10 +687,125 @@ console.log('\n== (20) A RULE MAY NAME A BOARD BY ITS FORMATION ID ==');
     'and a board the curated namer DOES name keeps its own name, so the fallback cannot re-point a shipped rule');
   seq.setPermissionRules([]);
 
-  // THE SHIPPED TABLE IS UNTOUCHED by this: not one entry names an id, so every refusal measured above still
-  // reads the rule it read before.
-  const withIds = PERMISSION_RULES.filter((r) => r.boardId !== undefined);
-  check(withIds.length === 0, `no shipped rule names a board id (${withIds.length} do), so nothing was re-pointed`);
+  // THE SHIPPED TABLE'S ID-KEYED RULES ARE THE COLUMN SHAPES AND NOTHING ELSE, and the number is derived from the
+  // corpus rather than written here: section 21 computes the ids of the plain-column formations and this compares them
+  // with what the table names, in BOTH directions. It used to read "not one entry names an id", which was a FACT about
+  // the table when the field was added and is now a re-measured one - the first shipped id-keyed rule landed with
+  // `Dosado` from a column.
+  const withIds = PERMISSION_RULES.filter((r) => r.boardId !== undefined).map((r) => String(r.boardId).toLowerCase());
+  const columnIds = plainColumnIds();
+  const sameSet = withIds.length === columnIds.size && withIds.every((id) => columnIds.has(id));
+  check(sameSet, `the id-keyed rules are exactly the plain-column shapes (${withIds.join(', ') || 'none'})`);
+}
+
+console.log('\n== (21) DOSADO FROM A PLAIN COLUMN IS NOT OFFERED, AND FROM A FACING BOARD IT STILL IS ==');
+// REPORTED: "The game has offered dosado from Columns. This is not a valid call."
+//
+// THE SHAPE, not today's spelling: the corpus writes it four ways (`Columns`, `Columns LH BGBG`, `Column RH GBGB`,
+// `Column LH GBGB`) across two formation ids, and `recognize` names NONE of them - which is why the rule is keyed on the
+// id (`boardId`) rather than on a name. Everything below is derived from the corpus, so a re-tag or a new authoring of
+// the shape reddens here with the new id in the message instead of silently un-governing the call.
+{
+  seq.setActiveLevel('ms');
+  seq.setPermissionRules([]);
+
+  const columns = seq.boardForFormation('Columns');
+  check(!!columns, 'the corpus stands up a plain column');
+  const columnId = seq.boardIdentity(columns).id;
+
+  // 1. THE REPORTED CASE, explicitly, on the spelling the report named.
+  const refused = seq.mayOffer('Dosado', 'All 8', columns);
+  check(refused.allowed === false, `all-8 Dosado is NOT offered from Columns (${refused.allowed})`);
+  check(!!refused.reason && refused.reason.length > 30, 'and the refusal carries a real reason');
+  check(refused.rule?.boardId === columnId, `the deciding rule is keyed on the board's id (${refused.rule?.boardId})`);
+  check(refused.rule?.level === 'ms', 'and it is the MS rule, so a later programme may lift it');
+
+  // 2. EVERY SPELLING OF THE SHAPE, found by name rather than listed here.
+  for (const name of plainColumnNames()) {
+    const board = seq.boardForFormation(name);
+    if (!board) continue;
+    check(seq.mayOffer('Dosado', 'All 8', board).allowed === false, `  ${name}: Dosado is not offered`);
+    // THE DRILL'S OWN BOARD IS THE SAME BOARD: `boardForSetup` relabels couples, and `formationId` reads geometry only,
+    // so the id a drill starts from is the id the corpus tags. MEASURED identical for all sixteen column formations.
+    const setup = seq.boardForSetup(name);
+    check(!!setup && seq.boardIdentity(setup).id === seq.boardIdentity(board).id,
+      `  ${name}: the setup board the drill starts from carries the same id`);
+  }
+
+  // 3. THE ANTI-STALENESS HALF: every id the shape has TODAY is one the table names. A re-tag moves this assertion
+  // with the corpus; a new authoring of the same shape adds a name whose id must already be covered.
+  const covered = new Set(PERMISSION_RULES.filter((r) => r.boardId !== undefined).map((r) => String(r.boardId).toLowerCase()));
+  // THE SCHEME PREFIX IS DERIVED FROM A BOARD, not restated: `formation-id.ts` versions the id, and a scheme bump moves
+  // every id in the corpus - so this check fails beside the id ones rather than letting a rule name a retired scheme.
+  const scheme = seq.boardIdentity(columns).id.split('-')[0].toLowerCase() + '-';
+  for (const id of plainColumnIds()) {
+    check(covered.has(id), `  the table names the shape's id ${id}`);
+    check(id.startsWith(scheme), `  and ${id} is an id of the current scheme (${scheme}…)`);
+  }
+
+  // 4. NEGATIVE CONTROLS, all three.
+  // (a) THE RULE IS THE REASON, not the geometry: the same ask against a chain without the column entries is allowed.
+  const withoutColumnRules = PERMISSION_RULES.filter((r) => r.boardId === undefined);
+  check(evaluatePermissions(withoutColumnRules, { call: 'Dosado', group: 'All 8', boardId: columnId, level: 'ms' }).allowed === true,
+    'NEGATIVE CONTROL: without these two rules the same ask is allowed, so the refusal is the rule and not the board');
+  // (b) THE DENIAL DOES NOT FOLLOW THE CALL: a board whose dancers DO face each other keeps offering it.
+  const lines = seq.boardForFormation('Normal Lines');
+  check(seq.mayOffer('Dosado', 'All 8', lines).allowed === true, 'and Normal Lines still offers Dosado');
+  check(seq.applyToBoard(lines, 'Dosado').legal === true, '  which the engine applies, so that offer is a real reading');
+  // (c) THE SCOPED FORMS ARE NOT OFFERED AS THE ALTERNATIVE, because they cannot be danced here: the square-set rule
+  // above tells the player to use `Heads Dosado`, and this shape must not. MEASURED: the scoped apply is refused from
+  // a column, which is why the column reason names no alternative.
+  check(seq.applyToBoard(columns, 'Heads Dosado').legal === false, 'NEGATIVE CONTROL: Heads Dosado does not apply from a column');
+  check(!/Heads Dosado|Sides Dosado/.test(String(refused.reason)), 'so the reason offers no scoped form it cannot back');
+}
+
+console.log('\n== (22) THE OTHER COLUMN SHAPES ARE NOT SILENTLY COVERED ==');
+// THE SCOPE, made countable. `Dosado` applies and is offered from eight other column shapes (Magic, Mixed, I-Column) and
+// from `Triple Columns` no board stands up. They are DIFFERENT SHAPES - magic columns have dancers facing alternately,
+// mixed ones face in and out - so the plain-column rule must not be stretched over them by a name, and this list is what
+// says the omission is a decision rather than an oversight. A new column authoring must join the governed family or this
+// list, which is the same NAMED SET discipline the `KNOWN_*` lists use.
+const UNDECIDED_COLUMN_SHAPES = [
+  'Magic Column RH', 'Magic Column LH',
+  'Mixed Columns RH Ends In', 'Mixed Columns LH Ends In', 'Mixed Columns RH Ends Out', 'Mixed Columns LH Ends Out',
+  'Mixed Columns RH Centers In', 'Mixed Columns LH Centers In', 'Mixed Columns RH Centers Out', 'Mixed Columns LH Centers Out',
+  'I-Column',
+];
+{
+  seq.setActiveLevel('ms');
+  const seen = [];
+  for (const name of allColumnNames()) {
+    if (plainColumnNames().includes(name)) continue;
+    const board = seq.boardForFormation(name);
+    if (!board) continue;
+    seen.push({ name, id: seq.boardIdentity(board).id, offered: seq.mayOffer('Dosado', 'All 8', board).allowed });
+  }
+  for (const shape of seen) {
+    check(UNDECIDED_COLUMN_SHAPES.includes(shape.name), `  ${shape.name} is a column shape outside this rule (offered: ${shape.offered})`);
+  }
+  for (const name of UNDECIDED_COLUMN_SHAPES) {
+    check(seen.some((s) => s.name === name), `  and the corpus still carries ${name}, so the list is not stale`);
+  }
+}
+
+/** Every corpus formation whose name looks like a column. Derived from the corpus, never listed by hand. */
+function allColumnNames() {
+  return FORMATION_NAMES.filter((n) => /column/i.test(n));
+}
+
+/** The PLAIN column shapes: two rows of four facing one way. The two ids the table governs name exactly these four. */
+function plainColumnNames() {
+  return allColumnNames().filter((n) => /^(Columns( LH [A-Z]{4})?|Column (RH|LH) [A-Z]{4})$/.test(n));
+}
+
+/** The distinct formation ids those names carry, lower-cased to match `matches`'s normalisation. */
+function plainColumnIds() {
+  const ids = new Set();
+  for (const name of plainColumnNames()) {
+    const board = seq.boardForFormation(name);
+    if (board) ids.add(seq.boardIdentity(board).id.toLowerCase());
+  }
+  return ids;
 }
 
 console.log(failures === 0 ? '\npermissions: all green.' : `\npermissions: ${failures} FAILURE(S)`);

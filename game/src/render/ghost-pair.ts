@@ -28,6 +28,10 @@
 // NO DOM, NO `three`, NO CLOCK: this is arithmetic over two boards, so `game/test/ghost-pair-probe.mjs` can drive it.
 
 import type { Board } from 'dancing-squared-engine';
+// THE ENGINE'S NORMALISER, not a local `atan2(sin, cos)`: it is a DIFFERENT rule at the -PI seam (that spelling
+// returns -PI where `normAngle` keeps +PI), and `engine/test/angle-normalisation.mjs` §4b is the census that would
+// otherwise read this file as a second copy. The game imports engine VALUES where a pure rule needs one.
+import { normAngle } from 'dancing-squared-engine';
 
 /** A point on the floor the focused board's dancer has to reach, and whether it is anywhere new. */
 export interface GhostPose {
@@ -44,10 +48,7 @@ export const GHOST_POSITION_EPS = 0.05;
 export const GHOST_HEADING_EPS = 0.02;
 
 /** The shortest way round from one heading to another, in radians. */
-const headingDelta = (a: number, b: number): number => {
-  const turn = Math.atan2(Math.sin(b - a), Math.cos(b - a));
-  return Math.abs(turn);
-};
+const headingDelta = (a: number, b: number): number => Math.abs(normAngle(b - a));
 
 /**
  * One ghost per dancer of `focused`, taken from `other`, or `null` when the two cannot be paired honestly.

@@ -30,7 +30,7 @@ import { setupId } from 'dancing-squared-engine/ids';
 import type { Board } from 'dancing-squared-engine';
 
 /** What a board's caption says, and what its hover text carries. */
-export interface BoardCaption {
+interface BoardCaption {
   /** `Setup, 2 of 4 — Ocean Wave`, or `Setup, 2 of 4` when the corpus has no name for the waypoint. */
   text: string;
   /**
@@ -42,7 +42,7 @@ export interface BoardCaption {
 }
 
 /** Everything the caption needs: where in the route, what to call it, and the board under it. */
-export interface CaptionSpec {
+interface CaptionSpec {
   /** The waypoint's position in the route, 0-based. The caption shows it 1-based, and it is never the board's own. */
   index: number;
   /** How many waypoints the route has. */

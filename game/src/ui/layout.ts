@@ -39,7 +39,7 @@ export const SHEET_MAX = 460;
 export const PANEL_WIDE = 340;
 export const PANEL_NARROW = 300;
 
-export type LayoutMode = 'phone' | 'tablet' | 'desktop';
+type LayoutMode = 'phone' | 'tablet' | 'desktop';
 
 /** Everything the shell needs to know about the viewport, in one value. */
 export interface Layout {

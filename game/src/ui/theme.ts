@@ -239,7 +239,7 @@ export const CSS_VARS: Readonly<Record<string, string>> = {
 };
 
 /** Anything with the one method this needs, so a probe can pass a stub instead of an element. */
-export interface StyleTarget {
+interface StyleTarget {
   style: { setProperty(name: string, value: string): void };
 }
 

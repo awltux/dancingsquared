@@ -26,13 +26,13 @@
 import type { RunFacts, RunScore } from './score.ts';
 
 /** One line of the card's working: what was measured, and how it reads. */
-export interface ResultTerm {
+interface ResultTerm {
   label: string;
   value: string;
 }
 
 /** A badge is a fact about the run that a player can be proud of, in three words or fewer. */
-export type ResultBadge = 'no-hints' | 'shortest-line' | 'first-try' | 'at-par' | 'new-best';
+type ResultBadge = 'no-hints' | 'shortest-line' | 'first-try' | 'at-par' | 'new-best';
 
 export interface ResultCard {
   /** 1–3. A finished run is never zero stars: being solved is the first one. */

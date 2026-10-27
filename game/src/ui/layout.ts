@@ -19,10 +19,10 @@
 //     board, where the side-by-side pair had 196 px each.
 //
 // SINGLE VS PAIR IS A BOARD-LEGIBILITY DECISION, NOT A FURNITURE ONE. A waypoint pair is a COMPARISON — the left board is
-// where the player stands, the right is what they must reach — so hiding one is only acceptable when it is replaced by
-// something that keeps the comparison visible (the ghost layer, its own change). Until then a narrow screen keeps both
-// boards side by side and this module says `pair`; the `single` answer exists here because the shell has to be told
-// which it is, and a probe can pin the choice at the boundary.
+// where the player stands, the right is what they must reach — so a narrow screen shows ONE board at full size and draws
+// the other's dancers as ghosts on it (`render/ghost-pair.ts`, paired by dancer identity). The comparison stays visible;
+// only the second floor goes. `boards: 'single'` below `NARROW_MAX_WIDTH` and `'pair'` above it, and the switcher that
+// chooses which board is solid exists only where the answer is `'single'`.
 
 /** The viewport width below which the panel goes to the bottom and the boards lose their side-by-side room. */
 export const NARROW_MAX_WIDTH = 900;
@@ -70,7 +70,10 @@ export function layoutFor(width: number, height: number): Layout {
       mode,
       panelSide: 'bottom',
       panelSize: Math.min(SHEET_MAX, Math.max(SHEET_MIN, size)),
-      boards: 'pair',
+      // ONE BOARD, WITH THE OTHER DRAWN AS GHOSTS ON IT: `render/ghost-pair.ts` pairs the two by dancer identity, so the
+      // comparison the puzzle is about survives the board being alone. A wide screen keeps the pair, because there the
+      // comparison is free and a switcher would be a control that does nothing.
+      boards: 'single',
     };
   }
   return {

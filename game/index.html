@@ -38,6 +38,17 @@
            the stage draws with (main.ts copies them into these custom properties). -->
       <p id="waypointLegend" hidden><span class="wp-key wp-key-solved">✓</span> solved · <span class="wp-key wp-key-next">●</span> next · <span class="wp-key wp-key-locked">✕</span> locked</p>
 
+      <!-- WHICH BOARD IS ON THE FLOOR, on a viewport too narrow for both. REPORTED: "The two boards are awkward due to
+           screen realestate. Is there a way that only one board is shown at a time but it's obvious how to navigate
+           between them." The answer is this pair of tabs PLUS a ghost layer: the board that is not drawn has its dancers
+           drawn dim on the one that is, paired by dancer identity (`render/ghost-pair.ts`), so switching is about
+           emphasis rather than about memory. The tabs are HIDDEN on a wide viewport, where both boards fit and a
+           switcher would be a control that does nothing (`ui/layout.ts` decides; `main.ts` obeys). -->
+      <nav id="boardTabs" aria-label="Which board is shown" hidden>
+        <button id="boardYou" type="button" aria-pressed="true">You are here</button>
+        <button id="boardTarget" type="button" aria-pressed="false">Target</button>
+      </nav>
+
       <main id="panel">
         <header id="head">
           <h1>Dancing Squared</h1>

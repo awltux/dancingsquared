@@ -925,6 +925,52 @@ button[data-busy="true"]::after {
   padding-left: 0.4em;
 }
 
+/* THE BOARD SWITCHER. Two tabs over the floor, centred on the space the panel leaves, shown only where the layout asks
+   for one board (`ui/layout.ts`'s `boards: 'single'`, applied by `main.ts`). The state is `aria-pressed` as well as the
+   fill, and the pressed tab takes the accent — the same language as the mode switch, because it is the same kind of
+   choice one scale down. The `z-index` puts it above the canvas and above the waypoint arrows, which overlap this strip
+   on a short viewport. */
+#boardTabs {
+  position: absolute;
+  top: calc(var(--space-sm) + env(safe-area-inset-top));
+  left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.5);
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  z-index: 3;
+}
+
+#boardTabs[hidden] {
+  display: none;
+}
+
+#boardTabs button {
+  min-height: 44px;
+  padding: var(--space-xs) var(--space-md);
+  font-family: inherit;
+  font-size: var(--fs-small);
+  color: var(--ink);
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+}
+
+#boardTabs button[aria-pressed="true"] {
+  background: var(--pressed);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+#boardTabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ===================================================================================================================
    COMPOSITION: A SECTION IS A CARD, AND ONE CONTROL IS THE ACTION.
    ===================================================================================================================

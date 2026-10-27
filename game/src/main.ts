@@ -267,9 +267,20 @@ let lastFrameMs = 0;
  */
 let layout: Layout = layoutFor(1440, 900);
 
+/**
+ * WHICH BOARD THE SINGLE-BOARD VIEW IS SHOWING. A wide viewport shows both and never reads this (`ui/layout.ts` answers
+ * `boards: 'pair'` there); a narrow one shows one, starts on the player's own board, and the tabs over the floor choose.
+ * THE GHOST LAYER IS WHAT MAKES THE CHOICE CHEAP: the board that is not drawn still has its dancers on the floor, so
+ * switching emphasis costs one tap and no memory (`render/ghost-pair.ts`).
+ */
+let boardFocus: 'left' | 'right' = 'left';
+
 const els = {
   labelHere: el('labelHere'),
   labelGoal: el('labelGoal'),
+  boardTabs: el('boardTabs'),
+  boardYou: el<HTMLButtonElement>('boardYou'),
+  boardTarget: el<HTMLButtonElement>('boardTarget'),
   waypointPrev: el<HTMLButtonElement>('waypointPrev'),
   waypointNext: el<HTMLButtonElement>('waypointNext'),
   waypointLegend: el('waypointLegend'),
@@ -405,6 +416,31 @@ function currentPair(): { stage: StagePair; pair: WaypointPair; info: WaypointIn
 }
 
 /**
+ * THE BOARD SWITCHER, and the one place the stage is told which board to draw.
+ *
+ * IT IS THE `boards` ANSWER THAT DECIDES: a wide viewport shows the pair and this hides the tabs, because a control that
+ * changes nothing is worse than no control. A narrow one shows a single board, the tabs become the way between the two,
+ * and `stage.setFocus` does the drawing (`render/stage-view.ts`). Both boards' captions exist either way; the one that is
+ * not on the floor is hidden in `paintWaypoints`.
+ */
+function paintBoardTabs(): void {
+  const single = layout.boards === 'single';
+  els.boardTabs.hidden = !single;
+  els.boardYou.setAttribute('aria-pressed', String(boardFocus === 'left'));
+  els.boardTarget.setAttribute('aria-pressed', String(boardFocus === 'right'));
+  stage.setFocus(single ? boardFocus : null);
+}
+
+/** Switch which board the single-board view shows, and repaint what depends on the choice. */
+function setBoardFocus(focus: 'left' | 'right'): void {
+  if (boardFocus === focus) return;
+  boardFocus = focus;
+  paintBoardTabs();
+  paintWaypoints();
+  draw();
+}
+
+/**
  * The captions over the boards, the paging buttons and the legend — from the SAME pair the stage draws, so the words
  * and the pictures cannot disagree about which waypoint is which.
  */
@@ -443,6 +479,12 @@ function paintWaypoints(): void {
   els.labelHere.title = here.hover;
   els.labelGoal.textContent = next.text;
   els.labelGoal.title = next.hover;
+  // ONE BOARD MEANS ONE CAPTION. The board that is not on the floor still has its caption in the DOM (the tabs name it),
+  // so hiding it here is what stops a label floating over a board nobody can see. The ghost layer is what keeps the
+  // comparison, not the caption.
+  const single = layout.boards === 'single';
+  els.labelHere.hidden = single && boardFocus !== 'left';
+  els.labelGoal.hidden = single && boardFocus !== 'right';
   // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the arrows are HIDDEN rather than shown disabled:
   // the smallest puzzle is two waypoints, and two grey arrows would advertise a route that does not exist.
   const paged = count > 2;
@@ -2719,6 +2761,8 @@ function main(): void {
   els.redo.addEventListener('click', redoDaily);
   els.waypointPrev.addEventListener('click', () => pageWaypoints(-1));
   els.waypointNext.addEventListener('click', () => pageWaypoints(1));
+  els.boardYou.addEventListener('click', () => setBoardFocus('left'));
+  els.boardTarget.addEventListener('click', () => setBoardFocus('right'));
   els.hint.addEventListener('click', () => void takeHint());
   els.giveUp.addEventListener('click', giveUpDaily);
   els.replayMine.addEventListener('click', () => playPanel('mine'));
@@ -2758,6 +2802,9 @@ function main(): void {
     document.documentElement.style.setProperty('--panel-size', `${layout.panelSize}px`);
     document.documentElement.dataset.panel = layout.panelSide;
     document.documentElement.dataset.mode = layout.mode;
+    // THE BOARD SWITCHER FOLLOWS THE LAYOUT, so a resize across the breakpoint adds or removes it with the framing.
+    paintBoardTabs();
+    paintWaypoints();
     applyInsets();
   };
   applyLayout();

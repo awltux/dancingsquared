@@ -104,15 +104,23 @@ console.log('\n== 4. the one duplicated number, checked against its source ==');
   check(!/#panel \{[^}]*height: \d+px/.test(CSS), 'and the sheet height is not written again in the stylesheet');
 }
 
-console.log('\n== 5. the boards are still a pair, and that is deliberate ==');
+console.log('\n== 5. one board on a narrow viewport, two above it ==');
 {
-  const phone = layoutFor(393, 852);
-  check(phone.boards === 'pair', 'a phone still draws both boards');
-  check(layoutFor(1440, 900).boards === 'pair', 'and so does a desktop');
-  // THE DAY THIS FLIPS: one board at a time needs the ghost layer, so `boards: 'single'` must arrive with it. This check
-  // fails first, which is the signal to add the ghost rule rather than a reason to delete the check.
-  check(phone.boards === 'pair' && layoutFor(768, 1024).boards === 'pair',
-    'no size asks for a single board yet (the ghost layer is what makes that safe)');
+  const narrow = layoutFor(NARROW_MAX_WIDTH - 1, 800);
+  const wide = layoutFor(NARROW_MAX_WIDTH, 800);
+  check(narrow.boards === 'single', `at ${NARROW_MAX_WIDTH - 1} px the stage shows ONE board (${narrow.boards})`);
+  check(wide.boards === 'pair', `at ${NARROW_MAX_WIDTH} px it shows both (${wide.boards})`);
+  check(layoutFor(1440, 900).boards === 'pair' && layoutFor(393, 852).boards === 'single',
+    'and the two ends of the range agree with the boundary');
+  // THE SINGLE BOARD IS ONLY SAFE WITH ITS GHOST, so the shell must actually ask for a focus and the pairing module must
+  // exist. This is what makes flipping `boards` a joint change rather than a one-line experiment: one board with no ghost
+  // is a puzzle the player cannot answer, and it would pass every number above.
+  const shell = fs.readFileSync(path.join(GAME, 'src', 'main.ts'), 'utf8');
+  check(/stage\.setFocus\(/.test(shell), 'the shell tells the stage which board to show');
+  check(fs.existsSync(path.join(GAME, 'src', 'render', 'ghost-pair.ts')),
+    'and the ghost layer that keeps the comparison on one board exists');
+  // NEGATIVE CONTROL: a shell with the call removed fails the first of those two, and nothing else in this probe.
+  check(!/setFocus\(/.test('const stageWithoutFocus = 1;'), 'a shell with no focus call would fail that check');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

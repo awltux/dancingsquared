@@ -24,6 +24,7 @@ import * as THREE from 'three';
 import { DancerView, buildBoardFloor, buildFlatMarker, createStage, displayCouple, type Stage } from 'dancing-squared-stage';
 import { computeHandholds, type Board, type Pose } from 'dancing-squared-engine';
 import { stillBoard } from '../game/poses.ts';
+import { ghostPoses, type GhostPose } from './ghost-pair.ts';
 import type { WaypointState } from '../puzzle/waypoint-pair.ts';
 import type { SequenceMotion } from '../puzzle/types.ts';
 import { slideOffsets } from './slide-math.ts';
@@ -94,6 +95,26 @@ const ARENA_PAD = 0.6;
 function arenaHalf(scale: number): number {
   return centreFor(scale) + 5 * scale + ARENA_PAD;
 }
+
+/**
+ * THE SAME QUESTION FOR ONE BOARD, which is what the single-board view frames: half a board plus the stage's own pad, at
+ * the centre. At the 2D scale that is `5 * 0.42 + 0.6 = 2.7` against the pair's 6.3 — the floor fills the canvas instead
+ * of a third of it, which is the whole point of showing one board.
+ */
+function singleHalf(scale: number): number {
+  return 5 * scale + ARENA_PAD;
+}
+
+/**
+ * HOW THE GHOST LAYER IS DRAWN, and the two opacities are the design: a ghost that marks a MOVE is a solid hint about
+ * where the dancer has to be, and one that sits under its own dancer (the `moved === false` case, `ghost-pair.ts`) is
+ * barely there, because drawing it at the same strength would read as a second body on the same spot. Neither is a
+ * measurement; both are chosen against the grid at the 2D scale, and `GHOST_Y` is above the floor's grid line and the
+ * outline's 0.02 so the three do not z-fight.
+ */
+const GHOST_MOVED_OPACITY = 0.42;
+const GHOST_STILL_OPACITY = 0.16;
+const GHOST_Y = 0.03;
 
 /**
  * Where two dancers' hands meet, in board units above the floor.
@@ -197,6 +218,8 @@ class BoardView {
   private readonly baseColor = new THREE.Color(OUTLINE_COLOR.solved);
   private ids: number[] = [];
   private flat = true;
+  /** The ghost layer: the OTHER board's dancers, drawn dim on this one. Empty in the pair view and in the 3D view. */
+  private ghosts: THREE.Group[] = [];
 
   constructor(scene: THREE.Scene, offsetX: number) {
     this.group.position.x = offsetX;
@@ -287,6 +310,48 @@ class BoardView {
   private applyVisibility(): void {
     for (const v of this.views) v.group.visible = !this.flat;
     for (const m of this.markers) m.visible = this.flat;
+    // THE GHOSTS ARE A 2D AID AND SAY SO: in the 3D view a dim avatar reads as a distant one rather than as a target, so
+    // the single-board view draws no ghost there. The plan's own rule, stated where it is enforced.
+    for (const g of this.ghosts) g.visible = this.flat;
+  }
+
+  /**
+   * Draw `ghosts` — the OTHER board's dancers, paired by `ghost-pair.ts` — on this board, or clear them with `null`.
+   *
+   * THE MARKERS ARE THE BOARD'S OWN PRIMITIVE (`buildFlatMarker`) with the board's own couple colouring (`displayCouple`),
+   * so a ghost is a dim copy of the body it belongs to rather than a different kind of dot: the player is comparing two
+   * pictures of the SAME eight dancers. The opacity is the only difference, and it carries `moved`: a ghost over a dancer
+   * who has not moved is nearly invisible, because it would otherwise double the body it sits on.
+   *
+   * REBUILT RATHER THAN PATCHED, and that is safe because the set is at most eight flat quads: the alternative is a
+   * mutable mapping from dancer id to marker that has to be maintained on every pair change, which is the kind of second
+   * bookkeeping this tree has learned to avoid.
+   */
+  setGhost(focused: Board | null, ghosts: readonly GhostPose[] | null): void {
+    for (const ghost of this.ghosts) this.group.remove(ghost);
+    this.ghosts.length = 0;
+    if (focused && ghosts) {
+      for (const ghost of ghosts) {
+        const dancer = focused.dancers[ghost.dancerIndex];
+        if (!dancer) continue;
+        const marker = buildFlatMarker(dancer.gender, displayCouple(dancer, ghost.dancerIndex));
+        marker.position.set(ghost.pose.x, GHOST_Y, -ghost.pose.y);
+        marker.rotation.y = ghost.pose.heading;
+        const opacity = ghost.moved ? GHOST_MOVED_OPACITY : GHOST_STILL_OPACITY;
+        marker.traverse((node) => {
+          const material = (node as THREE.Mesh).material;
+          if (!material) return;
+          for (const one of Array.isArray(material) ? material : [material]) {
+            one.transparent = true;
+            one.opacity = opacity;
+            one.depthWrite = false;
+          }
+        });
+        this.group.add(marker);
+        this.ghosts.push(marker);
+      }
+    }
+    this.applyVisibility();
   }
 
   /**
@@ -456,6 +521,9 @@ export class GameStage {
    */
   private celebration: { slot: 'left' | 'right'; startMs: number } | null = null;
 
+  /** Which board is shown alone, or `null` for the pair. See `setFocus`. */
+  private focus: 'left' | 'right' | null = null;
+
   constructor(canvas: HTMLCanvasElement) {
     // `floor: false` BECAUSE EACH BOARD BRINGS ITS OWN (see `BoardView`): the stage drawing one too would put
     // a third grid across both of them, which is the picture this change is fixing.
@@ -489,17 +557,57 @@ export class GameStage {
       board.setFlat(flat);
       board.setScale(scale);
     }
-    // THE SLOTS ARE RE-DERIVED, not left where the other view put them: at the 3D scale a board is wider than
-    // its 2D slot, so a constant offset overlaps the pair — see `centreFor`.
-    this.left.setOffset(-centre);
-    this.right.setOffset(centre);
-    this.incoming.setOffset(3 * centre);
-    // THE CAMERA IS TOLD WHAT TO FIT, per view: the two views use different board scales and so reach
-    // different distances from the centre. Without this the 3D view is framed for one floor and crops the
-    // outer half of each board — see `arenaHalf`.
-    this.stage.setFrameHalf(arenaHalf(scale));
+    this.applySlots();
     this.resize();
   }
+
+  /**
+   * WHICH BOARD THE STAGE SHOWS, or `null` for the pair. The shell asks for one board on a narrow viewport (`ui/layout.ts`
+   * answers `boards: 'single'` there) and for both on a wide one.
+   *
+   * THE PAIR IS STILL THE MODEL. A single-board view is a VIEW of the same pair: the focused board is drawn at the centre
+   * and the other one is hidden, and the hidden one's dancers come back as the ghost layer on the focused board
+   * (`ghostPair.ts`), so the comparison the puzzle is about survives being shown one board at a time. Nothing about the
+   * puzzle's state, the waypoint pair or the celebration changes — a solve still pulses the board it happened on.
+   *
+   * A SLIDE IS CANCELLED: the slide animates two slots past each other, and there is one slot here. The success pulse
+   * still fires on the board that was reached, so the change is not silent.
+   */
+  setFocus(focus: 'left' | 'right' | null): void {
+    if (focus === this.focus) return;
+    this.focus = focus;
+    this.cancelSlide();
+    this.applySlots();
+    if (this.pair) this.paint(this.pair.left, this.pair.right, this.pair.leftState, this.pair.rightState);
+  }
+
+  /**
+   * The resting slots, the framing that fits them, and what is visible.
+   *
+   * ONE PLACE FOR THE THREE, because a slot, a camera frame and a visibility flag that disagree is a board half off the
+   * canvas — the failure `centreFor` and `arenaHalf` were both introduced to fix.
+   */
+  private applySlots(): void {
+    const centre = centreFor(this.scale);
+    if (this.focus === null) {
+      this.left.setOffset(-centre);
+      this.right.setOffset(centre);
+      this.left.setVisible(true);
+      this.right.setVisible(true);
+      this.stage.setFrameHalf(arenaHalf(this.scale));
+    } else {
+      // ONE BOARD AT THE CENTRE: both groups sit on the centre line, so switching focus does not move the floor — only
+      // which of the two is drawn on it.
+      this.left.setOffset(0);
+      this.right.setOffset(0);
+      this.left.setVisible(this.focus === 'left');
+      this.right.setVisible(this.focus === 'right');
+      this.stage.setFrameHalf(singleHalf(this.scale));
+    }
+    this.incoming.setOffset(3 * centre);
+    this.incoming.setVisible(false);
+  }
+
 
 
   /**
@@ -529,7 +637,9 @@ export class GameStage {
     this.pair = pair;
     const solved = previous === null ? null : justSolved(reading(previous), reading(pair));
     const advanced = previous !== null && previous.leftIndex !== pair.leftIndex;
-    if (advanced && !prefersReducedMotion()) {
+    // A SLIDE NEEDS TWO SLOTS, so the single-board view does not slide: the focused board is in the only slot there is,
+    // and what it shows has already changed. The success pulse below still fires, which is the part the player needs.
+    if (advanced && !prefersReducedMotion() && this.focus === null) {
       // THE SLIDE OWNS THE CELEBRATION. The solved board is still in the RIGHT slot when the slide begins, and
       // `commitSlide` moves the pulse to the left slot when the roles rotate, so there is one celebration and it does
       // not restart halfway.
@@ -642,21 +752,34 @@ export class GameStage {
     this.pair = null;
   }
 
-  /** The two resting slots, and the incoming board parked off to the right and hidden. */
+  /** The resting slots, and the incoming board parked off to the right and hidden. One place for the three — see `applySlots`. */
   private restSlots(): void {
-    const centre = centreFor(this.scale);
-    this.left.setOffset(-centre);
-    this.right.setOffset(centre);
-    this.incoming.setOffset(3 * centre);
+    this.applySlots();
     this.incoming.setVisible(false);
   }
 
-  /** Draw one board in each slot, with its border. */
+  /**
+   * Draw the pair, and — in the single-board view — the ghost of the board that is not on the floor.
+   *
+   * THE GHOST IS PAIRED BY DANCER IDENTITY (`ghost-pair.ts`), so the dim marker each dancer carries is THEIR OWN target
+   * and not the target of whatever dancer happens to share their index. The focused board is the one the viewer is
+   * looking at; the other is hidden by `applySlots`, and this is what puts its information back on the floor.
+   */
   private paint(left: Board, right: Board, leftState: WaypointState, rightState: WaypointState): void {
     this.left.draw(left, stillBoard(left), WALK_STILL);
     this.left.setOutline(leftState);
     this.right.draw(right, stillBoard(right), WALK_STILL);
     this.right.setOutline(rightState);
+    if (this.focus === 'left') {
+      this.left.setGhost(left, ghostPoses(left, right));
+      this.right.setGhost(null, null);
+    } else if (this.focus === 'right') {
+      this.right.setGhost(right, ghostPoses(right, left));
+      this.left.setGhost(null, null);
+    } else {
+      this.left.setGhost(null, null);
+      this.right.setGhost(null, null);
+    }
   }
 
   /**

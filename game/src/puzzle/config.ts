@@ -185,12 +185,16 @@ export const ATTEMPT_PENALTY = 0.25;
 export const MIN_RUN_SCORE = 1;
 
 /**
- * How long one beat of a dance takes on screen, in milliseconds.
+ * How long one beat of a dance takes on screen, in milliseconds: 120 beats a minute.
  *
- * The POC's `MS_PER_BEAT` (500, i.e. 120 beats a minute), reused rather than re-chosen: the panel that
- * authors these calls plays them at this tempo, and an animation that ran at a different one would make the
- * same call look like two different dances in one app. It is the ONLY place a beat is related to a
- * millisecond — `ui/playhead.ts` reads it and nothing else does.
+ * THE POC'S TEMPO, reused rather than re-chosen: the panel that authors these calls plays them at this value, and an
+ * animation that ran at a different one would make the same call look like two different dances in one app. It is NOT
+ * the only place a beat meets a millisecond, and the sentence that used to say so was wrong: the POC's own
+ * `sequencer-ui.ts` declares its copy privately, and the teacher previews at 64 bpm by DERIVING its beat length from a
+ * named `PREVIEW_BPM`. Two apps with separate build roots cannot share a constant they both need before either one's
+ * pure core is loadable (`dancing-squared-stage`, the only shared package, re-exports `three`), so the copies are
+ * unavoidable and `poc/tools/tempo-probe.mjs` is the gate that keeps them equal - it fails if either number moves
+ * alone, and it is the reason the two comments can no longer disagree.
  */
 export const MS_PER_BEAT = 500;
 

@@ -107,6 +107,10 @@ interface ParallelEntry {
   active: number;
 }
 
+// THE SAME TEMPO AS THE GAME'S `MS_PER_BEAT` (500 ms, 120 beats a minute), and a COPY on purpose: the game's copy
+// lives in its pure puzzle core, which cannot import the one package the two apps share (`dancing-squared-stage`
+// re-exports `three`). Two numbers kept equal by a sentence was the defect TODO item 49 filed; they are kept equal by
+// `poc/tools/tempo-probe.mjs`, which compares the two declarations and fails when one moves without the other.
 const MS_PER_BEAT = 500;
 
 /**

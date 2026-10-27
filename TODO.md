@@ -510,18 +510,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
   pass, not a sweep: for each, does the number answer "the same after a file" (then it is the engine's) or "close
   enough for THIS measurement" (then it stays, with the reason in place)?
 
-- [ ] **49. `MS_PER_BEAT` IS DECLARED TWICE AND DERIVED A THIRD TIME - AND THE GAME'S COMMENT SAYS IT IS REUSED.** `[measured]`
-  `game/src/puzzle/config.ts:195` exports `MS_PER_BEAT = 500` under a comment saying "The POC's `MS_PER_BEAT` (500,
-  i.e. 120 beats a minute), reused rather than re-chosen", and `poc/src/sequencer-ui.ts:104` declares its OWN private
-  `const MS_PER_BEAT = 500` with no import in either direction. MEASURED, `git grep -n MS_PER_BEAT`: the two
-  declarations, the game's consumers (`game/src/ui/playhead.ts` and `game/test/playhead-probe.mjs`), and
-  `poc-teacher/src/preview.ts:110`, which derives `60000 / PREVIEW_BPM` because the teacher previews at its own tempo.
-  So a sentence is the only thing keeping two app constants equal — the copy-without-a-gate failure `AGENTS.md`
-  §11.2.9 names. **The fix is a decision about ownership before it is code**: the engine owns beats (and
-  `SIGNATURE_DIVISOR` already sits in `sequencer/constants.ts`), but a playback tempo is presentation, so either one
-  owner plus an injectable BPM, or two copies plus a probe that compares them. `square-dancing.md:3278` states the
-  number as a convention, so it moves with whichever decision is taken.
-
 - [ ] **50. THE GAME'S TWO `corpusCalls()` LOADERS ARE DELIBERATE TWINS, AND THEIR POOLING HALF IS THE DUPLICATE.** `[measured]`
   `game/src/data/assets.ts` (57 lines) enumerates the corpus through Vite's `import.meta.glob`;
   `game/src/data/corpus-node.ts` (156 lines) goes through `filesOf`/`readFile` from `dancing-squared-corpus`. Both

@@ -29,7 +29,7 @@ export const MIN_COLUMNS = 6;
 export const MAX_COLUMNS = 12;
 
 /** One drill's place on the path, as a percentage of the container on each axis. */
-export interface MapNode {
+interface MapNode {
   /** The drill's position in the block, so a caller can index the state by it. */
   readonly index: number;
   /** 0–100, the centre of the node across its container. */
@@ -42,7 +42,7 @@ export interface MapNode {
 }
 
 /** A whole path: its shape and its nodes. */
-export interface LevelMap {
+interface LevelMap {
   readonly columns: number;
   readonly rows: number;
   readonly nodes: readonly MapNode[];

@@ -2860,6 +2860,16 @@ function main(): void {
   // THE FIRST DRILL THEN WAITS FOR THE IDENTITY: with a server, `bootAccount` learns the mode and applies it, which
   // is what issues the drill with an identity the browser is allowed to send; offline there is nothing to learn and
   // the fixture's drill is issued here.
+  // THE INSTALLABLE APP: THE SERVICE WORKER IS REGISTERED IN A BUILT BUNDLE ONLY. In development it would sit between
+  // Vite's module graph and the page, caching the very URLs the dev server rewrites — import.meta.env.PROD is the guard
+  // rather than a check for a hostname. Registration is BEST-EFFORT: a browser that refuses (a ile:// build, a private
+  // window with storage blocked) loses nothing, because the game is offline-capable without it and says so in index.html.
+  if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      void navigator.serviceWorker.register('./sw.js').catch(() => undefined);
+    });
+  }
+
   requestAnimationFrame(frame);
   if (apiConfigured()) void bootAccount();
   else applyMode('drill');

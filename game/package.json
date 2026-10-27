@@ -23,6 +23,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "verify": "node tools/verify-probes.mjs",
+    "icons": "node tools/make-icons.mjs",
     "measure": "node tools/measure-ladder.mjs"
   },
   "dependencies": {

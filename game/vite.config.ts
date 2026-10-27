@@ -2,21 +2,23 @@ import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { corpusAlias } from '../vite.corpus.ts';
+import { engineAlias } from '../vite.engine.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-// CARRIED OVER FROM `poc/vite.config.ts`, AND FOR THE SAME REASON IT IS THERE.
+// CARRIED OVER FROM `poc/vite.config.ts` — AND THE REASON NOW LIVES WHERE THE MAP DOES (`vite.engine.ts`).
 //
 // The alias is not (only) about resolution: it is about there being ONE INSTANCE of the engine. The
 // engine injects a global DOMParser (`setParser`) and keeps module-level state, so a bundle that ends up
 // with two copies — one resolved from this package's `node_modules`, one from the workspace's — can
 // behave as two engines that agree on nothing. Pointing the specifier at the sibling workspace's built
-// `dist` makes every importer, including `dancing-squared-stage`, share one module instance.
+// `dist` makes every importer, including `dancing-squared-stage`, share one module instance. The map
+// carries the six subpath entries as well as the bare specifier, so a consumer can import a tier.
 export default defineConfig({
   root: '.',
   base: './',
   resolve: {
-    alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js'), ...corpusAlias },
+    alias: { ...engineAlias, ...corpusAlias },
   },
   server: {
     port: 8089,

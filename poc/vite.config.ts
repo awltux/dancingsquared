@@ -3,6 +3,7 @@ import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { corpusAlias } from '../vite.corpus.ts';
+import { engineAlias } from '../vite.engine.ts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,9 +41,10 @@ export default defineConfig({
   // farm and never appears, leaving the app importing a module that does not exist. The failure is
   // confusing precisely because most of the engine is current. Pointing at the sibling workspace
   // makes this app always build against the engine it lives beside, which is what the repo's npm
-  // workspaces layout intends.
+  // workspaces layout intends. `engineAlias` also carries the six SUBPATH entries and says why the
+  // alias is about one engine instance rather than only about resolution.
   resolve: {
-    alias: { 'dancing-squared-engine': path.resolve(here, '..', 'engine', 'dist', 'index.js'), ...corpusAlias },
+    alias: { ...engineAlias, ...corpusAlias },
   },
   server: {
     port: 5173,

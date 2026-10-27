@@ -48,6 +48,7 @@ import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedul
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type StagePair, type ViewMode } from './render/stage-view.ts';
 import { applyTheme } from './ui/theme.ts';
+import { layoutFor, type Layout } from './ui/layout.ts';
 import { waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
 import { boardCaption } from './puzzle/caption.ts';
 import { replayLine, callAt, type ReplayLine } from './puzzle/replay-line.ts';
@@ -258,6 +259,13 @@ let drillIssuedAtMs = 0;
 let drillOptions: string[] = [];
 
 let lastFrameMs = 0;
+
+/**
+ * THE SHELL'S SHAPE FOR THE CURRENT VIEWPORT — the one answer `ui/layout.ts` gives, used by the board framing and (as
+ * custom properties) by the stylesheet. A default is set here so the first paint has a shape before `main()` measures
+ * the window; the desktop default is the one the game has always had.
+ */
+let layout: Layout = layoutFor(1440, 900);
 
 const els = {
   labelHere: el('labelHere'),
@@ -2719,20 +2727,44 @@ function main(): void {
   els.practice.addEventListener('click', startPractice);
   els.startOver.addEventListener('click', startOver);
 
-  // FRAME THE BOARDS IN THE SPACE THE PANEL LEAVES, not under it. MEASURED FROM THE ELEMENT rather than
-  // hard-coded, because the panel is content-sized: a fixed number here would be correct until a call name
-  // wrapped to two lines and then quietly wrong. The ResizeObserver is the POC's arrangement, and it is what
-  // keeps the two in step when the panel changes height without the window changing size at all.
+  // FRAME THE BOARDS IN THE SPACE THE PANEL LEAVES, not under it — and IN THE SHAPE THE VIEWPORT GIVES US.
+  //
+  // MEASURED FROM THE ELEMENTS rather than hard-coded, because the panel is content-sized: a fixed number here would be
+  // correct until a call name wrapped to two lines and then quietly wrong. THE SIDE COMES FROM `ui/layout.ts`, because
+  // the formula this replaces (`left: rect.right + 8`) can only describe a panel pinned to the left edge, which is the
+  // desktop-only assumption the phone layout removes: on a phone the panel is a sheet across the bottom and the boards
+  // must be framed in the height above it.
   const panel = document.getElementById('panel');
+  const canvasEl = document.getElementById('stage') as HTMLCanvasElement | null;
   const applyInsets = (): void => {
     const rect = panel?.getBoundingClientRect();
-    stage.setViewInsets({ left: rect ? rect.right + 8 : 0 });
+    const canvas = canvasEl?.getBoundingClientRect();
+    if (!rect || !canvas) {
+      stage.setViewInsets({});
+    } else if (layout.panelSide === 'bottom') {
+      stage.setViewInsets({ bottom: Math.max(0, canvas.bottom - rect.top + 8) });
+    } else {
+      stage.setViewInsets({ left: Math.max(0, rect.right - canvas.left + 8) });
+    }
     draw();
   };
-  applyInsets();
+  /**
+   * THE SHELL'S SHAPE, from the one rule that decides it. The numbers go onto the document as custom properties so the
+   * stylesheet positions the panel from the SAME answer the stage insets itself by — the alternative is a media query
+   * and a script that disagree by one pixel and a board half under the panel.
+   */
+  const applyLayout = (): void => {
+    layout = layoutFor(window.innerWidth, window.innerHeight);
+    document.documentElement.style.setProperty('--panel-size', `${layout.panelSize}px`);
+    document.documentElement.dataset.panel = layout.panelSide;
+    document.documentElement.dataset.mode = layout.mode;
+    applyInsets();
+  };
+  applyLayout();
   if (panel && typeof ResizeObserver !== 'undefined') new ResizeObserver(applyInsets).observe(panel);
 
   window.addEventListener('resize', () => {
+    applyLayout();
     stage.resize();
     draw();
   });

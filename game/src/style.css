@@ -4,15 +4,19 @@
  * teachers target "an older audience, so it must be easy to read, tap, and understand"). So: large type, big
  * targets, high contrast, and no hover-only affordances — every control is a real button a touch can hit.
  *
- * THE CANVAS IS THE BACKDROP AND THE PANEL FLOATS OVER IT, the same arrangement as the POC, with the panel on
- * the left. The stage frames the floor around the space that is left, so the panel's WIDTH IS A FACT THE
- * LAYOUT DEPENDS ON — hence a fixed width rather than a content-sized one. */
+ * THE CANVAS IS THE BACKDROP AND THE PANEL FLOATS OVER IT, the same arrangement as the POC — as a COLUMN on the left of
+ * a wide viewport and as a SHEET across the bottom of a narrow one, which is the whole of the phone layout. The stage
+ * frames the floor around the space that is left, so the panel's SIZE IS A FACT THE LAYOUT DEPENDS ON; that size is
+ * `ui/layout.ts`'s decision, applied as `--panel-size` by the shell, and the one media query at the foot of this file
+ * carries the breakpoint and is checked against that module by `game/test/layout-probe.mjs`. */
 :root {
   /* THE TOKENS ARE INJECTED AT BOOT by `ui/theme.ts` (`applyTheme`): the colours, radii and durations live in ONE
      table that the stylesheet, the stage (a WebGL material cannot read a custom property) and the probes all read,
-     so nothing in this file repeats a value. What stays here is the layout number this file owns and the root type
-     size the scale is relative to. */
-  --panel: 340px;
+     so nothing in this file repeats a value. What stays here is the panel's size and the root type size the scale is
+     relative to. THE PANEL'S SIZE HAS A DEFAULT HERE BECAUSE THE SHELL REPLACES IT: `ui/layout.ts` decides it — a width
+     on the left of a wide viewport, a height at the bottom of a narrow one — and `main.ts` writes it at boot, so this
+     declaration is what the FIRST paint, before any script runs, uses. */
+  --panel-size: 340px;
   font-size: 18px;
 }
 
@@ -31,7 +35,11 @@ body {
 
 #app {
   position: relative;
+  /* A MOBILE BROWSER'S CHROME IS NOT PART OF ITS VIEWPORT: `100%` resolves against the SMALL viewport, so a full-height
+     app sits under the address bar until the toolbar collapses. `100dvh` is the dynamic one; the percentage above it is
+     the fallback for a browser without `dvh`. */
   height: 100%;
+  height: 100dvh;
   width: 100%;
 }
 
@@ -48,7 +56,7 @@ body {
   top: 0;
   left: 0;
   height: 100%;
-  width: var(--panel);
+  width: var(--panel-size);
   padding: 20px 20px 28px;
   overflow-y: auto;
   background: var(--panel-bg);
@@ -771,11 +779,11 @@ button[data-busy="true"]::after {
    by the panel's width, so the two board centres sit at those fractions of what is left. The panel's width is
    the `--panel` custom property, so the labels and the stage's inset read the same number. */
 #labelHere {
-  left: calc(var(--panel) + (100% - var(--panel)) * 0.25);
+  left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.25);
 }
 
 #labelGoal {
-  left: calc(var(--panel) + (100% - var(--panel)) * 0.75);
+  left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.75);
 }
 
 /* THE WAYPOINT PAGING. Two edge buttons over the canvas, because they move what is drawn on it.
@@ -824,7 +832,7 @@ button[data-busy="true"]::after {
 /* THE OUTERMOST EDGES OF THE SPACE THE PANEL LEAVES, so the arrows frame the two boards rather than sitting under
    the panel or over a dancer. */
 .wp-prev {
-  left: calc(var(--panel) + 10px);
+  left: calc(var(--panel-size) + 10px);
 }
 
 .wp-next {
@@ -836,7 +844,7 @@ button[data-busy="true"]::after {
 #waypointLegend {
   position: absolute;
   top: 42px;
-  left: calc(var(--panel) + (100% - var(--panel)) * 0.5);
+  left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.5);
   transform: translateX(-50%);
   margin: 0;
   font-size: 0.9rem;
@@ -910,4 +918,67 @@ button[data-busy="true"]::after {
   border-left: 3px solid var(--accent);
   margin-left: -0.5em;
   padding-left: 0.4em;
+}
+
+/* ===================================================================================================================
+   THE NARROW VIEWPORT: THE PANEL BECOMES A SHEET ACROSS THE BOTTOM.
+   ===================================================================================================================
+   THIS IS THE ONE MEDIA QUERY IN THE FILE, and it is a MIRROR of `ui/layout.ts` rather than a second decision: the
+   breakpoint is that module's `NARROW_MAX_WIDTH - 1`, its height is the `--panel-size` the shell writes, and
+   `game/test/layout-probe.mjs` reads this block and fails if either number drifts. A stylesheet cannot import a
+   TypeScript constant; a duplicated constant that a probe checks against its source is not a second definition.
+
+   WHY 899 AND NOT 900: `max-width` is inclusive, so 899 is the widest viewport that is still narrow, which is what
+   `layoutFor(899, …)` answers. MEASURED at 393 x 852 the sheet is 392 px tall and the boards get the 460 px above it,
+   where the old 340 px column left them 53 px each. */
+@media (max-width: 899px) {
+  #panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: var(--panel-size, 380px);
+    border-right: none;
+    border-top: 1px solid var(--line);
+    border-radius: var(--r-card) var(--r-card) 0 0;
+    /* A PHONE'S SAFE AREA IS NOT PADDING: the home indicator and a rounded corner would otherwise sit on top of the last
+       control, which on this layout is the primary one. */
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+
+  /* THE BOARD CAPTIONS MOVE WITH THE BOARDS. On the desktop they are placed across the width left by the column; here
+     the column is a sheet, so they are centred on each half of the full width, above the sheet. */
+  #labelHere {
+    left: 25%;
+    top: calc(10px + env(safe-area-inset-top));
+  }
+
+  #labelGoal {
+    left: 75%;
+    top: calc(10px + env(safe-area-inset-top));
+  }
+
+  /* THE WAYPOINT ARROWS WERE A DESKTOP SIZE. `clamp(220px, 38vh, 420px)` tall is most of a phone's board area, and 64 px
+     wide leaves the pair barely 130 px each. 44 px is the touch minimum and `24vh` keeps them beside the boards rather
+     than over them. */
+  .wp-nav {
+    width: 44px;
+    height: clamp(160px, 24vh, 240px);
+    font-size: 2rem;
+    border-radius: var(--r-control);
+  }
+
+  .wp-prev {
+    left: 4px;
+  }
+
+  .wp-next {
+    right: 4px;
+  }
+
+  #waypointLegend {
+    top: calc(46px + env(safe-area-inset-top));
+    font-size: 0.85rem;
+  }
 }

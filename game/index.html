@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- `viewport-fit=cover` IS WHAT LETS THE SHEET REACH THE EDGE: without it a phone letterboxes the page inside its
+         rounded corners and safe areas, and `env(safe-area-inset-*)` — which the narrow layout's sheet padding uses — is
+         zero. The width stays `device-width`, so no zoom is disabled and the page is not a fixed-width canvas. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- The browser chrome's own colour, so a phone's toolbar does not sit above a white bar; the same value as `--bg`. -->
+    <meta name="theme-color" content="#0b1016" />
     <title>Dancing Squared</title>
     <link rel="stylesheet" href="/src/style.css" />
     <!-- THE APP IS OFFLINE BY DESIGN (AGENTS.md §6): no font CDN, no analytics, no stylesheet from a

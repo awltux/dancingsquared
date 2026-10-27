@@ -104,13 +104,13 @@ export function taminationTitle(xml: string): string | null {
 }
 
 /** One corpus file, already read: its name for a message and its bytes. */
-export interface CorpusFileText {
+interface CorpusFileText {
   file: string;
   xml: string;
 }
 
 /** One pooled call: a TITLE, and the FILE's bytes to register under it. */
-export interface PooledCall {
+interface PooledCall {
   name: string;
   xml: string;
   file: string;

@@ -23,13 +23,13 @@
 import type { RunRecord } from './store.ts';
 
 /** How many days running the Daily has been solved, and whether that includes today. */
-export interface Streak {
+interface Streak {
   days: number;
   today: boolean;
 }
 
 /** The device's own totals. Every field is derived from the records; nothing is stored separately. */
-export interface Stats {
+interface Stats {
   streak: Streak;
   /** Drill runs recorded — one per solved drill, which is what "x drills" means to the player. */
   drills: number;

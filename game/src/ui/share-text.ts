@@ -16,7 +16,7 @@
 // `game/test/share-text-probe.mjs` pins the exact string for each shape.
 
 /** What a share line needs from a finished run. */
-export interface ShareParts {
+interface ShareParts {
   /** 1–3, the rank the result card gave the run. A run with no rank has nothing to share. */
   stars: number;
   score: number;

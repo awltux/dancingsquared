@@ -20,7 +20,11 @@ import { generatePuzzle } from '../src/puzzle/generator.ts';
 import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { DAILY_WAYPOINTS_MAX, DAILY_WAYPOINTS_MIN, dailySpec, dailyWaypointsFor, levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
-import { arrangementKey, waypointBoards, waypointReached } from '../src/puzzle/arrangement.ts';
+import { sameArrangement, waypointBoards, waypointReached } from '../src/puzzle/arrangement.ts';
+import { boardMatchables, geometryKey } from 'dancing-squared-engine';
+
+/** THE BUCKET KEY, exactly as it was: this probe still measures what the KEY does, beside what the relation does. */
+const arrangementKey = (board) => geometryKey(boardMatchables(board));
 import { PlaySession } from '../src/puzzle/session.ts';
 import { applierFor } from '../src/data/corpus-node.ts';
 
@@ -33,7 +37,6 @@ const check = (cond, msg) => {
 const LEVEL = levelSpec(1);
 const spec = dailySpec(LEVEL);
 const { applier } = applierFor(poolFor(LEVEL, MAIN_POOL), LEVEL.poolSize);
-const KEYS = (boards) => boards.map(arrangementKey);
 const WAYPOINTS = dailyWaypointsFor(LEVEL);
 
 console.log('== 1. the count is the LEVEL\'S, on every seed ==');
@@ -52,12 +55,13 @@ console.log('== 1. the count is the LEVEL\'S, on every seed ==');
     if (!built.ok) continue;
     ok++;
     const puzzle = built.puzzle;
-    const keys = KEYS(puzzle.path);
     const waypoints = waypointBoards(puzzle.path);
     counts.add(waypoints.length);
     if (waypoints.length === WAYPOINTS) exact++;
-    if (keys.every((key, j) => j === 0 || key !== keys[j - 1])) stagesNew++;
-    if (arrangementKey(puzzle.goal) !== arrangementKey(puzzle.start)) goalDiffers++;
+    // THE STAGE TEST IS THE RELATION NOW, not the key: a stage that lands within the tolerance is the arrangement it
+    // left, which is what the player sees and what the walk refuses.
+    if (puzzle.path.every((board, j) => j === 0 || !sameArrangement(board, puzzle.path[j - 1]))) stagesNew++;
+    if (!sameArrangement(puzzle.goal, puzzle.start)) goalDiffers++;
     if (applier.formationOf(puzzle.goal) !== null) goalIsFormation++;
     if (puzzle.shortest === puzzle.solution.length && puzzle.shortest === waypoints.length - 1) parIsCalls++;
     if (puzzle.steps.length === 0) noSteps++;
@@ -86,9 +90,9 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
   const built = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec, 'daily'), 5131, spec, applier);
   check(built.ok, `the probe's own seed generates${built.ok ? '' : `: ${built.reason}`}`);
   const puzzle = built.puzzle;
-  const keys = waypointBoards(puzzle.path).map(arrangementKey);
+  const waypoints = waypointBoards(puzzle.path);
   const session = new PlaySession(puzzle, applier);
-  const progress = (s) => waypointReached(keys.slice(1), s.playedBoards().map(arrangementKey));
+  const progress = (s) => waypointReached(waypoints.slice(1), s.playedBoards());
 
   check(session.atGoal() === false, 'standing on the start is not a win');
   const rises = [];
@@ -101,7 +105,7 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
 
   // UNDO REWINDS THE WIN, because the count is derived from the move stack rather than stored beside it.
   session.undo();
-  check(!session.atGoal() && progress(session) === keys.length - 2, `an undo takes the win and the last waypoint back (${progress(session)} of ${keys.length - 1})`);
+  check(!session.atGoal() && progress(session) === waypoints.length - 2, `an undo takes the win and the last waypoint back (${progress(session)} of ${waypoints.length - 1})`);
   session.redo();
   check(session.atGoal(), 'and a redo restores both');
 
@@ -114,13 +118,14 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
     // than it could not be played, so it could not be a shortcut either. The BOARDS are carried because the waypoint
     // count is over arrangements, and a line that happens to pass every waypoint is a solution rather than a shortcut.
     const goalKey = arrangementKey(puzzle.goal);
+    // THE GOAL TEST IS THE RELATION, not the key: a line that lands inside the tolerance HAS reached the goal (sameArrangement), which is what the player sees.
     const frontier = [{ calls: [], boards: [puzzle.start] }];
     const seen = new Set([arrangementKey(puzzle.start)]);
     while (frontier.length && !shortcut) {
       const node = frontier.shift();
       const board = node.boards[node.boards.length - 1];
-      if (node.calls.length > 0 && arrangementKey(board) === goalKey) {
-        if (waypointReached(keys.slice(1), node.boards.map(arrangementKey)) < keys.length - 1) shortcut = node.calls;
+      if (node.calls.length > 0 && sameArrangement(board, puzzle.goal)) {
+        if (waypointReached(waypoints.slice(1), node.boards) < waypoints.length - 1) shortcut = node.calls;
         continue;
       }
       if (node.calls.length >= session.allowance - 1) continue;
@@ -136,8 +141,8 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
   if (shortcut) {
     const jumped = new PlaySession(puzzle, applier);
     for (const call of shortcut) jumped.play(call);
-    check(arrangementKey(jumped.board) === arrangementKey(puzzle.goal), 'the shortcut really does land on the goal\'s arrangement');
-    check(!jumped.atGoal(), `NEGATIVE CONTROL: and it does NOT win, because it passed ${progress(jumped)} of ${keys.length - 1} waypoints — the goal-board rule would have won it here`);
+    check(sameArrangement(jumped.board, puzzle.goal), 'the shortcut really does land on the goal\'s arrangement');
+    check(!jumped.atGoal(), `NEGATIVE CONTROL: and it does NOT win, because it passed ${progress(jumped)} of ${waypoints.length - 1} waypoints — the goal-board rule would have won it here`);
   }
 }
 
@@ -159,9 +164,9 @@ console.log('\n== 4. the hint aims at the NEXT waypoint ==');
 {
   const built = generatePuzzle(generatorConfigFor(MAIN_POOL.version, spec, 'daily'), 2026_10_17, spec, applier);
   const puzzle = built.puzzle;
-  const keys = waypointBoards(puzzle.path).map(arrangementKey);
+  const waypoints = waypointBoards(puzzle.path);
   const session = new PlaySession(puzzle, applier);
-  const progress = (s) => waypointReached(keys.slice(1), s.playedBoards().map(arrangementKey));
+  const progress = (s) => waypointReached(waypoints.slice(1), s.playedBoards());
   let advanced = 0;
   let named = 0;
   for (let step = 0; step < puzzle.solution.length; step++) {
@@ -184,7 +189,7 @@ console.log('\n== 4. the hint aims at the NEXT waypoint ==');
   check(spent.hint() === null, 'a run with no calls left has no hint to give');
 }
 
-console.log('\n== 5. the key is the ARRANGEMENT, not the board object ==');
+console.log('\n== 5. the KEY is the ARRANGEMENT, not the board object — and it is NOT the goal test ==');
 {
   const start = makeSquaredSet();
   check(arrangementKey(start) === arrangementKey(makeSquaredSet()), 'two independently built squared sets share a key');
@@ -195,11 +200,15 @@ console.log('\n== 5. the key is the ARRANGEMENT, not the board object ==');
   // THE OTHER HALF, AND IT IS THE FACT THE WHOLE DESIGN RESTS ON: a call can leave the arrangement you were in — the same
   // key, a different board. That is "many calls end up in the same place", and it is why the key is coarser than the
   // board (and coarser than the pose): two different calls satisfy the same waypoint.
-  const sameArrangement = readings.filter((r) => arrangementKey(r.board) === arrangementKey(start) && pose(r.board) !== pose(start));
-  check(sameArrangement.length > 0, `and ${sameArrangement.length} leave the SAME arrangement on a DIFFERENT board (e.g. "${sameArrangement[0]?.call}"), so a waypoint is an arrangement rather than a pose`);
-  check(arrangementKey(start) !== arrangementKey(elsewhere[0].board) && arrangementKey(start) === arrangementKey(sameArrangement[0].board), 'and the key separates exactly those two cases');
+  const sameKeyReadings = readings.filter((r) => arrangementKey(r.board) === arrangementKey(start) && pose(r.board) !== pose(start));
+  check(sameKeyReadings.length > 0, `and ${sameKeyReadings.length} leave the SAME arrangement on a DIFFERENT board (e.g. "${sameKeyReadings[0]?.call}"), so a waypoint is an arrangement rather than a pose`);
+  check(arrangementKey(start) !== arrangementKey(elsewhere[0].board) && arrangementKey(start) === arrangementKey(sameKeyReadings[0].board), 'and the key separates exactly those two cases');
+  // AND THE KEY IS NOT THE GOAL TEST, which is the point of the section beside it: it quantises, so a board the matcher
+  // would call congruent can key apart. `sameArrangement` is the relation the game asks; the key is kept here because
+  // the difference between the two IS the measurement.
+  check(sameArrangement(start, makeSquaredSet()), 'the relation agrees with the key where the boards are identical');
   // THE KEY IS THE ENGINE'S OWN QUOTIENT (`geometryKey` over `boardMatchables`), so this probe does NOT re-test
-  // rotation invariance — `engine/test/cells.mjs` does, and a second test here would be a second implementation.
+  // rotation invariance — `engine/test/congruence.mjs` does, and a second test here would be a second implementation.
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

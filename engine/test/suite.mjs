@@ -334,6 +334,12 @@ export const SUITE = [
   // that an MS deny PLUS contradicts is lifted at PLUS, and that this is PICKER-ONLY - `applyToBoard`
   // still applies the suppressed call. Pure logic plus one board: <1s.
   { h: 'permissions', light: true },
+  // THE ENGINE'S CONGRUENCE TEST, and the number a caller's tolerance must stay under. `geometryKey` is a BUCKET,
+  // so two boards the matcher would call congruent can key apart; `congruenceOf` measures how far apart they are
+  // (`matchFormations`' `maxDancerError`, 0.5 per radian of facing) and this pins it: the symmetries are 0 apart,
+  // one dancer 0.036 off is congruent at 0.1 while 0.3 off is not, and THE CLOSEST TWO DISTINCT ARRANGEMENTS IN THE
+  // CORPUS are pinned so the game's tolerance cannot quietly grow past them. ~2s, so it is in `light`.
+  { h: 'congruence', light: true },
   // THE PERMISSION LAYER AS AN APPLY GATE, which is the half `permissions.mjs` cannot see. Pins that the DEFAULT is
   // still the picker-only contract (the engine applies what the picker suppresses), that `permissionMode:
   // 'consistent'` makes `applyToBoard` refuse it with the RULE's own reason, that a named-GROUP reading the rules

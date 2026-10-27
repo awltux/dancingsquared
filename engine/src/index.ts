@@ -172,7 +172,7 @@ export { partitionsFor, MIXED_PARTITION_CAP } from './sequencer/applicator.js';
 // The CELL vocabulary: a board's identity as a cell of a finite DECLARED lattice. Exported for the
 // census that measures the reachable-vs-declared split; see `cells.ts` for why a declared lattice,
 // not All8's FASR letters, is what bounds the FSM's node set.
-export { geometryKey, buildCellLattice, boardMatchables, CELL_ROUND } from './sequencer/cells.js';
+export { geometryKey, buildCellLattice, boardMatchables, CELL_ROUND, congruenceOf, congruentWithin, CONGRUENCE_SIGNATURE_MAX } from './sequencer/cells.js';
 export type { BoardCell, CellGeometry, CellLattice } from './sequencer/cells.js';
 export { analyzeFasr } from './sequencer/fasr.js';
 // All8's call notation (abbreviation table, tokenizer, line decoder) - the shared vocabulary behind

@@ -18,7 +18,7 @@
 // has been answered correctly.
 
 import { sameBoardById, type Board } from 'dancing-squared-engine';
-import { arrangementKey, waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
+import { waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
 import type { Puzzle, PuzzleOption, PuzzleStep } from '../puzzle/types.ts';
 
 type AnswerKind = 'correct' | 'wrong' | 'illegal';
@@ -147,13 +147,12 @@ export class DrillController {
     }
     // THE WAYPOINTS COME FROM THE ROUTE, and the progress table from the same route: a waypoint is a FORMATION, so
     // a stage that does not change the formation does not gain one. The drill only accepts the correct option, so
-    // the boards the player has stood on after `i` steps are exactly `path.slice(0, i + 1)`.
+    // the boards the player has stood on after `i` steps are exactly `path.slice(0, i + 1)`. The comparison is the
+    // game's `sameArrangement` (the engine's congruence at `ARRANGEMENT_TOL`), not a quantised key — see that module.
     this.waypointList = waypointBoards(puzzle.path);
-    const waypointKeys = this.waypointList.map(arrangementKey);
-    const routeKeys = puzzle.path.map(arrangementKey);
     const progressAtStep: number[] = [];
     for (let i = 0; i <= puzzle.steps.length; i++) {
-      progressAtStep.push(waypointReached(waypointKeys.slice(1), routeKeys.slice(0, i + 1)));
+      progressAtStep.push(waypointReached(this.waypointList.slice(1), puzzle.path.slice(0, i + 1)));
     }
     this.progressAtStep = progressAtStep;
   }

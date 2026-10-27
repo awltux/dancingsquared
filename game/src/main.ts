@@ -24,7 +24,7 @@
 // never arrived must not silently rank the run. The offline ledger applies the same rule locally
 // (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
 import { utcDay } from './puzzle/daily.ts';
-import { arrangementKey } from './puzzle/arrangement.ts';
+import { reachedGoal } from './puzzle/arrangement.ts';
 import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
 // WHICH BOARD A RUN IS ON, as a pure rule: the period used to be decided here, over shell state and the clock, so no
 // probe could ask it which board a drill lands on (`puzzle/board-period.ts`).
@@ -2215,7 +2215,9 @@ function playDailyCall(call: string): void {
     // or it did neither. The middle case is the rule the whole sequence exists for; the first is the case a
     // two-sentence version got WRONG ON A PAGE — a call that advanced the strip to "waypoint 2 of 5" was announced as
     // "the set is not on the goal board yet", which is true and useless.
-    const onGoal = arrangementKey(result.board) === arrangementKey(daily.goal);
+    // THE SAME RELATION THE WIN TEST USES (reachedGoal), so the sentence and the verdict cannot disagree about
+    // whether the set is on the goal's arrangement - including the tolerance, which the key's equality did not have.
+    const onGoal = reachedGoal(result.board, daily.goal);
     dailyScreen.say(
       advanced && !onGoal
         ? `${call} — that is waypoint ${view.progress + 1} of ${view.waypoints.length}.`

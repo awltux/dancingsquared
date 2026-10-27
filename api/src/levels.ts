@@ -19,7 +19,6 @@ import {
   GENERATOR_VERSION,
   MAIN_POOL,
   PlaySession,
-  arrangementKey,
   dailySpec,
   generatePuzzle,
   generatorConfigFor,
@@ -174,22 +173,25 @@ export function publishableLevels(): number[] {
  */
 export function lineSolvesDaily(level: LevelSpec, puzzle: Puzzle, calls: readonly string[]): { ok: true } | { ok: false; reason: string } {
   const applier = runtimeFor(level).applier;
-  const waypointKeys = waypointBoards(puzzle.path).map(arrangementKey);
-  const played: string[] = [arrangementKey(puzzle.start)];
+  const waypoints = waypointBoards(puzzle.path);
+  // THE BOARDS, NOT KEYS: `waypointReached` compares arrangements through the engine's congruence test at the game's
+  // tolerance (`puzzle/arrangement.ts`), so the server judges a line the same way the player's screen does — including a
+  // board that is the arrangement to within the drift between two call paths.
+  const played: Puzzle['start'][] = [puzzle.start];
   let board = puzzle.start;
   for (const call of calls) {
     const refusal = applier.refusalOf(board, call);
     if (refusal) return { ok: false, reason: `"${call}" cannot be made from that board: ${refusal.reason}` };
     board = applier.apply(board, call);
-    played.push(arrangementKey(board));
+    played.push(board);
   }
   if (!applier.reachesGoal(board, puzzle.goal)) return { ok: false, reason: 'the line does not leave the set on the goal board' };
   // THE SEQUENCE IS THE WIN, and a route whose waypoints are only its goal (a puzzle with one board, or none) has nothing
   // more to ask — the same split `PlaySession.atGoal` makes.
-  if (waypointKeys.length <= 2) return { ok: true };
-  const reached = waypointReached(waypointKeys.slice(1), played);
-  if (reached < waypointKeys.length - 1) {
-    return { ok: false, reason: `the line passed ${reached} of the ${waypointKeys.length - 1} waypoint(s), and the challenge is the whole sequence` };
+  if (waypoints.length <= 2) return { ok: true };
+  const reached = waypointReached(waypoints.slice(1), played);
+  if (reached < waypoints.length - 1) {
+    return { ok: false, reason: `the line passed ${reached} of the ${waypoints.length - 1} waypoint(s), and the challenge is the whole sequence` };
   }
   return { ok: true };
 }

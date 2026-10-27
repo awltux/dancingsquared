@@ -16,14 +16,23 @@
 // SOLVED. The controls are the two rules either side of it — identity (which refused it) and positions-only (which
 // would accept a board that is facing the wrong way).
 //
+// THE THIRD HALF, added when the same test proved too SHARP at its own seam. The key it used is a BUCKET (positions and
+// headings rounded to `CELL_ROUND`), so two boards the engine's own matcher would call congruent can key apart — and a
+// drill offered such a board as a distractor and graded it wrong. REPORTED: "The game offered 'Circle Right 1/2 Home'
+// from 'Circle' to 'Square Set' and reports '… does not leave the set on the goal board.' but to me it looks as if it
+// does end on 'squared set'." MEASURED then, over the 108 baked drills: 10 distractors were the goal's formation within
+// 0.06 units and 0.06 rad (the reported one at 0.0364 / 0.0195), all keyed apart. So sections 3 and 4 below pin the
+// TOLERANCE: its two sides by number, and a census over the baked season that no distractor is the goal any more.
+//
 // Usage: node game/test/goal-arrangement-probe.mjs   (engine must be built)
-import { sameBoardById, boardSig } from 'dancing-squared-engine';
+import { sameBoardById, boardSig, congruenceOf } from 'dancing-squared-engine';
 import { generatePuzzle } from '../src/puzzle/generator.ts';
 import { generatorConfigFor } from '../src/puzzle/config.ts';
 import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { applierFor } from '../src/data/corpus-node.ts';
-import { arrangementKey, reachedGoal } from '../src/puzzle/arrangement.ts';
+import { ARRANGEMENT_TOL, reachedGoal, sameArrangement } from '../src/puzzle/arrangement.ts';
+import { SEASON_PUZZLES } from '../src/game/season-data.ts';
 import { PlaySession } from '../src/puzzle/session.ts';
 
 let failures = 0;
@@ -47,8 +56,7 @@ for (let seed = 1; seed <= 60 && !found; seed++) {
   if (!generated.ok) continue;
   searched++;
   const puzzle = generated.puzzle;
-  const goalKey = arrangementKey(puzzle.goal);
-  const twin = applier.offered(puzzle.start).find((move) => arrangementKey(move.board) === goalKey && !sameBoardById(move.board, puzzle.goal));
+  const twin = applier.offered(puzzle.start).find((move) => reachedGoal(move.board, puzzle.goal) && !sameBoardById(move.board, puzzle.goal));
   if (twin) found = { seed, puzzle, twin };
 }
 check(found !== null, `found one in ${searched} seed(s): a call that reaches the goal's ARRANGEMENT but not its exact board`);
@@ -79,6 +87,49 @@ console.log('\n== 2. positions alone are NOT the goal: the facings are part of t
     check(boardSig(facingOut) === boardSig(goal), 'a half-turned copy of the goal keeps every dancer in the same place');
     check(!reachedGoal(facingOut, goal), 'NEGATIVE CONTROL: and has NOT reached it, so the rule is not positions-only');
   }
+}
+
+console.log('\n== 3. the TOLERANCE has two sides, and both are pinned by number ==');
+{
+  // (a) THE REPORTED SHAPE IS ABSORBED. The drill reported was seed 23, offering `Circle Right 1/2 Home` with a board
+  // 0.0364 units and 0.0195 rad from the goal — 0.0461 in the engine's combined metric. THAT OPTION IS NO LONGER IN THE
+  // SEASON, because the fix is what removes it (section 4 is the census), so the magnitudes are reproduced here from a
+  // real goal board: the drift a second call path produces, not a board that is somewhere else.
+  const goal = SEASON_PUZZLES[0].goal;
+  const drifted = { dancers: goal.dancers.map((d, i) => (i === 0 ? { ...d, x: d.x + 0.0364, heading: d.heading + 0.0195 } : d)) };
+  const drift = congruenceOf(drifted, goal);
+  check(drift <= ARRANGEMENT_TOL, `a drift of the reported size is ${drift.toFixed(4)} from the goal, inside the ${ARRANGEMENT_TOL} tolerance`);
+  check(sameArrangement(drifted, goal), '  so it IS the goal arrangement — this is the reported refusal, closed');
+  check(!sameBoardById(drifted, goal), '  and it is still not the goal\'s exact board, so the tolerance is doing the work and not identity');
+  // (b) A REAL DISPLACEMENT IS STILL REFUSED, so the tolerance did not become "any board".
+  const nudged = { dancers: goal.dancers.map((d, i) => (i === 0 ? { ...d, x: d.x + 0.3 } : d)) };
+  check(!sameArrangement(nudged, goal), `NEGATIVE CONTROL: one dancer 0.3 off is refused (${congruenceOf(nudged, goal).toFixed(3)})`);
+  // (c) AND A FACING FLIP IS STILL REFUSED, which is section 2's subject restated against the tolerance.
+  const flipped = { dancers: goal.dancers.map((d) => ({ ...d, heading: d.heading + Math.PI })) };
+  check(!sameArrangement(flipped, goal), `NEGATIVE CONTROL: a half-turned copy is refused (${congruenceOf(flipped, goal).toFixed(3)})`);
+}
+
+console.log('\n== 4. the CENSUS: no drill in the baked season offers the goal as a distractor ==');
+{
+  // THE INSTRUMENT THAT WOULD HAVE CAUGHT THE REPORT, and the denominator is printed because a census that measured
+  // nothing would otherwise pass. It failed with 10 before the tolerance (8 within 0.06 units/0.06 rad plus 2 at 0.069)
+  // and is the reason `ARRANGEMENT_TOL` is not merely a comment.
+  let puzzles = 0;
+  let options = 0;
+  const offenders = [];
+  for (const puzzle of SEASON_PUZZLES) {
+    puzzles++;
+    puzzle.steps.forEach((step, si) => {
+      step.moves.forEach((move, mi) => {
+        options++;
+        if (mi === step.correctIndex) return;
+        if (reachedGoal(move.board, puzzle.goal)) offenders.push(`seed ${puzzle.seed} step ${si + 1} "${move.call}"`);
+      });
+    });
+  }
+  check(puzzles > 0 && options > 0, `the census walked ${puzzles} puzzle(s) and ${options} option(s)`);
+  for (const line of offenders.slice(0, 10)) console.log(`  OFFER ${line}`);
+  check(offenders.length === 0, `no distractor is the goal's arrangement (${offenders.length} offender(s))`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -21,7 +21,7 @@
 
 import type { Board } from 'dancing-squared-engine';
 import { elapsedSeconds, scoreRun, type RunScore } from '../puzzle/score.ts';
-import { arrangementKey, waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
+import { waypointBoards, waypointReached } from '../puzzle/arrangement.ts';
 import { PlaySession, type Verdict } from '../puzzle/session.ts';
 import type { GameApplier, LevelSpec, Move, MoveReading, Puzzle } from '../puzzle/types.ts';
 import { Stopwatch } from './clock.ts';
@@ -111,7 +111,17 @@ export class DailyRun {
    * two-waypoint Daily came from.
    */
   private readonly waypointList: readonly Board[];
-  private readonly waypointKeys: readonly string[];
+
+  /**
+   * The last waypoint progress measured, and the stack length it was measured at.
+   *
+   * `view()` is called once per frame for the clock, and `waypointReached` now compares arrangements through the
+   * engine's congruence test rather than comparing string keys, so recomputing it every frame would pay 16 transforms
+   * per waypoint per frame for a value that only changes when the player moves. The length is the key because the stack
+   * is append-only apart from an undo, which changes it back to a length whose answer is deterministic.
+   */
+  private progressMemo: { moves: number; reached: number } | null = null;
+
   private readonly clock = new Stopwatch();
   private hintsUsed = 0;
   private hintedCall: string | null = null;
@@ -128,7 +138,7 @@ export class DailyRun {
     this.puzzle = puzzle;
     this.applier = applier;
     this.waypointList = waypointBoards(puzzle.path);
-    this.waypointKeys = this.waypointList.map(arrangementKey);
+
     this.session = new PlaySession(puzzle, applier, allowance);
     this.clock.start(nowMs);
   }
@@ -318,8 +328,17 @@ export class DailyRun {
     // AFTER it the player has stood in, in order. THE LAST OF THEM WINS THE RUN (`PlaySession.atGoal`): the goal board
     // alone would let a shortcut past the sequence, which is the half of the Daily's rule this display was already
     // showing and the run was not requiring.
-    const played = this.session.playedBoards().map(arrangementKey);
-    const reached = waypointReached(this.waypointKeys.slice(1), played);
+    //
+    // MEMOISED ON THE MOVE COUNT, because `view()` is asked once per frame for the CLOCK and each step of
+    // `waypointReached` is now a congruence comparison (16 transforms x a greedy assignment) rather than a string
+    // equality. A same-length stack is the same line, so the count cannot be stale; an undo changes the length back
+    // and recomputes, which is the deterministic answer for that shorter line.
+    const played = this.session.playedBoards();
+    let reached = this.progressMemo?.moves === played.length ? this.progressMemo.reached : -1;
+    if (reached < 0) {
+      reached = waypointReached(this.waypointList.slice(1), played);
+      this.progressMemo = { moves: played.length, reached };
+    }
     return {
       level: this.puzzle.level,
       board: this.board,

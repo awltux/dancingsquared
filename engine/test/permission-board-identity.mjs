@@ -7,9 +7,11 @@
 //   * `recognize(board).name` IS rotation- and reflection-stable -- the recogniser runs the same
 //     rotation/reflection-tolerant matcher every other reading does, so a squared set turned by 0/45/90/180
 //     degrees is still named `Static Square`. The name is a SHAPE identity, which is what a rule wants.
-//   * `geometryKey(boardMatchables(board))` is a POSE key, not a shape key: the same square turned by 0, 45 and
-//     90 degrees gives THREE DIFFERENT keys (it is centred and rounded but not de-rotated). Keying a rule on it
-//     would make the rule stop firing for a rotated square -- strictly less stable than the name it replaces.
+//   * `geometryKey(boardMatchables(board))` is a POSE key, not a SHAPE key: it folds the 8 rotations and the reflection
+//     but it QUANTISES (positions rounded to `CELL_ROUND`), so two boards that are the same arrangement to within that
+//     lattice can key apart. Keying a rule on it would therefore be less stable than the name it replaces, and for a
+//     player-facing "is this the arrangement the puzzle asked for" the answer is `congruenceOf`/`congruentWithin` —
+//     the tolerance-based sibling this key gained (section 2 states the distinction, `congruence.mjs` measures it).
 //
 // THE REAL GAP IS ELSEWHERE, and it is printed rather than asserted because it is a defect to close, not a
 // property to preserve: `recognize` returns NO name for most boards built from the corpus's own named

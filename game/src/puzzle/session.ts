@@ -25,7 +25,7 @@
 // waypoint the player still had to stand in. See `hint` for the search that replaced it.
 
 import type { Board } from 'dancing-squared-engine';
-import { arrangementKey, waypointBoards, waypointReached } from './arrangement.ts';
+import { sameArrangement, waypointBoards, waypointReached } from './arrangement.ts';
 import { HINT_SEARCH_DEPTH, HINT_SEARCH_NODES, MOVE_ALLOWANCE_CUSHION } from './config.ts';
 import { poseKey } from './pose-key.ts';
 import type { GameApplier, Move, MoveReading, Puzzle, Refusal } from './types.ts';
@@ -72,7 +72,7 @@ export class PlaySession {
    * function gives: a call that leaves the set in the arrangement it was already in has reached no new waypoint. A
    * generated Daily never produces such a step, so its list is exactly as long as the level asked for.
    */
-  private readonly waypointKeys: string[];
+  private readonly waypointList: readonly Board[];
   private readonly puzzle: Puzzle;
   private readonly applier: GameApplier;
   /** How many calls beyond the shortest the player may use. DESIGN.md 9's move allowance. */
@@ -90,7 +90,7 @@ export class PlaySession {
     this.puzzle = puzzle;
     this.applier = applier;
     this.budget = allowance ?? puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
-    this.waypointKeys = waypointBoards(puzzle.path).map(arrangementKey);
+    this.waypointList = waypointBoards(puzzle.path);
   }
 
   // ------------------------------------------------------------------ reading
@@ -134,14 +134,9 @@ export class PlaySession {
    */
   atGoal(): boolean {
     if (!this.applier.reachesGoal(this.board, this.puzzle.goal)) return false;
-    const keys = this.waypointKeys;
-    if (keys.length <= 2) return true;
-    return waypointReached(keys.slice(1), this.keysPlayed()) === keys.length - 1;
-  }
-
-  /** The arrangements the set has stood in, in order — the start first, then each move's arrival. */
-  private keysPlayed(): string[] {
-    return this.playedBoards().map(arrangementKey);
+    const waypoints = this.waypointList;
+    if (waypoints.length <= 2) return true;
+    return waypointReached(waypoints.slice(1), this.playedBoards()) === waypoints.length - 1;
   }
 
   view(): SessionView {
@@ -248,11 +243,11 @@ export class PlaySession {
    * `slice(1)` the Daily's progress readout uses. A complete sequence returns null rather than the goal, because a
    * player who has passed every waypoint has nowhere further to be told to go.
    */
-  private nextWaypointKey(): string | null {
-    const keys = this.waypointKeys;
-    if (keys.length === 0) return null;
-    const reached = waypointReached(keys.slice(1), this.keysPlayed());
-    return reached + 1 < keys.length ? keys[reached + 1] : null;
+  private nextWaypoint(): Board | null {
+    const waypoints = this.waypointList;
+    if (waypoints.length === 0) return null;
+    const reached = waypointReached(waypoints.slice(1), this.playedBoards());
+    return reached + 1 < waypoints.length ? waypoints[reached + 1] : null;
   }
 
   /**
@@ -267,10 +262,10 @@ export class PlaySession {
    * THE SEARCH KEYS BOARDS BY `poseKey`, never `boardSig`: positions-only is trap 11, and MEASURED the first version of
    * this search deduped by signature — so the route's own next board, which shares its POSITIONS with a sibling and
    * differs only in FACING, was dropped as a duplicate and the search walked on until its budget ran out (4621 ms for a
-   * hint that was one call away). The target test is `arrangementKey`, the same equivalence a waypoint uses, so the
-   * answer cannot be a call that satisfies the display and not the sequence.
+   * hint that was one call away). The target test is `sameArrangement`, the same relation a waypoint uses — including
+   * its tolerance — so the answer cannot be a call that satisfies the display and not the sequence.
    */
-  private stepToward(target: string, offered: readonly Move[]): string | null {
+  private stepToward(target: Board, offered: readonly Move[]): string | null {
     // THE FIRST CALL IS PART OF THE ANSWER, so the frontier carries it rather than re-deriving a path at the end.
     const seen = new Set<string>();
     let frontier: { first: string; board: Board }[] = [];
@@ -284,7 +279,7 @@ export class PlaySession {
     for (let depth = 1; depth <= Math.min(this.movesLeft, HINT_SEARCH_DEPTH) && frontier.length > 0; depth++) {
       const next: { first: string; board: Board }[] = [];
       for (const node of frontier) {
-        if (arrangementKey(node.board) === target) return node.first;
+        if (sameArrangement(node.board, target)) return node.first;
         if (expanded++ >= HINT_SEARCH_NODES) return null;
         for (const move of this.applier.offered(node.board)) {
           const pose = poseKey(move.board);
@@ -317,7 +312,7 @@ export class PlaySession {
   hint(): string | null {
     const offered = this.offered();
     if (offered.length === 0 || this.movesLeft === 0) return null;
-    const target = this.nextWaypointKey();
+    const target = this.nextWaypoint();
     // NO TARGET LEFT: every waypoint has been passed, which is a run that has already been won — so a hint has nothing
     // to point at and the first legal call is the honest answer.
     if (target === null) return offered[0].call;

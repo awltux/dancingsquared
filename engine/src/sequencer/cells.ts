@@ -95,6 +95,61 @@ export function geometryKey(dancers: Matchable[]): string {
   return best!;
 }
 
+/**
+ * THE SIGNATURE PRE-FILTER for `congruenceOf`, and NOT the decision.
+ *
+ * `matchFormations` rejects a pair whose distance signatures differ by more than `maxError / 12`, and that filter
+ * sees POSITIONS only — `match.ts` records that `Boys Turn Back` from `Stars RH` passes it with a dancer 180 degrees
+ * out. So this number only has to be generous enough not to exclude a pair a tolerance test would accept; the answer
+ * comes from `FormationMatch.maxDancerError`, which is the largest single dancer's own offset.
+ */
+export const CONGRUENCE_SIGNATURE_MAX = 6.0;
+
+/**
+ * HOW FAR APART two boards are AS ARRANGEMENTS: the smallest largest-dancer offset over the same eight rotations x
+ * reflection that `geometryKey` folds and `matchFormations` matches under. 0 is the same arrangement; the offset is
+ * the engine's own `maxDancerError` (`distance + 0.5 * angular difference`, `match.ts`'s `greedyAssign`), so a pure
+ * facing difference costs 0.5 per radian.
+ *
+ * WHY THIS EXISTS AND THE KEY IS NOT ENOUGH. `geometryKey` is a BUCKET — positions and headings rounded to
+ * `CELL_ROUND` — so two boards the MATCHER would call congruent key differently whenever the drift straddles a cell
+ * boundary. MEASURED in the game: 10 of the 108 baked drills offered a distractor that was the goal's formation within
+ * 0.077 of this metric and keyed apart, and one of them was reported ("Circle Right 1/2 Home ... does not leave the set
+ * on the goal board"). A key is the right answer for IDENTITY — formation, arrangement and setup ids are persisted, so
+ * they must stay buckets — and this is the right answer for CONGRUENCE.
+ *
+ * GEOMETRY ONLY: gender and couple are not read, exactly as `geometryKey` does not read them.
+ *
+ * THE TOLERANCE IS THE CALLER'S. There is deliberately no default: a search that asks "have I been here" wants the
+ * bucket, a player-facing "is this the arrangement I was asked for" wants a tolerance, and the number that separates
+ * them is a measurement each caller makes on its own data. The game's is `puzzle/arrangement.ts`'s `ARRANGEMENT_TOL`,
+ * chosen against `test/congruence.mjs`'s minimum separation between distinct arrangements.
+ *
+ * `Infinity` RATHER THAN A SUBSET MATCH FOR UNEQUAL COUNTS: `matchFormations` matches a smaller target inside a bigger
+ * source when there is room, and four dancers standing the right way inside a squared set are not "the same
+ * arrangement" as that squared set.
+ */
+export function congruenceOf(a: Board, b: Board): number {
+  if (a.dancers.length !== b.dancers.length) return Infinity;
+  // BOTH ORDERS, AND THE SMALLEST — because `matchFormations` is NOT symmetric. `greedyAssign` walks the SOURCE in
+  // radius order and takes the nearest unused slot, which is order-dependent: MEASURED on a squared set whose
+  // positions are mirrored about the y-axis (a board that is NOT the squared set — its dancers face away from the
+  // ring), `matchFormations(mirror, square)` reports 2.2e-16 while `matchFormations(square, mirror)` returns null.
+  // A predicate that answers differently depending on which argument is the goal would be a defect of this function,
+  // so both orders are asked and the closer answer wins. The cost is one extra matcher call, paid by callers that are
+  // already comparing whole boards.
+  const forward = matchFormations(boardMatchables(a), boardMatchables(b), CONGRUENCE_SIGNATURE_MAX);
+  const backward = matchFormations(boardMatchables(b), boardMatchables(a), CONGRUENCE_SIGNATURE_MAX);
+  const one = forward?.maxDancerError ?? Infinity;
+  const other = backward?.maxDancerError ?? Infinity;
+  return Math.min(one, other);
+}
+
+/** Whether the two boards are the same arrangement to within `tol` — see `congruenceOf`. */
+export function congruentWithin(a: Board, b: Board, tol: number): boolean {
+  return congruenceOf(a, b) <= tol;
+}
+
 /** One declared geometry: the shape, the names that realise it, and the gender patterns seen on it. */
 export interface CellGeometry {
   id: number;

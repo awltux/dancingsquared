@@ -51,7 +51,7 @@
 // instrument's silence is itself a bug).
 
 import { sameBoardById, boardSig, type Board } from 'dancing-squared-engine';
-import { arrangementKey, reachedGoal } from './arrangement.ts';
+import { reachedGoal, sameArrangement } from './arrangement.ts';
 import { poseKey } from './pose-key.ts';
 import { rngFrom, type Rng } from './rand.ts';
 import type { GameApplier, GenerateResult, GeneratorConfig, LevelSpec, Move, Puzzle, PuzzleOption, PuzzleStep } from './types.ts';
@@ -258,7 +258,7 @@ function walkDaily(config: GeneratorConfig, seed: number, base: number, level: L
     // THE ATTEMPT'S OWN STREAM, mixed from the base and the ordinal, exactly as the Drill's is: a start's walk must
     // not depend on how much of the stream earlier, failed starts consumed.
     const rng = rngFrom(base ^ Math.imul(i + 1, 0x85ebca6b));
-    const startKey = arrangementKey(start);
+
     /**
      * THE LINE UNDER CONSTRUCTION, one entry per board — the start at index 0 and the goal at `config.maxDepth`.
      *
@@ -266,7 +266,7 @@ function walkDaily(config: GeneratorConfig, seed: number, base: number, level: L
      * dead end pops the last entry and resumes the one before it at the next candidate, and no `offered` is asked
      * twice.
      */
-    const line: { board: Board; key: string; call: string | null; candidates: Move[]; next: number }[] = [];
+    const line: { board: Board; call: string | null; candidates: Move[]; next: number }[] = [];
     // HOW MANY BOARDS WERE ASKED FOR THEIR CALLS — the walk's own cost, reported in the puzzle the same way the
     // search's `explored` is.
     let explored = 0;
@@ -276,7 +276,7 @@ function walkDaily(config: GeneratorConfig, seed: number, base: number, level: L
     let refusal: string | null = null;
 
     /** The calls from `board` that leave the arrangement `key`, seeded — or `[]` for the goal, which is not walked from. */
-    const forwardFrom = (board: Board, key: string, index: number): Move[] => {
+    const forwardFrom = (board: Board, index: number): Move[] => {
       // THE GOAL IS REACHED, NEVER PLAYED FROM, so asking for its calls would be work nobody reads (`build`'s goal
       // gate says the same for the Drill).
       if (index === config.maxDepth) return [];
@@ -284,15 +284,15 @@ function walkDaily(config: GeneratorConfig, seed: number, base: number, level: L
       explored++;
       const offered = applier.offered(board).slice().sort(byName);
       const forward = offered.filter((move) => {
-        const next = arrangementKey(move.board);
+        const leavesArrangement = !sameArrangement(move.board, board);
         // A CALL THAT LEAVES THE SET IN THE ARRANGEMENT IT WAS ALREADY IN IS NOT A WAYPOINT (`arrangement.ts` said so
         // first, and the whole count depends on it here).
-        if (next === key) return false;
+        if (!leavesArrangement) return false;
         if (!lastStep) return true;
         // THE GOAL'S TWO GATES, exactly as `build` applies them to a Drill's goal: not the start's own arrangement
         // (the puzzle would be telling the player the answer is where they already are) and a formation the corpus
         // defines (it is the picture the player is working towards).
-        if (next === startKey) return false;
+        if (sameArrangement(move.board, start)) return false;
         return applier.formationOf(move.board) !== null;
       });
       if (forward.length > 1) choice = true;
@@ -301,7 +301,7 @@ function walkDaily(config: GeneratorConfig, seed: number, base: number, level: L
       return rng.shuffle(forward);
     };
 
-    line.push({ board: start, key: startKey, call: null, candidates: forwardFrom(start, startKey, 0), next: 0 });
+    line.push({ board: start, call: null, candidates: forwardFrom(start, 0), next: 0 });
 
     while (line.length > 0) {
       if (line.length === config.maxDepth + 1) break;
@@ -317,8 +317,8 @@ function walkDaily(config: GeneratorConfig, seed: number, base: number, level: L
         continue;
       }
       const move = top.candidates[top.next++];
-      const key = arrangementKey(move.board);
-      line.push({ board: move.board, key, call: move.call, candidates: forwardFrom(move.board, key, line.length), next: 0 });
+
+      line.push({ board: move.board, call: move.call, candidates: forwardFrom(move.board, line.length), next: 0 });
     }
 
     if (line.length === 0) {
@@ -595,7 +595,7 @@ export function generatePuzzle(config: GeneratorConfig, seed: number, level: Lev
       // candidates to boards exposed: 2 of 24 Daily routes ended in their own start's arrangement. A goal may differ
       // from another goal by facing and still be a different picture; a goal that is the START's formation is the
       // puzzle telling the player the answer is where they already are.
-      if (arrangementKey(goal) === arrangementKey(start)) return "the goal board is the start board's arrangement, seen another way";
+      if (sameArrangement(goal, start)) return "the goal board is the start board's arrangement, seen another way";
       // GATE: the GOAL must be a FORMATION THE CORPUS DEFINES, which is `formationOf`'s question and not the curated
       // recogniser's. The old rule was "the goal must be NAMEABLE by `recognize`", justified by the caption; but the
       // corpus's own answer to "is this arrangement one of ours" is wider than the twenty-odd standard names a caption

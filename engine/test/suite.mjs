@@ -440,6 +440,12 @@ export const SUITE = [
   // Its negative control reconstructs an out-of-order chain, which every other check would pass. Fast: three calls.
   { h: 'module-call', light: true },
   { h: 'mainstream', light: true },
+  // A SEARCH IS A QUERY. `getout` must not change what a later `apply` answers (TODO item 35, which was red at
+  // `8cfe8a1` and does not reproduce now): this pins the board is unchanged by the search, that the returned path
+  // replays after a `reset()`, and that the verdicts are IDENTICAL to the same replay in a process that never
+  // searched - with a control showing a different start board is answered differently. Non-light: it builds a
+  // whole-catalogue sequencer and searches six times (~66 s).
+  { h: 'getout-purity', light: false, why: 'six getout searches over a whole-catalogue sequencer, each replayed with and without the search (~66 s)' },
   { h: 'matrix', light: true },
   { h: 'matrix-getout', light: true },
   { h: 'editor', light: true },

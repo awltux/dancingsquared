@@ -523,18 +523,6 @@ them are a stale pin or a stale generated asset — the rest are live work: the 
 
 ## P1 — FOUND BY THE ITEM 7 CENSUS AT `8cfe8a1`
 
-- [ ] **35. `getout()` LEAKS STATE INTO THE INTERACTIVE APPLY PATH.** `[measured]` at `8cfe8a1`, found during
-  the item 7 census and filed rather than fixed because it is an engine-contract question, not a pin.
-  `mainstream.mjs`'s fifth red is not its registration bug: with `seq.getout(...)` called first, replaying
-  the returned path interactively is REFUSED, and the SAME replay after `seq.reset()` without the `getout`
-  call is legal at every step — MEASURED, the three-step path
-  `[Cast Off Three Quarters, Right and Left Grand, Promenade Full to Home]` gives
-  `No setup in this call matches the current formation.` for the first two steps when the search ran first,
-  and `legal=true` for all three when it did not. So a search changes the answer of a later apply, which is
-  a contract violation and the same first-call-validity property `features.mjs` pins elsewhere. NEXT UNIT:
-  find what `getout` leaves behind (match memo, FSM store, `adjustToNextSetup`) and show `reset()` does not
-  clear it.
-
 - [x] **37. THE FSM ASSET'S STALENESS IS INVISIBLE TO EVERY CHANGE-TIME GATE.** `[measured]` at `8cfe8a1`;
   **CLOSED in `agent/one-fsm-asset`.** `assets/fsm-ms.json` went stale at `d3c0800` (schema 2 → 3) and stayed
   stale for the many commits since, and the reason was structural rather than accidental: the writer

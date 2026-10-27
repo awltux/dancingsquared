@@ -65,7 +65,6 @@ const readSource = (rel) => fs.readFileSync(path.join(POC_DIR, rel), 'utf8').rep
 const ASSETS = corpusRoot();
 const formationsXml = fs.readFileSync(path.join(ASSETS, 'formations.xml'), 'utf8');
 const corpus = engine.parseFormations(formationsXml);
-const TOL = 1e-3;
 const toRad = (d) => (d * Math.PI) / 180;
 
 /** The poses the ENGINE would build for a name: the AUTHORED dancers completed to the whole set. This is the same
@@ -86,12 +85,12 @@ const readAuthored = (xml) => {
 };
 const complete = (spots) => completeHalfSet(spots.map((p) => ({ ...p })));
 
-const sameSpot = (a, b) =>
-  Math.abs(a.x - b.x) <= TOL &&
-  Math.abs(a.y - b.y) <= TOL &&
-  Math.abs(Math.atan2(Math.sin(a.heading - b.heading), Math.cos(a.heading - b.heading))) <= TOL &&
-  a.gender === b.gender;
-const sameBoard = (a, b) => a.length === b.length && a.every((p, i) => sameSpot(p, b[i]));
+// THE SPOT COMPARISON IS THE ENGINE'S, imported rather than restated (AGENTS §5). It used to be a local mirror with
+// its own `TOL = 1e-3`, an `atan2` normaliser and a STRICT gender equality - three ways for the judge to disagree
+// with the rule the export actually applies, which is `sameSpotExact` in `engine/src/formation-order.ts` (the same
+// `XML_ROUND_TRIP_TOL`). `sameBoard` stays: pairing two lists position for position is this probe's question, not a
+// rule the engine owns.
+const sameBoard = (a, b) => a.length === b.length && a.every((p, i) => engine.sameSpotExact(p, b[i]));
 
 // ------------------------------------------------------------------ 1. the corpus, out and back
 console.log(`\n== 1. every corpus formation exported under its own name reads back as itself (${corpus.size} entries)`);
@@ -290,7 +289,7 @@ console.log('\n== 6. the heading crosses the boundary as DEGREES, in both direct
   const spots = [{ x: 1, y: -2, heading: Math.PI / 2, gender: 'girl' }];
   const out = formationExportXml('Unit Check', spots, () => null);
   const back = readAuthored(out.xml).spots[0];
-  check(Math.abs(back.heading - Math.PI / 2) <= TOL, `a heading of 90 degrees reads back as ${((back.heading * 180) / Math.PI).toFixed(3)} degrees`);
+  check(Math.abs(back.heading - Math.PI / 2) <= engine.XML_ROUND_TRIP_TOL, `a heading of 90 degrees reads back as ${((back.heading * 180) / Math.PI).toFixed(3)} degrees`);
   check(/angle="90"/.test(out.xml), 'and the attribute it was written as is 90, not 1.5708');
   // THE CONTROL: the same number with no conversion is what a writer that forgot the unit would emit.
   const unconverted = engine.formationToXml('Unit Check', [{ x: 1, y: -2, heading: Math.PI / 2, gender: 'girl' }]).replace('angle="90"', 'angle="1.5707963"');

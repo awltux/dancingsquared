@@ -44,7 +44,7 @@
 // `formationToXml`, because the reader and the writer have to agree and that pair is already gated by the
 // engine's own round-trip harness (`engine/test/editor.mjs`); this module adds the NAME, the HALF and the VERDICT.
 
-import { formationToXml, normAngle, XML_ROUND_TRIP_TOL } from 'dancing-squared-engine';
+import { formationToXml, sameSpotExact } from 'dancing-squared-engine';
 import type { FormDancer } from 'dancing-squared-engine';
 // THE HALF-SET RULE, imported rather than restated: the reader completes a formation with it, so the writer has
 // to find the half it would complete back to this board. THE EXTENSION IS EXPLICIT so bare node can load this
@@ -79,35 +79,20 @@ export interface FormationExport {
 }
 
 /**
- * THE TOLERANCE IS THE XML'S OWN, and it is the ENGINE'S NUMBER rather than a copy of it: the exporter rounds to four
- * decimals, so a formation that has been through the corpus once comes back within about `1e-4`, and a board that has
- * just been dragged comes back at whatever the pointer gave it. An exact comparison would report `changed` for a
- * formation nobody touched.
- *
- * IT USED TO SAY "the same `1e-3` `startsFromFormation` uses" - a copy kept in step by a sentence, which nothing
- * enforces. `XML_ROUND_TRIP_TOL` is that rule's one name (`engine/src/tolerances.ts`), and the shortest-angle step is
- * the engine's `normAngle` too: this module said the engine's normaliser "is private", which was never true (`moves.ts`
- * exports it), and an `atan2` spelling is a DIFFERENT rule at the seam rather than a copy - MEASURED in
- * `engine/test/angle-normalisation.mjs` §2, `atan2(sin, cos)` returns -PI for -PI where `normAngle` returns +PI.
- * The probe still cross-checks the verdict against `startsFromFormation` on real calls, so the two cannot drift.
+ * THE SPOT COMPARISON IS THE ENGINE'S, and the tolerance was never the issue: `sameSpotExact` in
+ * `engine/src/formation-order.ts` was already the same rule with the same `XML_ROUND_TRIP_TOL`, and this module
+ * restated it. The one thing the copy got wrong is why a copy is worth deleting: it read the gender rule in ONE
+ * DIRECTION (`b.gender === undefined || a.gender === b.gender`), so a spot with no declared gender compared against
+ * a corpus spot WITH one counted as a difference, while the comment above it - and `startsFromFormation` - say a
+ * spot with no declared gender does not constrain the other side at all. MEASURED on the corpus: 0 of the 1065
+ * authored dancers has no declared gender, so today the two readings agree and this is a latent asymmetry rather
+ * than a live defect; a dragged or hand-authored board is exactly where it would have bitten.
  */
-const TOL = XML_ROUND_TRIP_TOL;
-
-/** Two spots are the same place, facing the same way, holding the same gender. */
-function sameSpot(a: FormDancer, b: FormDancer, tol = TOL): boolean {
-  if (Math.abs(a.x - b.x) > tol || Math.abs(a.y - b.y) > tol) return false;
-  if (Math.abs(normAngle(a.heading - b.heading)) > tol) return false;
-  // A spot with no declared gender (a phantom, or a formation written without one) does not constrain the other
-  // side - the same rule `startsFromFormation` applies, and for the same reason: the format lets `gender` default.
-  return b.gender === undefined || a.gender === b.gender;
-}
-
-/** The same SPOTS, with no respect for their order: every one of `a` can be paired with a distinct one of `b`. */
 function sameSpotsIgnoringOrder(a: FormDancer[], b: FormDancer[]): boolean {
   if (a.length !== b.length) return false;
   const used = new Array(b.length).fill(false);
   for (const spot of a) {
-    const at = b.findIndex((other, i) => !used[i] && sameSpot(spot, other));
+    const at = b.findIndex((other, i) => !used[i] && sameSpotExact(spot, other));
     if (at < 0) return false;
     used[at] = true;
   }
@@ -139,7 +124,7 @@ function halfOf(spots: FormDancer[]): FormDancer[] {
   const half = spots.slice(0, spots.length / 2);
   const completed = completeHalfSet(half.map((p) => ({ ...p })));
   if (completed.length !== spots.length) return spots;
-  return completed.every((p, i) => sameSpot(p, spots[i])) ? half : spots;
+  return completed.every((p, i) => sameSpotExact(p, spots[i])) ? half : spots;
 }
 
 /**
@@ -174,7 +159,7 @@ export function formationExportXml(
     const a = spots[i];
     const b = corpus[i];
     // A SPOT MISSING FROM EITHER SIDE IS A DIFFERENCE: a set of six is not a set of eight with two matches.
-    if (!a || !b || !sameSpot(a, b)) differing++;
+    if (!a || !b || !sameSpotExact(a, b)) differing++;
   }
   // INDEX FOR INDEX, because that is how a call's paths are paired with a formation's dancers - so the same
   // spots in another order is `reordered` rather than `same`, which is the case this button exists for.

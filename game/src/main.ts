@@ -2712,7 +2712,7 @@ let frameRequested = false;
 
 function frame(nowMs: number): void {
   frameRequested = false;
-  // THE CLAMP AND THE FIRST-FRAME STEP COME FROM ui/frame-clock.ts, where rame-clock-probe.mjs can reach them: a tab
+  // THE CLAMP AND THE FIRST-FRAME STEP COME FROM ui/frame-clock.ts, where frame-clock-probe.mjs can reach them: a tab
   // hidden for minutes would otherwise hand the playhead the whole gap and a 320 ms slide would complete in one jump.
   const dt = frameDelta(nowMs, lastFrameMs);
   lastFrameMs = nowMs;
@@ -2891,7 +2891,7 @@ function main(): void {
   // the fixture's drill is issued here.
   // THE INSTALLABLE APP: THE SERVICE WORKER IS REGISTERED IN A BUILT BUNDLE ONLY. In development it would sit between
   // Vite's module graph and the page, caching the very URLs the dev server rewrites — import.meta.env.PROD is the guard
-  // rather than a check for a hostname. Registration is BEST-EFFORT: a browser that refuses (a ile:// build, a private
+  // rather than a check for a hostname. Registration is BEST-EFFORT: a browser that refuses (a file:// build, a private
   // window with storage blocked) loses nothing, because the game is offline-capable without it and says so in index.html.
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {

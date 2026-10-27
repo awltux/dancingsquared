@@ -45,7 +45,7 @@
 // THE ENGINE'S "SHOULD BE EXACT" TOLERANCE, imported rather than spelled: `NO_RADIUS` below was a bare 1e-9 with its
 // own four lines of reasoning, and the engine names the same rule (`tolerances.ts`). A drag's degenerate pivot is the
 // same question the engine asks of a zero radius.
-import { EXACT_TOL } from 'dancing-squared-engine';
+import { EXACT_TOL } from 'dancing-squared-engine/core';
 
 /** A point in BOARD coordinates - the floor's own frame, which is the one the grid is drawn in. */
 export interface Point {

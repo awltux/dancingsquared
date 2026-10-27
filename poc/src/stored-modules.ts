@@ -35,7 +35,7 @@
 //
 // This module's only imports are TYPES, so a probe can load it directly under node's type stripping.
 
-import type { CallStep, GroupLane, GroupStep, ModuleStep } from 'dancing-squared-engine';
+import type { CallStep, GroupLane, GroupStep, ModuleStep } from 'dancing-squared-engine/sequencer';
 import type { SequenceDancer, SetupRefJson } from './sequence-json';
 
 /** A saved module as the sequencer persists it: the engine's `Module`, plus the two boards as a document writes them. */

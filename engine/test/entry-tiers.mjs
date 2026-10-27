@@ -26,6 +26,7 @@
 //
 // Run: node engine/test/entry-tiers.mjs   (reads text and package.json; no engine build)
 import fs from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -258,6 +259,65 @@ for (const name of EXPECTED_ENTRIES) {
     [...closure].join(', '));
   check(closure.size > 0, `${name}: the closure is not empty (a walk that read nothing would pass every count)`);
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// THE CONSUMERS: a caller that needs ONE JOB imports ONE ENTRY, and the rest are MEASURED rather than nagged.
+//
+// WHY THIS IS A NAMED SET RATHER THAN A RULE OVER EVERY IMPORTER. MEASURED when this section landed: 58 tracked files
+// import the barrel by named import, 33 of them could be covered by a single entry, and the rest cannot - a panel that
+// drives the sequencer AND edits calls needs four or five entries, so "always import an entry" would replace one
+// specifier with four and change no closure. AGENTS §11.2.8 gives a NAMED SET for exactly this: the files below are
+// the ones that must use an entry (all six migrated when this landed, because each needed exactly one), it fails when
+// the set SHRINKS (a file went back to the barrel) and when a listed file stops needing its entry.
+//
+// THE OPPORTUNITY IS PRINTED, NOT ENFORCED: the count of files that could still narrow is a backlog signal, and
+// forcing it here would be a gate whose fix is thirty other people's edits.
+const CONSUMER_TREES = ['poc/src', 'poc-teacher/src', 'game/src', 'game/test', 'api/src', 'book/tools', 'scripts'];
+const CONSUMER_ENTRY = {
+  // THE POC'S PURE MODULES, each of which names exactly one engine job: the board's own type, the exactness tolerance,
+  // a step type, a built call, a stored module and a catalogue module.
+  'poc/src/board-key.ts': 'sequencer',
+  'poc/src/board-transform.ts': 'core',
+  'poc/src/ceder-modules.ts': 'sequencer',
+  'poc/src/player.ts': 'core',
+  'poc/src/stored-modules.ts': 'sequencer',
+  'poc/src/modules.ts': 'sequencer',
+  // AND THE GAME'S CAPTION, the first consumer that ever imported a subpath (`dd9e4f93`): it reads identity ids only.
+  'game/src/puzzle/caption.ts': 'ids',
+};
+const repo = path.resolve(here, '..', '..');
+const namedImporters = new Set();
+const readable = [];
+for (const tree of CONSUMER_TREES) {
+  const abs = path.join(repo, tree);
+  if (!existsSync(abs)) continue;
+  for (const f of readdirSync(abs, { recursive: true })) {
+    if (typeof f !== 'string' || !/\.(?:ts|mjs)$/.test(f)) continue;
+    const rel = `${tree}/${f.split(path.sep).join('/')}`;
+    if (/(?:^|\/)(?:node_modules|dist)\//.test(rel)) continue;
+    // A DIRECTORY CAN SURVIVE the extension filter on a case-insensitive walk, so the read is guarded rather than
+    // assumed: `readFileSync` on one throws `EISDIR`, which would kill the harness before its summary (§11.2.1).
+    const full = path.join(repo, rel);
+    if (!fs.statSync(full).isFile()) continue;
+    readable.push(rel);
+    if (/from 'dancing-squared-engine'/.test(read(full))) namedImporters.add(rel);
+  }
+}
+check(readable.length > 200, `the consumer walk found ${readable.length} files over ${CONSUMER_TREES.length} trees`);
+for (const [rel, entryName] of Object.entries(CONSUMER_ENTRY)) {
+  const text = read(path.join(repo, rel));
+  check(new RegExp(`from 'dancing-squared-engine/${entryName}'`).test(text),
+    `${rel} imports the \`${entryName}\` entry, the one job it needs`);
+  // RUNTIME IMPORTS ONLY. A `import type { … } from 'dancing-squared-engine'` is ERASED before any module is loaded, so
+  // it closes over nothing - the game's caption is the case that taught this check the difference, and the lesson is in
+  // its own header. Only a VALUE import of the barrel is the defect this list exists to stop.
+  const values = text.replace(/import type \{[^}]*\} from '[^']*';/g, '');
+  check(!/from 'dancing-squared-engine'/.test(values),
+    `and no VALUE import of the barrel — the whole surface for one name is what this list exists to stop (${rel})`);
+}
+// THE CENSUS, printed rather than pinned: it is a backlog, and the number moves as consumers are written.
+const stillBare = [...namedImporters].filter((rel) => !Object.hasOwn(CONSUMER_ENTRY, rel)).length;
+console.log(`\n  consumers: ${namedImporters.size} import the engine by named import, ${Object.keys(CONSUMER_ENTRY).length} of them through ONE entry (pinned above), ${stillBare} still on the barrel`);
 
 console.log(`\n${failures === 0 ? 'entry-tiers: all checks hold' : `entry-tiers: ${failures} FAILED`}`);
 process.exit(failures === 0 ? 0 : 1);

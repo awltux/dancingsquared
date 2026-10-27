@@ -8,7 +8,7 @@
 // Modules that reference calls not registered at the current level simply won't
 // be legal from a given board; the picker filters them out.
 
-import type { CallStep } from 'dancing-squared-engine';
+import type { CallStep } from 'dancing-squared-engine/sequencer';
 
 interface CederModule {
   id: number | string;

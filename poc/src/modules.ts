@@ -7,8 +7,8 @@
 // diverge (the sequencer's own list is what the user sees, so a mismatch would show as "the call
 // picker has a module the browse view cannot find").
 
-import type { CallStep, ModuleStep } from 'dancing-squared-engine';
-import { canonicalName, splitSelection, isGroupStep, stepLabel } from 'dancing-squared-engine';
+import type { CallStep, ModuleStep } from 'dancing-squared-engine/sequencer';
+import { canonicalName, splitSelection, isGroupStep, stepLabel } from 'dancing-squared-engine/sequencer';
 import { validCederModules } from './ceder-modules';
 import { parseStoredModules } from './stored-modules';
 

@@ -18,7 +18,7 @@
 // the answer must not depend on the order the dancers happen to be in - a board rebuilt by any component comes back in
 // the order it was given (`reorderLike`), and a list rebuilt because the array was shuffled is the same waste the
 // rounding rules out.
-import type { Board } from 'dancing-squared-engine';
+import type { Board } from 'dancing-squared-engine/sequencer';
 
 /**
  * The identity of a BOARD for the next-call list: one entry per dancer, by id, with its position and facing.

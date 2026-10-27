@@ -4,7 +4,7 @@
 // renders the views. Keeping this as a class isolates the trickiest timing logic
 // from the DOM/bootstrap code.
 
-import type { CallBundle } from 'dancing-squared-engine';
+import type { CallBundle } from 'dancing-squared-engine/core';
 
 type PlayPhase = 'start' | 'play' | 'end';
 

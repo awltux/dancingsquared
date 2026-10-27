@@ -95,6 +95,24 @@ export class Sequencer {
   /** `boardIdentity`'s memo, keyed on the board OBJECT. See that method for why it is needed. */
   private readonly boardIdentityCache = new WeakMap<Board, { name: string | null; id: string }>();
 
+  /**
+   * A board of identity-tracked dancers, and the calls it can dance.
+   *
+   * `calls` IS A TITLE -> DOCUMENT LIST, and each entry is registered with `register` — the WHOLE DOCUMENT under that
+   * name. That is right when a document IS the call (the POC's pooled per-title blocks, one title per document) and
+   * wrong for a catalogue, where a document is a FAMILY of calls: MEASURED, `circle.xml` under one name gave that name
+   * **124 tams**, so `Boys Trade` matched `Partner Trade`'s authorings. A catalogue passes whole FILES and must
+   * register by title explicitly (`registerByTitle`); `library.ts` sizes the difference at 62 file-keyed names legal
+   * 1791 times against 322 title-keyed names legal 4960, with no formation losing one.
+   *
+   * WHY THIS DEFAULT IS NOT FLIPPED TO `registerByTitle`. MEASURED over the 197 constructions in this tree: 124 pass
+   * `callsByTitle(...)`, 17 pass `[]`, 9 pass two arguments, and the rest are literals or variables — and several of
+   * the variables are DELIBERATELY file-keyed (`alignment.mjs`, `alignment-boards.mjs`, `all8-formation-map.mjs`,
+   * `gender-audit.mjs` register the engine's own templates under their basenames). Under `registerByTitle` those
+   * documents would register nothing (no tam's title is a basename), so the flip is a migration with no gain for the
+   * callers that are right today. The hazard is stated here, at the point of use, instead: a catalogue registers by
+   * title.
+   */
   constructor(movesXml: string, formationsXml: string, calls: { name: string; xml: string }[] = []) {
     this.library = new CallLibrary(movesXml, formationsXml);
     this.matcher = new FormationMatcher(this.library, this.config);
@@ -1031,8 +1049,15 @@ export class Sequencer {
    * it. The group probe runs only for calls the whole-board rule refused, so the common case still costs
    * one cheap permission check.
    */
-  legalNext(): string[] {
-    const base = this.legality.legalCalls(this.board);
+  /**
+   * The calls offered from `board`, or from the session's own board when none is given.
+   *
+   * THE BOARD IS A PARAMETER NOW, for the same reason the solver queries below take one: a caller that has a board in
+   * hand should not have to write it into the session first, and the write-then-read ordering was the silent half of
+   * AGENTS §8 trap 13. Additive: `legalNext()` is byte-for-byte the old behaviour.
+   */
+  legalNext(board: Board = this.board): string[] {
+    const base = this.legality.legalCalls(board);
     // A coded move is listed only when it actually applies: the pivots always do,
     // but a whole-set resolve such as Promenade has preconditions.
     //
@@ -1045,16 +1070,16 @@ export class Sequencer {
     const derived = CODED_MOVE_NAMES.filter((n) => {
       if (base.includes(n)) return false;
       const move = findCodedMove(n);
-      return !move || codedMoveApplies(move, this.board);
+      return !move || codedMoveApplies(move, board);
     });
-    const groups = this.subsetGroups(this.board);
+    const groups = this.subsetGroups(board);
     return base.concat(derived).filter((n) => {
       const spec = splitSelection(n);
       const call = spec.call || n;
       // Its own reading - the authored selection, or the whole board.
-      if (this.mayOffer(call, spec.selection ?? 'All 8').allowed) return true;
+      if (this.mayOffer(call, spec.selection ?? 'All 8', board).allowed) return true;
       // Refused for that reading: still offerable if some group can do it.
-      return groups.some((g) => this.groupCanPerform(this.board, g, call));
+      return groups.some((g) => this.groupCanPerform(board, g, call));
     });
   }
 
@@ -1725,16 +1750,25 @@ export class Sequencer {
 
   // ---- getout / getin / fixIt ----
 
-  getout(opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
-    return this.solver.getout(this.board, opts);
+  /**
+   * THE SOLVER QUERIES TAKE A BOARD, and default to the session's own.
+   *
+   * `opts.board` is additive: every existing call site passes the same options object it did, and `this.board` is
+   * still the default, so the session style is untouched. What it removes is the `setBoard`-then-search ordering trap
+   * 13 records — the search read `this.board` silently, so a caller that forgot the setter got an answer about a
+   * different board, and the failure was an empty path rather than an error. `poc-teacher/src/formation-table.ts` is
+   * the witness: its get-in/get-out loop is now `startBoard()` plus explicit boards, with no `reset` in it.
+   */
+  getout(opts: { target?: string; maxCalls?: number; budget?: number; board?: Board } = {}): string[] | null {
+    return this.solver.getout(opts.board ?? this.board, opts);
   }
 
-  getin(opts: { target?: string; maxCalls?: number; budget?: number } = {}): string[] | null {
-    return this.solver.getin(this.board, opts);
+  getin(opts: { target?: string; maxCalls?: number; budget?: number; board?: Board } = {}): string[] | null {
+    return this.solver.getin(opts.board ?? this.board, opts);
   }
 
-  fixIt(opts: { target?: string; depth?: number } = {}): string[] {
-    return this.solver.fixIt(this.board, opts);
+  fixIt(opts: { target?: string; depth?: number; board?: Board } = {}): string[] {
+    return this.solver.fixIt(opts.board ?? this.board, opts);
   }
 
   /** What the LAST getout/getin/fixIt cost, in the terms that separate the two complexity
@@ -1749,8 +1783,9 @@ export class Sequencer {
     this.config.collectStats = on;
   }
 
-  matrixGetout(): string[] | null {
-    return this.solver.matrixGetout(this.board);
+  /** The one-call get-out, from `board` or from the session's own. See `getout`. */
+  matrixGetout(board: Board = this.board): string[] | null {
+    return this.solver.matrixGetout(board);
   }
 
   closenessToHome(board: Board = this.board): number {

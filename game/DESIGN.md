@@ -2295,6 +2295,12 @@ Each has a recommendation and the tradeoff, so this does not need another round 
    Q18/Q20 house rule), offered wherever the drill can actually be left behind (`skipOffered`): a SERVER-issued drill
    needs `mayWrite` — so a demo is not offered it, for Q22's reason — an OFFLINE drill is left behind by the local
    position alone, and a PRACTICE drill is not offered it because the fixture has no server entry to close.
+   **AND A SHEET IS NOT OFFERED IT AT ALL**, REPORTED: *"In mobile view, remove the "skip" and "show me" buttons. They are
+   too easy to warrant this. They must solve them. Also, they hide the choices, so very bad UI design."* The rule moved out
+   of the shell into `game/src/game/skip-offer.ts` — a DOM-free function of five facts, so a probe can drive every
+   combination — and the sheet is the fifth: a sheet's footer sits over the answer buttons, so the control that spends the
+   drill was also the control covering the three choices. MEASURED: 32 combinations driven, the skip offered in 6 of them,
+   and none on a sheet (`game/test/skip-offer-probe.mjs`).
    **THE LOCAL LEDGER MIRRORS THE SERVER'S FINALITY**, or the two would disagree about a drill: `save.markSkipped`
    spends the position without crediting it, exactly as `POST /runs`'s credit rule does for a revealed run, so a later
    local solve of a skipped drill cannot earn — which is also what the server does to it (a closed drill answers a

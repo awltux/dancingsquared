@@ -48,6 +48,7 @@ import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchDrillRep
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
+import { skipOffered as skipOfferedAt } from './game/skip-offer.ts';
 import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type StagePair, type ViewMode } from './render/stage-view.ts';
@@ -2160,14 +2161,15 @@ function serverIssued(): boolean {
  * for the right answer and the wrong reason).
  */
 function skipOffered(): boolean {
-  // A REATTEMPT IS NOT SKIPPABLE, and the reason is that the control could do nothing: the position is already
-  // `finished`, so `POST /drill/advance` would close a drill that is already closed and the block would not move. A
-  // control whose only outcome is "nothing happened" is worse than no control — the same rule Q20's practice offer and
-  // Q21's advance are written to. MEASURED IN A BROWSER (this one was): a skipped drill was reattempted, and "Skip this
-  // drill" was still offered beside it.
-  if (serverIssued() && serverDrill?.replay === true) return false;
-  if (serverIssued()) return mayWrite(currentStanding());
-  return !apiConfigured();
+  // THE RULE IS `game/skip-offer.ts`'S, and it moved there when the owner added a condition that is not about the server —
+  // "In mobile view, remove the skip ... they hide the choices". This shell supplies the five facts and nothing else.
+  return skipOfferedAt({
+    serverIssued: serverIssued(),
+    replay: serverDrill?.replay === true,
+    mayWrite: mayWrite(currentStanding()),
+    configured: apiConfigured(),
+    sheet: layout.panelSide === 'bottom',
+  });
 }
 
 /**

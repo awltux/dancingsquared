@@ -31,7 +31,7 @@ const base = {
   playerEmail: null,
   standing: 'offline',
   drillLevel: 1,
-  drillBest: null,
+  drillTotal: 0,
   dailyScore: null,
 };
 
@@ -46,8 +46,10 @@ console.log('\n== 1. the hint meter ==');
   check(pips(5) === '●●●', `a balance over the cap is still three glyphs (${pips(5)})`);
   check(pips(-2) === '○○○', `and a negative balance is three empty ones (${pips(-2)})`);
   check([...pips(1)].length === 3, 'every meter is exactly three glyphs wide, so the row cannot jump');
-  check(bannerView({ ...base, hintsHeld: 2 }).hintsLabel === 'Hints 2/3',
-    `and the count beside it is the same number in words (${bannerView({ ...base, hintsHeld: 2 }).hintsLabel})`);
+  // THE NUMBER IS THE ACCESSIBLE NAME NOW. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge
+  // outline" — the badge prints nothing, so the label is the only place the count exists and it must say it in full words.
+  check(bannerView({ ...base, hintsHeld: 2 }).hintsLabel === 'Hints 2 of 3',
+    `the badge's accessible name is the count in words (${bannerView({ ...base, hintsHeld: 2 }).hintsLabel})`);
 }
 
 console.log('\n== 2. who you are, and whether it counts ==');
@@ -83,20 +85,39 @@ console.log('\n== 2. who you are, and whether it counts ==');
   check(titles.size === 4, `no two states share an accessible name (${titles.size} of 4)`);
 }
 
-console.log('\n== 3. the two scores, and the absence of one ==');
+console.log('\n== 3. the level, the running total and the Daily ==');
 {
+  // REPORTED: "The L1 100 Daily No Score should be simplified ... L1 {Drill Icon}:100 {Daily Icon}:0", then "there doesnt seem to
+  // be a running total for the drill puzzles. Not sure whats its counting every time I resolve a drill." So the drill's number is
+  // a TOTAL, and the Daily's is today's score.
   const nobody = bannerView({ ...base, drillLevel: 3 });
-  check(nobody.drillText === 'L3 no score', `a level with no run says so (${nobody.drillText})`);
-  check(nobody.dailyText === 'Daily no score', `and so does a day with none (${nobody.dailyText})`);
-  check(!/ 0$/.test(nobody.drillText) && !/ 0$/.test(nobody.dailyText), 'neither prints a zero for "nothing"');
-  const scored = bannerView({ ...base, drillLevel: 3, drillBest: 280, dailyScore: 0 });
-  check(scored.drillText === 'L3 280', `a best Drill score is shown with its level (${scored.drillText})`);
-  // A REAL ZERO IS A SCORE, and it must not be swallowed by the "no score" branch: `null` and `0` are different facts.
-  check(scored.dailyText === 'Daily 0', `and a zero that was earned prints as a zero (${scored.dailyText})`);
-  // THE NEGATIVE CONTROL: the plausible shortcut — `score ?? 0` — is caught here, because it prints a zero for an absence.
-  const naive = (label, score) => `${label} ${score ?? 0}`;
-  check(naive('Daily', null) === 'Daily 0' && nobody.dailyText === 'Daily no score',
+  check(nobody.levelText === 'L3', `the cell starts with the level (${nobody.levelText})`);
+  // A TOTAL OF NOTHING IS ZERO AND THAT IS THE TRUE ANSWER — unlike a Daily nobody has played, which is an absence.
+  check(nobody.drillScore === '0', `a player who has solved nothing has a total of zero (${nobody.drillScore})`);
+  check(nobody.dailyScore === '—', `a day with no run shows a dash (${nobody.dailyScore})`);
+  check(nobody.scoresLabel === 'Level 3: drill total 0, Daily no score',
+    `and the accessible name says both in words (${nobody.scoresLabel})`);
+  const scored = bannerView({ ...base, drillLevel: 3, drillTotal: 340, dailyScore: 0 });
+  check(scored.drillScore === '340', `the running total is the number alone (${scored.drillScore})`);
+  // A REAL ZERO IS A SCORE, and it must not be swallowed by the "no score" branch: `null` and `0` are different facts, and the
+  // compact cell is where that distinction is easiest to lose.
+  check(scored.dailyScore === '0', `and a Daily zero that was earned prints as a zero (${scored.dailyScore})`);
+  check(scored.scoresLabel === 'Level 3: drill total 340, Daily best 0',
+    `with the words to match (${scored.scoresLabel})`);
+  // THE TOTAL MOVES WHEN A DRILL IS SOLVED, which is the complaint: a fixed 100 could not tell a player what it was counting. The
+  // check is the arithmetic itself, over the same facts a solve changes.
+  const before = bannerView({ ...base, drillTotal: 340 });
+  const after = bannerView({ ...base, drillTotal: 340 + 120 });
+  check(before.drillScore === '340' && after.drillScore === '460',
+    `solving a drill worth 120 takes the total from ${before.drillScore} to ${after.drillScore}`);
+  // THE NEGATIVE CONTROL: the plausible shortcut — `score ?? 0` — is caught here, because it prints a zero for an absence where
+  // the Daily's absence must be a dash.
+  const naive = (score) => `${score ?? 0}`;
+  check(naive(null) === '0' && nobody.dailyScore === '—',
     'CONTROL: the `?? 0` shortcut disagrees with the rule wherever there is no score');
+  // AND THE DASH IS NOT `0` — the two must be told apart by the value itself, not only by the label.
+  check(naive(null) !== nobody.dailyScore && naive(0) === scored.dailyScore,
+    'CONTROL: "no score" and "scored zero" are different strings');
 }
 
 console.log('\n== 4. every field is filled for every combination ==');
@@ -110,9 +131,9 @@ console.log('\n== 4. every field is filled for every combination ==');
   let combos = 0;
   for (const standing of standings) {
     for (const playerEmail of emails) {
-      for (const drillBest of scores) {
+      for (const drillTotal of scores) {
         for (const dailyScore of scores) {
-          const view = bannerView({ ...base, standing, playerEmail, drillBest, dailyScore });
+          const view = bannerView({ ...base, standing, playerEmail, drillTotal, dailyScore });
           combos++;
           for (const [name, value] of Object.entries(view)) if (value === '') empty++;
         }

@@ -70,12 +70,48 @@
              strip carries the board captions and the board switcher, so a banner over it would cover the two things that
              say what the boards are. The row is also the row the retired mode switch freed. -->
         <header id="head">
+          <!-- THE PRIMARY BANNER: what the game is worth right now — the hint meter, the level's two scores, the position and
+               the account. The way back is NOT here any more. REPORTED: "The Back button feels inappropriate for the top
+               banner. A secondary banner could have a breadcrumb (minimalist) and the back button." -->
           <div id="bannerRow">
-            <button id="bannerBack" type="button" hidden>‹ Back</button>
-            <p id="regime"></p>
-            <!-- THE HINT METER: three slots for what is held, and the count beside them in words — the glyphs alone are
-                 unreadable for a colour-vision difference and silent to a screen reader, so the numbers stay. -->
-            <p id="bannerHints"><span id="bannerPips" class="hint-pips"></span><span id="bannerHintWords"></span></p>
+            <!-- THE LEVEL AND THE TWO SCORES COME FIRST, on the left. REPORTED: "The L1 100 Daily No Score should be simplified
+                 and moved up to the same line as the hints on the left hand side. The simplification could look like L1 {Drill
+                 Icon}:100 {Daily Icon}:0" — so it is the level, then a glyph per game with its score, and the words "no score"
+                 are an em dash in the value (see `ui/banner.ts`: an absence must never print as a zero, but a row this thin has
+                 no room for the sentence, so the sentence is the group's accessible name). -->
+            <p id="bannerScores" role="img" aria-label="Level 1">
+              <span id="bannerLevel"></span>
+              <span class="banner-score">
+                <!-- THE DRILL'S GLYPH IS A RUNNING MAN, asked for by name: a figure mid-stride says "the drill" — a ladder of
+                     calls walked one at a time — and it is distinguishable from the sun beside it even at 14 px, which two
+                     abstract shapes were not. Five strokes, round caps, no fill: the same language as the account badge. -->
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="16.4" cy="4.9" r="2" />
+                  <path d="M15 7 L10.2 12.6" />
+                  <path d="M13.6 8.6 L18.6 10.6" />
+                  <path d="M10.2 12.6 L15.4 14.6 L14.2 20.2" />
+                  <path d="M10.2 12.6 L5.4 17.6" />
+                </svg>
+                :<span id="bannerDrill"></span>
+              </span>
+              <span class="banner-score">
+                <!-- THE DAILY'S GLYPH IS A FULL SUN. It was a sunrise — a half disc on a horizon — and REPORTED: "make the
+                     sunrise glyph into a full sun (The sunrise is a little unobvious)": half a sun behind a line reads as a
+                     hill or a box at 14 px, where a disc with rays round it is the one shape everybody draws for "the sun". -->
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="12" cy="12" r="4.3" />
+                  <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M18.7 5.3l-1.5 1.5M6.8 17.2l-1.5 1.5" />
+                </svg>
+                :<span id="bannerDaily"></span>
+              </span>
+            </p>
+            <!-- THE HINT METER IS A BADGE OF CIRCLES, with no number beside it, and it sits at the RIGHT OF THE ROW, beside the
+                 account badge. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge outline", then
+                 "move the hints badge to the right hand of the header to left of the account badge" — the left of the row is the
+                 game (the level and its scores), and the right is the player (what they hold, and who they are). The outline is
+                 what makes three loose glyphs read as one object; `role="img"` and the `aria-label` are what keep the number
+                 available to a screen reader, because a meter with no words beside it must be the thing that is named. -->
+            <p id="bannerHints" role="img" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-pips"></span></p>
             <!-- THE ACCOUNT BADGE: A CIRCLE WITH A PERSON IN IT, and it is always drawn. REPORTED first as "The empty login
                  account badge is missing from the header", then as "The login badge is too large. Can it be a simple circular
                  vector diagram of a person" — the first version was a pill with the email or "Sign in" in it, which is two
@@ -88,10 +124,22 @@
                 <path d="M5.9 19.1a6.4 6.4 0 0 1 12.2 0" />
               </svg>
             </button>
-            <!-- THE TWO SCORES: this level's best Drill, and today's Daily. "no score" rather than a zero, because a zero
-                 is a score a player could believe they had earned. -->
-            <p id="bannerDrill"></p>
-            <p id="bannerDaily"></p>
+          </div>
+          <!-- THE SECONDARY BANNER: the way back, a minimalist breadcrumb and the position, on its own thin row. REPORTED: "The
+               Back button feels inappropriate for the top banner. A secondary banner could have a breadcrumb (minimalist) and
+               the back button." The path is derived from the page table (`ui/pages.ts`'s `breadcrumbFor`) and filled by
+               `paintChrome` — one crumb per page on the way here, the current one marked and not a control. The row is hidden
+               on the landing page, whose path is a single crumb and whose back button has nowhere to go: a path of one is a
+               label rather than a path.
+
+               THE POSITION LINE LIVES HERE TOO, and that is the second half of the same problem: "Drill 1/100 · L1" was the last
+               sentence in the top row, it duplicated the level cell's `L1`, and on a 340 px panel it overflowed the row and
+               pushed the account badge onto a line of its own. Row two is where the words belong — the row about where you are
+               — and it already disappears on a narrow viewport. -->
+          <div id="bannerPath">
+            <button id="bannerBack" type="button" hidden>‹ Back</button>
+            <nav id="breadcrumb" aria-label="Where you are"></nav>
+            <p id="regime"></p>
           </div>
         </header>
 

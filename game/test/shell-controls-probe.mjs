@@ -209,15 +209,32 @@ console.log('\n== 4. the landing page reaches every other page, and the banner h
   check(main.includes("navigate({ page: 'drill', drillIndex: index })"),
     'and the drill is entered by a cell press that writes its own URL');
   const banner = blockOf(html, 'div', 'bannerRow') ?? '';
-  // THE BANNER'S CELLS: the way back, where the player is, the hint meter, the account badge and the two scores — the list
-  // the report named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all,
-  // which the id contract would otherwise only catch once one of them is asked for in the script.
+  // THE BANNER'S CELLS: the hint badge, the level with its two scores, the position and the account badge — the list the reports
+  // named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all, which the id
+  // contract would otherwise only catch once one of them is asked for in the script.
   const bannerIds = idsIn(banner);
-  const cells = ['bannerBack', 'regime', 'bannerPips', 'bannerHintWords', 'bannerAccount', 'bannerDrill', 'bannerDaily'];
+  const cells = ['bannerHints', 'bannerPips', 'bannerScores', 'bannerLevel', 'bannerDrill', 'bannerDaily', 'bannerAccount'];
   const absent = cells.filter((id) => !bannerIds.includes(id));
   check(absent.length === 0,
-    `the banner carries the back button, the position, the meter, the account badge and the two scores (${absent.join(', ') || 'none missing'})`,
+    `the banner carries the hint badge, the level's two scores and the account badge (${absent.join(', ') || 'none missing'})`,
     absent.join(', '));
+  // THE WAY BACK, THE PATH AND THE POSITION ARE THE SECOND ROW. REPORTED: "The Back button feels inappropriate for the top
+  // banner. A secondary banner could have a breadcrumb (minimalist) and the back button." So this pins that none of the three is
+  // in the top row any more, and that all three are in the row that was added for them.
+  check(!bannerIds.includes('bannerBack') && !bannerIds.includes('regime'),
+    'the top banner no longer holds the back button or the position line');
+  const path = blockOf(html, 'div', 'bannerPath') ?? '';
+  const pathIds = idsIn(path);
+  check(['bannerBack', 'breadcrumb', 'regime'].every((id) => pathIds.includes(id)),
+    `the secondary banner holds the way back, the breadcrumb and the position (${pathIds.join(', ')})`);
+  // THE HINT BADGE CARRIES NO TEXT, so its label must carry the number: REPORTED as "Remove the text Hints 0/3 and surround
+  // the hint circles with a badge outline". A meter with neither words nor a name is a fact only sighted players have.
+  check(/<p id="bannerHints"[^>]*role="img"[^>]*aria-label="/.test(banner),
+    'the hint badge is a named image, because its number is no longer printed');
+  // AND THE GLYPHS ARE DECORATION: the scores cell's accessible name is the sentence, and the pictures are `aria-hidden`.
+  check(/<p id="bannerScores"[^>]*aria-label="/.test(banner), 'the scores cell is named too');
+  check([...banner.matchAll(/<svg[^>]*aria-hidden="true"/g)].length >= 3,
+    'and every glyph in the row (two scores, one account) is `aria-hidden` rather than the label');
   check(main.includes('els.bannerBack.hidden = target === null') && main.includes('backTarget(page)'),
     'and paintChrome hides it from the page model\'s backTarget rather than from a second table');
   // THE ACCOUNT BADGE IS ALWAYS DRAWN AND ALWAYS A CONTROL — the two halves of "The empty login account badge is missing from

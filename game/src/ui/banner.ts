@@ -30,20 +30,37 @@ export interface BannerFacts {
   readonly playerEmail: string | null;
   /** What the server will do with a run, from `standingOf` — the one rule that decides it. */
   readonly standing: Standing;
-  /** The level the player is on, for the Drill score's label. */
+  /** The level the player is on, for the scores cell's label. */
   readonly drillLevel: number;
-  /** This level's best Drill score on this device, or null when there is none. */
-  readonly drillBest: number | null;
+  /**
+   * THE RUNNING TOTAL OF THE PLAYER'S SOLVED DRILLS.
+   *
+   * IT WAS "THIS LEVEL'S BEST" AND THEN "THIS DRILL'S SCORE", and the reports caught both: "the drill score seems to just show
+   * 100, not the actual current score", then "there doesnt seem to be a running total for the drill puzzles. Not sure whats its
+   * counting every time I resolve a drill". A BEST is a fact about the level that does not move when the player earns anything,
+   * and a single run's score is a fact that disappears the moment the next drill is issued; a TOTAL is the only one of the three
+   * that both MOVES when a drill is solved and MEANS the same thing on every page. It is never null — a sum of nothing is 0, and
+   * here 0 IS the true answer, unlike a score nobody has earned.
+   */
+  readonly drillTotal: number;
   /** Today's Daily score on this device, or null when none was recorded. */
   readonly dailyScore: number | null;
 }
 
 /** What the banner shows, one field per cell. */
 export interface BannerView {
-  /** The meter: filled for what is held, three slots. */
+  /** The meter: filled for what is held, three slots, drawn inside a badge with no number beside it. */
   readonly pips: string;
-  /** The count beside the meter, short enough for a thin row. It is the meter in words, not a second copy of it. */
+  /** The meter's accessible name, which is where the number lives now that the row carries no words. */
   readonly hintsLabel: string;
+  /** The level the scores belong to, as the row shows it: `L1`. */
+  readonly levelText: string;
+  /** The running total of solved drills — always a number, because a sum of nothing is zero. */
+  readonly drillScore: string;
+  /** Today's Daily score, or an em dash when there is none. */
+  readonly dailyScore: string;
+  /** The scores cell in words, for the group's accessible name: "Level 1: drill total 340, Daily no score". */
+  readonly scoresLabel: string;
   /** The account badge's own text: an email when somebody is signed in, "Sign in" when nobody is. */
   readonly accountText: string;
   /**
@@ -53,24 +70,22 @@ export interface BannerView {
   readonly accountTitle: string;
   /** How the badge reads: a rank is `ok` and an absence of one is neutral. */
   readonly accountKind: 'ok' | 'info';
-  readonly drillText: string;
-  readonly dailyText: string;
 }
 
 /** Three slots is the meter's width, matching the pips the footer carried before they moved here (`DESIGN.md` §10). */
 const METER = 3;
 
 /**
- * The four cells, from the facts.
+ * The cells, from the facts.
  *
- * EACH SENTENCE IS CHOSEN SO THAT A ZERO AND AN ABSENCE CANNOT BE CONFUSED: a Daily nobody has played says "no score"
- * rather than "0", which is a score a player could believe they had earned — the same distinction `puzzle/board-period.ts`
- * makes when it answers null instead of inventing a month.
+ * THE ROW CARRIES NO SENTENCES, WHICH MOVED THE WORDS INTO ACCESSIBLE NAMES. REPORTED: "Remove the text Hints 0/3 and
+ * surround the hint circles with a badge outline … The L1 100 Daily No Score should be simplified and moved up to the same
+ * line as the hints on the left hand side … L1 {Drill Icon}:100 {Daily Icon}:0". So each cell is a picture of one fact and its
+ * `aria-label` is the sentence that used to be printed: a meter of three circles named "Hints 2 of 3", and a level with a
+ * glyph per game named "Level 1: drill best 280, Daily no score".
  *
- * THE PIPS ARE THE ICONS THE REPORT ASKED FOR and the count beside them is the same fact in words: the meter alone would be
- * unreadable for a colour-vision difference and silent to a screen reader. The LONGER sentence (how many successes the next
- * hint needs, and whose balance it is) lives on the Setup page with the rest of the device's bookkeeping — the report that
- * asked for the icons also asked for the debug-style text to leave the play screens.
+ * A ZERO AND AN ABSENCE ARE STILL DIFFERENT THINGS, and the compact row says so with an em dash rather than a zero — see
+ * `scoreValue`. `0` prints as `0`, because a zero IS a score a player earned.
  */
 export function bannerView(facts: BannerFacts): BannerView {
   const held = Math.max(0, facts.hintsHeld);
@@ -79,12 +94,14 @@ export function bannerView(facts: BannerFacts): BannerView {
   const account = accountBadge(facts);
   return {
     pips,
-    hintsLabel: `Hints ${held}/${METER}`,
+    hintsLabel: `Hints ${held} of ${METER}`,
+    levelText: `L${facts.drillLevel}`,
+    drillScore: String(facts.drillTotal),
+    dailyScore: scoreValue(facts.dailyScore),
+    scoresLabel: `Level ${facts.drillLevel}: drill total ${facts.drillTotal}, Daily ${scoreWords(facts.dailyScore)}`,
     accountText: account.text,
     accountTitle: account.title,
     accountKind: account.kind,
-    drillText: scoreCell(`L${facts.drillLevel}`, facts.drillBest),
-    dailyText: scoreCell('Daily', facts.dailyScore),
   };
 }
 
@@ -108,7 +125,18 @@ function accountBadge(facts: BannerFacts): { text: string; title: string; kind: 
   return { text: 'Sign in', title: 'Not signed in — runs unranked', kind: 'info' };
 }
 
-/** A score, or that there is not one. Never `0` for "none": that is a score a player could believe they had. */
-function scoreCell(label: string, score: number | null): string {
-  return score === null ? `${label} no score` : `${label} ${score}`;
+/**
+ * A score as the row prints it: the number, or an em dash for "none".
+ *
+ * THE DASH IS NOT A COSMETIC CHOICE. `0` is a score a player earned — a solved drill can be worth nothing — so printing `0`
+ * for "nobody has played this yet" states something false; `—` is the same distinction `puzzle/board-period.ts` makes when it
+ * answers null instead of inventing a month. `scoreWords` is what a screen reader hears for the same fact.
+ */
+function scoreValue(score: number | null): string {
+  return score === null ? '—' : String(score);
+}
+
+/** The same fact in words, for the group's accessible name. */
+function scoreWords(score: number | null): string {
+  return score === null ? 'no score' : `best ${score}`;
 }

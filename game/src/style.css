@@ -93,12 +93,11 @@ body {
    takes up a lot of screen real estate." It was an `<h1>` above this row on every page — the tallest thing in a 340 px panel
    — and the name is carried by the browser tab, by the installed icon and by the landing page's own heading. */
 
-/* THE BANNER: THE WAY BACK, WHERE THE PLAYER IS, WHAT THEY HOLD, WHO THEY ARE AND THE TWO SCORES — one row, on every page
-   (REPORTED: "All pages have a thin banner containing current hints icons, login status, current score for drills and
-   daily, a back button"). It is a WRAPPING flex row rather than a fixed grid, because the cells have very different widths
-   and a narrow viewport genuinely cannot hold them on one line: wrapping is the honest failure, where a fixed grid would
-   either clip a cell or squash a sentence into a 60 px column. The `row-gap` is the scale's smallest step, so a second line
-   costs one line of text rather than a paragraph of air. */
+/* THE BANNER: THE WAY BACK, WHAT THE PLAYER HOLDS, THE LEVEL'S TWO SCORES, WHERE THEY ARE AND WHO THEY ARE — one row, on
+   every page (REPORTED: "All pages have a thin banner containing current hints icons, login status, current score for drills
+   and daily, a back button"). It is a WRAPPING flex row rather than a fixed grid, because the cells have very different widths
+   and a narrow viewport genuinely cannot hold them all on one line: wrapping is the honest failure, where a fixed grid would
+   either clip a cell or squash it into a 60 px column. */
 #bannerRow {
   display: flex;
   flex-wrap: wrap;
@@ -107,28 +106,180 @@ body {
   min-height: 32px;
 }
 
-#regime {
-  flex: 1 1 14ch;
-  margin: 0;
+/* THE POSITION LINE IS THE SECOND ROW'S, at its right end. It was the last sentence in the top row: `Drill 1/100 · L1`
+   duplicated the level cell's `L1`, and at 340 px it overflowed the row and pushed the account badge onto a line of its own.
+   The row about where you are is where a sentence about where you are belongs — and it already disappears on a narrow
+   viewport (below), which is why it costs the sheet nothing. */
+#bannerPath #regime {
+  flex: 0 1 auto;
+  margin: 0 0 0 auto;
+  overflow: hidden;
   color: var(--dim);
-  font-size: var(--fs-body);
+  font-size: var(--fs-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* THE BANNER'S OWN CELLS ARE ONE STEP SMALLER THAN THE REGIME LINE: the position is the sentence and these are the numbers
-   beside it. `nowrap` per cell keeps a label and its value together, so a wrap never separates "L1" from its score. */
-#bannerHints,
-#bannerDrill,
-#bannerDaily {
+/* AND THE BADGE FOLLOWS THE METER at the row's right end. REPORTED: "move the hints badge to the right hand of the header to
+   left of the account badge" — the `margin-left: auto` that used to push the badge right now opens the group on the meter, so
+   the two stay together and the left of the row is the game's. */
+#bannerAccount {
+  flex: none;
+}
+
+/* THE HINT METER IS ONE BADGE, AND IT IS THE ROW'S RIGHT-HAND GROUP WITH THE ACCOUNT BADGE. REPORTED: "Remove the text Hints
+   0/3 and surround the hint circles with a badge outline", then "move the hints badge to the right hand of the header to left of
+   the account badge" — so the left of the row is the game (the level and its scores) and `margin-left: auto` starts the player's
+   group. It carries no text: the number is the cell's `aria-label` (`role="img"` in the markup), because the sentence version
+   lives on the Setup page with the rest of the device's bookkeeping. */
+#bannerHints {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin: 0 0 0 auto;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--control);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+}
+
+/* THE LEVEL AND ITS TWO SCORES ARE ONE CELL. `L1`, then a glyph per game with its value — the compact form the report asked
+   for. The values are tabular so a score that changes width does not shift the glyphs around it. */
+#bannerScores {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-sm);
   margin: 0;
+  color: var(--dim);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#bannerLevel {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* A GLYPH, A COLON AND ITS NUMBER, with no gap of their own: the compact form the report asked for reads
+   `L1 {running man}:280 {sunrise}:0`, and a space either side of the colon turns four characters into a phrase. The two
+   GAMES are separated by the cell's own `gap`. */
+.banner-score {
+  display: flex;
+  align-items: center;
+}
+
+/* THE TWO GLYPHS ARE INLINE SVG, stroked in `currentColor` and `aria-hidden`: a running man for the Drill and a sunrise for
+   the Daily (both asked for by name). 1.35em square, so they scale with the row's type rather than with a pixel value of their
+   own — and one step above the text, because a pictogram drawn at the height of a lowercase letter reads as a smudge
+   (MEASURED on the first version at 1.15em: the runner's stride was not distinguishable from the sunrise at a glance). */
+.banner-score svg {
+  width: 1.35em;
+  height: 1.35em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* THE SECONDARY BANNER: THE WAY BACK AND THE PATH, one row under the first. REPORTED: "The Back button feels inappropriate for
+   the top banner. A secondary banner could have a breadcrumb (minimalist) and the back button." It is a row of its own so the
+   primary banner is only about what the game is worth, and it is HIDDEN where there is no path (`paintChrome`), so the landing
+   page keeps a one-row header.
+
+   `overflow: hidden` WITH `text-overflow` ON THE LAST CRUMB is what keeps a deep path from wrapping to a second line: the drill
+   page's path is three crumbs and a narrow sheet has ~300 px for them. */
+#bannerPath {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  min-height: 24px;
+  overflow: hidden;
+}
+
+#bannerPath[hidden] {
+  display: none;
+}
+
+/* THE PATH ITSELF IS SMALL, DIM AND QUIET: it answers "where am I" for anyone who asks, and it is not a second menu. */
+#breadcrumb {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+  overflow: hidden;
   color: var(--dim);
   font-size: var(--fs-small);
   white-space: nowrap;
 }
 
-#bannerHints {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
+/* THE SEPARATOR IS PAINTED, NOT MARKED UP: a `/` between crumbs is decoration, and a text node between buttons would be read out
+   by some screen readers as a word ("slash"). `content` is invisible to the accessibility tree, which is exactly right. */
+.crumb + .crumb::before {
+  content: '/';
+  margin-right: var(--space-xs);
+  color: var(--line);
+}
+
+/* A CRUMB IS A BUTTON THAT LOOKS LIKE TEXT: the path is navigable, and it must not compete with the controls around it — no
+   fill, no border, the row's own type, and a 24 px box so a thumb can still hit it. */
+.crumb {
+  min-height: 24px;
+  padding: var(--space-xs) var(--space-xs);
+  overflow: hidden;
+  color: var(--dim);
+  font-family: inherit;
+  font-size: var(--fs-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+button.crumb:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+button.crumb:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* THE PAGE YOU ARE ON IS NOT A CONTROL, and it is the one crumb in the ink rather than the dim. */
+.crumb[aria-current="page"] {
+  color: var(--ink);
+}
+
+/* THE BACK BUTTON IS A SECONDARY CONTROL NOW: it shares the second row with the path, so it is smaller than the top row's
+   controls and outlined rather than filled — the row is navigation, not the game. */
+#bannerBack {
+  flex: none;
+  min-height: 24px;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--fs-small);
+  color: var(--dim);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  cursor: pointer;
+}
+
+#bannerBack:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+#bannerBack:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* THE ACCOUNT BADGE IS A CIRCLE WITH A PERSON IN IT. REPORTED twice: "The empty login account badge is missing from the
@@ -181,25 +332,8 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* THE BACK BUTTON IS A CONTROL AND NOT A LINK, because it does not go where a link's href says: it goes to the page's
-   PARENT (`ui/pages.ts`'s `backTarget`), which is a fact about the pages rather than about history. It is sized for a
-   thumb even though it is small on screen — the same 44 px rule every other control here follows. */
-#bannerBack {
-  flex: none;
-  min-height: 32px;
-  padding: var(--space-xs) var(--space-sm);
-  font-family: inherit;
-  font-size: var(--fs-control);
-  color: var(--ink);
-  background: var(--control);
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  cursor: pointer;
-}
-
-#bannerBack:hover {
-  border-color: var(--accent);
-}
+/* THE BACK BUTTON'S RULES ARE ABOVE, WITH THE SECONDARY BANNER IT NOW LIVES IN — it was moved out of the top row by the report
+   that opens that block, and a second copy of them here would be a second answer to what it looks like. */
 
 /* A SENTENCE THAT OUTLIVES A NAVIGATION — a deep link that named nothing, most often. It sits above the page rather than
    inside one, because the page it is about is the one the player is NOT on. */
@@ -558,8 +692,7 @@ button[data-busy="true"]::after {
 }
 
 #levels .cell:focus-visible,
-#levelNext:focus-visible,
-#bannerBack:focus-visible {
+#levelNext:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }

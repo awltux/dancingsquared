@@ -21,7 +21,7 @@
 //
 // Usage: node game/test/pages-probe.mjs   (pure: no DOM, no browser, no engine)
 import {
-  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId,
+  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId, breadcrumbFor,
 } from '../src/ui/pages.ts';
 
 let failures = 0;
@@ -122,7 +122,35 @@ console.log('\n== 4. the words ==');
   check(titles.filter((title) => title === 'Dancing Squared').length === 1, 'and only the menu is the app itself');
 }
 
-console.log('\n== 5. one heading per page ==');
+console.log('\n== 5. the path a breadcrumb draws ==');
+{
+  // REPORTED: "The Back button feels inappropriate for the top banner. A secondary banner could have a breadcrumb (minimalist) and
+  // the back button." The path is DERIVED from `backTarget`, and these checks are the properties a path must have.
+  check(JSON.stringify(breadcrumbFor('landing')) === '["landing"]', `the menu's path is itself (${breadcrumbFor('landing').join(' > ')})`);
+  check(JSON.stringify(breadcrumbFor('drill')) === '["landing","levels","drill"]',
+    `the drill's path is the menu, the level, then the drill (${breadcrumbFor('drill').join(' > ')})`);
+  check(JSON.stringify(breadcrumbFor('help')) === '["landing","help"]', 'a page off the menu is two crumbs');
+  for (const page of PAGES) {
+    const path = breadcrumbFor(page);
+    check(path[0] === 'landing', `${page}'s path starts at the menu (${path.join(' > ')})`);
+    check(path[path.length - 1] === page, `and ends on the page itself (${path.join(' > ')})`);
+    check(new Set(path).size === path.length, `with no page twice (${path.join(' > ')})`);
+    // EVERY STEP IS THE PREVIOUS STEP'S CHILD, which is what makes the crumbs and the back button one statement: the crumb
+    // before you is exactly where that button goes.
+    const linked = path.every((crumb, index) => index === 0 || backTarget(crumb) === path[index - 1]);
+    check(linked, `and every crumb's parent is the crumb before it (${path.join(' > ')})`);
+    // THE LAST CRUMB IS WHERE YOU ARE, so the button would be a control that goes to the page it is on.
+    check(backTarget(path[path.length - 1]) === (path.length > 1 ? path[path.length - 2] : null),
+      `the last crumb is the page, whose parent is the crumb before (${page})`);
+  }
+  // NEGATIVE CONTROLS: a path that forgot the middle page — the plausible "menu / page" shortcut — fails the drill's check, and a
+  // path that looped would fail the distinctness one.
+  const flat = (page) => (page === 'landing' ? ['landing'] : ['landing', page]);
+  check(JSON.stringify(flat('drill')) !== JSON.stringify(breadcrumbFor('drill')),
+    'CONTROL: "menu / drill" is not the path, which is the shortcut this derivation rules out');
+}
+
+console.log('\n== 6. one heading per page ==');
 {
   const ids = PAGES.map((page) => pageHeadingId(page));
   check(ids.every((id) => typeof id === 'string' && id.endsWith('Heading')), 'every page names a heading id');

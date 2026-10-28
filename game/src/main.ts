@@ -65,7 +65,7 @@ import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { LANDING_HOLD_MS, Replay, drillAnswerHoldMs } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import { bannerView, type BannerFacts } from './ui/banner.ts';
-import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
+import { backLabel, backTarget, breadcrumbFor, crumbLabel, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -311,8 +311,12 @@ const els = {
   regime: el('regime'),
   bannerBack: el<HTMLButtonElement>('bannerBack'),
   bannerPips: el('bannerPips'),
-  bannerHintWords: el('bannerHintWords'),
+  bannerHints: el('bannerHints'),
+  bannerScores: el('bannerScores'),
+  bannerLevel: el('bannerLevel'),
   bannerAccount: el<HTMLButtonElement>('bannerAccount'),
+  bannerPath: el('bannerPath'),
+  breadcrumb: el('breadcrumb'),
   bannerDrill: el('bannerDrill'),
   bannerDaily: el('bannerDaily'),
   notice: el('notice'),
@@ -700,16 +704,23 @@ function paintLanding(): void {
  */
 function paintBanner(): void {
   const view = bannerView(bannerFacts());
+  // THE METER'S NUMBER IS AN ACCESSIBLE NAME NOW: the badge shows three circles and no text, so the `aria-label` is the only
+  // place "Hints 2 of 3" exists — and `role="img"` in the markup is what makes that label legal on an element whose content
+  // is a picture.
   els.bannerPips.textContent = view.pips;
-  els.bannerHintWords.textContent = view.hintsLabel;
+  els.bannerHints.setAttribute('aria-label', view.hintsLabel);
+  // THE SCORES ARE LEVEL AND A GLYPH PER GAME (`ui/banner.ts` decides the values; the two icons are markup). The sentence
+  // "Level 1: drill best 280, Daily no score" is the cell's accessible name, because the row prints `L1`, `280` and `—`.
+  els.bannerLevel.textContent = view.levelText;
+  els.bannerDrill.textContent = view.drillScore;
+  els.bannerDaily.textContent = view.dailyScore;
+  els.bannerScores.setAttribute('aria-label', view.scoresLabel);
   // THE GLYPH IS THE BADGE NOW (a circle with a person in it — the markup holds it and the icon is `aria-hidden`), so this
   // writes NO text: the two properties are the accessible name and the tooltip, and both are the sentence the paragraph this
   // button replaced used to state. `accountText` is still what a caller would draw if the badge ever showed a word.
   els.bannerAccount.title = view.accountTitle;
   els.bannerAccount.setAttribute('aria-label', view.accountTitle);
   els.bannerAccount.dataset['kind'] = view.accountKind;
-  els.bannerDrill.textContent = view.drillText;
-  els.bannerDaily.textContent = view.dailyText;
 }
 
 /** The facts the banner is a function of, each read from the thing that owns it. */
@@ -723,7 +734,12 @@ function bannerFacts(): BannerFacts {
     playerEmail: player?.email ?? null,
     standing: currentStanding(),
     drillLevel: view.levelIndex,
-    drillBest: bestScore(save.runs, (run) => run.mode === 'drill' && run.levelIndex === view.levelIndex),
+    // THE DRILL'S NUMBER IS A RUNNING TOTAL, and that is the second thing the reports asked for: "the drill score seems to just
+    // show 100, not the actual current score", then "there doesnt seem to be a running total for the drill puzzles. Not sure
+    // whats its counting every time I resolve a drill". A level's BEST is a fact about the level that does not move when the
+    // player earns anything; a total moves every time a drill is solved, which is what makes it read as a score the player is
+    // accumulating. It sums EVERY solved drill's score (the whole career, not this level's) because the ladder is one season.
+    drillTotal: save.runs.reduce((sum, run) => (run.mode === 'drill' ? sum + run.score : sum), 0),
     dailyScore: bestScore(save.runs, (run) => run.mode === 'daily' && run.day === today),
   };
 }
@@ -1470,12 +1486,17 @@ function paintPages(): void {
 }
 
 /**
- * The banner and the document title, both a function of the page alone.
+ * The two banners and the document title, all a function of the page alone.
  *
  * THE TITLE IS THE PAGE'S: a two-page-deep app whose tab always says "Dancing Squared" is an app whose browser history is
  * unreadable, and the installed window has no other title. The BACK BUTTON IS A PLACE (the page's parent, not the last
  * history step) and its visible text is short so the row stays thin, with the destination in the accessible name and in
  * the hover title — WCAG's label-in-name rule holds because "Back" is the first word of "Back to the menu".
+ *
+ * AND THE SECOND ROW IS THE PATH, REPORTED as "The Back button feels inappropriate for the top banner. A secondary banner could
+ * have a breadcrumb (minimalist) and the back button." `breadcrumbFor` is the page table walked upwards, so the crumbs and the
+ * back button cannot disagree about where here is; the last crumb is the current page, marked with `aria-current` and NOT a
+ * control, because a link to the page you are on is a control that does nothing.
  */
 function paintChrome(): void {
   document.title = page === 'landing' ? pageTitle('landing') : `${pageTitle(page)} · Dancing Squared`;
@@ -1485,6 +1506,25 @@ function paintChrome(): void {
   // is on is a control that does nothing, so `aria-current` is what tells a screen reader which case it is.
   if (page === 'profile') els.bannerAccount.setAttribute('aria-current', 'page');
   else els.bannerAccount.removeAttribute('aria-current');
+  // THE PATH ROW IS ONLY DRAWN WHERE THERE IS A PATH: the landing page's ancestry is one crumb and its back button is hidden,
+  // and a row holding a single word would be the header growing back into what two reports asked it to stop being.
+  els.bannerPath.hidden = target === null;
+  els.breadcrumb.replaceChildren();
+  for (const crumb of breadcrumbFor(page)) {
+    const here = crumb === page;
+    const node = here ? document.createElement('span') : document.createElement('button');
+    node.className = 'crumb';
+    node.textContent = crumbLabel(crumb);
+    if (here) {
+      node.setAttribute('aria-current', 'page');
+    } else {
+      // A CRUMB IS A LINK, so an earlier page can be reached from the path itself rather than only by pressing back twice.
+      const destination = crumb;
+      (node as HTMLButtonElement).type = 'button';
+      node.addEventListener('click', () => navigate({ page: destination, drillIndex: null }));
+    }
+    els.breadcrumb.append(node);
+  }
   if (target === null) {
     els.bannerBack.textContent = '';
     els.bannerBack.removeAttribute('aria-label');

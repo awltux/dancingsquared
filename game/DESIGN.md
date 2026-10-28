@@ -2288,7 +2288,7 @@ Each has a recommendation and the tradeoff, so this does not need another round 
    and easy to reset. The consequence to accept: a season boundary discards the cumulative board, and the
    schedule and the ladder may only be re-authored there (§6). **Hint balances must not reset with it** —
    they are earned effort, not a season statistic (§10).
-5. **Can a player skip a drill they cannot solve? — DECIDED AND IMPLEMENTED.** The design as written did not offer a
+5. **Can a player skip a drill they cannot solve? — DECIDED, IMPLEMENTED, AND NOW WITHDRAWN.** The design as written did not offer a
    skip, so a stuck player was stuck in the regime — and one hard puzzle blocked the order that decision 10 made the
    whole point. **THE SERVER HALF WAS ALREADY THERE**, which is what made this a control rather than a mechanism:
    `POST /drill/advance` marks the current drill finished, earns no score and no hint, and is recorded as an
@@ -2303,21 +2303,22 @@ Each has a recommendation and the tradeoff, so this does not need another round 
    combination — and the sheet is the fifth: a sheet's footer sits over the answer buttons, so the control that spends the
    drill was also the control covering the three choices. MEASURED: 32 combinations driven, the skip offered in 6 of them,
    and none on a sheet (`game/test/skip-offer-probe.mjs`).
-   **THE LOCAL LEDGER MIRRORS THE SERVER'S FINALITY**, or the two would disagree about a drill: `save.markSkipped`
-   spends the position without crediting it, exactly as `POST /runs`'s credit rule does for a revealed run, so a later
-   local solve of a skipped drill cannot earn — which is also what the server does to it (a closed drill answers a
-   submission `stale_drill`). **MEASURED IN A BROWSER, three paths**: (a) a signed-in player presses it and the log
-   shows `POST /drill/advance` **200** then `GET /drill/current` **200** — and NO `/runs` at all — with the header
-   moving "drill 1 of 4" → "drill 2 of 4", the hint progress unmoved at "1 of 10", the ledger unmoved at "3 runs ·
-   best 100", and the verdict reading "Skipped — no score for it, and no hint."; (b) an OFFLINE build (a second dev
-   server on 8091 with no `VITE_API_BASE`) offers the control and moves "drill 2 of 12" → "drill 3 of 12" with the
-   same sentence on screen and nothing sent anywhere; (c) a DEMO — signed out, and again after an expired token — is
-   offered NO skip at all, which is `mayWrite` refusing it for the same reason it refuses a submission. The
-   sentence's ORDER is load-bearing and was fixed by the browser check: `showDrill` clears the verdict on its way in
-   and the offline drill is painted in the same tick, so the sentence has to be said AFTER the issue (the order Q20's
-   practice offer uses) or it is never seen. Pinned by `game/test/save-state-probe.mjs` §1c, whose negative control is
-   the plausible wrong rule — a skip that moves the player on without spending the position, which lets the same drill
-   pay a hint later.
+   **AND THEN IT WENT ALTOGETHER**, REPORTED: *"Remove the "Skip this drill" button, it shouldnt be required in a three
+   choice quiestion."* So this app no longer offers to spend a drill at all: `skipOffered`, `skipDrill`,
+   `save.markSkipped`, the DOM-free rule module and that module's probe all went with the button, and
+   `shell-controls-probe.mjs` lists `skip` among the RETIRED controls so it cannot drift back in. **The protocol is
+   untouched** — `POST /drill/advance` still closes a position and records an abandonment, and the one caller left is the
+   advance that follows a SOLVE (`startServerDrill('advance')`), which is the season moving on rather than a player giving
+   up on a question. What the withdrawal gives up is the escape hatch a stuck player had; that is the owner's judgement
+   about a three-option question, recorded here rather than argued with.
+   **THE LOCAL LEDGER USED TO MIRROR THE SERVER'S FINALITY HERE**, and that writer is gone with the control: `save.markSkipped`
+   spent the position without crediting it, exactly as `POST /runs`'s credit rule does for a revealed run, so a later
+   local solve of a skipped drill could not earn. With no local skip there is nothing for the ledger to mirror — a position
+   the SERVER closed without a pass is drawn from the server's own `finished`/`passed` sets — and the three browser paths
+   that measured the control (a signed-in press writing `POST /drill/advance` and no `/runs`, an offline build moving the
+   position with nothing sent, a demo offered nothing at all) describe a button that no longer exists. The ledger's remaining
+   rule is §1b/§1d of `game/test/save-state-probe.mjs`: a solve finishes AND passes, a revealed solve finishes without
+   passing.
 6. **Practice mode: puzzle generation the player controls?** *Recommend a clearly-labelled unranked "just
    practice" that generates from the player's level pool.* The regime is authoritative and the Daily is
    issued, so a third, unranked source costs no fairness — but it is the one place the client would choose a

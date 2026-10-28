@@ -200,25 +200,16 @@ export class SaveState {
   }
 
   /**
-   * Spend a drill at `position` WITHOUT solving it — the mark-and-continue of DESIGN.md §15 Q5.
-   *
-   * IT EARNS NOTHING AND IT IS FINAL, which is deliberately the server's own treatment: `POST /drill/advance` closes
-   * the drill (no score, no hint, recorded as an abandonment so a skipped season is visible) and a later submission
-   * for it is refused `stale_drill`. So the local ledger must spend the position as well — otherwise the same drill
-   * could still pay a hint HERE after the server had closed it, which would be the one place the device and the
-   * server disagreed about a drill. Skipping is therefore not a shortcut to tips (§10), which is the property that
-   * makes it safe to offer at all.
-   */
-  markSkipped(position: number): void {
-    this.spend(position, false);
-  }
-
-  /**
    * Put `position` in the finished set, and in the PASSED set when it was solved unaided.
    *
-   * THE ONE WRITER OF BOTH SETS, so a solve and a skip cannot come to mean different things by accident: they differ
-   * in what they CREDIT (a solve may grant, a revealed solve and a skip never do) and in whether the drill was
-   * PASSED, which is what the level grid draws. A revealed solve finishes without passing, exactly as a skip does.
+   * THE ONE WRITER OF BOTH SETS, so the ways a position can be finished cannot come to mean different things by
+   * accident: they differ in what they CREDIT and in whether the drill was PASSED, which is what the level grid draws.
+   * A revealed solve finishes without passing.
+   *
+   * A SKIP WAS A THIRD WAY IN AND ITS WRITER IS GONE WITH THE CONTROL: REPORTED as "Remove the "Skip this drill" button,
+   * it shouldnt be required in a three choice quiestion." The server can still close a position without a pass
+   * (`POST /drill/advance` records an abandonment), so `passed` remains a set that is not `finished` — and a position
+   * closed on the server is drawn from the server's own answer, not from a local writer there is no longer a button for.
    *
    * A PASS IS MONOTONE: once a position is passed, nothing here takes it back, because a position cannot be served
    * again after it is finished (`drill-regime.ts` keeps it in the set once).

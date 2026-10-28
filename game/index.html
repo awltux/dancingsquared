@@ -50,9 +50,13 @@
            between them." The answer is this pair of tabs PLUS a ghost layer: the board that is not drawn has its dancers
            drawn dim on the one that is, paired by dancer identity (`render/ghost-pair.ts`), so switching is about
            emphasis rather than about memory. The tabs are HIDDEN on a wide viewport, where both boards fit and a
-           switcher would be a control that does nothing (`ui/layout.ts` decides; `main.ts` obeys). -->
+           switcher would be a control that does nothing (`ui/layout.ts` decides; `main.ts` obeys).
+
+           AND THE FIRST TAB IS ONE WORD. REPORTED: "Change "You are Here" text to "Now" to make this button a bit smaller
+           to release some screen real estate." The pair is "Now" / "Target" — two signposts, side by side, in a row that is
+           two buttons wide over a board, and "You are here" was five times the width of the word beside it. -->
       <nav id="boardTabs" aria-label="Which board is shown" hidden>
-        <button id="boardYou" type="button" aria-pressed="true">You are here</button>
+        <button id="boardYou" type="button" aria-pressed="true">Now</button>
         <button id="boardTarget" type="button" aria-pressed="false">Target</button>
       </nav>
 
@@ -377,20 +381,22 @@
         <!-- THE FOOTER IS THE GAME'S OWN CONTROLS AND NOTHING ELSE. REPORTED twice: "Some of the current buttons seem like
              overkill" (which took four of them to the Setup page) and then "a lot of debug style text at the bottom of the
              drill screens that dont really add anything" — the two bookkeeping sentences that used to sit above these
-             buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint, the skip,
+             buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint,
              Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move.
 
              AND "SHOW ME THE ANSWER" IS GONE. REPORTED: "remove the option to see the answer to a drill, there are only three
              answers, players will get there eventually." It was the one control that turned a run into a countable-but-worthless
              one, and a coin-flip between three options reaches the same knowledge faster. The RULE it enforced (a revealed run is
              never ranked) stays in the controller, the API and the submission, which is what `main.ts` records where the
-             handler used to be. -->
+             handler used to be.
+
+             AND SO IS THE SKIP. REPORTED: "Remove the "Skip this drill" button, it shouldnt be required in a three choice
+             quiestion." It went in two steps — withheld on a sheet first ("In mobile view, remove the skip ... they hide the
+             choices"), then withdrawn everywhere — because a three-option question with a "give up" beside it is a question
+             that answers itself. The SERVER's endpoint stays (`POST /drill/advance` closes a position and records an
+             abandonment), so nothing about the protocol moved; what moved is that this app no longer offers to spend a drill. -->
         <footer id="foot">
           <button id="hint" type="button" hidden>Hint (+1 min)</button>
-          <!-- THE SKIP (DESIGN.md §15 Q5) is the mark-and-continue: the regime is an ORDER, so one puzzle a player
-               cannot solve blocks every drill behind it. It earns nothing and grants no hint, and the label says so
-               before the press rather than in a verdict afterwards. -->
-          <button id="skip" type="button" hidden>Skip this drill — no score, no hint</button>
           <button id="undo" type="button" hidden>Undo</button>
           <button id="redo" type="button" hidden>Redo</button>
           <button id="giveUp" type="button" hidden>Give up</button>

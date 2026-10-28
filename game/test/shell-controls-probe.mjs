@@ -52,7 +52,7 @@ const PAGES = ['landing', 'setup', 'help', 'profile', 'levels', 'drill', 'daily'
 
 /** The controls that are the GAME's own moves: they belong in the footer, on the page that plays. */
 const FOOTER = [
-  'hint', 'skip', 'undo', 'redo', 'giveUp', 'replayMine', 'replayShortest', 'practice', 'next',
+  'hint', 'undo', 'redo', 'giveUp', 'replayMine', 'replayShortest', 'practice', 'next',
 ];
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
@@ -72,6 +72,11 @@ const SECONDARY = ['view', 'autoProgress', 'startOver'];
 const MENU = ['profile', 'help', 'levels', 'daily', 'setup', 'board'];
 /** What the router and the Setup page replaced. Nothing may name these any more, in any file. */
 const RETIRED = ['modeDrill', 'modeDaily', 'toLevel', 'moreToggle'];
+// AND THE SKIP IS RETIRED, as a CONTROL while its server endpoint stays. REPORTED: "Remove the "Skip this drill" button, it
+// shouldnt be required in a three choice quiestion." It had already been withheld on a sheet ("In mobile view, remove the
+// skip ... they hide the choices") and the owner then took it everywhere; `POST /drill/advance` is untouched, because
+// nothing about the protocol moved. This entry is what stops the button drifting back in.
+const RETIRED_SKIP = 'skip';
 
 // AND "SHOW ME THE ANSWER" IS RETIRED TOO, as a control while its RULE stays. REPORTED: "remove the option to see the answer to
 // a drill, there are only three answers, players will get there eventually." The check below is about the id being gone from the
@@ -314,6 +319,12 @@ console.log('\n== 5. the retired controls are gone from markup, script and style
   // THE MODE TAB'S OWN STYLES, which are `#modes` rules rather than an id: the block was ~25 lines of tab styling.
   check(!/#modes\b/.test(css), 'and the mode-tab rules are gone from the stylesheet too');
   check(!/\.more-body\b/.test(css), 'and so is the disclosure body\'s rule');
+  // THE SKIP: no button, no `els.skip`, no `#skip` rule — and the endpoint it called is deliberately still served, which is
+  // why the check stops at this app's three files (REPORTED: "Remove the "Skip this drill" button, it shouldnt be required
+  // in a three choice quiestion.").
+  check(!new RegExp(`\\bid="${RETIRED_SKIP}"`).test(html), `#${RETIRED_SKIP} is not in the markup any more`);
+  check(!new RegExp(`els\\.${RETIRED_SKIP}\\b`).test(main), 'and nothing in the script reaches for it');
+  check(!new RegExp(`#${RETIRED_SKIP}\\b`).test(stripComments(css)), 'and no rule draws it');
 }
 
 console.log('\n== 6. the footer holds the game\'s moves, each page its own controls, Setup the housekeeping ==');

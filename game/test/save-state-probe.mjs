@@ -103,37 +103,15 @@ console.log('\n== 1b. a REVEALED drill is finished and earns NOTHING (DESIGN.md 
   check(state.hints.hints === 0, `and the balance is still untouched (${state.hints.hints} held)`);
 }
 
-console.log('\n== 1c. a SKIPPED drill is spent and earns NOTHING (DESIGN.md §15 Q5) ==');
-{
-  // NINE IN, ONE SHORT OF A GRANT: the same instrument §1b uses, so a rule that credited the skip would pay here.
-  const state = open(memory()).state;
-  for (let i = 0; i < HINT_SUCCESS_STEP - 1; i++) state.countSuccess(i);
-  state.markSkipped(HINT_SUCCESS_STEP - 1);
-  check(state.hints.hints === 0, `a skipped drill grants nothing, even one short of a grant (${state.hints.hints} held)`);
-  // AND IT IS FINAL, which is the server's own treatment of the same act: `POST /drill/advance` closes the drill and a
-  // later submission for it is refused `stale_drill`, so a local ledger that left the position open would be the one
-  // place the device and the server disagreed about a drill.
-  check(state.countSuccess(HINT_SUCCESS_STEP - 1).firstTime === false && state.countSuccess(HINT_SUCCESS_STEP - 1).granted === false, 'and the position is SPENT, so solving it later cannot pay either');
-  // NEGATIVE CONTROL, MEASURED: the plausible wrong rule — a skip that moves the player on without spending the
-  // position — lets the same drill pay on a later solve, which is the shortcut to tips §10 rules out. Only the check
-  // above reddens for it.
-  const naive = open(memory()).state;
-  for (let i = 0; i < HINT_SUCCESS_STEP - 1; i++) naive.countSuccess(i);
-  check(naive.countSuccess(HINT_SUCCESS_STEP - 1).granted, 'NEGATIVE CONTROL: without spending the position, the same drill grants the hint');
-  // SKIPPING TWICE IS ONE SPENT POSITION, because the shared writer refuses a repeat — the same guard a repeated solve
-  // meets, so neither can add the position twice.
-  state.markSkipped(HINT_SUCCESS_STEP - 1);
-  check(state.countSuccess(HINT_SUCCESS_STEP - 1).firstTime === false, 'and skipping it again changes nothing');
-}
-
 console.log('\n== 1d. FINISHED and PASSED are different sets, which is what the level grid draws ==');
 {
-  // THE DEVICE'S HALF OF THE SERVER'S RULE: a skip and a revealed solve both finish a position, and neither is a
-  // pass. The grid shows "done" against "done and passed", so a ledger that called a skip a pass would tell a player
-  // they had learned a drill they moved past.
+  // THE DEVICE'S HALF OF THE SERVER'S RULE: a revealed solve finishes a position without passing it. The grid shows "done"
+  // against "done and passed", so a ledger that called a revealed solve a pass would tell a player they had learned a
+  // drill they were shown the answer to. (A SKIP USED TO BE THE OTHER PRODUCER HERE; the control is withdrawn, so there is
+  // no local writer for it any more — `save-state.ts` records why the set stays.)
   const state = open(memory()).state;
   state.countSuccess(0);
-  state.markSkipped(1);
+  state.countSuccess(1, { revealed: true });
   state.countSuccess(2, { revealed: true });
   check(state.finishedPositions.join(',') === '0,1,2', `three positions are finished (${state.finishedPositions.join(',')})`);
   check(state.passedPositions.join(',') === '0', `and only the unaided solve is passed (${state.passedPositions.join(',')})`);

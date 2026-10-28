@@ -49,7 +49,6 @@ import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, d
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
-import { skipOffered as skipOfferedAt } from './game/skip-offer.ts';
 import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type StagePair, type ViewMode } from './render/stage-view.ts';
@@ -359,7 +358,6 @@ const els = {
   balance: el('balance'),
   ledger: el('ledger'),
   hint: el<HTMLButtonElement>('hint'),
-  skip: el<HTMLButtonElement>('skip'),
   undo: el<HTMLButtonElement>('undo'),
   redo: el<HTMLButtonElement>('redo'),
   giveUp: el<HTMLButtonElement>('giveUp'),
@@ -1517,7 +1515,6 @@ let pendingNotice: { text: string; kind: 'ok' | 'bad' | 'info' } | null = null;
  */
 function hideFooterControls(): void {
   els.hint.hidden = true;
-  els.skip.hidden = true;
   els.undo.hidden = true;
   els.redo.hidden = true;
   els.giveUp.hidden = true;
@@ -1703,9 +1700,8 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   replay = null;
   drillScreen.clearVerdict();
   drillScreen.render(controller);
-  // REVIEW AND SKIP ARE `paintView`'s NOW: they belong to the drill view, and whether that view is showing is the
-  // shell's state rather than this function's. `skipOffered` (DESIGN.md §15 Q5) is still the rule for WHETHER a skip
-  // is offered — it is a write against a server-issued drill, and it is not offered for a demo or a practice drill.
+  // THE DRILL'S FOOTER CONTROLS ARE `paintView`'S NOW: they belong to the drill view, and whether that view is showing is
+  // the shell's state rather than this function's.
   els.next.hidden = true;
   nextOffersSignIn = false;
   paintWaypoints();
@@ -1741,15 +1737,9 @@ function paintView(): void {
     );
   }
   // THE FOOTER'S DRILL CONTROLS BELONG TO THE DRILL PAGE, and this is the one place that decides it: on the block there is
-  // no question to skip, and a control that looks live and does nothing is worse than one that is absent
-  // (`drill-screen.ts` records the same rule for a failed issue). They are re-derived here rather than left as whichever
-  // screen painted last.
+  // no question, and a control that looks live and does nothing is worse than one that is absent (`drill-screen.ts` records
+  // the same rule for a failed issue). They are re-derived here rather than left as whichever screen painted last.
   //
-  // AND A FINISHED DRILL HAS NOTHING TO SKIP. `finishDrill` hides it too; this line is what used to bring it BACK, because it
-  // re-derived the offer from the mode and the standing and never asked whether the step was still open. MEASURED in a browser
-  // while checking the drill's landing hold: after a solve the result card and "Next drill" were on screen with "Skip this
-  // drill" still beside them. (`skipDrill` itself has always refused at `atEnd`; the button should not have been there to press.)
-  els.skip.hidden = !drillShowing || watchingDrill !== null || !skipOffered() || controller === null || controller.atEnd;
   // ONE `Play` BUTTON, BOTH MODES: it plays whatever `panelLine()` says the panel is showing. A solved or watched drill
   // therefore gets the same button the solved Daily has — REPORTED as "I inadvertantly dropped the play button from the
   // Drill. Can it reuse the call list and Play button used in the solved Todays Daily?" — and "The shortest line" stays
@@ -2189,58 +2179,6 @@ function serverIssued(): boolean {
   return serverDrill !== null && !practiceRun;
 }
 
-/**
- * Whether the drill on screen may be SKIPPED — spent without being solved (DESIGN.md §15 Q5).
- *
- * TWO WAYS A DRILL IS LEFT BEHIND, and this is the one place that knows both. A SERVER-ISSUED drill is advanced, which
- * is a WRITE (A20) and so needs `mayWrite` — the same predicate the submission, the press and the reveal are guarded
- * by, and the reason a DEMO is offered nothing (Q22: there is no Progress row to advance, so the request is a `401`).
- * An OFFLINE drill is left behind by the local position alone, so the control is honest there too — and it is the
- * only way out of one there, since "Next drill" appears only after a solve. A PRACTICE drill is NEITHER: it is the
- * app's own fixture, so there is no server entry to close, and the control that returns the player to the season is
- * "Next drill" (which is why Q23's fix had to reach this too — before it, a practice drill was refused the control
- * for the right answer and the wrong reason).
- */
-function skipOffered(): boolean {
-  // THE RULE IS `game/skip-offer.ts`'S, and it moved there when the owner added a condition that is not about the server —
-  // "In mobile view, remove the skip ... they hide the choices". This shell supplies the five facts and nothing else.
-  return skipOfferedAt({
-    serverIssued: serverIssued(),
-    replay: serverDrill?.replay === true,
-    mayWrite: mayWrite(currentStanding()),
-    configured: apiConfigured(),
-    sheet: layout.panelSide === 'bottom',
-  });
-}
-
-/**
- * Skip the drill on screen — the mark-and-continue DESIGN.md §15 Q5 recommends.
- *
- * WHAT IT IS FOR: the regime is an ORDER (decision 10), so one puzzle a player cannot solve blocks every drill behind
- * it. The recommendation is a skip that EARNS NOTHING, and THE SERVER ALREADY IMPLEMENTS IT: `POST /drill/advance`
- * marks the current drill finished, scores nothing, credits no hint and is recorded as an abandonment (A25) so a
- * skipped season is visible to an operator rather than a silent gap. What was missing was the control.
- *
- * IT CANNOT BE A SHORTCUT TO TIPS (§10), which is what makes it safe to offer: the advance mints nothing, and the
- * local ledger spends the position without crediting it (`save.markSkipped`) so a later local solve of that drill
- * cannot earn either — the same finality the server applies, where the closed drill refuses a submission `stale_drill`.
- *
- * THE SENTENCE IS SAID AFTER `issueCurrentDrill`, and the order is the whole of Q20's practice offer's lesson:
- * `showDrill` clears the verdict line on its way in, and OFFLINE the next drill is generated and painted synchronously,
- * so a sentence said before the call would be wiped in the same tick and never seen. On the SERVER path the round trip
- * is what the player reads it during and the new question then replaces it — which is why the label, not the sentence,
- * is where the cost is stated. A skip the server REFUSES is announced by `startServerDrill` in its own words, and that
- * one is not cleared at all, because no drill is shown.
- */
-function skipDrill(): void {
-  if (!controller || PLAYHEAD.isRunning || controller.atEnd || watchingDrill) return;
-  if (!skipOffered()) return;
-  save.markSkipped(position);
-  els.skip.hidden = true;
-  issueCurrentDrill('advance');
-  drillScreen.say('Skipped — no score for it, and no hint.', 'info');
-}
-
 /** The step is over: redraw, and score the run if the last step has just been answered. */
 function settleDrill(): void {
   if (!controller) return;
@@ -2318,9 +2256,8 @@ function finishDrill(): void {
     // same numbers the card shows. A drill has no day, so the line carries none.
     drillScreen.card(card, shareText({ stars: card.stars, score: score.score, elapsedSeconds: score.elapsedSeconds, day: null }));
   }
-  // THE DRILL IS OVER, so there is nothing left to skip: "Next drill" is the way on from here, and Q21 is why it no
-  // longer sends an advance the server has already done.
-  els.skip.hidden = true;
+  // THE DRILL IS OVER, so "Next drill" is the way on from here, and Q21 is why it no longer sends an advance the server
+  // has already done.
   // A SOLVED DRILL ALWAYS OFFERS A WAY ON. REPORTED: "I was missing the next drill button" — and the hole was the DEMO case: a
   // signed-out run on a token-mode server cannot advance (every write is a `401`, A20), so the button was hidden outright and
   // the only sentence saying why sat in the verdict. Hiding a control is not the same as explaining the rule; the offer is now
@@ -3302,7 +3239,6 @@ function main(): void {
     autoProgress = !autoProgress;
     paintAutoProgress();
   });
-  els.skip.addEventListener('click', skipDrill);
   els.undo.addEventListener('click', undoDaily);
   els.redo.addEventListener('click', redoDaily);
   els.waypointPrev.addEventListener('click', () => pageWaypoints(-1));
@@ -3326,15 +3262,34 @@ function main(): void {
   // must be framed in the height above it.
   const panel = document.getElementById('panel');
   const canvasEl = document.getElementById('stage') as HTMLCanvasElement | null;
+  /**
+   * HOW MUCH OF THE CANVAS'S TOP IS COVERED BY THE SWITCHER AND THE BOARD NAME, in CSS pixels.
+   *
+   * REPORTED: "Make sure the board doesnt overlap the board name above it." Those two are `position: absolute` over the
+   * canvas (`#boardTabs` and the `#labelHere`/`#labelGoal` captions), and the insets used to describe the PANEL only — so
+   * the frame was centred in the whole canvas and a board's dancers could be drawn under its own name. Measured from the
+   * elements for the same reason as the panel: the caption's height follows the type scale and the formation name.
+   *
+   * 16 px AND NOT 8, MEASURED IN A BROWSER at 500 x 757 in the 3D view: with 8 the floor's projected top edge landed
+   * within a couple of pixels of the caption's last line and still read as touching it — a perspective floor's far corner
+   * projects higher than its centre plane, and a dancer standing on it higher still, so the clearance has to be more than
+   * the 8 px the panel's own edge needs.
+   */
+  const overlayTop = (canvas: DOMRect): number => {
+    const bottoms = [els.boardTabs, els.labelHere, els.labelGoal]
+      .filter((element) => !element.hidden)
+      .map((element) => element.getBoundingClientRect().bottom);
+    return bottoms.length === 0 ? 0 : Math.max(0, Math.max(...bottoms) - canvas.top + 16);
+  };
   const applyInsets = (): void => {
     const rect = panel?.getBoundingClientRect();
     const canvas = canvasEl?.getBoundingClientRect();
     if (!rect || !canvas) {
       stage.setViewInsets({});
     } else if (layout.panelSide === 'bottom') {
-      stage.setViewInsets({ bottom: Math.max(0, canvas.bottom - rect.top + 8) });
+      stage.setViewInsets({ top: overlayTop(canvas), bottom: Math.max(0, canvas.bottom - rect.top + 8) });
     } else {
-      stage.setViewInsets({ left: Math.max(0, rect.right - canvas.left + 8) });
+      stage.setViewInsets({ top: overlayTop(canvas), left: Math.max(0, rect.right - canvas.left + 8) });
     }
     draw();
   };

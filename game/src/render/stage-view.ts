@@ -539,6 +539,12 @@ export class GameStage {
     // "which of these leaves the set where the waypoint is" reads more clearly on a flat board than through an
     // orbit camera. The 3D view is one button away and shows the same two boards.
     this.setMode('2d');
+    // AND THE PICTURE IS LOCKED. REPORTED: "The user shouldnt be able to drag the board image. It should be centralised on
+    // display, then locked in place." The stage's pointer controls are for the editor, where moving the camera is the work;
+    // here the board IS the question, and a drag that rotated it (or panned it out of frame) made two players comparing an
+    // answer look at different pictures. One call, after the view is set, so both cameras are silenced and the flag is
+    // remembered across a later `setView2D` (`scene.ts`'s `inputSuppressed`).
+    this.stage.setControlsEnabled(false);
   }
 
   setMode(mode: ViewMode): void {

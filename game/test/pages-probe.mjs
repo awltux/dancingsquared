@@ -14,6 +14,8 @@
 //      stays put is a control that does nothing, and this is the check that catches it).
 //   4. THE WORDS: a back label for every page that has a back button, and a title for every page.
 //   5. THE HEADINGS: one id per page, all distinct, so two pages cannot focus the same element.
+//   6. THE BOARD'S PAGES. Only the two play pages draw the dance board, and in FULL SCREEN every page without one gives
+//      that area to the standings (`showsStandings`), while a sheet has no such area.
 //
 // THE NEGATIVE CONTROLS are the plausible wrong routers: a PATH router (which would treat `#/help` as an unknown route because
 // it looks for `/help` in `location.pathname`), a `backTarget` that returns its own page, and a `pageFor` that coerces
@@ -21,7 +23,7 @@
 //
 // Usage: node game/test/pages-probe.mjs   (pure: no DOM, no browser, no engine)
 import {
-  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId, pageShowsBoard,
+  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId, pageShowsBoard, showsStandings,
 } from '../src/ui/pages.ts';
 
 let failures = 0;
@@ -148,6 +150,28 @@ console.log('\n== 6. the board is drawn only on the pages that are the game ==')
   const alwaysOn = () => true;
   check(PAGES.filter(alwaysOn).length === PAGES.length && withBoard.length !== PAGES.length,
     'CONTROL: "keep the board everywhere" is not what the rule says');
+}
+
+console.log('\n== 7. in full screen, a page with no board shows the standings in its place ==');
+{
+  // REPORTED: "When in full screen mode, keep the hud in the left hand side of the screen, the same as the Drill screen.
+  // When the Dance board is not being used, the area should be replaced by the leader boards." `showsStandings` is the
+  // rule; the stylesheet reads the same two facts (`data-panel`, `data-stage`), and `layout-probe.mjs` pins that half.
+  const standings = PAGES.filter((page) => showsStandings(page, 'left'));
+  const expected = PAGES.filter((page) => !pageShowsBoard(page));
+  check(JSON.stringify(standings) === JSON.stringify(expected),
+    `on a full-screen page the standings fill the board's area exactly where there is no board (${standings.join(', ')})`);
+  // THE SHEET IS THE WHOLE POINT OF THE LAYOUT ARGUMENT: there is no area beside the panel, so nothing is drawn there and
+  // the board page keeps its own list. NEGATIVE CONTROL: a rule that ignored the layout (the `!pageShowsBoard` half alone)
+  // answers true here, and these checks are what catch it.
+  check(PAGES.every((page) => showsStandings(page, 'bottom') === false),
+    `and on a sheet no page has a standings area (${PAGES.filter((page) => showsStandings(page, 'bottom')).join(', ') || 'none'})`);
+  check(showsStandings('board', 'left') === true, 'the board page itself shows them, so its list is not drawn twice');
+  check(showsStandings('drill', 'left') === false && showsStandings('daily', 'left') === false,
+    'while the two play pages keep the dance board, which is the question');
+  const ignoresLayout = (page) => !pageShowsBoard(page);
+  check(ignoresLayout('profile') === true && showsStandings('profile', 'bottom') === false,
+    'CONTROL: a layout-blind rule would answer true for a profile page on a sheet');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

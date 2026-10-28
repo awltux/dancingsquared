@@ -16,35 +16,35 @@
 // marked rather than guessed from an address), and WHETHER THE LIST IS COMPLETE (`truncated` is shown as a sentence,
 // because a cut-off list presented as the standings is worse than no list).
 //
+// THE ELEMENTS ARE PASSED IN, because the SAME READ is drawn by more than one screen now: the board page's in-panel list
+// on a sheet, and the two full-screen standings in the side area (`main.ts`). A class that resolved `#boardList` itself
+// could only ever paint one of them, which is the second implementation AGENTS.md §4.3 refuses.
+//
 // TEXT GOES IN VIA `textContent`, NEVER `innerHTML` — a NAME is server data and, in the dev mode, whatever an operator
 // typed (AGENTS.md §6). That matters more since the rows are names: an alias is player-authored input.
 import type { BoardView } from '../net/api.ts';
-import { el } from './dom.ts';
+
+/** One standings panel's elements. `load` is absent for a panel nothing can be pressed on. */
+export interface BoardElements {
+  readonly caption: HTMLElement;
+  readonly status: HTMLElement;
+  readonly list: HTMLElement;
+  readonly load?: HTMLButtonElement;
+}
 
 interface BoardCallbacks {
   /** Load (or reload) the board, in whatever mode the board page is set to. */
   load: () => void;
 }
 
-interface El {
-  caption: HTMLElement;
-  load: HTMLButtonElement;
-  status: HTMLElement;
-  list: HTMLElement;
-}
-
 export class LeaderboardScreen {
-  private readonly els: El;
   private busy = false;
 
-  constructor(private readonly on: BoardCallbacks) {
-    this.els = {
-      caption: el('boardCaption'),
-      load: el<HTMLButtonElement>('boardToggle'),
-      status: el('boardStatus'),
-      list: el('boardList'),
-    };
-    this.els.load.addEventListener('click', () => this.on.load());
+  constructor(
+    private readonly els: BoardElements,
+    private readonly on?: BoardCallbacks,
+  ) {
+    this.els.load?.addEventListener('click', () => this.on?.load());
   }
 
   /**
@@ -113,7 +113,7 @@ export class LeaderboardScreen {
   /** Disable the button while a request is in flight, so a double press cannot race the first. */
   setBusy(busy: boolean): void {
     this.busy = busy;
-    this.els.load.disabled = busy;
+    if (this.els.load) this.els.load.disabled = busy;
   }
 }
 

@@ -21,8 +21,9 @@
 // that the wrong rule is wrong only at the boundary.
 //
 // THE SHELL is checked as source, and labelled as such: `main.ts` cannot be imported here (it builds DOM, reads
-// storage and calls the network), so the check is that the thin `boardPeriod()` passes the ISSUED drill's
-// `scheduleVersion` and `utcDay(new Date())`, and derives neither itself.
+// storage and calls the network), so the check is that the thin `periodFor(mode)` passes the ISSUED drill's
+// `scheduleVersion` and `utcDay(new Date())`, and derives neither itself — and that the board page asks it for its own
+// mode rather than keeping a second copy.
 //
 // Usage: node game/test/board-period-probe.mjs   (no engine build needed; the rule imports nothing)
 import fs from 'node:fs';
@@ -94,18 +95,19 @@ console.log('\n== 4. the shell: the app layer supplies the two facts and derives
 {
   // THE APP LAYER IS NOT LOADABLE (DOM, storage, network), so this is a SOURCE check and says so.
   const main = fs.readFileSync(path.join(here, '..', 'src', 'main.ts'), 'utf8');
-  const shell = /function boardPeriod\(\): string \| null \{[\s\S]{0,400}?\n\}/.exec(main)?.[0] ?? '';
-  check(shell.length > 0, 'the thin `boardPeriod()` shell was found, so the next checks are about it rather than about nothing');
-  // THE FIRST ARGUMENT IS A VARIABLE, NOT THE NAME `mode`, SINCE THE APP GREW PAGES. The board is its own page with its
-  // own filter (`boardMode`), because a board is a READ and a player who has never opened a drill must still be able to
-  // read the Daily board. The property this check exists for is unchanged — three arguments, none of them derived in the
-  // shell — so it is pinned by SHAPE rather than by the name of one variable, which was the check that went red when the
-  // page landed.
-  check(/boardPeriodOf\([A-Za-z_$][\w$]*, utcDay\(new Date\(\)\), issued\?\.scheduleVersion \?\? null\)/.test(shell),
-    'it passes a mode, the UTC day and the ISSUED drill\'s schedule version - all three as arguments');
+  // THE MODE IS A PARAMETER SINCE THE FULL-SCREEN STANDINGS ASK FOR BOTH BOARDS AT ONCE (`loadDockBoards`), so the one
+  // function that names the rule's inputs takes it. The property this check exists for is unchanged — THREE arguments,
+  // none of them derived in the shell — and it is pinned by shape rather than by a variable's name.
+  const shell = /function periodFor\(mode: AppMode\): string \| null \{[\s\S]{0,400}?\n\}/.exec(main)?.[0] ?? '';
+  check(shell.length > 0, 'the thin `periodFor(mode)` shell was found, so the next checks are about it rather than about nothing');
+  check(/boardPeriodOf\(mode, utcDay\(new Date\(\)\), issued\?\.scheduleVersion \?\? null\)/.test(shell),
+    'it passes the mode asked for, the UTC day and the ISSUED drill\'s schedule version - all three as arguments');
   check(/serverIssued\(\) \? serverDrill : null/.test(shell),
     'and "the issued drill" is the app\'s own predicate, so a practice drill cannot be mistaken for one');
   check(!/seasonOf|\.slice\(0, 7\)/.test(shell), 'and it derives no period of its own: no season and no month arithmetic in the shell');
+  // AND THE BOARD PAGE GOES THROUGH THE SAME FUNCTION, so a second copy of the rule cannot appear for the page's own mode.
+  const pageShell = /function boardPeriod\(\): string \| null \{[\s\S]{0,120}?\n\}/.exec(main)?.[0] ?? '';
+  check(/periodFor\(boardMode\)/.test(pageShell), 'while the board page asks that one rule for its own mode rather than keeping a copy');
   check(/from '\.\/puzzle\/board-period\.ts'/.test(main), 'the rule is IMPORTED, so the app cannot carry a second copy of it');
 }
 

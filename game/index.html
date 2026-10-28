@@ -387,9 +387,9 @@
             <button id="boardModeDrill" type="button" aria-pressed="true">The Drill</button>
             <button id="boardModeDaily" type="button" aria-pressed="false">Today's Daily</button>
           </div>
-          <p id="boardCaption"></p>
-          <p id="boardStatus"></p>
-          <ol id="boardList"></ol>
+          <p id="boardCaption" class="board-caption"></p>
+          <p id="boardStatus" class="board-status"></p>
+          <ol id="boardList" class="board-list"></ol>
           <button id="boardToggle" type="button">Reload the board</button>
         </section>
 
@@ -433,6 +433,30 @@
           <button id="next" type="button" hidden>Next drill</button>
         </footer>
       </main>
+
+      <!-- THE STANDINGS TAKE THE DANCE BOARD'S PLACE IN FULL SCREEN. REPORTED: "When in full screen mode, keep the hud in the
+           left hand side of the screen, the same as the Drill screen. When the Dance board is not being used, the area should
+           be replaced by the leader boards." The dance board is the QUESTION on the Drill and Daily pages; on every other
+           page that area was empty once the stage went, and the two boards are the read a player wants there.
+
+           THE HUD IS STILL THE PANEL, and this is its sibling rather than part of it. The stylesheet shows it only on a
+           full-screen page with no board (`html[data-panel="left"][data-stage="page"]` — the two facts `ui/pages.ts`'s
+           `showsStandings` reads), so a SHEET never draws it: there the page IS the panel, and the board page keeps its own
+           in-panel list. `main.ts` loads both boards here through the same `LeaderboardScreen` the page uses. -->
+      <aside id="sideBoard" aria-label="Leaderboards">
+        <section class="side-board" aria-labelledby="sideDrillHeading">
+          <h2 id="sideDrillHeading">The Drill</h2>
+          <p id="sideDrillCaption" class="board-caption"></p>
+          <p id="sideDrillStatus" class="board-status" role="status"></p>
+          <ol id="sideDrillList" class="board-list"></ol>
+        </section>
+        <section class="side-board" aria-labelledby="sideDailyHeading">
+          <h2 id="sideDailyHeading">Today's Daily</h2>
+          <p id="sideDailyCaption" class="board-caption"></p>
+          <p id="sideDailyStatus" class="board-status" role="status"></p>
+          <ol id="sideDailyList" class="board-list"></ol>
+        </section>
+      </aside>
 
       <div id="loading">Loading the corpus…</div>
     </div>

@@ -110,6 +110,22 @@ export function pageShowsBoard(page: Page): boolean {
   return shown[page];
 }
 
+/**
+ * Whether a page's DANCE-BOARD AREA holds the STANDINGS instead.
+ *
+ * REPORTED: "When in full screen mode, keep the hud in the left hand side of the screen, the same as the Drill screen.
+ * When the Dance board is not being used, the area should be replaced by the leader boards." FULL SCREEN IS THE SHELL'S
+ * `panelSide: 'left'` (`ui/layout.ts`), not a viewport number spelled again here: on a sheet the page IS the panel, so
+ * there is no area to fill and the board page keeps its own in-panel list.
+ *
+ * IT IS THE SAME TWO FACTS THE STYLESHEET READS — `data-panel` and `data-stage`, both written by `paintPages`/`applyLayout`
+ * — so the rule and the layout cannot disagree about which pages show a board. `layout-probe.mjs` pins the CSS half and
+ * `pages-probe.mjs` this one.
+ */
+export function showsStandings(page: Page, panelSide: 'left' | 'bottom'): boolean {
+  return panelSide === 'left' && !pageShowsBoard(page);
+}
+
 /** What the back button says, for the banner's own label and for its accessible name.
  *
  * AND IT IS THE ONLY THING THE BUTTON SAYS NOW. A breadcrumb second row was derived from this same table (`breadcrumbFor`,

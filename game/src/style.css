@@ -125,6 +125,71 @@ html[data-stage="page"] #panel {
   }
 }
 
+/* IN FULL SCREEN A PAGE KEEPS THE DRILL SCREEN'S SHAPE. REPORTED: "When in full screen mode, keep the hud in the left hand
+   side of the screen, the same as the Drill screen. When the Dance board is not being used, the area should be replaced by
+   the leader boards." So the panel is the HUD column again — the width and the edge the play pages use — and the area the
+   dance board would have filled becomes the two standings.
+
+   `data-panel` IS `ui/layout.ts`'s ANSWER, written by the shell, and `html[data-panel="left"]` IS the full-screen layout; a
+   sheet leaves these rules alone and keeps the centred page above, with no standings area to fill. `data-stage="page"` is
+   `pageShowsBoard`'s answer, so the two rules below read the same two facts as `ui/pages.ts`'s `showsStandings` — one rule,
+   not a breakpoint written again. */
+html[data-panel="left"][data-stage="page"] #panel {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  width: var(--panel-size);
+  height: 100%;
+  transform: none;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  padding-bottom: var(--space-xl);
+}
+
+/* THE DANCE BOARD'S AREA, GIVEN TO THE TWO BOARDS. `left: var(--panel-size)` is the panel's own edge — where the stage
+   canvas starts on a play page, and where `#stage`'s view is inset by the same number — so the HUD and the standings meet
+   on one line. It scrolls on its own: the panel is a fixed column, and a long board must not push the page. */
+html[data-panel="left"][data-stage="page"] #sideBoard {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: var(--panel-size);
+  display: block;
+  overflow-y: auto;
+  padding: var(--space-xl);
+}
+
+/* NO STANDINGS ARE DRAWN ANYWHERE ELSE: on a sheet the page IS the panel, and on a play page the board is the question. */
+#sideBoard {
+  display: none;
+}
+
+.side-board {
+  max-width: 900px;
+  margin: 0 0 var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--card);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-card);
+}
+
+.side-board > h2 {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--fs-heading);
+}
+
+/* THE BOARD PAGE'S OWN LIST IS NOT SHOWN TWICE IN FULL SCREEN: the two standings above ARE that page's read, and its mode
+   switch would be choosing between two boards that are both on screen. The page keeps its heading and the reload, which
+   re-reads both. A SHEET keeps all four, because there the page shows one board. */
+html[data-panel="left"][data-stage="page"] #boardMode,
+html[data-panel="left"][data-stage="page"] #boardCaption,
+html[data-panel="left"][data-stage="page"] #boardStatus,
+html[data-panel="left"][data-stage="page"] #boardList {
+  display: none;
+}
+
 #panel {
   position: absolute;
   top: 0;
@@ -892,37 +957,38 @@ button[data-busy="true"]::after {
   align-self: flex-start;
 }
 
-/* THE BOARD PAGE. Tabular figures again, because a column of scores that shifts by a pixel per digit is a column nobody
+/* THE BOARDS. Tabular figures again, because a column of scores that shifts by a pixel per digit is a column nobody
    can compare down. `you` is marked by a border rather than a colour alone, so the marking is not the only signal (the
    same reason the board's mode filter carries `aria-pressed`).
-   `#boardHeading` IS THE PAGE'S `<h2>` now, so the caption that says WHICH board this is is `#boardCaption` and is styled
-   as the line it is. */
-#boardCaption {
+   THE THREE RULES ARE CLASSES, not the board page's ids, because the SAME read is drawn twice more in full screen: the
+   in-panel list and the two standings in `#sideBoard` are one component (`ui/leaderboard-screen.ts`), so a style keyed on
+   `#boardList` would leave the side panels unstyled. The ids remain on every element because `main.ts` resolves them. */
+.board-caption {
   margin: 0;
   color: var(--ink);
   font-size: var(--fs-control);
   font-weight: 600;
 }
 
-#boardStatus {
-  margin: 0 0 8px;
+.board-status {
+  margin: 0 0 var(--space-sm);
   color: var(--dim);
   font-size: var(--fs-small);
   line-height: 1.35;
 }
 
-#boardStatus[data-kind="bad"] {
+.board-status[data-kind="bad"] {
   color: var(--bad);
 }
 
-#boardList {
+.board-list {
   margin: 0;
   padding: 0;
   list-style: none;
   font-variant-numeric: tabular-nums;
 }
 
-#boardList li {
+.board-list li {
   display: flex;
   gap: var(--space-sm);
   align-items: baseline;
@@ -932,22 +998,22 @@ button[data-busy="true"]::after {
   font-size: var(--fs-body);
 }
 
-#boardList li.you {
+.board-list li.you {
   border-color: var(--accent);
   border-radius: var(--r-field);
 }
 
-#boardList li .rank {
+.board-list li .rank {
   min-width: 2.2em;
   color: var(--dim);
 }
 
-#boardList li .score {
+.board-list li .score {
   margin-left: auto;
   color: var(--dim);
 }
 
-#boardList li.muted {
+.board-list li.muted {
   color: var(--dim);
   font-style: italic;
 }

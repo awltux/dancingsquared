@@ -65,7 +65,7 @@ import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { LANDING_HOLD_MS, Replay, drillAnswerHoldMs } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import { bannerView, type BannerFacts } from './ui/banner.ts';
-import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageShowsBoard, pageTitle, type Page, type Route } from './ui/pages.ts';
+import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageShowsBoard, pageTitle, showsStandings, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -407,7 +407,15 @@ const accountScreen = new AccountScreen({
   changePassword: (current, next) => void doChangePassword(current, next),
   claimAlias: (alias) => void doClaimAlias(alias),
 });
-const boardScreen = new LeaderboardScreen({ load: () => void loadBoard() });
+// THE THREE BOARDS ARE ONE SCREEN EACH, over their own elements: the page's in-panel list on a sheet, and the two
+// full-screen standings in `#sideBoard`. The screens are handed their elements rather than resolving ids themselves,
+// because the same read is drawn by more than one of them (`ui/leaderboard-screen.ts` says why).
+const boardScreen = new LeaderboardScreen(
+  { caption: el('boardCaption'), status: el('boardStatus'), list: el('boardList'), load: el<HTMLButtonElement>('boardToggle') },
+  { load: () => refreshBoards() },
+);
+const sideDrillScreen = new LeaderboardScreen({ caption: el('sideDrillCaption'), status: el('sideDrillStatus'), list: el('sideDrillList') });
+const sideDailyScreen = new LeaderboardScreen({ caption: el('sideDailyCaption'), status: el('sideDailyStatus'), list: el('sideDailyList') });
 const stage = new GameStage(el<HTMLCanvasElement>('stage'));
 
 // ---------------------------------------------------------------------------------------------- the rails
@@ -1052,61 +1060,103 @@ function accountChanged(): void {
 // ------------------------------------------------------------------------------------------------ the board
 
 /**
- * The period the board on screen is for — a THIN SHELL around `puzzle/board-period.ts`, which owns the rule.
+ * The period ONE board is for — a THIN SHELL around `puzzle/board-period.ts`, which owns the rule.
  *
  * THIS FUNCTION'S ONLY JOB IS NAMING ITS TWO INPUTS, and the split is the point: the rule ("a Daily board is the UTC
  * day, a Drill board is the set the SERVER issued, and null is an answer") is a pure function a probe can drive, and
- * everything that fed it here is shell state — the board's own mode, `serverIssued()`, `practiceRun`, and the clock. The
+ * everything that fed it here is shell state — the mode asked for, `serverIssued()`, `practiceRun`, and the clock. The
  * rule used to live in this file whole, and the drill half consulted `seasonOf(Date.now())`, which ranked runs on a board
  * their drill did not come from (`puzzle/board-period.ts`'s header has the measurement).
  *
  * `utcDay(new Date())` IS the daily half's own answer: the day IS the challenge, so the client computing it cannot
  * disagree with the server. The drill half reads the ISSUED drill's schedule version and nothing else.
  *
- * THE MODE IS THE BOARD PAGE'S OWN (`boardMode`), not the last mode played: the board is a read, and a player who has
- * never opened a drill must still be able to read the Daily board.
+ * IT TAKES THE MODE, because the full-screen standings ask for BOTH at once (`loadDockBoards`); the board page passes its
+ * own `boardMode` (`boardPeriod`), which is not the last mode played — the board is a read, and a player who has never
+ * opened a drill must still be able to read the Daily board.
  */
-function boardPeriod(): string | null {
+function periodFor(mode: AppMode): string | null {
   const issued = serverIssued() ? serverDrill : null;
-  return boardPeriodOf(boardMode, utcDay(new Date()), issued?.scheduleVersion ?? null);
+  return boardPeriodOf(mode, utcDay(new Date()), issued?.scheduleVersion ?? null);
 }
 
-/** Choose which board the page shows, and re-read it. Two buttons rather than the last mode played — see `boardPeriod`. */
+/** The period for the board the PAGE is set to. */
+function boardPeriod(): string | null {
+  return periodFor(boardMode);
+}
+
+/** Choose which board the page shows, and re-read it. Two buttons rather than the last mode played — see `periodFor`. */
 function switchBoardMode(next: AppMode): void {
   boardMode = next;
   els.boardModeDrill.setAttribute('aria-pressed', String(next === 'drill'));
   els.boardModeDaily.setAttribute('aria-pressed', String(next === 'daily'));
-  void loadBoard();
+  refreshBoards();
 }
 
+// THE TWO SENTENCES A BOARD CAN FAIL WITH, in one place: the page's list and the full-screen standings are the same read,
+// so a refusal must not be worded twice.
+const NO_SERVER_BOARD = 'There is no server configured, so there is no board to show — this device keeps your own runs only.';
+const NO_SET_BOARD = 'There is no published set to show a board for — the Drill board holds one season, and this device has no server-issued drill on it.';
+
 /**
- * Load the board for the board page's mode, and show it.
+ * Read one board and draw it on `screen` — the page's list or one of the full-screen standings.
  *
- * IT IS ON DEMAND, because a board is a request: the page is the press that asks for it, and its own button reloads it. A
- * build with no server gets the sentence rather than a spinner that can never finish, and a refusal is shown in the
- * server's own words.
+ * IT IS ON DEMAND, because a board is a request: a page is the press that asks for it (or, in full screen, the page's own
+ * presence), and the board page's button reloads it. A build with no server gets the sentence rather than a spinner that
+ * can never finish, and a refusal is shown in the server's own words.
  */
-async function loadBoard(): Promise<void> {
-  boardScreen.clear();
+async function loadBoardInto(screen: LeaderboardScreen, mode: AppMode, levelIndex: number, period: string | null): Promise<void> {
+  screen.clear();
   if (!apiConfigured()) {
-    boardScreen.say('There is no server configured, so there is no board to show — this device keeps your own runs only.');
+    screen.say(NO_SERVER_BOARD);
     return;
   }
-  const period = boardPeriod();
   if (period === null) {
-    boardScreen.say('There is no published set to show a board for — the Drill board holds one season, and this device has no server-issued drill on it.');
+    screen.say(NO_SET_BOARD);
     return;
   }
-  boardScreen.setBusy(true);
-  const answer = await fetchLeaderboard(boardMode, level?.index ?? save.levelIndex, period);
-  boardScreen.setBusy(false);
+  screen.setBusy(true);
+  const answer = await fetchLeaderboard(mode, levelIndex, period);
+  screen.setBusy(false);
   if (!answer.ok) {
-    boardScreen.say(`The board could not be read: ${answer.failure.message}`, 'bad');
+    screen.say(`The board could not be read: ${answer.failure.message}`, 'bad');
     return;
   }
   // `you` IS THE ID THIS APP BELIEVES IT IS, or null when it is nobody: the board is public (A20 serves reads to a
   // signed-out caller), so "which of these is me" is answered by the session rather than by hiding the list.
-  boardScreen.show(answer.value, player?.playerId ?? null);
+  screen.show(answer.value, player?.playerId ?? null);
+}
+
+/** The board page's single in-panel list — the SHEET's read (`refreshBoards`). */
+async function loadPageBoard(): Promise<void> {
+  await loadBoardInto(boardScreen, boardMode, level?.index ?? save.levelIndex, boardPeriod());
+}
+
+/**
+ * THE FULL-SCREEN STANDINGS: both boards, in the area the dance board would have used.
+ *
+ * REPORTED: "When the Dance board is not being used, the area should be replaced by the leader boards." BOTH, because the
+ * space is there and a page with no question should show the standings rather than one of them chosen by a control the
+ * player has not touched. THE DRILL HALF BELONGS TO THE SET THE ISSUED DRILL CAME FROM, so its level is the drill's own,
+ * the same pairing `periodFor` reads; a device with no issued drill has no set and its card says so.
+ */
+async function loadDockBoards(): Promise<void> {
+  const levelIndex = level?.index ?? save.levelIndex;
+  await Promise.all([
+    loadBoardInto(sideDrillScreen, 'drill', serverDrill?.levelIndex ?? levelIndex, periodFor('drill')),
+    loadBoardInto(sideDailyScreen, 'daily', levelIndex, periodFor('daily')),
+  ]);
+}
+
+/**
+ * Read the board(s) the LAYOUT shows — the one rule, called from every place that changes the answer.
+ *
+ * FULL SCREEN, PAGE WITHOUT A BOARD: both, in the side area (`showsStandings`). A SHEET: the board page's single
+ * in-panel list, and nothing on the other pages. A GAME PAGE: nothing — the board on screen is the question.
+ */
+function refreshBoards(): void {
+  if (showsStandings(page, layout.panelSide)) void loadDockBoards();
+  else if (page === 'board') void loadPageBoard();
 }
 
 // -------------------------------------------------------------------------------------------- start over
@@ -1440,13 +1490,16 @@ function applyPage(route: Route, focus: boolean): void {
       // comes from the server's answer (`puzzle/board-period.ts` — null is an answer, and a date computed here is the
       // measured defect that module exists for). So the page opens on the DAILY's board, whose period is the UTC day the
       // client can compute, and says why — an empty board presented as the standings would be worse than either.
-      if (boardMode === 'drill' && boardPeriod() === null) {
+      //
+      // THAT FALLBACK IS THE SHEET'S, because the sheet shows ONE list. A full-screen page shows BOTH standings, so it has
+      // nothing to choose between and must not say "this is the Daily board" with the Drill card beside it — its Drill
+      // card says it has no set yet, which is the true fact.
+      if (!showsStandings(next, layout.panelSide) && boardMode === 'drill' && boardPeriod() === null) {
         boardMode = 'daily';
         notice('The Drill board holds the season the server issued, and this device has not been given a drill yet — this is the Daily board.');
       }
       els.boardModeDrill.setAttribute('aria-pressed', String(boardMode === 'drill'));
       els.boardModeDaily.setAttribute('aria-pressed', String(boardMode === 'daily'));
-      void loadBoard();
       break;
     default:
       // NOT A PLAY PAGE, so the footer's text is repainted from the record it is about (a balance and a ledger do not
@@ -1455,6 +1508,10 @@ function applyPage(route: Route, focus: boolean): void {
       paintBalance();
       break;
   }
+  // THE BOARDS FOLLOW THE PAGE, through the one rule in `refreshBoards`: the full-screen standings on a page with no dance
+  // board, the board page's in-panel list on a sheet, and nothing on a play page. It runs after the switch so the board
+  // page's mode fallback above is already decided.
+  refreshBoards();
 }
 
 /**
@@ -2066,6 +2123,10 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   // THE BANNER'S TOTAL CHANGED WITH THIS ANSWER, and `showDrill` repaints only the balance — so the header is repainted
   // here rather than left to whichever caller happens to run next.
   paintBanner();
+  // AND A PAGE WITH THE FULL-SCREEN STANDINGS READS THE DRILL CARD'S SET FROM THIS ISSUE: without this the Drill card
+  // would keep saying it has no published set until the next navigation, because it was read before the issue landed.
+  // On a play page `refreshBoards` does nothing, so this costs the drill page no request.
+  refreshBoards();
 }
 
 /**
@@ -3348,6 +3409,7 @@ function main(): void {
    * and a script that disagree by one pixel and a board half under the panel.
    */
   const applyLayout = (): void => {
+    const side = layout.panelSide;
     layout = layoutFor(window.innerWidth, window.innerHeight);
     document.documentElement.style.setProperty('--panel-size', `${layout.panelSize}px`);
     document.documentElement.dataset.panel = layout.panelSide;
@@ -3358,6 +3420,10 @@ function main(): void {
     // AND THE BANNER DOES TOO: whether it is drawn at all depends on the layout (`paintChrome`), so a resize across the
     // breakpoint has to re-ask.
     paintChrome();
+    // CROSSING THE BREAKPOINT MOVES WHERE THE BOARDS ARE DRAWN, so the read moves with it: widening onto a page with no
+    // dance board fills the full-screen standings, and narrowing to the sheet leaves the board page's own list. The side
+    // is compared rather than reloading on every resize frame.
+    if (side !== layout.panelSide) refreshBoards();
     applyInsets();
   };
   applyLayout();

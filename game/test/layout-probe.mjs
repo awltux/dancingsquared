@@ -7,7 +7,8 @@
 // width, and the boards get 53 px each. So the layout is not merely cramped on a phone; two of its three numbers cannot
 // express the phone shape at all.
 //
-// WHAT THIS PINS, and each check is a claim about `ui/layout.ts` rather than about CSS:
+// WHAT THIS PINS, and each check is a claim about `ui/layout.ts` (or, in section 6, about the stylesheet that mirrors it)
+// rather than about a screenshot:
 //   1. THE BREAKPOINT. Below `NARROW_MAX_WIDTH` the panel is a bottom sheet and above it a left column, checked one
 //      pixel either side — an off-by-one here is a layout that is right in the middle of a device range and wrong at its
 //      edge, which is exactly the failure a screenshot never catches.
@@ -21,12 +22,17 @@
 //   5. THE BOARDS ARE STILL A PAIR. One board at a time is a separate change with its own rule (a comparison needs both
 //      pictures unless the missing one is drawn as a ghost); until then the pair is what the shell must be told, and
 //      this check fails the day someone flips it without the ghost layer landing with it.
+//   6. THE FULL-SCREEN PAGE. A page with no dance board keeps the HUD in the panel's left column and gives the board's
+//      area to the two standings (`pages.ts`'s `showsStandings`, keyed on `data-panel` + `data-stage`); a sheet keeps the
+//      centred page and draws no standings. This section reads the stylesheet and the markup, because the failure it
+//      guards is a layout one — the page centred with the right-hand area empty.
 //
 // THE NEGATIVE CONTROLS are the plausible wrong rules, measured: a breakpoint keyed on 600 (the type-scale number) fails
 // the 899 check; a sheet height of a flat half fails the 392 check; a sheet with no clamp fails both the floor and the
-// ceiling. Each comment says which check catches it and why the others do not.
+// ceiling; a `display:block` base on the standings would draw them on a phone. Each comment says which check catches it
+// and why the others do not.
 //
-// Usage: node game/test/layout-probe.mjs   (reads text; no engine build, no DOM)
+// Usage: node game/test/layout-probe.mjs   (reads the stylesheet and the model; no engine build, no DOM)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,6 +44,19 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GAME = path.resolve(HERE, '..');
 const CSS = fs.readFileSync(path.join(GAME, 'src', 'style.css'), 'utf8');
+const HTML = fs.readFileSync(path.join(GAME, 'index.html'), 'utf8');
+const MAIN = fs.readFileSync(path.join(GAME, 'src', 'main.ts'), 'utf8');
+
+/** The stylesheet without its comments, and the declarations of one exact selector — a rule, not a mention of one. */
+const css = CSS.replace(/\/\*[\s\S]*?\*\//g, '');
+const escapeSelector = (selector) => selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const ruleOf = (selector) => {
+  // THE ANCHOR MATTERS: `#sideBoard {` also appears inside `html[data-panel="left"]… #sideBoard {`, so an unanchored
+  // search would report the full-screen rule as the base one (or the reverse). A selector starts a rule only after `}` or
+  // at the top of the sheet.
+  const match = new RegExp(`(?:^|\\})\\s*${escapeSelector(selector)}\\s*\\{([^}]*)\\}`, 'm').exec(css);
+  return match ? match[1] : '';
+};
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -121,6 +140,54 @@ console.log('\n== 5. one board on a narrow viewport, two above it ==');
     'and the ghost layer that keeps the comparison on one board exists');
   // NEGATIVE CONTROL: a shell with the call removed fails the first of those two, and nothing else in this probe.
   check(!/setFocus\(/.test('const stageWithoutFocus = 1;'), 'a shell with no focus call would fail that check');
+}
+
+console.log('\n== 6. a full-screen page keeps the HUD left and gives the board area to the standings ==');
+{
+  // REPORTED: "When in full screen mode, keep the hud in the left hand side of the screen, the same as the Drill
+  // screen. When the Dance board is not being used, the area should be replaced by the leader boards." The rule is
+  // `ui/pages.ts`'s `showsStandings` (pinned by `pages-probe.mjs`); this is the stylesheet half, keyed on the same two
+  // flags the shell writes — `data-panel` (layout.ts's panelSide) and `data-stage` (pageShowsBoard).
+  const fullPage = 'html[data-panel="left"][data-stage="page"]';
+  const panel = ruleOf(`${fullPage} #panel`);
+  check(/left:\s*0/.test(panel) && /width:\s*var\(--panel-size\)/.test(panel) && /transform:\s*none/.test(panel),
+    `in full screen the page's panel is the play pages' left column (${panel.replace(/\s+/g, ' ').trim()})`, panel);
+  // NEGATIVE CONTROL: the centred page is what this replaces and it is still the SHEET's answer. Both rules exist, and the
+  // layout flag is what tells them apart — a page centred on a full screen would leave the dance board's area empty, which
+  // is the defect the report names.
+  const centred = ruleOf('html[data-stage="page"] #panel');
+  check(/left:\s*50%/.test(centred) && /translateX\(-50%\)/.test(centred),
+    'while a sheet keeps the centred page it had (the layout flag chooses between them)');
+
+  const dock = ruleOf(`${fullPage} #sideBoard`);
+  check(/display:\s*block/.test(dock) && /left:\s*var\(--panel-size\)/.test(dock) && /right:\s*0/.test(dock),
+    `and the dance board's area is the standings, from the panel's edge to the window's (${dock.replace(/\s+/g, ' ').trim()})`, dock);
+  // NO STANDINGS ANYWHERE ELSE: a sheet has no area beside the panel, and a play page's board is the question. The base
+  // rule is what says so — the negative control for a `display:block` that would draw them on every screen.
+  check(/display:\s*none/.test(ruleOf('#sideBoard')), 'with no standings drawn on a sheet or a play page (the base rule hides them)');
+
+  // THE BOARD PAGE'S OWN READ IS NOT DRAWN TWICE: its list, caption, status and mode switch go in that state, leaving the
+  // page's heading and reload — the reload re-reads both standings.
+  const hideAt = css.indexOf(`${fullPage} #boardMode`);
+  const hideBlock = hideAt === -1 ? '' : css.slice(hideAt, css.indexOf('}', hideAt) + 1);
+  const hidden = ['#boardMode', '#boardCaption', '#boardStatus', '#boardList']
+    .filter((id) => hideBlock.includes(`${fullPage} ${id}`));
+  check(hidden.length === 4 && /display:\s*none/.test(hideBlock),
+    `and the board page's in-panel list and switch are hidden there (${hidden.join(', ') || 'none'})`, hideBlock);
+
+  // IT ADDS NO BREAKPOINT: the full-screen half reads the shell's own two facts, so it must not spell a width again. A
+  // `min-width` media query here would be the second definition `layout.ts` exists to prevent.
+  check(!/@media\s*\(\s*min-width/.test(css), 'the full-screen layout is keyed on data-panel, not a second width query');
+
+  // THE MARKUP AND THE SHELL: the area exists outside the panel, holds BOTH boards, and the shell fills it through the
+  // one rule. These are the wiring checks a CSS-only reading cannot make.
+  const asideAt = HTML.indexOf('id="sideBoard"');
+  check(asideAt > HTML.indexOf('</main>'), 'the standings are a sibling of the panel, not part of the page content');
+  check(HTML.slice(asideAt).includes('id="sideDrillList"') && HTML.slice(asideAt).includes('id="sideDailyList"'),
+    'and carry both boards — the Drill and the Daily — rather than one chosen by a switch');
+  check(MAIN.includes('showsStandings(page, layout.panelSide)') && MAIN.includes('loadDockBoards'),
+    'the shell reads the same rule and has a loader for both standings');
+  check(MAIN.includes('refreshBoards();'), 'and refreshes them when the page or the layout changes');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

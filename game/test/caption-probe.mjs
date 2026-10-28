@@ -26,16 +26,16 @@ const check = (cond, msg) => {
 };
 
 const base = makeSquaredSet();
-const caption = (spec) => boardCaption({ count: 4, role: 'Setup', label: '', ...spec });
+const caption = (spec) => boardCaption({ index: 0, label: '', ...spec });
 
 console.log('\n== 1. the WORDS are what the screen said before the extraction ==');
 {
   const named = caption({ index: 1, label: 'Ocean Wave', board: base });
-  check(named.text === 'Setup, 2 of 4 — Ocean Wave', `a named waypoint reads position then name (${named.text})`);
+  check(named.text === '2: Ocean Wave', `a named waypoint reads its position then its name (${named.text})`);
   const unnamed = caption({ index: 1, board: base });
-  check(unnamed.text === 'Setup, 2 of 4', `an unnamed one stops at the position (${unnamed.text})`);
-  const goal = caption({ index: 3, role: 'Goal', board: base });
-  check(goal.text === 'Goal, 4 of 4', `the last waypoint's role is the caller's (${goal.text})`);
+  check(unnamed.text === '2', `an unnamed one is the position alone (${unnamed.text})`);
+  const goal = caption({ index: 3, board: base });
+  check(goal.text === '4', `the last waypoint is just its number (${goal.text})`);
   // NEGATIVE CONTROL: the label is the only thing that adds the separator. A caption that always appended "— " would
   // report a trailing dash here and pass the named case above, so this check is what rules that out.
   check(!unnamed.text.includes('—'), 'and NO separator is left behind when there is no name');

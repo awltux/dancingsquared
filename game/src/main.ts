@@ -532,20 +532,15 @@ function paintWaypoints(): void {
     return;
   }
   const { pair, info, stage } = current;
-  const count = info.boards.length;
   // THE WORDS ARE THE WAYPOINT'S AND THE HOVER IS THE DRAWN BOARD'S — the two come apart on the live pair, whose left
   // panel is the player's own board. `puzzle/caption.ts` states the rule and why the name cannot answer for it.
   const here = boardCaption({
     index: pair.leftIndex,
-    count,
-    role: pair.live ? 'Setup' : 'Waypoint',
     label: info.labels[pair.leftIndex] ?? '',
     board: stage.left,
   });
   const next = boardCaption({
     index: pair.rightIndex,
-    count,
-    role: pair.rightIndex === count - 1 ? 'Goal' : 'Next waypoint',
     label: info.labels[pair.rightIndex] ?? '',
     board: stage.right,
   });
@@ -561,7 +556,7 @@ function paintWaypoints(): void {
   els.labelGoal.hidden = single && boardFocus !== 'right';
   // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the arrows are HIDDEN rather than shown disabled:
   // the smallest puzzle is two waypoints, and two grey arrows would advertise a route that does not exist.
-  const paged = count > 2;
+  const paged = info.boards.length > 2;
   els.waypointPrev.hidden = !paged;
   els.waypointNext.hidden = !paged;
   els.waypointPrev.disabled = !pair.canPrev;

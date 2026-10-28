@@ -1300,13 +1300,21 @@ button[data-busy="true"]::after {
 .board-label {
   position: absolute;
   top: 14px;
+  max-width: calc(100% - 32px);
   margin: 0;
+  overflow: hidden;
   transform: translateX(-50%);
-  font-size: var(--fs-control);
+  /* SMALL, AND ONE LINE. REPORTED: "Change the dance board title to a 1 liner e.g. "<call_count>: Circle". Use small text,
+     as it's not that important to the game." It was `--fs-control` (a button label's size) and it wrapped: at 390 px,
+     "Setup, 1 of 2 — Right and Left Grand Circle" took two lines over the board. A caption is a signpost — one step down
+     the scale, ellipsised rather than wrapped, and bounded so a long formation name cannot run off the canvas. */
+  font-size: var(--fs-small);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--ink);
+  text-overflow: ellipsis;
   text-shadow: 0 1px 6px var(--shadow-text);
+  white-space: nowrap;
   pointer-events: none;
 }
 

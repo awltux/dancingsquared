@@ -45,10 +45,6 @@ interface BoardCaption {
 interface CaptionSpec {
   /** The waypoint's position in the route, 0-based. The caption shows it 1-based, and it is never the board's own. */
   index: number;
-  /** How many waypoints the route has. */
-  count: number;
-  /** `Setup` on the live pair, `Waypoint` when the pair has been paged back, `Goal` on the last one. */
-  role: string;
   /** The corpus's name for the WAYPOINT, or `''` where it has none. */
   label: string;
   /** The board the panel draws, which the hover text is taken over. */
@@ -57,9 +53,15 @@ interface CaptionSpec {
 
 /** One caption: the words the player reads and the id a developer needs. */
 export function boardCaption(spec: CaptionSpec): BoardCaption {
-  const position = `${spec.role}, ${spec.index + 1} of ${spec.count}`;
+  // ONE LINE, `<count>: <name>` — REPORTED: "Change the dance board title to a 1 liner e.g. "<call_count>: Circle". Use small
+  // text, as it's not that important to the game." It read "Setup, 2 of 4 — Ocean Wave", which is a sentence where a
+  // signpost belongs, and it wrapped to two lines over a 390 px board. The COUNT is the waypoint's position in the route,
+  // 1-based: it is the only count this module is given, and it is the one the paging arrows move. The ROLE ("Setup" /
+  // "Waypoint" / "Goal") is gone with the sentence — the live pair's left board is the player's own, which the board itself
+  // shows, and the last waypoint's caption is the one over the goal.
+  const position = `${spec.index + 1}`;
   return {
-    text: spec.label ? `${position} — ${spec.label}` : position,
+    text: spec.label ? `${position}: ${spec.label}` : position,
     hover: setupId(spec.board) ?? '',
   };
 }

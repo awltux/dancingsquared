@@ -9,7 +9,7 @@
 // verdict handling 60 times a second.
 //
 // Usage: node game/test/playhead-probe.mjs
-import { Replay, LANDING_HOLD_MS } from '../src/ui/playhead.ts';
+import { Replay, LANDING_HOLD_MS, drillAnswerHoldMs } from '../src/ui/playhead.ts';
 import { MS_PER_BEAT } from '../src/puzzle/config.ts';
 
 let failures = 0;
@@ -124,6 +124,32 @@ console.log('\n== 6. a LINE holds its landing frame, and a VERDICT motion does n
   cancelled.advance(4 * MS_PER_BEAT);
   cancelled.cancel();
   check(cancelled.phase === 'idle' && cancelled.advance(1).done === false, 'and a cancelled hold reports nothing');
+}
+
+console.log('\n== 6. which drill answers hold their landing ==');
+{
+  // REPORTED: "Drill: Selecting an incorrect answer for a drill that can show an animation should pause at the end like the
+  // correct animation. This allows the player to analyse the end setup." The rule is `drillAnswerHoldMs`, and it has three
+  // cases rather than one.
+  check(drillAnswerHoldMs('wrong', true) === LANDING_HOLD_MS, `a wrong answer on the last step holds (${drillAnswerHoldMs('wrong', true)} ms)`);
+  check(drillAnswerHoldMs('wrong', false) === LANDING_HOLD_MS,
+    `and so does one before the last step — the step does not advance, so nothing is revealed early (${drillAnswerHoldMs('wrong', false)} ms)`);
+  check(drillAnswerHoldMs('correct', true) === LANDING_HOLD_MS, 'a correct answer on the last step holds: it is the run\'s ending');
+  // THE ONE EXCEPTION, AND WHY IT IS ONE: the next question is asked FROM this landing, so holding would put its options on
+  // screen beside a board that is still frozen.
+  check(drillAnswerHoldMs('correct', false) === 0, `a correct answer before the last step holds nothing (${drillAnswerHoldMs('correct', false)} ms)`);
+  // THE HOLD IS THE SAME NUMBER FOR BOTH KINDS, which is what "like the correct animation" asks for: two different pauses
+  // would be two behaviours to explain, and the report was that there was none at all on the wrong one.
+  check(drillAnswerHoldMs('wrong', false) === drillAnswerHoldMs('correct', true),
+    'and the wrong answer\'s pause is the same length as the correct one\'s, not a second duration');
+  // NEGATIVE CONTROLS, MEASURED: the rule that shipped (hold only on a correct FINAL answer) reddens exactly the two wrong
+  // checks; and the plausible "hold everything" rule reddens exactly the mid-run correct one.
+  const shipped = (kind, atEnd) => (kind === 'correct' && atEnd ? LANDING_HOLD_MS : 0);
+  check(shipped('wrong', true) !== drillAnswerHoldMs('wrong', true) && shipped('wrong', false) !== drillAnswerHoldMs('wrong', false),
+    'CONTROL: the rule that shipped holds nothing for a wrong answer, so these two checks would go red on a revert');
+  const holdEverything = () => LANDING_HOLD_MS;
+  check(holdEverything('correct', false) !== drillAnswerHoldMs('correct', false),
+    'CONTROL: holding every answer reddens the mid-run correct check, which is the exception this rule exists for');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

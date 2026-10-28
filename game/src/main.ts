@@ -62,7 +62,7 @@ import { LevelScreen } from './ui/level-screen.ts';
 import { DailyScreen } from './ui/daily-screen.ts';
 import { AccountScreen } from './ui/account-screen.ts';
 import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
-import { Replay, LANDING_HOLD_MS } from './ui/playhead.ts';
+import { LANDING_HOLD_MS, Replay, drillAnswerHoldMs } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import { bannerView, type BannerFacts } from './ui/banner.ts';
 import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
@@ -2059,11 +2059,11 @@ function answer(choice: number | 'unknown'): void {
     // Drill's submission carries (§11: the server re-derives which option was correct, so this is the claim).
     drillOptions.push(result.call);
     drillScreen.say(`${result.call} — correct.`, 'ok');
-    // THE ANSWER THAT ENDS THE DRILL IS HELD, and an intermediate one is not. A finished drill's landing board is
-    // what `autoProgress` counts its pause on, so `LANDING_HOLD_MS` is what makes "after the two second pause"
-    // true; holding a MID-run answer would put the next question's options on screen two seconds before the board
-    // they are asked about, which is the confusion the hold exists to remove rather than add.
-    startReplay(applier.motion([result.call], result.replayFrom as Board), 'advance', controller?.atEnd ? LANDING_HOLD_MS : 0);
+    // THE HOLD IS `ui/playhead.ts`'S RULE (`drillAnswerHoldMs`), and a WRONG answer holds too: the board the wrong call
+    // leaves is the thing the player has to look at, which is the report that added it. The one answer that does NOT hold is
+    // a correct one before the last step — the next question is asked from that landing, so holding would put its options on
+    // screen beside a board that is still frozen.
+    startReplay(applier.motion([result.call], result.replayFrom as Board), 'advance', drillAnswerHoldMs('correct', controller?.atEnd === true));
   } else {
     // A WRONG ANSWER STATES WHERE IT WENT, not just that it was wrong. The ending board is on screen by the
     // time this is read, so the sentence and the picture say the same thing.
@@ -2079,7 +2079,7 @@ function answer(choice: number | 'unknown'): void {
         : `${result.call} is legal, but the set is no closer to the goal — one more call from there does not reach it.`,
       'bad',
     );
-    startReplay(applier.motion([result.call], result.replayFrom as Board), 'settle');
+    startReplay(applier.motion([result.call], result.replayFrom as Board), 'settle', drillAnswerHoldMs('wrong', controller?.atEnd === true));
   }
   persist();
 }
@@ -3158,8 +3158,11 @@ function frame(nowMs: number): void {
       } else if (mode === 'daily') {
         paintDaily();
       }
-      // A VERDICT MOTION HAS NOTHING TO HOLD, so its `done` arrives on this same frame and the picture goes back
-      // exactly as it always did. Only a held line reaches the branch below on a later frame.
+      // THE PICTURE STAYS ON THE LANDING UNTIL `done`, WHICH IS AFTER THE HOLD — for a played line, for a finished drill's
+      // last answer, and (since the report that added it) for a WRONG DRILL ANSWER, whose board is the thing to study. The
+      // only verdict that reaches the branch here with `done` already true is an answer that asked for no hold: a correct
+      // one before the last step, where the next question's options belong beside this landing rather than two seconds after
+      // it. See `drillAnswerHoldMs` in `ui/playhead.ts` for the three cases and why each one is what it is.
       if (done) endReplay();
     } else if (done) endReplay();
   } else if (mode === 'daily' && daily) {

@@ -33,6 +33,32 @@ import { MS_PER_BEAT } from '../puzzle/config.ts';
  */
 export const LANDING_HOLD_MS = 2000;
 
+/**
+ * HOW LONG A DRILL ANSWER'S ANIMATION HOLDS ITS LANDING.
+ *
+ * REPORTED: "Drill: Selecting an incorrect answer for a drill that can show an animation should pause at the end like the
+ * correct animation. This allows the player to analyse the end setup." It did not: the wrong answer's replay was started with
+ * no hold (`main.ts` passed nothing), so the picture went back to the question's own pair on the landing frame — the board
+ * that says where the call went was gone in the instant it arrived.
+ *
+ * THREE WAYS A DRILL ANSWER ENDS, and the hold is what each one is for:
+ *   * A CORRECT ANSWER ON THE LAST STEP HOLDS. It is the run's ending, and `autoProgress` counts its pause before advancing.
+ *   * A CORRECT ANSWER BEFORE THE LAST STEP HOLDS NOTHING, and that is the one exception: the next question is asked FROM
+ *     this landing, so holding would leave the new options on screen beside a board that is still frozen — the confusion the
+ *     hold exists to remove rather than add (the measurement is on a correct mid-run answer in `main.ts`'s `answer`).
+ *   * A WRONG ANSWER HOLDS, which is the report. The board after the wrong call IS the thing to study — "legal, but the set
+ *     is no closer to the goal" is a claim about a picture — and a wrong answer does not advance the step, so nothing is
+ *     revealed early by waiting.
+ *
+ * THE RULE LIVES HERE because this module owns the hold, and it is a function rather than three inline ternaries so that a
+ * probe can drive the four cases: `game/test/playhead-probe.mjs` pins them, with the rule that shipped (hold only on a
+ * correct final answer) as the negative control.
+ */
+export function drillAnswerHoldMs(kind: 'correct' | 'wrong', atEnd: boolean): number {
+  if (kind === 'correct' && !atEnd) return 0;
+  return LANDING_HOLD_MS;
+}
+
 export class Replay {
   private running = false;
   /** Whether a motion has ever been asked for. See `beat`: it is not the same as "running". */

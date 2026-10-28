@@ -970,7 +970,16 @@ async function doClaimAlias(raw: string): Promise<void> {
   const answer = await claimAliasAt(verdict.alias, apiDeps);
   accountScreen.setAliasBusy(false);
   if (!answer.ok) {
-    accountScreen.sayAlias(`Could not save that name — ${answer.failure.message}`, 'bad');
+    // A SERVER THAT DOES NOT SERVE THE ROUTE IS OLDER THAN THIS BUILD, and saying so is worth the extra branch: REPORTED
+    // as "Could not save that name — nothing serves /me/alias", which is the server's own 404 passing straight through.
+    // The cause was a `dev:api` process started before this endpoint existed, and nothing in that sentence told the player
+    // (or whoever runs the server) that a restart is the fix rather than the name.
+    accountScreen.sayAlias(
+      answer.failure.code === 'not_found'
+        ? 'This game server is older than the app: it does not serve the name endpoint. Restart it, then try again.'
+        : `Could not save that name — ${answer.failure.message}`,
+      'bad',
+    );
     return;
   }
   playerAlias = answer.value.alias;

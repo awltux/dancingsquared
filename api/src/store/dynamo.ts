@@ -23,6 +23,7 @@ import {
 import { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand, TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import type { ItemKey, ItemQuery, ItemStore, StoreWrite, StoredItem } from '../ports.ts';
 import { BOARD_INDEX, BOARD_INDEX_PK, BOARD_INDEX_SK, INDEX_ATTRIBUTES } from '../keys.ts';
+import { plainItem } from './plain-item.ts';
 
 /** The key attributes, as DESIGN.md 11's table writes them. */
 const PK = 'PK';
@@ -131,7 +132,9 @@ export class DynamoStore implements ItemStore {
           TransactItems: writes.map((write) => ({
             Put: {
               TableName: this.table,
-              Item: { ...write.value, [PK]: write.key.pk, [SK]: write.key.sk, [REV]: (write.expectedRev ?? 0) + 1 },
+              // THE DOMAIN VALUE IS CONVERTED FIRST, so an `undefined` nested in it is absent rather than fatal
+              // (`plain-item.ts` has the measurement: the boot used to die here against DynamoDB Local).
+              Item: { ...(plainItem(write.value) as Record<string, unknown>), [PK]: write.key.pk, [SK]: write.key.sk, [REV]: (write.expectedRev ?? 0) + 1 },
               ConditionExpression: write.expectedRev === null ? `attribute_not_exists(${PK})` : `#rev = :rev`,
               ...(write.expectedRev === null
                 ? {}
@@ -154,8 +157,10 @@ export class DynamoStore implements ItemStore {
       await this.client.send(
         new PutCommand({
           TableName: this.table,
-          // THE STORE'S OWN FIELDS COME LAST, so a value that happened to carry a `PK` cannot move the item.
-          Item: { ...value, [PK]: key.pk, [SK]: key.sk, [REV]: (expectedRev ?? 0) + 1 },
+          // THE STORE'S OWN FIELDS COME LAST, so a value that happened to carry a `PK` cannot move the item — and the
+          // domain value is converted first, so an `undefined` nested in it is absent rather than fatal
+          // (`plain-item.ts` has the measurement: the boot used to die here against DynamoDB Local).
+          Item: { ...(plainItem(value) as Record<string, unknown>), [PK]: key.pk, [SK]: key.sk, [REV]: (expectedRev ?? 0) + 1 },
           ConditionExpression: expectedRev === null ? `attribute_not_exists(${PK})` : `#rev = :rev`,
           ...(expectedRev === null
             ? {}

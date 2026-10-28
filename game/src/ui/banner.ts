@@ -1,7 +1,9 @@
 // THE THIN BANNER'S CELLS, AS A PURE FUNCTION OF THE FACTS THE SHELL ALREADY HOLDS.
 //
 // REPORTED: "All pages have a thin banner containing current hints icons, login status, current score for drills and daily,
-// a back button." The back button and the regime line are the router's (`ui/pages.ts` and `main.ts`'s `paintChrome`); this
+// a back button." The back button is the router's (`ui/pages.ts` and `main.ts`'s `paintChrome`), and the position line that
+// used to sit beside the scores was withdrawn ("Remove this text section from the heading ... It causes the header to reflow
+// onto the next line for mobile"); this
 // module is the other four, because each is a SENTENCE about a number and the sentence is the part that can be wrong in
 // ways a screenshot does not show: "not ranked" when the server is simply absent, a score of 0 printed where there is no
 // score at all, a hint meter that counts to four.

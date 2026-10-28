@@ -2,8 +2,9 @@
 // from a wrong one.
 //
 // REPORTED: "All pages have a thin banner containing current hints icons, login status, current score for drills and daily,
-// a back button." The back button and the regime line are the router's and are pinned by `shell-controls-probe.mjs`; this
-// probe is the other four, and every rule below was chosen against a plausible wrong version:
+// a back button." The back button is the router's and is pinned by `shell-controls-probe.mjs` (the position line that sat
+// beside the scores is withdrawn: it reflowed the header onto a second line), so this probe is the other four, and every rule
+// below was chosen against a plausible wrong version:
 //   1. A ZERO IS NOT AN ABSENCE. "Daily 0" is a score a player could believe they had earned, so a fact with no score says
 //      "no score" — the same distinction `puzzle/board-period.ts` makes when it answers null instead of inventing a month.
 //      The negative control prints `0` and is caught by exactly that check.

@@ -66,7 +66,7 @@ import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { LANDING_HOLD_MS, Replay, drillAnswerHoldMs } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import { bannerView, type BannerFacts } from './ui/banner.ts';
-import { backLabel, backTarget, breadcrumbFor, crumbLabel, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
+import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -306,15 +306,12 @@ const els = {
   waypointPrev: el<HTMLButtonElement>('waypointPrev'),
   waypointNext: el<HTMLButtonElement>('waypointNext'),
   waypointLegend: el('waypointLegend'),
-  regime: el('regime'),
   bannerBack: el<HTMLButtonElement>('bannerBack'),
   bannerPips: el('bannerPips'),
   bannerHints: el('bannerHints'),
   bannerScores: el('bannerScores'),
   bannerLevel: el('bannerLevel'),
   bannerAccount: el<HTMLButtonElement>('bannerAccount'),
-  bannerPath: el('bannerPath'),
-  breadcrumb: el('breadcrumb'),
   bannerDrill: el('bannerDrill'),
   bannerDaily: el('bannerDaily'),
   notice: el('notice'),
@@ -1323,10 +1320,6 @@ function applyPage(route: Route, focus: boolean): void {
   page = next;
   if (next === 'levels' || next === 'drill') mode = 'drill';
   if (next === 'daily') mode = 'daily';
-  // AND THE REGIME LINE IS ONE OF THEM: it says which drill the player is on, which is a fact about a play page. A stale
-  // one over the board read "Today's Daily — 2026-10-27" beside a Drill leaderboard, which is the kind of contradiction a
-  // player is right to distrust.
-  if (next !== 'levels' && next !== 'drill' && next !== 'daily') els.regime.textContent = '';
 
   paintPages();
   paintChrome();
@@ -1482,17 +1475,20 @@ function paintPages(): void {
 }
 
 /**
- * The two banners and the document title, all a function of the page alone.
+ * The banner and the document title, all a function of the page alone.
  *
  * THE TITLE IS THE PAGE'S: a two-page-deep app whose tab always says "Dancing Squared" is an app whose browser history is
- * unreadable, and the installed window has no other title. The BACK BUTTON IS A PLACE (the page's parent, not the last
- * history step) and its visible text is short so the row stays thin, with the destination in the accessible name and in
- * the hover title — WCAG's label-in-name rule holds because "Back" is the first word of "Back to the menu".
+ * unreadable, and the installed window has no other title.
  *
- * AND THE SECOND ROW IS THE PATH, REPORTED as "The Back button feels inappropriate for the top banner. A secondary banner could
- * have a breadcrumb (minimalist) and the back button." `breadcrumbFor` is the page table walked upwards, so the crumbs and the
- * back button cannot disagree about where here is; the last crumb is the current page, marked with `aria-current` and NOT a
- * control, because a link to the page you are on is a control that does nothing.
+ * THE WAY BACK IS ONE SQUARE ICON IN THE FIRST CELL, and REPORTED twice to get there: first "The Back button feels
+ * inappropriate for the top banner. A secondary banner could have a breadcrumb (minimalist) and the back button" — a
+ * second row holding a "‹ Back" label and the crumbs, built — and then "Change the back button to just an square back
+ * arrow and move it up to the top left of the header. Delete the breadcrumb. This makes more screen real estate." The
+ * second row is gone; the glyph is `aria-hidden` in `index.html` and the DESTINATION is the button's accessible name and
+ * its hover title, so the icon carries no meaning by itself (WCAG 1.1.1, and the label-in-name rule is satisfied because
+ * "Back" is the first word of "Back to the menu").
+ *
+ * The back button is still A PLACE — the page's parent, from `backTarget`, never the last history step.
  */
 function paintChrome(): void {
   document.title = page === 'landing' ? pageTitle('landing') : `${pageTitle(page)} · Dancing Squared`;
@@ -1502,33 +1498,12 @@ function paintChrome(): void {
   // is on is a control that does nothing, so `aria-current` is what tells a screen reader which case it is.
   if (page === 'profile') els.bannerAccount.setAttribute('aria-current', 'page');
   else els.bannerAccount.removeAttribute('aria-current');
-  // THE PATH ROW IS ONLY DRAWN WHERE THERE IS A PATH: the landing page's ancestry is one crumb and its back button is hidden,
-  // and a row holding a single word would be the header growing back into what two reports asked it to stop being.
-  els.bannerPath.hidden = target === null;
-  els.breadcrumb.replaceChildren();
-  for (const crumb of breadcrumbFor(page)) {
-    const here = crumb === page;
-    const node = here ? document.createElement('span') : document.createElement('button');
-    node.className = 'crumb';
-    node.textContent = crumbLabel(crumb);
-    if (here) {
-      node.setAttribute('aria-current', 'page');
-    } else {
-      // A CRUMB IS A LINK, so an earlier page can be reached from the path itself rather than only by pressing back twice.
-      const destination = crumb;
-      (node as HTMLButtonElement).type = 'button';
-      node.addEventListener('click', () => navigate({ page: destination, drillIndex: null }));
-    }
-    els.breadcrumb.append(node);
-  }
   if (target === null) {
-    els.bannerBack.textContent = '';
     els.bannerBack.removeAttribute('aria-label');
     els.bannerBack.removeAttribute('title');
     return;
   }
   const label = backLabel(page);
-  els.bannerBack.textContent = '‹ Back';
   els.bannerBack.setAttribute('aria-label', label);
   els.bannerBack.title = label;
 }
@@ -1658,7 +1633,6 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   drillClock.resume(performance.now(), Math.max(0, Date.now() - originMs));
   PLAYHEAD.cancel();
   replay = null;
-  els.regime.textContent = drillRegime(position, issued.length, spec.index);
   drillScreen.clearVerdict();
   drillScreen.render(controller);
   // REVIEW AND SKIP ARE `paintView`'s NOW: they belong to the drill view, and whether that view is showing is the
@@ -1864,7 +1838,6 @@ function showDrillReplay(info: { index: number; levelIndex: number; puzzle: Puzz
   serverRecordedRun = false;
   useLevel(spec);
   controller = new DrillController(info.puzzle, {});
-  els.regime.textContent = drillRegime(info.index, levelView().length, spec.index);
   drillScreen.clearVerdict();
   drillScreen.say(
     info.passed
@@ -2411,29 +2384,12 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
  * switching to the Drill and back does not restart its clock (a reload still would, and persisting it is
  * Phase 4's).
  */
-/** The Daily's header line, from the run's own day and level — so the kept path and the issue path agree. */
-/**
- * What the banner's position cell says: which drill of how many, and which level.
- *
- * SHORT ON PURPOSE, because this line shares a thin row with four other cells on a 340 px panel — REPORTED as a banner
- * that should be thin. It kept the two facts the long sentence carried ("The Drill — drill 1 of 100, level 1"), and every
- * word that was doing no work ("The", "of", "level") is gone: the level block's own heading spells the level out in full.
- */
-function drillRegime(position: number, length: number, levelIndex: number): string {
-  return `Drill ${position + 1}/${length} · L${levelIndex}`;
-}
-
-function dailyRegime(): string {
-  return daily && dailyDay ? `Daily ${dailyDay} · L${dailyLevelIndex}` : "Today's Daily";
-}
-
 /** An issued Daily is kept: re-issue it and its clock restarts, which is free thinking time for a button press. */
 function keepDaily(): void {
   // EVERYTHING ELSE ON SCREEN IS RE-APPLIED, because it belongs to this mode — a defect the browser showed twice:
   // a stale "You are here" name left over from the Drill, and a header still reading "The Drill — drill 1 of 12"
   // above the Daily's own panel.
   if (!daily) return;
-  els.regime.textContent = dailyRegime();
   paintDaily();
   draw();
 }
@@ -2500,7 +2456,6 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
   // Daily's, under a board the player is in the middle of reading. The state above is set either way; `keepDaily()`
   // paints all of it on the next switch into the page.
   if (page === 'daily') {
-    els.regime.textContent = dailyRegime();
     paintDaily();
     draw();
   }
@@ -2523,7 +2478,6 @@ function startDaily(): void {
   daily = null;
   els.loading.hidden = true;
   dailyScreen.say("The Daily Challenge needs the game server: a challenge is published for a level and a day, and this build has no API configured.", 'info');
-  els.regime.textContent = "Today's Daily — needs the game server";
 }
 
 /**
@@ -2624,7 +2578,6 @@ function onDailyAnswer(
     dailyScreen.say(`No Daily from the server: ${answer.failure.message}`, 'bad');
     if (page === 'daily') {
       dailyScreen.pending(`Today's Daily is unavailable — ${answer.failure.message}`);
-      els.regime.textContent = "Today's Daily — unavailable";
     }
     return;
   }
@@ -2636,7 +2589,6 @@ function onDailyAnswer(
     dailyScreen.say(`Today's Daily was published against pool ${answer.value.poolVersion}, and this build serves ${MAIN_POOL.version}.`, 'bad');
     if (page === 'daily') {
       dailyScreen.pending(`Today's Daily is unavailable — it was published against pool ${answer.value.poolVersion}.`);
-      els.regime.textContent = "Today's Daily — unavailable";
     }
     return;
   }
@@ -2652,7 +2604,6 @@ function onDailyAnswer(
     dailyScreen.say(`No Daily yet: ${answer.value.ready ? 'the answer carried no puzzle' : why}.`, 'info');
     if (page === 'daily') {
       dailyScreen.pending(`Today's Daily is not ready — ${why}.`);
-      els.regime.textContent = "Today's Daily — not ready yet";
     }
     return;
   }

@@ -84,7 +84,15 @@ export function backTarget(page: Page): Page | null {
   }
 }
 
-/** What the back button says, for the banner's own label and for its accessible name. */
+/** What the back button says, for the banner's own label and for its accessible name.
+ *
+ * AND IT IS THE ONLY THING THE BUTTON SAYS NOW. A breadcrumb second row was derived from this same table (`breadcrumbFor`,
+ * `crumbLabel`) when the report asked for one — "The Back button feels inappropriate for the top banner. A secondary banner
+ * could have a breadcrumb (minimalist) and the back button" — and the next report withdrew it: "Change the back button to just
+ * an square back arrow and move it up to the top left of the header. Delete the breadcrumb. This makes more screen real
+ * estate." Both functions are gone rather than left unused: the visible word "Back" went with the row, so the destination is
+ * carried by this label alone, as the arrow's accessible name and hover title.
+ */
 export function backLabel(page: Page): string {
   const target = backTarget(page);
   if (target === null) return '';
@@ -99,47 +107,6 @@ export function backLabel(page: Page): string {
     board: 'the board',
   };
   return `Back to ${name[target]}`;
-}
-
-/**
- * The path to a page, oldest first and ending on the page itself — a breadcrumb, as arithmetic.
- *
- * REPORTED: "The Back button feels inappropriate for the top banner. A secondary banner could have a breadcrumb (minimalist) and
- * the back button." So the path is a SECOND row under the first, and it is derived from the same table the back button uses: the
- * parent chain, walked up and reversed. A breadcrumb kept as its own literal list would be a second statement of the page graph,
- * and the first one to be edited alone would be wrong (`backTarget` is the authority).
- *
- * IT INCLUDES THE PAGE ITSELF, because a breadcrumb's last crumb is where you are. The landing page's path is one crumb, and the
- * shell draws no breadcrumb row at all for it: a path of one is a label, not a path.
- */
-export function breadcrumbFor(page: Page): Page[] {
-  const path: Page[] = [];
-  // A BOUNDED WALK, because a table with a cycle in it would otherwise hang the shell: `backTarget` is six lines of arithmetic
-  // today, and a walk that cannot terminate is the one failure a path function must not have.
-  for (let step: Page | null = page; step !== null && path.length <= 8; step = backTarget(step)) path.push(step);
-  return path.reverse();
-}
-
-/**
- * The word a breadcrumb uses for a page — SHORTER THAN THE TITLE, because a path has to fit in a 340 px panel.
- *
- * `pageTitle` is a document title and a page heading ("The drill level", "Dancing Squared"); a crumb is a signpost, and three
- * of those titles in a row overflow the row that carries them (MEASURED on the first version at 1280 x 800: "Dancing Squar… /
- * The drill le… / D…"). The menu's crumb is "Menu" rather than the app's name, which is the conventional root and the only one
- * whose title is not about where you are.
- */
-export function crumbLabel(page: Page): string {
-  const label: Record<Page, string> = {
-    landing: 'Menu',
-    setup: 'Setup',
-    help: 'Help',
-    profile: 'Profile',
-    levels: 'Drill level',
-    drill: 'Drill',
-    daily: "Today's Daily",
-    board: 'Board',
-  };
-  return label[page];
 }
 
 /** The page's own name, as the document title and as the `<h2>` a screen reader lands on. */

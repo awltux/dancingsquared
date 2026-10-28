@@ -21,6 +21,8 @@
 //      is a runtime throw; a leftover rule is dead CSS nobody dares delete.
 //   6. THE FOOTER still holds the game's own moves and nothing else, and the SETUP page holds the housekeeping, so
 //      "decluttered" cannot become "the Hint button went missing" — the defect the footer's first probe was written for.
+//   7. THE DRILL PAGE'S WITHDRAWN LINES. The report took the "Drill" heading and the question out of the picture; they must still
+//      be in the tree, or a navigation focuses nothing and the question is unread.
 //
 // THE NEGATIVE CONTROLS run the same readers over synthetic markup, because a check whose subject is the real file cannot
 // tell a rule from a coincidence: MEASURED, `pagesWithHeadings` fails on a section whose heading id is another page's,
@@ -90,6 +92,16 @@ const css = fs.readFileSync(CSS, 'utf8');
 const main = fs.readFileSync(MAIN, 'utf8');
 
 const idsIn = (text) => [...text.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
+
+/**
+ * THE SCRIPT AND THE STYLESHEET WITH THEIR COMMENTS REMOVED, for the checks that ask whether a NAME is still USED.
+ *
+ * The same trap the markup's own comment-strip above was written for, one file over: `main.ts` and `style.css` both QUOTE the
+ * reports that asked for a control to be withdrawn ("Delete the breadcrumb"), so a raw `includes('breadcrumb')` finds the
+ * sentence explaining the deletion and reports the deletion missing. Comments are documentation, and a check about live names
+ * must read live code.
+ */
+const stripComments = (text) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^[ \t]*\/\/.*$/gm, '');
 
 /** The text of one element, by tag depth — a `<section>` may hold another `<section>`, so "to the next close" is wrong. */
 const blockOf = (source, tag, id) => {
@@ -214,24 +226,45 @@ console.log('\n== 4. the landing page reaches every other page, and the banner h
   check(main.includes("navigate({ page: 'drill', drillIndex: index })"),
     'and the drill is entered by a cell press that writes its own URL');
   const banner = blockOf(html, 'div', 'bannerRow') ?? '';
-  // THE BANNER'S CELLS: the hint badge, the level with its two scores, the position and the account badge — the list the reports
-  // named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all, which the id
-  // contract would otherwise only catch once one of them is asked for in the script.
-  const bannerIds = idsIn(banner);
-  const cells = ['bannerHints', 'bannerPips', 'bannerScores', 'bannerLevel', 'bannerDrill', 'bannerDaily', 'bannerAccount'];
+  // THE BANNER'S CELLS, ALL IN ONE ROW: the way back, the level with its two scores, the position and the account badge — the
+  // list the reports named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all,
+  // which the id contract would otherwise only catch once one of them is asked for in the script.
+  const bannerIds = idsIn(banner).filter((id) => id !== 'bannerRow');
+  const cells = ['bannerBack', 'bannerScores', 'bannerLevel', 'bannerDrill', 'bannerDaily', 'bannerHints', 'bannerPips', 'bannerAccount'];
   const absent = cells.filter((id) => !bannerIds.includes(id));
   check(absent.length === 0,
-    `the banner carries the hint badge, the level's two scores and the account badge (${absent.join(', ') || 'none missing'})`,
+    `the one banner row carries the way back, the level's two scores, the position, the hint badge and the account (${absent.join(', ') || 'none missing'})`,
     absent.join(', '));
-  // THE WAY BACK, THE PATH AND THE POSITION ARE THE SECOND ROW. REPORTED: "The Back button feels inappropriate for the top
-  // banner. A secondary banner could have a breadcrumb (minimalist) and the back button." So this pins that none of the three is
-  // in the top row any more, and that all three are in the row that was added for them.
-  check(!bannerIds.includes('bannerBack') && !bannerIds.includes('regime'),
-    'the top banner no longer holds the back button or the position line');
-  const path = blockOf(html, 'div', 'bannerPath') ?? '';
-  const pathIds = idsIn(path);
-  check(['bannerBack', 'breadcrumb', 'regime'].every((id) => pathIds.includes(id)),
-    `the secondary banner holds the way back, the breadcrumb and the position (${pathIds.join(', ')})`);
+  // THE WAY BACK IS THE ROW'S FIRST CELL AND THE PLAYER'S GROUP IS LAST. REPORTED: "Change the back button to just an square back
+  // arrow and move it up to the top left of the header. Delete the breadcrumb." The order is the reading order, so a back arrow
+  // that had drifted to the middle of the row would be a different app.
+  check(bannerIds[0] === 'bannerBack', `and the way back is the first cell (${bannerIds[0]})`);
+  check(bannerIds[bannerIds.length - 1] === 'bannerAccount', `with the account badge last (${bannerIds[bannerIds.length - 1]})`);
+  // AND THE POSITION LINE IS GONE FROM THE ROW, because it was the only SENTENCE in a wrapping row and it reflowed the header.
+  // REPORTED: "Remove this text section from the heading when viewing the Drill puzzle. It causes the header to reflow onto the
+  // next line for mobile." MEASURED at 1280 x 800 with it: the row stood 58 px tall against 36 px on a sheet. This is the check
+  // that catches it coming back — an id, a rule or an `els.regime` write would each put a ~110 px sentence back in the row.
+  const regimeLeft = [
+    /\bid="regime"/.test(html) ? 'index.html' : '',
+    /els\.regime\b/.test(main) ? 'main.ts' : '',
+    /#regime\b/.test(stripComments(css)) ? 'style.css' : '',
+  ].filter(Boolean);
+  check(regimeLeft.length === 0, `and the position line is gone from all three (${regimeLeft.join(', ') || 'nowhere'})`, regimeLeft.join(', '));
+  // THE SECOND ROW IS DELETED, not merely emptied: no `#bannerPath`, no `#breadcrumb`, and no crumb markup or CSS left behind. A
+  // row that still existed with nothing in it would keep its gap and its border, which is the screen real estate the report was
+  // about. Negative control: `#bannerPath` in any of the four files below fails exactly this check.
+  const crumbs = ['bannerPath', 'breadcrumb', '.crumb'];
+  const shellText = [html, stripComments(main), stripComments(css)].join('\n');
+  const crumbLeft = crumbs.filter((name) => shellText.includes(name));
+  check(crumbLeft.length === 0, `the breadcrumb row and its styles are gone (${crumbLeft.join(', ') || 'none left'})`, crumbLeft.join(', '));
+  // THE BACK BUTTON IS AN ICON, so the destination must survive without the picture: an `aria-hidden` glyph in the markup and the
+  // name written from `backLabel`, never as visible text. MEASURED before: the button's text was the whole label ("‹ Back"), which
+  // is a word in a row that has no room for words.
+  const back = blockOf(banner, 'button', 'bannerBack') ?? '';
+  check(/<svg[^>]*aria-hidden="true"/.test(back), 'the back button\'s arrow is `aria-hidden`', back || '(no button found)');
+  check(/<button id="bannerBack"[^>]*aria-label="/.test(back), 'and the button carries a name, so the arrow is not the label', back);
+  check(!main.includes("els.bannerBack.textContent = '‹ Back'") && !main.includes('els.bannerBack.textContent'),
+    'and paintChrome writes no visible text into it');
   // THE HINT BADGE CARRIES NO TEXT, so its label must carry the number: REPORTED as "Remove the text Hints 0/3 and surround
   // the hint circles with a badge outline". A meter with neither words nor a name is a fact only sighted players have.
   check(/<p id="bannerHints"[^>]*role="img"[^>]*aria-label="/.test(banner),
@@ -306,6 +339,27 @@ console.log('\n== 6. the footer holds the game\'s moves, each page its own contr
   // controls appear at once. Zero is the measured shape after this change; the number may only fall.
   const alwaysOn = [...foot.matchAll(/<button\b[^>]*>/g)].filter((m) => !/\bhidden\b/.test(m[0])).length;
   check(alwaysOn === 0, `no footer button is drawn on every page any more (${alwaysOn} always-on)`);
+}
+
+console.log('\n== 7. the drill page\'s heading and question are for the reader, not for the layout ==');
+{
+  // REPORTED: "Also get rid of the header 'Drill' and the subheader 'Which call takes....' They also hide the selections". NEITHER
+  // MAY BE DELETED: a navigation focuses the page's `<h2>` (`pageHeadingId`), and the question is the question — so both are
+  // `visually-hidden`, which keeps them in the DOM and in the accessibility tree while taking them out of the flow entirely.
+  const drill = blockOf(html, 'section', 'drill') ?? '';
+  const elementOf = (id) => drill.match(new RegExp(`<[a-z0-9]+[^>]*\\bid="${id}"[^>]*>`))?.[0] ?? '';
+  for (const id of ['drillHeading', 'prompt']) {
+    const open = elementOf(id);
+    check(/\bclass="[^"]*\bvisually-hidden\b/.test(open), `#${id} is visually hidden, so it costs the sheet no lines (${open || 'not found'})`);
+    // NEGATIVE CONTROL: the plausible wrong answer is the `hidden` attribute, which is a line shorter and removes the element from the
+    // accessibility tree — the focus target would then focus nothing and the question would be unread. The `\s` matters: the class's
+    // own name contains the word "hidden", so a bare `\bhidden\b` would match the fix as the defect.
+    check(!/\shidden\b/.test(open), `and it is not the \`hidden\` attribute, which would take it out of the tree too (${id})`);  }
+  const rule = css.match(/\.visually-hidden\s*\{[^}]*\}/)?.[0] ?? '';
+  check(/position:\s*absolute/.test(rule) && /clip-path/.test(rule),
+    'and the class exists as a clip: absolute placement plus a one-pixel clip rectangle', rule || '(no rule)');
+  check(!/display:\s*none|visibility:\s*hidden/.test(rule),
+    'with neither `display: none` nor `visibility: hidden` in it, which would defeat the point', rule);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -70,10 +70,28 @@
              strip carries the board captions and the board switcher, so a banner over it would cover the two things that
              say what the boards are. The row is also the row the retired mode switch freed. -->
         <header id="head">
-          <!-- THE PRIMARY BANNER: what the game is worth right now — the hint meter, the level's two scores, the position and
-               the account. The way back is NOT here any more. REPORTED: "The Back button feels inappropriate for the top
-               banner. A secondary banner could have a breadcrumb (minimalist) and the back button." -->
+          <!-- THE BANNER IS ONE ROW AGAIN: the way back, the game (the level's two scores), then the player (the hint meter and
+               the account). REPORTED, in order: "The Back button feels inappropriate for the top banner. A secondary banner
+               could have a breadcrumb (minimalist) and the back button" — which was built — and then "Change the back button to
+               just an square back arrow and move it up to the top left of the header. Delete the breadcrumb. This makes more
+               screen real estate." So the second row is gone and its two occupants moved: the back button to the first cell as
+               an icon, the position to the right of the scores.
+
+               AND THEN THE POSITION LINE WENT TOO — REPORTED: "Remove this text section from the heading when viewing the Drill
+               puzzle. It causes the header to reflow onto the next line for mobile." It was the only SENTENCE in the row
+               ("Drill 3/100 · L1"), ~110 px of text beside four fixed cells in a 300-340 px panel, so it was what tipped the
+               wrapping flex row onto a second line; MEASURED at 1280 x 800 the row was 58 px tall — two lines — against 36 px on
+               a sheet where `#regime` was already hidden. The level block states the position in full, so the line was a
+               duplicate as well as the tallest thing in the header. -->
           <div id="bannerRow">
+            <!-- THE WAY BACK IS AN ICON, and the glyph is `aria-hidden` with its destination in the accessible name. It is the
+                 first cell of the row, which is where a back arrow belongs; a page with no parent (the menu) hides it. -->
+            <button id="bannerBack" type="button" hidden aria-label="Back">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M19.5 12H5.6" />
+                <path d="M11.2 5.8 5 12l6.2 6.2" />
+              </svg>
+            </button>
             <!-- THE LEVEL AND THE TWO SCORES COME FIRST, on the left. REPORTED: "The L1 100 Daily No Score should be simplified
                  and moved up to the same line as the hints on the left hand side. The simplification could look like L1 {Drill
                  Icon}:100 {Daily Icon}:0" — so it is the level, then a glyph per game with its score, and the words "no score"
@@ -124,22 +142,6 @@
                 <path d="M5.9 19.1a6.4 6.4 0 0 1 12.2 0" />
               </svg>
             </button>
-          </div>
-          <!-- THE SECONDARY BANNER: the way back, a minimalist breadcrumb and the position, on its own thin row. REPORTED: "The
-               Back button feels inappropriate for the top banner. A secondary banner could have a breadcrumb (minimalist) and
-               the back button." The path is derived from the page table (`ui/pages.ts`'s `breadcrumbFor`) and filled by
-               `paintChrome` — one crumb per page on the way here, the current one marked and not a control. The row is hidden
-               on the landing page, whose path is a single crumb and whose back button has nowhere to go: a path of one is a
-               label rather than a path.
-
-               THE POSITION LINE LIVES HERE TOO, and that is the second half of the same problem: "Drill 1/100 · L1" was the last
-               sentence in the top row, it duplicated the level cell's `L1`, and on a 340 px panel it overflowed the row and
-               pushed the account badge onto a line of its own. Row two is where the words belong — the row about where you are
-               — and it already disappears on a narrow viewport. -->
-          <div id="bannerPath">
-            <button id="bannerBack" type="button" hidden>‹ Back</button>
-            <nav id="breadcrumb" aria-label="Where you are"></nav>
-            <p id="regime"></p>
           </div>
         </header>
 
@@ -299,9 +301,14 @@
           <button id="levelNext" type="button" hidden>Start the next level</button>
         </section>
 
+        <!-- THE DRILL PAGE: THE BOARDS, THE THREE ANSWERS, AND NOTHING ABOVE THEM. REPORTED: "Also get rid of the header Drill
+             and the subheader Which call takes... They also hide the selections." Both are still in the DOM and still announced —
+             the page needs a heading to focus after a navigation (`pageHeadingId`) and the question is the question — so they are
+             `.visually-hidden` rather than deleted: a phone's sheet is 348 px and two lines of chrome over three 48 px options
+             is what pushed the last option off the bottom. -->
         <section id="drill" class="page" aria-live="polite" hidden>
-          <h2 id="drillHeading" tabindex="-1">Drill</h2>
-          <p id="prompt"></p>
+          <h2 id="drillHeading" class="visually-hidden" tabindex="-1">Drill</h2>
+          <p id="prompt" class="visually-hidden"></p>
           <div id="answers"></div>
           <div id="verdict" role="status"></div>
         </section>

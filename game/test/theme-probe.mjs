@@ -167,7 +167,7 @@ console.log('\n== 4. WCAG AA, computed from the table ==');
     ['body text on a control', COLOR.ink, control, 4.5, 'a button label'],
     ['body text on a raised control', COLOR.ink, raised, 4.5, 'the footer and the More summary'],
     ['body text on a field', COLOR.ink, field, 4.5, 'the search box and the account form'],
-    ['dim text on the panel', COLOR.dim, panel, 4.5, 'the regime line, the readout, the counters'],
+    ['dim text on the panel', COLOR.dim, panel, 4.5, 'the scores cell, the readout, the counters'],
     ['dim text on the page', COLOR.dim, bg, 4.5, 'the level heading beside the board'],
     ['success on the panel', COLOR.ok, panel, 4.5, 'a solved verdict'],
     ['danger on the panel', COLOR.bad, panel, 4.5, 'a refusal, which must be as readable as a success'],

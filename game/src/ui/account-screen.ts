@@ -22,8 +22,13 @@
 //
 // A PASSWORD FIELD IS NEVER READ BACK INTO THE DOM, and nothing here interpolates text into markup: every string
 // goes in through `textContent` (AGENTS.md §6), which matters because an email address is typed input.
+// A PLAYER'S NAME IS NOT THEIR ADDRESS. REPORTED: "the user needs a login alias that can be displayed in the leaderboard.
+// Dont expose the email address anywhere on the UI." So the signed-in line says the ALIAS and, when a player has not
+// claimed one yet, asks for one — and no sentence in this file interpolates an address back onto the screen. The form's
+// email field is the player's own typing on the way IN, which is not the same thing.
 import type { AuthMode, SignedIn } from '../net/auth.ts';
 import type { Standing } from '../net/standing.ts';
+import { sanitizeAlias } from '../puzzle/alias.ts';
 import { el } from './dom.ts';
 
 interface AccountCallbacks {
@@ -33,6 +38,8 @@ interface AccountCallbacks {
   signOut: () => void;
   /** Change the password of the signed-in account, given the current one. */
   changePassword: (current: string, next: string) => void;
+  /** Claim or change the public name the leaderboard shows. */
+  claimAlias: (alias: string) => void;
 }
 
 /** Everything the row draws from, all of it already decided elsewhere. */
@@ -40,6 +47,8 @@ interface AccountView {
   readonly standing: Standing;
   readonly mode: AuthMode | null;
   readonly player: SignedIn | null;
+  /** The public name, or null when this player has not claimed one yet. */
+  readonly alias: string | null;
   /** Whether this build may offer a sign-in form (`signInOffered`, which is where the rule lives). */
   readonly offersForm: boolean;
   /** Whether the server serves `/auth/password`, from the same advertised list. */
@@ -62,11 +71,17 @@ interface El {
   newPassword: HTMLInputElement;
   changePassword: HTMLButtonElement;
   passwordStatus: HTMLElement;
+  aliasForm: HTMLFormElement;
+  alias: HTMLInputElement;
+  aliasSave: HTMLButtonElement;
+  aliasStatus: HTMLElement;
 }
 
 export class AccountScreen {
   private readonly els: El;
   private busy = false;
+  /** The alias form's own pending state, kept apart from `busy` for the same reason its status line is. */
+  private aliasBusy = false;
 
   constructor(private readonly on: AccountCallbacks) {
     this.els = {
@@ -85,6 +100,10 @@ export class AccountScreen {
       newPassword: el<HTMLInputElement>('newPassword'),
       changePassword: el<HTMLButtonElement>('passwordChange'),
       passwordStatus: el('passwordStatus'),
+      aliasForm: el<HTMLFormElement>('aliasForm'),
+      alias: el<HTMLInputElement>('aliasInput'),
+      aliasSave: el<HTMLButtonElement>('aliasSave'),
+      aliasStatus: el('aliasStatus'),
     };
     this.els.form.addEventListener('submit', (event) => {
       // THE PAGE MUST NOT RELOAD: a form's default submit would rebuild the app and lose the run in flight.
@@ -127,6 +146,19 @@ export class AccountScreen {
       }
       this.on.changePassword(current, next);
     });
+    // THE ALIAS FORM IS ITS OWN FORM for the same reason the password form is: a submit here must not be read as a
+    // sign-in. The rule is checked BEFORE the callback so a name the game will not take costs no request — `sanitizeAlias`
+    // is the same function the server enforces, imported rather than restated (AGENTS.md §5).
+    this.els.aliasForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const raw = this.els.alias.value;
+      const verdict = sanitizeAlias(raw);
+      if (!verdict.ok) {
+        this.sayAlias(verdict.message, 'bad');
+        return;
+      }
+      this.on.claimAlias(verdict.alias);
+    });
   }
 
 
@@ -146,13 +178,28 @@ export class AccountScreen {
     const showRow = view.player !== null || (view.standing === 'unranked' && view.mode !== 'dev');
     this.els.row.hidden = !showRow;
     this.els.passwordForm.hidden = view.player === null || !view.offersPassword;
+    // THE ALIAS FORM IS FOR A SIGNED-IN PLAYER ONLY: it is a claim against their row, so there is nothing it could do for
+    // anybody else. It is shown whether or not a name is held — a name can be changed, and every name ever used stays
+    // reserved (`api/src/keys.ts`), so the field's label says CHANGE rather than suggesting a retry.
+    this.els.aliasForm.hidden = view.player === null;
     if (!showRow) return;
 
     this.els.form.hidden = view.player !== null || !offersForm;
     this.els.signOut.hidden = view.player === null;
-    this.els.status.textContent = view.player ? `Signed in as ${view.player.email}.` : unrankedNote(view, offersForm);
+    // THE SENTENCE NAMES THE PLAYER BY THEIR ALIAS, NEVER THEIR ADDRESS: REPORTED as "Dont expose the email address
+    // anywhere on the UI." A signed-in player with no name is told what a name is FOR, which is the only reason the row
+    // asks for one.
+    this.els.status.textContent = view.player
+      ? (view.alias === null
+        ? 'Signed in. Claim a name below and it is what the leaderboard shows.'
+        : `Signed in as ${view.alias}.`)
+      : unrankedNote(view, offersForm);
     this.els.status.dataset['kind'] = view.player ? 'ok' : 'info';
+    // THE FIELD SHOWS THE NAME HELD, so "change it" starts from what it currently is rather than from nothing — and it is
+    // only written when it differs, because writing it on every paint would fight a player mid-edit.
+    if (view.alias !== null && this.els.alias.value !== view.alias) this.els.alias.value = view.alias;
     this.setBusy(this.busy);
+    this.setAliasBusy(this.aliasBusy);
   }
 
   /** A line for the player, in the row's own status slot. The sign-in form's refusals are shown here. */
@@ -165,6 +212,23 @@ export class AccountScreen {
   sayPassword(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
     this.els.passwordStatus.textContent = text;
     this.els.passwordStatus.dataset['kind'] = kind;
+  }
+
+  /**
+   * The alias form's own line, for the same reason as the password's: a refused name must not overwrite the sentence that
+   * says what signing in does. It is also where a name the RULE refused is explained, which is the only place a player
+   * learns that `_ada` cannot start with an underscore.
+   */
+  sayAlias(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
+    this.els.aliasStatus.textContent = text;
+    this.els.aliasStatus.dataset['kind'] = kind;
+  }
+
+  /** The alias form's own pending state, separate from the row's for the same reason its line is. */
+  setAliasBusy(busy: boolean): void {
+    this.aliasBusy = busy;
+    this.els.aliasSave.disabled = busy;
+    this.els.alias.disabled = busy;
   }
 
   /**

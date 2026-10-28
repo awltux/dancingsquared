@@ -29,3 +29,7 @@ export * from './session.ts';
 // THE WIRE'S SHAPE CHECK, exported because the client now draws puzzles it did not generate (DESIGN.md §9), so the
 // module that reads one off a response needs the same rule the probe measures.
 export * from './parse.ts';
+// THE ALIAS RULE, exported because the SERVER enforces it too: the alias endpoint must not trust that the app ran the
+// sanitiser, and a server-side copy of it would be the second implementation AGENTS.md §5 forbids — the same reason
+// `arrangement.ts` and `parse.ts` are here.
+export * from './alias.ts';

@@ -15,15 +15,25 @@
 // (which may mean there is more behind it).
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { failure, STATUS } from '../status.ts';
-import { BOARD_INDEX, boardPk } from '../keys.ts';
+import { BOARD_INDEX, boardPk, profileKey } from '../keys.ts';
 import { asBoardRow } from '../runs.ts';
 
 /** How many entries the answer carries, and the `Limit` of the one read that produces them. */
 export const LEADERBOARD_PAGE = 50;
 
-/** One rank on a board: who, their score, and how many runs earned it. */
+/**
+ * One rank on a board: who, their score, and how many runs earned it.
+ *
+ * `alias` IS THE NAME A PERSON READS, and it is a SECOND read rather than a field on the board row: REPORTED as "the
+ * user needs a login alias that can be displayed in the leaderboard. Dont expose the email address anywhere on the UI."
+ * — and a board row's own `playerId` is a Cognito sub or `emu:1`, which is an identifier, not a name. Copying the alias
+ * onto the row at write time would be cheaper and WRONG: a rename would leave every previous row showing the old name,
+ * and the profile row is the one place a name is decided. So the page's names are resolved here, one read per entry,
+ * bounded by `LEADERBOARD_PAGE` (50) — MEASURED as 50 gets at the cap in the local store, all parallel.
+ */
 interface Entry {
   readonly playerId: string;
+  readonly alias: string | null;
   readonly score: number;
   readonly runs: number;
 }
@@ -57,7 +67,7 @@ export async function getLeaderboard(request: ApiRequest, deps: Deps): Promise<A
   }
 
   const rows = await deps.store.query({ pk: boardPk(mode, levelIndex, period), index: BOARD_INDEX, limit: LEADERBOARD_PAGE });
-  const entries: Entry[] = [];
+  const ranks: Omit<Entry, 'alias'>[] = [];
   for (const row of rows) {
     const board = asBoardRow(row);
     if (!board) {
@@ -65,8 +75,19 @@ export async function getLeaderboard(request: ApiRequest, deps: Deps): Promise<A
       // would be a leaderboard nobody could audit, which is the same rule the other readers keep.
       return failure(STATUS.unavailable, 'unreadable_board', `a board row for ${period} at level ${levelIndex} is not a record this build can read`);
     }
-    entries.push({ playerId: board.playerId, score: board.score, runs: board.runs });
+    ranks.push({ playerId: board.playerId, score: board.score, runs: board.runs });
   }
+
+  // THE NAMES, RESOLVED IN PARALLEL AND ONE READ PER ENTRY. An entry whose profile row is absent or unreadable keeps
+  // `null` rather than falling back to the id: the app draws an un-named row, and an identifier on a public board is the
+  // leak this endpoint exists to stop. A MISSING profile is not a failure of the board — it is a player who has not
+  // claimed a name yet — which is why it is null here and `unreadable_profile` in `GET /me/profile`.
+  const aliases = await Promise.all(ranks.map(async (rank) => {
+    const stored = await deps.store.get(profileKey(rank.playerId)).catch(() => null);
+    const alias = stored?.value['alias'];
+    return typeof alias === 'string' ? alias : null;
+  }));
+  const entries: Entry[] = ranks.map((rank, index) => ({ ...rank, alias: aliases[index] ?? null }));
 
   return {
     status: STATUS.ok,

@@ -28,8 +28,20 @@ import type { Standing } from '../net/standing.ts';
 export interface BannerFacts {
   /** Hints held, from the local balance (the drills earn it and the Daily spends it). */
   readonly hintsHeld: number;
-  /** The signed-in player's email, or null when nobody is signed in. */
-  readonly playerEmail: string | null;
+  /**
+   * THE SIGNED-IN PLAYER'S PUBLIC NAME, or null when nobody is signed in — and null ALSO for a signed-in player who has
+   * not claimed one yet.
+   *
+   * IT WAS THE EMAIL, and REPORTED: "the user needs a login alias that can be displayed in the leaderboard. Dont expose
+   * the email address anywhere on the UI." The badge is `aria-label` plus `title` only (the button draws a person glyph),
+   * so a name here is READ ALOUD and shown on hover — which is exactly why it may not be an address.
+   */
+  readonly playerAlias: string | null;
+  /**
+   * Whether a session exists, which `playerAlias` cannot say on its own: a signed-in player who has not claimed a name
+   * yet has a null alias too, and that state must not be drawn as "Sign in".
+   */
+  readonly signedIn: boolean;
   /** What the server will do with a run, from `standingOf` — the one rule that decides it. */
   readonly standing: Standing;
   /** The level the player is on, for the scores cell's label. */
@@ -63,7 +75,7 @@ export interface BannerView {
   readonly dailyScore: string;
   /** The scores cell in words, for the group's accessible name: "Level 1: drill total 340, Daily no score". */
   readonly scoresLabel: string;
-  /** The account badge's own text: an email when somebody is signed in, "Sign in" when nobody is. */
+  /** The account badge's own text: the player's alias when there is one, "Sign in" when nobody is signed in. */
   readonly accountText: string;
   /**
    * The badge's accessible name, which carries the ranking as well as the identity — the fact the paragraph this button
@@ -111,19 +123,27 @@ export function bannerView(facts: BannerFacts): BannerView {
  * The badge's text, and who you are in its accessible name.
  *
  * THE TEXT IS THE IDENTITY AND THE TITLE IS THE STANDING, because a thin row has no space for a sentence and the badge is
- * the control, not the status line. `text` is the email (or "Sign in"), and `title` states whether what the player does is
- * recorded — which is the fact the four standings below have to keep telling apart.
+ * the control, not the status line. `text` is the player's ALIAS (or "Sign in"), and `title` states whether what the
+ * player does is recorded — which is the fact the four standings below have to keep telling apart. An address is never
+ * either of them: REPORTED as "Dont expose the email address anywhere on the UI."
+ *
+ * A SIGNED-IN PLAYER WITH NO NAME IS ITS OWN CASE, and it must not read as "Sign in": they are signed in, and what they
+ * are being asked for is a name for the leaderboard, which is where a name is needed. The unnamed state therefore says
+ * so and keeps the `ok` ranking, because their runs are recorded either way.
  *
  * THE `dev` CASE IS THE ONE THAT MUST NOT READ AS AN ERROR: a server that names the player by a header IS ranked without an
  * account, and the footer's old sentence ("the server is recording nothing for a signed-out player") was wrong about
  * exactly that case (`net/standing.ts` records the measurement).
  */
 function accountBadge(facts: BannerFacts): { text: string; title: string; kind: 'ok' | 'info' } {
-  if (facts.playerEmail !== null) {
-    return { text: facts.playerEmail, title: `Signed in as ${facts.playerEmail} — runs are ranked`, kind: 'ok' };
+  if (facts.playerAlias !== null) {
+    return { text: facts.playerAlias, title: `Signed in as ${facts.playerAlias} — runs are ranked`, kind: 'ok' };
+  }
+  if (facts.standing === 'ranked' && facts.signedIn) {
+    return { text: 'Your profile', title: 'Signed in — claim a name for the leaderboard', kind: 'ok' };
   }
   if (facts.standing === 'offline') return { text: 'Sign in', title: 'No server — this device only', kind: 'info' };
-  if (facts.standing === 'ranked') return { text: 'Sign in', title: 'Ranked by this server — signing in keeps your progress under an email', kind: 'ok' };
+  if (facts.standing === 'ranked') return { text: 'Sign in', title: 'Ranked by this server — signing in keeps your progress', kind: 'ok' };
   return { text: 'Sign in', title: 'Not signed in — runs unranked', kind: 'info' };
 }
 

@@ -1,0 +1,78 @@
+// `GET /me/profile` and `POST /me/alias` — the public name a leaderboard row shows (DESIGN.md §11).
+//
+// WHAT IT REPLACES. A board row carries a `playerId`, which is a Cognito sub in the deployed build and `emu:1` in the
+// emulator — neither is a name. The app was printing whatever it had, which is why a row could read `emu:1`, and the
+// owner's requirement is the reason this exists: "the user needs a login alias that can be displayed in the leaderboard.
+// Dont expose the email address anywhere on the UI."
+//
+// THE RULE IS NOT HERE. `sanitizeAlias` lives in `game/src/puzzle/alias.ts` and both this handler and the app call it, so
+// what the server accepts and what the app tells a player to expect cannot drift (AGENTS.md §5). The server runs it
+// because a client that skipped it is exactly the client this endpoint has to survive.
+//
+// TWO WRITES, ONE OUTCOME: the claim row (`alias#<key>`) is created conditionally, so a name belongs to one player, and
+// the profile row is written only after the claim exists. A lost race on either answers `alias_taken` or re-reads — never
+// a half-applied rename, which would be a board row naming a player whose profile says something else.
+//
+// A NAME ONCE USED STAYS RESERVED. The port has no delete, and that is the behaviour worth having anyway: a leaderboard
+// that shows a name as a player's identity must not hand that name to somebody else later (`keys.ts`'s `aliasClaimKey`).
+import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
+import { failure, requireIdentity, STATUS } from '../status.ts';
+import { aliasClaimKey, profileKey } from '../keys.ts';
+import { sanitizeAlias } from 'dancing-squared-game';
+
+/**
+ * The alias currently claimed, or null when this player has never claimed one.
+ *
+ * A READ THAT NEEDS AN IDENTITY, unlike the board: an alias is the player's own row, and there is nothing to show a
+ * signed-out caller. It answers `alias: null` rather than a 404 for a player who has not chosen yet — "no name yet" is a
+ * state the app draws a form for, not an error.
+ */
+export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiResult> {
+  const who = requireIdentity(request, deps);
+  if ('refusal' in who) return who.refusal;
+  const stored = await deps.store.get(profileKey(who.identity.playerId));
+  if (!stored) return { status: STATUS.ok, body: { alias: null } };
+  const alias = stored.value['alias'];
+  if (typeof alias !== 'string') {
+    // AN UNREADABLE PROFILE IS AN OPERATOR FINDING, not a silent null: a row that exists and cannot be read would
+    // otherwise present as "this player has never claimed a name", which is a different fact and would let them claim a
+    // second one over the top of the unreadable row.
+    return failure(STATUS.unavailable, 'unreadable_profile', 'the profile row is not a record this build can read');
+  }
+  return { status: STATUS.ok, body: { alias } };
+}
+
+/**
+ * Claim an alias, or change the one this player holds.
+ *
+ * THE REFUSALS ARE THE RULE'S OWN CODES, so the app can branch on `alias_too_long` without parsing a sentence — and the
+ * sentence is carried too, because that is what the app shows under the input (`ui/alias.ts` builds the same words, and
+ * the server's copy is authoritative).
+ */
+export async function postAlias(request: ApiRequest, deps: Deps): Promise<ApiResult> {
+  const who = requireIdentity(request, deps);
+  if ('refusal' in who) return who.refusal;
+  const playerId = who.identity.playerId;
+
+  const body = request.body as { alias?: unknown } | null;
+  const verdict = sanitizeAlias(body?.alias);
+  if (!verdict.ok) return failure(STATUS.badRequest, verdict.code, verdict.message);
+
+  const claim = await deps.store.get(aliasClaimKey(verdict.key));
+  if (claim) {
+    if (claim.value['playerId'] === playerId) {
+      // THE SAME NAME AGAIN IS NOT AN ERROR: the claim is this player's, so the thing to do is make sure the profile row
+      // agrees with it (a rename that lost its second write, or a first claim whose profile write failed).
+      await deps.store.put(profileKey(playerId), { alias: verdict.alias, key: verdict.key }, null);
+      return { status: STATUS.ok, body: { alias: verdict.alias } };
+    }
+    return failure(STATUS.conflict, 'alias_taken', `"${verdict.alias}" has already been claimed`);
+  }
+
+  // THE CLAIM FIRST, CONDITIONALLY. `expectedRev: null` means "create only if absent", so two players racing for one
+  // name leave one claim row and one refusal here rather than two rows that overwrite each other.
+  const claimed = await deps.store.put(aliasClaimKey(verdict.key), { playerId }, null);
+  if (!claimed) return failure(STATUS.conflict, 'alias_taken', `"${verdict.alias}" has already been claimed`);
+  await deps.store.put(profileKey(playerId), { alias: verdict.alias, key: verdict.key }, null);
+  return { status: STATUS.ok, body: { alias: verdict.alias } };
+}

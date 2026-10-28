@@ -16,8 +16,8 @@
 // marked rather than guessed from an address), and WHETHER THE LIST IS COMPLETE (`truncated` is shown as a sentence,
 // because a cut-off list presented as the standings is worse than no list).
 //
-// TEXT GOES IN VIA `textContent`, NEVER `innerHTML` — a player id is server data and, in the dev mode, whatever an
-// operator typed (AGENTS.md §6).
+// TEXT GOES IN VIA `textContent`, NEVER `innerHTML` — a NAME is server data and, in the dev mode, whatever an operator
+// typed (AGENTS.md §6). That matters more since the rows are names: an alias is player-authored input.
 import type { BoardView } from '../net/api.ts';
 import { el } from './dom.ts';
 
@@ -67,10 +67,14 @@ export class LeaderboardScreen {
       const entry = board.entries[index];
       const item = document.createElement('li');
       const name = document.createElement('span');
-      // THE ROW IS THE PLAYER ID, because that is what the server keys a board on and this app has no display name
-      // for anyone. Marking `you` is what makes the list about the player reading it.
-      name.textContent = entry.playerId === you ? `${entry.playerId} (you)` : entry.playerId;
-      if (entry.playerId === you) item.className = 'you';
+      // THE ROW IS THE PLAYER'S NAME, WHICH IS THEIR ALIAS — never the id and never an address. REPORTED: "the user needs a
+      // login alias that can be displayed in the leaderboard. Dont expose the email address anywhere on the UI." A player
+      // who has not claimed one shows as "Unnamed player": the row must not fall back to `playerId` (an `emu:1` or a
+      // Cognito sub on a public board), and hiding the row would be worse than a row with no name. Marking `you` is by the
+      // id, because a name is not an identity.
+      const mine = entry.playerId === you;
+      name.textContent = mine ? `${entry.alias ?? 'Unnamed player'} (you)` : entry.alias ?? 'Unnamed player';
+      if (mine) item.className = 'you';
       const score = document.createElement('span');
       score.className = 'score';
       score.textContent = `${entry.score} — ${entry.runs} run${entry.runs === 1 ? '' : 's'}`;

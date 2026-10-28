@@ -171,3 +171,29 @@ export const attemptKey = (playerId: string, mode: 'drill' | 'daily', id: string
  * invisible until somebody's offline play turned up on a leaderboard.
  */
 export const historyKey = (playerId: string, runId: string): ItemKey => ({ pk: `history#${playerId}`, sk: `run#${runId}` });
+
+/**
+ * One player's PUBLIC PROFILE — the alias a leaderboard row shows instead of an identifier.
+ *
+ * REPORTED: "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
+ * anywhere on the UI." A one-row partition like `hints#` and `ladder#`, because there is one alias per player and the
+ * question is always "what is this player's name" — a read, never a range.
+ */
+export const profileKey = (playerId: string): ItemKey => ({ pk: `profile#${playerId}`, sk: 'alias' });
+
+/**
+ * One CLAIMED alias, so a name belongs to exactly one player.
+ *
+ * THE CLAIM IS THE CONDITIONAL WRITE, and that is what makes two players racing for the same name answer one winner and
+ * one `alias_taken` rather than both storing it: `put(aliasKey(key), …, null)` creates only if absent, the same
+ * mechanism that makes a run idempotent.
+ *
+ * A RETIRED NAME IS NOT REUSED, deliberately, and the store's own shape is the reason it is also the only rule that can
+ * be implemented: there is no delete in the port. That is the right outcome anyway — a freed name could be claimed by
+ * somebody passing themselves off as the player who had it, and a leaderboard that shows a name as a player's identity
+ * must not reassign it.
+ *
+ * `key` IS ALREADY FOLDED: `aliasKeyOf` in `game/src/puzzle/alias.ts` lowercases and collapses it, so this key is
+ * case-insensitive by construction rather than by a second rule here.
+ */
+export const aliasClaimKey = (key: string): ItemKey => ({ pk: `alias#${key}`, sk: 'claim' });

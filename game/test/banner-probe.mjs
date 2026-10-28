@@ -29,7 +29,8 @@ const check = (cond, msg, detail = '') => {
 /** The facts every case varies one of. A named default keeps each check to the thing it is about. */
 const base = {
   hintsHeld: 0,
-  playerEmail: null,
+  playerAlias: null,
+  signedIn: false,
   standing: 'offline',
   drillLevel: 1,
   drillTotal: 0,
@@ -56,11 +57,22 @@ console.log('\n== 1. the hint meter ==');
 console.log('\n== 2. who you are, and whether it counts ==');
 {
   const cell = (facts) => bannerView({ ...base, ...facts });
-  const signedIn = cell({ playerEmail: 'ada@example.com', standing: 'ranked' });
-  check(signedIn.accountText === 'ada@example.com', `the badge shows the email when somebody is signed in (${signedIn.accountText})`);
-  check(/Signed in as ada@example\.com/.test(signedIn.accountTitle) && /ranked/.test(signedIn.accountTitle),
+  const signedIn = cell({ playerAlias: 'Ada Lovelace', signedIn: true, standing: 'ranked' });
+  check(signedIn.accountText === 'Ada Lovelace', `the badge shows the player's alias when somebody is signed in (${signedIn.accountText})`);
+  check(/Signed in as Ada Lovelace/.test(signedIn.accountTitle) && /ranked/.test(signedIn.accountTitle),
     `and its accessible name says so, with the ranking (${signedIn.accountTitle})`);
   check(signedIn.accountKind === 'ok', 'and it reads as a good fact');
+  // THE EMAIL IS NOT THE NAME. REPORTED: "the user needs a login alias that can be displayed in the leaderboard. Dont
+  // expose the email address anywhere on the UI." Neither the text nor the accessible name may hold an address, and the
+  // one way an address could reach this cell now is a caller passing one as an alias — which the check below catches.
+  check(!/[@]/.test(signedIn.accountText) && !/[@]/.test(signedIn.accountTitle),
+    'and an address is never what the badge says, in either place');
+  // A SIGNED-IN PLAYER WITH NO NAME IS NOT A SIGNED-OUT ONE, and it is the state a player sees between signing in and
+  // claiming a name: it must not read as "Sign in", and it must not lose the `ok` ranking.
+  const unnamed = cell({ playerAlias: null, signedIn: true, standing: 'ranked' });
+  check(unnamed.accountText !== 'Sign in' && unnamed.accountKind === 'ok',
+    `a signed-in player who has claimed no name yet is drawn as signed in (${unnamed.accountText} / ${unnamed.accountKind})`);
+  check(/claim a name/.test(unnamed.accountTitle), `and asked for one in the accessible name (${unnamed.accountTitle})`);
   // THE EMPTY BADGE THE REPORT ASKED FOR: a signed-out player gets a CONTROL that says "Sign in" — not a sentence, and not
   // nothing, which is what an offline build used to render. REPORTED as "The empty login account badge is missing from the
   // header".
@@ -77,8 +89,8 @@ console.log('\n== 2. who you are, and whether it counts ==');
   // THE NEGATIVE CONTROL: the plausible wrong rule — "a session means ranked, and no session means unranked" — is caught by
   // the `dev` check above, because that rule would call a header-identified player unranked where the server has just
   // promised to rank them.
-  const naive = (f) => (f.playerEmail !== null ? 'Signed in' : 'Not signed in');
-  check(naive({ playerEmail: null, standing: 'ranked' }) === 'Not signed in' && dev.accountKind === 'ok',
+  const naive = (f) => (f.signedIn ? 'Signed in' : 'Not signed in');
+  check(naive({ signedIn: false, standing: 'ranked' }) === 'Not signed in' && dev.accountKind === 'ok',
     'CONTROL: the session-only rule disagrees with the standing rule exactly where a header-identified player is ranked');
   // THE FOUR STANDINGS STILL TELL THEMSELVES APART — that discrimination moved from the old paragraph's text into the badge's
   // accessible name, and it is the thing a reader needs before trusting a score.
@@ -126,24 +138,31 @@ console.log('\n== 4. every field is filled for every combination ==');
   // A SWEEP OVER THE PRODUCT, because the fields are independent and the bug this catches is a branch that returns early:
   // an empty string is silence on screen, and silence is indistinguishable from "not painted yet".
   const standings = ['offline', 'unranked', 'ranked'];
-  const emails = [null, 'x@y'];
+  // AN ALIAS, AND THE TWO NOTHING-STATES: a null name with a session (signed in, no name yet) and a null one without.
+  const aliases = [null, 'Ada Lovelace'];
   const scores = [null, 0, 120];
   let empty = 0;
   let combos = 0;
   for (const standing of standings) {
-    for (const playerEmail of emails) {
+    for (const playerAlias of aliases) {
       for (const drillTotal of scores) {
         for (const dailyScore of scores) {
-          const view = bannerView({ ...base, standing, playerEmail, drillTotal, dailyScore });
+          const signedIn = playerAlias !== null;
+          const view = bannerView({ ...base, standing, playerAlias, signedIn, drillTotal, dailyScore });
           combos++;
           for (const [name, value] of Object.entries(view)) if (value === '') empty++;
         }
       }
     }
   }
-  check(combos === standings.length * emails.length * scores.length * scores.length,
+  check(combos === standings.length * aliases.length * scores.length * scores.length,
     `the sweep drove ${combos} combinations (a zero here is a FAILURE, not a pass)`);
   check(empty === 0, `and no field was ever empty (${empty} empty)`);
+  // AND THE SIGNED-IN-WITHOUT-A-NAME COMBINATION IS IN THE SWEEP ABOVE ONLY BY ACCIDENT, so it is driven explicitly: it is
+  // the state between signing in and claiming a name, which a sweep keyed on the alias alone would never reach.
+  const between = bannerView({ ...base, standing: 'ranked', playerAlias: null, signedIn: true });
+  check(between.accountText !== '' && between.accountTitle !== '' && between.accountKind === 'ok',
+    `the signed-in-but-unnamed state is filled and ranked (${between.accountText} / ${between.accountKind})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

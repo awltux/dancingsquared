@@ -56,7 +56,7 @@ const FOOTER = [
 ];
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
-  profile: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut', 'passwordForm', 'currentPassword', 'newPassword', 'passwordChange', 'ledger', 'profileBoard'],
+  profile: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut', 'passwordForm', 'currentPassword', 'newPassword', 'passwordChange', 'ledger', 'profileBoard', 'aliasForm', 'aliasInput', 'aliasSave', 'aliasStatus'],
   daily: ['callSearch', 'callSubsets', 'offer'],
   levels: ['levelNext', 'levelBlock'],
 };
@@ -360,6 +360,32 @@ console.log('\n== 7. the drill page\'s heading and question are for the reader, 
     'and the class exists as a clip: absolute placement plus a one-pixel clip rectangle', rule || '(no rule)');
   check(!/display:\s*none|visibility:\s*hidden/.test(rule),
     'with neither `display: none` nor `visibility: hidden` in it, which would defeat the point', rule);
+}
+
+console.log('\n== 8. the UI never renders an email address ==');
+{
+  // REPORTED: "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
+  // anywhere on the UI." The session still CARRIES the address — `/auth/signin` needs it and `POST /auth/password` takes
+  // it — so the rule cannot be "no `.email` in the source". It is narrower and it is the one that matters: NO ADDRESS IS
+  // INTERPOLATED INTO A SENTENCE, because every string this app draws goes through a template literal or `textContent`
+  // (`AGENTS.md` §6). A call argument like `changePassword(player.email, …)` is protocol, not display, and this check
+  // deliberately does not flag it.
+  const uiFiles = ['src/main.ts', 'src/ui/account-screen.ts', 'src/ui/banner.ts', 'src/ui/leaderboard-screen.ts'];
+  const offenders = [];
+  for (const file of uiFiles) {
+    const text = stripComments(fs.readFileSync(path.join(GAME, file), 'utf8'));
+    // A BACKTICK STRING THAT INTERPOLATES ANYTHING NAMED `…email`. The negative control below is the sentence this check
+    // was written for — the landing page's old "Signed in as ${player.email}." — which it must catch.
+    for (const match of text.matchAll(/`[^`]*\$\{[^}]*\bemail\b[^}]*\}[^`]*`/g)) offenders.push(`${file}: ${match[0].replace(/\s+/g, ' ')}`);
+  }
+  check(offenders.length === 0, `no sentence interpolates an email (${offenders.length} found)`, offenders.join(' | '));
+  const control = 'els.status.textContent = `Signed in as ${player.email}.`;';
+  check([...control.matchAll(/`[^`]*\$\{[^}]*\bemail\b[^}]*\}[^`]*`/g)].length === 1,
+    'CONTROL: the reader catches the sentence this rule is about');
+  // AND NEITHER THE BANNER'S FACTS NOR ITS BADGE CAN REACH AN ADDRESS: the only identity fact in `ui/banner.ts` is
+  // `playerAlias`, so a caller cannot hand it an email even by accident.
+  const banner = stripComments(fs.readFileSync(path.join(GAME, 'src/ui/banner.ts'), 'utf8'));
+  check(!/playerEmail/.test(banner) && /playerAlias/.test(banner), 'the banner\'s identity fact is the alias, not an address');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

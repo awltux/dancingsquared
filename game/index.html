@@ -262,6 +262,19 @@
             </form>
             <button id="accountSignOut" type="button" hidden>Sign out</button>
           </div>
+          <h3>Your name</h3>
+          <!-- THE ALIAS IS THE ONLY THING THE UI CALLS THE PLAYER, AND IT IS THE NAME THE LEADERBOARD SHOWS. REPORTED:
+               "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
+               anywhere on the UI." So the board names players by this, the banner's account badge is named by it, and no
+               sentence on any page prints an address. The rule is `puzzle/alias.ts` — 3-16 characters, letters, numbers,
+               spaces and `. _ - '`, never `@`, and not one of the operator words — and it is checked here before a request
+               AND again on the server, which is the authority. Its own form and its own status line, for the reason the
+               password form has both. -->
+          <form id="aliasForm" hidden>
+            <input id="aliasInput" type="text" autocomplete="nickname" placeholder="Your name" aria-label="Leaderboard name" maxlength="24" />
+            <button id="aliasSave" type="submit">Save name</button>
+          </form>
+          <p id="aliasStatus" role="status"></p>
           <h3>Progress</h3>
           <!-- THE SAME SENTENCE THE SETUP PAGE USED TO CARRY (`paintLedger` writes it, and the id is unchanged): what this
                device has saved — drills, best score, Daily streak — and, when a run is unranked, why. Progress is what a

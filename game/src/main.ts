@@ -24,6 +24,7 @@
 // never arrived must not silently rank the run. The offline ledger applies the same rule locally
 // (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
 import { utcDay } from './puzzle/daily.ts';
+import { sanitizeAlias } from './puzzle/alias.ts';
 import { reachedGoal } from './puzzle/arrangement.ts';
 import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
 // WHICH BOARD A RUN IS ON, as a pure rule: the period used to be decided here, over shell state and the clock, so no
@@ -44,7 +45,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type RunRecord, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchDrillReplay, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, dailyChallenge, fetchDrillReplay, fetchLeaderboard, fetchProfile, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -161,6 +162,16 @@ let serverRegime: RegimeState | null = null;
 let authMode: AuthMode | null = null;
 let signinRoutes: readonly string[] = [];
 let player: SignedIn | null = null;
+/**
+ * THE PLAYER'S PUBLIC NAME, from `GET /me/profile` — the only thing the UI may call them by.
+ *
+ * REPORTED: "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
+ * anywhere on the UI." So this is a THIRD piece of session state beside `player` (the tokens and the subject, which the
+ * protocol needs) and it is the one the screen draws: the badge's name, the landing sentence and the profile page. It is
+ * null both when nobody is signed in and when a signed-in player has not claimed a name, which is why `player` is still
+ * how those two cases are told apart.
+ */
+let playerAlias: string | null = null;
 let demoRun = false;
 
 /** The Daily's run, the UTC day and the level it was issued for. */
@@ -380,6 +391,7 @@ const accountScreen = new AccountScreen({
   confirm: (email, code) => void doConfirm(email, code),
   signOut: () => void doSignOut(),
   changePassword: (current, next) => void doChangePassword(current, next),
+  claimAlias: (alias) => void doClaimAlias(alias),
 });
 const boardScreen = new LeaderboardScreen({ load: () => void loadBoard() });
 const stage = new GameStage(el<HTMLCanvasElement>('stage'));
@@ -652,6 +664,7 @@ function paintAccount(): void {
     standing: currentStanding(),
     mode: authMode,
     player,
+    alias: playerAlias,
     offersForm: signInOffered({ mode: authMode, signin: signinRoutes, pinned: apiDeps.modeOverride !== undefined }),
     offersPassword: signinRoutes.includes('POST /auth/password'),
   });
@@ -672,7 +685,9 @@ function paintAccount(): void {
 function paintLanding(): void {
   const standing = currentStanding();
   if (player) {
-    els.landingStatus.textContent = `Signed in as ${player.email}. Your runs are recorded on the server.`;
+    els.landingStatus.textContent = playerAlias === null
+      ? 'Signed in. Your runs are recorded on the server — claim a name on your profile to appear on the leaderboard.'
+      : `Signed in as ${playerAlias}. Your runs are recorded on the server.`;
     return;
   }
   if (standing === 'offline') {
@@ -680,7 +695,7 @@ function paintLanding(): void {
     return;
   }
   els.landingStatus.textContent = standing === 'ranked'
-    ? 'No account needed on this server — it names the player for you. Signing in still keeps your progress under an email.'
+    ? 'No account needed on this server — it names the player for you. Signing in still keeps your progress.'
     : 'Playing without an account: everything works, and your runs stay on this device unranked until you sign in.';
 }
 
@@ -725,7 +740,8 @@ function bannerFacts(): BannerFacts {
   const today = dailyDay !== '' ? dailyDay : utcDay(new Date());
   return {
     hintsHeld: save.hints.hints,
-    playerEmail: player?.email ?? null,
+    playerAlias,
+    signedIn: player !== null,
     standing: currentStanding(),
     drillLevel: view.levelIndex,
     // THE DRILL'S NUMBER IS A RUNNING TOTAL, and that is the second thing the reports asked for: "the drill score seems to just
@@ -804,6 +820,9 @@ async function bootAccount(): Promise<void> {
   // THE ANSWER GOES TO THE REQUEST LAYER, which is where the identity header is chosen — it is the one place that
   // knows whether this browser may send a device id at all, and it is a mode the shell has just learned.
   rememberAuthMode(authMode);
+  // THE NAME BEFORE THE FIRST PAINT, because every screen that names the player is drawn from it and one round trip is
+  // cheaper than a repaint the player can see. A signed-out boot skips it entirely.
+  await loadAlias();
   paintAccount();
   // AND ONLY NOW IS THE FIRST QUESTION ASKED, with an identity the server will accept — by the page the URL names, which
   // is the landing page unless the player came back to a bookmarked one.
@@ -820,6 +839,7 @@ async function doSignIn(email: string, password: string): Promise<void> {
     return;
   }
   player = answer.value;
+  await loadAlias();
   accountChanged();
   // AND THE LEDGER GOES WITH IT. A26 keeps a device's runs as HISTORY, and this is the only moment the app can hand
   // them over: before the session there is no identity to import into, and the local ledger is what the offline game
@@ -846,15 +866,15 @@ async function importDeviceLedger(): Promise<void> {
   const answer = await importLedger(save.runs);
   if (!answer.ok) {
     if (answer.failure.code !== 'nothing_to_import') {
-      accountScreen.say(`Signed in as ${player?.email ?? ''} — but this device's runs were not imported: ${answer.failure.message}`, 'bad');
+      accountScreen.say(`This device's runs were not imported: ${answer.failure.message}`, 'bad');
     }
     return;
   }
   const held = answer.value.skipped === 1 ? '1 run' : `${answer.value.skipped} runs`;
   accountScreen.say(
     answer.value.imported > 0
-      ? `Signed in as ${player?.email ?? ''} — ${answer.value.imported} run${answer.value.imported === 1 ? '' : 's'} from this device imported as history: kept, and not ranked.`
-      : `Signed in as ${player?.email ?? ''} — the server already held all ${answer.value.total} of this device's runs (${held} skipped).`,
+      ? `${answer.value.imported} run${answer.value.imported === 1 ? '' : 's'} from this device imported as history: kept, and not ranked.`
+      : `The server already held all ${answer.value.total} of this device's runs (${held} skipped).`,
     'ok',
   );
 }
@@ -875,7 +895,9 @@ async function doSignUp(email: string, password: string): Promise<void> {
   }
   if (!answer.value.confirmed) {
     accountScreen.askForCode(answer.value.confirmCode);
-    accountScreen.say(`Account created — confirm ${answer.value.email} to finish.`, 'info');
+    // THE ADDRESS IS NOT PRINTED BACK: REPORTED as "Dont expose the email address anywhere on the UI." The player typed
+    // it a moment ago and knows which one, and an address in a sentence on a shared device is the exposure.
+    accountScreen.say('Account created — confirm it with the code from your email to finish.', 'info');
     return;
   }
   accountScreen.say('Account created — sign in to be counted.', 'ok');
@@ -906,12 +928,58 @@ async function doSignOut(): Promise<void> {
   const answer = await signOut(apiDeps);
   accountScreen.setBusy(false);
   player = null;
+  // AND THE NAME GOES WITH THE SESSION: it is the name of a player who is no longer signed in, and leaving it in the
+  // banner would have the app claiming to be somebody it can no longer prove it is.
+  playerAlias = null;
   // THE PASSWORD FIELDS GO WITH THE SESSION: a typed-but-unsent password must not be left in a form the next person at this
   // device can read, and the form itself is hidden by the next paint.
   accountScreen.clearPassword();
   accountScreen.sayPassword('');
   accountChanged();
   if (!answer.ok) accountScreen.say(`Signed out on this device — the server could not be told: ${answer.failure.message}`, 'bad');
+}
+
+/**
+ * Read the player's public name — the only thing the UI is allowed to call them by.
+ *
+ * A READ, NOT A CLAIM, and it is awaited at boot and after a sign-in because every screen that names the player is painted
+ * from it. A refused or unreadable read leaves `null`: the app then says "claim a name" rather than inventing one, and the
+ * board still works, because the server resolves the names it shows.
+ */
+async function loadAlias(): Promise<void> {
+  if (player === null) {
+    playerAlias = null;
+    return;
+  }
+  const answer = await fetchProfile(apiDeps);
+  playerAlias = answer.ok ? answer.value.alias : null;
+}
+
+/**
+ * Claim or change the public name.
+ *
+ * THE RULE IS CHECKED HERE FIRST so a name the game will not take is refused without spending a request — the app imports
+ * the same `sanitizeAlias` the server enforces (`puzzle/alias.ts`), so the two cannot disagree about what is legal. The
+ * one refusal only the server can give is `alias_taken`, which is why the answer is still what decides.
+ */
+async function doClaimAlias(raw: string): Promise<void> {
+  const verdict = sanitizeAlias(raw);
+  if (!verdict.ok) {
+    accountScreen.sayAlias(verdict.message, 'bad');
+    return;
+  }
+  accountScreen.setAliasBusy(true);
+  const answer = await claimAliasAt(verdict.alias, apiDeps);
+  accountScreen.setAliasBusy(false);
+  if (!answer.ok) {
+    accountScreen.sayAlias(`Could not save that name — ${answer.failure.message}`, 'bad');
+    return;
+  }
+  playerAlias = answer.value.alias;
+  accountScreen.sayAlias(`Your name on the leaderboard is ${playerAlias}.`, 'ok');
+  // THE BANNER AND THE MENU NAME THE PLAYER, so they are repainted from the one fact that just changed.
+  paintAccount();
+  paintBanner();
 }
 
 /**

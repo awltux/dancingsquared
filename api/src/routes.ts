@@ -15,6 +15,7 @@ import { postDrillAnswer } from './handlers/answer.ts';
 import { postDrillReveal } from './handlers/reveal.ts';
 import { postDailyMove } from './handlers/daily-move.ts';
 import { getLeaderboard } from './handlers/leaderboard.ts';
+import { getProfile, postAlias } from './handlers/profile.ts';
 import type { Handler } from './ports.ts';
 import { countingRefusals } from './abuse.ts';
 
@@ -52,10 +53,20 @@ export const ROUTES: readonly Route[] = [
   { method: 'POST', path: '/runs', handler: countingRefusals(postRun), purpose: 'record a completed run, verified by regeneration' },
   { method: 'POST', path: '/me/runs:bulk', handler: countingRefusals(postBulkRuns), purpose: "import a device's local ledger as unranked history" },
   { method: 'GET', path: '/leaderboard', handler: countingRefusals(getLeaderboard), purpose: 'one board: the scores for a mode, a level and a period' },
+  { method: 'GET', path: '/me/profile', handler: countingRefusals(getProfile), purpose: 'the alias this player has claimed, or null' },
+  { method: 'POST', path: '/me/alias', handler: countingRefusals(postAlias), purpose: 'claim a public name, or change the one held' },
 ];
 
-/** How many endpoints DESIGN.md 11 lists, so `/health` can report the gap without a second list. */
-export const PLANNED_ENDPOINTS = 13;
+/**
+ * How many endpoints DESIGN.md 11 lists, so `/health` can report the gap without a second list.
+ *
+ * FOURTEEN UNTIL THE ALIAS, FIFTEEN SINCE: `GET /me/profile` and `POST /me/alias` are two rows §11's table gained when
+ * the owner asked for a name on the leaderboard ("the user needs a login alias that can be displayed in the leaderboard.
+ * Dont expose the email address anywhere on the UI."). The number counts the TABLE, not the file: a `PLANNED_ENDPOINTS`
+ * that went on saying 13 while fifteen routes were served would make `/health`'s "so many of so many" the opposite of
+ * what it is for.
+ */
+export const PLANNED_ENDPOINTS = 15;
 
 /** The handler for a request, or null when nothing serves that path. */
 export function routeFor(method: string, path: string): Route | null {

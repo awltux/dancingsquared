@@ -913,6 +913,15 @@ export async function recordDailyMove(
 /** One rank on a board: who, their score, and how many runs earned it. */
 interface BoardEntry {
   readonly playerId: string;
+  /**
+   * THE NAME A PERSON READS, or null when this player has not claimed one.
+   *
+   * REPORTED: "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
+   * anywhere on the UI." The server resolves it (`api/src/handlers/leaderboard.ts`), so this module never sees an
+   * address and has nothing to leak; `null` is a real answer — a player with no name — and is drawn as such rather than
+   * falling back to `playerId`, which is what the row used to print.
+   */
+  readonly alias: string | null;
   readonly score: number;
   readonly runs: number;
 }
@@ -965,7 +974,13 @@ export async function fetchLeaderboard(
     if (typeof entry.playerId !== 'string' || typeof entry.score !== 'number' || typeof entry.runs !== 'number') {
       return { ok: false, failure: { code: 'bad_response', message: 'the board holds a rank this app cannot read' } };
     }
-    entries.push({ playerId: entry.playerId, score: entry.score, runs: entry.runs });
+    // A MISSING `alias` IS READ AS NULL RATHER THAN AS A BAD RESPONSE: an older server answers without the field, and
+    // "this player has no name" is exactly what that means. A non-string that is not null/absent IS refused, because that
+    // is a payload this build cannot read.
+    if (entry.alias !== undefined && entry.alias !== null && typeof entry.alias !== 'string') {
+      return { ok: false, failure: { code: 'bad_response', message: 'the board holds a name this app cannot read' } };
+    }
+    entries.push({ playerId: entry.playerId, alias: typeof entry.alias === 'string' ? entry.alias : null, score: entry.score, runs: entry.runs });
   }
   return {
     ok: true,
@@ -1021,4 +1036,37 @@ export async function importLedger(runs: readonly RunRecord[], deps: ApiDeps = b
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not say what it imported' } };
   }
   return { ok: true, value: { imported, skipped, total } };
+}
+
+/**
+ * `GET /me/profile` — the alias this player has claimed, or `null`.
+ *
+ * `null` IS THE ORDINARY FIRST-RUN ANSWER, not a failure: a player who has never claimed a name is asked for one, which
+ * is why it is a value here rather than a `404` to read at the call site. A body this module cannot read IS refused —
+ * the rule the rest of the file keeps.
+ */
+export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null }>> {
+  const answer = await apiCall<{ alias?: unknown }>(deps, '/me/profile', { method: 'GET' });
+  if (!answer.ok) return answer;
+  if (answer.value.alias !== undefined && answer.value.alias !== null && typeof answer.value.alias !== 'string') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a name this app can read' } };
+  }
+  return { ok: true, value: { alias: typeof answer.value.alias === 'string' ? answer.value.alias : null } };
+}
+
+/**
+ * `POST /me/alias` — claim a public name, or change the one held.
+ *
+ * THE SERVER RUNS THE RULE (it imports `sanitizeAlias` from this game's own barrel), so a refusal comes back as a code
+ * AND a sentence: `alias_taken` is the one the app could not have predicted, because only the server knows who holds
+ * what. The app sanitises first so it can answer without a request — the same rule, checked twice on purpose, with the
+ * server as the authority.
+ */
+export async function claimAlias(alias: string, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string }>> {
+  const answer = await apiCall<{ alias?: unknown }>(deps, '/me/alias', { method: 'POST', body: { alias } });
+  if (!answer.ok) return answer;
+  if (typeof answer.value.alias !== 'string' || answer.value.alias === '') {
+    return { ok: false, failure: { code: 'bad_response', message: 'the server accepted a name without saying which' } };
+  }
+  return { ok: true, value: { alias: answer.value.alias } };
 }

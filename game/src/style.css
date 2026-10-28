@@ -51,6 +51,41 @@ body {
   display: block;
 }
 
+/* THE BOOT VEIL. REPORTED: "The page initialisation doesnt start cleanly and loads spasmodically, the glyphs apearing in the
+   wrong scale and without a cohesive background." `index.html` explains why the element exists and why its colours are
+   inline; this rule is only its geometry and its type, and it can use tokens because they fall back harmlessly if the theme
+   has not landed yet (`var()` with a fallback). It covers the shell from the first paint until `main.ts` sets `data-ready`. */
+#boot {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+#boot p {
+  margin: 0;
+}
+
+#boot p:first-child {
+  font-size: var(--fs-title);
+  font-weight: 600;
+}
+
+#boot p + p {
+  color: var(--dim);
+  font-size: var(--fs-small);
+}
+
+/* ONCE THE SHELL HAS PAINTED, THE VEIL GOES — `display: none` rather than a fade, because a fading veil still swallows the
+   first press. */
+html[data-ready] #boot {
+  display: none;
+}
+
 /* A PAGE WITH NO GAME HAS NO BOARD, AND THE PANEL TAKES THE WINDOW. REPORTED: "hide the dancing board when displaying a
    page, only expose it when they are part of the game e.g. Daily Target and Drill play pages." Which page is which is
    `ui/pages.ts`'s `pageShowsBoard`, and the shell writes the answer onto the document, so these rules answer the one flag

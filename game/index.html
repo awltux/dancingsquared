@@ -22,6 +22,23 @@
          external dependency to a page whose audience is an older one on unpredictable connections. -->
   </head>
   <body>
+    <!-- THE BOOT VEIL: NOTHING HALF-BUILT IS EVER SEEN. REPORTED: "The page initialisation doesnt start cleanly and loads
+         spasmodically, the glyphs apearing in the wrong scale and without a cohesive background." The cause is structural:
+         every colour, size and space token is INJECTED by `ui/theme.ts` (one table, read by the stylesheet, the stage and the
+         shell), and the module graph that injects them has to parse the corpus first — so the browser paints the bare
+         markup, with no palette and at the default type scale, for as long as that takes, and then the themed, laid-out app
+         appears on top of it. That is the flash and the wrong-size glyphs.
+
+         SO THE SHELL IS COVERED UNTIL IT IS READY, by a veil that needs no theme at all: the colours are INLINE because a
+         `var(--bg)` here is undefined at exactly the moment this element exists and `style.css` has not been parsed into
+         tokens either. `main.ts` lifts it once the theme and the layout are applied and a frame has been painted
+         (`html[data-ready]`), and `style.css` gives it its layout. The `noscript` note is inside it so a browser that never
+         runs the module says so rather than showing a dark rectangle for ever. -->
+    <div id="boot" style="background:#0b0f14;color:#e8eef4">
+      <p>Dancing Squared</p>
+      <p id="bootNote">Loading…</p>
+      <noscript><p>This game needs JavaScript: enable it and reload.</p></noscript>
+    </div>
     <div id="app">
       <canvas id="stage"></canvas>
 

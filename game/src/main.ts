@@ -3372,6 +3372,14 @@ function main(): void {
   }
 
   schedule();
+  // AND THE BOOT VEIL IS LIFTED HERE, after the theme, after `applyLayout` has set the type scale and the panel's side, and
+  // after two animation frames — so the first frame the player can see is the themed, laid-out shell rather than the bare
+  // markup at the default scale. REPORTED: "the glyphs apearing in the wrong scale and without a cohesive background."
+  // It is lifted HERE rather than at the end of the async boot on purpose: if a request later fails, the player sees the
+  // app and its refusal rather than a splash screen that never ends.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.documentElement.dataset['ready'] = '1';
+  }));
   if (apiConfigured()) void bootAccount();
   else bootPage();
 }

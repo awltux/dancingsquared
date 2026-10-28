@@ -84,6 +84,32 @@ export function backTarget(page: Page): Page | null {
   }
 }
 
+/**
+ * Whether the PAGE needs the dance board drawn behind it.
+ *
+ * REPORTED: "hide the dancing board when displaying a page, only expose it when they are part of the game e.g. Daily
+ * Target and Drill play pages." The board is the QUESTION on those two — the pair a drill compares, the waypoints a Daily
+ * walks — and on every other page it was a picture of nothing: on a phone it took the top two thirds of the window off a
+ * Setup or Profile page and pushed the panel into a sheet, which is exactly the screen real estate the owner has been
+ * reclaiming all session.
+ *
+ * IT IS A TABLE OF PAGES AND NOT A LIST OF EXCEPTIONS, for the reason `backTarget` is one: a page added to the model
+ * cannot appear without an answer, because `Record<Page, boolean>` does not compile without one.
+ */
+export function pageShowsBoard(page: Page): boolean {
+  const shown: Record<Page, boolean> = {
+    landing: false,
+    setup: false,
+    help: false,
+    profile: false,
+    levels: false,
+    drill: true,
+    daily: true,
+    board: false,
+  };
+  return shown[page];
+}
+
 /** What the back button says, for the banner's own label and for its accessible name.
  *
  * AND IT IS THE ONLY THING THE BUTTON SAYS NOW. A breadcrumb second row was derived from this same table (`breadcrumbFor`,

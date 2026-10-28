@@ -21,7 +21,7 @@
 //
 // Usage: node game/test/pages-probe.mjs   (pure: no DOM, no browser, no engine)
 import {
-  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId,
+  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId, pageShowsBoard,
 } from '../src/ui/pages.ts';
 
 let failures = 0;
@@ -130,6 +130,24 @@ console.log('\n== 5. one heading per page ==');
   // THE LEVEL PAGE'S HEADING IS NOT ITS STATUS LINE: `levelHeading` is the "3 of 100 done" line, so the page's own title has
   // to be a different element or a navigation would focus the status and read it as the page.
   check(pageHeadingId('levels') !== 'levelHeading', 'the level page heading is not the level status line');
+}
+
+console.log('\n== 6. the board is drawn only on the pages that are the game ==');
+{
+  // REPORTED: "hide the dancing board when displaying a page, only expose it when they are part of the game e.g. Daily
+  // Target and Drill play pages." The rule is `pageShowsBoard`: the board is the QUESTION on those two and a picture of
+  // nothing everywhere else.
+  const withBoard = PAGES.filter((page) => pageShowsBoard(page));
+  check(JSON.stringify(withBoard) === '["drill","daily"]', `only the two play pages draw a board (${withBoard.join(', ')})`);
+  // AND IT IS A TOTAL FUNCTION OVER THE MODEL, which is the property that makes the table safe to extend: a page with no
+  // entry does not compile, so this cannot silently answer `undefined` for a page added tomorrow.
+  check(PAGES.every((page) => typeof pageShowsBoard(page) === 'boolean'), `every page answers (${PAGES.length} of ${PAGES.length})`);
+  // THE NEGATIVE CONTROL: the plausible wrong rule is "every page keeps the board", which is what the app did and what the
+  // report is about — it fails exactly the check above by answering true for the menu, Setup, Help, Profile, the level
+  // block and the leaderboard.
+  const alwaysOn = () => true;
+  check(PAGES.filter(alwaysOn).length === PAGES.length && withBoard.length !== PAGES.length,
+    'CONTROL: "keep the board everywhere" is not what the rule says');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -66,7 +66,7 @@ import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { LANDING_HOLD_MS, Replay, drillAnswerHoldMs } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import { bannerView, type BannerFacts } from './ui/banner.ts';
-import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
+import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageShowsBoard, pageTitle, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -308,6 +308,7 @@ let layout: Layout = layoutFor(1440, 900);
 let boardFocus: 'left' | 'right' = 'left';
 
 const els = {
+  stageCanvas: el<HTMLCanvasElement>('stage'),
   labelHere: el('labelHere'),
   labelGoal: el('labelGoal'),
   boardTabs: el('boardTabs'),
@@ -1546,6 +1547,14 @@ function paintPages(): void {
   els.drillPanel.hidden = page !== 'drill';
   els.dailyPanel.hidden = page !== 'daily';
   els.boardPanel.hidden = page !== 'board';
+  // AND THE BOARD IS SHOWN ONLY WHERE IT IS PART OF THE GAME. REPORTED: "hide the dancing board when displaying a page,
+  // only expose it when they are part of the game e.g. Daily Target and Drill play pages." The decision is
+  // `pageShowsBoard`'s (a table, so a page cannot be added without one), and the FLAG IS ON THE DOCUMENT because the
+  // whole layout answers to it: the stylesheet gives the panel the window, and the stage stops being drawn.
+  document.documentElement.dataset['stage'] = pageShowsBoard(page) ? 'board' : 'page';
+  // THE STAGE IS HIDDEN RATHER THAN EMPTIED, so the canvas keeps its size and the camera does not have to re-frame when a
+  // game page comes back; the frame loop skips it while it is away (`renderFrame`).
+  els.stageCanvas.hidden = !pageShowsBoard(page);
 }
 
 /**
@@ -3178,6 +3187,15 @@ function frame(nowMs: number): void {
   // glides the orbit/pan damping, and `render` is what actually PAINTS — the stage owns no animation loop, so
   // a frame that poses views and never renders shows a blank canvas. That is exactly what the first version of
   // this loop did: it rendered nothing while idle, so the boards were black until an option was clicked.
+  //
+  // AND NEITHER RUNS ON A PAGE WITH NO BOARD. REPORTED: "hide the dancing board when displaying a page, only expose it when
+  // they are part of the game". A hidden canvas still costs a WebGL frame at 60 Hz for a picture nobody can see, and the
+  // slide/pulse ticks it would advance belong to a drill that is not on screen — so the loop keeps its schedule and skips
+  // the paint, which is also what makes coming back to a game page cheap (the canvas and camera are untouched).
+  if (els.stageCanvas.hidden) {
+    schedule();
+    return;
+  }
   stage.updateControls();
   // A SLIDE IS ADVANCED FROM THE SAME LOOP THAT PAINTS THE FRAME, before the render: `tick` only writes the slot
   // positions, and the stage owns no clock of its own.

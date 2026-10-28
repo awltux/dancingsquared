@@ -51,6 +51,45 @@ body {
   display: block;
 }
 
+/* A PAGE WITH NO GAME HAS NO BOARD, AND THE PANEL TAKES THE WINDOW. REPORTED: "hide the dancing board when displaying a
+   page, only expose it when they are part of the game e.g. Daily Target and Drill play pages." Which page is which is
+   `ui/pages.ts`'s `pageShowsBoard`, and the shell writes the answer onto the document, so these rules answer the one flag
+   rather than repeating the list. The board's own overlays go with it — the switcher, the two formation captions and the
+   waypoint arrows are all pieces of the canvas, and a caption over an empty window would be a lie about what is drawn.
+
+   `html[data-stage="page"] #panel` OUTRANKS BOTH the base column rule (a 260-340 px panel at the left) and the sheet rule
+   inside the max-width media query, because it carries an attribute selector the other two do not — so one rule covers both
+   layouts instead of a copy in each, which is how the two came to disagree about the width before. */
+html[data-stage="page"] #stage,
+html[data-stage="page"] #boardTabs,
+html[data-stage="page"] #labelHere,
+html[data-stage="page"] #labelGoal,
+html[data-stage="page"] #waypointLegend,
+html[data-stage="page"] .wp-nav {
+  display: none;
+}
+
+html[data-stage="page"] #panel {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  width: min(100%, 720px);
+  height: 100%;
+  transform: translateX(-50%);
+  border: 0;
+  border-radius: 0;
+  padding-bottom: var(--space-xl);
+}
+
+/* THE WIDE PANEL IS THE WINDOW'S, so a page reads as a page rather than as a narrow column with a hole beside it. 720 px is
+   the measure a line of prose wants at this type scale; below it the panel is simply the window. */
+@media (max-width: 720px) {
+  html[data-stage="page"] #panel {
+    width: 100%;
+  }
+}
+
 #panel {
   position: absolute;
   top: 0;

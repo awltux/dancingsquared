@@ -113,11 +113,16 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
   // answer and others do not — a difference nobody would find without a check.
   check(normaliseBase('http://127.0.0.1:8090///') === 'http://127.0.0.1:8090', `a base with trailing slashes is normalised (${normaliseBase('http://127.0.0.1:8090///')})`);
   check(normaliseBase(undefined) === '' && normaliseBase('') === '', 'and an unset or empty base stays empty, which is what "offline" is measured as');
-  const wired = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: [0, 1, 2, 3], passed: [0, 1], length: 12 } } });
+  const wired = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: [0, 1, 2, 3], passed: [0, 1], length: 12 }, board: { score: 1307, runs: 21 } } });
   const answer = await issueDrill(2, wired.api);
   check(answer.ok === true, `a drill is issued (${answer.ok})`);
   check(answer.value.drill.id === '1:3' && answer.value.drill.seed === 42 && answer.value.drill.resumed === false, `and parsed (${answer.value.drill.id}, seed ${answer.value.drill.seed})`);
   check(answer.value.regime.finished.length === 4 && answer.value.regime.length === 12, `with the regime cells (${answer.value.regime.finished.length} done, ${answer.value.regime.passed.length} passed, of ${answer.value.regime.length})`);
+  // THE ACCOUNT'S RANKED TOTAL TRAVELS WITH THE DRILL, because it is the header's number and it has to survive a reload
+  // without a second request. MEASURED above as the difference the report is about: the device sum said 215 while this
+  // said 1307 over 21 runs.
+  check(answer.value.board?.score === 1307 && answer.value.board?.runs === 21,
+    `and the account's board total (${answer.value.board?.score} over ${answer.value.board?.runs} run(s))`);
   const call = wired.fetch.calls[0];
   check(call.url === 'http://127.0.0.1:8090/drill/current?level=2', `the URL is the path and the query with no double slash (${call.url})`);
   check(call.init.method === 'GET', `and the method is GET (${call.init.method})`);
@@ -210,6 +215,19 @@ console.log('\n== 4. every failure is a typed refusal, and the server\'s own wor
     const scripted = deps('http://localhost:8090', { status: 200, body: { drill: { ...DRILL, puzzle: broken }, regime: { finished: [], passed: [], length: 3 } } });
     const bad = await issueDrill(1, scripted.api);
     check(bad.ok === false && bad.failure.code === 'bad_response', `a puzzle with ${why} is refused as a bad response (${bad.failure?.code})`);
+  }
+
+  // THE BOARD TOTAL IS TOLERATED, NOT REQUIRED. It is a HEADER fact rather than a playable one, so an older server that
+  // does not send it (or sends one this build cannot read) must not cost the player the drill — the app falls back to
+  // the device's own sum (`game/stats.ts`'s `drillTotalFor`).
+  for (const [board, why] of [
+    [undefined, 'no board total'],
+    [{ score: 'lots', runs: 21 }, 'a non-numeric score'],
+    [{ score: 1307, runs: -1 }, 'a negative run count'],
+  ]) {
+    const scripted = deps('http://localhost:8090', { status: 200, body: { drill: DRILL, regime: { finished: [], passed: [], length: 3 }, board } });
+    const kept = await issueDrill(1, scripted.api);
+    check(kept.ok === true && kept.value.board === null, `a drill with ${why} is still issued, with no total (${kept.ok}, ${kept.value?.board})`);
   }
 }
 

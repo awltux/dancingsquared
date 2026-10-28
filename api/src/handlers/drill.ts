@@ -12,8 +12,9 @@
 // the promotion rule, because it is the one rule here that needs more than one row.
 import { MAIN_POOL, type ScheduleEntry } from 'dancing-squared-game';
 import { MAX_WRITE_ATTEMPTS, type ApiRequest, type ApiResult, type Deps, type ItemKey, type StoredItem } from '../ports.ts';
-import { progressKey, scheduleKey } from '../keys.ts';
+import { boardKey, progressKey, scheduleKey } from '../keys.ts';
 import { asProgress, asProgressItem } from '../progress-row.ts';
+import { asBoard, type BoardValue } from '../runs.ts';
 import { servableLevel } from '../ladder.ts';
 import { failure, optionalIdentity, requireIdentity, STATUS } from '../status.ts';
 import { levelParam } from '../query.ts';
@@ -111,6 +112,33 @@ function regimeCounts(regime: Regime, progress: DrillProgress): { finished: numb
   return { finished: [...progress.finished], passed: [...progress.passed], length: regime.entries.length };
 }
 
+/** Where the player's own board row lives for a response: who they are, and the SET the drill belongs to. */
+interface BoardLookup {
+  readonly playerId: string;
+  /**
+   * THE DRILL'S OWN `scheduleVersion`, not the schedule's current one. A drill already handed out keeps the set it
+   * belongs to across a republish (`drill-regime.ts`'s issued record says why), and its run lands on THAT set's board —
+   * so the total the header shows must be the board the next run will join.
+   */
+  readonly period: string;
+}
+
+/**
+ * The player's own cumulative Drill board, or null when the row cannot be read.
+ *
+ * THE HEADER'S RUNNING TOTAL IS THIS NUMBER, and it used to be the DEVICE's sum of every solved drill instead — which
+ * counted demo and practice runs the server never saw, so the header and the board could disagree by any amount.
+ * REPORTED: "The scoring system seems a little confused. The header shows 215 but the response ... reads 34/100 ...
+ * Board: 1307 over 21 run(s)." Two running totals for one player is the confusion; this read is what lets the client
+ * show the server's, with the device total only as the offline fallback.
+ *
+ * AN ABSENT ROW IS A TRUE ZERO (the player has no ranked score on this set). AN UNREADABLE ONE IS `null`, so the client
+ * falls back rather than displaying a zero it cannot vouch for — and a display fact must not make a drill unplayable.
+ */
+async function ownBoard(deps: Deps, levelIndex: number, lookup: BoardLookup): Promise<BoardValue | null> {
+  return asBoard(await deps.store.get(boardKey('drill', levelIndex, lookup.period, lookup.playerId)));
+}
+
 /**
  * The served form of one outcome, or a refusal.
  *
@@ -124,8 +152,13 @@ async function served(
   levelIndex: number,
   resumed: boolean,
   deps: Deps,
+  boardOf: BoardLookup | null,
 ): Promise<{ body: Record<string, unknown> } | { refusal: ApiResult }> {
-  if (outcome.kind === 'complete') return { body: { drill: null } };
+  // THE PLAYER'S OWN BOARD IS PART OF EVERY SERVED DRILL, including the complete case — it is the number the app's
+  // header shows, and reading it here is what makes it survive a reload without a second request. A DEMO HAS NO
+  // BOARD (`boardOf === null`): there is no player to key one on.
+  const board = boardOf === null ? null : await ownBoard(deps, levelIndex, boardOf);
+  if (outcome.kind === 'complete') return { body: { drill: null, board } };
   // THE BOARDS ARE READ, NOT REGENERATED (`stored-drill.ts`): every player at this level must be asked the same
   // question, and a stored row is what makes that a fact about the DATA rather than a promise about the build.
   // The refusals name their own cause — unpublished, unreadable, stale generator, stale pool — because the
@@ -149,7 +182,7 @@ async function served(
   // names from it, and a key withheld from the browser would be a key the browser can re-derive in ten seconds
   // because it holds the engine and the corpus. What the server keeps to itself is the MEASUREMENT — the clock,
   // the press log, the attempt count — which is §6's rule and the reason this is not a secrecy decision.
-  return { body: { drill: { ...outcome.drill, levelIndex, puzzle: stored.puzzle, resumed } } };
+  return { body: { drill: { ...outcome.drill, levelIndex, puzzle: stored.puzzle, resumed }, board } };
 }
 
 /**
@@ -185,7 +218,7 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
     const read = await readRegime(deps, demoLevel);
     if ('refusal' in read) return read.refusal;
     const outcome = currentDrill(read.regime, demoLevel, emptyProgress(demoLevel), MAIN_POOL.version, deps.clock.nowMs());
-    const answered = await served(outcome, demoLevel, false, deps);
+    const answered = await served(outcome, demoLevel, false, deps, null);
     if ('refusal' in answered) return answered.refusal;
     return {
       status: STATUS.ok,
@@ -206,7 +239,13 @@ export async function drillCurrent(request: ApiRequest, deps: Deps): Promise<Api
 
   return withProgress(deps, progressKey(identity.playerId, levelIndex), levelIndex, async (progress) => {
     const outcome = currentDrill(read.regime, levelIndex, progress, MAIN_POOL.version, deps.clock.nowMs());
-    const answered = await served(outcome, levelIndex, outcome.kind === 'drill' && !outcome.changed, deps);
+    // THE SET IS THE DRILL'S OWN WHEN THERE IS ONE, which is the same rule the run's board write uses. A complete
+    // regime has no drill to name, so the published set is the board the player was playing on.
+    const boardOf: BoardLookup = {
+      playerId: identity.playerId,
+      period: outcome.kind === 'drill' ? outcome.drill.scheduleVersion : read.regime.scheduleVersion,
+    };
+    const answered = await served(outcome, levelIndex, outcome.kind === 'drill' && !outcome.changed, deps, boardOf);
     if ('refusal' in answered) return { result: answered.refusal };
     const body = { ...answered.body, regime: regimeCounts(read.regime, outcome.progress) };
     if (outcome.kind === 'complete' || !outcome.changed) return { result: { status: STATUS.ok, body } };
@@ -292,7 +331,13 @@ export async function drillReplay(request: ApiRequest, deps: Deps): Promise<ApiR
     }
     // `!outcome.changed` IS `resumed`: a reattempt that was already in flight is being re-served, not issued, and the
     // client is told so it does not treat a second press as a fresh drill.
-    const answered = await served({ kind: 'drill', drill: outcome.drill, progress: outcome.progress, changed: outcome.changed }, levelIndex, !outcome.changed, deps);
+    const answered = await served(
+      { kind: 'drill', drill: outcome.drill, progress: outcome.progress, changed: outcome.changed },
+      levelIndex,
+      !outcome.changed,
+      deps,
+      { playerId, period: outcome.drill.scheduleVersion },
+    );
     if ('refusal' in answered) return { result: answered.refusal };
     const body = { ...answered.body, regime: regimeCounts(read.regime, outcome.progress) };
     if (!outcome.changed) return { result: { status: STATUS.ok, body } };

@@ -55,6 +55,11 @@ export interface BannerFacts {
    * and a single run's score is a fact that disappears the moment the next drill is issued; a TOTAL is the only one of the three
    * that both MOVES when a drill is solved and MEANS the same thing on every page. It is never null — a sum of nothing is 0, and
    * here 0 IS the true answer, unlike a score nobody has earned.
+   *
+   * WHICH TOTAL IS THE SHELL'S CHOICE, and it is `game/stats.ts`'s `drillTotalFor`: the SERVER's ranked board total when the app
+   * knows it, and this device's own sum only as the offline fallback. The two are different quantities — the device's counts
+   * demo and practice runs the server never saw — and showing both as "the score" was the confusion REPORTED as "The scoring
+   * system seems a little confused".
    */
   readonly drillTotal: number;
   /** Today's Daily score on this device, or null when none was recorded. */

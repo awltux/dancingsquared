@@ -17,7 +17,7 @@ import { drillAdvance, drillCurrent, drillReplay } from '../src/handlers/drill.t
 import { STATUS } from '../src/status.ts';
 import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDrillId } from '../src/drill-regime.ts';
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
-import { ladderKey, progressKey } from '../src/keys.ts';
+import { ladderKey, boardKey, progressKey } from '../src/keys.ts';
 import { FIRST_LEVEL, asLadderItem, asLadderLevel } from '../src/ladder.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
 import { startDevServer } from '../src/dev-server.ts';
@@ -623,6 +623,53 @@ console.log('\n== 11. a SKIPPED drill can be reattempted, and that is the only p
   check(promoted.body.drill?.levelIndex === 2, `a block closed by skips alone still promotes (${promoted.body.drill?.levelIndex})`);
   const row = await store.get(ladderKey(devId('r3')));
   check(row?.value.levelIndex === 2, 'and the ladder row says level 2, so skipping is not a dead end');
+}
+
+console.log('\n== 12. every drill read carries the player\'s own board total ==');
+{
+  // REPORTED: "The scoring system seems a little confused. The header shows 215 but the response ... reads 34/100 ...
+  // Board: 1307 over 21 run(s)." The header's total was the DEVICE's sum of solved drills; the board line was the
+  // SERVER's ranked total. The drill read now carries the server's, so the header can show the number the board ranks
+  // and survive a reload without a second request.
+  const store = new MemoryStore();
+  await seedLocalRegimes(store);
+  const deps = depsFor(store);
+  const player = 'b1';
+
+  // NO ROW IS A TRUE ZERO, not "unknown": the player has played nothing ranked on this set, so the number really is 0
+  // rather than a device total that might include demo runs.
+  const fresh = await drillCurrent(get(player), deps);
+  check(fresh.body.board?.score === 0 && fresh.body.board?.runs === 0,
+    `a player with no board row is reported as 0 over 0 runs (${fresh.body.board?.score}, ${fresh.body.board?.runs})`);
+
+  // A ROW THIS BUILD CANNOT READ IS NULL, NOT ZERO — AND THE DRILL IS STILL SERVED. The total is a display fact, so a
+  // broken row must not make the level unplayable; the client falls back to its device sum.
+  await store.put(boardKey('drill', LEVEL, LOCAL_SCHEDULE_VERSION, devId('b2')), { score: 'lots', runs: 21 }, null);
+  const unreadable = await drillCurrent(get('b2'), deps);
+  check(unreadable.status === STATUS.ok && unreadable.body.drill !== null && unreadable.body.board === null,
+    `an unreadable board row is null while the drill is still served (${unreadable.status}, board=${JSON.stringify(unreadable.body.board)})`);
+
+  // A DEMO HAS NO BOARD AT ALL: there is no player to key one on, and inventing a zero would claim they had played.
+  const demo = await drillCurrent(get(null), deps);
+  check(demo.body.board === null, `a demo carries no board total (${JSON.stringify(demo.body.board)})`);
+
+  // THE BOARD IS KEYED ON THE DRILL'S SET, NOT THE CURRENT SCHEDULE. A republish gives the level a new set; a drill
+  // already handed out keeps the old one (section 2), and its run lands on the OLD set's board — so the header must read
+  // THAT board. MEASURED against a row on the new set: the current-schedule key answers 999 and the drill's own says 1307.
+  const issued = (await drillCurrent(get(player), deps)).body.drill;
+  const oldSet = issued.scheduleVersion;
+  const regime = localRegimes().find((entry) => entry.entries[0].levelIndex === LEVEL);
+  await putRegime(store, LEVEL, { scheduleVersion: `${LOCAL_SCHEDULE_VERSION}#next`, entries: regime.entries });
+  await store.put(boardKey('drill', LEVEL, oldSet, devId(player)), { playerId: devId(player), score: 1307, runs: 21 }, null);
+  await store.put(boardKey('drill', LEVEL, `${LOCAL_SCHEDULE_VERSION}#next`, devId(player)), { playerId: devId(player), score: 999, runs: 3 }, null);
+  const after = await drillCurrent(get(player), deps);
+  check(after.body.drill.scheduleVersion === oldSet, `the locked drill still belongs to its own set (${after.body.drill.scheduleVersion})`);
+  check(after.body.board?.score === 1307 && after.body.board?.runs === 21,
+    `and the total is that set's board (${after.body.board?.score} over ${after.body.board?.runs})`);
+  // NEGATIVE CONTROL: the plausible wrong key — the schedule's CURRENT set — is a different board and answers 999, so a
+  // lookup written the obvious way is caught here and nowhere else.
+  check(`${LOCAL_SCHEDULE_VERSION}#next` !== oldSet && after.body.board?.score !== 999,
+    'NEGATIVE CONTROL: the current set is a different board, and only the drill\'s own key answers the right number');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

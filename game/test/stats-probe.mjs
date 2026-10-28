@@ -17,8 +17,11 @@
 // The other three fields are simpler but are pinned with it: `drills` counts drill records, `best` is the maximum score,
 // and `meanSeconds` is the mean time — each null or zero from an empty record rather than NaN.
 //
+// AND WHICH TOTAL THE HEADER SHOWS (section 7): `drillTotalFor` prefers the SERVER's ranked board total and falls back
+// to this device's own sum, because the two are different quantities and showing both was the reported confusion.
+//
 // Usage: node game/test/stats-probe.mjs   (pure arithmetic over records; no engine, no DOM, no clock)
-import { statsFor, shiftDay } from '../src/game/stats.ts';
+import { drillTotalFor, statsFor, shiftDay } from '../src/game/stats.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -129,6 +132,29 @@ console.log('\n== 6. the other three totals ==');
   const one = statsFor([drill({ elapsedSeconds: 12.5, score: 5 })], TODAY);
   check(one.meanSeconds === 12.5, 'a single run means its own time');
   check(one.best === 5 && one.drills === 1, 'and its own score and count');
+}
+
+console.log('\n== 7. which drill total the header shows ==');
+{
+  // TWO DRILLS AND A DAILY: the device's sum counts the DRILL RECORDS only, which is the quantity the header used to
+  // show on its own.
+  const runs = [drill({ score: 100 }), drill({ score: 34 }), run({ score: 500 })];
+  check(drillTotalFor(null, runs) === 134, `without a server the device's drill sum is 134 (${drillTotalFor(null, runs)})`);
+  // THE SERVER'S IS A DIFFERENT QUANTITY, and it wins: the account's ranked total on the level and set, which the
+  // post-run "Board:" line and the board page both name.
+  check(drillTotalFor(1307, runs) === 1307, `the account's ranked total wins when there is one (${drillTotalFor(1307, runs)})`);
+  // ZERO IS A REAL ANSWER, not "absent": a signed-in player with no ranked runs on this set has 0, and falling back to
+  // the device's demo-inflated sum would print a board score that does not exist.
+  check(drillTotalFor(0, runs) === 0, `a zero server total stays zero (${drillTotalFor(0, runs)})`);
+  check(drillTotalFor(null, []) === 0 && drillTotalFor(0, []) === 0, 'and an empty device with no server is zero');
+  // NEGATIVE CONTROL: the rule this replaces — the device sum alone — answers 134 where the board says 1307. That gap IS
+  // the reported confusion ("the header shows 215 ... Board: 1307 over 21 run(s)"), and only this section decides it.
+  const deviceOnly = (records) => records.reduce((sum, record) => (record.mode === 'drill' ? sum + record.score : sum), 0);
+  check(deviceOnly(runs) === 134 && drillTotalFor(1307, runs) !== deviceOnly(runs),
+    'the device-only rule answers the other number, so the choice is real rather than a restatement');
+  // AN ANSWER THIS APP CANNOT TRUST FALLS BACK rather than being printed: a non-finite or negative total is malformed.
+  check(drillTotalFor(Number.NaN, runs) === 134 && drillTotalFor(-1, runs) === 134,
+    'a non-finite or negative server total falls back to the device sum');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

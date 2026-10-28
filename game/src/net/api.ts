@@ -74,6 +74,31 @@ export interface IssuedDrill {
 }
 
 /**
+ * THE PLAYER'S OWN CUMULATIVE DRILL BOARD, as a drill read reports it.
+ *
+ * IT IS THE HEADER'S RUNNING TOTAL: the server's ranked score for this level and set, which is the same number the
+ * post-run note prints and the board page ranks. The device's own sum of solved drills is the OFFLINE FALLBACK only —
+ * it includes demo and practice runs the server never saw, so showing it beside the server's number was the confusion
+ * REPORTED as "The scoring system seems a little confused".
+ *
+ * `null` IS "THIS READ CANNOT SAY" — a server too old to send it, a demo with no player, or an unreadable row — and the
+ * shell then falls back to the device total. It is not zero: a zero is a real answer (no ranked runs on this set).
+ */
+export interface DrillBoardTotal {
+  readonly score: number;
+  readonly runs: number;
+}
+
+/** The board total a drill answer carried, or null when the answer did not carry a usable one. */
+function asDrillBoard(raw: unknown): DrillBoardTotal | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const value = raw as Record<string, unknown>;
+  if (typeof value.score !== 'number' || !Number.isFinite(value.score) || value.score < 0) return null;
+  if (typeof value.runs !== 'number' || !Number.isFinite(value.runs) || value.runs < 0) return null;
+  return { score: value.score, runs: value.runs };
+}
+
+/**
  * Where the player is in the regime: WHICH positions are done, which were PASSED, and how many the level holds.
  *
  * IT WAS A PAIR OF COUNTS, and the sets replaced them because the level grid draws one cell per position and a
@@ -322,8 +347,8 @@ function asIssuedDrill(raw: unknown): IssuedDrill | null {
  * inferring it from a session it may be wrong about (`net/standing.ts`). It was answered and dropped until the
  * sign-in surface existed, which is the shape of gap §11.2's "the app has no sign-in surface" describes.
  */
-export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeState; demo: boolean }>> {
-  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown }; demo?: unknown }>(deps, '/drill/current', {
+export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeState; demo: boolean; board: DrillBoardTotal | null }>> {
+  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; length?: unknown }; demo?: unknown; board?: unknown }>(deps, '/drill/current', {
     method: 'GET',
     query: { level: String(level) },
   });
@@ -345,6 +370,9 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
       // THE SERVER'S OWN WORD, defaulted to `false` rather than inferred: an older server that does not send the
       // flag is one this build cannot claim makes a run unranked, and the standing rule's other facts still apply.
       demo: answer.value.demo === true,
+      // NULL WHEN THE ANSWER DID NOT CARRY ONE, which is the offline fallback's cue rather than an error: the drill
+      // is playable without the board, and the header has a device total to show instead.
+      board: asDrillBoard(answer.value.board),
       regime: {
         finished: numberList(regime.finished),
         passed: numberList(regime.passed),
@@ -366,8 +394,8 @@ export async function issueDrill(level: number, deps: ApiDeps = browserDeps()): 
  * made from a regime the client holds is exactly the sort of second implementation this module refuses to keep. The
  * message is shown verbatim, which is why the reasons are sentences.
  */
-export async function replayDrill(index: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeState }>> {
-  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; passed?: unknown; length?: unknown } }>(deps, '/drill/replay', {
+export async function replayDrill(index: number, deps: ApiDeps = browserDeps()): Promise<ApiResult<{ drill: IssuedDrill; regime: RegimeState; board: DrillBoardTotal | null }>> {
+  const answer = await apiCall<{ drill?: unknown; regime?: { finished?: unknown; passed?: unknown; length?: unknown }; board?: unknown }>(deps, '/drill/replay', {
     method: 'POST',
     body: { index },
   });
@@ -379,6 +407,7 @@ export async function replayDrill(index: number, deps: ApiDeps = browserDeps()):
     ok: true,
     value: {
       drill,
+      board: asDrillBoard(answer.value.board),
       regime: {
         finished: numberList(regime.finished),
         passed: numberList(regime.passed),

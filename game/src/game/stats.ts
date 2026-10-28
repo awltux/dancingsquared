@@ -87,3 +87,25 @@ export function statsFor(runs: readonly RunRecord[], today: string): Stats {
     : runs.reduce((total, run) => total + run.elapsedSeconds, 0) / runs.length;
   return { streak: streakOf(days, today), drills, best, meanSeconds };
 }
+
+/**
+ * THE DRILL TOTAL THE HEADER SHOWS.
+ *
+ * THE SERVER'S NUMBER WINS WHENEVER THE APP HAS ONE. It is the account's ranked total for the level and set — the same
+ * figure the post-run note prints and the board page ranks — and the device's own sum is a DIFFERENT quantity: it
+ * includes demo, practice and revealed runs the server never counts, and it is computed from the most recent
+ * `MAX_SAVED_RUNS` records, so it can go DOWN when one is evicted. Two running totals on one screen is the confusion
+ * REPORTED as "The scoring system seems a little confused. The header shows 215 but the response ... reads 34/100 ...
+ * Board: 1307 over 21 run(s)".
+ *
+ * THE FALLBACK IS THE DEVICE'S SUM, for a signed-out player or a server too old to send the board: it is the only total
+ * there is then, and the ledger line beside it says what this device keeps.
+ *
+ * `0` IS A REAL SERVER TOTAL and must not be read as absent — a signed-in player with no ranked runs on this set has
+ * zero, and a demo-inflated device sum would be a worse answer than zero. Only a NaN or a negative (a malformed
+ * answer) falls back.
+ */
+export function drillTotalFor(serverTotal: number | null, runs: readonly RunRecord[]): number {
+  if (serverTotal !== null && Number.isFinite(serverTotal) && serverTotal >= 0) return serverTotal;
+  return runs.reduce((sum, run) => (run.mode === 'drill' ? sum + run.score : sum), 0);
+}

@@ -34,7 +34,7 @@ import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { scoreLine } from './puzzle/score-line.ts';
-import { statsFor } from './game/stats.ts';
+import { drillTotalFor, statsFor } from './game/stats.ts';
 import { frameDelta, shouldAnimate } from './ui/frame-clock.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
 import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
@@ -118,6 +118,22 @@ let position = 0;
  * by a local counter, so the issued id is the handle for the next step.
  */
 let serverDrill: IssuedDrill | null = null;
+
+/**
+ * THE ACCOUNT'S RANKED DRILL TOTAL, as the last drill read or submission reported it — or null when there is none.
+ *
+ * WHY IT IS SHELL STATE. The header's drill total used to be the DEVICE's sum of every solved drill (`save.runs`), and
+ * that is a different quantity from the board the player is ranked on: it counts demo and practice runs the server never
+ * saw, and it is capped at the newest `MAX_SAVED_RUNS`, so it could disagree with the post-run "Board: …" line by any
+ * amount. REPORTED: "The scoring system seems a little confused. The header shows 215 but the response ... reads 34/100
+ * ... Board: 1307 over 21 run(s)." Two running totals is the confusion; the server's is the one the board ranks, so the
+ * header shows it whenever the app knows it, and the device sum is the fallback (`game/stats.ts`'s `drillTotalFor`).
+ *
+ * IT IS SEEDED BY EVERY DRILL READ (`GET /drill/current`, and a submission's own board), so it survives a reload
+ * without a second request on boot. It is cleared when the player signs out or resets the device — the two moments the
+ * fact belongs to somebody else or to nobody.
+ */
+let serverDrillTotal: number | null = null;
 
 /**
  * Whether the drill on screen has a run the SERVER accepted, which decides what "Next drill" may ask for.
@@ -737,12 +753,12 @@ function bannerFacts(): BannerFacts {
     signedIn: player !== null,
     standing: currentStanding(),
     drillLevel: view.levelIndex,
-    // THE DRILL'S NUMBER IS A RUNNING TOTAL, and that is the second thing the reports asked for: "the drill score seems to just
-    // show 100, not the actual current score", then "there doesnt seem to be a running total for the drill puzzles. Not sure
-    // whats its counting every time I resolve a drill". A level's BEST is a fact about the level that does not move when the
-    // player earns anything; a total moves every time a drill is solved, which is what makes it read as a score the player is
-    // accumulating. It sums EVERY solved drill's score (the whole career, not this level's) because the ladder is one season.
-    drillTotal: save.runs.reduce((sum, run) => (run.mode === 'drill' ? sum + run.score : sum), 0),
+    // THE DRILL'S NUMBER IS THE ACCOUNT'S RANKED TOTAL WHEN THE APP KNOWS IT, and this device's own sum otherwise
+    // (`game/stats.ts`'s `drillTotalFor`, gated by `stats-probe.mjs`). The server's is the figure the post-run "Board:"
+    // line and the board page rank; the device sum counts demo/practice runs the server never saw and is capped at the
+    // newest runs, so showing it beside the server's number was the confusion REPORTED as "The scoring system seems a
+    // little confused".
+    drillTotal: drillTotalFor(serverDrillTotal, save.runs),
     dailyScore: bestScore(save.runs, (run) => run.mode === 'daily' && run.day === today),
   };
 }
@@ -924,6 +940,9 @@ async function doSignOut(): Promise<void> {
   // AND THE NAME GOES WITH THE SESSION: it is the name of a player who is no longer signed in, and leaving it in the
   // banner would have the app claiming to be somebody it can no longer prove it is.
   playerAlias = null;
+  // AND SO DOES THE ACCOUNT'S RANKED TOTAL: it is somebody else's fact now, and the header falls back to this device's
+  // own sum until a server read names a player again.
+  serverDrillTotal = null;
   // THE PASSWORD FIELDS GO WITH THE SESSION: a typed-but-unsent password must not be left in a form the next person at this
   // device can read, and the form itself is hidden by the next paint.
   accountScreen.clearPassword();
@@ -1147,6 +1166,9 @@ function startOver(): void {
   daily = null;
   serverDrill = null;
   serverRegime = null;
+  // THE ACCOUNT'S TOTAL IS NOT THIS DEVICE'S TO KEEP, and the fresh issue that follows re-seeds it: clearing here is
+  // what stops a reset showing a number for a record it has just deleted while the read is in flight.
+  serverDrillTotal = null;
   // AND THE DEVICE REMEMBERS NOTHING, so it certainly does not remember a run the server accepted (DESIGN.md §15
   // Q21): `showDrill` clears this on the way to the fresh drill, but the reset must not depend on that landing —
   // `startServerDrill` returns without showing anything when the server refuses, and a flag left set would make the
@@ -1943,6 +1965,9 @@ async function startReplayDrill(index: number): Promise<void> {
   }
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
+  // THE SAME ADOPTION AS `startServerDrill`: a reattempt is served by the same response, so the header's total is the
+  // account's whether this read issued the order's next drill or reopened an old one.
+  serverDrillTotal = answer.value.board?.score ?? null;
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -1953,6 +1978,7 @@ async function startReplayDrill(index: number): Promise<void> {
     puzzle: serverDrill.puzzle,
   });
   drillScreen.say(`Drill ${index + 1} again — it was closed without being passed, so solving it now earns the pass.`, 'info');
+  paintBanner();
 }
 
 /**
@@ -2018,6 +2044,9 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   els.practice.hidden = true;
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
+  // THE ACCOUNT'S RANKED TOTAL IS THE HEADER'S NUMBER from here on (`bannerFacts`). `null` is "this answer could not
+  // vouch for one" — a demo, or a build older than the field — and the device total is then the fallback.
+  serverDrillTotal = answer.value.board?.score ?? null;
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -2034,6 +2063,9 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
     // generators is impossible rather than merely unlikely.
     puzzle: serverDrill.puzzle,
   });
+  // THE BANNER'S TOTAL CHANGED WITH THIS ANSWER, and `showDrill` repaints only the balance — so the header is repainted
+  // here rather than left to whichever caller happens to run next.
+  paintBanner();
 }
 
 /**
@@ -2365,6 +2397,10 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     return;
   }
   save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  // THE SERVER'S BOARD IS THE HEADER'S TOTAL, and it has just folded this run in — so the header and the "Board:" line
+  // below the score are the same number, which is the whole point of the change. An UNRANKED run leaves the row
+  // untouched, so this is still the account's total rather than a number that moved for a run that did not count.
+  serverDrillTotal = answer.value.board.score;
   // THE SERVER HOLDS THIS RUN, WHICH IS WHAT "Next drill" MAY RELY ON (DESIGN.md §15 Q21): the accepted submission
   // finished the drill on the server's own Progress row, so what the app needs next is the next drill, which is a
   // read. A DUPLICATE COUNTS — the row is the server's either way — and a refused or unreachable submission does not,
@@ -2378,6 +2414,8 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     : ' Not ranked: you were shown the answer, so it earns no hint and does not reach the board.';
   drillScreen.amend(`Recorded — the server scores it ${answer.value.run.score} points.${standing}${clamped}`, answer.value.run.ranked ? 'ok' : 'info');
   paintBalance();
+  // THE HEADER SHOWS THE BOARD THE NOTE JUST NAMED, so the two are repainted together.
+  paintBanner();
   persist();
 }
 

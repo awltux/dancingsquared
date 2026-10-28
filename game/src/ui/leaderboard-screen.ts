@@ -117,9 +117,15 @@ export class LeaderboardScreen {
   }
 }
 
-/** Which board this is, in one line: the three facts §6 partitions it by. */
+/**
+ * What the board page says above the list: `<count>: <title>`.
+ *
+ * REPORTED: "The heading for the board should be simplified to "<count>: <Title>"." It read "Today's Daily — level 1,
+ * 2026-10-27 (UTC)" / "The Drill — level 1, season 2026-10", which is a sentence in the slot where a number and a name
+ * belong. The TITLE keeps the two facts that identify the board — the mode and its level — and the PERIOD is dropped
+ * because the page is only ever showing one board at a time and the date was the widest part of the sentence.
+ */
 function boardHeading(board: BoardView): string {
-  return board.mode === 'daily'
-    ? `Today's Daily — level ${board.levelIndex}, ${board.period} (UTC)`
-    : `The Drill — level ${board.levelIndex}, season ${board.period}`;
+  const title = board.mode === 'daily' ? `Daily level ${board.levelIndex}` : `Drill level ${board.levelIndex}`;
+  return `${board.entries.length}: ${title}`;
 }

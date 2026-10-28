@@ -1747,8 +1747,15 @@ button[data-busy="true"]::after {
      `flex: 1 1 auto` on each button splits that room between them — while `min-height: 44px` is a FLOOR (the smallest target
      a thumb can hit, so a window too short even for that scrolls rather than drawing an unpressable button) and
      `max-height: 68px` is the ceiling that stops a tall tablet from drawing three letterboxes. The gaps are a step narrower
-     here because they are what the floor competes with. */
-  #drill {
+     here because they are what the floor competes with.
+
+   `:not([hidden])` IS LOAD-BEARING AND IS NOT A TIDY-UP. A `.page[hidden]` rule hides a section, and it is a CLASS rule
+   (0,2,0) — so a bare `#drill` rule here (1,0,0) would override it on every narrow viewport and draw the drill's three
+   answers at the bottom of EVERY page: REPORTED as "in the Drill Grid page, the call selection buttons are still displayed
+   off screen below the grid", MEASURED at 500 x 757 as three `.answer` buttons at y = 627/680/733 on `#/levels`,
+   `#/profile` AND `#/` — the drill card was in the flow on pages that had hidden it. An attribute selector in the same
+   rule outranks the class rule and leaves `[hidden]` meaning what it says. */
+  #drill:not([hidden]) {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -1761,14 +1768,14 @@ button[data-busy="true"]::after {
      press, with the permission granted the list shrank to 75 px while its three 44 px buttons still needed 140, so the verdict
      was laid out at the box's bottom edge and the lower two answers painted across it. Without it, the list keeps its buttons'
      floor and the card overflows the window instead, which the sheet already knows how to scroll. */
-  #drill #answers {
+  #drill:not([hidden]) #answers {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
     gap: var(--space-xs);
   }
 
-  #drill #answers .answer {
+  #drill:not([hidden]) #answers .answer {
     flex: 1 1 auto;
     min-height: 44px;
     max-height: 68px;
@@ -1777,7 +1784,7 @@ button[data-busy="true"]::after {
   /* AND THE VERDICT RESERVES NO SPACE UNTIL IT HAS SOMETHING TO SAY. Its 3.2em floor is a desktop luxury: on a sheet it is
      74 px of the 157 px the answers need, spent on an empty box. It does not become `display: none` — a live region that is
      out of the tree may not be announced when its text arrives — so it stays a zero-height element in the flow. */
-  #drill #verdict:empty {
+  #drill:not([hidden]) #verdict:empty {
     min-height: 0;
     margin-top: 0;
   }

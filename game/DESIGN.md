@@ -1452,7 +1452,16 @@ and a fact the server did not witness is not a fact — which is why it is an EV
 by step, never recorded as a press) rather than a field. The run it finishes is KEPT and counted for NOTHING, which is
 A26's treatment of a run the server cannot verify and the honest shape of "you may finish, you may not be paid": no
 hint credit, **no board row at all** rather than a zero on one, and the regime still advances, because leaving a
-player on a question whose answer they have read is the trap Q5 exists to solve. **MEASURED in
+player on a question whose answer they have read is the trap Q5 exists to solve.
+
+**THE BUTTON IS GONE; THE RULE STAYS.** Asked for directly: "remove the option to see the answer to a drill, there are
+only three answers, players will get there eventually." With three options a guess costs one wrong try and reaches the
+same knowledge, so the control earned nothing a press could not — and it was the only way to make a run
+countable-but-worthless. `main.ts` no longer draws it or calls `DrillController.review()`, and the reveal chain that
+waited for its events is gone with it. What is deliberately untouched is the PROTOCOL — `review()`'s `revealed` set,
+`POST /drill/reveal`, and the `revealed` list in a submission — because it is what stops a future control (a hint's
+reveal, a client's own button) from laundering an answer into a hint; the server's refusals are still measured by
+`api/test/reveal-probe.mjs`. **MEASURED in
 `api/test/reveal-probe.mjs` (39 checks)**: the same drill, the same presses and the same balance one success short of a
 grant, submitted by two players — the one who asked to be shown a step finishes holding **0** hints with **no board
 row**, while the one who did not holds **1** and is on the board with **25**; a run whose reveal POST was lost but
@@ -1465,8 +1474,9 @@ both directions). **AND THE APP OBEYS IT**, which is the second half of this rul
 record survives a reload (a page that forgot it would come back with a run that counts, which is a refresh key that
 launders a shown answer), `review()` posts each one as `POST /drill/reveal`, the submission DECLARES the same count as
 its claim, and the offline ledger applies the same rule locally, so the outage path and the offline path agree with the
-server about what a shown answer is worth. The button says so BEFORE it is pressed — "Show me the answer — this drill
-will not count" — for the reason Q18's armed reset and Q20's practice offer carry their cost on the label. MEASURED in
+server about what a shown answer is worth. The button SAID so before it was pressed — "Show me the answer — this drill
+will not count" — for the reason Q18's armed reset and Q20's practice offer carry their cost on the label; it has since
+been withdrawn entirely (see above), and the label discipline is what the withdrawal does not change. MEASURED in
 `game/test/drill-controller-probe.mjs` (the reveal is recorded, once per step, and a revealed step outside the puzzle is
 dropped), `game/test/save-state-probe.mjs` §1b (one success short of a grant, a revealed solve grants nothing and still
 finishes the position) and `game/test/api-client-probe.mjs` §7/§9b (the reveal is posted as a step and nothing else, the

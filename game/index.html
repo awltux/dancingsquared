@@ -223,7 +223,7 @@
             <dt>Stars</dt>
             <dd>Three stars is a clean run at par: no hint, no wrong answer, the shortest line, and no slower than par. Losing either half of that — a wasted call, or a time over par — is two stars, and losing both is one. Being solved is never zero.</dd>
             <dt>Hints</dt>
-            <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots beside the hint button are what you hold, filled for what is there.</dd>
+            <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots in the banner are what you hold, filled for what is there.</dd>
             <dt>Signing in</dt>
             <dd>Without an account you can play everything; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
           </dl>
@@ -357,11 +357,16 @@
         <!-- THE FOOTER IS THE GAME'S OWN CONTROLS AND NOTHING ELSE. REPORTED twice: "Some of the current buttons seem like
              overkill" (which took four of them to the Setup page) and then "a lot of debug style text at the bottom of the
              drill screens that dont really add anything" — the two bookkeeping sentences that used to sit above these
-             buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint, the answer and
-             the skip, Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move. -->
+             buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint, the skip,
+             Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move.
+
+             AND "SHOW ME THE ANSWER" IS GONE. REPORTED: "remove the option to see the answer to a drill, there are only three
+             answers, players will get there eventually." It was the one control that turned a run into a countable-but-worthless
+             one, and a coin-flip between three options reaches the same knowledge faster. The RULE it enforced (a revealed run is
+             never ranked) stays in the controller, the API and the submission, which is what `main.ts` records where the
+             handler used to be. -->
         <footer id="foot">
           <button id="hint" type="button" hidden>Hint (+1 min)</button>
-          <button id="review" type="button" hidden>Show me the answer — this drill will not count</button>
           <!-- THE SKIP (DESIGN.md §15 Q5) is the mark-and-continue: the regime is an ORDER, so one puzzle a player
                cannot solve blocks every drill behind it. It earns nothing and grants no hint, and the label says so
                before the press rather than in a verdict afterwards. -->

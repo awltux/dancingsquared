@@ -50,7 +50,7 @@ const PAGES = ['landing', 'setup', 'help', 'profile', 'levels', 'drill', 'daily'
 
 /** The controls that are the GAME's own moves: they belong in the footer, on the page that plays. */
 const FOOTER = [
-  'hint', 'review', 'skip', 'undo', 'redo', 'giveUp', 'replayMine', 'replayShortest', 'practice', 'next',
+  'hint', 'skip', 'undo', 'redo', 'giveUp', 'replayMine', 'replayShortest', 'practice', 'next',
 ];
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
@@ -70,6 +70,11 @@ const SECONDARY = ['view', 'autoProgress', 'startOver'];
 const MENU = ['profile', 'help', 'levels', 'daily', 'setup', 'board'];
 /** What the router and the Setup page replaced. Nothing may name these any more, in any file. */
 const RETIRED = ['modeDrill', 'modeDaily', 'toLevel', 'moreToggle'];
+
+// AND "SHOW ME THE ANSWER" IS RETIRED TOO, as a control while its RULE stays. REPORTED: "remove the option to see the answer to
+// a drill, there are only three answers, players will get there eventually." The check below is about the id being gone from the
+// markup and the script; `DrillController.review()` and `POST /drill/reveal` are deliberately still there (`main.ts` says why).
+const RETIRED_REVIEW = 'review';
 
 const htmlRaw = fs.readFileSync(HTML, 'utf8');
 /**
@@ -267,6 +272,12 @@ console.log('\n== 5. the retired controls are gone from markup, script and style
     ].filter(Boolean);
     check(where.length === 0, `#${name} is named nowhere (${where.join(', ') || 'nowhere'})`, where.join(', '));
   }
+  // THE REVIEW CONTROL IS WITHDRAWN: no button in the markup, no `els.review` in the script, no rule in the stylesheet. The
+  // CONTROLLER's `review()` and the API's route are not checked here — they are the RULE, and they stay.
+  check(!new RegExp(`\\bid="${RETIRED_REVIEW}"`).test(html), `#${RETIRED_REVIEW} is not in the markup any more`);
+  check(!new RegExp(`els\\.${RETIRED_REVIEW}\\b`).test(main), 'and not in the script either');
+  check(/DrillController/.test(main) && !/recordDrillReveal/.test(main),
+    'the controller keeps `review()`, while the app no longer POSTs a reveal');
   // THE MODE TAB'S OWN STYLES, which are `#modes` rules rather than an id: the block was ~25 lines of tab styling.
   check(!/#modes\b/.test(css), 'and the mode-tab rules are gone from the stylesheet too');
   check(!/\.more-body\b/.test(css), 'and so is the disclosure body\'s rule');

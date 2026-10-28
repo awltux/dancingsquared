@@ -44,7 +44,7 @@ import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type RunRecord, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchDrillReplay, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchDrillReplay, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -131,6 +131,12 @@ let serverDrill: IssuedDrill | null = null;
 let serverRecordedRun = false;
 
 /**
+ * Whether the visible `Next drill` is really the DEMO's way on — a press goes to the profile page rather than advancing a
+ * season this caller cannot advance (`offerNext`).
+ */
+let nextOffersSignIn = false;
+
+/**
  * THE PRESSES POSTED SO FAR, as one chain, so the submission can wait for them (DESIGN.md 11.1, A22).
  *
  * `attempts` is counted from what POST /drill/answer RECORDED, so a run submitted before its presses arrived is
@@ -140,15 +146,6 @@ let serverRecordedRun = false;
  */
 let pressLog: Promise<unknown> = Promise.resolve();
 
-/**
- * The reveals this drill has posted, in the same chain shape as the presses and for the same reason.
- *
- * A SEPARATE CHAIN RATHER THAN ONE LOG, because the two are different facts with different contracts: the presses are
- * what the RUN IS SCORED ON (`attempts`, A22), and the reveals are what decides WHETHER it counts at all (A28). The
- * submission waits for both before it is sent, so the server's record is complete when the run arrives — but neither
- * chain rejects (`recordDrillReveal` answers with an ApiResult), so one failure cannot stop the rest from being sent.
- */
-let revealLog: Promise<unknown> = Promise.resolve();
 /** Where the server says the player is in the regime, for the header and the report of a finished season. */
 let serverRegime: RegimeState | null = null;
 
@@ -353,7 +350,6 @@ const els = {
   balance: el('balance'),
   ledger: el('ledger'),
   hint: el<HTMLButtonElement>('hint'),
-  review: el<HTMLButtonElement>('review'),
   skip: el<HTMLButtonElement>('skip'),
   undo: el<HTMLButtonElement>('undo'),
   redo: el<HTMLButtonElement>('redo'),
@@ -1093,7 +1089,6 @@ function startOver(): void {
   dailyRunId = '';
   drillOptions = [];
   pressLog = Promise.resolve();
-  revealLog = Promise.resolve();
   dailyMoveLog = Promise.resolve();
   paintLedger();
   paintBalance();
@@ -1460,12 +1455,12 @@ let pendingNotice: { text: string; kind: 'ok' | 'bad' | 'info' } | null = null;
  */
 function hideFooterControls(): void {
   els.hint.hidden = true;
-  els.review.hidden = true;
   els.skip.hidden = true;
   els.undo.hidden = true;
   els.redo.hidden = true;
   els.giveUp.hidden = true;
   els.next.hidden = true;
+  nextOffersSignIn = false;
   // THE PRACTICE OFFER IS ABOUT THE DRILL ON SCREEN, so a page change withdraws it: what the server refused was that
   // drill, and an offer left standing would invite a practice run for a failure the player has moved past.
   els.practice.hidden = true;
@@ -1669,6 +1664,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   // shell's state rather than this function's. `skipOffered` (DESIGN.md §15 Q5) is still the rule for WHETHER a skip
   // is offered — it is a write against a server-issued drill, and it is not offered for a demo or a practice drill.
   els.next.hidden = true;
+  nextOffersSignIn = false;
   paintWaypoints();
   paintBalance();
   persist();
@@ -1702,11 +1698,15 @@ function paintView(): void {
     );
   }
   // THE FOOTER'S DRILL CONTROLS BELONG TO THE DRILL PAGE, and this is the one place that decides it: on the block there is
-  // no question to reveal or skip, and a control that looks live and does nothing is worse than one that is absent
+  // no question to skip, and a control that looks live and does nothing is worse than one that is absent
   // (`drill-screen.ts` records the same rule for a failed issue). They are re-derived here rather than left as whichever
-  // screen painted last, which is how "Show me the answer" came to sit under a progress grid.
-  els.review.hidden = !drillShowing || watchingDrill !== null;
-  els.skip.hidden = !drillShowing || watchingDrill !== null || !skipOffered();
+  // screen painted last.
+  //
+  // AND A FINISHED DRILL HAS NOTHING TO SKIP. `finishDrill` hides it too; this line is what used to bring it BACK, because it
+  // re-derived the offer from the mode and the standing and never asked whether the step was still open. MEASURED in a browser
+  // while checking the drill's landing hold: after a solve the result card and "Next drill" were on screen with "Skip this
+  // drill" still beside them. (`skipDrill` itself has always refused at `atEnd`; the button should not have been there to press.)
+  els.skip.hidden = !drillShowing || watchingDrill !== null || !skipOffered() || controller === null || controller.atEnd;
   // ONE `Play` BUTTON, BOTH MODES: it plays whatever `panelLine()` says the panel is showing. A solved or watched drill
   // therefore gets the same button the solved Daily has — REPORTED as "I inadvertantly dropped the play button from the
   // Drill. Can it reuse the call list and Play button used in the solved Todays Daily?" — and "The shortest line" stays
@@ -2124,36 +2124,14 @@ function answer(choice: number | 'unknown'): void {
   persist();
 }
 
-/**
- * The answer, on request — DESIGN.md §8's review, and A28's event.
- *
- * IT ADVANCES NOTHING AND SCORES NOTHING: the review names the call and dances it, and the player still has to press
- * it, so the step is not answered here — which is why this is a plain `settle` and not a third outcome.
- *
- * THE RUN IT FINISHES COUNTS FOR NOTHING, and that is why this posts an EVENT (DESIGN.md §15 Q16, A28). The server
- * cannot see a screen: "show me the answer" used to leave no trace at all, so pressing the button and then pressing
- * the call it named earned a success like any other — ten of which mint a hint. `controller.review()` records WHICH
- * step was shown (and the record survives a reload, so a refresh cannot launder it), and this posts it against the
- * issued drill so the server has its own record rather than only the submission's claim. It is a WRITE and so the
- * same rule as a press applies: a demo does not send one, because the server refuses every write for a caller it
- * served without a Progress row (A20) and A25's tally would count the honest player as someone probing.
- *
- * THE SENTENCE IS UNCHANGED AND THE BUTTON'S LABEL IS NOT: the label now says the drill will not count (index.html),
- * because a player is owed that BEFORE they press it rather than in the verdict afterwards — the same reason the
- * practice offer is labelled Q20's way.
- */
-function review(): void {
-  if (!controller || !applier || PLAYHEAD.isRunning || controller.atEnd || watchingDrill) return;
-  const stepIndex = controller.view().stepIndex;
-  const option = controller.review();
-  const issued = serverIssued() ? serverDrill : null;
-  if (issued && mayWrite(currentStanding())) {
-    const drillId = issued.id;
-    revealLog = revealLog.then(() => recordDrillReveal(drillId, stepIndex));
-  }
-  drillScreen.say(`The answer is ${option.call}.`, 'info');
-  startReplay(applier.motion([option.call], controller.view().from), 'settle');
-}
+// THE "SHOW ME THE ANSWER" CONTROL IS GONE. REPORTED: "remove the option to see the answer to a drill, there are only three
+// answers, players will get there eventually." It was the one control that made a run countable-but-worthless (Q16/A28: a
+// revealed run is recorded and never ranked), and with three options a guess is a cheaper route to the same knowledge.
+//
+// WHAT STAYS, DELIBERATELY: `DrillController.review()` and the `revealed` set it records (`game/drill.ts`), the reveal
+// endpoint (`POST /drill/reveal`), and the submission's `revealed` list — because the RULE they enforce is what stops an
+// answer from being laundered into a hint, and `api/test/runs-probe.mjs` proves the server still refuses a revealed run.
+// Only the button is withdrawn; the protocol is the server's and is unchanged.
 
 /**
  * Whether the drill on screen is one the SERVER issued — as opposed to this device's own fixture (DESIGN.md §15 Q23).
@@ -2226,6 +2204,21 @@ function settleDrill(): void {
   drillScreen.render(controller);
   paintWaypoints();
 }
+
+/**
+ * The one control a solved drill ends on, and what it will do.
+ *
+ * TWO JOBS, ONE BUTTON, because both answers to "what next" belong in the same place: a ranked run advances the season, and a
+ * DEMO run — a signed-out player on a token-mode server — cannot, because every write for that caller is a `401` (A20). The
+ * demo case used to hide the button entirely, which is what "I was missing the next drill button" was: the rule was stated in
+ * the verdict's sentence and nowhere the player could act on it. The label says which of the two this press is.
+ */
+function offerNext(demo: boolean): void {
+  nextOffersSignIn = demo;
+  els.next.hidden = false;
+  els.next.textContent = demo ? 'Sign in for the next drill' : 'Next drill';
+}
+
 /**
  * The last answer was correct: stop the clock, score the run, and record ONE drill success.
  *
@@ -2282,11 +2275,15 @@ function finishDrill(): void {
     // same numbers the card shows. A drill has no day, so the line carries none.
     drillScreen.card(card, shareText({ stars: card.stars, score: score.score, elapsedSeconds: score.elapsedSeconds, day: null }));
   }
-  els.review.hidden = true;
   // THE DRILL IS OVER, so there is nothing left to skip: "Next drill" is the way on from here, and Q21 is why it no
   // longer sends an advance the server has already done.
   els.skip.hidden = true;
-  els.next.hidden = demoOnly;
+  // A SOLVED DRILL ALWAYS OFFERS A WAY ON. REPORTED: "I was missing the next drill button" — and the hole was the DEMO case: a
+  // signed-out run on a token-mode server cannot advance (every write is a `401`, A20), so the button was hidden outright and
+  // the only sentence saying why sat in the verdict. Hiding a control is not the same as explaining the rule; the offer is now
+  // the explanation's own outcome — the same button, labelled for what it will actually do, which is open the profile page
+  // where signing in makes the season move.
+  offerNext(demoOnly);
   // A COMPLETED DRILL IS ONE SUCCESS — ONCE, and WHO COUNTS IT DEPENDS ON WHETHER THERE IS A SERVER. Offline the
   // local rule below runs, exactly as it has since Phase 4; with an API configured the SERVER credits it from its
   // own record of finished drills (DESIGN.md 11) and this app adopts the balance it answers with — so a modified
@@ -2351,7 +2348,6 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
   // saw the reveal, so this waits for the last of each rather than racing them — the ordering this endpoint's
   // contract requires (DESIGN.md 11.1, A22 and A28). The claim below is what covers a POST that never arrived.
   await pressLog;
-  await revealLog;
   const revealed = controller.revealed.length;
   const answer = await submitRun({
     runId: drillRunId,
@@ -3125,7 +3121,7 @@ function endReplay(): void {
   replay = null;
   replayOutcome = 'settle';
   draw();
-  if (autoProgress && mode === 'drill' && !watchingDrill && controller?.atEnd && !els.next.hidden) {
+  if (autoProgress && mode === 'drill' && !watchingDrill && controller?.atEnd && !els.next.hidden && !nextOffersSignIn) {
     issueCurrentDrill('advance');
   }
 }
@@ -3274,14 +3270,17 @@ function main(): void {
   window.addEventListener('hashchange', () => applyPage(pageFor(location.hash), true));
   els.boardModeDrill.addEventListener('click', () => switchBoardMode('drill'));
   els.boardModeDaily.addEventListener('click', () => switchBoardMode('daily'));
-  els.next.addEventListener('click', () => issueCurrentDrill('advance'));
+  els.next.addEventListener('click', () => {
+    // THE DEMO'S WAY ON IS THE PROFILE PAGE (`offerNext`), because there is no advance to send.
+    if (nextOffersSignIn) navigate({ page: 'profile', drillIndex: null });
+    else issueCurrentDrill('advance');
+  });
   // THE SAME PRESS THE PLAYER WOULD MAKE (`els.next`), taken automatically once a solved drill's landing has been
   // held — plus a repaint, because `issueCurrentDrill` re-derives the footer and must not leave a stale label.
   els.autoProgress.addEventListener('click', () => {
     autoProgress = !autoProgress;
     paintAutoProgress();
   });
-  els.review.addEventListener('click', review);
   els.skip.addEventListener('click', skipDrill);
   els.undo.addEventListener('click', undoDaily);
   els.redo.addEventListener('click', redoDaily);

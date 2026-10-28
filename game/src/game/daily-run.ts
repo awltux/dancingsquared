@@ -13,7 +13,7 @@
 //     position (DESIGN.md 10), and the moment they move it is no longer a call they are standing in front
 //     of — so the marker clears on the next move that lands while the charge and the count stay. Leaving it
 //     lit would point at a call the offering list may not contain.
-//   * SCORING IS `score.ts`'s, called ONCE, at the moment the outcome is decided, so the result card and
+//   * SCORING IS `score.ts`'s, called ONCE, at the moment the outcome is decided, so the score line and
 //     anything the server later recomputes are the same arithmetic.
 //
 // TIME IS INJECTED, exactly as the clock's own header says: every method that needs to know the time takes

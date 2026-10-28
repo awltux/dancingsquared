@@ -1,4 +1,4 @@
-// The Daily screen: the offering list, the player's line, the readouts and the result card.
+// The Daily screen: the offering list, the player's line, the readouts and the result line.
 //
 // WHAT THIS FILE DELIBERATELY DOES NOT DO, the same split the Drill's screen makes: it does not decide
 // whether a move is legal (`DailyRun` does, through the engine), it does not draw (`render/stage-view.ts`),
@@ -381,7 +381,7 @@ export class DailyScreen {
     for (const button of this.els.offer.querySelectorAll('button')) button.disabled = busy;
   }
 
-  /** The result card, shown once the run is over. A given-up run has a time and no score. */
+  /** The Daily's result line, shown once the run is over. A given-up run has a time and no score. */
   private showResult(view: DailyView): void {
     if (view.outcome === 'playing') {
       this.els.result.hidden = true;

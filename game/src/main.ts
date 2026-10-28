@@ -33,9 +33,8 @@ import { boardPeriodOf } from './puzzle/board-period.ts';
 import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
-import { resultCard } from './puzzle/result-card.ts';
+import { scoreLine } from './puzzle/score-line.ts';
 import { statsFor } from './game/stats.ts';
-import { shareText } from './ui/share-text.ts';
 import { frameDelta, shouldAnimate } from './ui/frame-clock.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
 import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
@@ -2242,19 +2241,11 @@ function finishDrill(): void {
   // `game/test/standing-probe.mjs`) — consulted at the one call site that was missing it.
   const demoOnly = serverIssued() && !mayWrite(currentStanding());
   const scored = `Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points`;
-  // THE CARD IS THE REWARD, AND THE SENTENCE IS THE EXCEPTION. A ranked solve paints the scored moment — stars, the score,
-  // the working, the badges — and every other outcome keeps a sentence, because "this did not count" has no star rating
-  // that would not be a lie. `puzzle/result-card.ts` decides what the card says; `ui/drill-screen.ts` only builds it.
-  const runFacts = {
-    level: controller.puzzleRef.level,
-    shortest: controller.puzzleRef.shortest,
-    moves: controller.puzzleRef.shortest,
-    clockSeconds,
-    hintsUsed: 0,
-    attempts: controller.attempts,
-  };
-  const best = save.best;
-  const card = resultCard(runFacts, score, best !== null && score.score > best);
+  // THE SCORE LINE IS THE REWARD, AND THE SENTENCE IS THE EXCEPTION. A ranked solve paints one line — the score out of its
+  // own ceiling — and every other outcome keeps a sentence, because "this did not count" has no score line that would not be
+  // a lie. REPORTED: "the results pane is lost in the background... too much unnecessary info... we only need the score out
+  // of text e.g. 10/100". The stars, the headline, the terms and the badges are gone with the card; the text is
+  // `puzzle/score-line.ts`'s, which is what a probe can reach, and the denominator comes from the level rather than a 100.
   // THE VERDICT SAYS WHAT THE RUN IS WORTH, and a shown answer changes that to nothing (DESIGN.md §15 Q16, A28): the
   // score is still shown — the player solved it and the clock ran — and the sentence says which standing it bought,
   // which is none. The reason is stated in the same line rather than in the ledger's unranked clause alone, because
@@ -2265,9 +2256,7 @@ function finishDrill(): void {
   } else if (controller.revealed.length > 0) {
     drillScreen.say(`${scored}, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
   } else {
-    // THE CARD CARRIES THE SHARE LINE: one sentence a player can select and paste, built by `ui/share-text.ts` from the
-    // same numbers the card shows. A drill has no day, so the line carries none.
-    drillScreen.card(card, shareText({ stars: card.stars, score: score.score, elapsedSeconds: score.elapsedSeconds, day: null }));
+    drillScreen.showScore(scoreLine(score, controller.puzzleRef.level));
   }
   // THE DRILL IS OVER, so "Next drill" is the way on from here, and Q21 is why it no longer sends an advance the server
   // has already done.

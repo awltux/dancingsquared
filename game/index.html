@@ -167,7 +167,7 @@
         </header>
 
         <!-- THE SCROLLING BODY AND THE PINNED FOOTER. REPORTED as "still looking very messy": the panel was one column that
-             scrolled as a whole, so a tall question (or a solved drill's result card) pushed the footer's buttons past the
+             scrolled as a whole, so a tall question (or a solved drill's score line) pushed the footer's buttons past the
              bottom edge and the primary action went off-screen. `#panelScroll` holds the content and owns the scrolling;
              `#foot` is a grid row that never moves. The ids inside are unchanged, because `el()` resolves them. -->
         <div id="panelScroll">
@@ -232,7 +232,7 @@
 
         <!-- THE HELP PAGE. Written from the rules the game actually implements, one entry per rule a player cannot infer
              from the board: what the two boards are, what a drill is, what the Daily's clock does, the two-group gesture
-             (the one control with no visible affordance), what the stars mean, and what an account changes. -->
+             (the one control with no visible affordance), what the score is out of, and what an account changes. -->
         <section id="help" class="page" hidden>
           <h2 id="helpHeading" tabindex="-1">How to play</h2>
           <p class="page-lede">The two boards are two moments of one square. The left board is where you are; the right one is the arrangement you are trying to reach. Every question is one call that gets you there.</p>
@@ -243,8 +243,8 @@
             <dd>One puzzle, the same for everyone, once a day. Its clock starts the first time you open it, and the time you spend away from the page is charged to the run — so a Daily is a sitting rather than something to leave running.</dd>
             <dt>Two-group steps</dt>
             <dd>Some calls only happen when two groups do different things at once. Hold Shift and click a call to begin a two-group step, then pick a call under another group. The line above the answers says which reading is armed, and pressing it again puts the reading down.</dd>
-            <dt>Stars</dt>
-            <dd>Three stars is a clean run at par: no hint, no wrong answer, the shortest line, and no slower than par. Losing either half of that — a wasted call, or a time over par — is two stars, and losing both is one. Being solved is never zero.</dd>
+            <dt>The score</dt>
+            <dd>A solved drill is scored out of 100 at level 1 and out of 100 more at each level above it, because the maximum is what a clean, first-try run at that level is worth. Answering wrong or taking longer than the puzzle expects takes a share of it, and a solved run never drops below one point.</dd>
             <dt>Hints</dt>
             <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots in the banner are what you hold, filled for what is there.</dd>
             <dt>Signing in</dt>

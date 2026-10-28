@@ -1250,7 +1250,7 @@ button[data-busy="true"]::after {
 
 #foot {
   /* A GRID ROW THAT NEVER MOVES, not `margin-top: auto` in a scrolling column: the panel's third row is the footer, so it
-     is pinned under the scrolling body however tall the question or the result card gets. */
+     is pinned under the scrolling body however tall the question or the score line gets. */
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -1509,104 +1509,21 @@ button[data-busy="true"]::after {
   outline-offset: 2px;
 }
 
-/* THE RESULT CARD — the scored moment, built by `ui/drill-screen.ts` from `puzzle/result-card.ts`'s answer.
-   REPORTED: "still looking very messy" and "time to make the UI more gamified". A solved drill used to write one sentence in
-   the verdict slot, in the same voice as a refusal; this is a card with a rank (three stars, one of them the accent), the
-   score in the reading voice, the working as a two-column list, and the badges as pills. The grid is `auto 1fr` so the
-   labels align and the values are tabular — a column of numbers that does not jitter as it changes. */
-.result-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin-top: var(--space-sm);
-  padding: var(--space-lg);
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-}
-
-.result-stars {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-sm);
+/* THE SCORE LINE — the whole of a solved drill's result, painted by `ui/drill-screen.ts` from the string
+   `puzzle/score-line.ts` returns. REPORTED: "the results pane is lost in the background. There is too much unnecessary
+   info in that pane. We only need the score out of text e.g. 10/100". The card this replaces was a surface with a rank,
+   a headline, a two-column list of terms and a row of badges; the moment is one number now, so the only rule left is the
+   one that keeps it readable: tabular figures, so "9/100" and "10/100" do not shift the column as the score changes. */
+.result-score {
   margin: 0;
   font-size: var(--fs-heading);
-  letter-spacing: 0.1em;
-}
-
-/* AN EMPTY STAR IS THE BORDER'S OWN WEIGHT, not a faint accent: the rank has to be readable when only one of three is
-   earned, and a dim amber would read as a printing fault. */
-.result-stars .star {
-  color: var(--line-strong);
-}
-
-.result-stars .star.filled {
-  color: var(--accent);
-}
-
-.result-stars-count {
-  font-size: var(--fs-small);
-  letter-spacing: 0;
-  color: var(--dim);
-}
-
-.result-headline {
-  margin: 0;
-  font-size: var(--fs-control);
   font-weight: 700;
-  color: var(--ink);
-}
-
-.result-terms {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--space-xs) var(--space-sm);
-  margin: 0;
-  font-size: var(--fs-small);
-}
-
-.result-terms dt {
-  color: var(--dim);
-}
-
-.result-terms dd {
-  margin: 0;
-  text-align: right;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
-.result-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.result-badges li {
-  padding: var(--space-xs) var(--space-sm);
-  font-size: var(--fs-small);
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: var(--r-pill);
-}
-
-/* THE SERVER'S FOOTNOTE, added under a card by `DrillScreen.amend` — what the round trip answered, in the card's own
+/* THE SERVER'S FOOTNOTE, added under the score line by `DrillScreen.amend` — what the round trip answered, in the line's
    quiet voice, and in the refusal's colour when the answer was a refusal (the local score still stands either way). */
-/* THE SHARE LINE: a sentence the player can select and paste (Wordle's mechanic, without the tracker). Selectable
-   text on purpose - a clipboard call is refused on a `file://` build and needs a gesture to be sure of, and a button
-   that sometimes does nothing is worse than text that always works. */
-.result-share {
-  margin: 0;
-  padding-top: var(--space-sm);
-  border-top: 1px solid var(--line-soft);
-  font-size: var(--fs-small);
-  color: var(--ink);
-  user-select: all;
-}
-
 .result-note {
   margin: 0;
   padding-top: var(--space-sm);
@@ -1834,19 +1751,29 @@ button[data-busy="true"]::after {
 
   /* THE FOOTER GOES TWO-UP ON A SHEET. MEASURED at 500 x 757: the pinned footer's four stacked rows took 250 of the sheet's
      348 px, leaving the content column 90 px — the level card was a sliver. Two columns halve that, and the primary action
-     and `More options` still span the full width because they are the ones a thumb reaches for. */
+     still spans the full width because it is the one a thumb reaches for — except beside Play (the rule below). The text
+     rows (`#replayBox`) keep a full row of their own. */
   #foot {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-sm);
   }
 
-  /* ONLY THE ACTION AND A SHARE ROW SPAN BOTH COLUMNS. MEASURED on the first two-up attempt: a `span 2` on EVERY button
+  /* THE ACTION PATH IS THE ONE THAT SPANS BOTH COLUMNS. MEASURED on the first two-up attempt: a `span 2` on EVERY button
      put them back one per row and the footer stayed 250 px tall. The primary is the one a thumb reaches for; a pair of
      secondary controls (Undo / Redo, Play / The shortest line) sits two-up between them. */
-  #foot #next,
-  #foot .result-share {
+  #foot #next {
     grid-column: span 2;
+  }
+
+  /* AND "PLAY" SHARES THE ACTION'S ROW ON A SOLVED DRILL. REPORTED: "Put the 'Play' button next to the 'Next drill' button
+     on the drill correct page." Without this rule `#next` spans both columns and Play sits alone on the row above — the
+     isolation the report names, and the reason the pair is the one case that gives the action half its width back.
+     NO SECOND STATE IS WRITTEN FOR IT: `paintView` shows `#replayMine` exactly when the panel has a line to play, and
+     `hidden` is what `:has()` reads, so the layout and the shell read one fact. `footer-layout-probe.mjs` is the gate —
+     this rule is why a solved drill's footer is one row rather than two, and it had none before. */
+  #foot:has(#replayMine:not([hidden])) #next {
+    grid-column: span 1;
   }
 
   /* The rows that are TEXT keep their full width, so a sentence is not set in a 160 px column. `#balance` and `#ledger` are

@@ -92,7 +92,7 @@ console.log('\n== 4. a perfect run is worth the base, and a solved run is never 
   check(awful.attemptFactor === 1 / (1 + ATTEMPT_PENALTY * 6), `the attempt factor is the stated penalty shape (${awful.attemptFactor})`);
 }
 
-console.log('\n== 5. the terms are reported, so a result card can show its own working ==');
+console.log('\n== 5. the terms are reported, so a caller can read the working ==');
 {
   const r = scoreRun(perfect({ clockSeconds: 30, moves: 3, attempts: 1 }));
   const expected = Math.max(MIN_RUN_SCORE, Math.round(BASE_SCORE * 1 * r.timeFactor * r.wasteFactor * r.attemptFactor));

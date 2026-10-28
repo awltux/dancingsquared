@@ -36,7 +36,7 @@ export interface RunFacts {
   attempts: number;
 }
 
-/** The score and the terms that produced it, so a result card can show its own working. */
+/** The score and the terms that produced it, so a caller can read the working as well as the total. */
 export interface RunScore {
   score: number;
   /** The clock plus the hint charge — the number the player's time is judged on. */
@@ -75,6 +75,19 @@ function ratio(expected: number, actual: number): number {
 }
 
 /**
+ * THE MOST A RUN AT THIS LEVEL CAN SCORE — `BASE_SCORE × level.index`, which is what a clean, par, first-try run gets
+ * because all three factors are exactly 1 there.
+ *
+ * IT EXISTS AS A FUNCTION because the player is shown the score OUT OF this number (`puzzle/score-line.ts`: "10/100"),
+ * and a screen that divided by a literal 100 would read "500/100" at level 5. MEASURED by `score-probe.mjs` section 4
+ * (a perfect L5 run is `BASE_SCORE × 5`) and again over the baked season by `score-line-probe.mjs`: every clean par
+ * run equals its own level's ceiling, so the denominator is reachable rather than a decoration.
+ */
+export function maxScore(level: LevelSpec): number {
+  return BASE_SCORE * level.index;
+}
+
+/**
  * Score a finished run.
  *
  * THE FACTORS ARE MULTIPLIED, so a run that is slow AND wasteful AND retried scores the product and can
@@ -89,7 +102,7 @@ export function scoreRun(facts: RunFacts): RunScore {
   const timeFactor = ratio(par, elapsed);
   const wasteFactor = ratio(Math.max(1, facts.shortest), Math.max(1, facts.moves));
   const attemptFactor = 1 / (1 + ATTEMPT_PENALTY * facts.attempts);
-  const raw = BASE_SCORE * facts.level.index * timeFactor * wasteFactor * attemptFactor;
+  const raw = maxScore(facts.level) * timeFactor * wasteFactor * attemptFactor;
   return {
     score: Math.max(MIN_RUN_SCORE, Math.round(raw)),
     elapsedSeconds: elapsed,

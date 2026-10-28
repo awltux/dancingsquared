@@ -12,7 +12,6 @@
 // does not own, and AGENTS.md §6 requires it to be impossible for any of it to become markup. The one place
 // markup is built is static, with no interpolation.
 import type { DrillController, DrillView } from '../game/drill.ts';
-import { BADGE_TEXT, type ResultCard } from '../puzzle/result-card.ts';
 import { el } from './dom.ts';
 
 /** The elements this screen owns, resolved once and named, so a missing id fails at the first read. */
@@ -133,75 +132,23 @@ export class DrillScreen {
   }
 
   /**
-   * THE SCORED MOMENT — stars, the score, the working and the badges — in place of the verdict sentence.
+   * THE SCORED MOMENT — one line of text, the score out of its ceiling, and nothing else.
    *
-   * REPORTED as "still looking very messy, UI design wise" and, before that, "time to make the UI more gamified": a solved
-   * drill produced one line of prose in the same slot and the same voice as a refusal, which is the one moment of reward
-   * the game has. `puzzle/result-card.ts` decides WHAT the card says (and is gated by `result-card-probe.mjs`); this method
-   * is only how it looks, which is why it takes the card rather than computing any of it.
+   * REPORTED: "When the player successfully completes a drill, the results pane is lost in the background. There is too
+   * much unnecessary info in that pane. We only need the score out of text e.g. 10/100, and bring it to the main page."
+   * The pane it replaces was a card — stars, a headline, the attempt/time breakdown and the badges — and the score was one
+   * of five things in it. The text itself is `puzzle/score-line.ts`'s (gated by `score-line-probe.mjs`); this method only
+   * paints it, and it takes the finished string so the denominator cannot be re-derived here as a second definition.
    *
-   * THE STARS ARE ONE ACCESSIBLE STRING, not three glyphs a screen reader would read as "black star black star white
-   * star": the row carries `aria-label="3 of 3 stars"` and the glyphs are `aria-hidden`. The `N of 3` is also written
-   * beside them, so the count survives a font that cannot draw ★.
+   * IT IS A `.result-score` ELEMENT RATHER THAN PLAIN VERDICT TEXT because the server's footnote (`amend`) has to arrive
+   * BESIDE it: the card used to be the thing that appended the note, and with the text loose in the verdict slot the note
+   * would have overwritten the score — the defect `amend` was written for the first time.
    */
-  card(card: ResultCard, share: string | null = null): void {
-    const box = document.createElement('div');
-    box.className = 'result-card';
-    box.dataset['stars'] = String(card.stars);
-
-    const stars = document.createElement('p');
-    stars.className = 'result-stars';
-    stars.setAttribute('aria-label', `${card.stars} of 3 stars`);
-    for (let i = 1; i <= 3; i++) {
-      const glyph = document.createElement('span');
-      glyph.setAttribute('aria-hidden', 'true');
-      glyph.className = i <= card.stars ? 'star filled' : 'star';
-      glyph.textContent = i <= card.stars ? '★' : '☆';
-      stars.append(glyph);
-    }
-    const count = document.createElement('span');
-    count.className = 'result-stars-count';
-    count.textContent = `${card.stars} of 3`;
-    stars.append(count);
-
-    const headline = document.createElement('p');
-    headline.className = 'result-headline';
-    const scoreTerm = card.terms.find((term) => term.label === 'Score');
-    headline.textContent = `${card.headline} — ${scoreTerm?.value ?? '0'} points`;
-
-    const terms = document.createElement('dl');
-    terms.className = 'result-terms';
-    for (const term of card.terms) {
-      if (term.label === 'Score') continue; // the headline carries it, in the bigger voice
-      const dt = document.createElement('dt');
-      dt.textContent = term.label;
-      const dd = document.createElement('dd');
-      dd.textContent = term.value;
-      terms.append(dt, dd);
-    }
-
-    box.append(stars, headline, terms);
-    if (card.badges.length) {
-      const badges = document.createElement('ul');
-      badges.className = 'result-badges';
-      for (const badge of card.badges) {
-        const item = document.createElement('li');
-        item.textContent = BADGE_TEXT[badge];
-        badges.append(item);
-      }
-      box.append(badges);
-    }
-    // THE SHARE LINE, when the shell has one: a plain sentence the player can select and paste, which is the whole mechanic
-    // (Wordle's grid, without the tracker). NO CLIPBOARD CALL HERE: `navigator.clipboard` is refused on a `file://` build and
-    // needs a user gesture to be sure of, and a button that sometimes silently fails is worse than text that always works.
-    if (share !== null) {
-      const line = document.createElement('p');
-      line.className = 'result-share';
-      line.textContent = share;
-      box.append(line);
-    }
-
-    this.els.verdict.replaceChildren(box);
+  showScore(line: string): void {
+    const scored = document.createElement('p');
+    scored.className = 'result-score';
+    scored.textContent = line;
+    this.els.verdict.replaceChildren(scored);
     this.els.verdict.dataset['kind'] = 'ok';
   }
 
@@ -214,24 +161,25 @@ export class DrillScreen {
   /**
    * ADD a line to whatever the verdict slot holds, instead of replacing it.
    *
-   * THE SERVER'S ANSWER ARRIVES AFTER THE LOCAL SCORE, and it used to overwrite the card with a sentence — MEASURED in the
-   * browser: a solved drill showed "Recorded — the server scores it 100 points…" where the stars had been a moment
-   * earlier, because `submitSolvedRun` called `say`. A card is the moment; the server's confirmation is a footnote to it,
-   * so it is appended (and a refusal on the same path is appended too, in the refusal's own colour, because the local
-   * score still stands). When there is no card — a demo, a revealed run — this degrades to `say`, which is the same
+   * THE SERVER'S ANSWER ARRIVES AFTER THE LOCAL SCORE, and it used to overwrite the scored pane with a sentence — MEASURED in
+   * the browser: a solved drill showed "Recorded — the server scores it 100 points…" where the stars had been a moment
+   * earlier, because `submitSolvedRun` called `say`. The score line is the moment; the server's confirmation is a footnote
+   * to it, so it is appended (and a refusal on the same path is appended too, in the refusal's own colour, because the local
+   * score still stands). When there is no score line — a demo, a revealed run — this degrades to `say`, which is the same
    * behaviour that path had before.
    */
   amend(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
-    const card = this.els.verdict.querySelector('.result-card');
-    if (!card) {
+    if (!this.els.verdict.querySelector('.result-score')) {
       this.say(text, kind);
       return;
     }
-    let note = card.querySelector('.result-note');
+    let note = this.els.verdict.querySelector('.result-note');
     if (!note) {
       note = document.createElement('p');
       note.className = 'result-note';
-      card.append(note);
+      // A SIBLING OF THE SCORE LINE, not a child of it: the line is one text node the player reads as a score, and a
+      // confirmation inside it would become part of that reading.
+      this.els.verdict.append(note);
     }
     note.textContent = text;
     (note as HTMLElement).dataset['kind'] = kind;

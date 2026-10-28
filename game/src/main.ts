@@ -43,7 +43,7 @@ import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
-import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
+import { newRunId, wallGapMs, type DrillSaved, type RunRecord, type StorageLike } from './game/store.ts';
 import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchDrillReplay, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
@@ -64,6 +64,7 @@ import { AccountScreen } from './ui/account-screen.ts';
 import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { Replay, LANDING_HOLD_MS } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
+import { bannerView, type BannerFacts } from './ui/banner.ts';
 import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageTitle, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
@@ -310,6 +311,11 @@ const els = {
   regime: el('regime'),
   head: el('head'),
   bannerBack: el<HTMLButtonElement>('bannerBack'),
+  bannerPips: el('bannerPips'),
+  bannerHintWords: el('bannerHintWords'),
+  bannerStanding: el('bannerStanding'),
+  bannerDrill: el('bannerDrill'),
+  bannerDaily: el('bannerDaily'),
   notice: el('notice'),
   landing: el('landing'),
   setupPage: el('setup'),
@@ -612,17 +618,10 @@ function paintBalance(): void {
   // signed-out spend is answered `401`, so what is on screen is this device's own copy rather than the server's —
   // and saying so is the difference between a player who knows nothing is kept and one who finds out later.
   const words = currentStanding() === 'unranked' ? `${held} — this device's own balance, not the server's` : held;
-  // THE BALANCE IS A REWARD METER AS WELL AS A SENTENCE (Clash Royale's pips, Duolingo's hearts): three slots, filled for
-  // what is held. The glyphs are `aria-hidden` and the sentence beside them says the same thing in words, so a screen
-  // reader hears one fact rather than "black circle black circle white circle".
-  const pips = document.createElement('span');
-  pips.className = 'hint-pips';
-  pips.setAttribute('aria-hidden', 'true');
-  const filled = Math.max(0, Math.min(3, save.hints.hints));
-  pips.textContent = '●'.repeat(filled) + '○'.repeat(3 - filled);
-  const said = document.createElement('span');
-  said.textContent = words;
-  els.balance.replaceChildren(pips, said);
+  // THE PIPS MOVED TO THE BANNER (REPORTED: "All pages have a thin banner containing current hints icons"), so this line is
+  // the sentence only: the meter is on screen above every page, and a second one in the footer was the duplicate the report
+  // was asking to be rid of. The footer keeps what the meter cannot say — how many successes the next hint needs.
+  els.balance.textContent = words;
   // THE HINT BUTTON BELONGS TO THE DAILY, because that is the mode it is spent on (DESIGN.md 10), and it is
   // hidden rather than merely disabled once the run is over — there is nothing left to be hinted.
   const playing = daily !== null && daily.view(performance.now()).outcome === 'playing';
@@ -679,6 +678,60 @@ function paintLanding(): void {
   els.landingStatus.textContent = standing === 'ranked'
     ? 'No account needed on this server — it names the player for you. Signing in still keeps your progress under an email.'
     : 'Playing without an account: everything works, and your runs stay on this device unranked until you sign in.';
+}
+
+/**
+ * The banner's four cells: the hint meter, who you are, and the two scores.
+ *
+ * THE WORDS ARE `ui/banner.ts`'S, and this function only hands them over: which sentence a standing gets is a rule (and
+ * one a probe can drive), while writing four `textContent`s is not. The facts are read from the three places that own
+ * them — the saved game for the balance and the runs, the session for the email, `standingOf` for whether a run counts —
+ * so the banner cannot become a fourth copy of any of them.
+ *
+ * IT REPAINTS WITH THE LEDGER, because both are sentences about the same record: a run that has just been saved changes
+ * the best score, the drill count and the balance at once, and repainting one without the other is how the two come to
+ * disagree on screen.
+ */
+function paintBanner(): void {
+  const view = bannerView(bannerFacts());
+  els.bannerPips.textContent = view.pips;
+  els.bannerHintWords.textContent = view.hintsLabel;
+  els.bannerStanding.textContent = view.standingText;
+  els.bannerStanding.dataset['kind'] = view.standingKind;
+  els.bannerDrill.textContent = view.drillText;
+  els.bannerDaily.textContent = view.dailyText;
+}
+
+/** The facts the banner is a function of, each read from the thing that owns it. */
+function bannerFacts(): BannerFacts {
+  const view = levelView();
+  // THE DAY IS THE SERVER'S WHEN THERE IS A DAILY ON SCREEN, and the local UTC day otherwise — the same pair `paintLedger`
+  // uses, so the streak and the score agree about which day it is.
+  const today = dailyDay !== '' ? dailyDay : utcDay(new Date());
+  return {
+    hintsHeld: save.hints.hints,
+    playerEmail: player?.email ?? null,
+    standing: currentStanding(),
+    drillLevel: view.levelIndex,
+    drillBest: bestScore(save.runs, (run) => run.mode === 'drill' && run.levelIndex === view.levelIndex),
+    dailyScore: bestScore(save.runs, (run) => run.mode === 'daily' && run.day === today),
+  };
+}
+
+/**
+ * The best score among the runs a predicate accepts, or null.
+ *
+ * A BEST, NOT A SUM AND NOT THE LATEST: the banner answers "what am I worth on this board", and a board ranks a player by
+ * their best run (`DESIGN.md` §6), so the number it shows is the one the server would compare. The predicate rather than a
+ * mode and a level is what lets the Daily's half ask by DAY, which is its own partition.
+ */
+function bestScore(runs: readonly RunRecord[], which: (run: RunRecord) => boolean): number | null {
+  let best: number | null = null;
+  for (const run of runs) {
+    if (!which(run)) continue;
+    if (best === null || run.score > best) best = run.score;
+  }
+  return best;
 }
 
 /**
@@ -1085,6 +1138,10 @@ function persist(): void {
 
 /** What is kept on this device, or that nothing is. */
 function paintLedger(): void {
+  // THE BANNER IS A SENTENCE ABOUT THE SAME RECORD (its score cells and the hint meter), so it is repainted here rather
+  // than left to whichever caller remembers — including on the `saving: false` path below, where the LEDGER has nothing to
+  // say but the scores still exist.
+  paintBanner();
   const count = save.runs.length;
   const best = save.best;
   if (!save.saving) {
@@ -1523,7 +1580,7 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
   drillClock.resume(performance.now(), Math.max(0, Date.now() - originMs));
   PLAYHEAD.cancel();
   replay = null;
-  els.regime.textContent = `The Drill — drill ${position + 1} of ${issued.length}, level ${spec.index}`;
+  els.regime.textContent = drillRegime(position, issued.length, spec.index);
   drillScreen.clearVerdict();
   drillScreen.render(controller);
   // REVIEW AND SKIP ARE `paintView`'s NOW: they belong to the drill view, and whether that view is showing is the
@@ -1724,7 +1781,7 @@ function showDrillReplay(info: { index: number; levelIndex: number; puzzle: Puzz
   serverRecordedRun = false;
   useLevel(spec);
   controller = new DrillController(info.puzzle, {});
-  els.regime.textContent = `The Drill — drill ${info.index + 1}, level ${spec.index}`;
+  els.regime.textContent = drillRegime(info.index, levelView().length, spec.index);
   drillScreen.clearVerdict();
   drillScreen.say(
     info.passed
@@ -2275,8 +2332,19 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
  * Phase 4's).
  */
 /** The Daily's header line, from the run's own day and level — so the kept path and the issue path agree. */
+/**
+ * What the banner's position cell says: which drill of how many, and which level.
+ *
+ * SHORT ON PURPOSE, because this line shares a thin row with four other cells on a 340 px panel — REPORTED as a banner
+ * that should be thin. It kept the two facts the long sentence carried ("The Drill — drill 1 of 100, level 1"), and every
+ * word that was doing no work ("The", "of", "level") is gone: the level block's own heading spells the level out in full.
+ */
+function drillRegime(position: number, length: number, levelIndex: number): string {
+  return `Drill ${position + 1}/${length} · L${levelIndex}`;
+}
+
 function dailyRegime(): string {
-  return daily && dailyDay ? `Today's Daily — ${dailyDay} (UTC), level ${dailyLevelIndex}` : "Today's Daily";
+  return daily && dailyDay ? `Daily ${dailyDay} · L${dailyLevelIndex}` : "Today's Daily";
 }
 
 /** An issued Daily is kept: re-issue it and its clock restarts, which is free thinking time for a button press. */

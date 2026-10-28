@@ -71,6 +71,18 @@
           <div id="bannerRow">
             <button id="bannerBack" type="button" hidden>‹ Back</button>
             <p id="regime"></p>
+            <!-- THE HINT METER: three slots for what is held and the count beside them. THE WHOLE CELL IS `aria-hidden`,
+                 because the footer's `#balance` already says the balance in words, how many successes the next hint needs,
+                 and whose balance it is — one statement, and the meter is the decoration the report asked for as "hints
+                 icons". A second spoken copy of the same number is noise, not redundancy. -->
+            <p id="bannerHints" aria-hidden="true"><span id="bannerPips" class="hint-pips"></span><span id="bannerHintWords"></span></p>
+            <!-- WHO YOU ARE, AND WHETHER WHAT YOU DO IS RECORDED. `ui/banner.ts` decides the words from the session and from
+                 `net/standing.ts`'s answer — the two facts a player needs before they trust a score. -->
+            <p id="bannerStanding"></p>
+            <!-- THE TWO SCORES: this level's best Drill, and today's Daily. "no score yet" rather than a zero, because a
+                 zero is a score a player could believe they had earned. -->
+            <p id="bannerDrill"></p>
+            <p id="bannerDaily"></p>
           </div>
         </header>
 

@@ -107,22 +107,54 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* THE BANNER: THE WAY BACK AND WHERE THE PLAYER IS, one row, on every page. It is a flex row with the text as its only
-   growing cell, so the pips and the standing that join it in a later step sit at the ends without pushing the regime line
-   around — and the row is a fixed minimum height so a page with a short regime does not shift the content above it when
-   the player navigates. */
+/* THE BANNER: THE WAY BACK, WHERE THE PLAYER IS, WHAT THEY HOLD, WHO THEY ARE AND THE TWO SCORES — one row, on every page
+   (REPORTED: "All pages have a thin banner containing current hints icons, login status, current score for drills and
+   daily, a back button"). It is a WRAPPING flex row rather than a fixed grid, because the cells have very different widths
+   and a narrow viewport genuinely cannot hold them on one line: wrapping is the honest failure, where a fixed grid would
+   either clip a cell or squash a sentence into a 60 px column. The `row-gap` is the scale's smallest step, so a second line
+   costs one line of text rather than a paragraph of air. */
 #bannerRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-xs) var(--space-md);
   min-height: 32px;
 }
 
 #regime {
-  flex: 1;
+  flex: 1 1 14ch;
   margin: 0;
   color: var(--dim);
   font-size: var(--fs-body);
+}
+
+/* THE BANNER'S OWN CELLS ARE ONE STEP SMALLER THAN THE REGIME LINE: the position is the sentence and these are the numbers
+   beside it. `nowrap` per cell keeps a label and its value together, so a wrap never separates "L1" from its score. */
+#bannerHints,
+#bannerStanding,
+#bannerDrill,
+#bannerDaily {
+  margin: 0;
+  color: var(--dim);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+
+#bannerHints {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+#bannerStanding[data-kind="ok"] {
+  color: var(--ok);
+}
+
+/* TABULAR FIGURES, as every other number in the app uses: a score that shifts a pixel per digit is a score nobody can
+   compare down a row. */
+#bannerDrill,
+#bannerDaily {
+  font-variant-numeric: tabular-nums;
 }
 
 /* THE BACK BUTTON IS A CONTROL AND NOT A LINK, because it does not go where a link's href says: it goes to the page's
@@ -864,10 +896,10 @@ button[data-busy="true"]::after {
 }
 
 /* THE PIPS ARE THE SAME FACT AS A METER (Clash Royale's pips, Duolingo's hearts): three glyphs, filled for what is held, in
-   the accent the interface uses for "you have this". They are `aria-hidden` and the sentence beside them says it in words,
-   so the display is never the only signal. */
-#balance .hint-pips {
-  margin-right: var(--space-sm);
+   the accent the interface uses for "you have this". THEY LIVE IN THE BANNER since the report asked for "hints icons" there,
+   and the footer's `#balance` is the words: the cell is `aria-hidden` because the sentence beside it on the same screen
+   already says the number. */
+#bannerPips {
   color: var(--accent);
   letter-spacing: 0.15em;
 }

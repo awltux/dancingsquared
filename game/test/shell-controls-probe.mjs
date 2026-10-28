@@ -200,8 +200,15 @@ console.log('\n== 4. the landing page reaches every other page, and the banner h
   check(main.includes("navigate({ page: 'drill', drillIndex: index })"),
     'and the drill is entered by a cell press that writes its own URL');
   const banner = blockOf(html, 'div', 'bannerRow') ?? '';
-  check(idsIn(banner).includes('bannerBack') && idsIn(banner).includes('regime'),
-    'the banner carries the back button and the line that says where the player is');
+  // THE BANNER'S CELLS: the way back, where the player is, the hint meter, the standing and the two scores — the list the
+  // report named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all, which
+  // the id contract would otherwise only catch once one of them is asked for in the script.
+  const bannerIds = idsIn(banner);
+  const cells = ['bannerBack', 'regime', 'bannerPips', 'bannerHintWords', 'bannerStanding', 'bannerDrill', 'bannerDaily'];
+  const absent = cells.filter((id) => !bannerIds.includes(id));
+  check(absent.length === 0,
+    `the banner carries the back button, the position and the four cells the report named (${absent.join(', ') || 'none missing'})`,
+    absent.join(', '));
   check(main.includes('els.bannerBack.hidden = target === null') && main.includes('backTarget(page)'),
     'and paintChrome hides it from the page model\'s backTarget rather than from a second table');
   // THE MODEL'S OWN TABLE, as a control on the check above: only the landing page may have no way back.

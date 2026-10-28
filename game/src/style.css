@@ -650,11 +650,16 @@ button[data-busy="true"]::after {
 #levelBlock .cell {
   position: absolute;
   /* THE NODE'S WIDTH IS DERIVED FROM THE COLUMN COUNT the screen writes, so it can never overflow its column: the container
-     is fluid (a 300 px panel, a 393 px sheet) and a fixed 28 px node overlapped by 3 px in a 304 px card. `aspect-ratio`
-     keeps it round at whatever width the formula gives. */
+     is fluid (a 300 px panel, a 393 px sheet) and a fixed 28 px node overlapped by 3 px in a 304 px card. */
   width: calc(100% / var(--level-columns, 10) - var(--space-xs));
+  /* AND THE CAP IS A MAX-WIDTH, NOT A MAX-HEIGHT. REPORTED: "Keep the Drill grid cells square. Currently they seem to
+     stretch along the horizontally when displayed on PC or tablet." `aspect-ratio` derives ONE axis from the other, and a
+     `max-height` capped the DERIVED axis while the percentage width kept growing with the container — so a wide sheet drew
+     wide, short nodes, and the wider the container the flatter they got. Capping the width instead caps the axis the
+     percentage sets, and the height then follows it, so the node is square at every container width. `level-map-probe.mjs`
+     section 6 pins the two halves: the square request, and a cap on the width with NO height cap to fight it. */
+  max-width: 32px;
   aspect-ratio: 1;
-  max-height: 32px;
   transform: translate(-50%, -50%);
   display: grid;
   place-items: center;

@@ -15,15 +15,25 @@
 //   4. NO OVERLAP, and every centre inside its own container.
 //   5. THE COLUMNS RULE. `columnsFor` answers 8 below the shell's 900 px breakpoint and 12 at or above it, so the host does
 //      not carry a second copy of the number.
+//   6. THE NODE IS SQUARE AT EVERY CONTAINER WIDTH. The geometry above says WHERE a node sits; this section reads the
+//      stylesheet that draws it, because the failure it pins is a CSS one — REPORTED: "Keep the Drill grid cells square.
+//      Currently they seem to stretch along the horizontally when displayed on PC or tablet." Sections 1-5 are pure
+//      geometry; section 6 reads text and still needs no DOM.
 //
-// THE NEGATIVE CONTROL is `plainGrid`, a left-to-right-every-row layout, computed here and measured against the same
-// adjacency check: it is what the rejected shape would have been, and it fails that check on the first turn of a
-// sixteen-drill level while passing every other rule in this file.
+// THE NEGATIVE CONTROLS are `plainGrid` (a left-to-right-every-row layout, which fails the adjacency check on the first
+// turn and passes everything else) and, in section 6, the rule as it stood before the fix — `max-height` with no
+// `max-width` — which the two shape checks reject and no other check in this file does.
 //
-// Usage: node game/test/level-map-probe.mjs   (pure geometry: no engine, no DOM)
+// Usage: node game/test/level-map-probe.mjs   (geometry plus one stylesheet read: no engine, no DOM)
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   mapFor, columnsFor, MIN_COLUMNS, MAX_COLUMNS, NODE_MIN_PX,
 } from '../src/ui/level-map.ts';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const GAME = path.resolve(HERE, '..');
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -128,6 +138,34 @@ console.log('\n== 5. the one column-count rule: the CONTAINER decides, not the v
   // A COLUMN COUNT OF ZERO OR A FRACTION IS CLAMPED rather than producing NaNs in a CSS percentage.
   check(mapFor(4, 0).columns === 1 && mapFor(4, 3.7).columns === 3, 'a silly column count is clamped, not propagated');
   check(mapFor(4, 0).nodes.every((n) => Number.isFinite(n.x) && Number.isFinite(n.y)), 'and produces finite coordinates');
+}
+
+console.log('\n== 6. a node is SQUARE at every container width (the stylesheet) ==');
+{
+  // THE RULE THAT DRAWS THE NODE, read from the file that owns it. It appears twice — the shape and the tabular figures —
+  // so every body is gathered rather than only the first. The readers are named so the control below runs the SAME ones.
+  const css = fs.readFileSync(path.join(GAME, 'src', 'style.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const bodies = [...css.matchAll(/#levelBlock \.cell\s*\{([^}]*)\}/g)].map((m) => m[1]);
+  check(bodies.length >= 1, `style.css carries the node's rule (${bodies.length} block(s))`);
+  const rule = bodies.join(';');
+  const asksSquare = (r) => /aspect-ratio:\s*1/.test(r);
+  const capsWidth = (r) => /max-width:/.test(r);
+  const capsHeight = (r) => /max-height:/.test(r);
+  const widthFromColumns = (r) => /width:\s*calc\(100%\s*\/\s*var\(--level-columns/.test(r);
+  check(asksSquare(rule), `the node asks for a square (${rule.replace(/\s+/g, ' ').trim().slice(0, 90)}…)`);
+  // THE CAP MUST BE ON THE AXIS THE PERCENTAGE SETS. `aspect-ratio` derives the other axis, so a cap on the derived one
+  // fights the square: the width keeps growing with the container and the height stops. That is the reported stretch.
+  check(capsWidth(rule), 'and the cap is on the width, the axis the percentage sets');
+  check(!capsHeight(rule), 'with NO height cap, which would flatten the node as its container widens');
+  check(widthFromColumns(rule),
+    'and the width is derived from the column count the screen writes, so a node cannot overflow its own column');
+  // THE NEGATIVE CONTROL: the rule as it stood before the fix — a `max-height` cap and no `max-width` — run through the SAME
+  // four readers. It passes the square request and the column-derived width and fails exactly the cap pair, so the pair is
+  // what rules it out and the other two checks cannot be passing by accident.
+  const before = [...'#levelBlock .cell { width: calc(100% / var(--level-columns, 10) - var(--space-xs)); aspect-ratio: 1; max-height: 32px; }'
+    .matchAll(/#levelBlock \.cell\s*\{([^}]*)\}/g)].map((m) => m[1]).join(';');
+  check(asksSquare(before) && widthFromColumns(before), 'CONTROL: the old rule still asks for a square and still derives its width');
+  check(capsHeight(before) && !capsWidth(before), 'CONTROL: but it caps the HEIGHT and not the width, so exactly the cap pair above fails');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

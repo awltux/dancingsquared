@@ -1,4 +1,5 @@
-// The account row: the sign-in form, the signed-in line, and the sentence that says a run is unranked.
+// The account row and the password form: the sign-in form, the signed-in line, the sentence that says a run is unranked, and
+// the one control a signed-in player has over their own account.
 //
 // WHAT THIS FILE DOES NOT DO, the split both other screens make: it owns no network and no rule. `net/auth.ts`
 // runs the flow and `net/standing.ts` decides what a run is worth; this turns clicks into callbacks and one view
@@ -9,6 +10,10 @@
 // server saying which flows it actually serves. A form that asked for a password at a server answering `404` to
 // `/auth/signin` is the failure this reads the list to avoid, and the one case the list cannot answer (a build that
 // PINNED its mode, and so asked nobody) is decided in the same probeable place.
+//
+// THE PASSWORD FORM READS THE SAME LIST, for the same reason and one step further: a server that serves sign-in but not
+// `/auth/password` (the `cognito` half of this build, whose hosted flow owns passwords) must not be offered a form that
+// cannot work. So the caller decides `offersPassword` from the advertised routes, and this file only draws.
 //
 // THE CODE FIELD IS REVEALED BY A SIGNUP THAT CAME BACK UNCONFIRMED, and in the local emulator it is PREFILLED from
 // the answer: there is no mail sender locally, so the emulator returns the code it would have emailed
@@ -26,6 +31,8 @@ interface AccountCallbacks {
   signUp: (email: string, password: string) => void;
   confirm: (email: string, code: string) => void;
   signOut: () => void;
+  /** Change the password of the signed-in account, given the current one. */
+  changePassword: (current: string, next: string) => void;
 }
 
 /** Everything the row draws from, all of it already decided elsewhere. */
@@ -35,6 +42,8 @@ interface AccountView {
   readonly player: SignedIn | null;
   /** Whether this build may offer a sign-in form (`signInOffered`, which is where the rule lives). */
   readonly offersForm: boolean;
+  /** Whether the server serves `/auth/password`, from the same advertised list. */
+  readonly offersPassword: boolean;
 }
 
 interface El {
@@ -48,6 +57,11 @@ interface El {
   code: HTMLInputElement;
   confirm: HTMLButtonElement;
   signOut: HTMLButtonElement;
+  passwordForm: HTMLFormElement;
+  currentPassword: HTMLInputElement;
+  newPassword: HTMLInputElement;
+  changePassword: HTMLButtonElement;
+  passwordStatus: HTMLElement;
 }
 
 export class AccountScreen {
@@ -66,6 +80,11 @@ export class AccountScreen {
       code: el<HTMLInputElement>('accountCode'),
       confirm: el<HTMLButtonElement>('accountConfirm'),
       signOut: el<HTMLButtonElement>('accountSignOut'),
+      passwordForm: el<HTMLFormElement>('passwordForm'),
+      currentPassword: el<HTMLInputElement>('currentPassword'),
+      newPassword: el<HTMLInputElement>('newPassword'),
+      changePassword: el<HTMLButtonElement>('passwordChange'),
+      passwordStatus: el('passwordStatus'),
     };
     this.els.form.addEventListener('submit', (event) => {
       // THE PAGE MUST NOT RELOAD: a form's default submit would rebuild the app and lose the run in flight.
@@ -96,7 +115,20 @@ export class AccountScreen {
       this.on.confirm(this.els.email.value.trim(), code);
     });
     this.els.signOut.addEventListener('click', () => this.on.signOut());
+    // THE PASSWORD FORM IS ITS OWN FORM, so a submit in it cannot be mistaken for a sign-in by the handler above, and a
+    // change does not depend on the sign-in fields still holding the password.
+    this.els.passwordForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const current = this.els.currentPassword.value;
+      const next = this.els.newPassword.value;
+      if (current === '' || next === '') {
+        this.sayPassword('Enter the current password and the new one.', 'bad');
+        return;
+      }
+      this.on.changePassword(current, next);
+    });
   }
+
 
   /**
    * Draw the row from the standing and the session.
@@ -104,11 +136,16 @@ export class AccountScreen {
    * THE ROW IS HIDDEN WHEN IT HAS NOTHING TO SAY, which is both the offline game and `dev`: there is no account to
    * offer and nothing a player could do about it, and a permanent "sign in" line above the board would be an
    * advertisement for a feature the build does not have.
+   *
+   * THE PASSWORD FORM APPEARS ONLY FOR A SIGNED-IN PLAYER ON A SERVER THAT SERVES THE ROUTE, and it is the only place that
+   * decision is made (from `offersPassword`, which the shell derives from the advertised list). Its status line is separate
+   * from the row's: a password change's refusal must not overwrite the sentence that says what signing in does.
    */
   show(view: AccountView): void {
     const offersForm = view.offersForm;
     const showRow = view.player !== null || (view.standing === 'unranked' && view.mode !== 'dev');
     this.els.row.hidden = !showRow;
+    this.els.passwordForm.hidden = view.player === null || !view.offersPassword;
     if (!showRow) return;
 
     this.els.form.hidden = view.player !== null || !offersForm;
@@ -122,6 +159,23 @@ export class AccountScreen {
   say(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
     this.els.status.textContent = text;
     this.els.status.dataset['kind'] = kind;
+  }
+
+  /** The password form's own line, and the reason it is not the row's: see `show`. */
+  sayPassword(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
+    this.els.passwordStatus.textContent = text;
+    this.els.passwordStatus.dataset['kind'] = kind;
+  }
+
+  /**
+   * Forget what was typed into the password form, after a change landed or the session ended.
+   *
+   * A PASSWORD LEFT IN A FIELD IS A PASSWORD ON THE SCREEN: the form is cleared on every successful change, and the fields
+   * are emptied rather than merely masked.
+   */
+  clearPassword(): void {
+    this.els.currentPassword.value = ''; 
+    this.els.newPassword.value = '';
   }
 
   /**
@@ -139,7 +193,10 @@ export class AccountScreen {
   /** Disable every control while a request is in flight, so a double press cannot race the first. */
   setBusy(busy: boolean): void {
     this.busy = busy;
-    for (const control of [this.els.email, this.els.password, this.els.code, this.els.signIn, this.els.signUp, this.els.confirm, this.els.signOut]) {
+    for (const control of [
+      this.els.email, this.els.password, this.els.code, this.els.signIn, this.els.signUp, this.els.confirm, this.els.signOut,
+      this.els.currentPassword, this.els.newPassword, this.els.changePassword,
+    ]) {
       control.disabled = busy;
     }
   }

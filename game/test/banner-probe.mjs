@@ -46,28 +46,41 @@ console.log('\n== 1. the hint meter ==');
   check(pips(5) === '●●●', `a balance over the cap is still three glyphs (${pips(5)})`);
   check(pips(-2) === '○○○', `and a negative balance is three empty ones (${pips(-2)})`);
   check([...pips(1)].length === 3, 'every meter is exactly three glyphs wide, so the row cannot jump');
-  check(bannerView({ ...base, hintsHeld: 2 }).hintsLabel === '2/3', 'and the count beside it is the same number, short');
+  check(bannerView({ ...base, hintsHeld: 2 }).hintsLabel === 'Hints 2/3',
+    `and the count beside it is the same number in words (${bannerView({ ...base, hintsHeld: 2 }).hintsLabel})`);
 }
 
 console.log('\n== 2. who you are, and whether it counts ==');
 {
   const cell = (facts) => bannerView({ ...base, ...facts });
   const signedIn = cell({ playerEmail: 'ada@example.com', standing: 'ranked' });
-  check(signedIn.standingText === 'Signed in as ada@example.com', `a session names the player (${signedIn.standingText})`);
-  check(signedIn.standingKind === 'ok', 'and reads as a good fact');
+  check(signedIn.accountText === 'ada@example.com', `the badge shows the email when somebody is signed in (${signedIn.accountText})`);
+  check(/Signed in as ada@example\.com/.test(signedIn.accountTitle) && /ranked/.test(signedIn.accountTitle),
+    `and its accessible name says so, with the ranking (${signedIn.accountTitle})`);
+  check(signedIn.accountKind === 'ok', 'and it reads as a good fact');
+  // THE EMPTY BADGE THE REPORT ASKED FOR: a signed-out player gets a CONTROL that says "Sign in" — not a sentence, and not
+  // nothing, which is what an offline build used to render. REPORTED as "The empty login account badge is missing from the
+  // header".
+  check(cell({ standing: 'unranked' }).accountText === 'Sign in', 'a signed-out player gets "Sign in", never an empty cell');
+  check(cell({ standing: 'offline' }).accountText === 'Sign in', 'and so does an offline build');
+  check(cell({ standing: 'ranked' }).accountText === 'Sign in', 'and a header-identified player, who has no account to name');
   const dev = cell({ standing: 'ranked' });
-  check(dev.standingText === 'Ranked by this server', `a header-identified player is RANKED with no account (${dev.standingText})`);
+  check(dev.accountKind === 'ok' && /Ranked by this server/.test(dev.accountTitle),
+    `a header-identified player is RANKED with no account (${dev.accountTitle})`);
   const unranked = cell({ standing: 'unranked' });
-  check(unranked.standingText === 'Not signed in — runs unranked', `a demo says so in words (${unranked.standingText})`);
+  check(/runs unranked/.test(unranked.accountTitle), `a demo says so in the badge's name (${unranked.accountTitle})`);
   const offline = cell({ standing: 'offline' });
-  check(offline.standingText === 'No server — this device only', `and an offline build does not pretend (${offline.standingText})`);
+  check(/No server/.test(offline.accountTitle), `and an offline build does not pretend (${offline.accountTitle})`);
   // THE NEGATIVE CONTROL: the plausible wrong rule — "a session means ranked, and no session means unranked" — is caught by
-  // the `dev` check above, because that rule would say "runs unranked" where the server has just promised to rank them.
+  // the `dev` check above, because that rule would call a header-identified player unranked where the server has just
+  // promised to rank them.
   const naive = (f) => (f.playerEmail !== null ? 'Signed in' : 'Not signed in');
-  check(naive({ playerEmail: null, standing: 'ranked' }) === 'Not signed in' && dev.standingText === 'Ranked by this server',
+  check(naive({ playerEmail: null, standing: 'ranked' }) === 'Not signed in' && dev.accountKind === 'ok',
     'CONTROL: the session-only rule disagrees with the standing rule exactly where a header-identified player is ranked');
-  const sentences = new Set([signedIn, dev, unranked, offline].map((v) => v.standingText));
-  check(sentences.size === 4, `no two states share a sentence (${sentences.size} of 4)`);
+  // THE FOUR STANDINGS STILL TELL THEMSELVES APART — that discrimination moved from the old paragraph's text into the badge's
+  // accessible name, and it is the thing a reader needs before trusting a score.
+  const titles = new Set([signedIn, dev, unranked, offline].map((v) => v.accountTitle));
+  check(titles.size === 4, `no two states share an accessible name (${titles.size} of 4)`);
 }
 
 console.log('\n== 3. the two scores, and the absence of one ==');

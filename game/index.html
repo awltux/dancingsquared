@@ -57,30 +57,39 @@
       </nav>
 
       <main id="panel">
-        <!-- THE BANNER: ONE THIN ROW ON EVERY PAGE (REPORTED: "All pages have a thin banner containing current hints
-             icons, login status, current score for drills and daily, a back button"). It holds the way back and where the
-             player is; the hints, the standing and the two scores join it beside the regime line, which is why the row is
-             a flex row whose middle cell is the text.
+        <!-- THE BANNER: ONE THIN ROW ON EVERY PAGE, AND THE WHOLE OF THE HEADER (REPORTED: "All pages have a thin banner
+             containing current hints icons, login status, current score for drills and daily, a back button"). It holds the
+             way back, where the player is, the hint meter, the account badge and the two scores.
+
+             THE APP'S NAME IS NOT HERE, AND THAT IS A CORRECTION. It was an `<h1>` above this row on every page, and it was
+             the tallest thing in a 340 px panel: REPORTED as "it's not adding anything and takes up a lot of screen
+             realestate". The name is carried by the browser tab (and the document title, which each page sets), by the
+             installed app's icon, and by the landing page's own heading, which is the one page where it belongs.
 
              IT SITS INSIDE THE PANEL RATHER THAN OVER THE CANVAS, and that is a measured decision: the canvas's own top
              strip carries the board captions and the board switcher, so a banner over it would cover the two things that
-             say what the boards are. The header row is also the row the retired mode switch freed, so the sheet's
-             measured content height does not shrink to pay for it. -->
+             say what the boards are. The row is also the row the retired mode switch freed. -->
         <header id="head">
-          <h1>Dancing Squared</h1>
           <div id="bannerRow">
             <button id="bannerBack" type="button" hidden>‹ Back</button>
             <p id="regime"></p>
-            <!-- THE HINT METER: three slots for what is held and the count beside them. THE WHOLE CELL IS `aria-hidden`,
-                 because the footer's `#balance` already says the balance in words, how many successes the next hint needs,
-                 and whose balance it is — one statement, and the meter is the decoration the report asked for as "hints
-                 icons". A second spoken copy of the same number is noise, not redundancy. -->
-            <p id="bannerHints" aria-hidden="true"><span id="bannerPips" class="hint-pips"></span><span id="bannerHintWords"></span></p>
-            <!-- WHO YOU ARE, AND WHETHER WHAT YOU DO IS RECORDED. `ui/banner.ts` decides the words from the session and from
-                 `net/standing.ts`'s answer — the two facts a player needs before they trust a score. -->
-            <p id="bannerStanding"></p>
-            <!-- THE TWO SCORES: this level's best Drill, and today's Daily. "no score yet" rather than a zero, because a
-                 zero is a score a player could believe they had earned. -->
+            <!-- THE HINT METER: three slots for what is held, and the count beside them in words — the glyphs alone are
+                 unreadable for a colour-vision difference and silent to a screen reader, so the numbers stay. -->
+            <p id="bannerHints"><span id="bannerPips" class="hint-pips"></span><span id="bannerHintWords"></span></p>
+            <!-- THE ACCOUNT BADGE: A CIRCLE WITH A PERSON IN IT, and it is always drawn. REPORTED first as "The empty login
+                 account badge is missing from the header", then as "The login badge is too large. Can it be a simple circular
+                 vector diagram of a person" — the first version was a pill with the email or "Sign in" in it, which is two
+                 lines of text in a row that has no room for it. The glyph is `aria-hidden` and the button's accessible name
+                 is the state (`banner.ts` decides it), so nothing is carried by the picture alone. -->
+            <button id="bannerAccount" type="button" aria-label="Your profile">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <circle cx="12" cy="12" r="10.25" />
+                <circle cx="12" cy="9.25" r="3.1" />
+                <path d="M5.9 19.1a6.4 6.4 0 0 1 12.2 0" />
+              </svg>
+            </button>
+            <!-- THE TWO SCORES: this level's best Drill, and today's Daily. "no score" rather than a zero, because a zero
+                 is a score a player could believe they had earned. -->
             <p id="bannerDrill"></p>
             <p id="bannerDaily"></p>
           </div>
@@ -106,7 +115,7 @@
           <h2 id="landingHeading" tabindex="-1">Dancing Squared</h2>
           <p class="page-lede">Two boards, one question: which call gets the square from the arrangement on the left to the one on the right?</p>
           <nav id="landingNav" aria-label="Pages">
-            <button id="goAccount" type="button">Register or sign in</button>
+            <button id="goProfile" type="button">Profile</button>
             <button id="goHelp" type="button">How to play</button>
             <button id="goLevels" type="button">Drill Level</button>
             <button id="goDaily" type="button">Today's Daily</button>
@@ -134,6 +143,12 @@
                that would have been the player's is made for them. -->
           <button id="autoProgress" type="button" aria-pressed="false">Auto-progress: off</button>
           <h3>This device</h3>
+          <!-- WHAT THIS DEVICE IS WORTH, in the balance's own words. The LEDGER line (what has been saved, the streak, why a run
+               is unranked) moved to the PROFILE page, which is where progress belongs: REPORTED as "a lot of debug style text at
+               the bottom of the drill screens that dont really add anything" — the two sentences were in the footer, above the
+               buttons, on every play screen. The ids are unchanged, so `paintBalance` and `paintLedger` paint the same two
+               elements wherever they are. -->
+          <p id="balance"></p>
           <!-- IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever could:
                the drills and the Daily are generated and published there from one shared schedule, so every player is
                served the same ones — which is what makes a score comparable — while a player's row holds only their own
@@ -167,16 +182,23 @@
           <p class="page-note">The banner is on every page: the way back on the left, and what you hold and what you are worth beside it.</p>
         </section>
 
-        <!-- THE ACCOUNT PAGE (DESIGN.md §11.2). Its ROW starts hidden because both the offline game and a `dev` server
-             have no account to offer: `ui/account-screen.ts` reveals the row only when there is something true to say, and
-             the form inside it only when `/health` advertises sign-in routes — a form at a server that would answer 404 is
-             the failure reading that list avoids. The section's id is the PAGE's, so the page model and the markup agree on
-             eight names and no translation table. -->
-        <section id="account" class="page" hidden>
-          <h2 id="accountHeading" tabindex="-1">Your account</h2>
-          <!-- WHAT AN ACCOUNT IS FOR, said on every build: the row below it is hidden when there is nothing to offer
-               (an offline game, a `dev` server whose header already names the player), and a page with only a heading is
-               a page that reads as broken. This sentence is true whether or not the form is. -->
+        <!-- THE PROFILE PAGE (DESIGN.md §11.2). REPORTED: "clicking on it takes you to a profile page, showing progress,
+             leaderboards, registered email address, password changing" — so the page is four sections rather than one form:
+             who you are (the sign-in form when nobody is, the email and Sign out when somebody is), what you have done on
+             this device, where the board is, and the one thing a signed-in player can change about their own account.
+
+             ITS ROW STARTS HIDDEN because both the offline game and a `dev` server have no account to offer:
+             `ui/account-screen.ts` reveals the row only when there is something true to say, and the form inside it only when
+             `/health` advertises sign-in routes — a form at a server that would answer 404 is the failure reading that list
+             avoids. The password form reads the same list one step further: a server that serves sign-in but not
+             `/auth/password` (the `cognito` half, whose hosted flow owns passwords) is offered no form. The section's id is
+             the PAGE's, so the page model and the markup agree on eight names and no translation table. -->
+        <section id="profile" class="page" hidden>
+          <h2 id="profileHeading" tabindex="-1">Your profile</h2>
+          <h3>Who you are</h3>
+          <!-- WHAT AN ACCOUNT IS FOR, said on every build: the row below it is hidden when there is nothing to offer (an
+               offline game, a `dev` server whose header already names the player), and a page with only a heading is a page
+               that reads as broken. This sentence is true whether or not the form is. -->
           <p class="page-note">An account puts your runs on the server, which is what lets them be ranked and what puts your name on the board. Without one the game is complete and everything stays on this device.</p>
           <div id="accountRow" hidden>
             <p id="accountStatus"></p>
@@ -190,6 +212,24 @@
             </form>
             <button id="accountSignOut" type="button" hidden>Sign out</button>
           </div>
+          <h3>Progress</h3>
+          <!-- THE SAME SENTENCE THE SETUP PAGE USED TO CARRY (`paintLedger` writes it, and the id is unchanged): what this
+               device has saved — drills, best score, Daily streak — and, when a run is unranked, why. Progress is what a
+               profile page is for, and the setup page keeps the two things that are settings rather than history. -->
+          <p id="ledger"></p>
+          <h3>Leaderboards</h3>
+          <p class="page-note">The board is its own page — one board per mode, per level, per period, because comparing across levels compares nothing.</p>
+          <button id="profileBoard" type="button">The board</button>
+          <h3>Password</h3>
+          <!-- THE PASSWORD FORM IS REVEALED ONLY FOR A SIGNED-IN PLAYER ON A SERVER THAT SERVES THE ROUTE. It is its own form
+               so a submit in it cannot be mistaken for a sign-in, and its status line is its own so a refusal here does not
+               overwrite the sentence that says what signing in does. -->
+          <form id="passwordForm" hidden>
+            <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password" aria-label="Current password" />
+            <input id="newPassword" type="password" autocomplete="new-password" placeholder="New password" aria-label="New password" />
+            <button id="passwordChange" type="submit">Change password</button>
+          </form>
+          <p id="passwordStatus" role="status"></p>
         </section>
 
         <!-- THE LEVEL IS THE DRILL'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown BEFORE the
@@ -266,17 +306,12 @@
 
         </div>
 
+        <!-- THE FOOTER IS THE GAME'S OWN CONTROLS AND NOTHING ELSE. REPORTED twice: "Some of the current buttons seem like
+             overkill" (which took four of them to the Setup page) and then "a lot of debug style text at the bottom of the
+             drill screens that dont really add anything" — the two bookkeeping sentences that used to sit above these
+             buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint, the answer and
+             the skip, Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move. -->
         <footer id="foot">
-          <!-- THE HINT ROW IS SHARED: the balance is earned on the drill line and spent on the Daily
-               (DESIGN.md 10), so a player in either mode needs to see what they hold and how close the next
-               one is. The progress is "silent" and the GRANT is announced once, which is the design's own
-               pair of rules. -->
-          <p id="balance"></p>
-          <!-- WHAT IS KEPT ON THIS DEVICE. The anonymous ledger is the funnel (DESIGN.md 11: a player with a
-               score to lose is a player who signs up), so the count and the best are visible before there is
-               an account to claim them with — and a browser that blocks storage says so here rather than
-               pretending. -->
-          <p id="ledger"></p>
           <button id="hint" type="button" hidden>Hint (+1 min)</button>
           <button id="review" type="button" hidden>Show me the answer — this drill will not count</button>
           <!-- THE SKIP (DESIGN.md §15 Q5) is the mark-and-continue: the regime is an ORDER, so one puzzle a player

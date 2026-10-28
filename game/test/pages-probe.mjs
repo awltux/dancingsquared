@@ -30,7 +30,7 @@ const check = (cond, msg) => {
   if (!cond) failures++;
 };
 
-const PAGES = ['landing', 'setup', 'help', 'account', 'levels', 'drill', 'daily', 'board'];
+const PAGES = ['landing', 'setup', 'help', 'profile', 'levels', 'drill', 'daily', 'board'];
 const sameRoute = (a, b) => a.page === b.page && a.drillIndex === b.drillIndex;
 
 console.log('\n== 1. every page round-trips through its own URL ==');
@@ -63,7 +63,7 @@ console.log('\n== 2. the edges ==');
     ['#?x=1', 'landing'],
     ['#/nope', 'landing'],
     ['#/setup', 'setup'],
-    ['#/account', 'account'],
+    ['#/profile', 'profile'],
     ['#/levels', 'levels'],
     ['#/daily', 'daily'],
     ['#/board', 'board'],
@@ -96,7 +96,7 @@ console.log('\n== 3. the back table ==');
   check(backTarget('drill') === 'levels', 'the drill goes back to the level it was entered from');
   check(backTarget('levels') === 'landing' && backTarget('daily') === 'landing' && backTarget('board') === 'landing',
     'the three play/read pages all go back to the menu');
-  check(backTarget('setup') === 'landing' && backTarget('help') === 'landing' && backTarget('account') === 'landing',
+  check(backTarget('setup') === 'landing' && backTarget('help') === 'landing' && backTarget('profile') === 'landing',
     'and so do the three housekeeping pages');
   // NEGATIVE CONTROL: the plausible wrong table — "back always returns to the menu" — is wrong for exactly one page, and that
   // is the page a player is most likely to press it on.
@@ -109,7 +109,7 @@ console.log('\n== 4. the words ==');
   check(backLabel('landing') === '', 'the menu has no back label');
   // THE LABEL NAMES THE DESTINATION, so pages that share a destination legitimately share a label — the check is that the
   // label names a page OTHER than the one it is on, never which string it is.
-  const own = { landing: 'the menu', setup: 'setup', help: 'help', account: 'your account', levels: 'the level', drill: 'the drill', daily: "today's Daily", board: 'the board' };
+  const own = { landing: 'the menu', setup: 'setup', help: 'help', profile: 'your profile', levels: 'the level', drill: 'the drill', daily: "today's Daily", board: 'the board' };
   for (const page of PAGES) {
     if (page === 'landing') continue;
     const target = backTarget(page);

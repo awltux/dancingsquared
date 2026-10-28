@@ -8,7 +8,7 @@
 // meets: signature, `alg`, expiry, issuer, audience. What it does NOT exercise is Cognito itself (key rotation,
 // pool configuration, the hosted UI), which is why §11.2 calls it an emulator and not a test double.
 //
-// IT IS A DEV ADAPTER, NOT A SECOND AUTH SYSTEM. It is constructed only in `DSQ_AUTH=emulate`, its five routes
+// IT IS A DEV ADAPTER, NOT A SECOND AUTH SYSTEM. It is constructed only in `DSQ_AUTH=emulate`, its six routes
 // are unrouted in every other mode, and it is not imported by the deployment at all — so "which endpoints can
 // create an account" is answerable by reading the one file that is not on the production path.
 //
@@ -344,12 +344,59 @@ export function createEmulator(options: EmulatorOptions): Emulator {
     }));
   };
 
+  /**
+   * Change a password, given the current one.
+   *
+   * THE CURRENT PASSWORD IS REQUIRED AND IS CHECKED EXACTLY AS SIGN-IN CHECKS IT, including the same work when the account is
+   * gone: a "change password" endpoint that trusts a session alone is a stolen laptop away from being an account takeover,
+   * and one that answers faster for an unknown address than for a wrong password is a directory again.
+   *
+   * EVERY OTHER SESSION IS SIGNED OUT (the refresh tokens are dropped). That is the point of changing a password — the
+   * reason a player changes one is usually that they think somebody else has it — and keeping the other sessions alive would
+   * make the change cosmetic. The response says how many were revoked, so the UI can say it.
+   *
+   * THE NEW PASSWORD IS REFUSED FOR THE SAME REASONS SIGNUP REFUSES ONE, and a new password equal to the old one is refused
+   * too: "changed" when nothing changed is a lie the player would only discover at the next sign-in.
+   */
+  const password = async (request: ApiRequest): Promise<ApiResult> => {
+    const email = text(request.body, 'email')?.toLowerCase();
+    const current = text(request.body, 'currentPassword') ?? '';
+    const next = text(request.body, 'newPassword') ?? '';
+    if (!email) return failure(STATUS.badRequest, 'bad_request', 'email is required');
+    if (!next || next.length < MIN_PASSWORD_LENGTH) {
+      return failure(STATUS.badRequest, 'bad_password', `password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+    }
+    for (let attempt = 0; attempt < MAX_WRITE_ATTEMPTS; attempt++) {
+      const stored = await store.get(accountKey(email));
+      const account = asAccount(stored);
+      const hash = (await scrypt(current, account ? Buffer.from(account.salt, 'base64') : ABSENT_SALT, SCRYPT_KEY_BYTES)).toString('base64');
+      if (!account || !sameSecret(account.hash, hash)) {
+        return failure(STATUS.unauthenticated, 'bad_credentials', 'the current password is wrong');
+      }
+      if (!account.confirmed) return failure(STATUS.forbidden, 'unconfirmed', 'this account has not been confirmed yet');
+      if (sameSecret(account.hash, (await scrypt(next, Buffer.from(account.salt, 'base64'), SCRYPT_KEY_BYTES)).toString('base64'))) {
+        return failure(STATUS.badRequest, 'same_password', 'the new password must be different from the current one');
+      }
+      const salt = randomBytes(16);
+      const nextHash = await scrypt(next, salt, SCRYPT_KEY_BYTES);
+      const revoked = account.refreshTokens.length;
+      const updated: Account = { ...account, salt: salt.toString('base64'), hash: nextHash.toString('base64'), refreshTokens: [] };
+      if (await store.put(accountKey(email), asItem(updated), stored?.rev ?? null)) {
+        return { status: STATUS.ok, body: { ok: true, revoked } };
+      }
+    }
+    return failure(STATUS.conflict, 'contended', 'another request is writing this account; try again');
+  };
+
   const handlers: readonly { method: string; path: string; handler: (request: ApiRequest) => Promise<ApiResult> }[] = [
     { method: 'POST', path: '/auth/signup', handler: signup },
     { method: 'POST', path: '/auth/confirm', handler: confirm },
     { method: 'POST', path: '/auth/signin', handler: signin },
     { method: 'POST', path: '/auth/refresh', handler: refresh },
     { method: 'POST', path: '/auth/signout', handler: signout },
+    // SIX ROUTES NOW, and the sixth is the one the profile page offers: `/health` advertises this list, which is what tells
+    // the client whether a password form is worth drawing (`net/standing.ts`'s rule, applied to a second form).
+    { method: 'POST', path: '/auth/password', handler: password },
   ];
 
   return {

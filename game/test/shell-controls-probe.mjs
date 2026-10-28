@@ -46,7 +46,7 @@ const check = (cond, msg, detail = '') => {
 };
 
 /** Every page the model has, in the order the landing page offers them — derived, never re-typed. */
-const PAGES = ['landing', 'setup', 'help', 'account', 'levels', 'drill', 'daily', 'board'];
+const PAGES = ['landing', 'setup', 'help', 'profile', 'levels', 'drill', 'daily', 'board'];
 
 /** The controls that are the GAME's own moves: they belong in the footer, on the page that plays. */
 const FOOTER = [
@@ -54,7 +54,7 @@ const FOOTER = [
 ];
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
-  account: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut'],
+  profile: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut', 'passwordForm', 'currentPassword', 'newPassword', 'passwordChange', 'ledger', 'profileBoard'],
   daily: ['callSearch', 'callSubsets', 'offer'],
   levels: ['levelNext', 'levelBlock'],
 };
@@ -67,11 +67,20 @@ const SECONDARY = ['view', 'autoProgress', 'startOver'];
  * the exception that proves it: a drill is entered from a cell on the level block, and a menu button for "a drill" would
  * have to guess which one.
  */
-const MENU = ['account', 'help', 'levels', 'daily', 'setup', 'board'];
+const MENU = ['profile', 'help', 'levels', 'daily', 'setup', 'board'];
 /** What the router and the Setup page replaced. Nothing may name these any more, in any file. */
 const RETIRED = ['modeDrill', 'modeDaily', 'toLevel', 'moreToggle'];
 
-const html = fs.readFileSync(HTML, 'utf8');
+const htmlRaw = fs.readFileSync(HTML, 'utf8');
+/**
+ * THE MARKUP WITH ITS COMMENTS REMOVED, and every structural check below reads THIS.
+ *
+ * A COMMENT IS NOT MARKUP, and these checks are about markup: the page's own prose says things like "it was an `<h1>` above
+ * this row" when explaining why one went away, and an id named in a comment is not an id the app can resolve. MEASURED: the
+ * `<h1>` check went red on a sentence inside a comment, which is a false positive that would teach a reader to weaken the
+ * check rather than fix the reader.
+ */
+const html = htmlRaw.replace(/<!--[\s\S]*?-->/g, '');
 const css = fs.readFileSync(CSS, 'utf8');
 const main = fs.readFileSync(MAIN, 'utf8');
 
@@ -200,17 +209,32 @@ console.log('\n== 4. the landing page reaches every other page, and the banner h
   check(main.includes("navigate({ page: 'drill', drillIndex: index })"),
     'and the drill is entered by a cell press that writes its own URL');
   const banner = blockOf(html, 'div', 'bannerRow') ?? '';
-  // THE BANNER'S CELLS: the way back, where the player is, the hint meter, the standing and the two scores — the list the
-  // report named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all, which
-  // the id contract would otherwise only catch once one of them is asked for in the script.
+  // THE BANNER'S CELLS: the way back, where the player is, the hint meter, the account badge and the two scores — the list
+  // the report named. `banner-probe.mjs` pins what each one SAYS; this pins that they are on the page in that row at all,
+  // which the id contract would otherwise only catch once one of them is asked for in the script.
   const bannerIds = idsIn(banner);
-  const cells = ['bannerBack', 'regime', 'bannerPips', 'bannerHintWords', 'bannerStanding', 'bannerDrill', 'bannerDaily'];
+  const cells = ['bannerBack', 'regime', 'bannerPips', 'bannerHintWords', 'bannerAccount', 'bannerDrill', 'bannerDaily'];
   const absent = cells.filter((id) => !bannerIds.includes(id));
   check(absent.length === 0,
-    `the banner carries the back button, the position and the four cells the report named (${absent.join(', ') || 'none missing'})`,
+    `the banner carries the back button, the position, the meter, the account badge and the two scores (${absent.join(', ') || 'none missing'})`,
     absent.join(', '));
   check(main.includes('els.bannerBack.hidden = target === null') && main.includes('backTarget(page)'),
     'and paintChrome hides it from the page model\'s backTarget rather than from a second table');
+  // THE ACCOUNT BADGE IS ALWAYS DRAWN AND ALWAYS A CONTROL — the two halves of "The empty login account badge is missing from
+  // the header": no `hidden` in the markup, and a press that goes to the PROFILE page (the page the badge opens, since
+  // "clicking on it takes you to a profile page" asked for it by that name). It is a circle with a person in it now, so the
+  // check also pins that the glyph is `aria-hidden`: the state is the button's accessible name, not the picture.
+  check(!/\bid="bannerAccount"[^>]*\bhidden\b/.test(banner),
+    'the account badge carries no `hidden` in the markup, so the empty state is drawn');
+  check(/<svg[^>]*aria-hidden="true"/.test(banner), 'and its icon is `aria-hidden`, so the picture is not the label');
+  check(main.includes("els.bannerAccount.addEventListener('click', () => navigate({ page: 'profile', drillIndex: null }))"),
+    'and pressing it goes to the profile page in every state');
+  // THE APP'S NAME IS NOT A HEADING IN THE HEADER ANY MORE. REPORTED: "Remove the Dancing Squared header, it's not adding
+  // anything and takes up a lot of screen real estate." The landing page keeps its own `<h2>`, which is the one place the
+  // name belongs; the page now has no `<h1>` at all, so the `<h2>`s are the headings a reader navigates.
+  const head = blockOf(html, 'header', 'head') ?? '';
+  check(!/<h1\b/i.test(head), 'and the header no longer carries the app name as an <h1>');
+  check(!/<h1\b/i.test(html), 'in fact the page has no <h1> at all — the <h2>s are the pages\' headings');
   // THE MODEL'S OWN TABLE, as a control on the check above: only the landing page may have no way back.
   const parentless = PAGES.filter((page) => backTarget(page) === null);
   check(JSON.stringify(parentless) === '["landing"]', `and only the landing page is parentless (${parentless.join(', ')})`);

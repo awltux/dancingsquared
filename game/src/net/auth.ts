@@ -1,21 +1,28 @@
-// The game's sign-in path: what mode the server is in, the five account calls, and the session's lifetime.
+// The game's sign-in path: which provider is in play, the six account calls, and the session's lifetime.
 //
 // WHAT THIS FILE IS FOR, AND WHAT IT IS NOT. DESIGN.md §11.2 makes the identity a server fact — a verified token
-// or an absent one — and the client's half of that is exactly three things: discover the mode the server was
-// started in, run the sign-in flow when the server offers one, and keep the session's access token fresh. It is
-// NOT a second account system: every rule about who a player is lives in `api/src/auth/`, and this module only
-// carries the answer.
+// or an absent one — and the client's half of that is exactly three things: discover the provider, run the sign-in
+// flow when there is one, and keep the session's access token fresh. It is NOT a second account system: every rule
+// about who a player is lives in `api/src/auth/` or in the pool itself, and this module only carries the answer.
 //
-// THE MODE IS DISCOVERED, NOT COMPILED IN (§11.2). `/health` is an anonymous read that names the mode and, when
-// there is one, the emulator's sign-in routes — so `dev` shows no sign-in UI at all and `emulate` calls the local
-// emulator. `VITE_AUTH_MODE` pins it for a build that must not ask, and it is an OVERRIDE RATHER THAN A GUESS:
-// the operator who sets it is the one who knows what they deployed.
+// TWO PROVIDERS, ONE SET OF CALLS. REPORTED: "account management must be compatible with the AWS Cognito API." So every
+// function below asks `providerOf(deps)` and dispatches: with a pool configured (`VITE_COGNITO_REGION` +
+// `VITE_COGNITO_CLIENT_ID`) the calls go to the Cognito user-pool API with its own operation and field names
+// (`net/cognito.ts`), and without one they go to this API's `/auth/*` routes, which is what the local emulator serves. The
+// ROUTE NAMES ARE THE APP'S EITHER WAY — `POST /auth/signup` and friends — so `net/standing.ts` decides which forms to offer
+// from one list, and no screen has a provider branch in it.
+//
+// THE MODE IS DISCOVERED, NOT COMPILED IN (§11.2). `/health` is an anonymous read that names the mode and, when there is
+// one, the routes the server serves — so `dev` shows no sign-in UI at all and `emulate` calls the local emulator. A build
+// with a pool does not ask: it knows, and the answer is `cognito` with the operations that pool serves. `VITE_AUTH_MODE`
+// still pins the mode for a build that must not ask.
 //
 // EVERY CALL ANSWERS WITH THE TYPED RESULT `api.ts` USES, because a refusal from an auth endpoint is content a
 // player has to be shown ("that password is wrong") and not an exception. The one case that is NOT a failure is
 // a failed REFRESH: it means the session is over, and the honest answer is to sign the player out rather than to
 // report an outage they cannot act on.
 import { apiCall, type ApiDeps, type ApiResult } from './api.ts';
+import { COGNITO_ROUTES, cognitoCall, sessionShapeOf, type CognitoConfig } from './cognito.ts';
 import { clearSession, readSession, sessionFromAuth, writeSession, type Session } from './session.ts';
 
 /**
@@ -48,15 +55,40 @@ function asMode(value: unknown): AuthMode | null {
 }
 
 /**
- * `GET /health` — which mode the API was started in.
+ * Which provider the calls below go to: the pool when the build named one, this API's routes otherwise.
+ *
+ * IT IS READ FROM THE DEPENDENCIES AND NOT FROM `import.meta.env` HERE, for the reason `api.ts` records: a dependency is a
+ * value a probe can hand over, and an env var read at the point of use is one no probe can reach.
+ */
+function providerOf(deps: ApiDeps): CognitoConfig | null {
+  return deps.cognito ?? null;
+}
+
+/** The six route names both providers answer to, in the order the UI asks about them. */
+const API_ROUTES: readonly string[] = [
+  'POST /auth/signup',
+  'POST /auth/confirm',
+  'POST /auth/signin',
+  'POST /auth/refresh',
+  'POST /auth/signout',
+  'POST /auth/password',
+];
+
+/**
+ * `GET /health` — which mode the API was started in, and which account routes it serves.
  *
  * A BUILD THAT PINNED `VITE_AUTH_MODE` DOES NOT ASK, and that is the second half of the same decision: the mode
  * is what decides whether a token or a header names the player, and a build that knows its own answer should not
  * be able to be told a different one by whatever is listening on the base URL.
+ *
+ * A BUILD WITH A POOL DOES NOT ASK EITHER, and answers `cognito` with the operations the pool serves: the pool is the
+ * provider, `api/src/auth/` verifies its tokens, and the API's `/auth/*` routes are the emulator's, not the pool's.
  */
 export async function discoverAuth(deps: ApiDeps): Promise<ApiResult<AuthDiscovery>> {
+  const pool = providerOf(deps);
+  if (pool) return { ok: true, value: { mode: 'cognito', signin: COGNITO_ROUTES } };
   const pinned = asMode(deps.modeOverride);
-  if (pinned) return { ok: true, value: { mode: pinned, signin: [] } };
+  if (pinned) return { ok: true, value: { mode: pinned, signin: pinned === 'emulate' ? API_ROUTES : [] } };
   const answer = await apiCall<{ auth?: { mode?: unknown; signin?: unknown } }>(deps, '/health', { method: 'GET' }, NO_IDENTITY);
   if (!answer.ok) return answer;
   const mode = asMode(answer.value.auth?.mode);
@@ -87,8 +119,22 @@ interface SignupAnswer {
  *
  * A MALFORMED ANSWER IS REFUSED rather than half-read, for the same reason the drill's is: `email` is what the
  * confirm step asks with, and an `undefined` there would become the string "undefined" in a request.
+ *
+ * THE POOL ANSWERS `UserConfirmed` AND `UserSub` RATHER THAN AN EMAIL AND A PLAYER ID, and it never returns the confirmation
+ * code — there is a mail sender at the other end. So the same shape is built from those, with `confirmCode: null`, and the UI's
+ * confirm step is the one that asks for the code a player reads in their inbox.
  */
 export async function signUp(email: string, password: string, deps: ApiDeps): Promise<ApiResult<SignupAnswer>> {
+  const pool = providerOf(deps);
+  if (pool) {
+    const answer = await cognitoCall(deps, pool, 'POST /auth/signup', { ClientId: pool.clientId, Username: email, Password: password });
+    if (!answer.ok) return answer;
+    const sub = typeof answer.value['UserSub'] === 'string' ? answer.value['UserSub'] : '';
+    if (sub === '') {
+      return { ok: false, failure: { code: 'bad_response', message: 'the account provider did not answer with the account it created' } };
+    }
+    return { ok: true, value: { email, playerId: sub, confirmed: answer.value['UserConfirmed'] === true, confirmCode: null } };
+  }
   const answer = await apiCall<Record<string, unknown>>(deps, '/auth/signup', { method: 'POST', body: { email, password } }, NO_IDENTITY);
   if (!answer.ok) return answer;
   const value = answer.value;
@@ -106,8 +152,19 @@ export async function signUp(email: string, password: string, deps: ApiDeps): Pr
   };
 }
 
-/** `POST /auth/confirm` — hand back the code that confirms an account. */
+/**
+ * `POST /auth/confirm` — hand back the code that confirms an account.
+ *
+ * THE POOL TAKES THE ADDRESS AS `Username`, because this app signs up with an email and a pool configured for email-as-username
+ * is the case DESIGN.md §11.2 assumes. A pool using phone numbers or a separate username would need that value carried
+ * through, which is a change to this function and not a silent guess.
+ */
 export async function confirmAccount(email: string, code: string, deps: ApiDeps): Promise<ApiResult<{ confirmed: boolean }>> {
+  const pool = providerOf(deps);
+  if (pool) {
+    const answer = await cognitoCall(deps, pool, 'POST /auth/confirm', { ClientId: pool.clientId, Username: email, ConfirmationCode: code });
+    return answer.ok ? { ok: true, value: { confirmed: true } } : answer;
+  }
   const answer = await apiCall<Record<string, unknown>>(deps, '/auth/confirm', { method: 'POST', body: { email, code } }, NO_IDENTITY);
   if (!answer.ok) return answer;
   return { ok: true, value: { confirmed: answer.value.confirmed === true } };
@@ -120,6 +177,44 @@ export interface SignedIn {
 }
 
 /**
+ * `POST /auth/password` — change the password of the account in the request body.
+ *
+ * THE EMAIL IS THE CALLER'S ARGUMENT AND NOT A SESSION FIELD, because this build's client has no session endpoint to ask
+ * "who am I": the address is stored with the session at sign-in (`SignedIn.email`) and passed in from there, which is the same
+ * value the server keys the account on. It is sent WITH the current password, and the server checks both — a session alone
+ * does not authorise a password change (`api/src/auth/emulator.ts` says why).
+ *
+ * IT DOES NOT TOUCH THE STORED SESSION. A successful change revokes every REFRESH token, so the next refresh signs this device
+ * out, but the access token in hand is still good until it expires — rewriting the session here would be a lie about what the
+ * server said.
+ */
+export async function changePassword(email: string, currentPassword: string, newPassword: string, deps: ApiDeps): Promise<ApiResult<{ revoked: number }>> {
+  const pool = providerOf(deps);
+  if (pool) {
+    // THE POOL AUTHORISES WITH THE ACCESS TOKEN, NOT WITH THE EMAIL: `ChangePassword` takes `PreviousPassword` and the caller's
+    // own access token, so no address travels and the token cannot be one for a different account. A pool also revokes every
+    // other session on its own (`GlobalSignOut` semantics for a password change are the pool's), so the count this app can
+    // report is 0 — "the provider decided", which is the truth.
+    const session = readSession(deps);
+    if (!session) return { ok: false, failure: { code: 'no_session', message: 'there is no session to change a password for' } };
+    const answer = await cognitoCall(deps, pool, 'POST /auth/password', {
+      AccessToken: session.accessToken,
+      PreviousPassword: currentPassword,
+      ProposedPassword: newPassword,
+    });
+    return answer.ok ? { ok: true, value: { revoked: 0 } } : answer;
+  }
+  const answer = await apiCall<Record<string, unknown>>(
+    deps,
+    '/auth/password',
+    { method: 'POST', body: { email, currentPassword, newPassword } },
+    NO_IDENTITY,
+  );
+  if (!answer.ok) return answer;
+  return { ok: true, value: { revoked: typeof answer.value.revoked === 'number' ? answer.value.revoked : 0 } };
+}
+
+/**
  * `POST /auth/signin` — start a session, and STORE it.
  *
  * THE SESSION IS WRITTEN HERE AND NOWHERE ELSE, which is what keeps "the app thinks it is signed in" and "there
@@ -127,9 +222,32 @@ export interface SignedIn {
  * written, so a half-understood sign-in cannot leave a stale session behind.
  */
 export async function signIn(email: string, password: string, deps: ApiDeps, nowMs = Date.now()): Promise<ApiResult<SignedIn>> {
-  const answer = await apiCall<Record<string, unknown>>(deps, '/auth/signin', { method: 'POST', body: { email, password } }, NO_IDENTITY);
-  if (!answer.ok) return answer;
-  const session = sessionFromAuth(answer.value, nowMs);
+  const pool = providerOf(deps);
+  let raw: Record<string, unknown>;
+  if (pool) {
+    // `USER_PASSWORD_AUTH` IS THE FLOW A BROWSER CAN RUN: no hosted UI, no redirect, one POST. A pool that has it disabled is
+    // refused by the pool itself (`InvalidParameterException`), which the error mapping carries through as a sentence.
+    const answer = await cognitoCall(deps, pool, 'POST /auth/signin', {
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      ClientId: pool.clientId,
+      AuthParameters: { USERNAME: email, PASSWORD: password },
+    });
+    if (!answer.ok) return answer;
+    const result = answer.value['AuthenticationResult'];
+    const shaped = typeof result === 'object' && result !== null
+      ? sessionShapeOf(result as Record<string, unknown>, typeof (result as Record<string, unknown>)['RefreshToken'] === 'string' ? String((result as Record<string, unknown>)['RefreshToken']) : '')
+      : null;
+    if (!shaped) {
+      clearSession(deps);
+      return { ok: false, failure: { code: 'bad_response', message: 'the account provider did not answer with a session this app can use' } };
+    }
+    raw = shaped;
+  } else {
+    const answer = await apiCall<Record<string, unknown>>(deps, '/auth/signin', { method: 'POST', body: { email, password } }, NO_IDENTITY);
+    if (!answer.ok) return answer;
+    raw = answer.value;
+  }
+  const session = sessionFromAuth(raw, nowMs);
   if (!session) {
     clearSession(deps);
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not answer with a session this app can use' } };
@@ -148,15 +266,41 @@ export async function signIn(email: string, password: string, deps: ApiDeps, now
 async function refreshSession(deps: ApiDeps, nowMs = Date.now()): Promise<ApiResult<SignedIn>> {
   const current = readSession(deps);
   if (!current) return { ok: false, failure: { code: 'no_session', message: 'there is no session to refresh' } };
-  const answer = await apiCall<Record<string, unknown>>(deps, '/auth/refresh', { method: 'POST', body: { refreshToken: current.refreshToken } }, NO_IDENTITY);
-  if (!answer.ok) {
-    // THE SESSION IS OVER AND THE STORE MUST SAY SO. A refresh token the server refuses (expired, rotated away,
-    // revoked) is not an outage to report: it is the end of a session, and leaving the dead token in storage
-    // would have every later request answered `401` for a reason the player could not see.
-    clearSession(deps);
-    return answer;
+  const pool = providerOf(deps);
+  let raw: Record<string, unknown>;
+  if (pool) {
+    // A REFRESH ANSWERS WITH NO NEW REFRESH TOKEN, so the one already held is carried forward — which is also why the stored
+    // token is not dropped on a failed refresh below: the pool's refusal is what ends the session, not this client's bookkeeping.
+    const answer = await cognitoCall(deps, pool, 'POST /auth/refresh', {
+      AuthFlow: 'REFRESH_TOKEN_AUTH',
+      ClientId: pool.clientId,
+      AuthParameters: { REFRESH_TOKEN: current.refreshToken },
+    });
+    if (!answer.ok) {
+      clearSession(deps);
+      return answer;
+    }
+    const result = answer.value['AuthenticationResult'];
+    const shaped = typeof result === 'object' && result !== null
+      ? sessionShapeOf(result as Record<string, unknown>, current.refreshToken)
+      : null;
+    if (!shaped) {
+      clearSession(deps);
+      return { ok: false, failure: { code: 'bad_response', message: 'the account provider did not answer with a session this app can use' } };
+    }
+    raw = shaped;
+  } else {
+    const answer = await apiCall<Record<string, unknown>>(deps, '/auth/refresh', { method: 'POST', body: { refreshToken: current.refreshToken } }, NO_IDENTITY);
+    if (!answer.ok) {
+      // THE SESSION IS OVER AND THE STORE MUST SAY SO. A refresh token the server refuses (expired, rotated away,
+      // revoked) is not an outage to report: it is the end of a session, and leaving the dead token in storage
+      // would have every later request answered `401` for a reason the player could not see.
+      clearSession(deps);
+      return answer;
+    }
+    raw = answer.value;
   }
-  const session = sessionFromAuth(answer.value, nowMs);
+  const session = sessionFromAuth(raw, nowMs);
   if (!session) {
     clearSession(deps);
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not answer with a session this app can use' } };
@@ -201,9 +345,14 @@ export async function signOut(deps: ApiDeps): Promise<ApiResult<{ revoked: boole
     clearSession(deps);
     return { ok: true, value: { revoked: false } };
   }
-  const answer = await apiCall<Record<string, unknown>>(deps, '/auth/signout', { method: 'POST', body: { refreshToken: session.refreshToken } }, NO_IDENTITY);
+  const pool = providerOf(deps);
+  // THE POOL'S SIGN-OUT IS `GlobalSignOut`, which revokes every session of the account rather than the one refresh token — the
+  // right semantics for "sign out" on a shared machine, and the reason the answer is a boolean and not a count.
+  const answer = pool
+    ? await cognitoCall(deps, pool, 'POST /auth/signout', { AccessToken: session.accessToken })
+    : await apiCall<Record<string, unknown>>(deps, '/auth/signout', { method: 'POST', body: { refreshToken: session.refreshToken } }, NO_IDENTITY);
   clearSession(deps);
-  return answer.ok ? { ok: true, value: { revoked: answer.value.revoked === true } } : answer;
+  return answer.ok ? { ok: true, value: { revoked: true } } : answer;
 }
 
 /** Who the app believes is signed in: the session if there is one, and nothing else. */

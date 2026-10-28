@@ -18,6 +18,7 @@
 // working one.
 import { newRunId, type RunRecord } from '../game/store.ts';
 import { accessTokenOf, type SessionStore } from './session.ts';
+import { cognitoConfigFrom, type CognitoConfig } from './cognito.ts';
 // A TYPE-ONLY IMPORT, so there is no runtime cycle: `auth.ts` calls this module's `apiCall`, and this module needs
 // only the NAME of the mode it discovers.
 import type { AuthMode } from './auth.ts';
@@ -104,6 +105,14 @@ export interface ApiDeps extends SessionStore {
    * no test can reach. `browserDeps` is the only place the real value is read.
    */
   readonly modeOverride?: string;
+  /**
+   * The user pool this build talks to (`VITE_COGNITO_REGION` + `VITE_COGNITO_CLIENT_ID`), or undefined for the local API.
+   *
+   * A CONFIGURED POOL IS A PROVIDER, not merely an endpoint: `net/auth.ts` sends its six account operations to the pool when
+   * this is set, and to this API's `/auth/*` routes when it is not. Present here for the same reason `modeOverride` is — a
+   * probe hands one over instead of trying to set the environment.
+   */
+  readonly cognito?: CognitoConfig;
   readonly timeoutMs: number;
 }
 
@@ -137,6 +146,7 @@ export function apiConfigured(): boolean {
  */
 export function browserDeps(): ApiDeps {
   const mode = import.meta.env?.VITE_AUTH_MODE;
+  const cognito = cognitoConfigFrom(import.meta.env ?? {});
   return {
     base: apiBase(),
     fetch: globalThis.fetch.bind(globalThis),
@@ -144,6 +154,7 @@ export function browserDeps(): ApiDeps {
     setItem: (key, value) => window.localStorage.setItem(key, value),
     removeItem: (key) => window.localStorage.removeItem(key),
     ...(typeof mode === 'string' && mode !== '' ? { modeOverride: mode } : {}),
+    ...(cognito ? { cognito } : {}),
     // LONG ENOUGH FOR A COLD SERVER, SHORT ENOUGH THAT A DEAD ONE IS NOT A HUNG TAB: the api's first request
     // builds a level's applier, which is MEASURED at 2.0 s for the first level and ~0.8 s for each further one
     // (`api/src/levels.ts`), so a timeout under a few seconds would fail on a cold start that is working.

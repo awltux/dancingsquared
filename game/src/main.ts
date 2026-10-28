@@ -45,7 +45,7 @@ import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type RunRecord, type StorageLike } from './game/store.ts';
 import { advanceDrill, apiConfigured, browserDeps, dailyChallenge, fetchDrillReplay, fetchLeaderboard, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, recordDrillReveal, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
-import { confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
+import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
 import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
@@ -309,18 +309,17 @@ const els = {
   waypointNext: el<HTMLButtonElement>('waypointNext'),
   waypointLegend: el('waypointLegend'),
   regime: el('regime'),
-  head: el('head'),
   bannerBack: el<HTMLButtonElement>('bannerBack'),
   bannerPips: el('bannerPips'),
   bannerHintWords: el('bannerHintWords'),
-  bannerStanding: el('bannerStanding'),
+  bannerAccount: el<HTMLButtonElement>('bannerAccount'),
   bannerDrill: el('bannerDrill'),
   bannerDaily: el('bannerDaily'),
   notice: el('notice'),
   landing: el('landing'),
   setupPage: el('setup'),
   helpPage: el('help'),
-  accountPage: el('account'),
+  profilePage: el('profile'),
   levelsPanel: el('levels'),
   drillPanel: el('drill'),
   dailyPanel: el('daily'),
@@ -331,13 +330,14 @@ const els = {
     landing: el('landingHeading'),
     setup: el('setupHeading'),
     help: el('helpHeading'),
-    account: el('accountHeading'),
+    profile: el('profileHeading'),
     levels: el('levelsHeading'),
     drill: el('drillHeading'),
     daily: el('dailyHeading'),
     board: el('boardHeading'),
   } satisfies Record<Page, HTMLElement>,
-  goAccount: el<HTMLButtonElement>('goAccount'),
+  goProfile: el<HTMLButtonElement>('goProfile'),
+  profileBoard: el<HTMLButtonElement>('profileBoard'),
   goHelp: el<HTMLButtonElement>('goHelp'),
   goLevels: el<HTMLButtonElement>('goLevels'),
   goDaily: el<HTMLButtonElement>('goDaily'),
@@ -381,6 +381,7 @@ const accountScreen = new AccountScreen({
   signUp: (email, password) => void doSignUp(email, password),
   confirm: (email, code) => void doConfirm(email, code),
   signOut: () => void doSignOut(),
+  changePassword: (current, next) => void doChangePassword(current, next),
 });
 const boardScreen = new LeaderboardScreen({ load: () => void loadBoard() });
 const stage = new GameStage(el<HTMLCanvasElement>('stage'));
@@ -638,11 +639,15 @@ function paintBalance(): void {
 // ---------------------------------------------------------------------------------------------- the account
 
 /**
- * Draw the account row, and repaint the two lines that claim what is kept.
+ * Draw the profile page's identity row, and repaint the lines that claim what is kept.
  *
- * THE THREE GO TOGETHER BECAUSE ONE FACT DECIDES ALL THREE. Signing in does not merely change a button: it changes
- * whether the run on screen is ranked, so the ledger's sentence and the balance's clause are stale the moment the
- * session changes and repainting them here is what keeps one story on screen instead of three.
+ * THE FOUR GO TOGETHER BECAUSE ONE FACT DECIDES ALL FOUR. Signing in does not merely change a button: it changes whether the
+ * run on screen is ranked, so the ledger's sentence and the balance's clause are stale the moment the session changes, and
+ * repainting them here is what keeps one story on screen instead of four.
+ *
+ * THE PASSWORD FORM READS THE SAME ADVERTISED LIST as the sign-in form, one route further: `POST /auth/password` is offered
+ * only if `/health` named it, which is how the `cognito` half of this build (whose hosted flow owns passwords) ends up with no
+ * form instead of a form that answers 404.
  */
 function paintAccount(): void {
   accountScreen.show({
@@ -650,6 +655,7 @@ function paintAccount(): void {
     mode: authMode,
     player,
     offersForm: signInOffered({ mode: authMode, signin: signinRoutes, pinned: apiDeps.modeOverride !== undefined }),
+    offersPassword: signinRoutes.includes('POST /auth/password'),
   });
   paintLanding();
   paintLedger();
@@ -657,15 +663,15 @@ function paintAccount(): void {
 }
 
 /**
- * The landing page's two session facts, in the words the button and the sentence use.
+ * The landing page's session sentence.
  *
- * THE BUTTON NAMES ITSELF FOR THE SESSION, because "Register or sign in" is the wrong label for a player who already has:
- * a page whose menu offers to register someone who is signed in is a page that has not read its own state. The sentence
- * beside it says what an account changes, in the same voice as the ledger — `offline` has nothing to sign in TO, and
- * saying that is more honest than offering a form that would have nowhere to go.
+ * THE BUTTON NO LONGER NAMES THE SESSION, and that is the correction the badge made: it used to read "Register or sign in"
+ * when nobody was and "Your account" when somebody was, which meant the menu was the second place that had to know the
+ * session. It is "Profile" in the markup now, the badge in the banner is the account control in every state, and this
+ * function is left with the one thing a menu should say — what an account changes, in the same voice as the ledger.
+ * `offline` has nothing to sign in TO, and saying so is more honest than offering a form with nowhere to go.
  */
 function paintLanding(): void {
-  els.goAccount.textContent = player ? 'Your account' : 'Register or sign in';
   const standing = currentStanding();
   if (player) {
     els.landingStatus.textContent = `Signed in as ${player.email}. Your runs are recorded on the server.`;
@@ -681,12 +687,12 @@ function paintLanding(): void {
 }
 
 /**
- * The banner's four cells: the hint meter, who you are, and the two scores.
+ * The banner's cells: the hint meter, the account badge and the two scores.
  *
  * THE WORDS ARE `ui/banner.ts`'S, and this function only hands them over: which sentence a standing gets is a rule (and
- * one a probe can drive), while writing four `textContent`s is not. The facts are read from the three places that own
- * them — the saved game for the balance and the runs, the session for the email, `standingOf` for whether a run counts —
- * so the banner cannot become a fourth copy of any of them.
+ * one a probe can drive), while writing a handful of `textContent`s is not. The facts are read from the three places that
+ * own them — the saved game for the balance and the runs, the session for the email, `standingOf` for whether a run counts
+ * — so the banner cannot become a fourth copy of any of them.
  *
  * IT REPAINTS WITH THE LEDGER, because both are sentences about the same record: a run that has just been saved changes
  * the best score, the drill count and the balance at once, and repainting one without the other is how the two come to
@@ -696,8 +702,12 @@ function paintBanner(): void {
   const view = bannerView(bannerFacts());
   els.bannerPips.textContent = view.pips;
   els.bannerHintWords.textContent = view.hintsLabel;
-  els.bannerStanding.textContent = view.standingText;
-  els.bannerStanding.dataset['kind'] = view.standingKind;
+  // THE GLYPH IS THE BADGE NOW (a circle with a person in it — the markup holds it and the icon is `aria-hidden`), so this
+  // writes NO text: the two properties are the accessible name and the tooltip, and both are the sentence the paragraph this
+  // button replaced used to state. `accountText` is still what a caller would draw if the badge ever showed a word.
+  els.bannerAccount.title = view.accountTitle;
+  els.bannerAccount.setAttribute('aria-label', view.accountTitle);
+  els.bannerAccount.dataset['kind'] = view.accountKind;
   els.bannerDrill.textContent = view.drillText;
   els.bannerDaily.textContent = view.dailyText;
 }
@@ -886,8 +896,41 @@ async function doSignOut(): Promise<void> {
   const answer = await signOut(apiDeps);
   accountScreen.setBusy(false);
   player = null;
+  // THE PASSWORD FIELDS GO WITH THE SESSION: a typed-but-unsent password must not be left in a form the next person at this
+  // device can read, and the form itself is hidden by the next paint.
+  accountScreen.clearPassword();
+  accountScreen.sayPassword('');
   accountChanged();
   if (!answer.ok) accountScreen.say(`Signed out on this device — the server could not be told: ${answer.failure.message}`, 'bad');
+}
+
+/**
+ * Change the signed-in player's password.
+ *
+ * THE SERVER CHECKS THE CURRENT PASSWORD and revokes every other session (`api/src/auth/emulator.ts` says why), so this
+ * function reports two facts rather than one: whether the change landed, and that the other sessions are gone. It does NOT
+ * sign this device out — the access token in hand is still good until it expires, and signing the player out of the tab they
+ * just used would be a surprise dressed as security.
+ *
+ * THE FIELDS ARE CLEARED ONLY ON SUCCESS. A refusal ("the current password is wrong") with an emptied form would make the
+ * player retype the new password to discover the same refusal again; a success with a filled form leaves a password on screen.
+ */
+async function doChangePassword(current: string, next: string): Promise<void> {
+  if (!player) return;
+  accountScreen.setBusy(true);
+  const answer = await changePassword(player.email, current, next, apiDeps);
+  accountScreen.setBusy(false);
+  if (!answer.ok) {
+    accountScreen.sayPassword(`Could not change the password — ${answer.failure.message}`, 'bad');
+    return;
+  }
+  accountScreen.clearPassword();
+  accountScreen.sayPassword(
+    answer.value.revoked === 0
+      ? 'Password changed.'
+      : `Password changed — ${answer.value.revoked} other session${answer.value.revoked === 1 ? '' : 's'} signed out.`,
+    'ok',
+  );
 }
 
 /**
@@ -1419,7 +1462,7 @@ function paintPages(): void {
   els.landing.hidden = page !== 'landing';
   els.setupPage.hidden = page !== 'setup';
   els.helpPage.hidden = page !== 'help';
-  els.accountPage.hidden = page !== 'account';
+  els.profilePage.hidden = page !== 'profile';
   els.levelsPanel.hidden = page !== 'levels';
   els.drillPanel.hidden = page !== 'drill';
   els.dailyPanel.hidden = page !== 'daily';
@@ -1438,11 +1481,10 @@ function paintChrome(): void {
   document.title = page === 'landing' ? pageTitle('landing') : `${pageTitle(page)} · Dancing Squared`;
   const target = backTarget(page);
   els.bannerBack.hidden = target === null;
-  // A PAGE WITH NOTHING TO SAY IN THE BANNER GIVES THE ROW BACK ON A SHEET. On a narrow viewport the header's own content
-  // is hidden (`h1` and the regime line, style.css), so on the one page with no back button the row would be an empty band
-  // at the top of the only surface a phone has — MEASURED at 500 x 757, where the sheet is 348 px and the band took ~90. The
-  // desktop header stays: its `h1` is the app's name and it is in this row.
-  els.head.hidden = target === null && layout.panelSide === 'bottom';
+  // THE BADGE SAYS WHERE IT GOES, and on its own page it says so is where you are: a button that navigates to the page it
+  // is on is a control that does nothing, so `aria-current` is what tells a screen reader which case it is.
+  if (page === 'profile') els.bannerAccount.setAttribute('aria-current', 'page');
+  else els.bannerAccount.removeAttribute('aria-current');
   if (target === null) {
     els.bannerBack.textContent = '';
     els.bannerBack.removeAttribute('aria-label');
@@ -3168,18 +3210,24 @@ function main(): void {
   // THE NAVIGATION. Every destination is a hash, so these handlers only ever WRITE A URL: `hashchange` is what applies
   // the page. That is what makes the browser's own back button, a reload and a bookmark the same mechanism as a press
   // here, rather than three behaviours to keep in step.
-  els.goAccount.addEventListener('click', () => navigate({ page: 'account', drillIndex: null }));
+  els.goProfile.addEventListener('click', () => navigate({ page: 'profile', drillIndex: null }));
   els.goHelp.addEventListener('click', () => navigate({ page: 'help', drillIndex: null }));
   els.goLevels.addEventListener('click', () => navigate({ page: 'levels', drillIndex: null }));
   els.goDaily.addEventListener('click', () => navigate({ page: 'daily', drillIndex: null }));
   els.goSetup.addEventListener('click', () => navigate({ page: 'setup', drillIndex: null }));
   els.goBoard.addEventListener('click', () => navigate({ page: 'board', drillIndex: null }));
-  // THE BACK BUTTON IS A PLACE, not a history step (`backTarget`), so a player who wandered Help → Account → back gets
-  // the menu rather than Account. A page with no parent hides the button (`paintChrome`).
+  // THE PROFILE'S LEADERBOARD SECTION IS A DOOR TO THE BOARD PAGE, not a second copy of it: a board is one page with its own
+  // mode filter, and printing a top-N list inside the profile would be a second reader of the same endpoint.
+  els.profileBoard.addEventListener('click', () => navigate({ page: 'board', drillIndex: null }));
+  // THE BACK BUTTON IS A PLACE, not a history step (`backTarget`), so a player who wandered Help → Profile → back gets
+  // the menu rather than Profile. A page with no parent hides the button (`paintChrome`).
   els.bannerBack.addEventListener('click', () => {
     const target = backTarget(page);
     if (target !== null) navigate({ page: target, drillIndex: null });
   });
+  // THE ACCOUNT BADGE IS A LINK TO THE ACCOUNT PAGE IN EVERY STATE, including the empty one — which is the report that added
+  // it. On the account page it re-applies the page, because a press that does nothing is worse than one that lands.
+  els.bannerAccount.addEventListener('click', () => navigate({ page: 'profile', drillIndex: null }));
   window.addEventListener('hashchange', () => applyPage(pageFor(location.hash), true));
   els.boardModeDrill.addEventListener('click', () => switchBoardMode('drill'));
   els.boardModeDaily.addEventListener('click', () => switchBoardMode('daily'));

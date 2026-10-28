@@ -17,7 +17,7 @@
 // own DOM, which is what lets `pages-probe.mjs` drive every navigation rule without a browser (AGENTS.md §4.3).
 
 /** A place in the app. Order is the order the landing page offers them. */
-export type Page = 'landing' | 'setup' | 'help' | 'account' | 'levels' | 'drill' | 'daily' | 'board';
+export type Page = 'landing' | 'setup' | 'help' | 'profile' | 'levels' | 'drill' | 'daily' | 'board';
 
 /** A parsed route: the page, and the drill position a deep link names (null for every other page). */
 export interface Route {
@@ -46,7 +46,7 @@ export function pageFor(hash: string): Route {
     '/': 'landing',
     '/setup': 'setup',
     '/help': 'help',
-    '/account': 'account',
+    '/profile': 'profile',
     '/levels': 'levels',
     '/daily': 'daily',
     '/board': 'board',
@@ -65,7 +65,7 @@ export function hashFor(route: Route): string {
  * Where a page's back button goes, or null when there is nowhere to go.
  *
  * A BACK BUTTON IS A PLACE, NOT A HISTORY STEP. An in-app back that popped history would follow the player's wandering
- * (Help → Account → Help → back → Account), which is not what a back arrow in a game means; a page's parent is a fact about
+ * (Help → Profile → Help → back → Profile), which is not what a back arrow in a game means; a page's parent is a fact about
  * the PAGES, so it is a table here and the probe checks that no page is its own parent.
  */
 export function backTarget(page: Page): Page | null {
@@ -77,7 +77,7 @@ export function backTarget(page: Page): Page | null {
     case 'board':
     case 'setup':
     case 'help':
-    case 'account':
+    case 'profile':
       return 'landing';
     case 'drill':
       return 'levels';
@@ -92,7 +92,7 @@ export function backLabel(page: Page): string {
     landing: 'the menu',
     setup: 'setup',
     help: 'help',
-    account: 'your account',
+    profile: 'your profile',
     levels: 'the level',
     drill: 'the drill',
     daily: "today's Daily",
@@ -107,7 +107,7 @@ export function pageTitle(page: Page): string {
     landing: 'Dancing Squared',
     setup: 'Setup',
     help: 'How to play',
-    account: 'Your account',
+    profile: 'Your profile',
     levels: 'The drill level',
     drill: 'Drill',
     daily: "Today's Daily",
@@ -125,7 +125,7 @@ export function pageHeadingId(page: Page): string {
     landing: 'landingHeading',
     setup: 'setupHeading',
     help: 'helpHeading',
-    account: 'accountHeading',
+    profile: 'profileHeading',
     levels: 'levelsHeading',
     drill: 'drillHeading',
     daily: 'dailyHeading',

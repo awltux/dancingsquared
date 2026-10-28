@@ -82,30 +82,16 @@ body {
   padding-right: var(--space-xs);
 }
 
-/* THE PANEL'S THREE ROWS ARE PLACED EXPLICITLY, NOT BY ORDER. `paintChrome` hides the header on a narrow viewport's
-   landing page, and a `display: none` child is REMOVED from the grid — which slid the scrolling body into the header's
-   `auto` row and the footer into the `minmax(0, 1fr)` row. MEASURED at 500 x 757 as `grid-template-rows: 279px 0px 0px`
-   with the footer's two lines drawn 33 px below the panel's bottom edge, clipped away by `overflow: hidden`. Placement by
-   name cannot slide. */
+/* THE PANEL'S THREE ROWS ARE PLACED EXPLICITLY, NOT BY ORDER. A `display: none` child is REMOVED from the grid, and the
+   header has been that child: MEASURED at 500 x 757 as `grid-template-rows: 279px 0px 0px`, with the footer's lines drawn
+   33 px below the panel's bottom edge and clipped away by `overflow: hidden`. Placement by name cannot slide. */
 #head {
   grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
 }
 
-/* A HIDDEN HEADER IS NOT MERELY INVISIBLE: `display` is set just above, and an author `display` beats the user agent's
-   `[hidden]` rule. `main.ts`'s `paintChrome` hides it on a narrow viewport's landing page, where the banner has nothing in
-   it and the sheet has no height to spare. */
-#head[hidden] {
-  display: none;
-}
-
-#head h1 {
-  margin: 0;
-  font-size: var(--fs-title);
-  letter-spacing: 0.01em;
-}
+/* THE HEADER IS THE BANNER ROW AND NOTHING ELSE. REPORTED: "Remove the Dancing Squared header, it's not adding anything and
+   takes up a lot of screen real estate." It was an `<h1>` above this row on every page — the tallest thing in a 340 px panel
+   — and the name is carried by the browser tab, by the installed icon and by the landing page's own heading. */
 
 /* THE BANNER: THE WAY BACK, WHERE THE PLAYER IS, WHAT THEY HOLD, WHO THEY ARE AND THE TWO SCORES — one row, on every page
    (REPORTED: "All pages have a thin banner containing current hints icons, login status, current score for drills and
@@ -131,7 +117,6 @@ body {
 /* THE BANNER'S OWN CELLS ARE ONE STEP SMALLER THAN THE REGIME LINE: the position is the sentence and these are the numbers
    beside it. `nowrap` per cell keeps a label and its value together, so a wrap never separates "L1" from its score. */
 #bannerHints,
-#bannerStanding,
 #bannerDrill,
 #bannerDaily {
   margin: 0;
@@ -146,8 +131,47 @@ body {
   gap: var(--space-xs);
 }
 
-#bannerStanding[data-kind="ok"] {
+/* THE ACCOUNT BADGE IS A CIRCLE WITH A PERSON IN IT. REPORTED twice: "The empty login account badge is missing from the
+   header", and then "The login badge is too large. Can it be a simple circular vector diagram of a person" — the first version
+   was a pill carrying the email or "Sign in", which is a text control competing with five other cells in a 340 px row. The
+   glyph is an inline SVG stroked in `currentColor`, so it takes the palette with no image and no icon font, and the button is
+   a 28 px circle: `--space-lg` of diameter, which is the smallest size a thumb can still hit when the row wraps. */
+#bannerAccount {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--space-xl);
+  height: var(--space-xl);
+  padding: 0;
+  color: var(--dim);
+  background: var(--control);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+#bannerAccount svg {
+  width: 74%;
+  height: 74%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+#bannerAccount:hover {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+#bannerAccount:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#bannerAccount[data-kind="ok"] {
   color: var(--ok);
+  border-color: var(--ok);
 }
 
 /* TABULAR FIGURES, as every other number in the app uses: a score that shifts a pixel per digit is a score nobody can
@@ -216,6 +240,14 @@ body {
   margin: 0;
   font-size: var(--fs-heading);
   font-weight: 600;
+}
+
+/* THE MENU'S OWN TITLE IS THE LARGEST STEP, and it is now the only place the app's name is set in type: it used to be an
+   `<h1>` above every page (REPORTED: "Remove the Dancing Squared header, it's not adding anything"). A page that is a menu
+   has one thing to be loud about, and that is what it is. */
+#landingHeading {
+  font-size: var(--fs-title);
+  letter-spacing: 0.01em;
 }
 
 /* A focused heading gets NO outline: it is focused to MOVE the reading position after a navigation, not to show a
@@ -579,6 +611,16 @@ button[data-busy="true"]::after {
   margin-top: 10px;
 }
 
+/* AN AUTHOR `display` BEATS THE USER AGENT'S `[hidden]` RULE, and this form is `display: flex`. MEASURED in a browser the
+   first time a signed-in session was driven with the emulator: `accountScreen.show` hid the form with `form.hidden = true`
+   and it stayed on screen under "Signed in as …", with the Sign out button beneath it — the state had always LOOKED right
+   only because the whole `#accountRow` was hidden whenever nobody was signed in, so the form was never asked to hide itself.
+   The other elements with an author `display` are either never hidden or already carry this rule (`#replayBox[hidden]`,
+   `#dailyResult[hidden]`, `#loading[hidden]`, `.page[hidden]`). */
+#accountForm[hidden] {
+  display: none;
+}
+
 #accountForm input {
   flex: 1 1 9rem;
   min-width: 0;
@@ -612,6 +654,74 @@ button[data-busy="true"]::after {
 
 #accountSignOut {
   margin-top: 10px;
+}
+
+/* THE PASSWORD FORM SHARES THE SIGN-IN FORM'S CONTROLS — same field, same button, same 44 px — because it is the same kind of
+   thing and a second visual language for "type a password" would be decoration. It is its own form (so a submit in it is not
+   a sign-in) and its own status line (`#passwordStatus`), which is where a refusal is said. */
+#passwordForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: 10px;
+}
+
+/* THE SAME `[hidden]` TRAP AS `#accountForm`, for the same reason and in the same commit's family: `display: flex` here beats
+   the user agent's rule, so without this a signed-out player would be shown a form for a password they do not have. */
+#passwordForm[hidden] {
+  display: none;
+}
+
+#passwordForm input {
+  flex: 1 1 9rem;
+  min-width: 0;
+  min-height: 44px;
+  padding: var(--space-xs) var(--space-sm);
+  font-family: inherit;
+  font-size: var(--fs-body);
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-field);
+}
+
+#passwordForm button,
+#profileBoard {
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  font-family: inherit;
+  font-size: var(--fs-body);
+  color: var(--ink);
+  background: var(--control);
+  border: 2px solid var(--line);
+  border-radius: var(--r-field);
+  cursor: pointer;
+}
+
+#passwordForm button:hover,
+#profileBoard:hover {
+  border-color: var(--accent);
+}
+
+#passwordStatus {
+  margin: 0;
+  color: var(--dim);
+  font-size: var(--fs-small);
+  line-height: 1.35;
+}
+
+#passwordStatus[data-kind="ok"] {
+  color: var(--ok);
+}
+
+#passwordStatus[data-kind="bad"] {
+  color: var(--bad);
+}
+
+/* THE PROFILE PAGE'S LEADERBOARD DOOR SITS ON THE LEFT, like every other page-level control, rather than stretching to the
+   card's width and reading as a banner. */
+#profileBoard {
+  align-self: flex-start;
 }
 
 /* THE BOARD PAGE. Tabular figures again, because a column of scores that shifts by a pixel per digit is a column nobody
@@ -887,27 +997,30 @@ button[data-busy="true"]::after {
   display: none;
 }
 
-/* THE HINT BALANCE IS IN THE FOOTER IN BOTH MODES, because a hint is earned in one and spent in the other
-   (DESIGN.md 10) — a player needs to see what they hold while they are earning it. */
+/* THE HINT BALANCE AND THE DEVICE'S LEDGER LIVE ON THE SETUP PAGE, under "This device". They were two sentences at the
+   bottom of every PLAY screen — REPORTED as "a lot of debug style text at the bottom of the drill screens that dont really
+   add anything" — and they are not deleted: a page about this device is where a sentence about this device belongs, and the
+   play surface keeps only the game's own controls. The banner carries the meter and the count; what these lines add is the
+   detail (how many successes the next hint needs, whose balance it is, what has been saved) and that detail reads as
+   bookkeeping, which is what it is. */
 #balance {
-  margin: 0 0 4px;
+  margin: 0;
   color: var(--dim);
   font-size: var(--fs-small);
 }
 
 /* THE PIPS ARE THE SAME FACT AS A METER (Clash Royale's pips, Duolingo's hearts): three glyphs, filled for what is held, in
    the accent the interface uses for "you have this". THEY LIVE IN THE BANNER since the report asked for "hints icons" there,
-   and the footer's `#balance` is the words: the cell is `aria-hidden` because the sentence beside it on the same screen
-   already says the number. */
+   and the count beside them is the same number in words. */
 #bannerPips {
   color: var(--accent);
   letter-spacing: 0.15em;
 }
 
-/* THE LOCAL LEDGER LINE, under the hint balance: same voice as the balance, one step quieter, because it is
-   a statement about this device rather than a control. */
+/* THE LOCAL LEDGER LINE, under the hint balance: same voice as the balance, one step quieter, because it is a statement
+   about this device rather than a control. */
 #ledger {
-  margin: 0 0 8px;
+  margin: 0;
   color: var(--dim);
   font-size: var(--fs-small);
   font-variant-numeric: tabular-nums;
@@ -1430,21 +1543,12 @@ button[data-busy="true"]::after {
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
 
-  /* THE HEADER GOES COMPACT ON A SHEET, because on a phone the sheet is only ~46 % of the screen and the header is competing
-     with the content for it. MEASURED at 500 x 757 with the desktop header: the h1, the regime line and the two 48 px mode
-     tabs took ~190 of the sheet's 348 px, leaving the level card a 27 px scroll window. The app's name is not needed on every
-     screen (the browser tab and the installed icon carry it), so on a sheet it goes; the regime line stays because it says
-     where the player is. */
-  #head h1 {
-    display: none;
-  }
+  /* THE REGIME LINE GOES ON A SHEET, because it says "Drill 1/100 · L1", which is the same two facts the level card states
+     and the drill's own panel repeats. On a phone that duplication costs the content column ~20 px of a sheet that has none
+     to spare.
 
-  /* AND THE REGIME LINE GOES TOO: it says "The Drill — drill 1 of 100, level 1", which is the same two facts the level
-     card states — the page is in the heading and the position is in the card. On a phone that duplication cost the
-     content column another ~20 px of a sheet that has none to spare.
-
-     THE BACK BUTTON IS WHAT IS LEFT OF THE BANNER HERE, and it is the row's whole point: on a sheet the way back must be
-     above the content, because the browser's own back gesture is not available in an installed app. */
+     WHAT IS LEFT IS THE ROW ITSELF: the way back (load-bearing on a sheet, where the browser's own back gesture is not
+     available in an installed app), the hint meter, the account badge and the two scores. */
   #regime {
     display: none;
   }
@@ -1524,9 +1628,8 @@ button[data-busy="true"]::after {
     grid-column: span 2;
   }
 
-  /* The rows that are TEXT keep their full width, so a sentence is not set in a 160 px column. */
-  #balance,
-  #ledger,
+  /* The rows that are TEXT keep their full width, so a sentence is not set in a 160 px column. `#balance` and `#ledger` are
+     no longer footer rows — they are on the Setup page — so the replay list is the only one left. */
   #replayBox {
     grid-column: span 2;
   }

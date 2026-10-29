@@ -27,6 +27,7 @@
     "verify:engine": "npm run verify -w dancing-squared-engine",
     "verify:game": "npm run verify -w dancing-squared-game",
     "dev:game": "npm run dev -w dancing-squared-game",
+    "dev:game:lan": "npm run dev:lan -w dancing-squared-game",
     "dev:api": "npm run dev -w dancing-squared-api",
     "dev:api:ddb": "npm run dev:ddb -w dancing-squared-api",
     "api:table": "node api/tools/create-table.mjs",

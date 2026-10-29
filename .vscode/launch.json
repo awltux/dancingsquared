@@ -1,0 +1,214 @@
+// DEBUGGING THE API AND THE GAME, in VS Code — and starting the whole system.
+//
+// THREE THINGS MAKE UP THE SYSTEM, and only one of them is a program you debug:
+//   * the DATABASE — DynamoDB Local in Docker, on 127.0.0.1:8000 (`docker compose -f api/docker-compose.yml up -d`);
+//   * the API — `api/src/dev-server.ts` on 127.0.0.1:8090, either over the in-memory twin or over that container;
+//   * the GAME — Vite on http://localhost:8089/, with `VITE_API_BASE` pointing at the API.
+// `tasks.json` holds them as tasks (`system: up` is the one-action start); this file holds the debugger routes.
+//
+// THE COMPOUND AT THE BOTTOM IS THE F5 ROUTE (`system: game + api + db`). It runs `system: prepare` ONCE — the engine build,
+// the container and the table — and then starts the API and the game as debug sessions. That is why neither member carries
+// its own `preLaunchTask`: a compound's members start together, so two identical pre-launch tasks would be two engine builds
+// writing `engine/dist` at the same time, which is the corrupt-dist failure AGENTS.md trap 32 describes.
+//
+// WHY THERE IS NO BUILD STEP FOR THE SOURCES. `node src/dev-server.ts` runs the TypeScript SOURCE (Node's type stripping), so
+// a breakpoint lands in the file it is set in and there is no map to go stale. `dancing-squared-game` also resolves to
+// source (`"import": "./src/puzzle/index.ts"`), so a breakpoint inside `game/src/puzzle/generator.ts` is hit while you
+// are debugging the API — which is where a slow Daily's time is actually spent. The ENGINE is the exception: it resolves
+// through the `vite.engine.ts` alias to `engine/dist`, which is why `engine: build` is part of `system: prepare`.
+//
+// `cwd` IS THE API WORKSPACE, because that is what `npm run dev -w dancing-squared-api` does. Nothing in the server
+// depends on it — the corpus is located from `vite.corpus.ts` by `import.meta.url` and the config comes from `DSQ_*` —
+// but a launch that differs from the real one is a difference waiting to surprise somebody.
+//
+// `console: "integratedTerminal"` IS LOAD-BEARING: the boot banner ("listening on …", "auth: dev", "seeded the local
+// fixture …", "published …") only reaches a real terminal, and those four lines are usually the first thing you read.
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // THE ONE YOU WANT MOST OF THE TIME. `DSQ_AUTH=dev` is what makes `x-dev-player: <name>` an identity — in any
+      // other mode it is refused, which is why a probe or a `curl` with that header 401s unless this is set.
+      "type": "node",
+      "request": "launch",
+      "name": "api: dev server",
+      "program": "${workspaceFolder}/api/src/dev-server.ts",
+      "cwd": "${workspaceFolder}/api",
+      // `DSQ_HOST=0.0.0.0` PUTS THE API ON THE NETWORK, which is what a phone needs: the app and the API are two
+      // listeners, and a LAN run that exposed only Vite would load the page and fail every request. The API prints a
+      // REACHABLE FROM THE NETWORK line when it binds wider; in `dev` mode that also means anyone on the network can name
+      // any player, which is why the login-mock route below is the one to use for a LAN run with accounts.
+      "env": { "DSQ_AUTH": "dev", "DSQ_PORT": "8090", "DSQ_HOST": "0.0.0.0" },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // STOPS ON THE FIRST LINE. Use this when the process dies during boot: the dev server publishes today's
+      // challenges BEFORE it listens, so a boot-time failure is one you cannot reach from a request.
+      "type": "node",
+      "request": "launch",
+      "name": "api: dev server (stop on entry)",
+      "program": "${workspaceFolder}/api/src/dev-server.ts",
+      "cwd": "${workspaceFolder}/api",
+      "env": { "DSQ_AUTH": "dev", "DSQ_PORT": "8090", "DSQ_HOST": "0.0.0.0" },
+      "console": "integratedTerminal",
+      "stopOnEntry": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // A SINGLE PROBE OR TOOL: open `api/test/*-probe.mjs` and press F5. The handlers are pure over three ports
+      // (`ItemStore`, `Clock`, `IdentityOf`), so a probe gives you the REAL handler over a memory store and a fixed
+      // clock — no socket, no seeding, and its checks tell you where you are. This is usually faster than the server.
+      "type": "node",
+      "request": "launch",
+      "name": "api: current file",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}/api",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // THE BOUNDARY JOB, which is where a challenge is actually GENERATED (a read never generates — it answers 202 and
+      // defers). Steps outside the request path entirely, and it is the tool that costs the 9.4-15.1 s. `--day` and
+      // `--levels` are optional and default to today and the served levels.
+      "type": "node",
+      "request": "launch",
+      "name": "api: publish today's daily",
+      "program": "${workspaceFolder}/api/tools/publish-daily.mjs",
+      "cwd": "${workspaceFolder}/api",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // FOR A SERVER YOU ALREADY STARTED, e.g.
+      //   $env:NODE_OPTIONS='--inspect=9229'; npm run dev:api
+      "type": "node",
+      "request": "attach",
+      "name": "api: attach to 9229",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // THE LOGIN MOCK. `DSQ_AUTH=emulate` serves the five `/auth/*` routes against local accounts and advertises them on
+      // `/health`, which is the switch that makes the app draw the sign-in form at all: under the default `dev` mode there is
+      // no account to sign in to, so `net/standing.ts` deliberately offers none — that is why the login UI looked untestable.
+      // It signs and verifies REAL JWTs with the same verifier the deployment uses, so this is a mock PROVIDER, not a fake
+      // session (AGENTS.md §6). Signup confirms immediately; add `DSQ_AUTH_CONFIRM: "1"` to exercise the code-entry step.
+      "type": "node",
+      "request": "launch",
+      "name": "api: dev server (emulator)",
+      "program": "${workspaceFolder}/api/src/dev-server.ts",
+      "cwd": "${workspaceFolder}/api",
+      // `DSQ_HOST=0.0.0.0` so the login mock is the LAN's too: this is the run to use from a phone, because a token
+      // identity cannot be forged by whoever else shares the network (in `dev` mode it can).
+      "env": { "DSQ_AUTH": "emulate", "DSQ_PORT": "8090", "DSQ_HOST": "0.0.0.0" },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // THE API OVER THE REAL STORE. Same program and same source as `api: dev server`, and the three `DSQ_STORE` variables
+      // are the whole difference — `api/tools/dev-ddb.mjs` sets exactly these two, and this repeats them so a breakpoint
+      // here is the same run as `npm run dev:api:ddb`.
+      //
+      // THE FIRST BOOT AGAINST A FRESH CONTAINER TAKES ~85 s: before it listens it seeds three levels and publishes today's
+      // challenges, and every one of those writes is a real DynamoDB call. That is also the run that found the store's
+      // `undefined` defect (`api/src/store/plain-item.ts` says what it was) — so if this hangs, read its terminal rather
+      // than assuming the port is wrong.
+      "type": "node",
+      "request": "launch",
+      "name": "api: dev server (dynamodb)",
+      "program": "${workspaceFolder}/api/src/dev-server.ts",
+      "cwd": "${workspaceFolder}/api",
+      "env": {
+        "DSQ_AUTH": "dev",
+        "DSQ_PORT": "8090",
+        "DSQ_HOST": "0.0.0.0",
+        "DSQ_STORE": "dynamodb",
+        "DSQ_DDB_ENDPOINT": "http://127.0.0.1:8000"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // THE GAME'S DEV SERVER, started as a debug session so a compound can include it. Nothing in the APP is debugged from
+      // here — the app runs in the browser, and `game: chrome against 8089` (or the `serverReadyAction` below) is where its
+      // breakpoints live; this session's own source is Vite's.
+      //
+      // `serverReadyAction` OPENS THE PAGE WHEN VITE IS READY, with the debugger attached to it: `debugWithChrome` reads the
+      // URL out of the "Local:" line, so the browser is never pointed at a port nobody is listening on. That matters in a
+      // compound, where the API and the game start at the same moment.
+      "type": "node",
+      "request": "launch",
+      "name": "game: dev server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:game:lan"],
+      "cwd": "${workspaceFolder}",
+      // THE TWO ENVIRONMENT SHAPES THE APP KNOWS, and the difference is who mints the session:
+      //   * `VITE_API_BASE` alone — the API's `/auth/*` routes (the local emulator) or no sign-in at all (`dev`);
+      //   * `VITE_API_BASE` PLUS `VITE_COGNITO_REGION` and `VITE_COGNITO_CLIENT_ID` — the real Cognito user-pool API, with the
+      //     API started in `DSQ_AUTH=cognito` so it verifies the pool's tokens. Both pool values or neither: a build with one is
+      //     a build with no provider, deliberately.
+      //
+      // `VITE_API_BASE=/api` IS WHAT MAKES A PHONE WORK, and it is a PATH rather than an address on purpose: the dev
+      // server proxies `/api` to the API on loopback (`game/vite.config.ts`), so the app and its server are ONE ORIGIN and
+      // ONE PORT. A phone that can load the page can therefore always reach the API — where a second port is a second
+      // thing its network has to allow, and a second origin needs CORS. REPORTED as the symptom that produced this: on a
+      // real phone the app loaded and the SIGN-IN FORM WAS MISSING, because `/health` (on :8090) never answered and
+      // `signInOffered` reads the routes it advertises.
+      //
+      // THE PROXY IS DEV-ONLY. A deployed build sets its own absolute base (`VITE_API_BASE` at build time) and reaches
+      // the API through the gateway, so nothing here leaks into a release.
+      "env": { "VITE_API_BASE": "/api" },
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "Local:\\s+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      },
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // THE SECOND WINDOW ON THE SAME PAGE. `npm run dev:game` binds `localhost` (`::1`) and NOT 127.0.0.1, which is why the
+      // URL is spelled that way — AGENTS.md trap 28 has the refused connection that produced the rule.
+      //
+      // `webRoot` is the GAME, not the workspace, because that is where the served sources are: a breakpoint in
+      // `game/src/main.ts` resolves through it, and the workspace root would map every file one directory too high.
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "game: chrome against 8089",
+      "url": "http://localhost:8089/",
+      "webRoot": "${workspaceFolder}/game",
+      "sourceMaps": true
+    }
+  ],
+  // THE F5 ROUTE. `preLaunchTask` on the COMPOUND — not on its members — is what makes this one build and one table: the
+  // members start together, so per-member pre-launch tasks would race the engine build against itself.
+  "compounds": [
+    {
+      "name": "system: game + api + db",
+      "configurations": ["api: dev server (dynamodb)", "game: dev server"],
+      "preLaunchTask": "system: prepare",
+      "stopAll": true,
+      "presentation": { "group": "system", "order": 1 }
+    },
+    {
+      // THE GAME AND THE API ON THE IN-MEMORY TWIN: no Docker, no table, and a boot in a second or two. This is the pair to
+      // reach for while working on the client — the store's own contract is what the DDB route is for.
+      "name": "system: game + api (memory)",
+      "configurations": ["api: dev server", "game: dev server"],
+      "preLaunchTask": "engine: build",
+      "stopAll": true,
+      "presentation": { "group": "system", "order": 2 }
+    },
+    {
+      // THE LOGIN MOCK, which is what makes the account UI testable at all: the emulator serves `/auth/*`, so the app draws
+      // the sign-in form and a signup/signin/signout loop works against local accounts. No Docker.
+      "name": "system: game + api (login mock)",
+      "configurations": ["api: dev server (emulator)", "game: dev server"],
+      "preLaunchTask": "engine: build",
+      "stopAll": true,
+      "presentation": { "group": "system", "order": 3 }
+    }
+  ]
+}

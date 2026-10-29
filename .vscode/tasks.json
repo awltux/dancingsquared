@@ -1,0 +1,170 @@
+// STARTING THE SYSTEM, as tasks: the engine build, the database, and the two servers.
+//
+// WHY TASKS AND NOT LAUNCH CONFIGURATIONS FOR THE SERVERS. A dev server is a long-running process, which a task models
+// exactly (a terminal, a lifetime, a background marker); a launch configuration models "a program to debug and then exit".
+// Both are here: `launch.json`'s `system: game + api + db` compound is the F5 route and runs `system: prepare` once for the
+// three of them, and the tasks below are the same pieces reachable one at a time or as one chain.
+//
+// THE ORDER IS A DEPENDENCY, NOT A PREFERENCE:
+//   engine: build  ->  db: up  ->  db: table  ->  api: dev (dynamodb)  ->  game: dev
+// because `game` and `api` both import `dancing-squared-engine` from `engine/dist` (a stale or absent build is a resolution
+// error at boot, or worse a silent old engine), the API cannot create its table until DynamoDB Local answers, and the game's
+// first request is only worth making once the API is listening on 8090.
+//
+// `db: down` is deliberately NOT part of the chain: `-inMemory` means the container's data lives as long as the container,
+// so a restart is how a developer gets a clean slate, and that decision belongs to a person rather than to a task.
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // ONE AT A TIME. `engine/dist` is what the API, the game and every gate load; two builds at once is the corrupt-dist
+      // failure AGENTS.md trap 32 describes, so this task has no `dependsOn` that could start it twice.
+      "label": "engine: build",
+      "detail": "npm run build:engine — the alias every server and gate resolves through",
+      "type": "shell",
+      "command": "npm run build:engine",
+      "problemMatcher": ["$tsc"],
+      "group": "build",
+      "presentation": { "reveal": "silent", "panel": "shared", "clear": true }
+    },
+    {
+      // `up -d` RETURNS AS SOON AS THE CONTAINER STARTS, which is EARLIER than DynamoDB Local answers: the next step creates
+      // a table, and a create against a port nobody is listening on is a connection refused that reads like a broken
+      // container. So the task waits for the port. MEASURED: the container answers within ~0-1 s of `Started`, and the loop
+      // below is what makes that a fact rather than a race.
+      "label": "db: up",
+      "detail": "docker compose -f api/docker-compose.yml up -d, then wait for 127.0.0.1:8000",
+      "type": "shell",
+      "command": "docker compose -f api/docker-compose.yml up -d; $deadline = (Get-Date).AddSeconds(60); while (-not (Test-NetConnection -ComputerName 127.0.0.1 -Port 8000 -InformationLevel Quiet -WarningAction SilentlyContinue)) { if ((Get-Date) -gt $deadline) { Write-Error 'DynamoDB Local did not answer on 127.0.0.1:8000 within 60 s'; exit 1 }; Start-Sleep -Milliseconds 500 }; Write-Host 'DynamoDB Local is answering on 127.0.0.1:8000'",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      // `DSQ_DDB_ENDPOINT` IS NOT OPTIONAL HERE and the tool refuses without it (`realServiceWarning`): its default action
+      // would be to create a table in whatever account the ambient credentials belong to — MEASURED once, as a real table
+      // that had to be deleted by hand. It is idempotent, so running it every time is correct and says "already exists".
+      "label": "db: table",
+      "detail": "npm run api:table against the local endpoint",
+      "type": "shell",
+      "command": "npm run api:table",
+      "options": { "env": { "DSQ_DDB_ENDPOINT": "http://127.0.0.1:8000" } },
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "db: down",
+      "detail": "stop DynamoDB Local — its data lives as long as the container",
+      "type": "shell",
+      "command": "docker compose -f api/docker-compose.yml down",
+      "problemMatcher": []
+    },
+    {
+      // THE THREE STEPS THAT MUST FINISH BEFORE A SERVER STARTS, in that order. `launch.json`'s compound runs this once.
+      "label": "system: prepare",
+      "detail": "engine build, DynamoDB Local, the table",
+      "dependsOrder": "sequence",
+      "dependsOn": ["engine: build", "db: up", "db: table"],
+      "problemMatcher": []
+    },
+    {
+      // THE LOGIN MOCK, for UI testing: `DSQ_AUTH=emulate` makes the API serve `/auth/signup|confirm|signin|refresh|signout`
+      // against local accounts, and `/health` then ADVERTISES those five routes — which is what makes the app offer the sign-in
+      // form (`net/standing.ts`'s `signInOffered`). Under the default `dev` mode the app deliberately shows no form at all,
+      // because that mode names the player by a header and there is no account to sign in to: that is why the UI looked
+      // untestable.
+      //
+      // IT IS A REAL SIGN-IN AND NOT A FAKE SESSION: the emulator signs and verifies actual JWTs with the same verifier the
+      // deployment uses (AGENTS.md §6 says to test the flow this way, never by trusting a header). Signup confirms
+      // IMMEDIATELY by default; `DSQ_AUTH_CONFIRM=1` in `options.env` below turns the confirm step back on, which is how to
+      // test the code-entry path.
+      "label": "api: dev (emulator)",
+      "detail": "npm run dev:api with DSQ_AUTH=emulate on 0.0.0.0:8090 — the sign-in form appears and a phone can reach it",
+      "type": "shell",
+      "command": "npm run dev:api",
+      "options": { "env": { "DSQ_AUTH": "emulate", "DSQ_PORT": "8090", "DSQ_HOST": "0.0.0.0" } },
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": { "regexp": "^dev:api listening on (.*)$", "message": 1 },
+          "background": { "activeOnStart": true, "beginsPattern": "^> ", "endsPattern": "^dev:api listening on " }
+        }
+      ],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      // `dev:api:ddb` IS A SCRIPT RATHER THAN AN INLINE ENV ASSIGNMENT (`api/tools/dev-ddb.mjs`): npm runs a script through
+      // `cmd` on Windows and `sh` elsewhere, so an inline assignment would be a different command on each. It sets
+      // `DSQ_STORE=dynamodb` and the endpoint, and leaves an endpoint the caller already set alone.
+      //
+      // `DSQ_HOST=0.0.0.0` IS THE PHONE'S HALF OF THE API: the app is one listener and this is another, so exposing only
+      // Vite would load the page on a phone and fail every request with "the server could not be reached". The API prints a
+      // REACHABLE FROM THE NETWORK line when it binds wider. In `dev` mode that means anyone on the network can name any
+      // player — `system: up (login mock)` is the LAN run to use when accounts matter.
+      //
+      // THE BOOT IS SLOW ON A FRESH CONTAINER (MEASURED ~85 s here: it seeds three levels and publishes today's challenges
+      // before it listens), which is why this is a background task whose "ready" signal is its own `listening on` line: the
+      // task that follows waits for the sentence rather than for a number of seconds.
+      "label": "api: dev (dynamodb)",
+      "detail": "npm run dev:api:ddb on 0.0.0.0:8090, seeded and published into DynamoDB Local",
+      "type": "shell",
+      "command": "npm run dev:api:ddb",
+      "options": { "env": { "DSQ_AUTH": "dev", "DSQ_PORT": "8090", "DSQ_HOST": "0.0.0.0" } },
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": { "regexp": "^dev:api listening on (.*)$", "message": 1 },
+          "background": { "activeOnStart": true, "beginsPattern": "^> ", "endsPattern": "^dev:api listening on " }
+        }
+      ],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      // `VITE_API_BASE=/api` IS WHAT MAKES A PHONE WORK: the dev server proxies `/api` to the API on loopback, so the app
+      // and its server are ONE ORIGIN and ONE PORT and a device that can load the page can always reach the API. A second
+      // port would be a second thing the phone's network has to allow, and a second origin needs CORS.
+      // `dev:game:lan` IS THE NETWORK BIND — `vite --host 0.0.0.0`; Vite answers `localhost` without it, so a phone asking
+      // for `http://<this machine>:8089` is refused (AGENTS.md trap 28).
+      //
+      // THE ADDRESS IS NOT WRITTEN DOWN, which is the point: the app asks its own origin, so a phone that loaded the app
+      // from the LAN reaches the API there and a desktop on `localhost` reaches it on `localhost`. A DHCP lease change
+      // cannot break it, and the URL is printed so it can be typed into the phone.
+      "label": "game: dev",
+      "detail": "npm run dev:game:lan on the LAN (http://<this machine>:8089/), API proxied at /api",
+      "type": "shell",
+      "command": "$ip = (Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' -and $_.InterfaceAlias -notmatch 'vEthernet|VirtualBox|VMware|Loopback' } | Sort-Object @{Expression={ if ($_.PrefixOrigin -eq 'Dhcp') { 0 } else { 1 } }} | Select-Object -First 1).IPAddress; if (-not $ip) { Write-Error 'No LAN IPv4 address found - is this machine on a network?'; exit 1 }; $env:VITE_API_BASE = '/api'; Write-Host \"Phone: http://${ip}:8089/  (this machine: http://localhost:8089/)\"; npm run dev:game:lan",
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": { "regexp": "Local:\\s+(https?://\\S+)", "message": 1 },
+          "background": { "activeOnStart": true, "beginsPattern": "VITE v", "endsPattern": "Local:\\s+" }
+        }
+      ],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      // THE ONE-ACTION START, AND THE DEFAULT BUILD TASK (Ctrl+Shift+B), because on this project "build" and "run the system"
+      // are the same gesture: nothing is deployed by hand and both servers are dev servers. Two background tasks in the
+      // chain: the sequence continues when each reports ready, and both keep running in their own terminals afterwards
+      // (this task itself finishes).
+      //
+      // ORDER: prepare (engine, container, table) -> API -> game. The API is the slow one on a fresh container (~85 s), and
+      // the game only matters once the API answers, so this order is also the shortest time to a usable page.
+      "label": "system: up",
+      "detail": "build, database, API and game — in order, then leave both servers running",
+      "dependsOrder": "sequence",
+      "dependsOn": ["system: prepare", "api: dev (dynamodb)", "game: dev"],
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      // THE SAME SYSTEM WITH THE LOGIN MOCK instead of the database-backed API: no Docker needed at all, because the emulator
+      // keeps its accounts in the in-memory store. This is the loop for developing the ACCOUNT UI — sign up, sign in, sign
+      // out, the badge, the unranked banner — and it is also the fastest way to a running game.
+      "label": "system: up (login mock)",
+      "detail": "engine build, API in emulate mode, game — no Docker; the sign-in form works against local accounts",
+      "dependsOrder": "sequence",
+      "dependsOn": ["engine: build", "api: dev (emulator)", "game: dev"],
+      "problemMatcher": []
+    }
+  ]
+}

@@ -144,13 +144,17 @@
                 :<span id="bannerDaily"></span>
               </span>
             </p>
-            <!-- THE HINT METER IS A BADGE OF CIRCLES, with no number beside it, and it sits at the RIGHT OF THE ROW, beside the
-                 account badge. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge outline", then
+            <!-- THE HINT METER IS A BADGE OF THREE BARS, with no number beside it, and it sits at the RIGHT OF THE ROW, beside
+                 the account badge. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge outline", then
                  "move the hints badge to the right hand of the header to left of the account badge" — the left of the row is the
                  game (the level and its scores), and the right is the player (what they hold, and who they are). The outline is
-                 what makes three loose glyphs read as one object; `role="img"` and the `aria-label` are what keep the number
-                 available to a screen reader, because a meter with no words beside it must be the thing that is named. -->
-            <p id="bannerHints" role="img" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-pips"></span></p>
+                 what makes three slots read as one object; `role="img"` and the `aria-label` are what keep the number available
+                 to a screen reader, because a meter with no words beside it must be the thing that is named.
+                 THE SLOTS ARE BARS NOW, and the change is the report "The current circles in the header hint bank seem to be at
+                 odds with the badge outline": a round slot inside a rounded-rectangle outline reads as two shapes, where three
+                 bars are the same shape as the box. `data-on` is written by `paintBanner` from `bannerView`'s `hintFills` — the
+                 state is the module's, the drawing is `style.css`'s. -->
+            <p id="bannerHints" role="img" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-bars"><i data-on="false"></i><i data-on="false"></i><i data-on="false"></i></span></p>
             <!-- THE ACCOUNT BADGE: A CIRCLE WITH A PERSON IN IT, and it is always drawn. REPORTED first as "The empty login
                  account badge is missing from the header", then as "The login badge is too large. Can it be a simple circular
                  vector diagram of a person" — the first version was a pill with the email or "Sign in" in it, which is two

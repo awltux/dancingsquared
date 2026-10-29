@@ -1243,12 +1243,35 @@ button[data-busy="true"]::after {
   font-size: var(--fs-small);
 }
 
-/* THE PIPS ARE THE SAME FACT AS A METER (Clash Royale's pips, Duolingo's hearts): three glyphs, filled for what is held, in
-   the accent the interface uses for "you have this". THEY LIVE IN THE BANNER since the report asked for "hints icons" there,
-   and the count beside them is the same number in words. */
-#bannerPips {
-  color: var(--accent);
-  letter-spacing: 0.15em;
+/* THE HINT METER: THREE BARS, FILLED FOR WHAT IS HELD, in the accent the interface uses for "you have this".
+   THEY LIVE IN THE BANNER since the report asked for "hints icons" there, and the number is the badge's `aria-label`.
+   BARS AND NOT CIRCLES: REPORTED "The current circles in the header hint bank seem to be at odds with the badge outline.
+   Change it to a set of three bars within the badge outline." The outline is a rounded rectangle, so a round slot inside
+   it reads as two shapes; a bar is the same shape as the box it sits in, and three of them read as one meter because the
+   gap is the only thing between them. The empty slot is the OUTLINE weight rather than a lighter fill, so an empty meter
+   still looks drawn — three invisible slots in a badge would read as a missing control. */
+#bannerPips.hint-bars {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 0.95em;
+}
+
+/* A SLOT IS A BAR AND ITS STATE IS `data-on`, which `paintBanner` writes from `bannerView`'s `hintFills`: the module
+   decides how full the meter is, and this decides what that looks like. `currentColor` is the badge's own ink, so the
+   accent comes from the cell rather than from a second colour decision here. */
+#bannerPips.hint-bars > i {
+  display: block;
+  width: 4px;
+  height: 100%;
+  border-radius: 1px;
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 34%, transparent);
+}
+
+#bannerPips.hint-bars > i[data-on="true"] {
+  background: var(--accent);
+  box-shadow: none;
 }
 
 /* THE SCORES LINE, under the hint balance: same voice as the balance, one step quieter, because it is a statement

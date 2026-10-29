@@ -763,10 +763,17 @@ function paintLanding(): void {
  */
 function paintBanner(): void {
   const view = bannerView(bannerFacts());
-  // THE METER'S NUMBER IS AN ACCESSIBLE NAME NOW: the badge shows three circles and no text, so the `aria-label` is the only
+  // THE METER'S NUMBER IS AN ACCESSIBLE NAME NOW: the badge shows three BARS and no text, so the `aria-label` is the only
   // place "Hints 2 of 3" exists — and `role="img"` in the markup is what makes that label legal on an element whose content
   // is a picture.
-  els.bannerPips.textContent = view.pips;
+  //
+  // THE BARS' STATE IS WRITTEN, NOT THEIR GLYPHS: `hintFills` says which slots are held and these `data-on` attributes
+  // carry it to `style.css`, which is the one place that decides what a held slot looks like. A caller that rebuilt the
+  // markup would be a second implementation of the meter's shape.
+  const slots = els.bannerPips.children;
+  for (let slot = 0; slot < slots.length; slot++) {
+    slots[slot]?.setAttribute('data-on', String(view.hintFills[slot] === true));
+  }
   els.bannerHints.setAttribute('aria-label', view.hintsLabel);
   // THE SCORES ARE LEVEL AND A GLYPH PER GAME (`ui/banner.ts` decides the values; the two icons are markup). The sentence
   // "Level 1: drill best 280, Daily no score" is the cell's accessible name, because the row prints `L1`, `280` and `—`.

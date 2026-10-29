@@ -62,8 +62,16 @@ export interface BannerFacts {
 
 /** What the banner shows, one field per cell. */
 export interface BannerView {
-  /** The meter: filled for what is held, three slots, drawn inside a badge with no number beside it. */
-  readonly pips: string;
+  /**
+   * The meter, as three slots: `true` is a hint held.
+   *
+   * IT IS THREE FLAGS RATHER THAN A STRING OF GLYPHS because the meter is drawn as BARS inside the badge now, and the
+   * circles it used to be were at odds with that outline: REPORTED "The current circles in the header hint bank seem to
+   * be at odds with the badge outline. Change it to a set of three bars within the badge outline." A glyph string cannot
+   * be styled per slot, so the view hands the STATE and `style.css` draws it — which also keeps the count out of the
+   * picture, where it would be a fourth thing to keep in step.
+   */
+  readonly hintFills: readonly boolean[];
   /** The meter's accessible name, which is where the number lives now that the row carries no words. */
   readonly hintsLabel: string;
   /** The level the scores belong to, as the row shows it: `L1`. */
@@ -94,8 +102,9 @@ const METER = 3;
  * THE ROW CARRIES NO SENTENCES, WHICH MOVED THE WORDS INTO ACCESSIBLE NAMES. REPORTED: "Remove the text Hints 0/3 and
  * surround the hint circles with a badge outline … The L1 100 Daily No Score should be simplified and moved up to the same
  * line as the hints on the left hand side … L1 {Drill Icon}:100 {Daily Icon}:0". So each cell is a picture of one fact and its
- * `aria-label` is the sentence that used to be printed: a meter of three circles named "Hints 2 of 3", and a level with a
- * glyph per game named "Level 1: drill best 280, Daily no score".
+ * `aria-label` is the sentence that used to be printed: a meter of three BARS named "Hints 2 of 3", and a level with a
+ * glyph per game named "Level 1: drill best 280, Daily no score". (The bars were circles until the badge outline made
+ * them look foreign — "seem to be at odds with the badge outline"; the meter's state is unchanged.)
  *
  * A ZERO AND AN ABSENCE ARE STILL DIFFERENT THINGS, and the compact row says so with an em dash rather than a zero — see
  * `scoreValue`. `0` prints as `0`, because a zero IS a score a player earned.
@@ -103,10 +112,12 @@ const METER = 3;
 export function bannerView(facts: BannerFacts): BannerView {
   const held = Math.max(0, facts.hintsHeld);
   const filled = Math.min(METER, held);
-  const pips = '●'.repeat(filled) + '○'.repeat(METER - filled);
+  // THE SLOTS ARE DERIVED, NEVER COUNTED BY THE SCREEN: `hintFills` is the whole answer to "how full is the meter",
+  // and a caller that recomputed it from `hintsHeld` would be the second implementation this module exists to remove.
+  const hintFills = Array.from({ length: METER }, (_, slot) => slot < filled);
   const account = accountBadge(facts);
   return {
-    pips,
+    hintFills,
     hintsLabel: `Hints ${held} of ${METER}`,
     levelText: `L${facts.drillLevel}`,
     drillScore: String(facts.drillTotal),

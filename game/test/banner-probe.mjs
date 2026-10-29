@@ -39,15 +39,23 @@ const base = {
 
 console.log('\n== 1. the hint meter ==');
 {
-  const pips = (held) => bannerView({ ...base, hintsHeld: held }).pips;
-  check(pips(0) === '○○○', `nothing held draws three empty slots (${pips(0)})`);
-  check(pips(2) === '●●○', `two held draws two filled (${pips(2)})`);
-  check(pips(3) === '●●●', `a full balance draws three filled (${pips(3)})`);
-  // THE CEILING AND THE FLOOR: the meter is three slots, so a balance past the cap is still three glyphs — and a negative
-  // one (a corrupted save) is three empty ones rather than a string with a minus sign in it.
-  check(pips(5) === '●●●', `a balance over the cap is still three glyphs (${pips(5)})`);
-  check(pips(-2) === '○○○', `and a negative balance is three empty ones (${pips(-2)})`);
-  check([...pips(1)].length === 3, 'every meter is exactly three glyphs wide, so the row cannot jump');
+  // THE METER IS THREE BARS NOW — "The current circles in the header hint bank seem to be at odds with the badge outline.
+  // Change it to a set of three bars within the badge outline." — so the view answers with the STATE of each slot and
+  // `style.css` draws it. What is pinned here is the state: exactly three slots, filled from the left, never a fourth.
+  const fills = (held) => bannerView({ ...base, hintsHeld: held }).hintFills;
+  const drawn = (held) => fills(held).map((on) => (on ? '#' : '.')).join('');
+  check(drawn(0) === '...', `nothing held draws three empty slots (${drawn(0)})`);
+  check(drawn(2) === '##.', `two held draws two bars from the left (${drawn(2)})`);
+  check(drawn(3) === '###', `a full balance draws three filled (${drawn(3)})`);
+  // THE CEILING AND THE FLOOR: a balance past the cap is still three slots, and a negative one (a corrupted save) is three
+  // empty ones rather than a fourth bar or a minus.
+  check(drawn(5) === '###', `a balance over the cap is still three slots (${drawn(5)})`);
+  check(drawn(-2) === '...', `and a negative balance is three empty ones (${drawn(-2)})`);
+  check(fills(1).length === 3 && fills(5).length === 3, 'every meter is exactly three slots wide, so the row cannot jump');
+  // NEGATIVE CONTROL: the shape that shipped was a GLYPH STRING (`'●●○'`), which no stylesheet can turn into bars per slot
+  // — the report's mismatch in one line. A view that still answered `pips` would have no `hintFills` at all.
+  check(fills(2) !== undefined && fills(2).every((on) => typeof on === 'boolean'),
+    'CONTROL: the meter is a slot STATE, not a string of glyphs to be styled by luck');
   // THE NUMBER IS THE ACCESSIBLE NAME NOW. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge
   // outline" — the badge prints nothing, so the label is the only place the count exists and it must say it in full words.
   check(bannerView({ ...base, hintsHeld: 2 }).hintsLabel === 'Hints 2 of 3',

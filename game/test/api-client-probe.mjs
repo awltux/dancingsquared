@@ -717,6 +717,30 @@ console.log('\n== 14. the profile carries BOTH of the header\'s totals ==');
     check(plain.ok === true && (plain.value.drillBoard?.score ?? null) === drill && (plain.value.dailyBoard?.score ?? null) === daily,
       `a profile with ${why} still parses, unread board as no total (${plain.value?.drillBoard}, ${plain.value?.dailyBoard})`);
   }
+
+  // THE HINT BALANCE RIDES THE SAME ANSWER, and it is the ONLY way a page learns it: REPORTED "When logged out, the hints
+  // bank still shows my hints, it should be empty. The hint bank should be stored on the server, not locally." The saved
+  // copy is gone, so a profile that does not say means the page has no balance to draw.
+  const withHints = deps('http://localhost:8090', { status: 200, body: { alias: 'Ada', hints: { hints: 2, successes: 7 } } });
+  const loaded = await fetchProfile(withHints.api);
+  check(loaded.value.hints?.hints === 2 && loaded.value.hints?.successes === 7,
+    `and the hint balance the server holds (${loaded.value.hints?.hints} held, ${loaded.value.hints?.successes} counted)`);
+  check((await fetchProfile(deps('http://localhost:8090', { status: 200, body: { alias: 'Ada' } }).api)).value.hints === null,
+    'a profile with no balance field is NO NEWS, not an empty balance');
+  // A BALANCE OUTSIDE THE RULES CANNOT BE DRAWN, so it is refused as news rather than shown or clamped: a `hints: 99`
+  // would light a button the server refuses, and `successes: 10` is progress that has already paid out. NEGATIVE
+  // CONTROL: the plausible wrong rule — "take whatever number arrives" — reads 99 here.
+  for (const [hints, why] of [
+    [{ hints: 99, successes: 0 }, 'more hints than the cap'],
+    [{ hints: 0, successes: 10 }, 'a count that has already granted'],
+    [{ hints: -1, successes: 0 }, 'a negative balance'],
+    [{ hints: 1.5, successes: 0 }, 'a fractional balance'],
+    [null, 'an explicit null'],
+  ]) {
+    const scripted = deps('http://localhost:8090', { status: 200, body: { alias: 'Ada', hints } });
+    const read = await fetchProfile(scripted.api);
+    check(read.ok === true && read.value.hints === null, `a profile with ${why} carries no balance (${read.value?.hints})`);
+  }
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

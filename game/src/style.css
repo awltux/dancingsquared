@@ -1231,11 +1231,11 @@ button[data-busy="true"]::after {
   display: none;
 }
 
-/* THE HINT BALANCE AND THE DEVICE'S LEDGER LIVE ON THE SETUP PAGE, under "This device". They were two sentences at the
+/* THE HINT BALANCE AND THE ACCOUNT'S SCORES LIVE ON THE SETUP PAGE, under "This device". They were two sentences at the
    bottom of every PLAY screen — REPORTED as "a lot of debug style text at the bottom of the drill screens that dont really
    add anything" — and they are not deleted: a page about this device is where a sentence about this device belongs, and the
    play surface keeps only the game's own controls. The banner carries the meter and the count; what these lines add is the
-   detail (how many successes the next hint needs, whose balance it is, what has been saved) and that detail reads as
+   detail (how many successes the next hint needs, whose balance it is, what the server holds) and that detail reads as
    bookkeeping, which is what it is. */
 #balance {
   margin: 0;
@@ -1251,8 +1251,8 @@ button[data-busy="true"]::after {
   letter-spacing: 0.15em;
 }
 
-/* THE LOCAL LEDGER LINE, under the hint balance: same voice as the balance, one step quieter, because it is a statement
-   about this device rather than a control. */
+/* THE SCORES LINE, under the hint balance: same voice as the balance, one step quieter, because it is a statement
+   about the ACCOUNT rather than a control. */
 #ledger {
   margin: 0;
   color: var(--dim);

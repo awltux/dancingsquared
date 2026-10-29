@@ -25,6 +25,8 @@ import type { AuthMode } from './auth.ts';
 // THE PUZZLE'S OWN SHAPE CHECK, imported rather than restated: `GET /drill/current` and `GET /puzzle` carry a
 // generated puzzle now (DESIGN.md §9), and `parsePuzzle` is the one rule for whether one arrived.
 import { parsePuzzle, parseReadings } from '../puzzle/parse.ts';
+import { HINT_CAP, HINT_SUCCESS_STEP } from '../puzzle/config.ts';
+import type { HintLedger } from '../puzzle/hints.ts';
 import type { MoveReading, Puzzle } from '../puzzle/types.ts';
 
 /** A refusal as the API writes it: a code for a program and a sentence for a person. */
@@ -96,6 +98,22 @@ function asDrillBoard(raw: unknown): DrillBoardTotal | null {
   if (typeof value.score !== 'number' || !Number.isFinite(value.score) || value.score < 0) return null;
   if (typeof value.runs !== 'number' || !Number.isFinite(value.runs) || value.runs < 0) return null;
   return { score: value.score, runs: value.runs };
+}
+
+/**
+ * The hint balance a profile answer carried, or null when it carried none this app can read.
+ *
+ * IT IS CHECKED AGAINST THE RULES THE BALANCE LIVES INSIDE (`HINT_CAP` held, one below `HINT_SUCCESS_STEP` counted),
+ * because a number outside them is not a balance this screen can draw: a `hints: 99` would light a button the server
+ * refuses, and a `successes: 40` would print progress that has already paid out. A server that sends one is answered as
+ * "no news" rather than clamped, since clamping would show the player a balance the server never stated.
+ */
+function asHintLedger(raw: unknown): HintLedger | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const value = raw as Record<string, unknown>;
+  const ok = (n: unknown, max: number): n is number => typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= max;
+  if (!ok(value['hints'], HINT_CAP) || !ok(value['successes'], HINT_SUCCESS_STEP - 1)) return null;
+  return { hints: value['hints'], successes: value['successes'] };
 }
 
 /**
@@ -990,18 +1008,22 @@ export async function fetchLeaderboard(
  */
 
 /**
- * `GET /me/profile` — the alias this player has claimed, or `null`, and their own ranked Drill and Daily boards.
+ * `GET /me/profile` — the alias this player has claimed, or `null`, their own ranked Drill and Daily boards, and the
+ * hint balance.
  *
  * `null` IS THE ORDINARY FIRST-RUN ANSWER, not a failure: a player who has never claimed a name is asked for one, which
  * is why it is a value here rather than a `404` to read at the call site. A body this module cannot read IS refused —
  * the rule the rest of the file keeps.
  *
- * THE BOARDS ARE THE HEADER'S SCORES, and they ride this read because the profile is the one player-bound request every
- * signed-in boot makes: the header is right on every page after a reload, not only after a play page has issued a drill.
- * Each is tolerated as absent (`null`), like a drill answer's board — a server older than the field is no news.
+ * THE BOARDS AND THE BALANCE ARE THE HEADER'S NUMBERS, and they ride this read because the profile is the one
+ * player-bound request every signed-in boot makes: the header is right on every page after a reload, not only after a
+ * play page has issued a drill. Each is tolerated as absent (`null`), like a drill answer's board — a server older than
+ * the field is no news. THE BALANCE IS SERVER-ONLY NOW (REPORTED: "When logged out, the hints bank still shows my hints,
+ * it should be empty. The hint bank should be stored on the server, not locally"), so a page that has not asked the
+ * server holds no hint to show.
  */
-export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null; drillBoard: DrillBoardTotal | null; dailyBoard: DrillBoardTotal | null }>> {
-  const answer = await apiCall<{ alias?: unknown; drillBoard?: unknown; dailyBoard?: unknown }>(deps, '/me/profile', { method: 'GET' });
+export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null; drillBoard: DrillBoardTotal | null; dailyBoard: DrillBoardTotal | null; hints: HintLedger | null }>> {
+  const answer = await apiCall<{ alias?: unknown; drillBoard?: unknown; dailyBoard?: unknown; hints?: unknown }>(deps, '/me/profile', { method: 'GET' });
   if (!answer.ok) return answer;
   if (answer.value.alias !== undefined && answer.value.alias !== null && typeof answer.value.alias !== 'string') {
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a name this app can read' } };
@@ -1012,6 +1034,7 @@ export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiRe
       alias: typeof answer.value.alias === 'string' ? answer.value.alias : null,
       drillBoard: asDrillBoard(answer.value.drillBoard),
       dailyBoard: asDrillBoard(answer.value.dailyBoard),
+      hints: asHintLedger(answer.value.hints),
     },
   };
 }

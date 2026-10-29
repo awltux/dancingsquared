@@ -1,37 +1,40 @@
 // The saved game: one versioned record in local storage, and the rules for reading one back.
 //
-// WHY THIS IS A MODULE AND NOT A FEW `localStorage` CALLS IN THE SHELL. What is stored is the anonymous
-// player's whole position in the game (DESIGN.md 13's Phase 4): the drill they were ISSUED, the level they
-// are on, the hint balance and its earning progress, the Daily attempt in flight, and every completed run
-// with the client-generated `runId` that Phase 5's claim is idempotent on. Each of those is a rule — what
-// survives a version change, what survives a pool change, what a hand-edited record is allowed to say — and
-// a rule buried in `main.ts` cannot be probed. Everything here is pure over an injected `StorageLike`, so
-// `game/test/save-probe.mjs` drives it with a fake, a corrupt record and a store that throws.
+// WHY THIS IS A MODULE AND NOT A FEW `localStorage` CALLS IN THE SHELL. What is stored is the RUN IN FLIGHT and the
+// level it is on — the drill that was ISSUED, the step reached, the tries taken, the Daily's own attempt, and the clock
+// each of them has run. Every one of those is a rule (what survives a version change, what survives a pool change, what
+// a hand-edited record is allowed to say), and a rule buried in `main.ts` cannot be probed. Everything here is pure over
+// an injected `StorageLike`, so `game/test/save-probe.mjs` drives it with a fake, a corrupt record and a store that
+// throws.
+//
+// TEMPORARY DATA ONLY, AND THAT IS THE RULE THIS FILE NOW OWNS. REPORTED: "temporary data only on the client." and
+// "There seems to be a lot of data on the client that can be used to cheat the scoring system. This should be removed."
+// So the record holds NOTHING the server ranks: no score (rule 3), no hint balance (`hints` is gone — REPORTED "The hint
+// bank should be stored on the server, not locally", and a signed-out page went on drawing the last player's balance),
+// and no finished/passed sets (they mirrored the server's Progress row, and they are the shell's in-memory grid state
+// now, `save-state.ts`). What is left is what a resume needs, and a resume is a convenience the server re-measures: the
+// score comes from its clock and its press log, never from this file.
 //
 // FOUR RULES, AND THE REASON FOR EACH:
 //
-//   1. A SCHEMA CHANGE DISCARDS EVERYTHING; A POOL CHANGE KEEPS THE HINTS. A record written by an older
-//      build may not mean what this build means by the same field, so it is not guessed at. A record whose
-//      `poolVersion` has moved is different: its seeds are meaningless against the corpus that replaced it, but a
-//      hint is EARNED EFFORT rather than puzzle data, and DESIGN.md 15 Q4 says a season boundary must not reset a
-//      balance — so the balance survives the pool and the rest does not.
+//   1. A SCHEMA CHANGE DISCARDS EVERYTHING; A POOL CHANGE KEEPS THE LEVEL AND NOTHING ELSE. A record written by an
+//      older build may not mean what this build means by the same field, so it is not guessed at. A record whose
+//      `poolVersion` has moved is different: its seeds are meaningless against the corpus that replaced it, so the run
+//      in flight goes and only the level (which is not puzzle data) survives.
 //   2. WHAT IS READ BACK IS CLAMPED, NEVER TRUSTED. `localStorage` is a text file the player can edit (and a
-//      browser extension can rewrite), so the ledger goes through `sanitiseLedger`, every number is range
-//      checked, and a record that is not even the right shape is dropped. A loader that threw on a corrupt
-//      byte would turn a typo into an unplayable game.
-//   3. THERE IS NO LOCAL SCORE. The run ledger (`runs`) was removed: the server is the one point of truth for a
-//      score, and a device-side sum of solved drills was a different quantity that could disagree with the board
-//      (REPORTED: header 726 beside a leaderboard 1818). This record now holds only what a PRACTICE drill or a
-//      resume needs — the position, the finished/passed sets, the drill and Daily in flight, and the hint balance
-//      the SERVER last stated. AN OLDER RECORD'S `runs` FIELD IS IGNORED, not migrated: those records were already
-//      claimed or already lost, and a score must never be resurrected from this file.
+//      browser extension can rewrite), so every number is range checked and a record that is not even the right shape
+//      is dropped. A loader that threw on a corrupt byte would turn a typo into an unplayable game.
+//   3. THERE IS NO LOCAL SCORE AND NO LOCAL BALANCE. The run ledger (`runs`) and the hint balance (`hints`) were
+//      removed: the server is the one point of truth for both (REPORTED: header 726 beside a leaderboard 1818, and the
+//      logged-out hint bank showing a signed-in player's hints). AN OLDER RECORD'S `runs` AND `hints` FIELDS ARE
+//      IGNORED, not migrated: those records were already claimed or already lost, and a score or a hint must never be
+//      resurrected from this file.
 //   4. A STORE THAT REFUSES IS NOT A BROKEN APP. Private mode and a blocked origin both throw on write; the
 //      game plays on, `saving` is false, and the screen says so. `poc/src/data.ts` already does this, and the
 //      reason is the same: the storage is a convenience, and the game is the product.
 
 import { HINT_CAP, SAVE_KEY } from '../puzzle/config.ts';
 import type { DailyOutcome } from './daily-run.ts';
-import { sanitiseLedger, type HintLedger } from '../puzzle/hints.ts';
 
 /** The schema version written into every record. Bump it whenever a field changes meaning or shape. */
 export const SAVE_VERSION = 1;
@@ -102,26 +105,8 @@ export interface SavedGame {
   levelIndex: number;
   /** The ISSUED-drill id (DESIGN.md 8: a drill is locked when it is issued). */
   drillPosition: number;
-  /**
-   * The drill positions whose success has ALREADY been counted.
-   *
-   * WHY THIS IS PERSISTED. It mirrors the SERVER's Progress row for the offline practice drill: without it, the level
-   * block could not say which of the fixture's drills have been played. It is a PRACTICE fact now — the scored Progress
-   * is the server's (`serverRegime`), and no score is ever derived from this record. MEASURED in the browser when the
-   * local ledger was removed: the block still needs a set to draw, and this is the one it draws offline.
-   */
-  finished: number[];
-  /**
-   * The positions solved WITHOUT help — no reveal, no skip — which the level grid draws differently from "done".
-   *
-   * IT MIRRORS THE SERVER'S `DrillProgress.passed`, and both exist because a skip finishes a drill without teaching
-   * it. The device and the server record the same two sets so the grid says the same thing whichever side a player
-   * is looking at; a record written before this field existed reads as "finished, pass unknown".
-   */
-  passed: number[];
   drillRun: DrillSaved | null;
   daily: DailySaved | null;
-  hints: HintLedger;
   /** The wall-clock stamp of this write, for the resume gap only. */
   savedAtMs: number;
 }
@@ -142,11 +127,8 @@ export function emptySave(poolVersion: string, levelIndex: number, nowMs: number
     poolVersion,
     levelIndex,
     drillPosition: 0,
-    finished: [],
-    passed: [],
     drillRun: null,
     daily: null,
-    hints: { hints: 0, successes: 0 },
     savedAtMs: nowMs,
   };
 }
@@ -224,7 +206,7 @@ export function clearGame(storage: StorageLike): boolean {
  * Read the state, or decide there is nothing usable.
  *
  * THE ORDER OF THE CHECKS IS THE RULE: parse, then the schema version (a whole-record decision), then the
- * pool version (which keeps the hints), then the fields, each clamped or dropped on its own.
+ * pool version (which keeps the level and drops the run), then the fields, each clamped or dropped on its own.
  */
 export function loadGame(storage: StorageLike, currentPoolVersion: string): LoadResult {
   let raw: string | null = null;
@@ -247,21 +229,19 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
   const record = parsed as Record<string, unknown>;
   if (record['version'] !== SAVE_VERSION) return { state: null, saving: true, dropped: 0 };
 
-  // THE OLD LEDGER IS IGNORED, NOT MIGRATED. A record written before this build carries a `runs` array; those runs were
-  // the device's score, and the score is the server's now (see rule 3 in the header). They are not counted as `dropped`:
-  // a removed feature is not corruption, and the field is simply not read.
+  // THE REMOVED FIELDS ARE IGNORED, NOT MIGRATED. A record written before this build carries `runs`, `hints`, `finished`
+  // and `passed`; the first two were the server's numbers and the last two are the shell's in-memory grid state now (see
+  // rules 3 in the header and `save-state.ts`). They are not counted as `dropped`: a removed feature is not corruption,
+  // and the fields are simply not read.
   const dropped = 0;
 
-  // THE POOL SPLIT. A record from another pool keeps its hints and nothing else, and it says so by the
-  // shape of what it returns rather than by a flag: the caller gets a fresh progression at the same level.
+  // THE POOL SPLIT. A record from another pool keeps the LEVEL and nothing else — its seeds are meaningless against the
+  // corpus that replaced it — and it says so by the shape of what it returns rather than by a flag.
   const samePool = record['poolVersion'] === currentPoolVersion;
   const levelIndex = intOr(record['levelIndex'], 1, 1);
   if (!samePool) {
     return {
-      state: {
-        ...emptySave(currentPoolVersion, levelIndex, intOr(record['savedAtMs'], 0, 0)),
-        hints: sanitiseLedger(record['hints']),
-      },
+      state: emptySave(currentPoolVersion, levelIndex, intOr(record['savedAtMs'], 0, 0)),
       saving: true,
       dropped,
     };
@@ -273,14 +253,8 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
       poolVersion: currentPoolVersion,
       levelIndex,
       drillPosition: intOr(record['drillPosition'], 0, 0),
-      finished: intList(record['finished']),
-      // `passed` IS A SUBSET OF `finished`, enforced on read: a record written before the level grid existed has the
-      // finished set and no pass set (read as "finished, pass unknown"), and one that names a pass it does not call
-      // finished is a contradiction the reader refuses to invent a meaning for.
-      passed: intList(record['passed']).filter((p) => intList(record['finished']).includes(p)),
       drillRun: sanitiseDrill(record['drillRun']),
       daily: sanitiseDaily(record['daily']),
-      hints: sanitiseLedger(record['hints']),
       savedAtMs: intOr(record['savedAtMs'], 0, 0),
     },
     saving: true,
@@ -295,7 +269,7 @@ function intOr(value: unknown, min: number, fallback: number): number {
   return whole < min ? fallback : whole;
 }
 
-/** A list of positions, clamped to whole numbers at or above zero — a hand-edited set cannot invent a level. */
+/** A list of whole numbers at or above zero — a hand-edited number cannot invent a step that was revealed. */
 function intList(value: unknown): number[] {
   if (!Array.isArray(value)) return [];
   const out: number[] = [];

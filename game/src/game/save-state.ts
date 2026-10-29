@@ -10,8 +10,9 @@
 //
 //   1. ONE SUCCESS PER ISSUED DRILL. `markFinished` records the position and reports at most once for it, because
 //      `persist` may be told about a position the player has already finished (DESIGN.md 8 locks a drill when it
-//      is issued, and a reload re-issues it). NO SCORE OR HINT IS CREDITED HERE: the server is the one point of
-//      truth for both (`adoptHints` caches the balance it states), and a practice drill earns neither.
+//      is issued, and a reload re-issues it). NO SCORE OR HINT IS CREDITED HERE, and there is no balance here at
+//      all: the server is the one point of truth for both (REPORTED: "The hint bank should be stored on the server,
+//      not locally"), so the shell holds the balance it was told in its own memory and this module holds none.
 //   2. THE DRILL MUTATION MUST NOT DISCARD THE DAILY'S RECORD. `persist` keeps the stored Daily when the caller
 //      has none in flight, because the tab opens on the Drill and the Daily is resumed lazily — MEASURED in
 //      the browser: booting, solving a drill and reloading showed today's Daily back at 0:00 with an empty
@@ -19,10 +20,14 @@
 //   3. THE WRITE IS ONE PLACE, AND ITS ANSWER IS THE FLAG. `saving` says whether the LAST write worked, which
 //      is what the footer reads; nothing else in the app asks the storage anything.
 //
+// THE GRID'S SETS ARE MEMORY ONLY NOW, and that is the "temporary data only on the client" rule (REPORTED): `finished`
+// and `passed` used to be persisted, mirroring the server's Progress row in a file the player can edit. They are the
+// SHELL's drawing state, they are rebuilt from the server's `regime` whenever there is a server, and they are gone when
+// the page is — which is exactly what a practice grid is worth after a reload.
+//
 // IT TAKES THE STORAGE AS AN ARGUMENT rather than reaching for `window.localStorage`, so the browser seam
 // (including a blocked origin, which throws on the PROPERTY) stays in `main.ts` and this stays probeable.
 
-import { spendHint, type HintLedger } from '../puzzle/hints.ts';
 import {
   clearGame,
   emptySave,
@@ -55,6 +60,9 @@ export class SaveState {
   private readonly poolVersion: string;
   private record: SavedGame;
   private writing: boolean;
+  /** The grid's finished/passed sets — MEMORY ONLY, see the header. */
+  private finished: number[] = [];
+  private passed: number[] = [];
 
   private constructor(storage: StorageLike, poolVersion: string, record: SavedGame, writing: boolean) {
     this.storage = storage;
@@ -87,8 +95,8 @@ export class SaveState {
    * Forget this device's game and become a fresh one (DESIGN.md §15 Q18).
    *
    * THE IN-MEMORY RECORD IS REPLACED, not merely the storage. The shell holds THIS object, so a reset that cleared
-   * the key and left the old record here would put the balance and the ledger back on the very next `persist` —
-   * a control that appears to work and then undoes itself, which is worse than not having one.
+   * the key and left the old record here would put the run in flight back on the very next `persist` — a control that
+   * appears to work and then undoes itself, which is worse than not having one.
    *
    * IT REPORTS WHETHER THE DEVICE LET GO, and returns false without touching the record when it did not: the caller
    * shows the refusal instead of a fresh board that is not there.
@@ -96,15 +104,13 @@ export class SaveState {
   clear(): boolean {
     if (!clearGame(this.storage)) return false;
     this.record = emptySave(this.poolVersion, 1, 0);
+    this.finished = [];
+    this.passed = [];
     return true;
   }
 
   get saving(): boolean {
     return this.writing;
-  }
-
-  get hints(): HintLedger {
-    return this.record.hints;
   }
 
   /** The issued drill's position, which is where a boot resumes. */
@@ -113,18 +119,18 @@ export class SaveState {
   }
 
   /**
-   * The positions this device has finished, and which of them it PASSED.
+   * The positions this shell has finished, and which of them it PASSED.
    *
-   * THE GRID'S ONLY INPUT FROM THE LEDGER, and it is a read the record already held: `finished` and `passed` have
-   * been written since the split between solving and skipping existed, so the screen needs no new storage — only a
-   * way to ask. Sorted copies, because a caller renders them and must not be able to reorder the record.
+   * THE GRID'S ONLY INPUT FROM THIS MODULE, and it is MEMORY, not the record: the server's Progress row is the fact a
+   * signed-in player's grid draws (`main.ts`'s `serverRegime`), and this is the offline practice grid for the tab that
+   * is open. Sorted copies, because a caller renders them and must not be able to reorder the sets.
    */
   get finishedPositions(): readonly number[] {
-    return [...this.record.finished].sort((a, b) => a - b);
+    return [...this.finished].sort((a, b) => a - b);
   }
 
   get passedPositions(): readonly number[] {
-    return [...this.record.passed].sort((a, b) => a - b);
+    return [...this.passed].sort((a, b) => a - b);
   }
 
   /**
@@ -160,8 +166,9 @@ export class SaveState {
    * Mark a drill position FINISHED, and PASSED when it was solved unaided, and report whether it was new.
    *
    * NO SCORE AND NO HINT IS CREDITED, and that is the change the server-only score made: this is the PRACTICE record
-   * (and the resume copy). The server's Progress row and hint balance are the truth, adopted through `adoptHints`; a
-   * practice drill on the fixture season earns neither, and the removed `countSuccess` used to mint a hint locally.
+   * (and the resume copy). The server's Progress row and hint balance are the truth, and neither is mirrored here — this
+   * module holds no balance at all, so a signed-out page has none to draw (REPORTED: "When logged out, the hints bank
+   * still shows my hints, it should be empty").
    *
    * THE GUARD IS STILL A RULE: a position already in the finished set answers `firstTime: false`, because a reload
    * re-issues it and a caller may persist the same position again. What it no longer does is decide a currency.
@@ -170,7 +177,7 @@ export class SaveState {
    * is the unaided result and the grid draws the difference.
    */
   markFinished(position: number, opts: { revealed?: boolean } = {}): { firstTime: boolean } {
-    return { firstTime: this.spend(position, opts.revealed !== true) };
+    return { firstTime: this.noteFinish(position, opts.revealed !== true) };
   }
 
   /**
@@ -188,39 +195,11 @@ export class SaveState {
    * A PASS IS MONOTONE: once a position is passed, nothing here takes it back, because a position cannot be served
    * again after it is finished (`drill-regime.ts` keeps it in the set once).
    */
-  private spend(position: number, passed: boolean): boolean {
-    const firstTime = !this.record.finished.includes(position);
-    const finished = firstTime ? [...this.record.finished, position] : [...this.record.finished];
-    const passedList = passed && !this.record.passed.includes(position)
-      ? [...this.record.passed, position]
-      : [...this.record.passed];
-    if (firstTime || passedList.length !== this.record.passed.length) {
-      this.record = { ...this.record, finished, passed: passedList };
-    }
+  private noteFinish(position: number, passed: boolean): boolean {
+    const firstTime = !this.finished.includes(position);
+    if (firstTime) this.finished = [...this.finished, position];
+    if (passed && !this.passed.includes(position)) this.passed = [...this.passed, position];
     return firstTime;
-  }
-
-  /**
-   * Spend one hint. False when the balance is empty, and then NOTHING changes — which is a state a caller can
-   * be in (the Daily's button and the balance are read at different moments), and the answer the probe pins.
-   */
-  spendHint(): boolean {
-    const spent = spendHint(this.record.hints);
-    if (!spent.spent) return false;
-    this.record = { ...this.record, hints: spent.ledger };
-    return true;
-  }
-
-  /**
-   * Adopt a balance the SERVER stated.
-   *
-   * THE SERVER OWNS THE LEDGER (DESIGN.md 10, 11: "server-owned state that the client displays and requests
-   * against"), so once a run has been submitted, the number it answers with is the truth and this record becomes a
-   * CACHE of it — including the earning progress, which the server counts from its own record of finished drills.
-   * Nothing local earns a hint any more: a practice drill is unscored and unpaid.
-   */
-  adoptHints(ledger: HintLedger): void {
-    this.record = { ...this.record, hints: ledger };
   }
 
   /** Write the live state. Returns whether the storage kept it, and remembers that as `saving`. */

@@ -18,7 +18,7 @@ import { getProfile } from '../src/handlers/profile.ts';
 import { STATUS } from '../src/status.ts';
 import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDrillId } from '../src/drill-regime.ts';
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
-import { ladderKey, boardKey, progressKey } from '../src/keys.ts';
+import { ladderKey, boardKey, hintsKey, progressKey } from '../src/keys.ts';
 import { FIRST_LEVEL, asLadderItem, asLadderLevel, servableLevel } from '../src/ladder.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
 import { startDevServer } from '../src/dev-server.ts';
@@ -713,6 +713,24 @@ console.log('\n== 13. the profile carries the drill total every page\'s header s
     `with the Drill total still the drill board (${both.body.drillBoard?.score})`);
   check(both.body.dailyBoard?.score !== both.body.drillBoard?.score,
     `NEGATIVE CONTROL: the two boards answer different numbers, so one cannot be the other (${both.body.dailyBoard?.score} and ${both.body.drillBoard?.score})`);
+
+  // THE HINT BALANCE RIDES THE PROFILE TOO, because the app holds no copy of it any more: REPORTED "When logged out, the
+  // hints bank still shows my hints, it should be empty. The hint bank should be stored on the server, not locally." The
+  // row is `hintsKey`, the same one `POST /me/hints` debits and `POST /runs` credits, so this check is about the READ and
+  // not a second balance. A MISSING ROW IS ZERO rather than null (`asHints`): every player starts with nothing held.
+  check(answer.body.hints?.hints === 0 && answer.body.hints?.successes === 0,
+    `and a fresh player's hint balance, which is zero (${JSON.stringify(answer.body.hints)})`);
+  await store.put(hintsKey(devId(player)), { hints: 2, successes: 7 }, null);
+  const withHints = await getProfile(profileOf(player), deps);
+  check(withHints.body.hints?.hints === 2 && withHints.body.hints?.successes === 7,
+    `which is the stored row when there is one (${withHints.body.hints?.hints} held, ${withHints.body.hints?.successes} counted)`);
+  // AN UNREADABLE BALANCE IS "NO NEWS", NOT ZERO: zero would tell a player they had spent everything, and the profile is a
+  // display read that must still answer with the name. NEGATIVE CONTROL: folding it into zero reddens this check alone.
+  await store.put(hintsKey(devId('z6')), { hints: 'lots', successes: 0 }, null);
+  await store.put(ladderKey(devId('z6')), { levelIndex: LEVEL }, null);
+  const unreadable = await getProfile(profileOf('z6'), deps);
+  check(unreadable.status === STATUS.ok && unreadable.body.hints === null,
+    `and an unreadable balance leaves it null while the profile answers (${unreadable.status}, hints=${JSON.stringify(unreadable.body.hints)})`);
 
   // NO DRILL IN FLIGHT: the set is the PUBLISHED schedule's — the board the next run would join.
   const idle = 'z2';

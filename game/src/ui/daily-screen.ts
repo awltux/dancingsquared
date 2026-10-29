@@ -403,7 +403,7 @@ export class DailyScreen {
     const hints = view.hintsUsed === 0 ? 'no hints' : `${view.hintsUsed} hint${view.hintsUsed === 1 ? '' : 's'}`;
     this.els.result.textContent = view.result
       // THE SCORE IS THE SERVER'S. A solved demo has no stored score, so its result says so rather than printing a number
-      // the server will never hold — the device's own ledger is gone.
+      // the server will never hold — and there is no device score to fall back to.
       ? this.scored
         // THE TERMS ARE SHOWN, not just the number: the score is a product of three ratios (`score.ts`), and
         // the minute a hint cost is visible on the clock above this line.

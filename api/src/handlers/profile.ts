@@ -17,11 +17,11 @@
 // that shows a name as a player's identity must not hand that name to somebody else later (`keys.ts`'s `aliasClaimKey`).
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
-import { aliasClaimKey, boardKey, ladderKey, profileKey, progressKey, scheduleKey } from '../keys.ts';
+import { aliasClaimKey, boardKey, hintsKey, ladderKey, profileKey, progressKey, scheduleKey } from '../keys.ts';
 import { asLadderLevel } from '../ladder.ts';
 import { asProgress } from '../progress-row.ts';
-import { asBoard, type BoardValue } from '../runs.ts';
-import { sanitizeAlias, utcDay } from 'dancing-squared-game';
+import { asBoard, asHints, type BoardValue } from '../runs.ts';
+import { sanitizeAlias, utcDay, type HintLedger } from 'dancing-squared-game';
 
 /**
  * The player's own cumulative Drill board for the level and set they are playing, or null when the server cannot say.
@@ -61,6 +61,19 @@ async function playerDailyBoard(deps: Deps, playerId: string): Promise<BoardValu
 }
 
 /**
+ * The player's hint balance, or null when the server cannot read it.
+ *
+ * REPORTED: "When logged out, the hints bank still shows my hints, it should be empty. The hint bank should be stored on
+ * the server, not locally." The balance always WAS the server's — `POST /me/hints` debits it and `POST /runs` credits it
+ * (A23) — but the app kept a copy in its own saved record and drew that copy, so a signed-out page went on showing the
+ * last player's hints. The copy is gone (`game/src/game/store.ts`), so the balance has to arrive on the one read every
+ * signed-in boot makes, and this is it: `null` for an unreadable row, "no news" rather than "no hints".
+ */
+async function playerHints(deps: Deps, playerId: string): Promise<HintLedger | null> {
+  return asHints(await deps.store.get(hintsKey(playerId)));
+}
+
+/**
  * The alias currently claimed, or null when this player has never claimed one.
  *
  * A READ THAT NEEDS AN IDENTITY, unlike the board: an alias is the player's own row, and there is nothing to show a
@@ -74,8 +87,9 @@ export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiRe
   // THE BOARDS ARE READ FOR EVERY ANSWER, name or not: they are the header's scores on the pages that issue no drill.
   const drillBoard = await playerDrillBoard(deps, playerId);
   const dailyBoard = await playerDailyBoard(deps, playerId);
+  const hints = await playerHints(deps, playerId);
   const stored = await deps.store.get(profileKey(playerId));
-  if (!stored) return { status: STATUS.ok, body: { alias: null, drillBoard, dailyBoard } };
+  if (!stored) return { status: STATUS.ok, body: { alias: null, drillBoard, dailyBoard, hints } };
   const alias = stored.value['alias'];
   if (typeof alias !== 'string') {
     // AN UNREADABLE PROFILE IS AN OPERATOR FINDING, not a silent null: a row that exists and cannot be read would
@@ -83,7 +97,7 @@ export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiRe
     // second one over the top of the unreadable row.
     return failure(STATUS.unavailable, 'unreadable_profile', 'the profile row is not a record this build can read');
   }
-  return { status: STATUS.ok, body: { alias, drillBoard, dailyBoard } };
+  return { status: STATUS.ok, body: { alias, drillBoard, dailyBoard, hints } };
 }
 
 /**

@@ -37,7 +37,7 @@ import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { scoreLine } from './puzzle/score-line.ts';
 import { adoptedBoard, boardEntryOf, type BoardTotal } from './game/stats.ts';
 import { frameDelta, shouldAnimate } from './ui/frame-clock.ts';
-import { earningProgress, refusedSpend } from './puzzle/hints.ts';
+import { earningProgress, refusedSpend, type HintLedger } from './puzzle/hints.ts';
 import { HINT_CAP } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
 import { createLevelRuntime } from './data/corpus.ts';
@@ -133,6 +133,20 @@ let serverDrill: IssuedDrill | null = null;
  */
 let serverDrillBoard: BoardTotal | null = null;
 let serverDailyBoard: BoardTotal | null = null;
+
+/**
+ * THE HINT BALANCE, as the server last stated it — or null when the app has not been told.
+ *
+ * IT IS THE SERVER'S AND IT IS NOT PERSISTED. REPORTED: "When logged out, the hints bank still shows my hints, it
+ * should be empty. The hint bank should be stored on the server, not locally." The balance used to be a field of the
+ * saved record, so a signed-out page drew the last player's copy and a reload resurrected a number the server had
+ * already spent. It is now shell memory: seeded by `/me/profile` (every signed-in boot), by a submission's answer, and
+ * by a spend or its refusal; CLEARED on sign-out and on "start over", so a signed-out page holds nothing to show.
+ *
+ * NULL MEANS "NOT TOLD", and the screen draws the empty balance rather than claiming one: a demo cannot spend a hint
+ * (the spend is a server write, A20), so zero is the honest number there.
+ */
+let serverHints: HintLedger | null = null;
 
 /**
  * Whether the drill on screen has a run the SERVER accepted, which decides what "Next drill" may ask for.
@@ -643,14 +657,21 @@ function currentStanding(): Standing {
 
 /** The hint balance and the progress towards the next one (DESIGN.md 10: silent progress, announced grant). */
 function paintBalance(): void {
-  const p = earningProgress(save.hints);
+  // THE BALANCE IS THE SERVER'S, AND UNTIL IT SAYS, IT IS NOTHING. REPORTED: "When logged out, the hints bank still
+  // shows my hints, it should be empty. The hint bank should be stored on the server, not locally." `serverHints` is
+  // cleared on sign-out, so a signed-out page has none to draw; and a signed-in page that has not been told yet says so
+  // rather than showing a zero that pretends to be a measured fact.
+  const balance: HintLedger = serverHints ?? { hints: 0, successes: 0 };
+  const p = earningProgress(balance);
   const held = p.full
-    ? `Hints: ${save.hints.hints} of 3 — full, so successes stop counting`
-    : `Hints: ${save.hints.hints} of 3 · ${p.successes} of ${p.needed} to the next`;
-  // THE UNRANKED CLAUSE IS ON THE BALANCE BECAUSE THE BALANCE IS WHAT A DEMO CANNOT CHANGE (DESIGN.md §11.2): a
-  // signed-out spend is answered `401`, so what is on screen is this device's own copy rather than the server's —
-  // and saying so is the difference between a player who knows nothing is kept and one who finds out later.
-  const words = currentStanding() === 'unranked' ? `${held} — this device's own balance, not the server's` : held;
+    ? `Hints: ${balance.hints} of ${HINT_CAP} — full, so successes stop counting`
+    : `Hints: ${balance.hints} of ${HINT_CAP} · ${p.successes} of ${p.needed} to the next`;
+  // THE CLAUSE IS ABOUT WHOSE NUMBER IT IS. A demo can neither earn nor spend (A20: the spend is a server write), so a
+  // signed-out page shows nothing; an unranked run on a signed-in page shows the account's balance and says the run
+  // cannot spend it.
+  const words = serverHints === null
+    ? 'Hints: none on this page — the balance is the server’s, and it arrives with your account'
+    : currentStanding() === 'unranked' ? `${held} — the server’s balance, which this run cannot spend` : held;
   // THE PIPS MOVED TO THE BANNER (REPORTED: "All pages have a thin banner containing current hints icons"), so this line is
   // the sentence only: the meter is on screen above every page, and a second one in the footer was the duplicate the report
   // was asking to be rid of. The footer keeps what the meter cannot say — how many successes the next hint needs.
@@ -713,12 +734,12 @@ function paintLanding(): void {
     return;
   }
   if (standing === 'offline') {
-    els.landingStatus.textContent = 'No server is configured, so there is no account to sign in to: everything is kept on this device.';
+    els.landingStatus.textContent = 'No server is configured, so there is no account to sign in to and nothing is scored: you can play the practice drills, and they are not recorded anywhere.';
     return;
   }
   els.landingStatus.textContent = standing === 'ranked'
     ? 'No account needed on this server — it names the player for you. Signing in still keeps your progress.'
-    : 'Playing without an account: everything works, and your runs stay on this device unranked until you sign in.';
+    : 'Playing without an account: everything works, and nothing on screen is scored or kept until you sign in.';
 }
 
 /**
@@ -758,7 +779,7 @@ function paintBanner(): void {
 function bannerFacts(): BannerFacts {
   const view = levelView();
   return {
-    hintsHeld: save.hints.hints,
+    hintsHeld: serverHints?.hints ?? 0,
     playerAlias,
     signedIn: player !== null,
     standing: currentStanding(),
@@ -900,6 +921,10 @@ async function doSignOut(): Promise<void> {
   // AND SO DO THE SCORES: they are somebody else's facts now, and there is no device sum to fall back to.
   serverDrillBoard = null;
   serverDailyBoard = null;
+  // AND THE HINT BALANCE, WHICH IS THE REPORTED DEFECT THIS FIXES: "When logged out, the hints bank still shows my
+  // hints, it should be empty." It was a field of the saved record, so signing out left it behind; the record holds no
+  // balance any more and this is the memory that must go with the session.
+  serverHints = null;
   // THE PASSWORD FIELDS GO WITH THE SESSION: a typed-but-unsent password must not be left in a form the next person at this
   // device can read, and the form itself is hidden by the next paint.
   accountScreen.clearPassword();
@@ -918,6 +943,9 @@ async function doSignOut(): Promise<void> {
 async function loadAlias(): Promise<void> {
   if (player === null) {
     playerAlias = null;
+    // NO SESSION, NO BALANCE TO SHOW: the same rule as sign-out, reached by the boot that finds the session already
+    // expired (`refreshIfExpired` clears it), so a page never inherits the previous player's hints through this path.
+    serverHints = null;
     return;
   }
   const answer = await fetchProfile(apiDeps);
@@ -929,6 +957,10 @@ async function loadAlias(): Promise<void> {
   if (answer.ok) {
     serverDrillBoard = adoptedBoard(serverDrillBoard, answer.value.drillBoard, false);
     serverDailyBoard = adoptedBoard(serverDailyBoard, answer.value.dailyBoard, false);
+    // THE BALANCE RIDES THE SAME READ (REPORTED: "The hint bank should be stored on the server, not locally"), and an
+    // answer without it is NO NEWS: the balance the app already holds stays rather than being replaced by a zero that
+    // would claim the player has spent everything.
+    if (answer.value.hints !== null) serverHints = answer.value.hints;
   }
 }
 
@@ -1052,7 +1084,7 @@ function switchBoardMode(next: AppMode): void {
 
 // THE TWO SENTENCES A BOARD CAN FAIL WITH, in one place: the page's list and the full-screen standings are the same read,
 // so a refusal must not be worded twice.
-const NO_SERVER_BOARD = 'There is no server configured, so there is no board to show — this device keeps your own runs only.';
+const NO_SERVER_BOARD = 'There is no server configured, so there is no board to show — and with no server nothing is scored, so this device has no runs of its own to list.';
 const NO_SET_BOARD = 'There is no published set to show a board for — the Drill board holds one season, and this device has no server-issued drill on it.';
 
 /**
@@ -1142,7 +1174,7 @@ let startOverArmed = false;
 /** The label says what the NEXT press does, which is the whole of this control's honesty. */
 function paintStartOver(): void {
   els.startOver.textContent = startOverArmed
-    ? 'Press again — this device’s runs and hints will be forgotten'
+    ? 'Press again — the drill and Daily in flight here will be forgotten'
     : 'Start over on this device';
 }
 
@@ -1213,7 +1245,7 @@ function startOver(): void {
   // server-side — an operator's action, not a button in the app.
   if (serverWasInPlay) {
     drillScreen.say(
-      "Forgotten on this device: its saved runs and hints. Your drill progress is the server's and stays — the drills and the Daily are generated there, the same ones for every player, so only a reset on the server changes them.",
+      "Forgotten on this device: the drill and Daily that were in flight. Your drill progress, scores and hints are the server's and stay — the drills and the Daily are generated there, the same ones for every player, so only a reset on the server changes them.",
       'info',
     );
   }
@@ -1300,7 +1332,7 @@ function persist(): void {
   paintLedger();
 }
 
-/** What is kept on this device, or that nothing is. */
+/** What the server holds for this player, or that nothing is. */
 function paintLedger(): void {
   // THE BANNER IS A SENTENCE ABOUT THE SAME FACT (its scores and the hint meter), so it is repainted here rather than left
   // to whichever caller remembers — including on the `saving: false` path below.
@@ -2326,7 +2358,7 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     persist();
     return;
   }
-  save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  serverHints = { hints: answer.value.hints.hints, successes: answer.value.hints.successes };
   // THE SERVER'S BOARD IS THE HEADER'S SCORE, and it has just folded this run in — so the header and the "Board:" line
   // below the score are the same number. An UNRANKED run leaves the row untouched, so this is still the account's board
   // rather than a number that moved for a run that did not count.
@@ -2625,7 +2657,7 @@ async function submitSolvedDaily(run: DailyRun): Promise<void> {
     dailyScreen.say(`The server would not record this Daily: ${answer.failure.message}`, 'bad');
     return;
   }
-  save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  serverHints = { hints: answer.value.hints.hints, successes: answer.value.hints.successes };
   // THE DAILY BOARD IS THE HEADER'S DAILY SCORE, so the header and the sentence below it are one number.
   serverDailyBoard = adoptedBoard(serverDailyBoard, answer.value.board, false);
   dailyScreen.say(
@@ -2796,68 +2828,61 @@ function sayInDaily(message: string, tone: 'ok' | 'bad' | 'info'): void {
 }
 
 /**
- * Take a hint: the LEDGER is asked first, and only a granted spend charges the run.
+ * Take a hint: the SERVER is asked, and only a granted spend charges the run.
  *
- * WITH A SERVER, BOTH THE BALANCE AND THE NAME ARE THE SERVER'S (DESIGN.md 11.1, A23): `POST /me/hints` debits the
- * balance, records the event, and names the call from the line it RECORDED — which is the board the player is
- * actually on, where this app's own look-up runs from the position it believes it is on. A refusal — no balance, a
- * challenge nobody read, the bound, nothing to name — is shown and NOTHING is spent, because a hint the server did
- * not record would be a run it refuses (`unrecorded_hints`) and a player who lost the run rather than the hint. A
- * demo has no such write (A20), so it spends the device's balance and names the call from this app's own look-up.
+ * THE BALANCE AND THE NAME ARE BOTH THE SERVER'S (DESIGN.md 11.1, A23): `POST /me/hints` debits the balance, records the
+ * event, and names the call from the line it RECORDED — which is the board the player is actually on, where this app's
+ * own look-up runs from the position it believes it is on. A refusal — no balance, a challenge nobody read, the bound,
+ * nothing to name — is shown and NOTHING is spent, because a hint the server did not record would be a run it refuses
+ * (`unrecorded_hints`) and a player who lost the run rather than the hint.
+ *
+ * A DEMO CANNOT TAKE ONE AT ALL, and that is the correction the removed local balance made: REPORTED "When logged out,
+ * the hints bank still shows my hints, it should be empty." A demo has no balance to spend (the spend is a server write,
+ * A20), so the press is answered with that sentence rather than with a local debit that the server would never see.
  */
 async function takeHint(): Promise<void> {
   if (!daily || PLAYHEAD.isRunning || hintInFlight) return;
-  if (save.hints.hints <= 0) {
-    sayInDaily('You have no hints — one is earned every ten solved drills.', 'bad');
+  const balance: HintLedger = serverHints ?? { hints: 0, successes: 0 };
+  if (balance.hints <= 0) {
+    // TWO DIFFERENT EMPTIES, SAID DIFFERENTLY: no account has no balance to spend, and an account at zero has spent
+    // what it earned. A single sentence for both would tell a signed-out player to earn a hint they cannot hold.
+    sayInDaily(serverHints === null
+      ? 'Hints are the server’s, and this page has none to spend: sign in to use one.'
+      : 'You have no hints — one is earned every ten solved drills.', 'bad');
     return;
   }
-  // A HINT IS A WRITE TOO (A20), so a demo spends the DEVICE's balance and never asks: `POST /me/hints` would answer
-  // `401`, and the balance on screen is already the device's own (see the clause `paintBalance` adds). The hint is
-  // still a hint — DESIGN.md §10's rule is that a hint names a call and costs a minute, and both of those are this
-  // app's arithmetic once the server is not the ledger.
-  const serverSpend = apiConfigured() && mayWrite(currentStanding());
-  let serverNamed: string | null = null;
-  if (serverSpend) {
-    const levelIndex = daily.view(performance.now()).level.index;
-    const answer = await spendOnServer(levelIndex);
-    if (!answer.ok) {
-      // A REFUSAL THAT IS ABOUT THE BALANCE IS THE BALANCE (`refusedSpend`). Without this the footer went on claiming
-      // a hint the server had already spent — MEASURED, after a spend that answered at 88 s and was given up on at
-      // 8 s: the debit landed, this app never adopted it, and every later press was refused while the footer said "1
-      // of 3". The correction is shown rather than silent, because a balance that moves by itself is its own puzzle.
-      const refusal = refusedSpend(save.hints, answer.failure.code);
-      if (refusal.corrected) {
-        save.adoptHints(refusal.ledger);
-        paintBalance();
-        persist();
-        sayInDaily(
-          `The server holds no hints for you, so nothing was spent — and the balance on this device has been corrected (0 of ${HINT_CAP} held). ${answer.failure.message}`,
-          'bad',
-        );
-        return;
-      }
-      sayInDaily(`The server would not record a hint: ${answer.failure.message}`, 'bad');
+  const levelIndex = daily.view(performance.now()).level.index;
+  const answer = await spendOnServer(levelIndex);
+  if (!answer.ok) {
+    // A REFUSAL THAT IS ABOUT THE BALANCE IS THE BALANCE (`refusedSpend`). Without this the footer went on claiming
+    // a hint the server had already spent — MEASURED, after a spend that answered at 88 s and was given up on at
+    // 8 s: the debit landed, this app never adopted it, and every later press was refused while the footer said "1
+    // of 3". The correction is shown rather than silent, because a balance that moves by itself is its own puzzle.
+    const refusal = refusedSpend(balance, answer.failure.code);
+    if (refusal.corrected) {
+      serverHints = refusal.ledger;
+      paintBalance();
+      sayInDaily(
+        `The server holds no hints for you, so nothing was spent — and the balance on this page has been corrected (0 of ${HINT_CAP} held). ${answer.failure.message}`,
+        'bad',
+      );
       return;
     }
-    // THE SERVER'S BALANCE IS THE ONE SHOWN, for the same reason its score is adopted after a run: two ledgers is
-    // one too many, and this app's copy is the preview.
-    save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
-    // AND SO IS ITS NAME (A23's naming): the server looked the call up from the line it RECORDED, which is the board
-    // the player is actually on, where this app's own look-up runs from the position it believes it is on.
-    serverNamed = answer.value.call;
+    sayInDaily(`The server would not record a hint: ${answer.failure.message}`, 'bad');
+    return;
   }
-  const hint = daily.takeHint(serverNamed);
+  // THE SERVER'S BALANCE IS THE ONE SHOWN, for the same reason its score is adopted after a run: two ledgers is one too
+  // many, and this app has none of its own any more.
+  serverHints = { hints: answer.value.hints.hints, successes: answer.value.hints.successes };
+  // AND SO IS ITS NAME (A23's naming): the server looked the call up from the line it RECORDED, which is the board
+  // the player is actually on, where this app's own look-up runs from the position it believes it is on.
+  const hint = daily.takeHint(answer.value.call);
   if (!hint.spent || !hint.call) {
-    // The balance allows a spend but there is nothing to name, so the run is NOT charged: a hint that cannot
+    // The server charged the hint but there is nothing to name, so the run is NOT charged locally: a hint that cannot
     // say anything is not a hint (DESIGN.md 10).
     sayInDaily('There is nothing to hint from here.', 'bad');
     return;
   }
-  // THE BALANCE WAS CHECKED BEFORE THE RUN WAS TOUCHED, and nothing between that read and this charge can
-  // change it (a synchronous straight line), so the spend cannot find an empty ledger here.
-  // ONLY WHERE THE SERVER DID NOT ALREADY CHARGE IT: with a recorded spend the balance moved there and adopting it
-  // is the whole of the bookkeeping — debiting this device as well would charge one hint twice.
-  if (!serverSpend) save.spendHint();
   sayInDaily(`Hint: ${hint.call}. A minute has been added to the clock, and it is not refunded.`, 'info');
   // THE FOOTER IS SHARED CHROME AND THE PANEL IS THE DAILY'S: the balance is painted either way, and the Daily's
   // panel is only repainted where the Daily is what the player is looking at.

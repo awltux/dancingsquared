@@ -26,7 +26,7 @@ import type { Standing } from '../net/standing.ts';
 
 /** A number the banner may or may not have. `null` is "no score yet", which is NOT zero and must not print as one. */
 export interface BannerFacts {
-  /** Hints held, from the local balance (the drills earn it and the Daily spends it). */
+  /** Hints held, from the SERVER's balance (the drills earn it and the Daily spends it); 0 when the page has not been told. */
   readonly hintsHeld: number;
   /**
    * THE SIGNED-IN PLAYER'S PUBLIC NAME, or null when nobody is signed in — and null ALSO for a signed-in player who has

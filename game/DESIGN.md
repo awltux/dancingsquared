@@ -1143,7 +1143,7 @@ sign in to be ranked*.
 | `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts`, `hintsUsed` and `reveals` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22), debits the third (A23) and has its own record of the fourth (A28). The server re-derives which option was correct at each step rather than trusting the client's claim about it, and it answers with `run.ranked`, which is the server's own word about whether the run counted. |
 | `POST /me/runs:bulk` | both | **NO CLIENT CALLS THIS ANY MORE**: it imported the device's local run ledger, and that ledger was removed when the score became the server's (see the amendment above). The server capability is unchanged and still measured (`api/test/history-probe.mjs`) — one `history#<playerId>` row per run, marked `unverified`, and NOTHING ELSE (no board, no hints, no progress, because a run the server never issued cannot be verified, A26), idempotent on a client-generated `runId` so a retry cannot double-count. |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period. **Each entry carries the player's ALIAS rather than their id**, because a row is read by a person: REPORTED as "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address anywhere on the UI." The names are resolved from the `profile#` rows behind the page's entries (one read per row, bounded by `LEADERBOARD_PAGE`), and a player who has never claimed one shows as un-named rather than as an identifier. |
-| `GET /me/profile` | both | The alias this player has claimed, or `null`, AND **BOTH of the header's ranked totals**: their Drill board for the level and set they are playing (`drillBoard: { score, runs } | null`) and their Daily board for today's UTC day (`dailyBoard: { score, runs } | null`). A read that NEEDS an identity — there is nothing to show a signed-out caller — and `null` rather than a `404`, because "no name yet" is a state the app draws a form for. **THE BOARDS RIDE THIS READ** because it is the one player-bound request every signed-in boot makes, so the app's header is right on every page after a reload rather than only after a play page has issued a drill; it is read-only (the stored ladder level, not `servableLevel`'s promotion) and `null` when the row cannot be read. |
+| `GET /me/profile` | both | The alias this player has claimed, or `null`, **BOTH of the header's ranked totals**, and **their hint balance**: their Drill board for the level and set they are playing (`drillBoard: { score, runs } | null`), their Daily board for today's UTC day (`dailyBoard: { score, runs } | null`), and `hints: { hints, successes } | null`. A read that NEEDS an identity — there is nothing to show a signed-out caller — and `null` rather than a `404`, because "no name yet" is a state the app draws a form for. **THE BOARDS AND THE BALANCE RIDE THIS READ** because it is the one player-bound request every signed-in boot makes, so the app's header and hint meter are right on every page after a reload rather than only after a play page has issued a drill; it is read-only (the stored ladder level, not `servableLevel`'s promotion) and `null` when a row cannot be read — "no news", not zero. The balance is here because the app holds no copy of it (REPORTED: "When logged out, the hints bank still shows my hints, it should be empty. The hint bank should be stored on the server, not locally."). |
 | `POST /me/alias` | both | Claim a public name, or change the one held. **The rule is `sanitizeAlias`'s and the SERVER runs it** (`game/src/puzzle/alias.ts`): NFKC, controls/zero-width/bidi stripped, whitespace collapsed, letters/digits/`._- '` only — never `@`, so a name cannot be or look like an address — 3–16 characters, starting and ending with a letter or digit, and not one of the reserved operator words. The claim row is created CONDITIONALLY (`alias#<folded key>`), so one name belongs to one player and a race answers `409 alias_taken`; a name once used is never reissued, so a board cannot hand a player's identity to somebody else. |
 
 `GET /drill/current` works **without an account, and then it is a demo**: the server answers the level it was
@@ -1358,6 +1358,24 @@ claiming `0.1 s` also scores **100**, because `timeFactor` stops at 1.
 | **A26 — the bulk claim is HISTORY, not rank; WITHDRAWN FROM THE CLIENT.** | A device's local ledger could be imported only as `unverified` rows that count for nothing — no board, no hints, no progress — because a run the server never issued cannot be verified. The device ledger is now removed for a stronger reason: REPORTED "the score should be stored on the server. A single point of truth." The server endpoint and its refusal codes are unchanged and measured (`api/test/history-probe.mjs`); `game/src/net/api.ts` no longer calls it. |
 | **A27 — local development never needs a provider, and never reaches production.** | Three identity modes (§11.2). `dev` is refused when the environment is production. |
 | **A28 — a shown answer is recorded, and it buys nothing.** | `POST /drill/reveal` records that one step's answer was SHOWN, naming the call from the puzzle the server issued (the same expression A22's verdict uses), deduplicated by step and never recorded as a press. A drill finished with any reveal recorded is **kept and counted for nothing**: no hint credit, no board entry at all (not a zero), and the regime still advances, because leaving a player on a question they have read is the trap Q5 exists to solve. The submission's `reveals` is an AUDIT input and the rule takes the **union** of the two sources — either one saying "shown" is enough, because the record alone ranks a run whose reveal POST was lost and the claim alone ranks a client that never sends one. |
+
+**THE CLIENT KEEPS THE RUN IN FLIGHT, AND NOTHING ELSE.** REPORTED: "There seems to be a lot of data on the client that
+can be used to cheat the scoring system. This should be removed." The removal was an audit of the saved record, and the
+rule that came out of it is that **nothing the server ranks is stored on the device**:
+
+| Was in `localStorage` | Why it could not stay |
+|---|---|
+| `runs` (every completed run, its score and its day) | a second score, which disagreed with the board (726 beside 1818) and could be edited into any total |
+| `hints` (the balance and its earning progress) | a hint the server did not debit, and the reported symptom: a signed-out page drew the last player's balance |
+| `finished` / `passed` | a mirror of the server's Progress row, in a file the player can edit |
+| the level | kept: it is not puzzle data, and §11's ladder is the authority for a signed-in player |
+
+What is left is the drill and the Daily in flight — their run ids, the step reached, the tries taken, the calls chosen,
+the reveals and the clocks. **EVERY ONE OF THOSE IS AN AUDIT INPUT TO THE SERVER, NOT A FACT**: A21 measures the clock
+from its own issue stamp, A22 counts the presses it recorded, A23 debits the hint from its own row and A28 takes the
+union of the reveals. A player who edits the file changes what is submitted as a claim and nothing about what is scored,
+which is the property the section above is about. The grid's finished/passed sets stay in the shell's memory
+(`save-state.ts`) and are gone with the page.
 
 **Known limits, stated rather than dressed up as defences.** (1) Automation that plays correctly earns at most a
 **par** score — but it earns it every time, and no submission can prove a human made it. **A28 IS INSIDE THIS LIMIT
@@ -1803,15 +1821,20 @@ one back), `save-probe.mjs` (14 sections), `Stopwatch.resume`, `DailyRun.save`/`
 resume options, and `main.ts`'s `persist()` plus a `#ledger` readout. DESIGN.md 11's Progress row is what the
 drill's part of the record IS, so the local shape is the server's shape rather than a near-miss.
 
-**What the record is, and the four rules in it:**
-- **A schema change discards everything; a pool change keeps the HINTS.** An older build's fields may not mean
-  what this build means by them; a moved `poolVersion` invalidates the seeds and the runs but not the balance,
-  because a hint is earned effort rather than puzzle data (§15 Q4: a season boundary must not reset one).
+**What the record is, and the rules in it (AMENDED TWICE: the run ledger went with the local score, and the hint balance
+with it — REPORTED "I would like to move away from the offline score ... A single point of truth", "The hint bank should
+be stored on the server, not locally", "temporary data only on the client."):**
+- **A schema change discards everything; a pool change keeps the LEVEL and drops the run in flight.** An older build's
+  fields may not mean what this build means by them; a moved `poolVersion` invalidates the seeds, so the run in flight
+  goes and only the level (which is not puzzle data) survives. THE BALANCE IS NOT IN THE RECORD AT ALL, so there is
+  nothing for a season boundary to reset — it is a server row, and DESIGN.md 15 Q4's rule is the server's to keep.
 - **What is read back is clamped, never trusted.** `localStorage` is text the player can edit — a hand-edited
-  `hints: 99` would otherwise let the Daily's hint button mint minutes — so every number is range-checked and a
-  record that is not the right shape is dropped AND COUNTED (a loader's silence about bad data is itself a bug).
-- **The run ledger is a queue, deduped on `runId`** — the key §11's claim is idempotent on — and the OLDEST are
-  dropped when it is full, because a claim submits what has not been claimed and a best-of keeps nothing.
+  `hintsUsed: 99` would fold an unbounded hint charge into a run's time — so every number is range-checked and a
+  record that is not the right shape is dropped AND COUNTED (a loader's silence about bad data is itself a bug). The
+  fields this can no longer happen to — `hints`, `finished`, `passed` — are not read at all any more.
+- **WHAT IS STORED IS TEMPORARY: the run in flight.** No score, no balance, no finished set. The grid's sets are
+  `SaveState`'s memory, a signed-in player's grid comes from the server's `regime`, and a practice grid is gone with
+  the page.
 - **A store that refuses is not a broken app**: `saving: false`, the footer says so, and the game plays on.
 
 **And two rules the wiring turned up, both of them fairness rather than plumbing:**
@@ -1838,9 +1861,9 @@ drill's part of the record IS, so the local shape is the server's shape rather t
   run's id, so a resume could not help but mint a second one.
 
 **Still not settled, and not implied otherwise:** §15 Q16 (does an answer given after "show me the answer"
-count as a ranked success?) is now a ONE-FIELD change — the run record is the transcript that could carry the
+count as a ranked success?) is a ONE-FIELD change — the run record is the transcript that could carry the
 flag — but the decision is the owner's. Nothing persists the MODE: a reload opens on the Drill, which is the
-funnel. No network call, no account, no cookie: everything is this device's.
+funnel. No network call, no account, no cookie: everything a demo shows is that tab's.
 
 **Phase 4.5 — the saved game's rules left the shell. DONE.**
 `src/game/save-state.ts` now owns the live state over `store.ts`'s record and the transitions on it, because
@@ -1950,8 +1973,10 @@ machine.
 `DailyRun.submissionFacts(nowMs)` is the run as a submission carries it (`clockSeconds`, `calls`, `hintsUsed`,
 `score`), and `paintDaily`'s existing "a solved run is recorded once" edge now ALSO submits it when an API is
 configured — the same edge, so the two records cannot disagree about which run was the first. What the server
-answers is adopted: `SaveState.adoptHints` replaces the balance, and the line the player reads is the server's
-score and board.
+answers is adopted: at the time through `SaveState.adoptHints`, and **now into `main.ts`'s `serverHints` memory** —
+AMENDED, because the saved record holds no balance at all any more (REPORTED: "When logged out, the hints bank still
+shows my hints, it should be empty. The hint bank should be stored on the server, not locally."). The line the player
+reads is still the server's score and board.
 
 **THE HINT DEBIT IS THE POINT.** Offline a hint is debited when it is TAKEN, because the device is the only record;
 with a server the balance is its (`hintsUsed` in the transcript is what it debits from), so a Daily that reaches the
@@ -1991,7 +2016,9 @@ rename (`bad_day` became `bad_date`).
 `game/src/net/api.ts` gained `submitRun` (`POST /runs`, typed, with the run, the balance, the board and the progress),
 and `main.ts` submits in `finishDrill`: the transcript is `drillOptions` (the calls committed per step, which the app
 has been accumulating since Phase 3), with the run's measured facts — clock seconds, attempts, no hints. What comes
-back is ADOPTED: `SaveState.adoptHints` replaces the local balance and its earning progress with the server's, and
+back is ADOPTED: at the time `SaveState.adoptHints` replaced the local balance and its earning progress with the
+server's — **AMENDED: the balance now goes straight into `main.ts`'s `serverHints`, which is memory and is cleared on
+sign-out, because the device keeps no balance to replace** — and
 the line the player reads last is the server's score and board rather than this app's preview of them. Offline the
 local rule runs exactly as before, and a submission that FAILS falls back to it — an outage must not cost the player
 a success the device can still remember.
@@ -2010,16 +2037,18 @@ a success the device can still remember.
   way: they are the player's progress, not a clock.
 - the accepted run showed **"Recorded — the server scores it 19 points. Board: 19 over 1 run(s)."** — a score and a
   board this app cannot compute (the board is the SERVER's cumulative season), while the footer beside it still read
-  "Saved on this device: 3 runs · best 100". **That divergence is now visible on screen and is intended**: the local
-  ledger is the offline record, the server's board is the ranking, and `POST /me/runs:bulk` is what will reconcile
-  them. Until then a player's two numbers can differ, and the one that ranks is the server's.
+  "Saved on this device: 3 runs · best 100". **That divergence was the local ledger, and it is GONE**: the device keeps
+  no runs and no sum (REPORTED: "I would like to move away from the offline score ... A single point of truth"), so the
+  two numbers are one number, and the footer states the server's board where it has it and "No score on the server yet"
+  where it does not.
 
 **MEASURED, by the probes.** `game/test/api-client-probe.mjs` is now 52 checks, 3 controls: the submission's method
 and path, the transcript sent as it happened, the measured facts, the adopted score/balance/board/progress, the
 clamp flag carried so the player can be told, a refusal keeping the server's sentence, and a response with no score
 or balance REFUSED rather than half-adopted (adopting `undefined` would wipe the local balance while claiming the run
-was recorded). `game/test/save-state-probe.mjs` pins `adoptHints`: the server's numbers replace the local ones, a
-stated count of 0 is adopted as 0 rather than ignored, and the local earning rule still runs on an adopted balance.
+was recorded). `game/test/save-state-probe.mjs` USED to pin `adoptHints`; the balance is not in the saved record any
+more, so what pins it now is `api/test/drill-probe.mjs` §13 (the profile carries the stored row, a fresh player reads
+zero, an unreadable row reads null) and `game/test/api-client-probe.mjs` (the app refuses a balance outside the rules).
 
 **Phase 5.7 — the Daily comes from the published artefact. DONE.**
 `game/src/net/api.ts` gained `dailyChallenge(level, day)` and `main.ts` a `startServerDaily`/`showDaily` split, so the
@@ -2690,9 +2719,14 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     every run in `localStorage` and nothing cleared it, so a player who wanted a fresh start had to find their
     browser's site-data settings. What ships is the recommendation this question carried: a plainly-labelled control
     in the footer ("Start over on this device"), armed by the first press and performed by the second, whose label
-    says what the second press will do. **THE BALANCE GOES WITH THE LEDGER**, because it is inside the same record —
-    so the reset is honest by construction rather than by remembering to clear two things — and that settles the
-    tradeoff this question left open: a reset that kept the hint balance would not be a reset at all. What is
+    says what the second press will do. **THE BALANCE USED TO GO WITH THE LEDGER** because it was inside the same
+    record, and that settled the tradeoff this question left open: a reset that kept the hint balance would not be a
+    reset at all. **AMENDED: the record is now the RUN IN FLIGHT and nothing else** — the scores, the balance and the
+    grid's sets are not in it (REPORTED: "temporary data only on the client.", and the hint balance is the server's) —
+    so the control forgets the drill and the Daily in flight, its armed label says exactly that ("Press again — the
+    drill and Daily in flight here will be forgotten"), and the scores and balance are untouched because they are the
+    account's.
+    What is
     deliberately NOT touched: the signed-in SESSION (`net/session.ts`'s item, with its own control and its own
     sentence — "Sign out") and the DEVICE ID (`net/api.ts`), which is not the player's data but what lets an
     anonymous regime be resumed, so clearing it would change who the server believes is asking while forgetting
@@ -2704,14 +2738,15 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     reads, where a browser dialog is an API no probe can see. Pinned in `game/test/save-probe.mjs` §15, whose checks
     are about SCOPE — exactly one key removed and it is the record — plus the state object's own forgetting, which is
     what stops a reset that clears the key and leaves the in-memory record to be written back on the next `persist`.
-    **MEASURED IN A BROWSER** (`npm run dev:game` on 8089, offline build): with one solved drill and its local success
+    **MEASURED IN A BROWSER** (`npm run dev:game` on 8089, offline build), WHILE THE RECORD STILL HELD A LEDGER: with
+    one solved drill and its local success
     on the device — "Saved on this device: 1 run · best 100", hint progress "1 of 10" — the first press only ARMS the
     control (its label becomes the erase sentence, the board and the ledger unchanged), and the second press returns
     the ledger to "Saved on this device: nothing yet", the hint progress to "0 of 10 to the next", a fresh drill 1 of
-    12 to the board and the label to its unarmed text. **AND THE DISARM IS NOW OBSERVED TOO**, in the session that closed
-    the other gaps: the first press arms the control ("Press again — this device's runs and hints will be forgotten",
-    with the ledger still reading "3 runs · best 100" — nothing cleared), and a switch to the Daily and back returns
-    the label to "Start over on this device" with the ledger untouched, which is `applyMode`'s disarm doing its work.
+    12 to the board and the label to its unarmed text. **AND THE DISARM IS NOW OBSERVED TOO**: the first press arms the
+    control, and a switch to the Daily and back returns the label to "Start over on this device" with the record
+    untouched, which is `applyMode`'s disarm doing its work. Those numbers are the pre-amendment record; NOT
+    re-measured in a browser since the balance left the file.
 21. **"Next drill" is refused after a run that was recorded — DECIDED AND IMPLEMENTED** (found by the Q16 browser check).
     A submitted run finishes its drill server-side (`POST /runs` → `finishDrill`, which clears the in-flight lock), and
     the app then advanced before it issued: `startServerDrill('advance')` called `POST /drill/advance` with a drill the

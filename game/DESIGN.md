@@ -2064,15 +2064,29 @@ a success the device can still remember.
 - the refusal was `the run claims 421.7 s and the drill was issued 19.8 s ago` — CORRECT, and the client was wrong:
   the local save remembered a drill from 421 s earlier while the server had re-issued that position 19.8 s before
   (its store had been restarted), so the client resumed a clock for a drill the server had just handed out.
-  **THE ISSUE TIME IS THE SERVER'S WHEN THERE IS A SERVER** (`showDrill` takes `issuedAtMs` from the drill view), and
-  the local `startedAtMs` is the OFFLINE origin. The step and the attempts are still restored from the save either
-  way: they are the player's progress, not a clock.
+  **THE ISSUE TIME WAS THEN MADE THE SERVER'S** (`showDrill` took `issuedAtMs` from the drill view), and that fix was
+  itself wrong in a way only a SECOND DEVICE showed — see "A RUN'S CLOCK MAY NEVER MIX TWO CLOCKS" below; the origin is
+  now always a DEVICE reading, carried only while the server's stamp names the same issuance. The step and the attempts
+  are restored from the save either way: they are the player's progress, not a clock.
 - the accepted run showed **"Recorded — the server scores it 19 points. Board: 19 over 1 run(s)."** — a score and a
   board this app cannot compute (the board is the SERVER's cumulative season), while the footer beside it still read
   "Saved on this device: 3 runs · best 100". **That divergence was the local ledger, and it is GONE**: the device keeps
   no runs and no sum (REPORTED: "I would like to move away from the offline score ... A single point of truth"), so the
   two numbers are one number, and the footer states the server's board where it has it and "No score on the server yet"
   where it does not.
+
+**A RUN'S CLOCK MAY NEVER MIX TWO CLOCKS, and a run from a second device proved it.** REPORTED: "From a separate device,
+successfully completing a drill will not register the score. It reports an error 'The server would not record this run:
+the run claims 50.4s and the drill was issued 13.3 seconds ago.'" The refusal is the server's own honesty check
+(`impossible_elapsed`: a claim longer than the drill has existed is a lie about the run), and the claim was not play
+time: 50.4 − 13.3 = **37.1 s of that device's clock offset from the server's**, because the client computed
+`elapsed = Date.now() − issuedAtMs` — its own wall clock minus a stamp the SERVER minted. On this machine those are one
+clock, which is why every desktop check passed and the phone refused. **THE ORIGIN IS NOW ALWAYS THIS DEVICE'S READING**
+(`clock.ts`'s `drillClockOrigin`): a saved clock is carried only while its `issuedAtMs` still names the same issuance, so
+a re-issued position starts again at zero and the older 421 s refusal stays fixed from the other direction. The server
+measures the run anyway (A21), so the device's number is the audit input, and starting from its own zero can only
+UNDER-claim. MEASURED by `game/test/drill-clock-probe.mjs`, whose control reproduces the report exactly: the old rule
+claims **50.4 s** for 13.3 s of play and the fixed one claims **13.3 s**.
 
 **MEASURED, by the probes.** `game/test/api-client-probe.mjs` is now 52 checks, 3 controls: the submission's method
 and path, the transcript sent as it happened, the measured facts, the adopted score/balance/board/progress, the

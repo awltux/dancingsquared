@@ -8,6 +8,34 @@
 // IT IS NOT `ui/playhead.ts`. That measures how far through a REPLAY the picture is; this measures the RUN,
 // which spans many replays and stops once. Two concerns, two objects, and neither reaches into the other.
 
+/**
+ * WHEN A DRILL'S CLOCK STARTED, as a DEVICE reading — the one origin the run's elapsed may be measured from.
+ *
+ * TWO CLOCKS MUST NEVER BE SUBTRACTED FROM EACH OTHER, and that is the whole of this function. REPORTED from a second
+ * device: *"The server would not record this run: the run claims 50.4s and the drill was issued 13.3 seconds ago"* — a
+ * refused run whose claim was **37 s too long**, and 50.4 − 13.3 = 37.1 is not play time but the device's clock offset
+ * from the server's. The rule that produced it was `elapsed = Date.now() − issuedAtMs`: a stamp taken from the SERVER
+ * subtracted from a reading taken on the DEVICE, which is zero only when both are the same machine.
+ *
+ * SO THE ORIGIN IS ALWAYS THIS DEVICE'S `Date.now()`, and a saved one is CARRIED only while it belongs to the same
+ * issuance. A server re-issues a position (a restarted store, a replay) and its stamp moves, so a stored origin whose
+ * `issuedAtMs` no longer matches is a clock for a different run and starts again at zero — which is the failure
+ * DESIGN.md §15 records in the other direction, where the save was 421 s old and the server had re-issued 19.8 s before.
+ * The step and the wrong tries are still carried; they are progress, not a clock.
+ *
+ * THE SERVER MEASURES THE RUN ANYWAY (A21: `submittedAt − issuedAt`, its own facts), so the device's reading is the
+ * audit input. Starting from this device's own zero can only UNDER-claim, which the server records beside its own
+ * number and never scores.
+ */
+export function drillClockOrigin(
+  serverIssuedAtMs: number,
+  saved: { readonly issuedAtMs?: number; readonly startedAtMs: number } | null,
+  nowMs: number,
+): number {
+  const sameIssuance = saved !== null && (saved.issuedAtMs ?? 0) === serverIssuedAtMs;
+  return sameIssuance ? saved.startedAtMs : nowMs;
+}
+
 export class Stopwatch {
   private startedAt: number | null = null;
   private stoppedAt: number | null = null;

@@ -61,8 +61,24 @@ export interface DrillSaved {
    * same run.
    */
   runId: string;
-  /** Wall-clock stamp of the moment the drill was issued, so a reload does not hand out a fresh clock. */
+  /**
+   * The DEVICE's `Date.now()` at the moment this drill's clock started — not the server's issue stamp.
+   *
+   * IT MUST BE A DEVICE READING, because the elapsed it becomes is subtracted from another device reading. REPORTED
+   * from a second device: "the run claims 50.4s and the drill was issued 13.3 seconds ago", where 50.4 − 13.3 ≈ the
+   * device's clock offset from the server's; the two clocks were being subtracted from each other. `clock.ts`'s
+   * `drillClockOrigin` is the rule, and it only carries this origin forward while the SERVER's stamp is unchanged.
+   */
   startedAtMs: number;
+  /**
+   * The SERVER's issue stamp this clock belongs to, or 0 for the offline fixture.
+   *
+   * IT IS WHAT MAKES A CARRY SAFE. The stamp is the server's own and it moves when the server re-issues a position
+   * (a restarted store, a replay), so a stored origin whose stamp no longer matches is a clock for a different
+   * issuance and must not be continued — which is the 421 s refusal DESIGN.md §15 records, in the other direction.
+   * ABSENT IN AN OLDER RECORD, which reads as 0 and therefore only carries offline drills.
+   */
+  issuedAtMs?: number;
   /** Answers that were not correct, so a reload does not forgive them. */
   attempts: number;
   /** The step the player had reached; they answer that one again, because it was not answered. */
@@ -299,6 +315,9 @@ function sanitiseDrill(raw: unknown): DrillSaved | null {
   return {
     runId,
     startedAtMs: intOr(r['startedAtMs'], 0, 0),
+    // AN ABSENT STAMP READS AS 0 (the offline fixture's), which is what an older record wrote nothing for: it carries
+    // an offline drill and starts a fresh clock for a server one, which is the safe direction.
+    issuedAtMs: intOr(r['issuedAtMs'], 0, 0),
     attempts: intOr(r['attempts'], 0, 0),
     index: intOr(r['index'], 0, 0),
     options,

@@ -74,7 +74,10 @@ console.log('== 1. a full record round trips ==');
     drillPosition: 5,
     // The RUN ID rides with the run it belongs to: it is what Phase 5's claim is idempotent on, so a resume
     // keeps it rather than minting a second one (and a record without one is refused — see section 14).
-    drillRun: { runId: 'run-drill', startedAtMs: 900, attempts: 2, index: 1, options: ['Boys Run'], revealed: [0] },
+    // `startedAtMs` IS THE DEVICE'S READING and `issuedAtMs` the SERVER'S stamp it belongs to: the pair is what lets a
+    // reload continue the clock for the same issuance and refuse to for a re-issued one (`clock.ts`'s
+    // `drillClockOrigin`, and `drill-clock-probe.mjs` for the refused run that produced it).
+    drillRun: { runId: 'run-drill', startedAtMs: 900, issuedAtMs: 1_700_000_000_000, attempts: 2, index: 1, options: ['Boys Run'], revealed: [0] },
     daily: {
       runId: 'run-daily', day: '2026-10-15', levelIndex: 3, moves: ['Boys Run'], hintsUsed: 1,
       hintedCall: 'Boys Run', elapsedMs: 1500, outcome: 'playing', savedAtMs: 5000,
@@ -189,6 +192,9 @@ console.log('\n== 6c. the reveal list survives the record, and a hand-edited one
   check(stable(junk.state.drillRun?.revealed) === stable([1, 2]), `a list with junk in it keeps the entries that are steps (${JSON.stringify(junk.state.drillRun?.revealed)})`);
   const notAList = loadGame(memory({ [SAVE_KEY]: JSON.stringify({ ...save(), drillRun: { runId: 'r', startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: 'yes' } }) }), POOL);
   check(notAList.state.drillRun !== null && notAList.state.drillRun.revealed.length === 0, 'and a reveal list that is not a list reads as none, without losing the drill record');
+  // THE ISSUANCE STAMP READS AS 0 WHEN ABSENT, which is the safe half of `drillClockOrigin`: a record written before the
+  // field existed only resumes an OFFLINE drill, whose stamp is also 0, and starts a fresh clock for a server one.
+  check(notAList.state.drillRun?.issuedAtMs === 0, `a record written before the issuance stamp existed reads it as 0 (${notAList.state.drillRun?.issuedAtMs})`);
 }
 
 console.log('\n== 10. ids are unique, with and without crypto ==');
@@ -241,7 +247,7 @@ console.log('\n== 13. how big the record is ==');
   // kept as a check: it is what says a future field cannot quietly grow localStorage's share.
   const state = save({
     drillPosition: 9,
-    drillRun: { runId: `r-${'x'.repeat(36)}`, startedAtMs: 1, attempts: 3, index: 1, options: ['Boys Run'], revealed: [0] },
+    drillRun: { runId: `r-${'x'.repeat(36)}`, startedAtMs: 1, issuedAtMs: 1_700_000_000_000, attempts: 3, index: 1, options: ['Boys Run'], revealed: [0] },
     daily: { runId: `r-${'y'.repeat(36)}`, day: '2026-10-15', levelIndex: 3, moves: ['Allemande Left in the Alamo Style', 'Cast Off Three Quarters'], hintsUsed: 1, hintedCall: null, elapsedMs: 12345, outcome: 'playing', savedAtMs: 5000 },
   });
   const bytes = JSON.stringify(state).length;

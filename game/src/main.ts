@@ -43,7 +43,7 @@ import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/ty
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
-import { Stopwatch } from './game/clock.ts';
+import { drillClockOrigin, Stopwatch } from './game/clock.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
 import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, dailyChallenge, fetchDrillReplay, fetchLeaderboard, fetchProfile, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
@@ -320,8 +320,15 @@ let save!: SaveState;
 /** The id of the run in flight, generated once so recording it twice is idempotent (`recordRun` dedupes). */
 let drillRunId = '';
 let dailyRunId = '';
-/** The wall clock the issued drill was handed out at, and the calls it has advanced with, both persisted. */
-let drillIssuedAtMs = 0;
+/**
+ * The DEVICE's reading at which the drill on screen started, and the calls it has advanced with, both persisted.
+ *
+ * IT IS A DEVICE READING AND NOT THE SERVER'S STAMP (`clock.ts`'s `drillClockOrigin`): the elapsed it becomes is
+ * subtracted from another reading of the same clock, and subtracting the server's stamp from `Date.now()` is what
+ * refused a run from a second device — "the run claims 50.4s and the drill was issued 13.3 seconds ago", 37 s of
+ * clock offset rather than play.
+ */
+let drillStartedAtMs = 0;
 let drillOptions: string[] = [];
 
 let lastFrameMs = 0;
@@ -1300,7 +1307,9 @@ function drillSavedState(): DrillSaved | null {
   if (!controller || controller.atEnd) return null;
   return {
     runId: drillRunId,
-    startedAtMs: drillIssuedAtMs,
+    startedAtMs: drillStartedAtMs,
+    // THE ISSUANCE THIS CLOCK BELONGS TO, so a reload only continues a clock for the same one (`clock.ts`).
+    issuedAtMs: serverDrill?.issuedAtMs ?? 0,
     attempts: controller.attempts,
     index: controller.view().stepIndex,
     options: [...drillOptions],
@@ -1718,18 +1727,18 @@ function showDrill(issued: { seed: number; levelIndex: number; index: number; le
     carrying ? { index: carrying.index, attempts: carrying.attempts, revealed: carrying.revealed } : {},
   );
   drillOptions = carrying ? [...carrying.options] : [];
-  // WHEN THE DRILL WAS ISSUED IS THE SERVER'S FACT WHEN THERE IS A SERVER, and this line is a fix rather than a
-  // detail. MEASURED IN A BROWSER, and it cost a refused run: the local save remembered a drill from 421 s earlier
-  // while the server had re-issued the same position 19.8 s before (its store had been restarted), so the run
-  // claimed 421.7 s and the server answered `impossible_elapsed` — correctly, because a claim longer than the drill
-  // has existed is a lie about the run. The local `startedAtMs` is the OFFLINE origin, and the step and attempts
-  // below are still restored from the save either way (they are the player's progress, not a clock).
-  const originMs = issued.issuedAtMs ?? (carrying ? carrying.startedAtMs : Date.now());
-  drillIssuedAtMs = originMs;
+  // THE CLOCK'S ORIGIN IS THIS DEVICE'S READING, AND THE RULE IS `clock.ts`'S (`drillClockOrigin`), because the version
+  // here that used the SERVER's stamp refused a run from a second device: REPORTED "The server would not record this
+  // run: the run claims 50.4s and the drill was issued 13.3 seconds ago" — the two clocks subtracted from each other,
+  // so 37 s of clock offset was claimed as play. A saved origin is carried only while its `issuedAtMs` still names THIS
+  // issuance, which is what keeps the older 421 s refusal fixed in the other direction (a re-issued position starts
+  // its clock again). The step and attempts below are restored from the save either way: they are progress, not a clock.
+  const originMs = drillClockOrigin(issued.issuedAtMs ?? 0, carrying, Date.now());
+  drillStartedAtMs = originMs;
   drillRunId = carrying ? carrying.runId : newRunId(Date.now());
   drillClock = new Stopwatch();
-  // THE ELAPSED IS WALL TIME because the issue stamp is: the run began when the entry was SHOWN, so the minute the
-  // page spent closed is a minute of the run (and a reload is therefore not a pause).
+  // THE ELAPSED IS WALL TIME because the origin is: the run began when the entry was SHOWN, so the minute the page
+  // spent closed is a minute of the run (and a reload is therefore not a pause).
   drillClock.resume(performance.now(), Math.max(0, Date.now() - originMs));
   PLAYHEAD.cancel();
   replay = null;

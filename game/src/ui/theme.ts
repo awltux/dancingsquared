@@ -100,6 +100,13 @@ export const RADIUS = {
   control: '10px',
   card: '14px',
   pill: '999px',
+  /**
+   * THE NEAR-SQUARE STEP, for a box whose corners should not compete with its content: the header's hint badge, where
+   * three bars run the full height of the outline. REPORTED: "The hint bank badge can be much more square outline. This
+   * will allow the bars to fill the outline with a more stylistic look." A 4 px radius is the smallest value that still
+   * reads as a rounded corner rather than a cut one, and it is a step on this scale rather than a literal in the sheet.
+   */
+  tight: '4px',
 } as const;
 
 /**
@@ -214,6 +221,7 @@ export const CSS_VARS: Readonly<Record<string, string>> = {
   '--r-control': RADIUS.control,
   '--r-card': RADIUS.card,
   '--r-pill': RADIUS.pill,
+  '--r-tight': RADIUS.tight,
   '--t-press': MOTION.press,
   '--t-enter': MOTION.enter,
   '--t-slide': MOTION.slide,

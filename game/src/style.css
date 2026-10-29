@@ -268,16 +268,22 @@ html[data-panel="left"][data-stage="page"] #boardList {
   display: flex;
   flex: none;
   /* THE BARS FILL THE BADGE, EDGE TO EDGE. REPORTED after the circles became bars: "Use ghost outlines of the bars that fill
-     to the edge of the badge outline." So the cell has NO vertical padding and stretches to the row's height, and the meter
-     inside it is stretched rather than centred: a bar that stopped short of the outline would be a third box inside two
-     boxes, which is the same complaint the circles drew. The 1px border is the only margin the bars have. */
-  align-self: stretch;
+     to the edge of the badge outline." So the cell has NO vertical padding and the meter inside it is stretched rather than
+     centred: a bar that stopped short of the outline would be a third box inside two boxes, which is the same complaint the
+     circles drew. The 1px border is the only margin the bars have.
+     IT IS THE ACCOUNT BADGE'S HEIGHT, AND NEARLY SQUARE. REPORTED: "change the hint bank badge to be the same height as the
+     account badge" and "The hint bank badge can be much more square outline. This will allow the bars to fill the outline
+     with a more stylistic look." So the height is the ACCOUNT badge's own token rather than the row's (a stretch made the
+     cell taller than the circle beside it), and the radius is the near-square step: three bars running the full height of a
+     box rounded like the circle would look like a pill full of lines, where a 4 px corner is a frame the bars sit in. */
+  align-self: center;
   align-items: stretch;
+  height: var(--space-xl);
   margin: 0 0 0 auto;
   padding: 0 var(--space-sm);
   background: var(--control);
   border: 1px solid var(--line);
-  border-radius: var(--r-control);
+  border-radius: var(--r-tight);
 }
 
 /* THE LEVEL AND ITS TWO SCORES ARE ONE CELL. `L1`, then a glyph per game with its value — the compact form the report asked

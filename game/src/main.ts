@@ -2333,8 +2333,8 @@ function finishDrill(): void {
  *
  * WHAT IS CLAIMED AND WHAT IS DECIDED: the calls played are the transcript, and the server re-derives which option
  * was correct at each step and clamps the score to what it can recompute (§6, §11). The balance it answers with
- * replaces the local one, and the score it answers with is the number the board will hold — so the line the player
- * reads last is the authoritative one rather than this app's preview of it.
+ * replaces the local one, and the score it answers with is the number the board will hold — so the LINE shows the
+ * server's number rather than this app's preview, and a success adds no words to it.
  */
 async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<void> {
   if (!controller || !serverDrill) return;
@@ -2366,33 +2366,33 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
   });
 
   if (!answer.ok) {
-    // THE RUN IS LOST, AND THAT IS SAID PLAINLY. There is no local ledger to fall back to and no local hint credit: the
-    // server refused or could not be reached, and the score line already on screen is this app's calculation, not a
-    // recorded result. The refusal is shown so the gap is visible rather than hidden.
-    drillScreen.amend(`The server would not record this run: ${answer.failure.message}`, 'bad');
+    // NO SCORE WITHOUT A RECORD. REPORTED: "If there is a failure updating the server, dont show the score, just show
+    // the error." The score line on screen is this app's preview, and with no recorded run behind it that number is a
+    // result the player does not have — so it is REPLACED by the refusal (`say` writes the verdict slot's whole text,
+    // where the old `amend` kept the line and appended a footnote). There is no local ledger to fall back to either.
+    drillScreen.say(`The server would not record this run: ${answer.failure.message}`, 'bad');
     paintBalance();
     persist();
     return;
   }
   serverHints = { hints: answer.value.hints.hints, successes: answer.value.hints.successes };
-  // THE SERVER'S BOARD IS THE HEADER'S SCORE, and it has just folded this run in — so the header and the "Board:" line
-  // below the score are the same number. An UNRANKED run leaves the row untouched, so this is still the account's board
-  // rather than a number that moved for a run that did not count.
+  // THE SERVER'S BOARD IS THE HEADER'S SCORE, so the header is repainted with it below.
   serverDrillBoard = adoptedBoard(serverDrillBoard, answer.value.board, false);
   // THE SERVER HOLDS THIS RUN, WHICH IS WHAT "Next drill" MAY RELY ON (DESIGN.md §15 Q21): the accepted submission
   // finished the drill on the server's own Progress row, so what the app needs next is the next drill, which is a
   // read. A DUPLICATE COUNTS — the row is the server's either way — and a refused or unreachable submission does not,
   // which is why this is set on the one path where the server said yes, and nowhere else.
   serverRecordedRun = true;
-  const clamped = answer.value.run.clamped ? ' Your own score was higher, so the server clamped it.' : '';
-  // THE SERVER SAYS WHETHER IT COUNTED, and the app repeats that rather than assuming: `granted: false` is the
-  // ordinary case, so without `ranked` a revealed run would read exactly like one that simply did not earn a hint.
-  const standing = answer.value.run.ranked
-    ? ` Board: ${answer.value.board.score} over ${answer.value.board.runs} run(s).`
-    : ' Not ranked: you were shown the answer, so it earns no hint and does not reach the board.';
-  drillScreen.amend(`Recorded — the server scores it ${answer.value.run.score} points.${standing}${clamped}`, answer.value.run.ranked ? 'ok' : 'info');
+  // THE SCORE LINE, AND NOTHING ELSE. REPORTED: "When the score is displayed for a successful drill, there is no need
+  // for the text informing that the server was updated successfully." So a successful submission does not add a
+  // sentence — it replaces the preview with the number the server itself recomputed (and possibly clamped), which is
+  // the line the board will hold. AN UNRANKED RUN GETS NO LINE AT ALL: a revealed run is submitted and answers
+  // `ranked: false`, and its verdict already says it does not reach the board, so a score here would contradict it.
+  if (answer.value.run.ranked) {
+    drillScreen.showScore(scoreLine(answer.value.run, controller.puzzleRef.level));
+  }
   paintBalance();
-  // THE HEADER SHOWS THE BOARD THE NOTE JUST NAMED, so the two are repainted together.
+  // THE HEADER SHOWS THE BOARD THAT ANSWER CARRIED.
   paintBanner();
   persist();
 }

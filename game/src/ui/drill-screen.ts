@@ -140,9 +140,11 @@ export class DrillScreen {
    * of five things in it. The text itself is `puzzle/score-line.ts`'s (gated by `score-line-probe.mjs`); this method only
    * paints it, and it takes the finished string so the denominator cannot be re-derived here as a second definition.
    *
-   * IT IS A `.result-score` ELEMENT RATHER THAN PLAIN VERDICT TEXT because the server's footnote (`amend`) has to arrive
-   * BESIDE it: the card used to be the thing that appended the note, and with the text loose in the verdict slot the note
-   * would have overwritten the score — the defect `amend` was written for the first time.
+   * IT IS A `.result-score` ELEMENT RATHER THAN PLAIN VERDICT TEXT so the score has its own styling in the slot, and so
+   * that REPLACING it is one call: the server's answer replaces this line with its own number, and a refusal replaces it
+   * with the refusal (`say` writes the slot's whole text) — REPORTED "When the score is displayed for a successful drill,
+   * there is no need for the text informing that the server was updated successfully. If there is a failure updating the
+   * server, dont show the score, just show the error."
    */
   showScore(line: string): void {
     const scored = document.createElement('p');
@@ -156,32 +158,5 @@ export class DrillScreen {
   clearVerdict(): void {
     this.els.verdict.textContent = '';
     delete this.els.verdict.dataset['kind'];
-  }
-
-  /**
-   * ADD a line to whatever the verdict slot holds, instead of replacing it.
-   *
-   * THE SERVER'S ANSWER ARRIVES AFTER THE LOCAL SCORE, and it used to overwrite the scored pane with a sentence — MEASURED in
-   * the browser: a solved drill showed "Recorded — the server scores it 100 points…" where the stars had been a moment
-   * earlier, because `submitSolvedRun` called `say`. The score line is the moment; the server's confirmation is a footnote
-   * to it, so it is appended (and a refusal on the same path is appended too, in the refusal's own colour, because the local
-   * score still stands). When there is no score line — a demo, a revealed run — this degrades to `say`, which is the same
-   * behaviour that path had before.
-   */
-  amend(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
-    if (!this.els.verdict.querySelector('.result-score')) {
-      this.say(text, kind);
-      return;
-    }
-    let note = this.els.verdict.querySelector('.result-note');
-    if (!note) {
-      note = document.createElement('p');
-      note.className = 'result-note';
-      // A SIBLING OF THE SCORE LINE, not a child of it: the line is one text node the player reads as a score, and a
-      // confirmation inside it would become part of that reading.
-      this.els.verdict.append(note);
-    }
-    note.textContent = text;
-    (note as HTMLElement).dataset['kind'] = kind;
   }
 }

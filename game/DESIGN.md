@@ -715,6 +715,16 @@ answers cannot drift between the client and the server, because there is now onl
   options: *"which call is this?"* (name the motion) and *"which one gets you there?"* (choose the motion
   that reaches the goal board). **Recommended for v1: the second**, because it is the skill the game exists
   to teach and it needs no call-name vocabulary the player may not have.
+- **A SOLVED DRILL ENDS ON `score/ceiling` AND NOTHING ELSE, AND A REFUSED SUBMISSION SHOWS ONLY THE REFUSAL.**
+  REPORTED: "When the score is displayed for a successful drill, there is no need for the text informing that the server
+  was updated successfully. If there is a failure updating the server, dont show the score, just show the error." The
+  line is `puzzle/score-line.ts`'s, and it is painted TWICE: the app's own calculation the moment the answer lands, then
+  the SERVER's number when the submission answers (`run.score`, which it may have clamped) — same line, same rule, so a
+  success adds no words. A refusal REPLACES the line (`DrillScreen.say` writes the verdict slot's whole text, where the
+  removed `amend` used to keep the score and append a footnote): a score with no recorded run behind it is a result the
+  player does not have. MEASURED in a browser against the LAN server — a signed-in solve showed **`28/100`** with the
+  header moving to 28, and with the API stopped the same path showed **"The server would not record this run: …"** and no
+  score at all.
 - **The illegal option is the lesson.** It stops part-way, and the engine's own refusal reason is shown
   verbatim — the same reason string the Daily shows, from the same `applyToBoard` result (§4.1).
   **AND IT MUST NOT BE RECOGNISABLE BEFORE IT IS PRESSED**, which is two rules and both were defects once
@@ -2031,7 +2041,10 @@ consumer was this repository's own client, which is why the rename was cheap now
 ```
 `solutionFacts` was played through the page: the published challenge accepted the one-call line ("Allemande Left in
 the Alamo Style — that is the goal board"), and the screen answered **"Recorded — the server scores it 1 points.
-Best on this board: 1."** — a score and a board the app cannot compute. The balance line then read
+Best on this board: 1."** — a score and a board the app cannot compute. (THE DAILY STILL SAYS ITS OWN RESULT LINE; the
+DRILL's "Recorded — …" sentence is gone — REPORTED "there is no need for the text informing that the server was updated
+successfully", so a solved drill now ends on `score/ceiling` alone and a refusal replaces that line with the refusal.)
+The balance line then read
 **"Hints: 0 of 3 · 0 of 10 to the next"** where the local value had been "1 of 10": the server's fresh record
 replaced this device's, which is the adoption happening on screen rather than in a comment. (The 1-point score is
 the resumed clock: the Daily charges the wall gap, so a run resumed after ~18 minutes of being away scores

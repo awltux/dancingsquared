@@ -56,6 +56,16 @@ console.log('\n== 1. one line: the score, a slash, the ceiling — and nothing e
   const extras = shapes.filter((line) => /[★☆]|pts?|s\b|of|Clean|Solved|%/.test(line));
   check(extras.length === 0, `no stars, units, time, headline or percentage in any line (${extras.length} found)`, extras.join(' | '));
   check(shapes.every((line) => /^\d+\/\d+$/.test(line)), `every line is exactly score/ceiling (${shapes.join(' ')})`);
+  // THE LINE CAN BE BUILT FROM THE SERVER'S NUMBER, which is the one shown once the submission answers: REPORTED "When the
+  // score is displayed for a successful drill, there is no need for the text informing that the server was updated
+  // successfully. If there is a failure updating the server, dont show the score, just show the error." So `scoreLine`
+  // takes anything with a `score` — the submission's `run.score` included — and the line reads the same either way.
+  check(scoreLine({ score: 42 }, levelSpec(1)) === '42/100',
+    `a server's number formats through the same rule (${scoreLine({ score: 42 }, levelSpec(1))})`);
+  // NEGATIVE CONTROL: the shape that would have made the server's number a SECOND sentence — "Recorded — the server scores
+  // it 42 points" — is not a line at all, and section 1's shape check is what rules it out.
+  const shipped = (points) => `Recorded — the server scores it ${points} points`;
+  check(!/^\d+\/\d+$/.test(shipped(42)), 'CONTROL: the sentence that used to accompany the score is not a score line');
 }
 
 console.log('\n== 2. the ceiling is the score\'s own, not a literal 100 ==');

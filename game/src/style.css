@@ -1261,7 +1261,7 @@ button[data-busy="true"]::after {
 #bannerPips.hint-bars {
   display: inline-flex;
   align-items: stretch;
-  gap: 3px;
+  gap: var(--space-xs);
   height: 100%;
 }
 
@@ -1624,23 +1624,9 @@ button[data-busy="true"]::after {
   font-variant-numeric: tabular-nums;
 }
 
-/* THE SERVER'S FOOTNOTE, added under the score line by `DrillScreen.amend` — what the round trip answered, in the line's
-   quiet voice, and in the refusal's colour when the answer was a refusal (the local score still stands either way). */
-.result-note {
-  margin: 0;
-  padding-top: var(--space-sm);
-  border-top: 1px solid var(--line-soft);
-  font-size: var(--fs-small);
-  color: var(--dim);
-}
-
-.result-note[data-kind="bad"] {
-  color: var(--bad);
-}
-
-.result-note[data-kind="ok"] {
-  color: var(--ok);
-}
+/* NO `.result-note` ANY MORE: the score line is REPLACED by the server's number, and a refusal replaces it with the
+   refusal's own sentence — REPORTED "there is no need for the text informing that the server was updated successfully.
+   If there is a failure updating the server, dont show the score, just show the error." */
 
 /* ===================================================================================================================
    COMPOSITION: A SECTION IS A CARD, AND ONE CONTROL IS THE ACTION.

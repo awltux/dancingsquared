@@ -227,15 +227,23 @@ console.log('\n== 6. the type and space scales, and the ceiling on the first =='
   check([...sneaky.matchAll(/font-size:\s*([^;]+);/g)].map((m) => m[1]).some((v) => !/^var\(--fs-/.test(v)),
     'an in-between size fails the literal rule (the negative control)');
 
-  // THE SPACE SCALE: every gap and padding is a step or an explicit zero. A composite padding is two steps.
+  // THE SPACE SCALE: every edge of a gap or padding is a step or an explicit zero. Read as TOKENS rather than as whole
+  // strings, because a composite is a list: `padding: 0 var(--space-sm)` is a zero with a step beside it, which the rule
+  // always meant to allow — the pattern list this replaces spelled out one, two, three and four steps and so rejected the
+  // zero-plus-one form the header's hint badge needs (a cell with no vertical padding and a scale step on its sides).
   const spaces = [...body.matchAll(/\b(?:gap|padding):\s*([^;]+);/g)].map((m) => m[1].trim());
   check(spaces.length > 10, `and it sets ${spaces.length} gaps or paddings`);
-  const straySpaces = spaces.filter((v) => !/^(0|var\(--space-[a-z]+\))$/.test(v)
-    && !/^var\(--space-[a-z]+\) var\(--space-[a-z]+\)$/.test(v)
-    && !/^var\(--space-[a-z]+\) var\(--space-[a-z]+\) var\(--space-[a-z]+\)( var\(--space-[a-z]+\))?$/.test(v)
+  const step = new RegExp(`^var\\(--space-(${Object.keys(SPACE).join('|')})\\)$`);
+  const straySpaces = spaces.filter((v) => {
     // the sheet's safe-area padding is geometry, not a scale step: it must follow the device's inset
-    && !/^calc\(var\(--space-[a-z]+\) \+ env\(safe-area-inset-bottom\)\)$/.test(v));
+    if (/^calc\(var\(--space-[a-z]+\) \+ env\(safe-area-inset-bottom\)\)$/.test(v)) return false;
+    return !v.split(/\s+/).every((token) => token === '0' || step.test(token));
+  });
   check(straySpaces.length === 0, `and every one is a space step or a zero (${straySpaces.length} stray)`, straySpaces.join(' | '));
+  // NEGATIVE CONTROL, MEASURED: the same reader must still reject a LITERAL beside a zero — `0 3px` — which is the case the
+  // token rule exists for. A rule that accepted any composite would pass the check above while accepting this.
+  check(!'0 3px'.split(/\s+/).every((token) => token === '0' || step.test(token)),
+    'CONTROL: a zero with a literal beside it is still stray, so the token rule is not a blanket pass');
   const usedSpace = new Set(spaces.flatMap((v) => [...v.matchAll(/var\(--space-([a-z]+)\)/g)].map((m) => m[1])));
   check(usedSpace.size === Object.keys(SPACE).length, `and all ${Object.keys(SPACE).length} space steps are in use (${usedSpace.size})`);
 }

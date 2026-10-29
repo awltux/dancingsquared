@@ -13,7 +13,7 @@
 // PURE, AND GATED, because the rule a probe cannot import is not a rule (AGENTS.md §11.4.5): `ui/drill-screen.ts` paints
 // whatever this returns, so the text is decided in one place and pinned there. No clock, no DOM, no storage.
 
-import { maxScore, type RunScore } from './score.ts';
+import { maxScore } from './score.ts';
 import type { LevelSpec } from './types.ts';
 
 /**
@@ -21,7 +21,14 @@ import type { LevelSpec } from './types.ts';
  *
  * IT TAKES THE LEVEL rather than a ceiling as a number, so a caller cannot pair a run with another level's maximum — the
  * two facts that produce the line come from the same run.
+ *
+ * IT TAKES ANYTHING WITH A `score`, NOT A `RunScore`, because the number shown is the SERVER'S once it has answered: the
+ * submission's `run.score` is what the server recomputed and possibly clamped (§6, §11), and REPORTED "When the score is
+ * displayed for a successful drill, there is no need for the text informing that the server was updated successfully. If
+ * there is a failure updating the server, dont show the score, just show the error." So the server's number replaces the
+ * app's preview in the same line rather than appearing in a second sentence beside it — and one formatting rule covers
+ * both sources, which is what stops the two disagreeing about how a score is written.
  */
-export function scoreLine(score: RunScore, level: LevelSpec): string {
+export function scoreLine(score: { readonly score: number }, level: LevelSpec): string {
   return `${score.score}/${maxScore(level)}`;
 }

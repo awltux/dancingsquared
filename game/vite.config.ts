@@ -40,6 +40,25 @@ export default defineConfig({
     // `import.meta.glob` cannot reach outside the root. MEASURED false — see `vite.corpus.ts`, which traces the
     // empty glob that made it look true to one `../` too few. `server.fs.allow` is what the DEV server needs to
     // serve those bytes; the build resolves the glob from the filesystem and never asks.
+    // A DEV-ONLY PROXY FOR THE API, SO THE APP AND THE API ARE ONE ORIGIN AND ONE PORT.
+    //
+    // REPORTED, and this is the second half of "access the app from my phone": on a real phone the app loaded and the
+    // SIGN-IN FORM WAS MISSING, which is what `signInOffered` answers when `/health` could not be read — the page had
+    // come from :8089 and its request to :8090 had not. A second port is a second thing a phone's network has to allow,
+    // and it is also a second origin (so CORS, and a second host spelling to get wrong). With `VITE_API_BASE=/api` the
+    // browser asks the page's own origin and this proxies it to the API, so a device that can load the app can always
+    // reach its server.
+    //
+    // THE TARGET IS LOOPBACK ON PURPOSE: this is the dev server's own back door, not a public one, so the API can stay
+    // bound to `127.0.0.1` even while the app is on the LAN (`DSQ_HOST` is for the case that needs the API exposed
+    // directly). `/api` IS STRIPPED, because the API's routes are rooted at `/` (`GET /health`, `POST /runs`).
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8090',
+        changeOrigin: false,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
     fs: { allow: ['..'] },
   },
   build: {

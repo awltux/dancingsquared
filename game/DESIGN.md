@@ -1962,6 +1962,19 @@ config-file reload — the log went from four Network URLs to `Network: use --ho
 the restart (MEASURED: after touching the config, `vite --host 0.0.0.0` still listened on `0.0.0.0:8089`). A server that
 quietly loses its bind on a reload is worse than one that never had it.
 
+**AND THE LAN RUN PUTS THE API BEHIND THE PAGE'S OWN PORT.** REPORTED from a real phone, after the binds above were
+right: "I access the app in a browser set to mobile profile and the login appears. On a real mobile on the local network
+(same ip url) I don't see the login." The page arrived and the FORM did not — and the form is drawn only once `/health`
+has been read (`signInOffered` reads the routes the server advertises) — so the phone's request to the second port,
+`:8090`, was the thing that failed while `:8089` reached it. A second port is a second thing a device's network has to
+allow, and a second origin needs CORS, so the dev server now PROXIES: `server.proxy` maps `/api` to
+`http://127.0.0.1:8090` with the prefix stripped, and the LAN run sets `VITE_API_BASE=/api` — a PATH, not an address. The
+app then asks its own origin, so a device that can load the app can always reach its server, no LAN address is written
+down, and the API can stay bound to loopback. MEASURED: `GET http://192.168.1.189:8089/api/health` answered the API's own
+JSON, and the page loaded from that address drew the sign-in form. `VITE_API_PORT` (which derives the API's address from
+the page's host) REMAINS for a run with no dev server to proxy — a built `preview`, or a device pointed at one — and the
+proxy is dev-only, so a deployed build still sets its absolute base at build time.
+
 **MEASURED, by `api/test/store-probe.mjs`** — the same functions driven twice, once with the in-memory twin and
 once against DynamoDB Local (40 checks, 2 negative controls): a create on an absent key lands and reads back at
 revision 1; a second create is refused and changes nothing; a replace expecting the wrong revision is refused

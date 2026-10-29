@@ -16,7 +16,7 @@
 // IT TAKES ITS DEPENDENCIES AS AN ARGUMENT (`deps`), which is what lets a probe drive every refusal with a fake
 // fetch and a fake storage — no browser, no server, and no way for a probe to mistake an untested path for a
 // working one.
-import { newRunId, type RunRecord } from '../game/store.ts';
+import { newRunId } from '../game/store.ts';
 import { accessTokenOf, type SessionStore } from './session.ts';
 import { cognitoConfigFrom, type CognitoConfig } from './cognito.ts';
 // A TYPE-ONLY IMPORT, so there is no runtime cycle: `auth.ts` calls this module's `apiCall`, and this module needs
@@ -864,47 +864,6 @@ export async function advanceDrill(drillId: string, deps: ApiDeps = browserDeps(
   };
 }
 
-/** One run as `POST /me/runs:bulk` takes it: the device's own record, and nothing the server could re-derive (A26). */
-interface LedgerEntry {
-  readonly runId: string;
-  readonly mode: 'drill' | 'daily';
-  readonly levelIndex: number;
-  readonly score: number;
-  readonly elapsedSeconds: number;
-  readonly hintsUsed: number;
-  readonly calls: readonly string[];
-  readonly date: string | null;
-}
-
-/**
- * One local run record as the import endpoint takes it.
- *
- * THE TWO MODES CARRY THE TRANSCRIPT UNDER DIFFERENT LOCAL NAMES AND THE WIRE HAS ONE. `store.ts`'s `RunRecord`
- * keeps a Drill's calls in `options` (one per step) and a Daily's in `moves`, because those are what the two modes
- * mean by them; the imported row has a single `calls` list (`api/src/history.ts`). The mapping is here rather than
- * in the shell because it is a rule about two shapes agreeing — which is exactly the kind of rule a probe can check
- * and `main.ts` cannot (AGENTS.md §1).
- *
- * IT CANNOT FAIL, and that is a property of the ledger rather than optimism: `sanitiseRun` drops a record whose
- * required fields are not real numbers, so every record in `save.runs` maps. A transcript that is somehow absent
- * becomes an empty list, which the endpoint tolerates and stores as history with no line — the run is still worth
- * keeping, and the alternative (refusing the whole import) would lose the runs around it.
- */
-export function ledgerEntryOf(run: RunRecord): LedgerEntry {
-  return {
-    runId: run.runId,
-    mode: run.mode,
-    levelIndex: run.levelIndex,
-    score: run.score,
-    elapsedSeconds: run.elapsedSeconds,
-    // A DRILL SPENDS NO HINTS OF ITS OWN (§10: a hint is earned on the drill line and spent on the Daily's), so the
-    // spend is the Daily's field and everything else writes the zero the endpoint requires.
-    hintsUsed: run.hintsUsed ?? 0,
-    calls: run.mode === 'drill' ? (run.options ?? []) : (run.moves ?? []),
-    date: run.day ?? null,
-  };
-}
-
 /**
  * `POST /daily/move` — record one move of today's Daily (DESIGN.md §11.1, A22's Daily half).
  *
@@ -1024,62 +983,25 @@ export async function fetchLeaderboard(
   };
 }
 
-/** What the server made of an import. */
-interface LedgerImport {
-  readonly imported: number;
-  readonly skipped: number;
-  readonly total: number;
-}
-
 /**
- * `POST /me/runs:bulk` — hand this device's ledger over as UNRANKED HISTORY (DESIGN.md §11.1, A26).
- *
- * AN EMPTY LEDGER IS NOT SENT AT ALL. The endpoint REFUSES one (`bad_ledger`, "the ledger is empty, so there is
- * nothing to import"), and A25's refusal tally is applied at the route table — so a client that posted an empty body
- * on every first sign-in would put the COMMONEST case into the operator's signal that someone is probing the API. The
- * refusal is returned as a typed answer rather than thrown, so the caller can tell it from a real one and stay quiet.
- *
- * THE WHOLE LEDGER IS SENT EVERY TIME, and the server is what makes that safe: an imported row is written once and
- * never updated, so a second import skips what it already holds (`api/src/history.ts`, `POST /me/runs:bulk` is
- * create-only). There is deliberately no "already imported" flag on this side — a flag would be one more thing that
- * can disagree with the server, and the ledger is bounded at `MAX_SAVED_RUNS` (50) against the endpoint's
- * `MAX_IMPORTED_RUNS` (200), so one call always carries it whole.
- *
- * `imported` AND `skipped` ARE THE POINT OF THE ANSWER: they are how a first sign-in is told from a retry, which a
- * client that only knew "200" could not do.
+ * `POST /me/runs:bulk` IS NOT CALLED BY THIS CLIENT ANY MORE. The device's run ledger was removed — the server is the one
+ * point of truth for a score — so there is nothing on this side to import as history. The endpoint stays served (and
+ * probed in `api/test/history-probe.mjs`) for a client that keeps a ledger of its own.
  */
-export async function importLedger(runs: readonly RunRecord[], deps: ApiDeps = browserDeps()): Promise<ApiResult<LedgerImport>> {
-  if (runs.length === 0) {
-    return { ok: false, failure: { code: 'nothing_to_import', message: 'there is nothing on this device to import' } };
-  }
-  const answer = await apiCall<{ imported?: unknown; skipped?: unknown; total?: unknown }>(deps, '/me/runs:bulk', {
-    method: 'POST',
-    body: { runs: runs.map(ledgerEntryOf) },
-  });
-  if (!answer.ok) return answer;
-  const { imported, skipped, total } = answer.value;
-  // THE COUNTS ARE THE WHOLE ANSWER, so a body without them is refused rather than read as a zero — the same rule
-  // the rest of this module keeps for a score, a balance and a verdict: "nothing was imported" and "the server did
-  // not say" must never read the same.
-  if (typeof imported !== 'number' || typeof skipped !== 'number' || typeof total !== 'number') {
-    return { ok: false, failure: { code: 'bad_response', message: 'the server did not say what it imported' } };
-  }
-  return { ok: true, value: { imported, skipped, total } };
-}
 
 /**
- * `GET /me/profile` — the alias this player has claimed, or `null`, and their own ranked Drill board.
+ * `GET /me/profile` — the alias this player has claimed, or `null`, and their own ranked Drill and Daily boards.
  *
  * `null` IS THE ORDINARY FIRST-RUN ANSWER, not a failure: a player who has never claimed a name is asked for one, which
  * is why it is a value here rather than a `404` to read at the call site. A body this module cannot read IS refused —
  * the rule the rest of the file keeps.
  *
- * THE BOARD IS THE HEADER'S TOTAL, and it rides this read because the profile is the one player-bound request every
- * signed-in boot makes: the header is then right on every page after a reload, not only after a play page has issued a
- * drill. It is tolerated as absent (`null`), like the drill answer's board — a server older than the field is no news.
+ * THE BOARDS ARE THE HEADER'S SCORES, and they ride this read because the profile is the one player-bound request every
+ * signed-in boot makes: the header is right on every page after a reload, not only after a play page has issued a drill.
+ * Each is tolerated as absent (`null`), like a drill answer's board — a server older than the field is no news.
  */
-export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null; drillBoard: DrillBoardTotal | null }>> {
-  const answer = await apiCall<{ alias?: unknown; drillBoard?: unknown }>(deps, '/me/profile', { method: 'GET' });
+export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null; drillBoard: DrillBoardTotal | null; dailyBoard: DrillBoardTotal | null }>> {
+  const answer = await apiCall<{ alias?: unknown; drillBoard?: unknown; dailyBoard?: unknown }>(deps, '/me/profile', { method: 'GET' });
   if (!answer.ok) return answer;
   if (answer.value.alias !== undefined && answer.value.alias !== null && typeof answer.value.alias !== 'string') {
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a name this app can read' } };
@@ -1089,6 +1011,7 @@ export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiRe
     value: {
       alias: typeof answer.value.alias === 'string' ? answer.value.alias : null,
       drillBoard: asDrillBoard(answer.value.drillBoard),
+      dailyBoard: asDrillBoard(answer.value.dailyBoard),
     },
   };
 }

@@ -47,22 +47,16 @@ export interface BannerFacts {
   /** The level the player is on, for the scores cell's label. */
   readonly drillLevel: number;
   /**
-   * THE RUNNING TOTAL OF THE PLAYER'S SOLVED DRILLS.
+   * THE PLAYER'S RANKED DRILL TOTAL, AS THE SERVER HOLDS IT — or zero when the app has no server score.
    *
-   * IT WAS "THIS LEVEL'S BEST" AND THEN "THIS DRILL'S SCORE", and the reports caught both: "the drill score seems to just show
-   * 100, not the actual current score", then "there doesnt seem to be a running total for the drill puzzles. Not sure whats its
-   * counting every time I resolve a drill". A BEST is a fact about the level that does not move when the player earns anything,
-   * and a single run's score is a fact that disappears the moment the next drill is issued; a TOTAL is the only one of the three
-   * that both MOVES when a drill is solved and MEANS the same thing on every page. It is never null — a sum of nothing is 0, and
-   * here 0 IS the true answer, unlike a score nobody has earned.
-   *
-   * WHICH TOTAL IS THE SHELL'S CHOICE, and it is `game/stats.ts`'s `drillTotalFor`: the SERVER's ranked board total when the app
-   * knows it, and this device's own sum only as the offline fallback. The two are different quantities — the device's counts
-   * demo and practice runs the server never saw — and showing both as "the score" was the confusion REPORTED as "The scoring
-   * system seems a little confused".
+   * IT WAS "THIS LEVEL'S BEST", THEN "THIS DRILL'S SCORE", THEN A DEVICE SUM. The first two were reports ("the drill score
+   * seems to just show 100"; "there doesnt seem to be a running total"), and the third was the offline score this app has
+   * now dropped: a sum of solved drills counted demo and practice runs the server never saw, so it could disagree with the
+   * board (REPORTED: header 726 beside a leaderboard 1818). THE SERVER IS THE ONE POINT OF TRUTH: the shell passes its
+   * ranked board score, and ZERO when there is none — 0 is the true "nothing earned", not a fallback to another quantity.
    */
   readonly drillTotal: number;
-  /** Today's Daily score on this device, or null when none was recorded. */
+  /** Today's Daily score AS THE SERVER HOLDS IT, or null when there is none (a signed-out or practice run is unscored). */
   readonly dailyScore: number | null;
 }
 

@@ -16,15 +16,13 @@ import {
   emptySave,
   loadGame,
   newRunId,
-  recordRun,
   saveGame,
   wallGapMs,
-  bestScore,
   SAVE_VERSION,
 } from '../src/game/store.ts';
 import { Stopwatch } from '../src/game/clock.ts';
 import { SaveState } from '../src/game/save-state.ts';
-import { HINT_CAP, HINT_SUCCESS_STEP, MAX_SAVED_RUNS, SAVE_KEY, SCORE_VERSION } from '../src/puzzle/config.ts';
+import { HINT_CAP, HINT_SUCCESS_STEP, SAVE_KEY } from '../src/puzzle/config.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -58,29 +56,13 @@ const blockedRead = () => ({
 /** A store that reads but refuses to be WRITTEN — a full quota. */
 const blockedWrite = (initial) => ({ ...memory(initial), setItem: () => { throw new Error('quota'); } });
 
-const run = (over = {}) => ({
-  runId: 'run-1',
-  mode: 'drill',
-  levelIndex: 1,
-  poolVersion: POOL,
-  seed: 7,
-  position: 0,
-  options: ['Allemande Left'],
-  elapsedSeconds: 12.5,
-  attempts: 1,
-  score: 80,
-  scoreVersion: SCORE_VERSION,
-  recordedAtMs: 1000,
-  ...over,
-});
-
 const save = (over = {}) => ({ ...emptySave(POOL, 3, 5000), ...over });
 
 /**
  * A JSON string with keys SORTED at every level, so "the same data" is a comparison rather than an accident
- * of which module built the object first: the loader returns its own key order (the `RunRecord` interface's),
- * and a plain `JSON.stringify` comparison would fail on that alone. What this check is for is a difference
- * in SHAPE, not the order the fields happen to be written in.
+ * of which module built the object first: the loader returns its own key order, and a plain `JSON.stringify`
+ * comparison would fail on that alone. What this check is for is a difference in SHAPE, not the order the fields
+ * happen to be written in.
  */
 const stable = (value) => JSON.stringify(value, (_, v) =>
   v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, v[k]])) : v);
@@ -100,7 +82,6 @@ console.log('== 1. a full record round trips ==');
       },
     }),
     hints: { hints: 2, successes: 7 },
-    runs: [run(), run({ runId: 'run-2', mode: 'daily', day: '2026-10-15', moves: ['Allemande Left'], hintsUsed: 1, position: undefined, options: undefined })],
   };
   check(saveGame(storage, state) === true, 'the state is written');
   const loaded = loadGame(storage, POOL);
@@ -143,18 +124,16 @@ console.log('\n== 4. a schema change discards the whole record ==');
 console.log('\n== 5. a POOL change keeps the hints and drops the rest ==');
 {
   const stale = {
-    ...save({ drillPosition: 4, runs: [run()], drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: [] } }),
+    ...save({ drillPosition: 4, drillRun: { startedAtMs: 1, attempts: 0, index: 0, options: [], revealed: [] } }),
     poolVersion: 'ms-0-old',
     hints: { hints: 2, successes: 6 },
   };
   const loaded = loadGame(memory({ [SAVE_KEY]: JSON.stringify(stale) }), POOL);
   check(loaded.state !== null, 'the record still yields a state');
   check(loaded.state.hints.hints === 2 && loaded.state.hints.successes === 6, `and the hint balance survives it (${loaded.state.hints.hints} held, ${loaded.state.hints.successes} counted)`);
-  check(loaded.state.runs.length === 0, 'while the runs are dropped: their seeds are meaningless against the new pool');
-  check(loaded.state.drillPosition === 0 && loaded.state.drillRun === null, 'and the progression is dropped with them');
+  check(loaded.state.drillPosition === 0 && loaded.state.drillRun === null, 'while the progression is dropped: its seeds are meaningless against the new pool');
   check(loaded.state.levelIndex === 3, 'and the LEVEL survives, because it is not puzzle data');
-  // NEGATIVE CONTROLS, MEASURED, one check each: dropping the hints with the pool reddens 'the hint balance
-  // survives it', and keeping the runs reddens 'while the runs are dropped'.
+  // NEGATIVE CONTROL, MEASURED: dropping the hints with the pool reddens 'the hint balance survives it'.
 }
 
 console.log('\n== 6. what is read back is CLAMPED ==');
@@ -218,42 +197,6 @@ console.log('\n== 6c. the reveal list survives the record, and a hand-edited one
   check(notAList.state.drillRun !== null && notAList.state.drillRun.revealed.length === 0, 'and a reveal list that is not a list reads as none, without losing the drill record');
 }
 
-console.log('\n== 7. a run recorded twice is ONE run ==');
-{
-  const once = recordRun(save(), run());
-  const twice = recordRun(once, run());
-  // NEGATIVE CONTROL, MEASURED: an append without the dedupe reddens BOTH checks here, and the consequence is
-  // Phase 5 claiming the same run twice — the ledger's `runId` exists to make that impossible.
-  check(twice.runs.length === 1, `the same runId twice is one entry (${twice.runs.length})`);
-  const third = recordRun(twice, run({ runId: 'run-2' }));
-  check(third.runs.length === 2 && third.runs[1].runId === 'run-2', 'and a different id is a second entry, newest last');
-}
-
-console.log('\n== 8. the ledger is a bounded QUEUE, newest kept ==');
-{
-  let state = save();
-  const total = MAX_SAVED_RUNS + 150;
-  for (let i = 0; i < total; i++) state = recordRun(state, run({ runId: `run-${i}`, score: i }));
-  check(state.runs.length === MAX_SAVED_RUNS, `recording ${total} runs keeps ${MAX_SAVED_RUNS} (${state.runs.length})`);
-  // NEGATIVE CONTROL, MEASURED: trimming from the newest end (`slice(0, MAX)`) reddens BOTH ordering checks
-  // here — it would keep the OLDEST runs, which are the ones Phase 5 has already claimed.
-  check(state.runs[state.runs.length - 1].runId === `run-${total - 1}`, `and the NEWEST is the last one kept (${state.runs[state.runs.length - 1].runId})`);
-  check(state.runs[0].runId === `run-${total - MAX_SAVED_RUNS}`, `with the oldest ${total - MAX_SAVED_RUNS} dropped (first kept ${state.runs[0].runId})`);
-}
-
-console.log('\n== 9. a run that is not a run is dropped and COUNTED ==');
-{
-  const mixed = {
-    ...save(),
-    runs: [run(), { runId: 'broken' }, run({ runId: 'run-3', elapsedSeconds: 'soon' })],
-  };
-  const loaded = loadGame(memory({ [SAVE_KEY]: JSON.stringify(mixed) }), POOL);
-  check(loaded.state.runs.length === 1, `only the well-formed run survives (${loaded.state.runs.length})`);
-  // The dropped count is reported so a silent zero cannot be a coverage gap: the loader's silence about bad
-  // data is itself a bug (AGENTS.md 4.1), so the number reaches the console from the shell.
-  check(loaded.dropped === 2, `and the two unusable records are COUNTED (${loaded.dropped})`);
-}
-
 console.log('\n== 10. ids are unique, with and without crypto ==');
 {
   const withCrypto = new Set();
@@ -290,15 +233,6 @@ console.log('\n== 10. ids are unique, with and without crypto ==');
   check(new Set([...firstIds, ...secondIds]).size === 4, `four ids from two loads of the module in the same millisecond are all distinct (${new Set([...firstIds, ...secondIds]).size})`);
 }
 
-console.log('\n== 11. the best score counts only this build\'s weights ==');
-{
-  const runs = [run({ score: 400, scoreVersion: SCORE_VERSION - 1 }), run({ runId: 'b', score: 120 }), run({ runId: 'c', score: 90 })];
-  check(bestScore(runs, SCORE_VERSION) === 120, `an old-weight run does not win the comparison (${bestScore(runs, SCORE_VERSION)})`);
-  check(bestScore([], SCORE_VERSION) === null, 'and an empty ledger has no best');
-  // NEGATIVE CONTROL, MEASURED: ignoring `scoreVersion` reddens the first check, and the readout would
-  // advertise a score the current weights could not produce.
-}
-
 console.log('\n== 12. the gap rule ==');
 {
   check(wallGapMs(1000, 4000) === 3000, 'a page closed for three seconds charges three seconds');
@@ -309,22 +243,18 @@ console.log('\n== 12. the gap rule ==');
 
 console.log('\n== 13. how big the record is ==');
 {
-  let state = save({ drillPosition: 9, drillRun: { startedAtMs: 1, attempts: 3, index: 1, options: ['Boys Run'], revealed: [] } });
-  for (let i = 0; i < MAX_SAVED_RUNS; i++) {
-    state = recordRun(state, run({
-      runId: `run-${i}-${'x'.repeat(20)}`,
-      mode: i % 2 === 0 ? 'drill' : 'daily',
-      day: '2026-10-15',
-      moves: ['Allemande Left in the Alamo Style', 'Cast Off Three Quarters', 'Boys Run'],
-      options: ['Allemande Left in the Alamo Style', 'Cast Off Three Quarters'],
-      hintsUsed: 1,
-    }));
-  }
+  // THE RUN LEDGER IS GONE, so the record is the drill and Daily in flight plus the sets and the balance. The bound is
+  // kept as a check: it is what says a future field cannot quietly grow localStorage's share.
+  const state = save({
+    drillPosition: 9,
+    drillRun: { runId: `r-${'x'.repeat(36)}`, startedAtMs: 1, attempts: 3, index: 1, options: ['Boys Run'], revealed: [0] },
+    daily: { runId: `r-${'y'.repeat(36)}`, day: '2026-10-15', levelIndex: 3, moves: ['Allemande Left in the Alamo Style', 'Cast Off Three Quarters'], hintsUsed: 1, hintedCall: null, elapsedMs: 12345, outcome: 'playing', savedAtMs: 5000 },
+  });
   const bytes = JSON.stringify(state).length;
-  console.log(`       a full save (version + 4 daily/drill records + ${MAX_SAVED_RUNS} runs of long call names): ${bytes} bytes`);
-  check(bytes < 200_000, `and it is small enough for localStorage by two orders of magnitude (${bytes} < 200000)`);
+  console.log(`       a full save (the drill and Daily in flight, the sets and the balance): ${bytes} bytes`);
+  check(bytes < 20_000, `and it is small enough for localStorage by two orders of magnitude (${bytes} < 20000)`);
   const back = loadGame(memory({ [SAVE_KEY]: JSON.stringify(state) }), POOL);
-  check(back.state.runs.length === MAX_SAVED_RUNS && back.dropped === 0, 'and a full record loads without dropping anything');
+  check(back.dropped === 0 && stable(back.state) === stable(state), 'and a full record loads without dropping anything');
 }
 
 console.log('\n== 14. a resumed clock is RE-BASED, not restarted ==');
@@ -356,14 +286,14 @@ console.log('\n== 14. a resumed clock is RE-BASED, not restarted ==');
 console.log('\n== 15. "start over on this device" clears the record, and nothing else ==');
 {
   // THE ONE CONTROL THAT DELETES (DESIGN.md §15 Q18). What is pinned is the SCOPE: the record goes — the regime, the
-  // BALANCE and the ledger are all inside it, so the reset is honest by construction — and no other key moves.
+  // BALANCE and the practice progression are all inside it, so the reset is honest by construction — and no other key moves.
   const store = memory({ [SAVE_KEY]: JSON.stringify(emptySave(POOL, 1, 0)) });
   store.setItem('dsq.game.session', 'a session this control must not touch');
   store.setItem('dsq.game.device', 'a device id this control must not touch');
   store.setItem('unrelated', 'somebody else’s key');
-  store.map.set(SAVE_KEY, JSON.stringify({ ...emptySave(POOL, 1, 0), hints: { hints: 3, successes: 4 }, runs: [run()] }));
+  store.map.set(SAVE_KEY, JSON.stringify({ ...emptySave(POOL, 1, 0), hints: { hints: 3, successes: 4 } }));
   check(clearGame(store) === true, 'clearGame reports that the device let go');
-  check(store.map.get(SAVE_KEY) === undefined, 'and the record is gone, which takes the hint balance and every run with it');
+  check(store.map.get(SAVE_KEY) === undefined, 'and the record is gone, which takes the hint balance and the practice progression with it');
   check(store.map.get('dsq.game.session') === 'a session this control must not touch', 'while the SESSION is left alone, because signing out is its own control');
   check(store.map.get('dsq.game.device') === 'a device id this control must not touch', 'and so is the device id, which is not the player’s data');
   check(store.map.get('unrelated') === 'somebody else’s key', 'and no key this module does not own is touched');
@@ -378,12 +308,12 @@ console.log('\n== 15. "start over on this device" clears the record, and nothing
 
   // AND THE STATE OBJECT ITSELF FORGETS. Clearing the key while the in-memory record survived would put the balance
   // back on the next `persist` — a reset that undoes itself. NEGATIVE CONTROL: an implementation that only removed
-  // the key fails this and the two checks after it.
+  // the key fails this and the checks after it.
   const live = SaveState.open(store, POOL).state;
-  live.addRun(run());
-  check(live.runs.length === 1, `the state has a run to lose (${live.runs.length})`);
+  live.adoptHints({ hints: 3, successes: 4 });
+  check(live.hints.hints === 3, `the state has a balance to lose (${live.hints.hints})`);
   check(live.clear() === true, 'clearing the state reports success');
-  check(live.runs.length === 0 && live.hints.hints === 0 && live.position === 0, `and the state IS the fresh game (${live.runs.length} runs, ${live.hints.hints} hints, position ${live.position})`);
+  check(live.hints.hints === 0 && live.position === 0, `and the state IS the fresh game (${live.hints.hints} hints, position ${live.position})`);
   check(live.clear() === true, 'and clearing an already-forgotten device is not an error — it is the state the caller wanted');
 }
 

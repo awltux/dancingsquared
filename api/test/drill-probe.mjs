@@ -25,7 +25,7 @@ import { startDevServer } from '../src/dev-server.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
 import { MemoryStore } from '../src/store/memory.ts';
 import { FIXTURE_POOL_VERSION, LOCAL_SCHEDULE } from 'dancing-squared-game/schedule-fixture';
-import { LEVEL_SIZE, MAIN_POOL, levelSpec } from 'dancing-squared-game';
+import { LEVEL_SIZE, MAIN_POOL, levelSpec, utcDay } from 'dancing-squared-game';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -697,6 +697,22 @@ console.log('\n== 13. the profile carries the drill total every page\'s header s
   check(answer.status === STATUS.ok && answer.body.alias === null, `the profile answers, with no name claimed (${answer.status})`);
   check(answer.body.drillBoard?.score === 67 && answer.body.drillBoard?.runs === 1,
     `and carries the header's total for the player's level and the drill's set (${answer.body.drillBoard?.score} over ${answer.body.drillBoard?.runs})`);
+
+  // TODAY'S DAILY SCORE RIDES THE SAME ANSWER, on its own key: the Daily board is a DAY, so the profile must read the
+  // UTC day the clock says and must not put the Drill total on it — the two scores are different quantities and the
+  // header draws them apart. NEGATIVE CONTROL: a profile that answered the Drill board for both leaves the Daily at 67,
+  // which only this check sees.
+  const day = utcDay(new Date(deps.clock.nowMs()));
+  await store.put(boardKey('daily', LEVEL, day, devId(player)), { playerId: devId(player), score: 21, runs: 1 }, null);
+  // A YESTERDAY AND A DRILL ROW ARE PLANTED AS DECOYS: neither may be read as today's Daily.
+  await store.put(boardKey('daily', LEVEL, '2023-11-13', devId(player)), { playerId: devId(player), score: 99, runs: 3 }, null);
+  const both = await getProfile(profileOf(player), deps);
+  check(both.body.dailyBoard?.score === 21 && both.body.dailyBoard?.runs === 1,
+    `and today's Daily score beside it (${both.body.dailyBoard?.score} over ${both.body.dailyBoard?.runs}, on ${day})`);
+  check(both.body.drillBoard?.score === 67,
+    `with the Drill total still the drill board (${both.body.drillBoard?.score})`);
+  check(both.body.dailyBoard?.score !== both.body.drillBoard?.score,
+    `NEGATIVE CONTROL: the two boards answer different numbers, so one cannot be the other (${both.body.dailyBoard?.score} and ${both.body.drillBoard?.score})`);
 
   // NO DRILL IN FLIGHT: the set is the PUBLISHED schedule's — the board the next run would join.
   const idle = 'z2';

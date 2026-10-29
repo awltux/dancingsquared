@@ -21,16 +21,15 @@ import { aliasClaimKey, boardKey, ladderKey, profileKey, progressKey, scheduleKe
 import { asLadderLevel } from '../ladder.ts';
 import { asProgress } from '../progress-row.ts';
 import { asBoard, type BoardValue } from '../runs.ts';
-import { sanitizeAlias } from 'dancing-squared-game';
+import { sanitizeAlias, utcDay } from 'dancing-squared-game';
 
 /**
  * The player's own cumulative Drill board for the level and set they are playing, or null when the server cannot say.
  *
  * IT RIDES THE PROFILE READ because that is the one player-bound request every signed-in boot makes (`main.ts`'s
- * `loadAlias`), so the app's header total is right on EVERY page after a reload — not only after a play page has issued a
- * drill. REPORTED: "Check all the pages to ensure that the header score is correctly updated." Without it, a reload on
- * Profile/Setup/Help showed the DEVICE's own sum instead, which is a different quantity (it counts demo and practice runs
- * the server never saw).
+ * `loadAlias`), so the app's header scores are right on EVERY page after a reload — not only after a play page has issued a
+ * drill. REPORTED: "Check all the pages to ensure that the header score is correctly updated." The scores are the SERVER's:
+ * the device's own ledger was removed, so a page that has not asked the server has no score to show.
  *
  * READ-ONLY, AND THAT IS WHY IT DOES NOT USE `servableLevel`: that function PROMOTES a full block, and a profile read must
  * not move a player's level. The set is the player's in-flight drill's when one is issued (a lock survives a republish),
@@ -49,6 +48,19 @@ async function playerDrillBoard(deps: Deps, playerId: string): Promise<BoardValu
 }
 
 /**
+ * The player's own Daily board for TODAY, or null when the server cannot say.
+ *
+ * THE DAILY BOARD'S PERIOD IS THE UTC DAY, and the header carries that score too: both ride the one player-bound read
+ * every signed-in boot makes, so a reload on any page has both numbers rather than one.
+ */
+async function playerDailyBoard(deps: Deps, playerId: string): Promise<BoardValue | null> {
+  const levelIndex = asLadderLevel(await deps.store.get(ladderKey(playerId)));
+  if (levelIndex === null) return null;
+  const day = utcDay(new Date(deps.clock.nowMs()));
+  return asBoard(await deps.store.get(boardKey('daily', levelIndex, day, playerId)));
+}
+
+/**
  * The alias currently claimed, or null when this player has never claimed one.
  *
  * A READ THAT NEEDS AN IDENTITY, unlike the board: an alias is the player's own row, and there is nothing to show a
@@ -59,10 +71,11 @@ export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiRe
   const who = requireIdentity(request, deps);
   if ('refusal' in who) return who.refusal;
   const playerId = who.identity.playerId;
-  // THE BOARD IS READ FOR EVERY ANSWER, name or not: it is the header's total on the pages that have no drill to issue.
+  // THE BOARDS ARE READ FOR EVERY ANSWER, name or not: they are the header's scores on the pages that issue no drill.
   const drillBoard = await playerDrillBoard(deps, playerId);
+  const dailyBoard = await playerDailyBoard(deps, playerId);
   const stored = await deps.store.get(profileKey(playerId));
-  if (!stored) return { status: STATUS.ok, body: { alias: null, drillBoard } };
+  if (!stored) return { status: STATUS.ok, body: { alias: null, drillBoard, dailyBoard } };
   const alias = stored.value['alias'];
   if (typeof alias !== 'string') {
     // AN UNREADABLE PROFILE IS AN OPERATOR FINDING, not a silent null: a row that exists and cannot be read would
@@ -70,7 +83,7 @@ export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiRe
     // second one over the top of the unreadable row.
     return failure(STATUS.unavailable, 'unreadable_profile', 'the profile row is not a record this build can read');
   }
-  return { status: STATUS.ok, body: { alias, drillBoard } };
+  return { status: STATUS.ok, body: { alias, drillBoard, dailyBoard } };
 }
 
 /**

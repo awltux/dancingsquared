@@ -60,6 +60,8 @@ export class DailyScreen {
   private armed: MoveReading | null = null;
   /** The view the last `show()` was drawn from, so arming can redraw without a new one. */
   private lastView: DailyView | null = null;
+  /** Whether this run's score is the server's to store (see `show`). A demo's result is shown as unscored. */
+  private scored = true;
   /**
    * What the player has narrowed the picker to (a subset and a search query), and IT SURVIVES EVERY REPAINT: the list
    * is rebuilt on every move, so a filter held in the DOM would be lost the moment the player moved — which is the one
@@ -136,8 +138,15 @@ export class DailyScreen {
     this.clearFilter();
   }
 
-  /** Draw the whole panel from the run's view. */
-  show(view: DailyView): void {
+  /**
+   * Draw the whole panel from the run's view.
+   *
+   * `scored` IS WHAT THE SERVER WILL DO WITH THIS RUN, and it is a field as well as an argument because this screen
+   * re-renders itself on an arming click (`show(this.lastView)`): a re-render must not silently turn an unscored demo's
+   * result back into a score. The rule is the shell's (`mayWrite`), because the screen owns no standing.
+   */
+  show(view: DailyView, scored: boolean = this.scored): void {
+    this.scored = scored;
     // THE PROMPT NAMES THE SEQUENCE, not just the goal board: the run is won by passing every waypoint IN ORDER and
     // ending on the last, so "reach the goal board" describes a rule the mode no longer has (a shortcut to the final
     // arrangement does not finish). The count comes from the view so the sentence cannot drift from the sequence.
@@ -393,9 +402,13 @@ export class DailyScreen {
     const moves = `${view.movesUsed} of ${view.allowance} moves`;
     const hints = view.hintsUsed === 0 ? 'no hints' : `${view.hintsUsed} hint${view.hintsUsed === 1 ? '' : 's'}`;
     this.els.result.textContent = view.result
-      // THE TERMS ARE SHOWN, not just the number: the score is a product of three ratios (`score.ts`), and
-      // the minute a hint cost is visible on the clock above this line.
-      ? `Score ${view.result.score} — ${time}, ${moves}, ${hints} (par ${view.result.parSeconds} s).`
+      // THE SCORE IS THE SERVER'S. A solved demo has no stored score, so its result says so rather than printing a number
+      // the server will never hold — the device's own ledger is gone.
+      ? this.scored
+        // THE TERMS ARE SHOWN, not just the number: the score is a product of three ratios (`score.ts`), and
+        // the minute a hint cost is visible on the clock above this line.
+        ? `Score ${view.result.score} — ${time}, ${moves}, ${hints} (par ${view.result.parSeconds} s).`
+        : `Solved — not scored: ${time}, ${moves}, ${hints}. Sign in to be counted.`
       : `No score — given up after ${time}, ${moves}, ${hints}.`;
   }
 }

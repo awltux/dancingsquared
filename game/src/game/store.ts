@@ -12,21 +12,24 @@
 //
 //   1. A SCHEMA CHANGE DISCARDS EVERYTHING; A POOL CHANGE KEEPS THE HINTS. A record written by an older
 //      build may not mean what this build means by the same field, so it is not guessed at. A record whose
-//      `poolVersion` has moved is different: its seeds and its runs are meaningless against the corpus that
-//      replaced it, but a hint is EARNED EFFORT rather than puzzle data, and DESIGN.md 15 Q4 says a season
-//      boundary must not reset a balance — so the balance survives the pool and the rest does not.
+//      `poolVersion` has moved is different: its seeds are meaningless against the corpus that replaced it, but a
+//      hint is EARNED EFFORT rather than puzzle data, and DESIGN.md 15 Q4 says a season boundary must not reset a
+//      balance — so the balance survives the pool and the rest does not.
 //   2. WHAT IS READ BACK IS CLAMPED, NEVER TRUSTED. `localStorage` is a text file the player can edit (and a
 //      browser extension can rewrite), so the ledger goes through `sanitiseLedger`, every number is range
 //      checked, and a record that is not even the right shape is dropped. A loader that threw on a corrupt
 //      byte would turn a typo into an unplayable game.
-//   3. THE RUN LEDGER IS A QUEUE, DEDUPED ON `runId`. It is what Phase 5 submits, so the same id must not
-//      count twice (its `POST /me/runs:bulk` is idempotent on exactly that key) and the OLDEST are dropped
-//      when it is full — a best-of would keep nothing that is still unclaimed.
+//   3. THERE IS NO LOCAL SCORE. The run ledger (`runs`) was removed: the server is the one point of truth for a
+//      score, and a device-side sum of solved drills was a different quantity that could disagree with the board
+//      (REPORTED: header 726 beside a leaderboard 1818). This record now holds only what a PRACTICE drill or a
+//      resume needs — the position, the finished/passed sets, the drill and Daily in flight, and the hint balance
+//      the SERVER last stated. AN OLDER RECORD'S `runs` FIELD IS IGNORED, not migrated: those records were already
+//      claimed or already lost, and a score must never be resurrected from this file.
 //   4. A STORE THAT REFUSES IS NOT A BROKEN APP. Private mode and a blocked origin both throw on write; the
 //      game plays on, `saving` is false, and the screen says so. `poc/src/data.ts` already does this, and the
 //      reason is the same: the storage is a convenience, and the game is the product.
 
-import { HINT_CAP, MAX_SAVED_RUNS, SAVE_KEY } from '../puzzle/config.ts';
+import { HINT_CAP, SAVE_KEY } from '../puzzle/config.ts';
 import type { DailyOutcome } from './daily-run.ts';
 import { sanitiseLedger, type HintLedger } from '../puzzle/hints.ts';
 
@@ -92,32 +95,6 @@ export interface DailySaved {
 }
 
 
-/**
- * One completed run — the payload Phase 5 submits, minus everything the server re-derives.
- *
- * IT CARRIES BOTH MODES' FIELDS because the ledger is one queue: a Drill run names the issued drill and the
- * calls chosen (`options`, one per step — DESIGN.md 11 says "the chosen option", which was written when a
- * drill was one question), and a Daily run names the day and the move list it was played with.
- */
-export interface RunRecord {
-  runId: string;
-  mode: 'drill' | 'daily';
-  levelIndex: number;
-  poolVersion: string;
-  seed: number;
-  position?: number;
-  options?: string[];
-  day?: string;
-  moves?: string[];
-  hintsUsed?: number;
-  elapsedSeconds: number;
-  attempts: number;
-  score: number;
-  /** Which weights computed `score` — see `SCORE_VERSION`. */
-  scoreVersion: number;
-  recordedAtMs: number;
-}
-
 /** The whole saved game. */
 export interface SavedGame {
   version: number;
@@ -128,11 +105,10 @@ export interface SavedGame {
   /**
    * The drill positions whose success has ALREADY been counted.
    *
-   * WHY THIS IS PERSISTED. DESIGN.md 11's Progress row keeps "the set of finished ones", and DESIGN.md 10
-   * counts only RANKED Drill answers towards a hint. Without the set, a player could re-solve a drill they had
-   * already finished — by pressing Next and coming back, or simply by reloading, which re-issues the entry —
-   * and mint a hint every time. The board could not be farmed (§6 takes the player's best) but the BALANCE
-   * could, and a hint is a currency.
+   * WHY THIS IS PERSISTED. It mirrors the SERVER's Progress row for the offline practice drill: without it, the level
+   * block could not say which of the fixture's drills have been played. It is a PRACTICE fact now — the scored Progress
+   * is the server's (`serverRegime`), and no score is ever derived from this record. MEASURED in the browser when the
+   * local ledger was removed: the block still needs a set to draw, and this is the one it draws offline.
    */
   finished: number[];
   /**
@@ -146,7 +122,6 @@ export interface SavedGame {
   drillRun: DrillSaved | null;
   daily: DailySaved | null;
   hints: HintLedger;
-  runs: RunRecord[];
   /** The wall-clock stamp of this write, for the resume gap only. */
   savedAtMs: number;
 }
@@ -172,7 +147,6 @@ export function emptySave(poolVersion: string, levelIndex: number, nowMs: number
     drillRun: null,
     daily: null,
     hints: { hints: 0, successes: 0 },
-    runs: [],
     savedAtMs: nowMs,
   };
 }
@@ -209,35 +183,6 @@ export function newRunId(nowMs: number): string {
   fallbackCounter += 1;
   const entropy = Math.floor(Math.random() * 0x1000000).toString(36);
   return `r${Math.floor(nowMs).toString(36)}-${fallbackCounter.toString(36)}-${entropy}`;
-}
-
-/**
- * The best score among the runs this build's weights scored.
- *
- * THE VERSION IS THE POINT: DESIGN.md 6 says the weights are proposed and will be recalibrated, so a run
- * scored with the old ones is not comparable with one scored with the new. The old runs stay in the ledger
- * (they are the player's history and Phase 5 may still claim them); they just do not win a comparison.
- */
-export function bestScore(runs: readonly RunRecord[], scoreVersion: number): number | null {
-  let best: number | null = null;
-  for (const run of runs) {
-    if (run.scoreVersion !== scoreVersion) continue;
-    if (best === null || run.score > best) best = run.score;
-  }
-  return best;
-}
-
-/**
- * Append a completed run.
- *
- * DEDUPED ON `runId` FIRST: the same run recorded twice — a double submit, a resumed page, a bug — must not
- * be two entries, because two entries would be two claims later.
- */
-export function recordRun(state: SavedGame, run: RunRecord): SavedGame {
-  const kept = state.runs.filter((r) => r.runId !== run.runId);
-  // THE NEWEST `MAX_SAVED_RUNS` ARE KEPT, and the array stays in record order so the claim is a queue.
-  const runs = [...kept, run].slice(-MAX_SAVED_RUNS);
-  return { ...state, runs };
 }
 
 /** Write the state. Returns whether it was written; NEVER throws. */
@@ -302,14 +247,10 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
   const record = parsed as Record<string, unknown>;
   if (record['version'] !== SAVE_VERSION) return { state: null, saving: true, dropped: 0 };
 
-  let dropped = 0;
-  const runs: RunRecord[] = [];
-  const rawRuns = Array.isArray(record['runs']) ? record['runs'] : [];
-  for (const candidate of rawRuns) {
-    const run = sanitiseRun(candidate);
-    if (run) runs.push(run);
-    else dropped++;
-  }
+  // THE OLD LEDGER IS IGNORED, NOT MIGRATED. A record written before this build carries a `runs` array; those runs were
+  // the device's score, and the score is the server's now (see rule 3 in the header). They are not counted as `dropped`:
+  // a removed feature is not corruption, and the field is simply not read.
+  const dropped = 0;
 
   // THE POOL SPLIT. A record from another pool keeps its hints and nothing else, and it says so by the
   // shape of what it returns rather than by a flag: the caller gets a fresh progression at the same level.
@@ -322,7 +263,7 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
         hints: sanitiseLedger(record['hints']),
       },
       saving: true,
-      dropped: dropped + runs.length,
+      dropped,
     };
   }
 
@@ -340,7 +281,6 @@ export function loadGame(storage: StorageLike, currentPoolVersion: string): Load
       drillRun: sanitiseDrill(record['drillRun']),
       daily: sanitiseDaily(record['daily']),
       hints: sanitiseLedger(record['hints']),
-      runs,
       savedAtMs: intOr(record['savedAtMs'], 0, 0),
     },
     saving: true,
@@ -418,49 +358,4 @@ function sanitiseDaily(raw: unknown): DailySaved | null {
     outcome,
     savedAtMs: intOr(r['savedAtMs'], 0, 0),
   };
-}
-
-/**
- * One run record, or null when it cannot be one.
- *
- * A RUN IS ALL OR NOTHING, unlike the envelope's fields: half a run is a claim that would submit wrong
- * numbers, so a single bad field drops the record and the loader counts it.
- */
-function sanitiseRun(raw: unknown): RunRecord | null {
-  if (typeof raw !== 'object' || raw === null) return null;
-  const r = raw as Record<string, unknown>;
-  const mode = r['mode'];
-  if (mode !== 'drill' && mode !== 'daily') return null;
-  if (typeof r['runId'] !== 'string' || r['runId'].length === 0) return null;
-  if (typeof r['poolVersion'] !== 'string' || r['poolVersion'].length === 0) return null;
-  if (typeof r['seed'] !== 'number' || !Number.isFinite(r['seed'])) return null;
-  if (typeof r['elapsedSeconds'] !== 'number' || !Number.isFinite(r['elapsedSeconds']) || r['elapsedSeconds'] < 0) return null;
-  if (typeof r['score'] !== 'number' || !Number.isFinite(r['score']) || r['score'] < 0) return null;
-  if (typeof r['scoreVersion'] !== 'number' || !Number.isFinite(r['scoreVersion'])) return null;
-
-  const run: RunRecord = {
-    runId: r['runId'],
-    mode,
-    levelIndex: intOr(r['levelIndex'], 1, 1),
-    poolVersion: r['poolVersion'],
-    seed: Math.floor(r['seed']),
-    elapsedSeconds: r['elapsedSeconds'],
-    attempts: intOr(r['attempts'], 0, 0),
-    score: r['score'],
-    scoreVersion: Math.floor(r['scoreVersion']),
-    recordedAtMs: intOr(r['recordedAtMs'], 0, 0),
-  };
-  if (mode === 'drill') {
-    const options = stringList(r['options']);
-    if (options === null) return null;
-    run.position = intOr(r['position'], 0, 0);
-    run.options = options;
-  } else {
-    const moves = stringList(r['moves']);
-    if (moves === null || typeof r['day'] !== 'string') return null;
-    run.day = r['day'];
-    run.moves = moves;
-    run.hintsUsed = intOr(r['hintsUsed'], 0, 0);
-  }
-  return run;
 }

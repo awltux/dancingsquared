@@ -21,8 +21,9 @@
 // and "press the button, then press the call you were told" would mint it for free. The fact has to reach the SERVER
 // (the balance is the server's, DESIGN.md 10), so the controller records which steps were shown and `review()` posts
 // each one as an event — `POST /drill/reveal` — with the run declaring the same count as a claim, because a POST that
-// never arrived must not silently rank the run. The offline ledger applies the same rule locally
-// (`save.countSuccess`), so the two cannot disagree about a drill that was shown.
+// never arrived must not silently rank the run. THE SERVER IS THE ONLY SCORER (see the header scores' state below): a
+// revealed run is submitted with its reveal count and the server decides its standing; there is no local ledger to apply
+// the rule to any more.
 import { utcDay } from './puzzle/daily.ts';
 import { sanitizeAlias } from './puzzle/alias.ts';
 import { reachedGoal } from './puzzle/arrangement.ts';
@@ -34,17 +35,17 @@ import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { scoreLine } from './puzzle/score-line.ts';
-import { adoptedDrillTotal, drillTotalFor, statsFor } from './game/stats.ts';
+import { adoptedBoard, boardEntryOf, type BoardTotal } from './game/stats.ts';
 import { frameDelta, shouldAnimate } from './ui/frame-clock.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
-import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
+import { HINT_CAP } from './puzzle/config.ts';
 import type { GameApplier, LevelSpec, Puzzle, SequenceMotion } from './puzzle/types.ts';
 import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { Stopwatch } from './game/clock.ts';
-import { newRunId, wallGapMs, type DrillSaved, type RunRecord, type StorageLike } from './game/store.ts';
-import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, dailyChallenge, fetchDrillReplay, fetchLeaderboard, fetchProfile, importLedger, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
+import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
+import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, dailyChallenge, fetchDrillReplay, fetchLeaderboard, fetchProfile, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
 import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
@@ -120,20 +121,18 @@ let position = 0;
 let serverDrill: IssuedDrill | null = null;
 
 /**
- * THE ACCOUNT'S RANKED DRILL TOTAL, as the last drill read or submission reported it — or null when there is none.
+ * THE HEADER'S TWO SCORES, as the server last reported them — or null when it has not.
  *
- * WHY IT IS SHELL STATE. The header's drill total used to be the DEVICE's sum of every solved drill (`save.runs`), and
- * that is a different quantity from the board the player is ranked on: it counts demo and practice runs the server never
- * saw, and it is capped at the newest `MAX_SAVED_RUNS`, so it could disagree with the post-run "Board: …" line by any
- * amount. REPORTED: "The scoring system seems a little confused. The header shows 215 but the response ... reads 34/100
- * ... Board: 1307 over 21 run(s)." Two running totals is the confusion; the server's is the one the board ranks, so the
- * header shows it whenever the app knows it, and the device sum is the fallback (`game/stats.ts`'s `drillTotalFor`).
+ * THE SERVER IS THE ONE POINT OF TRUTH FOR A SCORE. REPORTED: "I would like to move away from the offline score. You can
+ * play without logging in, but you need access to the server and so the score should be stored on the server. A single
+ * point of truth." The device's own ledger is gone, so there is nothing to fall back to: a signed-out or practice run is
+ * unscored, and the header says so (0 / no Daily score) rather than showing a different quantity.
  *
- * IT IS SEEDED BY EVERY DRILL READ (`GET /drill/current`, and a submission's own board), so it survives a reload
- * without a second request on boot. It is cleared when the player signs out or resets the device — the two moments the
- * fact belongs to somebody else or to nobody.
+ * THEY ARE SEEDED BY EVERY DRILL READ, every submission, and the profile read (`/me/profile` carries both boards), so a
+ * reload on any page has them. Cleared on sign-out: they belong to the account.
  */
-let serverDrillTotal: number | null = null;
+let serverDrillBoard: BoardTotal | null = null;
+let serverDailyBoard: BoardTotal | null = null;
 
 /**
  * Whether the drill on screen has a run the SERVER accepted, which decides what "Next drill" may ask for.
@@ -192,8 +191,14 @@ let demoRun = false;
 let daily: DailyRun | null = null;
 let dailyDay = '';
 let dailyLevelIndex = 0;
-/** The seed today's challenge was issued from, for the run record (a run names the puzzle it played). */
-let dailyRunSeed = 0;
+/**
+ * The run id the Daily's result has ALREADY been submitted for.
+ *
+ * IT REPLACES THE LOCAL RECORD'S IDEMPOTENCE. `paintDaily` runs on every event, and a solved outcome is painted more than
+ * once; the ledger's `recordDailyRun` used to answer `0` on a second paint and gate the submit. With the ledger gone, this
+ * is the once-only key — a different run id is a different run.
+ */
+let dailySubmittedFor = '';
 
 /**
  * Whether the drill on screen is this DEVICE'S OWN FIXTURE rather than one the server issued (DESIGN.md §15 Q20).
@@ -752,39 +757,19 @@ function paintBanner(): void {
 /** The facts the banner is a function of, each read from the thing that owns it. */
 function bannerFacts(): BannerFacts {
   const view = levelView();
-  // THE DAY IS THE SERVER'S WHEN THERE IS A DAILY ON SCREEN, and the local UTC day otherwise — the same pair `paintLedger`
-  // uses, so the streak and the score agree about which day it is.
-  const today = dailyDay !== '' ? dailyDay : utcDay(new Date());
   return {
     hintsHeld: save.hints.hints,
     playerAlias,
     signedIn: player !== null,
     standing: currentStanding(),
     drillLevel: view.levelIndex,
-    // THE DRILL'S NUMBER IS THE ACCOUNT'S RANKED TOTAL WHEN THE APP KNOWS IT, and this device's own sum otherwise
-    // (`game/stats.ts`'s `drillTotalFor`, gated by `stats-probe.mjs`). The server's is the figure the post-run "Board:"
-    // line and the board page rank; the device sum counts demo/practice runs the server never saw and is capped at the
-    // newest runs, so showing it beside the server's number was the confusion REPORTED as "The scoring system seems a
-    // little confused".
-    drillTotal: drillTotalFor(serverDrillTotal, save.runs),
-    dailyScore: bestScore(save.runs, (run) => run.mode === 'daily' && run.day === today),
+    // THE TWO SCORES ARE THE SERVER'S, and only the server's: `serverDrillBoard`/`serverDailyBoard` are set from
+    // `/drill/current`, `/me/profile`, a submission's answer or the board page, and never from anything the device counted.
+    // A signed-out or practice player has no score — ZERO for the Drill (a real "nothing earned") and NO SCORE for the
+    // Daily — rather than a device total that could disagree with the board (REPORTED twice).
+    drillTotal: serverDrillBoard?.score ?? 0,
+    dailyScore: serverDailyBoard?.score ?? null,
   };
-}
-
-/**
- * The best score among the runs a predicate accepts, or null.
- *
- * A BEST, NOT A SUM AND NOT THE LATEST: the banner answers "what am I worth on this board", and a board ranks a player by
- * their best run (`DESIGN.md` §6), so the number it shows is the one the server would compare. The predicate rather than a
- * mode and a level is what lets the Daily's half ask by DAY, which is its own partition.
- */
-function bestScore(runs: readonly RunRecord[], which: (run: RunRecord) => boolean): number | null {
-  let best: number | null = null;
-  for (const run of runs) {
-    if (!which(run)) continue;
-    if (best === null || run.score > best) best = run.score;
-  }
-  return best;
 }
 
 /**
@@ -858,42 +843,6 @@ async function doSignIn(email: string, password: string): Promise<void> {
   player = answer.value;
   await loadAlias();
   accountChanged();
-  // AND THE LEDGER GOES WITH IT. A26 keeps a device's runs as HISTORY, and this is the only moment the app can hand
-  // them over: before the session there is no identity to import into, and the local ledger is what the offline game
-  // counted instead (DESIGN.md §11's funnel — "a player with a score to lose is a player who signs up").
-  void importDeviceLedger();
-}
-
-/**
- * Hand this device's ledger over as history (DESIGN.md §11.1, A26).
- *
- * THE WHOLE LEDGER GOES, AND THE SERVER MAKES THAT SAFE: an imported row is written once and never updated, so a
- * second sign-in re-sends it and the server skips what it already holds. That is why this app keeps no "already
- * imported" flag — a flag is one more thing that can disagree with the server, and the counts in the answer already
- * tell a first sign-in from a retry.
- *
- * AN EMPTY LEDGER IS THE ORDINARY CASE AND NOT AN ERROR, which is why `nothing_to_import` is reported to nobody: the
- * endpoint refuses an empty body, and A25's refusal tally is applied at the route table, so a request that could
- * only be refused would also make a new player look like someone probing the API.
- *
- * IT IS SAID IN THE ACCOUNT ROW, and after `accountChanged` for the same reason a failed sign-out is: the repaint is
- * what the session change implies, and this sentence is the extra fact about what happened to the runs.
- */
-async function importDeviceLedger(): Promise<void> {
-  const answer = await importLedger(save.runs);
-  if (!answer.ok) {
-    if (answer.failure.code !== 'nothing_to_import') {
-      accountScreen.say(`This device's runs were not imported: ${answer.failure.message}`, 'bad');
-    }
-    return;
-  }
-  const held = answer.value.skipped === 1 ? '1 run' : `${answer.value.skipped} runs`;
-  accountScreen.say(
-    answer.value.imported > 0
-      ? `${answer.value.imported} run${answer.value.imported === 1 ? '' : 's'} from this device imported as history: kept, and not ranked.`
-      : `The server already held all ${answer.value.total} of this device's runs (${held} skipped).`,
-    'ok',
-  );
 }
 
 /**
@@ -948,9 +897,9 @@ async function doSignOut(): Promise<void> {
   // AND THE NAME GOES WITH THE SESSION: it is the name of a player who is no longer signed in, and leaving it in the
   // banner would have the app claiming to be somebody it can no longer prove it is.
   playerAlias = null;
-  // AND SO DOES THE ACCOUNT'S RANKED TOTAL: it is somebody else's fact now, and the header falls back to this device's
-  // own sum until a server read names a player again.
-  serverDrillTotal = null;
+  // AND SO DO THE SCORES: they are somebody else's facts now, and there is no device sum to fall back to.
+  serverDrillBoard = null;
+  serverDailyBoard = null;
   // THE PASSWORD FIELDS GO WITH THE SESSION: a typed-but-unsent password must not be left in a form the next person at this
   // device can read, and the form itself is hidden by the next paint.
   accountScreen.clearPassword();
@@ -973,11 +922,14 @@ async function loadAlias(): Promise<void> {
   }
   const answer = await fetchProfile(apiDeps);
   playerAlias = answer.ok ? answer.value.alias : null;
-  // THE HEADER'S TOTAL IS ONE OF THIS PLAYER'S FACTS, and the profile is the one player-bound read every signed-in boot
-  // makes — so adopting it here keeps the header right on EVERY page after a reload, not only after a play page has
-  // issued a drill. No total is "no news", not "no score": `adoptedDrillTotal` keeps what the app already knows rather
-  // than replacing it with the device's different sum.
-  if (answer.ok) serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.drillBoard?.score ?? null, false);
+  // THE HEADER'S SCORES ARE THIS PLAYER'S FACTS, and the profile is the one player-bound read every signed-in boot
+  // makes — so adopting them here keeps the header right on EVERY page after a reload, not only after a play page has
+  // issued a drill. A board the answer does not carry is "no news", not "no score": `adoptedBoard` keeps what the app
+  // already knows rather than replacing it with nothing.
+  if (answer.ok) {
+    serverDrillBoard = adoptedBoard(serverDrillBoard, answer.value.drillBoard, false);
+    serverDailyBoard = adoptedBoard(serverDailyBoard, answer.value.dailyBoard, false);
+  }
 }
 
 /**
@@ -1130,6 +1082,18 @@ async function loadBoardInto(screen: LeaderboardScreen, mode: AppMode, levelInde
   // `you` IS THE ID THIS APP BELIEVES IT IS, or null when it is nobody: the board is public (A20 serves reads to a
   // signed-out caller), so "which of these is me" is answered by the session rather than by hiding the list.
   screen.show(answer.value, player?.playerId ?? null);
+  // THE HEADER AND THIS BOARD MUST BE ONE NUMBER. A leaderboard page that carries the caller's own row IS their row on
+  // the board it names, so it is adopted for the header when this is the player's OWN level — another level's total is a
+  // different fact. This is also the DAILY's source: the header's Daily cell has no other read. REPORTED: "On the landing
+  // page, the score on the leaderboard for Drills (1818) is different to the drill score shown in the header (726)."
+  if (levelIndex === (level?.index ?? save.levelIndex)) {
+    const mine = boardEntryOf(answer.value.entries, player?.playerId ?? null);
+    if (mine !== null) {
+      if (mode === 'drill') serverDrillBoard = adoptedBoard(serverDrillBoard, mine, false);
+      else serverDailyBoard = adoptedBoard(serverDailyBoard, mine, false);
+      paintBanner();
+    }
+  }
 }
 
 /** The board page's single in-panel list — the SHEET's read (`refreshBoards`). */
@@ -1221,9 +1185,10 @@ function startOver(): void {
   daily = null;
   serverDrill = null;
   serverRegime = null;
-  // THE ACCOUNT'S TOTAL IS NOT THIS DEVICE'S TO KEEP, and the fresh issue that follows re-seeds it: clearing here is
-  // what stops a reset showing a number for a record it has just deleted while the read is in flight.
-  serverDrillTotal = null;
+  // THE SCORES ARE NOT THIS DEVICE'S TO KEEP, and the fresh issue that follows re-seeds them: clearing here is what
+  // stops a reset showing a number for a record it has just deleted while the read is in flight.
+  serverDrillBoard = null;
+  serverDailyBoard = null;
   // AND THE DEVICE REMEMBERS NOTHING, so it certainly does not remember a run the server accepted (DESIGN.md §15
   // Q21): `showDrill` clears this on the way to the fresh drill, but the reset must not depend on that landing —
   // `startServerDrill` returns without showing anything when the server refuses, and a flag left set would make the
@@ -1337,90 +1302,32 @@ function persist(): void {
 
 /** What is kept on this device, or that nothing is. */
 function paintLedger(): void {
-  // THE BANNER IS A SENTENCE ABOUT THE SAME RECORD (its score cells and the hint meter), so it is repainted here rather
-  // than left to whichever caller remembers — including on the `saving: false` path below, where the LEDGER has nothing to
-  // say but the scores still exist.
+  // THE BANNER IS A SENTENCE ABOUT THE SAME FACT (its scores and the hint meter), so it is repainted here rather than left
+  // to whichever caller remembers — including on the `saving: false` path below.
   paintBanner();
-  const count = save.runs.length;
-  const best = save.best;
   if (!save.saving) {
-    els.ledger.textContent = 'Saving is off — this browser blocks local storage, so progress will not be kept.';
+    els.ledger.textContent = 'Saving is off — this browser blocks local storage, so the drill you are on will not be kept.';
     return;
   }
-  // THE DEVICE'S OWN TOTALS RIDE WITH THE LEDGER, because that line is already the one honest sentence about what this
-  // device keeps. `game/stats.ts` decides what a streak is (distinct days, a run of them, alive until the day ends) and its
-  // probe pins the calendar; this only chooses the words. THE DAY IS THE SERVER'S when a Daily is on screen — a Daily is
-  // published for a day — and the local UTC day otherwise (`utcDay`, the same helper the poller uses, so the two cannot
-  // disagree about which day it is).
-  const today = dailyDay !== '' ? dailyDay : utcDay(new Date());
-  const totals = statsFor(save.runs, today);
-  const streak = totals.streak.days > 0
-    ? `${totals.streak.days}-day Daily streak${totals.streak.today ? '' : ' (play today to keep it)'}`
+  // THE SCORES ARE THE SERVER'S. There is no device ledger to count any more, so this line reports the account's ranked
+  // boards when the app knows them and says so when it does not — it never falls back to a sum of local runs.
+  const parts: string[] = [];
+  if (serverDrillBoard !== null) {
+    const runs = serverDrillBoard.runs === 1 ? '1 run' : `${serverDrillBoard.runs} runs`;
+    parts.push(`Drill ${serverDrillBoard.score} over ${runs}`);
+  }
+  if (serverDailyBoard !== null) parts.push(`Daily ${serverDailyBoard.score}`);
+  const scores = parts.length === 0
+    ? 'No score on the server yet.'
+    : `On the server: ${parts.join(' · ')}.`;
+  // THE STANDING IS SAID WHERE IT IS DECIDED, and the practice case is its own sentence: a practice drill is not scored at
+  // all now, so "kept here" would be the wrong reassurance.
+  const clause = currentStanding() === 'unranked'
+    ? practiceRun
+      ? ' This is a practice drill — it is not scored.'
+      : ' Not ranked: the server is not recording this run.'
     : '';
-  const drills = totals.drills === 1 ? '1 drill' : `${totals.drills} drills`;
-  const kept =
-    count === 0
-      ? 'Saved on this device: nothing yet'
-      : `Saved on this device: ${drills}${best === null ? '' : ` · best ${best}`}${streak === '' ? '' : ` · ${streak}`}`;
-  // AN UNRANKED LEDGER IS A FUNNEL, NOT A SCOREBOARD (DESIGN.md §11.2): the runs are real and kept, and they are not
-  // ranked — which is the fact the old line left implicit until the server refused the submission.
-  //
-  // AND THE REASON IS SAID, because there are now TWO of them and ONE sentence was wrong for the other. MEASURED in a
-  // browser while this change was being checked: a SIGNED-IN player taking the practice offer read "unranked: the
-  // server is recording nothing for a signed-out player", which is not what happened — the server was never asked. So
-  // the demo case keeps a sentence that is true of it whether or not there is a session, and the practice case says
-  // the practice reason instead.
-  const clause =
-    currentStanding() === 'unranked'
-      ? practiceRun
-        ? ' — unranked: a practice drill, so it is kept here and never submitted'
-        : ' — unranked: the server is not recording this run'
-      : '';
-  els.ledger.textContent = `${kept}${clause}`;
-}
-
-/**
- * Record a completed Drill run, ONCE.
- *
- * `runId` IS GENERATED WHEN THE DRILL IS ISSUED rather than here, so a second call for the same run is
- * deduped by `recordRun` instead of appending a duplicate — the same idempotence Phase 5's claim has, and the
- * reason a screen that repaints after a solve cannot double-count.
- */
-function recordDrillRun(seed: number, elapsedSeconds: number, score: number): number {
-  return save.addRun({
-    runId: drillRunId,
-    mode: 'drill',
-    levelIndex: level?.index ?? 1,
-    poolVersion: MAIN_POOL.version,
-    seed,
-    position,
-    options: [...drillOptions],
-    elapsedSeconds,
-    attempts: controller?.attempts ?? 0,
-    score,
-    scoreVersion: SCORE_VERSION,
-    recordedAtMs: Date.now(),
-  });
-}
-
-/** Record a completed Daily run. Only a SOLVED one: a run nobody finished is not a run to submit (§11). */
-function recordDailyRun(seed: number, elapsedSeconds: number, score: number): number {
-  if (!daily) return 0;
-  return save.addRun({
-    runId: dailyRunId,
-    mode: 'daily',
-    levelIndex: dailyLevelIndex,
-    poolVersion: MAIN_POOL.version,
-    seed,
-    day: dailyDay,
-    moves: daily.view(performance.now()).moves,
-    hintsUsed: daily.view(performance.now()).hintsUsed,
-    elapsedSeconds,
-    attempts: 0,
-    score,
-    scoreVersion: SCORE_VERSION,
-    recordedAtMs: Date.now(),
-  });
+  els.ledger.textContent = `${scores}${clause}`;
 }
 
 // ---------------------------------------------------------------------------------------------- the pages
@@ -2027,9 +1934,9 @@ async function startReplayDrill(index: number): Promise<void> {
   }
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
-  // THE SAME ADOPTION AS `startServerDrill`: a reattempt is served by the same response, so the header's total is the
+  // THE SAME ADOPTION AS `startServerDrill`: a reattempt is served by the same response, so the header's score is the
   // account's whether this read issued the order's next drill or reopened an old one. A reattempt is never a demo.
-  serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.board?.score ?? null, false);
+  serverDrillBoard = adoptedBoard(serverDrillBoard, answer.value.board, false);
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -2106,11 +2013,10 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   els.practice.hidden = true;
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
-  // THE ACCOUNT'S RANKED TOTAL IS THE HEADER'S NUMBER from here on (`bannerFacts`). A DEMO FORGETS IT — a signed-out
-  // caller's board is not this player's — while a server that sends no total at all (an older build, an unreadable row)
-  // leaves the known one alone: "no news" is not "no score", which is the rule `adoptedDrillTotal` carries and the revert
-  // REPORTED as "as soon as I leave that screen the score reverts back to a number I don't recognise".
-  serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.board?.score ?? null, answer.value.demo);
+  // THE ACCOUNT'S RANKED BOARD IS THE HEADER'S SCORE from here on (`bannerFacts`). A DEMO FORGETS IT — a signed-out
+  // caller's board is not this player's, and a demo is unscored by design — while a server that sends no board at all
+  // leaves the known one alone: "no news" is not "no score".
+  serverDrillBoard = adoptedBoard(serverDrillBoard, answer.value.board, answer.value.demo);
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -2313,10 +2219,15 @@ function offerNext(demo: boolean): void {
 }
 
 /**
- * The last answer was correct: stop the clock, score the run, and record ONE drill success.
+ * The last answer was correct: stop the clock, and score the run IF THE SERVER WILL RECORD IT.
  *
  * A DRILL'S `moves` IS ITS SHORTEST, because the mode is one call per step and prices wrong ANSWERS through
  * `attemptFactor` (DESIGN.md 6) — it has no notion of a wasted move, which is the Daily's `wasteFactor`.
+ *
+ * THE SCORE IS THE SERVER'S, ALONE. A run is scored only when it can be submitted — the server issued the drill and this
+ * caller may write. Everything else is PRACTICE: the fixture season with no API, a drill the server refused, a signed-out
+ * demo. It is played, answered and listed, but it is NOT scored, NOT recorded and NOT totalled; the verdict says so. The
+ * device has no ledger to fall back to (see the header scores' state).
  */
 function finishDrill(): void {
   if (!controller) return;
@@ -2331,89 +2242,42 @@ function finishDrill(): void {
     attempts: controller.attempts,
   });
   const tries = controller.attempts === 0 ? 'first try' : `${controller.attempts} wrong ${controller.attempts === 1 ? 'try' : 'tries'}`;
+  const time = `Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries}`;
   // A DEMO IS AS FAR AS A SIGNED-OUT PLAYER GOES (DESIGN.md §15 Q22). The drill on screen came from the SERVER, and
   // the server holds no Progress row for this caller — so there is nothing to advance and the next `/drill/current`
-  // would serve the same entry again. MEASURED: the "Next drill" this used to reveal sent `POST /drill/advance` (a
-  // write, A20) and got a `401`, leaving the panel with no drill and the player with a sentence about an endpoint.
-  // A control whose only outcome is a refusal is worse than no control, so it is not offered here and the verdict
-  // says what WOULD move the season on, in the place the player is already reading. The rule is `mayWrite` — the same
-  // predicate the submission, the press and the reveal are guarded by (`net/standing.ts`, pinned in
-  // `game/test/standing-probe.mjs`) — consulted at the one call site that was missing it.
+  // would serve the same entry again. The rule is `mayWrite` — the same predicate the submission is guarded by
+  // (`net/standing.ts`, pinned in `game/test/standing-probe.mjs`).
   const demoOnly = serverIssued() && !mayWrite(currentStanding());
-  const scored = `Solved in ${score.elapsedSeconds.toFixed(1)} s, ${tries} — ${score.score} points`;
-  // THE SCORE LINE IS THE REWARD, AND THE SENTENCE IS THE EXCEPTION. A ranked solve paints one line — the score out of its
-  // own ceiling — and every other outcome keeps a sentence, because "this did not count" has no score line that would not be
-  // a lie. REPORTED: "the results pane is lost in the background... too much unnecessary info... we only need the score out
-  // of text e.g. 10/100". The stars, the headline, the terms and the badges are gone with the card; the text is
-  // `puzzle/score-line.ts`'s, which is what a probe can reach, and the denominator comes from the level rather than a 100.
-  // THE VERDICT SAYS WHAT THE RUN IS WORTH, and a shown answer changes that to nothing (DESIGN.md §15 Q16, A28): the
-  // score is still shown — the player solved it and the clock ran — and the sentence says which standing it bought,
-  // which is none. The reason is stated in the same line rather than in the ledger's unranked clause alone, because
-  // this is the moment the player finds out what their press cost. THE DEMO IS CHECKED FIRST because it outranks the
-  // reveal: a signed-out run was never going to count, so "you were shown the answer" would name the smaller reason.
+  const revealed = controller.revealed.length > 0;
+  // THE ONE SCORED PATH: an issued drill this caller may submit. A signature rather than a second `if` at the submission.
+  const submitted = apiConfigured() && serverIssued() && mayWrite(currentStanding());
   if (demoOnly) {
-    drillScreen.say(`${scored}. That is as far as a signed-out drill goes — the season is the server's, so sign in to be issued the next one.`, 'info');
-  } else if (controller.revealed.length > 0) {
-    drillScreen.say(`${scored}, and not ranked: you were shown the answer, so it earns no hint.`, 'info');
+    drillScreen.say(`${time}. That is as far as a signed-out drill goes — the season is the server's, so sign in to be issued the next one.`, 'info');
+  } else if (revealed) {
+    drillScreen.say(`${time}, and not ranked: you were shown the answer, so it earns no hint and does not reach the board.`, 'info');
+  } else if (!submitted) {
+    // PRACTICE, AND SAID WHERE THE SCORE WOULD HAVE BEEN. The fixture drill is the offline mode's only play now that the
+    // device's score is gone, and a practice drill earns nothing — no score line, because a score it did not bank is a lie.
+    drillScreen.say(`${time}. This is a practice drill — it is not scored.`, 'info');
+    // THE PRACTICE BLOCK KEEPS ITS OWN PROGRESS — a practice FACT, never a score — so the fixture's cells advance offline.
+    // On a configured server the block is drawn from the server's regime, so there is nothing to mark.
+    if (!apiConfigured()) save.markFinished(position, { revealed });
   } else {
     drillScreen.showScore(scoreLine(score, controller.puzzleRef.level));
   }
   // THE DRILL IS OVER, so "Next drill" is the way on from here, and Q21 is why it no longer sends an advance the server
-  // has already done.
-  // A SOLVED DRILL ALWAYS OFFERS A WAY ON. REPORTED: "I was missing the next drill button" — and the hole was the DEMO case: a
-  // signed-out run on a token-mode server cannot advance (every write is a `401`, A20), so the button was hidden outright and
-  // the only sentence saying why sat in the verdict. Hiding a control is not the same as explaining the rule; the offer is now
-  // the explanation's own outcome — the same button, labelled for what it will actually do, which is open the profile page
-  // where signing in makes the season move.
+  // has already done. A solved drill always offers a way on, labelled for what it will actually do.
   offerNext(demoOnly);
-  // A COMPLETED DRILL IS ONE SUCCESS — ONCE, and WHO COUNTS IT DEPENDS ON WHETHER THERE IS A SERVER. Offline the
-  // local rule below runs, exactly as it has since Phase 4; with an API configured the SERVER credits it from its
-  // own record of finished drills (DESIGN.md 11) and this app adopts the balance it answers with — so a modified
-  // client cannot mint a hint (DESIGN.md 10). A submission that FAILS falls back to the local rule, because an
-  // outage must not cost the player a success the device can still remember.
-  // A DEMO RUN IS NOT SENT AT ALL, which is the second half of "the server records nothing for a signed-out
-  // player" (A20): the server answers `demo: true` for a caller it served without a Progress row and refuses every
-  // write with a `401`, so posting it buys nothing — and it would be COUNTED, because A25's refusal tally is applied
-  // at the route table, so an honest signed-out player would look to the operator like someone probing the API. The
-  // local rule credits the success instead, exactly as it does when the server cannot be reached.
-  // AND A REVEALED RUN IS NOT CREDITED BY EITHER RULE (DESIGN.md §15 Q16, A28): `creditLocally` applies it for the
-  // offline and outage paths, and the server applies it for the submitted path, so the three agree.
-  if (apiConfigured() && serverIssued() && mayWrite(currentStanding())) void submitSolvedRun(score, clockSeconds);
-  else creditLocally();
+  // ONLY A SUBMITTABLE RUN IS SENT. A demo is a `401` the server counts (A20, A25); a practice drill is not the season's.
+  // A revealed run IS submitted, because the server is what decides its standing, and it answers with the board unchanged.
+  if (submitted) void submitSolvedRun(score, clockSeconds);
   drillScreen.render(controller);
   paintWaypoints();
   paintBalance();
-  // ONE RUN, RECORDED ONCE, keyed on the id issued with the drill — so a repaint after the solve appends
-  // nothing. The seed comes from the issued drill (the server's, or the fixture's) and is the one the puzzle was
-  // built on.
-  recordDrillRun(issuedSeed(), score.elapsedSeconds, score.score);
   persist();
   // AND THE CALLS APPEAR NOW, as a list, exactly as they do on a solved Daily. A drill has one line — the correct
   // option at each step — so the source buttons stay hidden.
   paintView();
-}
-
-/** The seed the drill on screen was generated from — the server's, or the fixture's at this position. */
-function issuedSeed(): number {
-  const issued = serverIssued() ? serverDrill : null;
-  return issued ? issued.seed : scheduleEntryFor(position).seed;
-}
-
-/**
- * Credit a solved drill LOCALLY: the offline rule, and the fallback when the server cannot be told.
- *
- * The guard is the same one `SaveState` has always owned — a position already counted earns nothing — because the
- * BALANCE is what a hint is and the BOARD cannot be farmed either way (§6).
- *
- * A REVEALED DRILL EARNS NOTHING HERE EITHER (DESIGN.md §15 Q16, A28), and it is the same parameter rather than a
- * second `if` at the call site: the server applies this rule, so an offline ledger that did not would be the one
- * place where "press the button, then press the call you were told" still mints a hint — and it would do it in the
- * mode with no server to catch it.
- */
-function creditLocally(): void {
-  const revealed = controller !== null && controller.revealed.length > 0;
-  const success = save.countSuccess(position, { revealed });
-  if (success.granted) drillScreen.amend(`Solved — and that earned a hint (${save.hints.hints} of 3 held).`, 'ok');
 }
 
 /**
@@ -2448,27 +2312,25 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
     // the reveal POST's braces: an event lost to a dropped connection would otherwise rank a run whose answer the
     // player read. Claiming MORE than was shown is possible and costs the claimant a ranking, which is their business.
     reveals: revealed,
-    // ONE CALL PER STEP, in the order they were answered — the same transcript the offline ledger keeps.
+    // ONE CALL PER STEP, in the order they were answered — the run's transcript, which is what the server replays.
     calls: [...drillOptions],
     score: score.score,
   });
 
   if (!answer.ok) {
-    // AN OUTAGE IS NOT THE PLAYER'S LOSS: the local rule still counts the success, and the refusal is shown so the
-    // gap is visible rather than hidden (`/me/runs:bulk` is what claims a local ledger later). A REVEALED RUN IS THE
-    // EXCEPTION TO "THE LOCAL RULE COUNTS IT", and not an exception here — `creditLocally` applies A28 itself, so
-    // the outage path and the offline path agree about what a shown answer is worth.
-    creditLocally();
+    // THE RUN IS LOST, AND THAT IS SAID PLAINLY. There is no local ledger to fall back to and no local hint credit: the
+    // server refused or could not be reached, and the score line already on screen is this app's calculation, not a
+    // recorded result. The refusal is shown so the gap is visible rather than hidden.
     drillScreen.amend(`The server would not record this run: ${answer.failure.message}`, 'bad');
     paintBalance();
     persist();
     return;
   }
   save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
-  // THE SERVER'S BOARD IS THE HEADER'S TOTAL, and it has just folded this run in — so the header and the "Board:" line
-  // below the score are the same number, which is the whole point of the change. An UNRANKED run leaves the row
-  // untouched, so this is still the account's total rather than a number that moved for a run that did not count.
-  serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.board.score, false);
+  // THE SERVER'S BOARD IS THE HEADER'S SCORE, and it has just folded this run in — so the header and the "Board:" line
+  // below the score are the same number. An UNRANKED run leaves the row untouched, so this is still the account's board
+  // rather than a number that moved for a run that did not count.
+  serverDrillBoard = adoptedBoard(serverDrillBoard, answer.value.board, false);
   // THE SERVER HOLDS THIS RUN, WHICH IS WHAT "Next drill" MAY RELY ON (DESIGN.md §15 Q21): the accepted submission
   // finished the drill on the server's own Progress row, so what the app needs next is the next drill, which is a
   // read. A DUPLICATE COUNTS — the row is the server's either way — and a refused or unreachable submission does not,
@@ -2520,7 +2382,7 @@ function dailyIsCurrent(day: string): boolean {
  * boards `GET /puzzle` carried (DESIGN.md §9). The client no longer derives the board from the seed on the server's
  * path, because `GET /puzzle` answers with the boards themselves.
  */
-function showDaily(puzzle: Puzzle, day: string, seed: number): void {
+function showDaily(puzzle: Puzzle, day: string): void {
   if (!applier || !level) return;
   // THE DRILL'S DEMO FLAG DOES NOT CARRY OVER. `demo` is the server's word about an ISSUED DRILL
   // (`GET /drill/current`), and the Daily's answer carries no such flag — so leaving the last drill's value set
@@ -2531,7 +2393,6 @@ function showDaily(puzzle: Puzzle, day: string, seed: number): void {
 
   dailyDay = day;
   dailyLevelIndex = level.index;
-  dailyRunSeed = seed;
   // A SAVED ATTEMPT FOR TODAY IS PICKED UP. The puzzle is the same one the record was written against — the
   // server's for a published challenge, the derived one offline — and what the record adds is the line, the hints
   // and the clock, with the wall time the page was away charged to it. A record that no longer describes this
@@ -2724,7 +2585,7 @@ function onDailyAnswer(
   // without paying `applicableMoves` for the board the server had already computed.
   finish();
   if (answer.value.readings) applier?.seedReadings(answer.value.puzzle.start, answer.value.readings);
-  showDaily(answer.value.puzzle, day, answer.value.seed);
+  showDaily(answer.value.puzzle, day);
 }
 
 /**
@@ -2758,17 +2619,21 @@ async function submitSolvedDaily(run: DailyRun): Promise<void> {
     score: facts.score,
   });
   if (!answer.ok) {
-    // THE LOCAL RECORD STANDS (it was written above), and the refusal is shown rather than swallowed: the run is
-    // real either way, and `POST /me/runs:bulk` is what will claim a ledger the server never heard.
+    // THERE IS NO LOCAL RECORD TO STAND ON: the Daily is the server's challenge and its score is the server's, so a
+    // refused or unreachable submission is a run that was not recorded. The sentence says so rather than implying a
+    // device copy that no longer exists.
     dailyScreen.say(`The server would not record this Daily: ${answer.failure.message}`, 'bad');
     return;
   }
   save.adoptHints({ hints: answer.value.hints.hints, successes: answer.value.hints.successes });
+  // THE DAILY BOARD IS THE HEADER'S DAILY SCORE, so the header and the sentence below it are one number.
+  serverDailyBoard = adoptedBoard(serverDailyBoard, answer.value.board, false);
   dailyScreen.say(
     `Recorded — the server scores it ${answer.value.run.score} points. Best on this board: ${answer.value.board.score}.`,
     'ok',
   );
   paintBalance();
+  paintBanner();
   persist();
 }
 
@@ -3102,18 +2967,15 @@ function paintDaily(): void {
   // this paint is about: a move that changed it has to move the boards, the borders and the words together.
   paintWaypoints();
   const view = daily.view(performance.now());
-  dailyScreen.show(view);
-  // A SOLVED RUN IS RECORDED FROM HERE, and recording is idempotent on `dailyRunId` — so this can live in a
-  // paint that the frame loop calls, and only a NEW entry is written to storage. THE SAME EDGE SUBMITS IT when an
-  // API is configured, so the two records cannot disagree about which run was the first.
-  if (view.outcome === 'solved' && view.result) {
-    if (recordDailyRun(dailyRunSeed, view.result.elapsedSeconds, view.result.score) > 0) {
-      persist();
-      // THE SAME GUARD THE DRILL's SOLVE USES: a signed-out Daily is a demo, and `POST /runs` would be a `401` that
-      // buys nothing and is counted (A20, A25). The local record above is the whole record for that player until
-      // they sign in and import it (A26).
-      if (apiConfigured() && mayWrite(currentStanding())) void submitSolvedDaily(daily);
-    }
+  // THE RESULT LINE SAYS WHETHER THIS RUN IS SCORED: a signed-out Daily is a demo, and its number is not stored. The rule
+  // is `mayWrite`, the same predicate the submission uses.
+  const writable = apiConfigured() && mayWrite(currentStanding());
+  dailyScreen.show(view, writable);
+  // THE SOLVED RUN IS SUBMITTED FROM HERE, ONCE PER RUN. This paint runs on every event; `dailySubmittedFor` is the
+  // once-only key that the removed local record used to provide (`recordDailyRun` answered 0 on a second paint).
+  if (view.outcome === 'solved' && view.result && writable && dailySubmittedFor !== dailyRunId) {
+    dailySubmittedFor = dailyRunId;
+    void submitSolvedDaily(daily);
   }
   // THE PLAY BUTTONS APPEAR WHEN THE RUN IS OVER (DESIGN.md 9: "on solving, or on giving up, the player can replay
   // their own line and the generator's shortest line"), and so does the LIST of the calls the chosen line is made of.

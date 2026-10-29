@@ -27,7 +27,7 @@ a later reader must not re-open them by accident.
 | 3 | Daily: the player selects **each call individually** from the moves the sequencer offers, with **undo/redo** until the puzzle is solved. | `PlaySession` with a move stack in §9. |
 | 4 | Failure is instructive: animate the player's own line, say why it failed, then offer a **"show me the answer" replay** of the correct line. | The review/replay flow, shared by both modes. |
 | 5 | Ladder: L1's pool is **57 calls** and its Drill is a one-call solution; **every level adds 4 calls** (`poolSize(n) = 57 + 4·(n − 1)` — the owner's rule on the family floor, see §5 finding 4). The design's original "L1 is 10 calls" is superseded by the measurement. | `LevelSpec` and the level→spec function in §5. |
-| 6 | **Cognito User Pools** (email + password, JWT verified in Lambda). Anonymous play is a **read-only demo** that stores nothing; a device's local ledger may be imported only as unranked history (A26, §11.1). **AMENDED** from "anonymous play whose local scores can be claimed on login": the claim survives as history, and it buys no board, no hints and no progress. | Auth, the three identity modes and the bulk-claim endpoint in §11 and §11.2. |
+| 6 | **Cognito User Pools** (email + password, JWT verified in Lambda). Anonymous play is a **read-only demo** that stores nothing and **scores nothing**: REPORTED "I would like to move away from the offline score ... A single point of truth", so the device's local ledger is removed and a demo run is unscored rather than importable. **AMENDED TWICE**: from "anonymous play whose local scores can be claimed on login", then to no claim at all — A26's bulk import survives on the server with no client caller. | Auth, the three identity modes in §11 and §11.2. |
 | 7 | Extract the POC's Three.js stage into a **shared renderer package first**, then build on it, offering **both 2D and 3D** views. | Phase 0 in §13. One package, consumed by the POC and by **both** game modes (§4). |
 | 8 | The daily is seeded from the **UTC date** — one challenge per day — **issued per level to all players**, with the leaderboard partitioned **per level**. | §9: with the challenge now level-scoped, its solution no longer has to be derivable from the level-1 pool. What remains fixed is that every player at a level gets the identical challenge. |
 | 9 | **Free exploration; the score penalises extra moves and time.** Offered calls are **legal now, not "still solvable"** — dead ends are the player's to discover. | Undo is free and unpunished; the clock and the move count carry the cost; §9 and §6 make "wander until the picture matches" a losing strategy. |
@@ -746,7 +746,8 @@ answers cannot drift between the client and the server, because there is now onl
   per player: their best. Re-playing a drill the player enjoyed cannot buy them a place.
 - **Anonymous play still gets the regime — as a DEMO.** The Drill is the funnel, so a signed-out visitor can be
   issued a drill and play it; nothing is submitted, scored or stored, and the progression is not theirs. Signing in
-  is what makes a run count, and a device's own ledger can then be imported as unranked history (A26). A
+  is what makes a run count — and a demo run buys nothing when they do, because the device keeps no ledger to hand over
+  (A26 is withdrawn from the client; REPORTED "the score should be stored on the server. A single point of truth"). A
   non-member is following the same regime in the same order; they simply have not published a score.
 - **Level changes mid-regime** move the player into the new level's regime at its start, because a drill
   validated against one `poolSize` is not a drill at another (§7.2).
@@ -1117,11 +1118,14 @@ Lambda by the API Gateway authorizer. Cognito's own hosted/password-reset flows 
 invented one.
 
 **Sign-in is what makes anything count, and a signed-out visitor gets a demo.** The game is playable with no
-account — a read-only demo that stores nothing (§11.2) — and a device's own local run ledger can be **imported**
-on login with `POST /me/runs:bulk`, **idempotent on a client-generated `runId`**, so a retry or a double-submit
-cannot double-count. **The imported rows are history and nothing else**: no board, no hints, no progress, because
-a run the server never issued cannot be verified (A26). This amends decision 6: the funnel becomes *try it
-read-only, then sign in to be ranked*.
+account — a read-only demo that stores nothing (§11.2) — and **that is now the whole deal**: a demo run has NO SCORE,
+because the score is the server's. REPORTED: "I would like to move away from the offline score. You can play without
+logging in, but you need access to the server and so the score should be stored on the server. A single point of
+truth." So the device's local run ledger is **REMOVED** (`game/src/game/store.ts` holds no runs) and a run the server
+never recorded is not counted anywhere — not on the header, not on a board, not as history. This AMENDS the earlier
+"a device's local ledger can be imported on login" rule, and with it A26: `POST /me/runs:bulk` still exists on the
+server and still imports unranked history, but **no client calls it any more**. The funnel is *try it unscored, then
+sign in to be ranked*.
 
 **API** (API Gateway + Lambda):
 
@@ -1137,9 +1141,9 @@ read-only, then sign in to be ranked*.
 | `POST /me/hints` | Daily | Spend a hint (§11.1 A23): the server debits the balance and records the spend against the challenge's attempt row, answering with the balance AND the call it named. **Both are the server's** — the spend is the anti-cheat part, and the NAME comes from §10's look-up over the recorded line (A22), which is the board the player is actually on. A spend that can name nothing is refused (`nothing_to_name`) before the balance moves. |
 | `POST /daily/abandon` | Daily | Give up today's challenge (A25's accounting): the attempt is stamped as abandoned, ONCE (a second call keeps the first stamp), and it does NOT bar a later submission — the app lets a player replay both lines, and an abandonment is a fact about the attempt. The hint an abandoned run owes is no longer debited here: A23 moved the debit to the moment a hint is taken, which is strictly better. |
 | `POST /runs` | both | One completed run. **Drill**: the issued-drill id and the `runId`; the calls chosen — one per step — and, under A22 (§11.1), they are the transcript of presses the SERVER recorded rather than a claim. **Daily**: the level, the date and the `runId`; the line the server recorded. `elapsed`, `attempts`, `hintsUsed` and `reveals` appear in the body only as AUDIT inputs — the server measures the first (A21), counts the second (A22), debits the third (A23) and has its own record of the fourth (A28). The server re-derives which option was correct at each step rather than trusting the client's claim about it, and it answers with `run.ranked`, which is the server's own word about whether the run counted. |
-| `POST /me/runs:bulk` | both | Import a device's local ledger as **unranked history** (A26): one `history#<playerId>` row per run, marked `unverified`, and NOTHING ELSE — no board, no hints, no progress, and no row in the results partition. A run already imported is SKIPPED rather than rewritten, so a second import claiming a better score for the same id changes no number. |
+| `POST /me/runs:bulk` | both | **NO CLIENT CALLS THIS ANY MORE**: it imported the device's local run ledger, and that ledger was removed when the score became the server's (see the amendment above). The server capability is unchanged and still measured (`api/test/history-probe.mjs`) — one `history#<playerId>` row per run, marked `unverified`, and NOTHING ELSE (no board, no hints, no progress, because a run the server never issued cannot be verified, A26), idempotent on a client-generated `runId` so a retry cannot double-count. |
 | `GET /leaderboard?mode&level&period` | both | The board for one mode, level and period. **Each entry carries the player's ALIAS rather than their id**, because a row is read by a person: REPORTED as "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address anywhere on the UI." The names are resolved from the `profile#` rows behind the page's entries (one read per row, bounded by `LEADERBOARD_PAGE`), and a player who has never claimed one shows as un-named rather than as an identifier. |
-| `GET /me/profile` | both | The alias this player has claimed, or `null`, AND their own ranked Drill board for the level and set they are playing (`drillBoard: { score, runs } | null`). A read that NEEDS an identity — there is nothing to show a signed-out caller — and `null` rather than a `404`, because "no name yet" is a state the app draws a form for. **THE BOARD RIDES THIS READ** because it is the one player-bound request every signed-in boot makes, so the app's header total is right on every page after a reload rather than only after a play page has issued a drill; it is read-only (the stored ladder level, not `servableLevel`'s promotion) and `null` when the row cannot be read. |
+| `GET /me/profile` | both | The alias this player has claimed, or `null`, AND **BOTH of the header's ranked totals**: their Drill board for the level and set they are playing (`drillBoard: { score, runs } | null`) and their Daily board for today's UTC day (`dailyBoard: { score, runs } | null`). A read that NEEDS an identity — there is nothing to show a signed-out caller — and `null` rather than a `404`, because "no name yet" is a state the app draws a form for. **THE BOARDS RIDE THIS READ** because it is the one player-bound request every signed-in boot makes, so the app's header is right on every page after a reload rather than only after a play page has issued a drill; it is read-only (the stored ladder level, not `servableLevel`'s promotion) and `null` when the row cannot be read. |
 | `POST /me/alias` | both | Claim a public name, or change the one held. **The rule is `sanitizeAlias`'s and the SERVER runs it** (`game/src/puzzle/alias.ts`): NFKC, controls/zero-width/bidi stripped, whitespace collapsed, letters/digits/`._- '` only — never `@`, so a name cannot be or look like an address — 3–16 characters, starting and ending with a letter or digit, and not one of the reserved operator words. The claim row is created CONDITIONALLY (`alias#<folded key>`), so one name belongs to one player and a race answers `409 alias_taken`; a name once used is never reissued, so a board cannot hand a player's identity to somebody else. |
 
 `GET /drill/current` works **without an account, and then it is a demo**: the server answers the level it was
@@ -1155,7 +1159,8 @@ promotes them (the promotion is evaluated on the READ, in `api/src/ladder.ts`, s
 issuedAtMs, puzzle, resumed }, regime: { finished, length }, board: { score, runs } | null }`, where `drill` is `null`
 once every entry of that level is finished. **`board` is the PLAYER'S OWN ranked Drill board for the set the drill
 belongs to** — the number the app's header shows as its running total, so it survives a reload without a second
-request (`null` for a demo, or when the row cannot be read, and the client then falls back to its device total). It is
+request (`null` for a demo, or when the row cannot be read, and the header then shows ZERO — there is no device total to
+fall back to any more, which is the single point of truth the removal of the local ledger bought). It is
 the same figure `POST /runs` reports and the board page ranks, which is what stops the header and the post-run board
 line from being two different totals. **`puzzle` is the whole generated puzzle** — start, goal, every step's options and their boards,
 and the answer key — because the client generates nothing; it is the same object `POST /drill/answer` and
@@ -1350,7 +1355,7 @@ claiming `0.1 s` also scores **100**, because `timeFactor` stops at 1.
 | **A23 — the hint spend is an event, not a field.** | `POST /me/hints` debits the balance and records the spend against the challenge's attempt row at the moment the hint is taken, so the run is charged 60 seconds per RECORDED spend and a submission claiming more than the record is refused (`unrecorded_hints`). The balance and the event move in one transaction. **The call it names is the server's too**: §10's look-up runs over the board the player is standing on, and for the Daily that board is the RECORDED line — replayed through the app's own `PlaySession.hint()`, so one name exists for one fact — and a spend that can name nothing is refused (`nothing_to_name`) rather than charging for a hint that says nothing. `POST /daily/abandon` is what debits the hint an abandoned run owes. |
 | **A24 — scoring is a function of server facts only.** | Measured elapsed, counted attempts, server-debited hints, the regenerated `shortest` and the recorded line. The answer reports measured against claimed, so a disagreement is visible rather than silent. |
 | **A25 — accountability is recorded.** | Every accepted or refused run stores what was measured and what was claimed plus its flags, and increments a bounded `abuse#<playerId>` counter. The gateway throttles per player, and a refusal-rate alarm is the operator's signal that someone is probing. |
-| **A26 — the bulk claim is HISTORY, not rank.** | A device's local ledger may be imported only as `unverified` rows that count for nothing — no board, no hints, no progress — because a run the server never issued cannot be verified. This amends decision 6: the anonymous ledger is kept, and it buys no standing. |
+| **A26 — the bulk claim is HISTORY, not rank; WITHDRAWN FROM THE CLIENT.** | A device's local ledger could be imported only as `unverified` rows that count for nothing — no board, no hints, no progress — because a run the server never issued cannot be verified. The device ledger is now removed for a stronger reason: REPORTED "the score should be stored on the server. A single point of truth." The server endpoint and its refusal codes are unchanged and measured (`api/test/history-probe.mjs`); `game/src/net/api.ts` no longer calls it. |
 | **A27 — local development never needs a provider, and never reaches production.** | Three identity modes (§11.2). `dev` is refused when the environment is production. |
 | **A28 — a shown answer is recorded, and it buys nothing.** | `POST /drill/reveal` records that one step's answer was SHOWN, naming the call from the puzzle the server issued (the same expression A22's verdict uses), deduplicated by step and never recorded as a press. A drill finished with any reveal recorded is **kept and counted for nothing**: no hint credit, no board entry at all (not a zero), and the regime still advances, because leaving a player on a question they have read is the trap Q5 exists to solve. The submission's `reveals` is an AUDIT input and the rule takes the **union** of the two sources — either one saying "shown" is enough, because the record alone ranks a run whose reveal POST was lost and the claim alone ranks a client that never sends one. |
 
@@ -1411,18 +1416,19 @@ own log as an `OPTIONS /drill/current` with no request behind it. The device hea
 (`game/src/net/api.ts`), the boot waits for `/health` before the first request, and the rule lives in
 `game/src/net/standing.ts`, where `game/test/standing-probe.mjs` drives every combination.
 
-**A26 is now enforced on both sides too.** A device's ledger is handed over on sign-in, as `history#<playerId>` rows
-marked `unverified` that buy no standing — no board, no hints, no progress. The mapping is the client's half and it is
-a rule rather than a field copy: the two modes name the transcript differently LOCALLY (`options` for a drill's one
-call per step, `moves` for the daily's line) and the imported row has one `calls` list, so a mapping that read one
-field for both would send a Daily with an empty transcript — which the endpoint accepts and stores as history with no
-line. MEASURED in a browser: a drill solved as a signed-out DEMO is recorded on the device ("1 run · best 59 —
-unranked"), and signing in answers "1 run from this device imported as history: kept, and not ranked" with `200 POST
-/me/runs:bulk` in the dev server's log; the SAME sign-in again answers "the server already held all 1 of this
-device's runs (1 run skipped)", which is the create-only row doing its work rather than the client remembering. AN
-EMPTY LEDGER IS SENT TO NOBODY — a fresh session signs in, the row reads "Signed in as …", and the log holds no
-`/me/runs:bulk` AT ALL, because the endpoint refuses an empty body and A25 counts refusals at the route table, so
-posting one would put the commonest first sign-in into the operator's signal that someone is probing. What is not yet
+**A26 WAS enforced on both sides, and is now WITHDRAWN FROM THE CLIENT.** The measurements below are the record of
+what the import did while it existed; the device ledger that fed it is removed (see §11's amendment), so the client half
+of A26 — `ledgerEntryOf` and `importLedger` in `game/src/net/api.ts` — is gone with it. A device's ledger WAS handed over
+on sign-in, as `history#<playerId>` rows marked `unverified` that bought no standing — no board, no hints, no progress.
+The mapping WAS the client's half and it was a rule rather than a field copy: the two modes named the transcript
+differently LOCALLY (`options` for a drill's one call per step, `moves` for the daily's line) and the imported row had
+one `calls` list, so a mapping that read one field for both would have sent a Daily with an empty transcript — which the
+endpoint accepts and stores as history with no line. MEASURED, while it existed: a drill solved as a signed-out DEMO was
+recorded on the device ("1 run · best 59 — unranked"), and signing in answered "1 run from this device imported as
+history: kept, and not ranked" with `200 POST /me/runs:bulk` in the dev server's log; the SAME sign-in again answered
+"the server already held all 1 of this device's runs (1 run skipped)", which was the create-only row doing its work
+rather than the client remembering. The server half is still measured (`api/test/history-probe.mjs`); a signed-out demo is
+now simply unscored and leaves nothing to hand over. What is not yet
 true, and the stage that lands it (AGENTS.md §0: one change, one commit):
 
 **A22's Daily half is now true, and it is the one change here that could not be made tolerance-free.** The Daily's
@@ -2509,16 +2515,17 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     from the server's `demo` — the two mean opposite things about the server ("I served this and will not rank it"
     versus "I was never asked") and share one answer — and it is checked BEFORE `dev`, which is what makes the offer
     honest: in `dev` mode a signed-out caller IS ranked, so without that a fixture drill would be marked ranked while
-    the app knew it was not the season's. The ledger's unranked clause follows automatically, because the lines are
-    painted from the same rule. **The run is still kept on this device, and that is deliberate**: the local ledger is
-    what A26 later imports as UNRANKED HISTORY, which is exactly what a practice run is — a run the server never
-    issued, buying no standing — while `serverDrill` is null on this path, so `finishDrill` has nothing to submit and
-    credits the local rule instead. *The tradeoff is unchanged*: a player on a flaky connection cannot play the regime
-    until it returns, which is the price of the order being the server's — and the offer is now the honest thing they
-    can do meanwhile. **THE DAILY HAS NO SUCH OFFER**, deliberately: Q20 is about the SEASON's order, and a Daily whose
-    published artefact cannot be read is refused with its reason rather than replaced by a locally derived seed, which
-    would be a different challenge from everyone else's. Pinned in `game/test/standing-probe.mjs` §4b, whose negative
-    control is the plausible wrong rule ("dev always ranks") that passes every other check in that file.
+    the app knew it was not the season's. **THE RUN IS NOT KEPT ANY MORE, and that is the single-point-of-truth change**:
+    the device ledger is removed (REPORTED "You can play without logging in, but you need access to the server and so the
+    score should be stored on the server. A single point of truth."), so a practice drill is UNSCORED AND UNPAID — no
+    score, no ledger row, no hint credit — and `finishDrill` says so on screen rather than crediting a local rule that no
+    longer exists. What a practice run still buys is the practice, and the paragraph below is the record of the import
+    that used to follow it. **THE DAILY HAS NO SUCH OFFER**, deliberately: Q20 is about the SEASON's order, and a Daily
+    whose published artefact cannot be read is refused with its reason rather than replaced by a locally derived seed,
+    which would be a different challenge from everyone else's. Pinned in `game/test/standing-probe.mjs` §4b, whose
+    negative control is the plausible wrong rule ("dev always ranks") that passes every other check in that file.
+    *The tradeoff is unchanged*: a player on a flaky connection cannot play the regime until it returns, which is the
+    price of the order being the server's — and the offer is the honest thing they can do meanwhile.
     **THE TWO THINGS THIS ENTRY STILL OWED ARE NOW OBSERVED, in one session.** (1) The offer against a server that
     ANSWERS and refuses, rather than being unreachable: four skips (§15 Q5) finished level 1's season, the next
     `/drill/current` answered `drill: null`, and the app said **"No drill from the server: every drill in this level's

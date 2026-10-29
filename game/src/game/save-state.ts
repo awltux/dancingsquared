@@ -8,37 +8,29 @@
 //
 // THE RULES IT OWNS, each of which had been a line in a handler:
 //
-//   1. ONE SUCCESS PER ISSUED DRILL. `countSuccess` records the position and grants at most once for it,
-//      because `SaveState.persist` may be told about a position the player has already finished (DESIGN.md 8
-//      locks a drill when it is issued, and a reload re-issues it). The BOARD cannot be farmed (§6 keeps the
-//      player's best), but the BALANCE could be, and a hint is a currency (§10). DESIGN.md 11's Progress row
-//      keeps "the set of finished ones" for exactly this.
-//   2. ONE ENTRY PER `runId`. `addRun` reports how many entries it ADDED, so a caller that repaints can write
-//      only when something changed — and the dedupe itself is `store.recordRun`'s, keyed on the id that
-//      Phase 5's claim is idempotent on.
-//   3. A DRILL MUTATION MUST NOT DISCARD THE DAILY'S RECORD. `persist` keeps the stored Daily when the caller
+//   1. ONE SUCCESS PER ISSUED DRILL. `markFinished` records the position and reports at most once for it, because
+//      `persist` may be told about a position the player has already finished (DESIGN.md 8 locks a drill when it
+//      is issued, and a reload re-issues it). NO SCORE OR HINT IS CREDITED HERE: the server is the one point of
+//      truth for both (`adoptHints` caches the balance it states), and a practice drill earns neither.
+//   2. THE DRILL MUTATION MUST NOT DISCARD THE DAILY'S RECORD. `persist` keeps the stored Daily when the caller
 //      has none in flight, because the tab opens on the Drill and the Daily is resumed lazily — MEASURED in
 //      the browser: booting, solving a drill and reloading showed today's Daily back at 0:00 with an empty
 //      line, because the first `persist()` of the session wrote `daily: null` over it.
-//   4. THE WRITE IS ONE PLACE, AND ITS ANSWER IS THE FLAG. `saving` says whether the LAST write worked, which
+//   3. THE WRITE IS ONE PLACE, AND ITS ANSWER IS THE FLAG. `saving` says whether the LAST write worked, which
 //      is what the footer reads; nothing else in the app asks the storage anything.
 //
 // IT TAKES THE STORAGE AS AN ARGUMENT rather than reaching for `window.localStorage`, so the browser seam
 // (including a blocked origin, which throws on the PROPERTY) stays in `main.ts` and this stays probeable.
 
-import { SCORE_VERSION } from '../puzzle/config.ts';
-import { recordSuccess, spendHint, type HintLedger } from '../puzzle/hints.ts';
+import { spendHint, type HintLedger } from '../puzzle/hints.ts';
 import {
-  bestScore,
   clearGame,
   emptySave,
   loadGame,
-  recordRun as appendRun,
   saveGame,
   SAVE_VERSION,
   type DailySaved,
   type DrillSaved,
-  type RunRecord,
   type SavedGame,
   type StorageLike,
 } from './store.ts';
@@ -115,10 +107,6 @@ export class SaveState {
     return this.record.hints;
   }
 
-  get runs(): readonly RunRecord[] {
-    return this.record.runs;
-  }
-
   /** The issued drill's position, which is where a boot resumes. */
   get position(): number {
     return this.record.drillPosition;
@@ -168,35 +156,21 @@ export class SaveState {
     return this.record.savedAtMs > 0;
   }
 
-  /** The best score among the runs THIS build's weights scored, or null when there are none. */
-  get best(): number | null {
-    return bestScore(this.record.runs, SCORE_VERSION);
-  }
-
   /**
-   * Record a solved drill at `position`, and report what it earned.
+   * Mark a drill position FINISHED, and PASSED when it was solved unaided, and report whether it was new.
    *
-   * THE GUARD IS THE RULE: a position already in the finished set grants nothing and adds nothing, however
-   * many times it is solved. See rule 1 in the module header.
+   * NO SCORE AND NO HINT IS CREDITED, and that is the change the server-only score made: this is the PRACTICE record
+   * (and the resume copy). The server's Progress row and hint balance are the truth, adopted through `adoptHints`; a
+   * practice drill on the fixture season earns neither, and the removed `countSuccess` used to mint a hint locally.
    *
-   * A REVEALED DRILL IS FINISHED AND EARNS NOTHING (DESIGN.md §15 Q16, §11.1 A28), which is the SERVER's rule
-   * mirrored here for the offline ledger and for the fallback when a submission fails: the position still goes into
-   * the finished set — the player did answer it, and the drill does not come back — and the credit does not run.
-   * Both halves matter and they are why this is a parameter rather than a caller's `if`: skipping the record
-   * entirely would let the same position pay on a later solve, and crediting it is the defect (the app's own button
-   * minting the currency the hint is).
+   * THE GUARD IS STILL A RULE: a position already in the finished set answers `firstTime: false`, because a reload
+   * re-issues it and a caller may persist the same position again. What it no longer does is decide a currency.
    *
-   * THE TWO ANSWERS ARE TWO QUESTIONS, and they are not redundant: `granted` is false for a FULL balance as
-   * well as for a repeat, so only `firstTime` says "this position was not counted before". That is the answer
-   * the probe rules the farming out with, and the reason it is reported rather than folded into `granted`.
+   * A REVEALED DRILL FINISHES WITHOUT PASSING — the player did answer it, and the drill does not come back, but the pass
+   * is the unaided result and the grid draws the difference.
    */
-  countSuccess(position: number, opts: { revealed?: boolean } = {}): { firstTime: boolean; granted: boolean } {
-    if (!this.spend(position, opts.revealed !== true)) return { firstTime: false, granted: false };
-    const granted = opts.revealed === true
-      ? { ledger: this.record.hints, granted: false }
-      : recordSuccess(this.record.hints);
-    this.record = { ...this.record, hints: granted.ledger };
-    return { firstTime: true, granted: granted.granted };
+  markFinished(position: number, opts: { revealed?: boolean } = {}): { firstTime: boolean } {
+    return { firstTime: this.spend(position, opts.revealed !== true) };
   }
 
   /**
@@ -237,20 +211,13 @@ export class SaveState {
     return true;
   }
 
-  /** Append a completed run; returns how many entries were added (0 when the id is already recorded). */
-  addRun(run: RunRecord): number {
-    const before = this.record.runs.length;
-    this.record = appendRun(this.record, run);
-    return this.record.runs.length - before;
-  }
-
   /**
    * Adopt a balance the SERVER stated.
    *
    * THE SERVER OWNS THE LEDGER (DESIGN.md 10, 11: "server-owned state that the client displays and requests
    * against"), so once a run has been submitted, the number it answers with is the truth and this record becomes a
    * CACHE of it — including the earning progress, which the server counts from its own record of finished drills.
-   * `countSuccess` is untouched and still holds offline, where there is no server to ask.
+   * Nothing local earns a hint any more: a practice drill is unscored and unpaid.
    */
   adoptHints(ledger: HintLedger): void {
     this.record = { ...this.record, hints: ledger };

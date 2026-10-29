@@ -267,9 +267,14 @@ html[data-panel="left"][data-stage="page"] #boardList {
 #bannerHints {
   display: flex;
   flex: none;
-  align-items: center;
+  /* THE BARS FILL THE BADGE, EDGE TO EDGE. REPORTED after the circles became bars: "Use ghost outlines of the bars that fill
+     to the edge of the badge outline." So the cell has NO vertical padding and stretches to the row's height, and the meter
+     inside it is stretched rather than centred: a bar that stopped short of the outline would be a third box inside two
+     boxes, which is the same complaint the circles drew. The 1px border is the only margin the bars have. */
+  align-self: stretch;
+  align-items: stretch;
   margin: 0 0 0 auto;
-  padding: var(--space-xs) var(--space-sm);
+  padding: 0 var(--space-sm);
   background: var(--control);
   border: 1px solid var(--line);
   border-radius: var(--r-control);
@@ -1248,13 +1253,16 @@ button[data-busy="true"]::after {
    BARS AND NOT CIRCLES: REPORTED "The current circles in the header hint bank seem to be at odds with the badge outline.
    Change it to a set of three bars within the badge outline." The outline is a rounded rectangle, so a round slot inside
    it reads as two shapes; a bar is the same shape as the box it sits in, and three of them read as one meter because the
-   gap is the only thing between them. The empty slot is the OUTLINE weight rather than a lighter fill, so an empty meter
-   still looks drawn — three invisible slots in a badge would read as a missing control. */
+   gap is the only thing between them.
+   AN EMPTY SLOT IS A GHOST OUTLINE AND NOT A FILL, and the bar reaches the badge's edge: REPORTED "Use ghost outlines of
+   the bars that fill to the edge of the badge outline." A filled slot is the accent to the full height; an empty one is the
+   same bar drawn as an outline, so the meter reads as three slots whether or not any is held — three invisible slots in a
+   badge would look like a missing control. */
 #bannerPips.hint-bars {
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
   gap: 3px;
-  height: 0.95em;
+  height: 100%;
 }
 
 /* A SLOT IS A BAR AND ITS STATE IS `data-on`, which `paintBanner` writes from `bannerView`'s `hintFills`: the module
@@ -1263,10 +1271,10 @@ button[data-busy="true"]::after {
 #bannerPips.hint-bars > i {
   display: block;
   width: 4px;
-  height: 100%;
+  height: auto;
   border-radius: 1px;
-  background: color-mix(in srgb, currentColor 22%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 34%, transparent);
+  background: color-mix(in srgb, currentColor 18%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 38%, transparent);
 }
 
 #bannerPips.hint-bars > i[data-on="true"] {

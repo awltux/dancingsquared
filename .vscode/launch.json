@@ -1,10 +1,17 @@
-// DEBUGGING THE API AND THE GAME, in VS Code — and starting the whole system.
+// DEBUGGING THE API, THE GAME AND THE POC, in VS Code — and starting the whole system.
 //
 // THREE THINGS MAKE UP THE SYSTEM, and only one of them is a program you debug:
 //   * the DATABASE — DynamoDB Local in Docker, on 127.0.0.1:8000 (`docker compose -f api/docker-compose.yml up -d`);
 //   * the API — `api/src/dev-server.ts` on 127.0.0.1:8090, either over the in-memory twin or over that container;
 //   * the GAME — Vite on http://localhost:8089/, with `VITE_API_BASE` pointing at the API.
 // `tasks.json` holds them as tasks (`system: up` is the one-action start); this file holds the debugger routes.
+//
+// THE POC IS OUTSIDE THAT SYSTEM, AND THAT IS WHY IT HAS NO COMPOUND. It is the authoring app — the sequencer panel,
+// the call editor and the browse view — and it talks to no API and needs no Docker: its ONE prerequisite is a built
+// engine, because `poc/vite.config.ts` aliases `dancing-squared-engine` to `engine/dist`. So `poc: dev server` carries
+// its own `preLaunchTask: "engine: build"`, and A COMPOUND MUST NOT PAIR IT WITH ANOTHER ENGINE-BUILDING MEMBER: two
+// builds racing on `dist` is AGENTS.md trap 32, which is why every compound below carries its build at the COMPOUND
+// level and on none of its members.
 //
 // THE COMPOUND AT THE BOTTOM IS THE F5 ROUTE (`system: game + api + db`). It runs `system: prepare` ONCE — the engine build,
 // the container and the table — and then starts the API and the game as debug sessions. That is why neither member carries
@@ -179,6 +186,55 @@
       "name": "game: chrome against 8089",
       "url": "http://localhost:8089/",
       "webRoot": "${workspaceFolder}/game",
+      "sourceMaps": true
+    },
+    {
+      // THE AUTHORING APP, AND THE ONE TARGET WITH NOTHING TO START ALONGSIDE IT — see the header for why it has no
+      // compound: no API, no Docker, and the engine build is its only prerequisite.
+      //
+      // `preLaunchTask` IS THE ENGINE BUILD because `poc/vite.config.ts` aliases the engine to `engine/dist` (that alias
+      // is about ONE engine instance, not only resolution), so a stale `dist` here reads in the browser as a missing
+      // export rather than as a build in flight — AGENTS.md trap 32. The task is the file's existing one, so there is
+      // one build command and not a second spelling of it in `runtimeArgs`.
+      //
+      // `npm run dev` RATHER THAN A BARE `vite`, for the reason `game: dev server` records for its `cwd`: the launch has
+      // to be the command the README documents, or the two are a difference waiting to surprise somebody.
+      //
+      // `serverReadyAction` OPENS THE PAGE WHEN VITE IS READY, and it is the only thing that will: `poc/vite.config.ts`
+      // sets `open: false` and pins `port: 5173`. The pattern is Vite's own `Local:` line, so the browser is never
+      // pointed at a port nobody is listening on.
+      //
+      // NO `poc: dev:lan` HERE, and the omission is deliberate rather than forgotten: the game has a `dev:lan` script
+      // (`vite --host 0.0.0.0`) and `poc/package.json` does not, so exposing the POC on the LAN is a two-file change and
+      // does not belong in a launch-config commit.
+      "type": "node",
+      "request": "launch",
+      "name": "poc: dev server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "engine: build",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "Local:\\s+(https?://\\S+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      },
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // THE POC'S OWN BROWSER, for a server started by hand (`npm run dev` in a terminal). `poc: dev server` above cannot
+      // do this: it owns the browser it opens.
+      //
+      // A `pwa-chrome` session on the same page as the game's, for the same reason, and with the same rule: `webRoot` is
+      // the POC, not the workspace, because the app is served from `poc/` — a breakpoint in
+      // `poc/src/sequencer-ui.ts` resolves through it, and the workspace root would map every file one directory too
+      // high. 5173 is `poc/vite.config.ts`'s own `server.port`.
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "poc: chrome against 5173",
+      "url": "http://localhost:5173/",
+      "webRoot": "${workspaceFolder}/poc",
       "sourceMaps": true
     }
   ],

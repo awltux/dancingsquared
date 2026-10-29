@@ -109,3 +109,24 @@ export function drillTotalFor(serverTotal: number | null, runs: readonly RunReco
   if (serverTotal !== null && Number.isFinite(serverTotal) && serverTotal >= 0) return serverTotal;
   return runs.reduce((sum, run) => (run.mode === 'drill' ? sum + run.score : sum), 0);
 }
+
+/**
+ * WHAT A DRILL ANSWER DOES TO THE TOTAL THE HEADER ALREADY KNOWS.
+ *
+ * A DRILL READ CARRIES THE PLAYER'S BOARD, OR NOTHING. The two must not be read alike, and treating "nothing" as "no
+ * total" is what REPORTED: "When I pass a drill, the score in the header is updated. But as soon as I leave that screen
+ * the score reverts back to a number I don't recognise." Leaving the drill screen re-issues a drill; a build whose read
+ * does not carry the board (an older server, or a row it could not read) had the shell assign null, so the header fell
+ * back to the device's own sum — a different quantity, and the unrecognised number.
+ *
+ *   - A TOTAL PRESENT: it wins, INCLUDING ZERO (a real answer: no ranked runs on this set).
+ *   - NO TOTAL, AND THE ANSWER IS A DEMO: forget it. A signed-out caller's board is not this player's, so the device's
+ *     own sum is the honest fallback.
+ *   - NO TOTAL, AND THE ANSWER IS NOT A DEMO: the server did not say — which is NO NEWS, not NO SCORE. The last known
+ *     total is kept, because replacing it with a different quantity is the revert this rule exists to prevent.
+ */
+export function adoptedDrillTotal(known: number | null, boardScore: number | null, demo: boolean): number | null {
+  if (boardScore !== null) return boardScore;
+  if (demo) return null;
+  return known;
+}

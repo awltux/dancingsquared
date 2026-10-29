@@ -18,10 +18,11 @@
 // and `meanSeconds` is the mean time — each null or zero from an empty record rather than NaN.
 //
 // AND WHICH TOTAL THE HEADER SHOWS (section 7): `drillTotalFor` prefers the SERVER's ranked board total and falls back
-// to this device's own sum, because the two are different quantities and showing both was the reported confusion.
+// to this device's own sum, because the two are different quantities and showing both was the reported confusion. Section
+// 8 pins what an answer that carries NO total does to one the app already knows — the reported revert.
 //
 // Usage: node game/test/stats-probe.mjs   (pure arithmetic over records; no engine, no DOM, no clock)
-import { drillTotalFor, statsFor, shiftDay } from '../src/game/stats.ts';
+import { adoptedDrillTotal, drillTotalFor, statsFor, shiftDay } from '../src/game/stats.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -155,6 +156,24 @@ console.log('\n== 7. which drill total the header shows ==');
   // AN ANSWER THIS APP CANNOT TRUST FALLS BACK rather than being printed: a non-finite or negative total is malformed.
   check(drillTotalFor(Number.NaN, runs) === 134 && drillTotalFor(-1, runs) === 134,
     'a non-finite or negative server total falls back to the device sum');
+}
+
+console.log('\n== 8. an answer with no total does not erase the one the header knows ==');
+{
+  // REPORTED: "When I pass a drill, the score in the header is updated. But as soon as I leave that screen the score
+  // reverts back to a number I don't recognise." Leaving re-issues a drill; a read from a build that does not carry the
+  // board used to assign null, and the header fell back to the device's own sum.
+  check(adoptedDrillTotal(null, 67, false) === 67, 'a total that arrives is adopted');
+  check(adoptedDrillTotal(67, 0, false) === 0, 'and a ZERO replaces it, because zero is a real answer');
+  check(adoptedDrillTotal(67, null, true) === null, 'a demo with no total forgets it, so the device sum is the fallback');
+  check(adoptedDrillTotal(67, null, false) === 67,
+    'while an answer with NO total that is not a demo keeps the known one — the reported revert');
+  check(adoptedDrillTotal(null, null, false) === null, 'and with nothing known there is nothing to keep');
+  // NEGATIVE CONTROL: the rule that shipped, `boardScore ?? null`, answers null for the non-demo case — the device-sum
+  // fallback the report saw. Only this section decides it.
+  const shipped = (_known, board, _demo) => board ?? null;
+  check(shipped(67, null, false) === null && adoptedDrillTotal(67, null, false) === 67,
+    'CONTROL: "a missing total is no total" reverts the header; keeping the last known one does not');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

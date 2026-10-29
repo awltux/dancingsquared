@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, pollDaily, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, fetchProfile, importLedger, issueDrill, ledgerEntryOf, normaliseBase, recordDailyMove, recordDrillAnswer, pollDaily, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -731,6 +731,28 @@ console.log('\n== 13. the board is one request, and a PARTIAL one is not shown a
   const nobody = deps('http://localhost:8090', { status: 200, body: { board: { mode: 'daily', levelIndex: 1, period: '2026-10-16', entries: [], examined: 0, truncated: false } } });
   const empty = await fetchLeaderboard('daily', 1, '2026-10-16', nobody.api);
   check(empty.ok === true && empty.value.entries.length === 0 && empty.value.examined === 0, `an empty board is shown as empty (${empty.status ?? ''}${empty.value?.entries?.length} entries)`);
+}
+
+console.log('\n== 14. the profile carries the header\'s Drill total ==');
+{
+  // THE TOTAL THE HEADER SHOWS IS READ ON EVERY SIGNED-IN BOOT, from the one player-bound request that costs nothing
+  // extra (`GET /me/profile`). REPORTED: "Check all the pages to ensure that the header score is correctly updated."
+  const wired = deps('http://localhost:8090', { status: 200, body: { alias: 'Ada', drillBoard: { score: 67, runs: 1 } } });
+  const answer = await fetchProfile(wired.api);
+  check(answer.ok === true && answer.value.alias === 'Ada', `the profile parses (${answer.value?.alias})`);
+  check(answer.value.drillBoard?.score === 67 && answer.value.drillBoard?.runs === 1,
+    `with the header's total (${answer.value.drillBoard?.score} over ${answer.value.drillBoard?.runs})`);
+  // AN OLDER SERVER DOES NOT SEND THE FIELD, and a malformed one is the same: the alias still answers and the total is
+  // null — "no news", which `adoptedDrillTotal` keeps the known value for rather than treating as no score.
+  for (const [body, why] of [
+    [{ alias: null }, 'no board field'],
+    [{ alias: null, drillBoard: { score: 'lots', runs: 1 } }, 'a non-numeric score'],
+    [{ alias: null, drillBoard: null }, 'an explicit null'],
+  ]) {
+    const scripted = deps('http://localhost:8090', { status: 200, body });
+    const plain = await fetchProfile(scripted.api);
+    check(plain.ok === true && plain.value.drillBoard === null, `a profile with ${why} still parses, with no total (${plain.value?.drillBoard})`);
+  }
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

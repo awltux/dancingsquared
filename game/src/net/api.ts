@@ -1068,19 +1068,29 @@ export async function importLedger(runs: readonly RunRecord[], deps: ApiDeps = b
 }
 
 /**
- * `GET /me/profile` — the alias this player has claimed, or `null`.
+ * `GET /me/profile` — the alias this player has claimed, or `null`, and their own ranked Drill board.
  *
  * `null` IS THE ORDINARY FIRST-RUN ANSWER, not a failure: a player who has never claimed a name is asked for one, which
  * is why it is a value here rather than a `404` to read at the call site. A body this module cannot read IS refused —
  * the rule the rest of the file keeps.
+ *
+ * THE BOARD IS THE HEADER'S TOTAL, and it rides this read because the profile is the one player-bound request every
+ * signed-in boot makes: the header is then right on every page after a reload, not only after a play page has issued a
+ * drill. It is tolerated as absent (`null`), like the drill answer's board — a server older than the field is no news.
  */
-export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null }>> {
-  const answer = await apiCall<{ alias?: unknown }>(deps, '/me/profile', { method: 'GET' });
+export async function fetchProfile(deps: ApiDeps = browserDeps()): Promise<ApiResult<{ alias: string | null; drillBoard: DrillBoardTotal | null }>> {
+  const answer = await apiCall<{ alias?: unknown; drillBoard?: unknown }>(deps, '/me/profile', { method: 'GET' });
   if (!answer.ok) return answer;
   if (answer.value.alias !== undefined && answer.value.alias !== null && typeof answer.value.alias !== 'string') {
     return { ok: false, failure: { code: 'bad_response', message: 'the server did not send a name this app can read' } };
   }
-  return { ok: true, value: { alias: typeof answer.value.alias === 'string' ? answer.value.alias : null } };
+  return {
+    ok: true,
+    value: {
+      alias: typeof answer.value.alias === 'string' ? answer.value.alias : null,
+      drillBoard: asDrillBoard(answer.value.drillBoard),
+    },
+  };
 }
 
 /**

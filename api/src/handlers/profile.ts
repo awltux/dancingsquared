@@ -17,8 +17,36 @@
 // that shows a name as a player's identity must not hand that name to somebody else later (`keys.ts`'s `aliasClaimKey`).
 import type { ApiRequest, ApiResult, Deps } from '../ports.ts';
 import { failure, requireIdentity, STATUS } from '../status.ts';
-import { aliasClaimKey, profileKey } from '../keys.ts';
+import { aliasClaimKey, boardKey, ladderKey, profileKey, progressKey, scheduleKey } from '../keys.ts';
+import { asLadderLevel } from '../ladder.ts';
+import { asProgress } from '../progress-row.ts';
+import { asBoard, type BoardValue } from '../runs.ts';
 import { sanitizeAlias } from 'dancing-squared-game';
+
+/**
+ * The player's own cumulative Drill board for the level and set they are playing, or null when the server cannot say.
+ *
+ * IT RIDES THE PROFILE READ because that is the one player-bound request every signed-in boot makes (`main.ts`'s
+ * `loadAlias`), so the app's header total is right on EVERY page after a reload — not only after a play page has issued a
+ * drill. REPORTED: "Check all the pages to ensure that the header score is correctly updated." Without it, a reload on
+ * Profile/Setup/Help showed the DEVICE's own sum instead, which is a different quantity (it counts demo and practice runs
+ * the server never saw).
+ *
+ * READ-ONLY, AND THAT IS WHY IT DOES NOT USE `servableLevel`: that function PROMOTES a full block, and a profile read must
+ * not move a player's level. The set is the player's in-flight drill's when one is issued (a lock survives a republish),
+ * and the published schedule's otherwise. An unreadable row answers null rather than failing the name read: this is a
+ * display fact, and the alias is what the endpoint is for.
+ */
+async function playerDrillBoard(deps: Deps, playerId: string): Promise<BoardValue | null> {
+  const levelIndex = asLadderLevel(await deps.store.get(ladderKey(playerId)));
+  if (levelIndex === null) return null;
+  const progress = asProgress(await deps.store.get(progressKey(playerId, levelIndex)), levelIndex);
+  if (progress === null) return null;
+  const issued = progress.issued?.scheduleVersion;
+  const published = issued ?? (await deps.store.get(scheduleKey(levelIndex)))?.value['scheduleVersion'];
+  if (typeof published !== 'string') return null;
+  return asBoard(await deps.store.get(boardKey('drill', levelIndex, published, playerId)));
+}
 
 /**
  * The alias currently claimed, or null when this player has never claimed one.
@@ -30,8 +58,11 @@ import { sanitizeAlias } from 'dancing-squared-game';
 export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiResult> {
   const who = requireIdentity(request, deps);
   if ('refusal' in who) return who.refusal;
-  const stored = await deps.store.get(profileKey(who.identity.playerId));
-  if (!stored) return { status: STATUS.ok, body: { alias: null } };
+  const playerId = who.identity.playerId;
+  // THE BOARD IS READ FOR EVERY ANSWER, name or not: it is the header's total on the pages that have no drill to issue.
+  const drillBoard = await playerDrillBoard(deps, playerId);
+  const stored = await deps.store.get(profileKey(playerId));
+  if (!stored) return { status: STATUS.ok, body: { alias: null, drillBoard } };
   const alias = stored.value['alias'];
   if (typeof alias !== 'string') {
     // AN UNREADABLE PROFILE IS AN OPERATOR FINDING, not a silent null: a row that exists and cannot be read would
@@ -39,7 +70,7 @@ export async function getProfile(request: ApiRequest, deps: Deps): Promise<ApiRe
     // second one over the top of the unreadable row.
     return failure(STATUS.unavailable, 'unreadable_profile', 'the profile row is not a record this build can read');
   }
-  return { status: STATUS.ok, body: { alias } };
+  return { status: STATUS.ok, body: { alias, drillBoard } };
 }
 
 /**

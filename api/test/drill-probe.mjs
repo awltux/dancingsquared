@@ -14,11 +14,12 @@
 //
 // Usage: node api/test/drill-probe.mjs
 import { drillAdvance, drillCurrent, drillReplay } from '../src/handlers/drill.ts';
+import { getProfile } from '../src/handlers/profile.ts';
 import { STATUS } from '../src/status.ts';
 import { currentDrill, drillId, emptyProgress, finishDrill, nextIndex, parseDrillId } from '../src/drill-regime.ts';
 import { LOCAL_SCHEDULE_VERSION, localRegimes, putRegime, seedLocalRegimes } from '../src/local-regime.ts';
 import { ladderKey, boardKey, progressKey } from '../src/keys.ts';
-import { FIRST_LEVEL, asLadderItem, asLadderLevel } from '../src/ladder.ts';
+import { FIRST_LEVEL, asLadderItem, asLadderLevel, servableLevel } from '../src/ladder.ts';
 import { levelAt, puzzleFor } from '../src/levels.ts';
 import { startDevServer } from '../src/dev-server.ts';
 import { devIdentityOf } from '../src/auth/identity.ts';
@@ -64,6 +65,15 @@ const advance = (player, id) => ({
   path: '/drill/advance',
   query: {},
   body: { drillId: id },
+  headers: player ? { 'x-dev-player': player } : {},
+});
+
+/** `GET /me/profile` for a named player — the read every signed-in boot makes. */
+const profileOf = (player) => ({
+  method: 'GET',
+  path: '/me/profile',
+  query: {},
+  body: null,
   headers: player ? { 'x-dev-player': player } : {},
 });
 
@@ -670,6 +680,51 @@ console.log('\n== 12. every drill read carries the player\'s own board total =='
   // lookup written the obvious way is caught here and nowhere else.
   check(`${LOCAL_SCHEDULE_VERSION}#next` !== oldSet && after.body.board?.score !== 999,
     'NEGATIVE CONTROL: the current set is a different board, and only the drill\'s own key answers the right number');
+}
+
+console.log('\n== 13. the profile carries the drill total every page\'s header shows ==');
+{
+  // REPORTED: "Check all the pages to ensure that the header score is correctly updated." The profile is the one
+  // player-bound read every signed-in boot makes (`main.ts`'s `loadAlias`), so carrying the total here is what makes the
+  // header right after a reload on Profile/Setup/Help — pages that issue no drill to seed it.
+  const store = new MemoryStore();
+  await seedLocalRegimes(store);
+  const deps = depsFor(store);
+  const player = 'z1';
+  const drill = (await drillCurrent(get(player), deps)).body.drill;
+  await store.put(boardKey('drill', LEVEL, drill.scheduleVersion, devId(player)), { playerId: devId(player), score: 67, runs: 1 }, null);
+  const answer = await getProfile(profileOf(player), deps);
+  check(answer.status === STATUS.ok && answer.body.alias === null, `the profile answers, with no name claimed (${answer.status})`);
+  check(answer.body.drillBoard?.score === 67 && answer.body.drillBoard?.runs === 1,
+    `and carries the header's total for the player's level and the drill's set (${answer.body.drillBoard?.score} over ${answer.body.drillBoard?.runs})`);
+
+  // NO DRILL IN FLIGHT: the set is the PUBLISHED schedule's — the board the next run would join.
+  const idle = 'z2';
+  const regime = localRegimes().find((entry) => entry.entries[0].levelIndex === LEVEL);
+  await putRegime(store, LEVEL, { scheduleVersion: `${LOCAL_SCHEDULE_VERSION}#profile`, entries: regime.entries });
+  await store.put(boardKey('drill', LEVEL, `${LOCAL_SCHEDULE_VERSION}#profile`, devId(idle)), { playerId: devId(idle), score: 12, runs: 2 }, null);
+  const idleRead = await getProfile(profileOf(idle), deps);
+  check(idleRead.body.drillBoard?.score === 12, `with no drill issued the published set's board is read (${idleRead.body.drillBoard?.score})`);
+
+  // READ-ONLY: a FULL block promotes under `servableLevel`, and the profile must not move a player's level.
+  const full = Array.from({ length: LEVEL_SIZE }, (_, i) => i);
+  await store.put(progressRow('z3', LEVEL), { levelIndex: LEVEL, issued: null, finished: full, passed: [] }, null);
+  const counted = spy(store);
+  const read = await getProfile(profileOf('z3'), depsFor(counted.store));
+  check(read.status === STATUS.ok && counted.state.writes === 0, `a profile read performs NO write (${counted.state.writes})`);
+  check((await store.get(ladderKey(devId('z3')))) === null, 'so a full block is not promoted by reading the profile');
+  // CONTROL: the same rows through the level read that DOES promote write level 2 — which is exactly what the profile
+  // chooses not to call, so the zero above is a decision rather than an accident.
+  await store.put(progressRow('z4', LEVEL), { levelIndex: LEVEL, issued: null, finished: full, passed: [] }, null);
+  const promoted = await servableLevel(deps, devId('z4'));
+  check(promoted.levelIndex === 2 && (await store.get(ladderKey(devId('z4'))))?.value.levelIndex === 2,
+    'CONTROL: servableLevel promotes the same full block, so the read-only choice is the difference');
+
+  // AN UNREADABLE LADDER IS A DISPLAY FACT, NOT A FAILURE: the name still answers.
+  await store.put(ladderKey(devId('z5')), { levelIndex: 'first' }, null);
+  const broken = await getProfile(profileOf('z5'), deps);
+  check(broken.status === STATUS.ok && broken.body.drillBoard === null,
+    `an unreadable ladder leaves the board null while the profile answers (${broken.status}, board=${JSON.stringify(broken.body.drillBoard)})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

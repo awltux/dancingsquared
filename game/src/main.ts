@@ -34,7 +34,7 @@ import { blockCells, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { scoreLine } from './puzzle/score-line.ts';
-import { drillTotalFor, statsFor } from './game/stats.ts';
+import { adoptedDrillTotal, drillTotalFor, statsFor } from './game/stats.ts';
 import { frameDelta, shouldAnimate } from './ui/frame-clock.ts';
 import { earningProgress, refusedSpend } from './puzzle/hints.ts';
 import { HINT_CAP, SCORE_VERSION } from './puzzle/config.ts';
@@ -973,6 +973,11 @@ async function loadAlias(): Promise<void> {
   }
   const answer = await fetchProfile(apiDeps);
   playerAlias = answer.ok ? answer.value.alias : null;
+  // THE HEADER'S TOTAL IS ONE OF THIS PLAYER'S FACTS, and the profile is the one player-bound read every signed-in boot
+  // makes — so adopting it here keeps the header right on EVERY page after a reload, not only after a play page has
+  // issued a drill. No total is "no news", not "no score": `adoptedDrillTotal` keeps what the app already knows rather
+  // than replacing it with the device's different sum.
+  if (answer.ok) serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.drillBoard?.score ?? null, false);
 }
 
 /**
@@ -2023,8 +2028,8 @@ async function startReplayDrill(index: number): Promise<void> {
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
   // THE SAME ADOPTION AS `startServerDrill`: a reattempt is served by the same response, so the header's total is the
-  // account's whether this read issued the order's next drill or reopened an old one.
-  serverDrillTotal = answer.value.board?.score ?? null;
+  // account's whether this read issued the order's next drill or reopened an old one. A reattempt is never a demo.
+  serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.board?.score ?? null, false);
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -2101,9 +2106,11 @@ async function startServerDrill(next: 'current' | 'advance'): Promise<void> {
   els.practice.hidden = true;
   serverDrill = answer.value.drill;
   serverRegime = answer.value.regime;
-  // THE ACCOUNT'S RANKED TOTAL IS THE HEADER'S NUMBER from here on (`bannerFacts`). `null` is "this answer could not
-  // vouch for one" — a demo, or a build older than the field — and the device total is then the fallback.
-  serverDrillTotal = answer.value.board?.score ?? null;
+  // THE ACCOUNT'S RANKED TOTAL IS THE HEADER'S NUMBER from here on (`bannerFacts`). A DEMO FORGETS IT — a signed-out
+  // caller's board is not this player's — while a server that sends no total at all (an older build, an unreadable row)
+  // leaves the known one alone: "no news" is not "no score", which is the rule `adoptedDrillTotal` carries and the revert
+  // REPORTED as "as soon as I leave that screen the score reverts back to a number I don't recognise".
+  serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.board?.score ?? null, answer.value.demo);
   showDrill({
     seed: serverDrill.seed,
     levelIndex: serverDrill.levelIndex,
@@ -2461,7 +2468,7 @@ async function submitSolvedRun(score: RunScore, clockSeconds: number): Promise<v
   // THE SERVER'S BOARD IS THE HEADER'S TOTAL, and it has just folded this run in — so the header and the "Board:" line
   // below the score are the same number, which is the whole point of the change. An UNRANKED run leaves the row
   // untouched, so this is still the account's total rather than a number that moved for a run that did not count.
-  serverDrillTotal = answer.value.board.score;
+  serverDrillTotal = adoptedDrillTotal(serverDrillTotal, answer.value.board.score, false);
   // THE SERVER HOLDS THIS RUN, WHICH IS WHAT "Next drill" MAY RELY ON (DESIGN.md §15 Q21): the accepted submission
   // finished the drill on the server's own Progress row, so what the app needs next is the next drill, which is a
   // read. A DUPLICATE COUNTS — the row is the server's either way — and a refused or unreachable submission does not,

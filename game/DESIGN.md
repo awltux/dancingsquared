@@ -1943,6 +1943,20 @@ future Lambda handler cannot disagree about where the data goes; `api/src/config
 DynamoDB Local on 127.0.0.1:8000; `npm run api:table` creates the table idempotently; `npm run dev:api:ddb` is
 the development run against it, and `npm run verify:api:ddb` is the gate that requires it.
 
+**AND `DSQ_HOST` AND `DSQ_LAN_HOST` ARE THE NETWORK SWITCHES, FOR A PHONE ON THE SAME LAN.** REPORTED: "Change the
+launch so I can access the app from my phone on the local network." The app and the API are TWO listeners, and every
+default bound loopback — Vite to `localhost` (`::1`, AGENTS.md trap 28) and the API to `127.0.0.1` — so a phone could
+not reach either, and exposing only one would load the page and fail every request. `DSQ_HOST` is the API's bind
+address (`api/src/config.ts`, `LOOPBACK` by default) and `DSQ_LAN_HOST` is Vite's (`game/vite.config.ts`); the launch
+sets both to `0.0.0.0` and points `VITE_API_BASE` at the machine's LAN address, because `127.0.0.1` seen from a phone
+is the phone. THE DEFAULT DID NOT MOVE: a run that asks for nothing is still loopback-only, and the API prints a
+`REACHABLE FROM THE NETWORK` line when it is not, because `*` CORS plus a header identity plus a wider bind is a
+decision rather than a detail — in `dev` mode anyone who can reach the port can name any player. MEASURED on this
+machine: `DSQ_HOST=0.0.0.0` answered `/health` on `http://192.168.1.189:8095`, and a Vite bound to `0.0.0.0` served
+the app at `http://192.168.1.189:8089` with the emulator's sign-in form drawn — the browser check was over the LAN
+address, not loopback. The bind value is refused by name if it looks like a URL (`devServerRefusal`), because `listen`
+would take it as a hostname and fail with an ENOENT that reads like a missing file.
+
 **MEASURED, by `api/test/store-probe.mjs`** — the same functions driven twice, once with the in-memory twin and
 once against DynamoDB Local (40 checks, 2 negative controls): a create on an absent key lands and reads back at
 revision 1; a second create is refused and changes nothing; a replace expecting the wrong revision is refused

@@ -6,7 +6,7 @@
 // crash or a wrong puzzle. None of that can be seen in a typecheck, and a browser can only show one of the five.
 //
 // Usage: node game/test/api-client-probe.mjs
-import { advanceDrill, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, fetchProfile, issueDrill, normaliseBase, recordDailyMove, recordDrillAnswer, pollDaily, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
+import { advanceDrill, apiBaseFor, apiConfigured, dailyChallenge, deviceId, fetchLeaderboard, fetchProfile, issueDrill, normaliseBase, recordDailyMove, recordDrillAnswer, pollDaily, recordDrillReveal, replayDrill, spendHint, submitRun } from '../src/net/api.ts';
 import { SESSION_KEY } from '../src/net/session.ts';
 
 let failures = 0;
@@ -113,6 +113,32 @@ console.log('\n== 2. the request is the one the endpoint documents ==');
   // answer and others do not — a difference nobody would find without a check.
   check(normaliseBase('http://127.0.0.1:8090///') === 'http://127.0.0.1:8090', `a base with trailing slashes is normalised (${normaliseBase('http://127.0.0.1:8090///')})`);
   check(normaliseBase(undefined) === '' && normaliseBase('') === '', 'and an unset or empty base stays empty, which is what "offline" is measured as');
+  // THE PHONE'S HALF OF THE BASE (REPORTED: "Change the launch so I can access the app from my phone on the local
+  // network."). `VITE_API_PORT` derives the server from the page's own address, so a device that loaded the app can reach
+  // the API without a LAN address written into a config — and without `127.0.0.1` meaning "this phone".
+  check(apiBaseFor(undefined, '8090', 'http://192.168.1.189:8089/') === 'http://192.168.1.189:8090',
+    `a page on the LAN derives the API on the same host (${apiBaseFor(undefined, '8090', 'http://192.168.1.189:8089/')})`);
+  check(apiBaseFor(undefined, '8090', 'http://localhost:8089/') === 'http://127.0.0.1:8090',
+    `a page on localhost derives 127.0.0.1, because the API binds 0.0.0.0 (IPv4 only) and localhost resolves ::1 first (${apiBaseFor(undefined, '8090', 'http://localhost:8089/')})`);
+  check(apiBaseFor(undefined, '8443', 'https://plays.example/') === 'https://plays.example:8443', 'and the page\'s scheme is kept, so a TLS deployment is not downgraded');
+  // NEGATIVE CONTROL: the plausible wrong rule — a constant host, "the API is on 127.0.0.1" — answers `127.0.0.1` for the
+  // PHONE's page too, which is the phone itself. Only the first check above reddens for it.
+  const constantHost = (port) => `http://127.0.0.1:${port}`;
+  check(constantHost('8090') !== apiBaseFor(undefined, '8090', 'http://192.168.1.189:8089/'),
+    'CONTROL: a constant 127.0.0.1 would point a phone at itself');
+  // THE EXPLICIT BASE WINS, or a deployment's own build configuration would be unreachable.
+  check(apiBaseFor('http://api.example:9000', '8090', 'http://192.168.1.189:8089/') === 'http://api.example:9000',
+    `VITE_API_BASE wins over the derivation (${apiBaseFor('http://api.example:9000', '8090', 'http://192.168.1.189:8089/')})`);
+  // ANYTHING UNUSABLE IS THE OFFLINE GAME, which is the promise AGENTS.md §6 makes: a missing configuration must never
+  // become a request to somewhere unintended.
+  for (const [port, page, why] of [
+    [undefined, 'http://192.168.1.189:8089/', 'no port'],
+    ['8090x', 'http://192.168.1.189:8089/', 'a port that is not a number'],
+    ['8090', undefined, 'no page URL'],
+    ['8090', 'not a url', 'a page URL that will not parse'],
+  ]) {
+    check(apiBaseFor(undefined, port, page) === '', `and ${why} is the offline game, not a guess (${apiBaseFor(undefined, port, page)})`);
+  }
   const wired = deps('http://127.0.0.1:8090', { status: 200, body: { drill: DRILL, regime: { finished: [0, 1, 2, 3], passed: [0, 1], length: 12 }, board: { score: 1307, runs: 21 } } });
   const answer = await issueDrill(2, wired.api);
   check(answer.ok === true, `a drill is issued (${answer.ok})`);

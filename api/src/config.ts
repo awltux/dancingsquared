@@ -21,6 +21,15 @@ export interface Config {
   /** The dev server's port. */
   readonly port: number;
   /**
+   * The address the dev server BINDS, `DSQ_HOST`.
+   *
+   * LOOPBACK BY DEFAULT, and that default is the boundary §6 relies on: this server answers `*` CORS with no cookies,
+   * which is only safe while the port cannot be reached from anywhere else. A phone on the same network needs the APP
+   * and this API bound wider, so this is the one switch that moves the boundary — `0.0.0.0` is the usual choice, and
+   * `startFromEnv` says out loud when a run is reachable.
+   */
+  readonly host: string;
+  /**
    * How a request's identity is established (DESIGN.md 11.2). The one setting that decides whether a header can
    * name a player, so it is read once here and never at a point of use.
    */
@@ -58,6 +67,26 @@ const DEFAULT_TABLE = 'dancing-squared-dev';
 /** The port DynamoDB Local listens on in `api/docker-compose.yml`. */
 export const DEFAULT_DDB_ENDPOINT = 'http://127.0.0.1:8000';
 
+/**
+ * THE BIND ADDRESS OF EVERY RUN THAT DID NOT ASK FOR ANYTHING ELSE.
+ *
+ * It is the boundary, not a preference: the dev server answers `*` CORS and takes its identity from a header or a
+ * locally-signed token, so a port that only this machine can reach is what makes those choices safe (`corsHeaders` in
+ * `dev-server.ts` states the reasoning). A LAN run — a phone testing the app, MEASURED on 192.168.1.189 — sets
+ * `DSQ_HOST=0.0.0.0` and is TOLD OUT LOUD that it is reachable.
+ */
+export const LOOPBACK = '127.0.0.1';
+
+/**
+ * Whether this configuration listens beyond loopback, which is what makes a run reachable from another device.
+ *
+ * `'::'` IS THE IPv6 WILDCARD and `'0.0.0.0'` the IPv4 one; a concrete interface address is reachable too, so the test
+ * is what is NOT loopback rather than a list of what is wide.
+ */
+export function listensBeyondLoopback(config: Config): boolean {
+  return config.host !== LOOPBACK && config.host !== 'localhost' && config.host !== '::1';
+}
+
 /** The opt-in that turns "no endpoint" from an accident into a decision. */
 export const ALLOW_REAL_AWS = 'DSQ_ALLOW_REAL_AWS';
 
@@ -90,6 +119,12 @@ export function realServiceWarning(config: Config, env: Record<string, string | 
  * `npm run dev:api` REFUSE TO START with no endpoint, which is its normal, entirely local configuration.
  */
 export function devServerRefusal(config: Config, env: Record<string, string | undefined> = process.env): string | null {
+  // A URL IS NOT A BIND ADDRESS. `listen` takes a hostname, so `DSQ_HOST=http://0.0.0.0` would be resolved as one and
+  // fail with an ENOENT that reads like a missing file rather than a configuration mistake (AGENTS.md §11.1: a refusal
+  // is a value, and a degradation is loud).
+  if (config.host.includes('://') || config.host.includes('/') || config.host.trim() === '') {
+    return `DSQ_HOST is a bind address, not a URL — use 0.0.0.0 or an address of this machine (got "${config.host}")`;
+  }
   return config.store === 'dynamodb' ? realServiceWarning(config, env) : null;
 }
 
@@ -151,6 +186,9 @@ export function configFromEnv(env: Record<string, string | undefined> = process.
     endpoint: env['DSQ_DDB_ENDPOINT'] ?? null,
     region: env['DSQ_REGION'] ?? DEFAULT_REGION,
     port: Number.isFinite(port) && port >= 0 ? port : 8090,
+    // THE BIND ADDRESS, not a URL: `devServerRefusal` refuses a value that looks like one, because `listen` would take
+    // `http://0.0.0.0` as a HOSTNAME and fail with an ENOENT that reads like a missing file.
+    host: env['DSQ_HOST'] ?? LOOPBACK,
     auth: auth === 'emulate' || auth === 'cognito' ? auth : 'dev',
     environment: env['DSQ_ENV'] === 'production' ? 'production' : 'development',
     corsOrigin: env['DSQ_CORS_ORIGIN'] ?? null,

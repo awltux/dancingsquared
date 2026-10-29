@@ -169,10 +169,47 @@ export function normaliseBase(configured: string | undefined): string {
   return (configured ?? '').replace(/\/+$/, '');
 }
 
-/** The base URL as configured. */
+/**
+ * The base URL as configured.
+ *
+ * TWO WAYS TO CONFIGURE ONE, and the second exists because of a PHONE (REPORTED: "Change the launch so I can access the
+ * app from my phone on the local network."). `VITE_API_BASE` names the server outright, which is right for one machine
+ * and wrong for a LAN: `http://127.0.0.1:8090` typed on a phone is the phone. `VITE_API_PORT` says "the same machine
+ * that served this page, on this port instead", so the address comes from `window.location` and no LAN address is
+ * written down — which also means a DHCP lease changing does not break it.
+ */
 function apiBase(): string {
-  const configured = import.meta.env?.VITE_API_BASE;
-  return normaliseBase(typeof configured === 'string' ? configured : undefined);
+  return apiBaseFor(import.meta.env?.VITE_API_BASE, import.meta.env?.VITE_API_PORT, globalThis.location?.href);
+}
+
+/**
+ * `apiBaseFor` — the rule behind `apiBase`, as a pure function so a probe can drive it.
+ *
+ * `VITE_API_BASE` WINS when both are set, because it is the explicit statement and a derivation that overrode it would
+ * make a deployment's own build configuration unreachable.
+ *
+ * A PAGE ON `localhost` DERIVES `127.0.0.1`, not `localhost`: a LAN run binds the API to `0.0.0.0`, which is IPv4-only,
+ * and `localhost` resolves to `::1` first on this host — the refused-connection failure AGENTS.md trap 28 measured for
+ * the other direction. Everywhere else the page's own hostname is the right answer, because that is the name the device
+ * already reached to load the page.
+ *
+ * ANYTHING UNUSABLE IS THE OFFLINE GAME: no base, no port, a port that is not a number, a page URL that will not parse
+ * — all answer `''`, which is the one switch that says "do not reach for the network" (AGENTS.md §6).
+ */
+export function apiBaseFor(configured: string | undefined, port: string | undefined, pageUrl: string | undefined): string {
+  const explicit = normaliseBase(configured);
+  if (explicit !== '') return explicit;
+  const digits = (port ?? '').trim();
+  if (!/^\d{1,5}$/.test(digits)) return '';
+  let url: URL;
+  try {
+    url = new URL(pageUrl ?? '');
+  } catch {
+    return '';
+  }
+  if (url.hostname === '') return '';
+  const host = url.hostname === 'localhost' || url.hostname === '[::1]' || url.hostname === '::1' ? '127.0.0.1' : url.hostname;
+  return `${url.protocol}//${host}:${Number(digits)}`;
 }
 
 /** Whether an API is configured at all — the ONE switch every caller asks before reaching for the network. */

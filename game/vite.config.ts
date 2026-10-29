@@ -24,6 +24,17 @@ export default defineConfig({
   },
   server: {
     port: 8089,
+    /**
+     * THE BIND ADDRESS, `DSQ_LAN_HOST` — loopback unless a run asks for the network.
+     *
+     * Vite binds `localhost` (`::1`) by default, so a phone asking for `http://<this machine>:8089` is refused
+     * (AGENTS.md trap 28 measured that for the API's spelling too). `DSQ_LAN_HOST=0.0.0.0` is the switch, and it is an
+     * ENVIRONMENT variable rather than a CLI flag because the forwarded form (`npm run dev:game -- --host 0.0.0.0`)
+     * MEASURED as broken here: npm 11 read `--host` and `--strictPort` as its own configuration and started Vite on its
+     * default port with `0.0.0.0 8088` as positional arguments, which is a silently different server. The name is
+     * `DSQ_`-prefixed and NOT `VITE_`, so it is not also published into `import.meta.env` for the app to read.
+     */
+    host: process.env['DSQ_LAN_HOST'] ?? undefined,
     open: false,
     // SERVING FILES FROM ABOVE THIS APP'S ROOT. Vite refuses to serve anything outside `root` unless it is
     // told otherwise, and this app imports three things that live above it: `dancing-squared-engine` (aliased

@@ -20,7 +20,7 @@ import { randomBytes, type JsonWebKey } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { utcDay } from 'dancing-squared-game';
-import { authRefusal, configFromEnv, devServerRefusal, type AuthMode, type Config } from './config.ts';
+import { authRefusal, configFromEnv, devServerRefusal, listensBeyondLoopback, type AuthMode, type Config } from './config.ts';
 import { publishDay, type PublishReport } from './daily-publishing.ts';
 import { SERVED_LEVELS } from './schedule-publishing.ts';
 import { MemoryStore } from './store/memory.ts';
@@ -115,9 +115,11 @@ async function readBody(request: http.IncomingMessage): Promise<{ text: string }
  * is how a client keeps sending it.
  *
  * A DEPLOYMENT DOES THIS AT THE GATEWAY, not here: API Gateway's HTTP API has a CORS configuration, and the
- * handler core must not learn about origins. `*` is safe in THIS server because it is bound to 127.0.0.1, has no
+ * handler core must not learn about origins. `*` is safe in THIS server while it is bound to loopback, has no
  * cookies and no sessions — the credentials it takes are a header the caller must write, not one a browser
- * attaches by itself. `DSQ_CORS_ORIGIN` narrows it for a run that is reachable from somewhere else.
+ * attaches by itself. `DSQ_CORS_ORIGIN` narrows it, and `DSQ_HOST` is what moves the bind off loopback (a phone on
+ * the same network): `startFromEnv` prints that the run is reachable, because `*` plus a header identity plus a
+ * wider bind is a decision rather than a detail.
  */
 function corsHeaders(auth: AuthMode, origin: string | null): Record<string, string> {
   return {
@@ -195,6 +197,11 @@ interface DevServerOptions {
   readonly authSecret?: string | null;
   readonly requireConfirmation?: boolean;
   readonly corsOrigin?: string | null;
+  /**
+   * The address to BIND. Loopback when absent, which is what every probe and the ordinary local run want; a LAN run
+   * sets it (`DSQ_HOST`) so a phone can reach the API as well as the app.
+   */
+  readonly host?: string;
   readonly cognitoVerify?: (token: string) => JwtClaims | null;
   readonly announce?: (message: string) => void;
   /**
@@ -320,7 +327,7 @@ export async function startDevServer(options: DevServerOptions = {}): Promise<De
 
   const port = await new Promise<number>((resolve, reject) => {
     server.once('error', reject);
-    server.listen(options.port ?? 0, '127.0.0.1', () => {
+    server.listen(options.port ?? 0, options.host ?? '127.0.0.1', () => {
       const address = server.address();
       resolve(typeof address === 'object' && address ? address.port : 0);
     });
@@ -396,6 +403,7 @@ export async function startFromEnv(): Promise<DevServer> {
   if (refusal) throw new Error(`dev:api refuses to start: ${refusal}`);
   const server = await startDevServer({
     port: config.port,
+    host: config.host,
     opened: await openStore(config),
     auth: config.auth,
     authSecret: config.authSecret,
@@ -403,10 +411,19 @@ export async function startFromEnv(): Promise<DevServer> {
     corsOrigin: config.corsOrigin,
     ...(config.auth === 'cognito' ? { cognitoVerify: cognitoVerifierFrom(config) } : {}),
   });
-  console.log(`dev:api listening on http://127.0.0.1:${server.port}/ store: ${server.label}`);
+  // A WILDCARD BIND IS PRINTED AS THE ADDRESS TO USE, not as `0.0.0.0`: the point of the line is that a person can
+  // copy it, and `http://0.0.0.0:8090` is not a URL a browser will connect to.
+  const shown = config.host === '0.0.0.0' || config.host === '::' ? '<this-machine>' : config.host;
+  console.log(`dev:api listening on http://${shown}:${server.port}/ store: ${server.label}`);
   // THE BANNER SAYS WHICH IDENTITY THE PROCESS BUILT, because the difference is not visible from the routes and
   // the whole hazard of the development mode is that it looks like any other run (AGENTS.md §6, §8 trap 23).
   console.log(`       auth: ${config.auth} — ${authNote(config)}`);
+  // AND IT SAYS WHEN THE RUN IS REACHABLE FROM ANOTHER DEVICE, because that is the moment the `*` CORS answer and a
+  // header-named identity stop being local concerns. Not a refusal: a LAN run is the point of `DSQ_HOST`, and the
+  // person asked for it — but silence here is how a dev server ends up open on a coffee-shop network unnoticed.
+  if (listensBeyondLoopback(config)) {
+    console.log(`       REACHABLE FROM THE NETWORK (bound to ${config.host}).${config.auth === 'dev' ? ' DSQ_AUTH=dev: ANYONE who can reach this port can name any player — use DSQ_AUTH=emulate for a LAN run.' : ''}`);
+  }
   return server;
 }
 

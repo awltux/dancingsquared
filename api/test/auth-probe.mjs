@@ -24,7 +24,7 @@ import { generateKeyPairSync, sign as rsaSign } from 'node:crypto';
 import { createEmulator, EMULATOR_AUDIENCE, EMULATOR_ISSUER } from '../src/auth/emulator.ts';
 import { devIdentityOf, tokenIdentityOf } from '../src/auth/identity.ts';
 import { hmacKeys, hmacSignature, jwksKeys, verifyToken } from '../src/auth/verify.ts';
-import { authRefusal, configFromEnv } from '../src/config.ts';
+import { authRefusal, configFromEnv, devServerRefusal, listensBeyondLoopback } from '../src/config.ts';
 import { startDevServer } from '../src/dev-server.ts';
 import { progressKey } from '../src/keys.ts';
 import { MemoryStore } from '../src/store/memory.ts';
@@ -345,6 +345,28 @@ console.log('\n== 6. the configuration refuses the modes that must not ship ==')
   check(authRefusal(configFromEnv({ DSQ_AUTH: 'emulate' })) === null, 'and emulate needs no configuration at all, which is the whole point of it');
 
   check(configFromEnv({ DSQ_AUTH_CONFIRM: '1' }).confirmAccounts === true && configFromEnv({}).confirmAccounts === false, 'and confirmation is on only when asked for — by default signup is usable in one call');
+}
+
+// =============================================================================================================
+console.log('\n== 6b. the bind address is loopback unless a run asks for the network ==');
+{
+  // REPORTED: "Change the launch so I can access the app from my phone on the local network." The APP is Vite's
+  // (`--host`), but the API is a second listener and it could not leave loopback at all — the phone would load the page
+  // and every request would fail. `DSQ_HOST` is that switch, and the point of these checks is that the DEFAULT does not
+  // move: a dev server that quietly listened on the network would take the `*` CORS answer and the header identity with it.
+  check(configFromEnv({}).host === '127.0.0.1', `a run with no configuration binds loopback (${configFromEnv({}).host})`);
+  check(!listensBeyondLoopback(configFromEnv({})), 'so it is not reachable from another device');
+  const lan = configFromEnv({ DSQ_HOST: '0.0.0.0' });
+  check(lan.host === '0.0.0.0' && listensBeyondLoopback(lan), `while DSQ_HOST=0.0.0.0 is read as a network run (${lan.host})`);
+  check(listensBeyondLoopback(configFromEnv({ DSQ_HOST: '::' })) && listensBeyondLoopback(configFromEnv({ DSQ_HOST: '192.168.1.189' })),
+    'and so are the IPv6 wildcard and a concrete interface address');
+  check(!listensBeyondLoopback(configFromEnv({ DSQ_HOST: 'localhost' })) && !listensBeyondLoopback(configFromEnv({ DSQ_HOST: '::1' })),
+    'NEGATIVE CONTROL: while the other two spellings of loopback are not — the test is what is NOT local, not a list of what is wide');
+  // A URL IN A BIND POSITION IS REFUSED, because `listen` would treat it as a hostname and fail with an ENOENT that reads
+  // like a missing file. NEGATIVE CONTROL: the rule that shipped (no check) starts the server and dies in the DNS lookup.
+  check(devServerRefusal(configFromEnv({ DSQ_HOST: 'http://0.0.0.0' })) !== null, `a URL in DSQ_HOST is refused by name (${devServerRefusal(configFromEnv({ DSQ_HOST: 'http://0.0.0.0' }))})`);
+  check(devServerRefusal(configFromEnv({ DSQ_HOST: '0.0.0.0' })) === null, 'and a real bind address is not');
+  check(devServerRefusal(configFromEnv({ DSQ_HOST: ' ' })) !== null, 'nor is an empty one, which would bind wherever the platform likes');
 }
 
 // =============================================================================================================

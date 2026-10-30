@@ -157,14 +157,19 @@ export interface EndIdentityOption {
 const IDENTITY_NAMES_SHOWN = 3;
 
 /**
- * THE IDS OF AN UNNAMED END, AS TWO CAPTION LINES FOR THE TOP OF THE SETUP LIST - `fid` first, then `aid`.
+ * THE IDS OF AN UNNAMED END, AS TWO CAPTION LINES FOR THE TOP OF THE SETUP LIST - `aid` first, then `fid`.
  *
  * Asked for as: "If the unknown 'end setup' matches a formation or arrangement, list the fid and aid at the top of the
  * list of setups." The ids are what the corpus's own tags say the board IS (`sid ⇒ aid ⇒ fid`, `setup-id.ts`), and the
- * sid is already in the placeholder (`07f4d596`); these two lines answer the other half of the question - WHICH SHAPE and
- * WHICH ARRANGEMENT the dance has arrived in. That is the distinction a caller needs at this row: an unnamed board whose
- * `fid` the corpus holds is a KNOWN shape in a new arrangement, where one whose `fid` nothing holds is a shape the
- * corpus has never carried at all.
+ * sid is already in the placeholder (`07f4d596`); these two lines answer the other half of the question - WHICH
+ * ARRANGEMENT and WHICH SHAPE the dance has arrived in. That is the distinction a caller needs at this row: an unnamed
+ * board whose `fid` the corpus holds is a KNOWN shape in a new arrangement, where one whose `fid` nothing holds is a
+ * shape the corpus has never carried at all.
+ *
+ * THE ARRANGEMENT COMES FIRST, and it is the same order as the id scheme and as the specificity of the claim: asked for as
+ * "Switch the formation and arrangement hints so that arrangement comes first." The `aid` is the stronger statement - the
+ * board dancer for dancer, which is what "is this a setup the corpus has?" is really asking - while the `fid` is the
+ * weaker "the same spots and facings, whatever the rotation", so the more precise line leads and the fallback follows.
  *
  * EACH LINE SAYS WHAT IT MATCHES, and says NOTHING when it has no id: a board with no physical dancers has no ids to
  * print, and a line with a dash in it would be noise on every four-dancer call. Each name is a FORMATION of the call's own
@@ -184,14 +189,6 @@ export function endIdentityOptions(identity: EndIdentity | null): EndIdentityOpt
       : names.length <= IDENTITY_NAMES_SHOWN
         ? names.join(' / ')
         : `${names.slice(0, IDENTITY_NAMES_SHOWN).join(' / ')} (+${names.length - IDENTITY_NAMES_SHOWN} more)`;
-  const fid = (identity.fid ?? '').trim();
-  if (fid !== '') {
-    const shapes = list(identity.shapes);
-    out.push({
-      id: fid,
-      label: shapes === '' ? `${fid} — no corpus formation carries this shape` : `${fid} — formation: ${shapes}`,
-    });
-  }
   const aid = (identity.aid ?? '').trim();
   if (aid !== '') {
     const arrangements = list(identity.arrangements);
@@ -201,6 +198,14 @@ export function endIdentityOptions(identity: EndIdentity | null): EndIdentityOpt
         arrangements === ''
           ? `${aid} — no corpus setup carries this arrangement`
           : `${aid} — arrangement: ${arrangements}`,
+    });
+  }
+  const fid = (identity.fid ?? '').trim();
+  if (fid !== '') {
+    const shapes = list(identity.shapes);
+    out.push({
+      id: fid,
+      label: shapes === '' ? `${fid} — no corpus formation carries this shape` : `${fid} — formation: ${shapes}`,
     });
   }
   return out;

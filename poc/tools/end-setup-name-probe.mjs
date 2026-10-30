@@ -254,6 +254,10 @@ console.log('\n== 3. the panel uses the rule, on the END, and exports the END po
 // of setups." The two lines are IDENTITY, printed above the names, and the interesting case is the difference they draw:
 // a board whose `fid` the catalogue holds is a KNOWN shape in a new arrangement, while one whose `fid` nothing holds is a
 // shape the corpus has never carried.
+//
+// THE ARRANGEMENT LEADS, asked for as: "Switch the formation and arrangement hints so that arrangement comes first." The
+// order is the specificity of the claim: the `aid` is the board dancer for dancer, the `fid` the same spots and facings
+// whatever the rotation - so the precise statement leads and the fallback follows, the same order as `sid ⇒ aid ⇒ fid`.
 console.log('\n== 4. the fid and aid, as captions above the names ==');
 {
   const none = endIdentityOptions(null);
@@ -268,25 +272,29 @@ console.log('\n== 4. the fid and aid, as captions above the names ==');
     arrangements: ['Normal Lines', 'Sashayed Lines'],
   });
   check(known.length === 2, `two matches print two lines (${known.length})`);
-  check(known[0].id === 'F3-1r9s5bst' && known[0].label.startsWith('F3-1r9s5bst — formation: Lines'),
-    `the FID comes first and names the shape the catalogue holds (${known[0].label})`);
-  check(known[1].id === 'A1-abcdefgh' && /arrangement: Normal Lines \/ Sashayed Lines/.test(known[1].label),
-    `the AID second, with the setup names it matches (${known[1].label})`);
+  check(known[0].id === 'A1-abcdefgh' && /arrangement: Normal Lines \/ Sashayed Lines/.test(known[0].label),
+    `the AID comes FIRST, naming the formations that carry the arrangement (${known[0].label})`);
+  check(known[1].id === 'F3-1r9s5bst' && known[1].label.startsWith('F3-1r9s5bst — formation: Lines'),
+    `and the FID second, naming the shape (${known[1].label})`);
 
   // THE DIFFERENCE THE LINES EXIST TO DRAW: a known shape in an unknown arrangement, and a shape nothing holds.
   const newArrangement = endIdentityOptions({ fid: 'F3-1r9s5bst', aid: 'A1-new', shapes: ['Lines'], arrangements: [] });
-  check(/formation: Lines/.test(newArrangement[0].label) && /no corpus setup carries this arrangement/.test(newArrangement[1].label),
-    `a KNOWN shape in a NEW arrangement says exactly that (${newArrangement.map((o) => o.label).join(' | ')})`);
+  check(/no corpus setup carries this arrangement/.test(newArrangement[0].label) && /formation: Lines/.test(newArrangement[1].label),
+    `a KNOWN shape in a NEW arrangement says exactly that - the arrangement it lacks first (${newArrangement.map((o) => o.label).join(' | ')})`);
   const newShape = endIdentityOptions({ fid: 'F3-new', aid: 'A1-new2', shapes: [], arrangements: [] });
-  check(/no corpus formation carries this shape/.test(newShape[0].label),
-    `and a shape nothing holds says so rather than printing a bare tag (${newShape[0].label})`);
+  check(/no corpus formation carries this shape/.test(newShape[1].label),
+    `and a shape nothing holds says so rather than printing a bare tag (${newShape[1].label})`);
+  // THE ORDER IS NOT A SORT: a board with ONLY a fid still leads with the fid, because there is no arrangement line to lead.
+  const shapeOnly = endIdentityOptions({ fid: 'F3-only', aid: null, shapes: ['Lines'], arrangements: [] });
+  check(shapeOnly.length === 1 && shapeOnly[0].id === 'F3-only',
+    'a board with no `aid` prints the fid alone - the arrangement leading does not invent a line');
 
   // THE SUMMARY, because an arrangement can be carried by many setups (a Static Square has aliases and arrangement twins).
   const many = endIdentityOptions({
     fid: 'F3-x', aid: 'A1-y', shapes: [], arrangements: ['A', 'B', 'C', 'D', 'E'],
   });
-  check(/A \/ B \/ C \(\+2 more\)/.test(many[1].label),
-    `more than three names are summarised rather than listing the whole catalogue (${many[1].label})`);
+  check(/A \/ B \/ C \(\+2 more\)/.test(many[0].label),
+    `more than three names are summarised rather than listing the whole catalogue (${many[0].label})`);
   // NEGATIVE CONTROL: a caption is not a name, so a board whose ids print still prints NO option a caller could select -
   // the panel marks them `disabled`, and this checks the model the panel is given (an `id` and a `label`, no value).
   check(Object.keys(known[0]).sort().join(',') === 'id,label',
@@ -351,8 +359,11 @@ console.log('\n== 5. "Circle Four Left 3/4" from "Facing Couples": same setup, q
   check(call !== null && turned.length > 0 && engine.endsOnFormation(call, turned) === true,
     'and turned a quarter turn it matches EXACTLY, which is the answer to "they look the same except the rotation" - use the End spin control');
   const carried = formationsCarrying(list, { fid, aid });
+  const labels = endIdentityOptions({ fid, aid, shapes: carried.shapes, arrangements: carried.arrangements });
+  check(labels.length === 2 && labels[0].id === aid && labels[1].id === fid,
+    `and the captions can now say so, ARRANGEMENT first: ${labels.map((o) => o.label).join(' | ')}`);
   check(carried.shapes.includes('Facing Couples') && carried.arrangements.includes('Facing Couples'),
-    `and the captions can now say so: ${endIdentityOptions({ fid, aid, shapes: carried.shapes, arrangements: carried.arrangements }).map((o) => o.label).join(' | ')}`);
+    'with both lines naming Facing Couples, because this end IS that setup turned a quarter turn');
   // NEGATIVE CONTROL: the answer the eight-dancer catalogue gave, kept as a measurement rather than a story. Its rows are
   // filtered to eight dancers, so nothing in it can carry a four-dancer `fid`/`aid`.
   check(catalogue.rows.every((row) => row.fid !== fid && row.aid !== aid),

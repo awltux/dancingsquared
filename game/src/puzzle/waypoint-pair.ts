@@ -16,10 +16,16 @@
 // board. What the sequence does decide is which waypoint may read as solved — a later one cannot, because the
 // player has not stood in the earlier formation yet.
 //
-// LIVE VERSUS PREVIEW is the one thing the indices alone cannot say. At the front (`cursor === null`) the left
-// board is the PLAYER'S OWN BOARD rather than the waypoint's: the Daily lets a player leave the generated route,
-// and hiding where they actually stand to show a waypoint they are not on would be the one thing this display
-// must never do. Its border reads `solved` there whatever the indices say, because "you are here" is the state.
+// LIVE VERSUS PREVIEW is the one thing the indices alone cannot say. At the front (`cursor === null`) the pair is the
+// question being asked NOW, and `left` reads `solved` there whatever the indices say — because the player has stood in
+// that waypoint's arrangement, which is what makes it the "Now" board.
+//
+// THE LEFT BOARD IS THE WAYPOINT, NOT THE PLAYER'S OWN POSE. It used to be the player's board at the front, on the theory
+// that hiding where they actually stand would be a lie; the report below is the counter-example, and the caption is why:
+// over that slot the app prints "<n>: <name>" for the WAYPOINT, so a wrong-but-legal call that moved the set left the
+// call's own landing drawn under a caption naming a different arrangement. `pairLeftBoard` is the one place the choice is
+// made.
+import type { Board } from 'dancing-squared-engine';
 
 export type WaypointState = 'solved' | 'next' | 'locked';
 
@@ -95,12 +101,35 @@ export function waypointPair(count: number, progress: number, cursor: number | n
   return {
     leftIndex,
     rightIndex,
-    // THE LIVE LEFT BOARD IS WHERE THE PLAYER IS, so it is always 'solved': it is the arrangement they are standing
-    // in. Only a preview can show a left board that is not solved yet.
+    // THE LIVE LEFT BOARD IS THE WAYPOINT THE PLAYER IS SOLVING FROM, so it is 'solved': they have stood in that
+    // arrangement — that is what progress counted. Only a preview can show a left board that is not solved yet.
     left: live ? 'solved' : stageState(leftIndex, reached),
     right: stageState(rightIndex, reached),
     canPrev: leftIndex > 0,
     canNext: leftIndex < maxLeft,
     live,
   };
+}
+
+/**
+ * WHICH BOARD THE LEFT SLOT SHOWS: THE WAYPOINT, and the caller's own board only when the list has no such index.
+ *
+ * REPORTED: "Drill and Daily: After attempting an incorrect call and the two-second pause, reset the board to the 'Now'
+ * setup. Currently it seem to leave the end of the incorrect call in place." MEASURED on the Drill first, because it is
+ * the mode with the two-second hold: a wrong-but-legal answer played its motion (~4 s), held the landing for
+ * `LANDING_HOLD_MS`, and the shell then cleared it — the instrument read `ends=1 draw=pair` and the board afterwards was
+ * the question's own. So the DRILL already does it. THE DAILY DID NOT, and this function is why: its live left slot was
+ * the PLAYER'S OWN board (`DailyRun.view().board`), so a wrong-but-legal call — which the Daily applies, because every
+ * reading it offers is legal — left the call's landing drawn in the slot whose caption reads "Now: <waypoint>". The
+ * picture and the words described two different arrangements.
+ *
+ * THE LANDING IS STILL SHOWN: `stage.drawMotion` samples the engine's walk, and the hold keeps its last frame for
+ * two seconds, so the player always sees where the call left the set. What changes is the RESTING pair — the state the
+ * reset returns to — which is the two waypoints the captions name.
+ *
+ * `own` IS THE FALLBACK RATHER THAN A CASE: a preview or a live pair whose index the list has not got must still draw
+ * something, and the player's own board is the only board in hand. A probe drives all three.
+ */
+export function pairLeftBoard(pair: WaypointPair, boards: readonly Board[], own: Board): Board {
+  return boards[pair.leftIndex] ?? own;
 }

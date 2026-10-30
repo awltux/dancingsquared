@@ -704,8 +704,11 @@ answers cannot drift between the client and the server, because there is now onl
 
 - **Two boards on screen — the current WAYPOINT and the next one — and three answer buttons.** A puzzle is a
   sequence of waypoints and a waypoint is a formation (§9.1), so the pair is two adjacent entries of that sequence:
-  the left board is where the player stands (their own board, which can leave the generated route in the Daily) and
-  the right board is the waypoint to reach. Each carries a **border** — green solved, blue next, red locked — and an
+  the left board is the waypoint the player is solving FROM and the right board is the waypoint to reach — **the
+  left one is the waypoint, not the player's own pose**, which is `pairLeftBoard`'s rule and the correction recorded in
+  §9 (the report "Drill and Daily: After attempting an incorrect call and the two-second pause, reset the board to the
+  'Now' setup").
+  Each carries a **border** — green solved, blue next, red locked — and an
   **invisible tap zone over a quarter of the canvas at each edge** walks the window along the route when there is one
   to walk; a start-and-end puzzle has a single pair and no zones. The middle half of the canvas is inert, so a tap on
   a dancer cannot scrub the route by accident, and the zones are transparent — the glyph is in the markup and in the
@@ -1135,6 +1138,23 @@ applier, so the two spellings cannot drift.
   the allowance bounds how much elimination a player can do, so a nudge towards the answer is a real nudge.
   Taking one adds a minute to the clock and is never refunded, so the hint appears **where the cost is paid**:
   on the elapsed-time readout, not as a separate number to reconcile.
+- **AN INCORRECT CALL LANDS, HOLDS TWO SECONDS, AND THE BOARDS GO BACK TO THE WAYPOINTS.** REPORTED: "Drill and Daily: After
+  attempting an incorrect call and the two-second pause, reset the board to the 'Now' setup. Currently it seem to leave the
+  end of the incorrect call in place." Two things were true and only one of them was the Drill's:
+  * **THE DRILL ALREADY DID IT**, and that was measured before anything was changed: at 390 x 640 a wrong-but-legal answer
+    played its motion (~4 s), held the landing for `LANDING_HOLD_MS`, and the shell then cleared it — instrumenting the shell
+    read `ends=1 draw=pair`, and the board afterwards was the question's own, pixel-identical to the board before the click.
+  * **THE DAILY DID NOT, TWICE OVER.** Its verdict replay asked for NO hold (`startReplay` was called without the third
+    argument), so the landing blinked past in the frame it arrived; and its LIVE LEFT SLOT was the player's own board
+    (`DailyRun.view().board`) rather than the waypoint, so a wrong call — which the Daily applies, every reading it offers
+    being legal — left that call's landing drawn under the caption "N: <waypoint>", two different arrangements in one slot.
+  So the Daily's replays now pass `LANDING_HOLD_MS` like the Drill's, and the left slot is the waypoint through
+  `pairLeftBoard` (`puzzle/waypoint-pair.ts`) — one rule for both modes. MEASURED on the Daily at 390 x 700: pressing
+  "Allemande Left in the Alamo Style" (verdict "is legal, but the set is not on the goal board yet") and reading the board
+  5.7 s later — motion plus the hold — showed "1: Static Square", the same picture as before the press, with the Undo icon
+  now enabled. `waypoint-pair-probe.mjs` §7 pins the left slot, with the old rule as its negative control. THE COST, stated:
+  a player who has left the route no longer sees their own pose at rest — it is shown during the motion and its hold — but
+  the "Now" caption and the board under it now describe the same arrangement.
 
 ---
 

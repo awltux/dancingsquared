@@ -10,15 +10,18 @@
 // THIS IS A READOUT AND NOT A GATE (DESIGN.md §9.1): no call is refused and the goal board still decides
 // correctness. What the sequence decides is which waypoint may read as solved.
 //
-// THE OTHER RULE HERE IS `live` VERSUS PREVIEW. At the front the left board is the player's OWN board, because the
-// Daily lets them leave the generated route and "where am I" must never be hidden behind a waypoint they are not
-// on. Paging away turns the pair into a preview of the route, and then both boards are the route's.
+// THE OTHER RULE HERE IS `live` VERSUS PREVIEW, and `pairLeftBoard`'s: the left slot shows the WAYPOINT at `leftIndex`,
+// not the player's own pose. REPORTED: "Drill and Daily: After attempting an incorrect call and the two-second pause,
+// reset the board to the 'Now' setup. Currently it seem to leave the end of the incorrect call in place" — answered as the
+// Daily, whose live left slot used to be the player's own board, so a wrong-but-legal call left its landing drawn under the
+// "<n>: <name>" caption of a different arrangement. `live` still says the pair is the front (and its border `solved`).
 //
 // EVERY CHECK HAS A NEGATIVE CONTROL, and they are the ones the rules are one edit away from: a state rule that
-// treats the reached waypoint as "next" (off by one), and a pair that lets the window walk past either end.
+// treats the reached waypoint as "next" (off by one), a pair that lets the window walk past either end, and a left slot
+// that prefers the caller's own board (the defect the last section pins).
 //
 // Usage: node game/test/waypoint-pair-probe.mjs
-import { solvingPair, stageState, waypointPair } from '../src/puzzle/waypoint-pair.ts';
+import { pairLeftBoard, solvingPair, stageState, waypointPair } from '../src/puzzle/waypoint-pair.ts';
 import { justSolved } from '../src/render/celebrate.ts';
 
 let failures = 0;
@@ -123,7 +126,7 @@ console.log('\n== 5. a SUCCESS holds the window, and the arrow is the way on =='
   // window held at 0 leaves the pair on waypoints 1 and 2, and the right-hand board — the one they were aiming at — is
   // now solved.
   const held = waypointPair(4, 1, null, 0);
-  check(held.live, 'a held pair is still the LIVE pair: the left board is the player\'s own');
+  check(held.live, 'a held pair is still the LIVE pair');
   check(held.leftIndex === 0 && held.rightIndex === 1, `and it sits where the player was watching (${held.leftIndex + 1}, ${held.rightIndex + 1})`);
   check(states(held) === 'solved/solved', `with the waypoint they just reached now solved (${states(held)})`);
   // THE NEGATIVE CONTROL: the same state WITHOUT the hold is the auto-skip — the pair jumps to (2, 3), which is what a
@@ -159,6 +162,33 @@ console.log('\n== 6. bad input is clamped, never trusted ==');
   const single = waypointPair(1, 0, null);
   check(single.leftIndex === 0 && single.rightIndex === 0 && !single.canPrev && !single.canNext,
     'a one-waypoint list shows that waypoint in both slots rather than throwing');
+}
+
+console.log('\n== 7. the left slot is the WAYPOINT, never the caller\'s own board ==');
+{
+  // REPORTED: "Drill and Daily: After attempting an incorrect call and the two-second pause, reset the board to the 'Now'
+  // setup. Currently it seem to leave the end of the incorrect call in place." The Daily applies every reading it offers, so
+  // a wrong call MOVES the set: the pair's left slot used to be redrawn with the player's own board, which after that call is
+  // the call's landing — under a caption naming the waypoint. The rule is the waypoint, always.
+  const boards = ['wp1', 'wp2', 'wp3', 'wp4'];
+  const own = 'the-player';
+  const live = waypointPair(4, 1, null);
+  check(live.live && live.leftIndex === 1, `the live pair rests on waypoint 2 (${live.leftIndex + 1})`);
+  check(pairLeftBoard(live, boards, own) === 'wp2', `and the left slot is that waypoint, not the player's own board (${pairLeftBoard(live, boards, own)})`);
+  // NEGATIVE CONTROL: the rule that shipped — "the live pair's left board is the player's own" — returns the landing, which is
+  // the reported picture. Only this check catches it; every state and index check above passes for it.
+  const shipped = (pair, list, boardOfPlayer) => (pair.live ? boardOfPlayer : list[pair.leftIndex]);
+  check(shipped(live, boards, own) === own && pairLeftBoard(live, boards, own) !== own,
+    'CONTROL: the old "the live left board is the player\'s own" rule is what drew the wrong call\'s landing');
+  // A PREVIEW IS THE ROUTE'S TOO, and at the same index it must agree with the live pair — a preview and the front are the
+  // same two boards, so a difference between them would be a second rule.
+  const preview = waypointPair(4, 1, 1);
+  check(!preview.live && pairLeftBoard(preview, boards, own) === 'wp2' && pairLeftBoard(preview, boards, own) === pairLeftBoard(live, boards, own),
+    'a preview at the same index shows the same board');
+  // THE FALLBACK IS THE OWN BOARD, and only where the list has no such index: a preview or a live pair must still draw
+  // something, and a hole would be an empty slot rather than a board.
+  const short = waypointPair(4, 3, 2);
+  check(pairLeftBoard(short, boards.slice(0, 2), own) === own, `an index the list has not got falls back to the player's board (${pairLeftBoard(short, boards.slice(0, 2), own)})`);
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

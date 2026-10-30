@@ -55,7 +55,7 @@ import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type StagePair, type ViewMode } from './render/stage-view.ts';
 import { applyTheme } from './ui/theme.ts';
 import { layoutFor, type Layout } from './ui/layout.ts';
-import { waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
+import { pairLeftBoard, waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
 import { boardCaption } from './puzzle/caption.ts';
 import { replayLine, callAt, type ReplayLine } from './puzzle/replay-line.ts';
 import { ReplayList } from './ui/replay-list.ts';
@@ -521,9 +521,12 @@ function currentPair(): { stage: StagePair; pair: WaypointPair; info: WaypointIn
   const pair = waypointPair(info.boards.length, info.progress, waypointCursor, waypointHold);
   return {
     stage: {
-      // THE LIVE PAIR'S LEFT BOARD IS THE PLAYER'S OWN, not the waypoint's: the Daily lets them leave the route, and
-      // showing a waypoint they are not standing in as "where you are" would be the lie this display avoids.
-      left: pair.live ? info.here : (info.boards[pair.leftIndex] ?? info.here),
+      // THE LEFT SLOT IS THE WAYPOINT, NOT THE PLAYER'S OWN POSE — the rule is `pairLeftBoard`'s, because it is the one
+      // answer both modes need and it used to differ between them. REPORTED: "Drill and Daily: After attempting an incorrect
+      // call and the two-second pause, reset the board to the 'Now' setup. Currently it seem to leave the end of the
+      // incorrect call in place." The landing is what the motion and its hold show; the resting pair is the two waypoints,
+      // so the picture and the "<n>: <name>" captions agree.
+      left: pairLeftBoard(pair, info.boards, info.here),
       right: info.boards[pair.rightIndex] ?? info.here,
       leftIndex: pair.leftIndex,
       rightIndex: pair.rightIndex,
@@ -2861,7 +2864,12 @@ function playDailyCall(call: string): void {
   if (advanced && shownFront !== null) waypointHold = shownFront;
   logDailyMove('add', call);
   persist();
-  startReplay(applier.motion([call], from), result.verdict === 'correct' ? 'advance' : 'settle');
+  // EVERY DAILY VERDICT HOLDS ITS LANDING, THE SAME TWO SECONDS THE DRILL'S DO. REPORTED: "Drill and Daily: After attempting
+  // an incorrect call and the two-second pause, reset the board to the 'Now' setup." The Daily's replay had no hold at all, so
+  // the landing blinked past and the pair was repainted in the same frame — which is the half of that report that was real.
+  // The hold is what makes the reset read as a reset: the motion lands, the landing is held for `LANDING_HOLD_MS`, and then
+  // the pair comes back (which is now the two waypoints — `pairLeftBoard`).
+  startReplay(applier.motion([call], from), result.verdict === 'correct' ? 'advance' : 'settle', LANDING_HOLD_MS);
 }
 
 function undoDaily(): void {

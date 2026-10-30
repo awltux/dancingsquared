@@ -40,6 +40,8 @@ interface AccountCallbacks {
   changePassword: (current: string, next: string) => void;
   /** Claim or change the public name the leaderboard shows. */
   claimAlias: (alias: string) => void;
+  /** Deal another generated name into the field, claiming nothing (REPORTED: "a next button to generate a new one"). */
+  nextAlias: () => void;
 }
 
 /** Everything the row draws from, all of it already decided elsewhere. */
@@ -73,6 +75,7 @@ interface El {
   passwordStatus: HTMLElement;
   aliasForm: HTMLFormElement;
   alias: HTMLInputElement;
+  aliasNext: HTMLButtonElement;
   aliasSave: HTMLButtonElement;
   aliasStatus: HTMLElement;
 }
@@ -82,6 +85,14 @@ export class AccountScreen {
   private busy = false;
   /** The alias form's own pending state, kept apart from `busy` for the same reason its status line is. */
   private aliasBusy = false;
+  /**
+   * Whether the player has typed in the name field, so a generated suggestion never overwrites their words.
+   *
+   * A SUGGESTION IS AN OFFER: `suggest` fills an EMPTY field, and `Next` is the one caller allowed to replace what is there,
+   * because pressing it is the player asking for a different name. Without this flag a repaint after any state change would
+   * put a generated name over one being typed.
+   */
+  private aliasTouched = false;
 
   constructor(private readonly on: AccountCallbacks) {
     this.els = {
@@ -102,6 +113,7 @@ export class AccountScreen {
       passwordStatus: el('passwordStatus'),
       aliasForm: el<HTMLFormElement>('aliasForm'),
       alias: el<HTMLInputElement>('aliasInput'),
+      aliasNext: el<HTMLButtonElement>('aliasNext'),
       aliasSave: el<HTMLButtonElement>('aliasSave'),
       aliasStatus: el('aliasStatus'),
     };
@@ -159,6 +171,13 @@ export class AccountScreen {
       }
       this.on.claimAlias(verdict.alias);
     });
+    // NEXT DEALS ANOTHER SUGGESTION AND CLAIMS NOTHING: a `type="button"` because a button in a form defaults to submit,
+    // and the player's own press of Save is what puts a name on the board. REPORTED: "The player can use a next button to
+    // generate a new one."
+    this.els.aliasNext.addEventListener('click', () => this.on.nextAlias());
+    this.els.alias.addEventListener('input', () => {
+      this.aliasTouched = true;
+    });
   }
 
 
@@ -200,6 +219,19 @@ export class AccountScreen {
     if (view.alias !== null && this.els.alias.value !== view.alias) this.els.alias.value = view.alias;
     this.setBusy(this.busy);
     this.setAliasBusy(this.aliasBusy);
+  }
+
+  /**
+   * Put a generated name in the field, without claiming it.
+   *
+   * FORCE IS FOR THE NEXT BUTTON: a player who has typed something and then asks for another suggestion clearly wants the
+   * field replaced, where every other caller is offering rather than overwriting. REPORTED: "If the player hasnt provided a
+   * name, generate a pseudonym ... The player can use a next button to generate a new one."
+   */
+  suggest(name: string, force = false): void {
+    if (!force && this.aliasTouched) return;
+    this.els.alias.value = name;
+    if (force) this.aliasTouched = false;
   }
 
   /** A line for the player, in the row's own status slot. The sign-in form's refusals are shown here. */

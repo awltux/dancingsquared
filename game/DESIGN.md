@@ -1182,6 +1182,24 @@ sign in to be ranked*.
 | `GET /me/profile` | both | The alias this player has claimed, or `null`, **BOTH of the header's ranked totals**, and **their hint balance**: their Drill board for the level and set they are playing (`drillBoard: { score, runs } | null`), their Daily board for today's UTC day (`dailyBoard: { score, runs } | null`), and `hints: { hints, successes } | null`. A read that NEEDS an identity — there is nothing to show a signed-out caller — and `null` rather than a `404`, because "no name yet" is a state the app draws a form for. **THE BOARDS AND THE BALANCE RIDE THIS READ** because it is the one player-bound request every signed-in boot makes, so the app's header and hint meter are right on every page after a reload rather than only after a play page has issued a drill; it is read-only (the stored ladder level, not `servableLevel`'s promotion) and `null` when a row cannot be read — "no news", not zero. The balance is here because the app holds no copy of it (REPORTED: "When logged out, the hints bank still shows my hints, it should be empty. The hint bank should be stored on the server, not locally."). |
 | `POST /me/alias` | both | Claim a public name, or change the one held. **The rule is `sanitizeAlias`'s and the SERVER runs it** (`game/src/puzzle/alias.ts`): NFKC, controls/zero-width/bidi stripped, whitespace collapsed, letters/digits/`._- '` only — never `@`, so a name cannot be or look like an address — 3–16 characters, starting and ending with a letter or digit, and not one of the reserved operator words. The claim row is created CONDITIONALLY (`alias#<folded key>`), so one name belongs to one player and a race answers `409 alias_taken`; a name once used is never reissued, so a board cannot hand a player's identity to somebody else. |
 
+**A PLAYER WITH NO NAME IS OFFERED A GENERATED ONE, AND `Next` DEALS ANOTHER.** REPORTED: "If the player hasnt provided a
+name, generate a pseudonym from two or three lists of short words that can be joined together to make an interesting
+construct. The player can use a next button to generate a new one. The name lists should be long enough to work with 5
+million players." `game/src/puzzle/pseudonym.ts` joins a QUALITY, a CREATURE and a constructed TAIL — "GreenRatKnaith",
+MEASURED in a browser as the name a fresh account was offered — and the account screen fills its name field with one when a
+signed-in player has not claimed a name; `Next` deals another into the field and claims nothing (Save name is still the
+press that claims, and the server's `alias_taken` is still the only uniqueness check). The offer never overwrites a name the
+player has typed: `suggest` fills an empty field, and only Next may replace what is there.
+
+**THE SPACE IS THE REQUIREMENT AND IT IS COUNTED, NOT CLAIMED.** 515 qualities × 220 creatures × 25,000 tails is
+2.83 × 10^9 combinations; the ones whose joined name exceeds `ALIAS_MAX` (16) cannot be claimed, and `pseudonymSpace()`
+returns the exact surviving count — **2,199,628,760** — summed over the length histograms rather than sampled. That is
+**440×** five million players, so with all five million names claimed a fresh draw is already taken **0.23%** of the time
+and `Next` answers it. `game/test/pseudonym-probe.mjs` prints each of those numbers, fails below 100× the population, and
+pins the list rules (3–8 lowercase letters, no repeats — a duplicate silently shrinks the space), the join by index, the
+deck's no-repeat guarantee, and a control that the raw product is NOT the space, because combinations that cannot be a name
+are counted by a product and not by the truth.
+
 `GET /drill/current` works **without an account, and then it is a demo**: the server answers the level it was
 asked for (a signed-out caller has no ladder row, so it is the only path on which `?level=` is read), writes no
 Progress row for that caller, and reports it as a demo (§11.2). A signed-out

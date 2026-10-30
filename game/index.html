@@ -297,6 +297,11 @@
                password form has both. -->
           <form id="aliasForm" hidden>
             <input id="aliasInput" type="text" autocomplete="nickname" placeholder="Your name" aria-label="Leaderboard name" maxlength="24" />
+            <!-- NEXT DEALS ANOTHER SUGGESTION. REPORTED: "If the player hasnt provided a name, generate a pseudonym ... The
+                 player can use a next button to generate a new one." It only FILLS the field — claiming is still `Save name`,
+                 because a generated name is a suggestion and the player's press is what puts it on the board. A `type="button"`
+                 deliberately: a button inside the form defaults to submit, which would claim every suggestion dealt. -->
+            <button id="aliasNext" type="button">Next</button>
             <button id="aliasSave" type="submit">Save name</button>
           </form>
           <p id="aliasStatus" role="status"></p>

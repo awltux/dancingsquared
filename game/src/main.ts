@@ -44,6 +44,7 @@ import { createLevelRuntime } from './data/corpus.ts';
 import { DrillController } from './game/drill.ts';
 import { DailyRun } from './game/daily-run.ts';
 import { drillClockOrigin, Stopwatch } from './game/clock.ts';
+import { PseudonymDeck } from './puzzle/pseudonym.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
 import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, dailyChallenge, fetchDrillReplay, fetchLeaderboard, fetchProfile, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
@@ -425,6 +426,8 @@ const dailyScreen = new DailyScreen({ play: playDailyCall, parallel: playDailyCa
 // THE LIST IS THE SHELL'S TO FILL: the screen holds only the DOM, and `main.ts` decides which line is listed and
 // call k", and `main.ts` decides, because it owns the one playhead and the review's line.
 const replayList = new ReplayList();
+// THE PSEUDONYM DECK: one per page, because "Next" must not deal the same name twice in a session.
+const pseudonyms = new PseudonymDeck();
 const accountScreen = new AccountScreen({
   signIn: (email, password) => void doSignIn(email, password),
   signUp: (email, password) => void doSignUp(email, password),
@@ -432,6 +435,7 @@ const accountScreen = new AccountScreen({
   signOut: () => void doSignOut(),
   changePassword: (current, next) => void doChangePassword(current, next),
   claimAlias: (alias) => void doClaimAlias(alias),
+  nextAlias: () => void doNextAlias(),
 });
 // THE THREE BOARDS ARE ONE SCREEN EACH, over their own elements: the page's in-panel list on a sheet, and the two
 // full-screen standings in `#sideBoard`. The screens are handed their elements rather than resolving ids themselves,
@@ -721,6 +725,13 @@ function paintAccount(): void {
   paintLanding();
   paintLedger();
   paintBalance();
+  // A PLAYER WITH NO NAME IS OFFERED ONE, and the offer is dealt once per page rather than on every repaint: the screen
+  // refuses to overwrite anything typed (`suggest`), so this is a first-paint fill and the Next button is how a player asks
+  // for a different one.
+  if (player !== null && playerAlias === null) {
+    if (suggestedAlias === null) suggestedAlias = pseudonyms.next();
+    accountScreen.suggest(suggestedAlias);
+  }
 }
 
 /**
@@ -866,6 +877,22 @@ async function bootAccount(): Promise<void> {
   // AND ONLY NOW IS THE FIRST QUESTION ASKED, with an identity the server will accept — by the page the URL names, which
   // is the landing page unless the player came back to a bookmarked one.
   bootPage();
+}
+
+/**
+ * The generated name on offer, or null before one has been dealt.
+ *
+ * THE DECK LIVES FOR THE LIFE OF THE PAGE (`pseudonyms`) so Next never deals the same name twice, and this is the name the
+ * account screen shows when the player has not claimed one — REPORTED: "If the player hasnt provided a name, generate a
+ * pseudonym ... The player can use a next button to generate a new one." It is an OFFER: claiming it is still the player's
+ * press of Save, and the server's `alias_taken` refusal is the only uniqueness check there is.
+ */
+let suggestedAlias: string | null = null;
+
+/** Deal another suggestion into the field. Claims nothing. */
+function doNextAlias(): void {
+  suggestedAlias = pseudonyms.next();
+  accountScreen.suggest(suggestedAlias, true);
 }
 
 /** Sign in, and re-read everything the session decides. The refusals are the server's own sentences (§11.2). */

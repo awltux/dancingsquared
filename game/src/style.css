@@ -903,7 +903,8 @@ button[data-busy="true"]::after {
 /* THE PASSWORD FORM SHARES THE SIGN-IN FORM'S CONTROLS — same field, same button, same 44 px — because it is the same kind of
    thing and a second visual language for "type a password" would be decoration. It is its own form (so a submit in it is not
    a sign-in) and its own status line (`#passwordStatus`), which is where a refusal is said. */
-#passwordForm {
+#passwordForm,
+#aliasForm {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm);
@@ -912,11 +913,13 @@ button[data-busy="true"]::after {
 
 /* THE SAME `[hidden]` TRAP AS `#accountForm`, for the same reason and in the same commit's family: `display: flex` here beats
    the user agent's rule, so without this a signed-out player would be shown a form for a password they do not have. */
-#passwordForm[hidden] {
+#passwordForm[hidden],
+#aliasForm[hidden] {
   display: none;
 }
 
-#passwordForm input {
+#passwordForm input,
+#aliasForm input {
   flex: 1 1 9rem;
   min-width: 0;
   min-height: 44px;
@@ -930,6 +933,7 @@ button[data-busy="true"]::after {
 }
 
 #passwordForm button,
+#aliasForm button,
 #profileBoard {
   min-height: 44px;
   padding: var(--space-sm) var(--space-md);
@@ -943,6 +947,7 @@ button[data-busy="true"]::after {
 }
 
 #passwordForm button:hover,
+#aliasForm button:hover,
 #profileBoard:hover {
   border-color: var(--accent);
 }

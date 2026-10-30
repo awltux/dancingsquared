@@ -20,7 +20,7 @@
 //
 // WHAT IS MEASURED, and the alternative each check rules out:
 //   1. the rule itself: a known formation leaves the neutral placeholder and offers nothing; an UNKNOWN one says
-//      "Unknown formation" and offers the export; an unknown one WITH a setup id says so and names the id; and the
+//      "Unknown Setup" and offers the export; an unknown one WITH a setup id says so and names the id; and the
 //      export needs EIGHT dancers, because every formation the corpus ships is an eight-dancer set - a shorter end
 //      would be a block no call could name;
 //   2. the two plausible wrong rules, each measured to fail exactly one check: "always offer the export" (red at six
@@ -42,7 +42,7 @@ import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
-const { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, UNKNOWN_FORMATION } = await import(
+const { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, UNKNOWN_SETUP } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'end-setup-state.ts')).href
 );
 const { buildSetupCatalogue } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href);
@@ -66,28 +66,28 @@ console.log('\n== 1. what the row says, and when it offers an export ==');
   check(known.placeholder === KEEP_END_PLACEHOLDER && !known.canExport,
     'a formation the corpus names leaves the placeholder neutral and offers no export - there is nothing to author');
   const unknown8 = endSetupState('', 8);
-  check(unknown8.placeholder === UNKNOWN_FORMATION && unknown8.canExport,
-    'an unknown end on EIGHT dancers says "Unknown formation" and offers the export');
+  check(unknown8.placeholder === UNKNOWN_SETUP && unknown8.canExport,
+    'an unknown end on EIGHT dancers says "Unknown Setup" and offers the export');
   for (const dancers of [2, 4, 6, 16]) {
     const other = endSetupState('', dancers);
-    check(other.placeholder === UNKNOWN_FORMATION && !other.canExport,
-      `an unknown end on ${dancers} dancers still says "Unknown formation", and offers NO export - the corpus's formations are all eight-dancer sets`);
+    check(other.placeholder === UNKNOWN_SETUP && !other.canExport,
+      `an unknown end on ${dancers} dancers still says "Unknown Setup", and offers NO export - the corpus's formations are all eight-dancer sets`);
   }
   for (const nothing of [null, undefined, '', '   ', '\t']) {
-    check(endSetupState(nothing, 8).placeholder === UNKNOWN_FORMATION, `a ${JSON.stringify(nothing)} name is unknown, not a blank`);
+    check(endSetupState(nothing, 8).placeholder === UNKNOWN_SETUP, `a ${JSON.stringify(nothing)} name is unknown, not a blank`);
   }
   // THE SETUP ID, when the board has one and the corpus has no name for it.
   const withId = endSetupState('', 8, 'S1-4upypjh8');
-  check(withId.placeholder === `${UNKNOWN_FORMATION} (S1-4upypjh8)`,
+  check(withId.placeholder === `${UNKNOWN_SETUP} (S1-4upypjh8)`,
     `an unknown end WITH a setup id states both - the claim and the id (${withId.placeholder})`);
   check(withId.canExport, '...and still offers the export: an id does not name the shape');
   check(endSetupState('Alamo Wave', 8, 'S1-4upypjh8').placeholder === KEEP_END_PLACEHOLDER,
     'a NAMED end ignores the id entirely, so the row can never offer a name and an id at once');
   for (const noId of [null, undefined, '', '   ']) {
-    check(endSetupState('', 8, noId).placeholder === UNKNOWN_FORMATION,
+    check(endSetupState('', 8, noId).placeholder === UNKNOWN_SETUP,
       `a ${JSON.stringify(noId)} id leaves the plain statement - the one board with no id has no physical dancers`);
   }
-  check(endSetupState('', 6, 'S1-4upypjh8').placeholder === `${UNKNOWN_FORMATION} (S1-4upypjh8)` &&
+  check(endSetupState('', 6, 'S1-4upypjh8').placeholder === `${UNKNOWN_SETUP} (S1-4upypjh8)` &&
     !endSetupState('', 6, 'S1-4upypjh8').canExport,
     'the id does not move the export rule: six dancers still say it and still offer nothing');
   // NEGATIVE CONTROLS: the two rules a first cut would plausibly ship.

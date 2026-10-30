@@ -9,8 +9,8 @@
 //
 // THE PLACEHOLDER IS THE STATEMENT, rather than a note beside it: the picker's leading option is already the
 // "nothing chosen" entry, and writing the truth into it puts the answer where the caller is looking, with no second
-// line to disagree with the control. `Unknown formation` is a statement about the BOARD - the corpus has no formation
-// those dancers finish on - and it does not mean the picker is broken.
+// line to disagree with the control. `Unknown Setup` is a statement about the BOARD - the corpus has no setup those
+// dancers finish on - and it does not mean the picker is broken.
 //
 // AND THE WAY OUT OF THAT STATE IS TO AUTHOR THE SHAPE, so the row offers the same `Export <formation>` the START
 // setup has - but only for an EIGHT-DANCER board. That is not an arbitrary size: every formation the corpus ships is
@@ -47,8 +47,15 @@
 /** The picker's leading option: "nothing chosen", which is also "the end is not a named formation". */
 export const KEEP_END_PLACEHOLDER = '— keep the current end —';
 
-/** What that option says instead when the corpus cannot name the shape the call finishes on. */
-export const UNKNOWN_FORMATION = 'Unknown formation';
+/**
+ * What that option says instead when the corpus cannot name the setup the call finishes on.
+ *
+ * IT SAYS "SETUP", NOT "FORMATION", and the shorter word is the true one for this row: a FORMATION is the shape, while
+ * the SETUP is the shape, the arrangement AND the order the dancers are listed in - which is what the `sid` beside this
+ * sentence is the id of (`setup-id.ts`) and what `doEndFormation` re-bases onto. Asked for as: 'Instead of "Unknown
+ * Formation" it should say "Unknown Setup"'.
+ */
+export const UNKNOWN_SETUP = 'Unknown Setup';
 
 interface EndSetupState {
   /** The text of the picker's leading (empty-valued) option. */
@@ -73,7 +80,7 @@ export function endSetupState(
     // THE STATEMENT COMES FIRST AND THE ID BESIDE IT, because they answer different questions: "the corpus does not
     // name this end" is still true, and `S1-…` is which setup it is. A bare id would read as a name this picker offers,
     // and a caller would try to select it - the probe pins that wrong rule as its negative control.
-    placeholder: known ? KEEP_END_PLACEHOLDER : id === '' ? UNKNOWN_FORMATION : `${UNKNOWN_FORMATION} (${id})`,
+    placeholder: known ? KEEP_END_PLACEHOLDER : id === '' ? UNKNOWN_SETUP : `${UNKNOWN_SETUP} (${id})`,
     // An export is for a shape the corpus does not name, on a board the corpus could hold: eight dancers. An id does
     // not name the shape, so it does not remove the export.
     canExport: !known && dancers === 8,

@@ -5960,7 +5960,7 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * EXPORT the shape the call FINISHES on, for the End setup row - the way out of "Unknown formation".
+   * EXPORT the shape the call FINISHES on, for the End setup row - the way out of "Unknown Setup".
    *
    * Asked for as: "If the end formation is unknown and it's an 8-dancer board, provide an 'export <formation>' button
    * on the 'End Setup' row." The two conditions are the row's own state (`end-setup-state.ts`), and this is the

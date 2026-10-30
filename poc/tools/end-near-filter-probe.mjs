@@ -29,7 +29,7 @@ import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
-const { endSetupState, nearFilterNote, showsNearFilter, UNKNOWN_FORMATION } = await import(
+const { endSetupState, nearFilterNote, showsNearFilter, UNKNOWN_SETUP } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'end-setup-state.ts')).href
 );
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
@@ -49,10 +49,10 @@ const read = (p) => fs.readFileSync(path.join(corpusRoot(), p), 'utf8');
 console.log('== 1. the filter is offered only where it can say something ==');
 {
   check(showsNearFilter(''), 'an UNNAMED end offers the filter');
-  // THE TWO RULES READ THE SAME `name`, so the state that says "Unknown formation" is the state that offers the filter -
+  // THE TWO RULES READ THE SAME `name`, so the state that says "Unknown Setup" is the state that offers the filter -
   // and the check is that COUPLING rather than the placeholder string, which the panel never passes in.
-  check(showsNearFilter('') && endSetupState('', 8).placeholder === UNKNOWN_FORMATION,
-    'and it is the same unnamed state the row states as "Unknown formation", so the button and the sentence cannot disagree');
+  check(showsNearFilter('') && endSetupState('', 8).placeholder === UNKNOWN_SETUP,
+    'and it is the same unnamed state the row states as "Unknown Setup", so the button and the sentence cannot disagree');
   for (const nothing of [null, undefined, '   ', '\t']) {
     check(showsNearFilter(nothing), `a ${JSON.stringify(nothing)} name counts as unnamed, so a blank never hides the button`);
   }

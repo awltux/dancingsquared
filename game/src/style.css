@@ -1426,12 +1426,28 @@ button[data-busy="true"]::after {
   font-variant-numeric: tabular-nums;
 }
 
-#verdict,
-#dailyVerdict {
+#verdict {
   margin-top: 16px;
   min-height: 3.2em;
   line-height: 1.4;
   font-size: var(--fs-control);
+}
+
+/* THE DAILY'S MESSAGE SITS AT THE TOP OF THE PANEL, UNDER THE HEADER. REPORTED: "The error/message banner is currently at the
+   bottom of the HUD stack and isnt obvious. Move it to the top of the HUD, below the header." So it has no top margin (it is
+   the first thing in the page's own flow), it is one weight heavier than the body so a refusal or a verdict reads as news
+   rather than as prose, and `:empty` collapses the slot entirely — an idle Daily shows no message and therefore no gap. The
+   DRILL's `#verdict` keeps the ruled box it had: it sits under the three answers, and its reserved height is what stops the
+   panel jumping as verdicts come and go. */
+#dailyVerdict {
+  margin: 0 0 10px;
+  line-height: 1.4;
+  font-size: var(--fs-control);
+  font-weight: 600;
+}
+
+#dailyVerdict:empty {
+  display: none;
 }
 
 #verdict[data-kind="ok"],

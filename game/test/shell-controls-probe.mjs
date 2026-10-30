@@ -441,6 +441,14 @@ console.log('\n== 7. the drill page\'s heading and question are for the reader, 
     'and the class exists as a clip: absolute placement plus a one-pixel clip rectangle', rule || '(no rule)');
   check(!/display:\s*none|visibility:\s*hidden/.test(rule),
     'with neither `display: none` nor `visibility: hidden` in it, which would defeat the point', rule);
+  // THE DAILY'S TITLE IS THE SAME BARGAIN. REPORTED: "There is no need for the 'Today's Daily' title, it just takes up space."
+  // It is the page's `<h2>`, which a navigation FOCUSES, so it is hidden rather than deleted — the same rule and the same
+  // reason as the drill's, and the same negative control: `hidden` would take the focus target out of the tree.
+  const daily = blockOf(html, 'section', 'daily') ?? '';
+  const dailyTitle = daily.match(/<h2[^>]*\bid="dailyHeading"[^>]*>/)?.[0] ?? '';
+  check(/\bclass="[^"]*\bvisually-hidden\b/.test(dailyTitle),
+    `#dailyHeading is visually hidden, so the page's title costs no lines (${dailyTitle || 'not found'})`);
+  check(!/\shidden\b/.test(dailyTitle), 'and it is not the `hidden` attribute, which would remove the router\'s focus target');
 }
 
 console.log('\n== 8. the UI never renders an email address ==');

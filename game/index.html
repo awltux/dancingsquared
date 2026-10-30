@@ -380,13 +380,21 @@
           </section>
 
           <section id="daily" class="page" aria-live="polite" hidden>
-            <h2 id="dailyHeading" tabindex="-1">Today's Daily</h2>
-            <!-- ONE COMPACT ROW AT THE TOP: Undo, Redo and the clock. REPORTED: "Move the undo/Redo buttons to the top of the
-                 HUD, make them much smaller as they take up a lot of screen real estate." They were two full-width 48 px bars
-                 in the shared footer — two rows of the panel for two presses — and the readout they sit beside is the fact
-                 they are used against (the allowance and the time), so the row is the whole of the Daily's chrome above the
-                 list. The glyphs are `aria-hidden` and each button's accessible name is its action, because an arrow alone is
-                 not a name. -->
+            <!-- THE PAGE'S TITLE IS VISUALLY HIDDEN, NOT DELETED. REPORTED: "There is no need for the 'Today's Daily' title, it
+                 just takes up space." It cannot simply go: a navigation FOCUSES the page's `<h2>` (`pageHeadingId`), and the
+                 drill's heading and question are hidden exactly this way for exactly this reason. `visually-hidden` keeps it in
+                 the accessibility tree and out of the flow, which is the whole of the request. -->
+            <h2 id="dailyHeading" class="visually-hidden" tabindex="-1">Today's Daily</h2>
+            <!-- THE MESSAGE IS THE FIRST THING UNDER THE HEADER. REPORTED: "The error/message banner is currently at the bottom
+                 of the HUD stack and isnt obvious. Move it to the top of the HUD, below the header." It is `role="status"` and
+                 `daily-screen.ts` writes every verdict into it — an engine refusal, "is legal, but …", the hint's sentence —
+                 so a message about the move the player just made belongs above the list it was made from, not under it. -->
+            <div id="dailyVerdict" role="status"></div>
+            <!-- ONE COMPACT ROW: Undo, Redo and the clock. REPORTED: "Move the undo/Redo buttons to the top of the HUD, make
+                 them much smaller as they take up a lot of screen real estate." They were two full-width 48 px bars in the
+                 shared footer — two rows of the panel for two presses — and the readout they sit beside is the fact they are
+                 used against (the time), so the row is the whole of the Daily's chrome above the list. The glyphs are
+                 `aria-hidden` and each button's accessible name is its action, because an arrow alone is not a name. -->
             <div id="dailyTop">
               <button id="undo" type="button" aria-label="Undo the last call" hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9.5 5.5 4 11l5.5 5.5" /><path d="M4 11h9.5a6.5 6.5 0 0 1 0 13H9" /></svg></button>
               <button id="redo" type="button" aria-label="Redo the last call" hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14.5 5.5 20 11l-5.5 5.5" /><path d="M20 11h-9.5a6.5 6.5 0 0 0 0 13H15" /></svg></button>
@@ -416,7 +424,6 @@
                  Dead ends are the player's to discover, and the score is what makes discovering them cost. -->
             <div id="offer"></div>
             <p id="line"></p>
-            <div id="dailyVerdict" role="status"></div>
             <div id="dailyResult" hidden></div>
           </section>
 

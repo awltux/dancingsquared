@@ -552,9 +552,26 @@ function paintBoardTabs(): void {
   stage.setFocus(single ? boardFocus : null);
 }
 
-/** Switch which board the single-board view shows, and repaint what depends on the choice. */
+/**
+ * Switch which board the single-board view shows — and SCRUB TO THE SOLVING PAIR FIRST.
+ *
+ * REPORTED: "The [Now, Target] widget currently applies to the currently displayed board which might not be the one to be
+ * solved, but I want them to first scrub to the last completed (green) board the subsequent uncompleted board. The
+ * 'Now|Target' buttons will flip between the point where the player is supposed to be solving." So a press is not a
+ * switch over whatever preview the arrows left on screen: it puts the window back on `solvingPair` (last completed, next to
+ * solve) and THEN picks a side of it.
+ *
+ * THE HOLD GOES WITH THE CURSOR, and that is the half a press would otherwise miss: after a success the window is held on
+ * the waypoint just reached so the right-hand board does not auto-skip, which leaves BOTH boards solved — a pair the widget
+ * would happily flip between while neither is the board to solve next (`waypoint-pair.ts` records the report).
+ */
 function setBoardFocus(focus: 'left' | 'right'): void {
-  if (boardFocus === focus) return;
+  const scrubbed = waypointCursor !== null || waypointHold !== null;
+  if (scrubbed) {
+    waypointCursor = null;
+    waypointHold = null;
+  }
+  if (boardFocus === focus && !scrubbed) return;
   boardFocus = focus;
   paintBoardTabs();
   paintWaypoints();

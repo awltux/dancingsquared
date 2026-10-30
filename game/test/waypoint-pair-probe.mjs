@@ -18,7 +18,7 @@
 // treats the reached waypoint as "next" (off by one), and a pair that lets the window walk past either end.
 //
 // Usage: node game/test/waypoint-pair-probe.mjs
-import { stageState, waypointPair } from '../src/puzzle/waypoint-pair.ts';
+import { solvingPair, stageState, waypointPair } from '../src/puzzle/waypoint-pair.ts';
 import { justSolved } from '../src/render/celebrate.ts';
 
 let failures = 0;
@@ -63,6 +63,29 @@ console.log('\n== 2. the front follows the player, and the pair never runs off e
   // the clamp.
   const jump = waypointPair(4, 2, null);
   check(jump.leftIndex === 2 && jump.rightIndex === 3, 'a jump of two still leaves a right-hand board to show');
+}
+
+console.log('\n== 2b. the Now/Target switches scrub to the SOLVING pair ==');
+{
+  // REPORTED: "The [Now, Target] widget currently applies to the currently displayed board which might not be the one to be
+  // solved, but I want them to first scrub to the last completed (green) board the subsequent uncompleted board." So a press
+  // of either switch resolves to `solvingPair`: the last completed waypoint on the left, the next one on the right.
+  const start = solvingPair(4, 0);
+  check(start.live && start.leftIndex === 0 && start.rightIndex === 1 && states(start) === 'solved/next',
+    `at the start it is where the player is and the one to reach (${states(start)})`);
+  const mid = solvingPair(4, 1);
+  check(mid.leftIndex === 1 && mid.rightIndex === 2 && states(mid) === 'solved/next',
+    `after one waypoint it is that one and the next (${states(mid)})`);
+  check(solvingPair(4, 3).rightIndex === 3, 'and at the end the pair still holds a right-hand board');
+  // NEGATIVE CONTROL: the pair as the stage holds it after a success — same progress, the window HELD on the waypoint just
+  // reached — reads both boards solved, so "Target" would name the board the player has just finished. It differs from
+  // `solvingPair` in exactly the check above, which is why clearing the hold is part of the scrub.
+  const held = waypointPair(4, 1, null, 0);
+  check(states(held) === 'solved/solved' && states(mid) === 'solved/next',
+    `CONTROL: the held pair names the just-reached board on the right (${states(held)} where the scrub gives ${states(mid)})`);
+  // AND A PREVIEW IS NOT THE SOLVING PAIR EITHER, which is the other half of the report: the arrows can leave the window on
+  // any pair of the route.
+  check(!waypointPair(4, 1, 2).live && solvingPair(4, 1).live, 'CONTROL: a paged pair is a preview and the scrub is live');
 }
 
 console.log('\n== 3. paging is a preview of the route, and it clamps ==');

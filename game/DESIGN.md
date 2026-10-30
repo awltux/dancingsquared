@@ -725,6 +725,17 @@ answers cannot drift between the client and the server, because there is now onl
   player does not have. MEASURED in a browser against the LAN server — a signed-in solve showed **`28/100`** with the
   header moving to 28, and with the API stopped the same path showed **"The server would not record this run: …"** and no
   score at all.
+- **THE NOW/TARGET SWITCHES SCRUB TO THE SOLVING PAIR BEFORE THEY FLIP.** In the single-board layout the "Now" and
+  "Target" tabs choose which of the two boards is drawn — but the pair they choose from was whichever the paging arrows had
+  left on screen, so a press could flip between two boards that are not the question. REPORTED: "The [Now, Target] widget
+  currently applies to the currently displayed board which might not be the one to be solved, but I want them to first
+  scrub to the last completed (green) board the subsequent uncompleted board. The 'Now|Target' buttons will flip between the
+  point where the player is supposed to be solving." A press now resets the cursor AND the hold and then picks a side, so
+  "Now" is the last completed waypoint and "Target" the one to reach. **THE HOLD IS THE HALF THAT IS EASY TO MISS**: after a
+  success the window is held on the waypoint just reached (so the right-hand board does not auto-skip), which leaves BOTH
+  boards solved — a pair the switches would otherwise flip between while neither is the next question. The rule is
+  `solvingPair` in `puzzle/waypoint-pair.ts`, and `waypoint-pair-probe.mjs` §2b pins it with the held pair and a paged
+  preview as the two negative controls.
 - **The illegal option is the lesson.** It stops part-way, and the engine's own refusal reason is shown
   verbatim — the same reason string the Daily shows, from the same `applyToBoard` result (§4.1).
   **AND IT MUST NOT BE RECOGNISABLE BEFORE IT IS PRESSED**, which is two rules and both were defects once

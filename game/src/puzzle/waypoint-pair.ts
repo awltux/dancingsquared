@@ -44,6 +44,25 @@ export function stageState(index: number, progress: number): WaypointState {
 }
 
 /**
+ * THE PAIR THE PLAYER IS SOLVING FROM — the last completed waypoint and the next one — which is what the Now/Target
+ * switches scrub back to before they flip.
+ *
+ * REPORTED: "The [Now, Target] widget currently applies to the currently displayed board which might not be the one to be
+ * solved, but I want them to first scrub to the last completed (green) board the subsequent uncompleted board. The
+ * 'Now|Target' buttons will flip between the point where the player is supposed to be solving." So the pair the widget
+ * acts on is not whichever preview the arrows left on screen: it is this one.
+ *
+ * IT CLEARS THE CURSOR AND THE HOLD, and the HOLD is the part that is easy to miss. After a success the window is held so
+ * the right-hand board does not auto-skip (see `waypointPair`), which leaves the pair showing the waypoint JUST REACHED on
+ * the right — two solved boards, not the one to solve next. Scrubbing past the hold is what makes "Target" mean the
+ * uncompleted board rather than the one the player has just finished; `game/test/waypoint-pair-probe.mjs` pins both the
+ * pair and that difference, because "it looks live" is true of both.
+ */
+export function solvingPair(count: number, progress: number): WaypointPair {
+  return waypointPair(count, progress, null, null);
+}
+
+/**
  * The pair to show.
  *
  * `count` is the number of waypoints the puzzle has (at least two — a start and an end), `progress` is how many

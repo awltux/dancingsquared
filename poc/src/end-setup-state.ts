@@ -140,9 +140,10 @@ export interface EndIdentity {
   fid: string | null;
   /** The board's ARRANGEMENT id (`aid`), the same condition. */
   aid: string | null;
-  /** The SHAPES the setup catalogue holds under that `fid` - `row.shape`, deduped. Empty when nothing does. */
+  /** THE NAMES OF THE FORMATIONS THAT CARRY THAT `fid` - the same spots and facings, whatever the rotation. Empty when
+   *  nothing does. `formationsCarrying` answers it over the call's own size, not the eight-dancer setup catalogue. */
   shapes: string[];
-  /** The SETUP NAMES the catalogue holds under that `aid`, deduped. Empty when nothing does. */
+  /** The names of the formations that carry that `aid` - the same board, dancer for dancer. Empty when nothing does. */
   arrangements: string[];
 }
 
@@ -166,8 +167,9 @@ const IDENTITY_NAMES_SHOWN = 3;
  * corpus has never carried at all.
  *
  * EACH LINE SAYS WHAT IT MATCHES, and says NOTHING when it has no id: a board with no physical dancers has no ids to
- * print, and a line with a dash in it would be noise on every four-dancer call. `arrangements` is the catalogue's own
- * names for the arrangement, which is what makes "matches an arrangement" checkable by eye rather than a bare tag.
+ * print, and a line with a dash in it would be noise on every four-dancer call. Each name is a FORMATION of the call's own
+ * size (`formationsCarrying`), which is what makes "matches a formation or arrangement" checkable by eye - and selectable,
+ * since those are the names the picker beside it offers.
  *
  * THE LINES ARE CAPTIONS, NOT CHOICES (the panel renders them `disabled`): this picker's values are the corpus's formation
  * NAMES, and an id cannot be resolved by `doEndFormation` - an option nothing can select is a trap, which is the same

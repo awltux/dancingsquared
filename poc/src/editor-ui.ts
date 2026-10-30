@@ -168,6 +168,9 @@ import { keptSetupIndex } from './setup-keep';
 // a probe can measure it rather than read the panel (see end-setup-state.ts).
 import { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter } from './end-setup-state';
 import type { EndIdentityOption } from './end-setup-state';
+// WHICH FORMATIONS CARRY AN END'S `fid`/`aid` - the ids themselves are `setup-catalogue.ts`'s (`idsOf`), so the join is
+// asked there rather than re-derived here from a second board builder.
+import { formationsCarrying } from './setup-catalogue';
 // THE GROUP GATE'S COMPARISON, for the reason `grid-magnet.ts` is its own module: the rule is arithmetic over engine
 // types, and a probe can only MEASURE it if it can import it. Five probes carried a copy before this.
 import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameCurve, sameFacingCurve, sameTrace, sameTravel, travelGap } from './same-move';
@@ -216,15 +219,6 @@ interface EditorHost {
    *  argument because the two pickers are filled from it and must only ever offer formations the
    *  call's own dancer count can actually be re-based onto - see `ensureStartFormations`. */
   startFormations(dancers: number): { name: string; poses: FormDancer[] }[];
-  /**
-   * WHAT THE CORPUS HOLDS UNDER A SET OF IDENTITY TAGS: the SHAPE names the setup catalogue lists under a `fid`, and the
-   * SETUP names it lists under an `aid`.
-   *
-   * ASKED OF THE APP rather than computed here for the reason `startFormations` is: the catalogue is the Board drawer's
-   * own list (`setup-catalogue.ts`, keyed by `sid`/`fid`/`aid`), so "does this end match a formation or an arrangement?"
-   * is answered by the same rows that drawer offers - a second derivation in this panel would be a second answer.
-   */
-  setupIdentity(ids: { fid: string | null; aid: string | null }): { shapes: string[]; arrangements: string[] };
   /** The library's name for a board, or null. Used to NAME a generated setup after the formation it
    *  starts from, which is what every other setup's label is - see `instanceName`. */
   nameBoard(board: Board): string | null;
@@ -4999,10 +4993,16 @@ export class EditorController implements EditorUI {
   /**
    * THE ID CAPTIONS the End picker lists above its names, for THIS end board - or none.
    *
-   * `fid`/`aid` are the board's own tags (from `endSetupInfo`'s memo), and what the corpus holds under them comes from the
-   * HOST's setup catalogue, so "matches a formation or arrangement" is answered by the Board drawer's own rows rather
-   * than by a second derivation. The formatting - which names, how many before a summary, and the sentence for an id
-   * nothing carries - is `endIdentityOptions`, which the probe drives.
+   * `fid`/`aid` are the board's own tags (from `endSetupInfo`'s memo), and what carries them comes from `formationsCarrying`
+   * over `startFormations` - the SAME list this picker is filled from, so a caption can only ever name a formation the
+   * caller could also select. The formatting (which names, how many before a summary, and the sentence for an id nothing
+   * carries) is `endIdentityOptions`, which the probe drives.
+   *
+   * IT ASKS FOR THE END'S IDs OVER THE CALL'S OWN SIZE. The first cut of this asked the Board drawer's catalogue instead,
+   * which is `buildSetupCatalogue`'s EIGHT-dancer list - so every four-dancer end reported "no corpus formation carries
+   * this shape" while `formations.xml` held that exact `fid`. MEASURED on `Circle Four Left 3/4` from `Facing Couples`,
+   * whose end is that same formation turned a quarter turn: `fid F3-nlnlii69`, `aid A1-6r10ge6d`, both the corpus's own,
+   * and the picker said neither was carried.
    */
   private endIdentityCaptions(): EndIdentityOption[] {
     if (!this.instance) return [];
@@ -5013,8 +5013,8 @@ export class EditorController implements EditorUI {
     const fid = this.endInfoFid;
     const aid = this.endInfoAid;
     if (fid === null && aid === null) return [];
-    const found = this.host.setupIdentity({ fid, aid });
-    return endIdentityOptions({ fid, aid, shapes: found.shapes, arrangements: found.arrangements });
+    const carried = formationsCarrying(this.host.startFormations(this.instance.dancers.length), { fid, aid });
+    return endIdentityOptions({ fid, aid, shapes: carried.shapes, arrangements: carried.arrangements });
   }
 
   /**

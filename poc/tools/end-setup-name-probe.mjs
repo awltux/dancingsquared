@@ -32,7 +32,11 @@
 //   4. the panel uses the rule and not a copy of it, that the name AND the id are recomputed for the END BOARD (one
 //      memo, because they describe the same board), and that the export copies the END poses rather than the START
 //      ones - a copy-paste slip of `r.start` for `r.end` would export a formation that is not the end at all, and every
-//      other check here would still pass.
+//      other check here would still pass;
+//   5. THE REPORTED CASE, "Circle Four Left 3/4" from "Facing Couples" (a four-dancer call whose end is that formation
+//      turned a quarter turn): the NAME test refuses it on purpose, the IDS name it, and the captions now say so -
+//      while the first cut of `f0a4fbf5` answered from the Board picker's EIGHT-dancer catalogue and therefore reported
+//      "no corpus formation carries this shape" at every shorter end. The negative control keeps that measurement.
 //
 // Run: node tools/end-setup-name-probe.mjs   (from poc/)
 import fs from 'node:fs';
@@ -45,7 +49,9 @@ const ROOT = path.join(POC_DIR, '..');
 const { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, UNKNOWN_SETUP } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'end-setup-state.ts')).href
 );
-const { buildSetupCatalogue } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href);
+const { buildSetupCatalogue, formationsCarrying } = await import(
+  pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href
+);
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
 const { DOMParser } = await import('@xmldom/xmldom');
 engine.setParser(DOMParser);
@@ -105,13 +111,17 @@ const assets = corpusRoot();
 const movesXml = fs.readFileSync(path.join(assets, 'moves.xml'), 'utf8');
 const formationsXml = fs.readFileSync(path.join(assets, 'formations.xml'), 'utf8');
 const formations = engine.parseFormations(formationsXml);
-/** `corpusFormationsOfSize`, over the same file the panel reads: every formation completed to its played size. */
+/** `corpusFormationsOfSize`, over the same file the panel reads: every formation completed to its played size. Cached by
+ *  size because the sweep asks the same size for every call and completing 217 formations per call is the sweep's cost. */
+const sizeLists = new Map();
 const formationsOfSize = (dancers) => {
+  if (sizeLists.has(dancers)) return sizeLists.get(dancers);
   const out = [];
   for (const [name, ds] of formations) {
     const poses = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: (d.angleDeg * Math.PI) / 180, gender: d.gender })));
     if (poses.length === dancers) out.push({ name, poses });
   }
+  sizeLists.set(dancers, out);
   return out;
 };
 const totals = { calls: 0, eight: 0, known: 0, unknown: 0, unknown8: 0, withSid: 0, inCatalogue: 0, unknown8InCatalogue: 0, fidMatched: 0, aidMatched: 0 };
@@ -148,9 +158,10 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
         continue;
       }
       totals.calls++;
+      const ofSize = formationsOfSize(call.dancers.length);
       // THE PANEL'S OWN QUESTION, asked with the engine's own rule: does any formation of this call's size sit
       // exactly under the poses the dancers arrive at?
-      const named = formationsOfSize(call.dancers.length).some((formation) => engine.endsOnFormation(call, formation.poses));
+      const named = ofSize.some((formation) => engine.endsOnFormation(call, formation.poses));
       if (call.dancers.length === 8) totals.eight++;
       if (named) totals.known++;
       else {
@@ -170,13 +181,14 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
             }
           }
         }
-        // AND THE TWO CAPTIONS the row now lists above the names: is the SHAPE (`fid`) one the catalogue holds, and is the
-        // ARRANGEMENT (`aid`) one it holds? That pair is the difference between "a known shape in a new arrangement" and
-        // "a shape the corpus has never carried", which is what the lines are for.
+        // AND THE TWO CAPTIONS the row now lists above the names, as the panel asks for them: `formationsCarrying` over the
+        // formations of THIS call's size - not the eight-dancer setup catalogue, which is what made every shorter end say
+        // nothing carried its shape.
         const fid = engine.formationId(endBoard);
         const aid = engine.arrangementId(endBoard);
-        if (catalogue.rows.some((r) => r.fid === fid)) totals.fidMatched++;
-        if (catalogue.rows.some((r) => r.aid === aid)) totals.aidMatched++;
+        const carried = formationsCarrying(ofSize, { fid, aid });
+        if (carried.shapes.length > 0) totals.fidMatched++;
+        if (carried.arrangements.length > 0) totals.aidMatched++;
       }
     }
   }
@@ -184,7 +196,7 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
 console.log(`    ${totals.calls} call variants: ${totals.known} finish on a formation the corpus names, ${totals.unknown} do not`);
 console.log(`    of the ${totals.unknown} unknown, ${totals.unknown8} are eight-dancer boards - the population the export button is for`);
 console.log(`    ${totals.withSid} of the ${totals.unknown} unknown ends carry a SETUP ID, and ${totals.inCatalogue} of those ids are setups the Board picker offers`);
-console.log(`    of those unnamed ends, ${totals.fidMatched} stand on a SHAPE the catalogue holds and ${totals.aidMatched} on an ARRANGEMENT it holds - the two captions the picker now lists`);
+console.log(`    of those unnamed ends, ${totals.fidMatched} stand on a SHAPE a formation of their own size carries and ${totals.aidMatched} on an ARRANGEMENT one carries - the two captions the picker now lists`);
 console.log(`    ${totals.unknown8InCatalogue} of them are eight-dancer setups, e.g. ${unknownEightExamples.join(', ') || 'none'}`);
 console.log(`    the rest have nowhere to go in formations.xml, e.g. ${unknownExamples.join(', ')}`);
 check(totals.known > 0 && totals.unknown > 0,
@@ -200,9 +212,9 @@ check(totals.inCatalogue > 0 && totals.inCatalogue <= totals.withSid,
 check(totals.unknown8InCatalogue > 0,
   `while ${totals.unknown8InCatalogue} of them are eight-dancer setups, so the row's id leads somewhere for the same boards the export is for`);
 check(totals.fidMatched > 0 && totals.fidMatched <= totals.unknown,
-  `and the id captions have a population: ${totals.fidMatched} of the ${totals.unknown} unnamed ends stand on a shape the catalogue holds`);
+  `and the id captions have a population: ${totals.fidMatched} of the ${totals.unknown} unnamed ends stand on a shape a formation of their own size carries`);
 check(totals.aidMatched >= 0 && totals.aidMatched <= totals.unknown,
-  `while ${totals.aidMatched} stand on an arrangement it holds - the rest are new shapes or new arrangements, which is what the captions say`);
+  `while ${totals.aidMatched} stand on an arrangement one carries - the rest are new shapes or new arrangements, which is what the captions say`);
 
 // ---------------------------------------------------------------- 3. the panel
 console.log('\n== 3. the panel uses the rule, on the END, and exports the END poses ==');
@@ -286,17 +298,65 @@ console.log('\n== 4. the fid and aid, as captions above the names ==');
   const main = fs.readFileSync(path.join(POC_DIR, 'src', 'main.ts'), 'utf8').replace(/\r\n/g, '\n');
   check(/for \(const caption of this\.endIdentityCaptions\(\)\) \{\n      const option = new Option\(caption\.label, ''\);\n      option\.disabled = true;/.test(src),
     'the panel inserts the captions right after the placeholder and DISABLES them - an option nothing can select cannot become a trap');
-  check(/private endIdentityCaptions\(\): EndIdentityOption\[\][\s\S]{0,700}?this\.host\.setupIdentity\(\{ fid, aid \}\)/.test(src),
-    'and it asks the HOST what the corpus holds, rather than deriving a shape name in the panel');
+  check(/private endIdentityCaptions\(\): EndIdentityOption\[\][\s\S]{0,1400}?formationsCarrying\(this\.host\.startFormations\(this\.instance\.dancers\.length\), \{ fid, aid \}\)/.test(src),
+    'and it asks `formationsCarrying` over the formations of THE CALL\'S OWN SIZE - the list the picker beside it offers, not the eight-dancer setup catalogue');
+  check(!/setupIdentity/.test(src) && !/setupIdentity/.test(seq) && !/setupIdentity/.test(main),
+    'and the eight-dancer catalogue lookup it replaced is GONE, not left beside the new one - two answers to one question is how the size bug survived a green probe');
   check(/this\.endInfoFid = formationId\(end\);/.test(src) && /this\.endInfoAid = arrangementId\(end\);/.test(src),
     'the two tags come from the SAME end board and memo as the name and the sid, because they describe one arrival');
   check(/if \(!showsNearFilter\(this\.endInfoName\)\) return \[\];/.test(src),
     'a NAMED end prints no ids: the picker already opens on its formation, so the lines would be noise');
-  check(/setupIdentity\(ids: \{ fid: string \| null; aid: string \| null \}\): \{ shapes: string\[\]; arrangements: string\[\] \}/.test(seq) &&
-    /for \(const row of this\.setupRows\) \{/.test(seq),
-    'the host answers from the Board drawer\'s own setup catalogue, so "matches a formation or arrangement" is one list');
-  check(/setupIdentity: \(ids\) => seqUi\.setupIdentity\(ids\)/.test(main),
-    'and `main.ts` wires the editor to it, the same way it wires `startFormations`');
+}
+
+// ---------------------------------------------------------------- 5. THE REPORTED CASE
+//
+// Asked for as: "For the call 'Circle Four Left 4/3' from 'Facing Couples', why does the end setup not match 'Facing
+// Couples'? Currently it shows 'Unknown Setup'. They look the same, except for the +90 deg rotation."
+//
+// MEASURED: they ARE the same setup, turned a quarter turn. `endFormationName` is orientation-sensitive on purpose (a name
+// is a re-base and must not move the dance), so it refuses this end; the ids are rotation-CANONICAL (`sid ⇒ aid ⇒ fid`), so
+// they name the corpus's own `Facing Couples` - which is what the captions are for. This section pins BOTH halves: the
+// refusal (so nobody "fixes" it by loosening the name test into silently re-basing the dance) and the captions naming the
+// formation (which the eight-dancer catalogue lookup failed to do, at every four-dancer end).
+console.log('\n== 5. "Circle Four Left 3/4" from "Facing Couples": same setup, quarter turn ==');
+{
+  const pairs = engine.parseFormations(formationsXml);
+  const corpusOfSize = (dancers) => {
+    const out = [];
+    for (const [name, ds] of pairs) {
+      const poses = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: (d.angleDeg * Math.PI) / 180, gender: d.gender })));
+      if (poses.length === dancers) out.push({ name, poses });
+    }
+    return out;
+  };
+  const tam = fs.readFileSync(path.join(assets, 'ms', 'circle.xml'), 'utf8');
+  const calls = engine
+    .parseCallXml(tam)
+    .filter((t) => (t.title ?? '').trim() === 'Circle Four Left 3/4' && (t.from ?? '').trim() === 'Facing Couples');
+  check(calls.length === 1, `the tam this report is about resolves by TITLE and FROM, not by index (${calls.length} found)`);
+  const call = calls.length === 1 ? engine.buildCall(calls[0], engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true) : null;
+  check(call !== null && call.dancers.length === 4, `it is a ${call ? call.dancers.length : '?'}-dancer call, so the eight-dancer setup catalogue cannot answer for it`);
+  const end = call ? engine.boardAtBeat(call, call.beats) : null;
+  const list = corpusOfSize(4);
+  const facing = list.find((f) => f.name === 'Facing Couples');
+  check(facing !== undefined && call !== null && engine.endsOnFormation(call, facing.poses) === false,
+    'the end setup does NOT match "Facing Couples" - the name test compares positions and headings as authored, and a name is a re-base');
+  check(call !== null && engine.endFormationName(call, list) === null,
+    'so the row is right to say "Unknown Setup" rather than naming a formation the caller is not standing in');
+  const fid = end ? engine.formationId(end) : null;
+  const aid = end ? engine.arrangementId(end) : null;
+  check(facing !== undefined && fid === engine.formationId({ dancers: facing.poses }) && aid === engine.arrangementId({ dancers: facing.poses }),
+    `while the IDS say it is that same setup: fid ${fid}, aid ${aid}, both Facing Couples' own - the ids are rotation-canonical and the name test is not`);
+  const turned = facing === undefined ? [] : facing.poses.map((p) => ({ ...p, x: -p.y, y: p.x, heading: p.heading + Math.PI / 2 }));
+  check(call !== null && turned.length > 0 && engine.endsOnFormation(call, turned) === true,
+    'and turned a quarter turn it matches EXACTLY, which is the answer to "they look the same except the rotation" - use the End spin control');
+  const carried = formationsCarrying(list, { fid, aid });
+  check(carried.shapes.includes('Facing Couples') && carried.arrangements.includes('Facing Couples'),
+    `and the captions can now say so: ${endIdentityOptions({ fid, aid, shapes: carried.shapes, arrangements: carried.arrangements }).map((o) => o.label).join(' | ')}`);
+  // NEGATIVE CONTROL: the answer the eight-dancer catalogue gave, kept as a measurement rather than a story. Its rows are
+  // filtered to eight dancers, so nothing in it can carry a four-dancer `fid`/`aid`.
+  check(catalogue.rows.every((row) => row.fid !== fid && row.aid !== aid),
+    `NEGATIVE CONTROL: the Board picker's ${catalogue.rows.length}-row catalogue carries neither id, which is exactly why this end said nothing was carried`);
 }
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nall checks passed');

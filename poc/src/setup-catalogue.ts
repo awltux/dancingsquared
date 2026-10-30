@@ -314,6 +314,37 @@ export function buildSetupCatalogue(input: SetupCatalogueInput): SetupCatalogue 
   };
 }
 
+/**
+ * THE CORPUS FORMATIONS WHOSE IDS CARRY THESE TAGS, by name - the question the Call editor's End setup row asks about an
+ * unnamed end ("which formations are this SHAPE? which are this ARRANGEMENT?"). `shapes` holds the names whose `fid` is
+ * the one asked for, i.e. the same spots and facings whatever the rotation; `arrangements` holds the names whose `aid`
+ * is, i.e. the same board including which dancer sits where.
+ *
+ * THE LIST IS THE CALLER'S OWN SIZE, NOT THE BOARD PICKER'S CATALOGUE. `buildSetupCatalogue` is filtered to
+ * `SETUP_PICKER_SIZE` (eight dancers), so answering this from its rows made EVERY shorter end report "no corpus formation
+ * carries this shape" while `formations.xml` held that exact id. MEASURED on `Circle Four Left 3/4` from `Facing
+ * Couples`: the end board's `fid F3-nlnlii69` and `aid A1-6r10ge6d` are `Facing Couples`' own, and the captions said
+ * nothing carried either. The caller therefore passes `corpusFormationsOfSize(call.dancers.length)`, which is also the
+ * list the picker beside the caption offers - a caption that named a formation the caller could not select would be a
+ * dead end.
+ *
+ * Asked for as: "If the unknown 'end setup' matches a formation or arrangement, list the fid and aid at the top of the
+ * list of setups."
+ */
+export function formationsCarrying(
+  formations: readonly { name: string; poses: readonly FormDancer[] }[],
+  ids: { fid: string | null; aid: string | null },
+): { shapes: string[]; arrangements: string[] } {
+  const shapes: string[] = [];
+  const arrangements: string[] = [];
+  for (const formation of formations) {
+    const board = boardOf(formation.poses);
+    if (ids.fid !== null && formationId(board) === ids.fid) shapes.push(formation.name);
+    if (ids.aid !== null && arrangementId(board) === ids.aid) arrangements.push(formation.name);
+  }
+  return { shapes, arrangements };
+}
+
 /** The three computed ids of a completed setup, or null when it has no physical dancers to name. */
 function idsOf(dancers: readonly FormDancer[]): { sid: string; fid: string; aid: string } | null {
   const board = boardOf(dancers);

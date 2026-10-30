@@ -134,8 +134,8 @@ export function nearFilterNote(
   return `${found} of ${total} named formations ${found === 1 ? 'is' : 'are'} within ${margin}${who}`;
 }
 
-/** The end board's identity tags and what the corpus holds under them. */
-export interface EndIdentity {
+/** The end board's identity tags and what the corpus holds under them - the input `endIdentityOptions` is given. */
+interface EndIdentity {
   /** The board's FORMATION id (`fid`), or null where the engine computes none (no physical dancers). */
   fid: string | null;
   /** The board's ARRANGEMENT id (`aid`), the same condition. */

@@ -116,6 +116,11 @@ import {
   // arrangement AND the authored order (`setup-id.ts`), and it is what the Board drawer's picker is keyed by, so it is
   // the one thing a caller can look up where a name does not exist (`end-setup-state.ts`).
   setupId,
+  // AND THE TWO TAGS BESIDE IT (`sid ⇒ aid ⇒ fid`): the SHAPE and the ARRANGEMENT the end has arrived in, listed at the
+  // top of the picker for an unnamed end so a caller can see whether the corpus holds that shape in a new arrangement or
+  // has never carried it at all. See `endIdentityOptions`.
+  formationId,
+  arrangementId,
 } from 'dancing-squared-engine';
 import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, NearEndFormation, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
@@ -161,7 +166,8 @@ import { stepMoveIndex } from './move-nav';
 import { keptSetupIndex } from './setup-keep';
 // What the End setup row says about the shape the call finishes on, and whether it can be exported - a pure rule, so
 // a probe can measure it rather than read the panel (see end-setup-state.ts).
-import { endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter } from './end-setup-state';
+import { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter } from './end-setup-state';
+import type { EndIdentityOption } from './end-setup-state';
 // THE GROUP GATE'S COMPARISON, for the reason `grid-magnet.ts` is its own module: the rule is arithmetic over engine
 // types, and a probe can only MEASURE it if it can import it. Five probes carried a copy before this.
 import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameCurve, sameFacingCurve, sameTrace, sameTravel, travelGap } from './same-move';
@@ -210,6 +216,15 @@ interface EditorHost {
    *  argument because the two pickers are filled from it and must only ever offer formations the
    *  call's own dancer count can actually be re-based onto - see `ensureStartFormations`. */
   startFormations(dancers: number): { name: string; poses: FormDancer[] }[];
+  /**
+   * WHAT THE CORPUS HOLDS UNDER A SET OF IDENTITY TAGS: the SHAPE names the setup catalogue lists under a `fid`, and the
+   * SETUP names it lists under an `aid`.
+   *
+   * ASKED OF THE APP rather than computed here for the reason `startFormations` is: the catalogue is the Board drawer's
+   * own list (`setup-catalogue.ts`, keyed by `sid`/`fid`/`aid`), so "does this end match a formation or an arrangement?"
+   * is answered by the same rows that drawer offers - a second derivation in this panel would be a second answer.
+   */
+  setupIdentity(ids: { fid: string | null; aid: string | null }): { shapes: string[]; arrangements: string[] };
   /** The library's name for a board, or null. Used to NAME a generated setup after the formation it
    *  starts from, which is what every other setup's label is - see `instanceName`. */
   nameBoard(board: Board): string | null;
@@ -565,6 +580,11 @@ export class EditorController implements EditorUI {
   private endInfoKey = '';
   private endInfoName = '';
   private endInfoSid: string | null = null;
+  /** The end board's identity tags, from the same memo as the name and the sid - see `endIdentityOptions`. */
+  private endInfoFid: string | null = null;
+  private endInfoAid: string | null = null;
+  /** The `fid|aid` pair the picker's id captions were last built for, so a drag does not rebuild the list per frame. */
+  private endIdentityKey = '';
   private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
   private placeEndBtn = el<HTMLButtonElement>('edPlaceEnd');
   // The End setup's rotation control: a 45-degree step either way, and the readout between them.
@@ -4854,6 +4874,13 @@ export class EditorController implements EditorUI {
     const keep = this.endFormationSel.value;
     this.endFormationSel.innerHTML = '';
     this.endFormationSel.add(new Option(KEEP_END_PLACEHOLDER, ''));
+    // THE IDS FIRST, then the names - see `endIdentityCaptions`. `disabled` because this picker's values are formation
+    // NAMES: an id cannot be resolved by `doEndFormation`, so an option that could be selected would be a trap.
+    for (const caption of this.endIdentityCaptions()) {
+      const option = new Option(caption.label, '');
+      option.disabled = true;
+      this.endFormationSel.add(option);
+    }
     for (const name of list) this.endFormationSel.add(new Option(name, name));
     if (keep !== '' && list.includes(keep)) this.endFormationSel.value = keep;
     // The placeholder's TEXT is `renderEndSetupState`'s (it states whether the end is named, and carries the setup id), so
@@ -4941,6 +4968,11 @@ export class EditorController implements EditorUI {
       this.endInfoKey = key;
       this.endInfoName = this.namedSetup(call, 'end');
       this.endInfoSid = setupId(end);
+      // THE OTHER TWO TAGS, from the same board and the same memo: `sid ⇒ aid ⇒ fid`, so the three describe one arrival
+      // and a second read could describe a different one. See `endIdentityOptions` for what the row does with them.
+      this.endInfoFid = formationId(end);
+      this.endInfoAid = arrangementId(end);
+      let refill = false;
       // A DIFFERENT END BOARD RETIRES A FILTERED LIST. The near matches were a claim about the finish that has just
       // moved, so the shortlist cannot stay on screen: the row goes back to the whole list, and the caller can press the
       // filter again for the new board. Dropping the STATE here rather than re-running the search keeps a render from
@@ -4949,10 +4981,40 @@ export class EditorController implements EditorUI {
         this.endNearOnly = false;
         this.endNear = null;
         this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
-        this.fillEndFormationOptions(null);
+        refill = true;
       }
+      // AND THE ID CAPTIONS ARE REBUILT ONLY WHEN THE IDENTITY MOVES, not on every frame: a handle drag changes the end
+      // poses many times a second and the `fid`/`aid` usually stay put across it, so this is a key on the pair rather
+      // than on the board.
+      const ids = `${this.endInfoFid}|${this.endInfoAid}`;
+      if (this.endIdentityKey !== ids) {
+        this.endIdentityKey = ids;
+        refill = true;
+      }
+      if (refill) this.fillEndFormationOptions(null);
     }
     return { name: this.endInfoName, setupId: this.endInfoSid };
+  }
+
+  /**
+   * THE ID CAPTIONS the End picker lists above its names, for THIS end board - or none.
+   *
+   * `fid`/`aid` are the board's own tags (from `endSetupInfo`'s memo), and what the corpus holds under them comes from the
+   * HOST's setup catalogue, so "matches a formation or arrangement" is answered by the Board drawer's own rows rather
+   * than by a second derivation. The formatting - which names, how many before a summary, and the sentence for an id
+   * nothing carries - is `endIdentityOptions`, which the probe drives.
+   */
+  private endIdentityCaptions(): EndIdentityOption[] {
+    if (!this.instance) return [];
+    this.endSetupInfo(this.instance);
+    // A NAMED END NEEDS NO ID: the picker opens on its formation and the placeholder is neutral. The ids are the answer
+    // to "what shape IS this?" only while the row is saying it does not know.
+    if (!showsNearFilter(this.endInfoName)) return [];
+    const fid = this.endInfoFid;
+    const aid = this.endInfoAid;
+    if (fid === null && aid === null) return [];
+    const found = this.host.setupIdentity({ fid, aid });
+    return endIdentityOptions({ fid, aid, shapes: found.shapes, arrangements: found.arrangements });
   }
 
   /**

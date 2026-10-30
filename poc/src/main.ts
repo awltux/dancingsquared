@@ -129,6 +129,10 @@ const editorUi = initEditor(stage, {
   // halves of one statement about the board and the board must not be able to show them for two selections.
   selectionMarks: (selected, mismatched) => browser.setSelection(selected, mismatched),
   startFormations: (dancers) => seqUi.startFormations(dancers),
+  // WHAT THE SETUP CATALOGUE HOLDS UNDER AN IDENTITY TAG, for the Call editor's End setup row: the shape names under a
+  // `fid` and the setup names under an `aid`, from the list the Board drawer offers. Same reason as the line above - the
+  // catalogue lives in the sequencer, and a second build here would be a second answer to one question.
+  setupIdentity: (ids) => seqUi.setupIdentity(ids),
   // Naming a generated setup means naming the FORMATION it starts from; the library is the only
   // thing that can do that, and it lives in the sequencer.
   nameBoard: (board) => seqUi.readBoard(board).name,

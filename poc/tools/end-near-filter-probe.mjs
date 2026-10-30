@@ -125,7 +125,7 @@ console.log('\n== 4. the panel wires it: one rule, one engine call, one writer f
   const src = readApp('src/editor-ui.ts');
   const html = readApp('index.html');
   const css = readApp('src/style.css');
-  check(/import \{ endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter \} from '\.\/end-setup-state'/.test(src),
+  check(/import \{ endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter \} from '\.\/end-setup-state'/.test(src),
     'the panel imports the row rule from `end-setup-state.ts` rather than restating it');
   check(/nearEndFormations,\n  NEAR_END_BOARD_TOL,/.test(src),
     'and imports the engine\'s near lookup AND its margin, so the search is not re-derived here');

@@ -48,6 +48,10 @@ export interface SequencerUI {
   /** The named formations a call of `dancers` dancers can be re-based onto, as start poses, for the
    *  editor's Start setup and End setup pickers. See the implementation for why the size matters. */
   startFormations(dancers: number): { name: string; poses: FormDancer[] }[];
+  /** What the SETUP CATALOGUE holds under a board's `fid` or `aid` - the shape names and the setup names, from the rows
+   *  the Board drawer's picker lists. Used by the Call editor's End setup row for an unnamed end: a board whose shape the
+   *  corpus holds in another arrangement reads differently from one whose shape nothing carries. */
+  setupIdentity(ids: { fid: string | null; aid: string | null }): { shapes: string[]; arrangements: string[] };
   /** Everything the library can say about a board: the name it recognizes, the curated label,
    *  the FASR/OO notation, the arrangement number, and the raw gender pattern. Used by the browse
    *  panel's end-formation field, and deliberately returned as plain data so the panel formats it
@@ -465,6 +469,25 @@ export class SequencerController implements SequencerUI {
    */
   startFormations(dancers: number): { name: string; poses: FormDancer[] }[] {
     return corpusFormationsOfSize(dancers);
+  }
+
+  /**
+   * WHAT THE SETUP CATALOGUE HOLDS UNDER A `fid` OR AN `aid` - the question the Call editor's End setup row asks about an
+   * unnamed end ("is this a shape the corpus has, in an arrangement it has not?").
+   *
+   * THE ROWS ARE THE BOARD DRAWER'S OWN (`setupRows`), so "matches a formation or arrangement" is answered by the same
+   * 484 setups that picker lists, keyed the same way - a second derivation in the editor would be a second answer to one
+   * question (AGENTS.md §11.4.4). `shape` is the catalogue's derived shape name and `name` its setup name, which are the
+   * two labels the editor's captions print.
+   */
+  setupIdentity(ids: { fid: string | null; aid: string | null }): { shapes: string[]; arrangements: string[] } {
+    const shapes: string[] = [];
+    const arrangements: string[] = [];
+    for (const row of this.setupRows) {
+      if (ids.fid !== null && row.fid === ids.fid && !shapes.includes(row.shape)) shapes.push(row.shape);
+      if (ids.aid !== null && row.aid === ids.aid && !arrangements.includes(row.name)) arrangements.push(row.name);
+    }
+    return { shapes, arrangements };
   }
 
   /**

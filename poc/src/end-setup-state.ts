@@ -127,3 +127,74 @@ export function nearFilterNote(
   return `${found} of ${total} named formations ${found === 1 ? 'is' : 'are'} within ${margin}${who}`;
 }
 
+/** The end board's identity tags and what the corpus holds under them. */
+export interface EndIdentity {
+  /** The board's FORMATION id (`fid`), or null where the engine computes none (no physical dancers). */
+  fid: string | null;
+  /** The board's ARRANGEMENT id (`aid`), the same condition. */
+  aid: string | null;
+  /** The SHAPES the setup catalogue holds under that `fid` - `row.shape`, deduped. Empty when nothing does. */
+  shapes: string[];
+  /** The SETUP NAMES the catalogue holds under that `aid`, deduped. Empty when nothing does. */
+  arrangements: string[];
+}
+
+/** One caption the picker lists above its names: the id, and what the corpus holds under it. */
+export interface EndIdentityOption {
+  id: string;
+  label: string;
+}
+
+/** How many names a caption lists before it summarises the rest. */
+const IDENTITY_NAMES_SHOWN = 3;
+
+/**
+ * THE IDS OF AN UNNAMED END, AS TWO CAPTION LINES FOR THE TOP OF THE SETUP LIST - `fid` first, then `aid`.
+ *
+ * Asked for as: "If the unknown 'end setup' matches a formation or arrangement, list the fid and aid at the top of the
+ * list of setups." The ids are what the corpus's own tags say the board IS (`sid ⇒ aid ⇒ fid`, `setup-id.ts`), and the
+ * sid is already in the placeholder (`07f4d596`); these two lines answer the other half of the question - WHICH SHAPE and
+ * WHICH ARRANGEMENT the dance has arrived in. That is the distinction a caller needs at this row: an unnamed board whose
+ * `fid` the corpus holds is a KNOWN shape in a new arrangement, where one whose `fid` nothing holds is a shape the
+ * corpus has never carried at all.
+ *
+ * EACH LINE SAYS WHAT IT MATCHES, and says NOTHING when it has no id: a board with no physical dancers has no ids to
+ * print, and a line with a dash in it would be noise on every four-dancer call. `arrangements` is the catalogue's own
+ * names for the arrangement, which is what makes "matches an arrangement" checkable by eye rather than a bare tag.
+ *
+ * THE LINES ARE CAPTIONS, NOT CHOICES (the panel renders them `disabled`): this picker's values are the corpus's formation
+ * NAMES, and an id cannot be resolved by `doEndFormation` - an option nothing can select is a trap, which is the same
+ * rule the sid statement follows (`end-setup-state.ts`'s header).
+ */
+export function endIdentityOptions(identity: EndIdentity | null): EndIdentityOption[] {
+  if (!identity) return [];
+  const out: EndIdentityOption[] = [];
+  const list = (names: readonly string[]): string =>
+    names.length === 0
+      ? ''
+      : names.length <= IDENTITY_NAMES_SHOWN
+        ? names.join(' / ')
+        : `${names.slice(0, IDENTITY_NAMES_SHOWN).join(' / ')} (+${names.length - IDENTITY_NAMES_SHOWN} more)`;
+  const fid = (identity.fid ?? '').trim();
+  if (fid !== '') {
+    const shapes = list(identity.shapes);
+    out.push({
+      id: fid,
+      label: shapes === '' ? `${fid} — no corpus formation carries this shape` : `${fid} — formation: ${shapes}`,
+    });
+  }
+  const aid = (identity.aid ?? '').trim();
+  if (aid !== '') {
+    const arrangements = list(identity.arrangements);
+    out.push({
+      id: aid,
+      label:
+        arrangements === ''
+          ? `${aid} — no corpus setup carries this arrangement`
+          : `${aid} — arrangement: ${arrangements}`,
+    });
+  }
+  return out;
+}
+
+

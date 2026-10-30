@@ -42,7 +42,7 @@ import { corpusRoot, filesOf } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
-const { endSetupState, KEEP_END_PLACEHOLDER, UNKNOWN_FORMATION } = await import(
+const { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, UNKNOWN_FORMATION } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'end-setup-state.ts')).href
 );
 const { buildSetupCatalogue } = await import(pathToFileURL(path.join(POC_DIR, 'src', 'setup-catalogue.ts')).href);
@@ -114,7 +114,7 @@ const formationsOfSize = (dancers) => {
   }
   return out;
 };
-const totals = { calls: 0, eight: 0, known: 0, unknown: 0, unknown8: 0, withSid: 0, inCatalogue: 0, unknown8InCatalogue: 0 };
+const totals = { calls: 0, eight: 0, known: 0, unknown: 0, unknown8: 0, withSid: 0, inCatalogue: 0, unknown8InCatalogue: 0, fidMatched: 0, aidMatched: 0 };
 const unknownExamples = [];
 const unknownEightExamples = [];
 // THE SETUPS THE BOARD PICKER OFFERS, built the way `data.ts` hands them over, so "the formation can be found" is
@@ -158,7 +158,8 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
         if (call.dancers.length === 8) totals.unknown8++;
         else if (unknownExamples.length < 4) unknownExamples.push(`${level}/${f} "${call.title}" (${call.dancers.length} dancers)`);
         // THE ID THE ROW WOULD SHOW: the END board's setup id, computed by the engine's own function.
-        const sid = engine.setupId(engine.boardAtBeat(call, call.beats));
+        const endBoard = engine.boardAtBeat(call, call.beats);
+        const sid = engine.setupId(endBoard);
         if (sid !== null) {
           totals.withSid++;
           if (pickerSids.has(sid)) {
@@ -169,6 +170,13 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
             }
           }
         }
+        // AND THE TWO CAPTIONS the row now lists above the names: is the SHAPE (`fid`) one the catalogue holds, and is the
+        // ARRANGEMENT (`aid`) one it holds? That pair is the difference between "a known shape in a new arrangement" and
+        // "a shape the corpus has never carried", which is what the lines are for.
+        const fid = engine.formationId(endBoard);
+        const aid = engine.arrangementId(endBoard);
+        if (catalogue.rows.some((r) => r.fid === fid)) totals.fidMatched++;
+        if (catalogue.rows.some((r) => r.aid === aid)) totals.aidMatched++;
       }
     }
   }
@@ -176,6 +184,7 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
 console.log(`    ${totals.calls} call variants: ${totals.known} finish on a formation the corpus names, ${totals.unknown} do not`);
 console.log(`    of the ${totals.unknown} unknown, ${totals.unknown8} are eight-dancer boards - the population the export button is for`);
 console.log(`    ${totals.withSid} of the ${totals.unknown} unknown ends carry a SETUP ID, and ${totals.inCatalogue} of those ids are setups the Board picker offers`);
+console.log(`    of those unnamed ends, ${totals.fidMatched} stand on a SHAPE the catalogue holds and ${totals.aidMatched} on an ARRANGEMENT it holds - the two captions the picker now lists`);
 console.log(`    ${totals.unknown8InCatalogue} of them are eight-dancer setups, e.g. ${unknownEightExamples.join(', ') || 'none'}`);
 console.log(`    the rest have nowhere to go in formations.xml, e.g. ${unknownExamples.join(', ')}`);
 check(totals.known > 0 && totals.unknown > 0,
@@ -190,6 +199,10 @@ check(totals.inCatalogue > 0 && totals.inCatalogue <= totals.withSid,
   `and ${totals.inCatalogue} of those ids are setups the Board picker ALREADY offers - the population "the formation can be found" is true for`);
 check(totals.unknown8InCatalogue > 0,
   `while ${totals.unknown8InCatalogue} of them are eight-dancer setups, so the row's id leads somewhere for the same boards the export is for`);
+check(totals.fidMatched > 0 && totals.fidMatched <= totals.unknown,
+  `and the id captions have a population: ${totals.fidMatched} of the ${totals.unknown} unnamed ends stand on a shape the catalogue holds`);
+check(totals.aidMatched >= 0 && totals.aidMatched <= totals.unknown,
+  `while ${totals.aidMatched} stand on an arrangement it holds - the rest are new shapes or new arrangements, which is what the captions say`);
 
 // ---------------------------------------------------------------- 3. the panel
 console.log('\n== 3. the panel uses the rule, on the END, and exports the END poses ==');
@@ -221,6 +234,69 @@ console.log('\n== 3. the panel uses the rule, on the END, and exports the END po
     'the two exports share ONE report of what the block is and what a paste would do, rather than two prose copies that can drift');
   check(/the leading option says so and carries the board's SETUP ID/.test(html),
     'and the picker\'s tooltip says where the id comes from and that it is stated rather than offered');
+}
+
+// ---------------------------------------------------------------- 4. the fid and aid captions
+//
+// Asked for as: "If the unknown 'end setup' matches a formation or arrangement, list the fid and aid at the top of the list
+// of setups." The two lines are IDENTITY, printed above the names, and the interesting case is the difference they draw:
+// a board whose `fid` the catalogue holds is a KNOWN shape in a new arrangement, while one whose `fid` nothing holds is a
+// shape the corpus has never carried.
+console.log('\n== 4. the fid and aid, as captions above the names ==');
+{
+  const none = endIdentityOptions(null);
+  check(none.length === 0, 'no identity (a board with no physical dancers) prints nothing rather than two dashes');
+  check(endIdentityOptions({ fid: null, aid: null, shapes: [], arrangements: [] }).length === 0,
+    'and a board with no ids at all is the same, so a four-dancer end does not gain a permanent empty line');
+
+  const known = endIdentityOptions({
+    fid: 'F3-1r9s5bst',
+    aid: 'A1-abcdefgh',
+    shapes: ['Lines'],
+    arrangements: ['Normal Lines', 'Sashayed Lines'],
+  });
+  check(known.length === 2, `two matches print two lines (${known.length})`);
+  check(known[0].id === 'F3-1r9s5bst' && known[0].label.startsWith('F3-1r9s5bst — formation: Lines'),
+    `the FID comes first and names the shape the catalogue holds (${known[0].label})`);
+  check(known[1].id === 'A1-abcdefgh' && /arrangement: Normal Lines \/ Sashayed Lines/.test(known[1].label),
+    `the AID second, with the setup names it matches (${known[1].label})`);
+
+  // THE DIFFERENCE THE LINES EXIST TO DRAW: a known shape in an unknown arrangement, and a shape nothing holds.
+  const newArrangement = endIdentityOptions({ fid: 'F3-1r9s5bst', aid: 'A1-new', shapes: ['Lines'], arrangements: [] });
+  check(/formation: Lines/.test(newArrangement[0].label) && /no corpus setup carries this arrangement/.test(newArrangement[1].label),
+    `a KNOWN shape in a NEW arrangement says exactly that (${newArrangement.map((o) => o.label).join(' | ')})`);
+  const newShape = endIdentityOptions({ fid: 'F3-new', aid: 'A1-new2', shapes: [], arrangements: [] });
+  check(/no corpus formation carries this shape/.test(newShape[0].label),
+    `and a shape nothing holds says so rather than printing a bare tag (${newShape[0].label})`);
+
+  // THE SUMMARY, because an arrangement can be carried by many setups (a Static Square has aliases and arrangement twins).
+  const many = endIdentityOptions({
+    fid: 'F3-x', aid: 'A1-y', shapes: [], arrangements: ['A', 'B', 'C', 'D', 'E'],
+  });
+  check(/A \/ B \/ C \(\+2 more\)/.test(many[1].label),
+    `more than three names are summarised rather than listing the whole catalogue (${many[1].label})`);
+  // NEGATIVE CONTROL: a caption is not a name, so a board whose ids print still prints NO option a caller could select -
+  // the panel marks them `disabled`, and this checks the model the panel is given (an `id` and a `label`, no value).
+  check(Object.keys(known[0]).sort().join(',') === 'id,label',
+    'a caption carries an id and a label and NOTHING a select could return, which is why the panel disables it');
+
+  // ---- the panel, and the host it asks
+  const src = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8').replace(/\r\n/g, '\n');
+  const seq = fs.readFileSync(path.join(POC_DIR, 'src', 'sequencer-ui.ts'), 'utf8').replace(/\r\n/g, '\n');
+  const main = fs.readFileSync(path.join(POC_DIR, 'src', 'main.ts'), 'utf8').replace(/\r\n/g, '\n');
+  check(/for \(const caption of this\.endIdentityCaptions\(\)\) \{\n      const option = new Option\(caption\.label, ''\);\n      option\.disabled = true;/.test(src),
+    'the panel inserts the captions right after the placeholder and DISABLES them - an option nothing can select cannot become a trap');
+  check(/private endIdentityCaptions\(\): EndIdentityOption\[\][\s\S]{0,700}?this\.host\.setupIdentity\(\{ fid, aid \}\)/.test(src),
+    'and it asks the HOST what the corpus holds, rather than deriving a shape name in the panel');
+  check(/this\.endInfoFid = formationId\(end\);/.test(src) && /this\.endInfoAid = arrangementId\(end\);/.test(src),
+    'the two tags come from the SAME end board and memo as the name and the sid, because they describe one arrival');
+  check(/if \(!showsNearFilter\(this\.endInfoName\)\) return \[\];/.test(src),
+    'a NAMED end prints no ids: the picker already opens on its formation, so the lines would be noise');
+  check(/setupIdentity\(ids: \{ fid: string \| null; aid: string \| null \}\): \{ shapes: string\[\]; arrangements: string\[\] \}/.test(seq) &&
+    /for \(const row of this\.setupRows\) \{/.test(seq),
+    'the host answers from the Board drawer\'s own setup catalogue, so "matches a formation or arrangement" is one list');
+  check(/setupIdentity: \(ids\) => seqUi\.setupIdentity\(ids\)/.test(main),
+    'and `main.ts` wires the editor to it, the same way it wires `startFormations`');
 }
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nall checks passed');

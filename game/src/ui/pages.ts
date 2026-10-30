@@ -111,6 +111,34 @@ export function pageShowsBoard(page: Page): boolean {
 }
 
 /**
+ * Whether the page's own ISSUE owns the boot overlay while it runs — or, on every other page, the shell may put it away.
+ *
+ * THE DEFECT THIS EXISTS FOR. REPORTED: "If the app reloads when you are viewing '#/daily' uri the app stalls displaying
+ * 'Asking the server how it identifies players...'. I doesnt refresh. I have to remove the URI to make the app respond
+ * again." The overlay is raised by the boot and is a FULL-SCREEN OPAQUE PANEL (`style.css`), so whoever raises it must put
+ * it away. `bootPage` left it up on the three PLAY pages on the assumption that the issue inside `applyPage` hides it —
+ * true for the Drill, whose issue does exactly that, and true for the Daily only when its answer is READY: the Daily's own
+ * path deliberately never touches the overlay (a Daily can take seconds, and covering the app for that is the freeze
+ * `startServerDaily` refuses to cause), so a refusal or a give-up left the boot's sentence on screen for ever.
+ *
+ * IT IS THE DAILY THAT IS DIFFERENT, not the level list: the Daily has its own pending line on its own panel
+ * (`dailyScreen.pending`), which the overlay was hiding. The LEVEL LIST and the DRILL issue, so they keep it.
+ */
+export function pageOwnsBootOverlay(page: Page): boolean {
+  const owned: Record<Page, boolean> = {
+    landing: false,
+    setup: false,
+    help: false,
+    profile: false,
+    levels: true,
+    drill: true,
+    daily: false,
+    board: false,
+  };
+  return owned[page];
+}
+
+/**
  * Whether a page's DANCE-BOARD AREA holds the STANDINGS instead.
  *
  * REPORTED: "When in full screen mode, keep the hud in the left hand side of the screen, the same as the Drill screen.

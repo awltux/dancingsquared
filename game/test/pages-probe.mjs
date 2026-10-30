@@ -23,7 +23,7 @@
 //
 // Usage: node game/test/pages-probe.mjs   (pure: no DOM, no browser, no engine)
 import {
-  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId, pageShowsBoard, showsStandings,
+  pageFor, hashFor, backTarget, backLabel, pageTitle, pageHeadingId, pageShowsBoard, pageOwnsBootOverlay, showsStandings,
 } from '../src/ui/pages.ts';
 
 let failures = 0;
@@ -152,7 +152,25 @@ console.log('\n== 6. the board is drawn only on the pages that are the game ==')
     'CONTROL: "keep the board everywhere" is not what the rule says');
 }
 
-console.log('\n== 7. in full screen, a page with no board shows the standings in its place ==');
+console.log('\n== 7. only the pages that ISSUE keep the boot overlay ==');
+{
+  // REPORTED: "If the app reloads when you are viewing '#/daily' uri the app stalls displaying 'Asking the server how it
+  // identifies players...'. I doesnt refresh. I have to remove the URI to make the app respond again." The overlay is a
+  // full-screen opaque panel raised by the boot; `pageOwnsBootOverlay` is the table that says which pages' own issue may keep
+  // it. THE DAILY IS THE ONE THAT MAY NOT: its path never hides the overlay on purpose (a Daily takes seconds), so a
+  // reload there left the boot's sentence on screen for ever.
+  const owned = PAGES.filter((page) => pageOwnsBootOverlay(page));
+  check(JSON.stringify(owned) === JSON.stringify(['levels', 'drill']), `only the two pages that issue keep it (${owned.join(', ')})`);
+  check(pageOwnsBootOverlay('daily') === false, 'and the Daily hands the overlay back, because its own pending line is the progress');
+  check(PAGES.every((page) => typeof pageOwnsBootOverlay(page) === 'boolean'), `every page answers (${PAGES.length} of ${PAGES.length})`);
+  // NEGATIVE CONTROL: the rule that shipped — "every play page keeps it", i.e. the three pages with a board — answers true for
+  // the Daily and is exactly the freeze reported. This check is what fails it.
+  const shipped = (page) => pageShowsBoard(page);
+  check(shipped('daily') === true && pageOwnsBootOverlay('daily') === false,
+    'CONTROL: "every page with a board keeps the overlay" is the defect, not the rule');
+}
+
+console.log('\n== 8. in full screen, a page with no board shows the standings in its place ==');
 {
   // REPORTED: "When in full screen mode, keep the hud in the left hand side of the screen, the same as the Drill screen.
   // When the Dance board is not being used, the area should be replaced by the leader boards." `showsStandings` is the

@@ -66,7 +66,7 @@ import { LeaderboardScreen } from './ui/leaderboard-screen.ts';
 import { LANDING_HOLD_MS, Replay, drillAnswerHoldMs } from './ui/playhead.ts';
 import { el } from './ui/dom.ts';
 import { bannerView, type BannerFacts } from './ui/banner.ts';
-import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageShowsBoard, pageTitle, showsStandings, type Page, type Route } from './ui/pages.ts';
+import { backLabel, backTarget, hashFor, pageFor, pageHeadingId, pageOwnsBootOverlay, pageShowsBoard, pageTitle, showsStandings, type Page, type Route } from './ui/pages.ts';
 import type { Board } from 'dancing-squared-engine';
 
 type AppMode = 'drill' | 'daily';
@@ -1531,12 +1531,19 @@ function syncDrillUrl(): void {
  */
 function bootPage(): void {
   applyPage(pageFor(location.hash), false);
-  // THE BOOT OVERLAY IS THE BOOT'S. It is shown by `bootAccount` while the identity is discovered, and the pages that
-  // issue something hide it themselves when the issue lands. A page that plays nothing — the menu, help, the account, the
-  // board — issues nothing, so nothing would ever hide it: MEASURED in a browser as the menu sitting behind an opaque
-  // "Asking the server how it identifies players…" overlay. It is hidden after the page is applied rather than before,
-  // because the issue inside `applyPage` owns the overlay while it runs.
-  if (page !== 'levels' && page !== 'drill' && page !== 'daily') els.loading.hidden = true;
+  // THE BOOT OVERLAY IS THE BOOT'S, AND ONLY THE PAGES THAT ISSUE MAY KEEP IT. It is shown by `bootAccount` while the
+  // identity is discovered, and the page's own issue hides it when the issue lands. A page that plays nothing — the menu,
+  // help, the account, the board — issues nothing, so nothing would ever hide it: MEASURED in a browser as the menu sitting
+  // behind an opaque "Asking the server how it identifies players…" overlay. It is hidden after the page is applied rather
+  // than before, because the issue inside `applyPage` owns the overlay while it runs.
+  //
+  // THE DAILY IS NOT ONE OF THEM, and that is the reported stall: REPORTED "If the app reloads when you are viewing
+  // '#/daily' uri the app stalls displaying 'Asking the server how it identifies players...'. I doesnt refresh. I have to
+  // remove the URI to make the app respond again." The Daily's path never touches the overlay on purpose (a Daily takes
+  // seconds, and covering the app for that is the freeze `startServerDaily` refuses to cause) — so on a reload the overlay
+  // was left up for ever, hiding the panel's own pending line and every refusal behind it. `pageOwnsBootOverlay` is the
+  // table that says which pages issue, so this cannot drift from the pages themselves.
+  if (!pageOwnsBootOverlay(page)) els.loading.hidden = true;
 }
 /** One sentence in the shared notice, or none. The kind is what colour it takes, as everywhere else in the shell. */
 function notice(text: string, kind: 'ok' | 'bad' | 'info' = 'info'): void {
@@ -2593,13 +2600,20 @@ function onDailyAnswer(
   const finish = (): void => {
     stopDailyPoll();
     setDailyBusy(false);
+    // EVERY TERMINAL STATE LIFTS THE BOOT OVERLAY, whatever raised it. On a reload at `#/daily` the boot's own overlay is
+    // up (`bootPage` no longer leaves it there, but a page switched to while a drill was issuing can still have it), and a
+    // refusal or a give-up hides nothing else — which is the reported freeze: "the app stalls displaying 'Asking the server
+    // how it identifies players...'". Belt and braces for the one element whose failure mode is an opaque full-screen panel.
+    els.loading.hidden = true;
   };
   if (!answer.ok) {
     finish();
     daily = null;
-    dailyScreen.say(`No Daily from the server: ${answer.failure.message}`, 'bad');
+    // THE DAY AND THE LEVEL ARE NAMED, because the commonest cause of this refusal on a second device is a day the server
+    // has not published — and a sentence that names what was asked for is what turns the next report into a measurement.
+    dailyScreen.say(`No Daily from the server (asked for ${day}, level ${levelIndex}): ${answer.failure.message}`, 'bad');
     if (page === 'daily') {
-      dailyScreen.pending(`Today's Daily is unavailable — ${answer.failure.message}`);
+      dailyScreen.pending(`Today's Daily is unavailable (asked for ${day}): ${answer.failure.message}`);
     }
     return;
   }
@@ -2685,8 +2699,22 @@ async function submitSolvedDaily(run: DailyRun): Promise<void> {
   persist();
 }
 
-/** Issue today's challenge from wherever the app is configured to get it. */
+/**
+ * Issue today's challenge from wherever the app is configured to get it.
+ *
+ * THE LEVEL IS ESTABLISHED FIRST, AND THAT IS THE REPORTED STALL'S OTHER HALF. `level`/`applier` are built by `useLevel`,
+ * which only the DRILL's issue calls — so a reload straight onto `#/daily` reached `startServerDaily` with neither, which
+ * returns immediately (its guard is `if (!applier || !level) return`): no request, no pending line, nothing. On a page
+ * SWITCH the level was already there from the drill, which is why "the same url resolves on the PC" (REPORTED: "If the app
+ * reloads when you are viewing '#/daily' uri the app stalls displaying 'Asking the server how it identifies players...'").
+ * The level a device that has issued nothing yet knows is the one its own record last believed (`save.levelIndex`, the same
+ * value the level block falls back to), and the server's answer carries the level it actually served.
+ */
 function issueDaily(): void {
+  if (!level) {
+    const known = levelSpec(save.levelIndex);
+    if (known) useLevel(known);
+  }
   if (apiConfigured()) void startServerDaily();
   else startDaily();
 }

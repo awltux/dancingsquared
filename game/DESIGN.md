@@ -1050,6 +1050,25 @@ applier, so the two spellings cannot drift.
   request invent its own and quietly breaking the shared challenge.
 - **Past dailies stay playable** (each day's seed resolves to the same puzzle forever, by construction); only
   *today* feeds *today's* board, so missing a day costs the entry and nothing else.
+- **A RELOAD ON `#/daily` MUST ISSUE THE CHALLENGE, AND MUST NEVER LEAVE THE BOOT OVERLAY BEHIND.** REPORTED: "If the app
+  reloads when you are viewing '#/daily' uri the app stalls displaying 'Asking the server how it identifies players...'. I
+  doesnt refresh. I have to remove the URI to make the app respond again. It might be mobile or remote related as the same
+  url resolves on the PC." Two causes, both on the cold-reload path only:
+  (1) `level`/`applier` are built by the DRILL's issue, so a boot straight onto `#/daily` reached the Daily's issue with
+  neither and it returned silently — no request, no pending line. On the PC the page was always reached by a TAP from a page
+  that had already established a level, which is why the same URL worked there. `issueDaily` now establishes the level from
+  the device's own record (`save.levelIndex`) before asking.
+  (2) The boot overlay is a full-screen opaque panel, and `bootPage` deliberately left it up on the three pages that issue
+  on the assumption that the issue hides it. True for the Drill; for the Daily the pending line is on its own panel and the
+  overlay is never touched (a Daily takes seconds, and covering the app for that is the freeze the poll exists to avoid) —
+  so a refusal or a give-up left the boot's sentence on screen for ever, hiding every message behind it. `pageOwnsBootOverlay`
+  (`ui/pages.ts`) now says which pages may keep it (the level block and the Drill), and the Daily's poll lifts it on every
+  terminal answer as well.
+  MEASURED in a browser with the API stopped: before, the page was an opaque "Asking the server how it identifies
+  players…" with the panel's own refusal invisible; after, the panel reads "Today's Daily is unavailable (asked for
+  2026-10-29): the server answered 500", and with the API back the reload at `#/daily` issues the challenge and draws its
+  waypoints. `game/test/pages-probe.mjs` §7 pins the page table, with the shipped rule ("every page with a board keeps the
+  overlay") as its negative control.
 - **Review**: on solving, or on giving up, the player can replay their own line and the generator's shortest
   line, with the engine's own names and reasons. This is decision 4, and it is the same component the Drill
   uses — the only difference is the input, since the Drill replays a single option where the Daily replays a

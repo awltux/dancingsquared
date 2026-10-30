@@ -257,8 +257,12 @@ console.log('\n== 4. the library is untouched, and the panel asks for a size rat
     'the pickers are rebuilt when the INSTANCE SIZE changes, and not on every render');
   check(/this\.ensureStartFormations\(this\.instance\.dancers\.length\)/.test(ui),
     'and they are filled from the loaded instance rather than from a fixed eight');
+  // THE END PICKER'S OPTIONS ARE NOW WRITTEN BY ONE HELPER, because the near-match filter swaps the list it holds - so the
+  // check is that `ensureStartFormations` HANDS ITS OWN LIST to that helper rather than letting it ask again. That keeps
+  // the rule this check exists for: the two pickers are filled from the ONE size-filtered list and cannot disagree about
+  // which formations a call of this size can be re-based onto.
   check(/for \(const f of formations\) this\.startFormationSel\.add\(new Option\(f\.name, f\.name\)\);/.test(ensure) &&
-    /for \(const f of formations\) this\.endFormationSel\.add\(new Option\(f\.name, f\.name\)\);/.test(ensure),
+    /this\.fillEndFormationOptions\(formations\.map\(\(f\) => f\.name\)\);/.test(ensure),
     'BOTH pickers are filled from the one size-filtered list, so they cannot disagree');
   check(/this\.host\.startFormations\(base\.dancers\.length\)/.test(ui) &&
     /this\.host\.startFormations\(inst\?\.dancers\.length \?\? 8\)/.test(ui),

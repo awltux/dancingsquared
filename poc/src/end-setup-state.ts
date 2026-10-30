@@ -34,6 +34,15 @@
 // corpus's NAMES (`corpusFormationsOfSize`), so an id could not be resolved by `doEndFormation`, and an option nothing
 // can select is a trap. The row therefore STATES the id and leaves the way out where it was - the export, for a shape on
 // a board the corpus could hold.
+//
+// AND WHEN THE END IS UNNAMED THERE ARE TWO WAYS OUT, not one: author the shape (the export above), or FIND the shape the
+// dance is merely outside of. Reported as: "When the end setup displays Unknown formation, offer a filter icon button to
+// the right of the select element. This button filters the listed setups to those that are close matches. I find I need
+// this because some call moves leave the dancers in positions that are just outside a matching formation ... If this list
+// is empty, then that also tells me that this is a completely new formation." The MARGIN and the SEARCH are the ENGINE's
+// (`nearEndFormations` / `NEAR_END_BOARD_TOL`), because "which named shape does this board almost stand on" is a geometry
+// question with a measured answer; this module owns only the two claims about the ROW - whether the filter is offered
+// (`showsNearFilter`) and what it says when pressed (`nearFilterNote`) - and both are pure, so a probe drives them.
 
 /** The picker's leading option: "nothing chosen", which is also "the end is not a named formation". */
 export const KEEP_END_PLACEHOLDER = '— keep the current end —';
@@ -70,3 +79,51 @@ export function endSetupState(
     canExport: !known && dancers === 8,
   };
 }
+
+/**
+ * WHETHER THE END SETUP ROW OFFERS ITS NEAR-MATCH FILTER: only when the corpus does not name the shape the call
+ * finishes on.
+ *
+ * A NAMED END ALREADY HAS THE ANSWER. The picker opens on that formation and the row says so, so a filter over the same
+ * list could only hide the entry the row is pointing at - and the question the filter asks ("what is the corpus's
+ * nearest shape?") is not a question a caller has while the name is on screen.
+ *
+ * Asked for as: "When the end setup displays Unknown formation, offer a filter icon button to the right of the select
+ * element ... I find I need this because some call moves leave the dancers in positions that are just outside a matching
+ * formation." That state is `endSetupState`'s placeholder, and this reads the same NAME rather than the placeholder text,
+ * so the two cannot disagree about what "unknown" means.
+ */
+export function showsNearFilter(name: string | null | undefined): boolean {
+  return (name ?? '').trim() === '';
+}
+
+/**
+ * WHAT THE FILTER SAYS WHEN IT IS PRESSED: how many named formations are within the relaxed margin of this end, who is
+ * nearest - or the verdict that nothing is, which is the sentence the caller reads as "this is a completely new
+ * formation".
+ *
+ * THE COUNT AND THE TOLERANCE ARE BOTH IN THE SENTENCE, because "no matches" without the margin is indistinguishable
+ * from a broken list: a caller has to be able to see that the filter looked 0.20 units out and found nothing, rather
+ * than inferring it from an empty picker. The empty case also names the way out, because there is one - the export.
+ *
+ * `tol` IS STRUCTURAL rather than a named type of this module: it is the ENGINE's `NEAR_END_BOARD_TOL` (`EndBoardTolerance`)
+ * that the panel passes, so this module neither owns nor re-spells the margin - it only prints it.
+ *
+ * PURE AND SEPARATE FROM THE PANEL for the reason this module exists at all (AGENTS.md §8 trap 27): the wording and the
+ * arithmetic are driven by `poc/tools/end-near-filter-probe.mjs`, not read out of a 6,000-line DOM method.
+ */
+export function nearFilterNote(
+  found: number,
+  total: number,
+  tol: { position: number; heading: number },
+  closest?: string | null,
+): string {
+  const margin = `${tol.position.toFixed(2)} units / ${tol.heading.toFixed(2)} rad`;
+  if (found === 0) {
+    return `no named formation is within ${margin} of this end — it is a shape the corpus does not carry, so Export it`;
+  }
+  const near = (closest ?? '').trim();
+  const who = near === '' ? '' : ` — closest ${near}`;
+  return `${found} of ${total} named formations ${found === 1 ? 'is' : 'are'} within ${margin}${who}`;
+}
+

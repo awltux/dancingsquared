@@ -439,6 +439,13 @@ export const SUITE = [
   // scoped step's four unselected dancers hold, and the named refusals ("while", coded move, a step that does not apply).
   // Its negative control reconstructs an out-of-order chain, which every other check would pass. Fast: three calls.
   { h: 'module-call', light: true },
+  // THE RELAXED END LOOKUP behind the Call editor's End setup filter: the named formations a board ALMOST stands on,
+  // nearest first with the worst spot's distance. Pins the reported case - a board 0.1 units off a named shape is near
+  // but not named, judged by the NAMER at its own tight margin - that the margin decides on BOTH axes at exactly
+  // 0.2 units / 0.3 rad, the nearest-first order, and the empty list on a scattered board. Plus a stated corpus sample:
+  // every end the namer names is in the near list, and near-but-unnamed is a real population. ~2 s, one level, every
+  // 5th variant, and the denominator is printed.
+  { h: 'end-near', light: true },
   { h: 'mainstream', light: true },
   // A SEARCH IS A QUERY. `getout` must not change what a later `apply` answers (TODO item 35, which was red at
   // `8cfe8a1` and does not reproduce now): this pins the board is unchanged by the search, that the returned path

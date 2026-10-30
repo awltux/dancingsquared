@@ -2565,6 +2565,30 @@ export interface EndBoardTolerance {
 export const END_BOARD_TOL: EndBoardTolerance = { position: 5e-2, heading: 7.5e-2 };
 
 /**
+ * THE RELAXED MARGIN THE END-SETUP FILTER SEARCHES WITH - "which named shape does this board ALMOST stand on?".
+ *
+ * Asked for as: "When the end setup displays Unknown formation, offer a filter icon button ... This button filters the
+ * listed setups to those that are close matches. I find I need this because some call moves leave the dancers in
+ * positions that are just outside a matching formation."
+ *
+ * THE NAMED TEST IS DELIBERATELY TIGHT, because choosing a name is a RE-BASE: the margin is also how far the end may be
+ * nudged (END_BOARD_TOL's own last paragraph). "How far outside the corpus is this dance?" is a different question, so
+ * the filter uses a margin four times wider - which is still small enough to be the shape the caller meant rather than
+ * a guess.
+ *
+ * 0.2 IS A CEILING TAKEN FROM `END_BOARD_TOL`'s MEASUREMENT, not a round number: the closest two DIFFERENT named boards
+ * are 0.5 units apart (`Box LH` / `Box LH Compact`, `Adjacent Dancers` / `Adjacent Dancers Compact`), so 0.25 is the
+ * midpoint at which one board could fall within reach of two names. At 0.2 every near match is unambiguous - the
+ * closest rival is 0.3 units away - and it is four times the margin a name needs.
+ *
+ * THE HEADING MARGIN IS FOUR TIMES THE NAMED ONE (0.3 rad = 17 degrees), and cannot confuse two boards either: the
+ * closest two standings on the SAME spots are 89.5 degrees apart at eight dancers (END_BOARD_TOL's own measurement),
+ * five times this margin.
+ */
+export const NEAR_END_BOARD_TOL: EndBoardTolerance = { position: 0.2, heading: 0.3 };
+
+
+/**
  * The call's END board: the pose of every dancer at the call's own last beat.
  *
  * THE END POSE IS NOT STORED, it is derived (`poseFor(d, beats)`), so it is read at the call's length
@@ -2656,6 +2680,92 @@ export function endFormationName(
     if (!best || misses < best.misses) best = { name: f.name, misses };
   }
   return best?.name ?? null;
+}
+
+/**
+ * ONE NAMED FORMATION THE END BOARD ALMOST STANDS ON, and how far off it is.
+ *
+ * `worst` and `mean` are over the formation's SPOTS (nearest end dancer to each), in board units and radians - the
+ * quantities the panel prints, so a caller can see "0.13 units out" rather than a rank they have to trust.
+ */
+export interface NearEndFormation {
+  name: string;
+  poses: FormDancer[];
+  /** The worst spot: its nearest end dancer's distance, per axis of the question. */
+  worst: EndBoardTolerance;
+  /** The mean over the spots, so a board uniformly a little off reads differently from one spot out. */
+  mean: EndBoardTolerance;
+  /** Spots whose nearest dancer's gender disagrees with the formation's, where the formation declares one. */
+  genderMisses: number;
+}
+
+/**
+ * THE NAMED FORMATIONS THE END BOARD ALMOST STANDS ON, NEAREST FIRST - what the End setup row's filter lists.
+ *
+ * THE SAME QUESTION AS `endFormationName`, SCORED INSTEAD OF GATED, and the difference is the whole reason it exists:
+ * the namer answers "may this board be CALLED that shape", so every spot must be inside the (tight) margin or the name
+ * is refused - a board one hundredth out and a board one unit out both answer "no", so the namer cannot rank and the
+ * caller cannot see what is near. This reports every spot's own nearest dancer and keeps the ones whose WORST spot is
+ * inside `tol`, so "just outside" is a number rather than a dead end.
+ *
+ * NEAREST PER SPOT, INDEPENDENTLY. The spots of a named board are at least 0.9998 units apart (`END_BOARD_TOL`'s
+ * measurement), five times the widest margin here, so two spots cannot be answered by one dancer unless the board is not
+ * this shape at all - and then the honest answer is the distance, not a refusal. Two dancers on ONE spot (a phantom
+ * call) are measured the same way: whichever is nearer answers for it.
+ *
+ * GENDER IS CONSULTED, NEVER REQUIRED, exactly as in `endFormationName`: it chooses between arrangement variants, so it
+ * is REPORTED as the number of spots that disagree rather than used to drop a candidate - the caller's board is what it
+ * is, and the filter's job is to show what is close to it.
+ */
+export function nearEndFormations(
+  call: CallBundle,
+  formations: readonly { name: string; poses: FormDancer[] }[],
+  tol: EndBoardTolerance = NEAR_END_BOARD_TOL,
+): NearEndFormation[] {
+  const ends = endBoard(call);
+  const out: NearEndFormation[] = [];
+  for (const f of formations) {
+    if (f.poses.length !== ends.length) continue;
+    let worstPosition = 0;
+    let worstHeading = 0;
+    let sumPosition = 0;
+    let sumHeading = 0;
+    let genderMisses = 0;
+    for (const spot of f.poses) {
+      let nearest = 0;
+      let best = Infinity;
+      for (let i = 0; i < ends.length; i++) {
+        const p = ends[i];
+        const d = Math.hypot(p.x - spot.x, p.y - spot.y);
+        if (d < best) {
+          best = d;
+          nearest = i;
+        }
+      }
+      const heading = Math.abs(normAngle(ends[nearest].heading - spot.heading));
+      worstPosition = Math.max(worstPosition, best);
+      worstHeading = Math.max(worstHeading, heading);
+      sumPosition += best;
+      sumHeading += heading;
+      if (spot.gender !== undefined && ends[nearest].gender !== spot.gender) genderMisses++;
+    }
+    if (worstPosition > tol.position || worstHeading > tol.heading) continue;
+    out.push({
+      name: f.name,
+      poses: f.poses,
+      worst: { position: worstPosition, heading: worstHeading },
+      mean: { position: sumPosition / f.poses.length, heading: sumHeading / f.poses.length },
+      genderMisses,
+    });
+  }
+  // NEAREST FIRST, and the name last so the order cannot depend on how the caller happened to build the list.
+  out.sort(
+    (a, b) =>
+      a.worst.position - b.worst.position ||
+      a.worst.heading - b.worst.heading ||
+      a.name.localeCompare(b.name),
+  );
+  return out;
 }
 
 /**

@@ -168,6 +168,16 @@ html, body {
   padding: 0; margin: 0; width: 18px; height: 16px; min-width: 0; font-size: calc(11px * var(--hud-text)); line-height: 1;
   font-family: inherit; border-radius: 3px; cursor: pointer;
 }
+/* THE NEAR-MATCH FILTER, right of the End setup picker: an ICON, so it must not take the row's button padding, and
+   PRESSED IS A STATE the caller has to be able to read at a glance - the list it filters looks like every other list,
+   so `aria-pressed` is what says the shortlist is on. The accent border both marks the state and matches the panel's
+   other toggles; the button is `hidden` entirely for a named end, which is `renderEndSetupState`'s rule.
+   `#editorPanel` is prefixed for the specificity reason `ed-swap` above records. */
+#editorPanel .ed-near {
+  padding: 0 6px; margin: 0; min-width: 0; font-size: calc(13px * var(--hud-text)); line-height: 1.2;
+  border-radius: 4px; cursor: pointer;
+}
+#editorPanel .ed-near[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: calc(11px * var(--hud-text)); margin-top: 2px; }
 .ed-grid label { width: auto; }
 /* THE END TARGET'S PAIRING: one small picker per dancer, `# -> spot`. It is a wrapping grid rather than a

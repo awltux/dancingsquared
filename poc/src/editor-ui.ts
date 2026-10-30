@@ -70,6 +70,11 @@ import {
   // as a SET, position and heading with a small error margin, and the name chosen among arrangement
   // variants. For naming the End picker from the setup the call already lands on. See `namedSetup`.
   endFormationName,
+  // THE RELAXED VERSION OF IT, behind the End setup row's near-match filter: the named formations the board ALMOST
+  // stands on, nearest first with the worst spot's distance, and the margin it searched with. The margin is the engine's
+  // because it is derived from `END_BOARD_TOL`'s measurement of how far apart two named boards are - not a UI taste.
+  nearEndFormations,
+  NEAR_END_BOARD_TOL,
   // The rigid whole-set turn behind the End setup's rotation control: the rule lives in the engine so the
   // probe measures THAT rather than a copy of it, and `DEG` with it, which is the engine's own conversion.
   rotateFormation,
@@ -112,7 +117,7 @@ import {
   // the one thing a caller can look up where a name does not exist (`end-setup-state.ts`).
   setupId,
 } from 'dancing-squared-engine';
-import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, NearEndFormation, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -156,7 +161,7 @@ import { stepMoveIndex } from './move-nav';
 import { keptSetupIndex } from './setup-keep';
 // What the End setup row says about the shape the call finishes on, and whether it can be exported - a pure rule, so
 // a probe can measure it rather than read the panel (see end-setup-state.ts).
-import { endSetupState } from './end-setup-state';
+import { endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter } from './end-setup-state';
 // THE GROUP GATE'S COMPARISON, for the reason `grid-magnet.ts` is its own module: the rule is arithmetic over engine
 // types, and a probe can only MEASURE it if it can import it. Five probes carried a copy before this.
 import { FACING_WINDOW_DEG, SHAPE_WINDOW, sameCurve, sameFacingCurve, sameTrace, sameTravel, travelGap } from './same-move';
@@ -543,6 +548,17 @@ export class EditorController implements EditorUI {
   // Export <formation> ON THE END ROW: offered only when no formation in the corpus names the shape the call
   // finishes on, and the board is eight dancers. See end-setup-state.ts for why those two conditions.
   private exportEndFormationBtn = el<HTMLButtonElement>('edExportEndFormation');
+  /**
+   * The near-match FILTER, right of the End setup picker: offered only while the corpus cannot name the end
+   * (`showsNearFilter`), because a named end already has its answer.
+   *
+   * `endNearOnly` IS A VIEW OF ONE END BOARD, so it resets whenever that board changes - the filtered list is a claim
+   * about a specific finish, and carrying it to a different one would show a shortlist that no longer means anything.
+   */
+  private endNearFilterBtn = el<HTMLButtonElement>('edEndNearFilter');
+  private endNearOnly = false;
+  /** The near matches the filtered list is showing, nearest first - null when the list is not filtered. */
+  private endNear: NearEndFormation[] | null = null;
   /** The end board the last read was computed for, its corpus name and its setup id, so a handle drag does not re-walk
    *  the corpus. ONE MEMO FOR BOTH, because the name and the id describe the same board: two memos could report two
    *  different ends. */
@@ -1124,6 +1140,13 @@ export class EditorController implements EditorUI {
       // formations this call can actually be re-based onto, so the list is a question about the
       // instance rather than about the app. See `ensureStartFormations`.
       this.ensureStartFormations(this.instance.dancers.length);
+      // A NEW CALL ENDS ON A NEW BOARD, so a filtered End list from the call that was open is retired with it - the
+      // same rule `endSetupInfo` applies when the end moves, done here because the list is refilled below and the
+      // selection is assigned from the NEW call. The near matches are a claim about one finish, not a mode of the panel.
+      this.endNearOnly = false;
+      this.endNear = null;
+      this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
+      this.fillEndFormationOptions(null);
       // AND THE PICKERS OPEN ON THE SETUP THE CALL IS ALREADY IN, when the corpus names it: the load
       // has just decided what the two ends are, so the selector can say so rather than making the
       // caller recognise the shape on the board. Only a NAME IS EVER CHOSEN - a setup that matches no
@@ -4800,9 +4823,7 @@ export class EditorController implements EditorUI {
     this.startFormationSel.innerHTML = '';
     this.startFormationSel.add(new Option('— keep the current start —', ''));
     for (const f of formations) this.startFormationSel.add(new Option(f.name, f.name));
-    this.endFormationSel.innerHTML = '';
-    this.endFormationSel.add(new Option('— keep the current end —', ''));
-    for (const f of formations) this.endFormationSel.add(new Option(f.name, f.name));
+    this.fillEndFormationOptions(formations.map((f) => f.name));
     // AN EMPTY LIST SAYS SO. Four calls in the catalogue have sixteen dancers and `formations.xml`
     // cannot stand one up, so the picker would otherwise be a lone "keep the current" with no
     // explanation - which reads as a bug rather than as "there is nothing to offer here".
@@ -4814,6 +4835,63 @@ export class EditorController implements EditorUI {
       : '';
     this.startFormationSel.title = why || this.startFormationTitle;
     this.endFormationSel.title = why || this.endFormationTitle;
+  }
+
+  /**
+   * FILL THE END SETUP PICKER: the placeholder, then `names` - or the whole corpus list when it is null.
+   *
+   * ONE WRITER FOR THE END LIST, because the near filter swaps what it holds and two writers would leave the placeholder
+   * as whichever one ran last. The START picker is deliberately not touched: it is the same list (`ensureStartFormations`
+   * says why) but the filter is a question about the END, and a caller shaping a clone's start should not have the starts
+   * narrowed under them.
+   *
+   * THE SELECTION IS KEPT WHEN THE NAME SURVIVES, which is `setup-keep.ts`'s rule for the call change and the same rule
+   * here: filtering is a VIEW, so a formation the caller has already picked must not be cleared just because the filter
+   * excludes it - it is still their choice, and `doEndFormation` has already read it.
+   */
+  private fillEndFormationOptions(names: readonly string[] | null) {
+    const list = names ?? this.host.startFormations(this.instance?.dancers.length ?? 8).map((f) => f.name);
+    const keep = this.endFormationSel.value;
+    this.endFormationSel.innerHTML = '';
+    this.endFormationSel.add(new Option(KEEP_END_PLACEHOLDER, ''));
+    for (const name of list) this.endFormationSel.add(new Option(name, name));
+    if (keep !== '' && list.includes(keep)) this.endFormationSel.value = keep;
+    // The placeholder's TEXT is `renderEndSetupState`'s (it states whether the end is named, and carries the setup id), so
+    // it is refreshed rather than written here - a second spelling of that sentence is what this helper exists to avoid.
+    this.renderEndSetupState();
+  }
+
+  /**
+   * TURN THE NEAR-MATCH FILTER ON OR OFF.
+   *
+   * ON: the picker holds the named formations whose spots are within the ENGINE's relaxed margin of this end, nearest
+   * first, and the status line says how many of how many and which is closest - or that none is, which is the measurement
+   * "this is a completely new formation" the request asked for. OFF: the whole list, unchanged.
+   *
+   * THE COUNT COMES FROM THE SAME CALL THE LIST DOES (`nearEndFormations`), so the sentence cannot describe a list the
+   * picker is not showing.
+   */
+  private setEndNearOnly(on: boolean) {
+    const call = this.instance;
+    if (!on || call === null) {
+      this.endNearOnly = false;
+      this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
+      this.endNear = null;
+      this.fillEndFormationOptions(null);
+      this.statusEl.textContent = 'End setup list: every named formation of this call\'s size';
+      return;
+    }
+    this.endNearOnly = true;
+    this.endNearFilterBtn.setAttribute('aria-pressed', 'true');
+    const formations = this.host.startFormations(call.dancers.length);
+    this.endNear = nearEndFormations(call, formations);
+    this.fillEndFormationOptions(this.endNear.map((f) => f.name));
+    this.statusEl.textContent = nearFilterNote(
+      this.endNear.length,
+      formations.length,
+      NEAR_END_BOARD_TOL,
+      this.endNear[0]?.name ?? null,
+    );
   }
 
   /**
@@ -4863,6 +4941,16 @@ export class EditorController implements EditorUI {
       this.endInfoKey = key;
       this.endInfoName = this.namedSetup(call, 'end');
       this.endInfoSid = setupId(end);
+      // A DIFFERENT END BOARD RETIRES A FILTERED LIST. The near matches were a claim about the finish that has just
+      // moved, so the shortlist cannot stay on screen: the row goes back to the whole list, and the caller can press the
+      // filter again for the new board. Dropping the STATE here rather than re-running the search keeps a render from
+      // walking the corpus - the box's filter is a click, not a frame.
+      if (this.endNearOnly) {
+        this.endNearOnly = false;
+        this.endNear = null;
+        this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
+        this.fillEndFormationOptions(null);
+      }
     }
     return { name: this.endInfoName, setupId: this.endInfoSid };
   }
@@ -4892,6 +4980,19 @@ export class EditorController implements EditorUI {
     const first = this.endFormationSel.options[0];
     if (first && first.value === '' && first.text !== state.placeholder) first.text = state.placeholder;
     this.exportEndFormationBtn.hidden = !state.canExport;
+    // THE NEAR FILTER IS OFFERED ONLY WHERE IT CAN SAY SOMETHING THE PICKER DOES NOT - an end the corpus cannot name
+    // (`showsNearFilter`, the same `name` the placeholder is built from, so the two cannot disagree). A named end already
+    // opens on its formation, and a filter over that list could only hide the entry the row is pointing at.
+    const near = showsNearFilter(info.name);
+    this.endNearFilterBtn.hidden = !near;
+    if (!near && this.endNearOnly) {
+      // The end became NAMED with the filter on: the list goes back to the whole corpus, because the filter's premise
+      // ("nothing names this shape") is gone.
+      this.endNearOnly = false;
+      this.endNear = null;
+      this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
+      this.fillEndFormationOptions(null);
+    }
   }
 
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
@@ -6018,6 +6119,9 @@ export class EditorController implements EditorUI {
     this.exportFormationBtn.addEventListener('click', () => this.doExportFormation());
     // The END row's export, which exists only where no corpus formation names the shape the call finishes on.
     this.exportEndFormationBtn.addEventListener('click', () => this.doExportEndFormation());
+    // THE END ROW'S NEAR FILTER. Offered (and so visible) only for an unnamed end; pressing it swaps the picker between
+    // the whole corpus list and the formations this finish is within the engine's relaxed margin of.
+    this.endNearFilterBtn.addEventListener('click', () => this.setEndNearOnly(!this.endNearOnly));
     this.exportAllBtn.addEventListener('click', () => this.doExportAll());
     this.showTargetBtn.addEventListener('click', () => this.showTarget());
     this.showEndBtn.addEventListener('click', () => this.showEnd());

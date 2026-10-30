@@ -396,6 +396,11 @@ export {
   endsOnFormation,
   endFormationName,
   END_BOARD_TOL,
+  // THE RELAXED END LOOKUP behind the Call editor's End setup filter: the named formations a board ALMOST stands on,
+  // nearest first, with the worst spot's distance - the answer `endFormationName` cannot give, because a namer that
+  // gates on the tight margin answers "no" at every distance outside it.
+  nearEndFormations,
+  NEAR_END_BOARD_TOL,
   rotateFormation,
   callToXmlNamed,
   halfSetReport,
@@ -403,7 +408,7 @@ export {
   // of the board's own axes, with the start pose - position AND rotation - left exactly where it was.
   mirrorDancerMoves,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis, EndBoardTolerance } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis, EndBoardTolerance, NearEndFormation } from './editor.js';
 
 export {
   setParser,

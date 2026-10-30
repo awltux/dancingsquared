@@ -7,8 +7,8 @@
 // width, and the boards get 53 px each. So the layout is not merely cramped on a phone; two of its three numbers cannot
 // express the phone shape at all.
 //
-// WHAT THIS PINS, and each check is a claim about `ui/layout.ts` (or, in section 6, about the stylesheet that mirrors it)
-// rather than about a screenshot:
+// WHAT THIS PINS, and each check is a claim about `ui/layout.ts` (or, in sections 5b and 6, about the stylesheet that
+// mirrors it) rather than about a screenshot:
 //   1. THE BREAKPOINT. Below `NARROW_MAX_WIDTH` the panel is a bottom sheet and above it a left column, checked one
 //      pixel either side — an off-by-one here is a layout that is right in the middle of a device range and wrong at its
 //      edge, which is exactly the failure a screenshot never catches.
@@ -22,6 +22,9 @@
 //   5. THE BOARDS ARE STILL A PAIR. One board at a time is a separate change with its own rule (a comparison needs both
 //      pictures unless the missing one is drawn as a ghost); until then the pair is what the shell must be told, and
 //      this check fails the day someone flips it without the ghost layer landing with it.
+//   5b. THE PAGING ZONES. Invisible quarters of the canvas edges, with the middle half inert, and the keyboard reaching
+//      them through a focus outline. It reads declarations because the geometry is CSS; a browser is what would prove
+//      the box, and this probe records that it did not.
 //   6. THE FULL-SCREEN PAGE. A page with no dance board keeps the HUD in the panel's left column and gives the board's
 //      area to the two standings (`pages.ts`'s `showsStandings`, keyed on `data-panel` + `data-stage`); a sheet keeps the
 //      centred page and draws no standings. This section reads the stylesheet and the markup, because the failure it
@@ -140,6 +143,106 @@ console.log('\n== 5. one board on a narrow viewport, two above it ==');
     'and the ghost layer that keeps the comparison on one board exists');
   // NEGATIVE CONTROL: a shell with the call removed fails the first of those two, and nothing else in this probe.
   check(!/setFocus\(/.test('const stageWithoutFocus = 1;'), 'a shell with no focus call would fail that check');
+}
+
+console.log('\n== 5b. the paging controls are invisible quarters of the canvas edges ==');
+{
+  // REPORTED: "make the waypoint navigation buttons invisible and take up quarter of the canvas edges. So tapping the left
+  // side of the canvea scrubs left and the right side of the canvas scrubs right. This will give more canval area for the
+  // board to use and make it easier to interpret the board", then "this removes the need for the extra margin you just
+  // added." So the rule is a QUARTER of the canvas per zone with nothing visible in it, and the old gutter is gone: a
+  // board may be drawn under a zone, because a zone is clear and a board's own middle half is still inert.
+  //
+  // THIS SECTION CANNOT LOAD THE RULE, so it reads the stylesheet and the shell — and it says which half is which. The
+  // geometry is CSS (`position: absolute` inside `#app`, whose `#stage` canvas is `inset: 0`), so the check is on the
+  // declarations, not on a computed box: a probe that could not open a browser would otherwise pin nothing.
+  const nav = ruleOf('.wp-nav');
+  check(/width:\s*25%/.test(nav), `each zone is a quarter of the canvas wide (${nav.replace(/\s+/g, ' ').trim()})`, nav);
+  // NEGATIVE CONTROL: a gutter'd arrow is what this replaced. A width in pixels, or a height clamp, fails this one check
+  // and no other — the two `left`/`right` checks below would still pass for an arrow 64 px wide.
+  check(!/--arrow-width/.test(nav) && !/width:\s*\d+px/.test(nav) && !/clamp\(/.test(nav),
+    'and its size is a fraction, not the arrow width or height the gutter needed', nav);
+  check(/top:\s*0/.test(nav) && /bottom:\s*0/.test(nav), 'the zone spans the canvas from top to bottom');
+  check(/color:\s*transparent/.test(nav) && /background:\s*none/.test(nav) && /border:\s*0/.test(nav),
+    'with no glyph and no fill drawn — it is a tap target, not a control', nav);
+  // A KEYBOARD VISITOR MUST STILL SEE WHERE IT IS: an invisible control a keyboard can reach and nobody can see is the
+  // failure the zone would otherwise introduce. All three signals are required, because each one alone is one cue — the
+  // glyph appears, the zone fills, and an outline insets its edge by enough to clear the arrow's own body.
+  const focused = ruleOf('.wp-nav:focus-visible');
+  check(/color:\s*var\(--accent\)/.test(focused) && /background:\s*var\(--accent-ghost\)/.test(focused)
+    && /outline:\s*3px solid var\(--accent\)/.test(focused),
+    'and keyboard focus is the one state that draws: glyph, ghost fill and outline', focused);
+  // THE LEFT ZONE STEPS OVER THE PANEL AND THE RIGHT ONE DOES NOT: on a wide layout the panel is a column over the canvas's
+  // left edge, so a zone at `left: 0` would be under it. On a sheet the panel is at the bottom and the zone starts at 0.
+  check(/left:\s*var\(--panel-size\)/.test(ruleOf('.wp-prev')), 'the left zone starts at the panel column\'s edge', ruleOf('.wp-prev'));
+  check(/right:\s*0/.test(ruleOf('.wp-next')), 'and the right zone at the canvas\'s own right edge', ruleOf('.wp-next'));
+  check(/\.wp-prev \{\s*left: 0/.test(css), 'while a sheet puts it at the canvas\'s own left edge');
+  // THE OLD GUTTER MUST NOT SURVIVE IN THE SHELL: `ui/layout.ts` has no arrow fields any more, and `main.ts` publishes no
+  // arrow width or board frame to CSS. A leftover write would be a second definition of a number nothing reads.
+  check(!/--arrow-width|--board-top|--board-bottom/.test(MAIN), 'and nothing publishes an arrow width or a board frame');
+  // THE MIDDLE HALF IS INERT: two 25 % zones leave the centre free, so tapping a dancer cannot scrub the route. This is
+  // arithmetic on the check above, stated so that widening a zone to 50 % reads as the deliberate change it is.
+  check(2 * 25 < 100, 'which leaves the middle half of the canvas inert');
+}
+
+console.log('\n== 5c. the canvas overlay is ONE layer, and the panel outranks it ==');
+{
+  // REPORTED: "currently the canvas seems to take up the whole screen, but all the other html elements are applied at the
+  // same level and I assume floated into place. Could the html elements be put in a hud div that manages the html elements
+  // that are over the canvas?", then "Can the main panel also be inside the div hud?" — with the defect that made it
+  // urgent: "buttons and sliders in the hud are not clickable because the waypoint navigation is overlaid on top of them."
+  // The overlays and the panel were siblings of each other and of the canvas, so a tap went to whichever carried the
+  // larger `z-index`: the zone carried 2, the panel carried none, and the outer quarter of every answer button was dead.
+  // The rule is one box, two numbers and four opt-ins, and this is the section that pins them.
+  const hud = ruleOf('#hud');
+  check(/position:\s*absolute/.test(hud) && /inset:\s*0/.test(hud),
+    `the overlay is one box over the canvas (${hud.replace(/\s+/g, ' ').trim()})`, hud);
+  // THE DEFAULT IS INERT: whatever a HUD child is, it takes no pointer event until it asks.
+  check(/pointer-events:\s*none/.test(hud), 'and it is inert by default', hud);
+  const hudZ = /z-index:\s*(-?\d+)/.exec(hud);
+  const panelZ = /z-index:\s*(-?\d+)/.exec(ruleOf('#panel'));
+  check(hudZ !== null && panelZ !== null && Number(panelZ[1]) > Number(hudZ[1]),
+    `while the panel outranks it (panel ${panelZ && panelZ[1]}, HUD ${hudZ && hudZ[1]}) — a bigger z-index inside the HUD cannot reach the panel`);
+  // THE CONTROLS OPT BACK IN, and both are needed: a zone that inherited the inertness would be an invisible button that
+  // cannot be pressed, and a switcher that did would be drawn but not pressable. This is the other negative control — the
+  // panel's number above would be unchanged by either omission.
+  check(/pointer-events:\s*auto/.test(ruleOf('.wp-nav')), 'the paging zone opts back into pointer events');
+  check(/pointer-events:\s*auto/.test(ruleOf('#boardTabs')), 'and so does the board switcher');
+  // THE TWO INTERACTIVE SURFACES OPT BACK IN TOO, since "Can the main panel also be inside the div hud?" put them inside
+  // the inert box: without this the whole panel would be a picture. Nothing above catches it — the z-index ordering is
+  // satisfied by a panel that cannot be clicked.
+  check(/pointer-events:\s*auto/.test(ruleOf('#panel')), 'the panel opts back into pointer events');
+  check(/pointer-events:\s*auto/.test(ruleOf('#sideBoard')), 'and so do the standings');
+  // THE MARKUP IS THE HALF CSS CANNOT CHECK: the box has to be in the document, hold the five overlays AND the panel AND the
+  // standings, and NOT hold the canvas or the loading line — a HUD that swallowed the canvas would be a transparent wall
+  // over the whole screen.
+  const hudAt = HTML.indexOf('<div id="hud">');
+  check(hudAt !== -1 && hudAt > HTML.indexOf('id="stage"'), 'the HUD box is in the markup, after the canvas');
+  // THE BOX'S EDGE IS COUNTED, not guessed: a plain `indexOf('</div>')` after `#hud` would end it at the first nested close
+  // and report the panel as outside the box, which is a silent false pass for the two `inside` checks below.
+  const hudEnd = (() => {
+    let depth = 0;
+    const re = /<div\b|<\/div>/g;
+    re.lastIndex = hudAt;
+    for (let m = re.exec(HTML); m !== null; m = re.exec(HTML)) {
+      depth += m[0] === '</div>' ? -1 : 1;
+      if (depth === 0) return m.index;
+    }
+    return -1;
+  })();
+  const inHud = (id) => {
+    const at = HTML.indexOf(`id="${id}"`);
+    return at > hudAt && hudEnd !== -1 && at < hudEnd;
+  };
+  const chrome = ['labelHere', 'labelGoal', 'waypointPrev', 'waypointNext', 'boardTabs'];
+  const inside = [...chrome, 'panel', 'sideBoard'].filter(inHud);
+  check(inside.length === chrome.length + 2,
+    `and it holds the five canvas overlays, the panel and the standings (${inside.join(', ') || 'none'})`);
+  check(!inHud('stage') && !inHud('loading'), 'while the canvas and the loading line stay outside it');
+  // AND THE STANDINGS, the page-level layer that replaces the board area, outrank the HUD for the same reason the panel
+  // does: a paging zone over a board that is not on screen is a control for something invisible.
+  const sideZ = /z-index:\s*(-?\d+)/.exec(ruleOf('#sideBoard'));
+  check(sideZ !== null && hudZ !== null && Number(sideZ[1]) > Number(hudZ[1]), 'and the standings outrank it too');
 }
 
 console.log('\n== 6. a full-screen page keeps the HUD left and gives the board area to the standings ==');

@@ -557,7 +557,7 @@ function paintBoardTabs(): void {
  * REPORTED: "The [Now, Target] widget currently applies to the currently displayed board which might not be the one to be
  * solved, but I want them to first scrub to the last completed (green) board the subsequent uncompleted board. The
  * 'Now|Target' buttons will flip between the point where the player is supposed to be solving." So a press is not a
- * switch over whatever preview the arrows left on screen: it puts the window back on `solvingPair` (last completed, next to
+ * switch over whatever preview the zones left on screen: it puts the window back on `solvingPair` (last completed, next to
  * solve) and THEN picks a side of it.
  *
  * THE HOLD GOES WITH THE CURSOR, and that is the half a press would otherwise miss: after a success the window is held on
@@ -622,8 +622,8 @@ function paintWaypoints(): void {
   const single = layout.boards === 'single';
   els.labelHere.hidden = single && boardFocus !== 'left';
   els.labelGoal.hidden = single && boardFocus !== 'right';
-  // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the arrows are HIDDEN rather than shown disabled:
-  // the smallest puzzle is two waypoints, and two grey arrows would advertise a route that does not exist.
+  // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the zones are HIDDEN rather than shown disabled: the
+  // smallest puzzle is two waypoints, and two inert quarters of the canvas would take taps that do nothing.
   const paged = info.boards.length > 2;
   els.waypointPrev.hidden = !paged;
   els.waypointNext.hidden = !paged;
@@ -638,8 +638,8 @@ function paintWaypoints(): void {
  * position when there is none), so paging back to it has to clear the cursor rather than store an index that a later move
  * would leave stale.
  *
- * THE FORWARD ARROW IS THE WAY ON FROM A HELD SUCCESS. A success leaves the pair where it was, so with a hold in force
- * the arrow moves the window on by one and KEEPS THE LEFT BOARD LIVE — the player's own board on the left, the next
+ * THE FORWARD ZONE IS THE WAY ON FROM A HELD SUCCESS. A success leaves the pair where it was, so with a hold in force
+ * the forward tap moves the window on by one and KEEPS THE LEFT BOARD LIVE — the player's own board on the left, the next
  * waypoint on the right — which is exactly what a player pressing it expects. Once it has caught up with where the
  * player actually is, the hold is dropped and the pair follows again.
  *
@@ -2838,7 +2838,7 @@ function playDailyCall(call: string): void {
     );
   } else dailyScreen.say(`${call} — every waypoint passed, and that is the goal board.`, 'ok');
   // A SUCCESS HOLDS THE WINDOW WHERE THE PLAYER WAS WATCHING IT. Only a verdict that PASSED a waypoint would move the
-  // strip, and moving the pair for it is exactly the auto-skip that was reported — so the arrow does that instead, and
+  // strip, and moving the pair for it is exactly the auto-skip that was reported — so the forward zone does that instead, and
   // the stage stays on the two boards the animation is landing between.
   if (advanced && shownFront !== null) waypointHold = shownFront;
   logDailyMove('add', call);
@@ -3382,6 +3382,12 @@ function main(): void {
     return bottoms.length === 0 ? 0 : Math.max(0, Math.max(...bottoms) - canvas.top + 16);
   };
   const applyInsets = (): void => {
+    // THE BOARDS USE THE WHOLE CANVAS, AND THE PAGING ZONES SIT OVER ITS EDGES. REPORTED: "make the waypoint navigation
+    // buttons invisible and take up quarter of the canvas edges ... This gives more canvas area for the board to use", and
+    // "this removes the need for the extra margin you just added." So the view insets are the panel's side and the
+    // captions' height only — no horizontal gutter is reserved for the paging controls, because they are transparent
+    // quarters of the canvas (`.wp-nav` in `style.css`) rather than arrows beside the boards. NOTHING PUBLISHES THE
+    // BOARD'S FRAME TO CSS either: a zone spans the canvas from top to bottom, so it needs no measured origin.
     const rect = panel?.getBoundingClientRect();
     const canvas = canvasEl?.getBoundingClientRect();
     if (!rect || !canvas) {

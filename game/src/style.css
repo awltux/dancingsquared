@@ -51,6 +51,32 @@ body {
   display: block;
 }
 
+/* THE HUD: EVERYTHING THAT IS NOT THE CANVAS, AS ONE LAYER.
+   REPORTED: "currently the canvas seems to take up the whole screen, but all the other html elements are applied at the
+   same level and I assume floated into place. Could the html elements be put in a hud div that manages the html elements
+   that are over the canvas?", then "Can the main panel also be inside the div hud?", and the defect that made it urgent:
+   "buttons and sliders in the hud are not clickable because the waypoint navigation is overlaid on top of them." The
+   captions, the paging zones, the switcher and the panel used to be positioned SIBLINGS of each other and of the canvas,
+   so a tap's recipient was decided by whichever of them happened to carry the bigger `z-index` — the zone carried 2, the
+   panel carried none, and the outer quarter of every answer button and slider was dead.
+
+   THE BOX IS THE RULE, and there are two halves. (i) `pointer-events: none` here means the layer itself never swallows
+   anything: a drag or a tap anywhere it owns no control reaches the canvas, and every control inside it opts back in
+   (`#panel` and `#sideBoard` are whole interactive surfaces, `.wp-nav` and `#boardTabs` are individual ones). (ii) The
+   layer carries `z-index: 1` while the panel and the standings carry 2, so inside this stacking context the two
+   interactive surfaces outrank every overlay however large a `z-index` it declares: the canvas's chrome can never take a
+   tap from the panel.
+
+   IT IS SCENERY, NOT A LAYOUT. `inset: 0` is the same rectangle the panel and the captions were already positioned
+   against, so the WIDE layout does not move: `#panel` is still `left: 0` with `width: var(--panel-size)`, and the
+   media query at the foot of this file still makes it a bottom sheet. What changed is only who owns a tap. */
+#hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* THE BOOT VEIL. REPORTED: "The page initialisation doesnt start cleanly and loads spasmodically, the glyphs apearing in the
    wrong scale and without a cohesive background." `index.html` explains why the element exists and why its colours are
    inline; this rule is only its geometry and its type, and it can use tokens because they fall back harmlessly if the theme
@@ -90,7 +116,7 @@ html[data-ready] #boot {
    page, only expose it when they are part of the game e.g. Daily Target and Drill play pages." Which page is which is
    `ui/pages.ts`'s `pageShowsBoard`, and the shell writes the answer onto the document, so these rules answer the one flag
    rather than repeating the list. The board's own overlays go with it — the switcher, the two formation captions and the
-   waypoint arrows are all pieces of the canvas, and a caption over an empty window would be a lie about what is drawn.
+   waypoint zones are all pieces of the canvas, and a caption over an empty window would be a lie about what is drawn.
 
    `html[data-stage="page"] #panel` OUTRANKS BOTH the base column rule (a 260-340 px panel at the left) and the sheet rule
    inside the max-width media query, because it carries an attribute selector the other two do not — so one rule covers both
@@ -163,6 +189,11 @@ html[data-panel="left"][data-stage="page"] #sideBoard {
 /* NO STANDINGS ARE DRAWN ANYWHERE ELSE: on a sheet the page IS the panel, and on a play page the board is the question. */
 #sideBoard {
   display: none;
+  /* AND WHEN THEY ARE DRAWN THEY ARE ABOVE THE HUD, like the panel: the standings replace the board area, so a caption or
+     a paging zone over them would be a control for a board that is not on screen. Both halves of the panel's contract
+     apply — this layer outranks the canvas's chrome, and it opts back into pointer events because `#hud` is inert. */
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .side-board {
@@ -195,6 +226,11 @@ html[data-panel="left"][data-stage="page"] #boardList {
   left: 0;
   height: 100%;
   width: var(--panel-size);
+  /* ABOVE THE CANVAS'S CHROME, ALWAYS (`#hud`'s own rule carries the defect): the panel is the layer nothing over the
+     canvas may take a tap from, so the number that decides it lives here rather than in whichever overlay is newest — and
+     `pointer-events: auto` is its half of the HUD's contract, because the box it now sits in is inert. */
+  z-index: 2;
+  pointer-events: auto;
   padding: var(--space-xl) var(--space-xl) var(--space-xl);
   /* THREE ROWS AND NO WHOLE-PANEL SCROLL: the header, the scrolling body (`#panelScroll`) and the pinned footer. The
      panel itself does not scroll, because a footer that scrolls away is the reported defect ("the primary action went off
@@ -1406,9 +1442,9 @@ button[data-busy="true"]::after {
 }
 
 /* THE TWO BOARD CAPTIONS. Positioned over the canvas in the space the panel leaves, each centred on its own
-   board's half. `pointer-events: none` is load-bearing rather than tidiness: a label that captured the
-   pointer would swallow the start of a drag on the board underneath it, so panning would silently fail on
-   exactly the strip a player is most likely to grab. */
+   board's half. They take no pointer events — inherited from `#hud`, which is where that rule now lives and why every
+   overlay in it is inert by default — because a label that captured the pointer would swallow the start of a drag on the
+   board underneath it, so panning would silently fail on exactly the strip a player is most likely to grab. */
 .board-label {
   position: absolute;
   top: 14px;
@@ -1427,7 +1463,6 @@ button[data-busy="true"]::after {
   text-overflow: ellipsis;
   text-shadow: 0 1px 6px var(--shadow-text);
   white-space: nowrap;
-  pointer-events: none;
 }
 
 /* 25% AND 75% OF THE VISIBLE AREA, which is what centres a label on each board: the framing insets the floor
@@ -1441,57 +1476,59 @@ button[data-busy="true"]::after {
   left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.75);
 }
 
-/* THE WAYPOINT PAGING. Two edge buttons over the canvas, because they move what is drawn on it.
-   MEASURED AS TOO QUIET at 48 x 72 px in near-black: reported as "not easy to see", and a control that moves the
-   picture has to read as a control rather than as a shadow on the canvas. So they are now the BOARDS' OWN HEIGHT and
-   the accent colour the rest of the interface uses for "this is the thing to press".
-   THE HEIGHT IS VIEWPORT-RELATIVE — `32vh` is the board's own share of an 800 px window, where the two floors were
-   measured spanning ~245 px — with a clamp so a short window does not squash the target and a tall one does not make
-   it a column. `top: 50%` with a translate keeps them centred on the boards at any canvas height.
-   `disabled` is DIMMED rather than hidden, so the control does not jump about as the pair reaches either end, and it
-   keeps the accent border so the player can still see the route has an end. */
+/* THE WAYPOINT PAGING: INVISIBLE TAP ZONES OVER A QUARTER OF EACH EDGE.
+   REPORTED: "make the waypoint navigation buttons invisible and take up quarter of the canvas edges. So tapping the left
+   side of the canvea scrubs left and the right side of the canvas scrubs right. This will give more canval area for the
+   board to use and make it easier to interpret the board", then "this removes the need for the extra margin you just
+   added." So there is no visible control and no gutter: each zone is a QUARTER of the canvas wide and its full height,
+   which leaves the middle half inert — a tap on a dancer does not scrub the route by accident.
+   THE GLYPH STAYS IN THE MARKUP AND IS TRANSPARENT, because it is the button's content and its size is the type ladder's
+   (`--fs-glyph`); the element is still a real button, so the keyboard reaches it and `:focus-visible` is where the glyph
+   and the zone's colour appear. A pointer user never sees any of it.
+   IT OPTS BACK INTO POINTER EVENTS because `#hud` is inert by default: a zone that inherited that would be an invisible
+   button that cannot be pressed, which is the one way this shape can fail silently. */
 .wp-nav {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 64px;
-  height: clamp(220px, 38vh, 420px);
+  top: 0;
+  bottom: 0;
+  width: 25%;
+  padding: 0;
   font-size: var(--fs-glyph);
   font-weight: 700;
   line-height: 1;
-  color: var(--accent);
-  background: var(--accent-ghost);
-  border: 2px solid var(--accent);
-  border-radius: var(--r-card);
+  color: transparent;
+  background: none;
+  border: 0;
+  pointer-events: auto;
+  transition: background var(--t-press) var(--ease);
   cursor: pointer;
   z-index: 2;
-  transition: background var(--t-press) var(--ease), opacity var(--t-press) var(--ease);
 }
 
-.wp-nav:hover:not(:disabled) {
-  background: var(--accent-soft);
-}
-
-/* A PRESSED CONTROL HAS TO BE VISIBLE AS FOCUSED, not only as hovered: this is a real button and the keyboard reaches
-   it, so the accent fill is not the only signal. */
+/* A KEYBOARD VISITOR IS TOLD WHERE THE ZONE IS, which is the one state in which being invisible would be a trap: the
+   glyph appears in the accent colour, the zone fills with the accent's ghost, and an outline insets its edge by enough to
+   clear the arrow's own body — three signals for the one state that has no pointer to show it. This is also what keeps
+   `--fs-glyph`, `--accent-ghost` and `--t-press` read (§4.5, and `theme-probe.mjs`'s contrast row for that pair): the
+   visible arrow was their only other consumer and it is gone with the gutter. */
 .wp-nav:focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
+  outline: 3px solid var(--accent);
+  outline-offset: -6px;
+  color: var(--accent);
+  background: var(--accent-ghost);
 }
 
 .wp-nav:disabled {
-  opacity: 0.4;
   cursor: default;
 }
 
-/* THE OUTERMOST EDGES OF THE SPACE THE PANEL LEAVES, so the arrows frame the two boards rather than sitting under
-   the panel or over a dancer. */
+/* THE OUTERMOST QUARTER OF THE CANVAS, from the panel's edge where there is one: the zone has to sit on the part of the
+   canvas a finger can reach, and on a wide screen the panel covers the left of it. */
 .wp-prev {
-  left: calc(var(--panel-size) + 10px);
+  left: var(--panel-size);
 }
 
 .wp-next {
-  right: 10px;
+  right: 0;
 }
 
 /* NO BORDER LEGEND ANY MORE: the "solved · next · locked" line was removed on request. The states are still colour on
@@ -1545,8 +1582,9 @@ button[data-busy="true"]::after {
 /* THE BOARD SWITCHER. Two tabs over the floor, centred on the space the panel leaves, shown only where the layout asks
    for one board (`ui/layout.ts`'s `boards: 'single'`, applied by `main.ts`). The state is `aria-pressed` as well as the
    fill, and the pressed tab takes the accent — the same language as the mode switch, because it is the same kind of
-   choice one scale down. The `z-index` puts it above the canvas and above the waypoint arrows, which overlap this strip
-   on a short viewport. */
+   choice one scale down. The `z-index` puts it above the waypoint zones, which overlap this strip on a short viewport:
+   the zones are quarters of the canvas and reach its top edge. Its `pointer-events` opt-in is the other half — `#hud` is
+   inert, so a switcher that did not ask would be drawn but not pressable. */
 #boardTabs {
   position: absolute;
   top: calc(var(--space-sm) + env(safe-area-inset-top));
@@ -1558,6 +1596,7 @@ button[data-busy="true"]::after {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r-pill);
+  pointer-events: auto;
   z-index: 3;
 }
 
@@ -1738,22 +1777,11 @@ button[data-busy="true"]::after {
     max-width: calc(100% - var(--space-md));
   }
 
-  /* THE WAYPOINT ARROWS WERE A DESKTOP SIZE. `clamp(220px, 38vh, 420px)` tall is most of a phone's board area, and 64 px
-     wide leaves the pair barely 130 px each. 44 px is the touch minimum and `24vh` keeps them beside the boards rather
-     than over them. */
-  .wp-nav {
-    width: 44px;
-    height: clamp(160px, 24vh, 240px);
-    font-size: var(--fs-glyph);
-    border-radius: var(--r-control);
-  }
-
+  /* ON A SHEET THE ZONES START AT THE CANVAS'S OWN EDGE: there is no panel column to step over, and the sheet is at the
+     bottom, so a quarter of the width from each side is what a thumb reaches. The glyph is transparent either way, so
+     there is no size to narrow — the desktop's `left: var(--panel-size)` is the one number that changes. */
   .wp-prev {
-    left: 4px;
-  }
-
-  .wp-next {
-    right: 4px;
+    left: 0;
   }
 
   /* THE THREE SELECTIONS ARE THE PAGE, SO THEY MUST ALL BE ON SCREEN. REPORTED: "Can you resize the selections so they are

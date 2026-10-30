@@ -56,7 +56,7 @@ export function boardCaption(spec: CaptionSpec): BoardCaption {
   // ONE LINE, `<count>: <name>` — REPORTED: "Change the dance board title to a 1 liner e.g. "<call_count>: Circle". Use small
   // text, as it's not that important to the game." It read "Setup, 2 of 4 — Ocean Wave", which is a sentence where a
   // signpost belongs, and it wrapped to two lines over a 390 px board. The COUNT is the waypoint's position in the route,
-  // 1-based: it is the only count this module is given, and it is the one the paging arrows move. The ROLE ("Setup" /
+  // 1-based: it is the only count this module is given, and it is the one the paging zones move. The ROLE ("Setup" /
   // "Waypoint" / "Goal") is gone with the sentence — the live pair's left board is the player's own, which the board itself
   // shows, and the last waypoint's caption is the one over the goal.
   const position = `${spec.index + 1}`;

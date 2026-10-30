@@ -87,7 +87,10 @@ export const COLOR = {
    */
   inkFaint: '#8695a3',
   inkSoft: 'rgba(255, 255, 255, 0.55)',
-  /** The two accent tints the waypoint arrows are drawn with, so the accent is not spelled three ways. */
+  /**
+   * The two accent tints a control is drawn with, so the accent is not spelled three ways. `accentGhost` is the paging
+   * zone's keyboard-focus fill (the zone is transparent otherwise); `accentSoft` is a pressed mode tab.
+   */
   accentGhost: 'rgba(255, 209, 102, 0.12)',
   accentSoft: 'rgba(255, 209, 102, 0.26)',
   /** A caption's shadow, which is what keeps white text legible over the canvas's own colors. */
@@ -130,8 +133,9 @@ export const TYPE = {
   /** The product's name, once. */
   title: '1.5rem',
   /**
-   * The waypoint arrows' `‹`/`›` glyph — a pictogram, not text, and the one size outside the reading hierarchy. It is in
-   * the ladder so the stylesheet never needs a literal, and it is deliberately the largest step.
+   * The paging zones' `‹`/`›` glyph — a pictogram, not text, and the one size outside the reading hierarchy. It is in
+   * the ladder so the stylesheet never needs a literal, and it is deliberately the largest step: the glyph is drawn only
+   * under `:focus-visible`, so it has to be legible as a lone arrow on an empty canvas.
    */
   glyph: '2.6rem',
 } as const;

@@ -17,10 +17,10 @@
 //   * an ADVANCE — the left index moves by one and the board that was on the right was `next` and is now `solved`;
 //   * THE GOAL — both indices stay put (there is no pair past the last waypoint) and the right border turns green.
 //
-// WHAT IS NOT A SUCCESS, and this is the half that a careless rule gets wrong: PAGING. The arrows walk the same
+// WHAT IS NOT A SUCCESS, and this is the half that a careless rule gets wrong: PAGING. The edge zones walk the same
 // boards, so an advance whose arriving left board was ALREADY `solved` is a player looking back or forward through a
 // route they have earned, and paging forward from the live pair lands on `next` rather than `solved`. Neither may
-// flash the border, or the animation would mean "you pressed an arrow".
+// flash the border, or the animation would mean "you paged the route".
 //
 // THE CURVE IS ONE PULSE, NOT A STROBE. `pulse` is exact at both ends — `t = 0` and `t = 1` are the resting border —
 // because a curve that leaves the border dimmer than it found it would make the solved state read weaker than the

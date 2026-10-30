@@ -705,9 +705,11 @@ answers cannot drift between the client and the server, because there is now onl
 - **Two boards on screen — the current WAYPOINT and the next one — and three answer buttons.** A puzzle is a
   sequence of waypoints and a waypoint is a formation (§9.1), so the pair is two adjacent entries of that sequence:
   the left board is where the player stands (their own board, which can leave the generated route in the Daily) and
-  the right board is the waypoint to reach. Each carries a **border** — green solved, blue next, red locked — and a
-  **paging arrow** at each edge walks the window along the route when there is one to walk; a start-and-end puzzle
-  has a single pair and no arrows. Pressing one *dances*
+  the right board is the waypoint to reach. Each carries a **border** — green solved, blue next, red locked — and an
+  **invisible tap zone over a quarter of the canvas at each edge** walks the window along the route when there is one
+  to walk; a start-and-end puzzle has a single pair and no zones. The middle half of the canvas is inert, so a tap on
+  a dancer cannot scrub the route by accident, and the zones are transparent — the glyph is in the markup and in the
+  `aria-label`, and only keyboard focus draws anything (`.wp-nav:focus-visible`). Pressing one *dances*
   that option, then gives its verdict. The player can replay an option as often as they like before
   committing, which is the presentation room the engine buys (§7.4): a replay, a caption, a slow pass and a
   side-by-side are all the same data.
@@ -726,7 +728,7 @@ answers cannot drift between the client and the server, because there is now onl
   header moving to 28, and with the API stopped the same path showed **"The server would not record this run: …"** and no
   score at all.
 - **THE NOW/TARGET SWITCHES SCRUB TO THE SOLVING PAIR BEFORE THEY FLIP.** In the single-board layout the "Now" and
-  "Target" tabs choose which of the two boards is drawn — but the pair they choose from was whichever the paging arrows had
+  "Target" tabs choose which of the two boards is drawn — but the pair they choose from was whichever the paging zones had
   left on screen, so a press could flip between two boards that are not the question. REPORTED: "The [Now, Target] widget
   currently applies to the currently displayed board which might not be the one to be solved, but I want them to first
   scrub to the last completed (green) board the subsequent uncompleted board. The 'Now|Target' buttons will flip between the
@@ -977,7 +979,7 @@ that survives this measurement is:
   player actually stood in, derived from the move stack in the Daily and from the route prefix in the Drill — so an
   undo rewinds it for free and it cannot disagree with the line the server replays.
 - **the boards ARE the sequence**: the stage shows two adjacent waypoints with a border on each (`waypoint-pair.ts`
-  decides which two and what each says), the arrows page the window along the route, and the panel shows the same
+  decides which two and what each says), the edge zones page the window along the route, and the panel shows the same
   list as text. IT IS A GATE NOW, not only a readout: the last waypoint is the goal, and `PlaySession.atGoal` requires
   every one of them in order before the run is won — so a call is never refused by the sequence, but a run that skips
   it does not finish.
@@ -1810,9 +1812,9 @@ findings, each with the measurement that produced it:
    `GameStage.drawMotion`, which ADOPTED the pair the move had already produced while the replay was still running —
    so when the replay ended the stage believed it had shown the next waypoint, and the change became a repaint at the
    one moment the player was watching the board. It no longer adopts it, and the next `drawPair` sees the index change
-   and animates it (the slide the arrows already had). The success is `render/celebrate.ts`: `justSolved` compares the
+   and animates it (the slide the paging zones already had). The success is `render/celebrate.ts`: `justSolved` compares the
    two pairs' borders — `next` → `solved` is the transition that means "reached", and **a page is neither**, because
-   the arrows walk boards the player has already earned — and `pulse` is one half-sine over 520 ms, exact at both ends
+   the zones walk boards the player has already earned — and `pulse` is one half-sine over 520 ms, exact at both ends
    so the border returns to exactly the state it reports, and 1.9 flashes a second, under the photosensitivity bound.
    The pulse is a multiplier of the border's resting opacity and a mix towards white, plus a 6 % growth of the ring,
    and **a `prefers-reduced-motion` player gets the flash rather than the slide**: a fade is not a translation.
@@ -3016,6 +3018,32 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     the fixture grew to 100). NOT CHECKED: the offline (no-API) grid was not driven, and a cell is ~28 px in the 340 px
     panel — below the 44 px touch target the rest of the page uses, which is a real cost of ten cells across this panel
     width.
+26. **EVERYTHING OVER THE CANVAS WAS A SIBLING OF EVERYTHING ELSE, AND THE PAGING ARROW TOOK THE PANEL'S TAPS —
+    DECIDED AND IMPLEMENTED.** REPORTED: "buttons and sliders in the hud are not clickable because the waypoint
+    navigation is overlaid on top of them", with the structural reading the report itself offered: "currently the canvas
+    seems to take up the whole screen, but all the other html elements are applied at the same level and I assume floated
+    into place. Could the html elements be put in a hud div that manages the html elements that are over the canvas?",
+    and then "Can the main panel also be inside the div hud?" The answer is yes, and the reason it was needed is a
+    MEASURED stacking accident: `#stage`, the captions, the paging buttons, the board switcher and `#panel` were all
+    absolutely positioned siblings of `#app`, so who received a tap was decided by whichever carried the larger
+    `z-index` — `.wp-nav` declared 2 and `#panel` declared nothing, so the paging control sat ABOVE the panel and the
+    outer quarter of every answer button and slider was dead.
+    **THE FIX IS A BOX AND TWO NUMBERS, not a bigger number on the panel.** `#app` now holds the canvas and `#hud`;
+    `#hud` holds the canvas's chrome (captions, paging zones, switcher) AND the panel AND the standings, is
+    `pointer-events: none` so the layer never swallows a tap on the canvas it does not own, and carries `z-index: 1`
+    while `#panel` and `#sideBoard` carry 2 and opt back into pointer events. A control added to the box is therefore
+    INERT and UNDER THE PANEL until it says otherwise, which is the property the reported defect lacked.
+    MEASURED with `document.elementFromPoint` in a 393 x 664 frame around the real app: the "Hint (+1 min)" button spans
+    x 20-193 and its left edge, centre and right edge all resolve to `button#hint`; the panel's near and far edges resolve
+    to `main#panel`; the free canvas's left and right quarters resolve to `#waypointPrev` / `#waypointNext`; the middle
+    of the canvas resolves to `canvas#stage`. On a 1100 x 620 frame (the left-column layout) the panel's edges resolve to
+    the panel and the canvas's quarters to the zones, so the WIDE layout is unchanged: the box is `inset: 0`, exactly the
+    rectangle the panel and the captions were already positioned against. `layout-probe.mjs` §5c pins the box, the two
+    numbers and the four opt-ins, including the markup membership of all seven children.
+    NOT CHECKED as a hit test: the standings layer. It does not need one — a page state HIDES the paging zones
+    (`html[data-stage="page"] .wp-nav { display: none }`), so there is nothing over the standings to outrank; their
+    `z-index: 2` and `pointer-events: auto` are symmetry with the panel, pinned in the stylesheet and by §5c, not
+    measured with `elementFromPoint`.
 
 ---
 

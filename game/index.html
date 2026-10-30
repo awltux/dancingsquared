@@ -42,427 +42,452 @@
     <div id="app">
       <canvas id="stage"></canvas>
 
-      <!-- THE BOARD CAPTIONS SIT OVER THE CANVAS, centred on each board's half of the frame. Without them
-           the two boards read as ONE set with dancers scattered across it. They are `pointer-events: none` so a
-           drag on the board still reaches the camera controls underneath. Their TEXT is written by the app: the
-           pair is two WAYPOINTS of one puzzle, so each caption says which waypoint and where it sits in the
-           sequence, and the engine's name is an aside (DESIGN.md 15, Q10 — display only, never the correctness
-           test, which is the board itself). -->
-      <p class="board-label" id="labelHere">Setup</p>
-      <p class="board-label" id="labelGoal">Next waypoint</p>
+      <!-- THE HUD IS ONE LAYER OVER THE CANVAS: EVERYTHING THAT IS NOT THE CANVAS LIVES IN IT. REPORTED: "currently the
+           canvas seems to take up the whole screen, but all the other html elements are applied at the same level and I
+           assume floated into place. Could the html elements be put in a hud div that manages the html elements that are
+           over the canvas?", then "Can the main panel also be inside the div hud?" — and the defect behind both: "buttons and
+           sliders in the hud are not clickable because the waypoint navigation is overlaid on top of them." Every overlay
+           used to be an absolutely positioned sibling of the panel and of the canvas, so who received a tap was decided by
+           whichever element happened to carry the larger `z-index` — the paging zone carried 2, the panel carried none, so
+           the outer quarters of every answer button and slider were dead.
 
-      <!-- THE WAYPOINT PAGING. A puzzle is a sequence of waypoints and the boards show two adjacent ones; these
-           walk that window along the route so the player can look ahead or back. Hidden when the puzzle has only
-           the start and the end, because then there is nothing between to page through. Real buttons, because a
-           touch has to be able to hit them. -->
-      <button id="waypointPrev" class="wp-nav wp-prev" type="button" aria-label="Previous waypoints" hidden>‹</button>
-      <button id="waypointNext" class="wp-nav wp-next" type="button" aria-label="Next waypoints" hidden>›</button>
+           SO THERE IS ONE BOX AND ONE CANVAS. `#app` holds the canvas and `#hud`, and `#hud` holds the canvas's own chrome
+           (the two captions, the paging zones, the board switcher) AND the panel AND the standings. The box is
+           `pointer-events: none` so a drag anywhere it owns no control still reaches the canvas, and its `z-index` is 1
+           while the panel's is 2 and the standings' is 2 — the numbers that decide who owns a tap are written in ONE place
+           (`style.css`'s `#hud`, `#panel`, `#sideBoard`) instead of on whichever overlay was added last. A control opts back
+           into pointer events (`.wp-nav`, `#boardTabs`, `#panel`, `#sideBoard`), so a new overlay is inert until it says
+           otherwise and still cannot outrank the panel.
+           IT IS SCENERY, NOT A GRID: the box is `inset: 0`, exactly the rectangle the panel and the captions were already
+           positioned against, so nothing about the WIDE layout moves — the panel is still `left: 0`, `width:
+           var(--panel-size)` and the captions are still centred in what the panel leaves. -->
 
-      <!-- WHICH BOARD IS ON THE FLOOR, on a viewport too narrow for both. REPORTED: "The two boards are awkward due to
-           screen realestate. Is there a way that only one board is shown at a time but it's obvious how to navigate
-           between them." The answer is this pair of tabs PLUS a ghost layer: the board that is not drawn has its dancers
-           drawn dim on the one that is, paired by dancer identity (`render/ghost-pair.ts`), so switching is about
-           emphasis rather than about memory. The tabs are HIDDEN on a wide viewport, where both boards fit and a
-           switcher would be a control that does nothing (`ui/layout.ts` decides; `main.ts` obeys).
+      <div id="hud">
+        <!-- THE BOARD CAPTIONS SIT OVER THE CANVAS, centred on each board's half of the frame. Without them
+             the two boards read as ONE set with dancers scattered across it. They take no pointer events (inherited
+             from `#hud`), so a drag on the board still reaches the canvas underneath. Their TEXT is written by the app:
+             the pair is two WAYPOINTS of one puzzle, so each caption says which waypoint and where it sits in the
+             sequence, and the engine's name is an aside (DESIGN.md 15, Q10 — display only, never the correctness
+             test, which is the board itself). -->
+        <p class="board-label" id="labelHere">Setup</p>
+        <p class="board-label" id="labelGoal">Next waypoint</p>
 
-           AND THE FIRST TAB IS ONE WORD. REPORTED: "Change "You are Here" text to "Now" to make this button a bit smaller
-           to release some screen real estate." The pair is "Now" / "Target" — two signposts, side by side, in a row that is
-           two buttons wide over a board, and "You are here" was five times the width of the word beside it. -->
-      <nav id="boardTabs" aria-label="Which board is shown" hidden>
-        <button id="boardYou" type="button" aria-pressed="true">Now</button>
-        <button id="boardTarget" type="button" aria-pressed="false">Target</button>
-      </nav>
+        <!-- THE WAYPOINT PAGING. A puzzle is a sequence of waypoints and the boards show two adjacent ones; these
+             walk that window along the route so the player can look ahead or back. Hidden when the puzzle has only
+             the start and the end, because then there is nothing between to page through. Real buttons, because a
+             touch has to be able to hit them — and since the report "make the waypoint navigation buttons invisible
+             and take up quarter of the canvas edges" they are TRANSPARENT ZONES, a quarter of the canvas wide and its
+             full height, with the `‹`/`›` glyph drawn only when the keyboard focuses one (`style.css`, `.wp-nav`). -->
+        <button id="waypointPrev" class="wp-nav wp-prev" type="button" aria-label="Previous waypoints" hidden>‹</button>
+        <button id="waypointNext" class="wp-nav wp-next" type="button" aria-label="Next waypoints" hidden>›</button>
 
-      <main id="panel">
-        <!-- THE BANNER: ONE THIN ROW ON EVERY PAGE, AND THE WHOLE OF THE HEADER (REPORTED: "All pages have a thin banner
-             containing current hints icons, login status, current score for drills and daily, a back button"). It holds the
-             way back, where the player is, the hint meter, the account badge and the two scores.
+        <!-- WHICH BOARD IS ON THE FLOOR, on a viewport too narrow for both. REPORTED: "The two boards are awkward due to
+             screen realestate. Is there a way that only one board is shown at a time but it's obvious how to navigate
+             between them." The answer is this pair of tabs PLUS a ghost layer: the board that is not drawn has its dancers
+             drawn dim on the one that is, paired by dancer identity (`render/ghost-pair.ts`), so switching is about
+             emphasis rather than about memory. The tabs are HIDDEN on a wide viewport, where both boards fit and a
+             switcher would be a control that does nothing (`ui/layout.ts` decides; `main.ts` obeys).
 
-             THE APP'S NAME IS NOT HERE, AND THAT IS A CORRECTION. It was an `<h1>` above this row on every page, and it was
-             the tallest thing in a 340 px panel: REPORTED as "it's not adding anything and takes up a lot of screen
-             realestate". The name is carried by the browser tab (and the document title, which each page sets), by the
-             installed app's icon, and by the landing page's own heading, which is the one page where it belongs.
+             AND THE FIRST TAB IS ONE WORD. REPORTED: "Change "You are Here" text to "Now" to make this button a bit smaller
+             to release some screen real estate." The pair is "Now" / "Target" — two signposts, side by side, in a row that is
+             two buttons wide over a board, and "You are here" was five times the width of the word beside it. -->
+        <nav id="boardTabs" aria-label="Which board is shown" hidden>
+          <button id="boardYou" type="button" aria-pressed="true">Now</button>
+          <button id="boardTarget" type="button" aria-pressed="false">Target</button>
+        </nav>
 
-             IT SITS INSIDE THE PANEL RATHER THAN OVER THE CANVAS, and that is a measured decision: the canvas's own top
-             strip carries the board captions and the board switcher, so a banner over it would cover the two things that
-             say what the boards are. The row is also the row the retired mode switch freed. -->
-        <header id="head">
-          <!-- THE BANNER IS ONE ROW AGAIN: the way back, the game (the level's two scores), then the player (the hint meter and
-               the account). REPORTED, in order: "The Back button feels inappropriate for the top banner. A secondary banner
-               could have a breadcrumb (minimalist) and the back button" — which was built — and then "Change the back button to
-               just an square back arrow and move it up to the top left of the header. Delete the breadcrumb. This makes more
-               screen real estate." So the second row is gone and its two occupants moved: the back button to the first cell as
-               an icon, the position to the right of the scores.
+        <main id="panel">
+          <!-- THE BANNER: ONE THIN ROW ON EVERY PAGE, AND THE WHOLE OF THE HEADER (REPORTED: "All pages have a thin banner
+               containing current hints icons, login status, current score for drills and daily, a back button"). It holds the
+               way back, where the player is, the hint meter, the account badge and the two scores.
 
-               AND THEN THE POSITION LINE WENT TOO — REPORTED: "Remove this text section from the heading when viewing the Drill
-               puzzle. It causes the header to reflow onto the next line for mobile." It was the only SENTENCE in the row
-               ("Drill 3/100 · L1"), ~110 px of text beside four fixed cells in a 300-340 px panel, so it was what tipped the
-               wrapping flex row onto a second line; MEASURED at 1280 x 800 the row was 58 px tall — two lines — against 36 px on
-               a sheet where `#regime` was already hidden. The level block states the position in full, so the line was a
-               duplicate as well as the tallest thing in the header. -->
-          <div id="bannerRow">
-            <!-- THE WAY BACK IS AN ICON, and the glyph is `aria-hidden` with its destination in the accessible name. It is the
-                 first cell of the row, which is where a back arrow belongs; a page with no parent (the menu) hides it. -->
-            <button id="bannerBack" type="button" hidden aria-label="Back">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M19.5 12H5.6" />
-                <path d="M11.2 5.8 5 12l6.2 6.2" />
-              </svg>
-            </button>
-            <!-- THE LEVEL AND THE TWO SCORES COME FIRST, on the left. REPORTED: "The L1 100 Daily No Score should be simplified
-                 and moved up to the same line as the hints on the left hand side. The simplification could look like L1 {Drill
-                 Icon}:100 {Daily Icon}:0" — so it is the level, then a glyph per game with its score, and the words "no score"
-                 are an em dash in the value (see `ui/banner.ts`: an absence must never print as a zero, but a row this thin has
-                 no room for the sentence, so the sentence is the group's accessible name). -->
-            <p id="bannerScores" role="img" aria-label="Level 1">
-              <span id="bannerLevel"></span>
-              <span class="banner-score">
-                <!-- THE DRILL'S GLYPH IS A RUNNING MAN, asked for by name: a figure mid-stride says "the drill" — a ladder of
-                     calls walked one at a time — and it is distinguishable from the sun beside it even at 14 px, which two
-                     abstract shapes were not. Five strokes, round caps, no fill: the same language as the account badge. -->
+               THE APP'S NAME IS NOT HERE, AND THAT IS A CORRECTION. It was an `<h1>` above this row on every page, and it was
+               the tallest thing in a 340 px panel: REPORTED as "it's not adding anything and takes up a lot of screen
+               realestate". The name is carried by the browser tab (and the document title, which each page sets), by the
+               installed app's icon, and by the landing page's own heading, which is the one page where it belongs.
+
+               IT SITS INSIDE THE PANEL RATHER THAN OVER THE CANVAS, and that is a measured decision: the canvas's own top
+               strip carries the board captions and the board switcher, so a banner over it would cover the two things that
+               say what the boards are. The row is also the row the retired mode switch freed. -->
+          <header id="head">
+            <!-- THE BANNER IS ONE ROW AGAIN: the way back, the game (the level's two scores), then the player (the hint meter and
+                 the account). REPORTED, in order: "The Back button feels inappropriate for the top banner. A secondary banner
+                 could have a breadcrumb (minimalist) and the back button" — which was built — and then "Change the back button to
+                 just an square back arrow and move it up to the top left of the header. Delete the breadcrumb. This makes more
+                 screen real estate." So the second row is gone and its two occupants moved: the back button to the first cell as
+                 an icon, the position to the right of the scores.
+
+                 AND THEN THE POSITION LINE WENT TOO — REPORTED: "Remove this text section from the heading when viewing the Drill
+                 puzzle. It causes the header to reflow onto the next line for mobile." It was the only SENTENCE in the row
+                 ("Drill 3/100 · L1"), ~110 px of text beside four fixed cells in a 300-340 px panel, so it was what tipped the
+                 wrapping flex row onto a second line; MEASURED at 1280 x 800 the row was 58 px tall — two lines — against 36 px on
+                 a sheet where `#regime` was already hidden. The level block states the position in full, so the line was a
+                 duplicate as well as the tallest thing in the header. -->
+            <div id="bannerRow">
+              <!-- THE WAY BACK IS AN ICON, and the glyph is `aria-hidden` with its destination in the accessible name. It is the
+                   first cell of the row, which is where a back arrow belongs; a page with no parent (the menu) hides it. -->
+              <button id="bannerBack" type="button" hidden aria-label="Back">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <circle cx="16.4" cy="4.9" r="2" />
-                  <path d="M15 7 L10.2 12.6" />
-                  <path d="M13.6 8.6 L18.6 10.6" />
-                  <path d="M10.2 12.6 L15.4 14.6 L14.2 20.2" />
-                  <path d="M10.2 12.6 L5.4 17.6" />
+                  <path d="M19.5 12H5.6" />
+                  <path d="M11.2 5.8 5 12l6.2 6.2" />
                 </svg>
-                :<span id="bannerDrill"></span>
-              </span>
-              <span class="banner-score">
-                <!-- THE DAILY'S GLYPH IS A FULL SUN. It was a sunrise — a half disc on a horizon — and REPORTED: "make the
-                     sunrise glyph into a full sun (The sunrise is a little unobvious)": half a sun behind a line reads as a
-                     hill or a box at 14 px, where a disc with rays round it is the one shape everybody draws for "the sun". -->
+              </button>
+              <!-- THE LEVEL AND THE TWO SCORES COME FIRST, on the left. REPORTED: "The L1 100 Daily No Score should be simplified
+                   and moved up to the same line as the hints on the left hand side. The simplification could look like L1 {Drill
+                   Icon}:100 {Daily Icon}:0" — so it is the level, then a glyph per game with its score, and the words "no score"
+                   are an em dash in the value (see `ui/banner.ts`: an absence must never print as a zero, but a row this thin has
+                   no room for the sentence, so the sentence is the group's accessible name). -->
+              <p id="bannerScores" role="img" aria-label="Level 1">
+                <span id="bannerLevel"></span>
+                <span class="banner-score">
+                  <!-- THE DRILL'S GLYPH IS A RUNNING MAN, asked for by name: a figure mid-stride says "the drill" — a ladder of
+                       calls walked one at a time — and it is distinguishable from the sun beside it even at 14 px, which two
+                       abstract shapes were not. Five strokes, round caps, no fill: the same language as the account badge. -->
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="16.4" cy="4.9" r="2" />
+                    <path d="M15 7 L10.2 12.6" />
+                    <path d="M13.6 8.6 L18.6 10.6" />
+                    <path d="M10.2 12.6 L15.4 14.6 L14.2 20.2" />
+                    <path d="M10.2 12.6 L5.4 17.6" />
+                  </svg>
+                  :<span id="bannerDrill"></span>
+                </span>
+                <span class="banner-score">
+                  <!-- THE DAILY'S GLYPH IS A FULL SUN. It was a sunrise — a half disc on a horizon — and REPORTED: "make the
+                       sunrise glyph into a full sun (The sunrise is a little unobvious)": half a sun behind a line reads as a
+                       hill or a box at 14 px, where a disc with rays round it is the one shape everybody draws for "the sun". -->
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="12" r="4.3" />
+                    <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M18.7 5.3l-1.5 1.5M6.8 17.2l-1.5 1.5" />
+                  </svg>
+                  :<span id="bannerDaily"></span>
+                </span>
+              </p>
+              <!-- THE HINT METER IS A BADGE OF THREE BARS, with no number beside it, and it sits at the RIGHT OF THE ROW, beside
+                   the account badge. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge outline", then
+                   "move the hints badge to the right hand of the header to left of the account badge" — the left of the row is the
+                   game (the level and its scores), and the right is the player (what they hold, and who they are). The outline is
+                   what makes three slots read as one object; `role="img"` and the `aria-label` are what keep the number available
+                   to a screen reader, because a meter with no words beside it must be the thing that is named.
+                   THE SLOTS ARE BARS NOW, and the change is the report "The current circles in the header hint bank seem to be at
+                   odds with the badge outline": a round slot inside a rounded-rectangle outline reads as two shapes, where three
+                   bars are the same shape as the box. `data-on` is written by `paintBanner` from `bannerView`'s `hintFills` — the
+                   state is the module's, the drawing is `style.css`'s. -->
+              <p id="bannerHints" role="img" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-bars"><i data-on="false"></i><i data-on="false"></i><i data-on="false"></i></span></p>
+              <!-- THE ACCOUNT BADGE: A CIRCLE WITH A PERSON IN IT, and it is always drawn. REPORTED first as "The empty login
+                   account badge is missing from the header", then as "The login badge is too large. Can it be a simple circular
+                   vector diagram of a person" — the first version was a pill with the email or "Sign in" in it, which is two
+                   lines of text in a row that has no room for it. The glyph is `aria-hidden` and the button's accessible name
+                   is the state (`banner.ts` decides it), so nothing is carried by the picture alone. -->
+              <button id="bannerAccount" type="button" aria-label="Your profile">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                  <circle cx="12" cy="12" r="4.3" />
-                  <path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.5 1.5M17.2 17.2l1.5 1.5M18.7 5.3l-1.5 1.5M6.8 17.2l-1.5 1.5" />
+                  <circle cx="12" cy="12" r="10.25" />
+                  <circle cx="12" cy="9.25" r="3.1" />
+                  <path d="M5.9 19.1a6.4 6.4 0 0 1 12.2 0" />
                 </svg>
-                :<span id="bannerDaily"></span>
-              </span>
-            </p>
-            <!-- THE HINT METER IS A BADGE OF THREE BARS, with no number beside it, and it sits at the RIGHT OF THE ROW, beside
-                 the account badge. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge outline", then
-                 "move the hints badge to the right hand of the header to left of the account badge" — the left of the row is the
-                 game (the level and its scores), and the right is the player (what they hold, and who they are). The outline is
-                 what makes three slots read as one object; `role="img"` and the `aria-label` are what keep the number available
-                 to a screen reader, because a meter with no words beside it must be the thing that is named.
-                 THE SLOTS ARE BARS NOW, and the change is the report "The current circles in the header hint bank seem to be at
-                 odds with the badge outline": a round slot inside a rounded-rectangle outline reads as two shapes, where three
-                 bars are the same shape as the box. `data-on` is written by `paintBanner` from `bannerView`'s `hintFills` — the
-                 state is the module's, the drawing is `style.css`'s. -->
-            <p id="bannerHints" role="img" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-bars"><i data-on="false"></i><i data-on="false"></i><i data-on="false"></i></span></p>
-            <!-- THE ACCOUNT BADGE: A CIRCLE WITH A PERSON IN IT, and it is always drawn. REPORTED first as "The empty login
-                 account badge is missing from the header", then as "The login badge is too large. Can it be a simple circular
-                 vector diagram of a person" — the first version was a pill with the email or "Sign in" in it, which is two
-                 lines of text in a row that has no room for it. The glyph is `aria-hidden` and the button's accessible name
-                 is the state (`banner.ts` decides it), so nothing is carried by the picture alone. -->
-            <button id="bannerAccount" type="button" aria-label="Your profile">
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <circle cx="12" cy="12" r="10.25" />
-                <circle cx="12" cy="9.25" r="3.1" />
-                <path d="M5.9 19.1a6.4 6.4 0 0 1 12.2 0" />
-              </svg>
-            </button>
-          </div>
-        </header>
+              </button>
+            </div>
+          </header>
 
-        <!-- THE SCROLLING BODY AND THE PINNED FOOTER. REPORTED as "still looking very messy": the panel was one column that
-             scrolled as a whole, so a tall question (or a solved drill's score line) pushed the footer's buttons past the
-             bottom edge and the primary action went off-screen. `#panelScroll` holds the content and owns the scrolling;
-             `#foot` is a grid row that never moves. The ids inside are unchanged, because `el()` resolves them. -->
-        <div id="panelScroll">
+          <!-- THE SCROLLING BODY AND THE PINNED FOOTER. REPORTED as "still looking very messy": the panel was one column that
+               scrolled as a whole, so a tall question (or a solved drill's score line) pushed the footer's buttons past the
+               bottom edge and the primary action went off-screen. `#panelScroll` holds the content and owns the scrolling;
+               `#foot` is a grid row that never moves. The ids inside are unchanged, because `el()` resolves them. -->
+          <div id="panelScroll">
 
-        <!-- A SENTENCE THAT OUTLIVES A NAVIGATION. REPORTED as "Lets introduce pages": a page change used to be a panel
-             swap, so a refusal could always be written into the panel it belonged to. With pages a refusal can arrive
-             for a page the player is not on — a deep link to a drill that is not there — and a message in a hidden
-             section is a message nobody reads. `notice` is the one place for those, and it is `hidden` when it has
-             nothing to say so it costs no height. -->
-        <p id="notice" role="status" hidden></p>
+          <!-- A SENTENCE THAT OUTLIVES A NAVIGATION. REPORTED as "Lets introduce pages": a page change used to be a panel
+               swap, so a refusal could always be written into the panel it belonged to. With pages a refusal can arrive
+               for a page the player is not on — a deep link to a drill that is not there — and a message in a hidden
+               section is a message nobody reads. `notice` is the one place for those, and it is `hidden` when it has
+               nothing to say so it costs no height. -->
+          <p id="notice" role="status" hidden></p>
 
-        <!-- THE LANDING PAGE. REPORTED: "Lets introduce pages and a simple navigation system." It is the menu and the
-             only page with no back button, and it says the two facts a player needs before choosing: who they are and
-             what is kept. The buttons are in the order the report listed them. -->
-        <section id="landing" class="page" hidden>
-          <h2 id="landingHeading" tabindex="-1">Dancing Squared</h2>
-          <p class="page-lede">Two boards, one question: which call gets the square from the arrangement on the left to the one on the right?</p>
-          <nav id="landingNav" aria-label="Pages">
-            <button id="goProfile" type="button">Profile</button>
-            <button id="goHelp" type="button">How to play</button>
-            <button id="goLevels" type="button">Drill Level</button>
-            <button id="goDaily" type="button">Today's Daily</button>
-            <button id="goSetup" type="button">Setup</button>
-            <button id="goBoard" type="button">The board</button>
-          </nav>
-          <!-- WHO YOU ARE, SAID ONCE. The banner carries it on every page; here it is the reason to press the account
-               button, so it is written as a sentence rather than as a status chip. -->
-          <p id="landingStatus" class="page-note"></p>
-        </section>
+          <!-- THE LANDING PAGE. REPORTED: "Lets introduce pages and a simple navigation system." It is the menu and the
+               only page with no back button, and it says the two facts a player needs before choosing: who they are and
+               what is kept. The buttons are in the order the report listed them. -->
+          <section id="landing" class="page" hidden>
+            <h2 id="landingHeading" tabindex="-1">Dancing Squared</h2>
+            <p class="page-lede">Two boards, one question: which call gets the square from the arrangement on the left to the one on the right?</p>
+            <nav id="landingNav" aria-label="Pages">
+              <button id="goProfile" type="button">Profile</button>
+              <button id="goHelp" type="button">How to play</button>
+              <button id="goLevels" type="button">Drill Level</button>
+              <button id="goDaily" type="button">Today's Daily</button>
+              <button id="goSetup" type="button">Setup</button>
+              <button id="goBoard" type="button">The board</button>
+            </nav>
+            <!-- WHO YOU ARE, SAID ONCE. The banner carries it on every page; here it is the reason to press the account
+                 button, so it is written as a sentence rather than as a status chip. -->
+            <p id="landingStatus" class="page-note"></p>
+          </section>
 
-        <!-- THE SETUP PAGE: the set-once preferences and the housekeeping, which used to be a `<details>` disclosure in
-             the footer. A page is the right home for them now that there are pages — a disclosure was the answer to "the
-             footer is cluttered", and a destination is a better answer than a tap that opens a drawer over the game. -->
-        <section id="setup" class="page" hidden>
-          <h2 id="setupHeading" tabindex="-1">Setup</h2>
-          <h3>The stage</h3>
-          <!-- THE 2D/3D SWITCH. The design's own default is 2D ("a Drill question is geometry"), and a player changes
-               this once or never. -->
-          <button id="view" type="button">Switch to 2D</button>
-          <h3>Playing</h3>
-          <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
-               rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label — and
-               the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the press
-               that would have been the player's is made for them. -->
-          <button id="autoProgress" type="button" aria-pressed="false">Auto-progress: off</button>
-          <h3>This device</h3>
-          <!-- WHAT THIS DEVICE IS WORTH, in the balance's own words. The LEDGER line (what has been saved, the streak, why a run
-               is unranked) moved to the PROFILE page, which is where progress belongs: REPORTED as "a lot of debug style text at
-               the bottom of the drill screens that dont really add anything" — the two sentences were in the footer, above the
-               buttons, on every play screen. The ids are unchanged, so `paintBalance` and `paintLedger` paint the same two
-               elements wherever they are. -->
-          <p id="balance"></p>
-          <!-- IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever could:
-               the drills and the Daily are generated and published there from one shared schedule, so every player is
-               served the same ones — which is what makes a score comparable — while a player's row holds only their own
-               progress. The two presses (the second one saying what will go) are a rule the shell owns rather than a
-               native `confirm()`, which is an API no probe can see (§15 Q18), and `startOver` in `main.ts` says exactly
-               that in the panel after the clear. It is on THIS page and not in the footer because it is the one control
-               that deletes something, which is the last thing that should sit under a thumb next to Next. -->
-          <button id="startOver" type="button">Start over on this device</button>
-        </section>
+          <!-- THE SETUP PAGE: the set-once preferences and the housekeeping, which used to be a `<details>` disclosure in
+               the footer. A page is the right home for them now that there are pages — a disclosure was the answer to "the
+               footer is cluttered", and a destination is a better answer than a tap that opens a drawer over the game. -->
+          <section id="setup" class="page" hidden>
+            <h2 id="setupHeading" tabindex="-1">Setup</h2>
+            <h3>The stage</h3>
+            <!-- THE 2D/3D SWITCH. The design's own default is 2D ("a Drill question is geometry"), and a player changes
+                 this once or never. -->
+            <button id="view" type="button">Switch to 2D</button>
+            <h3>Playing</h3>
+            <!-- AUTO-PROGRESS (owner's request): a TOGGLE, because it changes what happens after the NEXT correct guess
+                 rather than doing anything on the press. Its state is on the button — `aria-pressed` plus the label — and
+                 the rule it drives is `autoProgress` in `main.ts`: once a solved drill's landing has been held, the press
+                 that would have been the player's is made for them. -->
+            <button id="autoProgress" type="button" aria-pressed="false">Auto-progress: off</button>
+            <h3>This device</h3>
+            <!-- WHAT THIS DEVICE IS WORTH, in the balance's own words. The LEDGER line (what has been saved, the streak, why a run
+                 is unranked) moved to the PROFILE page, which is where progress belongs: REPORTED as "a lot of debug style text at
+                 the bottom of the drill screens that dont really add anything" — the two sentences were in the footer, above the
+                 buttons, on every play screen. The ids are unchanged, so `paintBalance` and `paintLedger` paint the same two
+                 elements wherever they are. -->
+            <p id="balance"></p>
+            <!-- IT DELETES THE DEVICE'S RECORD AND NOTHING ELSE, and with a server configured that is all it ever could:
+                 the drills and the Daily are generated and published there from one shared schedule, so every player is
+                 served the same ones — which is what makes a score comparable — while a player's row holds only their own
+                 progress. The two presses (the second one saying what will go) are a rule the shell owns rather than a
+                 native `confirm()`, which is an API no probe can see (§15 Q18), and `startOver` in `main.ts` says exactly
+                 that in the panel after the clear. It is on THIS page and not in the footer because it is the one control
+                 that deletes something, which is the last thing that should sit under a thumb next to Next. -->
+            <button id="startOver" type="button">Start over on this device</button>
+          </section>
 
-        <!-- THE HELP PAGE. Written from the rules the game actually implements, one entry per rule a player cannot infer
-             from the board: what the two boards are, what a drill is, what the Daily's clock does, the two-group gesture
-             (the one control with no visible affordance), what the score is out of, and what an account changes. -->
-        <section id="help" class="page" hidden>
-          <h2 id="helpHeading" tabindex="-1">How to play</h2>
-          <p class="page-lede">The two boards are two moments of one square. The left board is where you are; the right one is the arrangement you are trying to reach. Every question is one call that gets you there.</p>
-          <dl class="help-list">
-            <dt>The Drill</dt>
-            <dd>The season's calls in order, ten to a level. Each drill is one call; answer it and the next one is yours. A cell you have passed can be reopened to watch its calls back, and a cell you closed without a pass can be attempted again.</dd>
-            <dt>Today's Daily</dt>
-            <dd>One puzzle, the same for everyone, once a day. Its clock starts the first time you open it, and the time you spend away from the page is charged to the run — so a Daily is a sitting rather than something to leave running.</dd>
-            <dt>Two-group steps</dt>
-            <dd>Some calls only happen when two groups do different things at once. Hold Shift and click a call to begin a two-group step, then pick a call under another group. The line above the answers says which reading is armed, and pressing it again puts the reading down.</dd>
-            <dt>The score</dt>
-            <dd>A solved drill is scored out of 100 at level 1 and out of 100 more at each level above it, because the maximum is what a clean, first-try run at that level is worth. Answering wrong or taking longer than the puzzle expects takes a share of it, and a solved run never drops below one point.</dd>
-            <dt>Hints</dt>
-            <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots in the banner are what you hold, filled for what is there.</dd>
-            <dt>Signing in</dt>
-            <dd>Without an account you can play everything; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
-          </dl>
-          <p class="page-note">The banner is on every page: the way back on the left, and what you hold and what you are worth beside it.</p>
-        </section>
+          <!-- THE HELP PAGE. Written from the rules the game actually implements, one entry per rule a player cannot infer
+               from the board: what the two boards are, what a drill is, what the Daily's clock does, the two-group gesture
+               (the one control with no visible affordance), what the score is out of, and what an account changes. -->
+          <section id="help" class="page" hidden>
+            <h2 id="helpHeading" tabindex="-1">How to play</h2>
+            <p class="page-lede">The two boards are two moments of one square. The left board is where you are; the right one is the arrangement you are trying to reach. Every question is one call that gets you there.</p>
+            <dl class="help-list">
+              <dt>The Drill</dt>
+              <dd>The season's calls in order, ten to a level. Each drill is one call; answer it and the next one is yours. A cell you have passed can be reopened to watch its calls back, and a cell you closed without a pass can be attempted again.</dd>
+              <dt>Today's Daily</dt>
+              <dd>One puzzle, the same for everyone, once a day. Its clock starts the first time you open it, and the time you spend away from the page is charged to the run — so a Daily is a sitting rather than something to leave running.</dd>
+              <dt>Two-group steps</dt>
+              <dd>Some calls only happen when two groups do different things at once. Hold Shift and click a call to begin a two-group step, then pick a call under another group. The line above the answers says which reading is armed, and pressing it again puts the reading down.</dd>
+              <dt>The score</dt>
+              <dd>A solved drill is scored out of 100 at level 1 and out of 100 more at each level above it, because the maximum is what a clean, first-try run at that level is worth. Answering wrong or taking longer than the puzzle expects takes a share of it, and a solved run never drops below one point.</dd>
+              <dt>Hints</dt>
+              <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots in the banner are what you hold, filled for what is there.</dd>
+              <dt>Signing in</dt>
+              <dd>Without an account you can play everything; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
+            </dl>
+            <p class="page-note">The banner is on every page: the way back on the left, and what you hold and what you are worth beside it.</p>
+          </section>
 
-        <!-- THE PROFILE PAGE (DESIGN.md §11.2). REPORTED: "clicking on it takes you to a profile page, showing progress,
-             leaderboards, registered email address, password changing" — so the page is four sections rather than one form:
-             who you are (the sign-in form when nobody is, the email and Sign out when somebody is), what you have done on
-             this device, where the board is, and the one thing a signed-in player can change about their own account.
+          <!-- THE PROFILE PAGE (DESIGN.md §11.2). REPORTED: "clicking on it takes you to a profile page, showing progress,
+               leaderboards, registered email address, password changing" — so the page is four sections rather than one form:
+               who you are (the sign-in form when nobody is, the email and Sign out when somebody is), what you have done on
+               this device, where the board is, and the one thing a signed-in player can change about their own account.
 
-             ITS ROW STARTS HIDDEN because both the offline game and a `dev` server have no account to offer:
-             `ui/account-screen.ts` reveals the row only when there is something true to say, and the form inside it only when
-             `/health` advertises sign-in routes — a form at a server that would answer 404 is the failure reading that list
-             avoids. The password form reads the same list one step further: a server that serves sign-in but not
-             `/auth/password` (the `cognito` half, whose hosted flow owns passwords) is offered no form. The section's id is
-             the PAGE's, so the page model and the markup agree on eight names and no translation table. -->
-        <section id="profile" class="page" hidden>
-          <h2 id="profileHeading" tabindex="-1">Your profile</h2>
-          <h3>Who you are</h3>
-          <!-- WHAT AN ACCOUNT IS FOR, said on every build: the row below it is hidden when there is nothing to offer (an
-               offline game, a `dev` server whose header already names the player), and a page with only a heading is a page
-               that reads as broken. This sentence is true whether or not the form is. -->
-          <p class="page-note">An account puts your runs on the server, which is what lets them be ranked and what puts your name on the board. Without one the game is complete and everything stays on this device.</p>
-          <div id="accountRow" hidden>
-            <p id="accountStatus"></p>
-            <form id="accountForm" hidden>
-              <input id="accountEmail" type="email" name="email" autocomplete="username" placeholder="you@example.com" aria-label="Email address" />
-              <input id="accountPassword" type="password" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password" />
-              <button id="accountSignIn" type="submit">Sign in</button>
-              <button id="accountSignUp" type="button">Create an account</button>
-              <input id="accountCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" aria-label="Confirmation code" hidden />
-              <button id="accountConfirm" type="button" hidden>Confirm</button>
+               ITS ROW STARTS HIDDEN because both the offline game and a `dev` server have no account to offer:
+               `ui/account-screen.ts` reveals the row only when there is something true to say, and the form inside it only when
+               `/health` advertises sign-in routes — a form at a server that would answer 404 is the failure reading that list
+               avoids. The password form reads the same list one step further: a server that serves sign-in but not
+               `/auth/password` (the `cognito` half, whose hosted flow owns passwords) is offered no form. The section's id is
+               the PAGE's, so the page model and the markup agree on eight names and no translation table. -->
+          <section id="profile" class="page" hidden>
+            <h2 id="profileHeading" tabindex="-1">Your profile</h2>
+            <h3>Who you are</h3>
+            <!-- WHAT AN ACCOUNT IS FOR, said on every build: the row below it is hidden when there is nothing to offer (an
+                 offline game, a `dev` server whose header already names the player), and a page with only a heading is a page
+                 that reads as broken. This sentence is true whether or not the form is. -->
+            <p class="page-note">An account puts your runs on the server, which is what lets them be ranked and what puts your name on the board. Without one the game is complete and everything stays on this device.</p>
+            <div id="accountRow" hidden>
+              <p id="accountStatus"></p>
+              <form id="accountForm" hidden>
+                <input id="accountEmail" type="email" name="email" autocomplete="username" placeholder="you@example.com" aria-label="Email address" />
+                <input id="accountPassword" type="password" name="password" autocomplete="current-password" placeholder="Password" aria-label="Password" />
+                <button id="accountSignIn" type="submit">Sign in</button>
+                <button id="accountSignUp" type="button">Create an account</button>
+                <input id="accountCode" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" aria-label="Confirmation code" hidden />
+                <button id="accountConfirm" type="button" hidden>Confirm</button>
+              </form>
+              <button id="accountSignOut" type="button" hidden>Sign out</button>
+            </div>
+            <h3>Your name</h3>
+            <!-- THE ALIAS IS THE ONLY THING THE UI CALLS THE PLAYER, AND IT IS THE NAME THE LEADERBOARD SHOWS. REPORTED:
+                 "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
+                 anywhere on the UI." So the board names players by this, the banner's account badge is named by it, and no
+                 sentence on any page prints an address. The rule is `puzzle/alias.ts` — 3-16 characters, letters, numbers,
+                 spaces and `. _ - '`, never `@`, and not one of the operator words — and it is checked here before a request
+                 AND again on the server, which is the authority. Its own form and its own status line, for the reason the
+                 password form has both. -->
+            <form id="aliasForm" hidden>
+              <input id="aliasInput" type="text" autocomplete="nickname" placeholder="Your name" aria-label="Leaderboard name" maxlength="24" />
+              <!-- NEXT DEALS ANOTHER SUGGESTION. REPORTED: "If the player hasnt provided a name, generate a pseudonym ... The
+                   player can use a next button to generate a new one." It only FILLS the field — claiming is still `Save name`,
+                   because a generated name is a suggestion and the player's press is what puts it on the board. A `type="button"`
+                   deliberately: a button inside the form defaults to submit, which would claim every suggestion dealt. -->
+              <button id="aliasNext" type="button">Next</button>
+              <button id="aliasSave" type="submit">Save name</button>
             </form>
-            <button id="accountSignOut" type="button" hidden>Sign out</button>
+            <p id="aliasStatus" role="status"></p>
+            <h3>Progress</h3>
+            <!-- THE SAME SENTENCE THE SETUP PAGE USED TO CARRY (`paintLedger` writes it, and the id is unchanged): what this
+                 device has saved — drills, best score, Daily streak — and, when a run is unranked, why. Progress is what a
+                 profile page is for, and the setup page keeps the two things that are settings rather than history. -->
+            <p id="ledger"></p>
+            <h3>Leaderboards</h3>
+            <p class="page-note">The board is its own page — one board per mode, per level, per period, because comparing across levels compares nothing.</p>
+            <button id="profileBoard" type="button">The board</button>
+            <h3>Password</h3>
+            <!-- THE PASSWORD FORM IS REVEALED ONLY FOR A SIGNED-IN PLAYER ON A SERVER THAT SERVES THE ROUTE. It is its own form
+                 so a submit in it cannot be mistaken for a sign-in, and its status line is its own so a refusal here does not
+                 overwrite the sentence that says what signing in does. -->
+            <form id="passwordForm" hidden>
+              <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password" aria-label="Current password" />
+              <input id="newPassword" type="password" autocomplete="new-password" placeholder="New password" aria-label="New password" />
+              <button id="passwordChange" type="submit">Change password</button>
+            </form>
+            <p id="passwordStatus" role="status"></p>
+          </section>
+
+          <!-- THE LEVEL IS THE DRILL'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown BEFORE the
+               question because it says where the player is. The cells come from `puzzle/block.ts`, whose rule is gated by
+               `test/block-probe.mjs`; this markup only gives them somewhere to go. The block is rebuilt on every paint, so
+               it holds no authored cells. -->
+          <section id="levels" class="page" aria-live="polite" hidden>
+            <h2 id="levelsHeading" tabindex="-1">The drill level</h2>
+            <p id="levelHeading"></p>
+            <!-- THE PROGRESS TRACK: the heading's "3 of 100 done" as a filled bar. The value is written by
+                 `ui/level-screen.ts` from `blockSummary` — published length as the denominator, never the block's 100 — and
+                 the element carries `role="progressbar"` so the number is not only a width. -->
+            <div id="levelProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Level progress">
+              <span id="levelProgressFill"></span>
+            </div>
+            <div id="levelBlock"></div>
+            <!-- SHOWN ONLY WHEN THE BLOCK IS FULL: the level is over, and the shell re-issues, which is what lets the
+                 server promote. A player is never teleported to the next level. -->
+            <button id="levelNext" type="button" hidden>Start the next level</button>
+          </section>
+
+          <!-- THE DRILL PAGE: THE BOARDS, THE THREE ANSWERS, AND NOTHING ABOVE THEM. REPORTED: "Also get rid of the header Drill
+               and the subheader Which call takes... They also hide the selections." Both are still in the DOM and still announced —
+               the page needs a heading to focus after a navigation (`pageHeadingId`) and the question is the question — so they are
+               `.visually-hidden` rather than deleted: a phone's sheet is 348 px and two lines of chrome over three 48 px options
+               is what pushed the last option off the bottom. -->
+          <section id="drill" class="page" aria-live="polite" hidden>
+            <h2 id="drillHeading" class="visually-hidden" tabindex="-1">Drill</h2>
+            <p id="prompt" class="visually-hidden"></p>
+            <div id="answers"></div>
+            <div id="verdict" role="status"></div>
+          </section>
+
+          <section id="daily" class="page" aria-live="polite" hidden>
+            <h2 id="dailyHeading" tabindex="-1">Today's Daily</h2>
+            <p id="dailyPrompt"></p>
+            <!-- THE ROUTE, as a sequence of ARRANGEMENTS rather than calls (DESIGN.md §9.1): a waypoint is an
+                 arrangement the player has stood in, so two different calls that leave the same setup both satisfy it. -->
+            <p id="dailyWaypoints"></p>
+            <p id="dailyReadout"></p>
+            <!-- HOW TO COMPOSE A TWO-GROUP STEP, and which reading is armed once one is: "Shift-click a call (⇧) to start
+                 a two-group step, then pick a call under another group", or "<reading> armed — …". It is not empty while
+                 the run is playing, because an unannounced gesture does not exist (DESIGN.md §9.2). -->
+            <p id="offerPairHint"></p>
+            <!-- NARROWING THE LIST. A level-1 Daily offers 277 readings over 14 subsets from the squared set and 306 over 16 from a generated start, so reaching the call a player
+                 has in mind used to mean scrolling a page of buttons. TWO independent narrowings, both stateful: the
+                 subset buttons (`aria-pressed`, press the pressed one again to show everything) and the search box,
+                 which matches each reading's own spelling. The count says what is left, and `0 of 306` is a real
+                 answer rather than an empty list with no explanation. -->
+            <div id="callFilter" class="call-filter">
+              <input id="callSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search calls…" aria-label="Search calls" />
+              <span id="callCount" class="call-count" role="status"></span>
+              <div id="callSubsets" class="call-subsets" role="group" aria-label="Filter by who dances"></div>
+            </div>
+            <!-- THE OFFERING LIST IS WHAT IS LEGAL NOW (DESIGN.md 9, decision 9) — not what is still solvable.
+                 Dead ends are the player's to discover, and the score is what makes discovering them cost. -->
+            <div id="offer"></div>
+            <p id="line"></p>
+            <div id="dailyVerdict" role="status"></div>
+            <div id="dailyResult" hidden></div>
+          </section>
+
+          <!-- THE BOARD IS A PAGE AND NOT A MODE: a mode is something a player PLAYS, and a board is a read (DESIGN.md §6,
+               §11). It is loaded when the page is entered — the page IS the request — and reloaded by its own button. It
+               says which board it is showing, because "the leaderboard" is three facts (§6: mode, level, period) and
+               comparing across levels is comparing nothing. The two buttons choose the mode half of that, so a player who
+               has never opened a drill can still read yesterday's Daily board. -->
+          <section id="board" class="page" aria-live="polite" hidden>
+            <h2 id="boardHeading" tabindex="-1">The board</h2>
+            <div id="boardMode" role="group" aria-label="Which board">
+              <button id="boardModeDrill" type="button" aria-pressed="true">The Drill</button>
+              <button id="boardModeDaily" type="button" aria-pressed="false">Today's Daily</button>
+            </div>
+            <p id="boardCaption" class="board-caption"></p>
+            <p id="boardStatus" class="board-status"></p>
+            <ol id="boardList" class="board-list"></ol>
+            <button id="boardToggle" type="button">Reload the board</button>
+          </section>
+
           </div>
-          <h3>Your name</h3>
-          <!-- THE ALIAS IS THE ONLY THING THE UI CALLS THE PLAYER, AND IT IS THE NAME THE LEADERBOARD SHOWS. REPORTED:
-               "the user needs a login alias that can be displayed in the leaderboard. Dont expose the email address
-               anywhere on the UI." So the board names players by this, the banner's account badge is named by it, and no
-               sentence on any page prints an address. The rule is `puzzle/alias.ts` — 3-16 characters, letters, numbers,
-               spaces and `. _ - '`, never `@`, and not one of the operator words — and it is checked here before a request
-               AND again on the server, which is the authority. Its own form and its own status line, for the reason the
-               password form has both. -->
-          <form id="aliasForm" hidden>
-            <input id="aliasInput" type="text" autocomplete="nickname" placeholder="Your name" aria-label="Leaderboard name" maxlength="24" />
-            <!-- NEXT DEALS ANOTHER SUGGESTION. REPORTED: "If the player hasnt provided a name, generate a pseudonym ... The
-                 player can use a next button to generate a new one." It only FILLS the field — claiming is still `Save name`,
-                 because a generated name is a suggestion and the player's press is what puts it on the board. A `type="button"`
-                 deliberately: a button inside the form defaults to submit, which would claim every suggestion dealt. -->
-            <button id="aliasNext" type="button">Next</button>
-            <button id="aliasSave" type="submit">Save name</button>
-          </form>
-          <p id="aliasStatus" role="status"></p>
-          <h3>Progress</h3>
-          <!-- THE SAME SENTENCE THE SETUP PAGE USED TO CARRY (`paintLedger` writes it, and the id is unchanged): what this
-               device has saved — drills, best score, Daily streak — and, when a run is unranked, why. Progress is what a
-               profile page is for, and the setup page keeps the two things that are settings rather than history. -->
-          <p id="ledger"></p>
-          <h3>Leaderboards</h3>
-          <p class="page-note">The board is its own page — one board per mode, per level, per period, because comparing across levels compares nothing.</p>
-          <button id="profileBoard" type="button">The board</button>
-          <h3>Password</h3>
-          <!-- THE PASSWORD FORM IS REVEALED ONLY FOR A SIGNED-IN PLAYER ON A SERVER THAT SERVES THE ROUTE. It is its own form
-               so a submit in it cannot be mistaken for a sign-in, and its status line is its own so a refusal here does not
-               overwrite the sentence that says what signing in does. -->
-          <form id="passwordForm" hidden>
-            <input id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password" aria-label="Current password" />
-            <input id="newPassword" type="password" autocomplete="new-password" placeholder="New password" aria-label="New password" />
-            <button id="passwordChange" type="submit">Change password</button>
-          </form>
-          <p id="passwordStatus" role="status"></p>
-        </section>
 
-        <!-- THE LEVEL IS THE DRILL'S HOME (DESIGN.md §15 Q17(v)): a 10x10 block, one cell per drill, shown BEFORE the
-             question because it says where the player is. The cells come from `puzzle/block.ts`, whose rule is gated by
-             `test/block-probe.mjs`; this markup only gives them somewhere to go. The block is rebuilt on every paint, so
-             it holds no authored cells. -->
-        <section id="levels" class="page" aria-live="polite" hidden>
-          <h2 id="levelsHeading" tabindex="-1">The drill level</h2>
-          <p id="levelHeading"></p>
-          <!-- THE PROGRESS TRACK: the heading's "3 of 100 done" as a filled bar. The value is written by
-               `ui/level-screen.ts` from `blockSummary` — published length as the denominator, never the block's 100 — and
-               the element carries `role="progressbar"` so the number is not only a width. -->
-          <div id="levelProgress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Level progress">
-            <span id="levelProgressFill"></span>
-          </div>
-          <div id="levelBlock"></div>
-          <!-- SHOWN ONLY WHEN THE BLOCK IS FULL: the level is over, and the shell re-issues, which is what lets the
-               server promote. A player is never teleported to the next level. -->
-          <button id="levelNext" type="button" hidden>Start the next level</button>
-        </section>
+          <!-- THE FOOTER IS THE GAME'S OWN CONTROLS AND NOTHING ELSE. REPORTED twice: "Some of the current buttons seem like
+               overkill" (which took four of them to the Setup page) and then "a lot of debug style text at the bottom of the
+               drill screens that dont really add anything" — the two bookkeeping sentences that used to sit above these
+               buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint,
+               Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move.
 
-        <!-- THE DRILL PAGE: THE BOARDS, THE THREE ANSWERS, AND NOTHING ABOVE THEM. REPORTED: "Also get rid of the header Drill
-             and the subheader Which call takes... They also hide the selections." Both are still in the DOM and still announced —
-             the page needs a heading to focus after a navigation (`pageHeadingId`) and the question is the question — so they are
-             `.visually-hidden` rather than deleted: a phone's sheet is 348 px and two lines of chrome over three 48 px options
-             is what pushed the last option off the bottom. -->
-        <section id="drill" class="page" aria-live="polite" hidden>
-          <h2 id="drillHeading" class="visually-hidden" tabindex="-1">Drill</h2>
-          <p id="prompt" class="visually-hidden"></p>
-          <div id="answers"></div>
-          <div id="verdict" role="status"></div>
-        </section>
+               AND "SHOW ME THE ANSWER" IS GONE. REPORTED: "remove the option to see the answer to a drill, there are only three
+               answers, players will get there eventually." It was the one control that turned a run into a countable-but-worthless
+               one, and a coin-flip between three options reaches the same knowledge faster. The RULE it enforced (a revealed run is
+               never ranked) stays in the controller, the API and the submission, which is what `main.ts` records where the
+               handler used to be.
 
-        <section id="daily" class="page" aria-live="polite" hidden>
-          <h2 id="dailyHeading" tabindex="-1">Today's Daily</h2>
-          <p id="dailyPrompt"></p>
-          <!-- THE ROUTE, as a sequence of ARRANGEMENTS rather than calls (DESIGN.md §9.1): a waypoint is an
-               arrangement the player has stood in, so two different calls that leave the same setup both satisfy it. -->
-          <p id="dailyWaypoints"></p>
-          <p id="dailyReadout"></p>
-          <!-- HOW TO COMPOSE A TWO-GROUP STEP, and which reading is armed once one is: "Shift-click a call (⇧) to start
-               a two-group step, then pick a call under another group", or "<reading> armed — …". It is not empty while
-               the run is playing, because an unannounced gesture does not exist (DESIGN.md §9.2). -->
-          <p id="offerPairHint"></p>
-          <!-- NARROWING THE LIST. A level-1 Daily offers 277 readings over 14 subsets from the squared set and 306 over 16 from a generated start, so reaching the call a player
-               has in mind used to mean scrolling a page of buttons. TWO independent narrowings, both stateful: the
-               subset buttons (`aria-pressed`, press the pressed one again to show everything) and the search box,
-               which matches each reading's own spelling. The count says what is left, and `0 of 306` is a real
-               answer rather than an empty list with no explanation. -->
-          <div id="callFilter" class="call-filter">
-            <input id="callSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search calls…" aria-label="Search calls" />
-            <span id="callCount" class="call-count" role="status"></span>
-            <div id="callSubsets" class="call-subsets" role="group" aria-label="Filter by who dances"></div>
-          </div>
-          <!-- THE OFFERING LIST IS WHAT IS LEGAL NOW (DESIGN.md 9, decision 9) — not what is still solvable.
-               Dead ends are the player's to discover, and the score is what makes discovering them cost. -->
-          <div id="offer"></div>
-          <p id="line"></p>
-          <div id="dailyVerdict" role="status"></div>
-          <div id="dailyResult" hidden></div>
-        </section>
+               AND SO IS THE SKIP. REPORTED: "Remove the "Skip this drill" button, it shouldnt be required in a three choice
+               quiestion." It went in two steps — withheld on a sheet first ("In mobile view, remove the skip ... they hide the
+               choices"), then withdrawn everywhere — because a three-option question with a "give up" beside it is a question
+               that answers itself. The SERVER's endpoint stays (`POST /drill/advance` closes a position and records an
+               abandonment), so nothing about the protocol moved; what moved is that this app no longer offers to spend a drill. -->
+          <footer id="foot">
+            <button id="hint" type="button" hidden>Hint (+1 min)</button>
+            <button id="undo" type="button" hidden>Undo</button>
+            <button id="redo" type="button" hidden>Redo</button>
+            <button id="giveUp" type="button" hidden>Give up</button>
+            <!-- THE REPLAY LIST: the calls a solved line was made of, as text. It is READ BACK, not played from here —
+                 the owner's call ("the list of calls and the 'your line' button are actually enough"), which is what
+                 took the play/pause and the scrub out. The two buttons after it choose WHICH line, once one exists. -->
+            <div id="replayBox" hidden>
+              <p id="replayHeading"></p>
+              <ol id="replayCalls"></ol>
+            </div>
+            <button id="replayMine" type="button" hidden>Play</button>
+            <button id="replayShortest" type="button" hidden>The shortest line</button>
+            <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order
+                 is not the season's, so it is offered by name rather than substituted quietly, and the label says what
+                 taking it means. -->
+            <button id="practice" type="button" hidden>Practice offline — this one will not count</button>
+            <button id="next" type="button" hidden>Next drill</button>
+          </footer>
+        </main>
 
-        <!-- THE BOARD IS A PAGE AND NOT A MODE: a mode is something a player PLAYS, and a board is a read (DESIGN.md §6,
-             §11). It is loaded when the page is entered — the page IS the request — and reloaded by its own button. It
-             says which board it is showing, because "the leaderboard" is three facts (§6: mode, level, period) and
-             comparing across levels is comparing nothing. The two buttons choose the mode half of that, so a player who
-             has never opened a drill can still read yesterday's Daily board. -->
-        <section id="board" class="page" aria-live="polite" hidden>
-          <h2 id="boardHeading" tabindex="-1">The board</h2>
-          <div id="boardMode" role="group" aria-label="Which board">
-            <button id="boardModeDrill" type="button" aria-pressed="true">The Drill</button>
-            <button id="boardModeDaily" type="button" aria-pressed="false">Today's Daily</button>
-          </div>
-          <p id="boardCaption" class="board-caption"></p>
-          <p id="boardStatus" class="board-status"></p>
-          <ol id="boardList" class="board-list"></ol>
-          <button id="boardToggle" type="button">Reload the board</button>
-        </section>
+        <!-- THE STANDINGS TAKE THE DANCE BOARD'S PLACE IN FULL SCREEN. REPORTED: "When in full screen mode, keep the hud in the
+             left hand side of the screen, the same as the Drill screen. When the Dance board is not being used, the area should
+             be replaced by the leader boards." The dance board is the QUESTION on the Drill and Daily pages; on every other
+             page that area was empty once the stage went, and the two boards are the read a player wants there.
 
-        </div>
+             THE HUD IS STILL THE PANEL, and this is the panel's sibling inside `#hud` rather than part of it. The stylesheet
+             shows it only on a full-screen page with no board (`html[data-panel="left"][data-stage="page"]` — the two facts
+             `ui/pages.ts`'s `showsStandings` reads), so a SHEET never draws it: there the page IS the panel, and the board
+             page keeps its own in-panel list. `main.ts` loads both boards here through the same `LeaderboardScreen` the page
+             uses. It carries the panel's own `z-index: 2`, because it is the other layer that owns taps over the canvas. -->
+        <aside id="sideBoard" aria-label="Leaderboards">
+          <section class="side-board" aria-labelledby="sideDrillHeading">
+            <h2 id="sideDrillHeading">The Drill</h2>
+            <p id="sideDrillCaption" class="board-caption"></p>
+            <p id="sideDrillStatus" class="board-status" role="status"></p>
+            <ol id="sideDrillList" class="board-list"></ol>
+          </section>
+          <section class="side-board" aria-labelledby="sideDailyHeading">
+            <h2 id="sideDailyHeading">Today's Daily</h2>
+            <p id="sideDailyCaption" class="board-caption"></p>
+            <p id="sideDailyStatus" class="board-status" role="status"></p>
+            <ol id="sideDailyList" class="board-list"></ol>
+          </section>
+        </aside>
 
-        <!-- THE FOOTER IS THE GAME'S OWN CONTROLS AND NOTHING ELSE. REPORTED twice: "Some of the current buttons seem like
-             overkill" (which took four of them to the Setup page) and then "a lot of debug style text at the bottom of the
-             drill screens that dont really add anything" — the two bookkeeping sentences that used to sit above these
-             buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint,
-             Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move.
-
-             AND "SHOW ME THE ANSWER" IS GONE. REPORTED: "remove the option to see the answer to a drill, there are only three
-             answers, players will get there eventually." It was the one control that turned a run into a countable-but-worthless
-             one, and a coin-flip between three options reaches the same knowledge faster. The RULE it enforced (a revealed run is
-             never ranked) stays in the controller, the API and the submission, which is what `main.ts` records where the
-             handler used to be.
-
-             AND SO IS THE SKIP. REPORTED: "Remove the "Skip this drill" button, it shouldnt be required in a three choice
-             quiestion." It went in two steps — withheld on a sheet first ("In mobile view, remove the skip ... they hide the
-             choices"), then withdrawn everywhere — because a three-option question with a "give up" beside it is a question
-             that answers itself. The SERVER's endpoint stays (`POST /drill/advance` closes a position and records an
-             abandonment), so nothing about the protocol moved; what moved is that this app no longer offers to spend a drill. -->
-        <footer id="foot">
-          <button id="hint" type="button" hidden>Hint (+1 min)</button>
-          <button id="undo" type="button" hidden>Undo</button>
-          <button id="redo" type="button" hidden>Redo</button>
-          <button id="giveUp" type="button" hidden>Give up</button>
-          <!-- THE REPLAY LIST: the calls a solved line was made of, as text. It is READ BACK, not played from here —
-               the owner's call ("the list of calls and the 'your line' button are actually enough"), which is what
-               took the play/pause and the scrub out. The two buttons after it choose WHICH line, once one exists. -->
-          <div id="replayBox" hidden>
-            <p id="replayHeading"></p>
-            <ol id="replayCalls"></ol>
-          </div>
-          <button id="replayMine" type="button" hidden>Play</button>
-          <button id="replayShortest" type="button" hidden>The shortest line</button>
-          <!-- THE PRACTICE OFFER (DESIGN.md §15 Q20) is HIDDEN until the server refuses a drill: the fixture's order
-               is not the season's, so it is offered by name rather than substituted quietly, and the label says what
-               taking it means. -->
-          <button id="practice" type="button" hidden>Practice offline — this one will not count</button>
-          <button id="next" type="button" hidden>Next drill</button>
-        </footer>
-      </main>
-
-      <!-- THE STANDINGS TAKE THE DANCE BOARD'S PLACE IN FULL SCREEN. REPORTED: "When in full screen mode, keep the hud in the
-           left hand side of the screen, the same as the Drill screen. When the Dance board is not being used, the area should
-           be replaced by the leader boards." The dance board is the QUESTION on the Drill and Daily pages; on every other
-           page that area was empty once the stage went, and the two boards are the read a player wants there.
-
-           THE HUD IS STILL THE PANEL, and this is its sibling rather than part of it. The stylesheet shows it only on a
-           full-screen page with no board (`html[data-panel="left"][data-stage="page"]` — the two facts `ui/pages.ts`'s
-           `showsStandings` reads), so a SHEET never draws it: there the page IS the panel, and the board page keeps its own
-           in-panel list. `main.ts` loads both boards here through the same `LeaderboardScreen` the page uses. -->
-      <aside id="sideBoard" aria-label="Leaderboards">
-        <section class="side-board" aria-labelledby="sideDrillHeading">
-          <h2 id="sideDrillHeading">The Drill</h2>
-          <p id="sideDrillCaption" class="board-caption"></p>
-          <p id="sideDrillStatus" class="board-status" role="status"></p>
-          <ol id="sideDrillList" class="board-list"></ol>
-        </section>
-        <section class="side-board" aria-labelledby="sideDailyHeading">
-          <h2 id="sideDailyHeading">Today's Daily</h2>
-          <p id="sideDailyCaption" class="board-caption"></p>
-          <p id="sideDailyStatus" class="board-status" role="status"></p>
-          <ol id="sideDailyList" class="board-list"></ol>
-        </section>
-      </aside>
-
+      </div>
       <div id="loading">Loading the corpus…</div>
     </div>
     <script type="module" src="/src/main.ts"></script>

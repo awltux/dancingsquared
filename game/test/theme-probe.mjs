@@ -117,6 +117,10 @@ console.log('\n== 2. the real stylesheet ==');
   // cannot call a function: the panel's size (`ui/layout.ts`) and the level path's column count (`ui/level-map.ts`).
   // Exempt BY NAME rather than by pattern, and each exemption carries its own rule below — a value the script provides must
   // have a CSS default, or the first paint before the script runs has a sheet of zero height or a path of ten columns.
+  //
+  // THE ARROW WIDTH, GUTTER AND BOARD FRAME WERE HERE AND ARE GONE, with the arrows: the paging controls are transparent
+  // quarter-width zones positioned from the canvas edges alone (`.wp-nav`), so nothing about the board's measured frame
+  // reaches CSS and `main.ts` no longer publishes `--arrow-width`, `--board-top` or `--board-bottom`.
   const PROVIDED_ELSEWHERE = new Set(['--panel-size', '--level-columns']);
   const missing = used.filter((name) => !provided.has(name) && !PROVIDED_ELSEWHERE.has(name));
   check(missing.length === 0, `and every one of them is defined (${missing.length} missing)`, missing.join(', '));
@@ -172,7 +176,7 @@ console.log('\n== 4. WCAG AA, computed from the table ==');
     ['success on the panel', COLOR.ok, panel, 4.5, 'a solved verdict'],
     ['danger on the panel', COLOR.bad, panel, 4.5, 'a refusal, which must be as readable as a success'],
     ['attention on the panel', COLOR.accent, panel, 4.5, 'an info line and the pressed mode tab'],
-    ['attention on its own ghost', COLOR.accent, over(parseColour(COLOR.accentGhost), bg), 4.5, 'the waypoint arrow glyph'],
+    ['attention on its own ghost', COLOR.accent, over(parseColour(COLOR.accentGhost), bg), 4.5, 'the paging zone\'s focus fill'],
     ['next on the panel', COLOR.next, panel, 4.5, 'the legend key beside a pending waypoint'],
     ['a cell number on a done drill', COLOR.ink, parseColour(COLOR.donePassed), 4.5, 'the level block\'s passed cells'],
     ['a cell number on a skipped drill', COLOR.ink, parseColour(COLOR.doneSkipped), 4.5, 'and its skipped ones'],

@@ -297,8 +297,13 @@ html[data-panel="left"][data-stage="page"] #boardList {
 /* THE HINT METER IS ONE BADGE, AND IT IS THE ROW'S RIGHT-HAND GROUP WITH THE ACCOUNT BADGE. REPORTED: "Remove the text Hints
    0/3 and surround the hint circles with a badge outline", then "move the hints badge to the right hand of the header to left of
    the account badge" — so the left of the row is the game (the level and its scores) and `margin-left: auto` starts the player's
-   group. It carries no text: the number is the cell's `aria-label` (`role="img"` in the markup), because the sentence version
-   lives on the Setup page with the rest of the device's bookkeeping. */
+   group. It carries no text: the number is the cell's `aria-label`, because the sentence version lives on the Setup page with
+   the rest of the device's bookkeeping.
+
+   IT IS A BUTTON, because REPORTED: "Daily: Remove the Hint button and move the event handler to the hint bank badge in the
+   header." So the badge has two states and both are drawn here: ENABLED with the accent edge and the pointer cursor on the
+   Daily (the app's one colour for "this is the thing to press"), and the plain meter everywhere else, which is also every
+   moment a spend cannot happen — `bannerView`'s `hintsButton` decides which, so the two can never disagree about it. */
 #bannerHints {
   display: flex;
   flex: none;
@@ -316,9 +321,43 @@ html[data-panel="left"][data-stage="page"] #boardList {
   height: var(--space-xl);
   margin: 0 0 0 auto;
   padding: 0 var(--space-sm);
+  /* A BUTTON'S OWN CHROME, PUT BACK: the browser would draw its font, its fill and its square corners, none of which is this
+     badge. There is no text in it, so the font is only what the empty `::after` (the busy ring) inherits. */
+  appearance: none;
+  font: inherit;
+  color: inherit;
   background: var(--control);
   border: 1px solid var(--line);
   border-radius: var(--r-tight);
+}
+
+/* THE ONE STATE THAT IS A CONTROL, and it is the accent edge rather than a fill: the badge is a meter first, and a filled
+   badge would stop reading as three slots. */
+#bannerHints:not(:disabled) {
+  border-color: var(--accent);
+  cursor: pointer;
+}
+
+#bannerHints:disabled {
+  cursor: default;
+}
+
+#bannerHints:not(:disabled):hover {
+  background: var(--accent-ghost);
+}
+
+/* A KEYBOARD VISITOR GETS THE RING THE REST OF THE ROW'S CONTROLS HAVE, drawn INSIDE the badge: an outset ring on a cell 8 px
+   from the row's edge would be clipped by the banner. */
+#bannerHints:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* WHILE A SPEND IS IN FLIGHT THE BADGE IS THE RING, NOT THE METER. The busy affordance is `button[data-busy="true"]`'s (a
+   spinner, an ellipsis under a reduced-motion preference, and the name `setHintBusy` writes), and three bars beside a spinner
+   in a 24 px cell is neither a meter nor a spinner. `main.ts`'s `setHintBusy` is the only writer of `data-busy`. */
+#bannerHints[data-busy="true"] #bannerPips {
+  display: none;
 }
 
 /* THE LEVEL AND ITS TWO SCORES ARE ONE CELL. `L1`, then a glyph per game with its value — the compact form the report asked
@@ -676,9 +715,11 @@ html[data-panel="left"][data-stage="page"] #boardList {
    today's challenge…") — because a spinner is invisible in a still screenshot, to a reduced-motion preference and to
    some readers. The label itself is left alone so the control does not change size or meaning.
 
-   IT IS EVERY BUTTON NOW, not the mode tabs alone: the Hint button waits on a server spend that can take a minute and
-   a half (MEASURED 88 295 ms, `HINT_TIMEOUT_MS` in `net/api.ts`), and it needs the same three signals for the same
-   reason. One selector, so the second caller could not have a busy state that looks different from the first. */
+   IT IS EVERY BUTTON NOW, not the mode tabs alone: a hint spend waits on the server and can take a minute and a half
+   (MEASURED 88 295 ms, `HINT_TIMEOUT_MS` in `net/api.ts`), and it needs the same three signals for the same reason. One
+   selector, so the second caller could not have a busy state that looks different from the first. THE HINT'S CALLER IS THE
+   BANNER'S BADGE (`#bannerHints[data-busy="true"]` hides its bars while the ring is there — a 24 px cell showing both is
+   neither a meter nor a spinner). */
 button[data-busy="true"] {
   cursor: progress;
   opacity: 0.85;

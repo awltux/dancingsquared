@@ -67,6 +67,12 @@ export interface BannerFacts {
   readonly drillTotal: number;
   /** Today's Daily score AS THE SERVER HOLDS IT, or null when there is none (a signed-out or practice run is unscored). */
   readonly dailyScore: number | null;
+  /**
+   * Whether a tap on the hint badge would spend a hint right now: the Daily's page, a run still playing, and no spend
+   * already in flight. It is the shell's answer (`dailyHintAvailable`), passed in because the state it reads — the page, the
+   * run, the in-flight flag — is the shell's, and this module decides only what that state SAYS.
+   */
+  readonly hintAvailable: boolean;
 }
 
 /** What the banner shows, one field per cell. */
@@ -81,8 +87,22 @@ export interface BannerView {
    * picture, where it would be a fourth thing to keep in step.
    */
   readonly hintFills: readonly boolean[];
-  /** The meter's accessible name, which is where the number lives now that the row carries no words. */
-  readonly hintsLabel: string;
+  /**
+   * The hint badge as a CONTROL: whether it may be pressed, and what its accessible name says.
+   *
+   * THE BADGE IS THE DAILY'S HINT BUTTON NOW. REPORTED: "Daily: Remove the Hint button and move the event handler to the hint
+   * bank badge in the header." So the meter's name has to say two different things in two states — the count where it is only
+   * a meter, and what the press does where it can be pressed — and the two must move together, which is why they are one field
+   * rather than a `disabled` boolean beside a label a caller could set to the wrong one.
+   *
+   * A ZERO BALANCE DOES NOT DISABLE IT: `disabled` follows `hintAvailable` (the Daily's page with a run still playing) and
+   * NOT `hintsHeld`, because the press is the one place that can tell a player their balance is empty — the defect that was
+   * REPORTED as "Nothing happens when I select the Hint button", and fixed when the button stopped being disabled at zero.
+   */
+  readonly hintsButton: {
+    readonly disabled: boolean;
+    readonly label: string;
+  };
   /** The level the scores belong to and how far through it the player is, as the row shows it: `L1: 40%`. */
   readonly levelText: string;
   /** The running total of solved drills — always a number, because a sum of nothing is zero. */
@@ -125,9 +145,15 @@ export function bannerView(facts: BannerFacts): BannerView {
   // and a caller that recomputed it from `hintsHeld` would be the second implementation this module exists to remove.
   const hintFills = Array.from({ length: METER }, (_, slot) => slot < filled);
   const account = accountBadge(facts);
+  // THE BADGE'S TWO STATES, from the one fact that decides both. A pressable badge names the ACTION and carries the count
+  // inside it, because "Take a hint (2 of 3 held)" is what a player needs before committing a minute of the clock; an inert
+  // one is the meter it has always been, and its name is only the number.
+  const hintsButton = facts.hintAvailable
+    ? { disabled: false, label: `Take a hint (${held} of ${METER} held)` }
+    : { disabled: true, label: `Hints ${held} of ${METER}` };
   return {
     hintFills,
-    hintsLabel: `Hints ${held} of ${METER}`,
+    hintsButton,
     // THE LEVEL AND ITS COMPLETION: `L1: 40%`, and just `L1` when no cell is published (there is no fraction to state, and
     // "0%" would claim the level is empty rather than unknown).
     levelText: facts.drillPercent === null ? `L${facts.drillLevel}` : `L${facts.drillLevel}: ${facts.drillPercent}%`,

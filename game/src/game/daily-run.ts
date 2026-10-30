@@ -272,8 +272,8 @@ export class DailyRun {
    * fact; omitting it keeps the offline path exactly as it was, which is the local look-up below.
    *
    * `spent: false` WITH A NULL CALL means there is nothing to hint from here (no call is offered), which is
-   * reported rather than thrown: the screen's hint button is disabled in that state, so reaching it is a
-   * stale click, not a bug.
+   * reported rather than thrown: the banner's hint badge cannot be pressed in that state (`main.ts`'s
+   * `dailyHintAvailable`), so reaching it is a stale click, not a bug.
    */
   takeHint(named: string | null = null): { call: string | null; spent: boolean } {
     if (this.outcome !== 'playing') return { call: null, spent: false };
@@ -284,7 +284,13 @@ export class DailyRun {
     return { call, spent: true };
   }
 
-  /** Give up: freeze the clock and the time, with no score (DESIGN.md 9's review still applies). */
+  /**
+   * Give up: freeze the clock and the time, with no score (DESIGN.md 9's review still applies).
+   *
+   * NOTHING ON SCREEN ENDS A RUN THIS WAY ANY MORE. REPORTED: "Remove the Give Up button, this is the same as using the back
+   * button" — leaving the Daily is the way out, and it leaves the run in flight instead. The state stays because a record saved
+   * by an older build can carry it and `resume` rebuilds it from those terms (`giveUp` below in `resume`).
+   */
   giveUp(nowMs: number): void {
     if (this.outcome !== 'playing') return;
     this.clock.stop(nowMs);

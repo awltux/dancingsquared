@@ -163,17 +163,21 @@
                   :<span id="bannerDaily"></span>
                 </span>
               </p>
-              <!-- THE HINT METER IS A BADGE OF THREE BARS, with no number beside it, and it sits at the RIGHT OF THE ROW, beside
-                   the account badge. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge outline", then
-                   "move the hints badge to the right hand of the header to left of the account badge" — the left of the row is the
-                   game (the level and its scores), and the right is the player (what they hold, and who they are). The outline is
-                   what makes three slots read as one object; `role="img"` and the `aria-label` are what keep the number available
-                   to a screen reader, because a meter with no words beside it must be the thing that is named.
+              <!-- THE HINT METER IS A BADGE OF THREE BARS, AND IT IS THE DAILY'S HINT BUTTON. REPORTED: "Remove the text Hints
+                   0/3 and surround the hint circles with a badge outline", then "move the hints badge to the right hand of the
+                   header to left of the account badge" — the left of the row is the game (the level and its scores), and the
+                   right is the player (what they hold, and who they are). The outline is what makes three slots read as one
+                   object; the `aria-label` is the only place the number exists, because a meter with no words beside it must
+                   be the thing that is named.
                    THE SLOTS ARE BARS NOW, and the change is the report "The current circles in the header hint bank seem to be at
                    odds with the badge outline": a round slot inside a rounded-rectangle outline reads as two shapes, where three
-                   bars are the same shape as the box. `data-on` is written by `paintBanner` from `bannerView`'s `hintFills` — the
-                   state is the module's, the drawing is `style.css`'s. -->
-              <p id="bannerHints" role="img" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-bars"><i data-on="false"></i><i data-on="false"></i><i data-on="false"></i></span></p>
+                   bars are the same shape as the box. `data-on` is painted from `bannerView`'s `hintFills` — the state is the
+                   module's, the drawing is `style.css`'s.
+                   IT IS A BUTTON RATHER THAN A `role="img"` PICTURE because of the report "Daily: Remove the Hint button and move the
+                   event handler to the hint bank badge in the header": the badge is where the Daily's hint is spent, so it is a
+                   real control — the shell disables it off the Daily and while a spend is in flight, and `banner.ts` gives it the
+                   name that goes with each state ("Take a hint (2 of 3 held)" / "Hints 2 of 3"). -->
+              <button id="bannerHints" type="button" aria-label="Hints 0 of 3"><span id="bannerPips" class="hint-bars" aria-hidden="true"><i data-on="false"></i><i data-on="false"></i><i data-on="false"></i></span></button>
               <!-- THE ACCOUNT BADGE: A CIRCLE WITH A PERSON IN IT, and it is always drawn. REPORTED first as "The empty login
                    account badge is missing from the header", then as "The login badge is too large. Can it be a simple circular
                    vector diagram of a person" — the first version was a pill with the email or "Sign in" in it, which is two
@@ -269,7 +273,7 @@
               <dt>The score</dt>
               <dd>A solved drill is scored out of 100 at level 1 and out of 100 more at each level above it, because the maximum is what a clean, first-try run at that level is worth. Answering wrong or taking longer than the puzzle expects takes a share of it, and a solved run never drops below one point.</dd>
               <dt>Hints</dt>
-              <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three dots in the banner are what you hold, filled for what is there.</dd>
+              <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three bars in the banner are what you hold, filled for what is there — and on the Daily that badge is the button: press it to spend a hint and be shown one call of the route.</dd>
               <dt>Signing in</dt>
               <dd>Without an account you can play everything; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
             </dl>
@@ -426,8 +430,8 @@
           <!-- THE FOOTER IS THE GAME'S OWN CONTROLS AND NOTHING ELSE. REPORTED twice: "Some of the current buttons seem like
                overkill" (which took four of them to the Setup page) and then "a lot of debug style text at the bottom of the
                drill screens that dont really add anything" — the two bookkeeping sentences that used to sit above these
-               buttons now live on Setup, where a sentence about this device belongs. What is left is a Hint,
-               Undo/Redo/Give up, the two Play buttons, the practice offer and Next: every one of them a move.
+               buttons now live on Setup, where a sentence about this device belongs. What is left is Undo/Redo, the two
+               Play buttons, the practice offer and Next: every one of them a move.
 
                AND "SHOW ME THE ANSWER" IS GONE. REPORTED: "remove the option to see the answer to a drill, there are only three
                answers, players will get there eventually." It was the one control that turned a run into a countable-but-worthless
@@ -439,12 +443,15 @@
                quiestion." It went in two steps — withheld on a sheet first ("In mobile view, remove the skip ... they hide the
                choices"), then withdrawn everywhere — because a three-option question with a "give up" beside it is a question
                that answers itself. The SERVER's endpoint stays (`POST /drill/advance` closes a position and records an
-               abandonment), so nothing about the protocol moved; what moved is that this app no longer offers to spend a drill. -->
+               abandonment), so nothing about the protocol moved; what moved is that this app no longer offers to spend a drill.
+
+               AND THE LAST TWO LEFT WITH THE REPORT "Daily: Remove the Hint button and move the event handler to the hint bank
+               badge in the header" and "Remove the Give Up button, this is the same as using the back button": the hint is the
+               badge in the banner (`#bannerHints`), and giving up IS the way back — the run stays in flight, so leaving the
+               Daily neither scores it nor throws it away. -->
           <footer id="foot">
-            <button id="hint" type="button" hidden>Hint (+1 min)</button>
             <button id="undo" type="button" hidden>Undo</button>
             <button id="redo" type="button" hidden>Redo</button>
-            <button id="giveUp" type="button" hidden>Give up</button>
             <!-- THE REPLAY LIST: the calls a solved line was made of, as text. It is READ BACK, not played from here —
                  the owner's call ("the list of calls and the 'your line' button are actually enough"), which is what
                  took the play/pause and the scrub out. The two buttons after it choose WHICH line, once one exists. -->

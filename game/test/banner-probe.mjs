@@ -36,6 +36,7 @@ const base = {
   drillPercent: null,
   drillTotal: 0,
   dailyScore: null,
+  hintAvailable: false,
 };
 
 console.log('\n== 1. the hint meter ==');
@@ -59,8 +60,39 @@ console.log('\n== 1. the hint meter ==');
     'CONTROL: the meter is a slot STATE, not a string of glyphs to be styled by luck');
   // THE NUMBER IS THE ACCESSIBLE NAME NOW. REPORTED: "Remove the text Hints 0/3 and surround the hint circles with a badge
   // outline" — the badge prints nothing, so the label is the only place the count exists and it must say it in full words.
-  check(bannerView({ ...base, hintsHeld: 2 }).hintsLabel === 'Hints 2 of 3',
-    `the badge's accessible name is the count in words (${bannerView({ ...base, hintsHeld: 2 }).hintsLabel})`);
+  // THE NAME IS THE INERT STATE'S, because `base.hintAvailable` is false: where the badge cannot spend, it is the meter it has
+  // always been and its name is only the count.
+  check(bannerView({ ...base, hintsHeld: 2 }).hintsButton.label === 'Hints 2 of 3',
+    `an inert badge's accessible name is the count in words (${bannerView({ ...base, hintsHeld: 2 }).hintsButton.label})`);
+}
+
+console.log('\n== 1b. the badge is the Daily\'s hint button where a hint can be spent ==');
+{
+  // REPORTED: "Daily: Remove the Hint button and move the event handler to the hint bank badge in the header." So the two
+  // states are one field: enabled with a name that says what the PRESS does, or disabled with the meter's own name.
+  const inert = bannerView({ ...base, hintsHeld: 2, hintAvailable: false });
+  check(inert.hintsButton.disabled === true, 'a badge that cannot spend is disabled');
+  check(inert.hintsButton.label === 'Hints 2 of 3', `and it is named as the meter (${inert.hintsButton.label})`);
+  const live = bannerView({ ...base, hintsHeld: 2, hintAvailable: true });
+  check(live.hintsButton.disabled === false, 'on the Daily it is pressable');
+  check(/^Take a hint/.test(live.hintsButton.label) && /2 of 3/.test(live.hintsButton.label),
+    `and its name says what the press does, with the balance it will spend from (${live.hintsButton.label})`);
+  // THE BALANCE DECIDES THE NAME, NEVER THE STATE. This is the defect that was REPORTED as "Nothing happens when I select the
+  // Hint button": the old button was `disabled = hints <= 0`, so the sentence that explains an empty balance could never be
+  // reached. Only `hintAvailable` may disable it — the negative control is `hintsHeld: 0` below, which stays pressable.
+  const empty = bannerView({ ...base, hintsHeld: 0, hintAvailable: true });
+  check(empty.hintsButton.disabled === false, 'an empty balance is STILL pressable, because the press is what explains it');
+  check(/0 of 3/.test(empty.hintsButton.label), `and the name says the balance is empty (${empty.hintsButton.label})`);
+  // THE DISABLED STATE AND THE NAME CANNOT DRIFT APART: every combination of the two facts says the thing its state implies.
+  const combos = [];
+  for (const hintAvailable of [false, true]) {
+    for (const hintsHeld of [-1, 0, 1, 3, 9]) {
+      const view = bannerView({ ...base, hintsHeld, hintAvailable });
+      const saysAction = /^Take a hint/.test(view.hintsButton.label);
+      combos.push(view.hintsButton.disabled === !saysAction && view.hintsButton.disabled === !hintAvailable);
+    }
+  }
+  check(combos.every(Boolean), `and across 10 combinations the name and the state agree (${combos.filter(Boolean).length} of ${combos.length})`);
 }
 
 console.log('\n== 2. who you are, and whether it counts ==');

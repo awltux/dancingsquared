@@ -1089,10 +1089,27 @@ applier, so the two spellings cannot drift.
   2026-10-29): the server answered 500", and with the API back the reload at `#/daily` issues the challenge and draws its
   waypoints. `game/test/pages-probe.mjs` §7 pins the page table, with the shipped rule ("every page with a board keeps the
   overlay") as its negative control.
-- **Review**: on solving, or on giving up, the player can replay their own line and the generator's shortest
-  line, with the engine's own names and reasons. This is decision 4, and it is the same component the Drill
-  uses — the only difference is the input, since the Drill replays a single option where the Daily replays a
-  whole line.
+- **Review**: on solving, the player can replay their own line and the generator's shortest line, with the engine's own names
+  and reasons. This is decision 4, and it is the same component the Drill uses — the only difference is the input, since the
+  Drill replays a single option where the Daily replays a whole line. **A given-up run reaches the same state** for a record a
+  `resume` still carries, but the app no longer offers to give up (see the two withdrawn controls below).
+- **THE PAGE HAS TWO FEWER BUTTONS THAN IT DID, AND BOTH MOVES ARE LOAD-BEARING.** REPORTED: "Daily: Remove the Hint button and
+  move the event handler to the hint bank badge in the header. Remove the Give Up button, this is the same as using the back
+  button."
+  * **THE HINT IS THE BANNER'S BADGE.** `#bannerHints` was a `role="img"` meter; it is a `<button>` now, and it is the one
+    control that spends a hint (`els.bannerHints` → `takeHint`). It is on every page, so it is DISABLED everywhere the spend
+    cannot happen — off the Daily, on a finished run, and while a motion is being danced — and that rule is ONE predicate
+    (`main.ts`'s `dailyHintAvailable`) used by both the badge's enabled state and the handler's guard, so the two cannot
+    disagree. What it SAYS in each state is `ui/banner.ts`'s `hintsButton`: `Take a hint (2 of 3 held)` when it can spend, and
+    the bare count when it cannot. A zero balance does NOT disable it — the press is the only place the balance can be
+    explained — which is the old, separately-reported defect ("Nothing happens when I select the Hint button").
+  * **"GIVE UP" WAS THE WAY BACK.** Removed from the footer; leaving the Daily leaves the run in flight, so the player can
+    return to it and neither scores it nor throws it away. `DailyRun.giveUp` and the `given-up` outcome STAY, because a saved
+    record from an older build can carry one and `resume` rebuilds it from those terms (`game/test/daily-run-probe.mjs` §5).
+  MEASURED in a 393 x 780 frame around the real app: on `#/daily` the badge is `disabled=false` with
+  `aria-label="Take a hint (0 of 3 held)"`, the accent edge (`rgb(255, 209, 102)`) and `cursor: pointer`, while on `#/levels` it
+  is `disabled=true`, named `Hints 0 of 3`, edged in `--line` with `cursor: default`; the footer showed `#undo #redo` only, on
+  both a 393 x 780 sheet and a 1100 x 620 left-column layout.
 - **A hint is available for this mode** (§10), and the move allowance is what makes a hint *worth having*:
   the allowance bounds how much elimination a player can do, so a nudge towards the answer is a real nudge.
   Taking one adds a minute to the clock and is never refunded, so the hint appears **where the cost is paid**:
@@ -1135,11 +1152,15 @@ them is one edit.
 - **The spend is a server call, and its FIRST answer in a process can take a minute and a half.** `POST /me/hints`
   names the call from the recorded line (§11.1, A23), which runs the reverse-BFS map of §10.3 in the server — and
   MEASURED, one build of that map is **79-91 s** at the shipped level-1 pool, cached per goal afterwards
-  (`api/src/levels.ts`). The app therefore waits for the answer with the button marked busy rather than spending its
+  (`api/src/levels.ts`). The app therefore waits for the answer with the BUTTON marked busy rather than spending its
   shared 8 s handshake window on it: MEASURED in the dev server's own log, one `POST /me/hints` answered **200 after
   88 295 ms** while the client had already given up at 8 s — the debit landed, the app never adopted it, and every
   later press was refused against a balance the player no longer held. A retry would have been the wrong repair: the
   spend is a write, so retrying a request that already landed costs a second hint.
+  **AND THE BUTTON IS THE BANNER'S HINT BADGE**, not a control in the Daily's footer: REPORTED: "Daily: Remove the Hint
+  button and move the event handler to the hint bank badge in the header." The busy state went with it — the badge shows the
+  ring, hides its bars, says what it is waiting for and cannot be pressed again (`main.ts`'s `setHintBusy`,
+  `style.css`'s `#bannerHints[data-busy="true"]`), which are the same three signals the footer button carried.
 
 **3. What a hint reveals — and this needs deciding, so here is the recommendation.** *Recommend: one call
 name, marked in the offering list, valid from wherever the player is.*
@@ -3033,8 +3054,9 @@ Each has a recommendation and the tradeoff, so this does not need another round 
     `pointer-events: none` so the layer never swallows a tap on the canvas it does not own, and carries `z-index: 1`
     while `#panel` and `#sideBoard` carry 2 and opt back into pointer events. A control added to the box is therefore
     INERT and UNDER THE PANEL until it says otherwise, which is the property the reported defect lacked.
-    MEASURED with `document.elementFromPoint` in a 393 x 664 frame around the real app: the "Hint (+1 min)" button spans
-    x 20-193 and its left edge, centre and right edge all resolve to `button#hint`; the panel's near and far edges resolve
+    MEASURED with `document.elementFromPoint` in a 393 x 664 frame around the real app: the "Hint (+1 min)" button — since
+    removed from the footer in favour of the banner's badge, §9 — spanned x 20-193 and its left edge, centre and right edge
+    all resolved to `button#hint`; the panel's near and far edges resolve
     to `main#panel`; the free canvas's left and right quarters resolve to `#waypointPrev` / `#waypointNext`; the middle
     of the canvas resolves to `canvas#stage`. On a 1100 x 620 frame (the left-column layout) the panel's edges resolve to
     the panel and the canvas's quarters to the zones, so the WIDE layout is unchanged: the box is `inset: 0`, exactly the

@@ -50,9 +50,16 @@ const check = (cond, msg, detail = '') => {
 /** Every page the model has, in the order the landing page offers them — derived, never re-typed. */
 const PAGES = ['landing', 'setup', 'help', 'profile', 'levels', 'drill', 'daily', 'board'];
 
-/** The controls that are the GAME's own moves: they belong in the footer, on the page that plays. */
+/**
+ * The controls that are the GAME's own moves: they belong in the footer, on the page that plays.
+ *
+ * THE HINT AND "GIVE UP" ARE NOT HERE ANY MORE. REPORTED: "Daily: Remove the Hint button and move the event handler to the
+ * hint bank badge in the header" and "Remove the Give Up button, this is the same as using the back button." The hint is the
+ * banner's badge (`#bannerHints`, checked in section 4) and giving up is the way back, so the footer is the four moves a run
+ * has plus the two offers that answer it.
+ */
 const FOOTER = [
-  'hint', 'undo', 'redo', 'giveUp', 'replayMine', 'replayShortest', 'practice', 'next',
+  'undo', 'redo', 'replayMine', 'replayShortest', 'practice', 'next',
 ];
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
@@ -82,6 +89,13 @@ const RETIRED_SKIP = 'skip';
 // a drill, there are only three answers, players will get there eventually." The check below is about the id being gone from the
 // markup and the script; `DrillController.review()` and `POST /drill/reveal` are deliberately still there (`main.ts` says why).
 const RETIRED_REVIEW = 'review';
+
+// AND THE HINT BUTTON AND "GIVE UP" ARE RETIRED TOO, as CONTROLS — the hint moved to the banner's badge and giving up became
+// the way back. REPORTED: "Daily: Remove the Hint button and move the event handler to the hint bank badge in the header" and
+// "Remove the Give Up button, this is the same as using the back button." `DailyRun.giveUp` and the `given-up` outcome stay,
+// because a saved record from an older build can still carry one and `resume` rebuilds it; what must not come back is either
+// button in this app's three files.
+const RETIRED_DAILY_CONTROLS = ['giveUp', 'hint'];
 
 const htmlRaw = fs.readFileSync(HTML, 'utf8');
 /**
@@ -272,8 +286,19 @@ console.log('\n== 4. the landing page reaches every other page, and the banner h
     'and paintChrome writes no visible text into it');
   // THE HINT BADGE CARRIES NO TEXT, so its label must carry the number: REPORTED as "Remove the text Hints 0/3 and surround
   // the hint circles with a badge outline". A meter with neither words nor a name is a fact only sighted players have.
-  check(/<p id="bannerHints"[^>]*role="img"[^>]*aria-label="/.test(banner),
-    'the hint badge is a named image, because its number is no longer printed');
+  // AND IT IS A BUTTON, because REPORTED: "Daily: Remove the Hint button and move the event handler to the hint bank badge in
+  // the header." A `role="img"` picture cannot be pressed, so the element being a `<button>` is the half of that report that a
+  // stylesheet cannot express — `banner-probe.mjs` §1b owns what the two names say.
+  check(/<button id="bannerHints"[^>]*\btype="button"[^>]*\baria-label="/.test(banner),
+    'the hint badge is a named BUTTON, because the Daily spends a hint from it');
+  check(!/<p id="bannerHints"/.test(banner) && !/id="bannerHints"[^>]*\brole="img"/.test(banner),
+    'and it is no longer the `role="img"` picture it was, which could not be pressed');
+  // ONE HANDLER, AND IT IS ON THE BADGE: the report moved the spend from the footer to the header, so the wiring itself is the
+  // thing to pin. A second listener on a footer button would be two ways to spend one hint.
+  check(main.includes("els.bannerHints.addEventListener('click'"),
+    'and the press is wired to the badge');
+  check(main.includes('function dailyHintAvailable()') && main.includes('hintAvailable: dailyHintAvailable()'),
+    'with one predicate deciding both the badge\'s enabled state and the handler\'s guard');
   // AND THE GLYPHS ARE DECORATION: the scores cell's accessible name is the sentence, and the pictures are `aria-hidden`.
   check(/<p id="bannerScores"[^>]*aria-label="/.test(banner), 'the scores cell is named too');
   check([...banner.matchAll(/<svg[^>]*aria-hidden="true"/g)].length >= 3,
@@ -325,6 +350,20 @@ console.log('\n== 5. the retired controls are gone from markup, script and style
   check(!new RegExp(`\\bid="${RETIRED_SKIP}"`).test(html), `#${RETIRED_SKIP} is not in the markup any more`);
   check(!new RegExp(`els\\.${RETIRED_SKIP}\\b`).test(main), 'and nothing in the script reaches for it');
   check(!new RegExp(`#${RETIRED_SKIP}\\b`).test(stripComments(css)), 'and no rule draws it');
+  // THE DAILY'S HINT BUTTON AND "GIVE UP": no markup, no `els.` reference, no rule. The RULE each stood for stays — the hint is
+  // the banner's badge (section 4) and giving up is the way back — which is why these are id checks and not a search for the
+  // words.
+  for (const name of RETIRED_DAILY_CONTROLS) {
+    const where = [
+      new RegExp(`\\bid="${name}"`).test(html) ? 'index.html' : '',
+      new RegExp(`els\\.${name}\\b`).test(stripComments(main)) ? 'main.ts' : '',
+      new RegExp(`#${name}\\b`).test(stripComments(css)) ? 'style.css' : '',
+    ].filter(Boolean);
+    check(where.length === 0, `#${name} is named nowhere (${where.join(', ') || 'nowhere'})`, where.join(', '));
+  }
+  // AND THE FOOTER'S OWN LIST IS THE GATE THAT WOULD CATCH IT COMING BACK: a re-added `#hint` fails section 6's footer sweep
+  // and this one, so the negative control for the pair is a single restored button.
+  check(!/\bgiveUpDaily\b/.test(stripComments(main)), 'and the handler that ended a run on a press is gone with the button');
 }
 
 console.log('\n== 6. the footer holds the game\'s moves, each page its own controls, Setup the housekeeping ==');

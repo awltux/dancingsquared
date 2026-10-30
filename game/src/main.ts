@@ -360,7 +360,9 @@ const els = {
   waypointNext: el<HTMLButtonElement>('waypointNext'),
   bannerBack: el<HTMLButtonElement>('bannerBack'),
   bannerPips: el('bannerPips'),
-  bannerHints: el('bannerHints'),
+  // THE HINT BADGE IS A BUTTON NOW (REPORTED: "Daily: Remove the Hint button and move the event handler to the hint bank
+  // badge in the header"), so it is typed as one: the shell writes its `disabled` state and its accessible name.
+  bannerHints: el<HTMLButtonElement>('bannerHints'),
   bannerScores: el('bannerScores'),
   bannerLevel: el('bannerLevel'),
   bannerAccount: el<HTMLButtonElement>('bannerAccount'),
@@ -399,10 +401,8 @@ const els = {
   boardModeDaily: el<HTMLButtonElement>('boardModeDaily'),
   balance: el('balance'),
   ledger: el('ledger'),
-  hint: el<HTMLButtonElement>('hint'),
   undo: el<HTMLButtonElement>('undo'),
   redo: el<HTMLButtonElement>('redo'),
-  giveUp: el<HTMLButtonElement>('giveUp'),
   replayMine: el<HTMLButtonElement>('replayMine'),
   replayShortest: el<HTMLButtonElement>('replayShortest'),
   view: el<HTMLButtonElement>('view'),
@@ -699,17 +699,6 @@ function paintBalance(): void {
   // the sentence only: the meter is on screen above every page, and a second one in the footer was the duplicate the report
   // was asking to be rid of. The footer keeps what the meter cannot say — how many successes the next hint needs.
   els.balance.textContent = words;
-  // THE HINT BUTTON BELONGS TO THE DAILY, because that is the mode it is spent on (DESIGN.md 10), and it is
-  // hidden rather than merely disabled once the run is over — there is nothing left to be hinted.
-  const playing = daily !== null && daily.view(performance.now()).outcome === 'playing';
-  els.hint.hidden = page !== 'daily' || !playing;
-  // A SPENT-OUT BALANCE DOES NOT DISABLE IT, and that is a correction rather than an oversight. It used to be
-  // `disabled = hints <= 0 || !playing`, which meant `takeHint`'s own sentence - "You have no hints - one is earned
-  // every ten solved drills" - could NEVER RUN, because a disabled button does not fire a click. REPORTED: "Nothing
-  // happens when I select the Hint button." A control that is visibly there and silently does nothing is the failure
-  // mode this file already refuses twice (Q20's practice offer, Q21's advance): the balance being zero is a fact the
-  // player needs TOLD, and the one place that can tell them is the press.
-  els.hint.disabled = !playing;
 }
 
 // ---------------------------------------------------------------------------------------------- the account
@@ -786,9 +775,10 @@ function paintLanding(): void {
  */
 function paintBanner(): void {
   const view = bannerView(bannerFacts());
-  // THE METER'S NUMBER IS AN ACCESSIBLE NAME NOW: the badge shows three BARS and no text, so the `aria-label` is the only
-  // place "Hints 2 of 3" exists — and `role="img"` in the markup is what makes that label legal on an element whose content
-  // is a picture.
+  // THE METER'S NUMBER IS AN ACCESSIBLE NAME: the badge shows three BARS and no text, so the `aria-label` is the only place
+  // "Hints 2 of 3" exists. AND IT IS A BUTTON NOW (`ui/banner.ts`'s `hintsButton`): on the Daily the same name says what the
+  // press does ("Take a hint (2 of 3 held)") and the element is enabled; everywhere else it is the meter it has always been,
+  // disabled, so a tap on the row cannot spend a hint from a page that has no run to spend it on.
   //
   // THE BARS' STATE IS WRITTEN, NOT THEIR GLYPHS: `hintFills` says which slots are held and these `data-on` attributes
   // carry it to `style.css`, which is the one place that decides what a held slot looks like. A caller that rebuilt the
@@ -797,7 +787,12 @@ function paintBanner(): void {
   for (let slot = 0; slot < slots.length; slot++) {
     slots[slot]?.setAttribute('data-on', String(view.hintFills[slot] === true));
   }
-  els.bannerHints.setAttribute('aria-label', view.hintsLabel);
+  // THE BUSY STATE OWNS THE BADGE WHILE A SPEND IS IN FLIGHT: `setHintBusy` writes the sentence that says what is happening,
+  // and a repaint arriving mid-wait (a poll, a frame) must not overwrite it with the count. `setHintBusy(false)` repaints, so
+  // the view's answer is what the badge returns to.
+  const busy = els.bannerHints.dataset['busy'] === 'true';
+  els.bannerHints.disabled = busy ? true : view.hintsButton.disabled;
+  if (!busy) els.bannerHints.setAttribute('aria-label', view.hintsButton.label);
   // THE SCORES ARE LEVEL AND A GLYPH PER GAME (`ui/banner.ts` decides the values; the two icons are markup). The sentence
   // "Level 1: drill best 280, Daily no score" is the cell's accessible name, because the row prints `L1`, `280` and `—`.
   els.bannerLevel.textContent = view.levelText;
@@ -829,7 +824,26 @@ function bannerFacts(): BannerFacts {
     // Daily — rather than a device total that could disagree with the board (REPORTED twice).
     drillTotal: serverDrillBoard?.score ?? 0,
     dailyScore: serverDailyBoard?.score ?? null,
+    hintAvailable: dailyHintAvailable(),
   };
+}
+
+/**
+ * Whether the hint badge would spend a hint right now — THE ONE PREDICATE, because two callers must agree about it.
+ *
+ * REPORTED: "Daily: Remove the Hint button and move the event handler to the hint bank badge in the header." The badge is on
+ * every page, so it has to be inert everywhere the spend cannot happen, and there are four such states: another page is on
+ * screen (the balance is spent on the Daily alone, DESIGN.md 10), the run is over (there is nothing left to hint), a move is
+ * still being danced (`PLAYHEAD.isRunning`, where a hint would name a call from the board the player is leaving), and a
+ * spend is already in flight (`hintInFlight`, which is also what stops a second press charging a second hint for one intent).
+ *
+ * `bannerView` decides what that state SAYS (`hintsButton`); this decides what it IS. The two are not one function because
+ * the view is a pure function of facts a probe drives, and this reads the shell's `page`, `daily`, the playhead and
+ * `hintInFlight`.
+ */
+function dailyHintAvailable(): boolean {
+  return page === 'daily' && daily !== null && !hintInFlight && !PLAYHEAD.isRunning
+    && daily.view(performance.now()).outcome === 'playing';
 }
 
 /**
@@ -1456,8 +1470,10 @@ function applyPage(route: Route, focus: boolean): void {
   startOverArmed = false;
   paintStartOver();
   // NOTHING IN THE FOOTER BELONGS TO EVERY PAGE, so every page-dependent control is withdrawn here and revealed by the
-  // paint of the page that owns it. MEASURED in a browser: without this the Daily's Hint, Undo, Redo and Give up stayed on
-  // screen behind the board, because the footer had been painted by a page the player had left.
+  // paint of the page that owns it. MEASURED in a browser: without this the Daily's Undo and Redo stayed on screen behind the
+  // board, because the footer had been painted by a page the player had left (the Hint and Give up buttons it also named have
+  // since left the footer altogether — REPORTED: "move the event handler to the hint bank badge in the header" and "Remove the
+  // Give Up button, this is the same as using the back button").
   hideFooterControls();
 
   page = next;
@@ -1605,10 +1621,8 @@ let pendingNotice: { text: string; kind: 'ok' | 'bad' | 'info' } | null = null;
  * a property rather than a list of habits — the Daily's Undo came to sit under the board without it.
  */
 function hideFooterControls(): void {
-  els.hint.hidden = true;
   els.undo.hidden = true;
   els.redo.hidden = true;
-  els.giveUp.hidden = true;
   els.next.hidden = true;
   nextOffersSignIn = false;
   // THE PRACTICE OFFER IS ABOUT THE DRILL ON SCREEN, so a page change withdraws it: what the server refused was that
@@ -2871,7 +2885,7 @@ function redoDaily(): void {
 }
 
 /**
- * The hint button's pending state, and the flag that stops a second press spending a second hint.
+ * The hint badge's pending state, and the flag that stops a second press spending a second hint.
  *
  * A HINT SPEND CAN TAKE A MINUTE AND A HALF, and the press has to say so. MEASURED (the dev server's own log): one
  * `POST /me/hints` answered **200 after 88 295 ms** — the first hint in a process builds the hint's distance table,
@@ -2885,18 +2899,26 @@ function redoDaily(): void {
  * `aria-busy`, and an accessible name that says what is happening — a ring alone is invisible in a still screenshot
  * and to a reduced-motion preference), and this guard, because a second press during the wait would charge a second
  * hint for one intent.
+ *
+ * IT IS THE BADGE THAT CARRIES ALL THREE NOW (REPORTED: "move the event handler to the hint bank badge in the header"),
+ * and the meter goes out of its way while the ring is there: a 24 px badge showing three bars AND a spinner is neither.
+ * `style.css`'s `#bannerHints[data-busy="true"]` is what hides one and shows the other.
  */
 let hintInFlight = false;
 
 function setHintBusy(busy: boolean): void {
   if (busy) {
-    els.hint.dataset['busy'] = 'true';
-    els.hint.setAttribute('aria-busy', 'true');
-    els.hint.setAttribute('aria-label', 'Hint — waiting for the server to name a call…');
+    els.bannerHints.dataset['busy'] = 'true';
+    els.bannerHints.setAttribute('aria-busy', 'true');
+    els.bannerHints.setAttribute('aria-label', 'Hint — waiting for the server to name a call…');
+    // AND IT CANNOT BE PRESSED AGAIN, which is what the ring is saying.
+    els.bannerHints.disabled = true;
   } else {
-    delete els.hint.dataset['busy'];
-    els.hint.removeAttribute('aria-busy');
-    els.hint.removeAttribute('aria-label');
+    delete els.bannerHints.dataset['busy'];
+    els.bannerHints.removeAttribute('aria-busy');
+    // THE NAME AND THE ENABLED STATE GO BACK TO THE VIEW'S, not to nothing: a badge left nameless by the wait would be a
+    // meter a screen reader cannot read. `paintBanner` is the one function that knows what they should be.
+    paintBanner();
   }
 }
 
@@ -2937,7 +2959,9 @@ function sayInDaily(message: string, tone: 'ok' | 'bad' | 'info'): void {
  * A20), so the press is answered with that sentence rather than with a local debit that the server would never see.
  */
 async function takeHint(): Promise<void> {
-  if (!daily || PLAYHEAD.isRunning || hintInFlight) return;
+  // THE PREDICATE IS THE BADGE'S OWN (`dailyHintAvailable`), so the control's enabled state and the handler that spends
+  // cannot disagree: a press that arrives from a stale paint is a no-op rather than a spend from a page with no run.
+  if (!dailyHintAvailable() || !daily) return;
   const balance: HintLedger = serverHints ?? { hints: 0, successes: 0 };
   if (balance.hints <= 0) {
     // TWO DIFFERENT EMPTIES, SAID DIFFERENTLY: no account has no balance to spend, and an account at zero has spent
@@ -2984,14 +3008,6 @@ async function takeHint(): Promise<void> {
   // panel is only repainted where the Daily is what the player is looking at.
   paintBalance();
   if (page === 'daily') paintDaily();
-  persist();
-}
-
-function giveUpDaily(): void {
-  if (!daily || PLAYHEAD.isRunning) return;
-  daily.giveUp(performance.now());
-  dailyScreen.say('Given up. Both lines are available to replay.', 'bad');
-  paintDaily();
   persist();
 }
 
@@ -3106,10 +3122,15 @@ function paintDaily(): void {
   // THE DAILY'S OWN CONTROLS, GUARDED BY THE PAGE AND NOT ONLY BY THE RUN: a poll answer or a resumed clock can repaint
   // this while the player is somewhere else, and a `Undo` left on screen under a help page would be a control for a run
   // nobody can see. The drill's page paints its own footer in `paintView`, so the two cannot fight over the same button.
+  //
+  // THE HINT AND "GIVE UP" LEFT THIS FOOTER. REPORTED: "Daily: Remove the Hint button and move the event handler to the hint
+  // bank badge in the header" (the badge is `els.bannerHints`, enabled by `dailyHintAvailable`) "and Remove the Give Up
+  // button, this is the same as using the back button." Giving up is therefore the way back: the run stays in flight and
+  // `DailyRun.giveUp` survives for the saved record a resume can still carry (`game/test/daily-run-probe.mjs` §5 drives it),
+  // but nothing on screen ends a run that the player is still allowed to finish.
   const onDaily = page === 'daily';
   els.replayMine.hidden = !over || !onDaily;
   els.replayShortest.hidden = !over || !onDaily;
-  els.giveUp.hidden = over || !onDaily;
   els.undo.hidden = over || !onDaily;
   els.redo.hidden = over || !onDaily;
   // THE LIST IS THE SAME PANEL IN BOTH MODES (`panelLine`), so it is shown and hidden by the same rule here and in
@@ -3126,6 +3147,10 @@ function paintDaily(): void {
     replayList.hide();
   }
   paintBalance();
+  // AND THE BANNER, because the hint badge is the Daily's hint button now and the two things it asks about are exactly this
+  // paint's subject: whether the run is still playing, and whether a motion is in flight. A Daily that solves itself out of
+  // a badge that still says "Take a hint" would be the "control that does nothing" this file refuses.
+  paintBanner();
 }
 
 function draw(): void {
@@ -3178,6 +3203,9 @@ function endReplay(): void {
 function setBusy(busy: boolean): void {
   drillScreen.setBusy(busy);
   dailyScreen.setBusy(busy);
+  // THE BANNER IS BUSY TOO, because the hint badge lives in it and `dailyHintAvailable` refuses a spend while a motion is
+  // being danced: without this repaint the badge would stay enabled through the replay and answer a press with nothing.
+  paintBanner();
 }
 
 function toggleView(): void {
@@ -3345,8 +3373,9 @@ function main(): void {
   els.waypointNext.addEventListener('click', () => pageWaypoints(1));
   els.boardYou.addEventListener('click', () => setBoardFocus('left'));
   els.boardTarget.addEventListener('click', () => setBoardFocus('right'));
-  els.hint.addEventListener('click', () => void takeHint());
-  els.giveUp.addEventListener('click', giveUpDaily);
+  // THE HINT BADGE IS THE DAILY'S HINT BUTTON (REPORTED: "Daily: Remove the Hint button and move the event handler to the hint
+  // bank badge in the header"). One handler, and `dailyHintAvailable` is what makes it inert everywhere else.
+  els.bannerHints.addEventListener('click', () => void takeHint());
   els.replayMine.addEventListener('click', () => playPanel('mine'));
   els.replayShortest.addEventListener('click', () => playPanel('shortest'));
   els.view.addEventListener('click', toggleView);

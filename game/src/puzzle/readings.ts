@@ -64,52 +64,75 @@ export function readingSpelling(reading: MoveReading): string {
 }
 
 /**
- * What the player has narrowed the picker to, and BOTH HALVES ARE THE PLAYER'S: `selection` is a subset of the board
- * (one of `groupReadings`' labels) and `query` is whatever they typed. Neither is a fact about the puzzle, which is
- * why this is state the screen owns rather than something a view carries.
+ * What the player has narrowed the picker to, and THE FILTER IS ALWAYS ONE SUBSET.
+ *
+ * REPORTED: "The call lists in the HUD should always use a single call filter, defaulting to 'All 8'. Selecting another
+ * filter deselects the currently selected filter." So there is no off value: `selection` is one of `groupReadings`' labels,
+ * and it is `WHOLE_BOARD` until the player presses something else. The value that narrowed nothing (`selection: null`,
+ * which drew EVERY subset at once as a stack of sections) is gone with the multi-section list it produced — the list is one
+ * subset now, so "all of them" is not a state it can be in.
  */
 export interface ReadingFilter {
-  /** The subset to show, or null for every subset — `WHOLE_BOARD` is a subset, not the off state. */
-  readonly selection: string | null;
+  /** The subset to show. One of `groupReadings`' labels, never "none": `WHOLE_BOARD` is a subset, not the off state. */
+  readonly selection: string;
   /** The free-text query, matched against each reading's own spelling. */
   readonly query: string;
 }
 
-/** The filter that narrows nothing: every reading, in the engine's order. */
-export const ALL_READINGS: ReadingFilter = { selection: null, query: '' };
+/**
+ * The filter a challenge opens with: the whole board, nothing typed.
+ *
+ * IT IS THE WHOLE BOARD because that is the reading the Drill teaches and the one a player's eye lands on, and because a
+ * Daily's first move is usually a call for all eight.
+ */
+export const DEFAULT_FILTER: ReadingFilter = { selection: WHOLE_BOARD, query: '' };
+
+/**
+ * The filter after a subset press: the label REPLACES the selection and the query is kept.
+ *
+ * THIS WAS A TOGGLE AND IT IS NOT ONE ANY MORE. The old rule — pressing the pressed pill again shows everything — existed
+ * because "everything" was a list a player might want; with one subset always selected there is no such list, so pressing
+ * the selected pill is a no-op and the only way to change the list is to press a different one. REPORTED: "Selecting
+ * another filter deselects the currently selected filter."
+ */
+export function selectSubset(filter: ReadingFilter, label: string): ReadingFilter {
+  return { ...filter, selection: label };
+}
+
+/**
+ * The subset to select once the board's own labels are known: the player's choice where it is still on offer.
+ *
+ * A SUBSET CAN DISAPPEAR — legality changes with every move, so a group with no legal call on this board has no pill — and
+ * a selection left standing over an absent label would show an empty list under a pill that is not there. The fallback is
+ * the whole board (always offered, and `groupReadings` sorts it first), then whatever is left.
+ */
+export function subsetOrDefault(labels: readonly string[], wanted: string): string {
+  if (labels.includes(wanted)) return wanted;
+  if (labels.includes(WHOLE_BOARD)) return WHOLE_BOARD;
+  return labels[0] ?? WHOLE_BOARD;
+}
 
 /**
  * The readings a filter leaves visible, in the engine's order.
  *
- * THE QUERY IS MATCHED AGAINST THE READING'S SPELLING (`readingSpelling`: "Heads Dosado", or "Dosado" alone on the
- * whole board), because that is the phrase the player is looking for a way to say — and it is what makes "heads dos"
- * find the group reading while "dos" finds it under every selection. EVERY whitespace-separated term must occur,
+ * THE SUBSET ALWAYS APPLIES, so this is a view of `readings` rather than the whole of it: nothing is deduplicated and
+ * nothing is reordered, and a call legal for the set and for a group still appears in both (they are two moves, by
+ * different dancers) — but only one of those two rows is in view at a time.
+ *
+ * THE QUERY IS MATCHED AGAINST THE READING'S SPELLING (`readingSpelling`: "Heads Dosado", or "Dosado" alone on the whole
+ * board), because that is the phrase the player is looking for a way to say — and it is what makes "heads dos" find the
+ * group reading while "dos" finds it under every selection. EVERY whitespace-separated term must occur,
  * case-insensitively and IN ANY ORDER: "dos heads" and "heads dos" are the same search, and a rule that required the
  * terms in order would fail on the one thing a player is most likely to type.
- *
- * NOTHING IS DEDUPLICATED AND NOTHING IS REORDERED, because the filter is a VIEW over the engine's list rather than a
- * second list: `ALL_READINGS` returns exactly what it was given, which is what lets the probe check that the two
- * agree (`groupReadings`' rule — a call legal for the set and for a group is two moves — still holds under a filter).
  */
 export function filterReadings(readings: readonly MoveReading[], filter: ReadingFilter): MoveReading[] {
   const terms = filter.query.toLowerCase().split(/\s+/).filter(Boolean);
   return readings.filter((reading) => {
-    if (filter.selection !== null && selectionLabel(reading) !== filter.selection) return false;
+    if (selectionLabel(reading) !== filter.selection) return false;
     if (terms.length === 0) return true;
     const spelling = readingSpelling(reading).toLowerCase();
     return terms.every((term) => spelling.includes(term));
   });
-}
-
-/**
- * The subset a press selects: pressing the one already on turns the filter OFF.
- *
- * THE TOGGLE IS A RULE, not two lines in a click handler. "Press it again to show everything" is the only way back to
- * the whole list without a separate reset control, and a version that kept the selection would leave a player who
- * pressed "Heads" unable to see "Sides" without knowing to press something else.
- */
-export function toggleSelection(current: string | null, pressed: string): string | null {
-  return current === pressed ? null : pressed;
 }
 
 /**

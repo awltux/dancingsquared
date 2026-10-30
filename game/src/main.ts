@@ -1619,6 +1619,10 @@ let pendingNotice: { text: string; kind: 'ok' | 'bad' | 'info' } | null = null;
  * THE FOOTER IS SHARED AND ITS CONTROLS ARE NOT: `#balance` and `#ledger` are true on every page, and everything else is
  * about a run or a question. One function that puts them all away is what makes "nothing is left over from the last page"
  * a property rather than a list of habits — the Daily's Undo came to sit under the board without it.
+ *
+ * UNDO AND REDO ARE NOT IN THE FOOTER ANY MORE (REPORTED: "Move the undo/Redo buttons to the top of the HUD, make them much
+ * smaller"), but they are still a RUN's controls, so they are still withdrawn here: `paintDaily` is what shows them again, and
+ * a page change must not leave them standing over another run's panel.
  */
 function hideFooterControls(): void {
   els.undo.hidden = true;
@@ -3128,11 +3132,20 @@ function paintDaily(): void {
   // button, this is the same as using the back button." Giving up is therefore the way back: the run stays in flight and
   // `DailyRun.giveUp` survives for the saved record a resume can still carry (`game/test/daily-run-probe.mjs` §5 drives it),
   // but nothing on screen ends a run that the player is still allowed to finish.
+  //
+  // AND UNDO/REDO LEFT IT TOO, for the Daily's own top row (`#dailyTop`, beside the clock) — REPORTED: "Move the undo/Redo
+  // buttons to the top of the HUD, make them much smaller as they take up a lot of screen real estate." Same rule, same
+  // guards: they are shown by a PLAYING run on the Daily and by nothing else.
   const onDaily = page === 'daily';
   els.replayMine.hidden = !over || !onDaily;
   els.replayShortest.hidden = !over || !onDaily;
   els.undo.hidden = over || !onDaily;
   els.redo.hidden = over || !onDaily;
+  // AND A SMALL ICON BUTTON NEEDS ITS STATE DRAWN, because there is no label to say "Undo" in words: with nothing to undo the
+  // press used to do nothing at all, which at 40 px reads as broken. `canUndo`/`canRedo` are the view's own facts — the move
+  // stack and the redo branch — so the button cannot claim a history the run has not got.
+  els.undo.disabled = !view.canUndo;
+  els.redo.disabled = !view.canRedo;
   // THE LIST IS THE SAME PANEL IN BOTH MODES (`panelLine`), so it is shown and hidden by the same rule here and in
   // `paintView`. A given-up run with no moves of its own has nothing to list, and says so only when `Play` is pressed.
   const line = over ? panelLine() : null;

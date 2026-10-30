@@ -18,13 +18,12 @@
 // they are written only when they change — see `writeClock`, which the frame loop calls.
 import type { DailyView } from '../game/daily-run.ts';
 import { decidePick, isArmed } from '../puzzle/arming.ts';
-import { ALL_READINGS, filterReadings, groupReadings, readingSpelling, toggleSelection, type ReadingFilter } from '../puzzle/readings.ts';
+import { DEFAULT_FILTER, filterReadings, groupReadings, readingSpelling, selectSubset, subsetOrDefault, type ReadingFilter } from '../puzzle/readings.ts';
 import type { MoveReading } from '../puzzle/types.ts';
 import { el } from './dom.ts';
 
 interface El {
   prompt: HTMLElement;
-  waypoints: HTMLElement;
   readout: HTMLElement;
   offer: HTMLElement;
   line: HTMLElement;
@@ -65,17 +64,17 @@ export class DailyScreen {
   /**
    * What the player has narrowed the picker to (a subset and a search query), and IT SURVIVES EVERY REPAINT: the list
    * is rebuilt on every move, so a filter held in the DOM would be lost the moment the player moved — which is the one
-   * moment they are most likely to be part-way through looking for the next call. Reset when a new challenge arrives
-   * (`resetFilters`) and when a HINT names a call the filter would hide.
+   * moment they are most likely to be part-way through looking for the next call. One subset is ALWAYS selected
+   * (`readings.ts`'s `DEFAULT_FILTER` is the whole board), it is reset when a new challenge arrives (`resetFilters`) and
+   * when a HINT names a call the filter would hide.
    */
-  private filter: ReadingFilter = ALL_READINGS;
+  private filter: ReadingFilter = DEFAULT_FILTER;
   /** The hint the last `show()` drew, so a NEW hint can clear the filter and an existing one can leave it alone. */
   private lastHinted: string | null = null;
 
   constructor(private readonly on: DailyCallbacks) {
     this.els = {
       prompt: el('dailyPrompt'),
-      waypoints: el('dailyWaypoints'),
       readout: el('dailyReadout'),
       offer: el('offer'),
       pairHint: el('offerPairHint'),
@@ -121,7 +120,7 @@ export class DailyScreen {
    */
   pending(text: string): void {
     this.els.prompt.textContent = text;
-    for (const clean of [this.els.waypoints, this.els.readout, this.els.offer, this.els.pairHint, this.els.line, this.els.verdict, this.els.result]) {
+    for (const clean of [this.els.readout, this.els.offer, this.els.pairHint, this.els.line, this.els.verdict, this.els.result]) {
       clean.replaceChildren();
     }
     this.els.result.hidden = true;
@@ -147,42 +146,20 @@ export class DailyScreen {
    */
   show(view: DailyView, scored: boolean = this.scored): void {
     this.scored = scored;
-    // THE PROMPT NAMES THE SEQUENCE, not just the goal board: the run is won by passing every waypoint IN ORDER and
-    // ending on the last, so "reach the goal board" describes a rule the mode no longer has (a shortcut to the final
-    // arrangement does not finish). The count comes from the view so the sentence cannot drift from the sequence.
-    const goal = view.goalName ? ` — the goal is ${view.goalName}` : '';
+    // THE PROMPT SAYS NOTHING WHILE THE RUN IS PLAYING. REPORTED: "Remove all the unnecessary text before the HUD search
+    // element. Most of it is already in the help or duplicated by the board." What it used to say — "Pass all 5 waypoints in
+    // order, ending on the goal board — the goal is Circle" — is the mode's rule (the help page states it) and the goal's
+    // name (the right-hand board's own caption says it). What is left is the NEWS: a challenge being created, a refusal, a
+    // finished run. `style.css`'s `#dailyPrompt:empty` is what stops an empty paragraph holding a line open.
     this.els.prompt.textContent = view.outcome === 'playing'
-      ? `Pass all ${view.waypoints.length} waypoints in order, ending on the goal board${goal}.`
+      ? ''
       : view.outcome === 'solved'
         ? 'Solved. That is the run.'
         : 'Given up — you can still replay both lines below.';
 
-    // THE WAYPOINT SEQUENCE, as text: the formations the puzzle passes through, which of them the player has stood
-    // in, and which is next. A "✓" is a WAYPOINT reached IN ORDER — not a call they made, because many calls land in
-    // the same formation and a call that leaves the set where it already was does not reach a new one
-    // (puzzle/arrangement.ts owns the rule, and `waypoint-pair.ts` the states the board borders draw).
-    //
-    // THE NUMBER IS PART OF THE LABEL because the captions over the boards say "waypoint 2 of 4" and the two have to
-    // be read as the same list.
-    this.els.waypoints.replaceChildren();
-    if (view.waypoints.length > 0) {
-      const label = document.createElement('span');
-      label.textContent = 'Route: ';
-      this.els.waypoints.append(label);
-      for (const [i, waypoint] of view.waypoints.entries()) {
-        if (i > 0) {
-          const arrow = document.createElement('span');
-          arrow.className = 'waypoint-arrow';
-          arrow.textContent = ' → ';
-          this.els.waypoints.append(arrow);
-        }
-        const reached = i <= view.progress;
-        const mark = document.createElement('span');
-        mark.className = reached ? 'waypoint reached' : 'waypoint';
-        mark.textContent = `${reached ? '✓' : '·'} ${i + 1}. ${waypoint.label}`;
-        this.els.waypoints.append(mark);
-      }
-    }
+    // THE ROUTE LINE IS GONE. REPORTED: "…duplicated by the board." The boards ARE the sequence: each caption reads
+    // "<n>: <name>" for the waypoint it draws, the border colours say solved/next/locked, and the paging zones walk it. The
+    // list was the third copy of one fact and cost a phone three lines above the search box.
 
     // A NEW VIEW CLEARS A HALF-MADE STEP unless the view is the ARMED one being redrawn: `lastView === view` only on the
     // arming click's own re-render, where the board has not moved.
@@ -193,19 +170,22 @@ export class DailyScreen {
     // telling them one call, so a NEW hint clears the narrowing rather than leaving "Hint: Dosado" on screen with no
     // Dosado in the list below it. An existing hint leaves the filter alone, so a player who searches while a hint is
     // showing keeps their search.
+    //
+    // THE DEFAULT FILTER IS ENOUGH FOR THAT, and this is a fact rather than a hope: `PlaySession.hint()` answers from
+    // `offered()`, which is the WHOLE-BOARD list, so the call a hint names is by construction a reading of the `All 8`
+    // subset — the one the cleared filter shows.
     if (view.hintedCall !== null && view.hintedCall !== this.lastHinted) this.clearFilter();
     this.lastHinted = view.hintedCall;
     this.renderOffers(view);
 
-    // THE INSTRUCTION LINE carries the whole interaction, so it is NOT empty on the ordinary path: with nothing armed
-    // it says how to arm one (the gesture is the mode, and a gesture nobody is told about does not exist), and with a
-    // reading armed it says what a second click does — a button reading "1st of two" is only half the instruction. It
-    // is empty only when the run is over and there is nothing left to pick.
-    this.els.pairHint.textContent = view.outcome !== 'playing'
+    // THE ARMED LINE, and only the armed line. REPORTED: "Remove all the unnecessary text before the HUD search element. Most
+    // of it is already in the help…" — the Shift-click instruction is in the help page's "Two-group steps" entry, so it is
+    // no longer repeated on every Daily. What still has to be said is the STATE the player is in (a reading held, waiting
+    // for a second group), because a half-made move with no sentence beside it is the "unannounced gesture" DESIGN.md §9.2
+    // refuses. Empty when nothing is armed and empty when the run is over; `:empty` collapses the paragraph.
+    this.els.pairHint.textContent = view.outcome !== 'playing' || !this.armed
       ? ''
-      : this.armed
-        ? `${readingSpelling(this.armed)} armed — pick a call under a DIFFERENT group to dance both at once, or pick the same one again to cancel.`
-        : 'Shift-click a call (⇧) to start a two-group step, then pick a call under another group.';
+      : `${readingSpelling(this.armed)} armed — pick a call under a DIFFERENT group to dance both at once, or pick the same one again to cancel.`;
 
     this.els.line.textContent = view.moves.length ? `Your line: ${view.moves.join(' → ')}` : 'Your line: (nothing yet)';
     this.writeClock(view);
@@ -232,21 +212,22 @@ export class DailyScreen {
       return;
     }
     const labels = groupReadings(view.readings).map((section) => section.label);
-    if (this.filter.selection !== null && !labels.includes(this.filter.selection)) {
-      this.filter = { ...this.filter, selection: null };
-    }
+    // ONE SUBSET IS ALWAYS SELECTED (`readings.ts`'s `DEFAULT_FILTER` opens on the whole board), so there is no unpressed
+    // row: a label that has just disappeared falls back rather than leaving the list empty under a pill that is not there.
+    this.filter = { ...this.filter, selection: subsetOrDefault(labels, this.filter.selection) };
     for (const label of labels) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'call-subset';
       button.textContent = label;
-      // ARIA-PRESSED CARRIES THE STATE, not a colour: a toggle told by colour alone is unreadable for a colour-vision
-      // difference, the same rule the hinted call and the waypoint borders follow.
+      // ARIA-PRESSED CARRIES THE STATE, not a colour: a selection told by colour alone is unreadable for a colour-vision
+      // difference, the same rule the hinted call and the waypoint borders follow. Exactly one is pressed at all times, which
+      // is what makes the row a single-select — the same language as the board page's Drill/Daily pair.
       button.setAttribute('aria-pressed', String(this.filter.selection === label));
-      // THE TOGGLE IS `readings.ts`'s RULE rather than a branch here, so "press the pressed one again" is pinned by a
-      // probe instead of by whoever reads this handler.
+      // THE PRESS IS `readings.ts`'s RULE rather than a branch here, so "one at a time, and pressing the pressed one changes
+      // nothing" is pinned by a probe instead of by whoever reads this handler.
       button.addEventListener('click', () => {
-        this.filter = { ...this.filter, selection: toggleSelection(this.filter.selection, label) };
+        this.filter = selectSubset(this.filter, label);
         this.repaintOffers();
       });
       this.els.callSubsets.append(button);
@@ -263,7 +244,7 @@ export class DailyScreen {
       return;
     }
     if (visible.length === 0) {
-      const narrowed = `${this.filter.query.trim() ? ` “${this.filter.query.trim()}”` : ''}${this.filter.selection ? ` in ${this.filter.selection}` : ''}`;
+      const narrowed = `${this.filter.query.trim() ? ` “${this.filter.query.trim()}”` : ''} in ${this.filter.selection}`;
       const note = document.createElement('p');
       note.textContent = `No call matches${narrowed} — clear the search or pick another group.`;
       this.els.offer.append(note);
@@ -272,28 +253,20 @@ export class DailyScreen {
     // AT THE CAP THE LIST IS DISABLED, not emptied: the player can still see what was legal, and the readout says the
     // allowance is spent. An empty list would look like a broken puzzle.
     const spent = view.movesLeft === 0;
-    // GROUPED BY THE READING: one section per subset that can perform something, the whole board first.
-    //
-    // WHY SECTIONS AND NOT A PREFIX IN THE LABEL. The engine's own vocabulary is a GROUP plus a call ("Heads" + "Dosado"),
-    // and prefixed labels made every row a sentence to re-read ("Head Boys Dosado" beside "Dosado"). A heading says it
-    // once, the rows stay the call's own name, and the same call appearing under two headings is honest: those are two
-    // different moves, by different dancers.
-    for (const section of groupReadings(visible)) {
-      const heading = document.createElement('h3');
-      heading.className = 'offer-group';
-      heading.textContent = section.label;
-      this.els.offer.append(heading);
-
+    // A FLAT LIST, ONE ROW, BECAUSE THE FILTER IS ONE SUBSET. The sections and their `<h3>` headings went with the
+    // multi-subset list: the pressed pill above already says which group these calls are for, so a heading would print that
+    // name a second time, and the rows are the call's own name either way — the reading's group is IN the button's label
+    // whenever the call needs one (`readingSpelling` writes "Heads Dosado" for a group reading, "Dosado" for the set).
+    {
       const row = document.createElement('div');
       row.className = 'offer-row';
-      for (const reading of section.readings) {
+      for (const reading of visible) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'offer';
         // THE HINT MARKS THE CALL IN THE LIST, which is what DESIGN.md 10 asks a hint to be: one call name, marked where
         // the player is already looking. The run drops the marker as soon as they move, so it can never point at a call
-        // that is no longer offered. A hinted call is highlighted in EVERY group it is legal for, because the hint names
-        // a call and not a reading.
+        // that is no longer offered.
         const armedNow = isArmed(this.armed, reading);
         if (armedNow) {
           button.classList.add('armed');
@@ -323,10 +296,11 @@ export class DailyScreen {
    * Forget both narrowings AND the box they were typed in.
    *
    * ONE PLACE, because the two must move together: a cleared filter with yesterday's query still in the box would look
-   * like the search was on and doing nothing.
+   * like the search was on and doing nothing. The subset goes back to `DEFAULT_FILTER`'s whole board rather than to "no
+   * subset", because there is no such filter any more.
    */
   private clearFilter(): void {
-    this.filter = ALL_READINGS;
+    this.filter = DEFAULT_FILTER;
     this.els.callSearch.value = '';
   }
 

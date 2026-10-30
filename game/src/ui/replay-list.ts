@@ -59,7 +59,7 @@ export class ReplayList {
    *
    * THE HIGHLIGHT IS DRIVEN FROM OUTSIDE — the shell samples the playhead's beat each frame and asks `replay-line.ts`
    * which call that is — because this file does not own time and must not start to. The active call is marked by a BORDER
-   * AND A BOLD WEIGHT as well as a colour, the same rule the route line and the hinted call follow, so it survives a
+   * AND A BOLD WEIGHT as well as a colour, the same rule the hinted call and the board borders follow, so it survives a
    * colour-vision difference; the calls already played are dimmed and struck through.
    *
    * IT WRITES NOTHING IF THE MARKED CALL IS UNCHANGED, because the frame loop calls it while a line plays.

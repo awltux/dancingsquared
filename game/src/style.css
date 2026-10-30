@@ -1117,12 +1117,76 @@ button[data-busy="true"]::after {
   margin: 0 0 14px;
 }
 
+/* AN EMPTY PARAGRAPH IS NO PARAGRAPH. REPORTED: "Remove all the unnecessary text before the HUD search element" — the
+   prompt now says nothing while a run is playing (the help page owns the rule, the board's own caption owns the goal), and
+   a `<p>` with no text would still hold its margin open above the search box. */
+#dailyPrompt:empty {
+  display: none;
+}
+
+/* THE DAILY'S TOP ROW: Undo, Redo and the clock, which are the three facts a player checks between moves.
+   REPORTED: "Move the undo/Redo buttons to the top of the HUD, make them much smaller as they take up a lot of screen real
+   estate." They were two 48 px full-width bars in the footer — two rows of the panel for two presses. The size here is
+   40 x 40: smaller than anything else the panel presses, and still a square a thumb can hit (the app's floor for a touch
+   target is 44, and the owner asked for the smaller shape by name; a 40 px icon button is 17 % of the area those two bars
+   took). The row is a flex line so the clock flows beside them on a wide panel and wraps under them on a narrow one. */
+#dailyTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0 0 10px;
+}
+
+#dailyTop button {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--control);
+  border: 1px solid var(--line);
+  border-radius: var(--r-control);
+  cursor: pointer;
+}
+
+#dailyTop button:hover {
+  border-color: var(--accent);
+}
+
+/* `[hidden]` IS NOT ENOUGH ON A FLEX BOX: the UA sheet's `display: none` loses to the `display: flex` above, so a run that is
+   over — or a Daily the player has left — would leave two dead buttons on the row. `#boardTabs[hidden]` carries the same rule
+   for the same reason. */
+#dailyTop button[hidden] {
+  display: none;
+}
+
+/* NOTHING TO UNDO IS A DRAWN STATE, not a press that does nothing: the glyph stays readable at 0.55 and the button stops
+   promising a press. MEASURED at 0.45 the 20 px arrow over `--control` was too faint to read in a screenshot of the panel. */
+#dailyTop button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* THE GLYPH IS A STROKED PATH IN `currentColor`, like the banner's, so it takes the palette with no image and no icon font. */
+#dailyTop button svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* THE READOUT IS A FACT, NOT A VERDICT: which of the allowed calls are used, and the clock the run is being
    judged on. Tabular figures so the seconds do not make the line twitch as they tick. */
 #dailyReadout {
-  margin: 0 0 14px;
+  margin: 0;
   color: var(--dim);
-  font-size: var(--fs-body);
+  font-size: var(--fs-small);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1173,8 +1237,11 @@ button[data-busy="true"]::after {
   flex: 1 1 100%;
 }
 
-/* A SUBSET IS A TOGGLE, and a toggle is told by MORE than colour: `aria-pressed` carries the state for a screen reader,
-   and the pressed pill gets a solid border plus a tick-free but unmistakable fill for everyone else. */
+/* A SUBSET IS A SINGLE-SELECT, and a selection is told by MORE than colour: `aria-pressed` carries the state for a screen
+   reader, and the pressed pill gets a solid border plus an unmistakable fill for everyone else. ONE is always pressed —
+   REPORTED: "The call lists in the HUD should always use a single call filter, defaulting to 'All 8'. Selecting another
+   filter deselects the currently selected filter" — so this row never shows an "off" state and the stylesheet has no rule
+   for one. */
 .call-subset {
   min-height: 34px;
   padding: var(--space-xs) var(--space-md);
@@ -1206,24 +1273,10 @@ button[data-busy="true"]::after {
   margin-bottom: 14px;
 }
 
-/* THE GROUPED LIST: one section per reading, the whole board first (the order `puzzle/readings.ts` returns).
-   The heading is the ONLY place the group's name appears, which is why the buttons below it are bare call names:
-   a row reading "Head Boys Dosado" under a heading that already says "Head Boys" is the sentence twice. */
-#offer .offer-group {
-  margin: 10px 0 0;
-  font-size: var(--fs-small);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-
-#offer .offer-group:first-child {
-  margin-top: 0;
-}
-
-/* A section's buttons WRAP rather than stacking: a squared set offers dozens of calls per group, and a column of
-   forty full-width buttons is a page of scrolling to reach the one below. */
+/* THE GROUPED LIST'S HEADING IS GONE WITH THE MULTI-SUBSET LIST: the pressed pill above already names the group, and with
+   one subset in view a heading would print that name a second time. A section's buttons still WRAP rather than stacking —
+   a whole-board subset is dozens of calls, and a column of forty full-width buttons is a page of scrolling to reach the one
+   below. */
 #offer .offer-row {
   display: flex;
   flex-wrap: wrap;
@@ -1260,24 +1313,9 @@ button[data-busy="true"]::after {
   border-width: 4px;
 }
 
-/* THE ROUTE LINE: the waypoint sequence, a stage per arrangement. A REACHED stage is dimmed and ticked rather than
-   coloured alone, so it survives a colour-vision difference (the same rule the hinted call follows). */
-#dailyWaypoints {
-  margin: 0 0 10px;
-  font-size: var(--fs-body);
-  line-height: 1.6;
-  color: var(--dim);
-  word-break: break-word;
-}
-
-#dailyWaypoints .waypoint.reached {
-  color: var(--ink);
-  opacity: 0.75;
-}
-
-#dailyWaypoints .waypoint-arrow {
-  opacity: 0.6;
-}
+/* THE ROUTE LINE IS GONE — `#dailyWaypoints` and its `.waypoint`/`.waypoint-arrow` rules went with the report "Remove all
+   the unnecessary text before the HUD search element … duplicated by the board". The boards ARE the sequence: a caption per
+   board ("<n>: <name>"), a border colour per state, and the paging zones to walk it. */
 
 /* THE ARMED READING, waiting for a second group: marked by a border AND a label ("1st of two"), never by colour alone. */
 .offer.armed {
@@ -1286,10 +1324,8 @@ button[data-busy="true"]::after {
   background: var(--pressed);
 }
 
-/* THE INSTRUCTION FOR THE INTERACTION. It is not empty while a run is playing: with nothing armed it says how to arm a
-   two-group step (the gesture is a Shift-click, and an unannounced gesture does not exist), and with one armed it names
-   it and says what the second click does. It is empty only once the run is over, which is why `:empty` still matters:
-   a paragraph with no text would still advance the layout by a line. */
+/* THE ARMED LINE. It is empty unless a reading is held — the Shift-click instruction it used to carry is the help page's
+   "Two-group steps" entry — and `:empty` is what stops an empty paragraph taking a line above the search box. */
 #offerPairHint {
   margin: 0 0 10px;
   font-size: var(--fs-small);
@@ -1611,7 +1647,7 @@ button[data-busy="true"]::after {
 }
 
 /* THE CALL BEING PLAYED: a border and a weight as well as a colour, so it survives a colour-vision difference — the same
-   rule the route line's reached waypoints and the hinted call follow. */
+   rule the hinted call and the board borders follow. */
 #replayCalls li.now {
   color: var(--ink);
   font-weight: 700;

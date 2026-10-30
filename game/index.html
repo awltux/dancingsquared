@@ -381,20 +381,32 @@
 
           <section id="daily" class="page" aria-live="polite" hidden>
             <h2 id="dailyHeading" tabindex="-1">Today's Daily</h2>
+            <!-- ONE COMPACT ROW AT THE TOP: Undo, Redo and the clock. REPORTED: "Move the undo/Redo buttons to the top of the
+                 HUD, make them much smaller as they take up a lot of screen real estate." They were two full-width 48 px bars
+                 in the shared footer — two rows of the panel for two presses — and the readout they sit beside is the fact
+                 they are used against (the allowance and the time), so the row is the whole of the Daily's chrome above the
+                 list. The glyphs are `aria-hidden` and each button's accessible name is its action, because an arrow alone is
+                 not a name. -->
+            <div id="dailyTop">
+              <button id="undo" type="button" aria-label="Undo the last call" hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9.5 5.5 4 11l5.5 5.5" /><path d="M4 11h9.5a6.5 6.5 0 0 1 0 13H9" /></svg></button>
+              <button id="redo" type="button" aria-label="Redo the last call" hidden><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14.5 5.5 20 11l-5.5 5.5" /><path d="M20 11h-9.5a6.5 6.5 0 0 0 0 13H15" /></svg></button>
+              <p id="dailyReadout"></p>
+            </div>
+            <!-- THE NEWS ONLY, AND NOTHING WHILE THE RUN IS PLAYING. REPORTED: "Remove all the unnecessary text before the HUD
+                 search element. Most of it is already in the help or duplicated by the board." The instruction that used to
+                 live here ("Pass all 5 waypoints in order, ending on the goal board — the goal is Circle") is the help page's
+                 rule and the right-hand board's own caption, so this line is empty while there is nothing to say and
+                 `#dailyPrompt:empty` is what collapses it. -->
             <p id="dailyPrompt"></p>
-            <!-- THE ROUTE, as a sequence of ARRANGEMENTS rather than calls (DESIGN.md §9.1): a waypoint is an
-                 arrangement the player has stood in, so two different calls that leave the same setup both satisfy it. -->
-            <p id="dailyWaypoints"></p>
-            <p id="dailyReadout"></p>
-            <!-- HOW TO COMPOSE A TWO-GROUP STEP, and which reading is armed once one is: "Shift-click a call (⇧) to start
-                 a two-group step, then pick a call under another group", or "<reading> armed — …". It is not empty while
-                 the run is playing, because an unannounced gesture does not exist (DESIGN.md §9.2). -->
+            <!-- THE ARMED READING, and only that: the Shift-click instruction it used to carry is the help page's
+                 "Two-group steps" entry. Empty when nothing is armed. -->
             <p id="offerPairHint"></p>
             <!-- NARROWING THE LIST. A level-1 Daily offers 277 readings over 14 subsets from the squared set and 306 over 16 from a generated start, so reaching the call a player
-                 has in mind used to mean scrolling a page of buttons. TWO independent narrowings, both stateful: the
-                 subset buttons (`aria-pressed`, press the pressed one again to show everything) and the search box,
-                 which matches each reading's own spelling. The count says what is left, and `0 of 306` is a real
-                 answer rather than an empty list with no explanation. -->
+                 has in mind used to mean scrolling a page of buttons. ONE SUBSET IS ALWAYS SELECTED — REPORTED: "The call lists
+                 in the HUD should always use a single call filter, defaulting to 'All 8'. Selecting another filter deselects
+                 the currently selected filter." — and the search box is a second narrowing over that subset, matching each
+                 reading's own spelling. The count says what is left, and `0 of 306` is a real answer rather than an empty list
+                 with no explanation. -->
             <div id="callFilter" class="call-filter">
               <input id="callSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search calls…" aria-label="Search calls" />
               <span id="callCount" class="call-count" role="status"></span>
@@ -448,10 +460,13 @@
                AND THE LAST TWO LEFT WITH THE REPORT "Daily: Remove the Hint button and move the event handler to the hint bank
                badge in the header" and "Remove the Give Up button, this is the same as using the back button": the hint is the
                badge in the banner (`#bannerHints`), and giving up IS the way back — the run stays in flight, so leaving the
-               Daily neither scores it nor throws it away. -->
+               Daily neither scores it nor throws it away.
+
+               AND UNDO/REDO FOLLOWED, TO THE TOP OF THE DAILY. REPORTED: "Move the undo/Redo buttons to the top of the HUD, make
+               them much smaller as they take up a lot of screen real estate." Two 48 px bars stacked in this column are two
+               rows of the panel for two presses, so they are small square icon buttons beside the clock now (`#dailyTop`, in
+               the Daily's own section) and this footer holds only the offers a finished run makes. -->
           <footer id="foot">
-            <button id="undo" type="button" hidden>Undo</button>
-            <button id="redo" type="button" hidden>Redo</button>
             <!-- THE REPLAY LIST: the calls a solved line was made of, as text. It is READ BACK, not played from here —
                  the owner's call ("the list of calls and the 'your line' button are actually enough"), which is what
                  took the play/pause and the scrub out. The two buttons after it choose WHICH line, once one exists. -->

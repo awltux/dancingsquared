@@ -55,16 +55,18 @@ const PAGES = ['landing', 'setup', 'help', 'profile', 'levels', 'drill', 'daily'
  *
  * THE HINT AND "GIVE UP" ARE NOT HERE ANY MORE. REPORTED: "Daily: Remove the Hint button and move the event handler to the
  * hint bank badge in the header" and "Remove the Give Up button, this is the same as using the back button." The hint is the
- * banner's badge (`#bannerHints`, checked in section 4) and giving up is the way back, so the footer is the four moves a run
- * has plus the two offers that answer it.
+ * banner's badge (`#bannerHints`, checked in section 4) and giving up is the way back.
+ * AND UNDO/REDO LEFT THE FOOTER FOR THE DAILY'S OWN TOP ROW — REPORTED: "Move the undo/Redo buttons to the top of the HUD,
+ * make them much smaller as they take up a lot of screen real estate" — so they are `daily`'s page controls now, and the
+ * footer is the four offers a finished run makes.
  */
 const FOOTER = [
-  'undo', 'redo', 'replayMine', 'replayShortest', 'practice', 'next',
+  'replayMine', 'replayShortest', 'practice', 'next',
 ];
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
   profile: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut', 'passwordForm', 'currentPassword', 'newPassword', 'passwordChange', 'ledger', 'profileBoard', 'aliasForm', 'aliasInput', 'aliasSave', 'aliasStatus'],
-  daily: ['callSearch', 'callSubsets', 'offer'],
+  daily: ['callSearch', 'callSubsets', 'offer', 'undo', 'redo'],
   levels: ['levelNext', 'levelBlock'],
 };
 /** Set-once preferences and housekeeping: they belong on the Setup page, and nowhere else. */
@@ -389,6 +391,12 @@ console.log('\n== 6. the footer holds the game\'s moves, each page its own contr
   // controls appear at once. Zero is the measured shape after this change; the number may only fall.
   const alwaysOn = [...foot.matchAll(/<button\b[^>]*>/g)].filter((m) => !/\bhidden\b/.test(m[0])).length;
   check(alwaysOn === 0, `no footer button is drawn on every page any more (${alwaysOn} always-on)`);
+  // A `hidden` ATTRIBUTE IS NOT ALWAYS ENOUGH, and the Daily's two icon buttons are the case: `#dailyTop button` is a flex box,
+  // and the UA sheet's `display: none` for `[hidden]` loses to an author `display`. Without this rule a run that is over leaves
+  // two dead arrows on the row — and no id contract can see a cascade, so it is pinned here. The negative control is the rule's
+  // own absence: delete `#dailyTop button[hidden]` and only this check fails.
+  check(/#dailyTop button\[hidden\]\s*\{[^}]*display:\s*none/.test(stripComments(css)),
+    'the Daily\'s icon buttons are hidden by their `hidden` attribute, which a flex `display` would otherwise defeat');
 }
 
 console.log('\n== 7. the drill page\'s heading and question are for the reader, not for the layout ==');

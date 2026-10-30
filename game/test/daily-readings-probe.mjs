@@ -21,7 +21,7 @@ import { levelSpec } from '../src/puzzle/levels.ts';
 import { MAIN_POOL, poolFor } from '../src/puzzle/pool.ts';
 import { applierFor } from '../src/data/corpus-node.ts';
 import { PlaySession } from '../src/puzzle/session.ts';
-import { ALL_READINGS, filterReadings, groupReadings, selectionLabel, toggleSelection, WHOLE_BOARD } from '../src/puzzle/readings.ts';
+import { DEFAULT_FILTER, filterReadings, groupReadings, selectSubset, selectionLabel, subsetOrDefault, WHOLE_BOARD } from '../src/puzzle/readings.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -128,51 +128,77 @@ console.log('\n== 6. a reading is what the session plays, and the line keeps the
   check(session.moves.length === 1 && session.moves[0] === prefixed(groupReading), `and the line holds the group's spelling (${session.moves[0]})`);
 }
 
-console.log('\n== 8. the FILTER narrows the same list: a subset, a query, and nothing hidden by accident ==');
+console.log('\n== 8. the FILTER is ALWAYS one subset, and the query narrows within it ==');
 {
-  // REPORTED: "there are a large number of calls available to the player. Implement a search feature and make the calls
-  // easier to navigate." MEASURED at this level (pool 73): the squared set offers 279 readings over 14 subsets, so scrolling the
-  // list to a call you have in mind is the slow path. The filter is TWO narrowings over the SAME list, and the checks
-  // below are what keep it a view of the engine's enumeration rather than a second list beside it.
-  const all = filterReadings(readings, ALL_READINGS);
-  check(all.length === readings.length, `ALL_READINGS shows every reading (${all.length} of ${readings.length})`);
-  check(JSON.stringify(all.map(prefixed)) === JSON.stringify(readings.map(prefixed)), 'and in the engine\'s own order, because a filter that re-sorted would move a call among names the player already knows');
+  // REPORTED, first as "there are a large number of calls available to the player. Implement a search feature and make the
+  // calls easier to navigate", then as the rule this section now pins: "The call lists in the HUD should always use a single
+  // call filter, defaulting to 'All 8'. Selecting another filter deselects the currently selected filter."
+  // MEASURED at this level (pool 73): the squared set offers 279 readings over 14 subsets, so the list is a page of scrolling
+  // without a narrowing, and it was previously EVERY subset at once as a stack of sections.
   const sections = groupReadings(readings);
-  const biggest = sections.reduce((a, b) => (b.readings.length > a.readings.length ? b : a));
-  const subset = filterReadings(readings, { selection: biggest.label, query: '' });
-  check(subset.length === biggest.readings.length && subset.every((r) => selectionLabel(r) === biggest.label), `a subset shows exactly its own section (${subset.length} of ${readings.length}, "${biggest.label}")`);
-  // NEGATIVE CONTROL: the subset check above only means something if the subsets are SMALLER than the whole list — a
-  // filter that compared the wrong field (say the call) would return everything.
-  check(biggest.readings.length < readings.length, `NEGATIVE CONTROL: the largest subset is smaller than the whole list (${biggest.readings.length} < ${readings.length})`);
+  check(sections[0].label === WHOLE_BOARD, `the whole board is the first label, which is the default (${sections[0].label})`);
+  check(DEFAULT_FILTER.selection === WHOLE_BOARD && DEFAULT_FILTER.query === '',
+    `DEFAULT_FILTER is the whole board with nothing typed (${DEFAULT_FILTER.selection}, "${DEFAULT_FILTER.query}")`);
 
-  // THE QUERY IS CASE-INSENSITIVE AND MATCHES THE READING'S OWN SPELLING, so the group word is searchable too.
-  const sample = readings[0];
-  const upper = filterReadings(readings, { selection: null, query: sample.call.toUpperCase() });
-  const lower = filterReadings(readings, { selection: null, query: sample.call.toLowerCase() });
+  // THE DEFAULT SHOWS THE WHOLE BOARD'S OWN READINGS, not everything: one subset, always.
+  const shown = filterReadings(readings, DEFAULT_FILTER);
+  check(shown.length === sections[0].readings.length && shown.every((r) => selectionLabel(r) === WHOLE_BOARD),
+    `the default filter shows exactly the whole board's readings (${shown.length} of ${readings.length})`);
+  check(JSON.stringify(shown.map(prefixed)) === JSON.stringify(sections[0].readings.map(prefixed)),
+    'in the engine\'s own order, because a filter that re-sorted would move a call among names the player already knows');
+  // NEGATIVE CONTROL: the check above only means something if the whole-board subset is SMALLER than the whole list — a
+  // filter that compared the wrong field (say the call) would return everything.
+  check(shown.length < readings.length, `NEGATIVE CONTROL: the default subset is smaller than the whole list (${shown.length} < ${readings.length})`);
+
+  // AND EVERY SUBSET IS EXACTLY ITS OWN SECTION, which is what makes the pills a partition of the list rather than a
+  // narrowing that leaks one group's calls into another's.
+  const wrong = sections.filter((section) => {
+    const visible = filterReadings(readings, { selection: section.label, query: '' });
+    return visible.length !== section.readings.length || !visible.every((r) => selectionLabel(r) === section.label);
+  });
+  check(wrong.length === 0, `every one of the ${sections.length} subsets shows its own section and nothing else (${wrong.map((s) => s.label).join(', ') || 'none wrong'})`);
+
+  // THE QUERY IS CASE-INSENSITIVE AND MATCHES THE READING'S OWN SPELLING, so the group word is searchable too — WITHIN the
+  // selected subset, which is the half that changed: a query does not escape the filter above it.
+  const sample = shown[0];
+  const upper = filterReadings(readings, { ...DEFAULT_FILTER, query: sample.call.toUpperCase() });
+  const lower = filterReadings(readings, { ...DEFAULT_FILTER, query: sample.call.toLowerCase() });
   check(upper.length > 0 && JSON.stringify(upper.map(prefixed)) === JSON.stringify(lower.map(prefixed)), `a query is case-insensitive (${upper.length} match "${sample.call}")`);
+  check(upper.every((r) => selectionLabel(r) === WHOLE_BOARD), 'and it never reaches outside the selected subset');
+
   const groupWord = readings.find((r) => r.selection !== null && r.selection !== WHOLE_BOARD);
-  const byGroup = filterReadings(readings, { selection: null, query: groupWord.selection.toLowerCase() });
+  const byGroup = filterReadings(readings, { selection: groupWord.selection, query: groupWord.selection.toLowerCase() });
   check(byGroup.length > 0 && byGroup.includes(groupWord), `and it matches the GROUP's word too, because the spelling is "${prefixed(groupWord)}" (${byGroup.length} match "${groupWord.selection}")`);
 
   // TWO TERMS, IN ANY ORDER: a filter that required them in the typed order would fail on the likeliest typo.
   const terms = [groupWord.selection.toLowerCase(), groupWord.call.split(' ')[0].toLowerCase()];
-  const forward = filterReadings(readings, { selection: null, query: terms.join(' ') });
-  const backward = filterReadings(readings, { selection: null, query: [...terms].reverse().join(' ') });
+  const forward = filterReadings(readings, { selection: groupWord.selection, query: terms.join(' ') });
+  const backward = filterReadings(readings, { selection: groupWord.selection, query: [...terms].reverse().join(' ') });
   check(forward.length > 0 && JSON.stringify(forward.map(prefixed)) === JSON.stringify(backward.map(prefixed)), `two terms match in either order (${forward.length} match "${terms.join(' ')}")`);
 
-  // A ZERO IS AN ANSWER, and this one is checked to be a genuine absence rather than a broken sample: the list is
-  // non-empty and a query no spelling contains still finds nothing, which is what the count shows the player.
-  const nothing = filterReadings(readings, { selection: null, query: 'zzzz-no-such-call' });
+  // A ZERO IS AN ANSWER, and this one is checked to be a genuine absence rather than a broken sample.
+  const nothing = filterReadings(readings, { ...DEFAULT_FILTER, query: 'zzzz-no-such-call' });
   check(nothing.length === 0 && readings.length > 0, `a query no spelling contains matches nothing (${nothing.length} of ${readings.length})`);
 
   // AND THE TWO NARROWINGS COMPOSE (subset AND query), which is what the picker shows: never a union of them.
-  const composed = filterReadings(readings, { selection: biggest.label, query: groupWord.call.split(' ')[0].toLowerCase() });
-  check(composed.length <= subset.length && composed.every((r) => subset.includes(r)), `a subset and a query compose (${composed.length} of the subset's ${subset.length})`);
+  const composed = filterReadings(readings, { selection: groupWord.selection, query: groupWord.call.split(' ')[0].toLowerCase() });
+  const own = filterReadings(readings, { selection: groupWord.selection, query: '' });
+  check(composed.length <= own.length && composed.every((r) => own.includes(r)), `a subset and a query compose (${composed.length} of the subset's ${own.length})`);
 
-  // THE TOGGLE: pressing the pressed subset is the way back to the whole list.
-  check(toggleSelection(null, 'Heads') === 'Heads', 'pressing a subset selects it');
-  check(toggleSelection('Heads', 'Heads') === null, 'and pressing it again shows everything');
-  check(toggleSelection('Heads', 'Sides') === 'Sides', 'while pressing another switches to it');
+  // ONE AT A TIME, AND NO WAY TO TURN IT OFF. This is the reported rule, and the check below is the negative control for
+  // the rule it replaced: `toggleSelection` (pressing the pressed pill again showed EVERY subset) is gone, so pressing the
+  // selected pill must leave the selection exactly where it was.
+  check(selectSubset(DEFAULT_FILTER, 'Heads').selection === 'Heads', 'pressing a subset selects it');
+  check(selectSubset(selectSubset(DEFAULT_FILTER, 'Heads'), 'Heads').selection === 'Heads',
+    'pressing the selected one again keeps it — there is no "show everything" state to fall back to');
+  const switched = selectSubset(selectSubset(DEFAULT_FILTER, 'Heads'), 'Sides');
+  check(switched.selection === 'Sides' && switched.selection !== 'Heads', `pressing another one replaces the selection, so one is always selected (${switched.selection})`);
+  check(selectSubset({ ...DEFAULT_FILTER, query: 'do' }, 'Sides').query === 'do', 'and a subset press keeps the query, so the two narrowings stay independent');
+  // THE FALLBACK: a subset that has disappeared from the board (no legal call for that group) falls back to the whole board,
+  // never to "nothing selected" — which is the state this screen can no longer draw.
+  check(subsetOrDefault(['Heads', 'Sides'], WHOLE_BOARD) === 'Heads', 'a vanished selection falls back to the board\'s first label');
+  check(subsetOrDefault([WHOLE_BOARD, 'Heads'], 'Gone') === WHOLE_BOARD, 'and to the whole board where it is on offer');
+  check(subsetOrDefault(['Heads', 'Sides'], 'Sides') === 'Sides', 'while a selection that is still on offer is kept');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

@@ -861,19 +861,26 @@ challenge").
 - **A group-only call — one a subset can perform and the set cannot — is legal here too**, and it is the engine's
   harness that builds the case (`engine/test/group-refusal.mjs`), because the squared set at a real level's pool
   offers 35 of its 36 titles whole-board and the situation does not arise within one call of the start.
-- **THE LIST IS NARROWED BY TWO INDEPENDENT CONTROLS, and both are the player's rather than the puzzle's.** REPORTED:
+- **THE LIST IS NARROWED TO ONE SUBSET AND ONE QUERY, and both are the player's rather than the puzzle's.** REPORTED:
   "there are a large number of calls available to the player. Implement a search feature and make the calls easier to
   navigate. Perhaps use subsets as stateful filter buttons and a free-form search text entry." MEASURED at level 1
   (pool 57): **277 readings over 14 subsets, the largest of them 24**, so reaching the call a player has in mind meant
-  scrolling a page every move. The controls are a **subset** (one of the section labels — `All 8` is a subset, not the
-  off state, and pressing the pressed one again shows everything) and a **free-text query** matched against each
+  scrolling a page every move. The controls are a **subset** and a **free-text query** matched against each
   reading's own SPELLING, so "heads dos" finds the group reading and every whitespace-separated term must occur, in any
   order and case-insensitively. They compose as an AND, and the filter is a **view over the engine's list**: nothing is
-  re-sorted, deduplicated or relabelled, which is what `filterReadings`' checks assert (`ALL_READINGS` returns the list
-  it was given). Three consequences are part of the rule rather than of the screen: the **count** is shown ("12 of 277
-  calls"), so a zero is an answer rather than an empty list; a subset whose calls are all illegal on the current board
-  has **no button**, and a selection that disappears is dropped rather than left pressed against nothing; and a **new
-  hint clears the narrowing**, because a hint names one call and a filter must not hide it.
+  re-sorted, deduplicated or relabelled, which is what `filterReadings`' checks assert (every subset returns exactly its
+  own section, in the engine's order). Three consequences are part of the rule rather than of the screen: the **count** is
+  shown ("12 of 277 calls"), so a zero is an answer rather than an empty list; a subset whose calls are all illegal on the
+  current board has **no button**, and a selection that disappears falls back to the whole board (`subsetOrDefault`) rather
+  than being left pressed against nothing; and a **new hint clears the narrowing**, because a hint names one call and a
+  filter must not hide it.
+  **AND THERE IS ALWAYS EXACTLY ONE SUBSET SELECTED, `All 8` BY DEFAULT.** REPORTED: "The call lists in the HUD should always
+  use a single call filter, defaulting to 'All 8'. Selecting another filter deselects the currently selected filter." The
+  value that narrowed nothing (`selection: null`, which drew EVERY subset at once as a stack of sections) is gone with the
+  multi-section list and its `<h3>` headings: the list is one flat row of the selected subset's calls, `DEFAULT_FILTER` opens
+  on the whole board, and pressing the pressed pill again changes nothing — the only way to change the list is to press a
+  different pill (`selectSubset`). MEASURED on a level-1 squared set: the default filter shows **40 of 461** readings, where
+  the old unfiltered list showed all 461 as a page of sections.
 
 - **The challenge's waypoints GATE the route, and the count is the level's.** This REVERSES an earlier entry here
   ("they GUIDE the route rather than gate it"), and the report is why: **"The last generated daily was only 2
@@ -964,7 +971,7 @@ the matcher would call them congruent", which is exactly the equivalence a waypo
 that survives this measurement is:
 
 **THE SEQUENCE IS BUILT** (`game/src/puzzle/arrangement.ts`, `puzzle/waypoint-pair.ts`, `DailyRun.view().waypoints`,
-`DrillView.waypoints`, the route line in the Daily panel, and the two boards themselves):
+`DrillView.waypoints`, and the two boards themselves):
 
 - `arrangementKey(board)` is `geometryKey(boardMatchables(board))` — the engine's own congruence — and the puzzle's
   waypoints are derived from `puzzle.path` by `waypointBoards`, so the sequence is the generator's own route rather
@@ -979,8 +986,11 @@ that survives this measurement is:
   player actually stood in, derived from the move stack in the Daily and from the route prefix in the Drill — so an
   undo rewinds it for free and it cannot disagree with the line the server replays.
 - **the boards ARE the sequence**: the stage shows two adjacent waypoints with a border on each (`waypoint-pair.ts`
-  decides which two and what each says), the edge zones page the window along the route, and the panel shows the same
-  list as text. IT IS A GATE NOW, not only a readout: the last waypoint is the goal, and `PlaySession.atGoal` requires
+  decides which two and what each says) and the edge zones page the window along the route. **THE TEXT LIST THAT USED TO
+  REPEAT IT IN THE PANEL IS GONE** — REPORTED: "Remove all the unnecessary text before the HUD search element. Most of it is
+  already in the help or duplicated by the board." The captions over the two boards ARE that list ("<n>: <name>", the number
+  the same one the pairing module counts), so the paragraph was a third copy of one fact and cost a phone three lines above
+  the search box. IT IS A GATE NOW, not only a readout: the last waypoint is the goal, and `PlaySession.atGoal` requires
   every one of them in order before the run is won — so a call is never refused by the sequence, but a run that skips
   it does not finish.
 
@@ -1093,6 +1103,17 @@ applier, so the two spellings cannot drift.
   and reasons. This is decision 4, and it is the same component the Drill uses — the only difference is the input, since the
   Drill replays a single option where the Daily replays a whole line. **A given-up run reaches the same state** for a record a
   `resume` still carries, but the app no longer offers to give up (see the two withdrawn controls below).
+- **THE DAILY'S CHROME IS ONE ROW AT THE TOP, AND THE PANEL IS THE LIST.** REPORTED, in three parts: "Remove all the
+  unnecessary text before the HUD search element. Most of it is already in the help or duplicated by the board", "The call
+  lists in the HUD should always use a single call filter, defaulting to 'All 8'", and "Move the undo/Redo buttons to the top
+  of the HUD, make them much smaller as they take up a lot of screen real estate." Everything above the search box that was
+  prose is gone: the waypoint list (its evidence is the two board captions and the borders — §9.1), the "Pass all 5 waypoints
+  in order" sentence (the help page states the rule, and the goal's name is the right-hand caption), and the Shift-click
+  instruction (the help page's "Two-group steps" entry). What is left above the search is a 40 x 40 Undo, a 40 x 40 Redo, the
+  clock, and — only while a reading is armed — the sentence that names it; the two paragraphs are `:empty` when they have
+  nothing to say and so take no line at all. MEASURED in a 393 x 780 frame: `#dailyPrompt` and `#offerPairHint` both report
+  `0x0`, the two buttons `40x40` at y 543, and the search box starts at y 629 — where the old panel put the prompt, a
+  three-line route list and the instruction first. The filter rule and its own measurement are in the list bullet above.
 - **THE PAGE HAS TWO FEWER BUTTONS THAN IT DID, AND BOTH MOVES ARE LOAD-BEARING.** REPORTED: "Daily: Remove the Hint button and
   move the event handler to the hint bank badge in the header. Remove the Give Up button, this is the same as using the back
   button."

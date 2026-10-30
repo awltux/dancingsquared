@@ -185,6 +185,14 @@ console.log('\n== 4. WCAG AA, computed from the table ==');
     ['a panel edge', COLOR.line, panel, 3, 'a border is UI, not text'],
     ['a control edge', COLOR.line, control, 3, 'every button outline'],
     ['a strong edge', COLOR.lineStrong, control, 3, 'the focused and armed outline'],
+    // THE DAILY'S TWO ARROW ICONS, in the two states they are drawn in. REPORTED: "The arrow glyphs for the undo/redo buttons
+    // aren't easy to see on the dark background. Provide better contrast." The ENABLED glyph is `--ink` on the control and was
+    // already 14:1, so the report was really about the DISABLED state — which used to be `opacity: 0.55` on the whole button
+    // and is now `--dim` at full opacity: MEASURED, ink at 0.55 over control is 5.36:1, and a 2 px stroke at that alpha is a
+    // smudge however the ratio reads, where dim at full strength is 7.37:1 with a crisp stroke. Both are UI components rather
+    // than text, so 3:1 is the floor (WCAG 1.4.11) and both clear it with room.
+    ['the enabled arrow glyph', COLOR.ink, control, 3, 'the Daily\'s Undo/Redo icons where the press would do something'],
+    ['the disabled arrow glyph', COLOR.dim, control, 3, 'and where it would not: a disabled control still has to be seen'],
     ['the action\'s label on the accent fill', COLOR.onAccent, parseColour(COLOR.accent), 4.5, 'the Next button is the one filled control'],
   ];
   for (const [what, fg, b, min, why] of PAIRS) {

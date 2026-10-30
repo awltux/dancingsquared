@@ -1146,6 +1146,12 @@ button[data-busy="true"]::after {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* THE COLOUR IS SPELLED OUT, AND THAT IS THE WHOLE OF THE REPORT BELOW. A `<button>` does NOT inherit `color`: the UA
+     sheet gives it `color: buttontext`, which is BLACK here, so `stroke: currentColor` drew a black arrow on the near-black
+     control — MEASURED in the DOM as a computed stroke of black on `--control`, which is about 1.1:1. REPORTED: "The arrow
+     glyphs for the undo/redo buttons aren't easy to see on the dark background. Provide better contrast." Every other button
+     in this app sets its own colour; this one did not. */
+  color: var(--ink);
   background: var(--control);
   border: 1px solid var(--line);
   border-radius: var(--r-control);
@@ -1163,20 +1169,26 @@ button[data-busy="true"]::after {
   display: none;
 }
 
-/* NOTHING TO UNDO IS A DRAWN STATE, not a press that does nothing: the glyph stays readable at 0.55 and the button stops
-   promising a press. MEASURED at 0.45 the 20 px arrow over `--control` was too faint to read in a screenshot of the panel. */
+/* NOTHING TO UNDO IS A DRAWN STATE, not a press that does nothing — and it is DRAWN, not faded.
+   REPORTED: "The arrow glyphs for the undo/redo buttons aren't easy to see on the dark background. Provide better contrast."
+   MEASURED: the colour was never the culprit (`--ink` on `--control` is 14.54:1, and `--ink` at the 0.55 alpha this rule
+   used to apply still composited to 5.36:1), but `opacity` fades the BORDER and the FILL as well, so the whole button went
+   to a smudge and the 2 px stroke went with it. The state is now a DIM GLYPH at full opacity — `--dim` on `--control` is
+   7.37:1, and `theme-probe.mjs` holds both states against the 3:1 floor a UI component needs (WCAG 1.4.11). */
 #dailyTop button:disabled {
-  opacity: 0.55;
+  color: var(--dim);
   cursor: default;
 }
 
-/* THE GLYPH IS A STROKED PATH IN `currentColor`, like the banner's, so it takes the palette with no image and no icon font. */
+/* THE GLYPH IS A STROKED PATH IN `currentColor`, like the banner's, so it takes the palette with no image and no icon font.
+   IT IS DRAWN HEAVY ON PURPOSE: a 2 px stroke on a 20 px glyph is what read as faint in the report above, whatever the
+   contrast ratio said, so the stroke is 2.4 in the 24-unit viewBox (≈2.2 px at this size) and the box is 22 px. */
 #dailyTop button svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

@@ -397,6 +397,29 @@ console.log('\n== 6. the footer holds the game\'s moves, each page its own contr
   // own absence: delete `#dailyTop button[hidden]` and only this check fails.
   check(/#dailyTop button\[hidden\]\s*\{[^}]*display:\s*none/.test(stripComments(css)),
     'the Daily\'s icon buttons are hidden by their `hidden` attribute, which a flex `display` would otherwise defeat');
+  // A THEMED BUTTON MUST ALSO SAY ITS TEXT COLOUR, because `color` is NOT inherited into a `<button>`: the UA sheet sets
+  // `color: buttontext`, which is black. MEASURED — the Daily's two arrow icons were drawn with `currentColor` on a button
+  // that set `background: var(--control)` and no `color`, so the stroke was `rgb(0, 0, 0)` on a near-black fill (1.10:1), and
+  // REPORTED as "The arrow glyphs for the undo/redo buttons aren't easy to see on the dark background". The rule is the
+  // sweep: every BASE rule whose selector names a `button` element and whose body paints a background also sets the colour that
+  // goes on it. A STATE rule (`button:hover`, `button[aria-pressed]`, `button.cell:hover`) is exempt — it is the same element,
+  // so the base rule's `color` is already in force. NOT COVERED: a class applied to a button (`.offer`, `.answer`), whose
+  // colour is inherited from wherever that class is used; that is a different, wider rule and not the defect here.
+  const themed = [...stripComments(css).matchAll(/([^{}]+)\{([^}]*)\}/g)]
+    .filter(([, selector, body]) => /\bbutton\b/.test(selector) && /(^|;|\s)background:/.test(body))
+    .filter(([, selector]) => {
+      const last = selector.trim().split(/[\n,]/).pop().trim();
+      return !/[:\[]/.test(last.slice(last.indexOf('button') + 'button'.length));
+    });
+  const colourless = themed
+    .filter(([, , body]) => !/(^|;|\s)color:/.test(body))
+    .map(([, selector]) => selector.trim().split(/[\n,]/).pop().trim());
+  check(themed.length >= 4, `the sweep found ${themed.length} themed button base rule(s) (a zero here is a FAILURE, not a pass)`);
+  check(colourless.length === 0, `and every one of them sets its own \`color\` (${colourless.join(', ') || 'none missing'})`, colourless.join(', '));
+  // NEGATIVE CONTROL: the rule that was missing it, spelled. Without its `color` this sweep names it — and nothing else in this
+  // file does, which is why the report found it first.
+  const control = '#dailyTop button { background: var(--control); }'.match(/\{([^}]*)\}/)[1];
+  check(!/(^|;|\s)color:/.test(control), 'CONTROL: a themed button with no `color` is what this sweep is for');
 }
 
 console.log('\n== 7. the drill page\'s heading and question are for the reader, not for the layout ==');

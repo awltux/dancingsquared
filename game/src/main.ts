@@ -358,7 +358,6 @@ const els = {
   boardTarget: el<HTMLButtonElement>('boardTarget'),
   waypointPrev: el<HTMLButtonElement>('waypointPrev'),
   waypointNext: el<HTMLButtonElement>('waypointNext'),
-  waypointLegend: el('waypointLegend'),
   bannerBack: el<HTMLButtonElement>('bannerBack'),
   bannerPips: el('bannerPips'),
   bannerHints: el('bannerHints'),
@@ -579,7 +578,7 @@ function setBoardFocus(focus: 'left' | 'right'): void {
 }
 
 /**
- * The captions over the boards, the paging buttons and the legend — from the SAME pair the stage draws, so the words
+ * The captions over the boards and the paging buttons — from the SAME pair the stage draws, so the words
  * and the pictures cannot disagree about which waypoint is which.
  */
 function paintWaypoints(): void {
@@ -598,7 +597,6 @@ function paintWaypoints(): void {
     els.labelGoal.hidden = true;
     els.waypointPrev.hidden = true;
     els.waypointNext.hidden = true;
-    els.waypointLegend.hidden = true;
     return;
   }
   const { pair, info, stage } = current;
@@ -631,9 +629,6 @@ function paintWaypoints(): void {
   els.waypointNext.hidden = !paged;
   els.waypointPrev.disabled = !pair.canPrev;
   els.waypointNext.disabled = !pair.canNext;
-  // THE LEGEND IS NOT DECORATION: the border states are colour, and a state told by colour alone is unreadable for a
-  // colour-blind player. It appears with the arrows because a one-pair puzzle has only "you are here" and "next".
-  els.waypointLegend.hidden = !paged;
 }
 
 /**
@@ -3284,7 +3279,7 @@ function frame(nowMs: number): void {
 
 function main(): void {
   // THE THEME GOES ON BEFORE ANYTHING IS PAINTED: `ui/theme.ts` is the one table the stylesheet, the stage and this
-  // shell read, and it is injected rather than duplicated in CSS. That includes the legend's `--wp-*` swatches, which
+  // shell read, and it is injected rather than duplicated in CSS. That included the legend's `--wp-*` swatches, which
   // used to be copied here from `OUTLINE_COLOR` — the copy was correct and was still a second definition.
   applyTheme();
   stage.setMode(viewMode);

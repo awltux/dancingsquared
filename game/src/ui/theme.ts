@@ -55,7 +55,7 @@ export const COLOR = {
   ok: '#7fe3a1',
   bad: '#ff8f8f',
   accent: '#ffd166',
-  /** "The next thing" — the pending waypoint's border and its legend key. */
+  /** "The next thing" — the pending waypoint's border (`OUTLINE_COLOR.next`, which the stage paints directly). */
   next: '#6fb7ff',
 
   /**
@@ -166,7 +166,8 @@ export const MOTION = {
 } as const;
 
 /**
- * THE WAYPOINT BORDERS, by state — what the stage paints a board's outline and what the legend's keys are coloured.
+ * THE WAYPOINT BORDERS, by state — what the stage paints a board's outline. (The legend that repeated them in CSS was
+ * removed on request, so this is now the only definition of the three.)
  *
  * A NUMBER, not a CSS string, because `THREE.Color` and a `<span>` want different types and the values must not be able
  * to drift; `#hexOf` renders the CSS side from the same token. The mapping state→role is the design: a solved waypoint
@@ -203,7 +204,6 @@ export const CSS_VARS: Readonly<Record<string, string>> = {
   '--ok': COLOR.ok,
   '--bad': COLOR.bad,
   '--accent': COLOR.accent,
-  '--next': COLOR.next,
   '--line': COLOR.line,
   '--line-soft': COLOR.lineSoft,
   '--line-strong': COLOR.lineStrong,
@@ -241,9 +241,6 @@ export const CSS_VARS: Readonly<Record<string, string>> = {
   '--space-xl': SPACE.xl,
   '--card': COLOR.panelCard,
   '--on-accent': COLOR.onAccent,
-  '--wp-solved': `#${OUTLINE_COLOR.solved.toString(16).padStart(6, '0')}`,
-  '--wp-next': `#${OUTLINE_COLOR.next.toString(16).padStart(6, '0')}`,
-  '--wp-locked': `#${OUTLINE_COLOR.locked.toString(16).padStart(6, '0')}`,
 };
 
 /** Anything with the one method this needs, so a probe can pass a stub instead of an element. */

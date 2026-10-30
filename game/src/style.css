@@ -99,7 +99,6 @@ html[data-stage="page"] #stage,
 html[data-stage="page"] #boardTabs,
 html[data-stage="page"] #labelHere,
 html[data-stage="page"] #labelGoal,
-html[data-stage="page"] #waypointLegend,
 html[data-stage="page"] .wp-nav {
   display: none;
 }
@@ -1495,42 +1494,9 @@ button[data-busy="true"]::after {
   right: 10px;
 }
 
-/* THE BORDER LEGEND. Centred between the two captions and `pointer-events: none` for the same reason they are:
-   anything that captures the pointer over the canvas swallows the start of a pan. */
-#waypointLegend {
-  position: absolute;
-  top: 42px;
-  left: calc(var(--panel-size) + (100% - var(--panel-size)) * 0.5);
-  transform: translateX(-50%);
-  margin: 0;
-  font-size: var(--fs-body);
-  color: var(--dim);
-  pointer-events: none;
-  z-index: 2;
-}
-
-#waypointLegend[hidden] {
-  display: none;
-}
-
-/* THE THREE SWATCHES TAKE THEIR COLOURS FROM THE STAGE, which is why they are custom properties and not literals:
-   `OUTLINE_COLOR` in `render/stage-view.ts` is the one place the states are defined, and `main.ts` copies it into
-   these on boot. A second hex here would be a second definition to keep in step. */
-.wp-key {
-  font-weight: 700;
-}
-
-.wp-key-solved {
-  color: var(--wp-solved, var(--ok));
-}
-
-.wp-key-next {
-  color: var(--wp-next, var(--next));
-}
-
-.wp-key-locked {
-  color: var(--wp-locked, var(--bad));
-}
+/* NO BORDER LEGEND ANY MORE: the "solved · next · locked" line was removed on request. The states are still colour on
+   the borders (`render/stage-view.ts`'s `OUTLINE_COLOR` is the one place they are defined), and the caption over each
+   board says which waypoint it is — the legend repeated a key for a picture that is two boards side by side. */
 
 /* THE REPLAY LIST — the calls a solved line was made of, as text. WRAPPED RATHER THAN CHIPS, because the list is a
    SENTENCE the player reads back ("what did I actually do?") and an ordered list is what makes it one. It is bounded in
@@ -1788,11 +1754,6 @@ button[data-busy="true"]::after {
 
   .wp-next {
     right: 4px;
-  }
-
-  #waypointLegend {
-    top: calc(46px + env(safe-area-inset-top));
-    font-size: var(--fs-small);
   }
 
   /* THE THREE SELECTIONS ARE THE PAGE, SO THEY MUST ALL BE ON SCREEN. REPORTED: "Can you resize the selections so they are

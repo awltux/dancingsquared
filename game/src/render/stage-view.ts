@@ -144,7 +144,8 @@ export type ViewMode = '2d' | '3d';
 /**
  * THE BORDER PALETTE LIVES IN THE THEME (`ui/theme.ts`) AND IS RE-EXPORTED HERE, because this module is the scene's
  * vocabulary for it: an outline colour is what the stage paints, and `main.ts` reads the same three values for the
- * legend's keys. They used to be DEFINED here and copied into CSS custom properties by the shell — one fact with two
+ * legend's keys (the legend was removed; the tokens went with it). They used to be DEFINED here and copied into CSS
+ * custom properties by the shell — one fact with two
  * definitions — which is why the table lives in a module with no `three` in it and a probe can read it.
  */
 import { OUTLINE_COLOR } from '../ui/theme.ts';

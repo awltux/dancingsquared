@@ -126,21 +126,21 @@ console.log('\n== 2. the real stylesheet ==');
     && !new RegExp(`var\\(${name},\\s*[^)]+\\)`).test(CSS));
   check(noDefault.length === 0, `and each carries a pre-script default (${noDefault.join(', ') || 'none missing'})`,
     noDefault.join(', '));
-  // THE OTHER DIRECTION: a token nothing reads is dead weight, and AGENTS.md 4.5 has no room for it. The three waypoint
-  // colours and the motion numbers are read by TypeScript rather than CSS, so they are exempt BY NAME.
-  const readElsewhere = new Set(['--wp-solved', '--wp-next', '--wp-locked', '--t-slide', '--t-celebrate', '--t-enter']);
+  // THE OTHER DIRECTION: a token nothing reads is dead weight, and AGENTS.md 4.5 has no room for it. The motion numbers are
+  // read by TypeScript rather than CSS, so they are exempt BY NAME. (The three waypoint colours were here until the border
+  // legend was removed — they existed for its swatches, and nothing else read them.)
+  const readElsewhere = new Set(['--t-slide', '--t-celebrate', '--t-enter']);
   const unused = Object.keys(CSS_VARS).filter((name) => !used.includes(name) && !readElsewhere.has(name));
   check(unused.length === 0, `and no token is unread (${unused.length} unused)`, unused.join(', '));
 }
 
-console.log('\n== 3. one fact, one definition: the stage and the legend ==');
+console.log('\n== 3. one fact, one definition: the stage\'s three outline colours ==');
 {
   const hex = (n) => `#${n.toString(16).padStart(6, '0')}`;
   check(hex(OUTLINE_COLOR.solved) === COLOR.ok, `solved is --ok (${hex(OUTLINE_COLOR.solved)})`);
   check(hex(OUTLINE_COLOR.next) === COLOR.next, `next is --next (${hex(OUTLINE_COLOR.next)})`);
   check(hex(OUTLINE_COLOR.locked) === COLOR.bad, `locked is --bad (${hex(OUTLINE_COLOR.locked)})`);
-  check(CSS_VARS['--wp-solved'] === COLOR.ok && CSS_VARS['--wp-next'] === COLOR.next && CSS_VARS['--wp-locked'] === COLOR.bad,
-    'and the legend keys are the same three strings, not a second copy');
+
   // THE INJECTION WRITES EVERY TOKEN: a stub stands in for `document.documentElement`, which is what makes this a probe.
   const written = new Map();
   applyTheme({ style: { setProperty: (name, value) => written.set(name, value) } });

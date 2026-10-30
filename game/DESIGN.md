@@ -1784,7 +1784,9 @@ findings, each with the measurement that produced it:
    axis key (`0°/East`, the four arrows) is OPT-IN and the game does not ask for it: it is the editor's coordinate
    reading, and on a game board it would be noise on every one of two boards.
 6. **A waypoint's state is a border, and its colour is one definition.** `OUTLINE_COLOR` in `render/stage-view.ts`
-   holds solved/next/locked once; the shell copies them into CSS custom properties for the legend beside the boards,
+   holds solved/next/locked once; the shell copied them into CSS custom properties for the legend beside the boards
+   (the legend is GONE — REPORTED "remove the 'solved next locked' banner. It's unessessary." — and the three CSS custom
+   properties went with it, so `OUTLINE_COLOR` is the only definition left),
    so the drawn border and the words cannot drift. The border is a flat square annulus in board coordinates — a
    `LineLoop` would be a hairline, and a state told by a hairline is not one a player can read.
 7. **Every board is drawn in FOUR colours, and most of them had none.** The engine knows a dancer's home couple only

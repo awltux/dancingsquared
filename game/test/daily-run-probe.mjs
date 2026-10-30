@@ -1,5 +1,5 @@
 // THE DAILY RUN, pinned against a STUB applier: the clock stops once, a hint is charged once and never
-// refunded, the allowance is a cap the run cannot exceed, and a given-up run has a time but no score.
+// refunded, there is NO move limit (the score prices a long line), and a given-up run has a time but no score.
 //
 // WHY A STUB AND NOT THE CORPUS. Every rule here is about the RUN, not about dancing: the clock, the hint
 // charge, the cap and the outcome. A real puzzle would make this probe fail for generator reasons and would
@@ -13,6 +13,8 @@
 // Usage: node game/test/daily-run-probe.mjs   (engine must be built: session.ts imports boardSig)
 import { makeSquaredSet } from 'dancing-squared-engine';
 import { DailyRun } from '../src/game/daily-run.ts';
+import { scoreRun } from '../src/puzzle/score.ts';
+import { levelSpec } from '../src/puzzle/levels.ts';
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -30,11 +32,12 @@ const C = board(2);
 const D = board(3);
 
 /** The stub's graph: A -> B -> D and A -> C -> D, so the goal is reachable two ways and `stuck` is always
- * refused (which is what makes `hint()`'s "never name a refused call" rule checkable). */
+ * refused (which is what makes `hint()`'s "never name a refused call" rule checkable). AND C -> A IS A CYCLE, which is
+ * what lets section 5 walk a long line that never reaches the goal — the shape the removed allowance used to refuse. */
 const CALLS = new Map([
   [A, { 'go-b': B, 'go-c': C }],
   [B, { 'go-d': D }],
-  [C, { 'go-d': D }],
+  [C, { 'go-d': D, 'go-a': A }],
   [D, {}],
 ]);
 
@@ -78,9 +81,12 @@ const puzzle = {
 };
 
 /** A fresh run with the clock starting at t = 0 ms. */
-const fresh = (allowance) => new DailyRun(puzzle, applier, 0, allowance);
+const fresh = () => new DailyRun(puzzle, applier, 0);
 
-console.log('== 1. a fresh run is playing, on the start board, with the shipped allowance ==');
+/** The facts one scored run is priced from, for the "what does a long line cost" check: par, no hints, no retries. */
+const SCORE_FACTS = { level: levelSpec(1), shortest: 2, clockSeconds: 4, hintsUsed: 0, attempts: 0 };
+
+console.log('== 1. a fresh run is playing, on the start board, with NO call limit ==');
 {
   const run = fresh();
   const v = run.view(0);
@@ -88,9 +94,11 @@ console.log('== 1. a fresh run is playing, on the start board, with the shipped 
   check(v.board === A, 'the board is the puzzle start');
   check(v.atGoal === false, 'and the goal is not reached');
   check(v.elapsedSeconds === 0, 'the clock reads zero at the frame the run started');
-  // MEASURED: `shortest` is 2 and the cushion is 2, so the shipped allowance is 4.
-  check(v.allowance === 4, `the allowance is the shortest solution plus the cushion (${v.allowance})`);
-  check(v.movesLeft === 4 && v.movesUsed === 0, 'and nothing has been spent');
+  // THERE IS NO ALLOWANCE TO REPORT. REPORTED: "Remove the move limit, a player should be able to use as many moves as they
+  // want, but it will be detramental to their final score." The view carried `allowance`/`movesLeft`; both are gone, and the
+  // check below is what would catch one of them drifting back.
+  check(!('allowance' in v) && !('movesLeft' in v), `the view reports no allowance (${Object.keys(v).filter((k) => /allow|left/.test(k)).join(', ') || 'none'})`);
+  check(v.movesUsed === 0, 'and nothing has been spent yet');
   check(v.goalName === 'Stub Formation', 'the goal board is named for display only');
   check(v.readings.length === 2, `the offering list is what is legal now (${v.readings.map((m) => m.call).join(', ')})`);
   check(run.board === A, 'and the run reports the board it is standing on');
@@ -189,32 +197,35 @@ console.log('\n== 4b. a SUBMISSION carries the clock, not the time the player is
   check(facts.clockSeconds !== view.elapsedSeconds, `NEGATIVE CONTROL: the two numbers differ by exactly the charge (${view.elapsedSeconds - facts.clockSeconds} s)`);
   check(facts.hintsUsed === 1, `and how many hints were spent travels beside it (${facts.hintsUsed})`);
   check(facts.calls.join(',') === 'go-b', `with the player's own line as the transcript (${facts.calls.join(',')})`);
-  const solved = fresh(4);
+  const solved = fresh();
   solved.play('go-b', 0);
   solved.play('go-d', 1000);
   check(solved.view(1000).outcome === 'solved' && solved.submissionFacts(1000).score === solved.view(1000).result.score, 'a solved run carries the score the view shows, as the claim the server clamps');
   check(run.submissionFacts(10_000).score === 0, 'and a run still playing carries no score at all');
 }
 
-console.log('\n== 5. the allowance is a HARD CAP, and undo is what frees it ==');
+console.log('\n== 5. there is NO call limit: a wasteful line plays every call and the SCORE prices it ==');
 {
-  const run = fresh(1);
-  check(run.view(0).allowance === 1, 'an explicit allowance overrides the shipped one');
-  check(run.play('go-b', 0).verdict === 'wrong', 'the first call is allowed');
-  const over = run.play('go-d', 0);
-  check(over.verdict === 'over', `the second is refused by the budget, not by the engine (${over.verdict})`);
-  check(over.reason.includes('undo'), `and the reason says what to do about it (${over.reason})`);
-  check(over.board === B && run.view(0).moves.length === 1, 'the refused call did not move the player or the move stack');
-  check(run.view(0).movesLeft === 0, 'and the run reports no calls left');
-  // Negative control: a session that checked the budget AFTER legality would report `correct` here, which is
-  // how a spent run would quietly reach the goal one call past its allowance. `session-undo-probe` pins the
-  // same ordering from the session's own side.
-  check(run.undo() === true, 'undoing frees a call');
-  check(run.view(0).movesLeft === 1, 'so the budget reports one again');
-  // The refused call was refused because the BUDGET was spent, not because of the call: after the undo the
-  // run accepts a call from the start board again. (From A the legal calls are go-b and go-c — `go-d` was
-  // refused above as the SECOND call from B, so re-trying it here would test the engine instead.)
-  check(run.play('go-b', 0).verdict === 'wrong', 'and a call is accepted again, so the budget was the whole refusal');
+  // REPORTED: "Remove the move limit, a player should be able to use as many moves as they want, but it will be
+  // detramental to their final score." The stub board has two calls from A (`go-b`, `go-c`) and `go-b`/`go-d` from B, so a
+  // line can be walked back and forth indefinitely — which is the shape the old allowance refused after four calls.
+  const run = fresh();
+  let verdicts = [];
+  // AROUND THE STUB'S CYCLE (A -> C -> A), ten adds and never the goal: the old allowance of four refused the fifth.
+  const walk = ['go-c', 'go-a', 'go-c', 'go-a', 'go-c', 'go-a', 'go-c', 'go-a', 'go-c', 'go-a'];
+  for (const call of walk) verdicts.push(run.play(call, 0).verdict);
+  check(verdicts.every((v) => v === 'wrong' || v === 'correct'), `every one of ${walk.length} calls was played (${verdicts.join(',')})`);
+  check(verdicts.every((v) => v !== 'over'), 'NEGATIVE CONTROL: none was refused for a spent budget — the old rule answered `over` on the fifth');
+  check(run.view(0).movesUsed === walk.length && run.view(0).moves.length === walk.length,
+    `and the run carries the whole line (${run.view(0).movesUsed} moves)`);
+  // THE PRICE, measured rather than asserted: the same line's score against a par line's, from `score.ts` itself. A run of 10
+  // calls on a 2-call puzzle keeps `wasteFactor = 2/10`, so it is worth a fifth of a clean one before the clock is even read.
+  const wasteful = scoreRun({ ...SCORE_FACTS, moves: walk.length });
+  const clean = scoreRun({ ...SCORE_FACTS, moves: 2 });
+  check(wasteful.score < clean.score && wasteful.wasteFactor < 0.21,
+    `and the score is what prices it (${wasteful.score} against ${clean.score}; wasteFactor ${wasteful.wasteFactor.toFixed(2)})`);
+  // AND UNDO IS STILL FREE AND STILL FREES NOTHING, because there is nothing to free: the stack is the only bound.
+  check(run.undo() === true && run.view(0).movesUsed === walk.length - 1, 'undo pops a call, with no budget to restore');
 }
 
 console.log('\n== 6. giving up freezes the time and produces no score ==');

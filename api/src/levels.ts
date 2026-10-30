@@ -205,9 +205,10 @@ export function lineSolvesDaily(level: LevelSpec, puzzle: Puzzle, calls: readonl
  * implementation DESIGN.md §4.4 forbids ("the client sequencer is the same sequencer the server used"). What this
  * returns IS the client's own history, which is why the two sides cannot disagree about what the player played.
  *
- * THE ALLOWANCE IS THE SESSION'S. A log that tried to play more calls than the puzzle allows derives a SHORTER line
- * rather than an error, because the budget is enforced as the moves are replayed — exactly as it was in the browser.
- * That is why the submission no longer needs an allowance check of its own: it had one, and it is now unreachable.
+ * THERE IS NO CALL LIMIT, so a log plays in full: `PlaySession` used to carry the move allowance as a budget and answer
+ * `over` past it (deriving a SHORTER line rather than an error), and the report "Remove the move limit, a player should be
+ * able to use as many moves as they want, but it will be detramental to their final score" took that budget away. What bounds
+ * a log now is the WIRE's `MAX_DAILY_MOVES`, and what prices a long line is the score's `wasteFactor`.
  *
  * THE COST IS ONE SESSION PER SUBMISSION, not per move: `POST /daily/move` records a move without generating
  * anything (the client already knows its own line), and the puzzle is generated once here, where `verifyDaily`
@@ -227,8 +228,8 @@ export function replayDailyMoves(level: LevelSpec, puzzle: Puzzle, moves: readon
  * where the client names from the position IT believes it is on — which can lag by a move that has not landed.
  *
  * NULL IS AN ANSWER: a board with nothing offered is a state a player can be in (a dead end), and "no call" is the
- * honest name rather than an invented one. So is a spent allowance, which is the other state in which the session
- * refuses to name a call the run could not play.
+ * honest name rather than an invented one. A spent allowance used to be the second such state; the allowance is gone, so a
+ * dead end is the only one left.
  *
  * AND THERE IS NO TABLE TO SHARE ANY MORE. The hint used to build a reverse BFS from the goal and cache it per puzzle
  * here (`hintDistanceTables`), because ONE build cost 79-91 s at the shipped level-1 pool. The search follows the NEXT

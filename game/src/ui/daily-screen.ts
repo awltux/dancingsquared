@@ -13,8 +13,8 @@
 // are authored corpus prose, and AGENTS.md §6 requires it to be impossible for any of it to become markup.
 //
 // THE OFFERING LIST IS REBUILT FROM THE VIEW, not patched, and that is a rule rather than laziness: the list
-// changes with every move, the allowance changes as it is spent, and the hint marker moves. A screen that
-// patched buttons would show a stale allowance next to a fresh board. The readouts are the cheap strings, and
+// changes with every move, the hint marker moves, and a call that has just become illegal has to go. A screen that
+// patched buttons would show a stale list beside a fresh board. The readouts are the cheap strings, and
 // they are written only when they change — see `writeClock`, which the frame loop calls.
 import type { DailyView } from '../game/daily-run.ts';
 import { decidePick, isArmed } from '../puzzle/arming.ts';
@@ -250,13 +250,14 @@ export class DailyScreen {
       this.els.offer.append(note);
       return;
     }
-    // AT THE CAP THE LIST IS DISABLED, not emptied: the player can still see what was legal, and the readout says the
-    // allowance is spent. An empty list would look like a broken puzzle.
-    const spent = view.movesLeft === 0;
     // A FLAT LIST, ONE ROW, BECAUSE THE FILTER IS ONE SUBSET. The sections and their `<h3>` headings went with the
     // multi-subset list: the pressed pill above already says which group these calls are for, so a heading would print that
     // name a second time, and the rows are the call's own name either way — the reading's group is IN the button's label
     // whenever the call needs one (`readingSpelling` writes "Heads Dosado" for a group reading, "Dosado" for the set).
+    //
+    // THE LIST IS NEVER DISABLED FOR A SPENT BUDGET, because there is no budget: a run has no call limit and `wasteFactor`
+    // is what charges a long line. `busy` still disables the buttons while a motion is being danced, which is a race, not a
+    // price.
     {
       const row = document.createElement('div');
       row.className = 'offer-row';
@@ -277,7 +278,7 @@ export class DailyScreen {
         } else {
           button.textContent = reading.call;
         }
-        button.disabled = this.busy || spent;
+        button.disabled = this.busy;
         // THE GESTURE IS THE MODE: a plain click plays, a Shift-click arms the first half of a two-group step
         // (`puzzle/arming.ts` owns the rule, and its probe pins every row of that table).
         button.addEventListener('click', (event) => this.choose(reading, event.shiftKey));
@@ -305,7 +306,7 @@ export class DailyScreen {
   }
 
   /**
-   * The elapsed/allowance readout. Split out because the frame loop refreshes ONLY this, once a second.
+   * The clock readout. Split out because the frame loop refreshes ONLY this, once a second.
    *
    * THE CACHE IS THE POINT: `textContent = same string` is a DOM write, and the loop runs at 60 Hz. The
    * value itself is floored to a tenth of a second by the clock, so a comparison here is exact.
@@ -373,7 +374,9 @@ export class DailyScreen {
     }
     this.els.result.hidden = false;
     const time = `${view.elapsedSeconds.toFixed(1)} s`;
-    const moves = `${view.movesUsed} of ${view.allowance} moves`;
+    // "12 moves", NOT "12 of 14": a run has no call limit, so there is no denominator to print (REPORTED: "Remove the move
+    // limit, a player should be able to use as many moves as they want, but it will be detramental to their final score").
+    const moves = `${view.movesUsed} move${view.movesUsed === 1 ? '' : 's'}`;
     const hints = view.hintsUsed === 0 ? 'no hints' : `${view.hintsUsed} hint${view.hintsUsed === 1 ? '' : 's'}`;
     this.els.result.textContent = view.result
       // THE SCORE IS THE SERVER'S. A solved demo has no stored score, so its result says so rather than printing a number
@@ -393,10 +396,17 @@ export class DailyScreen {
  * THE HINT CHARGE APPEARS ON THE CLOCK, where it was paid (DESIGN.md 9/10: "the penalty is folded into
  * elapsed"), so a player who takes a hint watches the time jump by a minute rather than reading a second
  * number they would have to reconcile with the first.
+ *
+ * THE MOVE COUNT IS GONE FROM IT, AND SO IS THE LIMIT IT COUNTED AGAINST. REPORTED: "Is the moves allowed and timer really
+ * necessary for the gameplay? Remove the move limit, a player should be able to use as many moves as they want, but it will
+ * be detramental to their final score." "moves allowed: 3 of 4 used" was the allowance's own readout: with no allowance there
+ * is no fraction to print, and the calls a player made are in the line below the list and in the result's terms. What is
+ * left is the clock, which is the number the score is actually judged on (`timeFactor`) and the one the hint charge shows up
+ * in. A run that presses nothing still sees it ticking.
  */
 function readoutText(view: DailyView): string {
   const minutes = Math.floor(view.elapsedSeconds / 60);
   const seconds = Math.floor(view.elapsedSeconds % 60);
   const hintPart = view.hintsUsed > 0 ? ` incl. ${view.hintsUsed} min hint${view.hintsUsed === 1 ? '' : 's'}` : '';
-  return `moves allowed: ${view.movesUsed} of ${view.allowance} used  ·  time ${minutes}:${String(seconds).padStart(2, '0')}${hintPart}`;
+  return `time ${minutes}:${String(seconds).padStart(2, '0')}${hintPart}`;
 }

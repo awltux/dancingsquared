@@ -114,14 +114,20 @@ export function generatorConfigFor(poolVersion: string, level: LevelSpec, mode: 
 }
 
 /**
- * The Daily's move allowance: the shortest solution plus this many calls.
+ * THE DAILY HAS NO CALL LIMIT, AND THIS CONSTANT IS WHY IT NO LONGER HAS A NUMBER.
  *
- * CHOSEN, not measured, and it is the number DESIGN.md 9 calls "a stated, calibrated number". The
- * allowance exists because with free undo and honest offerings an unlimited budget would let a player
- * eliminate their way to any displayed board, so the allowance plus the waste factor is what makes
- * that lose. Whether the cushion is 2 or 3 is a playtest question, not an arithmetic one.
+ * It was `MOVE_ALLOWANCE_CUSHION = 2` — the shortest solution plus two calls — and it existed because with free undo and
+ * honest offerings an unlimited budget would let a player eliminate their way down to any displayed board. REPORTED: "Is the
+ * moves allowed and timer really necessary for the gameplay? Remove the move limit, a player should be able to use as many
+ * moves as they want, but it will be detramental to their final score." So the mechanism that prices that elimination is
+ * `score.ts`'s `wasteFactor` (`shortest / max(1, moves)`), and it was always the one doing the work: the cap was a second,
+ * blunter rule that stopped the play instead of charging for it. `game/test/score-probe.mjs` pins the price, and
+ * `session-undo-probe.mjs` §? pins that a long line still plays every call.
+ *
+ * WHAT STILL BOUNDS A RUN is the WIRE, not the game: `api/src/daily-line.ts`'s `MAX_DAILY_MOVES = 300` caps the recorded
+ * move LOG (undo and redo are free and unlimited), and the submission's line is derived from that log. Three hundred calls
+ * on a five-waypoint Daily is a score of almost nothing, which is the same answer the score gives.
  */
-export const MOVE_ALLOWANCE_CUSHION = 2;
 
 /**
  * The hint penalty, in seconds, folded into the elapsed time (DESIGN.md 10).

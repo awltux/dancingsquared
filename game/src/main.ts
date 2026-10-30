@@ -2548,7 +2548,11 @@ function showDaily(puzzle: Puzzle, day: string): void {
   dailyScreen.say(
     carried
       ? 'Picked up where you left off — the time the page was away is on the clock.'
-      : 'Pass each waypoint in order, ending on the goal board. Undo is free; the allowance is not.',
+      // THE SECOND CLAUSE WAS "the allowance is not", and the allowance is gone: REPORTED: "Remove the move limit, a player
+      // should be able to use as many moves as they want, but it will be detramental to their final score." So the sentence
+      // says what is true — undo is free, and the calls a player uses are priced by `wasteFactor` — rather than naming a cap
+      // the run no longer has.
+      : 'Pass each waypoint in order, ending on the goal board. Undo is free; extra calls cost part of your score.',
     'info',
   );
   // THE SHARED CHROME IS PAINTED ONLY WHERE THE DAILY IS THE PAGE ON SCREEN. The header, the board captions, the board

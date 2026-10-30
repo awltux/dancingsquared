@@ -19,7 +19,10 @@ import type { StoredItem } from './ports.ts';
 /** How many runs one import may carry. A device's offline ledger is small, and a body is not a backup. */
 export const MAX_IMPORTED_RUNS = 200;
 
-/** The longest transcript one imported run may name, which is the Daily's allowance with room to spare. */
+/**
+ * The longest transcript one imported run may name. It is a sanity bound on an IMPORTED row — a device's own record, not a
+ * played run — and not a playing rule: a run has no call limit (REPORTED: "Remove the move limit").
+ */
 const MAX_IMPORTED_CALLS = 64;
 
 /** One imported run, as the row stores it: the device's own words, marked as unverified and never scored. */

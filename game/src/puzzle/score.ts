@@ -26,7 +26,7 @@ export interface RunFacts {
   level: LevelSpec;
   /** The shortest solution the generator knows — the `par` denominator, never a hand-set number. */
   shortest: number;
-  /** Calls played. A wasted move is one beyond `shortest`, inside the allowance (DESIGN.md 9). */
+  /** Calls played. A wasted move is one beyond `shortest`; there is no allowance to be inside (DESIGN.md 9). */
   moves: number;
   /** Time on the clock only. The hint charge is added HERE, from `hintsUsed`, and nowhere else. */
   clockSeconds: number;

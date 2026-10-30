@@ -136,7 +136,7 @@ export function waypointBoards(path: readonly Board[]): Board[] {
  *
  * IN ORDER IS THE RULE, and it is what makes the sequence a sequence rather than a set: a route may revisit an
  * arrangement (MEASURED, 1 of 12 does), and a player who returns to waypoint 1 after reaching waypoint 2 has not
- * unmade the progress — they have wasted a call, which the allowance prices on its own.
+ * unmade the progress — they have wasted a call, which the score's `wasteFactor` prices on its own.
  *
  * A WAYPOINT IS REACHED WHEN THE BOARD IS IN ITS ARRANGEMENT (`sameArrangement`, the engine's congruence at this
  * game's tolerance) — not when it is the identical pose, and not when it merely shares a quantised key. The count is

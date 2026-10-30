@@ -23,10 +23,18 @@
 // THE HINT AIMS AT THE NEXT WAYPOINT. It used to run a reverse BFS from the goal, which both cost 79-91 s for the
 // table (ONE build at the level-1 pool) and, once the sequence gated the run, could name a call that walked PAST the
 // waypoint the player still had to stand in. See `hint` for the search that replaced it.
+//
+// THERE IS NO CALL LIMIT. REPORTED: "Is the moves allowed and timer really necessary for the gameplay? Remove the move
+// limit, a player should be able to use as many moves as they want, but it will be detramental to their final score." The
+// allowance (shortest + a two-call cushion) used to be here, and it existed because with free undo and honest offerings an
+// unlimited budget would let a player eliminate their way down to any displayed board. What prices that is `wasteFactor`
+// (§6): `shortest / max(1, moves)`, so every call past par divides the score and a fifty-move run is worth a tenth of a
+// four-move one. The cap was a second, blunter mechanism for the same concern, and it removed the play rather than pricing
+// it.
 
 import type { Board } from 'dancing-squared-engine';
 import { sameArrangement, waypointBoards, waypointReached } from './arrangement.ts';
-import { HINT_SEARCH_DEPTH, HINT_SEARCH_NODES, MOVE_ALLOWANCE_CUSHION } from './config.ts';
+import { HINT_SEARCH_DEPTH, HINT_SEARCH_NODES } from './config.ts';
 import { poseKey } from './pose-key.ts';
 import type { GameApplier, Move, MoveReading, Puzzle, Refusal } from './types.ts';
 
@@ -40,10 +48,11 @@ interface Played {
 /**
  * What playing one call did.
  *
- * `over` IS NOT AN ENGINE VERDICT and is kept distinct from the other three for that reason: the call is
- * perfectly legal, the engine would apply it, and the RUN refuses it because the move allowance is spent
- * (DESIGN.md 9). Folding it into `illegal` would show the player a legality reason that is not true, and
- * folding it into `wrong` would apply a move the budget does not allow.
+ * `over` IS NOT AN ENGINE VERDICT and is kept distinct from the other three for that reason: the call is perfectly legal
+ * and the engine would apply it, but the RUN is finished — it has been scored, or given up — so there is nothing left to
+ * play it against. Folding it into `illegal` would show the player a legality reason that is not true, and folding it into
+ * `wrong` would apply a move to a run that is over. The session itself never answers `over`: a run has NO CALL LIMIT (see
+ * `play`), so the only producer is `DailyRun.play`'s finished-run guard.
  */
 export type Verdict = 'correct' | 'wrong' | 'illegal' | 'over';
 
@@ -55,11 +64,8 @@ export interface SessionView {
   canRedo: boolean;
   /** Whether the goal has been reached. */
   atGoal: boolean;
-  /** Calls played, and the calls this puzzle allows — what the UI shows as "3 of 4 used". */
+  /** Calls played — what the UI reads back as "12 moves", and what `wasteFactor` is priced against. */
   movesUsed: number;
-  allowance: number;
-  /** How many calls are still available before the cap; never negative. */
-  movesLeft: number;
 }
 
 export class PlaySession {
@@ -75,8 +81,6 @@ export class PlaySession {
   private readonly waypointList: readonly Board[];
   private readonly puzzle: Puzzle;
   private readonly applier: GameApplier;
-  /** How many calls beyond the shortest the player may use. DESIGN.md 9's move allowance. */
-  private readonly budget: number;
 
   /**
    * THE FIELDS ARE DECLARED ABOVE AND ASSIGNED HERE, rather than written as constructor PARAMETER
@@ -86,10 +90,9 @@ export class PlaySession {
    * alternative is a build step whose output could disagree with what is type-checked, the long form is
    * the one that keeps the source loadable AND checked.
    */
-  constructor(puzzle: Puzzle, applier: GameApplier, allowance?: number) {
+  constructor(puzzle: Puzzle, applier: GameApplier) {
     this.puzzle = puzzle;
     this.applier = applier;
-    this.budget = allowance ?? puzzle.shortest + MOVE_ALLOWANCE_CUSHION;
     this.waypointList = waypointBoards(puzzle.path);
   }
 
@@ -107,17 +110,8 @@ export class PlaySession {
     return this.redoStack.length > 0;
   }
 
-  /** The most calls this run may play. The field is `budget` so the getter can own the public name. */
-  get allowance(): number {
-    return this.budget;
-  }
-
   get movesUsed(): number {
     return this.history.length;
-  }
-
-  get movesLeft(): number {
-    return Math.max(0, this.budget - this.history.length);
   }
 
   /**
@@ -146,8 +140,6 @@ export class PlaySession {
       canRedo: this.canRedo,
       atGoal: this.atGoal(),
       movesUsed: this.movesUsed,
-      allowance: this.budget,
-      movesLeft: this.movesLeft,
     };
   }
 
@@ -183,29 +175,18 @@ export class PlaySession {
   /**
    * Play `call` from the current board.
    *
-   * THE VERDICT IS FOUR-VALUED, and the distinction is the teaching content (DESIGN.md 8):
-   *   * `illegal` — the engine refused it, and `reason` carries the engine's own string verbatim.
-   *   * `wrong`   — it applied and did not reach the goal.
-   *   * `correct` — it reached the goal.
-   *   * `over`    — the allowance is spent, so this run may not play another call at all.
+   * THE VERDICT IS THREE-VALUED HERE — `illegal`, `wrong`, `correct` — and the distinction is the teaching content
+   * (DESIGN.md 8): `illegal` carries the engine's own refusal string verbatim, `wrong` applied and did not reach the goal,
+   * `correct` reached it. (`over` exists in `Verdict` for a FINISHED run, which only `DailyRun.play` can answer.)
    * Note that `wrong` is NOT a failure: DESIGN.md 9 chose honest offerings and free undo, so the player
-   * is allowed to walk into a dead end and the SCORE is what makes that cost something. The session
-   * never refuses a legal move except for the budget.
+   * is allowed to walk into a dead end and the SCORE is what makes that cost something.
    *
-   * THE BUDGET IS CHECKED BEFORE THE CALL IS EVEN LOOKED AT, and that is a decision rather than an
-   * ordering accident: with the check second, a spent run would report a mixture of `illegal`, `wrong` and
-   * `over` depending on which call the player happened to press, so the same state would sometimes explain
-   * itself and sometimes not. What the player needs to hear at the cap is the one actionable sentence,
-   * whether or not the call was also legal.
+   * AND THE SESSION NEVER REFUSES A LEGAL MOVE AT ALL, because there is no call limit (see the header): a run may be as
+   * long as the player likes, and `wasteFactor` is what charges it. The old budget was checked before the call was even
+   * looked at, so a spent run reported a mixture of `illegal` and `over` depending on the press; with the budget gone there
+   * is nothing to order.
    */
   play(call: string): { verdict: Verdict; board: Board; reason?: string } {
-    if (this.movesLeft === 0) {
-      return {
-        verdict: 'over',
-        board: this.board,
-        reason: `the allowance of ${this.budget} call(s) is used up — undo one to free a call`,
-      };
-    }
     const refusal: Refusal | null = this.applier.refusalOf(this.board, call);
     if (refusal) return { verdict: 'illegal', board: this.board, reason: refusal.reason };
 
@@ -276,7 +257,7 @@ export class PlaySession {
       frontier.push({ first: move.call, board: move.board });
     }
     let expanded = 0;
-    for (let depth = 1; depth <= Math.min(this.movesLeft, HINT_SEARCH_DEPTH) && frontier.length > 0; depth++) {
+    for (let depth = 1; depth <= HINT_SEARCH_DEPTH && frontier.length > 0; depth++) {
       const next: { first: string; board: Board }[] = [];
       for (const node of frontier) {
         if (sameArrangement(node.board, target)) return node.first;
@@ -305,13 +286,14 @@ export class PlaySession {
    * hint instead of trusting it (DESIGN.md 11). A tie broken by object iteration order would make that check
    * impossible, and `stepToward` inherits the order from the list it was handed.
    *
-   * NULL IS AN ANSWER in two states, both honest: nothing is offered (a dead end), and the allowance is spent (no call
-   * may be played, so naming one would point at a button that refuses). Otherwise the first offered call is the
-   * fallback, because a legal call is a better answer than none.
+   * NULL IS AN ANSWER in one state: nothing is offered (a dead end, where naming a call would point at a button that is not
+   * there). It used to answer null for a spent allowance too — there is no allowance any more (see the header), so that
+   * second case died with it. Otherwise the first offered call is the fallback, because a legal call is a better answer
+   * than none.
    */
   hint(): string | null {
     const offered = this.offered();
-    if (offered.length === 0 || this.movesLeft === 0) return null;
+    if (offered.length === 0) return null;
     const target = this.nextWaypoint();
     // NO TARGET LEFT: every waypoint has been passed, which is a run that has already been won — so a hint has nothing
     // to point at and the first legal call is the honest answer.

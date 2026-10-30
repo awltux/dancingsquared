@@ -12,8 +12,9 @@
 // what actually happened. The row holds the moves, and the line is a pure function of them.
 //
 // IT IS BOUNDED, like the Drill's press log, and for the same reason: a client writes this. The bound is on the
-// LOG rather than on the line because undo and redo are free (§9) and a player may click them many times — the
-// line is bounded by the puzzle's own allowance, which `PlaySession` enforces as it replays.
+// LOG rather than on the line because undo and redo are free (§9) and a player may click them many times — and since
+// the move allowance was removed ("Remove the move limit, a player should be able to use as many moves as they want,
+// but it will be detramental to their final score") the log's bound is the only limit on how long a run's line can be.
 import { MAX_CALL_LENGTH } from './press-log.ts';
 
 /**
@@ -31,11 +32,10 @@ export type DailyMove = MoveIn & { readonly atMs: number };
 /**
  * How many moves one challenge may record.
  *
- * THE ADD COUNT IS ALREADY BOUNDED BY THE ALLOWANCE and this bound is for the other two: undo and redo cost
- * nothing (DESIGN.md §9), so a player may press them as often as they like, and a row is not a place to put an
- * unbounded list. 300 is the Drill's 200 with room for the redo branch a Daily can build — MEASURED against the
- * largest allowance the ladder produces, which is a handful of calls, so a player reaches this only by undoing and
- * redoing deliberately.
+ * IT IS THE ONLY LIMIT ON A RUN'S LENGTH, now that the move allowance is gone: undoing and redoing cost nothing
+ * (DESIGN.md §9), so a player may press them as often as they like and a row is not a place to put an unbounded list.
+ * 300 is the Drill's 200 with room for the redo branch a Daily can build. A run that spent all 300 calls on a five-waypoint
+ * Daily would score close to nothing (`wasteFactor`), which is the score answering the same question the cap used to.
  */
 export const MAX_DAILY_MOVES = 300;
 

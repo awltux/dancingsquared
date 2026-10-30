@@ -41,9 +41,10 @@ a later reader must not re-open them by accident.
 **The one consequence worth stating out loud (decisions 3 and 9 together).** With only-legal offerings and
 free undo, a dead end can always be escaped — so declining to filter the offerings by solvability costs the
 player **time and moves**, which is exactly what the score already measures. That is why no separate
-dead-end warning is designed. The thing it changes is that a player *can* wander, so the Daily needs a
-**move allowance**; §9 fixes it as the shortest solution the generator found plus a cushion, with scoring
-built on **wasted moves**.
+dead-end warning is designed. A player *can* wander, and the first answer was a **move allowance** (the shortest
+solution plus a cushion); it was REMOVED on the owner's report — "Remove the move limit, a player should be able to use as many
+moves as they want, but it will be detramental to their final score" — so what prices wandering is the score's **wasted
+moves** alone (§6, §9).
 
 **A second consequence, from decisions 10 and 11 together: the two modes have different sources of
 authority, and the design must not blur them.** The **Drill's order is data an operator curates and the
@@ -409,10 +410,12 @@ elapsed = time-on-the-clock + 60s × hintsUsed        -- see §10
 
 - `base(level)` grows with the level, so a harder level is worth more.
 - `par` is **derived**, never hand-set: the shortest solution the generator knows, times a stated per-call
-  allowance.
+  time (**not** a call allowance — a run has no call limit, see §9).
 - `wasteFactor` is where decision 9 lives. Wandering is legal and undo is free; what it costs is *moves
-  beyond the shortest the generator found*, so "try every call until the picture matches" is a losing
-  strategy even though nothing forbids it.
+  beyond the shortest the generator found* (`shortest / max(1, moves)`), so "try every call until the picture matches" is a
+  losing strategy even though nothing forbids it. SINCE THE MOVE ALLOWANCE WAS REMOVED this is the ONLY mechanism that prices
+  wandering, which is what the owner's report asked for: "a player should be able to use as many moves as they want, but it
+  will be detramental to their final score."
 - `attemptFactor` exists only in the Drill, where a wrong option is a discrete event.
 - **A hint is a time penalty, and that is the whole of its scoring effect** (§10): 60 seconds per hint,
   folded into `elapsed` rather than given its own factor. One term, one place to tune, and it reads to the
@@ -498,7 +501,7 @@ establishes.
     cache to keep: a two-dancer formation has no eight-dancer board to stand up, and doubling those four through
     the origin lands back on the same four.
 - **A reverse BFS from the goal** produces the distance-to-goal map. This is what gives all three consumers
-  what they need: the Daily's shortest-solution figure and move allowance, the Drill's option filtering, and
+  what they need: the Daily's shortest-solution figure, the Drill's option filtering, and
   **the hint's "does this move make progress?"** best look-up (§10) — so the hint needs no search of its own
   and is deterministic from the seed like everything else. It also makes an *arbitrary* goal cheap, which the
   engine's own `getout` is not — that search is built around returning to `Static Square` and appending a
@@ -1070,9 +1073,15 @@ applier, so the two spellings cannot drift.
 - **Undo/redo is a standard move stack.** Undo pops the current board and pushes it to the redo stack; a new
   call made after an undo truncates the redo branch. Both are free and unpunished; what they cost is the
   clock and, ultimately, the waste factor.
-- **The move allowance** is the generator's shortest call count **plus a cushion** (a stated, calibrated
-  number). It exists because with free undo and honest offerings, an unlimited allowance would let a player
-  reach any displayed board by elimination — the allowance plus the waste factor is what makes that lose.
+- **THERE IS NO MOVE ALLOWANCE.** It was the generator's shortest call count plus a two-call cushion, and it existed because
+  with free undo and honest offerings an unlimited allowance would let a player reach any displayed board by elimination.
+  REPORTED: "Is the moves allowed and timer really necessary for the gameplay? Remove the move limit, a player should be able to
+  use as many moves as they want, but it will be detramental to their final score." The mechanism that prices elimination is the
+  **waste factor** (§6: `shortest / max(1, moves)`), which was always the half doing the work; the cap was a second, blunter
+  rule that took the play away instead of charging for it. A run may be as long as the player likes, and the only bound is the
+  WIRE's: `api/src/daily-line.ts`'s `MAX_DAILY_MOVES` caps the recorded move LOG at 300, because the submission's line is
+  derived from it. The timer stays: it is the other half of the score (`timeFactor`) and the term a hint is charged into, so
+  removing it would remove what the run is judged on rather than a limit on playing.
 - **The challenge is issued, so it is generated ahead of the boundary that publishes it.** A scheduled job
   generates each level's challenge before 00:00 UTC and publishes it, so "the same challenge to all players"
   is true at the moment the day changes rather than true once someone happens to load the page. It is
@@ -1134,9 +1143,9 @@ applier, so the two spellings cannot drift.
   `aria-label="Take a hint (0 of 3 held)"`, the accent edge (`rgb(255, 209, 102)`) and `cursor: pointer`, while on `#/levels` it
   is `disabled=true`, named `Hints 0 of 3`, edged in `--line` with `cursor: default`; the footer showed `#undo #redo` only, on
   both a 393 x 780 sheet and a 1100 x 620 left-column layout.
-- **A hint is available for this mode** (§10), and the move allowance is what makes a hint *worth having*:
-  the allowance bounds how much elimination a player can do, so a nudge towards the answer is a real nudge.
-  Taking one adds a minute to the clock and is never refunded, so the hint appears **where the cost is paid**:
+- **A hint is available for this mode** (§10), and what makes a hint *worth having* is the allowance the score charges for
+  every call past par: with no call limit, elimination is possible but priced, so a nudge towards the answer still buys
+  something. Taking one adds a minute to the clock and is never refunded, so the hint appears **where the cost is paid**:
   on the elapsed-time readout, not as a separate number to reconcile.
 - **AN INCORRECT CALL LANDS, HOLDS TWO SECONDS, AND THE BOARDS GO BACK TO THE WAYPOINTS.** REPORTED: "Drill and Daily: After
   attempting an incorrect call and the two-second pause, reset the board to the 'Now' setup. Currently it seem to leave the
@@ -2551,8 +2560,11 @@ Each has a recommendation and the tradeoff, so this does not need another round 
    real question rather than an obvious no: a hint is the one paid item that does not sell power in a
    competitive mode, because it costs the *buyer* time and standing, and that is a legitimate model to
    reconsider if ad revenue alone does not hold.
-9. **Is the Daily's allowance cushion published?** *Recommend yes, as "moves allowed: 3 of 4 used"*, because
-   a hidden budget is a trap; hiding it only helps if the board is also hidden, which it is not.
+9. **Is the Daily's allowance cushion published? — SETTLED, THE QUESTION IS MOOT.** The recommendation was yes ("moves
+   allowed: 3 of 4 used"), because a hidden budget is a trap. The owner then removed the budget altogether ("Remove the move
+   limit, a player should be able to use as many moves as they want, but it will be detramental to their final score"), so
+   there is no cushion to publish and the readout carries the clock alone. The principle survives in the score: what a long
+   line costs is on the result line (`wasteFactor`'s terms) rather than hidden.
 10. **Is the goal board's formation name shown?** *Recommend yes at first*, then experiment with withholding
     it: naming the goal is a big hint, but an older audience may need the anchor, and the name is only ever a
     display either way (§4.2).

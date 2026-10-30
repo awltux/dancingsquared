@@ -101,7 +101,7 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
     rises.push(progress(session));
   }
   check(rises.every((value, index) => value === index + 1), `each call of the route raises the waypoint count by exactly one (${rises.join(', ')})`);
-  check(session.atGoal(), `and the last one wins the run (${session.movesUsed} of ${session.allowance} calls)`);
+  check(session.atGoal(), `and the last one wins the run (${session.movesUsed} calls)`);
 
   // UNDO REWINDS THE WIN, because the count is derived from the move stack rather than stored beside it.
   session.undo();
@@ -114,9 +114,13 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
   // generated goal is usually several calls from the start — when it is not, that is exactly the old two-waypoint Daily.
   let shortcut = null;
   {
-    // A BOUNDED BFS over what is offered, stopping at the goal's arrangement. The allowance is the bound: a line longer
-    // than it could not be played, so it could not be a shortcut either. The BOARDS are carried because the waypoint
-    // count is over arrangements, and a line that happens to pass every waypoint is a solution rather than a shortcut.
+    // A BOUNDED BFS over what is offered, stopping at the goal's arrangement. The bound is the probe's OWN now — a run has
+    // no call limit any more (REPORTED: "Remove the move limit, a player should be able to use as many moves as they want,
+    // but it will be detramental to their final score"), and a search that followed the playing rules would never terminate
+    // on a route that revisits arrangements. Four calls is the search's budget and it is stated rather than derived.
+    // The BOARDS are carried because the waypoint count is over arrangements, and a line that happens to pass every
+    // waypoint is a solution rather than a shortcut.
+    const SEARCH_CALLS = 4;
     const goalKey = arrangementKey(puzzle.goal);
     // THE GOAL TEST IS THE RELATION, not the key: a line that lands inside the tolerance HAS reached the goal (sameArrangement), which is what the player sees.
     const frontier = [{ calls: [], boards: [puzzle.start] }];
@@ -128,7 +132,7 @@ console.log('\n== 2. the route WINS, and only by passing the waypoints ==');
         if (waypointReached(waypoints.slice(1), node.boards) < waypoints.length - 1) shortcut = node.calls;
         continue;
       }
-      if (node.calls.length >= session.allowance - 1) continue;
+      if (node.calls.length >= SEARCH_CALLS) continue;
       for (const move of applier.offered(board)) {
         const key = arrangementKey(move.board);
         if (seen.has(key)) continue;
@@ -184,9 +188,20 @@ console.log('\n== 4. the hint aims at the NEXT waypoint ==');
   }
   check(named === puzzle.solution.length, `the hint names a call from every position of the route (${named} of ${puzzle.solution.length})`);
   check(advanced === named, `and every one of them RAISES the waypoint count by one when played (${advanced} of ${named})`);
-  // A SPENT ALLOWANCE HAS NO HINT: naming a call the run would refuse is not advice.
-  const spent = new PlaySession(puzzle, applier, 0);
-  check(spent.hint() === null, 'a run with no calls left has no hint to give');
+  // A DEAD END HAS NO HINT, and that is the only "no hint" state left: it used to include a spent allowance, which no longer
+  // exists (REPORTED: "Remove the move limit"). So the check is a board with nothing offered — which is what a stub makes and
+  // what the corpus can reach, and it is the state `hint()` still answers null for.
+  const bare = {
+    ...puzzle,
+    start: puzzle.goal,
+    goal: puzzle.goal,
+    path: [puzzle.goal, puzzle.goal],
+  };
+  const deadEnd = new PlaySession(bare, {
+    ...applier,
+    offered: () => [],
+  });
+  check(deadEnd.hint() === null, 'a board with nothing offered has no hint to give');
 }
 
 console.log('\n== 5. the KEY is the ARRANGEMENT, not the board object — and it is NOT the goal test ==');

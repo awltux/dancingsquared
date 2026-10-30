@@ -51,11 +51,13 @@ const D = board(1, 3);
 
 /** The legal calls, keyed by board IDENTITY (not by signature — a signature is positions-only and the
  * stub graph is deliberately distinguishable by identity). `stuck` is absent by construction: the stub
- * refuses it rather than offering it, which is what makes it usable as the illegal-call control. */
+ * refuses it rather than offering it, which is what makes it usable as the illegal-call control.
+ * C -> A IS A CYCLE, so §13 can walk a long line that never reaches the goal — the shape the removed move allowance
+ * (`shortest + 2`) used to refuse. */
 const CALLS = new Map([
   [A, { 'go-b': B, 'go-c': C }],
   [B, { 'go-d': D }],
-  [C, { 'go-d': D }],
+  [C, { 'go-d': D, 'go-a': A }],
   [D, {}],
 ]);
 
@@ -258,33 +260,29 @@ console.log('\n== 12. offered() is exactly the legal calls, and not the refused 
   check(!calls.includes('stuck'), 'the refused call is NOT offered');
 }
 
-console.log('\n== 13. the move allowance is a CAP, and it is checked before the call is looked at ==');
+console.log('\n== 13. there is NO move allowance: an illegal call is refused as ILLEGAL, however long the line ==');
 {
-  // THE BUDGET IS A HARD CAP, not a score deduction (DESIGN.md 9: "the allowance bounds how much
-  // elimination a player can do"). `stuck` is chosen deliberately for the second call: it is ILLEGAL, so a
-  // session that checked legality first would answer `illegal` here and one that checks the budget first
-  // answers `over`. That difference is the whole check — the reason the player is shown must be the one
-  // they can act on, and the actionable sentence is "undo one".
-  const s = new PlaySession(puzzle, applier, 1);
-  check(s.allowance === 1 && s.movesLeft === 1, `an explicit allowance of 1 is reported (${s.allowance})`);
-  const first = s.play('go-b');
-  check(first.verdict === 'wrong', `the first call is allowed (${first.verdict})`);
-  check(s.movesLeft === 0 && s.movesUsed === 1, 'and the budget is now spent');
-  const over = s.play('stuck');
-  check(over.verdict === 'over', `a spent run refuses the next call as 'over', not 'illegal' (${over.verdict})`);
-  check(over.reason.includes('undo'), `and the reason says how to get a call back (${over.reason})`);
-  check(over.board === B && s.moves.length === 1, 'the refused call did not move the board or the move stack');
-  check(s.play('go-d').verdict === 'over', 'and it refuses a LEGAL call for the same reason, so the cap is the cause');
-  check(s.undo() === true, 'undoing frees a call');
-  check(s.movesLeft === 1, `and the budget reports one again (${s.movesLeft})`);
-  // The refusal above was the BUDGET and not the call: with a call free again the session accepts one from
-  // the board the undo returned to. (`go-d` is not the call to retry here — it was refused at B as the
-  // second call, and from A it is genuinely illegal, which would test the engine rather than the cap.)
-  check(s.play('go-c').verdict === 'wrong', 'so a call applies again, which is what makes the cap the cause');
-  // Negative control, MEASURED: moving the budget check AFTER `refusalOf` reddens exactly the two checks
-  // about the ILLEGAL call at the cap (the `over` verdict and its actionable reason, which became the
-  // stub's `no`), while the "refuses a LEGAL call" check still passes — and that asymmetry is why the
-  // illegal call is the discriminating one here.
+  // THE CAP IS GONE. REPORTED: "Is the moves allowed and timer really necessary for the gameplay? Remove the move limit, a
+  // player should be able to use as many moves as they want, but it will be detramental to their final score." This section used
+  // to pin the opposite — an explicit budget of 1, and the ORDER of the budget check against legality — so what replaces it is
+  // the property that survives: a long line keeps playing, and a call the ENGINE refuses is still reported as `illegal` rather
+  // than as anything the session made up.
+  const s = new PlaySession(puzzle, applier);
+  check(!('allowance' in s) && !('movesLeft' in s),
+    `the session reports no allowance at all (${Object.keys(s).filter((k) => /allow|left/.test(k)).join(', ') || 'none'})`);
+  // AROUND THE STUB'S CYCLE, ten adds and never the goal: the old allowance of `shortest + 2` refused the fourth.
+  for (let i = 0; i < 5; i++) {
+    check(s.play('go-c').verdict === 'wrong' && s.play('go-a').verdict === 'wrong', `cycle ${i + 1} of the stub is played (${s.movesUsed} moves)`);
+  }
+  check(s.movesUsed === 10, `the whole line is the session's (${s.movesUsed} moves)`);
+  check(s.undo() === true && s.movesUsed === 9, 'and undo still pops one, with no budget to restore');
+  // THE ILLEGAL CALL IS THE ENGINE'S ANSWER, which is the half of the old section that mattered: `stuck` is refused by the
+  // stub, and the session must not dress that up as a budget or a verdict of its own.
+  const before = s.board;
+  const refused = s.play('stuck');
+  check(refused.verdict === 'illegal', `an illegal call is 'illegal', not 'over' (${refused.verdict})`);
+  check(refused.reason === 'no', `with the engine's own reason, verbatim (${refused.reason})`);
+  check(refused.board === before && s.movesUsed === 9, 'and it moved neither the board nor the stack');
 }
 
 console.log(failures ? `\n${failures} CHECK(S) FAILED` : '\nALL CHECKS PASSED');

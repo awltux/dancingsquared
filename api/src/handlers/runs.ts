@@ -278,11 +278,11 @@ async function verifyDaily(
   const walked = lineSolvesDaily(level, generated.puzzle, recorded);
   if (!walked.ok) return { refusal: failure(STATUS.badRequest, 'not_solved', walked.reason) };
 
-  // THE ALLOWANCE CHECK THAT USED TO BE HERE IS GONE, and its absence is a guarantee rather than a gap: the line is
-  // replayed through `PlaySession`, whose budget is `shortest + MOVE_ALLOWANCE_CUSHION` — the same constant the
-  // client's allowance is built from — so a RECORDED line cannot be longer than the allowance. The check existed
-  // because the client wrote the line; with the log as the source it is unreachable (`over_allowance` is gone from
-  // this endpoint's refusals, and no client can reach it).
+  // THERE IS NO ALLOWANCE TO CHECK ANY MORE, and that was true twice over: the check went when the LOG became the source of a
+  // Daily's line, and the allowance itself went with the report "Remove the move limit, a player should be able to use as many
+  // moves as they want, but it will be detramental to their final score" (`PlaySession`'s header). `lineSolvesDaily` above is
+  // the whole of the rule: the recorded line must reach the goal through every waypoint in order, and its LENGTH is priced by
+  // the score rather than refused (`over_allowance` is gone from this endpoint's refusals).
   return {
     source: {
       seed: value.seed,

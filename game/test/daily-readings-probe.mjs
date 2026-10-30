@@ -121,7 +121,7 @@ console.log('\n== 6. a reading is what the session plays, and the line keeps the
   // THE END-TO-END SHAPE OF ONE CLICK: the picker plays the prefixed string, the session accepts it, and the line
   // holds what was played rather than a bare call name. This is what `POST /daily/move` records and `POST /runs`
   // replays, so a mangled spelling here is a `line_mismatch` there.
-  const session = new PlaySession({ start, goal: start, shortest: 1, allowance: 4, level: LEVEL, mode: 'daily', seed: 1, poolVersion: MAIN_POOL.version, path: [], steps: [], solution: [], alternatePath: false, explored: 0 }, applier, 4);
+  const session = new PlaySession({ start, goal: start, shortest: 1, level: LEVEL, mode: 'daily', seed: 1, poolVersion: MAIN_POOL.version, path: [], steps: [], solution: [], alternatePath: false, explored: 0 }, applier);
   const groupReading = readings.find((r) => r.selection !== null);
   const verdict = session.play(prefixed(groupReading));
   check(verdict.verdict !== 'illegal', `the session plays a grouped reading ("${prefixed(groupReading)}" -> ${verdict.verdict})`);

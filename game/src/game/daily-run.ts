@@ -70,9 +70,9 @@ export interface DailyView {
    * which the whole-board list cannot express, and the two are different moves. Dead ends are legitimate and are
    * NOT filtered out of this list's consequences — a call that leaves the player with nothing is the puzzle.
    *
-   * IT STAYS POPULATED WHEN THE ALLOWANCE IS SPENT, and the screen disables the buttons with the reason.
-   * Emptying the list instead would leave the player looking at a puzzle with no moves and no explanation
-   * of why, which is the shape of a broken page rather than of a spent budget.
+   * IT STAYS POPULATED WHEN THE RUN IS OVER, and the screen disables the buttons with the reason. Emptying the list
+   * instead would leave the player looking at a puzzle with no moves and no explanation of why, which is the shape of a
+   * broken page rather than of a finished run.
    */
   readings: MoveReading[];
   /** The calls played, in order, and whether either direction of the stack is available. */
@@ -80,10 +80,8 @@ export interface DailyView {
   canUndo: boolean;
   canRedo: boolean;
   atGoal: boolean;
-  /** Calls played and the calls allowed: "moves allowed: 3 of 4 used" (DESIGN.md 15, Q9). */
+  /** Calls played. THERE IS NO DENOMINATOR: a run has no call limit, and `wasteFactor` is what prices the length. */
   movesUsed: number;
-  allowance: number;
-  movesLeft: number;
   /** The clock plus the hint charge, in seconds. */
   elapsedSeconds: number;
   /** Hints taken this run — part of the run's transcript, not a display detail (DESIGN.md 10). */
@@ -129,17 +127,16 @@ export class DailyRun {
   private result: RunScore | null = null;
 
   /**
-   * THE ALLOWANCE IS LAST, matching `PlaySession`'s own optional one: a caller that does not care about the
-   * cushion passes three arguments and gets the shipped one. The clock starts HERE rather than on the first
-   * move, because DESIGN.md 9's run begins when the board is shown — a player who stares at the puzzle for a
-   * minute has spent that minute.
+   * The clock starts HERE rather than on the first move, because DESIGN.md 9's run begins when the board is shown — a player
+   * who stares at the puzzle for a minute has spent that minute. THERE IS NO ALLOWANCE ARGUMENT ANY MORE: a run has no call
+   * limit (`PlaySession`'s header carries the report), so a caller that wants to start a run has nothing to say about one.
    */
-  constructor(puzzle: Puzzle, applier: GameApplier, nowMs: number, allowance?: number) {
+  constructor(puzzle: Puzzle, applier: GameApplier, nowMs: number) {
     this.puzzle = puzzle;
     this.applier = applier;
     this.waypointList = waypointBoards(puzzle.path);
 
-    this.session = new PlaySession(puzzle, applier, allowance);
+    this.session = new PlaySession(puzzle, applier);
     this.clock.start(nowMs);
   }
 
@@ -163,9 +160,9 @@ export class DailyRun {
     applier: GameApplier,
     nowMs: number,
     saved: DailySaved,
-    opts: { gapMs?: number; allowance?: number } = {},
+    opts: { gapMs?: number } = {},
   ): DailyRun | null {
-    const run = new DailyRun(puzzle, applier, nowMs, opts.allowance);
+    const run = new DailyRun(puzzle, applier, nowMs);
     const elapsedMs = saved.outcome === 'playing' ? saved.elapsedMs + Math.max(0, opts.gapMs ?? 0) : saved.elapsedMs;
     run.clock.resume(nowMs, elapsedMs);
     run.hintsUsed = Math.max(0, saved.hintsUsed);
@@ -229,7 +226,7 @@ export class DailyRun {
   /**
    * Add a call.
    *
-   * THE RUN REFUSES A CALL ONCE IT IS OVER, and it says so with the same `over` verdict the allowance uses:
+   * THE RUN REFUSES A CALL ONCE IT IS OVER, and it says so with the `over` verdict:
    * from the player's point of view both mean "this run will not take another call", and the reason string
    * is what distinguishes them. The offering list is hidden by then, so this is a guard against a stale
    * click rather than a path a player walks.
@@ -364,8 +361,6 @@ export class DailyRun {
       canRedo: this.outcome === 'playing' && session.canRedo,
       atGoal: session.atGoal,
       movesUsed: session.movesUsed,
-      allowance: session.allowance,
-      movesLeft: session.movesLeft,
       elapsedSeconds: elapsedSeconds(clockSeconds, this.hintsUsed),
       hintsUsed: this.hintsUsed,
       hintedCall: this.hintedCall,

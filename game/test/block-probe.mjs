@@ -13,7 +13,7 @@
 //   * a grid that LOCKS a skipped drill — caught by section 7, which is the rule that made this a defect report.
 //
 // Usage: node game/test/block-probe.mjs
-import { blockCells, blockSummary, isReplayable, isWatchable, CELL_COUNT } from '../src/puzzle/block.ts';
+import { blockCells, blockPercent, blockSummary, isReplayable, isWatchable, CELL_COUNT } from '../src/puzzle/block.ts';
 import { LEVEL_SIZE } from '../src/puzzle/levels.ts';
 
 let failures = 0;
@@ -73,6 +73,27 @@ console.log('\n== 5. a GAP is visible: finished [0,2] with a next of 1 ==');
   const summary = blockSummary(cells);
   check(summary.done === 2 && summary.passed === 1 && summary.published === 5 && summary.total === CELL_COUNT,
     `the summary counts its own denominator (${summary.done} done, ${summary.passed} passed, ${summary.published} published of ${summary.total})`);
+}
+
+console.log('\n== 5b. the header\'s percentage is that summary\'s fraction, FLOORED ==');
+{
+  // REPORTED: "The level is displayed in the header e.g. 'L1' Add a percentage value after the level to show how much of the
+  // level has been completed e.g. L1: 40%". `blockPercent` is the rule; the header only formats it.
+  check(blockPercent({ done: 0, published: 100 }) === 0, `nothing done is 0% (${blockPercent({ done: 0, published: 100 })})`);
+  check(blockPercent({ done: 40, published: 100 }) === 40, `40 of 100 is 40% (${blockPercent({ done: 40, published: 100 })})`);
+  check(blockPercent({ done: 100, published: 100 }) === 100, `a finished block is 100% (${blockPercent({ done: 100, published: 100 })})`);
+  check(blockPercent({ done: 1, published: 3 }) === 33, `a third is 33%, never 34 (${blockPercent({ done: 1, published: 3 })})`);
+  // THE FLOOR IS THE RULE: a percentage is read as "how far through am I", so it must not say 100 while a cell is open.
+  check(blockPercent({ done: 199, published: 200 }) === 99,
+    `199 of 200 is 99, not the 100 a round would claim (${blockPercent({ done: 199, published: 200 })})`);
+  // NEGATIVE CONTROL: the plausible wrong rule — `Math.round` — answers 100 for that case, which is a header claiming a level
+  // is finished one drill early. Only the check above reddens for it.
+  check(Math.round((100 * 199) / 200) === 100 && blockPercent({ done: 199, published: 200 }) !== 100,
+    'CONTROL: rounding would say 100 with a drill still open');
+  // NOTHING PUBLISHED IS NO PERCENTAGE, not zero: an empty block is a fact about the set, not about progress.
+  check(blockPercent({ done: 0, published: 0 }) === null, 'an empty block has no percentage at all');
+  // A COUNT PAST THE DENOMINATOR IS CLAMPED rather than printed as 140%.
+  check(blockPercent({ done: 140, published: 100 }) === 100, `a count past the block is clamped (${blockPercent({ done: 140, published: 100 })})`);
 }
 
 console.log('\n== 6. `passed` is trusted ONLY where `finished` agrees — the screen is not more credulous than the parser ==');

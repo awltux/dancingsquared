@@ -104,7 +104,8 @@ export function isReplayable(state: CellState): boolean {
   return state === 'done-not-passed';
 }
 
-/** How the header phrases the block: how many of the published cells are done, and how many were passed. */export function blockSummary(cells: readonly Cell[]): { done: number; passed: number; published: number; total: number } {
+/** How the header phrases the block: how many of the published cells are done, and how many were passed. */
+export function blockSummary(cells: readonly Cell[]): { done: number; passed: number; published: number; total: number } {
   let done = 0;
   let passed = 0;
   let published = 0;
@@ -114,6 +115,25 @@ export function isReplayable(state: CellState): boolean {
     else if (cell.state === 'done-not-passed') done++;
   }
   return { done, passed, published, total: cells.length };
+}
+
+/**
+ * HOW MUCH OF THE BLOCK IS DONE, as a whole percentage of the PUBLISHED cells — or null when nothing is published yet.
+ *
+ * REPORTED: "The level is displayed in the header e.g. 'L1' Add a percentage value after the level to show how much of the
+ * level has been completed e.g. L1: 40%". It is a function of the summary the level screen already prints ("0 of 100 done"),
+ * so the two cannot disagree about the fraction, and it lives here with the numbers rather than in the header's words.
+ *
+ * IT FLOORS, AND THAT IS THE RULE RATHER THAN A ROUNDING CHOICE: a percentage is read as "how far through am I", so it must
+ * never say 100 while a cell is still open — MEASURED case 199 of 200, which rounds to 100 and floors to 99. The bottom of
+ * the range is the other way round for the same reason: 1 of 200 floors to 0, and the header's own number ("L1: 0%") is a
+ * true statement about one drill in two hundred.
+ */
+export function blockPercent(summary: { readonly done: number; readonly published: number }): number | null {
+  if (summary.published <= 0) return null;
+  const percent = Math.floor((100 * summary.done) / summary.published);
+  // A HAND-EDITED COUNT CANNOT EXCEED THE BLOCK: a done above published is clamped rather than printed as 140%.
+  return Math.min(100, Math.max(0, percent));
 }
 
 /**

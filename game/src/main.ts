@@ -31,7 +31,7 @@ import { levelSpec, LEVEL_SIZE } from './puzzle/levels.ts';
 // WHICH BOARD A RUN IS ON, as a pure rule: the period used to be decided here, over shell state and the clock, so no
 // probe could ask it which board a drill lands on (`puzzle/board-period.ts`).
 import { boardPeriodOf } from './puzzle/board-period.ts';
-import { blockCells, blockSummary } from './puzzle/block.ts';
+import { blockCells, blockPercent, blockSummary } from './puzzle/block.ts';
 import { MAIN_POOL } from './puzzle/pool.ts';
 import { scoreRun, type RunScore } from './puzzle/score.ts';
 import { scoreLine } from './puzzle/score-line.ts';
@@ -798,6 +798,8 @@ function bannerFacts(): BannerFacts {
     signedIn: player !== null,
     standing: currentStanding(),
     drillLevel: view.levelIndex,
+    // HOW FAR THROUGH THE LEVEL, from the block's own summary — the same numbers its "N of M done" line prints.
+    drillPercent: view.percent,
     // THE TWO SCORES ARE THE SERVER'S, and only the server's: `serverDrillBoard`/`serverDailyBoard` are set from
     // `/drill/current`, `/me/profile`, a submission's answer or the board page, and never from anything the device counted.
     // A signed-out or practice player has no score — ZERO for the Drill (a real "nothing earned") and NO SCORE for the
@@ -1838,6 +1840,8 @@ function levelView(): {
   passed: readonly number[];
   next: number | null;
   complete: boolean;
+  /** How far through the published block, as a whole percentage — `blockPercent`, the header's own number. */
+  percent: number | null;
 } {
   if (serverRegime) {
     const length = serverRegime.length;
@@ -1853,6 +1857,7 @@ function levelView(): {
       passed,
       next,
       complete: length > 0 && summary.done >= summary.published,
+      percent: blockPercent(summary),
     };
   }
   const atLevelOne = LOCAL_SCHEDULE.filter((entry) => entry.levelIndex === 1).length;
@@ -1863,7 +1868,15 @@ function levelView(): {
   const next = wrapped;
   const cells = blockCells({ length, finished, passed, next });
   const summary = blockSummary(cells);
-  return { levelIndex: 1, length, finished, passed, next, complete: length > 0 && summary.done >= summary.published };
+  return {
+    levelIndex: 1,
+    length,
+    finished,
+    passed,
+    next,
+    complete: length > 0 && summary.done >= summary.published,
+    percent: blockPercent(summary),
+  };
 }
 
 /** Paint the block. Called whenever the regime moves: a boot, an advance, a level change. */

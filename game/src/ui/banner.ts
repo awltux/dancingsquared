@@ -47,6 +47,15 @@ export interface BannerFacts {
   /** The level the player is on, for the scores cell's label. */
   readonly drillLevel: number;
   /**
+   * How much of that level is done, as a whole percentage — or null when no cell is published yet, which is the one case
+   * that has no percentage to state.
+   *
+   * REPORTED: "The level is displayed in the header e.g. 'L1' Add a percentage value after the level to show how much of the
+   * level has been completed e.g. L1: 40%". The number is `puzzle/block.ts`'s `blockPercent` — the same summary the level
+   * screen prints — so the header and the block cannot disagree about the fraction.
+   */
+  readonly drillPercent: number | null;
+  /**
    * THE PLAYER'S RANKED DRILL TOTAL, AS THE SERVER HOLDS IT — or zero when the app has no server score.
    *
    * IT WAS "THIS LEVEL'S BEST", THEN "THIS DRILL'S SCORE", THEN A DEVICE SUM. The first two were reports ("the drill score
@@ -74,7 +83,7 @@ export interface BannerView {
   readonly hintFills: readonly boolean[];
   /** The meter's accessible name, which is where the number lives now that the row carries no words. */
   readonly hintsLabel: string;
-  /** The level the scores belong to, as the row shows it: `L1`. */
+  /** The level the scores belong to and how far through it the player is, as the row shows it: `L1: 40%`. */
   readonly levelText: string;
   /** The running total of solved drills — always a number, because a sum of nothing is zero. */
   readonly drillScore: string;
@@ -119,10 +128,12 @@ export function bannerView(facts: BannerFacts): BannerView {
   return {
     hintFills,
     hintsLabel: `Hints ${held} of ${METER}`,
-    levelText: `L${facts.drillLevel}`,
+    // THE LEVEL AND ITS COMPLETION: `L1: 40%`, and just `L1` when no cell is published (there is no fraction to state, and
+    // "0%" would claim the level is empty rather than unknown).
+    levelText: facts.drillPercent === null ? `L${facts.drillLevel}` : `L${facts.drillLevel}: ${facts.drillPercent}%`,
     drillScore: String(facts.drillTotal),
     dailyScore: scoreValue(facts.dailyScore),
-    scoresLabel: `Level ${facts.drillLevel}: drill total ${facts.drillTotal}, Daily ${scoreWords(facts.dailyScore)}`,
+    scoresLabel: `Level ${facts.drillLevel}${facts.drillPercent === null ? '' : `, ${facts.drillPercent}% of it done`}: drill total ${facts.drillTotal}, Daily ${scoreWords(facts.dailyScore)}`,
     accountText: account.text,
     accountTitle: account.title,
     accountKind: account.kind,

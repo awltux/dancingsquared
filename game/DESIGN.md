@@ -776,6 +776,13 @@ answers cannot drift between the client and the server, because there is now onl
   `puzzle/block.ts` (five states, precedence `unpublished` > `done` > `next` > `published`, so a stale `next` cannot
   repaint a finished cell) and the rule that decides WHICH states are pressable is `isReplayable` beside it — both gated
   by `test/block-probe.mjs`; the screen is left with paint.
+- **THE HEADER SAYS HOW FAR THROUGH THE LEVEL THE PLAYER IS: `L1: 40%`.** REPORTED: "The level is displayed in the header
+  e.g. 'L1' Add a percentage value after the level to show how much of the level has been completed e.g. L1: 40%". The number
+  is `blockPercent` in `puzzle/block.ts`, fed by the SAME summary the level screen prints ("N of M done") — so the header and
+  the block cannot disagree about the fraction. IT FLOORS: a percentage is read as "how far through am I", so 199 of 200 is
+  **99**, never the 100 a round would claim with a drill still open (the negative control in `block-probe.mjs` §5b). With no
+  published cell there is no percentage at all and the header shows `L1` alone — "0%" would say the level is empty rather than
+  unknown. The accessible name carries it too: "Level 1, 40% of it done: drill total 340, Daily best 0".
 
 ---
 

@@ -33,6 +33,7 @@ const base = {
   signedIn: false,
   standing: 'offline',
   drillLevel: 1,
+  drillPercent: null,
   drillTotal: 0,
   dailyScore: null,
 };
@@ -113,11 +114,25 @@ console.log('\n== 3. the level, the running total and the Daily ==');
   // a TOTAL, and the Daily's is today's score.
   const nobody = bannerView({ ...base, drillLevel: 3 });
   check(nobody.levelText === 'L3', `the cell starts with the level (${nobody.levelText})`);
+  // HOW FAR THROUGH THE LEVEL, AFTER IT: REPORTED "The level is displayed in the header e.g. 'L1' Add a percentage value after
+  // the level to show how much of the level has been completed e.g. L1: 40%." The number is `blockPercent`'s; this pins the
+  // wording, and the null case — a level with no published cell has no percentage, so the level stands alone.
+  check(bannerView({ ...base, drillLevel: 1, drillPercent: 40 }).levelText === 'L1: 40%',
+    `the percentage follows the level (${bannerView({ ...base, drillLevel: 1, drillPercent: 40 }).levelText})`);
+  check(bannerView({ ...base, drillLevel: 1, drillPercent: 0 }).levelText === 'L1: 0%',
+    'a zero percentage is printed, because a level nothing is done on IS zero per cent');
+  // NEGATIVE CONTROL: a view that printed the number without its null check would write "L3: null%" here — the state a page
+  // before any block is published is in.
+  check(nobody.levelText === 'L3' && !nobody.levelText.includes('%'),
+    'CONTROL: no published block prints no percentage at all, not "null%"');
   // A TOTAL OF NOTHING IS ZERO AND THAT IS THE TRUE ANSWER — unlike a Daily nobody has played, which is an absence.
   check(nobody.drillScore === '0', `a player who has solved nothing has a total of zero (${nobody.drillScore})`);
   check(nobody.dailyScore === '—', `a day with no run shows a dash (${nobody.dailyScore})`);
   check(nobody.scoresLabel === 'Level 3: drill total 0, Daily no score',
     `and the accessible name says both in words (${nobody.scoresLabel})`);
+  // AND THE PERCENTAGE IS IN THE WORDS TOO, because the cell's glyph + number is what a screen reader announces.
+  check(bannerView({ ...base, drillLevel: 3, drillPercent: 40 }).scoresLabel === 'Level 3, 40% of it done: drill total 0, Daily no score',
+    `progress is spoken as well as drawn (${bannerView({ ...base, drillLevel: 3, drillPercent: 40 }).scoresLabel})`);
   const scored = bannerView({ ...base, drillLevel: 3, drillTotal: 340, dailyScore: 0 });
   check(scored.drillScore === '340', `the running total is the number alone (${scored.drillScore})`);
   // A REAL ZERO IS A SCORE, and it must not be swallowed by the "no score" branch: `null` and `0` are different facts, and the

@@ -123,12 +123,17 @@ const PINNED = {
         'plus/grand_swing_thru.xml': 2,
       },
     },
-    digest: '8ad7af92',
+    // RE-RECORDED when `ms/circle.xml`'s `Circle Right` tams were re-aimed to finish on a NAMED formation: MEASURED
+    // through the new end rule, `Circle Right`, `Circle Right 1/4`, `Circle Right 1/2` and both `Circle Right 1/4 Home`
+    // variants went from "no named formation at any turn" to `Circle`/`Static Square` at turn 0 (5 of the file's 123
+    // tams; the other 16 unmatched ones are unchanged), which is geometry changing on purpose - the one thing this
+    // digest is meant to move for.
+    digest: '9ef19ae4',
     files: {
       'c1/cross_and_turn.xml': '947d40fc',
       'c2/circle_to_a_wave.xml': '763bcecc',
       'c2/once_removed_concept.xml': '95da0b28',
-      'ms/circle.xml': '2787b03d',
+      'ms/circle.xml': '2c6a8f3f',
       'ms/sweep_a_quarter.xml': '8e22edb8',
       'plus/grand_swing_thru.xml': 'c7ffe3ae',
     },
@@ -271,7 +276,11 @@ const PINNED = {
         'plus/walk_and_dodge.xml': 2,
       },
     },
-    digest: '5f2b8bd5',
+    // RE-RECORDED for the same `ms/circle.xml` re-authoring as `Normal Lines Compact` above: the two `Circle Right 1/4
+    // Home` tams complete to a `Normal Lines` board and now finish on `Static Square` at turn 0, where no formation
+    // matched them at any turn before (MEASURED with the same end rule; 5 tams changed in the file and no other file's
+    // digest moved).
+    digest: 'a30bebd7',
     files: {
       'a1/anything_and_cross.xml': '8bcca88c',
       'a1/as_couples.xml': '44be3d27',
@@ -346,7 +355,7 @@ const PINNED = {
       'ms/allemande.xml': '0afe0d21',
       'ms/bend_the_line.xml': '5d8ce7de',
       'ms/cast_off_three_quarters.xml': 'eab827c3',
-      'ms/circle.xml': '0b028fc8',
+      'ms/circle.xml': '3734b946',
       'ms/circulate.xml': '14af1553',
       'ms/dive_thru.xml': '3a52c7cc',
       'ms/dixie_style.xml': 'f0e101c9',

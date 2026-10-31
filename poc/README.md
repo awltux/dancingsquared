@@ -34,6 +34,25 @@ orientation is visible. Dancers are **colour-coded by couple** (1=red, 2=yellow,
 3=green, 4=blue) and **women have a distinct shape** (narrower torso + flared
 skirt) so gender is readable from the silhouette as well as colour.
 
+**The startup bar reports the whole boot, and the phases it reports are the
+measured ones.** Reported as *"the startup progress bar seems to miss monitoring
+progress at the start and the end of the startup phase. There are long pauses
+while it is obviously doing something, but there is no feedback through the
+progress bar."* MEASURED here, in ms since the navigation's time origin: the
+module graph takes **3.2 s** before any application code runs, the 509 corpus
+files download in **1.0 s**, parsing them takes **0.9 s**, and building the
+panels takes **3.4 s** — of which the sequencer alone is **3.1 s**. The bar now
+says which of those it is doing (`Downloading data 38%`, `Reading the call files
+64%`, `Building the sequencer…`, `Filling the call list…`, `Building the
+editor…`, `Restoring your last session…`) and reaches 100% only when the last
+panel is built. Two of those four are things no percentage can drive: before the
+app runs, and inside each build step, the main thread is busy, so the bar carries
+a **sweeping** overlay animated on the compositor — a `transform` animation is
+the one kind of motion a blocked thread cannot stop. `src/boot-progress.ts` owns
+the split and the wording; `poc/tools/boot-progress-probe.mjs` pins them, the
+frame yield that lets the parse report paint, and that 100 is painted in exactly
+one place.
+
 Below the call, **"Used by N modules"** lists the named sequences that use the
 selected call — the ceder-translated corpus plus any modules you have saved — with
 the step number at which the call appears. Each has an **open** button that
@@ -268,6 +287,7 @@ only contains the browser/renderer layer:
 | `src/sequencer-ui.ts` | Sequencer panel: apply calls on the board, FASR readout, getout + fix-it buttons. |
 | `src/editor-ui.ts` | Call editor: edit a taminations call INSTANCE (its start formation and arrangement, its end formation and its moves), fix a setup's closure, or generate a missing setup (padding core moves); preview, save to `localStorage`, export `<tam>` XML and the start FORMATION as a `<formation>` block. |
 | `src/formation-xml.ts` | The `Export <formation>` rule on its own, with no DOM: the block (through the engine's `formationToXml`) and the verdict a paste into `assets/formations.xml` would have — `add`, `same`, `reordered` or `changed`. Pure and given the corpus lookup as an argument, so `poc/tools/formation-export-probe.mjs` drives every verdict. |
+| `src/boot-progress.ts` | The startup bar's numbers and words, with no DOM: where each loader phase sits on the bar (`download` 0–60, `parse` 60–85), what it says, and the four NAMED build steps that follow. `poc/tools/boot-progress-probe.mjs` pins the mapping, the phrases and that 100 is painted in one place. |
 | `assets/*.xml` | The tamination data per level (`ms, plus, a1, a2, c1, c2, c3a, c3b`), plus `moves.xml` / `formations.xml` / `calls.xml` (GPL/A-GPL data; license headers preserved). It is the repository's ONE copy, at the repo root, reached through the `@corpus` alias named in `vite.corpus.ts`. |
 | `verify.cjs` | Headless assertions over the engine + a full-catalog scan. |
 

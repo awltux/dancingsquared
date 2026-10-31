@@ -16,6 +16,7 @@ import { initHudChrome } from './hud-chrome';
 import { renderFsmHtml, mergeFsmTables, type FsmEdgeData } from './fsm-view';
 import { el } from './dom';
 import { rememberLastSession } from './remember';
+import { BUILD_STEPS, bootLabel, bootPercent, type BootStep, type BootPhase } from './boot-progress';
 
 // Precomputed FSM table asset(s) written by `node scripts/build-fsm-asset.mjs`.
 //
@@ -30,12 +31,43 @@ const fsmAssets = import.meta.glob<{
 
 // ---------------------------------------------------------------- loading bar
 
-function updateLoading(phase: 'download' | 'parse', frac: number): void {
-  const fill = document.getElementById('loadingFill');
-  const label = document.getElementById('loadingLabel');
-  const pct = phase === 'download' ? frac * 0.7 : 0.7 + frac * 0.3;
-  if (fill) fill.style.width = `${Math.round(Math.min(1, Math.max(0, pct)) * 100)}%`;
-  if (label) label.textContent = phase === 'download' ? `Downloading data ${Math.round(frac * 100)}%` : 'Initialising';
+const loadingFill = document.getElementById('loadingFill');
+const loadingSweep = document.getElementById('loadingSweep');
+const loadingLabel = document.getElementById('loadingLabel');
+
+/**
+ * PAINT THE BAR: a percentage and a sentence, or `null` for "no fraction - but work is happening".
+ *
+ * The SWEEP is not decoration. Everything after the download is a single synchronous call, so a width written before it
+ * is still the width on screen when it returns - the browser has no frame to paint in between. A `transform` animation
+ * runs on the compositor, so it keeps moving while the main thread is blocked, and the bar then says "still working" for
+ * exactly as long as the step takes. `style.css` owns that animation; this owns when it is on, and the FILL always keeps
+ * the last real percentage even while the sweep is running.
+ */
+function paintLoading(percent: number | null, text: string): void {
+  if (loadingSweep) loadingSweep.hidden = percent !== null;
+  if (loadingFill && percent !== null) loadingFill.style.width = `${Math.round(percent)}%`;
+  if (loadingLabel) loadingLabel.textContent = text;
+}
+
+/** The loader's own reports, mapped by `boot-progress.ts` so the phases and the wording stay one rule. */
+function updateLoading(phase: BootPhase, frac: number): void {
+  paintLoading(bootPercent(phase, frac), bootLabel(phase, frac));
+}
+
+/**
+ * RUN ONE BLOCKING BUILD STEP WITH THE BAR SAYING SO.
+ *
+ * The step's name and position are painted FIRST, the sweep is turned on, and a frame is awaited - so the sentence and
+ * the motion are on screen before the work starts. The width then holds the step's own position while the work blocks
+ * the thread, and `style.css`'s animation carries the motion. Without the await the paint would be batched with
+ * everything the step does and the caller would still be looking at the previous label.
+ */
+async function buildStep<T>(step: BootStep, run: () => T): Promise<T> {
+  paintLoading(step.percent, step.text);
+  if (loadingSweep) loadingSweep.hidden = false;
+  await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+  return run();
 }
 
 const canvas = document.getElementById('stage') as HTMLCanvasElement;
@@ -86,12 +118,12 @@ const editorPanel = el<HTMLDivElement>('editorPanel');
 // STORED USER FORMATIONS ARE REGISTERED BY THE PANEL THAT OWNS THE LIBRARY, not here: the library is
 // built in TWO places (the constructor and `rebuildSeq`), and registering from a caller meant the
 // second build - a level change - silently dropped every label the caller had made.
-const seqUi = initSequencer(stage);
+const seqUi = await buildStep(BUILD_STEPS[0], () => initSequencer(stage));
 
 const player = new Player({ speed: speedMul });
 // The browse view can hand a named sequence to the sequence view. `applyMode` is declared below,
 // which is fine: this is a closure, so it is read when the button is CLICKED.
-const browser = new CallBrowser(stage, player, {
+const browser = await buildStep(BUILD_STEPS[1], () => new CallBrowser(stage, player, {
   openSequence: (steps, atCall, startFormation) => {
     modeSelect.value = 'sequence';
     applyMode();
@@ -106,13 +138,13 @@ const browser = new CallBrowser(stage, player, {
     applyMode();
     editorUi.openCall(callId, setupIdx);
   },
-});
+}));
 // The editor drives the stage through the browse view: `preview` shows a bundle, and
 // `focusTrail` is how the moves editor isolates one dancer's track and highlights the
 // selected move's stretch of it. `startFormations` is the clone's Start setup picker, and it
 // comes from the sequencer because the formation library lives there - it is built from the
 // registered catalogue, and building a second one here would double that cost.
-const editorUi = initEditor(stage, {
+const editorUi = await buildStep(BUILD_STEPS[2], () => initEditor(stage, {
   preview: (c) => browser.showCall(c),
   // The editor's moves mode parks the playhead: `setCall` inside `showCall` would otherwise put it
   // back at the lead-in on every edit, so the beat is re-applied after the call is shown.
@@ -135,7 +167,7 @@ const editorUi = initEditor(stage, {
   // The editor's view options (2D icons, hidden dancers). The browse view owns the drawing, so this
   // is the same path the trail focus takes.
   setDisplayMode: (opts) => browser.setDisplayMode(opts),
-});
+}));
 
 const playBtn = el<HTMLButtonElement>('play');
 const pauseBtn = el<HTMLButtonElement>('pause');
@@ -172,13 +204,11 @@ initBuildFooter();
 // ---------------------------------------------------------------- loading overlay
 
 function finishLoading(): void {
-  const overlay = document.getElementById('loadingOverlay');
-  const fill = document.getElementById('loadingFill');
-  const label = document.getElementById('loadingLabel');
-  if (fill) fill.style.width = '100%';
-  if (label) label.textContent = 'Ready';
+  // 100 IS SET HERE AND NOWHERE ELSE, once every panel above this line has been built - the bar claimed to be finished
+  // while a third of the startup was still to come, which is the other half of the report.
+  paintLoading(100, 'Ready');
   requestAnimationFrame(() => {
-    overlay?.classList.add('hidden');
+    document.getElementById('loadingOverlay')?.classList.add('hidden');
   });
 }
 
@@ -440,7 +470,7 @@ installKeys([
 // PICK UP WHERE YOU LEFT OFF. AFTER `applyMode` above, because a restore is a CHANGE and every listener
 // it fires lives in a panel constructor that has now run - restoring `edCall` LOADS the call it names, so
 // the editor has to exist, not merely be built. The restore order is a dependency order; see the module.
-const resumed = rememberLastSession();
+const resumed = await buildStep(BUILD_STEPS[3], () => rememberLastSession());
 if (resumed.length) console.log('[dsq] resumed: ' + resumed.join(', '));
 
 // ---------------------------------------------------------------- frame loop

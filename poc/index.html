@@ -10,8 +10,15 @@
     <div id="loadingOverlay" class="loading-overlay">
       <div class="loading-card">
         <div class="loading-title">Dancing Squared</div>
-        <div class="loading-bar"><div id="loadingFill" class="loading-fill"></div></div>
-        <div id="loadingLabel" class="loading-label">Loading&hellip;</div>
+        <!-- THE SWEEP IS SHOWN FROM THE FIRST BYTE, BECAUSE NO APPLICATION CODE HAS RUN YET: the module graph is still
+             loading, so nothing here can move the bar. `paintLoading` hides it as soon as there is a real width to show,
+             and shows it again for every build step - each one blocks the main thread, and a transform animation is the
+             only motion a blocked thread cannot stop. -->
+        <div class="loading-bar">
+          <div id="loadingFill" class="loading-fill"></div>
+          <div id="loadingSweep" class="loading-sweep"></div>
+        </div>
+        <div id="loadingLabel" class="loading-label">Starting&hellip;</div>
       </div>
     </div>
     <div id="app">

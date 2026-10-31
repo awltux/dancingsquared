@@ -183,7 +183,10 @@ const lookupByEntry = (src) => (src.match(/this\.levelXml\.get\(entry\.file\)/g)
 const publishesMapFirst = (src) => {
   const body = loadCatalogBody(src);
   const published = body.indexOf('this.levelXml = xmlMap;');
-  const walk = body.indexOf('for (const [file, xml] of xmlMap)');
+  // THE WALK IS LOCATED BY THE CALL THAT DOES THE READING, not by its loop header: the walk was chunked into
+  // `entries.slice(...)` groups when the parse started reporting progress, and a header-shaped locator would have gone
+  // quietly vacuous instead of failing.
+  const walk = body.indexOf('this.parseCatalogFile(xml, file)');
   return published > 0 && walk > published;
 };
 

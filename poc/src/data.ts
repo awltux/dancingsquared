@@ -324,7 +324,8 @@ export class Catalog {
    * WHICH VARIANTS NO NAMED FORMATION NAMES AT EITHER END, over the whole catalogue - the Call editor's two filter buttons.
    *
    * The rule is `setup-scan.ts`; this is the browser half that supplies the corpus it needs and DRIVES THE GENERATOR so
-   * the panel can paint. MEASURED: 5,489 variants in 3.2 s of scanning, 0.59 ms each - so one pass, cached by the caller,
+   * the panel can paint. MEASURED: 5,489 variants in 3.7 s of scanning, 0.68 ms each (3.2 s before the end match went to
+   * eight turns) - so one pass, cached by the caller,
    * is the whole cost of the feature. It breathes on TIME rather than per file: a frame per file would add about eight
    * seconds to that 3.2, and a frame per yield the same, so the loop yields when at least `PAINT_EVERY_MS` has passed and
    * the count then really moves.

@@ -12,13 +12,15 @@
 //      at BOTH ends rather than absent, and the counts are non-zero so neither filter can be silently empty;
 //   2. the negative control: a variant whose file is missing from the map has no tam, and must therefore be reported
 //      unmatched at both ends - the failure mode "missing reads as healthy";
-//   3. THE PANEL: the buttons sit after the Find box with the begin/end glyphs and their hints, the scan is LAZY (one pass
-//      on the first press), the buttons are disabled while it runs, the two axes AND when both are pressed, the SETUP list
-//      keeps each option's ORIGINAL index (a filtered list that renumbered would load a different authoring), the variant
-//      being edited survives a filter that excludes it, and "open this variant" clears the filters rather than refusing.
+//   3. THE PANEL: the buttons sit after the Find box with the begin/end glyphs, the RED costly class and hints that warn
+//      what the press builds, the scan is LAZY (one pass on the first press), the buttons are disabled while it runs, the
+//      two axes AND when both are pressed, the SETUP list keeps each option's ORIGINAL index (a filtered list that
+//      renumbered would load a different authoring), the variant being edited survives a filter that excludes it, and
+//      "open this variant" clears the filters rather than refusing.
 //
-// MEASURED while designing it, this machine, over the whole catalogue: 5,489 variants in 3.2 s (0.59 ms each); the ms
-// level alone is 1,182 variants in 0.81 s. 638 variants are start-unmatched, 790 end-unmatched, and 1,202 are unmatched at
+// MEASURED while designing it, this machine, over the whole catalogue: 5,489 variants in 3.7 s (0.68 ms each; it was 3.2 s
+// while the end match tried four turns rather than eight); the ms level alone is 1,182 variants in about 0.9 s. 638
+// variants are start-unmatched, 770 end-unmatched (790 before the eighth turns added 20 names), and 1,182 are unmatched at
 // the start, the end or both - which is why the scan is a lazy, cached pass and not something the panel can do on load.
 //
 // Run: node tools/setup-scan-probe.mjs   (from poc/; the engine must be built)
@@ -196,15 +198,22 @@ console.log('\n== 3. the panel: two lazy filters after the Find box, with the be
   const foundAt = html.indexOf('id="edCallFound"');
   check(findAt > 0 && startAt > findAt && endAt > startAt && foundAt > endAt,
     'the two buttons sit AFTER the Find box and before its readout, the start one first');
-  check(/id="edStartUnmatched" class="ed-flag" aria-pressed="false"[^>]*>&#9198;<\/button>/.test(html),
-    'the start button is the BEGIN glyph (&#9198;, "skip to start"), unpressed, and carries the icon class');
-  check(/id="edEndUnmatched" class="ed-flag" aria-pressed="false"[^>]*>&#9197;<\/button>/.test(html),
-    'the end button is the END glyph (&#9197;, "skip to end"), unpressed');
+  check(/id="edStartUnmatched" class="ed-flag ed-flag-costly" aria-pressed="false"[^>]*>&#9198;<\/button>/.test(html),
+    'the start button is the BEGIN glyph (&#9198;, "skip to start"), unpressed, and carries the icon classes - including the COSTLY one');
+  check(/id="edEndUnmatched" class="ed-flag ed-flag-costly" aria-pressed="false"[^>]*>&#9197;<\/button>/.test(html),
+    'the end button is the END glyph (&#9197;, "skip to end"), unpressed, and costly too');
   check(/id="edStartUnmatched"[^>]*title="[^"]*START setup no named formation matches[^"]*"/.test(html) &&
     /id="edEndUnmatched"[^>]*title="[^"]*END setup no named formation matches[^"]*"/.test(html),
     'each hover hint says which END of the authoring it filters, in the words the panel uses elsewhere');
-  check(/id="edStartUnmatched"[^>]*title="[^"]*scanned once[^"]*"/.test(html),
-    'and the hint says the catalogue is scanned once, because that is where the wait will be');
+  check(/id="edStartUnmatched"[^>]*title="[^"]*EXPENSIVE[^"]*BUILDS EVERY CALL VARIANT[^"]*ONE-OFF[^"]*"/.test(html) &&
+    /id="edEndUnmatched"[^>]*title="[^"]*EXPENSIVE[^"]*BUILDS EVERY CALL VARIANT[^"]*ONE-OFF[^"]*"/.test(html),
+    'and BOTH hints warn that the press is expensive, say what it builds, and say it is a one-off that is cached');
+  // THE RED GLYPH: one variable, both buttons, and it must beat the shared pressed rule (which paints the glyph accent).
+  check(/--danger: #ff6b6b;/.test(css), 'the palette carries the red the warning uses, rather than a literal at the rule');
+  check(/#editorPanel \.ed-flag-costly \{ color: var\(--danger\); \}/.test(css),
+    'the costly buttons take that red as their GLYPH colour, so the cost is visible before the hint is read');
+  check(/#editorPanel \.ed-flag-costly\[aria-pressed="true"\] \{ color: var\(--danger\); border-color: var\(--accent\); \}/.test(css),
+    'and a pressed one stays red with an accent BORDER, so "on" and "expensive" stay two different signals');
   check(/#editorPanel \.ed-near,\n#editorPanel \.ed-flag \{/.test(css) && /#editorPanel \.ed-flag\[aria-pressed="true"\]/.test(css),
     'the CSS gives them the same pressed look as the other icon toggles, from one rule rather than a third copy');
 
@@ -216,7 +225,7 @@ console.log('\n== 3. the panel: two lazy filters after the Find box, with the be
   check(/button\.disabled = this\.setupScan !== null && this\.setupMatches === null;/.test(ui),
     'and the buttons are disabled while it runs, so a second press cannot start a second pass');
   check(/this\.statusEl\.textContent = `scanning for setups no formation names: \$\{done\} of \$\{total\} call variants…`/.test(ui),
-    'the status line counts the scan, which is the only feedback 3.2 seconds of work gets');
+    'the status line counts the scan, which is the only feedback 3.7 seconds of work gets');
   check(/function \*scanSetupMatches/.test(data) || /scanVariants\(/.test(data),
     'the loader drives the generator rather than owning a second copy of the scan');
   check(/await new Promise<void>\(\(resolve\) => requestAnimationFrame\(\(\) => setTimeout\(resolve, 0\)\)\)/.test(data),

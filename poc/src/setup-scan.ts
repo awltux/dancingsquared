@@ -11,10 +11,12 @@
 // A VARIANT THAT WILL NOT BUILD IS THE MOST INCOMPLETE KIND, so it counts as unmatched at BOTH ends rather than being
 // skipped: the scan is a census of the catalogue, and a variant missing from it would read as healthy.
 //
-// A GENERATOR, NOT AN ASYNC FUNCTION, and that is the design. The scan is expensive - MEASURED 5,489 variants in 3.2 s on
-// this machine, against 0.81 s for the ms level alone - so the caller has to be able to breathe: yielding a frame per file
-// would add around eight seconds, and yielding for the whole scan would freeze the panel for three. The panel counts its
-// own time between yields (see `Catalog.scanSetupMatches`); a probe can drive the same generator with no event loop at all.
+// A GENERATOR, NOT AN ASYNC FUNCTION, and that is the design. The scan is expensive - MEASURED 5,489 variants in 3.7 s on
+// this machine since the end match went to eight turns (it was 3.2 s at four), against about 0.9 s for the ms level alone -
+// so the caller has to be able to breathe: yielding a frame per file would add around eight seconds, and yielding for the
+// whole scan would freeze the panel for the lot. The panel counts its own time between yields (see
+// `Catalog.scanSetupMatches`) and the two buttons that start it say what it costs and warn that the glyph is red for a
+// reason; a probe can drive the same generator with no event loop at all.
 //
 // NOT THE LIBRARY'S `listFormations`, and not a size heuristic: the picker's list is the corpus's formations COMPLETED for
 // their own size, which is what `corpusFormationsOfSize` hands over, and a four-dancer call is asked about the 48 four-dancer
@@ -29,20 +31,27 @@ export interface SetupMatch {
   readonly end: boolean;
 }
 
-/** One call title in the catalogue, with the file indices of the tams that author it - `CallInfo`'s own shape. */
-export interface ScanCallEntry {
+/**
+ * ONE CALL TITLE in the catalogue, with the file indices of the tams that author it - `CallInfo`'s own shape.
+ *
+ * NOT EXPORTED, and the same for `SetupScanProgress` and `SetupScanInput` below: they are the shape of THIS function's
+ * argument and return value, and every caller builds the argument as an object literal, so the `export` keyword bought
+ * nothing (AGENTS §4.5, and `engine/test/export-census.mjs` counted them as such).
+ */
+interface ScanCallEntry {
   readonly id: string;
   readonly file: string;
   readonly tamIndices: readonly number[];
 }
 
 /** Progress after one FILE, so the caller can show a count that moves. */
-export interface SetupScanProgress {
+interface SetupScanProgress {
   readonly done: number;
   readonly total: number;
 }
 
-export interface SetupScanInput {
+/** What the scan needs from the caller: the catalogue, the raw files, and the parsed corpus the build takes. */
+interface SetupScanInput {
   /** The catalogue to scan: one entry per call title. */
   readonly catalogue: readonly ScanCallEntry[];
   /** Every level file's XML, by the corpus name `CallInfo.file` carries. */

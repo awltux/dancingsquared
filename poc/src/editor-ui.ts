@@ -664,7 +664,7 @@ export class EditorController implements EditorUI {
   private haystacks: Map<string, string> | null = null;
   // THE TWO VARIANT FILTERS, right of the Find box: they narrow the call and setup lists to the variants whose START or END
   // setup no named formation matches - the "incomplete" authorings the editor exists to fix. The scan behind them is the
-  // expensive part (MEASURED 5,489 variants, 3.2 s), so it runs ONCE, lazily, on the first press, and every press after it
+  // expensive part (MEASURED 5,489 variants, 3.7 s), so it runs ONCE, lazily, on the first press, and every press after it
   // is instant. `setupMatches` is that pass; `setupScan` is the promise of it, so a second press waits rather than
   // starting a second scan.
   private startUnmatchedBtn = el<HTMLButtonElement>('edStartUnmatched');
@@ -1198,7 +1198,9 @@ export class EditorController implements EditorUI {
   /**
    * THE CATALOGUE-WIDE SCAN, once per session, on the first press - and the status line is the progress bar for it.
    *
-   * MEASURED: 5,489 variants in 3.2 s, so the panel cannot do it on load and cannot fake it. The scanner yields on a timer
+   * MEASURED: 5,489 variants in 3.7 s, so the panel cannot do it on load and cannot fake it - and it is why the two
+   * buttons carry a red glyph and a hint that says so, rather than looking like the cheap filters beside the Find box.
+   * The scanner yields on a timer
    * (see `Catalog.scanSetupMatches`), and each yield paints this count, which is why the number moves while the work
    * continues. The result is kept for the session: the catalogue does not change while the app runs, which is the same
    * reasoning `haystack` uses for its cache.
@@ -5099,19 +5101,21 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * THE NAMED FORMATION THE END BOARD IS, UP TO A QUARTER TURN, and how far it is turned - the rule behind the End
+   * THE NAMED FORMATION THE END BOARD IS, UP TO AN EIGHTH OF A TURN, and how far it is turned - the rule behind the End
    * setup picker's VALUE and its rotation control, both at load and when the caller picks a setup.
    *
    * Asked for as: "why does the end setup not match 'Facing Couples'? ... They look the same, except for the +90 deg
-   * rotation", and then "I would see a setup as an arrangement plus matching dancer indexes. The rotation should
-   * probably be recorded." The ids already treat a quarter turn as the same setup (`setup-id.ts`), so the board was
-   * never a different setup - what was missing was the NAME and a place to record the turn. The NAME is the picker's
-   * value; THE TURN IS RECORDED IN THE ROTATION CONTROL (`endSpinSteps`), never in an id and never in the XML, so a
-   * caller sees which way round the setup is and Place end / Connect end finish where the dancers already are.
+   * rotation", then "I would see a setup as an arrangement plus matching dancer indexes. The rotation should probably be
+   * recorded", and then "why 'Allemande Left' from 'Wrong Way Grand Circle' doesn't match the end formation 'Right and
+   * Left Grand Circle' with a 45 deg offset" - a board that is that formation turned EXACTLY 45 degrees. The ids already
+   * treat a turn as the same setup (`setup-id.ts`), so the board was never a different setup - what was missing was the
+   * NAME and a place to record the turn. The NAME is the picker's value; THE TURN IS RECORDED IN THE ROTATION CONTROL
+   * (`endSpinSteps`, whose step is 45 degrees, so every turn the rule reports is exactly representable), never in an id
+   * and never in the XML. Place end / Connect end then finish where the dancers already are.
    *
    * A NAME IS STILL ONLY SHOWN WHEN TAKING IT, WITH ITS TURN, IS A NO-OP RE-BASE: the board must be that formation
-   * within `END_BOARD_TOL` at one of the four quarter turns, and the turn the rule reports is the one the control is
-   * set to. `endFormationMatch` is the engine's rule rather than a second derivation here (AGENTS.md §11.4.4).
+   * within `END_BOARD_TOL` at one of the eight turns, and the turn the rule reports is the one the control is set to.
+   * `endFormationMatch` is the engine's rule rather than a second derivation here (AGENTS.md §11.4.4).
    */
   private endMatch(call: CallBundle): EndFormationMatch | null {
     return endFormationMatch(call, this.host.startFormations(call.dancers.length));
@@ -5123,7 +5127,7 @@ export class EditorController implements EditorUI {
    * SETUP ID, which exists even then - MEMOISED ON THAT BOARD.
    *
    * `endMatch` walks every formation of the call's size (each one completed and deduplicated before it is
-   * compared) at up to four quarter turns, which is far too much to do on every render: a handle drag re-renders
+   * compared) at up to eight turns, which is far too much to do on every render: a handle drag re-renders
    * this panel many times a second, and each of those would re-walk the corpus to answer a question whose answer
    * only changes when the END moves. So the answer is keyed on the end POSES - position, heading and gender of
    * every dancer, at the call's last beat - and recomputed only when that board is different.

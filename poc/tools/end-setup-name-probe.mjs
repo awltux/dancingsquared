@@ -399,5 +399,46 @@ console.log('\n== 5. "Circle Four Left" from "Facing Couples": the whole and the
   check(new Set(ids).size === 1, `all four ends mint ONE sid/fid/aid (${ids[0]}), so the turn is recorded on the row and never in an id`);
 }
 
+// ---------------------------------------------------------------- 6. THE SECOND REPORTED CASE
+//
+// Asked for as: "Investigate why 'Allemande Left' from 'Wrong Way Grand Circle' doesn't match the end formation 'Right and
+// Left Grand Circle' with a 45 deg offset. (is it because the match only tests with 90 deg offsets?)" - and the answer was
+// YES, so the match now tries eight turns. This is the field-level regression for it: the end board stands exactly on that
+// formation turned 45 degrees, the strict namer still refuses the board as authored, and the ARRANGEMENT rule picks that
+// formation over its twin rather than the twin.
+console.log('\n== 6. "Allemande Left" from "Wrong Way Grand Circle": an end 45 degrees round ==');
+{
+  const pairs = engine.parseFormations(formationsXml);
+  const list = [];
+  for (const [name, ds] of pairs) {
+    const poses = engine.completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: (d.angleDeg * Math.PI) / 180, gender: d.gender })));
+    if (poses.length === 8) list.push({ name, poses });
+  }
+  const xml = fs.readFileSync(path.join(assets, 'ms', 'allemande.xml'), 'utf8');
+  const tams = engine
+    .parseCallXml(xml)
+    .filter((t) => (t.title ?? '').trim() === 'Allemande Left' && (t.formationAttr ?? '').trim() === 'Wrong Way Grand Circle');
+  check(tams.length === 1, `the tam resolves by TITLE and FORMATION, not by index (${tams.length} found)`);
+  const call = tams.length === 1 ? engine.buildCall(tams[0], pairs, engine.parseMoves(movesXml), true) : null;
+  check(call !== null && call.dancers.length === 8, `it is an ${call ? call.dancers.length : '?'}-dancer call`);
+  const rlgc = list.find((f) => f.name === 'Right and Left Grand Circle');
+  const turn = (poses, deg) => {
+    const c = Math.cos(deg * Math.PI / 180), s = Math.sin(deg * Math.PI / 180);
+    return poses.map((p) => ({ ...p, x: p.x * c - p.y * s, y: p.x * s + p.y * c, heading: p.heading + deg * Math.PI / 180 }));
+  };
+  check(rlgc !== undefined && engine.endsOnFormation(call, rlgc.poses) === false,
+    'as authored the end does NOT match that formation - the spots coincide but every facing is 180 degrees out');
+  check(rlgc !== undefined && engine.endsOnFormation(call, turn(rlgc.poses, 45)) === true,
+    'turned 45 degrees it matches EXACTLY, which is the offset the report named');
+  const match = engine.endFormationMatch(call, list);
+  console.log(`    match: ${JSON.stringify(match)}`);
+  check(match?.name === 'Right and Left Grand Circle' && match?.turnDeg === 45,
+    `so the field says that name at 45 degrees (${JSON.stringify(match)}) - and the ARRANGEMENT decides it: the twin "Wrong Way Grand Circle" misses all 8 genders where this one agrees on all 8`);
+  check(engine.endFormationName(call, list) === null,
+    'while the STRICT namer still refuses the board as authored, so the two questions stay apart at 45 degrees too');
+  check(engine.endFormationMatch(call, list)?.turnDeg !== 90,
+    'and the turn it reports is 45 rather than 90: an eighth of a turn is the resolution, not a quarter');
+}
+
 console.log(failures ? `\n${failures} check(s) failed` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

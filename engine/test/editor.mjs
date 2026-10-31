@@ -1442,9 +1442,14 @@ console.log('\n== which name, when one board has two arrangement names (20b2) ==
 // HOW FAR TURNED: `endFormationMatch`.
 //
 // The checks below pin the precedence (turn 0 first, so a board that is already named cannot change its name), the
-// quarter-turn-only rule (45 degrees is ten times the facing margin, so it is not a name), and the corpus witness for
-// the reported call. The witness resolves the tam BY TITLE AND FROM rather than by index: a hand-added tam once moved
-// three index-keyed checks onto the wrong pair (AGENTS trap 7).
+// EIGHTH-TURN search that the second report asked for, and the corpus witness for each reported call. The witnesses
+// resolve tams BY TITLE AND FROM rather than by index: a hand-added tam once moved three index-keyed checks onto the
+// wrong pair (AGENTS trap 7).
+//
+// THE SECOND REPORT, and why the rule is eight turns and not four: "why 'Allemande Left' from 'Wrong Way Grand Circle'
+// doesn't match the end formation 'Right and Left Grand Circle' with a 45 deg offset. (is it because the match only tests
+// with 90 deg offsets?)" - it was, and that board stands EXACTLY on that formation turned 45 degrees. MEASURED over the
+// catalogue's 5,487 variants, the extra four turns add 20 names and change none of the names already there.
 console.log('\n== the end is a named formation TURNED, and the turn is reported (20b3) ==');
 {
   const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
@@ -1463,7 +1468,7 @@ console.log('\n== the end is a named formation TURNED, and the turn is reported 
   check(endFormationMatch(asAuthored, flat)?.turnDeg === 0,
     'and the match reports TURN 0, so a name never appears turned just because a turn was tried');
 
-  // THE REPORTED CASE, SYNTHETIC: the same board with the formation turned a quarter turn.
+  // THE FIRST REPORTED CASE, SYNTHETIC: the same board with the formation turned a quarter turn.
   const turned = turn(two('boy', 'girl'), 90);
   check(endFormationName(turned, flat) === null,
     'the same board a QUARTER TURN off is NOT named by the strict rule - which is the report, and the rule that must not change');
@@ -1471,11 +1476,14 @@ console.log('\n== the end is a named formation TURNED, and the turn is reported 
   check(quarter?.name === 'Flat' && quarter?.turnDeg === 90,
     `while the match names it and says how far (${JSON.stringify(quarter)})`);
 
-  // EVERY QUARTER TURN IS FOUND, and 45 degrees is not one of them.
+  // EVERY EIGHTH TURN IS FOUND, and a HALF-eighth is not one of them.
   const at = (deg) => endFormationMatch(turn(two('boy', 'girl'), deg), flat);
-  check([90, 180, 270].every((deg) => at(deg) !== null), '90, 180 and 270 all give a name, so the search is the whole turn circle');
-  check(at(45) === null && at(135) === null,
-    'and 45 degrees does not: the facing margin is 4.3 degrees, so an eighth of a turn is a different board rather than a sloppy match');
+  check([45, 90, 135, 180, 225, 270, 315].every((deg) => at(deg) !== null),
+    'every multiple of 45 gives a name, so the search is the whole circle at the resolution the End-spin control records at');
+  check(at(45)?.turnDeg === 45,
+    `including 45 degrees, which is the offset the second report was about (${JSON.stringify(at(45))})`);
+  check(at(22.5) === null && at(67.5) === null,
+    'and 22.5 degrees does not: the facing margin is 4.3 degrees, so it is five times outside what a name may absorb - the search is 45s, not a tolerance');
 
   // A BOARD THAT IS ITS OWN HALF TURN: turn 0 must still win, or every squared-set end would read "turned 180".
   const symmetric = [{ x: 1, y: 0, heading: 0, gender: 'boy' }, { x: -1, y: 0, heading: Math.PI, gender: 'girl' }];
@@ -1527,6 +1535,26 @@ console.log('\n== the end is a named formation TURNED, and the turn is reported 
     'and the strict namer still refuses the 1/4 finish, so the two questions stay apart');
   check(!!quarterCall && endsOnFormation(quarterCall.call, rotateFormation(formationsOfSize(4).find((f) => f.name === 'Facing Couples').poses, 90 * DEG)),
     'which is confirmed by the board matching Facing Couples when IT is turned: the rotation is the whole of the difference');
+
+  // THE SECOND REPORT'S WITNESS: a board that is a named formation turned 45 degrees, which is exactly what the eighth
+  // turns were added for. The witness is resolved by TITLE AND FORMATION (trap 7), not by index.
+  const allemande = parseCallXml(read('ms/allemande.xml'))
+    .filter((t) => (t.title ?? '').trim() === 'Allemande Left' && (t.formationAttr ?? '').trim() === 'Wrong Way Grand Circle');
+  check(allemande.length === 1, `"Allemande Left" from "Wrong Way Grand Circle" resolves by title and formation (${allemande.length} found)`);
+  if (allemande.length === 1) {
+    const alCall = buildCall(allemande[0], pairs, parseMoves(movesXml), true);
+    const alList = formationsOfSize(alCall.dancers.length);
+    const rlgc = alList.find((f) => f.name === 'Right and Left Grand Circle');
+    check(rlgc !== undefined, 'and the corpus still carries "Right and Left Grand Circle" at its size');
+    check(rlgc !== undefined && endsOnFormation(alCall, rotateFormation(rlgc.poses, 45 * DEG)),
+      'its end stands exactly on that formation turned 45 degrees - the offset the report named');
+    check(rlgc !== undefined && !endsOnFormation(alCall, rlgc.poses),
+      'and NOT on it as authored: the spots coincide, but every facing is 180 degrees out at turn 0');
+    const alMatch = endFormationMatch(alCall, alList);
+    console.log(`    "Allemande Left" -> ${JSON.stringify(alMatch)}`);
+    check(alMatch?.name === 'Right and Left Grand Circle' && alMatch?.turnDeg === 45,
+      `so the field says that name at 45 degrees (${JSON.stringify(alMatch)}) - and the ARRANGEMENT chooses it: the twin "Wrong Way Grand Circle" misses all 8 genders where this one agrees on all 8`);
+  }
 }
 
 // ---------------------------------------------------------------------------

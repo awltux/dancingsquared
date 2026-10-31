@@ -396,17 +396,22 @@ filter for call variants with a) unmatched start setup and/or b) unmatched end s
 editor fix incomplete call variants. Use begin, end glyphs for the buttons and a hover hints to explain
 what they do."* ⏮ narrows the list to the variants whose **START** setup the picker cannot name (the Start
 setup dropdown stays on "keep the current start"); ⏭ narrows it to the ones whose **END** setup row says
-`Unknown Setup` — counting a formation the dancers are standing in **turned** as a match, which is the
-rule the row itself uses. Both pressed means unmatched at **both** ends, the same way the Find box's terms
-compose. The **SETUP** dropdown is filtered with the call, and the option **values are each variant's
-original index**, so a filtered list can never load a different authoring than the one named; the variant
-being edited is kept on screen even when the filter excludes it, with the same `▸ kept` marker the call
-list uses. The whole catalogue has to be scanned once to answer — MEASURED **5,489 variants in 3.2 s**
-(0.59 ms each; the ms level alone is 1,182 in 0.8 s) — so the scan is **lazy**: the first press runs it with
-a count in the status line, and every press after it is instant. `src/setup-scan.ts` owns the rule and yields
-per file; `Catalog.scanSetupMatches` drives it and paints every 100 ms; `poc/tools/setup-scan-probe.mjs`
-pins the counts, the key (a variant's index must address the tam the panel loads), that a tam which will not
-build reads as unmatched at both ends rather than absent, and the panel wiring.
+`Unknown Setup` — counting a formation the dancers are standing in **turned** (any multiple of 45°) as a
+match, which is the rule the row itself uses. Both pressed means unmatched at **both** ends, the same way the
+Find box's terms compose. The **SETUP** dropdown is filtered with the call, and the option **values are each
+variant's original index**, so a filtered list can never load a different authoring than the one named; the
+variant being edited is kept on screen even when the filter excludes it, with the same `▸ kept` marker the
+call list uses.
+
+**THE TWO GLYPHS ARE RED BECAUSE THE PRESS IS EXPENSIVE.** Answering either question needs every call variant
+in the catalogue BUILT — MEASURED **5,489 variants in 3.7 s** (0.68 ms each; 3.2 s before the end match went
+to eight turns) — so the buttons wear a red `.ed-flag-costly` glyph (6.4:1 on the panel background), their
+hints say ⚠ EXPENSIVE and quote the count, they are **disabled while the scan runs**, and the status line
+counts it. The scan is a **one-off**: it runs on the first press, the answer is cached for the session, and
+every later press is instant. `src/setup-scan.ts` owns the rule and yields per file;
+`Catalog.scanSetupMatches` drives it and paints every 100 ms; `poc/tools/setup-scan-probe.mjs` pins the
+counts, the key (a variant's index must address the tam the panel loads), that a tam which will not build
+reads as unmatched at both ends rather than absent, and the panel wiring.
 
 Two **view options** sit at the bottom of the panel, both about getting the dancers out of the way of
 the track you are measuring:
@@ -1216,15 +1221,21 @@ where the call finishes. The controls are the steps, and the start and the end e
 | **End setup** | re-bases the END onto a named formation: the call should finish *there* instead. Nothing moves until **Connect end**. It also opens on **the setup the call already finishes in, turned** — the name in the field, the turn on the spin control beside it, so `Circle Four Left 1/4` from `Facing Couples` reads `Facing Couples` at `90°` rather than `Unknown Setup` |
 | **Connect end** | re-aims the **last move of every dancer** at its assigned spot of that formation. Beats and hands are held, so the call is not re-timed, and no earlier move changes |
 
-**THE END IS NAMED UP TO A QUARTER TURN, and the turn is a RECORDED fact rather than an id.** The setup ids are
+**THE END IS NAMED UP TO AN EIGHTH OF A TURN, and the turn is a RECORDED fact rather than an id.** The setup ids are
 rotation-canonical already (`setup-id.ts`: a squared set and its quarter turn mint one `sid`), so a board turned a
 quarter turn was never a different setup — what the row lacked was a name for it and somewhere to put the turn.
 `endFormationMatch` reports both (`{ name, turnDeg }`), the picker's value is the name and the rotation control is the
 turn, so choosing it does not rotate the dance: taking the name alone would move the worst dancer a **median of 1.42
-units, worst 5.0** (the 1691 ends that fit a name only when turned, `node poc/tools/end-setup-name-probe.mjs`), against
-the **0.05** a name is allowed to nudge. Turn 0 is tried first, so every end already named keeps its name and gains
-`0°`; 45° is not a quarter turn and stays unnamed. `endFormationName` keeps the strict "standing in it as authored"
-question, which is what the row asks when it calls an end **Unknown Setup**.
+units, worst 5.0** (the 1,691 ends that fit a name only when turned, `node poc/tools/end-setup-name-probe.mjs`), against
+the **0.05** a name is allowed to nudge. Turn 0 is tried first and the turns ascend (0, 45, 90 … 315), so every end
+already named keeps its name and gains `0°`, and the extra four turns add **20** names without changing one that was
+already there. `endFormationName` keeps the strict "standing in it as authored" question, which is what the row asks when
+it calls an end **Unknown Setup**. **The 45° steps are there for a measured reason:** *"why 'Allemande Left' from 'Wrong
+Way Grand Circle' doesn't match the end formation 'Right and Left Grand Circle' with a 45 deg offset"* — it did not,
+because the match only tried quarter turns, and that board stands EXACTLY on that formation turned 45° (worst 0.0000 units
+/ 0.00°), with the arrangement rule choosing that formation over its twin `Wrong Way Grand Circle` at 8 genders to 0. Its
+eight spots are a regular octagon, so an eighth of a turn keeps the spots and turns the facings — which is why it reads as
+"the same circle, 45° round". A half-eighth (22.5°) is still not a name: the facing margin is 4.3°.
 
 **A FORMATION'S SPOT NUMBER IS NOT A CORRESPONDENCE.** "Connect the end to `Ocean Waves`" needs an answer to
 *which of its eight spots does dancer 3 finish on*, and the answer cannot be "spot 3": a formation's spots are

@@ -395,8 +395,8 @@ export {
   startsFromFormation,
   endsOnFormation,
   endFormationName,
-  // THE SAME BOARD, UP TO A QUARTER TURN, with the turn reported: what the Call editor's End setup picker opens on
-  // and what its rotation control is set from. `endFormationName` stays the strict "standing in it as authored"
+  // THE SAME BOARD, UP TO AN EIGHTH OF A TURN, with the turn reported: what the Call editor's End setup picker opens
+  // on and what its rotation control is set from. `endFormationName` stays the strict "standing in it as authored"
   // answer, which is the question the row asks when it calls an end unknown.
   endFormationMatch,
   END_BOARD_TOL,

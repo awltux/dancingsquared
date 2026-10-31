@@ -2559,10 +2559,10 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
  * units is under 1% of the square's own width, which is not something a caller can see on the floor.
  *
  * AND A NAME THE BOARD IS MERELY TURNED FROM IS STILL A RE-BASE, which is why the turn travels with it:
- * `endFormationMatch` reports how far the formation has to be turned and the panel sets its End-spin control from
- * that, so the margin above is the WHOLE of the motion. Take the name without the turn and the end would move a
- * quarter turn instead - MEASURED over the catalogue's 1691 ends that fit a name only when turned: median 1.42
- * units, worst 5.0 units for the worst dancer.
+ * `endFormationMatch` reports how far the formation has to be turned (any multiple of 45 degrees) and the panel sets
+ * its End-spin control from that, so the margin above is the WHOLE of the motion. Take the name without the turn and
+ * the end would move by the turn instead - MEASURED over the catalogue's 1,691 ends that fit a name only when turned:
+ * median 1.42 units, worst 5.0 units for the worst dancer.
  */
 export interface EndBoardTolerance {
   position: number;
@@ -2701,7 +2701,7 @@ function nameOfBoard(
 }
 
 /**
- * THE NAMED FORMATION THE END BOARD IS, UP TO A QUARTER TURN - and how far it is turned.
+ * THE NAMED FORMATION THE END BOARD IS, UP TO AN EIGHTH OF A TURN - and how far it is turned.
  *
  * Asked for as: "why does the end setup not match 'Facing Couples' … they look the same, except for the +90 deg
  * rotation", and then "I would see a setup as an arrangement plus matching dancer indexes. The rotation should
@@ -2710,18 +2710,31 @@ function nameOfBoard(
  * turn are one setup), so a rotated board was never a different setup; what was missing was a NAME for it and a
  * place to put the turn. This supplies both, and `turnDeg` is that place.
  *
- * TURN 0 IS TRIED FIRST AND WINS, so every board `endFormationName` names keeps that name with a turn of 0 - the
- * change can only ADD names. MEASURED over the catalogue's 5403 call variants: 2950 are named as authored (all
- * unchanged), 1691 more fit at 90 or 270 (1338 of them eight-dancer), and 762 fit no named formation at any turn.
- * A board that fits at BOTH 90 and 270 is one board, not two: a formation invariant under 180 degrees (`Facing
- * Couples` is one of 22 of the 52 four-dancer boards, and 0 of 52 are invariant under 90) has the same ±90 turn,
- * so the smaller step is reported. MEASURED: no end board gets a different NAME SET depending on which turn is
- * tried, so the order fixes the turn without ever choosing between two formations.
+ * EIGHT TURNS, NOT FOUR, and the second report is why: "why 'Allemande Left' from 'Wrong Way Grand Circle' doesn't
+ * match the end formation 'Right and Left Grand Circle' with a 45 deg offset. (is it because the match only tests
+ * with 90 deg offsets?)". It WAS only quarter turns, and that board stands EXACTLY on `Right and Left Grand Circle`
+ * turned 45 degrees - worst 0.0000 units and 0.00 degrees, with its genders agreeing at 8 of 8 spots where that
+ * formation's arrangement twin is wrong at 8 of 8, so the name it should get is exactly the one expected. The 45 is
+ * not a small error: the eight spots of that board are a REGULAR OCTAGON, so an eighth of a turn maps the spot set
+ * onto itself - the dancers stand on the SAME spots with the facings turned - which is why it reads as "the same
+ * circle, 45 degrees round" rather than as a different place. A quarter turn cannot express that, and the End-spin
+ * control's steps are 45 degrees, so the recorded turn can carry it exactly.
  *
- * QUARTER TURNS ONLY, because that is the rotation the ids already canonicalise over (`canonicalOf` tries four)
- * and the unit `circle left 1/4` moves a square set by. A board 45 degrees off is NOT named: `END_BOARD_TOL`'s
- * facing margin is 4.3 degrees, so 45 is 10 times outside what a name may absorb, and the editor's End-spin
- * control's 45-degree steps are for PLACING, not for naming.
+ * TURN 0 IS TRIED FIRST AND THE TURNS ASCEND, 0, 45, 90 … 315, so a board `endFormationName` names keeps that name
+ * with a turn of 0 - the change can only ADD names. MEASURED over the catalogue's 5,489 call variants: 4,699 fit within
+ * the four quarter turns and 4,719 within the eight, so the extra four turns add exactly 20 names (the Allemande/Thar
+ * family, and this report is one of them), and the editor's variant scan reports 20 fewer unmatched ends (790 -> 770).
+ * MEASURED with this rule's namer copied over the 5,487 buildable variants: adding the four extra turns changes NO name
+ * that was already there (0 differences), because the ascending order keeps turn 0 and then the quarters ahead of the new
+ * steps; the 21 ends whose best turn-name varies are the `Alamo Wave` / `Alamo Wave Inverted` pair and every one of them
+ * is named at turn 0. A board that fits at both 90 and 270 is one board, not two: a formation invariant under 180 degrees
+ * (`Facing Couples` is one of 22 of the 52 four-dancer boards, and 0 of 52 are invariant under 90) has the same ±90 turn,
+ * so the smaller step is reported.
+ *
+ * AND IT COSTS SOMETHING, which the two callers wear: the whole catalogue scan behind the editor's variant filters
+ * measures 3.7 s at eight turns against 3.2 s at four (the eight-turn pass stops at the first that fits, so most variants
+ * never reach the new steps) - one lazy, cached pass, and the buttons that start it say what it costs. A HALF-eighth
+ * (22.5 degrees) is still NOT named: `END_BOARD_TOL`'s facing margin is 4.3 degrees, and 22.5 is five times outside it.
  *
  * THE TURN IS NOT AN IDENTITY. It is deliberately absent from `sid`, `aid` and `fid` (rotation drops out of all
  * three), and it is not written into the XML: it is a fact about where this call finished, recorded on the one
@@ -2730,7 +2743,7 @@ function nameOfBoard(
 export interface EndFormationMatch {
   /** The corpus's name for the formation the board is, turned. */
   name: string;
-  /** 0, 90, 180 or 270: how far the formation must be turned COUNTER-CLOCKWISE about the origin to lie on the board. */
+  /** A multiple of 45 from 0 to 315: how far the formation must be turned COUNTER-CLOCKWISE about the origin to lie on the board. */
   turnDeg: number;
 }
 
@@ -2740,9 +2753,9 @@ export function endFormationMatch(
   tol: EndBoardTolerance = END_BOARD_TOL,
 ): EndFormationMatch | null {
   const ends = endBoard(call);
-  // THE BOARD IS TURNED, ONCE PER CANDIDATE, rather than every formation: four small arrays against the same list,
-  // which is the same number of spot comparisons `endFormationName` already pays.
-  for (const turnDeg of [0, 90, 180, 270]) {
+  // THE BOARD IS TURNED, ONCE PER CANDIDATE, rather than every formation: eight small arrays against the same list,
+  // which is the same number of spot comparisons `endFormationName` pays for one.
+  for (const turnDeg of [0, 45, 90, 135, 180, 225, 270, 315]) {
     const name = nameOfBoard(turnDeg === 0 ? ends : rotateFormation(ends, -turnDeg * DEG), formations, tol);
     if (name !== null) return { name, turnDeg };
   }

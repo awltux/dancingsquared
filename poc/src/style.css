@@ -5,6 +5,9 @@
   --text: #dce6ef;
   --dim: #7c8b99;
   --warn: #ffb454;
+  /* A WARNING ABOUT COST, not about a missing name: the two variant-filter glyphs are red because pressing one builds
+     every call variant in the corpus. 6.4:1 on the panel's own background (#11171e) - see the rule that uses it. */
+  --danger: #ff6b6b;
 }
 * { box-sizing: border-box; }
 html, body {
@@ -184,6 +187,14 @@ html, body {
    class name says what they are rather than where they sit: `.ed-flag` is an icon button that narrows a list on one axis.
    Pressed is `aria-pressed`, which is what a caller reads at a glance - the list it filters looks like every other list. */
 #editorPanel .ed-flag { font-size: calc(15px * var(--hud-text)); }
+/* THE COSTLY ONE WEARS ITS PRICE. `.ed-flag-costly` is red because the press is not free: it BUILDS every call variant in
+   the corpus to answer (MEASURED 5,489 variants, 3.7 s per session, cached after that), where the Find box beside it only
+   re-reads a cached string. The colour is the warning, and the pressed state keeps it while adding the accent border - so
+   "on" and "expensive" stay two different signals. `--danger` measures **6.4:1** on the panel's own background (#11171e),
+   which clears AA at this size; the amber `--warn` is for a different kind of news and would read as "incomplete". */
+#editorPanel .ed-flag-costly { color: var(--danger); }
+#editorPanel .ed-flag-costly[aria-pressed="true"] { color: var(--danger); border-color: var(--accent); }
+#editorPanel .ed-flag-costly:disabled { color: var(--danger); opacity: 0.45; }
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: calc(11px * var(--hud-text)); margin-top: 2px; }
 .ed-grid label { width: auto; }
 /* THE END TARGET'S PAIRING: one small picker per dancer, `# -> spot`. It is a wrapping grid rather than a

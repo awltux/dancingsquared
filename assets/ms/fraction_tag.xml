@@ -624,13 +624,7 @@
     </path>
   </tam>
 
-  <tam title="3/4 Tag the Line" from="Lines Facing Out" difficulty="1" vid="V1-mm0dcxx8">
-    <formation fid="F3-xzuj7y07" aid="A1-zolwt0mp" sid="S1-2w3fx9i4">
-      <dancer gender="boy" x="-2" y="3" angle="180"/>
-      <dancer gender="girl" x="-2" y="1" angle="180"/>
-      <dancer gender="girl" x="-2" y="-1" angle="180"/>
-      <dancer gender="boy" x="-2" y="-3" angle="180"/>
-    </formation>
+  <tam title="3/4 Tag the Line" formation="Lines Facing Out BGGB" difficulty="1" vid="V1-mm0dcxx8">
     <path>
       <move select="Quarter Left" offsetX="-.5" offsetY="1" />
       <move select="Extend Left" beats="3" scaleX="2" scaleY=".5" />

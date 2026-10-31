@@ -519,6 +519,13 @@
     <dancer gender="boy" x="-2" y="-3" angle="180"/>
   </formation>
 
+  <formation name="Lines Facing Out BGGB" fid="F3-xzuj7y07" aid="A1-zolwt0mp" sid="S1-2w3fx9i4">
+    <dancer gender="boy" x="-2" y="3" angle="180"/>
+    <dancer gender="girl" x="-2" y="1" angle="180"/>
+    <dancer gender="girl" x="-2" y="-1" angle="180"/>
+    <dancer gender="boy" x="-2" y="-3" angle="180"/>
+  </formation>
+
   <formation name="Lines Facing Out Compact" fid="F3-9gboj6dj" aid="A1-l7zeku39" sid="S1-mcya20fs">
     <dancer gender="girl" x="-1.5" y="3" angle="180"/>
     <dancer gender="boy" x="-1.5" y="1" angle="180"/>

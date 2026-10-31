@@ -3,9 +3,10 @@
 // REPORTED as: "Call Editor: Add a check to the call-changed event that calculates the end setup and looks it up in
 // known formations. Set the End Setup to the found formation, or show "Unknown formation". If the end formation is
 // unknown and it's an 8-dancer board, provide an "export <formation>" button on the "End Setup" row." The panel
-// already SET the picker to the corpus's name for the end (`namedSetup`), but when nothing in the corpus names that
-// shape the assignment left the picker on its neutral placeholder - so the one state the caller most needs to see,
-// "this end is not a formation the corpus has", was the one the panel said nothing about.
+// already SET the picker to the corpus's name for the end (now `EditorController.endMatch`, which reports the setup
+// AND how far it is turned), but when nothing in the corpus names that shape the assignment left the picker on its
+// neutral placeholder - so the one state the caller most needs to see, "this end is not a setup the corpus has", was
+// the one the panel said nothing about.
 //
 // THE PLACEHOLDER IS THE STATEMENT, rather than a note beside it: the picker's leading option is already the
 // "nothing chosen" entry, and writing the truth into it puts the answer where the caller is looking, with no second

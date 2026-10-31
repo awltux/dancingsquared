@@ -33,6 +33,8 @@ import {
   startsFromFormation,
   endsOnFormation,
   endFormationName,
+  endFormationMatch,
+  completedFormation,
   END_BOARD_TOL,
   rotateFormation,
   callToXmlNamed,
@@ -1427,6 +1429,104 @@ console.log('\n== which name, when one board has two arrangement names (20b2) ==
   check(endFormationName(board, [{ name: 'Elsewhere', poses: [{ x: 1, y: 1, heading: 0 }, { x: -1, y: 3, heading: 0 }] }]) === null,
     'a board with no name gets NO NAME rather than the nearest one');
   check(endFormationName(board, []) === null, 'and an empty list is no name, not a crash');
+}
+
+// ---------------------------------------------------------------------------
+// 20b3. THE END IS NAMED WHEN IT IS A NAMED FORMATION TURNED - and the turn is reported
+// ---------------------------------------------------------------------------
+//
+// Reported as: "For the call 'Circle Four Left 4/3' from 'Facing Couples', why does the end setup not match
+// 'Facing Couples'? ... They look the same, except for the +90 deg rotation." The STRICT namer is right to refuse it -
+// a name is a re-base and `endFormationName` compares the board as authored - and the ids already call it the same
+// setup, because rotation drops out of `sid`/`aid`/`fid`. What was missing was a name that says WHICH formation and
+// HOW FAR TURNED: `endFormationMatch`.
+//
+// The checks below pin the precedence (turn 0 first, so a board that is already named cannot change its name), the
+// quarter-turn-only rule (45 degrees is ten times the facing margin, so it is not a name), and the corpus witness for
+// the reported call. The witness resolves the tam BY TITLE AND FROM rather than by index: a hand-added tam once moved
+// three index-keyed checks onto the wrong pair (AGENTS trap 7).
+console.log('\n== the end is a named formation TURNED, and the turn is reported (20b3) ==');
+{
+  const src = normalizeInstance(loadCallFromXml(circleXml, movesXml, formationsXml, 0));
+  // PATHLESS BOARDS, so the end board IS the poses given and the only thing under test is the match rule.
+  const boardOf = (poses) => ({
+    ...src,
+    dancers: poses.map((p, i) => ({ ...src.dancers[i], path: [], x: p.x, y: p.y, angleDeg: p.heading / DEG, gender: p.gender })),
+  });
+  const two = (g0, g1) => [{ x: 1, y: 1, heading: 0, gender: g0 }, { x: -1, y: 1, heading: 0, gender: g1 }];
+  /** The board the formation's poses make when turned `deg` degrees about the origin - the reported case, synthesized. */
+  const turn = (poses, deg) => boardOf(rotateFormation(poses, deg * DEG));
+  const flat = [{ name: 'Flat', poses: two('boy', 'girl') }];
+  const asAuthored = boardOf(two('boy', 'girl'));
+
+  check(endFormationName(asAuthored, flat) === 'Flat', 'a board standing where the formation is authored is named by the strict rule');
+  check(endFormationMatch(asAuthored, flat)?.turnDeg === 0,
+    'and the match reports TURN 0, so a name never appears turned just because a turn was tried');
+
+  // THE REPORTED CASE, SYNTHETIC: the same board with the formation turned a quarter turn.
+  const turned = turn(two('boy', 'girl'), 90);
+  check(endFormationName(turned, flat) === null,
+    'the same board a QUARTER TURN off is NOT named by the strict rule - which is the report, and the rule that must not change');
+  const quarter = endFormationMatch(turned, flat);
+  check(quarter?.name === 'Flat' && quarter?.turnDeg === 90,
+    `while the match names it and says how far (${JSON.stringify(quarter)})`);
+
+  // EVERY QUARTER TURN IS FOUND, and 45 degrees is not one of them.
+  const at = (deg) => endFormationMatch(turn(two('boy', 'girl'), deg), flat);
+  check([90, 180, 270].every((deg) => at(deg) !== null), '90, 180 and 270 all give a name, so the search is the whole turn circle');
+  check(at(45) === null && at(135) === null,
+    'and 45 degrees does not: the facing margin is 4.3 degrees, so an eighth of a turn is a different board rather than a sloppy match');
+
+  // A BOARD THAT IS ITS OWN HALF TURN: turn 0 must still win, or every squared-set end would read "turned 180".
+  const symmetric = [{ x: 1, y: 0, heading: 0, gender: 'boy' }, { x: -1, y: 0, heading: Math.PI, gender: 'girl' }];
+  const symBoard = boardOf(symmetric);
+  const symFormation = [{ name: 'Symmetric', poses: symmetric }];
+  check(endFormationName(symBoard, symFormation) === 'Symmetric',
+    'a board that is its OWN half turn is still named as authored');
+  check(endFormationMatch(symBoard, symFormation)?.turnDeg === 0,
+    'with turn 0 rather than 180, which is the preference order doing its only job');
+
+  // ARRANGEMENT VARIANTS ARE STILL CHOSEN BY GENDER, at every turn.
+  const swapped = [{ name: 'Swapped', poses: two('girl', 'boy') }, { name: 'Agreed', poses: two('boy', 'girl') }];
+  check(endFormationMatch(asAuthored, swapped)?.name === 'Agreed',
+    'the arrangement that agrees wins at turn 0, as the strict namer does');
+  check(endFormationMatch(turn(two('boy', 'girl'), 90), swapped)?.name === 'Agreed',
+    'and the same choice is made a quarter turn away: the turn is not an excuse for the other arrangement');
+
+  // THE INSTRUMENT MUST BE ABLE TO SAY NO, and say it for the right reasons.
+  check(endFormationMatch(asAuthored, []) === null, 'an empty list is no name, not a crash');
+  check(endFormationMatch(asAuthored, [{ name: 'Elsewhere', poses: [{ x: 1, y: 1, heading: 0 }, { x: -1, y: 3, heading: 0 }] }]) === null,
+    'and a board that is no formation at any turn stays unnamed');
+  check(endFormationMatch(asAuthored, [{ name: 'WrongSize', poses: [...two('boy', 'girl'), { x: 0, y: 0, heading: 0, gender: 'boy' }] }]) === null,
+    'while a formation of the wrong SIZE is refused rather than matched spot by spot');
+
+  // THE CORPUS WITNESS: the call this report was about, its end a quarter turn from its own formation.
+  const pairs = parseFormations(formationsXml);
+  const formationsOfSize = (n) => {
+    const out = [];
+    for (const [name, ds] of pairs) {
+      const poses = completedFormation(ds.map((d) => ({ x: d.x, y: d.y, heading: d.angleDeg * DEG, gender: d.gender })));
+      if (poses.length === n) out.push({ name, poses });
+    }
+    return out;
+  };
+  const tams = parseCallXml(circleXml).filter((t) => (t.from ?? '').trim() === 'Facing Couples' && (t.title ?? '').trim().startsWith('Circle Four Left'));
+  check(tams.length === 4, `the four "Circle Four Left" fractions from "Facing Couples" are all in the corpus (${tams.length})`);
+  const matches = tams.map((tam) => {
+    const call = buildCall(tam, pairs, parseMoves(movesXml), true);
+    return { title: (tam.title ?? '').trim(), call, match: endFormationMatch(call, formationsOfSize(call.dancers.length)) };
+  });
+  console.log(`    ${matches.map((m) => `${m.title} -> ${m.match?.name ?? 'unnamed'}${m.match ? ` @ ${m.match.turnDeg}deg` : ''}`).join(' | ')}`);
+  check(matches.every((m) => m.call.dancers.length === 4), 'each is a four-dancer call, so the picker list is the four-dancer one');
+  check(matches.every((m) => m.match?.name === 'Facing Couples'),
+    'every one of them is called Facing Couples, which is what the report expected to see in the End setup field');
+  check(matches.filter((m) => m.match?.turnDeg === 0).length === 2 && matches.filter((m) => m.match?.turnDeg === 90).length === 2,
+    'whole and half a turn finish as authored, quarter and three-quarters finish a quarter turn round - the field now says so instead of Unknown Setup');
+  const quarterCall = matches.find((m) => m.title === 'Circle Four Left 1/4');
+  check(!!quarterCall && endFormationName(quarterCall.call, formationsOfSize(4)) === null,
+    'and the strict namer still refuses the 1/4 finish, so the two questions stay apart');
+  check(!!quarterCall && endsOnFormation(quarterCall.call, rotateFormation(formationsOfSize(4).find((f) => f.name === 'Facing Couples').poses, 90 * DEG)),
+    'which is confirmed by the board matching Facing Couples when IT is turned: the rotation is the whole of the difference');
 }
 
 // ---------------------------------------------------------------------------

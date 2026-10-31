@@ -66,10 +66,11 @@ import {
   // call can be written as one.
   halfSetReport,
   startsFromFormation,
-  // The END question, which is NOT `startsFromFormation` at the call's last beat: the formation's spots
+  // THE END question, which is NOT `startsFromFormation` at the call's last beat: the formation's spots
   // as a SET, position and heading with a small error margin, and the name chosen among arrangement
-  // variants. For naming the End picker from the setup the call already lands on. See `namedSetup`.
-  endFormationName,
+  // variants - and, unlike `startsFromFormation`, UP TO A QUARTER TURN, with the turn reported. For naming
+  // the End picker from the setup the call already lands on and setting the rotation control. See `endMatch`.
+  endFormationMatch,
   // THE RELAXED VERSION OF IT, behind the End setup row's near-match filter: the named formations the board ALMOST
   // stands on, nearest first with the worst spot's distance, and the margin it searched with. The margin is the engine's
   // because it is derived from `END_BOARD_TOL`'s measurement of how far apart two named boards are - not a UI taste.
@@ -122,7 +123,7 @@ import {
   formationId,
   arrangementId,
 } from 'dancing-squared-engine';
-import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, NearEndFormation, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
+import type { ArcBlocker, ArcParams, Board, BezierData, CallBundle, DancerSpec, EndFormationMatch, FormDancer, Gender, Hands, InstanceDancer, MirrorAxis, NearEndFormation, RunCircle, Seg, Symmetry } from 'dancing-squared-engine';
 
 import {
   availableCalls,
@@ -573,6 +574,9 @@ export class EditorController implements EditorUI {
    *  different ends. */
   private endInfoKey = '';
   private endInfoName = '';
+  /** How far the end board is turned from the way `formations.xml` writes that name: 0, 90, 180 or 270, from the same
+   *  memo as the name and the sid. It is RECORDED on the rotation control (`endSpinSteps`), never in an id. */
+  private endInfoTurnDeg = 0;
   private endInfoSid: string | null = null;
   /** The end board's identity tags, from the same memo as the name and the sid - see `endIdentityOptions`. */
   private endInfoFid: string | null = null;
@@ -1161,19 +1165,24 @@ export class EditorController implements EditorUI {
       this.endNear = null;
       this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
       this.fillEndFormationOptions(null);
-      // AND THE PICKERS OPEN ON THE SETUP THE CALL IS ALREADY IN, when the corpus names it: the load
+      // AND THE PICKERS OPEN ON THE SETUP THE CALL IS ALREADY IN, when the corpus can name it: the load
       // has just decided what the two ends are, so the selector can say so rather than making the
       // caller recognise the shape on the board. Only a NAME IS EVER CHOSEN - a setup that matches no
       // formation, or only nearly, is left on "keep the current" - so this can inform but not lie.
-      this.startFormationSel.value = this.namedSetup(this.instance, 'start');
+      this.startFormationSel.value = this.startFormationName(this.instance);
+      // THE END MAY BE THAT FORMATION TURNED, and then the TURN is what makes the name true: it is written into the
+      // rotation control, which is the panel's one place for an orientation. The memo is already warm - the fill two
+      // lines above ends in `renderEndSetupState`, which asks for it - so this reads one answer, not two scans.
+      const end = this.endSetupInfo(this.instance);
+      this.endFormationSel.value = end.name;
       // A NEW instance starts with no end target: both re-bases belong to the setup that was loaded, so
       // loading another one must not leave a stale target (or a stale pairing) behind.
-      this.endFormationSel.value = this.namedSetup(this.instance, 'end');
       this.endTarget = null;
       this.endOverride = null;
-      // AND UNTURNED: the step belongs to the end setup that was just loaded, so a new one starts as
-      // authored rather than inheriting a rotation chosen for the call that was on screen.
-      this.endSpinSteps = 0;
+      // AND TURNED AS THE BOARD IS: the step describes the setup just loaded, so it starts at the turn the end really
+      // stands at - 0 for a formation the corpus writes the way the call finishes. It cannot move anything on its own,
+      // because a turn is applied only to an end TARGET and there is none yet.
+      this.endSpinSteps = end.turnDeg / END_SPIN_DEG;
       // A NEW instance starts at its own first beat, with the animation off - unless the caller is
       // stepping through the SETUPS of the call they already had open, where the beat is where they are
       // LOOKING. See `keepBeat` above.
@@ -4916,51 +4925,68 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * THE NAME A PICKER OPENS ON: the corpus's name for the setup this call is already in at that end,
-   * or '' for "nothing to name".
+   * THE NAME A PICKER OPENS ON - the START's half, and the two ends still ask different questions.
    *
    * Asked for as: "Set the start and end setup selectors if the initialised start and end positions are
-   * known formations." The two ends ask DIFFERENT QUESTIONS, and that is the whole reason this has a
-   * branch: `startsFromFormation` is index for index on positions, headings and genders, because a tam's
-   * paths are paired with a formation's dancers by list position; `endFormationName` is the shape of the
-   * board - set membership, position and heading, with a small error margin - because the end is only
-   * "which named shape is this?". A name is therefore only ever shown when selecting it would be a no-op
-   * re-base, and THE FAILURE MODE IS A PICKER LEFT ON "KEEP THE CURRENT", NEVER A WRONG NAME, which is why
-   * an unknown or merely-close setup is not reported as an error here; the Start picker had the same
-   * choice to make in `callToXmlNamed` and made it the same way.
+   * known formations." The START is `startsFromFormation`: index for index on positions, headings and genders,
+   * because a tam's paths are paired with a formation's dancers by list position, so a start that merely occupies
+   * the same SPOTS in another order is not that reference - re-parsing it would hand each dancer somebody else's
+   * path. THE END IS NOT ASKED THIS WAY: it is a board question, and `endMatch` answers it - including a board that
+   * is that formation TURNED, which is why the two no longer share one dispatch.
    *
    * Asked for as: "Don't compare gender, just position and heading", and then "Might need a small error
    * margin as well" - the margin and the measurements behind it are `END_BOARD_TOL`'s.
    *
    * Both ends ask the SAME list, for the reason `ensureStartFormations` gives.
    */
-  private namedSetup(call: CallBundle, end: 'start' | 'end'): string {
-    const formations = this.host.startFormations(call.dancers.length);
-    return end === 'start'
-      ? (formations.find((f) => startsFromFormation(call, f.poses))?.name ?? '')
-      : (endFormationName(call, formations) ?? '');
+  private startFormationName(call: CallBundle): string {
+    return this.host.startFormations(call.dancers.length).find((f) => startsFromFormation(call, f.poses))?.name ?? '';
   }
 
   /**
-   * WHAT THE END BOARD IS, as far as this panel can say: the corpus's NAME for the shape the call finishes on
-   * (`''` when it has none) and the board's SETUP ID, which exists even then - MEMOISED ON THAT BOARD.
+   * THE NAMED FORMATION THE END BOARD IS, UP TO A QUARTER TURN, and how far it is turned - the rule behind the End
+   * setup picker's VALUE and its rotation control, both at load and when the caller picks a setup.
    *
-   * `namedSetup` walks every formation of the call's size (each one completed and deduplicated before it is
-   * compared), which is far too much to do on every render: a handle drag re-renders this panel many times a
-   * second, and each of those would re-walk the corpus to answer a question whose answer only changes when the
-   * END moves. So the answer is keyed on the end POSES - position, heading and gender of every dancer, at the
-   * call's last beat - and recomputed only when that board is different.
+   * Asked for as: "why does the end setup not match 'Facing Couples'? ... They look the same, except for the +90 deg
+   * rotation", and then "I would see a setup as an arrangement plus matching dancer indexes. The rotation should
+   * probably be recorded." The ids already treat a quarter turn as the same setup (`setup-id.ts`), so the board was
+   * never a different setup - what was missing was the NAME and a place to record the turn. The NAME is the picker's
+   * value; THE TURN IS RECORDED IN THE ROTATION CONTROL (`endSpinSteps`), never in an id and never in the XML, so a
+   * caller sees which way round the setup is and Place end / Connect end finish where the dancers already are.
    *
-   * THE ID COMES FROM THE SAME BOARD AS THE NAME, and one memo holds both: the row reports them together, so a
-   * second read (or a second memo) could describe a different end - and `setupId` is cheap, so the cost of asking
+   * A NAME IS STILL ONLY SHOWN WHEN TAKING IT, WITH ITS TURN, IS A NO-OP RE-BASE: the board must be that formation
+   * within `END_BOARD_TOL` at one of the four quarter turns, and the turn the rule reports is the one the control is
+   * set to. `endFormationMatch` is the engine's rule rather than a second derivation here (AGENTS.md §11.4.4).
+   */
+  private endMatch(call: CallBundle): EndFormationMatch | null {
+    return endFormationMatch(call, this.host.startFormations(call.dancers.length));
+  }
+
+  /**
+   * WHAT THE END BOARD IS, as far as this panel can say: the corpus's NAME for the setup the call finishes on
+   * (`''` when it has none), HOW FAR IT IS TURNED from the way `formations.xml` writes that name, and the board's
+   * SETUP ID, which exists even then - MEMOISED ON THAT BOARD.
+   *
+   * `endMatch` walks every formation of the call's size (each one completed and deduplicated before it is
+   * compared) at up to four quarter turns, which is far too much to do on every render: a handle drag re-renders
+   * this panel many times a second, and each of those would re-walk the corpus to answer a question whose answer
+   * only changes when the END moves. So the answer is keyed on the end POSES - position, heading and gender of
+   * every dancer, at the call's last beat - and recomputed only when that board is different.
+   *
+   * THE ID COMES FROM THE SAME BOARD AS THE NAME, and one memo holds all of them: the row reports them together, so
+   * a second read (or a second memo) could describe a different end - and `setupId` is cheap, so the cost of asking
    * both is the name scan that was already paid.
    */
-  private endSetupInfo(call: CallBundle): { name: string; setupId: string | null } {
+  private endSetupInfo(call: CallBundle): { name: string; setupId: string | null; turnDeg: number } {
     const end = boardAtBeat(call, call.beats);
     const key = `${call.dancers.length}|${end.dancers.map((d) => `${d.x.toFixed(3)},${d.y.toFixed(3)},${d.heading.toFixed(4)},${d.gender}`).join(';')}`;
     if (this.endInfoKey !== key) {
       this.endInfoKey = key;
-      this.endInfoName = this.namedSetup(call, 'end');
+      // THE NAME AND ITS TURN COME FROM ONE MATCH: a name reported without the turn it was found at is a claim about
+      // an orientation the board is not in.
+      const match = this.endMatch(call);
+      this.endInfoName = match?.name ?? '';
+      this.endInfoTurnDeg = match?.turnDeg ?? 0;
       this.endInfoSid = setupId(end);
       // THE OTHER TWO TAGS, from the same board and the same memo: `sid ⇒ aid ⇒ fid`, so the three describe one arrival
       // and a second read could describe a different one. See `endIdentityOptions` for what the row does with them.
@@ -4987,7 +5013,7 @@ export class EditorController implements EditorUI {
       }
       if (refill) this.fillEndFormationOptions(null);
     }
-    return { name: this.endInfoName, setupId: this.endInfoSid };
+    return { name: this.endInfoName, setupId: this.endInfoSid, turnDeg: this.endInfoTurnDeg };
   }
 
   /**
@@ -5034,7 +5060,7 @@ export class EditorController implements EditorUI {
    */
   private renderEndSetupState() {
     const call = this.instance;
-    const info = call ? this.endSetupInfo(call) : { name: '', setupId: null };
+    const info = call ? this.endSetupInfo(call) : { name: '', setupId: null, turnDeg: 0 };
     const state = endSetupState(info.name, call ? call.dancers.length : 0, info.setupId);
     // THE LEADING OPTION IS THE STATEMENT, because it is the entry that means "nothing chosen" - and "nothing
     // chosen" is exactly "the corpus names no formation for this end". A note beside the control could disagree
@@ -5152,7 +5178,12 @@ export class EditorController implements EditorUI {
     this.endSpinEl.textContent = `${deg}°`;
     this.endSpinEl.classList.toggle('off', this.endSpinSteps === 0);
     this.endSpinEl.title = !enabled
-      ? 'Nothing to turn: choose an end setup first. Every setup is offered as formations.xml writes it.'
+      // THE READOUT CAN BE NON-ZERO WITH NOTHING TO TURN: the load sets it from the end's own match, and a target is only
+      // made by picking a setup. Saying "nothing to turn" without accounting for the number beside it would read as a
+      // contradiction, so the disabled tooltip names the turn it is showing.
+      ? (this.endSpinSteps === 0
+        ? 'Nothing to turn: choose an end setup first. Every setup is offered as formations.xml writes it.'
+        : `This end stands ${deg}° from the way formations.xml writes "${this.endInfoName}" — choose it in End setup to place or turn it.`)
       : this.endSpinSteps === 0
         ? 'The end setup is as formations.xml writes it - 0 degrees. Either step turns it about the board centre.'
         : `The end setup is turned ${deg} degrees counter-clockwise from the way formations.xml writes it, about the board centre. Place end and Connect end both finish on the turned setup.`;
@@ -5301,13 +5332,14 @@ export class EditorController implements EditorUI {
   private doEndFormation() {
     const name = this.endFormationSel.value;
     this.endOverride = null;
-    // A NEW TARGET STARTS AS AUTHORED. The turn belongs to the end setup it was chosen against, so
-    // carrying it to another formation would silently rotate one the caller never looked at - and the
-    // step buttons are disabled without a target, so an offset can only be found against a shape on
-    // screen. Re-picking the SAME name is a change of the select too, and resetting is still the right
-    // answer: the caller is asking for that setup, not for the turn they were part-way through.
-    this.endSpinSteps = 0;
     const inst = this.instance;
+    // THE TURN BELONGS TO THE SETUP IT WAS FOUND AGAINST. Picking the setup the board is already standing in starts at
+    // THAT setup's own turn, so the target is the board under the dancers and Place end / Connect end are a no-op up to
+    // tolerance; picking any other formation starts at 0, because carrying a turn onto a shape the caller never looked at
+    // would rotate it silently. The step buttons are disabled without a target, so an offset can only be found against a
+    // shape on screen anyway.
+    const match = inst ? this.endMatch(inst) : null;
+    this.endSpinSteps = match && match.name === name ? match.turnDeg / END_SPIN_DEG : 0;
     if (!name) {
       this.endTarget = null;
       this.renderInstance();
@@ -5329,7 +5361,8 @@ export class EditorController implements EditorUI {
     }
     this.endTarget = { name, poses: formation.poses };
     this.renderInstance();
-    this.statusEl.textContent = `end target "${name}" — Connect end re-aims the last move of every dancer`;
+    const turned = this.endSpinSteps === 0 ? '' : ` turned ${this.endSpinSteps * END_SPIN_DEG}°`;
+    this.statusEl.textContent = `end target "${name}"${turned} — Connect end re-aims the last move of every dancer`;
   }
 
   /**

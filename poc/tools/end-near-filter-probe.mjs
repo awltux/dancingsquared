@@ -137,7 +137,7 @@ console.log('\n== 4. the panel wires it: one rule, one engine call, one writer f
     'the button is shown from the rule, on the same `name` the placeholder is built from');
   check(/if \(!near && this\.endNearOnly\)/.test(src),
     'and an end that becomes NAMED retires the filtered list instead of leaving a shortlist for a stale premise');
-  check(/private endSetupInfo\(call: CallBundle\)[\s\S]{0,1200}?if \(this\.endNearOnly\) \{/.test(src),
+  check(/private endSetupInfo\(call: CallBundle\)[\s\S]{0,2000}?if \(this\.endNearOnly\) \{/.test(src),
     'a DIFFERENT END BOARD retires it too - the filter is a view of one finish, not a mode of the panel');
   check(/this\.endNearFilterBtn\.addEventListener\('click', \(\) => this\.setEndNearOnly\(!this\.endNearOnly\)\)/.test(src),
     'and clicking it toggles the view');

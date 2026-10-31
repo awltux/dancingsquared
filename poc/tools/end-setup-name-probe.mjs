@@ -124,7 +124,7 @@ const formationsOfSize = (dancers) => {
   sizeLists.set(dancers, out);
   return out;
 };
-const totals = { calls: 0, eight: 0, known: 0, unknown: 0, unknown8: 0, withSid: 0, inCatalogue: 0, unknown8InCatalogue: 0, fidMatched: 0, aidMatched: 0 };
+const totals = { calls: 0, eight: 0, known: 0, turned: 0, unknown: 0, unknown8: 0, withSid: 0, inCatalogue: 0, unknown8InCatalogue: 0, fidMatched: 0, aidMatched: 0 };
 const unknownExamples = [];
 const unknownEightExamples = [];
 // THE SETUPS THE BOARD PICKER OFFERS, built the way `data.ts` hands them over, so "the formation can be found" is
@@ -159,12 +159,15 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
       }
       totals.calls++;
       const ofSize = formationsOfSize(call.dancers.length);
-      // THE PANEL'S OWN QUESTION, asked with the engine's own rule: does any formation of this call's size sit
-      // exactly under the poses the dancers arrive at?
-      const named = ofSize.some((formation) => engine.endsOnFormation(call, formation.poses));
+      // THE PANEL'S OWN QUESTION, asked with the engine's own rule: does any formation of this call's size stand under the
+      // poses the dancers arrive at, AS AUTHORED OR TURNED? That is `endFormationMatch` - the row is populated from it - so
+      // the population counted below is the one the row actually calls Unknown Setup.
+      const match = engine.endFormationMatch(call, ofSize);
       if (call.dancers.length === 8) totals.eight++;
-      if (named) totals.known++;
-      else {
+      if (match !== null) {
+        totals.known++;
+        if (match.turnDeg !== 0) totals.turned++;
+      } else {
         totals.unknown++;
         if (call.dancers.length === 8) totals.unknown8++;
         else if (unknownExamples.length < 4) unknownExamples.push(`${level}/${f} "${call.title}" (${call.dancers.length} dancers)`);
@@ -193,14 +196,16 @@ for (const level of fs.readdirSync(assets, { withFileTypes: true })
     }
   }
 }
-console.log(`    ${totals.calls} call variants: ${totals.known} finish on a formation the corpus names, ${totals.unknown} do not`);
-console.log(`    of the ${totals.unknown} unknown, ${totals.unknown8} are eight-dancer boards - the population the export button is for`);
+console.log(`    ${totals.calls} call variants: ${totals.known} finish on a setup the corpus names (${totals.turned} of them TURNED), ${totals.unknown} on nothing at any turn`);
+console.log(`    the row therefore says "Unknown Setup" only for the ${totals.unknown}, ${totals.unknown8} of them eight-dancer boards - the population the export button is for`);
 console.log(`    ${totals.withSid} of the ${totals.unknown} unknown ends carry a SETUP ID, and ${totals.inCatalogue} of those ids are setups the Board picker offers`);
 console.log(`    of those unnamed ends, ${totals.fidMatched} stand on a SHAPE a formation of their own size carries and ${totals.aidMatched} on an ARRANGEMENT one carries - the two captions the picker now lists`);
 console.log(`    ${totals.unknown8InCatalogue} of them are eight-dancer setups, e.g. ${unknownEightExamples.join(', ') || 'none'}`);
-console.log(`    the rest have nowhere to go in formations.xml, e.g. ${unknownExamples.join(', ')}`);
+console.log(`    the rest have nowhere to go in formations.xml, e.g. ${unknownExamples.join(', ') || 'none'}`);
 check(totals.known > 0 && totals.unknown > 0,
   `both answers happen in the corpus (${totals.known} named / ${totals.unknown} not), so neither branch is dead code`);
+check(totals.turned > 0,
+  `and ${totals.turned} of the named ends are boards the corpus writes ANOTHER WAY ROUND - the case a name that could not see the turn left on Unknown Setup`);
 check(totals.unknown8 > 0, `and ${totals.unknown8} of the unknown ends are eight-dancer boards, which is the case the export exists for`);
 check(totals.unknown8 < totals.unknown,
   `while ${totals.unknown - totals.unknown8} unknown ends are NOT eight-dancer, so the size condition is doing work rather than always passing`);
@@ -229,9 +234,13 @@ console.log('\n== 3. the panel uses the rule, on the END, and exports the END po
     'it writes the PICKER\'S PLACEHOLDER and not its selection, so a caller part-way through choosing is not overruled');
   check(/boardAtBeat\(call, call\.beats\)/.test(src) && /this\.endInfoKey !== key/.test(src),
     'the name and the id are computed for the END BOARD and memoised on it, so a handle drag does not re-walk the corpus');
-  check(/private endSetupInfo\(call: CallBundle\): \{ name: string; setupId: string \| null \}/.test(src) &&
-    /this\.endInfoSid = setupId\(end\)/.test(src),
-    'ONE read answers both: the id comes from the same END board as the name, because two reads could describe two different ends');
+  check(/private endSetupInfo\(call: CallBundle\): \{ name: string; setupId: string \| null; turnDeg: number \}/.test(src) &&
+    /this\.endInfoSid = setupId\(end\)/.test(src) && /const match = this\.endMatch\(call\);/.test(src),
+    'ONE memo answers the name, the turn and the id, because they describe the same arrival - and the name comes from the match, never from a scan of its own');
+  check(/this\.endSpinSteps = end\.turnDeg \/ END_SPIN_DEG;/.test(src) && /this\.endFormationSel\.value = end\.name;/.test(src),
+    'the load writes BOTH halves of that answer: the picker opens on the name and the rotation control on the turn, so the value is placeable as it stands');
+  check(/const match = inst \? this\.endMatch\(inst\) : null;[\s\S]{0,120}?this\.endSpinSteps = match && match\.name === name \? match\.turnDeg \/ END_SPIN_DEG : 0;/.test(src),
+    'and an explicit pick starts at the board\'s own turn when it is the setup the board is in, and at 0 for any other - a turn cannot follow a formulation nobody looked at');
   check(!/endNameKey|endNameValue|endSetupName\(/.test(src),
     'and the old name-only memo is gone rather than left beside the new one, which is how two answers to one question appear');
   check(/const spots = instanceTable\(call\)\.map\(\(r\) => r\.end\);/.test(src),
@@ -323,10 +332,10 @@ console.log('\n== 4. the fid and aid, as captions above the names ==');
 //
 // MEASURED: they ARE the same setup, turned a quarter turn. `endFormationName` is orientation-sensitive on purpose (a name
 // is a re-base and must not move the dance), so it refuses this end; the ids are rotation-CANONICAL (`sid ⇒ aid ⇒ fid`), so
-// they name the corpus's own `Facing Couples` - which is what the captions are for. This section pins BOTH halves: the
-// refusal (so nobody "fixes" it by loosening the name test into silently re-basing the dance) and the captions naming the
-// formation (which the eight-dancer catalogue lookup failed to do, at every four-dancer end).
-console.log('\n== 5. "Circle Four Left 3/4" from "Facing Couples": same setup, quarter turn ==');
+// they name the corpus's own `Facing Couples`; and `endFormationMatch` names the setup AND the turn, which is what the row
+// needed to populate the field without lying about the orientation. This section pins ALL FOUR fractions, both questions,
+// the ids, and the captions - so the refusal, the name and the turn stay one story.
+console.log('\n== 5. "Circle Four Left" from "Facing Couples": the whole and the halves name it, the quarters name it TURNED ==');
 {
   const pairs = engine.parseFormations(formationsXml);
   const corpusOfSize = (dancers) => {
@@ -338,36 +347,56 @@ console.log('\n== 5. "Circle Four Left 3/4" from "Facing Couples": same setup, q
     return out;
   };
   const tam = fs.readFileSync(path.join(assets, 'ms', 'circle.xml'), 'utf8');
-  const calls = engine
+  const wanted = ['Circle Four Left', 'Circle Four Left 1/2', 'Circle Four Left 1/4', 'Circle Four Left 3/4'];
+  const tams = engine
     .parseCallXml(tam)
-    .filter((t) => (t.title ?? '').trim() === 'Circle Four Left 3/4' && (t.from ?? '').trim() === 'Facing Couples');
-  check(calls.length === 1, `the tam this report is about resolves by TITLE and FROM, not by index (${calls.length} found)`);
-  const call = calls.length === 1 ? engine.buildCall(calls[0], engine.parseFormations(formationsXml), engine.parseMoves(movesXml), true) : null;
-  check(call !== null && call.dancers.length === 4, `it is a ${call ? call.dancers.length : '?'}-dancer call, so the eight-dancer setup catalogue cannot answer for it`);
-  const end = call ? engine.boardAtBeat(call, call.beats) : null;
+    .filter((t) => wanted.includes((t.title ?? '').trim()) && (t.from ?? '').trim() === 'Facing Couples');
+  check(tams.length === 4, `all four "Circle Four Left" fractions resolve by TITLE and FROM, not by index (${tams.length} found)`);
   const list = corpusOfSize(4);
   const facing = list.find((f) => f.name === 'Facing Couples');
-  check(facing !== undefined && call !== null && engine.endsOnFormation(call, facing.poses) === false,
-    'the end setup does NOT match "Facing Couples" - the name test compares positions and headings as authored, and a name is a re-base');
-  check(call !== null && engine.endFormationName(call, list) === null,
-    'so the row is right to say "Unknown Setup" rather than naming a formation the caller is not standing in');
-  const fid = end ? engine.formationId(end) : null;
-  const aid = end ? engine.arrangementId(end) : null;
+  const matches = wanted.map((title) => {
+    const found = tams.find((t) => (t.title ?? '').trim() === title);
+    const call = found ? engine.buildCall(found, pairs, engine.parseMoves(movesXml), true) : null;
+    return { title, call, match: call ? engine.endFormationMatch(call, list) : null };
+  });
+  console.log(`    ${matches.map((m) => `${m.title}: strict ${JSON.stringify(m.call ? engine.endFormationName(m.call, list) : null)} / match ${JSON.stringify(m.match)}`).join(' | ')}`);
+  check(matches.every((m) => m.call !== null && m.call.dancers.length === 4),
+    'each is a four-dancer call, so the picker list is the four-dancer one - which is why the eight-dancer catalogue could not answer');
+  check(matches.every((m) => m.match?.name === 'Facing Couples'),
+    'every one of them is called Facing Couples, so the End setup field populates for all four instead of saying Unknown Setup');
+  const turns = Object.fromEntries(matches.map((m) => [m.title, m.match?.turnDeg]));
+  check(turns['Circle Four Left'] === 0 && turns['Circle Four Left 1/2'] === 0,
+    `the whole and the half finish AS AUTHORED (${JSON.stringify(turns)})`);
+  check(turns['Circle Four Left 1/4'] === 90 && turns['Circle Four Left 3/4'] === 90,
+    'and the quarters finish a quarter turn round - the turn the rotation control is set to, so Place end does not move them');
+  check(matches.filter((m) => engine.endFormationName(m.call, list) === null).length === 2,
+    'while the STRICT namer still refuses exactly the two quarter turns, so the two questions stay apart');
+  const call = matches.find((m) => m.title === 'Circle Four Left 1/4').call;
+  const end = engine.boardAtBeat(call, call.beats);
+  const fid = engine.formationId(end);
+  const aid = engine.arrangementId(end);
   check(facing !== undefined && fid === engine.formationId({ dancers: facing.poses }) && aid === engine.arrangementId({ dancers: facing.poses }),
-    `while the IDS say it is that same setup: fid ${fid}, aid ${aid}, both Facing Couples' own - the ids are rotation-canonical and the name test is not`);
+    `and the IDS agree it is that same setup: fid ${fid}, aid ${aid}, both Facing Couples' own - the ids are rotation-canonical and the name test is not`);
   const turned = facing === undefined ? [] : facing.poses.map((p) => ({ ...p, x: -p.y, y: p.x, heading: p.heading + Math.PI / 2 }));
-  check(call !== null && turned.length > 0 && engine.endsOnFormation(call, turned) === true,
-    'and turned a quarter turn it matches EXACTLY, which is the answer to "they look the same except the rotation" - use the End spin control');
+  check(turned.length > 0 && engine.endsOnFormation(call, turned) === true,
+    'which is confirmed by the board matching Facing Couples when IT is turned: the rotation is the whole of the difference');
   const carried = formationsCarrying(list, { fid, aid });
   const labels = endIdentityOptions({ fid, aid, shapes: carried.shapes, arrangements: carried.arrangements });
   check(labels.length === 2 && labels[0].id === aid && labels[1].id === fid,
-    `and the captions can now say so, ARRANGEMENT first: ${labels.map((o) => o.label).join(' | ')}`);
+    `and the captions say it in the same words, ARRANGEMENT first: ${labels.map((o) => o.label).join(' | ')}`);
   check(carried.shapes.includes('Facing Couples') && carried.arrangements.includes('Facing Couples'),
     'with both lines naming Facing Couples, because this end IS that setup turned a quarter turn');
   // NEGATIVE CONTROL: the answer the eight-dancer catalogue gave, kept as a measurement rather than a story. Its rows are
   // filtered to eight dancers, so nothing in it can carry a four-dancer `fid`/`aid`.
   check(catalogue.rows.every((row) => row.fid !== fid && row.aid !== aid),
     `NEGATIVE CONTROL: the Board picker's ${catalogue.rows.length}-row catalogue carries neither id, which is exactly why this end said nothing was carried`);
+  // AND THE TURN IS NOT AN IDENTITY: the two quarter turns are DIFFERENT boards with ONE setup id, which is what makes the
+  // turn a thing to record rather than a thing to name.
+  const ids = matches.map((m) => {
+    const board = engine.boardAtBeat(m.call, m.call.beats);
+    return `${engine.setupId(board)}/${engine.formationId(board)}/${engine.arrangementId(board)}`;
+  });
+  check(new Set(ids).size === 1, `all four ends mint ONE sid/fid/aid (${ids[0]}), so the turn is recorded on the row and never in an id`);
 }
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nall checks passed');

@@ -224,15 +224,24 @@ console.log('\n== 2. the panel applies the turn in exactly one place, read from 
   check(!!bump && /% END_SPIN_STEPS/.test(bump[0]), 'the step wraps rather than running off the end');
   check(!!bump && !/endOverride/.test(bump[0]),
     'and the turn leaves the caller\'s own spot correspondence ALONE: a turn does not renumber the spots, so clearing it would throw that work away');
-  const spin = /private renderEndSpin\(enabled: boolean\) \{[\s\S]{0,1200}?\n  \}/.exec(ui);
+  const spin = /private renderEndSpin\(enabled: boolean\) \{[\s\S]{0,2400}?\n  \}/.exec(ui);
   check(!!spin && /this\.endSpinMinus\.disabled = !enabled;/.test(spin[0]) && /this\.endSpinPlus\.disabled = !enabled;/.test(spin[0]),
     'the buttons are disabled with nothing to turn, in the same block that disables `Connect end`');
   check(/private renderEndTarget\(\) \{[\s\S]{0,1600}?this\.renderEndSpin\(false\);[\s\S]{0,1600}?this\.renderEndSpin\(true\);/.test(ui),
     'and the render that owns the end chrome is the one that decides it, so the state cannot be set twice by two different rules');
   const resets = ui.split('\n').filter((l) => /this\.endSpinSteps = 0;/.test(l)).length;
-  check(resets === 2, `a new call and a newly chosen end setup both start as authored (${resets} resets)`);
-  check(/A NEW TARGET STARTS AS AUTHORED/.test(ui) && /AND UNTURNED/.test(ui),
-    'and both say why: a turn belongs to the setup it was found for, so it cannot follow a different one silently');
+  check(resets === 0, `no rule hard-codes an unturned target any more (${resets} plain resets): the step is DERIVED from the setup`);
+  // THE TWO DERIVATIONS, and why there are exactly two: the load reads the END'S OWN match, and an explicit pick reads the
+  // turn of the setup the board is in when that is the one picked. Anything else - a third writer - would be a turn the
+  // caller never asked for.
+  check(/this\.endSpinSteps = end\.turnDeg \/ END_SPIN_DEG;/.test(ui),
+    'the load sets the step from the end board\'s own matched turn, so the readout says which way round the end already is');
+  check(/this\.endSpinSteps = match && match\.name === name \? match\.turnDeg \/ END_SPIN_DEG : 0;/.test(ui),
+    'and an explicit pick takes the matching setup\'s own turn, or 0 for a formation the board is not in - a turn cannot follow a setup nobody looked at');
+  const writers = ui.split('\n').filter((l) => /this\.endSpinSteps =[^=]/.test(l.trim())).length;
+  check(writers === 3, `three writers and no more: the load, the pick, and the step buttons (${writers})`);
+  check(/AND TURNED AS THE BOARD IS/.test(ui) && /THE TURN BELONGS TO THE SETUP IT WAS FOUND AGAINST/.test(ui),
+    'and both say why: the step starts at the turn the end really stands at, and only moves with the setup it was found against');
   check(/#hud \.end-spin \{[\s\S]{0,200}?flex: 0 0 auto;/.test(css) && /\.end-spin > span \{[\s\S]{0,200}?tabular-nums/.test(css) && /min-width/.test(css),
     'the CSS keeps the three parts together and holds the readout\'s width, so the buttons do not shuffle on the step that gains a digit');
 }

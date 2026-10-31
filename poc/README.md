@@ -1175,8 +1175,18 @@ where the call finishes. The controls are the steps, and the start and the end e
 | **Clone** | starts a NEW setup from this instance; Save/apply will ADD it rather than replace the one it came from |
 | **Start setup** | re-bases the clone's start onto a named formation, keeping every move. The track is now **incomplete**, and the panel says by how much (`track incomplete: 2.86 units / 90° from "Static Square"`) |
 | **Connect** | re-aims the **first move of every dancer** so it walks in from the new start to where the old track resumes. The end formation comes back exactly; no other move changes |
-| **End setup** | re-bases the END onto a named formation: the call should finish *there* instead. Nothing moves until **Connect end** |
+| **End setup** | re-bases the END onto a named formation: the call should finish *there* instead. Nothing moves until **Connect end**. It also opens on **the setup the call already finishes in, turned** — the name in the field, the turn on the spin control beside it, so `Circle Four Left 1/4` from `Facing Couples` reads `Facing Couples` at `90°` rather than `Unknown Setup` |
 | **Connect end** | re-aims the **last move of every dancer** at its assigned spot of that formation. Beats and hands are held, so the call is not re-timed, and no earlier move changes |
+
+**THE END IS NAMED UP TO A QUARTER TURN, and the turn is a RECORDED fact rather than an id.** The setup ids are
+rotation-canonical already (`setup-id.ts`: a squared set and its quarter turn mint one `sid`), so a board turned a
+quarter turn was never a different setup — what the row lacked was a name for it and somewhere to put the turn.
+`endFormationMatch` reports both (`{ name, turnDeg }`), the picker's value is the name and the rotation control is the
+turn, so choosing it does not rotate the dance: taking the name alone would move the worst dancer a **median of 1.42
+units, worst 5.0** (the 1691 ends that fit a name only when turned, `node poc/tools/end-setup-name-probe.mjs`), against
+the **0.05** a name is allowed to nudge. Turn 0 is tried first, so every end already named keeps its name and gains
+`0°`; 45° is not a quarter turn and stays unnamed. `endFormationName` keeps the strict "standing in it as authored"
+question, which is what the row asks when it calls an end **Unknown Setup**.
 
 **A FORMATION'S SPOT NUMBER IS NOT A CORRESPONDENCE.** "Connect the end to `Ocean Waves`" needs an answer to
 *which of its eight spots does dancer 3 finish on*, and the answer cannot be "spot 3": a formation's spots are

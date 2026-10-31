@@ -2557,6 +2557,12 @@ export function startsFromFormation(call: CallBundle, poses: FormDancer[], tol =
  *
  * SELECTING A NAME IS A RE-BASE, so a margin is also how far the end can be nudged by taking one: 5e-2
  * units is under 1% of the square's own width, which is not something a caller can see on the floor.
+ *
+ * AND A NAME THE BOARD IS MERELY TURNED FROM IS STILL A RE-BASE, which is why the turn travels with it:
+ * `endFormationMatch` reports how far the formation has to be turned and the panel sets its End-spin control from
+ * that, so the margin above is the WHOLE of the motion. Take the name without the turn and the end would move a
+ * quarter turn instead - MEASURED over the catalogue's 1691 ends that fit a name only when turned: median 1.42
+ * units, worst 5.0 units for the worst dancer.
  */
 export interface EndBoardTolerance {
   position: number;
@@ -2656,8 +2662,12 @@ export function endsOnFormation(call: CallBundle, poses: FormDancer[], tol: EndB
 }
 
 /**
- * THE NAME THE END PICKER OPENS ON: of the named formations whose SHAPE is this board, the one whose
+ * THE NAME OF A BOARD the corpus carries AS AUTHORED: of the named formations whose SHAPE it is, the one whose
  * genders agree at the most spots, or `null` when the board has no name.
+ *
+ * IT IS THE STRICT HALF OF THE QUESTION, and the half the editor asks when it reports an END AS UNKNOWN. Whether
+ * the board is the same setup TURNED is `endFormationMatch`'s question, and the two are deliberately separate: a
+ * caller that wants to turn the board onto this formation needs to know that it is not there yet.
  *
  * MORE THAN ONE NAME CAN FIT, because the corpus carries arrangement variants of a single board - the
  * same spots and facings with the boys and girls swapped. MEASURED over the catalogue's 5432 tams: 2947
@@ -2672,7 +2682,15 @@ export function endFormationName(
   formations: readonly { name: string; poses: FormDancer[] }[],
   tol: EndBoardTolerance = END_BOARD_TOL,
 ): string | null {
-  const ends = endBoard(call);
+  return nameOfBoard(endBoard(call), formations, tol);
+}
+
+/** The naming rule itself, over a board rather than a call - what `endFormationName` and `endFormationMatch` share. */
+function nameOfBoard(
+  ends: FormDancer[],
+  formations: readonly { name: string; poses: FormDancer[] }[],
+  tol: EndBoardTolerance,
+): string | null {
   let best: { name: string; misses: number } | null = null;
   for (const f of formations) {
     const misses = endBoardGenderMisses(ends, f.poses, tol);
@@ -2680,6 +2698,55 @@ export function endFormationName(
     if (!best || misses < best.misses) best = { name: f.name, misses };
   }
   return best?.name ?? null;
+}
+
+/**
+ * THE NAMED FORMATION THE END BOARD IS, UP TO A QUARTER TURN - and how far it is turned.
+ *
+ * Asked for as: "why does the end setup not match 'Facing Couples' … they look the same, except for the +90 deg
+ * rotation", and then "I would see a setup as an arrangement plus matching dancer indexes. The rotation should
+ * probably be recorded, but I'm not sure whether it should play a part in whether the board matches it." The
+ * SEPARATION that answers this: the IDS are already rotation-free (`setup-id.ts`: a squared set and its quarter
+ * turn are one setup), so a rotated board was never a different setup; what was missing was a NAME for it and a
+ * place to put the turn. This supplies both, and `turnDeg` is that place.
+ *
+ * TURN 0 IS TRIED FIRST AND WINS, so every board `endFormationName` names keeps that name with a turn of 0 - the
+ * change can only ADD names. MEASURED over the catalogue's 5403 call variants: 2950 are named as authored (all
+ * unchanged), 1691 more fit at 90 or 270 (1338 of them eight-dancer), and 762 fit no named formation at any turn.
+ * A board that fits at BOTH 90 and 270 is one board, not two: a formation invariant under 180 degrees (`Facing
+ * Couples` is one of 22 of the 52 four-dancer boards, and 0 of 52 are invariant under 90) has the same ±90 turn,
+ * so the smaller step is reported. MEASURED: no end board gets a different NAME SET depending on which turn is
+ * tried, so the order fixes the turn without ever choosing between two formations.
+ *
+ * QUARTER TURNS ONLY, because that is the rotation the ids already canonicalise over (`canonicalOf` tries four)
+ * and the unit `circle left 1/4` moves a square set by. A board 45 degrees off is NOT named: `END_BOARD_TOL`'s
+ * facing margin is 4.3 degrees, so 45 is 10 times outside what a name may absorb, and the editor's End-spin
+ * control's 45-degree steps are for PLACING, not for naming.
+ *
+ * THE TURN IS NOT AN IDENTITY. It is deliberately absent from `sid`, `aid` and `fid` (rotation drops out of all
+ * three), and it is not written into the XML: it is a fact about where this call finished, recorded on the one
+ * control the panel has for an orientation.
+ */
+export interface EndFormationMatch {
+  /** The corpus's name for the formation the board is, turned. */
+  name: string;
+  /** 0, 90, 180 or 270: how far the formation must be turned COUNTER-CLOCKWISE about the origin to lie on the board. */
+  turnDeg: number;
+}
+
+export function endFormationMatch(
+  call: CallBundle,
+  formations: readonly { name: string; poses: FormDancer[] }[],
+  tol: EndBoardTolerance = END_BOARD_TOL,
+): EndFormationMatch | null {
+  const ends = endBoard(call);
+  // THE BOARD IS TURNED, ONCE PER CANDIDATE, rather than every formation: four small arrays against the same list,
+  // which is the same number of spot comparisons `endFormationName` already pays.
+  for (const turnDeg of [0, 90, 180, 270]) {
+    const name = nameOfBoard(turnDeg === 0 ? ends : rotateFormation(ends, -turnDeg * DEG), formations, tol);
+    if (name !== null) return { name, turnDeg };
+  }
+  return null;
 }
 
 /**

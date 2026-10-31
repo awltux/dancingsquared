@@ -395,6 +395,10 @@ export {
   startsFromFormation,
   endsOnFormation,
   endFormationName,
+  // THE SAME BOARD, UP TO A QUARTER TURN, with the turn reported: what the Call editor's End setup picker opens on
+  // and what its rotation control is set from. `endFormationName` stays the strict "standing in it as authored"
+  // answer, which is the question the row asks when it calls an end unknown.
+  endFormationMatch,
   END_BOARD_TOL,
   // THE RELAXED END LOOKUP behind the Call editor's End setup filter: the named formations a board ALMOST stands on,
   // nearest first, with the worst spot's distance - the answer `endFormationName` cannot give, because a namer that
@@ -408,7 +412,7 @@ export {
   // of the board's own axes, with the start pose - position AND rotation - left exactly where it was.
   mirrorDancerMoves,
 } from './editor.js';
-export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis, EndBoardTolerance, NearEndFormation } from './editor.js';
+export type { InstanceDancer, ArcParams, ArcBlocker, CallXmlOptions, FormationRef, RunCircle, HalfSetReport, MirrorAxis, EndBoardTolerance, EndFormationMatch, NearEndFormation } from './editor.js';
 
 export {
   setParser,

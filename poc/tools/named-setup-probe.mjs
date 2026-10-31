@@ -7,18 +7,23 @@
 //
 //   1. THE START is `startsFromFormation` - INDEX FOR INDEX on positions, headings and genders - because a
 //      tam's paths are paired with a formation's dancers BY LIST POSITION.
-//   2. THE END is `endFormationName` - the same SPOTS as a SET, position and heading, gender not required,
-//      with a small error margin on both - because the end is only "which named shape is this board?". Reported as:
-//      "If I pick 'Promenade Home' the End setup should select 'Squared Set'. But it remains as 'unknown
-//      formation'. Is there a missing step." The step was this rule; the corpus witness for it is section 1.
-//   3. THE REPORTED CALL ITSELF, `Promenade Home` from a Right and Left Grand Static Square, selected by title
-//      and formation rather than by index - the corpus witness for the whole change.
+//   2. THE END is `endFormationMatch` - the same SPOTS as a SET, position and heading, gender not required,
+//      with a small error margin on both, AND UP TO A QUARTER TURN, with the turn reported - because the end is
+//      only "which named setup is this board, and which way round?". Reported as: "If I pick 'Promenade Home' the
+//      End setup should select 'Squared Set'. But it remains as 'unknown formation'. Is there a missing step." then
+//      "For the call 'Circle Four Left 4/3' from 'Facing Couples', why does the end setup not match 'Facing
+//      Couples'? ... They look the same, except for the +90 deg rotation", and then "I would see a setup as an
+//      arrangement plus matching dancer indexes. The rotation should probably be recorded." The turn is recorded on
+//      the panel's rotation control, never in an id. `endFormationName` remains the STRICT half (the board as
+//      authored), which is the question the row asks when it calls an end unknown.
+//   3. THE REPORTED CALLS THEMSELVES, `Promenade Home` from a Right and Left Grand Static Square and the four
+//      "Circle Four Left" fractions from "Facing Couples", selected by title and formation rather than by index.
 //   4. THE PANEL USES BOTH, read from `editor-ui.ts` (TypeScript under a DOM, so it cannot run here). Those
 //      checks are on the source text and each is shown to fail when the fragment it wants is reverted.
 //
-// AND THE FAILURE MODE IS PINNED: a name is only chosen when the board really is that formation, so an
-// unknown or merely-close setup leaves the picker on "keep the current". The controls for that half perturb
-// one spot of a matching formation - position, facing, and a duplicate - and require the name to go away.
+// AND THE FAILURE MODE IS PINNED: a name is only chosen when the board really is that formation TURNED BY THE TURN
+// REPORTED WITH IT, so an unknown or merely-close setup leaves the picker on "keep the current". The controls for that
+// half perturb one spot of a matching formation - position, facing, and a duplicate - and require the name to go away.
 //
 // WHAT IS NOT PINNED IS HOW MANY CALLS GET A NAME: that is a fact about `formations.xml`, which is content
 // and is regularly mid-edit. The counts are PRINTED, and the assertion is that the instrument is not silent
@@ -88,10 +93,12 @@ function formationsOfSize(n) {
   cache.set(n, kept);
   return kept;
 }
-/** `EditorController.namedSetup`, as the panel reads it - the same two rules, not a copy of them. */
-const namedSetup = (call, end) => end
-  ? (engine.endFormationName(call, formationsOfSize(call.dancers.length)) ?? '')
-  : (formationsOfSize(call.dancers.length).find((f) => engine.startsFromFormation(call, f.poses))?.name ?? '');
+/** `EditorController.startFormationName` / `.endMatch`, as the panel reads them - the same rules, not copies. */
+const startFormationName = (call) =>
+  formationsOfSize(call.dancers.length).find((f) => engine.startsFromFormation(call, f.poses))?.name ?? '';
+const endMatch = (call) => engine.endFormationMatch(call, formationsOfSize(call.dancers.length));
+/** The END answer as the picker's VALUE: the matched name, or '' for nothing to name. */
+const namedSetup = (call, end) => end ? (endMatch(call)?.name ?? '') : startFormationName(call);
 function* everyCall() {
   for (const level of LEVELS) {
     // SORT A COPY, NEVER THE LIST `filesOf` RETURNED: it hands back the cached array, and sorting it in place
@@ -261,53 +268,65 @@ console.log('\n== 3. the panel names the pickers from it, read from source ==');
   const ui = readSource('src/editor-ui.ts');
   // NO `\b` AFTER THE COMMA: both the comma and the newline are non-word characters, so there is no word
   // boundary there and the check would fail on a correct file.
-  const importLine = /import \{[\s\S]{0,4000}?endFormationName,[\s\S]{0,4000}?\} from 'dancing-squared-engine';/.test(ui);
-  check(importLine, '`editor-ui.ts` imports `endFormationName` from the engine rather than keeping a private copy');
-  const helper = /private namedSetup\(call: CallBundle, end: 'start' \| 'end'\): string \{[\s\S]{0,400}?\n  \}/.exec(ui);
-  check(!!helper, 'and has one `namedSetup` that answers for either end');
-  check(!!helper && /end === 'start'/.test(helper[0]) && /endFormationName\(call, formations\)/.test(helper[0]),
-    'which asks the START rule for a start and `endFormationName` for an end - the two are not the same question');
-  check(!!helper && /this\.host\.startFormations\(call\.dancers\.length\)/.test(helper[0]),
-    'and takes the SAME list the two pickers are filled from, at the call\'s own size');
-  check(/this\.startFormationSel\.value = this\.namedSetup\(this\.instance, 'start'\);/.test(ui),
-    'the Start picker opens on it');
-  check(/this\.endFormationSel\.value = this\.namedSetup\(this\.instance, 'end'\);/.test(ui),
-    'and so does the End picker');
+  const importLine = /import \{[\s\S]{0,4000}?\bendFormationMatch,[\s\S]{0,4000}?\} from 'dancing-squared-engine';/.test(ui);
+  check(importLine, '`editor-ui.ts` imports `endFormationMatch` from the engine rather than keeping a private copy of the turn search');
+  const start = /private startFormationName\(call: CallBundle\): string \{[\s\S]{0,300}?\n  \}/.exec(ui);
+  check(!!start && /startsFromFormation\(call, f\.poses\)/.test(start[0]),
+    'the START still asks `startsFromFormation` - index for index, because a tam\'s paths are paired by list position');
+  const end = /private endMatch\(call: CallBundle\): EndFormationMatch \| null \{[\s\S]{0,300}?\n  \}/.exec(ui);
+  check(!!end && /endFormationMatch\(call, this\.host\.startFormations\(call\.dancers\.length\)\)/.test(end[0]),
+    'and the END asks `endFormationMatch` over the SAME list the pickers are filled from, at the call\'s own size - the two are not the same question');
+  check(!/private namedSetup\(/.test(ui), 'there is no shared dispatch left to answer both ends the same way, which is what made a turned end unnameable');
+  check(/this\.startFormationSel\.value = this\.startFormationName\(this\.instance\);/.test(ui),
+    'the Start picker opens on its name');
+  check(/const end = this\.endSetupInfo\(this\.instance\);/.test(ui) && /this\.endFormationSel\.value = end\.name;/.test(ui),
+    'and the End picker opens on the match, read from the memo so the name and the turn are one answer');
+  check(/this\.endSpinSteps = end\.turnDeg \/ END_SPIN_DEG;/.test(ui),
+    'with the turn RECORDED on the rotation control - the panel\'s one place for an orientation, and not an id');
   // BOTH ARE SET AFTER THE OPTIONS EXIST, or a name that is not yet an option is silently blank.
   const fill = ui.indexOf('this.ensureStartFormations(this.instance.dancers.length);');
-  const startSet = ui.indexOf("this.startFormationSel.value = this.namedSetup(this.instance, 'start');");
+  const startSet = ui.indexOf('this.startFormationSel.value = this.startFormationName(this.instance);');
   check(fill >= 0 && startSet > fill, 'and they are named AFTER the options are filled, or the value would not stick');
 
   // AND THE CHECKS FAIL ON THE FAULT THEY WERE WRITTEN FOR: the old code left both pickers empty, and the
-  // end side asked the START's question.
-  const old = ui.replace(/this\.startFormationSel\.value = this\.namedSetup\(this\.instance, 'start'\);/,
+  // end side asked a rule that cannot see a turn.
+  const old = ui.replace('this.startFormationSel.value = this.startFormationName(this.instance);',
     "this.startFormationSel.value = '';");
-  check(old !== ui && !/this\.startFormationSel\.value = this\.namedSetup/.test(old),
+  check(old !== ui && !/this\.startFormationSel\.value = this\.startFormationName/.test(old),
     'restoring the old `value = \'\'` fails the Start picker check');
-  const mixed = ui.replace(/endFormationName\(call, formations\)/, 'null');
-  check(mixed !== ui && !/endFormationName\(call, formations\)/.test(mixed),
+  const mixed = ui.replace('endFormationMatch(call, this.host.startFormations(call.dancers.length))', 'null');
+  check(mixed !== ui && !/endFormationMatch\(call, this\.host/.test(mixed),
     'and answering the end from nothing fails the dispatch check');
+  const strictEnd = ui.replace('endFormationMatch(call, this.host.startFormations(call.dancers.length))',
+    'endFormationName(call, this.host.startFormations(call.dancers.length)) || null');
+  check(strictEnd !== ui && !/endFormationMatch\(call, this\.host/.test(strictEnd),
+    'and going back to the strict namer fails it too - which is the fault the report was about');
 }
 
 // ---------------------------------------------------------------- 4. what it names over the corpus
 console.log('\n== 4. over the catalogue: names are correct or absent, never wrong ==');
 {
-  let calls = 0, startNamed = 0, endNamed = 0, bothNamed = 0, wrongName = 0, duplicated = 0;
-  const startWitness = [], endWitness = [];
+  let calls = 0, startNamed = 0, endNamed = 0, turnedEnd = 0, bothNamed = 0, wrongName = 0, duplicated = 0;
+  const startWitness = [], endWitness = [], turnedWitness = [];
   for (const { id, call } of everyCall()) {
     calls++;
     const s = namedSetup(call, false);
-    const e = namedSetup(call, true);
+    const m = endMatch(call);
+    const e = m?.name ?? '';
     if (s) startNamed++;
     if (e) endNamed++;
     if (s && e) bothNamed++;
-    // WHAT "CORRECT" MEANS, checked rather than assumed: the name is one the picker offers at this size AND
-    // the call really is that formation - index for index at the start, as a board at the end.
+    if (m && m.turnDeg !== 0) turnedEnd++;
+    // WHAT "CORRECT" MEANS, checked rather than assumed: the name is one the picker offers at this size AND the call
+    // really is that formation - index for index at the start, as a board AT THE TURN THE MATCH REPORTS at the end. The
+    // turn is part of the claim, so a name without its turn would be a different, wrong, statement about the board.
     for (const [name, end] of [[s, false], [e, true]]) {
       if (!name) continue;
       const f = formationsOfSize(call.dancers.length).find((x) => x.name === name);
-      const ok = !!f && (end ? engine.endsOnFormation(call, f.poses) : engine.startsFromFormation(call, f.poses));
-      if (!ok) { wrongName++; console.log(`    WRONG ${id} :: "${name}" at the ${end ? 'end' : 'start'}`); }
+      const ok = !!f && (end
+        ? engine.endsOnFormation(call, m && m.turnDeg !== 0 ? engine.rotateFormation(f.poses, m.turnDeg * engine.DEG) : f.poses)
+        : engine.startsFromFormation(call, f.poses));
+      if (!ok) { wrongName++; console.log(`    WRONG ${id} :: "${name}" at the ${end ? 'end' : 'start'}${end && m ? ` (turn ${m.turnDeg})` : ''}`); }
     }
     // ONE BOARD, TWO NAMES: the corpus really does carry arrangement variants of a single board, and the
     // namer must pick one of them rather than printing both. A name that is not in the list would already
@@ -318,29 +337,33 @@ console.log('\n== 4. over the catalogue: names are correct or absent, never wron
       if (rivals.length > 1) duplicated++;
       if (!f) wrongName++;
     }
+    if (e && m && m.turnDeg !== 0 && turnedWitness.length < 3) turnedWitness.push(`${call.title} -> ${e} @ ${m.turnDeg}deg`);
     if (e && endWitness.length < 4) endWitness.push(`${call.title} -> ${e}`);
     if (s && startWitness.length < 3) startWitness.push(`${call.title} -> ${s}`);
   }
-  console.log(`    ${calls} calls: ${startNamed} named at the start, ${endNamed} at the end, ${bothNamed} at both; ${duplicated} end boards fit more than one name`);
+  console.log(`    ${calls} calls: ${startNamed} named at the start, ${endNamed} at the end (${turnedEnd} of them TURNED), ${bothNamed} at both; ${duplicated} end boards fit more than one name`);
   console.log(`    start examples: ${startWitness.join(' | ')}`);
   console.log(`    end examples:   ${endWitness.join(' | ')}`);
+  if (turnedWitness.length) console.log(`    turned examples: ${turnedWitness.join(' | ')}`);
   check(calls > 0, 'the catalogue was read at all');
-  check(wrongName === 0, `every name offered really is that formation (${wrongName} wrong)`);
+  check(wrongName === 0, `every name offered really is that formation AT THE TURN REPORTED WITH IT (${wrongName} wrong)`);
   // AN INSTRUMENT'S SILENCE IS A BUG: 208 arrangements exist at eight dancers, so a rule that named nothing
   // would look "clean". The END count is the fragile one - most calls end on a board the corpus has no name
   // for - so it is the one that needs saying out loud.
   check(startNamed > 0, `the START picker names something (${startNamed} of ${calls})`);
   check(endNamed > 0, `and so does the END picker (${endNamed} of ${calls})`);
+  check(turnedEnd > 0, `and ${turnedEnd} of those names are for a board the corpus writes another way round, which is the case this change is for`);
 
   // THE WITNESS BY TITLE, not by position (a hand-added tam once shifted three index-keyed checks onto a
   // two-dancer pair and they read as an engine defect for months). `Sides Face, Grand Square` is the
-  // corpus's own closed call: it starts and ends on a Squared Set.
+  // corpus's own closed call: it starts and ends on a Squared Set - AS AUTHORED, so its turn is 0.
   const gs = [...everyCall()].find(({ call }) => call.title === 'Sides Face, Grand Square');
   check(!!gs, 'the corpus still carries the "Sides Face, Grand Square" witness');
   if (gs) {
-    const e = namedSetup(gs.call, true);
-    console.log(`    witness "${gs.call.title}": start=${JSON.stringify(namedSetup(gs.call, false))} end=${JSON.stringify(e)}`);
-    check(e === 'Squared Set', `it is named as ending on a Squared Set (got ${JSON.stringify(e)})`);
+    const m = endMatch(gs.call);
+    console.log(`    witness "${gs.call.title}": start=${JSON.stringify(namedSetup(gs.call, false))} end=${JSON.stringify(m)}`);
+    check(m?.name === 'Squared Set', `it is named as ending on a Squared Set (got ${JSON.stringify(m?.name)})`);
+    check(m?.turnDeg === 0, 'and at turn 0: a board standing where the corpus writes it is never reported as turned');
   }
 }
 

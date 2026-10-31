@@ -150,7 +150,9 @@ console.log('\n== 4. the panel wires it: one rule, one engine call, one writer f
     'the button is in the markup, right of the picker, starts hidden and states its pressed state');
   check(html.indexOf('id="edEndFormation"') < html.indexOf('id="edEndNearFilter"'),
     'and it sits AFTER the select element it filters, which is where the request put it');
-  check(/#editorPanel \.ed-near\[aria-pressed="true"\] \{ border-color: var\(--accent\); color: var\(--accent\); \}/.test(css),
+  // ONE RULE FOR BOTH ICON TOGGLES now: the near filter and the two variant filters beside the Find box share the look, so
+  // the selector is a pair - the check reads the rule the button really gets, not a copy of it under its old name alone.
+  check(/#editorPanel \.ed-near\[aria-pressed="true"\],\n#editorPanel \.ed-flag\[aria-pressed="true"\] \{ border-color: var\(--accent\); color: var\(--accent\); \}/.test(css),
     'pressed is a visible state in the panel\'s own accent colour - the filtered list otherwise looks like any other list');
 }
 

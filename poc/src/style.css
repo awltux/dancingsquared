@@ -173,11 +173,17 @@ html, body {
    so `aria-pressed` is what says the shortlist is on. The accent border both marks the state and matches the panel's
    other toggles; the button is `hidden` entirely for a named end, which is `renderEndSetupState`'s rule.
    `#editorPanel` is prefixed for the specificity reason `ed-swap` above records. */
-#editorPanel .ed-near {
+#editorPanel .ed-near,
+#editorPanel .ed-flag {
   padding: 0 6px; margin: 0; min-width: 0; font-size: calc(13px * var(--hud-text)); line-height: 1.2;
   border-radius: 4px; cursor: pointer;
 }
-#editorPanel .ed-near[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+#editorPanel .ed-near[aria-pressed="true"],
+#editorPanel .ed-flag[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+/* THE TWO VARIANT FILTERS beside the Find box are ICON toggles with the same look as the near-match filter above, and the
+   class name says what they are rather than where they sit: `.ed-flag` is an icon button that narrows a list on one axis.
+   Pressed is `aria-pressed`, which is what a caller reads at a glance - the list it filters looks like every other list. */
+#editorPanel .ed-flag { font-size: calc(15px * var(--hud-text)); }
 .ed-grid { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: calc(11px * var(--hud-text)); margin-top: 2px; }
 .ed-grid label { width: auto; }
 /* THE END TARGET'S PAIRING: one small picker per dancer, `# -> spot`. It is a wrapping grid rather than a

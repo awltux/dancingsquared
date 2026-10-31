@@ -390,6 +390,24 @@ selected with the editor's own **Mode** toggle (**Edit instance** / Fix closure 
 Create position). All three share an **Edit call + Setup** — the taminations call
 instance being edited — and all three preview through the same 3D renderer.
 
+**Two icon filters beside the Find box find the INCOMPLETE variants** — the authorings whose start or end
+setup no named formation names. Reported as *"Add two filter buttons after the free text Find field that
+filter for call variants with a) unmatched start setup and/or b) unmatched end setup. This is to help the
+editor fix incomplete call variants. Use begin, end glyphs for the buttons and a hover hints to explain
+what they do."* ⏮ narrows the list to the variants whose **START** setup the picker cannot name (the Start
+setup dropdown stays on "keep the current start"); ⏭ narrows it to the ones whose **END** setup row says
+`Unknown Setup` — counting a formation the dancers are standing in **turned** as a match, which is the
+rule the row itself uses. Both pressed means unmatched at **both** ends, the same way the Find box's terms
+compose. The **SETUP** dropdown is filtered with the call, and the option **values are each variant's
+original index**, so a filtered list can never load a different authoring than the one named; the variant
+being edited is kept on screen even when the filter excludes it, with the same `▸ kept` marker the call
+list uses. The whole catalogue has to be scanned once to answer — MEASURED **5,489 variants in 3.2 s**
+(0.59 ms each; the ms level alone is 1,182 in 0.8 s) — so the scan is **lazy**: the first press runs it with
+a count in the status line, and every press after it is instant. `src/setup-scan.ts` owns the rule and yields
+per file; `Catalog.scanSetupMatches` drives it and paints every 100 ms; `poc/tools/setup-scan-probe.mjs`
+pins the counts, the key (a variant's index must address the tam the panel loads), that a tam which will not
+build reads as unmatched at both ends rather than absent, and the panel wiring.
+
 Two **view options** sit at the bottom of the panel, both about getting the dancers out of the way of
 the track you are measuring:
 

@@ -134,8 +134,14 @@ import {
   setApplied,
   effectiveSetups,
   rebuildEdit,
+  // THE CATALOGUE-WIDE SETUP SCAN behind the two variant filters beside the Find box. It lives in the loader because that
+  // is what owns the parsed files, and it is imported rather than re-implemented here for the usual reason.
+  scanSetupMatches,
 } from './data';
 import type { CallEdit, CallInfo } from './data';
+// The scan's own vocabulary: the key a variant is stored under, and what the map holds. See `setup-scan.ts`.
+import { variantKey } from './setup-scan';
+import type { SetupMatch } from './setup-scan';
 // The one place that decides whether an exported `<tam>` embeds its start formation or NAMES it.
 import { callTamXml, corpusFormationPoses } from './tam-xml';
 // AND THE FORMATION ITSELF, for `Export <formation>`: the block and its verdict are a pure rule in their own
@@ -656,6 +662,17 @@ export class EditorController implements EditorUI {
   private callQuery = '';
   /** See `haystack`. */
   private haystacks: Map<string, string> | null = null;
+  // THE TWO VARIANT FILTERS, right of the Find box: they narrow the call and setup lists to the variants whose START or END
+  // setup no named formation matches - the "incomplete" authorings the editor exists to fix. The scan behind them is the
+  // expensive part (MEASURED 5,489 variants, 3.2 s), so it runs ONCE, lazily, on the first press, and every press after it
+  // is instant. `setupMatches` is that pass; `setupScan` is the promise of it, so a second press waits rather than
+  // starting a second scan.
+  private startUnmatchedBtn = el<HTMLButtonElement>('edStartUnmatched');
+  private endUnmatchedBtn = el<HTMLButtonElement>('edEndUnmatched');
+  private variantStartOnly = false;
+  private variantEndOnly = false;
+  private setupMatches: ReadonlyMap<string, SetupMatch> | null = null;
+  private setupScan: Promise<ReadonlyMap<string, SetupMatch>> | null = null;
 
   // current state
   private editSetup: CallBundle | null = null;
@@ -964,13 +981,34 @@ export class EditorController implements EditorUI {
    * `previousLabel` is the label the dropdown was showing BEFORE this refilled it, so the caller has to read it
    * first - `setupLabelOf` is that read, and the two are always used together. Why a label and not an index, and why
    * the first match rather than the nearest: see `setup-keep.ts`.
+   *
+   * AND IT IS WHERE THE VARIANT FILTER LANDS. With either button pressed the list holds only the variants whose start
+   * (or end) setup no named formation names - but the option VALUE is still the setup's ORIGINAL index, because that is
+   * what `loadEditSetup`/`loadCall` read: renumbering a filtered list would load a different authoring than the one the
+   * caller is looking at. THE SELECTED VARIANT IS KEPT even when the filter excludes it, the same rule `fillCallSelect`
+   * applies to the call, and for the same reason - a filter may narrow what is reachable, never what is being edited.
+   * When the filter leaves NOTHING for a call that has variants, the first one is kept the same way: the call can only be
+   * on screen because it was already selected, and the panel has to be editing one of its authorings rather than the
+   * empty string (`parseInt('')` would quietly load setup 0 anyway, without saying so).
    */
   private fillSetupSelect(sel: HTMLSelectElement, callId: string, previousLabel: string | null = null) {
-    const labels = effectiveSetups(callId).map((s) => s.label);
+    const all = effectiveSetups(callId).map((s, index) => ({ label: s.label, index }));
+    const variant = this.variantFilter();
+    const shown = variant ? all.filter((s) => variant(callId, s.index)) : all;
+    const kept = variant && previousLabel !== null ? all.find((s) => s.label === previousLabel) : undefined;
     sel.innerHTML = '';
-    labels.forEach((label, i) => sel.add(new Option(label, String(i))));
-    const keep = keptSetupIndex(labels, previousLabel);
-    if (keep >= 0) sel.value = String(keep);
+    shown.forEach((s) => sel.add(new Option(s.label, String(s.index))));
+    const keep = keptSetupIndex(shown.map((s) => s.label), previousLabel);
+    if (keep >= 0) {
+      sel.value = String(shown[keep].index);
+      return;
+    }
+    // NOT IN THE FILTERED LIST (or nothing matched): hold the variant the panel is on, or the call's first one.
+    const held = kept ?? (variant ? all[0] : undefined);
+    if (!held) return;
+    const opt = new Option(`▸ ${held.label}`, String(held.index), false, true);
+    opt.title = 'kept — this is a setup the filter excludes, and it is what you are editing';
+    sel.insertBefore(opt, sel.firstChild);
   }
 
   /** The label a setup dropdown is showing, for `fillSetupSelect` to keep across a call change. */
@@ -1021,10 +1059,15 @@ export class EditorController implements EditorUI {
    * would leave the PANEL showing one call while the editor's state still held another, with
    * nothing to reconcile them. Keeping the selection makes the filter a pure VIEW of the
    * catalogue: it can only ever change which calls you can reach, never which one you have.
+   *
+   * THE VARIANT FILTER ASKS ABOUT THE VARIANTS, and a title is offered when at least ONE of its setups matches - that is
+   * the authoring the caller is hunting for, and the Setup list under it is then narrowed to the same ones. The entry's
+   * value stays the call id, so nothing about loading changes.
    */
-  private fillCallSelect(sel: HTMLSelectElement, keepId: string): number {
+  private fillCallSelect(sel: HTMLSelectElement, keepId: string): { calls: number; variants: number } {
     const terms = this.callQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
     const level = this.levelSel.value;
+    const variant = this.variantFilter();
     // THE TITLE ALONE. The list used to lead every entry with its level (`MS · Circle Left`), which
     // was the only way to tell the levels apart while one list held all of them - and it made every
     // name longer for a fact the LEVEL selector now states once, above the list. `All levels` is the
@@ -1034,11 +1077,19 @@ export class EditorController implements EditorUI {
     const keep = this.catalog.find((c) => c.id === keepId) ?? null;
     let kept = false;
     let found = 0;
+    let variants = 0;
     for (const c of this.catalog) {
       // The level narrows the list exactly as the Find box does, and for the same reason: it is a
       // VIEW of the catalogue. `All levels` (`''`) is not a level, so it matches everything.
       if (level && c.level !== level) continue;
       if (!terms.every((t) => this.haystack(c).includes(t))) continue;
+      let hits = c.setups.length;
+      if (variant) {
+        hits = 0;
+        for (let i = 0; i < c.setups.length; i++) if (variant(c.id, i)) hits++;
+        if (hits === 0) continue;
+        variants += hits;
+      }
       found++;
       sel.add(new Option(label(c), c.id, false, c.id === keepId));
       if (c.id === keepId) kept = true;
@@ -1054,7 +1105,7 @@ export class EditorController implements EditorUI {
       opt.disabled = true;
       sel.add(opt);
     }
-    return found;
+    return { calls: found, variants };
   }
 
   /**
@@ -1064,9 +1115,13 @@ export class EditorController implements EditorUI {
    * filter that quietly worked for one of three identical controls would be its own bug -
    * the input's tooltip says so. The terms are ANDed substrings over the level, title, file
    * and setup labels, so "ms circle" and "static square" both read the way they should.
+   *
+   * AND THE TWO VARIANT BUTTONS NARROW THE SAME LISTS, on their own axis: a call is offered when at least one of its
+   * setups is unmatched at the pressed end(s), and the readout says how many variants that is - the count the caller is
+   * hunting, not the number of titles it happens to touch.
    */
   private applyCallFilter() {
-    const found = this.fillCallSelect(this.editCallSel, this.editCallSel.value);
+    const edit = this.fillCallSelect(this.editCallSel, this.editCallSel.value);
     this.fillCallSelect(this.postCallSel, this.postCallSel.value);
     this.fillCallSelect(this.preCallSel, this.preCallSel.value);
     // The readout is the panel's account of WHY a list is short, so it names the level whenever the
@@ -1074,8 +1129,108 @@ export class EditorController implements EditorUI {
     const bits: string[] = [];
     const level = this.levelSel.value;
     if (level) bits.push(level.toUpperCase());
-    if (level || this.callQuery.trim()) bits.push(`${found} of ${this.catalog.length} calls`);
+    if (level || this.callQuery.trim()) bits.push(`${edit.calls} of ${this.catalog.length} calls`);
+    // THE VARIANT FILTER'S OWN COUNT, in the words the buttons are pressed in: "12 variants with end unmatched" is what
+    // the caller asked for, and a bare "7 of 316 calls" would leave them counting authorings by hand.
+    const which = [this.variantStartOnly ? 'start' : '', this.variantEndOnly ? 'end' : ''].filter(Boolean).join(' and ');
+    if (which) bits.push(`${edit.variants} variant${edit.variants === 1 ? '' : 's'} with ${which} unmatched`);
     this.callFoundEl.textContent = bits.join(' · ');
+  }
+
+  // ---- the two variant filters ----
+
+  /**
+   * WHAT THE TWO BUTTONS NARROW BY, or `null` when neither is pressed.
+   *
+   * The scan is the catalogue's answer to "does a named formation of this call's size match the setup it starts and ends
+   * on"; this turns it into the predicate the two lists are filtered with. WITH BOTH PRESSED A VARIANT MUST BE UNMATCHED
+   * AT BOTH ENDS - the buttons narrow the same list on two axes, so they compose the way the Find box's terms do, and the
+   * input's tooltip says so.
+   *
+   * A VARIANT THE SCAN DOES NOT KNOW is not offered: a created or cloned setup from the caller's own store has no tam in
+   * the corpus, so it is by construction not one of these, and guessing would be worse than the omission.
+   */
+  private variantFilter(): ((callId: string, setupIdx: number) => boolean) | null {
+    const start = this.variantStartOnly;
+    const end = this.variantEndOnly;
+    if (!start && !end) return null;
+    const matches = this.setupMatches;
+    if (!matches) return null;
+    return (callId, setupIdx) => {
+      const match = matches.get(variantKey(callId, setupIdx));
+      if (!match) return false;
+      if (start && end) return !match.start && !match.end;
+      return start ? !match.start : !match.end;
+    };
+  }
+
+  /**
+   * PRESS ONE OF THE TWO BUTTONS: flip it, make sure the scan has run, and refill the lists.
+   *
+   * The scan is awaited rather than fired and forgotten, because the refill below reads its result; `ensureSetupScan`
+   * keeps a second press waiting on the same promise instead of starting a second 3.2-second pass.
+   */
+  private async toggleVariantFilter(which: 'start' | 'end'): Promise<void> {
+    if (which === 'start') this.setVariantFilter(!this.variantStartOnly, this.variantEndOnly);
+    else this.setVariantFilter(this.variantStartOnly, !this.variantEndOnly);
+    await this.ensureSetupScan();
+    this.applyCallFilter();
+  }
+
+  /** Set both flags at once and redraw the two buttons: the only writer of the filter state. */
+  private setVariantFilter(start: boolean, end: boolean): void {
+    this.variantStartOnly = start;
+    this.variantEndOnly = end;
+    this.renderVariantFilter();
+  }
+
+  /** The buttons' pressed state, and the fact that they cannot be pressed while the scan runs. */
+  private renderVariantFilter(): void {
+    for (const [button, on] of [
+      [this.startUnmatchedBtn, this.variantStartOnly],
+      [this.endUnmatchedBtn, this.variantEndOnly],
+    ] as const) {
+      button.setAttribute('aria-pressed', String(on));
+      button.disabled = this.setupScan !== null && this.setupMatches === null;
+    }
+  }
+
+  /**
+   * THE CATALOGUE-WIDE SCAN, once per session, on the first press - and the status line is the progress bar for it.
+   *
+   * MEASURED: 5,489 variants in 3.2 s, so the panel cannot do it on load and cannot fake it. The scanner yields on a timer
+   * (see `Catalog.scanSetupMatches`), and each yield paints this count, which is why the number moves while the work
+   * continues. The result is kept for the session: the catalogue does not change while the app runs, which is the same
+   * reasoning `haystack` uses for its cache.
+   */
+  private async ensureSetupScan(): Promise<void> {
+    if (!this.variantStartOnly && !this.variantEndOnly) return;
+    if (this.setupMatches) return;
+    if (!this.setupScan) {
+      this.setupScan = scanSetupMatches((done, total) => {
+        this.statusEl.textContent = `scanning for setups no formation names: ${done} of ${total} call variants…`;
+        this.renderVariantFilter();
+      })
+        .then((out) => {
+          this.setupMatches = out;
+          return out;
+        })
+        .finally(() => {
+          this.renderVariantFilter();
+        });
+    }
+    this.renderVariantFilter();
+    try {
+      const matches = await this.setupScan;
+      const unmatched = [...matches.values()].filter((m) => !m.start || !m.end).length;
+      this.statusEl.textContent = `${matches.size} call variants scanned — ${unmatched} unmatched at the start, the end or both`;
+    } catch (err) {
+      // A FAILED SCAN TURNS THE FILTERS BACK OFF AND SAYS SO: leaving them pressed would narrow the lists by a map that
+      // does not exist, and silently showing everything would read as "no variant is incomplete".
+      this.setVariantFilter(false, false);
+      this.setupScan = null;
+      this.statusEl.textContent = `✗ the setup scan failed: ${(err as Error).message}`;
+    }
   }
 
   // ---- loading ----
@@ -6279,6 +6434,10 @@ export class EditorController implements EditorUI {
         this.applyCallFilter();
       }
     });
+    // THE TWO VARIANT FILTERS: each flips, makes sure the catalogue has been scanned, and refills the lists - the await is
+    // why these are wrapped in `void` rather than returning a promise to a listener nobody awaits.
+    this.startUnmatchedBtn.addEventListener('click', () => void this.toggleVariantFilter('start'));
+    this.endUnmatchedBtn.addEventListener('click', () => void this.toggleVariantFilter('end'));
     this.editCallSel.addEventListener('change', () => {
 
       // THE SETUP IS KEPT WHEN THE NEW CALL HAS IT. The label is read from the dropdown as it stands now, because
@@ -6372,6 +6531,10 @@ export class EditorController implements EditorUI {
       this.levelSel.value = '';
       this.callFilterInput.value = '';
       this.callQuery = '';
+      // THE VARIANT FILTERS TOO. "Open this variant" is an explicit command, and a view that can refuse it has become a
+      // menu: the panel drops every narrowing it owns rather than answering "not in the loaded catalogue" about a call
+      // that is.
+      this.setVariantFilter(false, false);
       this.applyCallFilter();
     }
     if (!offers()) {

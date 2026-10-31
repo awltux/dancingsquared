@@ -36,7 +36,7 @@ import formationsXml from '@corpus/formations.xml?raw';
 // The order the call lists are shown in - `<name> <fraction>[ <end>]`, not alphabetical. See `call-order.ts`.
 import { compareCallTitles } from './call-order';
 // How a call is written as a `<tam>`: with an embedded start formation, or naming one the corpus carries.
-import { callTamXml } from './tam-xml';
+import { callTamXml, corpusFormationsOfSize } from './tam-xml';
 // The glob's own key -> the corpus-relative `level/base` identity this module stores in `CallInfo.file`.
 import { corpusFileOf } from './corpus-key';
 // The generated whole-set instances are not authorings, and the panel must not offer them as calls.
@@ -46,6 +46,8 @@ import { isVirtualFile } from 'dancing-squared-corpus/virtual';
 // catalogue from the real corpus rather than reading the panel.
 import { buildSetupCatalogue } from './setup-catalogue';
 import type { SetupCatalogue, SetupSourceFile, SetupTam } from './setup-catalogue';
+import { scanSetupMatches as scanVariants } from './setup-scan';
+import type { SetupMatch } from './setup-scan';
 import type { Matchable } from 'dancing-squared-engine';
 
 // Each per-level call XML is kept as its OWN async-loadable chunk (not inlined
@@ -318,6 +320,39 @@ export class Catalog {
 
   // ---- call loading ----
 
+  /**
+   * WHICH VARIANTS NO NAMED FORMATION NAMES AT EITHER END, over the whole catalogue - the Call editor's two filter buttons.
+   *
+   * The rule is `setup-scan.ts`; this is the browser half that supplies the corpus it needs and DRIVES THE GENERATOR so
+   * the panel can paint. MEASURED: 5,489 variants in 3.2 s of scanning, 0.59 ms each - so one pass, cached by the caller,
+   * is the whole cost of the feature. It breathes on TIME rather than per file: a frame per file would add about eight
+   * seconds to that 3.2, and a frame per yield the same, so the loop yields when at least `PAINT_EVERY_MS` has passed and
+   * the count then really moves.
+   *
+   * THE LISTS COME FROM THE PICKERS' OWN SOURCE (`corpusFormationsOfSize`), so a variant this calls named is one the two
+   * Selects would name, and the scan cannot drift from them.
+   */
+  async scanSetupMatches(onProgress?: (done: number, total: number) => void): Promise<ReadonlyMap<string, SetupMatch>> {
+    const PAINT_EVERY_MS = 100;
+    const steps = scanVariants({
+      catalogue: this.fullCatalog,
+      files: this.levelXml,
+      formations: this.formationsMap,
+      moves: this.movesMap,
+      formationsOfSize: (dancers) => corpusFormationsOfSize(dancers),
+    });
+    let last = 0;
+    for (;;) {
+      const step = steps.next();
+      if (step.done) return step.value;
+      onProgress?.(step.value.done, step.value.total);
+      if (performance.now() - last >= PAINT_EVERY_MS) {
+        last = performance.now();
+        await new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+      }
+    }
+  }
+
   private loadCallBase(id: string, tamIndex: number, mirror = true): CallBundle {
     const entry = this.fullCatalog.find((c) => c.id === id);
     if (!entry) throw new Error(`Unknown call: ${id}`);
@@ -531,6 +566,10 @@ export function rebuildEdit(edit: CallEdit): CallBundle {
 }
 export function loadCall(id: string, tamIndex: number, mirror = true): CallBundle {
   return catalog.loadCall(id, tamIndex, mirror);
+}
+/** The catalogue-wide scan behind the Call editor's two variant filters - see `Catalog.scanSetupMatches`. */
+export function scanSetupMatches(onProgress?: (done: number, total: number) => void): Promise<ReadonlyMap<string, SetupMatch>> {
+  return catalog.scanSetupMatches(onProgress);
 }
 export function sequencerCallsUpTo(level: string): { name: string; xml: string }[] {
   return catalog.sequencerCallsUpTo(level);

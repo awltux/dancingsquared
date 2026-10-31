@@ -136,8 +136,11 @@ console.log(`    ${calls.length} calls over ${new Set(calls.map((c) => c.rel)).s
 console.log('\n== 4. the panel calls it, in the right order ==');
 {
   const src = fs.readFileSync(path.join(POC_DIR, 'src', 'editor-ui.ts'), 'utf8');
-  check(/const keep = keptSetupIndex\(labels, previousLabel\);\s*\n\s*if \(keep >= 0\) sel\.value = String\(keep\);/.test(src),
-    '`fillSetupSelect` selects the kept index after filling, and only when the call has a setup at all');
+  // THE LABELS ARE THE FILLED LIST'S, not the call's whole setup list: with a variant filter on, `shown` is the narrowed
+  // list and the kept index has to be read off THAT (and mapped back to the variant's original index through `shown`).
+  check(/const keep = keptSetupIndex\(shown\.map\(\(s\) => s\.label\), previousLabel\);/.test(src) &&
+    /if \(keep >= 0\) \{\s*\n\s*sel\.value = String\(shown\[keep\]\.index\);/.test(src),
+    '`fillSetupSelect` selects the kept index after filling, and only when the filled list has an entry to keep');
   // FOUND BY ID, one at a time: a single regex over all three handlers silently measures whichever it happens to match
   // first, and the failure mode of that is the check going green while one panel is still refilling bare.
   const wired = ['editCallSel', 'postCallSel', 'preCallSel'].map((id) => {

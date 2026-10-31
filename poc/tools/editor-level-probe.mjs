@@ -203,7 +203,7 @@ const oi = editorSrc.indexOf('openCall(callId: string, setupIdx: number) {');
 const openCall = oi < 0 ? '' : editorSrc.slice(oi, editorSrc.indexOf('\n  }\n', oi));
 check(openCall !== '', 'the editor has an `openCall`');
 check(/this\.loadEditSetup\(\);\s*\n\s*this\.loadInstance\(\);/.test(openCall), 'and it loads the setup and the instance');
-check(/this\.levelSel\.value = '';[\s\S]{0,160}?this\.callQuery = '';[\s\S]{0,60}?this\.applyCallFilter\(\);/.test(openCall),
+check(/this\.levelSel\.value = '';[\s\S]{0,160}?this\.callQuery = '';[\s\S]{0,600}?this\.applyCallFilter\(\);/.test(openCall),
   'and it clears the Level and the Find filter when the call would otherwise not be in the list');
 check(!/instanceEdited = true/.test(openCall) && !/setMove\(|commit\(|setDancer(Start|End|Gender)\(/.test(openCall),
   'and it EDITS NOTHING - choosing a call and loading it is what clicking the two lists does, so a caller who only wanted to look has changed nothing and Save is not offered');
@@ -274,7 +274,9 @@ console.log('\n== the check fails on the bugs it was written for ==');
   const reloads = wiring(html, src['editor-ui.ts'].replace("this.levelSel.addEventListener('change', () => this.applyCallFilter());", "this.levelSel.addEventListener('change', () => { this.loadInstance(); });"));
   check(!reloads.viewOnly, 'and a level change that reloads the instance is caught: the call would be replaced and edits in progress lost');
 
-  const unpinned = wiring(html, src['editor-ui.ts'].replace('sel.insertBefore(opt, sel.firstChild);', 'void keep;'));
+  // BOTH PIN SITES, because two lists now keep a filtered-out selection (the calls, and the setups behind the variant
+  // filters); `replace` alone would only strip the first, and the control would pass for the wrong reason.
+  const unpinned = wiring(html, src['editor-ui.ts'].replaceAll('sel.insertBefore(opt, sel.firstChild);', 'void keep;'));
   check(!unpinned.keepsSelection, 'and so is dropping the pinned option, which is what makes the filter a view rather than a way to change what you have selected');
 
   const prefixed = wiring(html, src['editor-ui.ts'].replace('const label = (c: CallInfo) => c.title;', 'const label = (c: CallInfo) => `${c.level.toUpperCase()} · ${c.title}`;'));

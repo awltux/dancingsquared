@@ -28,20 +28,33 @@ const MODE = 'daily';
 /**
  * The published challenge for a level and a day.
  *
- * NO IDENTITY IS REQUIRED, AND NONE IS NEEDED TO READ IT. The answer is the published artefact itself: the same
- * seed, level and pool version for every caller, signed in or not, so there is nothing here for an identity to
- * decide — the version of this handler before §11.1 asked for one anyway and answered a signed-out browser `401`
- * to a request that never mentioned the player. That is exactly what §11.2's demo is for: the funnel is "try it
- * read-only, then sign in to be ranked", and a read is already unranked.
+ * THE DAILY IS FOR SIGNED-IN PLAYERS, AND THIS IS WHERE THE SERVER SAYS SO. REPORTED: "Todays daily should only be available to
+ * logged in players." It used to answer a signed-out caller too, under DESIGN.md §11.2's funnel ("try it read-only, then sign
+ * in to be ranked") — and that is the decision this replaces, deliberately rather than by a gap: an anonymous caller now gets
+ * `401 sign_in_required` and NOTHING ELSE, because the Daily is a timed, scored, once-a-day challenge and the app offers no
+ * signed-out version of it (`main.ts` refuses the page for the same reason, with the way to the sign-in form).
  *
- * AN IDENTIFIED READ DOES ONE MORE THING, AND IT IS WHY THIS HANDLER WRITES AT ALL: it records WHEN this player
- * first looked at this challenge (`attempt-row.ts`). That stamp is the Daily's clock — a run submitted later is
- * scored on `submittedAt − lookedAt`, both of them the server's own facts — and there is no other moment to take
- * it from, because the seed is public and a client can derive the board without ever asking. A SIGNED-OUT read
- * records nothing, and the answer is the same bytes either way.
+ * WHAT THIS IS NOT is secrecy. The published row carries a seed and the pool is in every build, so a determined client can
+ * derive the boards without asking; the identity here decides who may PLAY the mode, and the enforcement that matters is on the
+ * WRITE path (`POST /runs` refuses a Daily from a caller it cannot name, as it always has).
+ *
+ * AN IDENTIFIED READ DOES ONE MORE THING, AND IT IS WHY THIS HANDLER WRITES AT ALL: it records WHEN this player first looked at
+ * this challenge (`attempt-row.ts`). That stamp is the Daily's clock — a run submitted later is scored on
+ * `submittedAt − lookedAt`, both of them the server's own facts — and there is no other moment to take it from, because the seed
+ * is public and a client can derive the board without ever asking. The read is anonymous no longer, so that stamp is always
+ * taken.
  */
 export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiResult> {
   const identity = optionalIdentity(request, deps);
+  // THE ONE REFUSAL THAT COMES BEFORE THE PARAMETERS: who is asking outranks what was asked for, so a signed-out deep link
+  // learns the rule rather than a complaint about its query string.
+  if (!identity) {
+    return failure(
+      STATUS.unauthenticated,
+      'sign_in_required',
+      'the Daily is for signed-in players — sign in, then reload this page',
+    );
+  }
   const mode = request.query['mode'] ?? MODE;
   if (mode !== MODE) return failure(STATUS.badRequest, 'bad_mode', `this endpoint serves mode=${MODE}, and ${JSON.stringify(mode)} was asked for`);
   const levelIndex = levelParam(request.query['level']);
@@ -91,7 +104,9 @@ export async function getPuzzle(request: ApiRequest, deps: Deps): Promise<ApiRes
     // pure function of the board and the level's pool, and the applier is warm after the first read of the process.
     readings = startReadings(built, levelAt(value.levelIndex));
   }
-  if (identity) {
+  // THE STAMP IS UNCONDITIONAL NOW: the refusal above means every caller that got this far names a player, so there is no
+  // signed-out read left to skip it for.
+  {
     const stamped = await stampAttempt(deps, identity.playerId, levelIndex, day);
     if ('refusal' in stamped) return stamped.refusal;
   }

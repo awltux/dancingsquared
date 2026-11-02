@@ -1450,6 +1450,36 @@ button[data-busy="true"]::after {
   display: none;
 }
 
+/* `[hidden]` IS NO MORE ENOUGH ON A FLEX BAR THAN ON A FLEX BUTTON: the UA sheet's `display: none` loses to the `display: flex`
+   above, so `DailyScreen.pending`'s `#callFilter.hidden = true` has never actually hidden the search box. It shows now, on the
+   Daily's refusal page — a search box over a challenge nobody may play — which is what MEASURED it (`#dailyTop button[hidden]`
+   carries the same rule for the same reason). */
+#callFilter[hidden] {
+  display: none;
+}
+
+/* THE SIGN-IN ROUTE ON A REFUSED DAILY. REPORTED: "Todays daily should only be available to logged in players", so the page
+   turns a signed-out caller away — and a refusal with no way to fix it is the defect this app refuses twice already (the
+   practice offer, the Next drill). It is a full-width control in the panel's own language (`#foot button`'s fill, edge and
+   radius) rather than the browser's default chrome, and its colour is spelled out for the same reason `#dailyTop button`'s is:
+   a `<button>` does not inherit `color`, and the UA's is black on a near-black panel. */
+#dailySignIn {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-md) var(--space-lg);
+  font-family: inherit;
+  font-size: var(--fs-control);
+  color: var(--ink);
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: var(--r-control);
+  cursor: pointer;
+}
+
+#dailySignIn:hover {
+  border-color: var(--accent);
+}
+
 #verdict[data-kind="ok"],
 #dailyVerdict[data-kind="ok"] {
   color: var(--ok);

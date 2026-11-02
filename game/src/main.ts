@@ -48,7 +48,7 @@ import { PseudonymDeck } from './puzzle/pseudonym.ts';
 import { newRunId, wallGapMs, type DrillSaved, type StorageLike } from './game/store.ts';
 import { advanceDrill, apiConfigured, browserDeps, claimAlias as claimAliasAt, dailyChallenge, fetchDrillReplay, fetchLeaderboard, fetchProfile, issueDrill, pollDaily, recordDailyMove, recordDrillAnswer, rememberAuthMode, replayDrill as requestReplay, spendHint, submitRun, type ApiResult, type HintSpend, type IssuedDrill, type RegimeState } from './net/api.ts';
 import { changePassword, confirmAccount, currentPlayer, discoverAuth, refreshIfExpired, signIn, signOut, signUp, type AuthMode, type SignedIn } from './net/auth.ts';
-import { mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
+import { dailyNeedsSignIn, mayWrite, signInOffered, standingOf, type Standing } from './net/standing.ts';
 import { SaveState } from './game/save-state.ts';
 import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedule-fixture.ts';
 import { seasonPuzzleFor } from './game/season.ts';
@@ -382,6 +382,8 @@ const els = {
   levelsPanel: el('levels'),
   drillPanel: el('drill'),
   dailyPanel: el('daily'),
+  // THE DAILY'S SIGN-IN ROUTE, shown only where `refuseDaily` puts it: a page that turns a player away has to say where to go.
+  dailySignIn: el<HTMLButtonElement>('dailySignIn'),
   boardPanel: el('board'),
   // THE HEADINGS ARE NAMED ONE BY ONE RATHER THAN LOOKED UP FROM `pageHeadingId`, because that lookup is a computed id
   // (`el()` takes a literal) and `shell-controls-probe.mjs` is what proves every id this file asks for exists.
@@ -561,7 +563,6 @@ function paintBoardTabs(): void {
   // THE STATE IS NORMALISED HERE so it is always drawable: a wide viewport's pair state becomes Now when the window narrows,
   // rather than leaving a single-board layout with nothing on the floor.
   boardFocus = focusForLayout(boardFocus, pairAvailable);
-  els.boardTabs.hidden = false;
   els.boardYou.setAttribute('aria-pressed', String(boardFocus === 'left'));
   els.boardTarget.setAttribute('aria-pressed', String(boardFocus === 'right'));
   stage.setFocus(boardFocus);
@@ -618,9 +619,17 @@ function paintWaypoints(): void {
     els.labelGoal.hidden = true;
     els.waypointPrev.hidden = true;
     els.waypointNext.hidden = true;
+    // AND THE BOARD SWITCHER GOES WITH THEM: with no pair on the floor its two tabs choose between boards that are not there.
+    // That is the state the Daily now opens in for a caller the server does not name (REPORTED: "Todays daily should only be
+    // available to logged in players"), so the row would otherwise float over an empty canvas. IT IS THIS FUNCTION THAT OWNS
+    // THE FLAG rather than `paintBoardTabs`, because "is there a board" is a fact only this function asks.
+    els.boardTabs.hidden = true;
     return;
   }
   const { pair, info, stage } = current;
+  // A PAIR IS ON THE FLOOR, SO THE SWITCHER IS SHOWN — the other half of the flag `paintBoardTabs` no longer sets (see the
+  // no-pair branch above).
+  els.boardTabs.hidden = false;
   // THE WORDS ARE THE WAYPOINT'S AND THE HOVER IS THE DRAWN BOARD'S — the two come apart on the live pair, whose left
   // panel is the player's own board. `puzzle/caption.ts` states the rule and why the name cannot answer for it.
   const here = boardCaption({
@@ -779,7 +788,9 @@ function paintLanding(): void {
   }
   els.landingStatus.textContent = standing === 'ranked'
     ? 'No account needed on this server — it names the player for you. Signing in still keeps your progress.'
-    : 'Playing without an account: everything works, and nothing on screen is scored or kept until you sign in.';
+    // "EVERYTHING WORKS" IS NO LONGER TRUE: the Daily needs a signed-in player (REPORTED: "Todays daily should only be available
+    // to logged in players"), so the sentence says which mode is missing rather than letting the page discover it.
+    : 'Playing without an account: the drills work, the Daily needs you signed in, and nothing on screen is scored or kept until you do.';
 }
 
 /**
@@ -2810,16 +2821,49 @@ function issueDaily(): void {
     const known = levelSpec(save.levelIndex);
     if (known) useLevel(known);
   }
+  // THE DAILY IS FOR PLAYERS THE SERVER NAMES. REPORTED: "Todays daily should only be available to logged in players." The
+  // RULE is `net/standing.ts`'s `dailyNeedsSignIn`, and this is the one place the app obeys it: no challenge is issued, the
+  // panel says which of the two reasons applies, and a button leads to the profile page where the form is. The SERVER refuses
+  // the same request (`getPuzzle` answers `401 sign_in_required`), so this is the app's half of one rule rather than the rule.
+  if (dailyNeedsSignIn(currentStanding())) {
+    refuseDaily();
+    return;
+  }
+  els.dailySignIn.hidden = true;
   if (apiConfigured()) void startServerDaily();
   else startDaily();
 }
 
 /**
+ * The Daily's page with nobody to play it, which is now a state it can be in.
+ *
+ * THE TWO REASONS ARE SAID DIFFERENTLY, because they need different actions: with no server configured there is nothing to sign
+ * in TO (the balance, the account and the challenge are all the server's), and on a server that will not name this caller the
+ * answer is the sign-in form one page away. The run in memory is dropped: it belongs to a player who is not there any more, and
+ * `paintDaily` would otherwise keep drawing a board nobody may play.
+ */
+function refuseDaily(): void {
+  const standing = currentStanding();
+  daily = null;
+  waypointCursor = null;
+  waypointHold = null;
+  paintWaypoints();
+  draw();
+  dailyScreen.pending(
+    standing === 'offline'
+      ? 'Today’s Daily needs a server: the challenge, the clock and the score are all the server’s, so there is nothing to play without one.'
+      : 'Sign in to play today’s Daily — it is one scored challenge a day, and the server has to know who you are.',
+  );
+  // THE WAY TO THE FORM, and only where there is a form to reach: an offline page offers a button that would lead to a profile
+  // page with no sign-in on it, which is the "control that does nothing" this file refuses elsewhere.
+  els.dailySignIn.hidden = standing === 'offline';
+}
+
+/**
  * Record one move of the Daily's line, where the server is the one keeping it.
  *
- * A DEMO SENDS NOTHING: a signed-out player's Daily is unranked and never submitted, so its moves would be writes
- * the server refuses (A20) and refusals A25 counts. The local run keeps its own move stack either way, which is what
- * the review replays and what a later sign-in imports.
+ * NOTHING IS SENT BY A CALLER THE SERVER WILL NOT NAME: a move log is a write (A20), and a refused one is a refusal A25 counts
+ * for no reason — which is also why the Daily's page is not reachable at all without an identity (`dailyNeedsSignIn`).
  *
  * ONLY A MOVE THAT LANDED IS SENT. An illegal call never entered the line and an over-budget one was refused by the
  * session, so recording either would spend a log entry on a move the replay will not reproduce — the two sides'
@@ -3396,6 +3440,9 @@ function main(): void {
   // THE ACCOUNT BADGE IS A LINK TO THE ACCOUNT PAGE IN EVERY STATE, including the empty one — which is the report that added
   // it. On the account page it re-applies the page, because a press that does nothing is worse than one that lands.
   els.bannerAccount.addEventListener('click', () => navigate({ page: 'profile', drillIndex: null }));
+  // THE DAILY'S REFUSAL LEADS HERE. It is the same destination as the account badge, because the sign-in form is the profile
+  // page's — one place for the form, not a second copy of it on a page that is for playing.
+  els.dailySignIn.addEventListener('click', () => navigate({ page: 'profile', drillIndex: null }));
   window.addEventListener('hashchange', () => applyPage(pageFor(location.hash), true));
   els.boardModeDrill.addEventListener('click', () => switchBoardMode('drill'));
   els.boardModeDaily.addEventListener('click', () => switchBoardMode('daily'));

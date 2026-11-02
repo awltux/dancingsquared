@@ -275,7 +275,7 @@
               <dt>Hints</dt>
               <dd>One is earned every ten solved drills, and a hint spends a minute of the Daily's clock as well as a hint. The three bars in the banner are what you hold, filled for what is there — and on the Daily that badge is the button: press it to spend a hint and be shown one call of the route.</dd>
               <dt>Signing in</dt>
-              <dd>Without an account you can play everything; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
+              <dd>Without an account you can play the practice drills; your runs are kept on this device and are not sent anywhere, so there is nothing to rank. Today's Daily is the one mode that needs a signed-in player, because it is a single scored challenge a day and the server has to know who you are. Signing in hands those runs to the server as history — kept, and not re-ranked — and from then on a run is scored against the drill it was served with.</dd>
             </dl>
             <p class="page-note">The banner is on every page: the way back on the left, and what you hold and what you are worth beside it.</p>
           </section>
@@ -409,6 +409,11 @@
             <!-- THE ARMED READING, and only that: the Shift-click instruction it used to carry is the help page's
                  "Two-group steps" entry. Empty when nothing is armed. -->
             <p id="offerPairHint"></p>
+            <!-- THE WAY TO THE SIGN-IN FORM, shown only when the Daily refuses a caller the server does not name. REPORTED:
+                 "Todays daily should only be available to logged in players" — and a refusal that does not say where to fix it
+                 is the defect this file has already refused twice (the practice offer, the Next drill). It is hidden on an
+                 OFFLINE page, where there is no server to sign in to and the profile page would carry no form. -->
+            <button id="dailySignIn" type="button" hidden>Sign in</button>
             <!-- NARROWING THE LIST. A level-1 Daily offers 277 readings over 14 subsets from the squared set and 306 over 16 from a generated start, so reaching the call a player
                  has in mind used to mean scrolling a page of buttons. ONE SUBSET IS ALWAYS SELECTED — REPORTED: "The call lists
                  in the HUD should always use a single call filter, defaulting to 'All 8'. Selecting another filter deselects

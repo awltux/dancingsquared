@@ -66,7 +66,7 @@ const FOOTER = [
 /** The controls that belong to a specific page rather than to the shell, and which page each one is on. */
 const PAGE_CONTROLS = {
   profile: ['accountEmail', 'accountPassword', 'accountSignIn', 'accountSignUp', 'accountCode', 'accountConfirm', 'accountSignOut', 'passwordForm', 'currentPassword', 'newPassword', 'passwordChange', 'ledger', 'profileBoard', 'aliasForm', 'aliasInput', 'aliasSave', 'aliasStatus'],
-  daily: ['callSearch', 'callSubsets', 'offer', 'undo', 'redo'],
+  daily: ['callSearch', 'callSubsets', 'offer', 'undo', 'redo', 'dailySignIn'],
   levels: ['levelNext', 'levelBlock'],
 };
 /** Set-once preferences and housekeeping: they belong on the Setup page, and nowhere else. */
@@ -397,6 +397,11 @@ console.log('\n== 6. the footer holds the game\'s moves, each page its own contr
   // own absence: delete `#dailyTop button[hidden]` and only this check fails.
   check(/#dailyTop button\[hidden\]\s*\{[^}]*display:\s*none/.test(stripComments(css)),
     'the Daily\'s icon buttons are hidden by their `hidden` attribute, which a flex `display` would otherwise defeat');
+  // THE SAME TRAP ONE ELEMENT OVER, and it took the REFUSED Daily to show it: `#callFilter` is a flex bar, so
+  // `DailyScreen.pending`'s `hidden = true` had never hidden the search box. MEASURED on the refusal page — a search box over a
+  // challenge nobody may play. Both rules are pinned because the cascade is invisible to an id contract.
+  check(/#callFilter\[hidden\]\s*\{[^}]*display:\s*none/.test(stripComments(css)),
+    'and so is the Daily\'s search bar, whose `display: flex` defeats `hidden` the same way');
   // A THEMED BUTTON MUST ALSO SAY ITS TEXT COLOUR, because `color` is NOT inherited into a `<button>`: the UA sheet sets
   // `color: buttontext`, which is black. MEASURED — the Daily's two arrow icons were drawn with `currentColor` on a button
   // that set `background: var(--control)` and no `color`, so the stroke was `rgb(0, 0, 0)` on a near-black fill (1.10:1), and

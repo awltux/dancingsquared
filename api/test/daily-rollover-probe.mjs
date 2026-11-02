@@ -50,8 +50,13 @@ const server = await startDevServer({
   announce: (message) => announced.push(message),
 });
 const base = `http://127.0.0.1:${server.port}`;
-const read = async (day) => {
-  const response = await fetch(`${base}/puzzle?mode=daily&level=1&date=${day}`);
+// THE READ NEEDS AN IDENTITY NOW (REPORTED: "Todays daily should only be available to logged in players"), and this server runs
+// in `dev`, where the player is a header — so the probe asks as one. `who` is a parameter rather than a constant so §1 can show
+// the refusal is about WHO and not about the day.
+const read = async (day, who = 'rollover-probe') => {
+  const response = await fetch(`${base}/puzzle?mode=daily&level=1&date=${day}`, {
+    headers: who === null ? {} : { 'x-dev-player': who },
+  });
   return { status: response.status, body: await response.json() };
 };
 const row = (day) => server.store.get(publishedDailyKey(1, day)).then((item) => item?.value ?? null);
@@ -63,6 +68,10 @@ try {
   // first check is the refusal rather than the publish.
   const beforeA = await read(DAY_A);
   check(beforeA.status === 404 && beforeA.body.error?.code === 'no_published_daily', `an unpublished day is a 404 no_published_daily (${beforeA.status} ${beforeA.body.error?.code})`);
+  // AND A SIGNED-OUT READ IS REFUSED FOR ITS IDENTITY RATHER THAN FOR THE DAY, which is the new rule and the one that makes the
+  // 404 above a statement about the CHALLENGE: the pair of checks tells "there is no challenge" apart from "you may not ask".
+  const nobody = await read(DAY_A, null);
+  check(nobody.status === 401 && nobody.body.error?.code === 'sign_in_required', `while a signed-out read is a 401 sign_in_required (${nobody.status} ${nobody.body.error?.code})`);
   check((await row(DAY_A)) === null, 'and the read created no row: the server never invents a challenge (DESIGN.md 9)');
   check(announced.length === 0, `and a server asked not to seed announced nothing at boot (${announced.length} line(s))`);
 

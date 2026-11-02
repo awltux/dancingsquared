@@ -78,6 +78,23 @@ export function mayWrite(standing: Standing): boolean {
   return standing === 'ranked';
 }
 
+/**
+ * WHETHER THIS CALLER IS A PLAYER THE SERVER NAMES — which is what "logged in" means here, and now what the Daily requires.
+ *
+ * REPORTED: "Todays daily should only be available to logged in players." DECIDED with the report: an identity the server
+ * verifies is enough, so an account session, the emulator and the `dev` header mode all qualify — while `offline` (no server,
+ * therefore no identity) and `unranked` (a server that will not name this caller) do not.
+ *
+ * IT IS THE SAME PREDICATE AS `mayWrite` TODAY, and it is a separate name on purpose: they answer different questions — "will
+ * this run be recorded" against "may this player open the Daily" — and a mode could identify a caller without scoring them
+ * (the `dev` header already identifies one without an account). If they ever diverge, this is where the divergence is written
+ * down rather than discovered. The reason a caller is turned away is `standing`, so the screen can say WHICH of the two it is:
+ * there is no server to sign in to, or there is one and this player is not signed in.
+ */
+export function dailyNeedsSignIn(standing: Standing): boolean {
+  return standing !== 'ranked';
+}
+
 /** The facts the offer of a sign-in form is a function of. */
 interface SignInOfferFacts {
   readonly mode: AuthMode | null;

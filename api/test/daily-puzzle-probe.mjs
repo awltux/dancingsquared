@@ -147,11 +147,33 @@ console.log('\n== 3. what the query must carry ==');
   check(noMode.status === STATUS.ok, `an omitted mode defaults to daily (${noMode.status})`);
   const wrongMode = await getPuzzle(ask('p3', { mode: 'drill', level: '1', date: DAY }), deps);
   check(wrongMode.status === STATUS.badRequest && wrongMode.body.error.code === 'bad_mode', `and a Drill is refused, because the Drill's order is served by /drill/current (${wrongMode.body.error?.code})`);
-  // NO IDENTITY IS NEEDED AND NONE IS READ: the answer is the published artefact, identical for every caller, so
-  // a signed-out browser gets it rather than a 401 for a request that never mentioned the player (§11.2's demo).
+  // THE DAILY IS FOR PLAYERS THE SERVER NAMES. REPORTED: "Todays daily should only be available to logged in players." This
+  // reverses the rule that shipped — the comment here used to say "NO IDENTITY IS NEEDED AND NONE IS READ … a signed-out
+  // browser gets it rather than a 401" — so the check is the refusal, with the identified read as the control that proves the
+  // instrument can see an answer at all.
   const anonymous = await getPuzzle(ask(null, { mode: 'daily', level: '1', date: DAY }), deps);
-  check(anonymous.status === STATUS.ok, `no identity is served the same challenge (${anonymous.status})`);
-  check(JSON.stringify(anonymous.body) === JSON.stringify((await getPuzzle(ask('p3', { mode: 'daily', level: '1', date: DAY }), deps)).body), 'BYTE FOR BYTE, so there is no player-specific part for an identity to decide');
+  check(anonymous.status === STATUS.unauthenticated && anonymous.body.error?.code === 'sign_in_required',
+    `a signed-out caller is refused, and told why (${anonymous.status} ${anonymous.body.error?.code})`);
+  const identified = await getPuzzle(ask('p3', { mode: 'daily', level: '1', date: DAY }), deps);
+  check(identified.status === STATUS.ok, `CONTROL: a caller the server names still gets the challenge (${identified.status})`);
+}
+
+console.log('\n== 3b. THE REFUSAL COMES BEFORE THE PARAMETERS, and before the store is touched ==');
+{
+  // WHO IS ASKING OUTRANKS WHAT WAS ASKED FOR: a signed-out deep link must learn the rule, not a complaint about its query
+  // string, and the refusal must not cost a read (a store that was asked would be the "refusal after doing the work" shape).
+  const store = new MemoryStore();
+  await publishDay(store, DAY, { levels: [1], nowMs: CLOCK });
+  const base = depsFor(store);
+  let reads = 0;
+  const counting = { ...base, store: { ...store, get: async (key) => { reads++; return store.get(key); } } };
+  const nothing = await getPuzzle(ask(null, {}), counting);
+  check(nothing.status === STATUS.unauthenticated, `an anonymous request with no query at all is refused for the identity (${nothing.status})`);
+  check(reads === 0, `and the store was not read (${reads} read(s))`);
+  // NEGATIVE CONTROL: an identified caller with the same empty query IS answered — a 400 about its missing mode — which is what
+  // makes the check above a statement about the identity rather than about the empty query.
+  const identified = await getPuzzle(ask('p3', {}), counting);
+  check(identified.status === STATUS.badRequest, `CONTROL: the same request with an identity gets as far as its parameters (${identified.status})`);
 }
 
 console.log('\n== 4. publishing the same day twice changes nothing that matters ==');
@@ -228,11 +250,14 @@ console.log('\n== 7. the READ is what starts the Daily clock (A21) ==');
   await getPuzzle(ask(query), deps);
   check((await store.get(key))?.value.startedAtMs === CLOCK, `and a LATER re-read does not move it (${(await store.get(key))?.value.startedAtMs})`);
 
-  // AND A SIGNED-OUT READ RECORDS NOTHING (§11.2's demo), while answering the same bytes.
+  // AND A SIGNED-OUT READ IS REFUSED OUTRIGHT, so it records nothing because it never reaches the stamp. REPORTED:
+  // "Todays daily should only be available to logged in players" — the rule that shipped here was the opposite ("a
+  // signed-out read records nothing … while answering exactly the bytes the identified read did"), and this check is
+  // the one that would catch it coming back.
   const before = store.size;
   const anonymous = await getPuzzle({ ...ask(query), headers: {} }, deps);
-  check(anonymous.status === STATUS.ok && store.size === before, `a signed-out read records nothing (size ${before} -> ${store.size})`);
-  check(JSON.stringify(anonymous.body) === JSON.stringify(first.body), 'while answering exactly the bytes the identified read did');
+  check(anonymous.status === STATUS.unauthenticated && store.size === before,
+    `a signed-out read is refused and records nothing (${anonymous.status}, size ${before} -> ${store.size})`);
 
   // A ROW NOBODY CAN READ IS REFUSED RATHER THAN RE-STAMPED, because scoring a run against a stamp nobody can parse
   // is worse than saying the row is broken. THE WRITE CARRIES THE REVISION IT READ: the row already exists, so a
@@ -264,7 +289,7 @@ console.log('\n== 8. the read RECOVERS a built puzzle and never builds one ==');
   // with that one, and a read that recovers answers with the stored one. Nothing about timing is involved.
   const otherSeed = storedSeed + 1;
   await store.put(key, { ...row.value, seed: otherSeed }, row.rev);
-  const recovered = await getPuzzle(ask(null, query), deps);
+  const recovered = await getPuzzle(ask('p3', query), deps);
   check(recovered.status === STATUS.ok, `a row with a built puzzle is served (${recovered.status})`);
   check(recovered.body.daily.puzzle?.seed === storedSeed,
     `and the puzzle served is the STORED one, not one regenerated from the row's seed (${recovered.body.daily.puzzle?.seed} against a row seed of ${otherSeed})`);
@@ -281,7 +306,7 @@ console.log('\n== 8. the read RECOVERS a built puzzle and never builds one ==');
     const fresh = await store.get(key);
     await store.put(key, { seed: fresh.value.seed, levelIndex: 1, poolVersion: fresh.value.poolVersion, publishedAtMs: CLOCK }, fresh.rev);
   });
-  const unbuilt = await getPuzzle(ask(null, query), deps);
+  const unbuilt = await getPuzzle(ask('p3', query), deps);
   check(unbuilt.status === STATUS.unavailable && unbuilt.body.error?.code === 'daily_not_built',
     `a row with no built puzzle is REFUSED rather than built (${unbuilt.status} ${unbuilt.body.error?.code})`);
   check(typeof unbuilt.body.error?.message === 'string' && unbuilt.body.error.message.includes('publish-daily'),

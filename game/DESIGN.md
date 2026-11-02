@@ -1719,10 +1719,21 @@ because "it did not ask" is otherwise invisible). The config refuses
 section 6 of `api/test/auth-probe.mjs`, which also pins that `cognito` without an issuer and audience is refused
 rather than started.
 
-**AND A SIGNED-OUT CALLER GETS A DEMO, NOT A WALL.** This is the amendment to decision 6 and to §8's "the Drill is
-the funnel": the funnel becomes *try it read-only, then sign in to be ranked*. A signed-out player can fetch the
-issued drill and the published challenge and play for real; nothing is submitted, scored or stored, and the app
-says so on screen (`paintBalance`/`paintLedger` mark it unranked). Every write is `401`.
+**AND A SIGNED-OUT CALLER GETS A DEMO, NOT A WALL — FOR THE DRILL.** This is the amendment to decision 6 and to §8's "the
+Drill is the funnel": the funnel becomes *try a drill read-only, then sign in to be ranked*. A signed-out player can fetch the
+issued drill and play it for real; nothing is submitted, scored or stored, and the app says so on screen
+(`paintBalance`/`paintLedger` mark it unranked). Every write is `401`.
+
+**THE DAILY IS NOT IN THAT FUNNEL ANY MORE.** REPORTED: "Todays daily should only be available to logged in players." So
+`GET /puzzle` — the Daily's read — answers a signed-out caller `401 sign_in_required` and nothing else, `POST /runs` refuses
+its submission as it always did, and the app's Daily page says which of the two reasons applies ("sign in" on a server that will
+not name the caller, "there is no server to sign in to" offline) with a button to the profile page's form. The rule on the
+CLIENT is `net/standing.ts`'s `dailyNeedsSignIn(standing)` — an identity the server verifies, so an account session, the
+emulator and the `dev` header mode all qualify — and `game/test/standing-probe.mjs` §6b pins it with the old rule ("everyone
+may play") as the negative control. THE SERVER'S REFUSAL IS THE RULE and the page is its echo: a client-only gate would be a
+suggestion. What this does not buy is secrecy — the published row carries a seed and the pool ships in every build, so a
+determined client can derive the boards without asking; the identity decides who may PLAY the mode and be scored in it, which
+is what the report asked for.
 
 ---
 

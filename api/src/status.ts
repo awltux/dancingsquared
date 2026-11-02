@@ -54,12 +54,14 @@ export function requireIdentity(request: ApiRequest, deps: Deps): { identity: Id
 /**
  * The identity, or null: for a READ that answers a signed-out caller too (DESIGN.md 11.1's A20).
  *
- * IT IS DELIBERATELY NOT A REFUSAL. A read that returns null here must answer WITHOUT the player-specific parts
- * and WRITE NOTHING — no Progress row, no attempt row — because the whole point of the demo is that nothing of
- * an unverified visitor's is stored. That obligation cannot be enforced by this function, so it is enforced by
- * the probe: `auth-probe.mjs` reads the drill and the challenge anonymously through a counting store and asserts
- * that the count did not move and the store did not grow, with an identified read as the control that shows the
- * instrument can see a write at all.
+ * IT IS DELIBERATELY NOT A REFUSAL, and the ONE read that still uses it this way is the Drill's (`GET /drill/current`, the
+ * demo). A read that returns null here must answer WITHOUT the player-specific parts and WRITE NOTHING — no Progress row, no
+ * attempt row — because the whole point of the demo is that nothing of an unverified visitor's is stored. That obligation cannot
+ * be enforced by this function, so it is enforced by the probe: `auth-probe.mjs` reads the drill anonymously through a counting
+ * store and asserts that the count did not move and the store did not grow, with an identified read as the control that shows
+ * the instrument can see a write at all. THE DAILY'S READ USED TO BE THE SECOND CALLER AND IS NOT ANY MORE — REPORTED: "Todays
+ * daily should only be available to logged in players", so `getPuzzle` refuses a null identity with `401 sign_in_required` and
+ * `auth-probe.mjs` §5 measures that refusal beside the drill's demo.
  */
 export function optionalIdentity(request: ApiRequest, deps: Deps): Identity | null {
   return deps.identityOf(request);

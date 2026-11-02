@@ -14,8 +14,7 @@
 //
 // Usage: node game/test/standing-probe.mjs
 import { issueDrill } from '../src/net/api.ts';
-import { mayWrite, signInOffered, standingOf } from '../src/net/standing.ts';
-
+import { dailyNeedsSignIn, mayWrite, signInOffered, standingOf } from '../src/net/standing.ts';
 let failures = 0;
 const check = (cond, msg) => {
   console.log(cond ? '  ok   ' + msg : '  FAIL ' + msg);
@@ -95,6 +94,28 @@ console.log('\n== 6. a write is sent only where the server will take one ==');
   check(mayWrite('offline') === false, 'and neither may the offline game, which has nothing to write TO');
   // THE THREE ARE EXHAUSTIVE, so a fourth standing added later cannot silently write.
   check(['offline', 'ranked', 'unranked'].filter((s) => mayWrite(s)).length === 1, 'exactly one standing may write');
+}
+
+console.log('\n== 6b. the DAILY is for players the server names ==');
+{
+  // REPORTED: "Todays daily should only be available to logged in players." DECIDED with the report: an identity the server
+  // verifies is enough, which in this app's vocabulary is the `ranked` standing — an account session, the emulator, or the
+  // `dev` header mode, all of which `standingOf` already folds into it.
+  check(dailyNeedsSignIn('ranked') === false, 'a player the server names may open the Daily');
+  check(dailyNeedsSignIn('unranked') === true, 'a caller it will not name may not');
+  check(dailyNeedsSignIn('offline') === true, 'and neither may an offline page, where there is no identity to have');
+  // THE THREE ARE EXHAUSTIVE HERE TOO, so a fourth standing has to make this decision deliberately.
+  check(['offline', 'ranked', 'unranked'].filter((s) => !dailyNeedsSignIn(s)).length === 1, 'exactly one standing may play the Daily');
+  // THE FACT THAT MAKES `dev` COUNT: a signed-out caller under the dev header mode IS ranked (`standingOf`), and so is admitted —
+  // which is the case the report's "logged in" had to be read against, and the reason the rule is written on the standing rather
+  // than on `signedIn` (a session boolean would shut the Daily on a dev server, including the owner's own phone).
+  check(standingOf(facts({ mode: 'dev', signedIn: false })) === 'ranked'
+    && !dailyNeedsSignIn(standingOf(facts({ mode: 'dev', signedIn: false }))),
+    'a dev server\'s signed-out caller is named by the header, so it is admitted (a `signedIn` test would not be)');
+  // NEGATIVE CONTROL: the rule that shipped — everyone may play the Daily — disagrees on exactly the two refusals above.
+  const shipped = () => false;
+  check(shipped('unranked') !== dailyNeedsSignIn('unranked') && shipped('offline') !== dailyNeedsSignIn('offline'),
+    'CONTROL: the old rule admitted both, and only these two checks say so');
 }
 
 console.log('\n== 7. the form is offered only where a sign-in is served, with one pinned exception ==');

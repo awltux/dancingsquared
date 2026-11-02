@@ -12,7 +12,8 @@
 //     possession of a header was possession of an account (AGENTS.md §8 trap 23);
 //   * an anonymous READ writes nothing at all — no Progress row, no attempt row — and the instrument that says so
 //     is measured on an identified read, which DOES write, so "no writes" is a measurement rather than a blind
-//     spot.
+//     spot. THE DRILL still serves one; the DAILY does not (REPORTED: "Todays daily should only be available to
+//     logged in players"), so its half of that claim is now a 401 rather than a puzzle-less 200.
 //
 // THE VERIFIER IS THE DEPLOYMENT'S. Both key sources run through `verifyToken`: the emulator's HMAC secret and an
 // RSA JWKS generated in this file, which is the shape Cognito's pool publishes. That is what makes "test the
@@ -300,7 +301,7 @@ console.log('\n== 4. in `dev` mode the emulator is not there at all ==');
 }
 
 // =============================================================================================================
-console.log('\n== 5. a signed-out read writes NOTHING ==');
+console.log('\n== 5. a signed-out read writes NOTHING — and the Daily no longer serves one at all ==');
 {
   const inner = new MemoryStore();
   const counted = spy(inner);
@@ -312,16 +313,24 @@ console.log('\n== 5. a signed-out read writes NOTHING ==');
     // nothing" would then be a statement about a refused request rather than about a served one.
     const today = utcDay(new Date());
     const drill = await fetch(`${base}/drill/current?level=${LEVEL}`);
+    // THE DAILY IS FOR SIGNED-IN PLAYERS NOW. REPORTED: "Todays daily should only be available to logged in players." The Drill
+    // still serves a demo (that is the funnel's remaining half), and the Daily answers a refusal — which is what this section
+    // now measures: the drill's read writes nothing, and the challenge's read never gets as far as writing.
     const puzzle = await fetch(`${base}/puzzle?mode=daily&level=${LEVEL}&date=${today}`);
-    check(drill.status === 200 && puzzle.status === 200, `both reads are served anonymously (drill ${drill.status}, puzzle ${puzzle.status}, ${today})`);
+    check(drill.status === 200 && puzzle.status === 401, `the drill is served anonymously and the Daily is refused (drill ${drill.status}, puzzle ${puzzle.status}, ${today})`);
+    const puzzleBody = await puzzle.json();
+    check(puzzleBody.error?.code === 'sign_in_required', `and the refusal names the remedy rather than the field (${puzzleBody.error?.code})`);
     const drillBody = await drill.json();
-    check(drillBody.demo === true, 'and the drill says it is a demo, which is what the client marks the run unranked with');
+    check(drillBody.demo === true, 'the drill says it is a demo, which is what the client marks the run unranked with');
     check(counted.state.writes === before.writes && inner.size === before.size, `and neither wrote anything (${counted.state.writes - before.writes} writes, size ${before.size} -> ${inner.size})`);
 
     // THE INSTRUMENT IS MEASURED, which is the point of the whole section: the same server, the same reads, with
     // an identity — and now the writes appear. An instrument that saw no writes either way would prove nothing.
     const first = await fetch(`${base}/drill/current?level=${LEVEL}`, { headers: { 'x-dev-player': 'someone' } });
     check(first.status === 200 && counted.state.writes > before.writes, `NEGATIVE CONTROL: an IDENTIFIED read does write, so the count above is a measurement (${counted.state.writes - before.writes} writes)`);
+    // AND THE DAILY'S OWN CONTROL: the same request WITH an identity is served, so the 401 above is about who asked.
+    const named = await fetch(`${base}/puzzle?mode=daily&level=${LEVEL}&date=${today}`, { headers: { 'x-dev-player': 'someone' } });
+    check(named.status === 200, `CONTROL: the challenge is served to a caller this server names (${named.status})`);
   } finally {
     await server.close();
   }

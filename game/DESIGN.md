@@ -744,6 +744,15 @@ answers cannot drift between the client and the server, because there is now onl
   boards solved — a pair the switches would otherwise flip between while neither is the next question. The rule is
   `solvingPair` in `puzzle/waypoint-pair.ts`, and `waypoint-pair-probe.mjs` §2b pins it with the held pair and a paged
   preview as the two negative controls.
+  **AND THE WIDGET IS ON BOTH VIEWS.** REPORTED: "The Now|Target widget is only on the mobile version, but It would be just as
+  useful in the PC view. Make sure the Now|Target widget is shown in both views." It used to be hidden above the breakpoint, on
+  the theory that a control which changes nothing is worse than no control — but on a wide screen a press does change
+  something: it draws ONE board at the centre with the other as a ghost on it, which is the pair view's answer to the phone's
+  one-board-at-a-time. The extra state is the way back — pressing the pressed tab returns the pair — and it exists only where
+  the pair can be drawn, so a narrow viewport keeps exactly the behaviour above and a second press there is a no-op rather than
+  a blank floor. The rule is `ui/board-tabs.ts` (`nextBoardFocus`, `focusForLayout`) and `game/test/board-tabs-probe.mjs` pins
+  both layouts, with the shipped rule (`focus = pressed`, no way back) as the wide view's negative control. A desktop page
+  still OPENS on the pair.
 - **The illegal option is the lesson.** It stops part-way, and the engine's own refusal reason is shown
   verbatim — the same reason string the Daily shows, from the same `applyToBoard` result (§4.1).
   **AND IT MUST NOT BE RECOGNISABLE BEFORE IT IS PRESSED**, which is two rules and both were defects once

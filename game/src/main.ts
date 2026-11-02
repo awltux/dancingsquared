@@ -54,6 +54,7 @@ import { LOCAL_SCHEDULE, scheduleEntryFor, scheduleLength } from './game/schedul
 import { seasonPuzzleFor } from './game/season.ts';
 import { GameStage, type StagePair, type ViewMode } from './render/stage-view.ts';
 import { applyTheme } from './ui/theme.ts';
+import { focusForLayout, nextBoardFocus, type BoardFocus } from './ui/board-tabs.ts';
 import { layoutFor, type Layout } from './ui/layout.ts';
 import { pairLeftBoard, waypointPair, type WaypointPair } from './puzzle/waypoint-pair.ts';
 import { boardCaption } from './puzzle/caption.ts';
@@ -347,7 +348,12 @@ let layout: Layout = layoutFor(1440, 900);
  * THE GHOST LAYER IS WHAT MAKES THE CHOICE CHEAP: the board that is not drawn still has its dancers on the floor, so
  * switching emphasis costs one tap and no memory (`render/ghost-pair.ts`).
  */
-let boardFocus: 'left' | 'right' = 'left';
+/**
+ * Which board the stage is told to draw, and `null` is the PAIR — the state a wide viewport OPENS in, so a desktop page is
+ * unchanged by the tabs existing (`ui/board-tabs.ts` owns the rule, and a narrow layout coalesces the pair to Now before
+ * drawing).
+ */
+let boardFocus: BoardFocus = null;
 
 const els = {
   stageCanvas: el<HTMLCanvasElement>('stage'),
@@ -541,21 +547,28 @@ function currentPair(): { stage: StagePair; pair: WaypointPair; info: WaypointIn
 /**
  * THE BOARD SWITCHER, and the one place the stage is told which board to draw.
  *
- * IT IS THE `boards` ANSWER THAT DECIDES: a wide viewport shows the pair and this hides the tabs, because a control that
- * changes nothing is worse than no control. A narrow one shows a single board, the tabs become the way between the two,
- * and `stage.setFocus` does the drawing (`render/stage-view.ts`). Both boards' captions exist either way; the one that is
- * not on the floor is hidden in `paintWaypoints`.
+ * IT IS SHOWN IN BOTH VIEWS. REPORTED: "The Now|Target widget is only on the mobile version, but It would be just as useful in
+ * the PC view. Make sure the Now|Target widget is shown in both views." It used to be hidden whenever the layout showed the
+ * pair, on the theory that a control which changes nothing is worse than no control — but the press does change something on a
+ * wide screen too: it draws ONE board at the centre with the other as a ghost on it, and pressing it again returns the pair.
+ *
+ * THE RULE IS `ui/board-tabs.ts`'S, not a branch here, so both halves a probe can hold — which side a press picks, and when
+ * the pair comes back — are pinned by `game/test/board-tabs-probe.mjs`. This function only feeds it the layout and writes the
+ * two flags. A page with no game board still hides the whole row, by `data-stage="page"` in the stylesheet.
  */
 function paintBoardTabs(): void {
-  const single = layout.boards === 'single';
-  els.boardTabs.hidden = !single;
+  const pairAvailable = layout.boards === 'pair';
+  // THE STATE IS NORMALISED HERE so it is always drawable: a wide viewport's pair state becomes Now when the window narrows,
+  // rather than leaving a single-board layout with nothing on the floor.
+  boardFocus = focusForLayout(boardFocus, pairAvailable);
+  els.boardTabs.hidden = false;
   els.boardYou.setAttribute('aria-pressed', String(boardFocus === 'left'));
   els.boardTarget.setAttribute('aria-pressed', String(boardFocus === 'right'));
-  stage.setFocus(single ? boardFocus : null);
+  stage.setFocus(boardFocus);
 }
 
 /**
- * Switch which board the single-board view shows — and SCRUB TO THE SOLVING PAIR FIRST.
+ * Switch which board the stage draws — and SCRUB TO THE SOLVING PAIR FIRST.
  *
  * REPORTED: "The [Now, Target] widget currently applies to the currently displayed board which might not be the one to be
  * solved, but I want them to first scrub to the last completed (green) board the subsequent uncompleted board. The
@@ -566,6 +579,10 @@ function paintBoardTabs(): void {
  * THE HOLD GOES WITH THE CURSOR, and that is the half a press would otherwise miss: after a success the window is held on
  * the waypoint just reached so the right-hand board does not auto-skip, which leaves BOTH boards solved — a pair the widget
  * would happily flip between while neither is the board to solve next (`waypoint-pair.ts` records the report).
+ *
+ * A SECOND PRESS OF THE PRESSED TAB RETURNS THE PAIR where the layout can show one (REPORTED: "Make sure the Now|Target widget
+ * is shown in both views"), so a wide viewport is never stuck in the solo view. `nextBoardFocus` owns that rule; on a narrow
+ * one it is a no-op, because there is no pair to return to.
  */
 function setBoardFocus(focus: 'left' | 'right'): void {
   const scrubbed = waypointCursor !== null || waypointHold !== null;
@@ -573,8 +590,9 @@ function setBoardFocus(focus: 'left' | 'right'): void {
     waypointCursor = null;
     waypointHold = null;
   }
-  if (boardFocus === focus && !scrubbed) return;
-  boardFocus = focus;
+  const next = nextBoardFocus(boardFocus, focus, layout.boards === 'pair');
+  if (next === boardFocus && !scrubbed) return;
+  boardFocus = next;
   paintBoardTabs();
   paintWaypoints();
   draw();
@@ -619,12 +637,12 @@ function paintWaypoints(): void {
   els.labelHere.title = here.hover;
   els.labelGoal.textContent = next.text;
   els.labelGoal.title = next.hover;
-  // ONE BOARD MEANS ONE CAPTION. The board that is not on the floor still has its caption in the DOM (the tabs name it),
-  // so hiding it here is what stops a label floating over a board nobody can see. The ghost layer is what keeps the
-  // comparison, not the caption.
-  const single = layout.boards === 'single';
-  els.labelHere.hidden = single && boardFocus !== 'left';
-  els.labelGoal.hidden = single && boardFocus !== 'right';
+  // ONE BOARD MEANS ONE CAPTION — AND THAT IS TRUE OF BOTH LAYOUTS NOW. The board that is not on the floor still has its
+  // caption in the DOM (the tabs name it), so hiding it here is what stops a label floating over a board nobody can see. On a
+  // WIDE viewport the pair shows both captions, and a solo focus (the tabs, REPORTED: "Make sure the Now|Target widget is shown
+  // in both views") hides the one it is not drawing. The ghost layer is what keeps the comparison, not the caption.
+  els.labelHere.hidden = boardFocus !== null && boardFocus !== 'left';
+  els.labelGoal.hidden = boardFocus !== null && boardFocus !== 'right';
   // A START-AND-END PUZZLE HAS ONE PAIR AND NOWHERE TO PAGE, so the zones are HIDDEN rather than shown disabled: the
   // smallest puzzle is two waypoints, and two inert quarters of the canvas would take taps that do nothing.
   const paged = info.boards.length > 2;

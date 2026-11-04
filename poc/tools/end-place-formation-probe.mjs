@@ -239,6 +239,19 @@ console.log('\n== 4. the two buttons ==');
     `the hint quotes the tolerance the rule uses (${END_SNAP_TOL.toFixed(2)} board units)`);
   check(!/Place end</.test(html) && !/doPlaceEnd\b/.test(ui),
     'the old name is gone from the markup and the methods, not left as a second convention');
+  // THE ACTIONS ARE ON THEIR OWN LINE. Asked for as: "Move the folowing 'End Setup' buttons onto the next line: 'Export
+  // <formation>', 'Place Setup', 'Place Formation', 'Connect End'. This is because the list of end setups is so compressed
+  // that the current selection is unreadable." Rows are measured by SPLITTING the markup on the row element, so the check
+  // is about which row a control is in rather than about whitespace or attribute order.
+  const rows = html.split('<div class="row">');
+  const rowOf = (id) => rows.findIndex((chunk) => chunk.includes(`id="${id}"`));
+  const picker = rowOf('edEndFormation');
+  check(picker > 0 && rows[picker].includes('id="edEndNearFilter"') && rows[picker].includes('id="edEndSpin"'),
+    'the End setup picker keeps the near filter and the turn control on ITS line - the turn is the picker\'s own readout');
+  check(picker > 0 && ['edExportEndFormation', 'edPlaceSetup', 'edPlaceFormation', 'edConnectEnd'].every((id) => rowOf(id) === picker + 1),
+    `and its four actions are on the NEXT line, so the picker has the row to itself (row ${picker} carries the picker, row ${picker + 1} the actions)`);
+  check(picker > 0 && !['edExportEndFormation', 'edPlaceSetup', 'edPlaceFormation', 'edConnectEnd'].some((id) => rows[picker].includes(`id="${id}"`)),
+    'none of them is left behind on the picker\'s line, which is the compression the change removed');
 }
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nall checks passed');

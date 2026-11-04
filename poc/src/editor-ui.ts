@@ -606,6 +606,10 @@ export class EditorController implements EditorUI {
   private readonly cloneTitle = this.cloneBtn.title;
   private formationEl = el<HTMLDivElement>('edFormation');
   private scrubEl = el<HTMLInputElement>('edScrub');
+  /** TRUE WHILE THE CALLER'S POINTER IS DOWN ON THE SCRUB - the one condition under which a render must not write its
+   *  value. NOT `document.activeElement`: a range input keeps focus after the drag ends, and that test froze the bar (see
+   *  `renderScrub`). Set by the pointer listeners `wireEvents` installs. */
+  private scrubDragging = false;
   private beatReadoutEl = el<HTMLSpanElement>('edBeatReadout');
   private moveDancerSel = el<HTMLSpanElement>('edDancerPicks');
   // ---- the size of the set: clone-only chrome (see `addInstanceDancer`) ----
@@ -1489,9 +1493,13 @@ export class EditorController implements EditorUI {
     this.scrubEl.step = String(SCRUB_STEP);
     this.scrubEl.max = String(total);
     const b = Math.max(0, Math.min(total, this.editBeat));
-    // Never write into the control the caller is dragging: the value is theirs while the pointer is
-    // down, and a write that lands mid-gesture is the classic way a scrubber starts fighting back.
-    if (document.activeElement !== this.scrubEl) this.scrubEl.value = String(b);
+    // NEVER WRITE INTO THE CONTROL THE CALLER IS DRAGGING - the value is theirs while the pointer is down, and a write
+    // that lands mid-gesture is the classic way a scrubber starts fighting back. THE TEST IS THE POINTER, NOT FOCUS.
+    // Reported as: "When changing the 'Edit call' name, if the 'Position' slider is at the maximum, it will remain at
+    // maximum for the newly selected 'Edit Call'." A range input KEEPS focus after the drag ends, so the old test
+    // (`document.activeElement !== this.scrubEl`) swallowed every later write the panel made: a call change resets the
+    // beat to 0, and the thumb stayed where the previous call left it while the readout beside it said `beat 0.00 / N`.
+    if (!this.scrubDragging) this.scrubEl.value = String(b);
     const parts = call.parts ? call.parts.split(';') : [];
     let acc = 0;
     let idx = -1;
@@ -6500,6 +6508,17 @@ export class EditorController implements EditorUI {
       this.host.setPlayhead(this.absoluteEditBeat(this.instance));
       this.renderScrub(this.instance);
     });
+    // THE DRAG GUARD, which is a POINTER fact and not a focus one - see `renderScrub` for the report that test caused.
+    // The RELEASE is heard on the window as well as the control, so a drag that ends outside the bar still clears it, and
+    // `pointercancel` covers a gesture the OS takes away (a touch turned into a scroll).
+    this.scrubEl.addEventListener('pointerdown', () => {
+      this.scrubDragging = true;
+    });
+    for (const type of ['pointerup', 'pointercancel'] as const) {
+      window.addEventListener(type, () => {
+        this.scrubDragging = false;
+      });
+    }
     // There is no dancer dropdown and no "all" button any more: the chips ARE the selector
     // (`renderDancerPicks`), one toggle per dancer, and the lowest-numbered selected one is the dancer
     // the tile shows.

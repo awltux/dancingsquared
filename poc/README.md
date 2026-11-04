@@ -622,6 +622,18 @@ the table it is read against — and its step is **0.01 beat**, a hundredth: pla
 shaping a curve needs fine adjustment, and at that step a drag across the bar moves in finer increments
 than one per pixel, the arrow keys nudge by 0.01 and Page Up/Down by 0.1. (The browse tab's Position
 bar is the same control at quarter-beat steps, where the job is playing rather than placing.)
+
+**Changing the SETUP keeps the bar; changing the CALL resets it — and the control is what shows that.**
+The setup picker swaps one authoring of the SAME call for another, so the beat is held (`scrub-keep.ts`:
+a bar left at the end stays at the end of the next authoring, anything else is carried as a position,
+clamped into range). A different call is a different dance of a different length, so it starts at `0`.
+Reported as *"When changing the 'Edit call' name, if the 'Position' slider is at the maximum, it will
+remain at maximum for the newly selected 'Edit Call'"*: the panel's state WAS reset, but `renderScrub`
+refused to write the control while `document.activeElement` was the bar — and **a range input keeps focus
+after the drag ends**, so the thumb stayed where the previous call left it while the readout beside it
+said `beat 0.00 / N`. The guard is now the POINTER (`scrubDragging`, set on `pointerdown`, cleared on
+`pointerup`/`pointercancel` heard at the window), which is what it was protecting: a render must not
+fight a drag in progress, and nothing else should stop it writing.
 **Leaving the editor gives the animation back** — tracked by the previous mode, so a pause you set in
 the browse view is not overridden.
 

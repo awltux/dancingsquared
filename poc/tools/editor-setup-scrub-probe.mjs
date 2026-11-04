@@ -1,5 +1,5 @@
 // Probe: CHANGING THE SETUP KEEPS THE SCRUB, AND AN END-PINNED SCRUB STAYS AT THE END.
-//        CHANGING THE CALL STILL RESETS.
+//        CHANGING THE CALL STILL RESETS - AND THE BAR SHOWS IT.
 //
 // Asked for in two parts. First: "When in the call editor, changing setup shouldn't reset the scrub
 // time. Sometimes I want to compare the end formation while stepping through the setups." Then, once
@@ -7,6 +7,12 @@
 // subsequent setups, so I'm always viewing the end formation of the call i.e. last frame of the call.
 // Currently it maintains the first calls duration, which doesnt work if the next setup opens a call
 // that is longer."
+//
+// AND THEN THE OTHER SIDE OF IT: "When changing the 'Edit call' name, if the 'Position' slider is at the
+// maximum, it will remain at maximum for the newly selected 'Edit Call'." The state was reset (this
+// probe's wiring checks say so); the CONTROL was not written, because `renderScrub` refused to write
+// while `document.activeElement` was the scrub - and a range input KEEPS FOCUS after the drag ends. So
+// the drag guard is a POINTER fact now (`scrubDragging`), and the checks at the bottom pin that.
 //
 // THE ARITHMETIC IS IMPORTED, NOT MIRRORED (§5). It lives in `poc/src/scrub-keep.ts`, which has no DOM
 // and no `three`, so node's type stripping can load it here - the same arrangement `grid-magnet.ts` has
@@ -124,6 +130,25 @@ check(/const b = Math\.max\(0, Math\.min\(total, this\.editBeat\)\);/.test(ui),
   '`renderScrub` shows `editBeat`, clamped to the total - which is what makes the kept value survive the reload');
 check(/this\.showAt\(call, this\.editBeat \+ call\.leadin\);/.test(ui),
   'and `showInstance` poses the board at that same beat, so the dancers and the readout cannot disagree');
+
+console.log('\n== the drag guard is the POINTER, not focus: the reported "stuck at maximum" ==');
+// Reported as: "When changing the 'Edit call' name, if the 'Position' slider is at the maximum, it will remain at
+// maximum for the newly selected 'Edit Call'." The state was already reset by the loader; the write to the CONTROL was
+// what got swallowed, because a range input keeps `document.activeElement` after the gesture and the old test treated
+// that as "still dragging". ONE PREDICATE, applied to the shipped source and to the revert, so the control is the same
+// reading both times.
+const dragGuard = (src) => /if \(!this\.scrubDragging\) this\.scrubEl\.value = String\(b\);/.test(src) &&
+  !/if \(document\.activeElement !== this\.scrubEl\) this\.scrubEl\.value/.test(src);
+check(dragGuard(ui),
+  '`renderScrub` writes the value unless the pointer is DOWN on the bar, and no longer asks whether the bar has FOCUS');
+check(/this\.scrubEl\.addEventListener\('pointerdown', \(\) => \{[\s\S]{0,80}?this\.scrubDragging = true;/.test(ui),
+  'the flag is set where the gesture starts, on the control');
+check(/for \(const type of \['pointerup', 'pointercancel'\] as const\) \{\n      window\.addEventListener\(type, \(\) => \{\n        this\.scrubDragging = false;/.test(ui),
+  'and cleared on a RELEASE heard at the WINDOW, so a drag that ends outside the bar still clears it (and `pointercancel` covers a gesture the OS takes away)');
+// NEGATIVE CONTROL: putting the focus test back is the defect as reported, and it fails that same reading.
+const focusGuard = ui.replace('if (!this.scrubDragging) this.scrubEl.value = String(b);', 'if (document.activeElement !== this.scrubEl) this.scrubEl.value = String(b);');
+check(focusGuard !== ui && !dragGuard(focusGuard),
+  'NEGATIVE CONTROL: the old focus-based guard fails the check above - it is the code that froze the slider');
 
 console.log(failures ? `\n${failures} FAILURE(S)` : '\nall checks passed');
 process.exit(failures ? 1 : 0);

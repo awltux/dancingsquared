@@ -1240,6 +1240,34 @@ where the call finishes. The controls are the steps, and the start and the end e
 | **Connect** | re-aims the **first move of every dancer** so it walks in from the new start to where the old track resumes. The end formation comes back exactly; no other move changes |
 | **End setup** | re-bases the END onto a named formation: the call should finish *there* instead. Nothing moves until **Connect end**. It also opens on **the setup the call already finishes in, turned** — the name in the field, the turn on the spin control beside it, so `Circle Four Left 1/4` from `Facing Couples` reads `Facing Couples` at `90°` rather than `Unknown Setup` |
 | **Connect end** | re-aims the **last move of every dancer** at its assigned spot of that formation. Beats and hands are held, so the call is not re-timed, and no earlier move changes |
+| **Place setup** | MOVES the dancers onto the chosen setup — position **and** rotation — without re-aiming the track, which is what you want once the end is the arrangement the formation was authored with. The spot is the one the **setup's pairing** gives that dancer |
+| **Place formation** | the same placement, but the spot is the **nearest** one, ignoring the formation's arrangement and the order it lists its dancers in. Only works when the dancers are **already quite close**: refused unless every dancer is within **0.50** board units of a free spot, and it names the dancers that are not |
+
+**THE SHAPE IS NOT THE ARRANGEMENT, and one button cannot do both.** Asked for as: *"Add another Button that
+does 'Place Formation' … it only assigns the position and rotation to the nearest dancers as their last
+position and rotation … appropriate for 'Heads Wheel round and make an arch, Sides dive thru' from
+'Promenade 2'. It ends in a 'Two-Faced lines LH' formation rotated by 45 deg, but the setup is in a
+different order, so it doesn't match cleanly when applied using 'Place Setup'."* MEASURED on that call
+(`ms/dive_thru.xml`, 8 dancers, 8 beats): its end board is **0.3575 units** from `Two-Faced Lines LH`
+turned 45° — worst pair 0.3575, heading within **0.15°**, genders 8 of 8 — and the pairing that gets there
+is the **reversed** one inside each line (1→3, 2→4, 3→2, 4→1, 5→7, 6→8, 7→6, 8→5), which is exactly what
+the setup pairing cannot express. `endFormationMatch` refuses the same board (0.3575 is seven times its
+0.05 naming margin), so the row says `Unknown Setup` and this button is the way out.
+
+**The tolerance is the whole safety property.** `END_SNAP_TOL = 0.5` is three measurements: the witness
+needs 0.3575, so anything tighter refuses the call the button was asked for; a named formation's spots are
+at least **0.9998** units apart, so at 0.5 no dancer can be nearer to two of them by more than a tie; and
+it is ten times the naming margin (0.05) and twice the near-match filter's (0.2), because this button *is*
+a nudge by request where a name is a re-base. The rule (`poc/src/end-snap.ts`, DOM-free) pairs
+**closest pair first**, deterministically on index ties, and refuses with a sentence naming the stranded
+dancers and their nearest spot rather than searching for a cleverer assignment — a dancer with no spot in
+reach means the dancers are not standing in that shape, which is a fact the caller needs, not a puzzle to
+solve. **Gender and heading are reported, never gated:** an LH and an RH two-faced line stand on the same
+eight spots, so no distance can tell them apart (MEASURED: `Two-Faced Lines RH` fits the witness at the
+same 0.3575 with **8 of 8** genders and **179.85°** of heading wrong), so the status line carries those two
+numbers and asks whether the variant is right. Reach, on the corpus's own Mainstream level
+(`node poc/tools/end-place-formation-probe.mjs`): of **734** eight-dancer calls, **61** are unnamed by the
+namer and **40** of those have a named formation within the tolerance at one of the eight turns.
 
 **THE END IS NAMED UP TO AN EIGHTH OF A TURN, and the turn is a RECORDED fact rather than an id.** The setup ids are
 rotation-canonical already (`setup-id.ts`: a squared set and its quarter turn mint one `sid`), so a board turned a

@@ -183,7 +183,7 @@ console.log('\n== 2. the panel applies the turn in exactly one place, read from 
     'AND THE PAIRING READS THE FORMATION AS AUTHORED: the correspondence is between the dancers and the formation\'s NUMBERED spots, so the turn moves the spots under it rather than renumbering them');
   const turned = [
     ['the gap readout', 'endTargetGap', /const t = poses\[pairing\[i\]\];/],
-    ['Place end', 'doPlaceEnd', /out = placeDancerEnd\(out, i, poses\[pairing\[i\]\]\);/],
+    ['Place setup', 'doPlaceSetup', /out = placeDancerEnd\(out, i, poses\[pairing\[i\]\]\);/],
     ['Connect end', 'doConnectEnd', /out = setDancerEnd\(out, i, poses\[pairing\[i\]\]\);/],
     ['the pairing pickers', 'renderEndPairing', /poses\.forEach\(\(p, j\) => \{/],
   ];
@@ -193,7 +193,7 @@ console.log('\n== 2. the panel applies the turn in exactly one place, read from 
   // ...and the faults fail the census: one consumer back on the raw poses, or the pairing on the turned ones.
   const placedRaw = ui.replace('out = placeDancerEnd(out, i, poses[pairing[i]]);', 'out = placeDancerEnd(out, i, target.poses[pairing[i]]);');
   check(placedRaw !== ui && !/out = placeDancerEnd\(out, i, poses\[pairing\[i\]\]\);/.test(placedRaw),
-    'and putting `Place end` back on the raw poses fails that');
+    'and putting `Place setup` back on the raw poses fails that');
   const pairedTurned = ui.replace('deriveFormationMapping(start, target.poses, true)', 'deriveFormationMapping(start, this.endTargetPoses()!, true)');
   check(pairedTurned !== ui && !/deriveFormationMapping\(start, target\.poses, true\)/.test(pairedTurned),
     'and pairing from the TURNED target fails it too - which is the fault that made the placed headings jump');
@@ -202,7 +202,7 @@ console.log('\n== 2. the panel applies the turn in exactly one place, read from 
   // The readout is itself a `<span>`, so the group is measured as the markup BETWEEN its opening tag and
   // the Place end button rather than by matching to the first `</span>` - which is the readout's own.
   const groupStart = html.indexOf('<span class="end-spin"');
-  const beforePlace = html.indexOf('id="edPlaceEnd"');
+  const beforePlace = html.indexOf('id="edPlaceSetup"');
   const group = groupStart >= 0 && beforePlace > groupStart ? html.slice(groupStart, beforePlace) : '';
   const inGroup = (id) => group.includes(`id="${id}"`);
   check(inGroup('edEndSpinMinus') && inGroup('edEndSpin') && inGroup('edEndSpinPlus'),
@@ -212,8 +212,8 @@ console.log('\n== 2. the panel applies the turn in exactly one place, read from 
     'in the order they read: a step down, the readout, a step up');
   check(/class="end-spin"[\s\S]{0,900}?BOARD CENTRE/.test(html),
     'and the group says in its own tooltip that the turn is about the board centre, which is not a detail the caller could guess');
-  check(html.indexOf('class="end-spin"') < html.indexOf('id="edPlaceEnd"'),
-    'and it sits BEFORE the Place end button, which is where it was asked for');
+  check(html.indexOf('class="end-spin"') < html.indexOf('id="edPlaceSetup"'),
+    'and it sits BEFORE the Place setup button, which is where it was asked for');
   check(/private endSpinMinus = el<HTMLButtonElement>\('edEndSpinMinus'\);/.test(ui) && /private endSpinPlus = el<HTMLButtonElement>\('edEndSpinPlus'\);/.test(ui)
     && /private endSpinEl = el<HTMLSpanElement>\('edEndSpin'\);/.test(ui),
     'and every one of them is resolved through `el()`, so a missing id fails at the first property read');

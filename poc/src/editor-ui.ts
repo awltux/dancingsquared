@@ -163,6 +163,7 @@ import { applyBoardTransform, boardTransformOf } from './board-transform';
 // `grid-magnet.ts` is: the rule is arithmetic, and a probe can only MEASURE it if it can import it.
 import { SCRUB_STEP, keptScrubBeat, pinnedScrubBeat } from './scrub-keep';
 import type { BeatPolicy } from './scrub-keep';
+import { END_SNAP_TOL, snapToNearestSpots } from './end-snap';
 // THE KEYBOARD IS ONE TABLE, owned by `main.ts` and installed once (`keys.ts`). A panel hands over the
 // bindings it wants rather than owning a listener, so the four decisions every global key handler has to
 // make - modifiers, a field being typed into, auto-repeat, and whether this panel is on screen - are made
@@ -591,7 +592,8 @@ export class EditorController implements EditorUI {
   /** The `fid|aid` pair the picker's id captions were last built for, so a drag does not rebuild the list per frame. */
   private endIdentityKey = '';
   private connectEndBtn = el<HTMLButtonElement>('edConnectEnd');
-  private placeEndBtn = el<HTMLButtonElement>('edPlaceEnd');
+  private placeSetupBtn = el<HTMLButtonElement>('edPlaceSetup');
+  private placeFormationBtn = el<HTMLButtonElement>('edPlaceFormation');
   // The End setup's rotation control: a 45-degree step either way, and the readout between them.
   private endSpinMinus = el<HTMLButtonElement>('edEndSpinMinus');
   private endSpinPlus = el<HTMLButtonElement>('edEndSpinPlus');
@@ -3310,21 +3312,31 @@ export class EditorController implements EditorUI {
       this.endPairEl.hidden = true;
       this.endAutoBtn.hidden = true;
       this.connectEndBtn.disabled = true;
+      this.placeSetupBtn.disabled = true;
+      this.placeFormationBtn.disabled = true;
       this.renderEndSpin(false);
       return;
     }
     const pairing = this.endPairing();
     if (!pairing) {
+      // PLACE FORMATION IS THE WAY OUT OF THIS STATE, so it stays enabled: "cannot pair" is about the SETUP's
+      // arrangement, and the formation placement does not use that arrangement at all. It refuses on its own terms
+      // (the dancers are too far from the shape), which is a different sentence and a different fix.
       this.endInfoEl.innerHTML =
         `<span style="color:#ffb454">cannot pair</span> the dancers with <b>${esc(target.name)}</b> — ` +
-        'the two sets cannot be matched up by position and facing, so nothing here would be a correspondence. Pick another end setup.';
+        'the two sets cannot be matched up by position and facing, so nothing here would be a correspondence. ' +
+        'Place formation pairs by NEAREST spot instead and ignores the arrangement, so try that - or pick another end setup.';
       this.endPairEl.hidden = true;
       this.endAutoBtn.hidden = true;
       this.connectEndBtn.disabled = true;
+      this.placeSetupBtn.disabled = true;
+      this.placeFormationBtn.disabled = false;
       this.renderEndSpin(false);
       return;
     }
     this.connectEndBtn.disabled = false;
+    this.placeSetupBtn.disabled = false;
+    this.placeFormationBtn.disabled = false;
     this.renderEndSpin(true);
     this.endAutoBtn.hidden = this.endOverride === null;
     const gap = this.endTargetGap(pairing);
@@ -5127,7 +5139,7 @@ export class EditorController implements EditorUI {
    * treat a turn as the same setup (`setup-id.ts`), so the board was never a different setup - what was missing was the
    * NAME and a place to record the turn. The NAME is the picker's value; THE TURN IS RECORDED IN THE ROTATION CONTROL
    * (`endSpinSteps`, whose step is 45 degrees, so every turn the rule reports is exactly representable), never in an id
-   * and never in the XML. Place end / Connect end then finish where the dancers already are.
+   * and never in the XML. Place setup / Place formation / Connect end then finish where the dancers already are.
    *
    * A NAME IS STILL ONLY SHOWN WHEN TAKING IT, WITH ITS TURN, IS A NO-OP RE-BASE: the board must be that formation
    * within `END_BOARD_TOL` at one of the eight turns, and the turn the rule reports is the one the control is set to.
@@ -5345,7 +5357,7 @@ export class EditorController implements EditorUI {
    *
    * 0 degrees is dim and every other step is in the panel's accent colour: a caller who turned the setup
    * and then went to do something else has to be able to see that it is still turned when they come back
-   * to Place end. The buttons are DISABLED with no end setup chosen, in the same block that disables
+   * to Place setup. The buttons are DISABLED with no end setup chosen, in the same block that disables
    * `Connect end` and for the same reason - there is nothing for them to act on.
    */
   private renderEndSpin(enabled: boolean) {
@@ -5361,7 +5373,7 @@ export class EditorController implements EditorUI {
         : `This end stands ${deg}° from the way formations.xml writes "${this.endInfoName}" — choose it in End setup to place or turn it.`)
       : this.endSpinSteps === 0
         ? 'The end setup is as formations.xml writes it - 0 degrees. Either step turns it about the board centre.'
-        : `The end setup is turned ${deg} degrees counter-clockwise from the way formations.xml writes it, about the board centre. Place end and Connect end both finish on the turned setup.`;
+        : `The end setup is turned ${deg} degrees counter-clockwise from the way formations.xml writes it, about the board centre. Place setup, Place formation and Connect end all finish on the turned setup.`;
     this.endSpinMinus.disabled = !enabled;
     this.endSpinPlus.disabled = !enabled;
   }
@@ -5384,7 +5396,7 @@ export class EditorController implements EditorUI {
     const deg = this.endSpinSteps * END_SPIN_DEG;
     this.statusEl.textContent = deg === 0
       ? `end setup "${target.name}" is back to the way formations.xml writes it`
-      : `end setup "${target.name}" turned ${deg}° counter-clockwise — press Place end or Connect end`;
+      : `end setup "${target.name}" turned ${deg}° counter-clockwise — press Place setup, Place formation or Connect end`;
   }
 
   /**
@@ -5462,14 +5474,19 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * MOVE the dancers onto the chosen end setup - position AND rotation - WITHOUT re-aiming the track.
+   * MOVE the dancers onto the chosen end SETUP - position AND rotation - WITHOUT re-aiming the track.
    *
-   * `Connect end` IS THE OTHER OPERATION AND STAYS: that one re-aims each dancer's last move so the call
-   * CONNECTS to the setup, which changes the motion. This one places the end pose and leaves the motion's
-   * authorship alone wherever the move has a facing curve to carry the turn - and aims the PATH where it
-   * does not. See `placeDancerEnd` for the three cases and why they differ.
+   * `Connect end` IS THE OTHER OPERATION AND STAYS: that one re-aims each dancer's last move so the call CONNECTS to the
+   * setup, which changes the motion. This one places the end pose and leaves the motion's authorship alone wherever the
+   * move has a facing curve to carry the turn - and aims the PATH where it does not. See `placeDancerEnd` for the three
+   * cases and why they differ.
+   *
+   * WHICH SPOT IS WHOSE COMES FROM THE SETUP'S ARRANGEMENT (`endPairing`), which is the right question only when the call
+   * finishes in the order the formation was authored with. `doPlaceFormation` is the counterpart for the case where the
+   * SHAPE is right and the ORDER is not - asked for as "Rename the 'Place End' button to 'Place Setup'. Add another Button
+   * that does 'Place Formation'."
    */
-  private doPlaceEnd() {
+  private doPlaceSetup() {
     const inst = this.instance;
     const target = this.endTarget;
     if (!inst) { this.statusEl.textContent = 'nothing to place'; return; }
@@ -5501,6 +5518,61 @@ export class EditorController implements EditorUI {
   }
 
   /**
+   * SNAP every dancer onto the NEAREST spot of the chosen formation, as the rotation control turns it - position AND
+   * rotation - IGNORING the arrangement and the order the formation lists its dancers in.
+   *
+   * Asked for as: "Add another Button that does 'Place Formation'. This will only assign the position and rotation to the
+   * nearest dancers as their last position and rotation. It will only work if the dancers are already quite close. This is
+   * appropriate for 'Heads Wheel round and make an arch, Sides dive thru' from 'Promenade 2'. It ends in a 'Two-Faced lines
+   * LH' formation rotated by 45 deg, but the setup is in a different order, so it doesn't match cleanly when applied using
+   * 'Place Setup'."
+   *
+   * THE PAIRING IS THE IMPORTED RULE, NOT A SECOND ONE (`snapToNearestSpots`, which owns the tolerance and refuses beyond
+   * it), and the placement is the SAME engine call `Place setup` uses - `placeDancerEnd`, position and rotation with the
+   * path's authorship left alone - so the two buttons differ only in WHICH SPOT each dancer is given.
+   *
+   * THE REPORT IS PART OF THE ANSWER. Two variants of a line stand on the same spots, so no distance can tell an LH from
+   * an RH (MEASURED on the witness: both fit at 0.3575, and the wrong one is 8 of 8 genders and 179.85 degrees out), which
+   * is why the status line carries the worst distance and the gender disagreements rather than just "placed".
+   */
+  private doPlaceFormation() {
+    const inst = this.instance;
+    const target = this.endTarget;
+    if (!inst) { this.statusEl.textContent = 'nothing to place'; return; }
+    if (!target) { this.statusEl.textContent = 'pick an end setup first'; return; }
+    const poses = this.endTargetPoses();
+    if (!poses) { this.statusEl.textContent = 'pick an end setup first'; return; }
+    // The board the dancers are ACTUALLY on, which is what "nearest" is measured from - not the start, and not the target.
+    const board = inst.dancers.map((d) => {
+      const p = poseFor(d, inst.beats);
+      return { x: p.x, y: p.y, heading: p.heading, gender: d.gender };
+    });
+    const snap = snapToNearestSpots(board, poses);
+    if ('refused' in snap) {
+      this.statusEl.textContent = `✗ ${snap.refused}`;
+      return;
+    }
+    try {
+      let out = inst;
+      let placed = 0;
+      const skipped: number[] = [];
+      for (let i = 0; i < inst.dancers.length; i++) {
+        if (out.dancers[i].path.length === 0) { skipped.push(i + 1); continue; }
+        out = placeDancerEnd(out, i, poses[snap.pairing[i]]);
+        placed++;
+      }
+      this.commit(out);
+      const deg = this.endSpinSteps * END_SPIN_DEG;
+      this.statusEl.textContent = `placed the formation "${target.name}"${deg === 0 ? '' : ` turned ${deg}°`}`
+        + ` — ${placed} dancer(s), worst ${snap.worst.toFixed(2)} units off their nearest spot`
+        + (snap.genderMisses ? `, and ${snap.genderMisses} spot(s) declare the other gender — is this the right LH/RH variant?` : '')
+        + (skipped.length ? `; dancers ${skipped.join(', ')} have no move to place` : '');
+    } catch (err) {
+      this.statusEl.textContent = `✗ ${(err as Error).message}`;
+    }
+  }
+
+  /**
    * Choose the formation the dance should finish on. NOTHING MOVES YET: like the Start setup, this
    * re-bases the track's intent, and `Connect end` is the step that re-aims the last moves.
    */
@@ -5509,7 +5581,7 @@ export class EditorController implements EditorUI {
     this.endOverride = null;
     const inst = this.instance;
     // THE TURN BELONGS TO THE SETUP IT WAS FOUND AGAINST. Picking the setup the board is already standing in starts at
-    // THAT setup's own turn, so the target is the board under the dancers and Place end / Connect end are a no-op up to
+    // THAT setup's own turn, so the target is the board under the dancers and Place setup / Place formation / Connect end are a no-op up to
     // tolerance; picking any other formation starts at 0, because carrying a turn onto a shape the caller never looked at
     // would rotate it silently. The step buttons are disabled without a target, so an offset can only be found against a
     // shape on screen anyway.
@@ -6501,7 +6573,8 @@ export class EditorController implements EditorUI {
     this.endSpinMinus.addEventListener('click', () => this.bumpEndSpin(-1));
     this.endSpinPlus.addEventListener('click', () => this.bumpEndSpin(1));
     this.connectEndBtn.addEventListener('click', () => this.doConnectEnd());
-    this.placeEndBtn.addEventListener('click', () => this.doPlaceEnd());
+    this.placeSetupBtn.addEventListener('click', () => this.doPlaceSetup());
+    this.placeFormationBtn.addEventListener('click', () => this.doPlaceFormation());
     this.endAutoBtn.addEventListener('click', () => {
       this.endOverride = null;
       this.renderInstance();

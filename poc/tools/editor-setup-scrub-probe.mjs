@@ -1,18 +1,19 @@
 // Probe: CHANGING THE SETUP KEEPS THE SCRUB, AND AN END-PINNED SCRUB STAYS AT THE END.
-//        CHANGING THE CALL STILL RESETS - AND THE BAR SHOWS IT.
+//        CHANGING THE CALL KEEPS AN END-PINNED ONE AND RESETS ANY OTHER POSITION.
 //
-// Asked for in two parts. First: "When in the call editor, changing setup shouldn't reset the scrub
+// Asked for in three parts. First: "When in the call editor, changing setup shouldn't reset the scrub
 // time. Sometimes I want to compare the end formation while stepping through the setups." Then, once
 // that shipped: "If I step through the setups and the initial scrub was at it's max, set it to max for
 // subsequent setups, so I'm always viewing the end formation of the call i.e. last frame of the call.
 // Currently it maintains the first calls duration, which doesnt work if the next setup opens a call
-// that is longer."
+// that is longer." Then, for the CALL picker: "When changing the 'Edit call' name, if the 'Position'
+// slider is at the maximum, it will remain at maximum for the newly selected 'Edit Call'", clarified as
+// "to be clear, it only stays at maximum if it was already maximum" - which is `pinnedScrubBeat`.
 //
-// AND THEN THE OTHER SIDE OF IT: "When changing the 'Edit call' name, if the 'Position' slider is at the
-// maximum, it will remain at maximum for the newly selected 'Edit Call'." The state was reset (this
-// probe's wiring checks say so); the CONTROL was not written, because `renderScrub` refused to write
-// while `document.activeElement` was the scrub - and a range input KEEPS FOCUS after the drag ends. So
-// the drag guard is a POINTER fact now (`scrubDragging`), and the checks at the bottom pin that.
+// AND A SECOND DEFECT ON THE SAME ROW, now pinned here: the panel's state was reset by the loader but
+// the CONTROL was never written, because `renderScrub` refused to write while `document.activeElement`
+// was the scrub - and a range input KEEPS FOCUS after the drag ends. The drag guard is a POINTER fact
+// now (`scrubDragging`), and the checks at the bottom pin that.
 //
 // THE ARITHMETIC IS IMPORTED, NOT MIRRORED (§5). It lives in `poc/src/scrub-keep.ts`, which has no DOM
 // and no `three`, so node's type stripping can load it here - the same arrangement `grid-magnet.ts` has
@@ -35,8 +36,8 @@
 //
 // THE NEGATIVE CONTROL IN THE SAME PANEL: the scrub was then set mid-call to `beat 2.00 / 5.00`, and
 // switching back to the shorter authoring read `beat 2.00 / 4.00` - carried as a position, not pinned.
-// The CALL picker's reset was measured in the previous run of this probe's feature (`Forward and Back`
-// -> `Heads Forward and Back` -> `beat 0.00 / 4.00`).
+// The CALL picker's own placement has not been observed in a browser since it changed: what is measured
+// here is the rule (`pinnedScrubBeat`) and the wiring, not the thumb on the row.
 //
 // AND `Forward and Back` CANNOT SHOW THIS, which cost a browser session to find out: all three of its
 // authorings are 4 beats, so the setup picker there is a no-op for this rule. A call with several
@@ -50,7 +51,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const POC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(POC, p), 'utf8').replace(/\r\n/g, '\n');
 
-const { SCRUB_STEP, keptScrubBeat } = await import(pathToFileURL(path.join(POC, 'src/scrub-keep.ts')).href);
+const { SCRUB_STEP, keptScrubBeat, pinnedScrubBeat, scrubAtEnd } = await import(pathToFileURL(path.join(POC, 'src/scrub-keep.ts')).href);
 
 let failures = 0;
 const check = (cond, msg) => {
@@ -90,6 +91,20 @@ check(keptScrubBeat(0, 4, 8) === 0, 'a scrub at the START is a position, so it s
 check(keptScrubBeat(1, 0, 8) === 1 && keptScrubBeat(0, 0, 8) === 0,
   'a call with no beats has no last frame to pin to, so it falls through to the clamp');
 
+console.log('\n== the CALL picker: an end-pinned bar follows, everything else starts over ==');
+// Asked for as: "When changing the 'Edit call' name, if the 'Position' slider is at the maximum, it will remain at maximum
+// for the newly selected 'Edit Call'.", then, when the reset was read as the rule: "to be clear, it only stays at maximum
+// if it was already maximum."
+check(pinnedScrubBeat(4, 4, 8) === 8,
+  'an END-PINNED bar changing to a LONGER call lands on the new end (8.00) - "the last frame" is a question the next call can answer');
+check(pinnedScrubBeat(4, 4, 2) === 2, 'and into a SHORTER call it lands on that one\'s end (2.00)');
+check(pinnedScrubBeat(2.5, 4, 8) === 0,
+  'a MID-CALL scrub into another call starts over at 0 - it only stays at maximum if it was already maximum');
+check(pinnedScrubBeat(0, 4, 8) === 0, 'and a scrub already at the start stays there');
+check(pinnedScrubBeat(4 - SCRUB_STEP, 4, 8) === 0,
+  'one step back from the end is a position the arrow keys can reach, so it is NOT "at the end" and does not pin');
+check(pinnedScrubBeat(4, 0, 8) === 0, 'a previous call with no beats has no end to pin to, so the bar starts over');
+
 console.log('\n== the end test is HALF A STEP, bounded from both sides ==');
 // Both bounds are load-bearing and the second is the one that keeps the tolerance honest: one whole step
 // back from the end is a position the arrow keys can reach, so it must NOT be read as the end.
@@ -104,21 +119,23 @@ const ui = read('src/editor-ui.ts');
 check(/this\.scrubEl\.step = String\(SCRUB_STEP\);/.test(ui),
   '`renderScrub` sets the control\'s step from `SCRUB_STEP`, so the bar and the end test cannot drift');
 
-console.log('\n== who passes the keep, and what it is given ==');
+console.log('\n== who passes which placement, and what it is given ==');
 const handler = (id) => {
   const m = new RegExp(`this\\.${id}\\.addEventListener\\('change', \\(\\) => \\{([\\s\\S]*?)\\n    \\}\\);`).exec(ui);
   return m ? m[1] : null;
 };
 const setup = handler('editSetupSel');
 const call = handler('editCallSel');
-check(setup !== null && /this\.loadInstance\(true\);/.test(setup),
-  'the SETUP picker reloads with `keepBeat` - the request');
-check(call !== null && /this\.loadInstance\(\);/.test(call) && !/loadInstance\(true\)/.test(call),
-  'the CALL picker still reloads with the reset - a beat is a place in ONE dance, so carrying it into another is not a favour');
+check(setup !== null && /this\.loadInstance\('place'\);/.test(setup),
+  'the SETUP picker reloads with `place` - the request');
+check(call !== null && /this\.loadInstance\('end'\);/.test(call),
+  'and the CALL picker with `end`: an end-pinned bar follows the new call\'s end, and a mid-call beat starts over');
 check(/loadInstance/.test(setup) && /loadInstance/.test(call),
   'both still go through the one loader, so there is no second copy of the rules about what a fresh instance starts with');
-check(/this\.editBeat = keepBeat \? keptScrubBeat\(wasAt, wasBeats, this\.instance\.beats\) : 0;/.test(ui),
-  'and the loader delegates the placement to the imported rule rather than spelling out a clamp of its own');
+check(/this\.editBeat = beat === 'place'[\s\S]{0,200}?keptScrubBeat\(wasAt, wasBeats, this\.instance\.beats\)[\s\S]{0,120}?pinnedScrubBeat\(wasAt, wasBeats, this\.instance\.beats\)[\s\S]{0,40}?: 0;/.test(ui),
+  'and the loader delegates BOTH placements to the imported rules rather than spelling out a clamp of its own');
+check(/private loadInstance\(beat: BeatPolicy = 'reset'\)/.test(ui),
+  'the third answer - a reset, a clone and the first load - is the default, so a call site that says nothing starts at 0');
 // THE TRAP: `this.instance` is REPLACED inside the try below, so reading its beats afterwards would
 // compare the new authoring against itself and the end test would never fire.
 check(ui.indexOf('const wasBeats = this.instance ? this.instance.beats : 0;') > -1 &&

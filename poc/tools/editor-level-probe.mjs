@@ -202,7 +202,8 @@ check(/openEditor: \(callId, setupIdx[\s\S]{0,200}?modeSelect\.value = 'editor';
 const oi = editorSrc.indexOf('openCall(callId: string, setupIdx: number) {');
 const openCall = oi < 0 ? '' : editorSrc.slice(oi, editorSrc.indexOf('\n  }\n', oi));
 check(openCall !== '', 'the editor has an `openCall`');
-check(/this\.loadEditSetup\(\);\s*\n\s*this\.loadInstance\(\);/.test(openCall), 'and it loads the setup and the instance');
+check(/this\.loadEditSetup\(\);\s*\n\s*this\.loadInstance\('end'\);/.test(openCall),
+  'and it loads the setup and the instance - with the same `end` placement the call picker uses, so the two ways of changing WHICH call is loaded land the Position bar the same way');
 check(/this\.levelSel\.value = '';[\s\S]{0,160}?this\.callQuery = '';[\s\S]{0,600}?this\.applyCallFilter\(\);/.test(openCall),
   'and it clears the Level and the Find filter when the call would otherwise not be in the list');
 check(!/instanceEdited = true/.test(openCall) && !/setMove\(|commit\(|setDancer(Start|End|Gender)\(/.test(openCall),

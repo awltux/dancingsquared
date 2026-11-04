@@ -623,17 +623,25 @@ shaping a curve needs fine adjustment, and at that step a drag across the bar mo
 than one per pixel, the arrow keys nudge by 0.01 and Page Up/Down by 0.1. (The browse tab's Position
 bar is the same control at quarter-beat steps, where the job is playing rather than placing.)
 
-**Changing the SETUP keeps the bar; changing the CALL resets it — and the control is what shows that.**
+**Changing the SETUP keeps the bar; changing the CALL keeps an END-PINNED one and resets the rest.**
 The setup picker swaps one authoring of the SAME call for another, so the beat is held (`scrub-keep.ts`:
 a bar left at the end stays at the end of the next authoring, anything else is carried as a position,
-clamped into range). A different call is a different dance of a different length, so it starts at `0`.
-Reported as *"When changing the 'Edit call' name, if the 'Position' slider is at the maximum, it will
-remain at maximum for the newly selected 'Edit Call'"*: the panel's state WAS reset, but `renderScrub`
-refused to write the control while `document.activeElement` was the bar — and **a range input keeps focus
-after the drag ends**, so the thumb stayed where the previous call left it while the readout beside it
-said `beat 0.00 / N`. The guard is now the POINTER (`scrubDragging`, set on `pointerdown`, cleared on
-`pointerup`/`pointercancel` heard at the window), which is what it was protecting: a render must not
-fight a drag in progress, and nothing else should stop it writing.
+clamped into range — `keptScrubBeat`). Changing WHICH call is loaded keeps **the end**: a bar at the
+maximum lands on the new call's last frame, and any mid-call beat starts over at `0`, because a position
+is a place in a dance that has just been replaced while "the last frame" is a question the next call can
+answer too (`pinnedScrubBeat`). Asked for as *"When changing the 'Edit call' name, if the 'Position'
+slider is at the maximum, it will remain at maximum for the newly selected 'Edit Call'"*, and then, when
+the first fix read that as a plain reset, *"to be clear, it only stays at maximum if it was already
+maximum."* Both ways of changing the call — the picker and the Browse list's **Edit** button — vote the
+same way, and the one end test (`scrubAtEnd`, half a step) is shared by both placements.
+
+**And the WRITE itself was once the bug.** The first report of this was the bar *sticking* at maximum:
+the panel's state WAS reset, but `renderScrub` refused to write the control while
+`document.activeElement` was the bar — and **a range input keeps focus after the drag ends**, so the thumb
+stayed where the previous call left it while the readout beside it said `beat 0.00 / N`. The guard is now
+the POINTER (`scrubDragging`, set on `pointerdown`, cleared on `pointerup`/`pointercancel` heard at the
+window), which is what it was protecting: a render must not fight a drag in progress, and nothing else
+should stop it writing.
 **Leaving the editor gives the animation back** — tracked by the previous mode, so a pause you set in
 the browse view is not overridden.
 

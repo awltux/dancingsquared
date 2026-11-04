@@ -7,7 +7,7 @@
 //
 // ONE CALL HAS SEVERAL AUTHORINGS (`<tam>`, one per setup) AND THEY ARE NOT ALL THE SAME LENGTH.
 // Stepping through them is how a caller compares their END FORMATIONS, so the scrub has to survive the
-// swap - which is why `loadInstance(true)` does not reset it to 0.
+// swap - which is why `loadInstance('place')` does not reset it to 0.
 //
 // BUT A BEAT IS AN ABSOLUTE POSITION, AND THAT IS THE WRONG THING TO CARRY ACROSS A LENGTH CHANGE.
 // Reported as: "Currently it maintains the first calls duration, which doesnt work if the next setup
@@ -20,6 +20,13 @@
 // "show me the last frame", and the last frame of a longer call is at ITS maximum. Anything else is a
 // position, and a position is carried as one, clamped into range.
 //
+// AND THE SAME END TEST DECIDES THE CALL PICKER, with a different placement. Reported as: "When changing
+// the 'Edit call' name, if the 'Position' slider is at the maximum, it will remain at maximum for the
+// newly selected 'Edit Call'", and clarified when the reset was read as the rule: "to be clear, it only
+// stays at maximum if it was already maximum." So `pinnedScrubBeat` pins an END-PINNED bar to the new
+// call's end and sends everything else to 0 - a mid-call beat is a place in a dance that has just been
+// replaced, while "the last frame" is a question the next call can answer too.
+//
 // THE END TEST IS HALF A STEP, and both halves of that are load-bearing. The control's `step` is
 // `SCRUB_STEP` (exported below so the bar and this test cannot drift), so ONE STEP BACK from the end is a
 // position the arrow keys can genuinely reach and must NOT be read as the end - that sets the bound at
@@ -31,6 +38,34 @@
 export const SCRUB_STEP = 0.01;
 
 /**
+ * WHAT A LOAD DOES WITH THE BAR - one answer per gesture, so the panel passes a NAME rather than a boolean and the three
+ * placements below cannot be confused for one another at a call site.
+ *
+ *   - `'reset'` - start at the first beat. A reset, a clone and the first load of the panel are not about a previous position.
+ *   - `'place'` - the SETUP picker: the same dance, so the position is worth keeping (`keptScrubBeat`).
+ *   - `'end'` - changing WHICH call is loaded: an END-PINNED bar follows the new call's end, anything else resets
+ *     (`pinnedScrubBeat`).
+ */
+export type BeatPolicy = 'reset' | 'place' | 'end';
+
+/**
+ * WHETHER A BAR COUNTS AS AT ITS END - the one end test both placements below use, and the reason the test lives in this
+ * module rather than in the panel (§4.3: a rule inside a DOM method can only be mirrored).
+ *
+ * HALF A STEP, and both halves are load-bearing: the control's `step` is `SCRUB_STEP`, so ONE STEP BACK from the end is a
+ * position the arrow keys can genuinely reach and must NOT be read as the end - which sets the bound at strictly under a
+ * whole step - while a drag to the far right lands on the maximum exactly, so the slack only has to absorb writing the
+ * value out through a string.
+ *
+ * @param at    the scrub position, in the call's own beats
+ * @param beats that call's length, in beats
+ */
+export function scrubAtEnd(at: number, beats: number): boolean {
+  // A call with no beats has no last frame to pin to, so nothing is "at the end" of it.
+  return beats > 0 && at >= beats - SCRUB_STEP / 2;
+}
+
+/**
  * Where the scrub lands after the setup picker swaps one authoring of a call for another.
  *
  * @param at        the scrub position in the OUTGOING authoring's beats
@@ -38,8 +73,22 @@ export const SCRUB_STEP = 0.01;
  * @param nextBeats the incoming authoring's length, in beats
  */
 export function keptScrubBeat(at: number, prevBeats: number, nextBeats: number): number {
-  // A call with no beats has no last frame to pin to, so it falls through to the clamp - which is also
-  // what an absent previous instance does, and keeps `editBeat <= nextBeats` true on every path.
-  if (prevBeats > 0 && at >= prevBeats - SCRUB_STEP / 2) return nextBeats;
+  if (scrubAtEnd(at, prevBeats)) return nextBeats;
+  // Anything else is a position, carried as one - clamped, which is also what an absent previous instance does, and keeps
+  // `editBeat <= nextBeats` true on every path.
   return Math.max(0, Math.min(nextBeats, at));
+}
+
+/**
+ * WHERE THE CALL PICKER LANDS: an END-PINNED bar follows the new call's end, and ANYTHING ELSE starts at the first beat.
+ *
+ * Asked for as: "When changing the 'Edit call' name, if the 'Position' slider is at the maximum, it will remain at maximum
+ * for the newly selected 'Edit Call'." - and then, when that reset was read as the rule: "to be clear, it only stays at
+ * maximum if it was already maximum." That is the distinction: a scrub at the end means "show me the LAST FRAME", which
+ * is the thing a caller comparing end formations across calls wants to keep, while a mid-call beat is a place in a dance
+ * that has just been replaced - so it resets rather than being carried, which is where this differs from
+ * `keptScrubBeat` (the setup picker, where it IS the same dance and the position is worth keeping).
+ */
+export function pinnedScrubBeat(at: number, prevBeats: number, nextBeats: number): number {
+  return scrubAtEnd(at, prevBeats) ? nextBeats : 0;
 }

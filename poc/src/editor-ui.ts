@@ -161,7 +161,8 @@ import { radialArcFit, radialArcSlack, radialCircleRadii, snapBoard } from 'danc
 import { applyBoardTransform, boardTransformOf } from './board-transform';
 // WHERE THE SCRUB LANDS WHEN THE SETUP PICKER SWAPS THE AUTHORING is its own pure module, for the reason
 // `grid-magnet.ts` is: the rule is arithmetic, and a probe can only MEASURE it if it can import it.
-import { SCRUB_STEP, keptScrubBeat } from './scrub-keep';
+import { SCRUB_STEP, keptScrubBeat, pinnedScrubBeat } from './scrub-keep';
+import type { BeatPolicy } from './scrub-keep';
 // THE KEYBOARD IS ONE TABLE, owned by `main.ts` and installed once (`keys.ts`). A panel hands over the
 // bindings it wants rather than owning a listener, so the four decisions every global key handler has to
 // make - modifiers, a field being typed into, auto-repeat, and whether this panel is on screen - are made
@@ -1264,22 +1265,25 @@ export class EditorController implements EditorUI {
    * of the spot that was typed. The engine's test proves the normalization does not move
    * anybody (worst pose gap 2.3e-15 units).
    *
-   * `keepBeat` IS FOR THE SETUP PICKER, AND ONLY FOR IT. Asked for as: "When in the call editor, changing
-   * setup shouldn't reset the scrub time. Sometimes I want to compare the end formation while stepping
-   * through the setups." One call has several AUTHORINGS (`<tam>`), and comparing their end formations
-   * means holding the scrub at the same place in each - which a reset to 0 destroys on every change, so
-   * the thing being compared vanishes just as it is reached.
+   * WHAT A LOAD DOES WITH THE SCRUB IS THE CALLER'S CHOICE (`beat`), and there are exactly three answers because there are
+   * exactly three gestures - a picker that keeps the SAME dance, a picker that changes WHICH dance, and everything else:
    *
-   * CHANGING THE CALL STILL RESETS, and must: a different call is a different dance of a different
-   * length, so the old beat is not a place in it.
+   *   - `'place'` - the SETUP picker. Asked for as: "When in the call editor, changing setup shouldn't reset the scrub
+   *     time. Sometimes I want to compare the end formation while stepping through the setups." One call has several
+   *     AUTHORINGS (`<tam>`), so the same place in each is what is being compared; `keptScrubBeat` carries the position,
+   *     and an END-PINNED bar follows the next authoring's end however long it is.
+   *   - `'end'` - changing WHICH call is loaded. Asked for as: "When changing the 'Edit call' name, if the 'Position'
+   *     slider is at the maximum, it will remain at maximum", and then "to be clear, it only stays at maximum if it was
+   *     already maximum." So an END-PINNED bar follows the new call's end, and a mid-call beat - which is a place in a
+   *     dance that has just been replaced - starts over at 0. `pinnedScrubBeat`.
+   *   - `'reset'` - the default: 0. A reset, a clone and the first load are not about a previous position at all.
    *
-   * WHERE THE KEPT BEAT LANDS IS NOT THIS METHOD'S RULE. Two authorings of ONE call can differ in
-   * length, and a bare beat is an absolute position - carrying one across a length change put a caller
-   * who was sitting on the LAST FRAME into the middle of a longer authoring. The rule is
-   * `keptScrubBeat` in `scrub-keep.ts`, which owns it, is DOM-free and is measured by
-   * `poc/tools/editor-setup-scrub-probe.mjs`.
+   * WHERE A BEAT LANDS IS NOT THIS METHOD'S RULE. Two authorings of ONE call can differ in length, and a bare beat is an
+   * absolute position - carrying one across a length change put a caller who was sitting on the LAST FRAME into the middle
+   * of a longer authoring. The rules are `keptScrubBeat`/`pinnedScrubBeat` in `scrub-keep.ts`, which owns them, is
+   * DOM-free and is measured by `poc/tools/editor-setup-scrub-probe.mjs`.
    */
-  private loadInstance(keepBeat = false) {
+  private loadInstance(beat: BeatPolicy = 'reset') {
     const id = this.editCallSel.value;
     const tam = parseInt(this.editSetupSel.value || '0', 10);
     const wasAt = this.editBeat;
@@ -1344,10 +1348,14 @@ export class EditorController implements EditorUI {
       // stands at - 0 for a formation the corpus writes the way the call finishes. It cannot move anything on its own,
       // because a turn is applied only to an end TARGET and there is none yet.
       this.endSpinSteps = end.turnDeg / END_SPIN_DEG;
-      // A NEW instance starts at its own first beat, with the animation off - unless the caller is
-      // stepping through the SETUPS of the call they already had open, where the beat is where they are
-      // LOOKING. See `keepBeat` above.
-      this.editBeat = keepBeat ? keptScrubBeat(wasAt, wasBeats, this.instance.beats) : 0;
+      // WHAT THE BAR DOES IS THE CALLER'S POLICY, and each of the three placements is a rule in `scrub-keep.ts`: the
+      // setup picker keeps the place (and an end stays an end), changing WHICH call is loaded keeps an END-PINNED bar at
+      // the end and sends a mid-call beat back to 0, and everything else starts at the first beat. See `beat` above.
+      this.editBeat = beat === 'place'
+        ? keptScrubBeat(wasAt, wasBeats, this.instance.beats)
+        : beat === 'end'
+          ? pinnedScrubBeat(wasAt, wasBeats, this.instance.beats)
+          : 0;
       // The board is only borrowed while this panel is on screen; showInstance -> showAt is where that is decided.
       this.showInstance(this.instance);
       this.renderInstance();
@@ -6456,7 +6464,9 @@ export class EditorController implements EditorUI {
       // the refill below is what replaces it - see setup-keep.ts for why a label is the setup's identity.
       this.fillSetupSelect(this.editSetupSel, this.editCallSel.value, this.setupLabelOf(this.editSetupSel));
       this.loadEditSetup();
-      this.loadInstance();
+      // 'end': an END-PINNED bar follows the new call's end; a mid-call beat starts over. Asked for as "it only stays at
+      // maximum if it was already maximum" - see `pinnedScrubBeat`.
+      this.loadInstance('end');
     });
     // THE SETUP KEEPS THE CALLER'S PLACE. This is the one control that swaps the AUTHORING while the
     // CALL stays the same, so it is the one place where resetting the scrub costs the caller the thing
@@ -6466,7 +6476,7 @@ export class EditorController implements EditorUI {
     this.editSetupSel.addEventListener('change', () => {
 
       this.loadEditSetup();
-      this.loadInstance(true);
+      this.loadInstance('place');
     });
     this.postCallSel.addEventListener('change', () => {
       this.fillSetupSelect(this.postSetupSel, this.postCallSel.value, this.setupLabelOf(this.postSetupSel));
@@ -6569,9 +6579,11 @@ export class EditorController implements EditorUI {
     const idx = String(setupIdx);
     if (Array.from(this.editSetupSel.options).some((o) => o.value === idx)) this.editSetupSel.value = idx;
     // THE SAME THREE CALLS THE `change` HANDLERS MAKE, in the same order - so this is not a second way to
-    // load an instance, it is the way the lists already do it.
+    // load an instance, it is the way the lists already do it. `'end'` because this ALSO changes WHICH call is loaded:
+    // the two ways of changing it (this button and the picker) land the bar the same way, or the panel would have two
+    // conventions for one gesture.
     this.loadEditSetup();
-    this.loadInstance();
+    this.loadInstance('end');
     // AND SAY WHAT WAS OPENED. The panel loads the full square and nothing else, so this is a plain confirmation
     // rather than a warning about which of two readings is on screen.
     this.statusEl.textContent = `opened ${this.editCallSel.selectedOptions[0]?.textContent ?? callId}`;

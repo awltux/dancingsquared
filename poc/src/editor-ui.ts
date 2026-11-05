@@ -5081,11 +5081,17 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * APPLY THE NEAR FILTER AT THE SELECTED TOLERANCE - the one place the shortlist is built.
+   * APPLY THE NEAR FILTER AT THE SELECTED TOLERANCE - the one place the shortlist is built, and the one place `all` puts
+   * the whole list back.
    *
    * Asked for as: "Change the edEndNearFilter button to a selector that defines the tolerance of the filter ... Display
    * just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value of 0.2 ... Keep the current logic that only
-   * shows it if there is no exact match."
+   * shows it if there is no exact match", and then "Change the default to 'off', as there is currently no way to show all
+   * formations", with the name settled as "Make that 'all'".
+   *
+   * `all` IS NOT A WIDTH, so it does not search at all: the picker holds every named formation of the call's own size,
+   * which is the list the row has without a filter. Anything the control cannot name (a stale option, a hand-edited DOM)
+   * falls to the same branch rather than into a search that would answer "nothing is close" for a value nobody chose.
    *
    * THE COUNT COMES FROM THE SAME CALL THE LIST DOES (`nearEndFormations`, with the chosen row's two numbers), so the
    * sentence cannot describe a list the picker is not showing - and the sentence prints the margin it actually searched,
@@ -5093,10 +5099,16 @@ export class EditorController implements EditorUI {
    */
   private setEndNearFilter() {
     const call = this.instance;
-    const tol = nearFilterChoice(parseFloat(this.endNearFilterSel.value));
+    const tol = nearFilterChoice(this.endNearFilterSel.value);
     if (call === null) {
       this.endNear = null;
       this.fillEndFormationOptions(null);
+      return;
+    }
+    if (tol === null) {
+      this.endNear = null;
+      this.fillEndFormationOptions(null);
+      this.statusEl.textContent = 'End setup list: every named formation of this call\'s size';
       return;
     }
     const formations = this.host.startFormations(call.dancers.length);
@@ -5270,11 +5282,14 @@ export class EditorController implements EditorUI {
       }
       return;
     }
-    // VISIBLE MEANS FILTERED AT THE SELECTED TOLERANCE. The search runs once per board - `endNear` is the memory of that -
-    // so the first render after a load or a moved end applies the row on the control, and a later `change` re-applies it.
+    // THE SELECTED ROW IS IN FORCE. `all` needs no search - the picker already holds its own full list - and leaving it
+    // alone is also what keeps a load's own status sentence from being overwritten by "every named formation" every time
+    // the panel opens. A tolerance DOES search, once per board: `endNear` is the memory of that, so the first render after
+    // a load or a moved end applies it, and a later `change` re-applies it.
     // `call !== null` IS LOAD-BEARING: with no instance there is nothing to search, `endNear` would stay null, and the fill
     // that `setEndNearFilter` performs ends in this method again - an ENDLESS loop on the panel's error path.
-    if (call !== null && this.endNear === null) this.setEndNearFilter();
+    const tol = nearFilterChoice(this.endNearFilterSel.value);
+    if (call !== null && this.endNear === null && tol !== null) this.setEndNearFilter();
   }
 
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */

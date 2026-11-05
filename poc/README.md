@@ -1286,20 +1286,22 @@ eight spots are a regular octagon, so an eighth of a turn keeps the spots and tu
 "the same circle, 45° round". A half-eighth (22.5°) is still not a name: the facing margin is 4.3°.
 
 **AND WHEN NOTHING NAMES THE END, THE PICKER ASKS HOW FAR TO LOOK.** A small selector beside the End setup picker
-offers **0.2, 0.4, 0.6, 0.8, 1.0, 1.2** board units (with facings leading each by 0.1: 0.3, 0.5, 0.7, 0.9, 1.1, 1.3 rad),
-and while it is on screen the list holds only the named formations within the row it shows, nearest first — so a call
-finishing just outside a shape finds that shape instead of a catalogue of 219 names. Asked for as *"Change the
-edEndNearFilter button to a selector that defines the tolerance of the filter … Display just the options [0.2, 0.4, 0.6,
-0.8], defaulting to the current value of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]. Keep the
-current logic that only shows it if there is no exact match."* — and then, once it was in use, *"I need more range, expand
-the tolerance set to include 1.0/1.1 and 1.2/1.3."* The first row **is** the engine's `NEAR_END_BOARD_TOL` (0.2 / 0.3),
-which is what the old icon searched with, so the default is the previous behaviour rather than a new guess; the table lives
-in `end-setup-state.ts` next to the sentence it feeds, and the panel hands the parsed value straight to
+offers **all** — its default, every named formation of the call's own size — and then **0.2, 0.4, 0.6, 0.8, 1.0, 1.2**
+board units with facings leading each by 0.1 (0.3, 0.5, 0.7, 0.9, 1.1, 1.3 rad). At a tolerance the list holds only the
+named formations within that row, nearest first — so a call finishing just outside a shape finds that shape instead of a
+catalogue of 219 names. Asked for as *"Change the edEndNearFilter button to a selector that defines the tolerance of the
+filter … Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value of 0.2. The radian tolerances
+should also increment [0.3, 0.5, 0.7, 0.9]. Keep the current logic that only shows it if there is no exact match."* — then
+*"I need more range, expand the tolerance set to include 1.0/1.1 and 1.2/1.3."* — and then *"Change the default to 'off',
+as there is currently no way to show all formations"*, settled as *"Make that 'all'"*. **`all` is why the default is an
+escape rather than a width:** a filter with no way back to the full list is a dead end, so the control starts on `all` and
+only narrows when asked. The 0.2 row **is** the engine's `NEAR_END_BOARD_TOL` (what the old icon searched with); the table
+lives in `end-setup-state.ts` next to the sentence it feeds, and the panel hands the parsed value straight to
 `nearEndFormations` — MEASURED, one search is **2–4 ms** over the 8-dancer formations, so the list can be rebuilt whenever
-the end board moves. Wider is strictly more names, and the last two rows are deliberately wider than "near" — above 0.5 the
+the end board moves. Wider is strictly more names, and the last rows are deliberately wider than "near" — above 0.5 the
 list can hold both halves of a twin pair, which a listing can afford and a name cannot. MEASURED on `Pass Thru`:
-**2 / 2 / 3 / 3 / 3 / 7**, so the new rows are what reaches the far shapes, and an empty list at 1.2 is the measurement
-that matters — nothing in the corpus is within that of the shape.
+**2 / 2 / 3 / 3 / 3 / 7** across the six tolerances, so the wider rows are what reaches the far shapes, and an empty list
+at 1.2 is the measurement that matters — nothing in the corpus is within that of the shape.
 
 **A FORMATION'S SPOT NUMBER IS NOT A CORRESPONDENCE.** "Connect the end to `Ocean Waves`" needs an answer to
 *which of its eight spots does dancer 3 finish on*, and the answer cannot be "spot 3": a formation's spots are

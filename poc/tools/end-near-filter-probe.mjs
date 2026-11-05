@@ -35,7 +35,7 @@ import { corpusRoot } from 'dancing-squared-corpus';
 
 const POC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = path.join(POC_DIR, '..');
-const { endSetupState, nearFilterChoice, NEAR_FILTER_CHOICES, nearFilterNote, showsNearFilter, UNKNOWN_SETUP } = await import(
+const { endSetupState, nearFilterChoice, NEAR_FILTER_ALL, NEAR_FILTER_CHOICES, nearFilterNote, showsNearFilter, UNKNOWN_SETUP } = await import(
   pathToFileURL(path.join(POC_DIR, 'src', 'end-setup-state.ts')).href
 );
 const engine = await import(pathToFileURL(path.join(ROOT, 'engine', 'dist', 'index.js')).href);
@@ -89,11 +89,12 @@ console.log('\n== 2. what it says: the count, the margin, the closest - or the v
     'NEGATIVE CONTROL: the margin in the sentence is the one passed in, not a constant copied into the wording');
 }
 
-console.log('\n== 2b. the tolerances the selector offers, and the default ==');
+console.log('\n== 2b. the tolerances the selector offers, `all`, and the default ==');
 {
   // Asked for as: "Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value of 0.2. The radian
-  // tolerances should also increment [0.3, 0.5, 0.7, 0.9]." and then: "I need more range, expand the tolerance set to
-  // include 1.0/1.1 and 1.2/1.3."
+  // tolerances should also increment [0.3, 0.5, 0.7, 0.9].", then "I need more range, expand the tolerance set to include
+  // 1.0/1.1 and 1.2/1.3", then "Change the default to 'off', as there is currently no way to show all formations" - "Make
+  // that 'all'".
   check(NEAR_FILTER_CHOICES.length === 6, `six rows (${NEAR_FILTER_CHOICES.length}) - the four asked for, plus the two more range`);
   check(NEAR_FILTER_CHOICES.map((c) => c.position).join(',') === '0.2,0.4,0.6,0.8,1,1.2',
     `the positions step 0.2 from 0.2 to 1.2 (${NEAR_FILTER_CHOICES.map((c) => c.position).join(', ')})`);
@@ -102,18 +103,22 @@ console.log('\n== 2b. the tolerances the selector offers, and the default ==');
   // THE PAIRING IS THE RULE, so it is checked as one rather than as two lists that happen to line up.
   check(NEAR_FILTER_CHOICES.every((c) => Math.abs(c.heading - (c.position + 0.1)) < 1e-9),
     'every heading is exactly its own position + 0.1');
-  // THE DEFAULT IS THE OLD HARD-CODED MARGIN, which is what makes the first row a measured number rather than a guess: the
+  // THE FIRST ROW IS STILL THE OLD HARD-CODED MARGIN, which is what makes it a measured number rather than a guess: the
   // engine's own `NEAR_END_BOARD_TOL` is what the filter searched with before it had a selector.
   check(NEAR_FILTER_CHOICES[0].position === engine.NEAR_END_BOARD_TOL.position &&
     NEAR_FILTER_CHOICES[0].heading === engine.NEAR_END_BOARD_TOL.heading,
-    `the first row IS the engine's near margin (${engine.NEAR_END_BOARD_TOL.position} / ${engine.NEAR_END_BOARD_TOL.heading}), so the default is the old behaviour`);
-  check(nearFilterChoice(0.2) === NEAR_FILTER_CHOICES[0] && nearFilterChoice(1.2) === NEAR_FILTER_CHOICES[5],
-    'a picker value maps to its own row, at both ends of the range');
-  // NEGATIVE CONTROL for the lookup: a value that is not one of the rows (a stale option, a hand-edited DOM) must land on
-  // the measured default, NOT on `undefined` - which would pass `NaN` into the search and match nothing, reading as "no
-  // formation is close".
-  check(nearFilterChoice(0.7) === NEAR_FILTER_CHOICES[0] && nearFilterChoice(NaN) === NEAR_FILTER_CHOICES[0],
-    'NEGATIVE CONTROL: an unknown row falls back to the first (0.2), so a stale value cannot search with NaN');
+    `the first row IS the engine's near margin (${engine.NEAR_END_BOARD_TOL.position} / ${engine.NEAR_END_BOARD_TOL.heading})`);
+  check(NEAR_FILTER_ALL === 'all', `the no-filter value is the word the request settled on (${JSON.stringify(NEAR_FILTER_ALL)})`);
+  // THE TOLERANCE SELECTOR IS OFF BY DEFAULT: `all` must be what the control opens on, or the picker hides formations the
+  // caller asked to see (which is the defect the request names - there was no way back to the whole list).
+  check(nearFilterChoice(NEAR_FILTER_ALL) === null && nearFilterChoice('') === null && nearFilterChoice('off') === null,
+    '`all` - and any value the table does not name - means NO filter, not the narrowest one');
+  check(nearFilterChoice('0.2') === NEAR_FILTER_CHOICES[0] && nearFilterChoice('1.2') === NEAR_FILTER_CHOICES[5],
+    'while a tolerance value maps to its own row, at both ends of the range');
+  // NEGATIVE CONTROL: a stale or hand-edited value must not land on a ROW (which would search), and must not pass `NaN`
+  // into the search either - both would read as "no formation is close" for a value nobody chose.
+  check(nearFilterChoice('0.7') === null && nearFilterChoice('NaN') === null && nearFilterChoice('') === null,
+    'NEGATIVE CONTROL: an unknown value is treated as `all`, so it shows the whole list rather than searching with NaN');
 }
 
 console.log('\n== 3. the list IS the engine\'s answer, on a real call ==');
@@ -183,39 +188,45 @@ console.log('\n== 4. the panel wires it: one rule, one engine call, one writer f
     'the panel imports the row rule AND the tolerance table from `end-setup-state.ts` rather than restating either');
   check(/nearEndFormations,/.test(src),
     'and imports the engine\'s near lookup, so the search is not re-derived here');
-  check(/private setEndNearFilter\(\)[\s\S]{0,900}?nearFilterChoice\(parseFloat\(this\.endNearFilterSel\.value\)\)[\s\S]{0,600}?nearEndFormations\(call, formations, tol\)/.test(src),
+  check(/private setEndNearFilter\(\)[\s\S]{0,1200}?nearFilterChoice\(this\.endNearFilterSel\.value\)[\s\S]{0,900}?nearEndFormations\(call, formations, tol\)/.test(src),
     'the control\'s VALUE becomes the tolerance the engine searches with - one read, no second copy of the number');
+  // `all` DOES NOT SEARCH: the branch has to hand the picker its own full list back, which is the whole point of the
+  // request ("there is currently no way to show all formations").
+  check(/private setEndNearFilter\(\)[\s\S]{0,1400}?if \(tol === null\) \{[\s\S]{0,300}?this\.endNear = null;[\s\S]{0,200}?this\.fillEndFormationOptions\(null\);/.test(src),
+    'and `all` (or any value the table does not name) puts the WHOLE list back instead of searching');
   check(/private setEndNearFilter\(\)[\s\S]{0,1600}?nearFilterNote\(/.test(src),
     'and the sentence is the row rule\'s, so the count, the list and the margin cannot disagree');
   check(/const near = showsNearFilter\(info\.name\);\n    this\.endNearFilterSel\.hidden = !near;/.test(src),
     'the control is shown from the rule, on the same `name` the placeholder is built from - the "only when no exact match" rule survives');
-  check(/if \(call !== null && this\.endNear === null\) this\.setEndNearFilter\(\);/.test(src),
-    'and being on screen MEANS filtered: the first render after a load or a moved end applies the row on the control (guarded on a loaded call, because the fill re-enters this method)');
+  check(/const tol = nearFilterChoice\(this\.endNearFilterSel\.value\);\n    if \(call !== null && this\.endNear === null && tol !== null\) this\.setEndNearFilter\(\);/.test(src),
+    'and being on screen only means a SHORTLIST when a tolerance is chosen: `all` leaves the full list alone (so a load\'s own status sentence is not overwritten), and a loaded call guards the re-entrant fill');
   check(/if \(!near\) \{[\s\S]{0,400}?this\.endNear = null;[\s\S]{0,200}?this\.fillEndFormationOptions\(null\);/.test(src),
     'an end that becomes NAMED retires the shortlist instead of leaving one for a stale premise');
   check(/private endSetupInfo\(call: CallBundle\)[\s\S]{0,2400}?if \(this\.endNear !== null\) \{/.test(src),
     'a DIFFERENT END BOARD retires it too - the shortlist is a view of one finish, not a mode of the panel');
   check(/this\.endNearFilterSel\.addEventListener\('change', \(\) => this\.setEndNearFilter\(\)\);/.test(src),
-    'and changing the selector re-applies the filter at the new tolerance');
+    'and changing the selector re-applies the filter - or, on `all`, the full list');
   check(/private fillEndFormationOptions\(names: readonly string\[\] \| null\)/.test(src) &&
     /this\.fillEndFormationOptions\(null\);/.test(src),
     'ONE writer fills the End list (the filter and the call change both go through it), so the placeholder cannot be left by whichever ran last');
   check(/new Option\(KEEP_END_PLACEHOLDER, ''\)/.test(src),
     'and the placeholder text comes from the rule\'s constant rather than a second spelling of it');
-  // THE MARKUP: a select with EXACTLY the rows the TABLE names - derived from the table, so a row added there cannot be
-  // forgotten here - 0.2 selected, and hidden to start.
+  // THE MARKUP: a select with EXACTLY the rows the TABLE names, headed by `all` - derived from the table, so a row added
+  // there cannot be forgotten here - `all` selected, and hidden to start.
   const markup = /<select id="edEndNearFilter" class="ed-near-tol" hidden[^>]*>([\s\S]*?)<\/select>/.exec(html);
   check(markup !== null, 'the control is a `<select>` in the markup, right of the picker, and starts hidden');
   const options = markup ? [...markup[1].matchAll(/<option value="([^"]+)"( selected)?>([^<]*)<\/option>/g)].map((m) => ({ value: m[1], selected: !!m[2], label: m[3] })) : [];
+  check(options.length === NEAR_FILTER_CHOICES.length + 1 && options[0].value === NEAR_FILTER_ALL && options[0].label === 'all',
+    `it opens with the \`all\` row (${options.map((o) => o.label).join(' / ')})`);
   // The VALUE is a number the panel parses (`parseFloat`), so the comparison is numeric: the markup writes `1.0` where the
   // table writes `1`, and those are the same row.
   const expected = NEAR_FILTER_CHOICES.map((c) => c.position);
-  check(options.length === expected.length && options.map((o) => parseFloat(o.value)).join(',') === expected.join(','),
-    `it offers exactly the table's rows, in order (${options.map((o) => o.value).join(', ')} of ${expected.join(', ')})`);
-  check(options.filter((o) => o.selected).length === 1 && options[0].selected && options[0].value === '0.2',
-    'and 0.2 is the one selected by default - the old hard-coded margin');
+  check(options.slice(1).map((o) => parseFloat(o.value)).join(',') === expected.join(','),
+    `then exactly the table's rows, in order (${options.slice(1).map((o) => o.value).join(', ')} of ${expected.join(', ')})`);
+  check(options.filter((o) => o.selected).length === 1 && options[0].selected,
+    'and `all` is the one selected by default - the whole list is the default, which is the request');
   check(options.every((o) => o.label === o.value),
-    `each option reads as its own number, not as a sentence (${options.map((o) => o.label).join(' / ')})`);
+    `each option reads as its own number or as \`all\`, not as a sentence (${options.map((o) => o.label).join(' / ')})`);
   check(html.indexOf('id="edEndFormation"') < html.indexOf('id="edEndNearFilter"'),
     'and it sits AFTER the select element it filters, which is where the request put it');
   check(/#editorPanel \.ed-near-tol \{[\s\S]{0,200}?flex: 0 0 auto;/.test(css),

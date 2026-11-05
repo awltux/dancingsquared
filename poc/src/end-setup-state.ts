@@ -49,16 +49,23 @@
 export const KEEP_END_PLACEHOLDER = '— keep the current end —';
 
 /**
- * THE TOLERANCES THE NEAR FILTER OFFERS, as one table: how far out it looks, in board units and radians.
+ * THE TOLERANCES THE NEAR FILTER OFFERS, as one table: how far out it looks, in board units and radians. `all` is a value
+ * of its own (see `NEAR_FILTER_ALL`) and is what the control starts on.
  *
  * Asked for as: "Change the edEndNearFilter button to a selector that defines the tolerance of the filter. The default
  * would be its current hard-coded values. Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value
- * of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]." - and then, once it was in use: "I need more
- * range, expand the tolerance set to include 1.0/1.1 and 1.2/1.3."
+ * of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]." - then "I need more range, expand the
+ * tolerance set to include 1.0/1.1 and 1.2/1.3" - and then "Change the default to 'off', as there is currently no way to
+ * show all formations", with the name settled as "Make that 'all'".
+ *
+ * `all` IS THE DEFAULT BECAUSE A FILTER WITH NO WAY OUT IS A DEAD END. The first cut of the selector was the filter (as
+ * the icon before it had been when pressed), so once a caller chose a tolerance there was no way back to the picker's full
+ * list - the one thing the control must not do. `all` restores it, and starting there means the row is unchanged until
+ * the caller asks for a shortlist.
  *
  * THE FIRST ROW IS THE ENGINE'S OWN `NEAR_END_BOARD_TOL` (0.2 units / 0.3 rad), which is what the filter searched with
- * before it had a selector - so the default is the old behaviour rather than a new guess - and every heading leads its
- * position by exactly 0.1, which keeps the pairs 1:1 with no sixth row to forget.
+ * before it had a selector - so choosing the first step is the old pressed behaviour rather than a new guess - and every
+ * heading leads its position by exactly 0.1, which keeps the pairs 1:1 with no seventh row to forget.
  *
  * THE SIX ROWS STEP BY 0.2 AND THE LAST THREE ARE DELIBERATELY WIDER THAN "NEAR". The engine's margin is small because a
  * NAME is a re-base; this list only LISTS, and the request for more range is the caller saying the useful answer can be
@@ -80,6 +87,9 @@ export interface NearFilterChoice {
   readonly heading: number;
 }
 
+/** The picker's value for "no filter": every named formation of the call's own size, which is the picker's own list. */
+export const NEAR_FILTER_ALL = 'all';
+
 export const NEAR_FILTER_CHOICES: readonly NearFilterChoice[] = [
   { position: 0.2, heading: 0.3 },
   { position: 0.4, heading: 0.5 },
@@ -90,15 +100,17 @@ export const NEAR_FILTER_CHOICES: readonly NearFilterChoice[] = [
 ];
 
 /**
- * THE ROW FOR A PICKER VALUE - and anything that is not one of the rows lands on the FIRST rather than throwing: a
- * select's value is a string from the markup, and a stale or hand-edited one must search with the measured default rather
- * than with `NaN` (which would quietly match nothing and read as "no formation is close").
+ * THE ROW FOR A PICKER VALUE, or `null` for `all` - and anything that is not one of the rows also means `all`, which is
+ * the safe direction: a select's value is a string from the markup, and a stale or hand-edited one must show the WHOLE
+ * list rather than searching with `NaN` (which would quietly match nothing and read as "no formation is close").
  */
-export function nearFilterChoice(position: number): NearFilterChoice {
+export function nearFilterChoice(value: string): NearFilterChoice | null {
+  const position = parseFloat(value);
+  if (!Number.isFinite(position)) return null;
   for (const choice of NEAR_FILTER_CHOICES) {
     if (choice.position === position) return choice;
   }
-  return NEAR_FILTER_CHOICES[0];
+  return null;
 }
 
 /**

@@ -65,8 +65,9 @@ export interface SnapRefusal {
  *   2. HALF THE MINIMUM SPOT SEPARATION. A named formation's own spots are at least 0.9998 units apart (the engine's
  *      `END_BOARD_TOL` measurement), so at 0.5 no point can be nearer than a tie to two spots of one formation - the
  *      pairing can never be riding on "which of two spots did you mean".
- *   3. TEN TIMES THE NAMING MARGIN (0.05) and twice the near-match filter's (0.2). Naming is a RE-BASE and its margin is
- *      how far a name may nudge the dance; this button is a nudge by request, so it has to be looser than a name - but
+ *   3. TEN TIMES THE NAMING MARGIN (0.05) and twice the near filter's DEFAULT row (0.2 - its selector now goes to 1.2,
+ *      but the default is the engine's own margin). Naming is a RE-BASE and its margin is how far a name may nudge the
+ *      dance; this button is a nudge by request, so it has to be looser than a name - but
  *      still small enough that the dancers are standing in the shape, which is what the caller checks by eye.
  *
  * It is a default, not a law: the panel passes it and every caller may pass its own.

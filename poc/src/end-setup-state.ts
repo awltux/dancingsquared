@@ -53,15 +53,22 @@ export const KEEP_END_PLACEHOLDER = '— keep the current end —';
  *
  * Asked for as: "Change the edEndNearFilter button to a selector that defines the tolerance of the filter. The default
  * would be its current hard-coded values. Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value
- * of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]."
+ * of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]." - and then, once it was in use: "I need more
+ * range, expand the tolerance set to include 1.0/1.1 and 1.2/1.3."
  *
  * THE FIRST ROW IS THE ENGINE'S OWN `NEAR_END_BOARD_TOL` (0.2 units / 0.3 rad), which is what the filter searched with
- * before it had a selector - so the default is the old behaviour rather than a new guess - and the four headings step by
- * the same 0.1 as the four positions, which keeps the pairs 1:1 with no fifth row to forget.
+ * before it had a selector - so the default is the old behaviour rather than a new guess - and every heading leads its
+ * position by exactly 0.1, which keeps the pairs 1:1 with no sixth row to forget.
  *
- * WHY A FOUR-ROW TABLE AND NOT A SLIDER: the choice is the whole vocabulary of the answer ("how far outside the shape am
- * I willing to look"), and a caller stepping through it has to see where the net widened from. `nearFilterNote` prints
- * the margin either way, so whatever is in force is on screen.
+ * THE SIX ROWS STEP BY 0.2 AND THE LAST THREE ARE DELIBERATELY WIDER THAN "NEAR". The engine's margin is small because a
+ * NAME is a re-base; this list only LISTS, and the request for more range is the caller saying the useful answer can be
+ * further out than a body's width. Above 0.5 the list can hold two boards that are twins of each other (the closest two
+ * DIFFERENT named boards are 0.5 apart - `NEAR_END_BOARD_TOL`'s measurement), which a listing can afford and a name
+ * cannot: the caller picks. `nearFilterNote` prints the margin in force either way, so "N of 219 within 1.20 / 1.30 rad"
+ * is never mistaken for a named end.
+ *
+ * WHY A TABLE AND NOT A SLIDER: the choice is the whole vocabulary of the answer ("how far outside the shape am I
+ * willing to look"), and a caller stepping through it has to see where the net widened from.
  *
  * The table lives here, with the wording, because both are claims about this ROW: the panel reads a row and hands its two
  * numbers to the engine's search, and a probe drives the pair without a DOM.
@@ -78,10 +85,12 @@ export const NEAR_FILTER_CHOICES: readonly NearFilterChoice[] = [
   { position: 0.4, heading: 0.5 },
   { position: 0.6, heading: 0.7 },
   { position: 0.8, heading: 0.9 },
+  { position: 1.0, heading: 1.1 },
+  { position: 1.2, heading: 1.3 },
 ];
 
 /**
- * THE ROW FOR A PICKER VALUE - and anything that is not one of the four lands on the FIRST row rather than throwing: a
+ * THE ROW FOR A PICKER VALUE - and anything that is not one of the rows lands on the FIRST rather than throwing: a
  * select's value is a string from the markup, and a stale or hand-edited one must search with the measured default rather
  * than with `NaN` (which would quietly match nothing and read as "no formation is close").
  */

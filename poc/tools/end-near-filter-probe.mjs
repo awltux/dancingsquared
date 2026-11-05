@@ -10,12 +10,12 @@
 // current logic that only shows it if there is no exact match."
 //
 // TWO RULES, TWO HOMES, and this probe keeps them apart on purpose:
-//   * WHETHER the row offers the control, WHAT it says, and WHICH four tolerances it offers are
+//   * WHETHER the row offers the control, WHAT it says, and WHICH tolerances it offers are
 //     `poc/src/end-setup-state.ts`'s - pure, so the cases below drive the functions rather than reading a 6,400-line DOM
 //     method (AGENTS.md §8 trap 27);
 //   * WHICH formations are near, and at what margin, are the ENGINE's (`nearEndFormations`), and the panel must call it with
-//     the chosen row rather than re-deriving a distance. The checks ask the engine directly, on a real corpus call, at all
-//     four tolerances, and compare with what the note would report - so the sentence and the list are one answer.
+//     the chosen row rather than re-deriving a distance. The checks ask the engine directly, on a real corpus call, at every
+//     tolerance in the table, and compare with what the note would report - so the sentence and the list are one answer.
 //
 // THE NEGATIVE CONTROLS, each the plausible wrong rule:
 //   * "offer the control always" - red for a NAMED end, where it could only hide the formation the row is pointing at;
@@ -24,7 +24,7 @@
 //   * "a note without the margin" - indistinguishable from a filter that looked nowhere;
 //   * "the panel computes its own distance" - the engine's list is compared to the field the panel would have to
 //     re-derive, and the source check requires the import;
-//   * "the selector shows one tolerance and searches with another" - the four (position, heading) pairs are checked as a
+//   * "the selector shows one tolerance and searches with another" - every (position, heading) pair is checked as a
 //     table, and the panel's search is required to take the parsed VALUE, so a mismatch is red rather than plausible.
 //
 // Run: node poc/tools/end-near-filter-probe.mjs   (from anywhere; build the engine first)
@@ -89,23 +89,27 @@ console.log('\n== 2. what it says: the count, the margin, the closest - or the v
     'NEGATIVE CONTROL: the margin in the sentence is the one passed in, not a constant copied into the wording');
 }
 
-console.log('\n== 2b. the four tolerances the selector offers, and the default ==');
+console.log('\n== 2b. the tolerances the selector offers, and the default ==');
 {
   // Asked for as: "Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value of 0.2. The radian
-  // tolerances should also increment [0.3, 0.5, 0.7, 0.9]."
-  check(NEAR_FILTER_CHOICES.length === 4, `exactly four rows (${NEAR_FILTER_CHOICES.length}) - "just the options"`);
-  check(NEAR_FILTER_CHOICES.map((c) => c.position).join(',') === '0.2,0.4,0.6,0.8',
-    `the positions are 0.2, 0.4, 0.6, 0.8 (${NEAR_FILTER_CHOICES.map((c) => c.position).join(', ')})`);
-  check(NEAR_FILTER_CHOICES.map((c) => c.heading).join(',') === '0.3,0.5,0.7,0.9',
-    `and the radians step with them, 0.3, 0.5, 0.7, 0.9 (${NEAR_FILTER_CHOICES.map((c) => c.heading).join(', ')})`);
+  // tolerances should also increment [0.3, 0.5, 0.7, 0.9]." and then: "I need more range, expand the tolerance set to
+  // include 1.0/1.1 and 1.2/1.3."
+  check(NEAR_FILTER_CHOICES.length === 6, `six rows (${NEAR_FILTER_CHOICES.length}) - the four asked for, plus the two more range`);
+  check(NEAR_FILTER_CHOICES.map((c) => c.position).join(',') === '0.2,0.4,0.6,0.8,1,1.2',
+    `the positions step 0.2 from 0.2 to 1.2 (${NEAR_FILTER_CHOICES.map((c) => c.position).join(', ')})`);
+  check(NEAR_FILTER_CHOICES.map((c) => c.heading).join(',') === '0.3,0.5,0.7,0.9,1.1,1.3',
+    `and the radians lead each position by 0.1, 0.3 to 1.3 (${NEAR_FILTER_CHOICES.map((c) => c.heading).join(', ')})`);
+  // THE PAIRING IS THE RULE, so it is checked as one rather than as two lists that happen to line up.
+  check(NEAR_FILTER_CHOICES.every((c) => Math.abs(c.heading - (c.position + 0.1)) < 1e-9),
+    'every heading is exactly its own position + 0.1');
   // THE DEFAULT IS THE OLD HARD-CODED MARGIN, which is what makes the first row a measured number rather than a guess: the
   // engine's own `NEAR_END_BOARD_TOL` is what the filter searched with before it had a selector.
   check(NEAR_FILTER_CHOICES[0].position === engine.NEAR_END_BOARD_TOL.position &&
     NEAR_FILTER_CHOICES[0].heading === engine.NEAR_END_BOARD_TOL.heading,
     `the first row IS the engine's near margin (${engine.NEAR_END_BOARD_TOL.position} / ${engine.NEAR_END_BOARD_TOL.heading}), so the default is the old behaviour`);
-  check(nearFilterChoice(0.2) === NEAR_FILTER_CHOICES[0] && nearFilterChoice(0.8) === NEAR_FILTER_CHOICES[3],
-    'a picker value maps to its own row');
-  // NEGATIVE CONTROL for the lookup: a value that is not one of the four (a stale option, a hand-edited DOM) must land on
+  check(nearFilterChoice(0.2) === NEAR_FILTER_CHOICES[0] && nearFilterChoice(1.2) === NEAR_FILTER_CHOICES[5],
+    'a picker value maps to its own row, at both ends of the range');
+  // NEGATIVE CONTROL for the lookup: a value that is not one of the rows (a stale option, a hand-edited DOM) must land on
   // the measured default, NOT on `undefined` - which would pass `NaN` into the search and match nothing, reading as "no
   // formation is close".
   check(nearFilterChoice(0.7) === NEAR_FILTER_CHOICES[0] && nearFilterChoice(NaN) === NEAR_FILTER_CHOICES[0],
@@ -144,7 +148,7 @@ console.log('\n== 3. the list IS the engine\'s answer, on a real call ==');
   check(near.every((f) => f.worst.position <= engine.NEAR_END_BOARD_TOL.position &&
     f.worst.heading <= engine.NEAR_END_BOARD_TOL.heading),
     'and every one of them is inside the relaxed margin, so the list is a filter and not the whole catalogue');
-  // ALL FOUR ROWS, ON THE SAME CALL: the search really uses the tolerance it is given, the list only widens as the row
+  // EVERY ROW, ON THE SAME CALL: the search really uses the tolerance it is given, the list only widens as the row
   // widens, and nothing outside the chosen margin sneaks in.
   const counts = [];
   let slowest = 0;
@@ -157,7 +161,7 @@ console.log('\n== 3. the list IS the engine\'s answer, on a real call ==');
       check(false, `every match at ${choice.position} is inside that row's margin`);
     }
   }
-  console.log(`    counts at 0.2/0.4/0.6/0.8: ${counts.join(' / ')} (slowest search ${slowest} ms)`);
+  console.log(`    counts at ${NEAR_FILTER_CHOICES.map((c) => c.position).join('/')}: ${counts.join(' / ')} (slowest search ${slowest} ms)`);
   check(counts.every((n, i) => i === 0 || counts[i - 1] <= n),
     `widening the tolerance can only ADD matches (${counts.join(' / ')})`);
   check(counts[counts.length - 1] > counts[0] || counts[0] === formations.length,
@@ -198,12 +202,16 @@ console.log('\n== 4. the panel wires it: one rule, one engine call, one writer f
     'ONE writer fills the End list (the filter and the call change both go through it), so the placeholder cannot be left by whichever ran last');
   check(/new Option\(KEEP_END_PLACEHOLDER, ''\)/.test(src),
     'and the placeholder text comes from the rule\'s constant rather than a second spelling of it');
-  // THE MARKUP: a select with EXACTLY the four rows the table names, 0.2 selected, and hidden to start.
+  // THE MARKUP: a select with EXACTLY the rows the TABLE names - derived from the table, so a row added there cannot be
+  // forgotten here - 0.2 selected, and hidden to start.
   const markup = /<select id="edEndNearFilter" class="ed-near-tol" hidden[^>]*>([\s\S]*?)<\/select>/.exec(html);
   check(markup !== null, 'the control is a `<select>` in the markup, right of the picker, and starts hidden');
   const options = markup ? [...markup[1].matchAll(/<option value="([^"]+)"( selected)?>([^<]*)<\/option>/g)].map((m) => ({ value: m[1], selected: !!m[2], label: m[3] })) : [];
-  check(options.length === 4 && options.map((o) => o.value).join(',') === '0.2,0.4,0.6,0.8',
-    `it offers exactly the four tolerances (${options.map((o) => o.value).join(', ')})`);
+  // The VALUE is a number the panel parses (`parseFloat`), so the comparison is numeric: the markup writes `1.0` where the
+  // table writes `1`, and those are the same row.
+  const expected = NEAR_FILTER_CHOICES.map((c) => c.position);
+  check(options.length === expected.length && options.map((o) => parseFloat(o.value)).join(',') === expected.join(','),
+    `it offers exactly the table's rows, in order (${options.map((o) => o.value).join(', ')} of ${expected.join(', ')})`);
   check(options.filter((o) => o.selected).length === 1 && options[0].selected && options[0].value === '0.2',
     'and 0.2 is the one selected by default - the old hard-coded margin');
   check(options.every((o) => o.label === o.value),

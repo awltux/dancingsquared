@@ -1285,6 +1285,19 @@ because the match only tried quarter turns, and that board stands EXACTLY on tha
 eight spots are a regular octagon, so an eighth of a turn keeps the spots and turns the facings — which is why it reads as
 "the same circle, 45° round". A half-eighth (22.5°) is still not a name: the facing margin is 4.3°.
 
+**AND WHEN NOTHING NAMES THE END, THE PICKER ASKS HOW FAR TO LOOK.** A small selector beside the End setup picker
+offers **0.2, 0.4, 0.6, 0.8** board units (with facings stepping 0.3, 0.5, 0.7, 0.9 rad), and while it is on screen the
+list holds only the named formations within the row it shows, nearest first — so a call finishing just outside a shape
+finds that shape instead of a catalogue of 219 names. Asked for as *"Change the edEndNearFilter button to a selector that
+defines the tolerance of the filter … Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value of
+0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]. Keep the current logic that only shows it if there
+is no exact match."* The first row **is** the engine's `NEAR_END_BOARD_TOL` (0.2 / 0.3), which is what the old icon
+searched with, so the default is the previous behaviour rather than a new guess; the table lives in
+`end-setup-state.ts` next to the sentence it feeds, and the panel hands the parsed value straight to
+`nearEndFormations` — MEASURED, one search is **4 ms** over the 8-dancer formations, so the list can be rebuilt whenever
+the end board moves. Wider is strictly more names (measured on `Pass Thru`: 2 / 2 / 3 / 3), and an empty list at 0.8 is
+the measurement that matters — nothing in the corpus is within a body's width of that shape.
+
 **A FORMATION'S SPOT NUMBER IS NOT A CORRESPONDENCE.** "Connect the end to `Ocean Waves`" needs an answer to
 *which of its eight spots does dancer 3 finish on*, and the answer cannot be "spot 3": a formation's spots are
 in ITS OWN authoring order, so `dancer 3 → spot 3` is a coincidence of two unrelated files. The pairing is

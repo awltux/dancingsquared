@@ -214,8 +214,8 @@ console.log('\n== 3. the panel: two lazy filters after the Find box, with the be
     'the costly buttons take that red as their GLYPH colour, so the cost is visible before the hint is read');
   check(/#editorPanel \.ed-flag-costly\[aria-pressed="true"\] \{ color: var\(--danger\); border-color: var\(--accent\); \}/.test(css),
     'and a pressed one stays red with an accent BORDER, so "on" and "expensive" stay two different signals');
-  check(/#editorPanel \.ed-near,\n#editorPanel \.ed-flag \{/.test(css) && /#editorPanel \.ed-flag\[aria-pressed="true"\]/.test(css),
-    'the CSS gives them the same pressed look as the other icon toggles, from one rule rather than a third copy');
+  check(/#editorPanel \.ed-flag \{/.test(css) && /#editorPanel \.ed-flag\[aria-pressed="true"\] \{ border-color: var\(--accent\); color: var\(--accent\); \}/.test(css),
+    'the CSS gives the two icon toggles a pressed look of their own - the near-match filter beside them is a tolerance SELECT now, so it needs no pressed state');
 
   // THE RULE IS THE LOADER'S, and the panel drives it.
   check(/import \{ variantKey \} from '\.\/setup-scan';/.test(ui) && /scanSetupMatches,\n\} from '\.\/data';/.test(ui),

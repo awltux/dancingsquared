@@ -171,22 +171,25 @@ html, body {
   padding: 0; margin: 0; width: 18px; height: 16px; min-width: 0; font-size: calc(11px * var(--hud-text)); line-height: 1;
   font-family: inherit; border-radius: 3px; cursor: pointer;
 }
-/* THE NEAR-MATCH FILTER, right of the End setup picker: an ICON, so it must not take the row's button padding, and
-   PRESSED IS A STATE the caller has to be able to read at a glance - the list it filters looks like every other list,
-   so `aria-pressed` is what says the shortlist is on. The accent border both marks the state and matches the panel's
-   other toggles; the button is `hidden` entirely for a named end, which is `renderEndSetupState`'s rule.
-   `#editorPanel` is prefixed for the specificity reason `ed-swap` above records. */
-#editorPanel .ed-near,
-#editorPanel .ed-flag {
-  padding: 0 6px; margin: 0; min-width: 0; font-size: calc(13px * var(--hud-text)); line-height: 1.2;
-  border-radius: 4px; cursor: pointer;
+/* THE NEAR-MATCH FILTER'S TOLERANCE, right of the End setup picker: a NARROW SELECT, not an icon - it carries the number
+   it searches with, so the shortlist it produces always says how far out it looked. Asked for as: "Change the
+   edEndNearFilter button to a selector that defines the tolerance of the filter ... Display just the options [0.2, 0.4,
+   0.6, 0.8]" - the four options are widths in board units, and the control is `hidden` entirely for a named end, which is
+   `renderEndSetupState`'s rule. `#editorPanel` is prefixed for the specificity reason `ed-swap` above records. */
+#editorPanel .ed-near-tol {
+  padding: 1px 2px; margin: 0; min-width: 0; width: auto; flex: 0 0 auto;
+  font-size: calc(12px * var(--hud-text)); line-height: 1.2;
 }
-#editorPanel .ed-near[aria-pressed="true"],
+/* THE TWO VARIANT FILTERS beside the Find box are ICON toggles, and the class name says what they are rather than where
+   they sit: `.ed-flag` is an icon button that narrows a list on one axis. PRESSED IS A STATE the caller has to be able to
+   read at a glance - the list it filters looks like every other list, so `aria-pressed` is what says the shortlist is on,
+   in the panel's accent colour (the same tell the old near-filter icon had, which is now a select and needs no state).
+   The icon size is its own rule because a glyph at 13px reads as a bullet. */
+#editorPanel .ed-flag {
+  padding: 0 6px; margin: 0; min-width: 0; line-height: 1.2; border-radius: 4px; cursor: pointer;
+  font-size: calc(15px * var(--hud-text));
+}
 #editorPanel .ed-flag[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
-/* THE TWO VARIANT FILTERS beside the Find box are ICON toggles with the same look as the near-match filter above, and the
-   class name says what they are rather than where they sit: `.ed-flag` is an icon button that narrows a list on one axis.
-   Pressed is `aria-pressed`, which is what a caller reads at a glance - the list it filters looks like every other list. */
-#editorPanel .ed-flag { font-size: calc(15px * var(--hud-text)); }
 /* THE COSTLY ONE WEARS ITS PRICE. `.ed-flag-costly` is red because the press is not free: it BUILDS every call variant in
    the corpus to answer (MEASURED 5,489 variants, 3.7 s per session, cached after that), where the Find box beside it only
    re-reads a cached string. The colour is the warning, and the pressed state keeps it while adding the accent border - so

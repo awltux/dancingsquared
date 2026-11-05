@@ -75,7 +75,6 @@ import {
   // stands on, nearest first with the worst spot's distance, and the margin it searched with. The margin is the engine's
   // because it is derived from `END_BOARD_TOL`'s measurement of how far apart two named boards are - not a UI taste.
   nearEndFormations,
-  NEAR_END_BOARD_TOL,
   // The rigid whole-set turn behind the End setup's rotation control: the rule lives in the engine so the
   // probe measures THAT rather than a copy of it, and `DEG` with it, which is the engine's own conversion.
   rotateFormation,
@@ -175,7 +174,7 @@ import { stepMoveIndex } from './move-nav';
 import { keptSetupIndex } from './setup-keep';
 // What the End setup row says about the shape the call finishes on, and whether it can be exported - a pure rule, so
 // a probe can measure it rather than read the panel (see end-setup-state.ts).
-import { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, nearFilterNote, showsNearFilter } from './end-setup-state';
+import { endIdentityOptions, endSetupState, KEEP_END_PLACEHOLDER, nearFilterChoice, nearFilterNote, showsNearFilter } from './end-setup-state';
 import type { EndIdentityOption } from './end-setup-state';
 // WHICH FORMATIONS CARRY AN END'S `fid`/`aid` - the ids themselves are `setup-catalogue.ts`'s (`idsOf`), so the join is
 // asked there rather than re-derived here from a second board builder.
@@ -567,14 +566,21 @@ export class EditorController implements EditorUI {
   // finishes on, and the board is eight dancers. See end-setup-state.ts for why those two conditions.
   private exportEndFormationBtn = el<HTMLButtonElement>('edExportEndFormation');
   /**
-   * The near-match FILTER, right of the End setup picker: offered only while the corpus cannot name the end
+   * The near-match filter's TOLERANCE, right of the End setup picker: offered only while the corpus cannot name the end
    * (`showsNearFilter`), because a named end already has its answer.
    *
-   * `endNearOnly` IS A VIEW OF ONE END BOARD, so it resets whenever that board changes - the filtered list is a claim
-   * about a specific finish, and carrying it to a different one would show a shortlist that no longer means anything.
+   * Asked for as: "Change the edEndNearFilter button to a selector that defines the tolerance of the filter. The default
+   * would be its current hard-coded values. Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value
+   * of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]."
+   *
+   * THE SELECTOR *IS* THE FILTER: while it is on screen the picker holds the near matches at the chosen tolerance, so the
+   * control and the list cannot disagree about whether a shortlist is in force. `endNear` is the shortlist it is showing -
+   * null means "not computed for this board yet", which `renderEndSetupState` resolves by searching at the selected row.
+   *
+   * A VIEW OF ONE END BOARD: it resets whenever that board changes (see `endSetupInfo`), because the shortlist is a claim
+   * about a specific finish.
    */
-  private endNearFilterBtn = el<HTMLButtonElement>('edEndNearFilter');
-  private endNearOnly = false;
+  private endNearFilterSel = el<HTMLSelectElement>('edEndNearFilter');
   /** The near matches the filtered list is showing, nearest first - null when the list is not filtered. */
   private endNear: NearEndFormation[] | null = null;
   /** The end board the last read was computed for, its corpus name and its setup id, so a handle drag does not re-walk
@@ -1328,9 +1334,7 @@ export class EditorController implements EditorUI {
       // A NEW CALL ENDS ON A NEW BOARD, so a filtered End list from the call that was open is retired with it - the
       // same rule `endSetupInfo` applies when the end moves, done here because the list is refilled below and the
       // selection is assigned from the NEW call. The near matches are a claim about one finish, not a mode of the panel.
-      this.endNearOnly = false;
       this.endNear = null;
-      this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
       this.fillEndFormationOptions(null);
       // AND THE PICKERS OPEN ON THE SETUP THE CALL IS ALREADY IN, when the corpus can name it: the load
       // has just decided what the two ends are, so the selector can say so rather than making the
@@ -5077,34 +5081,31 @@ export class EditorController implements EditorUI {
   }
 
   /**
-   * TURN THE NEAR-MATCH FILTER ON OR OFF.
+   * APPLY THE NEAR FILTER AT THE SELECTED TOLERANCE - the one place the shortlist is built.
    *
-   * ON: the picker holds the named formations whose spots are within the ENGINE's relaxed margin of this end, nearest
-   * first, and the status line says how many of how many and which is closest - or that none is, which is the measurement
-   * "this is a completely new formation" the request asked for. OFF: the whole list, unchanged.
+   * Asked for as: "Change the edEndNearFilter button to a selector that defines the tolerance of the filter ... Display
+   * just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value of 0.2 ... Keep the current logic that only
+   * shows it if there is no exact match."
    *
-   * THE COUNT COMES FROM THE SAME CALL THE LIST DOES (`nearEndFormations`), so the sentence cannot describe a list the
-   * picker is not showing.
+   * THE COUNT COMES FROM THE SAME CALL THE LIST DOES (`nearEndFormations`, with the chosen row's two numbers), so the
+   * sentence cannot describe a list the picker is not showing - and the sentence prints the margin it actually searched,
+   * because "no matches" without the margin is indistinguishable from a broken list.
    */
-  private setEndNearOnly(on: boolean) {
+  private setEndNearFilter() {
     const call = this.instance;
-    if (!on || call === null) {
-      this.endNearOnly = false;
-      this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
+    const tol = nearFilterChoice(parseFloat(this.endNearFilterSel.value));
+    if (call === null) {
       this.endNear = null;
       this.fillEndFormationOptions(null);
-      this.statusEl.textContent = 'End setup list: every named formation of this call\'s size';
       return;
     }
-    this.endNearOnly = true;
-    this.endNearFilterBtn.setAttribute('aria-pressed', 'true');
     const formations = this.host.startFormations(call.dancers.length);
-    this.endNear = nearEndFormations(call, formations);
+    this.endNear = nearEndFormations(call, formations, tol);
     this.fillEndFormationOptions(this.endNear.map((f) => f.name));
     this.statusEl.textContent = nearFilterNote(
       this.endNear.length,
       formations.length,
-      NEAR_END_BOARD_TOL,
+      tol,
       this.endNear[0]?.name ?? null,
     );
   }
@@ -5180,14 +5181,13 @@ export class EditorController implements EditorUI {
       this.endInfoFid = formationId(end);
       this.endInfoAid = arrangementId(end);
       let refill = false;
-      // A DIFFERENT END BOARD RETIRES A FILTERED LIST. The near matches were a claim about the finish that has just
-      // moved, so the shortlist cannot stay on screen: the row goes back to the whole list, and the caller can press the
-      // filter again for the new board. Dropping the STATE here rather than re-running the search keeps a render from
-      // walking the corpus - the box's filter is a click, not a frame.
-      if (this.endNearOnly) {
-        this.endNearOnly = false;
+      // A DIFFERENT END BOARD RETIRES THE SHORTLIST. The near matches were a claim about the finish that has just moved,
+      // so the list cannot stay: dropping the STATE here (rather than re-running the search inside this hot path) makes
+      // `renderEndSetupState` rebuild it for the NEW board at the tolerance still on the control. MEASURED: one search is
+      // 4 ms over the 219 eight-dancer formations (the slowest of the four rows,
+      // `poc/tools/end-near-filter-probe.mjs`), so a handle drag pays it once per changed board rather than per frame.
+      if (this.endNear !== null) {
         this.endNear = null;
-        this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
         refill = true;
       }
       // AND THE ID CAPTIONS ARE REBUILT ONLY WHEN THE IDENTITY MOVES, not on every frame: a handle drag changes the end
@@ -5259,15 +5259,22 @@ export class EditorController implements EditorUI {
     // (`showsNearFilter`, the same `name` the placeholder is built from, so the two cannot disagree). A named end already
     // opens on its formation, and a filter over that list could only hide the entry the row is pointing at.
     const near = showsNearFilter(info.name);
-    this.endNearFilterBtn.hidden = !near;
-    if (!near && this.endNearOnly) {
-      // The end became NAMED with the filter on: the list goes back to the whole corpus, because the filter's premise
-      // ("nothing names this shape") is gone.
-      this.endNearOnly = false;
-      this.endNear = null;
-      this.endNearFilterBtn.setAttribute('aria-pressed', 'false');
-      this.fillEndFormationOptions(null);
+    this.endNearFilterSel.hidden = !near;
+    if (!near) {
+      // The end became NAMED with a shortlist on screen: the list goes back to the whole corpus, because the filter's
+      // premise ("nothing names this shape") is gone.
+      if (this.endNear !== null) {
+        this.endNear = null;
+        this.fillEndFormationOptions(null);
+        return;
+      }
+      return;
     }
+    // VISIBLE MEANS FILTERED AT THE SELECTED TOLERANCE. The search runs once per board - `endNear` is the memory of that -
+    // so the first render after a load or a moved end applies the row on the control, and a later `change` re-applies it.
+    // `call !== null` IS LOAD-BEARING: with no instance there is nothing to search, `endNear` would stay null, and the fill
+    // that `setEndNearFilter` performs ends in this method again - an ENDLESS loop on the panel's error path.
+    if (call !== null && this.endNear === null) this.setEndNearFilter();
   }
 
   /** Start a NEW setup from the catalogue instance, rather than editing the existing one. */
@@ -6463,7 +6470,7 @@ export class EditorController implements EditorUI {
     this.exportEndFormationBtn.addEventListener('click', () => this.doExportEndFormation());
     // THE END ROW'S NEAR FILTER. Offered (and so visible) only for an unnamed end; pressing it swaps the picker between
     // the whole corpus list and the formations this finish is within the engine's relaxed margin of.
-    this.endNearFilterBtn.addEventListener('click', () => this.setEndNearOnly(!this.endNearOnly));
+    this.endNearFilterSel.addEventListener('change', () => this.setEndNearFilter());
     this.exportAllBtn.addEventListener('click', () => this.doExportAll());
     this.showTargetBtn.addEventListener('click', () => this.showTarget());
     this.showEndBtn.addEventListener('click', () => this.showEnd());

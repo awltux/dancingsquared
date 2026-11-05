@@ -49,6 +49,50 @@
 export const KEEP_END_PLACEHOLDER = '— keep the current end —';
 
 /**
+ * THE TOLERANCES THE NEAR FILTER OFFERS, as one table: how far out it looks, in board units and radians.
+ *
+ * Asked for as: "Change the edEndNearFilter button to a selector that defines the tolerance of the filter. The default
+ * would be its current hard-coded values. Display just the options [0.2, 0.4, 0.6, 0.8], defaulting to the current value
+ * of 0.2. The radian tolerances should also increment [0.3, 0.5, 0.7, 0.9]."
+ *
+ * THE FIRST ROW IS THE ENGINE'S OWN `NEAR_END_BOARD_TOL` (0.2 units / 0.3 rad), which is what the filter searched with
+ * before it had a selector - so the default is the old behaviour rather than a new guess - and the four headings step by
+ * the same 0.1 as the four positions, which keeps the pairs 1:1 with no fifth row to forget.
+ *
+ * WHY A FOUR-ROW TABLE AND NOT A SLIDER: the choice is the whole vocabulary of the answer ("how far outside the shape am
+ * I willing to look"), and a caller stepping through it has to see where the net widened from. `nearFilterNote` prints
+ * the margin either way, so whatever is in force is on screen.
+ *
+ * The table lives here, with the wording, because both are claims about this ROW: the panel reads a row and hands its two
+ * numbers to the engine's search, and a probe drives the pair without a DOM.
+ */
+export interface NearFilterChoice {
+  /** How far a dancer may be from a spot, in board units. */
+  readonly position: number;
+  /** How far its facing may be from that spot's, in radians. */
+  readonly heading: number;
+}
+
+export const NEAR_FILTER_CHOICES: readonly NearFilterChoice[] = [
+  { position: 0.2, heading: 0.3 },
+  { position: 0.4, heading: 0.5 },
+  { position: 0.6, heading: 0.7 },
+  { position: 0.8, heading: 0.9 },
+];
+
+/**
+ * THE ROW FOR A PICKER VALUE - and anything that is not one of the four lands on the FIRST row rather than throwing: a
+ * select's value is a string from the markup, and a stale or hand-edited one must search with the measured default rather
+ * than with `NaN` (which would quietly match nothing and read as "no formation is close").
+ */
+export function nearFilterChoice(position: number): NearFilterChoice {
+  for (const choice of NEAR_FILTER_CHOICES) {
+    if (choice.position === position) return choice;
+  }
+  return NEAR_FILTER_CHOICES[0];
+}
+
+/**
  * What that option says instead when the corpus cannot name the setup the call finishes on.
  *
  * IT SAYS "SETUP", NOT "FORMATION", and the shorter word is the true one for this row: a FORMATION is the shape, while
